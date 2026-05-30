@@ -92,6 +92,7 @@ impl fmt::Display for ResourceId {
 
 /// Type-safe RDF Literal with datatype enforcement
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[allow(clippy::derive_partial_eq_without_eq)]
 pub enum Literal {
     String(String),
     Integer(i64),
@@ -130,7 +131,7 @@ impl Literal {
 /// Type-safe RDF Triple
 ///
 /// Guaranteed to have valid subject, predicate, and object
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Triple {
     subject: ResourceId,
     predicate: ResourceId,
@@ -139,7 +140,7 @@ pub struct Triple {
 }
 
 /// KGC-4D Metadata for a triple
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Kgc4dMetadata {
     pub observable: ResourceId,
     pub timestamp: String,
@@ -147,7 +148,7 @@ pub struct Kgc4dMetadata {
     pub commit_hash: String,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TripleObject {
     Resource(ResourceId),
     Literal(Literal),
@@ -762,7 +763,7 @@ impl ValidationConstraint {
 }
 
 /// POKA YOKE Error types
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum PokaYokeError {
     InvalidUri(String),
     MissingSubject,

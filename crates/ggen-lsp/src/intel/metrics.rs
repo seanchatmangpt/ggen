@@ -17,6 +17,8 @@ use super::history::{PromotionHistory, RouteStatus};
 use super::log::IntelLog;
 
 /// A metric value that is honest about missing evidence.
+#[allow(clippy::derive_partial_eq_without_eq)]
+/// PartialEq without Eq: MetricValue contains f64 which doesn't impl Eq.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize)]
 #[serde(untagged)]
 pub enum MetricValue {

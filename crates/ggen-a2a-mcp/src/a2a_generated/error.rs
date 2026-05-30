@@ -365,6 +365,8 @@ impl AgentError {
 pub type A2AResult<T> = Result<T, AgentError>;
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
+/// Test module: unwrap() acceptable for test setup. Generated code from template.
 mod tests {
     use super::*;
     use std::io;

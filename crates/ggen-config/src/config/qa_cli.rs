@@ -580,6 +580,9 @@ impl Default for QaCliManager {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
+/// Test module: unwrap() acceptable for test assertions after checking is_ok().
+/// These unwraps are safe because they follow is_ok() checks in the same test.
 mod tests {
     use super::*;
 

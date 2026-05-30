@@ -480,6 +480,8 @@ impl Default for MessageConverter {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
+/// Test module: unwrap() acceptable for test setup. Generated code from template.
 mod tests {
     use super::*;
 

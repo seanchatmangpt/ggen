@@ -31,7 +31,7 @@ pub struct AuthorizationRequirements {
 /// This interface consolidates basic and rich agent patterns into a single,
 /// extensible format that maintains backward compatibility while dramatically
 /// reducing interface duplication and semantic overlap.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct UnifiedAgent {
     /// Core agent identity (immutable)
     pub identity: AgentIdentity,
@@ -57,7 +57,7 @@ pub struct UnifiedAgent {
 }
 
 /// Core agent identity
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AgentIdentity {
     /// Unique agent identifier
     pub id: String,
@@ -81,7 +81,7 @@ pub struct AgentIdentity {
 }
 
 /// Unified agent capabilities eliminating redundancy
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AgentCapabilities {
     /// Primary agent capabilities
     pub primary: Vec<Capability>,
@@ -109,7 +109,7 @@ pub struct AgentCapabilities {
 }
 
 /// Agent capability definition
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Capability {
     /// Capability name
     pub name: String,
@@ -131,7 +131,7 @@ pub struct Capability {
 }
 
 /// Agent protocols supported
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum AgentProtocol {
     /// HTTP/HTTPS protocol
@@ -149,7 +149,7 @@ pub enum AgentProtocol {
 }
 
 /// Data formats supported
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum DataFormat {
     /// JSON format
@@ -167,7 +167,7 @@ pub enum DataFormat {
 }
 
 /// Quality of service levels
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum QoSLevel {
     /// Best effort delivery
@@ -183,7 +183,7 @@ pub enum QoSLevel {
 }
 
 /// Resource constraints
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ResourceConstraints {
     /// Memory constraints
     pub memory: Option<ResourceLimit>,
@@ -203,7 +203,7 @@ pub struct ResourceConstraints {
 }
 
 /// Resource limit definition
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ResourceLimit {
     /// Minimum resource requirement
     pub min: Option<u64>,
@@ -219,7 +219,7 @@ pub struct ResourceLimit {
 }
 
 /// Resource units
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum ResourceUnit {
     /// Bytes
@@ -237,7 +237,7 @@ pub enum ResourceUnit {
 }
 
 /// Agent lifecycle state
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AgentLifecycle {
     /// Current lifecycle state
     pub state: AgentState,
@@ -266,7 +266,7 @@ pub struct AgentLifecycle {
 }
 
 /// Agent states
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum AgentState {
     /// Agent created but not initialized
@@ -290,7 +290,7 @@ pub enum AgentState {
 }
 
 /// Agent health status
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AgentHealth {
     /// Overall health status
     pub status: HealthStatus,
@@ -317,7 +317,7 @@ pub struct AgentHealth {
 }
 
 /// Health status
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum HealthStatus {
     /// Healthy
@@ -333,7 +333,7 @@ pub enum HealthStatus {
 }
 
 /// Health metrics
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct HealthMetrics {
     /// Response time metrics
     #[serde(rename = "responseTime")]
@@ -353,7 +353,7 @@ pub struct HealthMetrics {
 }
 
 /// Response time metrics
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ResponseTimeMetrics {
     /// Average response time
     pub average: std::time::Duration,
@@ -374,7 +374,7 @@ pub struct ResponseTimeMetrics {
 }
 
 /// Error rate metrics
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ErrorRateMetrics {
     /// Error rate percentage
     pub rate: f64,
@@ -391,7 +391,7 @@ pub struct ErrorRateMetrics {
 }
 
 /// Error trend
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum ErrorTrend {
     /// Increasing error rate
@@ -424,7 +424,7 @@ pub struct ResourceUsageMetrics {
 }
 
 /// Throughput metrics
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ThroughputMetrics {
     /// Requests per second
     #[serde(rename = "requestsPerSecond")]
@@ -444,7 +444,7 @@ pub struct ThroughputMetrics {
 }
 
 /// Health warning
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct HealthWarning {
     /// Warning message
     pub message: String,
@@ -465,7 +465,7 @@ pub struct HealthWarning {
 }
 
 /// Warning severity
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum WarningSeverity {
     /// Informational warning
@@ -479,7 +479,7 @@ pub enum WarningSeverity {
 }
 
 /// Health error
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct HealthError {
     /// Error message
     pub message: String,
@@ -504,7 +504,7 @@ pub struct HealthError {
 }
 
 /// Error severity
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum ErrorSeverity {
     /// Low severity error
@@ -518,7 +518,7 @@ pub enum ErrorSeverity {
 }
 
 /// Agent state transition
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AgentStateTransition {
     /// Previous state
     pub from: AgentState,
@@ -540,7 +540,7 @@ pub struct AgentStateTransition {
 }
 
 /// Agent metrics
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AgentMetrics {
     /// Performance metrics
     pub performance: PerformanceMetrics,
@@ -562,7 +562,7 @@ pub struct AgentMetrics {
 }
 
 /// Performance metrics
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PerformanceMetrics {
     /// Processing time
     #[serde(rename = "processingTime")]
@@ -581,7 +581,7 @@ pub struct PerformanceMetrics {
 }
 
 /// Processing metrics
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ProcessingMetrics {
     /// Average processing time
     pub average: std::time::Duration,
@@ -598,7 +598,7 @@ pub struct ProcessingMetrics {
 }
 
 /// Response metrics
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ResponseMetrics {
     /// Average response time
     pub average: std::time::Duration,
@@ -619,7 +619,7 @@ pub struct ResponseMetrics {
 }
 
 /// Resource utilization metrics
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ResourceUtilizationMetrics {
     /// CPU utilization
     pub cpu: f64,
@@ -635,7 +635,7 @@ pub struct ResourceUtilizationMetrics {
 }
 
 /// Reliability metrics
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ReliabilityMetrics {
     /// Uptime percentage
     pub uptime: f64,
@@ -656,7 +656,7 @@ pub struct ReliabilityMetrics {
 }
 
 /// Efficiency metrics
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct EfficiencyMetrics {
     /// Cost efficiency
     #[serde(rename = "costEfficiency")]
@@ -676,7 +676,7 @@ pub struct EfficiencyMetrics {
 }
 
 /// Scalability metrics
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ScalabilityMetrics {
     /// Horizontal scalability
     #[serde(rename = "horizontal")]
@@ -695,7 +695,7 @@ pub struct ScalabilityMetrics {
 }
 
 /// Business metrics
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct BusinessMetrics {
     /// User satisfaction
     #[serde(rename = "userSatisfaction")]
@@ -714,7 +714,7 @@ pub struct BusinessMetrics {
 }
 
 /// Agent configuration
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AgentConfiguration {
     /// Configuration parameters
     pub parameters: HashMap<String, serde_json::Value>,
@@ -736,7 +736,7 @@ pub struct AgentConfiguration {
 }
 
 /// Configuration validation
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ConfigurationValidation {
     /// Validation status
     pub valid: bool,
@@ -751,7 +751,7 @@ pub struct ConfigurationValidation {
 }
 
 /// Validation error
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ValidationError {
     /// Error message
     pub message: String,
@@ -768,7 +768,7 @@ pub struct ValidationError {
 }
 
 /// Validation warning
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ValidationWarning {
     /// Warning message
     pub message: String,
@@ -785,7 +785,7 @@ pub struct ValidationWarning {
 }
 
 /// Agent dependencies
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AgentDependencies {
     /// Required dependencies
     pub required: Vec<Dependency>,
@@ -800,7 +800,7 @@ pub struct AgentDependencies {
 }
 
 /// Dependency definition
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Dependency {
     /// Dependency name
     pub name: String,
@@ -820,7 +820,7 @@ pub struct Dependency {
 }
 
 /// Dependency types
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum DependencyType {
     /// Software dependency
@@ -838,7 +838,7 @@ pub enum DependencyType {
 }
 
 /// Dependency status
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum DependencyStatus {
     /// Resolved
@@ -854,7 +854,7 @@ pub enum DependencyStatus {
 }
 
 /// Dependency resolution status
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum DependencyResolutionStatus {
     /// All dependencies resolved
@@ -868,7 +868,7 @@ pub enum DependencyResolutionStatus {
 }
 
 /// Agent timeouts
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AgentTimeouts {
     /// Initialization timeout
     #[serde(rename = "initialization")]
@@ -889,7 +889,7 @@ pub struct AgentTimeouts {
 }
 
 /// Agent communication interface
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AgentCommunication {
     /// Communication endpoints
     pub endpoints: Vec<CommunicationEndpoint>,
@@ -911,7 +911,7 @@ pub struct AgentCommunication {
 }
 
 /// Communication endpoint
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CommunicationEndpoint {
     /// Endpoint URL
     pub url: String,
@@ -929,7 +929,7 @@ pub struct CommunicationEndpoint {
 }
 
 /// Endpoint types
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum EndpointType {
     /// REST API endpoint
@@ -947,7 +947,7 @@ pub enum EndpointType {
 }
 
 /// Endpoint authentication
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum EndpointAuthentication {
     /// No authentication
@@ -965,7 +965,7 @@ pub enum EndpointAuthentication {
 }
 
 /// Message handlers
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct MessageHandlers {
     /// Request handlers
     pub request_handlers: Vec<MessageHandler>,
@@ -981,7 +981,7 @@ pub struct MessageHandlers {
 }
 
 /// Message handler
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct MessageHandler {
     /// Handler name
     pub name: String,
@@ -1001,7 +1001,7 @@ pub struct MessageHandler {
 }
 
 /// Handler types
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum HandlerType {
     /// Request handler
@@ -1017,7 +1017,7 @@ pub enum HandlerType {
 }
 
 /// Handler priority
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum HandlerPriority {
     /// Highest priority
@@ -1033,7 +1033,7 @@ pub enum HandlerPriority {
 }
 
 /// Communication security
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CommunicationSecurity {
     /// Security protocols
     pub protocols: Vec<SecurityProtocol>,
@@ -1049,7 +1049,7 @@ pub struct CommunicationSecurity {
 }
 
 /// Security protocols
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum SecurityProtocol {
     /// TLS protocol
@@ -1063,7 +1063,7 @@ pub enum SecurityProtocol {
 }
 
 /// Communication quality of service
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CommunicationQoS {
     /// Reliability level
     pub reliability: ReliabilityLevel,
@@ -1086,7 +1086,7 @@ pub struct CommunicationQoS {
 }
 
 /// Ordering requirements
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct OrderingRequirements {
     /// Ordering guarantee
     pub guarantee: OrderingGuarantee,
@@ -1101,7 +1101,7 @@ pub struct OrderingRequirements {
 }
 
 /// Ordering guarantees
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum OrderingGuarantee {
     /// No ordering guarantee
@@ -1115,7 +1115,7 @@ pub enum OrderingGuarantee {
 }
 
 /// Flow control requirements
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct FlowControlRequirements {
     /// Flow control type
     pub control_type: FlowControlType,
@@ -1133,7 +1133,7 @@ pub struct FlowControlRequirements {
 }
 
 /// Flow control types
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum FlowControlType {
     /// No flow control
@@ -1149,7 +1149,7 @@ pub enum FlowControlType {
 }
 
 /// Backpressure handling
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum BackpressureHandling {
     /// Drop messages
@@ -1165,7 +1165,7 @@ pub enum BackpressureHandling {
 }
 
 /// Agent execution interface
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AgentExecution {
     /// Execution mode
     pub mode: ExecutionMode,
@@ -1191,7 +1191,7 @@ pub struct AgentExecution {
 }
 
 /// Execution modes
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum ExecutionMode {
     /// Synchronous execution
@@ -1209,7 +1209,7 @@ pub enum ExecutionMode {
 }
 
 /// Execution context
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ExecutionContext {
     /// Context data
     pub data: HashMap<String, serde_json::Value>,
@@ -1228,7 +1228,7 @@ pub struct ExecutionContext {
 }
 
 /// Context lifecycle
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum ContextLifecycle {
     /// Transient context
@@ -1244,7 +1244,7 @@ pub enum ContextLifecycle {
 }
 
 /// Context validation
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ContextValidation {
     /// Validation rules
     pub rules: Vec<ValidationRule>,
@@ -1258,7 +1258,7 @@ pub struct ContextValidation {
 }
 
 /// Validation rule
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ValidationRule {
     /// Rule name
     pub name: String,
@@ -1277,7 +1277,7 @@ pub struct ValidationRule {
 }
 
 /// Validation rule types
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum ValidationRuleType {
     /// Required field validation
@@ -1293,7 +1293,7 @@ pub enum ValidationRuleType {
 }
 
 /// Validation actions
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum ValidationAction {
     /// Accept valid data
@@ -1309,7 +1309,7 @@ pub enum ValidationAction {
 }
 
 /// Validation severity
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum ValidationSeverity {
     /// Info level
@@ -1323,7 +1323,7 @@ pub enum ValidationSeverity {
 }
 
 /// Validation mode
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum ValidationMode {
     /// Strict validation
@@ -1335,7 +1335,7 @@ pub enum ValidationMode {
 }
 
 /// Validation results
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ValidationResults {
     /// Validation status
     pub status: ValidationStatus,
@@ -1354,7 +1354,7 @@ pub struct ValidationResults {
 }
 
 /// Validation status
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum ValidationStatus {
     /// Valid
@@ -1368,7 +1368,7 @@ pub enum ValidationStatus {
 }
 
 /// Execution strategy
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ExecutionStrategy {
     /// Strategy type
     pub strategy_type: StrategyType,
@@ -1386,7 +1386,7 @@ pub struct ExecutionStrategy {
 }
 
 /// Strategy types
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum StrategyType {
     /// Sequential strategy
@@ -1404,7 +1404,7 @@ pub enum StrategyType {
 }
 
 /// Execution monitoring
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ExecutionMonitoring {
     /// Monitoring metrics
     pub metrics: MonitoringMetrics,
@@ -1422,7 +1422,7 @@ pub struct ExecutionMonitoring {
 }
 
 /// Monitoring metrics
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct MonitoringMetrics {
     /// Performance metrics
     pub performance: PerformanceMetrics,
@@ -1440,7 +1440,7 @@ pub struct MonitoringMetrics {
 }
 
 /// Monitoring thresholds
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct MonitoringThresholds {
     /// Performance thresholds
     pub performance: Thresholds,
@@ -1458,7 +1458,7 @@ pub struct MonitoringThresholds {
 }
 
 /// Thresholds
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Thresholds {
     /// Warning threshold
     pub warning: f64,
@@ -1474,7 +1474,7 @@ pub struct Thresholds {
 }
 
 /// Comparison operators
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum ComparisonOperator {
     /// Greater than
@@ -1494,7 +1494,7 @@ pub enum ComparisonOperator {
 }
 
 /// Monitoring alert
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct MonitoringAlert {
     /// Alert name
     pub name: String,
@@ -1522,7 +1522,7 @@ pub struct MonitoringAlert {
 }
 
 /// Alert severity
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum AlertSeverity {
     /// Info alert
@@ -1536,7 +1536,7 @@ pub enum AlertSeverity {
 }
 
 /// Monitoring dashboard
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct MonitoringDashboard {
     /// Dashboard name
     pub name: String,
@@ -1557,7 +1557,7 @@ pub struct MonitoringDashboard {
 }
 
 /// Dashboard widget
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct DashboardWidget {
     /// Widget name
     pub name: String,
@@ -1576,7 +1576,7 @@ pub struct DashboardWidget {
 }
 
 /// Widget position
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct WidgetPosition {
     /// X coordinate
     pub x: u32,
@@ -1590,7 +1590,7 @@ pub struct WidgetPosition {
 }
 
 /// Widget size
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct WidgetSize {
     /// Width
     pub width: u32,
@@ -1603,7 +1603,7 @@ pub struct WidgetSize {
 }
 
 /// Execution policies
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ExecutionPolicies {
     /// Retry policy
     pub retry: RetryPolicy,
@@ -1624,7 +1624,7 @@ pub struct ExecutionPolicies {
 }
 
 /// Retry policy
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct RetryPolicy {
     /// Maximum retries
     pub max_retries: u32,
@@ -1641,7 +1641,7 @@ pub struct RetryPolicy {
 }
 
 /// Backoff strategies
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum BackoffStrategy {
     /// Fixed backoff
@@ -1655,7 +1655,7 @@ pub enum BackoffStrategy {
 }
 
 /// Retry condition
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct RetryCondition {
     /// Condition type
     pub condition_type: ConditionType,
@@ -1672,7 +1672,7 @@ pub struct RetryCondition {
 }
 
 /// Condition types
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum ConditionType {
     /// Error condition
@@ -1686,7 +1686,7 @@ pub enum ConditionType {
 }
 
 /// Retry actions
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum RetryAction {
     /// Retry
@@ -1700,7 +1700,7 @@ pub enum RetryAction {
 }
 
 /// Timeout policy
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct TimeoutPolicy {
     /// Timeout duration
     pub duration: std::time::Duration,
@@ -1717,7 +1717,7 @@ pub struct TimeoutPolicy {
 }
 
 /// Timeout types
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum TimeoutType {
     /// Operation timeout
@@ -1733,7 +1733,7 @@ pub enum TimeoutType {
 }
 
 /// Timeout behaviors
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum TimeoutBehavior {
     /// Fail fast
@@ -1747,7 +1747,7 @@ pub enum TimeoutBehavior {
 }
 
 /// Circuit breaker policy
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CircuitBreakerPolicy {
     /// Failure threshold
     pub failure_threshold: f64,
@@ -1767,7 +1767,7 @@ pub struct CircuitBreakerPolicy {
 }
 
 /// Circuit breaker status
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum CircuitBreakerStatus {
     /// Closed circuit
@@ -1781,7 +1781,7 @@ pub enum CircuitBreakerStatus {
 }
 
 /// Bulkhead policy
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct BulkheadPolicy {
     /// Max concurrent operations
     #[serde(rename = "maxConcurrentOps")]
@@ -1801,7 +1801,7 @@ pub struct BulkheadPolicy {
 }
 
 /// Agent security interface
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AgentSecurity {
     /// Authentication configuration
     pub authentication: AuthenticationConfig,
@@ -1825,7 +1825,7 @@ pub struct AgentSecurity {
 }
 
 /// Authentication configuration
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AuthenticationConfig {
     /// Authentication methods
     pub methods: Vec<AuthenticationMethod>,
@@ -1840,7 +1840,7 @@ pub struct AuthenticationConfig {
 }
 
 /// Authentication methods
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum AuthenticationMethod {
     /// Password authentication
@@ -1858,7 +1858,7 @@ pub enum AuthenticationMethod {
 }
 
 /// Authentication provider
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AuthenticationProvider {
     /// Provider name
     pub name: String,
@@ -1875,7 +1875,7 @@ pub struct AuthenticationProvider {
 }
 
 /// Provider types
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum ProviderType {
     /// LDAP provider
@@ -1889,7 +1889,7 @@ pub enum ProviderType {
 }
 
 /// Authorization configuration
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AuthorizationConfig {
     /// Authorization model
     pub model: AuthorizationModel,
@@ -1907,7 +1907,7 @@ pub struct AuthorizationConfig {
 }
 
 /// Authorization models
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum AuthorizationModel {
     /// Role-based access control
@@ -1921,7 +1921,7 @@ pub enum AuthorizationModel {
 }
 
 /// Authorization policy
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AuthorizationPolicy {
     /// Policy name
     pub name: String,
@@ -1941,7 +1941,7 @@ pub struct AuthorizationPolicy {
 }
 
 /// Policy types
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum PolicyType {
     /// Access policy
@@ -1955,7 +1955,7 @@ pub enum PolicyType {
 }
 
 /// Policy rule
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PolicyRule {
     /// Rule name
     pub name: String,
@@ -1975,7 +1975,7 @@ pub struct PolicyRule {
 }
 
 /// Policy effects
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum PolicyEffect {
     /// Allow access
@@ -1987,7 +1987,7 @@ pub enum PolicyEffect {
 }
 
 /// Authorization role
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AuthorizationRole {
     /// Role name
     pub name: String,
@@ -2005,7 +2005,7 @@ pub struct AuthorizationRole {
 }
 
 /// Permission
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Permission {
     /// Permission name
     pub name: String,
@@ -2022,7 +2022,7 @@ pub struct Permission {
 }
 
 /// Permission types
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum PermissionType {
     /// Read permission
@@ -2038,7 +2038,7 @@ pub enum PermissionType {
 }
 
 /// Permission scope
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum PermissionScope {
     /// Global scope
@@ -2052,7 +2052,7 @@ pub enum PermissionScope {
 }
 
 /// Encryption configuration
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct EncryptionConfig {
     /// Encryption algorithms
     pub algorithms: Vec<EncryptionAlgorithm>,
@@ -2069,7 +2069,7 @@ pub struct EncryptionConfig {
 }
 
 /// Encryption algorithms
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum EncryptionAlgorithm {
     /// AES algorithm
@@ -2083,7 +2083,7 @@ pub enum EncryptionAlgorithm {
 }
 
 /// Encryption key
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct EncryptionKey {
     /// Key name
     pub name: String,
@@ -2100,7 +2100,7 @@ pub struct EncryptionKey {
 }
 
 /// Key types
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum KeyType {
     /// Symmetric key
@@ -2116,7 +2116,7 @@ pub enum KeyType {
 }
 
 /// Encryption modes
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum EncryptionMode {
     /// ECB mode
@@ -2132,7 +2132,7 @@ pub enum EncryptionMode {
 }
 
 /// Audit configuration
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AuditConfig {
     /// Audit events
     pub events: Vec<AuditEvent>,
@@ -2149,7 +2149,7 @@ pub struct AuditConfig {
 }
 
 /// Audit events
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum AuditEvent {
     /// Authentication event
@@ -2165,7 +2165,7 @@ pub enum AuditEvent {
 }
 
 /// Audit destination
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AuditDestination {
     /// destination name
     pub name: String,
@@ -2182,7 +2182,7 @@ pub struct AuditDestination {
 }
 
 /// Destination types
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum DestinationType {
     /// File destination
@@ -2198,7 +2198,7 @@ pub enum DestinationType {
 }
 
 /// Audit retention
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AuditRetention {
     /// Retention period
     pub period: std::time::Duration,
@@ -2212,7 +2212,7 @@ pub struct AuditRetention {
 }
 
 /// Retention policies
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum RetentionPolicy {
     /// Permanent retention
@@ -2226,7 +2226,7 @@ pub enum RetentionPolicy {
 }
 
 /// Compliance configuration
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ComplianceConfig {
     /// Compliance frameworks
     pub frameworks: Vec<ComplianceFramework>,
@@ -2243,7 +2243,7 @@ pub struct ComplianceConfig {
 }
 
 /// Compliance frameworks
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum ComplianceFramework {
     /// GDPR compliance
@@ -2259,7 +2259,7 @@ pub enum ComplianceFramework {
 }
 
 /// Compliance standard
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ComplianceStandard {
     /// Standard name
     pub name: String,
@@ -2276,7 +2276,7 @@ pub struct ComplianceStandard {
 }
 
 /// Compliance requirement
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ComplianceRequirement {
     /// Requirement name
     pub name: String,
@@ -2293,7 +2293,7 @@ pub struct ComplianceRequirement {
 }
 
 /// Requirement types
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum RequirementType {
     /// Technical requirement
@@ -2307,7 +2307,7 @@ pub enum RequirementType {
 }
 
 /// Compliance control
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ComplianceControl {
     /// Control name
     pub name: String,
@@ -2324,7 +2324,7 @@ pub struct ComplianceControl {
 }
 
 /// Security policies
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SecurityPolicies {
     /// Access control policies
     #[serde(rename = "accessControl")]
@@ -2348,7 +2348,7 @@ pub struct SecurityPolicies {
 }
 
 /// Security policy
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SecurityPolicy {
     /// Policy name
     pub name: String,
@@ -2369,7 +2369,7 @@ pub struct SecurityPolicy {
 }
 
 /// Security rule
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SecurityRule {
     /// Rule name
     pub name: String,
@@ -2389,7 +2389,7 @@ pub struct SecurityRule {
 }
 
 /// Policy priority
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum PolicyPriority {
     /// Highest priority
@@ -2735,7 +2735,7 @@ mod tests {
 }
 
 /// Agent error types
-#[derive(Debug, Clone, PartialEq, thiserror::Error, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, thiserror::Error, Serialize, Deserialize)]
 pub enum AgentError {
     /// Agent configuration error
     #[error("Agent configuration error: {0}")]

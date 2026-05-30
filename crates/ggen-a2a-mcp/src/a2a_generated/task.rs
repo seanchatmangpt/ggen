@@ -7,7 +7,7 @@ use std::collections::HashMap;
 use std::time::Duration;
 
 /// Task represents a unit of work to be executed by agents
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 pub struct Task {
     /// Unique identifier for the task
@@ -67,7 +67,7 @@ pub trait TaskExecutor: Send + Sync {
 }
 
 /// Result of task execution
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 pub struct TaskResult {
     /// The original task ID
@@ -81,7 +81,7 @@ pub struct TaskResult {
 }
 
 /// Task execution error
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 pub struct TaskError {
     /// Error message
@@ -220,6 +220,8 @@ impl TaskExecutor for DefaultTaskExecutor {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
+/// Test module: unwrap() acceptable for test setup. Generated code from template.
 mod tests {
     use super::*;
 

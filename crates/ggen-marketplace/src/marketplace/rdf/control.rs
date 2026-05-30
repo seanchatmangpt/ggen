@@ -76,7 +76,7 @@ impl Default for CacheStats {
 }
 
 /// Query hash type for efficient cache lookups
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, Eq)]
 struct QueryHash {
     hash: u64,
     query_length: usize,

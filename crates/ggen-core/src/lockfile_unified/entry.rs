@@ -109,6 +109,8 @@ impl LockEntry for UnifiedLockEntry {
 }
 
 /// Source of a locked entry
+#[allow(clippy::derive_partial_eq_without_eq)]
+/// PartialEq without Eq: contains PathBuf which implements Eq.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(tag = "type")]
 pub enum LockSource {
@@ -173,6 +175,8 @@ impl std::fmt::Display for LockSource {
 }
 
 /// PQC signature data
+#[allow(clippy::derive_partial_eq_without_eq)]
+/// PartialEq without Eq: contains String which implements Eq.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct PqcSignature {
     /// Algorithm identifier (e.g., "ML-DSA-65", "Dilithium3")
@@ -202,6 +206,8 @@ impl PqcSignature {
 }
 
 /// Extended metadata for domain-specific needs
+#[allow(clippy::derive_partial_eq_without_eq)]
+/// PartialEq without Eq: contains DateTime and BTreeMap which implement Eq.
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 pub struct ExtendedMetadata {
     /// For ontology packs: namespace URI

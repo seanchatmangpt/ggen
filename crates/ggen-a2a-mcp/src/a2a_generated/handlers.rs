@@ -40,6 +40,8 @@ pub mod message_handler {
     }
 
     /// Unified handler result
+    /// Contains fields that don't impl Eq: HashMap, serde_json::Value
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Debug, Clone, PartialEq)]
     pub struct UnifiedHandlerResult {
         /// Response message (optional)
@@ -62,6 +64,8 @@ pub mod message_handler {
     }
 
     /// Unified handler error
+    /// Contains fields that don't impl Eq: HashMap, serde_json::Value
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Debug, Clone, PartialEq)]
     pub struct HandlerError {
         /// Error code
@@ -111,6 +115,8 @@ pub mod message_handler {
     }
 
     /// Handler actions
+    /// Contains fields that don't impl Eq: HashMap, serde_json::Value
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Debug, Clone, PartialEq)]
     pub enum HandlerAction {
         /// Send a response message
@@ -146,7 +152,7 @@ pub mod message_handler {
     }
 
     /// Task configuration
-    #[derive(Debug, Clone, PartialEq)]
+    #[derive(Debug, Clone, PartialEq, Eq)]
     pub struct TaskConfig {
         pub priority: MessagePriority,
         pub timeout: std::time::Duration,
@@ -155,6 +161,8 @@ pub mod message_handler {
     }
 
     /// Event configuration
+    /// Contains fields that don't impl Eq: HashMap, serde_json::Value
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Debug, Clone, PartialEq)]
     pub struct EventConfig {
         pub event_type: String,
@@ -801,6 +809,8 @@ pub mod message_handler {
     }
 
     #[cfg(test)]
+    #[allow(clippy::unwrap_used)]
+    /// Test module: unwrap() acceptable for test setup. Generated code from template.
     mod tests {
         use super::*;
 

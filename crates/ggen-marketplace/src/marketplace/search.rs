@@ -107,7 +107,7 @@ impl SearchQuery {
 }
 
 /// Sort order for search results
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Eq)]
 pub enum SortBy {
     /// Sort by relevance (default)
     Relevance,

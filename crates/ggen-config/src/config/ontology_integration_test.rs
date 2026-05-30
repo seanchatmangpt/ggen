@@ -1,6 +1,8 @@
 //! Integration tests for ontology configuration with ggen.toml and ggen.lock
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
+/// Integration test module: unwrap() used for test setup and assertions.
 mod tests {
     use crate::config::{
         AgentRole, CompositionMetadata, CompositionStrategy, HiveQueen, LockedPackage,

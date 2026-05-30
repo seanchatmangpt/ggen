@@ -118,7 +118,7 @@ impl Keyword {
 }
 
 /// Package category
-#[derive(Clone, Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Category(String);
 
 impl Category {
@@ -134,7 +134,7 @@ impl Category {
 }
 
 /// Package checksum
-#[derive(Clone, Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Checksum(String);
 
 impl Checksum {
@@ -150,7 +150,7 @@ impl Checksum {
 }
 
 /// Repository URL
-#[derive(Clone, Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct RepositoryUrl(String);
 
 impl RepositoryUrl {
@@ -172,7 +172,7 @@ impl RepositoryUrl {
 /// - Contains only alphanumeric, hyphens, and underscores
 /// - Does not start or end with hyphen
 /// - Lowercase
-#[derive(Clone, Debug, Eq, PartialEq, Hash, Serialize, Deserialize, Ord, PartialOrd)]
+#[derive(Clone, Debug, Eq, PartialEq, Eq, Hash, Serialize, Deserialize, Ord, PartialOrd)]
 pub struct PackageId(String);
 
 impl PackageId {
@@ -248,7 +248,7 @@ impl AsRef<str> for PackageId {
 /// - Valid semantic versioning (MAJOR.MINOR.PATCH)
 /// - Pre-release and build metadata supported
 /// - Sortable and comparable
-#[derive(Clone, Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct PackageVersion(String);
 
 impl PackageVersion {
@@ -351,7 +351,7 @@ impl Ord for PackageVersion {
 }
 
 /// Quality score (0-100)
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Eq, Ord, PartialOrd, Hash)]
 pub struct QualityScore(NonZeroU32);
 
 // Manual serialization/deserialization for QualityScore
@@ -427,7 +427,7 @@ impl fmt::Display for QualityScore {
 }
 
 /// Package metadata
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PackageMetadata {
     /// Unique identifier
     pub id: PackageId,
@@ -503,7 +503,7 @@ pub struct Manifest {
 }
 
 /// A package dependency
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PackageDependency {
     /// Dependency package ID
     pub id: PackageId,

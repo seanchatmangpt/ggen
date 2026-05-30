@@ -6,7 +6,7 @@
 use std::collections::HashMap;
 
 /// Message represents a communication between agents
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Message {
     /// Unique identifier for the message
     pub id: String,
@@ -50,7 +50,7 @@ pub enum MessageType {
 }
 
 /// Message payload structure
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MessagePayload {
     /// Message content
     pub content: serde_json::Value,
@@ -105,7 +105,7 @@ pub trait MessageHandler: Send + Sync {
 }
 
 /// Response to a message
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MessageResponse {
     /// Response status
     pub status: ResponseStatus,
@@ -385,6 +385,8 @@ impl MessageHandler for DefaultMessageHandler {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
+/// Test module: unwrap() acceptable for test setup. Generated code from template.
 mod tests {
     use super::*;
 

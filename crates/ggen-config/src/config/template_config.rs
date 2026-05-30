@@ -162,6 +162,8 @@ impl TemplateConfig {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
+/// Test module: unwrap() is acceptable in tests for setup and assertions.
 mod tests {
     use super::*;
 

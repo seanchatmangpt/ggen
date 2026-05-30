@@ -491,6 +491,9 @@ impl PortRegistry {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
+/// Test module: unwrap() is acceptable in tests for setup and assertions.
+/// Generated code from template.
 mod tests {
     use super::*;
 

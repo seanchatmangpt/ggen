@@ -134,6 +134,8 @@ impl TaskStateMachine {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
+/// Test module: unwrap() acceptable as transitions are validated in tests.
 mod tests {
     use super::*;
 

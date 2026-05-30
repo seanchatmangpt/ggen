@@ -478,6 +478,8 @@ impl HiveAgent {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
+/// Test module: unwrap() acceptable in async test setup.
 mod tests {
     use super::*;
     use crate::config::ontology_config::{CompositionStrategy, OntologyPackRef};
