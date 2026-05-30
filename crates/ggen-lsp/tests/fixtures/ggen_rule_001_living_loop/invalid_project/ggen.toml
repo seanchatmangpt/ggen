@@ -1,0 +1,20 @@
+[project]
+name = "rule001-living-loop-invalid"
+version = "0.1.0"
+
+[ontology]
+source = "schema/domain.ttl"
+
+[generation]
+
+[[generation.rules]]
+name = "items"
+query = { file = "queries/items.rq" }
+# `templates/missing.tera` does NOT exist on disk. This is a DANGLING rule
+# binding: the rule references a template file that is not present. It is the
+# FOUNDATIONAL binding-integrity defect GGEN-TPL-001/GGEN-OUT-001 presuppose —
+# both of those skip a rule whose bound file is missing. GGEN-RULE-001 surfaces
+# this previously-silent `RuleIndexEntry::issues` item as a live diagnostic on
+# this `ggen.toml` declaration surface.
+template = { file = "templates/missing.tera" }
+output_file = "out.txt"

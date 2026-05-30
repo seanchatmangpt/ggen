@@ -158,6 +158,7 @@ fn family_slug(family: RepairFamily) -> &'static str {
         RepairFamily::AdmissionFailure => "admission-failure",
         RepairFamily::LoadFailure => "load-failure",
         RepairFamily::ConfigValue => "config-value",
+        RepairFamily::RuleFileMissing => "rule-file-missing",
     }
 }
 

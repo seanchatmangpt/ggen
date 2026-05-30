@@ -384,6 +384,16 @@ pub fn check_files_in_root(root: &Path, paths: &[PathBuf], with_routes: bool) ->
     // `ggen.toml` yields no extra diagnostics).
     error_count += fold_out_001(root, &mut files, registry.as_ref());
 
+    // Cross-surface law: GGEN-RULE-001 (unbound rule file). The foundational
+    // binding-integrity check GGEN-TPL-001/GGEN-OUT-001 presuppose — a rule whose
+    // query/template {file=...} is missing on disk. The single-file analyzers
+    // cannot see a dangling rule binding; we supply that context by building the
+    // project index from `root` and surfacing its previously-silent
+    // `RuleIndexEntry::issues` channel. Read-only; best-effort (a missing
+    // `ggen.toml` yields no extra diagnostics). Appended LAST so the
+    // TPL→HARNESS→OUT fold order is unchanged.
+    error_count += fold_rule_001(root, &mut files, registry.as_ref());
+
     let route_summary = with_routes.then(|| summarize_routes(&files));
 
     CheckReport {
@@ -518,6 +528,29 @@ fn fold_out_001(
         return 0;
     };
     fold_species(files, registry, crate::analyzers::detect_out_001(&project))
+}
+
+/// Fold GGEN-RULE-001 (unbound-rule-file) diagnostics from the project index at
+/// `root` into `files`, returning the number of newly added ERROR diagnostics (so
+/// the caller can keep `error_count` exact).
+///
+/// For each `(manifest_path, diags)` the detector returns, the diagnostics are
+/// appended to the [`FileReport`] whose path matches that `ggen.toml` (added as a
+/// new report if the manifest is not already among `files`). When `registry` is
+/// `Some` (i.e. `--with-routes`), each appended diagnostic also gets its
+/// `RoutePlan` resolved through the SAME route engine as every other channel.
+///
+/// The FOUNDATIONAL binding-integrity check GGEN-TPL-001/GGEN-OUT-001 presuppose:
+/// it surfaces a rule's missing query/template file — the previously-silent
+/// [`crate::rule_index::RuleIndexEntry::issues`] — as a lawful diagnostic.
+/// Best-effort: a missing/unparseable `ggen.toml` yields no extra diagnostics.
+fn fold_rule_001(
+    root: &Path, files: &mut Vec<FileReport>, registry: Option<&crate::route::RouteRegistry>,
+) -> usize {
+    let Ok(project) = crate::project_index::ProjectIndex::from_root(root) else {
+        return 0;
+    };
+    fold_species(files, registry, crate::analyzers::detect_rule_001(&project))
 }
 
 /// Compare two filesystem path strings for "same file" identity. Tries exact

@@ -1,0 +1,17 @@
+[project]
+name = "rule001-living-loop-valid"
+version = "0.1.0"
+
+[ontology]
+source = "schema/domain.ttl"
+
+[generation]
+
+[[generation.rules]]
+name = "items"
+query = { file = "queries/items.rq" }
+# Both bound files exist on disk → zero GGEN-RULE-001. The template body
+# consumes only the projected `name`, so it also raises zero GGEN-TPL-001, and
+# the static `output_file` raises zero GGEN-OUT-001.
+template = { file = "templates/item.tera" }
+output_file = "out.txt"
