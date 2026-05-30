@@ -13,10 +13,37 @@ use tower_lsp::lsp_types::{
 
 pub use rdf_analyzer::{RdfAnalyzer, RdfFlavor};
 pub use sparql_analyzer::SparqlAnalyzer;
-pub use tera_analyzer::TeraAnalyzer;
+pub use tera_analyzer::{unbound_projection_diagnostics, TeraAnalyzer, GGEN_TPL_001};
 pub use toml_analyzer::TomlAnalyzer;
 
 use crate::state::FileType;
+
+/// Cross-surface GGEN-TPL-001 detection over a whole project index.
+///
+/// For each rule whose template content was resolved, run the pure
+/// [`unbound_projection_diagnostics`] detector against the rule's SPARQL
+/// `SELECT` variables. Rules with no resolved template content are skipped —
+/// a missing template is an index-level issue (Agent 1's `issues`), not
+/// GGEN-TPL-001. Reads/writes no files: the index already did the I/O.
+///
+/// The returned route is always source-law repair (handled by the route
+/// engine); diagnostics never target emitted output.
+#[must_use]
+pub fn detect_tpl_001(
+    project: &crate::project_index::ProjectIndex,
+) -> Vec<(std::path::PathBuf, Vec<Diagnostic>)> {
+    let mut out = Vec::new();
+    for entry in &project.rule_entries {
+        let Some(template) = entry.template_content.as_deref() else {
+            continue;
+        };
+        let diags = unbound_projection_diagnostics(template, &entry.selected_vars);
+        if !diags.is_empty() {
+            out.push((entry.template_path.clone().unwrap_or_default(), diags));
+        }
+    }
+    out
+}
 
 /// Build the appropriate analyzer for a document path + content, or `None` if the
 /// path is not a recognized ggen law surface. Shared by the interactive server

@@ -176,7 +176,7 @@ fn validate_schema(content: &str, report: &mut LintReport) {
     // Basic schema validation - check for common patterns
     if content.contains("rdf:") || content.contains("@prefix") {
         // Check for proper RDF structure
-        if content.contains("@prefix") && !content.contains(".") {
+        if content.contains("@prefix") && !content.contains('.') {
             report.warnings.push(LintWarning {
                 line: None,
                 message: "RDF prefixes should end with '.'".to_string(),

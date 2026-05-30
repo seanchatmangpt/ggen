@@ -6,9 +6,12 @@ use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
 /// Generate file tree from template
-pub fn generate_file_tree(
-    template_path: &Path, output_dir: &Path, variables: &HashMap<String, String>, force: bool,
-) -> Result<GenerationResult> {
+pub fn generate_file_tree<S>(
+    template_path: &Path, output_dir: &Path, variables: &HashMap<String, String, S>, force: bool,
+) -> Result<GenerationResult>
+where
+    S: std::hash::BuildHasher,
+{
     // Load and parse template
     let template = TemplateParser::parse_file(template_path).map_err(|e| {
         crate::utils::error::Error::new(&format!("Failed to parse template: {}", e))

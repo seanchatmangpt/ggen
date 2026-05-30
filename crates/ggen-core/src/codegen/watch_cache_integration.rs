@@ -39,22 +39,26 @@ impl WatchCacheIntegration {
         }
 
         Ok(AffectedRulesAnalysis {
-            manifest_changed: invalidation.manifest_changed,
-            ontology_changed: invalidation.ontology_changed,
-            inference_state_changed: invalidation.inference_state_changed,
+            changes: ChangeFlags {
+                dirty: DirtyArtifacts {
+                    manifest_changed: invalidation.artifact.manifest_changed,
+                    ontology_changed: invalidation.artifact.ontology_changed,
+                    inference_state_changed: invalidation.artifact.inference_state_changed,
+                },
+                rerun_all: invalidation.should_rerun_all,
+            },
             affected_rule_count: affected_rules.len(),
             unaffected_rule_count: unaffected_rules.len(),
             affected_rules,
             high_impact_rules,
             unaffected_rules,
-            rerun_all: invalidation.should_rerun_all,
         })
     }
 
     pub fn get_rule_execution_order(
         analysis: &AffectedRulesAnalysis, manifest: &GgenManifest,
     ) -> Vec<String> {
-        if analysis.rerun_all {
+        if analysis.changes.rerun_all {
             return manifest
                 .generation
                 .rules
@@ -80,20 +84,34 @@ impl WatchCacheIntegration {
         }
 
         let unaffected_ratio = analysis.unaffected_rule_count as f64 / total_rules as f64;
-        1.0 + (unaffected_ratio * 4.0)
+        unaffected_ratio.mul_add(4.0, 1.0)
     }
 }
 
-pub struct AffectedRulesAnalysis {
+/// Which workspace artifacts are dirty (≤3 bools)
+#[derive(Debug, Clone, Copy, Default)]
+pub struct DirtyArtifacts {
     pub manifest_changed: bool,
     pub ontology_changed: bool,
     pub inference_state_changed: bool,
+}
+
+/// Flags indicating what changed in the workspace
+#[derive(Debug, Clone, Copy, Default)]
+pub struct ChangeFlags {
+    /// Individual artifact dirty flags
+    pub dirty: DirtyArtifacts,
+    /// Re-run all rules (overrides individual flags)
+    pub rerun_all: bool,
+}
+
+pub struct AffectedRulesAnalysis {
+    pub changes: ChangeFlags,
     pub affected_rule_count: usize,
     pub unaffected_rule_count: usize,
     pub affected_rules: Vec<String>,
     pub high_impact_rules: Vec<String>,
     pub unaffected_rules: Vec<String>,
-    pub rerun_all: bool,
 }
 
 #[cfg(test)]
@@ -103,15 +121,15 @@ mod tests {
     #[test]
     fn test_speedup_calculation_no_changes() {
         let analysis = AffectedRulesAnalysis {
-            manifest_changed: false,
-            ontology_changed: false,
-            inference_state_changed: false,
+            changes: ChangeFlags {
+                dirty: DirtyArtifacts::default(),
+                rerun_all: false,
+            },
             affected_rule_count: 0,
             unaffected_rule_count: 10,
             affected_rules: vec![],
             high_impact_rules: vec![],
             unaffected_rules: (0..10).map(|i| format!("rule-{}", i)).collect(),
-            rerun_all: false,
         };
 
         let speedup = WatchCacheIntegration::estimate_speedup(&analysis, 10);
@@ -121,15 +139,18 @@ mod tests {
     #[test]
     fn test_speedup_calculation_all_changed() {
         let analysis = AffectedRulesAnalysis {
-            manifest_changed: true,
-            ontology_changed: false,
-            inference_state_changed: false,
+            changes: ChangeFlags {
+                dirty: DirtyArtifacts {
+                    manifest_changed: true,
+                    ..Default::default()
+                },
+                rerun_all: true,
+            },
             affected_rule_count: 10,
             unaffected_rule_count: 0,
             affected_rules: (0..10).map(|i| format!("rule-{}", i)).collect(),
             high_impact_rules: vec![],
             unaffected_rules: vec![],
-            rerun_all: true,
         };
 
         let speedup = WatchCacheIntegration::estimate_speedup(&analysis, 10);
@@ -196,15 +217,18 @@ mod tests {
         ];
 
         let analysis = AffectedRulesAnalysis {
-            manifest_changed: false,
-            ontology_changed: true,
-            inference_state_changed: false,
+            changes: ChangeFlags {
+                dirty: DirtyArtifacts {
+                    ontology_changed: true,
+                    ..Default::default()
+                },
+                rerun_all: false,
+            },
             affected_rule_count: 1,
             unaffected_rule_count: 1,
             affected_rules: vec!["rule-1".to_string()],
             high_impact_rules: vec!["rule-1".to_string()],
             unaffected_rules: vec!["rule-2".to_string()],
-            rerun_all: false,
         };
 
         let order = WatchCacheIntegration::get_rule_execution_order(&analysis, &manifest);

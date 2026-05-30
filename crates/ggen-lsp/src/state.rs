@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
@@ -80,6 +80,12 @@ pub struct ServerState {
     pending_repairs: Arc<Mutex<HashMap<(Url, String), String>>>,
     /// Last-published diagnostics per document, for new/disappeared diffing.
     published_diags: Arc<Mutex<HashMap<Url, Vec<Diagnostic>>>>,
+    /// Template URIs that received a GGEN-TPL-001 publish on the previous pass.
+    /// A later pass publishes an EMPTY set for those no longer flagged, so a
+    /// cross-surface repair (e.g. fixing the SPARQL query) clears the template's
+    /// stale squiggle AND lets `observe_diagnostics` record the disappearance as
+    /// a lawful transition (a clear is an event, not an absence).
+    tpl_flagged: Arc<Mutex<HashSet<Url>>>,
 }
 
 impl Default for ServerState {
@@ -108,7 +114,30 @@ impl ServerState {
             seq: Arc::new(AtomicU64::new(0)),
             pending_repairs: Arc::new(Mutex::new(HashMap::new())),
             published_diags: Arc::new(Mutex::new(HashMap::new())),
+            tpl_flagged: Arc::new(Mutex::new(HashSet::new())),
         }
+    }
+
+    /// Reconcile cross-surface GGEN-TPL-001 flagged templates for one edit.
+    ///
+    /// `current` is the set of template URIs that GGEN-TPL-001 fires for *now*
+    /// (all non-empty, from `detect_tpl_001`). `edited` is the document the user
+    /// just changed; it is already published on its own path, so it is excluded
+    /// here to avoid a double publish. Returns the template URIs that were flagged
+    /// on the PREVIOUS pass but are no longer flagged — the caller must publish an
+    /// EMPTY diagnostic set for each (through `observe_diagnostics`) so the
+    /// squiggle clears AND the repair becomes an observed lifecycle transition
+    /// (`RepairApplied → GatePassed → ReceiptEmitted`), not a silent absence.
+    /// Stores `current` as the flagged set for the next pass.
+    pub async fn tpl_clears_for(&self, edited: &Url, current: &HashSet<Url>) -> Vec<Url> {
+        let mut flagged = self.tpl_flagged.lock().await;
+        let cleared: Vec<Url> = flagged
+            .iter()
+            .filter(|&u| !current.contains(u) && *u != *edited)
+            .cloned()
+            .collect();
+        *flagged = current.clone();
+        cleared
     }
 
     fn next_seq(&self) -> u64 {

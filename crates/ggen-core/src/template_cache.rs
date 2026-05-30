@@ -85,9 +85,14 @@ impl TemplateCache {
     /// let default_cache = TemplateCache::default();
     /// # }
     /// ```
-    /// **QUICK WIN 3:** Default capacity increased to 5000 (from 100)
     pub fn new(capacity: usize) -> Self {
-        let cap = NonZeroUsize::new(capacity).unwrap_or(NonZeroUsize::new(5000).unwrap());
+        let cap = match NonZeroUsize::new(capacity) {
+            Some(nz) => nz,
+            None => match NonZeroUsize::new(5000) {
+                Some(nz) => nz,
+                None => unreachable!(),
+            },
+        };
         Self {
             cache: Arc::new(Mutex::new(LruCache::new(cap))),
             hits: Arc::new(Mutex::new(0)),

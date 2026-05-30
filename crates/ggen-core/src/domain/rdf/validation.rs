@@ -10,9 +10,7 @@ use std::collections::HashMap;
 use super::metadata::TemplateMetadata;
 
 /// SHACL validation result
-/// PartialEq without Eq: Vec<ValidationError> field implements Eq
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub enum ValidationResult {
     Valid,
     Invalid(Vec<ValidationError>),
@@ -20,8 +18,7 @@ pub enum ValidationResult {
 
 /// Validation error with details
 /// PartialEq without Eq: All fields (String, Option) implement Eq
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct ValidationError {
     pub severity: Severity,
     pub path: String,
@@ -30,7 +27,7 @@ pub struct ValidationError {
 }
 
 /// Error severity levels
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 pub enum Severity {
     Error,
     Warning,

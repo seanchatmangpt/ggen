@@ -127,7 +127,12 @@ impl PromptEmitter {
 
 impl Default for PromptEmitter {
     fn default() -> Self {
-        Self::new().expect("Failed to initialize PromptEmitter")
+        // SAFETY: PromptEmitter::new() only fails if the embedded Tera templates
+        // (compiled into the binary via include_str!) are syntactically invalid.
+        // This is a programmer error detectable at development time, not a runtime
+        // condition. Panicking here is the correct behavior — a broken binary
+        // should not silently produce a degraded emitter.
+        Self::new().unwrap_or_else(|e| panic!("invariant violated: embedded Tera templates are malformed: {e}"))
     }
 }
 

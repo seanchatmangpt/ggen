@@ -325,7 +325,7 @@ pub fn generate_from_rdf(
     }
 
     // Query for template metadata
-    let query = r#"
+    let query = r"
         PREFIX ggen: <https://ggen.io/marketplace/>
         SELECT ?template ?name ?description ?to
         WHERE {
@@ -335,7 +335,7 @@ pub fn generate_from_rdf(
             OPTIONAL { ?template ggen:outputPath ?to }
         }
         LIMIT 1
-    "#;
+    ";
 
     let results = graph
         .query_cached(query)
@@ -408,7 +408,7 @@ fn split_file_markers(content: &str, base_dir: &Path) -> Result<Vec<(PathBuf, St
             }
 
             // Start new file
-            let file_path = captures.get(1).unwrap().as_str();
+            let file_path = captures.get(1).map_or("", |m| m.as_str());
             let full_path = base_dir.join(file_path);
             current_file = Some(full_path);
             current_content.clear();

@@ -23,7 +23,7 @@ impl From<RuleSeverity> for Severity {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ValidationRule {
     pub id: String,
     pub query: String,

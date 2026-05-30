@@ -19,14 +19,14 @@ impl RdfMembraneProjector {
         // call parses an independent document, so prefix declarations do not persist
         // across calls — the prefixes and all triples must be in one document.
         let mut ttl = String::from(
-            r#"
+            r"
             @prefix mem: <http://ggen.org/membrane#> .
             @prefix prov: <http://www.w3.org/ns/prov#> .
             @prefix ocel: <http://www.ocel-standard.org/ns#> .
             @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
             @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
             @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-        "#,
+        ",
         );
 
         // 1. Project interchangeable parts as entities

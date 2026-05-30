@@ -143,7 +143,7 @@ impl BusinessLogicSeparator {
         let function_name = Self::to_snake_case(&format!("{}_{}", verb, noun));
 
         format!(
-            r#"//! CLI wrapper for {} {}
+            r"//! CLI wrapper for {} {}
 //!
 //! This is a thin synchronous wrapper that delegates to async business logic.
 
@@ -165,7 +165,7 @@ pub fn {}(args: {}Args) -> Result<()> {{
         {}(args).await
     }})
 }}
-"#,
+",
             verb,
             noun,
             module,
@@ -213,7 +213,7 @@ pub fn {}(args: {}Args) -> Result<()> {{
         let struct_name = Self::to_pascal_case(&format!("{}-{}", verb, noun));
 
         let template = format!(
-            r#"//! Business logic for {} {}
+            r"//! Business logic for {} {}
 //!
 //! This module contains the async business logic implementation.
 //! Modify this file freely - it will never be regenerated.
@@ -244,7 +244,7 @@ mod tests {{
         assert!(result.is_ok());
     }}
 }}
-"#,
+",
             verb,
             noun,
             verb,

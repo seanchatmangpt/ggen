@@ -448,13 +448,12 @@ impl TemplateFormat {
             ));
         }
 
-        self.validate_nodes(&self.tree)?;
+        Self::validate_nodes(&self.tree)?;
 
         Ok(())
     }
 
-    fn validate_nodes(&self, nodes: &[FileTreeNode]) -> Result<()> {
-        #![allow(clippy::only_used_in_recursion)]
+    fn validate_nodes(nodes: &[FileTreeNode]) -> Result<()> {
         for node in nodes {
             if node.name.is_empty() {
                 return Err(crate::utils::error::Error::new("Node name cannot be empty"));
@@ -482,7 +481,7 @@ impl TemplateFormat {
                             node.name
                         )));
                     }
-                    self.validate_nodes(&node.children)?;
+                    Self::validate_nodes(&node.children)?;
                 }
             }
         }

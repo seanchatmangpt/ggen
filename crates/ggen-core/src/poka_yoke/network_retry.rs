@@ -111,7 +111,7 @@ impl NetworkRetry {
         Self {
             max_retries,
             initial_backoff,
-            max_backoff: Duration::from_secs(60),
+            max_backoff: Duration::from_mins(1),
             circuit_breaker: Arc::new(Mutex::new(CircuitBreaker::new(5, Duration::from_secs(30)))),
         }
     }

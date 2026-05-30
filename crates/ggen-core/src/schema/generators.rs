@@ -17,38 +17,37 @@ impl JavaGenerator {
         let mut output = String::new();
 
         // Package declaration
-        writeln!(output, "package com.a2a.generated;").unwrap();
-        writeln!(output).unwrap();
+        let _ = writeln!(output, "package com.a2a.generated;");
+        let _ = writeln!(output);
 
         // Imports
-        writeln!(output, "import com.fasterxml.jackson.annotation.*;").unwrap();
-        writeln!(output, "import java.util.List;").unwrap();
-        writeln!(output, "import java.util.ArrayList;").unwrap();
-        writeln!(output).unwrap();
+        let _ = writeln!(output, "import com.fasterxml.jackson.annotation.*;");
+        let _ = writeln!(output, "import java.util.List;");
+        let _ = writeln!(output, "import java.util.ArrayList;");
+        let _ = writeln!(output);
 
         // Class Javadoc
         if let Some(desc) = &schema.description {
-            writeln!(output, "/**\n * {}\n */", desc).unwrap();
+            let _ = writeln!(output, "/**\n * {}\n */", desc);
         }
 
         // Class declaration
-        writeln!(output, "@JsonInclude(JsonInclude.Include.NON_NULL)").unwrap();
-        writeln!(output, "public class {} {{", schema.name).unwrap();
-        writeln!(output).unwrap();
+        let _ = writeln!(output, "@JsonInclude(JsonInclude.Include.NON_NULL)");
+        let _ = writeln!(output, "public class {} {{", schema.name);
+        let _ = writeln!(output);
 
         // Private fields
         for field in &schema.fields {
             if let Some(desc) = &field.description {
-                writeln!(output, "    /**\n     * {}\n     */", desc).unwrap();
+                let _ = writeln!(output, "    /**\n     * {}\n     */", desc);
             }
-            writeln!(
+            let _ = writeln!(
                 output,
                 "    private {} {};",
                 Self::field_type_to_java(&field.field_type),
                 Self::to_camel_case(&field.name)
-            )
-            .unwrap();
-            writeln!(output).unwrap();
+            );
+            let _ = writeln!(output);
         }
 
         // Getters and setters
@@ -57,40 +56,37 @@ impl JavaGenerator {
             let java_type = Self::field_type_to_java(&field.field_type);
 
             // Getter
-            writeln!(
+            let _ = writeln!(
                 output,
                 "    public {} get{}() {{",
                 java_type,
                 Self::capitalize(&field_name_camel)
-            )
-            .unwrap();
-            writeln!(output, "        return this.{};", field_name_camel).unwrap();
-            writeln!(output, "    }}").unwrap();
-            writeln!(output).unwrap();
+            );
+            let _ = writeln!(output, "        return this.{};", field_name_camel);
+            let _ = writeln!(output, "    }}");
+            let _ = writeln!(output);
 
             // Setter
-            writeln!(
+            let _ = writeln!(
                 output,
                 "    public void set{}({} {}) {{",
                 Self::capitalize(&field_name_camel),
                 java_type,
                 field_name_camel
-            )
-            .unwrap();
-            writeln!(
+            );
+            let _ = writeln!(
                 output,
                 "        this.{} = {};",
                 field_name_camel, field_name_camel
-            )
-            .unwrap();
-            writeln!(output, "    }}").unwrap();
-            writeln!(output).unwrap();
+            );
+            let _ = writeln!(output, "    }}");
+            let _ = writeln!(output);
         }
 
         // toString() method
-        writeln!(output, "    @Override").unwrap();
-        writeln!(output, "    public String toString() {{").unwrap();
-        writeln!(output, "        return \"{}{{\" +", schema.name).unwrap();
+        let _ = writeln!(output, "    @Override");
+        let _ = writeln!(output, "    public String toString() {{");
+        let _ = writeln!(output, "        return \"{}{{\" +", schema.name);
         let field_names: Vec<String> = schema
             .fields
             .iter()
@@ -98,17 +94,16 @@ impl JavaGenerator {
             .collect();
         for (i, field_name) in field_names.iter().enumerate() {
             let suffix = if i < field_names.len() - 1 { "," } else { "" };
-            writeln!(
+            let _ = writeln!(
                 output,
                 "                \"{}=\" + {}{}\"",
                 field_name, field_name, suffix
-            )
-            .unwrap();
+            );
         }
-        writeln!(output, "                \"}}\";").unwrap();
-        writeln!(output, "    }}").unwrap();
+        let _ = writeln!(output, "                \"}}\";");
+        let _ = writeln!(output, "    }}");
 
-        writeln!(output, "}}").unwrap();
+        let _ = writeln!(output, "}}");
 
         output
     }
@@ -156,51 +151,51 @@ impl ElixirGenerator {
         let mut output = String::new();
 
         // Module documentation
-        writeln!(output, "defmodule {} do", schema.name).unwrap();
-        writeln!(output, "  @moduledoc \"\"\"").unwrap();
+        let _ = writeln!(output, "defmodule {} do", schema.name);
+        let _ = writeln!(output, "  @moduledoc \"\"\"");
         if let Some(desc) = &schema.description {
-            writeln!(output, "  {}", desc).unwrap();
+            let _ = writeln!(output, "  {}", desc);
         } else {
-            writeln!(output, "  Auto-generated A2A schema: {}", schema.name).unwrap();
+            let _ = writeln!(output, "  Auto-generated A2A schema: {}", schema.name);
         }
-        writeln!(output, "  \"\"\"").unwrap();
-        writeln!(output).unwrap();
+        let _ = writeln!(output, "  \"\"\"");
+        let _ = writeln!(output);
 
         // defstruct
-        writeln!(output, "  defstruct [").unwrap();
+        let _ = writeln!(output, "  defstruct [");
         for (i, field) in schema.fields.iter().enumerate() {
             let comma = if i < schema.fields.len() - 1 { "," } else { "" };
-            writeln!(output, "    :{}{}", field.name, comma).unwrap();
+            let _ = writeln!(output, "    :{}{}", field.name, comma);
         }
-        writeln!(output, "  ]").unwrap();
-        writeln!(output).unwrap();
+        let _ = writeln!(output, "  ]");
+        let _ = writeln!(output);
 
         // @type spec
-        writeln!(output, "  @type t :: %__MODULE__{{").unwrap();
+        let _ = writeln!(output, "  @type t :: %__MODULE__{{");
         for field in &schema.fields {
             let elixir_type = Self::field_type_to_elixir(&field.field_type, field.optional);
-            writeln!(output, "    {}: {},", field.name, elixir_type).unwrap();
+            let _ = writeln!(output, "    {}: {},", field.name, elixir_type);
         }
-        writeln!(output, "  }}").unwrap();
-        writeln!(output).unwrap();
+        let _ = writeln!(output, "  }}");
+        let _ = writeln!(output);
 
         // Constructor function
-        writeln!(output, "  @doc \"\"\"").unwrap();
-        writeln!(output, "  Create a new {} struct", schema.name).unwrap();
-        writeln!(output, "  \"\"\"").unwrap();
-        writeln!(output, "  def new(fields \\\\ %{{}}) do").unwrap();
-        writeln!(output, "    struct = struct!(__MODULE__, fields)").unwrap();
-        writeln!(output, "    {{:ok, struct}}").unwrap();
-        writeln!(output, "  rescue").unwrap();
-        writeln!(output, "    error -> {{:error, error}}").unwrap();
-        writeln!(output, "  end").unwrap();
-        writeln!(output).unwrap();
+        let _ = writeln!(output, "  @doc \"\"\"");
+        let _ = writeln!(output, "  Create a new {} struct", schema.name);
+        let _ = writeln!(output, "  \"\"\"");
+        let _ = writeln!(output, "  def new(fields \\\\ %{{}}) do");
+        let _ = writeln!(output, "    struct = struct!(__MODULE__, fields)");
+        let _ = writeln!(output, "    {{:ok, struct}}");
+        let _ = writeln!(output, "  rescue");
+        let _ = writeln!(output, "    error -> {{:error, error}}");
+        let _ = writeln!(output, "  end");
+        let _ = writeln!(output);
 
         // Validation function
-        writeln!(output, "  @doc \"\"\"").unwrap();
-        writeln!(output, "  Validate required fields").unwrap();
-        writeln!(output, "  \"\"\"").unwrap();
-        writeln!(
+        let _ = writeln!(output, "  @doc \"\"\"");
+        let _ = writeln!(output, "  Validate required fields");
+        let _ = writeln!(output, "  \"\"\"");
+        let _ = writeln!(
             output,
             "  def validate(%__MODULE__{} = struct) do",
             schema
@@ -209,29 +204,28 @@ impl ElixirGenerator {
                 .map(|f| format!("{}: _", f.name))
                 .collect::<Vec<_>>()
                 .join(", ")
-        )
-        .unwrap();
-        writeln!(output, "    required = [").unwrap();
+        );
+        let _ = writeln!(output, "    required = [");
         for field in schema.fields.iter().filter(|f| !f.optional) {
-            writeln!(output, "      :{},", field.name).unwrap();
+            let _ = writeln!(output, "      :{},", field.name);
         }
-        writeln!(output, "    ]").unwrap();
-        writeln!(output).unwrap();
-        writeln!(output, "    missing = required -- Map.keys(struct)").unwrap();
-        writeln!(output).unwrap();
-        writeln!(output, "    if Enum.empty?(missing) do").unwrap();
-        writeln!(output, "      {{:ok, struct}}").unwrap();
-        writeln!(output, "    else").unwrap();
-        writeln!(output, "      {{:error, {{:missing_fields, missing}}}}").unwrap();
-        writeln!(output, "    end").unwrap();
-        writeln!(output, "  end").unwrap();
-        writeln!(output).unwrap();
+        let _ = writeln!(output, "    ]");
+        let _ = writeln!(output);
+        let _ = writeln!(output, "    missing = required -- Map.keys(struct)");
+        let _ = writeln!(output);
+        let _ = writeln!(output, "    if Enum.empty?(missing) do");
+        let _ = writeln!(output, "      {{:ok, struct}}");
+        let _ = writeln!(output, "    else");
+        let _ = writeln!(output, "      {{:error, {{:missing_fields, missing}}}}");
+        let _ = writeln!(output, "    end");
+        let _ = writeln!(output, "  end");
+        let _ = writeln!(output);
 
         // JSON encoding helper
-        writeln!(output, "  @doc \"\"\"").unwrap();
-        writeln!(output, "  Encode to JSON").unwrap();
-        writeln!(output, "  \"\"\"").unwrap();
-        writeln!(
+        let _ = writeln!(output, "  @doc \"\"\"");
+        let _ = writeln!(output, "  Encode to JSON");
+        let _ = writeln!(output, "  \"\"\"");
+        let _ = writeln!(
             output,
             "  def to_json(%__MODULE__{} = struct) do",
             schema
@@ -240,12 +234,11 @@ impl ElixirGenerator {
                 .map(|f| format!("{}: _", f.name))
                 .collect::<Vec<_>>()
                 .join(", ")
-        )
-        .unwrap();
-        writeln!(output, "    Jason.encode!(struct)").unwrap();
-        writeln!(output, "  end").unwrap();
+        );
+        let _ = writeln!(output, "    Jason.encode!(struct)");
+        let _ = writeln!(output, "  end");
 
-        writeln!(output, "end").unwrap();
+        let _ = writeln!(output, "end");
 
         output
     }
@@ -282,41 +275,40 @@ impl TypeScriptGenerator {
         let mut output = String::new();
 
         // File header
-        writeln!(output, "/**").unwrap();
-        writeln!(
+        let _ = writeln!(output, "/**");
+        let _ = writeln!(
             output,
             " * Auto-generated TypeScript interface from A2A schema: {}",
             schema.name
-        )
-        .unwrap();
+        );
         if let Some(desc) = &schema.description {
-            writeln!(output, " * {}", desc).unwrap();
+            let _ = writeln!(output, " * {}", desc);
         }
-        writeln!(output, " */").unwrap();
-        writeln!(output).unwrap();
+        let _ = writeln!(output, " */");
+        let _ = writeln!(output);
 
         // Interface declaration
-        writeln!(output, "/**").unwrap();
+        let _ = writeln!(output, "/**");
         if let Some(desc) = &schema.description {
-            writeln!(output, " * {}", desc).unwrap();
+            let _ = writeln!(output, " * {}", desc);
         } else {
-            writeln!(output, " * {} interface", schema.name).unwrap();
+            let _ = writeln!(output, " * {} interface", schema.name);
         }
-        writeln!(output, " */").unwrap();
-        writeln!(output, "export interface {} {{", schema.name).unwrap();
+        let _ = writeln!(output, " */");
+        let _ = writeln!(output, "export interface {} {{", schema.name);
 
         // Properties
         for field in &schema.fields {
             if let Some(desc) = &field.description {
-                writeln!(output, "  /** {} */", desc).unwrap();
+                let _ = writeln!(output, "  /** {} */", desc);
             }
             let optional_marker = if field.optional { "?" } else { "" };
             let ts_type = Self::field_type_to_typescript(&field.field_type);
-            writeln!(output, "  {}{}: {};", field.name, optional_marker, ts_type).unwrap();
-            writeln!(output).unwrap();
+            let _ = writeln!(output, "  {}{}: {};", field.name, optional_marker, ts_type);
+            let _ = writeln!(output);
         }
 
-        writeln!(output, "}}").unwrap();
+        let _ = writeln!(output, "}}");
 
         output
     }
@@ -372,20 +364,20 @@ impl RustGenerator {
         let mut output = String::new();
 
         if let Some(desc) = &schema.description {
-            writeln!(output, "/// {}", desc).unwrap();
+            let _ = writeln!(output, "/// {}", desc);
         }
-        writeln!(output, "#[derive(Debug, Clone, Serialize, Deserialize)]").unwrap();
-        writeln!(output, "pub struct {} {{", schema.name).unwrap();
+        let _ = writeln!(output, "#[derive(Debug, Clone, Serialize, Deserialize)]");
+        let _ = writeln!(output, "pub struct {} {{", schema.name);
 
         for field in &schema.fields {
             if let Some(desc) = &field.description {
-                writeln!(output, "    /// {}", desc).unwrap();
+                let _ = writeln!(output, "    /// {}", desc);
             }
             let rust_type = Self::field_type_to_rust(&field.field_type, field.optional);
-            writeln!(output, "    pub {}: {},", field.name, rust_type).unwrap();
+            let _ = writeln!(output, "    pub {}: {},", field.name, rust_type);
         }
 
-        writeln!(output, "}}").unwrap();
+        let _ = writeln!(output, "}}");
         output
     }
 
@@ -419,9 +411,9 @@ impl GoGenerator {
         let mut output = String::new();
 
         if let Some(desc) = &schema.description {
-            writeln!(output, "// {} describes the request.", desc).unwrap();
+            let _ = writeln!(output, "// {} describes the request.", desc);
         }
-        writeln!(output, "type {} struct {{", schema.name).unwrap();
+        let _ = writeln!(output, "type {} struct {{", schema.name);
 
         for field in &schema.fields {
             let go_type = Self::field_type_to_go(&field.field_type, field.optional);
@@ -430,17 +422,16 @@ impl GoGenerator {
             } else {
                 field.name.clone()
             };
-            writeln!(
+            let _ = writeln!(
                 output,
                 "    {} {} `json:\"{}\"`",
                 Self::capitalize(&field.name),
                 go_type,
                 json_tag
-            )
-            .unwrap();
+            );
         }
 
-        writeln!(output, "}}").unwrap();
+        let _ = writeln!(output, "}}");
         output
     }
 
@@ -578,7 +569,7 @@ mod tests {
 
     #[test]
     #[ignore = "JSON Schema parsing not yet implemented; enable when SchemaParser::from_json_schema is implemented"]
-    fn test_nested_schema() {
+    fn test_nested_schema() -> Result<(), String> {
         let json_schema = r#"
         {
             "title": "NestedRequest",
@@ -599,11 +590,12 @@ mod tests {
         }
         "#;
 
-        let schema = SchemaParser::from_json_schema(json_schema).unwrap();
+        let schema = SchemaParser::from_json_schema(json_schema)?;
         assert_eq!(schema.name, "NestedRequest");
         assert_eq!(schema.fields.len(), 2);
 
         let java = schema.to_java_class();
         assert!(java.contains("private List<String> items;"));
+        Ok(())
     }
 }

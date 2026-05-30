@@ -63,19 +63,37 @@ pub enum LoggingError {
     IoError(#[from] std::io::Error),
 }
 
-/// Security logger configuration
-#[derive(Debug, Clone)]
-pub struct SecurityLoggerConfig {
+/// Boolean feature enables for security logging
+#[derive(Debug, Clone, Copy)]
+pub struct SecurityFeatures {
     /// Enable audit trail
     pub enable_audit: bool,
-    /// Repository path for audit trail
-    pub audit_repo_path: Option<PathBuf>,
     /// Enable intrusion detection
     pub enable_intrusion_detection: bool,
     /// Enable metrics collection
     pub enable_metrics: bool,
     /// Enable alerting
     pub enable_alerting: bool,
+}
+
+impl Default for SecurityFeatures {
+    fn default() -> Self {
+        Self {
+            enable_audit: true,
+            enable_intrusion_detection: true,
+            enable_metrics: true,
+            enable_alerting: true,
+        }
+    }
+}
+
+/// Security logger configuration
+#[derive(Debug, Clone)]
+pub struct SecurityLoggerConfig {
+    /// Feature enable flags
+    pub features: SecurityFeatures,
+    /// Repository path for audit trail
+    pub audit_repo_path: Option<PathBuf>,
     /// Alert log file path
     pub alert_log_path: Option<PathBuf>,
 }
@@ -83,10 +101,7 @@ pub struct SecurityLoggerConfig {
 impl Default for SecurityLoggerConfig {
     fn default() -> Self {
         Self {
-            enable_audit: true,
-            enable_intrusion_detection: true,
-            enable_metrics: true,
-            enable_alerting: true,
+            features: SecurityFeatures::default(),
             audit_repo_path: None,
             alert_log_path: None,
         }
@@ -120,7 +135,7 @@ impl SecurityLogger {
 
     /// Create a security logger with custom configuration
     pub fn with_config(config: SecurityLoggerConfig) -> Result<Self, LoggingError> {
-        let audit_trail = if config.enable_audit {
+        let audit_trail = if config.features.enable_audit {
             Some(if let Some(ref path) = config.audit_repo_path {
                 AuditTrail::with_repository(path.clone())?
             } else {
@@ -130,19 +145,19 @@ impl SecurityLogger {
             None
         };
 
-        let intrusion_detector = if config.enable_intrusion_detection {
+        let intrusion_detector = if config.features.enable_intrusion_detection {
             Some(IntrusionDetector::new()?)
         } else {
             None
         };
 
-        let metrics = if config.enable_metrics {
+        let metrics = if config.features.enable_metrics {
             Some(MetricsCollector::new())
         } else {
             None
         };
 
-        let alert_manager = if config.enable_alerting {
+        let alert_manager = if config.features.enable_alerting {
             let mut manager = AlertManager::new();
 
             // Register console handler
@@ -172,7 +187,10 @@ impl SecurityLogger {
     /// Create a security logger with repository-based audit trail
     pub fn with_repository(repo_path: PathBuf) -> Result<Self, LoggingError> {
         let config = SecurityLoggerConfig {
-            enable_audit: true,
+            features: SecurityFeatures {
+                enable_audit: true,
+                ..Default::default()
+            },
             audit_repo_path: Some(repo_path),
             ..Default::default()
         };
@@ -513,10 +531,13 @@ mod tests {
     fn test_disabled_features() {
         // Arrange
         let config = SecurityLoggerConfig {
-            enable_audit: false,
-            enable_intrusion_detection: false,
-            enable_metrics: false,
-            enable_alerting: false,
+            features: SecurityFeatures {
+                enable_audit: false,
+                enable_intrusion_detection: false,
+                enable_metrics: false,
+                enable_alerting: false,
+                ..Default::default()
+            },
             ..Default::default()
         };
 
@@ -581,11 +602,13 @@ mod tests {
         // Arrange
         let temp_dir = tempfile::tempdir().unwrap();
         let config = SecurityLoggerConfig {
-            enable_audit: true,
+            features: SecurityFeatures {
+                enable_audit: true,
+                enable_intrusion_detection: true,
+                enable_metrics: true,
+                enable_alerting: true,
+            },
             audit_repo_path: Some(temp_dir.path().to_path_buf()),
-            enable_intrusion_detection: true,
-            enable_metrics: true,
-            enable_alerting: true,
             alert_log_path: Some(temp_dir.path().join("alerts.log")),
         };
 

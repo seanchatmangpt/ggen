@@ -31,7 +31,6 @@ enabled = true
 
     /// Test 1: Verify all required receipt fields are present
     #[test]
-    #[ignore]
     fn receipt_has_all_required_fields() {
         let temp_dir = TempDir::new().expect("create temp dir");
         create_minimal_ggen_toml(&temp_dir);
@@ -75,7 +74,6 @@ enabled = true
 
     /// Test 2: Verify signature is non-empty and has sufficient length
     #[test]
-    #[ignore]
     fn receipt_signature_is_nonempty_and_sufficient_length() {
         let temp_dir = TempDir::new().expect("create temp dir");
         let receipts_dir = temp_dir.path().join(".ggen").join("receipts");
@@ -110,7 +108,6 @@ enabled = true
 
     /// Test 3: SHA-256 hash of receipt JSON is deterministic
     #[test]
-    #[ignore]
     fn sha256_hash_of_receipt_json_is_deterministic() {
         let temp_dir = TempDir::new().expect("create temp dir");
         let receipts_dir = temp_dir.path().join(".ggen").join("receipts");
@@ -148,7 +145,6 @@ enabled = true
 
     /// Test 4: operation_id is a valid UUID format
     #[test]
-    #[ignore]
     fn operation_id_is_valid_uuid() {
         let temp_dir = TempDir::new().expect("create temp dir");
         let receipts_dir = temp_dir.path().join(".ggen").join("receipts");
@@ -202,7 +198,6 @@ enabled = true
 
     /// Test 5: timestamp is valid RFC-3339 format
     #[test]
-    #[ignore]
     fn timestamp_is_valid_rfc3339_format() {
         let temp_dir = TempDir::new().expect("create temp dir");
         let receipts_dir = temp_dir.path().join(".ggen").join("receipts");
@@ -256,7 +251,6 @@ enabled = true
 
     /// Test 6: hash fields contain valid SHA-256 hex strings
     #[test]
-    #[ignore]
     fn hash_fields_contain_valid_sha256_hex_strings() {
         let temp_dir = TempDir::new().expect("create temp dir");
         let receipts_dir = temp_dir.path().join(".ggen").join("receipts");
@@ -309,7 +303,6 @@ enabled = true
 
     /// Test 7: Receipt roundtrip preserves deterministic hash
     #[test]
-    #[ignore]
     fn receipt_roundtrip_preserves_deterministic_hash() {
         let temp_dir = TempDir::new().expect("create temp dir");
         let receipts_dir = temp_dir.path().join(".ggen").join("receipts");

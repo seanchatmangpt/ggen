@@ -33,20 +33,20 @@ impl JsonCanonicalizer {
     }
 
     /// Canonicalize a JSON value
-    fn canonicalize_value(&self, value: Value) -> Result<Value> {
+    fn canonicalize_value(value: Value) -> Result<Value> {
         match value {
             Value::Object(map) => {
                 // Sort keys by converting to BTreeMap
                 let sorted: BTreeMap<String, Value> = map
                     .into_iter()
-                    .map(|(k, v)| Ok((k, self.canonicalize_value(v)?)))
+                    .map(|(k, v)| Ok((k, Self::canonicalize_value(v)?)))
                     .collect::<Result<_>>()?;
                 Ok(Value::Object(sorted.into_iter().collect()))
             }
             Value::Array(arr) => {
                 let canonical: std::result::Result<Vec<_>, _> = arr
                     .into_iter()
-                    .map(|v| self.canonicalize_value(v))
+                    .map(Self::canonicalize_value)
                     .collect();
                 Ok(Value::Array(canonical?))
             }
@@ -67,7 +67,7 @@ impl Canonicalizer for JsonCanonicalizer {
     type Output = Canonical<String>;
 
     fn canonicalize(&self, input: Self::Input) -> Result<Self::Output> {
-        let canonical_value = self.canonicalize_value(input)?;
+        let canonical_value = Self::canonicalize_value(input)?;
         let output = if self.pretty {
             serde_json::to_string_pretty(&canonical_value)
         } else {

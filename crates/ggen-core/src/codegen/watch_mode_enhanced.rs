@@ -101,7 +101,7 @@ impl EnhancedWatchMode {
                             base_path,
                             cache,
                         ) {
-                            if !analysis.rerun_all {
+                            if !analysis.changes.rerun_all {
                                 cache_hits += 1;
                                 eprintln!(
                                     "  {} Incremental: {}/{} rules affected",
@@ -154,10 +154,9 @@ impl EnhancedWatchMode {
     fn run_initial_sync(&self) -> Result<SyncResult> {
         eprintln!("{}", "[Initial Sync] Running...".bright_blue());
 
-        let executor = SyncExecutor::new(SyncOptions {
-            watch: false,
-            ..self.options.clone()
-        });
+        let mut opts = self.options.clone();
+        opts.flags.mode.watch = false;
+        let executor = SyncExecutor::new(opts);
 
         match executor.execute() {
             Ok(initial_result) => {
@@ -206,10 +205,9 @@ impl EnhancedWatchMode {
 
     fn run_regeneration(&self) -> Result<(SyncResult, u64)> {
         let regen_start = Instant::now();
-        let executor = SyncExecutor::new(SyncOptions {
-            watch: false,
-            ..self.options.clone()
-        });
+        let mut opts = self.options.clone();
+        opts.flags.mode.watch = false;
+        let executor = SyncExecutor::new(opts);
 
         match executor.execute() {
             Ok(result) => {
@@ -298,6 +296,10 @@ mod tests {
     #[test]
     fn test_enhanced_watch_mode_with_cache() {
         let options = SyncOptions {
+            flags: crate::codegen::executor::SyncFlags {
+                mode: crate::codegen::executor::ModeFlags::default(),
+                behavior: crate::codegen::executor::BehaviorFlags { ..Default::default() },
+            },
             use_cache: true,
             ..Default::default()
         };

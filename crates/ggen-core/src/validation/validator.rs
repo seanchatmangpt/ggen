@@ -216,12 +216,12 @@ impl SparqlValidator {
         &self, graph: &Graph, target_class: &str, path: &str,
     ) -> Vec<String> {
         let query = format!(
-            r#"
+            r"
                 SELECT ?node WHERE {{
                     ?node a {} .
                     FILTER NOT EXISTS {{ ?node {} ?value }}
                 }}
-            "#,
+            ",
             format_term_for_sparql(target_class),
             format_term_for_sparql(path)
         );
@@ -241,14 +241,14 @@ impl SparqlValidator {
         &self, graph: &Graph, target_class: &str, path: &str, max_count: u32,
     ) -> Vec<(String, String)> {
         let query = format!(
-            r#"
+            r"
                 SELECT ?node (COUNT(?value) AS ?count) WHERE {{
                     ?node a {} .
                     ?node {} ?value .
                 }}
                 GROUP BY ?node
                 HAVING (COUNT(?value) > {max_count})
-            "#,
+            ",
             format_term_for_sparql(target_class),
             format_term_for_sparql(path)
         );
@@ -274,14 +274,14 @@ impl SparqlValidator {
         &self, graph: &Graph, target_class: &str, path: &str, expected_datatype: &str,
     ) -> Vec<(String, String)> {
         let query = format!(
-            r#"
+            r"
                 SELECT ?node ?actualType WHERE {{
                     ?node a {} .
                     ?node {} ?value .
                     BIND (datatype(?value) AS ?actualType)
                     FILTER (?actualType != {} && ?actualType != <http://www.w3.org/1999/02/22-rdf-syntax-ns#langString>)
                 }}
-            "#,
+            ",
             format_term_for_sparql(target_class),
             format_term_for_sparql(path),
             format_term_for_sparql(expected_datatype)
@@ -314,13 +314,13 @@ impl SparqlValidator {
             .join(", ");
 
         let query = format!(
-            r#"
+            "
                 SELECT ?node ?value WHERE {{
                     ?node a {} .
                     ?node {} ?value .
                     FILTER (?value NOT IN ({values_list}))
                 }}
-            "#,
+            ",
             format_term_for_sparql(target_class),
             format_term_for_sparql(path)
         );
@@ -345,15 +345,15 @@ impl SparqlValidator {
     fn find_pattern_violations(
         &self, graph: &Graph, target_class: &str, path: &str, pattern: &str,
     ) -> Vec<(String, String)> {
-        let escaped_pattern = pattern.replace('\\', "\\\\").replace("'", "\\'");
+        let escaped_pattern = pattern.replace('\\', "\\\\").replace('\'', "\\'");
         let query = format!(
-            r#"
+            r"
                 SELECT ?node ?value WHERE {{
                     ?node a {} .
                     ?node {} ?value .
                     FILTER (!REGEX(STR(?value), '{escaped_pattern}'))
                 }}
-            "#,
+            ",
             format_term_for_sparql(target_class),
             format_term_for_sparql(path)
         );
@@ -379,14 +379,14 @@ impl SparqlValidator {
         &self, graph: &Graph, target_class: &str, path: &str, min_length: u32,
     ) -> Vec<(String, String)> {
         let query = format!(
-            r#"
+            r"
                 SELECT ?node ?length WHERE {{
                     ?node a {} .
                     ?node {} ?value .
                     BIND (STRLEN(STR(?value)) AS ?length)
                     FILTER (?length < {min_length})
                 }}
-            "#,
+            ",
             format_term_for_sparql(target_class),
             format_term_for_sparql(path)
         );
@@ -412,14 +412,14 @@ impl SparqlValidator {
         &self, graph: &Graph, target_class: &str, path: &str, max_length: u32,
     ) -> Vec<(String, String)> {
         let query = format!(
-            r#"
+            r"
                 SELECT ?node ?length WHERE {{
                     ?node a {} .
                     ?node {} ?value .
                     BIND (STRLEN(STR(?value)) AS ?length)
                     FILTER (?length > {max_length})
                 }}
-            "#,
+            ",
             format_term_for_sparql(target_class),
             format_term_for_sparql(path)
         );
@@ -489,7 +489,7 @@ mod tests {
 
     #[test]
     fn test_validator_passes_valid_data() {
-        let shapes_ttl = r#"
+        let shapes_ttl = r"
             @prefix sh: <http://www.w3.org/ns/shacl#> .
             @prefix ex: <http://example.org#> .
             @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
@@ -501,7 +501,7 @@ mod tests {
                     sh:minCount 1 ;
                     sh:datatype xsd:string ;
                 ] .
-        "#;
+        ";
 
         let data_ttl = r#"
             @prefix ex: <http://example.org#> .
@@ -534,11 +534,11 @@ mod tests {
                 ] .
         "#;
 
-        let data_ttl = r#"
+        let data_ttl = r"
             @prefix ex: <http://example.org#> .
 
             ex:bob a ex:Person .
-        "#;
+        ";
 
         let shapes = graph_from_ttl(shapes_ttl);
         let data = graph_from_ttl(data_ttl);
@@ -559,7 +559,7 @@ mod tests {
 
     #[test]
     fn test_validator_detects_wrong_datatype() {
-        let shapes_ttl = r#"
+        let shapes_ttl = r"
             @prefix sh: <http://www.w3.org/ns/shacl#> .
             @prefix ex: <http://example.org#> .
             @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
@@ -570,7 +570,7 @@ mod tests {
                     sh:path ex:age ;
                     sh:datatype xsd:integer ;
                 ] .
-        "#;
+        ";
 
         let data_ttl = r#"
             @prefix ex: <http://example.org#> .
@@ -672,7 +672,7 @@ mod tests {
 
     #[test]
     fn test_validator_detects_min_length_violation() {
-        let shapes_ttl = r#"
+        let shapes_ttl = r"
             @prefix sh: <http://www.w3.org/ns/shacl#> .
             @prefix ex: <http://example.org#> .
 
@@ -682,7 +682,7 @@ mod tests {
                     sh:path ex:name ;
                     sh:minLength 5 ;
                 ] .
-        "#;
+        ";
 
         let data_ttl = r#"
             @prefix ex: <http://example.org#> .
@@ -709,7 +709,7 @@ mod tests {
 
     #[test]
     fn test_validator_detects_max_length_violation() {
-        let shapes_ttl = r#"
+        let shapes_ttl = r"
             @prefix sh: <http://www.w3.org/ns/shacl#> .
             @prefix ex: <http://example.org#> .
 
@@ -719,7 +719,7 @@ mod tests {
                     sh:path ex:bio ;
                     sh:maxLength 10 ;
                 ] .
-        "#;
+        ";
 
         let data_ttl = r#"
             @prefix ex: <http://example.org#> .
@@ -746,7 +746,7 @@ mod tests {
 
     #[test]
     fn test_validator_no_instances_no_violations() {
-        let shapes_ttl = r#"
+        let shapes_ttl = r"
             @prefix sh: <http://www.w3.org/ns/shacl#> .
             @prefix ex: <http://example.org#> .
 
@@ -756,12 +756,12 @@ mod tests {
                     sh:path ex:name ;
                     sh:minCount 1 ;
                 ] .
-        "#;
+        ";
 
-        let data_ttl = r#"
+        let data_ttl = r"
             @prefix ex: <http://example.org#> .
             ex:something a ex:OtherThing .
-        "#;
+        ";
 
         let shapes = graph_from_ttl(shapes_ttl);
         let data = graph_from_ttl(data_ttl);
@@ -773,7 +773,7 @@ mod tests {
 
     #[test]
     fn test_validator_multiple_violations_multiple_nodes() {
-        let shapes_ttl = r#"
+        let shapes_ttl = r"
             @prefix sh: <http://www.w3.org/ns/shacl#> .
             @prefix ex: <http://example.org#> .
 
@@ -783,14 +783,14 @@ mod tests {
                     sh:path ex:name ;
                     sh:minCount 1 ;
                 ] .
-        "#;
+        ";
 
-        let data_ttl = r#"
+        let data_ttl = r"
             @prefix ex: <http://example.org#> .
 
             ex:p1 a ex:Person .
             ex:p2 a ex:Person .
-        "#;
+        ";
 
         let shapes = graph_from_ttl(shapes_ttl);
         let data = graph_from_ttl(data_ttl);
@@ -824,7 +824,7 @@ mod tests {
 
     #[test]
     fn test_validator_severity_propagation() {
-        let shapes_ttl = r#"
+        let shapes_ttl = r"
             @prefix sh: <http://www.w3.org/ns/shacl#> .
             @prefix ex: <http://example.org#> .
 
@@ -835,12 +835,12 @@ mod tests {
                     sh:minCount 1 ;
                     sh:severity sh:Warning ;
                 ] .
-        "#;
+        ";
 
-        let data_ttl = r#"
+        let data_ttl = r"
             @prefix ex: <http://example.org#> .
             ex:bob a ex:Person .
-        "#;
+        ";
 
         let shapes = graph_from_ttl(shapes_ttl);
         let data = graph_from_ttl(data_ttl);

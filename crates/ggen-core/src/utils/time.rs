@@ -45,8 +45,8 @@ use std::time::{SystemTime, UNIX_EPOCH};
 pub fn current_timestamp() -> u64 {
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
-        .expect("System time should not be before Unix epoch")
-        .as_secs()
+        .map(|d| d.as_secs())
+        .unwrap_or(0)
 }
 
 /// Format a duration in seconds to a human-readable string.

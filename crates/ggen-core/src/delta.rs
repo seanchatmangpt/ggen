@@ -710,7 +710,7 @@ impl ImpactAnalyzer {
     }
 
     /// Get SPARQL queries from a template (simplified - in reality would parse template)
-    fn get_template_queries(&mut self, template_path: &str, _graph: &Graph) -> Result<Vec<String>> {
+    fn get_template_queries(&self, template_path: &str, _graph: &Graph) -> Result<Vec<String>> {
         // Check if we have cached queries for this template
         if let Some(queries) = self.template_queries.get(template_path) {
             return Ok(queries.clone());

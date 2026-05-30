@@ -31,9 +31,7 @@ pub enum RngMode {
 }
 
 /// Filesystem surface configuration
-/// PartialEq without Eq: String field implements Eq
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub enum FsMode {
     /// Ephemeral filesystem (tmpfs-backed, cleared on exit)
     Ephemeral,
@@ -44,9 +42,7 @@ pub enum FsMode {
 }
 
 /// Network surface configuration
-/// PartialEq without Eq: Vec<String> field implements Eq
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub enum NetMode {
     /// No network access (fully offline)
     Offline,
@@ -57,9 +53,7 @@ pub enum NetMode {
 }
 
 /// Process surface configuration
-/// PartialEq without Eq: Vec<String> field implements Eq
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub enum ProcMode {
     /// Non-root user with dropped capabilities
     NonRoot {

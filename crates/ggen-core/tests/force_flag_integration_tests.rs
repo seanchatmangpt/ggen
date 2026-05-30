@@ -92,28 +92,42 @@ fn test_sync_options_force_flag() {
     // Arrange: Create SyncOptions with force enabled
     let options = SyncOptions {
         manifest_path: PathBuf::from("ggen.toml"),
-        force: true,
-        audit: false,
-        dry_run: false,
-        verbose: false,
+        flags: ggen_core::codegen::executor::SyncFlags {
+            behavior: ggen_core::codegen::executor::BehaviorFlags {
+                force: true,
+                audit: false,
+                verbose: false,
+            },
+            mode: ggen_core::codegen::executor::ModeFlags {
+                dry_run: false,
+                ..Default::default()
+            },
+        },
         ..Default::default()
     };
 
     // Act & Assert: Verify force flag is set correctly
-    assert!(options.force, "force flag should be enabled");
+    assert!(options.flags.behavior.force, "force flag should be enabled");
 
     // Test with both flags enabled
     let options_both = SyncOptions {
         manifest_path: PathBuf::from("ggen.toml"),
-        force: true,
-        audit: true,
-        dry_run: false,
-        verbose: false,
+        flags: ggen_core::codegen::executor::SyncFlags {
+            behavior: ggen_core::codegen::executor::BehaviorFlags {
+                force: true,
+                audit: true,
+                verbose: false,
+            },
+            mode: ggen_core::codegen::executor::ModeFlags {
+                dry_run: false,
+                ..Default::default()
+            },
+        },
         ..Default::default()
     };
 
     assert!(
-        options_both.force && options_both.audit,
+        options_both.flags.behavior.force && options_both.flags.behavior.audit,
         "Both flags should be usable together"
     );
 }

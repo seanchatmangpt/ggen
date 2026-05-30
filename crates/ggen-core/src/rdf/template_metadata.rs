@@ -36,7 +36,7 @@ use crate::graph::Graph;
 /// assert!(variable.required);
 /// # }
 /// ```
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct TemplateVariable {
     pub name: String,
     pub var_type: String,
@@ -249,7 +249,7 @@ impl TemplateMetadata {
 
         // Query for template metadata
         let query = format!(
-            r#"
+            r"
             PREFIX ggen: <https://ggen.io/marketplace/>
             SELECT ?name ?version ?description ?author ?created ?updated ?category ?stability ?coverage ?usage
             WHERE {{
@@ -265,7 +265,7 @@ impl TemplateMetadata {
                 OPTIONAL {{ <{template_id}> ggen:testCoverage ?coverage }}
                 OPTIONAL {{ <{template_id}> ggen:usageCount ?usage }}
             }}
-            "#,
+            ",
             template_id = template_id
         );
 
@@ -402,16 +402,15 @@ impl TemplateMetadataStore {
             }
         }
 
-        // Query from store
         let query = format!(
-            r#"
+            r"
             PREFIX ggen: <https://ggen.io/marketplace/>
             SELECT ?name
             WHERE {{
                 <{template_id}> a ggen:Template ;
                     ggen:templateName ?name .
             }}
-            "#,
+            ",
             template_id = template_id
         );
 
@@ -515,13 +514,13 @@ impl TemplateMetadataStore {
     /// Get all dependencies for a template
     pub fn get_dependencies(&self, template_id: &str) -> Result<Vec<String>> {
         let query = format!(
-            r#"
+            r"
             PREFIX ggen: <https://ggen.io/marketplace/>
             SELECT ?dependency
             WHERE {{
                 <{template_id}> ggen:dependsOn ?dependency .
             }}
-            "#,
+            ",
             template_id = template_id
         );
 
@@ -538,13 +537,13 @@ impl TemplateMetadataStore {
     /// Export all metadata as Turtle
     pub fn export_turtle(&self) -> Result<String> {
         // Query all templates and reconstruct Turtle
-        let query = r#"
+        let query = r"
             PREFIX ggen: <https://ggen.io/marketplace/>
             SELECT DISTINCT ?template
             WHERE {
                 ?template a ggen:Template .
             }
-        "#;
+        ";
 
         let templates = self.query(query)?;
         let mut turtle = String::new();
@@ -596,11 +595,13 @@ impl Default for TemplateMetadataStore {
                     "Failed to create metadata store with in-memory backend: {}",
                     e
                 );
-                // Create empty store with Arc-wrapped Mutex
+                // Create empty store with Arc-wrapped Mutex.
+                // SAFETY: Store::new() creates an in-memory Oxigraph store.
+                // Failure here means Oxigraph itself is broken — a programmer
+                // error that cannot be recovered from at runtime.
                 Self {
-                    store: Arc::new(Mutex::new(Store::new().unwrap_or_else(|_| {
-                        // Create a new in-memory store as last resort
-                        Store::new().expect("Failed to create fallback Oxigraph store")
+                    store: Arc::new(Mutex::new(Store::new().unwrap_or_else(|e| {
+                        panic!("invariant violated: cannot create Oxigraph in-memory store: {e}")
                     }))),
                     metadata_cache: Arc::new(Mutex::new(HashMap::new())),
                 }

@@ -84,12 +84,12 @@ impl QualityGateRunner {
         for gate in &self.gates {
             eprint!("[Quality Gate: {}]", gate.name());
             match gate.check(manifest, base_path) {
-                Ok(_) => eprintln!(" ✓"),
+                Ok(()) => eprintln!(" ✓"),
                 Err(e) => {
                     eprintln!(" ✗");
                     let recovery = gate.recovery_suggestions(&e.to_string());
                     let signal = AndonSignal::Red(super::andon::CriticalError {
-                        code: format!("GATE_{}", gate.name().to_uppercase().replace(" ", "_")),
+                        code: format!("GATE_{}", gate.name().to_uppercase().replace(' ', "_")),
                         message: format!("Quality gate failed: {}", gate.name()),
                         context: e.to_string(),
                         recovery_steps: recovery,
@@ -541,7 +541,7 @@ impl QualityGate for FilePermissionsGate {
         // Test writability by attempting a test write
         let test_file = output_dir.join(".ggen-write-test");
         match std::fs::write(&test_file, "") {
-            Ok(_) => {
+            Ok(()) => {
                 let _ = std::fs::remove_file(&test_file);
                 Ok(())
             }

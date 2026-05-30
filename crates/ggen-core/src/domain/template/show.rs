@@ -128,7 +128,8 @@ fn extract_variables_from_content(content: &str) -> Vec<String> {
     let mut variables = Vec::new();
 
     // Look for {{ variable }} patterns
-    let re = regex::Regex::new(r"\{\{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\}\}").unwrap();
+    static RE: std::sync::OnceLock<regex::Regex> = std::sync::OnceLock::new();
+    let re = RE.get_or_init(|| regex::Regex::new(r"\{\{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\}\}").unwrap());
     for cap in re.captures_iter(content) {
         if let Some(var) = cap.get(1) {
             let var_name = var.as_str().to_string();

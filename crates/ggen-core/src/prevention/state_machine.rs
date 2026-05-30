@@ -311,15 +311,14 @@ mod tests {
     use super::*;
 
     #[test]
-    #[allow(clippy::expect_used)]
-    fn test_state_machine_valid_transitions() {
+    fn test_state_machine_valid_transitions() -> Result<(), Box<dyn std::error::Error>> {
         // ✅ This compiles and runs correctly
         let registry = Registry::new();
         let registry = registry
-            .initialize(Path::new("templates"))
-            .expect("initialize failed");
-        let registry = registry.validate().expect("validate failed");
-        let _results = registry.search("test").expect("search failed");
+            .initialize(Path::new("templates"))?;
+        let registry = registry.validate()?;
+        let _results = registry.search("test")?;
+        Ok(())
     }
 
     #[test]
@@ -341,17 +340,15 @@ mod tests {
     }
 
     #[test]
-    #[allow(clippy::expect_used)]
-    fn test_validated_state_methods_available() {
+    fn test_validated_state_methods_available() -> Result<(), Box<dyn std::error::Error>> {
         let registry = Registry::new()
-            .initialize(Path::new("templates"))
-            .expect("initialize failed")
-            .validate()
-            .expect("validate failed");
+            .initialize(Path::new("templates"))?
+            .validate()?;
 
         // All methods available in Validated state
         assert!(registry.count() > 0);
         assert!(registry.templates().len() > 0);
         assert!(registry.search("example").is_ok());
+        Ok(())
     }
 }

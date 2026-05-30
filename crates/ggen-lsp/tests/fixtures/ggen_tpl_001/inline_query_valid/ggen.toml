@@ -1,0 +1,14 @@
+[project]
+name = "tpl001-inline-valid"
+version = "0.1.0"
+
+[ontology]
+source = "schema/domain.ttl"
+
+[generation]
+
+[[generation.rules]]
+name = "items"
+query = { inline = "PREFIX ex: <http://example.org/tpl001#> SELECT ?name WHERE { ?s a ex:Item . ?s ex:name ?name . }" }
+template = { file = "templates/item.tera" }
+output_file = "out.txt"

@@ -20,9 +20,7 @@ pub struct TemplateInfo {
     pub description: Option<String>,
 }
 
-/// PartialEq without Eq: String field implements Eq
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TemplateSource {
     Local,
     Gpack(String),

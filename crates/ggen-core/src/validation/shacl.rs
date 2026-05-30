@@ -24,10 +24,8 @@ use std::collections::BTreeMap;
 
 /// A property constraint from a SHACL shape
 ///
-/// Represents a single \`sh:property\` block with all its constraints.
-/// PartialEq without Eq: All fields (u32, String, Option, Vec, Severity) implement Eq
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Debug, Clone, PartialEq)]
+/// Represents a single `sh:property` block with all its constraints.
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PropertyConstraint {
     /// Property path (IRI)
     pub path: String,
@@ -69,9 +67,7 @@ impl PropertyConstraint {
 }
 
 /// A SHACL NodeShape with its property constraints
-/// PartialEq without Eq: All fields (String, BTreeMap, Option, Severity) implement Eq
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ShaclShape {
     /// Shape IRI
     pub iri: String,
@@ -130,13 +126,13 @@ impl ShapeLoader {
         let mut shape_set = ShaclShapeSet::new();
 
         // Step 1: Find all NodeShapes with targetClass
-        let find_shapes_query = r#"
+        let find_shapes_query = r"
             PREFIX sh: <http://www.w3.org/ns/shacl#>
             SELECT ?shape ?targetClass WHERE {
                 ?shape a sh:NodeShape .
                 ?shape sh:targetClass ?targetClass .
             }
-        "#;
+        ";
 
         let shape_rows = match graph.query_cached(find_shapes_query) {
             Ok(crate::graph::CachedResult::Solutions(rows)) => rows,
@@ -163,7 +159,7 @@ impl ShapeLoader {
             // Keeping `?property` as a join variable here binds each property's path to
             // its own fields, avoiding cross-contamination between property shapes.
             let find_properties_query = format!(
-                r#"
+                r"
                     PREFIX sh: <http://www.w3.org/ns/shacl#>
                     SELECT ?path ?field ?value WHERE {{
                         {} sh:property ?property .
@@ -171,7 +167,7 @@ impl ShapeLoader {
                         ?property ?field ?value .
                         FILTER (?field IN (sh:minCount, sh:maxCount, sh:datatype, sh:pattern, sh:minLength, sh:maxLength, sh:message, sh:severity))
                     }}
-                "#,
+                ",
                 format_term_for_sparql(&shape_iri)
             );
 
@@ -204,7 +200,7 @@ impl ShapeLoader {
             // Step 3: Load sh:in allowed values per property (path → values), keeping
             // `?property` as a join variable so blank-node property shapes resolve.
             let in_query = format!(
-                r#"
+                r"
                     PREFIX sh: <http://www.w3.org/ns/shacl#>
                     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
                     SELECT ?path ?value WHERE {{
@@ -212,7 +208,7 @@ impl ShapeLoader {
                         ?property sh:path ?path .
                         ?property sh:in/rdf:rest*/rdf:first ?value .
                     }}
-                "#,
+                ",
                 format_term_for_sparql(&shape_iri)
             );
             if let Ok(crate::graph::CachedResult::Solutions(in_rows)) =
@@ -250,12 +246,12 @@ impl ShapeLoader {
     /// Load shape-level severity
     fn load_shape_severity(&self, graph: &Graph, shape_iri: &str) -> Option<Severity> {
         let severity_query = format!(
-            r#"
+            r"
                 PREFIX sh: <http://www.w3.org/ns/shacl#>
                 SELECT ?severity WHERE {{
                     {} sh:severity ?severity .
                 }}
-            "#,
+            ",
             format_term_for_sparql(shape_iri)
         );
 

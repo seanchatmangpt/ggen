@@ -273,8 +273,7 @@ mod tests {
     }
 
     #[test]
-    #[allow(clippy::expect_used)]
-    fn test_concurrent_reads() {
+    fn test_concurrent_reads() -> Result<(), Box<dyn std::error::Error>> {
         let snap1 = create_test_snapshot("1.0.0");
         let promoter = Arc::new(AtomicSnapshotPromoter::new(snap1));
 
@@ -291,8 +290,9 @@ mod tests {
 
         // All threads should succeed
         for handle in handles {
-            handle.join().expect("Thread panicked");
+            handle.join().map_err(|e| format!("Thread panicked: {:?}", e))?;
         }
+        Ok(())
     }
 
     #[test]
@@ -331,8 +331,7 @@ mod tests {
     }
 
     #[test]
-    #[allow(clippy::expect_used)]
-    fn test_safe_concurrent_promotion_and_reads() {
+    fn test_safe_concurrent_promotion_and_reads() -> Result<(), Box<dyn std::error::Error>> {
         // Stress test: concurrent promotions and reads
         let snap1 = create_test_snapshot("1.0.0");
         let promoter = Arc::new(AtomicSnapshotPromoter::new(snap1));
@@ -359,10 +358,11 @@ mod tests {
 
         // All threads should succeed without panics
         for handle in handles {
-            handle.join().expect("Thread panicked");
+            handle.join().map_err(|e| format!("Thread panicked: {:?}", e))?;
         }
 
         let metrics = promoter.metrics();
         assert_eq!(metrics.total_promotions, 10);
+        Ok(())
     }
 }
