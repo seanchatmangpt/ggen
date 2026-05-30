@@ -110,7 +110,9 @@ pub fn family_of_diagnostic(diag: &Diagnostic) -> Option<RepairFamily> {
     None
 }
 
-/// Map a diagnostic code string to its repair family. Used by the offline miner
+/// Map a diagnostic code string to its repair family.
+///
+/// Used by the offline miner
 /// (which has only the captured code string, not a full `Diagnostic`). The
 /// capture sentinel `"RDF"` (a code-less located-parse diagnostic) maps to
 /// `ParseFailure`.

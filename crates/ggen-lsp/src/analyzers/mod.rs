@@ -46,7 +46,9 @@ pub fn detect_tpl_001(
 }
 
 /// Build the appropriate analyzer for a document path + content, or `None` if the
-/// path is not a recognized ggen law surface. Shared by the interactive server
+/// path is not a recognized ggen law surface.
+///
+/// Shared by the interactive server
 /// and the headless `ggen lsp check` gate so both enforce identical law.
 #[must_use]
 pub fn build_analyzer(path: &str, content: &str) -> Option<DocumentAnalyzer> {

@@ -35,10 +35,11 @@
 
 use std::path::{Path, PathBuf};
 
-use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Position, Range};
+use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Position, Range, Url};
 
 use ggen_lsp::check::{check_files_in_root, discover_law_surfaces, CheckReport};
 use ggen_lsp::route::{Provenance, RouteRegistry};
+use ggen_lsp::ServerState;
 
 /// Absolute path to a fixture project root under this crate's `tests/fixtures`.
 fn fixture_root(name: &str) -> PathBuf {
@@ -118,6 +119,67 @@ fn copy_tree(src: &Path, dst: &Path) -> std::io::Result<()> {
         }
     }
     Ok(())
+}
+
+/// Write a minimal valid ggen project: one rule binding `queries/items.rq` to
+/// `templates/item.tera` with output `out.txt`. Mirrors the proven stale-clear
+/// scenario so the seam-driven test exercises the same cross-surface relation.
+fn write_project(dir: &Path, query: &str, template: &str) {
+    std::fs::create_dir_all(dir.join("schema")).expect("schema dir");
+    std::fs::create_dir_all(dir.join("queries")).expect("queries dir");
+    std::fs::create_dir_all(dir.join("templates")).expect("templates dir");
+    std::fs::write(
+        dir.join("schema/domain.ttl"),
+        "@prefix schema: <https://schema.org/> .\n",
+    )
+    .expect("ttl");
+    std::fs::write(dir.join("queries/items.rq"), query).expect("rq");
+    std::fs::write(dir.join("templates/item.tera"), template).expect("tera");
+    std::fs::write(
+        dir.join("ggen.toml"),
+        r#"[project]
+name = "living-loop-seam-fixture"
+version = "0.1.0"
+
+[ontology]
+source = "schema/domain.ttl"
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "items"
+query = { file = "queries/items.rq" }
+template = { file = "templates/item.tera" }
+output_file = "out.txt"
+"#,
+    )
+    .expect("ggen.toml");
+}
+
+/// Read the EXTERNAL OCEL intel log written under
+/// `<root>/.ggen/ocel/agent-edit-events.ocel.jsonl` — the unforgeable on-disk
+/// surface the anti-cheating doctrine requires (not an in-process accessor).
+fn read_log_lines(root: &Path) -> Vec<String> {
+    let path = root
+        .join(".ggen")
+        .join("ocel")
+        .join("agent-edit-events.ocel.jsonl");
+    std::fs::read_to_string(path)
+        .unwrap_or_default()
+        .lines()
+        .map(str::to_string)
+        .collect()
+}
+
+/// True if some JSONL event line names this `activity`, the GGEN-TPL-001 `code`,
+/// and the template file — three substrings on one line identify a single event.
+fn has_template_event(lines: &[String], activity: &str) -> bool {
+    lines.iter().any(|l| {
+        l.contains(&format!("\"activity\":\"{activity}\""))
+            && l.contains("item.tera")
+            && l.contains("GGEN-TPL-001")
+    })
 }
 
 // ---------------------------------------------------------------------------
@@ -390,28 +452,78 @@ fn headless_gate_never_materializes_output_file() {
 /// * The route the chain would select (`RouteSelected`) is proven lawful by test
 ///   #3 above (same registry path `observe_diagnostics` uses at state.rs:165).
 ///
-/// Until one of the seams above is added to `src/` by the orchestrator, the live
-/// `ReceiptEmitted` chain is UNOBSERVABLE through the public test API. This test
-/// therefore fails loudly (rather than passing vacuously) so the gap stays visible.
-#[test]
-#[ignore = "PENDING SEAM: no public, root-injectable way to drive \
-            GgenLanguageServer.did_open / ServerState::observe_diagnostics from a \
-            test; see body for the exact src/ seam the orchestrator must add"]
-fn observe_diagnostics_records_receipt_chain_PENDING_SEAM() {
-    panic!(
-        "UNOBSERVABLE via public test API. To prove the live OCEL chain \
-         (DiagnosticRaised → RouteSelected → RepairSuggested → RepairApplied → \
-         GatePassed → ReceiptEmitted) the orchestrator must add ONE public, \
-         root-injectable seam to src/ (no behavior change), e.g.:\n  \
-         (a) GgenLanguageServer::with_state(client, Arc<ServerState>) / \
-         new_in_root(client, root), OR\n  \
-         (b) ServerState::analyze_and_observe(&self, uri, content) that runs the \
-         SAME refresh_analyzer publish path (build_analyzer + cross-surface \
-         detect_tpl_001 + observe_diagnostics) without a tower_lsp::Client.\n  \
-         Then: ServerState::with_root(TempDir) -> analyze_and_observe(invalid) \
-         (raise) -> analyze_and_observe(repaired) (clear) -> \
-         IntelLog::at_root(temp).read() -> assert the activity sequence. \
-         Agent 3 does NOT edit src/, so this is left as a visible, failing \
-         (ignored) seam rather than a vacuous pass."
+/// SEAM LANDED (GALL-CHECKPOINT-001C). The orchestrator added option (b):
+/// `ServerState::analyze_and_observe(&self, uri, content)` — the Client-free core
+/// `server::refresh_analyzer` now calls (the wrapper adds only
+/// `Client::publish_diagnostics`). The test below drives that REAL orchestration,
+/// so the live `ReceiptEmitted` chain is now observable from the on-disk OCEL log
+/// without a `tower_lsp::Client`. The proof exercises production code, not a
+/// test-local reconstruction of it.
+///
+/// raise (analyze the template) → cross-surface repair (fix the SPARQL query) →
+/// analyze the query → the now-lawful template is cleared through the SAME
+/// `observe_diagnostics` the editor uses. Proven from the EXTERNAL on-disk OCEL
+/// log — the unforgeable surface the anti-cheating doctrine requires.
+#[tokio::test]
+async fn analyze_and_observe_records_live_receipt_chain() {
+    // ── Arrange: invalid project (query SELECTs ?name; template wants title).
+    let tmp = tempfile::tempdir().expect("tempdir");
+    let root = tmp.path();
+    write_project(
+        root,
+        "SELECT ?name WHERE { ?s <https://schema.org/name> ?name }",
+        r#"{{ row["title"] }}"#,
+    );
+    let state = ServerState::with_root(root);
+
+    let tera_path = root.join("templates/item.tera");
+    let tera_uri = Url::from_file_path(&tera_path).expect("tera url");
+    let rq_path = root.join("queries/items.rq");
+    let rq_uri = Url::from_file_path(&rq_path).expect("rq url");
+
+    // ── Act 1 — RAISE: analyze the template through the real orchestration.
+    let tera_src = std::fs::read_to_string(&tera_path).expect("read tera");
+    let raised = state.analyze_and_observe(&tera_uri, &tera_src).await;
+    assert!(
+        raised
+            .iter()
+            .any(|(u, diags)| u == &tera_uri && diags.iter().any(is_tpl_001)),
+        "analyze_and_observe must raise GGEN-TPL-001 on the template. published: {raised:?}"
+    );
+
+    // ── Act 2 — CROSS-SURFACE REPAIR: fix the QUERY (template untouched), then
+    // analyze the query URI so the orchestration recomputes the project graph and
+    // reconciles the now-lawful template's stale diagnostic.
+    let repaired_rq = "SELECT ?name ?title WHERE { ?s <https://schema.org/name> ?name ; \
+                       <https://schema.org/title> ?title }";
+    std::fs::write(&rq_path, repaired_rq).expect("rewrite rq");
+    let cleared = state.analyze_and_observe(&rq_uri, repaired_rq).await;
+    assert!(
+        cleared.iter().any(|(u, _)| u == &tera_uri),
+        "the query-side repair must re-publish (clear) the template URI through the \
+         orchestration. published: {cleared:?}"
+    );
+
+    // ── Assert: the EXTERNAL intel log proves the full live chain on the template.
+    let lines = read_log_lines(root);
+    for activity in [
+        "DiagnosticRaised",
+        "RouteSelected",
+        "RepairSuggested",
+        "RepairApplied",
+        "GatePassed",
+        "ReceiptEmitted",
+    ] {
+        assert!(
+            has_template_event(&lines, activity),
+            "live chain link {activity:?} for GGEN-TPL-001 on the template missing.\nlog:\n{}",
+            lines.join("\n")
+        );
+    }
+
+    // ── And: the live analysis path materialized no emitted artifact.
+    assert!(
+        !root.join("out.txt").exists(),
+        "analyze_and_observe must never write the rule's output_file"
     );
 }

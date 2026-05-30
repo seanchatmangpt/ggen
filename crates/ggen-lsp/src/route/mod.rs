@@ -34,6 +34,7 @@ pub use registry::{family_of_code, family_of_diagnostic, RouteRegistry};
 use tower_lsp::lsp_types::Diagnostic;
 
 /// The single route-selection entry point used by the editor `code_action` path.
+///
 /// Headless and MCP go through [`route_plan_for_diagnostic`], which calls the same
 /// `select_for_diagnostic` underneath — so all three channels agree on route id
 /// by construction. This named fn makes the editor path testable for parity.
@@ -44,7 +45,9 @@ pub fn action_route_for<'a>(
     registry.select_for_diagnostic(diag)
 }
 
-/// Produce the `RoutePlan` for a diagnostic, if a route exists. The single
+/// Produce the `RoutePlan` for a diagnostic, if a route exists.
+///
+/// The single
 /// entry point shared by the editor CodeAction path, the MCP tool, and the
 /// headless `--with-routes` gate — so every channel yields an identical plan.
 ///
@@ -68,9 +71,13 @@ pub fn route_plan_for_diagnostic(
     ))
 }
 
-/// Project a diagnostic into the canonical [`RouteEnvelope`] — the single entry
+/// Project a diagnostic into the canonical [`RouteEnvelope`].
+///
+/// This is the single entry
 /// point every channel (LSP CodeAction `data`, headless, MCP, A2A) uses, so all
-/// emit a byte-equivalent envelope for the same diagnostic. `file` is the
+/// emit a byte-equivalent envelope for the same diagnostic.
+///
+/// `file` is the
 /// law-surface path (the envelope's stable site identity needs it).
 #[must_use]
 pub fn envelope_for_diagnostic(
