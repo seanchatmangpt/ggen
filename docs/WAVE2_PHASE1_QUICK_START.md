@@ -1,3 +1,22 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Wave 2 Phase 1 — Quick Start Guide](#wave-2-phase-1--quick-start-guide)
+  - [What You're Doing](#what-youre-doing)
+  - [Your Task (Pick One)](#your-task-pick-one)
+  - [What Success Looks Like](#what-success-looks-like)
+  - [Checklist for Your Blocker](#checklist-for-your-blocker)
+    - [Before You Start](#before-you-start)
+    - [While Implementing](#while-implementing)
+    - [Before Committing](#before-committing)
+  - [OTEL Span Checklist](#otel-span-checklist)
+  - [Red Flags (Andon Signals)](#red-flags-andon-signals)
+  - [FAQ](#faq)
+  - [Key Documents](#key-documents)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Wave 2 Phase 1 — Quick Start Guide
 
 **Read This First:** 2 minutes  

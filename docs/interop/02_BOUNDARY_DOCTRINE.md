@@ -1,3 +1,14 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Boundary Doctrine](#boundary-doctrine)
+  - [1. Fundamental Rule](#1-fundamental-rule)
+  - [2. Forbidden Moves](#2-forbidden-moves)
+  - [3. The Interchangeable Part Stack](#3-the-interchangeable-part-stack)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Boundary Doctrine
 
 ## 1. Fundamental Rule

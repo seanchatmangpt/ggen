@@ -1,3 +1,15 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Motion Does Not Count](#motion-does-not-count)
+  - [The distinction](#the-distinction)
+  - [The five ways motion masquerades as value](#the-five-ways-motion-masquerades-as-value)
+  - [How value is proven](#how-value-is-proven)
+  - [See also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Motion Does Not Count
 
 > Explanation. The single hardest discipline in the Genesis Run, and the one most

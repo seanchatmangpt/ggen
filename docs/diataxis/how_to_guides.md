@@ -1,3 +1,25 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [How-To Guides: State Management and Provenance with `ggen-graph`](#how-to-guides-state-management-and-provenance-with-ggen-graph)
+  - [1. Writing Custom SPARQL ASK/CONSTRUCT Triggers and Actions](#1-writing-custom-sparql-askconstruct-triggers-and-actions)
+    - [Problem](#problem)
+    - [Solution](#solution)
+      - [Writing an ASK Trigger](#writing-an-ask-trigger)
+      - [Writing a CONSTRUCT Action](#writing-a-construct-action)
+  - [2. Registering and Executing Validation Hooks](#2-registering-and-executing-validation-hooks)
+    - [Problem](#problem-1)
+    - [Solution](#solution-1)
+  - [3. Verifying Cryptographic Transition Receipts](#3-verifying-cryptographic-transition-receipts)
+    - [Problem](#problem-2)
+    - [Solution](#solution-2)
+  - [4. Projecting OCEL/PROV Evidence](#4-projecting-ocelprov-evidence)
+    - [Problem](#problem-3)
+    - [Solution](#solution-3)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # How-To Guides: State Management and Provenance with `ggen-graph`
 
 This document provides step-by-step recipes for standard tasks in the `ggen-graph` crate. Each guide is problem-oriented, practical, and includes complete, production-ready examples using `DeterministicGraph`, `RdfDelta`, `KnowledgeHook`, and `TransitionReceipt`.

@@ -1,3 +1,17 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Interop Contracts](#interop-contracts)
+  - [1. Scope](#1-scope)
+  - [2. Contract Matrix](#2-contract-matrix)
+    - [2.1. The Construction Contract (ggen → Genesis)](#21-the-construction-contract-ggen-%E2%86%92-genesis)
+    - [2.2. The Custody Contract (AtomVM/WASM → ggen)](#22-the-custody-contract-atomvmwasm-%E2%86%92-ggen)
+    - [2.3. The Projection Contract (ggen → External Validators)](#23-the-projection-contract-ggen-%E2%86%92-external-validators)
+    - [2.4. The Promotion Contract (Genesis → Truex)](#24-the-promotion-contract-genesis-%E2%86%92-truex)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Interop Contracts
 
 ## 1. Scope

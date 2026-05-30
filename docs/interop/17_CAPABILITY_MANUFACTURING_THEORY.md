@@ -1,3 +1,17 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Capability Manufacturing Theory](#capability-manufacturing-theory)
+  - [1. The Core Realization](#1-the-core-realization)
+  - [2. The Failure Mode of Conventional AI Agents](#2-the-failure-mode-of-conventional-ai-agents)
+  - [3. Operational Consequence Conservation](#3-operational-consequence-conservation)
+  - [4. Capability Cells](#4-capability-cells)
+  - [5. The Ultimate Truth Surface](#5-the-ultimate-truth-surface)
+  - [6. The Product Shape: Operational Capability Foundry](#6-the-product-shape-operational-capability-foundry)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Capability Manufacturing Theory
 
 ## 1. The Core Realization

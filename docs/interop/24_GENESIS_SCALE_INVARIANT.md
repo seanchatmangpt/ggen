@@ -1,3 +1,18 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GENESIS-SCALE INVARIANT: The Architecture of Consequence](#genesis-scale-invariant-the-architecture-of-consequence)
+  - [The Foundational Equation](#the-foundational-equation)
+  - [1. The Paradigm Shift: From Software to Stewardship](#1-the-paradigm-shift-from-software-to-stewardship)
+  - [2. Mechanical Intelligence Emergence](#2-mechanical-intelligence-emergence)
+  - [3. The New Unit: Interchangeable Stewardship Cells](#3-the-new-unit-interchangeable-stewardship-cells)
+  - [4. The Role of GitHub as Stewardship Infrastructure](#4-the-role-of-github-as-stewardship-infrastructure)
+  - [5. The Governance of Consequence](#5-the-governance-of-consequence)
+  - [6. Definition of Operational Truth](#6-definition-of-operational-truth)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GENESIS-SCALE INVARIANT: The Architecture of Consequence
 
 ## The Foundational Equation

@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Gate 6 Validation Report: Proof Truth](#gate-6-validation-report-proof-truth)
+  - [Executive Summary](#executive-summary)
+  - [Validation Checklist Results](#validation-checklist-results)
+    - [✅ 1. CompositionReceipt Structure (PASS)](#-1-compositionreceipt-structure-pass)
+    - [✅ 2. BuildReceipt Extended with Pack Provenance (PASS)](#-2-buildreceipt-extended-with-pack-provenance-pass)
+    - [✅ 3. Pack Provenance Tracking (PASS)](#-3-pack-provenance-tracking-pass)
+    - [✅ 4. ReceiptChain Hash-Linked Proofs (PASS)](#-4-receiptchain-hash-linked-proofs-pass)
+    - [✅ 5. Receipt Replayability (PASS)](#-5-receipt-replayability-pass)
+  - [Evidence: Code Snippets](#evidence-code-snippets)
+    - [Example 1: Composition Receipt with Full Provenance](#example-1-composition-receipt-with-full-provenance)
+    - [Example 2: Build Receipt with Pack Provenance](#example-2-build-receipt-with-pack-provenance)
+    - [Example 3: Receipt Chain Verification](#example-3-receipt-chain-verification)
+  - [Findings](#findings)
+    - [✅ Strengths](#-strengths)
+    - [⚠️ Areas for Improvement](#-areas-for-improvement)
+  - [PRD Requirement Mapping](#prd-requirement-mapping)
+  - [Recommendations for Production Readiness](#recommendations-for-production-readiness)
+    - [High Priority](#high-priority)
+    - [Medium Priority](#medium-priority)
+    - [Low Priority](#low-priority)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Gate 6 Validation Report: Proof Truth
 
 **Validation Date:** 2026-03-31

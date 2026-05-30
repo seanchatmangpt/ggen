@@ -1,3 +1,18 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Tutorial: State Transitions in `ggen-graph`](#tutorial-state-transitions-in-ggen-graph)
+  - [Prerequisites](#prerequisites)
+  - [Step 1: Initialize the Deterministic Graph and Load a Dataset](#step-1-initialize-the-deterministic-graph-and-load-a-dataset)
+  - [Step 2: Define and Load a Knowledge Hook Pack](#step-2-define-and-load-a-knowledge-hook-pack)
+  - [Step 3: Execute a Valid State Transition (Applying Deltas)](#step-3-execute-a-valid-state-transition-applying-deltas)
+  - [Step 4: Verify Cryptographic Integrity and Falsifiability](#step-4-verify-cryptographic-integrity-and-falsifiability)
+  - [Step 5: Handling Validation Failures and Rollbacks](#step-5-handling-validation-failures-and-rollbacks)
+  - [Complete Example Program](#complete-example-program)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Tutorial: State Transitions in `ggen-graph`
 
 This tutorial guides you step-by-step through using `ggen-graph` to perform deterministic RDF graph updates, enforce safety checks via knowledge hook validation, and verify the resulting state transitions using cryptographic receipts.

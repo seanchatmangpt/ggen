@@ -1,3 +1,15 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Proof Surfaces and Receipt Replay Refusal Spec](#proof-surfaces-and-receipt-replay-refusal-spec)
+  - [Definitions](#definitions)
+  - [Proof Surfaces Matrix](#proof-surfaces-matrix)
+  - [Required Refusal Cases](#required-refusal-cases)
+  - [Definition of Done](#definition-of-done)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Proof Surfaces and Receipt Replay Refusal Spec
 
 This document defines the proof machinery for Genesis-bearing interchangeable parts within the distributed architecture.

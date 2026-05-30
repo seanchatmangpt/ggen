@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Genesis Kernel Specification](#genesis-kernel-specification)
+  - [1. Purpose](#1-purpose)
+  - [2. Non-goals](#2-non-goals)
+  - [3. Core Equation](#3-core-equation)
+  - [4. Pair2 Model](#4-pair2-model)
+  - [5. RelationPage Model](#5-relationpage-model)
+  - [6. Construct8 Packet Model](#6-construct8-packet-model)
+  - [7. Need9 Split Law](#7-need9-split-law)
+  - [8. Need257 Split Law](#8-need257-split-law)
+  - [9. Set/Bag/Stream/Event-Addressed Multiplicity Law](#9-setbagstreamevent-addressed-multiplicity-law)
+  - [10. Source-Addressing Law](#10-source-addressing-law)
+  - [11. Receipt Law](#11-receipt-law)
+  - [12. Replay Law](#12-replay-law)
+  - [13. Refusal Law](#13-refusal-law)
+  - [14. Shard/Corpus Composition Law](#14-shardcorpus-composition-law)
+  - [15. Interop Contracts Exposed to ggen](#15-interop-contracts-exposed-to-ggen)
+  - [16. Rust Implementation Expectations](#16-rust-implementation-expectations)
+  - [17. Tests Required](#17-tests-required)
+  - [18. Definition of Done](#18-definition-of-done)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Genesis Kernel Specification
 
 **Status:** `DOC_ONLY`

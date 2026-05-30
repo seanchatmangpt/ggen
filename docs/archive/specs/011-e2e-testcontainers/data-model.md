@@ -1,3 +1,26 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Data Model: End-to-End Testing with Testcontainers](#data-model-end-to-end-testing-with-testcontainers)
+  - [Entity Relationship Overview](#entity-relationship-overview)
+  - [Core Entities](#core-entities)
+    - [1. Platform](#1-platform)
+    - [2. TestFixture](#2-testfixture)
+    - [3. GoldenFile](#3-goldenfile)
+    - [4. ContainerConfig](#4-containerconfig)
+    - [5. TestRunner](#5-testrunner)
+    - [6. TestExecution](#6-testexecution)
+    - [7. TestResult](#7-testresult)
+    - [8. CrossPlatformComparison](#8-crossplatformcomparison)
+  - [Error Types](#error-types)
+  - [Module Organization](#module-organization)
+  - [Trait Abstractions](#trait-abstractions)
+  - [State Transitions](#state-transitions)
+  - [Relationships Summary](#relationships-summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Data Model: End-to-End Testing with Testcontainers
 
 **Feature**: 011-e2e-testcontainers | **Date**: 2025-12-16

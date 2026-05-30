@@ -1,3 +1,18 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Tutorial: Manufacturing Your First Semantic Artifact](#tutorial-manufacturing-your-first-semantic-artifact)
+  - [Learning Objectives](#learning-objectives)
+  - [Prerequisites](#prerequisites)
+  - [Step 1: Initialize the Project](#step-1-initialize-the-project)
+  - [Step 2: Create a Domain Ontology](#step-2-create-a-domain-ontology)
+  - [Step 3: Define Manufacturing Intent](#step-3-define-manufacturing-intent)
+  - [Step 4: Run the μ-Pipeline](#step-4-run-the-%CE%BC-pipeline)
+  - [Step 5: Verify the Audit Trail](#step-5-verify-the-audit-trail)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Tutorial: Manufacturing Your First Semantic Artifact
 
 This tutorial walks you through the end-to-end process of projecting a domain ontology into verified source code using the `ggen` manufacturing pipeline.

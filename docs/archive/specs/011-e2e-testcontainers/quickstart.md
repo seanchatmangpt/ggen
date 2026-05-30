@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Quickstart: Running E2E Tests](#quickstart-running-e2e-tests)
+  - [Prerequisites](#prerequisites)
+  - [Quick Start (5 minutes)](#quick-start-5-minutes)
+    - [1. Run all E2E tests locally](#1-run-all-e2e-tests-locally)
+    - [2. Run platform-specific tests](#2-run-platform-specific-tests)
+    - [3. Run a specific fixture](#3-run-a-specific-fixture)
+  - [Test Categories](#test-categories)
+  - [Environment Variables](#environment-variables)
+  - [Updating Golden Files](#updating-golden-files)
+  - [Debugging Failed Tests](#debugging-failed-tests)
+    - [1. View container logs](#1-view-container-logs)
+    - [2. Run with verbose output](#2-run-with-verbose-output)
+    - [3. Inspect golden file diff](#3-inspect-golden-file-diff)
+  - [CI Integration](#ci-integration)
+    - [Skipping E2E tests](#skipping-e2e-tests)
+  - [Fixture Structure](#fixture-structure)
+  - [Adding a New Fixture](#adding-a-new-fixture)
+  - [Troubleshooting](#troubleshooting)
+    - [Docker not found](#docker-not-found)
+    - [Timeout errors](#timeout-errors)
+    - [Golden file mismatch](#golden-file-mismatch)
+    - [Cross-platform differences](#cross-platform-differences)
+  - [Performance Tips](#performance-tips)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Quickstart: Running E2E Tests
 
 **Feature**: 011-e2e-testcontainers | **Date**: 2025-12-16

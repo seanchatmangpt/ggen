@@ -1,3 +1,48 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Template Customization Guide](#template-customization-guide)
+  - [Overview](#overview)
+  - [Template Files](#template-files)
+  - [Template Context](#template-context)
+  - [Tera Syntax Reference](#tera-syntax-reference)
+    - [Variables](#variables)
+    - [Filters](#filters)
+    - [Conditionals](#conditionals)
+    - [Loops](#loops)
+    - [Nested Loops](#nested-loops)
+  - [Customizing Tools Template](#customizing-tools-template)
+    - [Adding Custom Imports](#adding-custom-imports)
+    - [Adding OTEL Spans](#adding-otel-spans)
+  - [Customizing Server Template](#customizing-server-template)
+    - [Adding Custom Fields to Server Struct](#adding-custom-fields-to-server-struct)
+    - [Adding Custom Transport Methods](#adding-custom-transport-methods)
+  - [Customizing Main Template](#customizing-main-template)
+    - [Adding Custom CLI Arguments](#adding-custom-cli-arguments)
+  - [Creating Custom Templates](#creating-custom-templates)
+    - [Adding a New Template](#adding-a-new-template)
+  - [Template Inheritance](#template-inheritance)
+    - [Base Template](#base-template)
+    - [Derived Template](#derived-template)
+  - [Testing Template Changes](#testing-template-changes)
+    - [1. Modify Template](#1-modify-template)
+    - [2. Test Generation](#2-test-generation)
+    - [3. Inspect Generated Code](#3-inspect-generated-code)
+    - [4. Compile Check](#4-compile-check)
+    - [5. Commit Template](#5-commit-template)
+  - [Best Practices](#best-practices)
+    - [DO ✅](#do-)
+    - [DON'T ❌](#dont-)
+  - [Common Patterns](#common-patterns)
+    - [Optional Feature Flags](#optional-feature-flags)
+    - [Default Values](#default-values)
+    - [Array Iteration with Index](#array-iteration-with-index)
+    - [String Joining](#string-joining)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Template Customization Guide
 
 How to customize the code generation templates for your specific needs.

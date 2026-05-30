@@ -1,3 +1,37 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Gate 3 Validation Report: Conflict Truth](#gate-3-validation-report-conflict-truth)
+  - [Executive Summary](#executive-summary)
+  - [Validation Checklist](#validation-checklist)
+    - [✅ PASS: Ownership Classes (4/4 Implemented)](#-pass-ownership-classes-44-implemented)
+    - [✅ PASS: OwnershipDeclaration Struct](#-pass-ownershipdeclaration-struct)
+    - [✅ PASS: 10 Compatibility Dimensions Defined](#-pass-10-compatibility-dimensions-defined)
+    - [✅ PASS: Conflict Severity Levels](#-pass-conflict-severity-levels)
+    - [⚠️ PARTIAL: Fake Compatibility Removed](#-partial-fake-compatibility-removed)
+    - [✅ PASS: CompatibilityChecker::check() Entry Point](#-pass-compatibilitycheckercheck-entry-point)
+    - [✅ PASS: Atomic Pack Taxonomy (9 Categories)](#-pass-atomic-pack-taxonomy-9-categories)
+  - [Test Coverage](#test-coverage)
+  - [Critical Findings](#critical-findings)
+    - [🟢 STRENGTHS](#-strengths)
+    - [🔴 WEAKNESSES](#-weaknesses)
+  - [Recommendations](#recommendations)
+    - [🔥 CRITICAL (Must Fix for Production)](#-critical-must-fix-for-production)
+    - [🟡 HIGH (Should Fix for Production)](#-high-should-fix-for-production)
+    - [🟢 LOW (Nice to Have)](#-low-nice-to-have)
+  - [Gate 3 Status: PARTIAL ✅❌](#gate-3-status-partial-)
+    - [Summary Scorecard](#summary-scorecard)
+    - [Verdict](#verdict)
+    - [Blockers for Production](#blockers-for-production)
+    - [Next Steps](#next-steps)
+  - [Evidence Artifacts](#evidence-artifacts)
+    - [Source Files Reviewed](#source-files-reviewed)
+    - [Test Results](#test-results)
+    - [Code Snippets](#code-snippets)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Gate 3 Validation Report: Conflict Truth
 
 **Date:** 2026-03-31

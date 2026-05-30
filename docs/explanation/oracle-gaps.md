@@ -1,3 +1,15 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Oracle Gaps](#oracle-gaps)
+  - [Oracle Gaps closed in v26.5.28](#oracle-gaps-closed-in-v26528)
+  - [The five ambiguous nouns](#the-five-ambiguous-nouns)
+  - [How an Oracle Gap is detected](#how-an-oracle-gap-is-detected)
+  - [See also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Oracle Gaps
 
 > Explanation. The specific defect this release was convened to close.

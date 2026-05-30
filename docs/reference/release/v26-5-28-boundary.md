@@ -1,3 +1,17 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [v26.5.28 Release Boundary (Reference)](#v26528-release-boundary-reference)
+  - [The boundary](#the-boundary)
+  - [Command surface decisions](#command-surface-decisions)
+  - [Why these five are archived, not deleted](#why-these-five-are-archived-not-deleted)
+  - [Rest-gate conditions (the Sabbath signature)](#rest-gate-conditions-the-sabbath-signature)
+  - [Known open items inside the boundary (honest backlog)](#known-open-items-inside-the-boundary-honest-backlog)
+  - [See also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # v26.5.28 Release Boundary (Reference)
 
 > Reference + release artifact. The named boundary of the v26.5.28 Genesis Run: what is

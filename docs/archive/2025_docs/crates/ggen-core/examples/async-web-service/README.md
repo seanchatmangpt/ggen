@@ -1,3 +1,30 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Async Web Service Example](#async-web-service-example)
+  - [Features](#features)
+  - [Quick Start](#quick-start)
+  - [API Endpoints](#api-endpoints)
+    - [Authentication](#authentication)
+    - [Users (Protected)](#users-protected)
+    - [Health](#health)
+  - [Lifecycle Tasks](#lifecycle-tasks)
+    - [Development](#development)
+    - [Testing](#testing)
+    - [Build](#build)
+    - [Deploy](#deploy)
+    - [Database](#database)
+  - [Environment Variables](#environment-variables)
+  - [Docker Deployment](#docker-deployment)
+  - [Testing](#testing-1)
+  - [Architecture](#architecture)
+  - [Production Features](#production-features)
+  - [Performance](#performance)
+  - [License](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Async Web Service Example
 
 Production-ready REST API with Actix-web, PostgreSQL, Redis, and JWT authentication.

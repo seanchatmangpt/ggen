@@ -1,3 +1,20 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Pack Template Registration Status](#pack-template-registration-status)
+  - [Summary](#summary)
+  - [Implementation Status](#implementation-status)
+    - [✅ **Implemented Components**](#-implemented-components)
+    - [❌ **Disabled in Production Pipeline**](#-disabled-in-production-pipeline)
+  - [Why Was It Disabled?](#why-was-it-disabled)
+  - [How to Re-Enable](#how-to-re-enable)
+  - [Test Evidence](#test-evidence)
+  - [Recommendations](#recommendations)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Pack Template Registration Status
 
 **Date:** 2026-03-31

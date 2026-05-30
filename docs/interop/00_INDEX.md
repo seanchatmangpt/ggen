@@ -1,3 +1,18 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [INTEROP DOCUMENTATION & FINISH INDEX](#interop-documentation--finish-index)
+  - [Executive Summary](#executive-summary)
+  - [Master Map & Contracts](#master-map--contracts)
+  - [Core Architectural Specifications](#core-architectural-specifications)
+  - [Lifecycle, Proof, and Intelligence](#lifecycle-proof-and-intelligence)
+  - [Validation Gates (GALL)](#validation-gates-gall)
+  - [Finish Planning](#finish-planning)
+  - [Final Judgment](#final-judgment)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # INTEROP DOCUMENTATION & FINISH INDEX
 
 ## Executive Summary

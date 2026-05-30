@@ -1,3 +1,28 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Genesis-Bearing Interchangeable Part Spec](#genesis-bearing-interchangeable-part-spec)
+  - [1. Definition of Genesis-Bearing Interchangeable Part](#1-definition-of-genesis-bearing-interchangeable-part)
+  - [2. Why Genesis is Inside the Part, Not Downstream](#2-why-genesis-is-inside-the-part-not-downstream)
+  - [3. AtomVM Custody Role](#3-atomvm-custody-role)
+  - [4. WASM Portability Role](#4-wasm-portability-role)
+  - [5. Rust Physical Discipline Role](#5-rust-physical-discipline-role)
+  - [6. ggen Membrane Around the Part](#6-ggen-membrane-around-the-part)
+  - [7. Genesis Kernel Inside the Part](#7-genesis-kernel-inside-the-part)
+  - [8. Local Receipt Production](#8-local-receipt-production)
+  - [9. Local Replay Cursor](#9-local-replay-cursor)
+  - [10. Local Refusal Evidence](#10-local-refusal-evidence)
+  - [11. Rollup into Segment/Shard/Corpus](#11-rollup-into-segmentshardcorpus)
+  - [12. Part Manifest](#12-part-manifest)
+  - [13. Part Lifecycle](#13-part-lifecycle)
+  - [14. Replacement/Interchangeability Rules](#14-replacementinterchangeability-rules)
+  - [15. Compatibility Rules](#15-compatibility-rules)
+  - [16. Definition of Done](#16-definition-of-done)
+  - [Interface Table](#interface-table)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Genesis-Bearing Interchangeable Part Spec
 
 ## 1. Definition of Genesis-Bearing Interchangeable Part

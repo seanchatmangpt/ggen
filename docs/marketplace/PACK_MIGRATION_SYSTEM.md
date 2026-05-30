@@ -1,3 +1,48 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Pack Migration System - Implementation Guide](#pack-migration-system---implementation-guide)
+  - [Overview](#overview)
+  - [Core Components](#core-components)
+    - [1. `Migrator` - Main Migration Engine](#1-migrator---main-migration-engine)
+    - [2. `UpgradeEdge` - Upgrade Transition](#2-upgradeedge---upgrade-transition)
+  - [Upgrade Path Computation](#upgrade-path-computation)
+    - [Linear Upgrade Paths](#linear-upgrade-paths)
+    - [Branching Upgrade Paths](#branching-upgrade-paths)
+    - [Path Finding Algorithm](#path-finding-algorithm)
+  - [Migration Execution](#migration-execution)
+    - [Basic Migration](#basic-migration)
+    - [Multi-Step Migration](#multi-step-migration)
+  - [Rollback Support](#rollback-support)
+  - [Compatibility Checking](#compatibility-checking)
+    - [Direct Upgrade Check](#direct-upgrade-check)
+    - [Any Path Check](#any-path-check)
+    - [Compatibility Matrix](#compatibility-matrix)
+  - [Version Management](#version-management)
+    - [All Registered Versions](#all-registered-versions)
+    - [Upgrade Targets](#upgrade-targets)
+  - [Test Coverage](#test-coverage)
+    - [Unit Tests (in `crates/ggen-marketplace/src/migration.rs`)](#unit-tests-in-cratesggen-marketplacesrcmigrationrs)
+    - [Integration Tests (in `crates/ggen-marketplace/tests/pack_migration_test.rs`)](#integration-tests-in-cratesggen-marketplacetestspack_migration_testrs)
+  - [Real-World Example](#real-world-example)
+  - [Architecture Decisions](#architecture-decisions)
+    - [Why BFS for Path Finding?](#why-bfs-for-path-finding)
+    - [Why Rollback States?](#why-rollback-states)
+    - [Why Upgrade Graph as HashMap?](#why-upgrade-graph-as-hashmap)
+  - [Extending the System](#extending-the-system)
+    - [Adding Version-Specific Transforms](#adding-version-specific-transforms)
+    - [Custom Path Finding Algorithms](#custom-path-finding-algorithms)
+  - [Performance Characteristics](#performance-characteristics)
+  - [Error Handling](#error-handling)
+    - [Path Not Found](#path-not-found)
+    - [Migration Failure with Rollback](#migration-failure-with-rollback)
+  - [Integration with Registry](#integration-with-registry)
+  - [Testing Checklist](#testing-checklist)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Pack Migration System - Implementation Guide
 
 ## Overview

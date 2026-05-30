@@ -1,3 +1,27 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Code Generation Guide](#code-generation-guide)
+  - [Pipeline Overview](#pipeline-overview)
+  - [μ₁: Load Ontology](#%CE%BC%E2%82%81-load-ontology)
+  - [μ₂: Extract Context](#%CE%BC%E2%82%82-extract-context)
+  - [μ₃: Render Templates](#%CE%BC%E2%82%83-render-templates)
+  - [μ₄: Validate (Compile Gate)](#%CE%BC%E2%82%84-validate-compile-gate)
+  - [μ₅: Emit Files and Receipt](#%CE%BC%E2%82%85-emit-files-and-receipt)
+  - [Pipeline Internals](#pipeline-internals)
+    - [Context Structure](#context-structure)
+    - [Template Rendering](#template-rendering)
+    - [Error Handling](#error-handling)
+  - [Performance](#performance)
+  - [Debugging](#debugging)
+    - [Enable trace logging](#enable-trace-logging)
+    - [Inspect extracted context](#inspect-extracted-context)
+    - [View SPARQL results](#view-sparql-results)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Code Generation Guide
 
 How the ggen MCP server generation pipeline works internally.

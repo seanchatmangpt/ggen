@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [MCP Server Generation Tests - Final Summary](#mcp-server-generation-tests---final-summary)
+  - [Summary](#summary)
+  - [Files Created](#files-created)
+    - [1. Core E2E Tests](#1-core-e2e-tests)
+    - [2. CLI Tests](#2-cli-tests)
+  - [Current Status](#current-status)
+    - [✅ What Works](#-what-works)
+    - [⚠️ What Needs Minor Fixes](#-what-needs-minor-fixes)
+  - [How to Run Tests (After Fixes)](#how-to-run-tests-after-fixes)
+    - [Run All Core E2E Tests](#run-all-core-e2e-tests)
+    - [Run All CLI Tests](#run-all-cli-tests)
+    - [Run Specific Test](#run-specific-test)
+  - [Required Fixes](#required-fixes)
+    - [Fix 1: Update Template Rendering (Core Tests)](#fix-1-update-template-rendering-core-tests)
+    - [Fix 2: Add `mut` Keywords](#fix-2-add-mut-keywords)
+  - [Test Infrastructure](#test-infrastructure)
+    - [Dependencies](#dependencies)
+    - [Utilities Provided](#utilities-provided)
+  - [Chicago TDD Compliance](#chicago-tdd-compliance)
+    - [✅ Real Collaborators](#-real-collaborators)
+    - [❌ No Mocks](#-no-mocks)
+    - [✅ State-Based Verification](#-state-based-verification)
+  - [Integration with Existing Tests](#integration-with-existing-tests)
+  - [Next Steps](#next-steps)
+  - [Documentation](#documentation)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # MCP Server Generation Tests - Final Summary
 
 **Date**: 2026-03-31

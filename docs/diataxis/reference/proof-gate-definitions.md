@@ -1,3 +1,19 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Reference: Manufacturing Proof Gates](#reference-manufacturing-proof-gates)
+  - [O-01: Schema Valid](#o-01-schema-valid)
+  - [O-02: Ontology Lawful](#o-02-ontology-lawful)
+  - [M-01: Projection Complete](#m-01-projection-complete)
+  - [M-02: Compilation Passes](#m-02-compilation-passes)
+  - [P-01: Receipt Valid](#p-01-receipt-valid)
+  - [O-03: Ethos Conformant](#o-03-ethos-conformant)
+  - [T-01: Observability Present](#t-01-observability-present)
+  - [C-01: Causal Consistent](#c-01-causal-consistent)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Reference: Manufacturing Proof Gates
 
 Detailed specification of the validation criteria for each proof gate in the `ggen` v26.5.19 release.

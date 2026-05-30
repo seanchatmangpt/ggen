@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [FMEA Analysis & Poka-Yoke Code Recommendations for ggen](#fmea-analysis--poka-yoke-code-recommendations-for-ggen)
+  - [Critical Context: ggen is for AI Coding Agents](#critical-context-ggen-is-for-ai-coding-agents)
+  - [Architectural Principle: ggen.toml is the Single Source of Truth](#architectural-principle-ggentoml-is-the-single-source-of-truth)
+  - [The Problem to Solve](#the-problem-to-solve)
+  - [FMEA Analysis: ggen Generation Lifecycle (AI Agent Context)](#fmea-analysis-ggen-generation-lifecycle-ai-agent-context)
+    - [Failure Mode Identification](#failure-mode-identification)
+    - [Critical Failure Modes (RPN > 200)](#critical-failure-modes-rpn--200)
+  - [Poka-Yoke Recommendations (ggen.toml-Driven Changes)](#poka-yoke-recommendations-ggentoml-driven-changes)
+    - [Recommendation 1: Directory Separation via ggen.toml (Fixes F2, F3)](#recommendation-1-directory-separation-via-ggentoml-fixes-f2-f3)
+    - [Recommendation 2: Trait Boundary Pattern (Fixes F4)](#recommendation-2-trait-boundary-pattern-fixes-f4)
+    - [Recommendation 3: Warning Header Injection (Fixes F1)](#recommendation-3-warning-header-injection-fixes-f1)
+    - [Recommendation 4: One-File-Per-Verb Pattern (Fixes F3)](#recommendation-4-one-file-per-verb-pattern-fixes-f3)
+    - [Recommendation 5: First-Generation Stub Creation (Fixes F5)](#recommendation-5-first-generation-stub-creation-fixes-f5)
+  - [Summary: Code Changes to Make](#summary-code-changes-to-make)
+  - [Answering the Original Question](#answering-the-original-question)
+  - [Configuration Reference: What Already Exists in ggen.toml](#configuration-reference-what-already-exists-in-ggentoml)
+    - [Already Implemented in Schema](#already-implemented-in-schema)
+  - [What Needs Implementation](#what-needs-implementation)
+  - [Example ggen.toml Using Poka-Yoke](#example-ggentoml-using-poka-yoke)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # FMEA Analysis & Poka-Yoke Code Recommendations for ggen
 
 **Feature Branch**: `006-marketplace-fmea-poka-yoke`

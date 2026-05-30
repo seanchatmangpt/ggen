@@ -1,3 +1,39 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Bundles and Profiles](#bundles-and-profiles)
+  - [Overview](#overview)
+    - [Core Principles](#core-principles)
+  - [Bundles](#bundles)
+    - [What Are Bundles?](#what-are-bundles)
+    - [Predefined Bundles](#predefined-bundles)
+      - [MCP Bundles](#mcp-bundles)
+      - [A2A Bundles](#a2a-bundles)
+      - [Contract Bundles](#contract-bundles)
+    - [Deterministic Expansion](#deterministic-expansion)
+    - [Bundle Validation](#bundle-validation)
+    - [Custom Bundles](#custom-bundles)
+  - [Profiles](#profiles)
+    - [What Are Profiles?](#what-are-profiles)
+    - [Predefined Profiles](#predefined-profiles)
+      - [`default`](#default)
+      - [`enterprise-strict`](#enterprise-strict)
+      - [`regulated-finance`](#regulated-finance)
+    - [Profile Usage](#profile-usage)
+    - [Profile Enforcement](#profile-enforcement)
+  - [Runtime Constraints](#runtime-constraints)
+  - [Trust Tier Enforcement](#trust-tier-enforcement)
+  - [Registry Class Enforcement](#registry-class-enforcement)
+  - [Policy Requirements](#policy-requirements)
+  - [Receipt Requirements](#receipt-requirements)
+  - [Custom Profiles](#custom-profiles)
+  - [Bundle + Profile Composition](#bundle--profile-composition)
+  - [Lockfile Format](#lockfile-format)
+  - [Further Reading](#further-reading)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Bundles and Profiles
 
 **Version:** 26.5.4

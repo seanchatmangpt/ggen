@@ -1,3 +1,22 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Architecture — Compressed Reference](#ggen-architecture--compressed-reference)
+  - [C4 Container Diagram — Actual Dependencies](#c4-container-diagram--actual-dependencies)
+  - [Production Sync Flow — The REAL Path](#production-sync-flow--the-real-path)
+  - [Key Entry Points](#key-entry-points)
+  - [Stub Registry — What's Real vs Fake](#stub-registry--whats-real-vs-fake)
+    - [P0 — Silently wrong (always passes when it shouldn't)](#p0--silently-wrong-always-passes-when-it-shouldnt)
+    - [P1 — Returns error or placeholder](#p1--returns-error-or-placeholder)
+    - [P2 — Returns wrong answer silently](#p2--returns-wrong-answer-silently)
+  - [Ontology Namespace — CANONICAL](#ontology-namespace--canonical)
+  - [Error Type Map](#error-type-map)
+  - [Dead Infrastructure (do not use)](#dead-infrastructure-do-not-use)
+  - [Test Status](#test-status)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Architecture — Compressed Reference
 
 **Purpose:** Single document (~2K tokens) that gives an AI agent the same mental map a senior engineer builds over weeks. All paths verified by LSP survey 2026-04-01.

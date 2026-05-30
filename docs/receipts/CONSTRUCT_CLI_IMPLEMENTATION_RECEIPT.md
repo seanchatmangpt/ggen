@@ -42,6 +42,7 @@
     - [Test Coverage Receipt ✅](#test-coverage-receipt-)
   - [Success Criteria](#success-criteria)
   - [Signature](#signature)
+  - [Architecture Diagram](#architecture-diagram)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 

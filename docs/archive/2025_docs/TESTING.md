@@ -1,3 +1,56 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Testing Guide for ggen](#testing-guide-for-ggen)
+  - [Testing Philosophy](#testing-philosophy)
+  - [Test Organization](#test-organization)
+    - [Test Structure](#test-structure)
+    - [Test Naming Conventions](#test-naming-conventions)
+  - [Running Tests](#running-tests)
+    - [All Tests](#all-tests)
+    - [Specific Crate](#specific-crate)
+    - [Specific Test](#specific-test)
+    - [Test Filters](#test-filters)
+    - [Watch Mode for Development](#watch-mode-for-development)
+  - [Writing Tests](#writing-tests)
+    - [Unit Test Example](#unit-test-example)
+    - [Integration Test Example](#integration-test-example)
+    - [Async Test Example](#async-test-example)
+    - [Property-based Test Example](#property-based-test-example)
+  - [Test Fixtures](#test-fixtures)
+    - [Creating Test Data](#creating-test-data)
+    - [Test Fixture Ontologies](#test-fixture-ontologies)
+  - [Coverage Analysis](#coverage-analysis)
+    - [Generate Coverage Report](#generate-coverage-report)
+    - [Coverage Targets](#coverage-targets)
+    - [Checking Coverage](#checking-coverage)
+  - [Continuous Integration Tests](#continuous-integration-tests)
+    - [GitHub Actions Workflow](#github-actions-workflow)
+  - [Benchmarking](#benchmarking)
+    - [Criterion Benchmarks](#criterion-benchmarks)
+    - [Benchmark Example](#benchmark-example)
+  - [Common Testing Issues](#common-testing-issues)
+    - [Issue: Test Hangs](#issue-test-hangs)
+    - [Issue: Flaky Tests](#issue-flaky-tests)
+    - [Issue: Test Isolation](#issue-test-isolation)
+  - [Test Data Management](#test-data-management)
+    - [Managing Large Test Files](#managing-large-test-files)
+    - [Generating Test Data](#generating-test-data)
+  - [Documentation Tests](#documentation-tests)
+    - [Doc Test Example](#doc-test-example)
+  - [Test Best Practices](#test-best-practices)
+    - [✓ Do](#%E2%9C%93-do)
+    - [✗ Don't](#%E2%9C%97-dont)
+  - [Fuzzing](#fuzzing)
+    - [Fuzzing with cargo-fuzz](#fuzzing-with-cargo-fuzz)
+    - [Fuzzing Example](#fuzzing-example)
+  - [Test Reporting](#test-reporting)
+    - [GitHub Integration](#github-integration)
+  - [Getting Help](#getting-help)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Testing Guide for ggen
 
 This guide covers ggen's testing strategy, test organization, and how to write effective tests.

@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [Security Architecture (v26.5.19)](#security-architecture-v26.5.1900)
+- [Security Architecture (v26.5.19)](#security-architecture-v26519)
   - [Overview](#overview)
   - [Table of Contents](#table-of-contents)
   - [Defense in Depth Layers](#defense-in-depth-layers)
@@ -37,8 +37,8 @@
     - [Detective Controls](#detective-controls)
     - [Corrective Controls](#corrective-controls)
   - [Security Roadmap](#security-roadmap)
-    - [v26.5.19 (Q1 2026)](#v26.5.1910-q1-2026)
-    - [v26.5.19.2.0 (Q2 2026)](#v26.5.1920-q2-2026)
+    - [v26.5.19 (Q1 2026)](#v26519-q1-2026)
+    - [v26.5.19.2.0 (Q2 2026)](#v2651920-q2-2026)
     - [v7.0.0 (Q3 2026)](#v700-q3-2026)
   - [References](#references)
 

@@ -1,3 +1,21 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Weaver Registry Integration - Architecture Diagrams](#weaver-registry-integration---architecture-diagrams)
+  - [Current State (ggen v26.5.19)](#current-state-ggen-v26519)
+  - [Target State (With Weaver Live-Check)](#target-state-with-weaver-live-check)
+  - [Span Flow: Valid vs Invalid](#span-flow-valid-vs-invalid)
+    - [Valid Span (No Violations)](#valid-span-no-violations)
+    - [Invalid Span (Violations)](#invalid-span-violations)
+  - [CI/CD Integration](#cicd-integration)
+  - [Development Workflow](#development-workflow)
+  - [Drift Detection Workflow](#drift-detection-workflow)
+  - [Key Integration Points](#key-integration-points)
+  - [File Structure](#file-structure)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Weaver Registry Integration - Architecture Diagrams
 
 ## Current State (ggen v26.5.19)

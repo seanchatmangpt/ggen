@@ -1,3 +1,16 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Tutorial: KGC-4D Time-Travel and Temporal Reconstruction](#tutorial-kgc-4d-time-travel-and-temporal-reconstruction)
+  - [Prerequisites](#prerequisites)
+  - [Step 1: Create a Triple with 4D Metadata](#step-1-create-a-triple-with-4d-metadata)
+  - [Step 2: Persist to the RdfControlPlane](#step-2-persist-to-the-rdfcontrolplane)
+  - [Step 3: Perform Time-Travel Reconstruction](#step-3-perform-time-travel-reconstruction)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Tutorial: KGC-4D Time-Travel and Temporal Reconstruction
 
 This tutorial teaches you how to use the Knowledge Graph Compiler's 4D features (KGC-4D) to reconstruct historical states of the marketplace graph.

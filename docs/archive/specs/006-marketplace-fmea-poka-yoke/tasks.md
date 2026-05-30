@@ -1,3 +1,49 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Tasks: FMEA & Poka-Yoke Marketplace Framework](#tasks-fmea--poka-yoke-marketplace-framework)
+  - [Architecture Summary (DfLSS Aligned)](#architecture-summary-dflss-aligned)
+  - [Format: `[ID] [P?] [Story] Description`](#format-id-p-story-description)
+  - [Path Conventions (ggen workspace)](#path-conventions-ggen-workspace)
+  - [Phase 1: Setup (Shared Infrastructure)](#phase-1-setup-shared-infrastructure)
+  - [Phase 2: Foundational (Blocking Prerequisites)](#phase-2-foundational-blocking-prerequisites)
+    - [Already Completed (ggen-config)](#already-completed-ggen-config)
+    - [Remaining Tasks (ggen-core newtypes)](#remaining-tasks-ggen-core-newtypes)
+  - [Phase 3: User Story 1 - Protected Domain Logic (Priority: P1)](#phase-3-user-story-1---protected-domain-logic-priority-p1)
+    - [Tests for User Story 1](#tests-for-user-story-1)
+    - [Implementation for User Story 1](#implementation-for-user-story-1)
+  - [Phase 4: User Story 2 - Poka-Yoke Warning System (Priority: P1)](#phase-4-user-story-2---poka-yoke-warning-system-priority-p1)
+    - [Tests for User Story 2](#tests-for-user-story-2)
+    - [Implementation for User Story 2](#implementation-for-user-story-2)
+  - [Phase 5: User Story 3 - FMEA Validation Gate (Priority: P2)](#phase-5-user-story-3---fmea-validation-gate-priority-p2)
+    - [Tests for User Story 3](#tests-for-user-story-3)
+    - [Implementation for User Story 3](#implementation-for-user-story-3)
+  - [Phase 6: User Story 4 - Team Ownership Enforcement (Priority: P2)](#phase-6-user-story-4---team-ownership-enforcement-priority-p2)
+    - [Tests for User Story 4](#tests-for-user-story-4)
+    - [Implementation for User Story 4](#implementation-for-user-story-4)
+  - [Phase 7: User Story 5 - Zero-Conflict Parallel Development (Priority: P3)](#phase-7-user-story-5---zero-conflict-parallel-development-priority-p3)
+    - [Tests for User Story 5](#tests-for-user-story-5)
+    - [Implementation for User Story 5](#implementation-for-user-story-5)
+  - [Phase 8: Polish & Cross-Cutting Concerns](#phase-8-polish--cross-cutting-concerns)
+  - [Dependencies & Execution Order](#dependencies--execution-order)
+    - [Phase Dependencies](#phase-dependencies)
+    - [User Story Dependencies](#user-story-dependencies)
+    - [Within Each User Story](#within-each-user-story)
+  - [Parallel Opportunities](#parallel-opportunities)
+    - [Setup Phase (All Parallel)](#setup-phase-all-parallel)
+    - [Foundational Phase (Multiple Parallel Groups)](#foundational-phase-multiple-parallel-groups)
+    - [User Story 1 Tests (All Parallel)](#user-story-1-tests-all-parallel)
+    - [Cross-Story Parallelism](#cross-story-parallelism)
+  - [Implementation Strategy](#implementation-strategy)
+    - [MVP First (User Story 1 Only)](#mvp-first-user-story-1-only)
+    - [Incremental Delivery](#incremental-delivery)
+    - [Suggested MVP Scope](#suggested-mvp-scope)
+  - [Task Summary](#task-summary)
+  - [Notes](#notes)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Tasks: FMEA & Poka-Yoke Marketplace Framework
 
 **Input**: Design documents from `/specs/006-marketplace-fmea-poka-yoke/`

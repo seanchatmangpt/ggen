@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Pipeline Integration](#pipeline-integration)
+  - [Overview](#overview)
+    - [Pipeline Stages](#pipeline-stages)
+  - [μ₀ Stage: Pack Resolution](#%CE%BC%E2%82%80-stage-pack-resolution)
+    - [PackResolver](#packresolver)
+    - [Lockfile Reading](#lockfile-reading)
+  - [μ₁ Stage: Normalization](#%CE%BC%E2%82%81-stage-normalization)
+  - [μ₂ Stage: Extraction](#%CE%BC%E2%82%82-stage-extraction)
+    - [Pack Queries](#pack-queries)
+  - [μ₃ Stage: Emission](#%CE%BC%E2%82%83-stage-emission)
+    - [Pack Templates](#pack-templates)
+    - [Template Registration](#template-registration)
+  - [μ₄ Stage: Canonicalization](#%CE%BC%E2%82%84-stage-canonicalization)
+  - [μ₅ Stage: Receipt](#%CE%BC%E2%82%85-stage-receipt)
+    - [Receipt Population](#receipt-population)
+    - [Receipt Output](#receipt-output)
+  - [Integration with `ggen sync`](#integration-with-ggen-sync)
+  - [Key Files](#key-files)
+  - [Further Reading](#further-reading)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Pipeline Integration
 
 **Version:** 26.5.4

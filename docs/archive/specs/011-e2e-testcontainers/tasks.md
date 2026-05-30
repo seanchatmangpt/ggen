@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Tasks: End-to-End Testing with Testcontainers](#tasks-end-to-end-testing-with-testcontainers)
+  - [Format: `[ID] [P?] [Story] Description`](#format-id-p-story-description)
+  - [Summary](#summary)
+  - [Phase 1: Setup (Shared Infrastructure)](#phase-1-setup-shared-infrastructure)
+  - [Phase 2: Foundational (Blocking Prerequisites)](#phase-2-foundational-blocking-prerequisites)
+  - [Phase 3: User Story 1 - Cross-Platform ggen sync Validation (Priority: P1) 🎯 MVP](#phase-3-user-story-1---cross-platform-ggen-sync-validation-priority-p1--mvp)
+    - [Implementation for User Story 1](#implementation-for-user-story-1)
+  - [Phase 4: User Story 2 - Dependency Isolation via Testcontainers (Priority: P1)](#phase-4-user-story-2---dependency-isolation-via-testcontainers-priority-p1)
+    - [Implementation for User Story 2](#implementation-for-user-story-2)
+  - [Phase 5: User Story 3 - Homebrew Installation Verification (Priority: P2)](#phase-5-user-story-3---homebrew-installation-verification-priority-p2)
+    - [Implementation for User Story 3](#implementation-for-user-story-3)
+  - [Phase 6: User Story 4 - Sample Project Validation Suite (Priority: P2)](#phase-6-user-story-4---sample-project-validation-suite-priority-p2)
+    - [Implementation for User Story 4](#implementation-for-user-story-4)
+  - [Phase 7: User Story 5 - CI Pipeline Integration (Priority: P3)](#phase-7-user-story-5---ci-pipeline-integration-priority-p3)
+    - [Implementation for User Story 5](#implementation-for-user-story-5)
+  - [Phase 8: Polish & Cross-Cutting Concerns](#phase-8-polish--cross-cutting-concerns)
+  - [Dependencies & Execution Order](#dependencies--execution-order)
+    - [Phase Dependencies](#phase-dependencies)
+    - [User Story Dependencies](#user-story-dependencies)
+    - [Within Each User Story](#within-each-user-story)
+    - [Parallel Opportunities](#parallel-opportunities)
+  - [Implementation Strategy](#implementation-strategy)
+    - [MVP First (User Story 1 Only)](#mvp-first-user-story-1-only)
+    - [Incremental Delivery](#incremental-delivery)
+    - [Suggested MVP Scope](#suggested-mvp-scope)
+  - [Notes](#notes)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Tasks: End-to-End Testing with Testcontainers
 
 **Input**: Design documents from `/specs/011-e2e-testcontainers/`

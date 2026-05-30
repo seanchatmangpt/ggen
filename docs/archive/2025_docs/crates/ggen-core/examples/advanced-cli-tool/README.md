@@ -1,3 +1,30 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Advanced CLI Tool](#advanced-cli-tool)
+  - [Features](#features)
+  - [Quick Start](#quick-start)
+  - [Lifecycle Commands](#lifecycle-commands)
+  - [Complete Pipeline](#complete-pipeline)
+  - [Configuration](#configuration)
+  - [Usage Examples](#usage-examples)
+    - [Process Files](#process-files)
+    - [Analyze Directory](#analyze-directory)
+    - [Convert Files](#convert-files)
+    - [Benchmark](#benchmark)
+  - [Lifecycle Phases](#lifecycle-phases)
+  - [Hooks](#hooks)
+  - [Testing](#testing)
+  - [Benchmarking](#benchmarking)
+  - [Security](#security)
+  - [Distribution](#distribution)
+  - [Architecture](#architecture)
+  - [Dependencies](#dependencies)
+  - [License](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Advanced CLI Tool
 
 Production-ready Rust CLI tool demonstrating ggen's complete lifecycle management with make.toml.

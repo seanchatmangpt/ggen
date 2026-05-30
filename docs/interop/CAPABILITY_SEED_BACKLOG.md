@@ -1,3 +1,23 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Capability Seed Backlog](#capability-seed-backlog)
+  - [Seeds found. Contracts implied. Finish paths mapped.](#seeds-found-contracts-implied-finish-paths-mapped)
+  - [Seed 1: genesis-construct8/src/admission.rs](#seed-1-genesis-construct8srcadmissionrs)
+  - [Seed 2: genesis-construct8/src/replay.rs](#seed-2-genesis-construct8srcreplayrs)
+  - [Seed 3: ggen-graph/src/ocel/projection.rs](#seed-3-ggen-graphsrcocelprojectionrs)
+  - [Seed 4: ggen-core/src/membrane/prov.rs](#seed-4-ggen-coresrcmembraneprovrs)
+  - [Seed 5: genesis-lockchain/src/merkle.rs](#seed-5-genesis-lockchainsrcmerklers)
+  - [Seed 6: genesis-lockchain/src/storage.rs](#seed-6-genesis-lockchainsrcstoragers)
+  - [Seed 7: ggen-graph/src/ocel/self_audit.rs](#seed-7-ggen-graphsrcocelself_auditrs)
+  - [Seed 8: genesis-construct8/src/projectors.rs](#seed-8-genesis-construct8srcprojectorsrs)
+  - [Seed 9: tests/integration/test_telco_routing.rs](#seed-9-testsintegrationtest_telco_routingrs)
+  - [Seed 10: examples/7-agent-validation/src/consensus.rs](#seed-10-examples7-agent-validationsrcconsensusrs)
+  - [Backlog Priority Order](#backlog-priority-order)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Capability Seed Backlog
 ## Seeds found. Contracts implied. Finish paths mapped.
 

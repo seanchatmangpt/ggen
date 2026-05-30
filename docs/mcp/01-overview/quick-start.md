@@ -1,3 +1,22 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [MCP Quick Start](#mcp-quick-start)
+  - [Prerequisites](#prerequisites)
+  - [Step 1: Build ggen](#step-1-build-ggen)
+  - [Step 2: Configure Claude Desktop](#step-2-configure-claude-desktop)
+  - [Step 3: Restart Claude Desktop](#step-3-restart-claude-desktop)
+  - [Step 4: Verify Connection](#step-4-verify-connection)
+  - [Step 5: First Tool Call](#step-5-first-tool-call)
+  - [Troubleshooting](#troubleshooting)
+    - [Server Not Starting](#server-not-starting)
+    - [Tools Not Appearing](#tools-not-appearing)
+    - [Permission Errors](#permission-errors)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # MCP Quick Start
 
 Get up and running with ggen MCP in 5 minutes.

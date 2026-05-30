@@ -1,3 +1,17 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Reference: Ontology Packs & Metadata Configuration](#reference-ontology-packs--metadata-configuration)
+  - [Structure of `OntologyPackMetadata`](#structure-of-ontologypackmetadata)
+    - [`OntologyConfig`](#ontologyconfig)
+    - [`OntologyDefinition`](#ontologydefinition)
+    - [Supported `OntologyFormat` Values](#supported-ontologyformat-values)
+    - [`CodeGenTarget`](#codegentarget)
+  - [Example `ggen.toml` Configuration](#example-ggentoml-configuration)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Reference: Ontology Packs & Metadata Configuration
 
 This document provides a technical reference for defining Ontology Packs in the `ggen` ecosystem. Ontology packs are specialized template packs that bundle RDF/OWL ontologies alongside code generation templates.

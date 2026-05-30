@@ -1,3 +1,23 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Golden Path Delta — Current vs Target](#golden-path-delta--current-vs-target)
+  - [At a Glance](#at-a-glance)
+  - [Delta Detail](#delta-detail)
+    - [Step 3: `pack add` — 3 new domain functions, 1 removed](#step-3-pack-add--3-new-domain-functions-1-removed)
+    - [Step 4: `capability enable` — 2 new domain functions, 1 refactored](#step-4-capability-enable--2-new-domain-functions-1-refactored)
+    - [Step 5: `sync --locked` — 4 new domain functions, 1 refactored](#step-5-sync---locked--4-new-domain-functions-1-refactored)
+    - [Step 6: `receipt verify` — 1 new domain function](#step-6-receipt-verify--1-new-domain-function)
+    - [New Verbs Needed](#new-verbs-needed)
+    - [Domain Files to Create (Total: 7)](#domain-files-to-create-total-7)
+    - [Domain Files to Rewrite (Total: 4)](#domain-files-to-rewrite-total-4)
+    - [CLI Files to Rewrite (Total: 2)](#cli-files-to-rewrite-total-2)
+  - [Dependency Order (from plan)](#dependency-order-from-plan)
+  - [The Two Lockfile Schemas (MUST FIX FIRST)](#the-two-lockfile-schemas-must-fix-first)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Golden Path Delta — Current vs Target
 
 ## At a Glance

@@ -1,3 +1,18 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [O-STAR-RECEIPT-CLOSURE-1 Receipt](#o-star-receipt-closure-1-receipt)
+  - [Final State](#final-state)
+  - [The crack (exposed by SYNC-ACTUATOR-1)](#the-crack-exposed-by-sync-actuator-1)
+  - [The fix](#the-fix)
+  - [Evidence — a real receipt's `input_hashes`](#evidence--a-real-receipts-input_hashes)
+  - [The four false-consequence exclusions (all hold)](#the-four-false-consequence-exclusions-all-hold)
+  - [Proven by](#proven-by)
+  - [Remaining (toward the rest gate)](#remaining-toward-the-rest-gate)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # O-STAR-RECEIPT-CLOSURE-1 Receipt
 
 ## Final State

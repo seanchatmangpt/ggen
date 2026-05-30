@@ -9,6 +9,8 @@
   - [Starting with Configuration](#starting-with-configuration)
   - [Starting Multiple Agents](#starting-multiple-agents)
   - [Managing Agent Lifecycle](#managing-agent-lifecycle)
+    - [Agent States](#agent-states)
+    - [Checking Agent State](#checking-agent-state)
   - [Monitoring Agent Status](#monitoring-agent-status)
   - [Stopping Agents](#stopping-agents)
   - [Agent Capabilities](#agent-capabilities)
@@ -18,7 +20,7 @@
     - [Agent Crashes](#agent-crashes)
   - [Next Steps](#next-steps)
 
-<!-- END doctoc generated TOC -->
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # How to Start and Manage A2A Agents
 

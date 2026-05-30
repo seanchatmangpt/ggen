@@ -1,3 +1,15 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Specification Quality Checklist: Reusable Ontology-Driven PhD Thesis Generation System](#specification-quality-checklist-reusable-ontology-driven-phd-thesis-generation-system)
+  - [Content Quality](#content-quality)
+  - [Requirement Completeness](#requirement-completeness)
+  - [Feature Readiness](#feature-readiness)
+  - [Notes](#notes)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Specification Quality Checklist: Reusable Ontology-Driven PhD Thesis Generation System
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning

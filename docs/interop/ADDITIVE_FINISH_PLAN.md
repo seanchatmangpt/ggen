@@ -1,3 +1,21 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Additive Finish Plan](#additive-finish-plan)
+  - ["Find the nearest implemented capability seed and complete it."](#find-the-nearest-implemented-capability-seed-and-complete-it)
+  - [NON-DELETION COMPLETION PROTOCOL — No rewrite, no remove, no clean slate.](#non-deletion-completion-protocol--no-rewrite-no-remove-no-clean-slate)
+  - [Principle](#principle)
+  - [Priority 1: Register genesis-construct8 in workspace](#priority-1-register-genesis-construct8-in-workspace)
+  - [Priority 2: Register genesis-lockchain as Truex substrate](#priority-2-register-genesis-lockchain-as-truex-substrate)
+  - [Priority 3: Connect OCEL projection to receipt chain](#priority-3-connect-ocel-projection-to-receipt-chain)
+  - [Priority 4: Wire SHACL violations to PlagueRecord](#priority-4-wire-shacl-violations-to-plaguerecord)
+  - [Priority 5: Register genesis-wasm-shell in workspace](#priority-5-register-genesis-wasm-shell-in-workspace)
+  - [Priority 6: Emit ChurchJudgment from ggen-graph doctor](#priority-6-emit-churchjudgment-from-ggen-graph-doctor)
+  - [Non-Negotiable Laws for All Finish Work](#non-negotiable-laws-for-all-finish-work)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Additive Finish Plan
 ## "Find the nearest implemented capability seed and complete it."
 ## NON-DELETION COMPLETION PROTOCOL — No rewrite, no remove, no clean slate.

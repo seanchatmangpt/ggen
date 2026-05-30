@@ -1,3 +1,17 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [DFLSS for `stpnt` ⚙️🔥](#dflss-for-stpnt-)
+  - [Define](#define)
+  - [Measure](#measure)
+  - [Analyze](#analyze)
+  - [Design](#design)
+  - [Verify](#verify)
+  - [Clean Line](#clean-line)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # DFLSS for `stpnt` ⚙️🔥
 
 Use **DMADV** (Design for Lean Six Sigma), not DMAIC.

@@ -1,3 +1,15 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen-config — Crate Audit](#ggen-config--crate-audit)
+  - [ISSUES](#issues)
+    - [ConfigValidator — `validate_a2a()` has dead code](#configvalidator--validate_a2a-has-dead-code)
+    - [ggen-config-clap — Unimplemented Trait](#ggen-config-clap--unimplemented-trait)
+  - [FIX / DELETE / REFACTOR](#fix--delete--refactor)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen-config — Crate Audit
 
 **Path:** `crates/ggen-config/`

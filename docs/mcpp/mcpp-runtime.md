@@ -1,3 +1,16 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [MCPP Runtime & Control Substrate](#mcpp-runtime--control-substrate)
+  - [Overview](#overview)
+  - [Core Mandates](#core-mandates)
+  - [Canonical Command Surface](#canonical-command-surface)
+  - [Implementation Trace](#implementation-trace)
+  - [Relationship to UniverseOS](#relationship-to-universeos)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # MCPP Runtime & Control Substrate
 
 ## Overview

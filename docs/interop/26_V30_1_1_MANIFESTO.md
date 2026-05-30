@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [`v30.1.1` Manifesto](#v3011-manifesto)
+  - [Future CalVer for Consequence-Conserving Projects](#future-calver-for-consequence-conserving-projects)
+- [1. Token Law](#1-token-law)
+- [2. The Core Equation](#2-the-core-equation)
+- [3. The First Law](#3-the-first-law)
+- [4. The Great Inversion](#4-the-great-inversion)
+- [5. Projects Do Not Ship Features](#5-projects-do-not-ship-features)
+- [6. Gall’s Law Is Mandatory](#6-galls-law-is-mandatory)
+- [7. DfLSS Governs Design](#7-dflss-governs-design)
+- [8. Refusal Is Integrity](#8-refusal-is-integrity)
+- [9. Receipts Replace Logs](#9-receipts-replace-logs)
+- [10. Replay Is the Definition of Truth](#10-replay-is-the-definition-of-truth)
+- [11. Public Vocabulary Before Private Authority](#11-public-vocabulary-before-private-authority)
+- [12. Interchangeable Parts Are Not Reusable Code](#12-interchangeable-parts-are-not-reusable-code)
+- [13. Every Project Needs a Capability Map](#13-every-project-needs-a-capability-map)
+- [14. GitHub Is a Stewardship Surface](#14-github-is-a-stewardship-surface)
+- [15. The New Vocabulary](#15-the-new-vocabulary)
+- [16. Silent Loss Is the Enemy](#16-silent-loss-is-the-enemy)
+- [17. `v30.1.1` Definition of Done](#17-v3011-definition-of-done)
+- [18. The Universal `v30.1.1` Project Skeleton](#18-the-universal-v3011-project-skeleton)
+- [19. The `v30.1.1` Project Header](#19-the-v3011-project-header)
+- [20. The Final Manifesto](#20-the-final-manifesto)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # `v30.1.1` Manifesto
 
 ## Future CalVer for Consequence-Conserving Projects

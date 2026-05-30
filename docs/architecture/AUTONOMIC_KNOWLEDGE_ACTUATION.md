@@ -1,3 +1,24 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Autonomic Knowledge Actuation: Reimagined Vision 2030](#autonomic-knowledge-actuation-reimagined-vision-2030)
+  - [The Corrected 2030 Picture](#the-corrected-2030-picture)
+    - [The New Doctrine](#the-new-doctrine)
+  - [The Correct Frame: A Closed Ecosystem](#the-correct-frame-a-closed-ecosystem)
+    - [Incoming and Outgoing Events](#incoming-and-outgoing-events)
+    - [Better Field Definition](#better-field-definition)
+  - [Ecosystem Components](#ecosystem-components)
+  - [The Role of Open Ontologies](#the-role-of-open-ontologies)
+  - [The Sharper Distinction](#the-sharper-distinction)
+  - [The New Unit of Architecture](#the-new-unit-of-architecture)
+  - [Vision 2030 Operating Model](#vision-2030-operating-model)
+    - [ggen vs Genesis, sharply](#ggen-vs-genesis-sharply)
+  - [2030 Roles of Runtime Environments](#2030-roles-of-runtime-environments)
+  - [New Vision 2030 Thesis](#new-vision-2030-thesis)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Autonomic Knowledge Actuation: Reimagined Vision 2030
 
 ## The Corrected 2030 Picture

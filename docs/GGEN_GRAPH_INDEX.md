@@ -1,3 +1,13 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GGen Graph Documentation Index](#ggen-graph-documentation-index)
+  - [Documentation Manifest](#documentation-manifest)
+  - [Witness Checkpoints Reference](#witness-checkpoints-reference)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GGen Graph Documentation Index
 
 This document serves as the master index for the `ggen-graph` substrate documentation, mapping checkpoints, and requirements to formal verification artifacts.

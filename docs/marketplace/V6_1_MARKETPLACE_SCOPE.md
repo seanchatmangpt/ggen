@@ -1,3 +1,14 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen v26.5.19 — Marketplace and packs scope](#ggen-v26519--marketplace-and-packs-scope)
+  - [Minimum shippable (v26.5.19 packs)](#minimum-shippable-v26519-packs)
+  - [Explicit deferrals](#explicit-deferrals)
+  - [Related docs](#related-docs)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen v26.5.19 — Marketplace and packs scope
 
 **Status:** Engineering track (product slice)  

@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Quickstart: FMEA & Poka-Yoke for Enterprise Packages](#quickstart-fmea--poka-yoke-for-enterprise-packages)
+  - [Overview](#overview)
+  - [Step 1: Add Enterprise Configuration](#step-1-add-enterprise-configuration)
+  - [Step 2: Configure Path Protection](#step-2-configure-path-protection)
+  - [Step 3: Configure Poka-Yoke Controls](#step-3-configure-poka-yoke-controls)
+  - [Step 4: Document Failure Modes (FMEA)](#step-4-document-failure-modes-fmea)
+    - [Understanding RPN Scores](#understanding-rpn-scores)
+  - [Step 5: Validate Your Package](#step-5-validate-your-package)
+  - [Step 6: Set Up Team Ownership (Optional)](#step-6-set-up-team-ownership-optional)
+  - [Step 7: First Generation](#step-7-first-generation)
+  - [Step 8: Implement Domain Logic](#step-8-implement-domain-logic)
+  - [Step 9: Regenerate Safely](#step-9-regenerate-safely)
+  - [Complete Example package.toml](#complete-example-packagetoml)
+  - [Next Steps](#next-steps)
+  - [Troubleshooting](#troubleshooting)
+    - ["Missing &#91;fmea&#93; section"](#missing-fmea-section)
+    - ["Unmitigated critical failure mode"](#unmitigated-critical-failure-mode)
+    - ["Path overlap detected"](#path-overlap-detected)
+    - ["Cannot write to protected path"](#cannot-write-to-protected-path)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Quickstart: FMEA & Poka-Yoke for Enterprise Packages
 
 **Time to complete**: 10 minutes

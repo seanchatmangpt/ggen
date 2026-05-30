@@ -1,3 +1,18 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Documentation Validation Report](#ggen-documentation-validation-report)
+  - [Summary](#summary)
+  - [Test Suites](#test-suites)
+    - [1. Quick Start Tutorial (10 minutes)](#1-quick-start-tutorial-10-minutes)
+    - [2. SPARQL Query How-to Guide](#2-sparql-query-how-to-guide)
+    - [3. Complete CLI Command Reference](#3-complete-cli-command-reference)
+  - [Recommendations](#recommendations)
+  - [Running Validation](#running-validation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Documentation Validation Report
 
 **Generated**: 2025-12-11 15:27:49

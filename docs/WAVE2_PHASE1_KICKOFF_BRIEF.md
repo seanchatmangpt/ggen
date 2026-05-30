@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Wave 2 Phase 1 Kickoff Brief](#wave-2-phase-1-kickoff-brief)
+  - [ggen v26.5.28 Critical Path: P0 Blockers](#ggen-v26528-critical-path-p0-blockers)
+  - [Executive Summary](#executive-summary)
+  - [P0 Blockers to Fix](#p0-blockers-to-fix)
+    - [P0-01: SHACL Validation (14 hours) — CRITICAL PATH](#p0-01-shacl-validation-14-hours--critical-path)
+    - [P0-02: Pipeline Architecture (7 hours) — MEDIUM PRIORITY](#p0-02-pipeline-architecture-7-hours--medium-priority)
+    - [P0-03: Namespace Conflicts (5 hours) — HIGHEST PRIORITY (Silent Data Loss)](#p0-03-namespace-conflicts-5-hours--highest-priority-silent-data-loss)
+    - [P0-04: Error Type Chaos (3.5 hours) — LOW PRIORITY (Ergonomics)](#p0-04-error-type-chaos-35-hours--low-priority-ergonomics)
+  - [Test Harness References](#test-harness-references)
+    - [Test Harness Structure (AAA Pattern)](#test-harness-structure-aaa-pattern)
+    - [Negative Path Testing (Sabotage Tests)](#negative-path-testing-sabotage-tests)
+  - [Success Criteria](#success-criteria)
+    - [Functional Correctness](#functional-correctness)
+    - [Test Coverage](#test-coverage)
+    - [OTEL Validation](#otel-validation)
+    - [Build Quality](#build-quality)
+  - [Implementation Roadmap](#implementation-roadmap)
+    - [Phase 1 → Phase 2 Transition](#phase-1-%E2%86%92-phase-2-transition)
+  - [Agent Assignments](#agent-assignments)
+  - [Next Steps](#next-steps)
+    - [For Implementation Agents](#for-implementation-agents)
+    - [For Human Orchestrator](#for-human-orchestrator)
+  - [Key References](#key-references)
+  - [Metrics & Health Dashboard](#metrics--health-dashboard)
+    - [Definition of Done (DoD)](#definition-of-done-dod)
+  - [Support & Escalation](#support--escalation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Wave 2 Phase 1 Kickoff Brief
 ## ggen v26.5.28 Critical Path: P0 Blockers
 

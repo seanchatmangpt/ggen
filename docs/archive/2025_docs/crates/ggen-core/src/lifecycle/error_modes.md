@@ -1,3 +1,35 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Error Modes Inventory - Marketplace Package Lifecycle](#error-modes-inventory---marketplace-package-lifecycle)
+  - [1. Invalid Lifecycle State Transitions](#1-invalid-lifecycle-state-transitions)
+    - [Error: Running phases out of order](#error-running-phases-out-of-order)
+    - [Error: Skipping required phases](#error-skipping-required-phases)
+    - [Error: Re-running phases in wrong order](#error-re-running-phases-in-wrong-order)
+  - [2. Invalid Package States](#2-invalid-package-states)
+    - [Error: Installing unvalidated packages](#error-installing-unvalidated-packages)
+    - [Error: Using packages without required metadata](#error-using-packages-without-required-metadata)
+    - [Error: Installing packages with invalid dependencies](#error-installing-packages-with-invalid-dependencies)
+  - [3. Invalid Phase Configuration](#3-invalid-phase-configuration)
+    - [Error: Phases with no commands](#error-phases-with-no-commands)
+    - [Error: Invalid hook dependencies](#error-invalid-hook-dependencies)
+    - [Error: Circular hook dependencies](#error-circular-hook-dependencies)
+  - [4. Invalid State Persistence](#4-invalid-state-persistence)
+    - [Error: Corrupted state files](#error-corrupted-state-files)
+    - [Error: Invalid state transitions in persisted state](#error-invalid-state-transitions-in-persisted-state)
+    - [Error: Cache keys for non-existent phases](#error-cache-keys-for-non-existent-phases)
+  - [5. Invalid Hook Dependencies](#5-invalid-hook-dependencies)
+    - [Error: Circular hook dependencies](#error-circular-hook-dependencies-1)
+    - [Error: Hooks referencing non-existent phases](#error-hooks-referencing-non-existent-phases)
+    - [Error: Self-referential hooks](#error-self-referential-hooks)
+  - [6. Invalid Context Usage](#6-invalid-context-usage)
+    - [Error: Using context after lifecycle completion](#error-using-context-after-lifecycle-completion)
+    - [Error: Parallel execution conflicts](#error-parallel-execution-conflicts)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Error Modes Inventory - Marketplace Package Lifecycle
 
 This document catalogs all error modes in the marketplace package project lifecycle that can be prevented through poka-yoke (type-level) design.

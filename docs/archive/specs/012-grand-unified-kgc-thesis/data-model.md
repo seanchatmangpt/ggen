@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Data Model: Grand Unified KGC Thesis](#data-model-grand-unified-kgc-thesis)
+  - [Entity Overview](#entity-overview)
+  - [Entity Definitions](#entity-definitions)
+    - [1. Thesis (Root Entity)](#1-thesis-root-entity)
+    - [2. Chapter](#2-chapter)
+    - [3. Section](#3-section)
+    - [4. Subsection](#4-subsection)
+    - [5. Theorem](#5-theorem)
+    - [6. Equation](#6-equation)
+    - [7. Algorithm](#7-algorithm)
+    - [8. Figure](#8-figure)
+    - [9. Table](#9-table)
+    - [10. Reference](#10-reference)
+    - [11. Appendix](#11-appendix)
+    - [12. CodeListing](#12-codelisting)
+  - [State Transitions](#state-transitions)
+    - [Thesis Lifecycle](#thesis-lifecycle)
+    - [Generation Lifecycle](#generation-lifecycle)
+  - [Validation Summary](#validation-summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Data Model: Grand Unified KGC Thesis
 
 **Feature Branch**: `012-grand-unified-kgc-thesis`

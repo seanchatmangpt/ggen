@@ -1,3 +1,45 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [E2E Pack Workflow Tests - Summary](#e2e-pack-workflow-tests---summary)
+  - [Overview](#overview)
+  - [Test Framework](#test-framework)
+  - [Test Coverage](#test-coverage)
+    - [Test Suite 1: Pack Installation Workflow (6 tests)](#test-suite-1-pack-installation-workflow-6-tests)
+    - [Test Suite 2: Capability Enable Workflow (5 tests)](#test-suite-2-capability-enable-workflow-5-tests)
+    - [Test Suite 3: Lockfile Creation and Persistence (6 tests)](#test-suite-3-lockfile-creation-and-persistence-6-tests)
+    - [Test Suite 4: Receipt Generation and Verification (6 tests)](#test-suite-4-receipt-generation-and-verification-6-tests)
+    - [Test Suite 5: Policy Validation Workflow (5 tests)](#test-suite-5-policy-validation-workflow-5-tests)
+    - [Test Suite 6: End-to-End Integration Workflows (6 tests)](#test-suite-6-end-to-end-integration-workflows-6-tests)
+  - [Test Statistics](#test-statistics)
+  - [Key Features Tested](#key-features-tested)
+    - [1. Pack Installation](#1-pack-installation)
+    - [2. Capability Enablement](#2-capability-enablement)
+    - [3. Lockfile Management](#3-lockfile-management)
+    - [4. Receipt System](#4-receipt-system)
+    - [5. Policy Validation](#5-policy-validation)
+    - [6. CLI Interface](#6-cli-interface)
+  - [Running the Tests](#running-the-tests)
+  - [Verification Methods](#verification-methods)
+    - [1. File System Verification](#1-file-system-verification)
+    - [2. JSON Structure Validation](#2-json-structure-validation)
+    - [3. Lockfile Content Verification](#3-lockfile-content-verification)
+    - [4. Receipt Verification](#4-receipt-verification)
+  - [Test Dependencies](#test-dependencies)
+  - [Test Organization](#test-organization)
+  - [Chicago TDD Compliance](#chicago-tdd-compliance)
+    - [✅ Real Collaborators](#-real-collaborators)
+    - [❌ No Mocks](#-no-mocks)
+    - [✅ State-Based Verification](#-state-based-verification)
+  - [Future Enhancements](#future-enhancements)
+    - [Potential Additions](#potential-additions)
+    - [Integration Points](#integration-points)
+  - [Related Documentation](#related-documentation)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # E2E Pack Workflow Tests - Summary
 
 ## Overview

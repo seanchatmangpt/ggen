@@ -1,3 +1,30 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Pack Query/Template Integration Summary](#pack-querytemplate-integration-summary)
+  - [✅ Completed Work](#-completed-work)
+    - [1. Pack Infrastructure (μ₀)](#1-pack-infrastructure-%CE%BC%E2%82%80)
+    - [2. Extraction Pass Integration (μ₂)](#2-extraction-pass-integration-%CE%BC%E2%82%82)
+    - [3. Emission Pass Integration (μ₃)](#3-emission-pass-integration-%CE%BC%E2%82%83)
+    - [4. Pipeline Orchestration](#4-pipeline-orchestration)
+    - [5. Test Pack](#5-test-pack)
+    - [6. Integration Tests](#6-integration-tests)
+    - [7. Documentation](#7-documentation)
+  - [📊 Architecture Diagram](#-architecture-diagram)
+  - [🔍 Verification Steps](#-verification-steps)
+    - [Manual Verification](#manual-verification)
+    - [Automated Test Results](#automated-test-results)
+  - [📝 Example: test-pack-integration](#-example-test-pack-integration)
+    - [Input (Project Ontology)](#input-project-ontology)
+    - [Pack Query (μ₂)](#pack-query-%CE%BC%E2%82%82)
+    - [Pack Template (μ₃)](#pack-template-%CE%BC%E2%82%83)
+    - [Output (Generated Code)](#output-generated-code)
+  - [🚀 Next Steps](#-next-steps)
+  - [📚 References](#-references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Pack Query/Template Integration Summary
 
 ## ✅ Completed Work

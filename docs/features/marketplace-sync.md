@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Marketplace Sync Command](#marketplace-sync-command)
+  - [Overview](#overview)
+  - [Features](#features)
+  - [Usage](#usage)
+    - [Basic Sync (Cache-Aware)](#basic-sync-cache-aware)
+    - [Force Full Refresh](#force-full-refresh)
+    - [Dry-Run Preview](#dry-run-preview)
+    - [Custom Registry URL](#custom-registry-url)
+    - [Verbose Progress Reporting](#verbose-progress-reporting)
+    - [Combined Flags](#combined-flags)
+  - [Cache Location](#cache-location)
+  - [Output](#output)
+    - [Verbose Output](#verbose-output)
+  - [Implementation Architecture](#implementation-architecture)
+    - [Three-Layer Pattern](#three-layer-pattern)
+    - [Sync Algorithm](#sync-algorithm)
+    - [Checksum-Based Change Detection](#checksum-based-change-detection)
+    - [Dry-Run Mode](#dry-run-mode)
+  - [Exit Codes](#exit-codes)
+  - [Environment Variables](#environment-variables)
+  - [Performance Characteristics](#performance-characteristics)
+  - [Troubleshooting](#troubleshooting)
+    - [Cache Not Updating](#cache-not-updating)
+    - [Corrupted Checksum](#corrupted-checksum)
+    - [Custom Registry Issues](#custom-registry-issues)
+  - [Future Enhancements](#future-enhancements)
+  - [Testing](#testing)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Marketplace Sync Command
 
 ## Overview
