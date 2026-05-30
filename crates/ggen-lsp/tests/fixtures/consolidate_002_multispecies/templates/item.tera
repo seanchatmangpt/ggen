@@ -1,0 +1,4 @@
+{# Template BODY consumes the UNBOUND projection `title` (the query binds only
+   `name`), so analyzing through the TPL trigger raises GGEN-TPL-001 anchored on
+   THIS `.tera` file. #}
+Item title: {{ row["title"] }}

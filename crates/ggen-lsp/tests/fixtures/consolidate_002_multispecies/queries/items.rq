@@ -1,0 +1,5 @@
+PREFIX ex: <http://example.org/consolidate002#>
+SELECT ?name WHERE {
+    ?s a ex:Item .
+    ?s ex:name ?name .
+}

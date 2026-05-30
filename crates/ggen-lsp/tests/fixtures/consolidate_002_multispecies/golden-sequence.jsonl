@@ -1,0 +1,6 @@
+{"activity":"DiagnosticRaised","file":"/templates/item.tera","code":"GGEN-TPL-001"}
+{"activity":"RouteSelected","file":"/templates/item.tera","code":"GGEN-TPL-001"}
+{"activity":"RepairSuggested","file":"/templates/item.tera","code":"GGEN-TPL-001"}
+{"activity":"DiagnosticRaised","file":"/ggen.toml","code":"GGEN-OUT-001"}
+{"activity":"RouteSelected","file":"/ggen.toml","code":"GGEN-OUT-001"}
+{"activity":"RepairSuggested","file":"/ggen.toml","code":"GGEN-OUT-001"}
