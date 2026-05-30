@@ -1,3 +1,47 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Big Bang 80/20 Specification Analysis Report](#big-bang-8020-specification-analysis-report)
+  - [Executive Summary](#executive-summary)
+    - [Big Bang 80/20 Verdict](#big-bang-8020-verdict)
+  - [Section 1: JTBD Coverage Analysis](#section-1-jtbd-coverage-analysis)
+    - [Complete JTBD Lifecycle (ggen marketplace)](#complete-jtbd-lifecycle-ggen-marketplace)
+    - [Gap Analysis by JTBD](#gap-analysis-by-jtbd)
+      - [❌ JTBD-1: Package Discovery (NOT COVERED)](#-jtbd-1-package-discovery-not-covered)
+      - [❌ JTBD-4: Package Update (NOT COVERED)](#-jtbd-4-package-update-not-covered)
+      - [❌ JTBD-5: Package Removal (NOT COVERED)](#-jtbd-5-package-removal-not-covered)
+      - [❌ JTBD-8: Version Migration (NOT COVERED)](#-jtbd-8-version-migration-not-covered)
+      - [❌ JTBD-9: Dependency Resolution (NOT COVERED)](#-jtbd-9-dependency-resolution-not-covered)
+  - [Section 2: Unmitigated Critical Modes (RPN > 200)](#section-2-unmitigated-critical-modes-rpn--200)
+    - [FMEA Analysis Table](#fmea-analysis-table)
+    - [Critical Unmitigated Modes (RPN > 200, No Control)](#critical-unmitigated-modes-rpn--200-no-control)
+    - [Partially Mitigated (Need Strengthening)](#partially-mitigated-need-strengthening)
+  - [Section 3: 80/20 Critical Controls](#section-3-8020-critical-controls)
+    - [The Vital 20% (Delivers 80% Defect Prevention)](#the-vital-20-delivers-80-defect-prevention)
+    - [Secondary Controls (Additional 15% Coverage)](#secondary-controls-additional-15-coverage)
+  - [Section 4: Constitution Alignment](#section-4-constitution-alignment)
+    - [Principle Compliance Matrix](#principle-compliance-matrix)
+    - [Principle IX Gap Analysis](#principle-ix-gap-analysis)
+  - [Section 5: Coverage Metrics](#section-5-coverage-metrics)
+    - [Artifact Coverage Summary](#artifact-coverage-summary)
+    - [Task Completion Status](#task-completion-status)
+  - [Section 6: TRIZ Contradiction Resolutions](#section-6-triz-contradiction-resolutions)
+    - [Applied TRIZ Inventive Principles](#applied-triz-inventive-principles)
+    - [Unresolved Contradictions (Need TRIZ Analysis)](#unresolved-contradictions-need-triz-analysis)
+  - [Section 7: Remediation Recommendations](#section-7-remediation-recommendations)
+    - [Priority 1: Add Missing JTBD Controls (High Impact)](#priority-1-add-missing-jtbd-controls-high-impact)
+    - [Priority 2: Strengthen Partial Controls (Medium Impact)](#priority-2-strengthen-partial-controls-medium-impact)
+    - [Priority 3: Add Constitution Compliance (Low Impact)](#priority-3-add-constitution-compliance-low-impact)
+  - [Section 8: Next Actions](#section-8-next-actions)
+    - [Immediate (This Sprint)](#immediate-this-sprint)
+    - [Short-term (Next Sprint)](#short-term-next-sprint)
+    - [Long-term (Backlog)](#long-term-backlog)
+  - [Appendix A: 80/20 Defect Prevention Matrix](#appendix-a-8020-defect-prevention-matrix)
+  - [Appendix B: FMEA Control Effectiveness](#appendix-b-fmea-control-effectiveness)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Big Bang 80/20 Specification Analysis Report
 
 **Feature**: FMEA & Poka-Yoke Marketplace Framework

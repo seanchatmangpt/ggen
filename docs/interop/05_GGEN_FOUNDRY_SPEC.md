@@ -1,3 +1,30 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [AGENT: ggen Foundry and Membrane Spec](#agent-ggen-foundry-and-membrane-spec)
+  - [1. ggen Thesis](#1-ggen-thesis)
+  - [2. ggen as Foundry](#2-ggen-as-foundry)
+  - [3. ggen as Membrane](#3-ggen-as-membrane)
+  - [4. ggen as Projection Layer](#4-ggen-as-projection-layer)
+  - [5. ggen as Validation Bridge](#5-ggen-as-validation-bridge)
+  - [6. ggen as Runtime Packager](#6-ggen-as-runtime-packager)
+  - [7. Genesis-bearing Part Manufacturing Process](#7-genesis-bearing-part-manufacturing-process)
+  - [8. Input Adapters](#8-input-adapters)
+  - [9. Output Projections](#9-output-projections)
+  - [10. Symbol-Page Manufacturing](#10-symbol-page-manufacturing)
+  - [11. RelationPage Manufacturing](#11-relationpage-manufacturing)
+  - [12. External Dependency Rules](#12-external-dependency-rules)
+  - [13. Allowed Boundary JSON Usage](#13-allowed-boundary-json-usage)
+  - [14. Prohibited Core Leakage into Genesis](#14-prohibited-core-leakage-into-genesis)
+  - [15. ggen CLI/API Shape](#15-ggen-cliapi-shape)
+  - [16. Interop Contracts with Genesis](#16-interop-contracts-with-genesis)
+  - [17. Interop Contracts with AtomVM/WASM](#17-interop-contracts-with-atomvmwasm)
+  - [18. Interop Contracts with Validation Tools (QLever, DuckDB, SHACL, OCEL)](#18-interop-contracts-with-validation-tools-qlever-duckdb-shacl-ocel)
+  - [19. Definition of Done](#19-definition-of-done)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # AGENT: ggen Foundry and Membrane Spec
 
 **Status**: IMPLEMENTED / PARTIAL

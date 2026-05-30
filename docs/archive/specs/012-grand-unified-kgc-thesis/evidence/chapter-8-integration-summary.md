@@ -1,3 +1,24 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Chapter 8: CONSTRUCT, FIBO, BPMN Integration - Evidence Summary](#chapter-8-construct-fibo-bpmn-integration---evidence-summary)
+  - [Objective](#objective)
+  - [Files Created](#files-created)
+    - [1. FIBO Ontology Subset](#1-fibo-ontology-subset)
+    - [2. Workflow-Finance Bridge Ontology](#2-workflow-finance-bridge-ontology)
+    - [3. Chapter 8 Content](#3-chapter-8-content)
+    - [4. Standalone Chapter 8 RDF (obsolete, can be removed)](#4-standalone-chapter-8-rdf-obsolete-can-be-removed)
+  - [Changes Summary](#changes-summary)
+  - [Thesis Structure After Changes](#thesis-structure-after-changes)
+  - [Key Contributions of Chapter 8](#key-contributions-of-chapter-8)
+  - [Validation Status](#validation-status)
+  - [Next Steps for Complete Integration](#next-steps-for-complete-integration)
+  - [Integration with Existing Thesis Goals](#integration-with-existing-thesis-goals)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Chapter 8: CONSTRUCT, FIBO, BPMN Integration - Evidence Summary
 
 **Date**: 2025-12-19

@@ -25,6 +25,7 @@
     - [Implemented Features](#implemented-features)
     - [Missing Features (Future Enhancements)](#missing-features-future-enhancements)
   - [Conclusion](#conclusion)
+  - [Architecture Diagram](#architecture-diagram)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 

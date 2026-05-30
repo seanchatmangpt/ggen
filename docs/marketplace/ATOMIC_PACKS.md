@@ -1,3 +1,40 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Atomic Packs Reference](#atomic-packs-reference)
+  - [Overview](#overview)
+    - [Key Principle](#key-principle)
+  - [Atomic Pack Classes](#atomic-pack-classes)
+    - [Surface Packs](#surface-packs)
+    - [Contract Packs](#contract-packs)
+    - [Projection Packs](#projection-packs)
+    - [Runtime Packs](#runtime-packs)
+    - [Policy Packs](#policy-packs)
+    - [Validator Packs](#validator-packs)
+    - [Receipt Packs](#receipt-packs)
+    - [Consequence Packs](#consequence-packs)
+    - [Core Packs](#core-packs)
+  - [Atomic Pack ID Format](#atomic-pack-id-format)
+    - [Syntax](#syntax)
+    - [Code Definition](#code-definition)
+  - [When to Use Each Pack Type](#when-to-use-each-pack-type)
+    - [Decision Tree](#decision-tree)
+    - [Examples](#examples)
+      - [Example 1: MCP Server in Rust](#example-1-mcp-server-in-rust)
+      - [Example 2: A2A Multi-Agent System](#example-2-a2a-multi-agent-system)
+      - [Example 3: OpenAPI REST API](#example-3-openapi-rest-api)
+      - [Example 4: Regulated Finance Profile](#example-4-regulated-finance-profile)
+  - [Pack Composition Rules](#pack-composition-rules)
+    - [Rule 1: Surface/Contract Before Projection](#rule-1-surfacecontract-before-projection)
+    - [Rule 2: Runtime Must Be Explicit or Bundle-Provided](#rule-2-runtime-must-be-explicit-or-bundle-provided)
+    - [Rule 3: Foundation Packs Always Included](#rule-3-foundation-packs-always-included)
+    - [Rule 4: No Duplicate Projections](#rule-4-no-duplicate-projections)
+  - [Pack Metadata](#pack-metadata)
+  - [Further Reading](#further-reading)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Atomic Packs Reference
 
 **Version:** 26.5.4

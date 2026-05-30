@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Example MCP Server Definitions](#example-mcp-server-definitions)
+  - [Quick Start](#quick-start)
+  - [Examples](#examples)
+    - [minimal-server.ttl](#minimal-serverttl)
+    - [full-server.ttl](#full-serverttl)
+    - [codegen-server.ttl](#codegen-serverttl)
+  - [Pattern Reference](#pattern-reference)
+    - [Tool with Required Arguments](#tool-with-required-arguments)
+    - [Tool with Optional Arguments](#tool-with-optional-arguments)
+    - [Multiple Arguments](#multiple-arguments)
+    - [Resource with MIME Type](#resource-with-mime-type)
+    - [Resource Template](#resource-template)
+    - [Prompt with Arguments](#prompt-with-arguments)
+    - [Completion Provider](#completion-provider)
+  - [Testing Generated Servers](#testing-generated-servers)
+    - [1. Generate Server](#1-generate-server)
+    - [2. Create Cargo.toml](#2-create-cargotoml)
+    - [3. Build](#3-build)
+    - [4. Test with JSON-RPC](#4-test-with-json-rpc)
+    - [5. Test with Claude Desktop](#5-test-with-claude-desktop)
+  - [Common Patterns](#common-patterns)
+    - [Conditional Capabilities](#conditional-capabilities)
+    - [Tool Implementation Hints](#tool-implementation-hints)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Example MCP Server Definitions
 
 Complete, working examples of MCP server definitions in RDF/Turtle.

@@ -1,3 +1,13 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Dormant Code Register](#dormant-code-register)
+  - [Preserved but not promoted. Bytes remain. No deletion.](#preserved-but-not-promoted-bytes-remain-no-deletion)
+  - [Preservation Law](#preservation-law)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Dormant Code Register
 ## Preserved but not promoted. Bytes remain. No deletion.
 

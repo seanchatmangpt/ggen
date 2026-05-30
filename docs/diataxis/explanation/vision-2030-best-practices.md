@@ -1,3 +1,17 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Explanation: Vision 2030 Strategic Best Practices](#explanation-vision-2030-strategic-best-practices)
+  - [1. Truth via Real Execution (Chicago TDD)](#1-truth-via-real-execution-chicago-tdd)
+  - [2. Sub-Microsecond Semantic Operations](#2-sub-microsecond-semantic-operations)
+  - [3. Modular Specification with Ontology Packs](#3-modular-specification-with-ontology-packs)
+  - [4. Immutable Provenance (The Receipt Chain)](#4-immutable-provenance-the-receipt-chain)
+  - [5. Security as a Formal Guard (FMEA & Poka-Yoke)](#5-security-as-a-formal-guard-fmea--poka-yoke)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Explanation: Vision 2030 Strategic Best Practices
 
 This document outlines the long-term strategic best practices for the `ggen` ecosystem, aligned with the **Vision 2030** roadmap. These practices ensure that the system remains scalable, secure, and verifiable as it transitions toward a planetary-scale autonomic engineering substrate.

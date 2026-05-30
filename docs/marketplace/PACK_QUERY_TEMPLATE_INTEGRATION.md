@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Pack Query and Template Integration (μ₂/μ₃)](#pack-query-and-template-integration-%CE%BC%E2%82%82%CE%BC%E2%82%83)
+  - [Overview](#overview)
+  - [Architecture](#architecture)
+  - [Pack Contract](#pack-contract)
+    - [Query Format (μ₂)](#query-format-%CE%BC%E2%82%82)
+    - [Template Format (μ₃)](#template-format-%CE%BC%E2%82%83)
+  - [Integration Points](#integration-points)
+    - [1. PackResolver (μ₀)](#1-packresolver-%CE%BC%E2%82%80)
+    - [2. ExtractionPass (μ₂)](#2-extractionpass-%CE%BC%E2%82%82)
+    - [3. EmissionPass (μ₃)](#3-emissionpass-%CE%BC%E2%82%83)
+    - [4. Pipeline Orchestration](#4-pipeline-orchestration)
+  - [Test Pack: test-pack-integration](#test-pack-test-pack-integration)
+    - [Lockfile Entry](#lockfile-entry)
+    - [Usage Example](#usage-example)
+  - [Verification](#verification)
+    - [1. Manual Verification](#1-manual-verification)
+    - [2. Automated Test](#2-automated-test)
+  - [Receipt Provenance](#receipt-provenance)
+  - [Andon Gates](#andon-gates)
+    - [μ₂: CONSTRUCT-Only Gate](#%CE%BC%E2%82%82-construct-only-gate)
+    - [μ₃: Determinism Gate](#%CE%BC%E2%82%83-determinism-gate)
+  - [Future Enhancements](#future-enhancements)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Pack Query and Template Integration (μ₂/μ₃)
 
 ## Overview

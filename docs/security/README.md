@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [Security Documentation Index (v26.5.19)](#security-documentation-index-v26.5.1900)
+- [Security Documentation Index (v26.5.19)](#security-documentation-index-v26519)
   - [Overview](#overview)
   - [Quick Links](#quick-links)
   - [Documentation Structure](#documentation-structure)
@@ -25,11 +25,11 @@
     - [Required Training](#required-training)
     - [Training Materials](#training-materials)
   - [Security Metrics](#security-metrics)
-    - [Current Status (v26.5.19)](#current-status-v26.5.1900)
+    - [Current Status (v26.5.19)](#current-status-v26519)
     - [Historical Improvements](#historical-improvements)
   - [Roadmap](#roadmap)
-    - [v26.5.19 (Q1 2026)](#v26.5.1910-q1-2026)
-    - [v26.5.19.2.0 (Q2 2026)](#v26.5.1920-q2-2026)
+    - [v26.5.19 (Q1 2026)](#v26519-q1-2026)
+    - [v26.5.19.2.0 (Q2 2026)](#v2651920-q2-2026)
     - [v7.0.0 (Q3 2026)](#v700-q3-2026)
   - [External Resources](#external-resources)
     - [Standards](#standards)

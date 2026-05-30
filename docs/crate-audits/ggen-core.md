@@ -1,3 +1,24 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen-core — Crate Audit](#ggen-core--crate-audit)
+  - [STUBS (functions that return empty/error instead of working)](#stubs-functions-that-return-emptyerror-instead-of-working)
+    - [SHACL Validation — Entire subsystem stubbed (T014)](#shacl-validation--entire-subsystem-stubbed-t014)
+    - [Schema Parsing](#schema-parsing)
+    - [Sigma Runtime Invariants (4 of 7 are mock)](#sigma-runtime-invariants-4-of-7-are-mock)
+    - [Delta Proposer](#delta-proposer)
+    - [Packs](#packs)
+    - [Lifecycle — Disabled Modules](#lifecycle--disabled-modules)
+  - [DEAD CODE (structs/modules with zero consumers)](#dead-code-structsmodules-with-zero-consumers)
+  - [ARCHITECTURE ISSUES](#architecture-issues)
+    - [Two Parallel Pipelines](#two-parallel-pipelines)
+    - [PackResolver Location](#packresolver-location)
+    - [Build Warnings](#build-warnings)
+  - [FIX / DELETE / REFACTOR](#fix--delete--refactor)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen-core — Crate Audit
 
 **Path:** `crates/ggen-core/`

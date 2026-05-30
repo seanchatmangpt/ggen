@@ -1,3 +1,16 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Vision 2030 Witnessed Agent Checkpoint Proof of Correctness](#vision-2030-witnessed-agent-checkpoint-proof-of-correctness)
+  - [1. Formal Statement of Correctness](#1-formal-statement-of-correctness)
+  - [2. Checkpoint Promotion Decision](#2-checkpoint-promotion-decision)
+  - [3. Proof of the Witnessed Checkpoints (W0-W10) mapped to SHACL Validation Reports](#3-proof-of-the-witnessed-checkpoints-w0-w10-mapped-to-shacl-validation-reports)
+  - [4. Verification Script Ring (T0-T10) mapped to SHACL Validation Reports](#4-verification-script-ring-t0-t10-mapped-to-shacl-validation-reports)
+  - [5. Dialect Completeness Matrix (W-DIALECT-*) mapped to SHACL Validation Reports](#5-dialect-completeness-matrix-w-dialect--mapped-to-shacl-validation-reports)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Vision 2030 Witnessed Agent Checkpoint Proof of Correctness
 
 This report formally establishes the **Witnessed Agent Truthfulness Proof of Correctness** for the `ggen-graph` substrate. The promotion decision is strictly derived from transcript-bearing, sabotage-tested, clean-room verified processes.

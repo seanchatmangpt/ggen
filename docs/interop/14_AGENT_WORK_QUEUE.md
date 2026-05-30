@@ -1,3 +1,13 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [14 AGENT WORK QUEUE](#14-agent-work-queue)
+  - [Work Packages](#work-packages)
+  - [Interop Boundary Summary (WP3 example)](#interop-boundary-summary-wp3-example)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 14 AGENT WORK QUEUE
 
 This queue enumerates the executable work packages required to bridge the Genesis-bearing interchangeable part architecture from its documented state to complete physical implementation.

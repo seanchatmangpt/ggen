@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Executive Summary: Open-Source Tools for Code Catalogs](#executive-summary-open-source-tools-for-code-catalogs)
+  - [1. Required Inputs & Initial Scan](#1-required-inputs--initial-scan)
+  - [2. Symbol & API Extraction](#2-symbol--api-extraction)
+  - [3. Dependency & Call Graph Extraction](#3-dependency--call-graph-extraction)
+  - [4. Test and Example Discovery](#4-test-and-example-discovery)
+  - [5. License & Provenance Scanning](#5-license--provenance-scanning)
+  - [6. Binary and WASM Inspection](#6-binary-and-wasm-inspection)
+  - [7. Agent-Friendly Outputs](#7-agent-friendly-outputs)
+  - [8. Tool Comparison](#8-tool-comparison)
+  - [9. JSON Schema (Manifest and File Record)](#9-json-schema-manifest-and-file-record)
+  - [10. Implementation Plan (v0.1)](#10-implementation-plan-v01)
+  - [11. Agent Prompts & Templates](#11-agent-prompts--templates)
+  - [12. Validation & Metrics](#12-validation--metrics)
+  - [13. Security & Privacy](#13-security--privacy)
+  - [14. ggen/Genesis/AtomVM/WASM Integration](#14-ggengenesisatomvmwasm-integration)
+  - [15. Mermaid Diagrams](#15-mermaid-diagrams)
+    - [Architecture Flow](#architecture-flow)
+    - [Data Model (ER Diagram)](#data-model-er-diagram)
+    - [Agent Workflow](#agent-workflow)
+    - [Timeline (Milestones)](#timeline-milestones)
+  - [Sources](#sources)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Executive Summary: Open-Source Tools for Code Catalogs
 
 *Note: This document provides the architectural blueprint for building an AI-agent-friendly code cataloger. It heavily informs the 'RESEARCH' and 'RECEIPT' phases of the Genesis Machine-to-Machine (M2M) Closure Protocol.*

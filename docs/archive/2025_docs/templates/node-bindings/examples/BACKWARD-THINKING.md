@@ -1,3 +1,23 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Backward Thinking: Output → Ontology → Queries → Templates](#backward-thinking-output-%E2%86%92-ontology-%E2%86%92-queries-%E2%86%92-templates)
+  - [The Problem with Forward Thinking](#the-problem-with-forward-thinking)
+  - [The Solution: Backward Thinking](#the-solution-backward-thinking)
+    - [Step 1: Define Desired Output](#step-1-define-desired-output)
+    - [Step 2: Identify Required Data](#step-2-identify-required-data)
+    - [Step 3: Design RDF Ontology](#step-3-design-rdf-ontology)
+    - [Step 4: Create SPARQL Queries](#step-4-create-sparql-queries)
+    - [Step 5: Build Tera Templates](#step-5-build-tera-templates)
+  - [The Data Flow](#the-data-flow)
+  - [Key Principle](#key-principle)
+  - [Benefits](#benefits)
+  - [Example: Adding a New Function](#example-adding-a-new-function)
+  - [Contrast](#contrast)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Backward Thinking: Output → Ontology → Queries → Templates
 
 This document explains the **data-driven** approach to generating Node.js bindings.

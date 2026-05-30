@@ -1,3 +1,45 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Implementation Status: 007-CLI-JTBD-Audit](#implementation-status-007-cli-jtbd-audit)
+  - [Overall Progress](#overall-progress)
+  - [Deliverables Status](#deliverables-status)
+    - [Infrastructure ✅](#infrastructure-)
+    - [Sample Audits ✅](#sample-audits-)
+    - [Documentation ✅](#documentation-)
+    - [Outstanding (Phase 3-8)](#outstanding-phase-3-8)
+  - [Task Breakdown Summary](#task-breakdown-summary)
+    - [Phase 1: Setup (5/5) ✅](#phase-1-setup-55-)
+    - [Phase 2: Foundational (5/5) ✅](#phase-2-foundational-55-)
+    - [Phase 3: US1 Functional Audit (0/48) ⏳](#phase-3-us1-functional-audit-048-)
+  - [Critical Path](#critical-path)
+  - [Success Criteria Status](#success-criteria-status)
+    - [SC-001: 100% CLI commands evaluated](#sc-001-100-cli-commands-evaluated)
+    - [SC-002: 100% commands evaluated against 7 avatars](#sc-002-100-commands-evaluated-against-7-avatars)
+    - [SC-003: All commands maturity level assigned](#sc-003-all-commands-maturity-level-assigned)
+    - [SC-004: All 7 case studies mapped](#sc-004-all-7-case-studies-mapped)
+    - [SC-005: Gaps documented with remediation](#sc-005-gaps-documented-with-remediation)
+    - [SC-006: Agent accessibility score average ≥80%](#sc-006-agent-accessibility-score-average-%E2%89%A580)
+    - [SC-007: Zero commands at L0 in production](#sc-007-zero-commands-at-l0-in-production)
+    - [SC-008: JTBD documentation for L4+ commands](#sc-008-jtbd-documentation-for-l4-commands)
+  - [Estimated Completion Timeline](#estimated-completion-timeline)
+  - [Quality Metrics](#quality-metrics)
+    - [Audit Coverage](#audit-coverage)
+    - [Schema Validation](#schema-validation)
+    - [Documentation](#documentation)
+  - [Known Issues & Resolutions](#known-issues--resolutions)
+    - [Binary Availability](#binary-availability)
+    - [Schema Examples](#schema-examples)
+  - [Next Steps for Team](#next-steps-for-team)
+  - [Files Created](#files-created)
+    - [Setup (Phase 1)](#setup-phase-1)
+    - [Foundational (Phase 2)](#foundational-phase-2)
+    - [Documentation](#documentation-1)
+  - [Sign-Off](#sign-off)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Implementation Status: 007-CLI-JTBD-Audit
 
 **Last Updated**: 2024-12-14

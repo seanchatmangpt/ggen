@@ -1,3 +1,47 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Noun-Verb CLI Generator - Usage Guide](#noun-verb-cli-generator---usage-guide)
+  - [Quick Reference](#quick-reference)
+    - [Installation](#installation)
+    - [Basic Usage](#basic-usage)
+    - [Variables Reference](#variables-reference)
+  - [Generated Commands](#generated-commands)
+    - [Create Command](#create-command)
+    - [List Command](#list-command)
+    - [Get Command](#get-command)
+    - [Update Command](#update-command)
+    - [Delete Command](#delete-command)
+  - [Common Workflows](#common-workflows)
+    - [1. Infrastructure Management](#1-infrastructure-management)
+    - [2. User Management](#2-user-management)
+    - [3. CI/CD Pipeline](#3-cicd-pipeline)
+  - [Customization After Generation](#customization-after-generation)
+    - [Adding Custom Verbs](#adding-custom-verbs)
+    - [Adding Custom Fields](#adding-custom-fields)
+    - [Implementing Real Logic](#implementing-real-logic)
+  - [Output Formats](#output-formats)
+    - [Table Format (Default)](#table-format-default)
+    - [JSON Format](#json-format)
+    - [YAML Format](#yaml-format)
+  - [Testing Generated CLIs](#testing-generated-clis)
+    - [Unit Tests](#unit-tests)
+    - [Integration Tests](#integration-tests)
+    - [Manual Testing](#manual-testing)
+  - [Troubleshooting](#troubleshooting)
+    - [Build Errors](#build-errors)
+    - [Test Failures](#test-failures)
+    - [Runtime Errors](#runtime-errors)
+  - [Best Practices](#best-practices)
+    - [1. Use Descriptive Noun Names](#1-use-descriptive-noun-names)
+    - [2. Implement Validation](#2-implement-validation)
+    - [3. Use Dry-Run for Testing](#3-use-dry-run-for-testing)
+    - [4. JSON Output for Automation](#4-json-output-for-automation)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Noun-Verb CLI Generator - Usage Guide
 
 ## Quick Reference

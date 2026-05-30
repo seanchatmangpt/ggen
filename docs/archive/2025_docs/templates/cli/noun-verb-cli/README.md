@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Noun-Verb CLI Generator](#noun-verb-cli-generator)
+  - [🎯 What You Get](#-what-you-get)
+  - [🚀 Quick Start](#-quick-start)
+    - [Install from Marketplace](#install-from-marketplace)
+    - [Generate Your CLI](#generate-your-cli)
+    - [Use Your CLI](#use-your-cli)
+  - [📊 What Gets Generated](#-what-gets-generated)
+  - [💡 Use Cases](#-use-cases)
+  - [🎨 Examples](#-examples)
+    - [User Management CLI](#user-management-cli)
+    - [Project Management CLI](#project-management-cli)
+    - [Database Admin CLI](#database-admin-cli)
+  - [⚙️ Configuration Variables](#-configuration-variables)
+  - [🛠️ Features Included](#-features-included)
+    - [Standard CRUD Operations](#standard-crud-operations)
+    - [Safety Features](#safety-features)
+    - [Output Format](#output-format)
+    - [Testing](#testing)
+  - [📦 Dependencies](#-dependencies)
+  - [🔧 Customization](#-customization)
+  - [📈 Performance](#-performance)
+  - [📚 Documentation](#-documentation)
+  - [🧪 Testing](#-testing)
+  - [🚢 Production Deployment](#-production-deployment)
+  - [🤝 Contributing](#-contributing)
+  - [📄 License](#-license)
+  - [🌟 Examples in the Wild](#-examples-in-the-wild)
+  - [🎉 Get Started Now](#-get-started-now)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Noun-Verb CLI Generator
 
 **Generate production-ready noun-verb pattern CLIs in seconds, not hours.**

@@ -1,3 +1,21 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Implementation Plan: CLI Jobs-to-be-Done Audit](#implementation-plan-cli-jobs-to-be-done-audit)
+  - [Summary](#summary)
+  - [Technical Context](#technical-context)
+  - [Constitution Check](#constitution-check)
+  - [Project Structure](#project-structure)
+    - [Documentation (this feature)](#documentation-this-feature)
+    - [Source Code (repository root)](#source-code-repository-root)
+  - [Complexity Tracking](#complexity-tracking)
+  - [Post-Design Constitution Re-Check](#post-design-constitution-re-check)
+  - [Generated Artifacts](#generated-artifacts)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Implementation Plan: CLI Jobs-to-be-Done Audit
 
 **Branch**: `007-cli-jtbd-audit` | **Date**: 2024-12-14 | **Spec**: [spec.md](./spec.md)

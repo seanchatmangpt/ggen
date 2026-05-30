@@ -1,3 +1,37 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Phase 3: Day 1 Functional Audit Summary](#phase-3-day-1-functional-audit-summary)
+  - [Day 1 Audit Results](#day-1-audit-results)
+    - [Overall Statistics](#overall-statistics)
+    - [Commands Audited (Detailed Results)](#commands-audited-detailed-results)
+      - [Workflow Commands (5 audits)](#workflow-commands-5-audits)
+      - [Utils Commands (2 audits)](#utils-commands-2-audits)
+  - [Critical Findings](#critical-findings)
+    - [🔴 RED ALERT: workflow init (L0 Blocker)](#-red-alert-workflow-init-l0-blocker)
+    - [🔴 RED ALERT: workflow event (L0 Blocker)](#-red-alert-workflow-event-l0-blocker)
+    - [🟡 PATTERN: File Dependency Blocker](#-pattern-file-dependency-blocker)
+    - [🟢 REFERENCE IMPLEMENTATION: utils doctor (L4)](#-reference-implementation-utils-doctor-l4)
+  - [Maturity Level Distribution](#maturity-level-distribution)
+  - [Agent Accessibility Impact](#agent-accessibility-impact)
+    - [By Avatar](#by-avatar)
+  - [Top 12 P1 Recommendations](#top-12-p1-recommendations)
+  - [Phase 3 Progress](#phase-3-progress)
+    - [Completion Status](#completion-status)
+    - [Days Ahead](#days-ahead)
+  - [Files Created/Updated](#files-createdupdated)
+    - [New Audit YAML Files](#new-audit-yaml-files)
+    - [New Progress/Summary Files](#new-progresssummary-files)
+    - [Constitutional Alignment](#constitutional-alignment)
+  - [Recommendations for Next Session](#recommendations-for-next-session)
+    - [Immediate Actions](#immediate-actions)
+    - [Day 2 Execution](#day-2-execution)
+    - [Quality Standards](#quality-standards)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Phase 3: Day 1 Functional Audit Summary
 
 **Date**: 2024-12-14

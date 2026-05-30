@@ -1,3 +1,21 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Public Vocabulary GALL Specification](#public-vocabulary-gall-specification)
+  - [1. Purpose](#1-purpose)
+  - [2. Public Vocabulary Rule](#2-public-vocabulary-rule)
+  - [3. No Private Predicate Authority in Public Evidence](#3-no-private-predicate-authority-in-public-evidence)
+  - [4. Namespace Laundering Risks](#4-namespace-laundering-risks)
+  - [5. SHACL Validation Checkpoint](#5-shacl-validation-checkpoint)
+  - [6. External Tool Survivability](#6-external-tool-survivability)
+  - [7. Relationship to Genesis](#7-relationship-to-genesis)
+  - [8. Relationship to ggen](#8-relationship-to-ggen)
+  - [9. Boundary Validation Table](#9-boundary-validation-table)
+  - [10. Definition of Done](#10-definition-of-done)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Public Vocabulary GALL Specification
 
 ## 1. Purpose

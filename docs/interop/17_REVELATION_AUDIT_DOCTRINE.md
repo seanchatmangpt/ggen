@@ -1,3 +1,19 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [REVELATION AUDIT DOCTRINE: The Apocalypse of Unreceipted Claims](#revelation-audit-doctrine-the-apocalypse-of-unreceipted-claims)
+  - [1. The Seven Churches → The Seven Project Families](#1-the-seven-churches-%E2%86%92-the-seven-project-families)
+  - [2. The Sealed Scroll → The Closed Architecture](#2-the-sealed-scroll-%E2%86%92-the-closed-architecture)
+  - [3. The Lamb → Receipted Consequence](#3-the-lamb-%E2%86%92-receipted-consequence)
+  - [4. The Beasts → False Software Authorities](#4-the-beasts-%E2%86%92-false-software-authorities)
+  - [5. Babylon → The Cloud/Data Platform Illusion](#5-babylon-%E2%86%92-the-clouddata-platform-illusion)
+  - [6. The Plagues → Refusal Artifacts](#6-the-plagues-%E2%86%92-refusal-artifacts)
+  - [7. The New Jerusalem → Finished Architecture](#7-the-new-jerusalem-%E2%86%92-finished-architecture)
+  - [Final Judgment](#final-judgment)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # REVELATION AUDIT DOCTRINE: The Apocalypse of Unreceipted Claims
 
 **Revelation as architecture means: unveiling.**

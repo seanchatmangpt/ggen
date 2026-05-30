@@ -1,3 +1,52 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen v26.5.19 - Quick Reference](#ggen-v26519---quick-reference)
+  - [🚀 Common CLI Commands](#-common-cli-commands)
+    - [Core Commands](#core-commands)
+    - [Marketplace Commands](#marketplace-commands)
+    - [MCP Commands](#mcp-commands)
+    - [Other Common Commands](#other-common-commands)
+  - [📝 ggen.toml Reference](#-ggentoml-reference)
+    - [Minimal Configuration](#minimal-configuration)
+    - [Complete Configuration](#complete-configuration)
+    - [Configuration Sections](#configuration-sections)
+  - [🎨 Template Syntax Reference (Tera)](#-template-syntax-reference-tera)
+    - [Basic Variables](#basic-variables)
+    - [Conditionals](#conditionals)
+    - [Loops](#loops)
+    - [Filters](#filters)
+    - [Comments](#comments)
+    - [YAML Frontmatter](#yaml-frontmatter)
+  - [🔍 SPARQL Query Examples](#-sparql-query-examples)
+    - [SELECT Queries](#select-queries)
+    - [CONSTRUCT Queries](#construct-queries)
+    - [ASK Queries](#ask-queries)
+  - [🔬 OpenTelemetry (OTEL) Verification](#-opentelemetry-otel-verification)
+    - [Enable Tracing](#enable-tracing)
+    - [Verify Spans](#verify-spans)
+    - [Required Spans by Feature](#required-spans-by-feature)
+  - [🛠️ Build & Test Commands](#-build--test-commands)
+    - [Cargo Make (Preferred)](#cargo-make-preferred)
+    - [Direct Cargo (Only if cargo-make unavailable)](#direct-cargo-only-if-cargo-make-unavailable)
+  - [🚨 Troubleshooting Checklist](#-troubleshooting-checklist)
+    - [Build Errors](#build-errors)
+    - [Test Failures](#test-failures)
+    - [Runtime Errors](#runtime-errors)
+    - [MCP Server Issues](#mcp-server-issues)
+  - [📚 Common Workflows](#-common-workflows)
+    - [New Project Setup](#new-project-setup)
+    - [Feature Development (Chicago TDD)](#feature-development-chicago-tdd)
+    - [Continuous Development](#continuous-development)
+  - [🔑 Key Concepts](#-key-concepts)
+    - [μ Pipeline (μ₁-μ₅)](#%CE%BC-pipeline-%CE%BC%E2%82%81-%CE%BC%E2%82%85)
+    - [Chicago TDD](#chicago-tdd)
+    - [Andon Signals](#andon-signals)
+  - [📖 Further Reading](#-further-reading)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen v26.5.19 - Quick Reference
 
 **Last Updated:** 2026-03-31

@@ -1,3 +1,23 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Implementation Plan: End-to-End Testing with Testcontainers](#implementation-plan-end-to-end-testing-with-testcontainers)
+  - [Summary](#summary)
+  - [Technical Context](#technical-context)
+  - [Constitution Check](#constitution-check)
+  - [Project Structure](#project-structure)
+    - [Documentation (this feature)](#documentation-this-feature)
+    - [Source Code (repository root)](#source-code-repository-root)
+  - [Complexity Tracking](#complexity-tracking)
+  - [Phase Completion Status](#phase-completion-status)
+    - [Phase 0: Research ✅ COMPLETE](#phase-0-research--complete)
+    - [Phase 1: Design & Contracts ✅ COMPLETE](#phase-1-design--contracts--complete)
+    - [Phase 2: Task Generation 🔜 PENDING](#phase-2-task-generation--pending)
+  - [Constitution Re-Check (Post-Design)](#constitution-re-check-post-design)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Implementation Plan: End-to-End Testing with Testcontainers
 
 **Branch**: `011-e2e-testcontainers` | **Date**: 2025-12-16 | **Spec**: [spec.md](./spec.md)

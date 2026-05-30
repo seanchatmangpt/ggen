@@ -1,3 +1,17 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [CSC-1: The Canonical Stewardship Cell](#csc-1-the-canonical-stewardship-cell)
+  - [1. Mission](#1-mission)
+  - [2. The Operational Lifecycle](#2-the-operational-lifecycle)
+  - [3. The Interchangeable Part Stack](#3-the-interchangeable-part-stack)
+  - [4. The Exact Lifecycle Contracts](#4-the-exact-lifecycle-contracts)
+  - [5. Artifacts & Receipts](#5-artifacts--receipts)
+  - [6. Definition of Done (Verification)](#6-definition-of-done-verification)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # CSC-1: The Canonical Stewardship Cell
 
 ## 1. Mission

@@ -1,3 +1,18 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [How-To Guide: Mapping Domain Models to RDF Triples](#how-to-guide-mapping-domain-models-to-rdf-triples)
+  - [Problem](#problem)
+  - [Solution: Bidirectional RDF Mapping](#solution-bidirectional-rdf-mapping)
+    - [1. Define Namespaces and Classes](#1-define-namespaces-and-classes)
+    - [2. Implement an RDF Mapper](#2-implement-an-rdf-mapper)
+    - [3. Converting Domain Entities to Triples](#3-converting-domain-entities-to-triples)
+    - [4. Reconstructing Entities using SPARQL](#4-reconstructing-entities-using-sparql)
+  - [Best Practices](#best-practices)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # How-To Guide: Mapping Domain Models to RDF Triples
 
 This guide explains how to convert application domain models into RDF triples and persist them using `oxigraph`, similar to the `RdfMapper` implemented in the `ggen-marketplace`.

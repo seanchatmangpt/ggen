@@ -1,3 +1,28 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Clean Crates — No Significant Issues](#clean-crates--no-significant-issues)
+  - [ggen-receipt](#ggen-receipt)
+  - [ggen-ontology-core](#ggen-ontology-core)
+  - [ggen-canonical](#ggen-canonical)
+  - [ggen-transport](#ggen-transport)
+  - [ggen-a2a](#ggen-a2a)
+  - [a2a-generated](#a2a-generated)
+  - [ggen-a2a-registry](#ggen-a2a-registry)
+  - [ggen-prompt-mfg](#ggen-prompt-mfg)
+  - [ggen-codegen](#ggen-codegen)
+  - [ggen-yawl](#ggen-yawl)
+  - [ggen-craftplan](#ggen-craftplan)
+  - [native pictl process mining](#native-pictl-process-mining)
+  - [ggen-cli-validation](#ggen-cli-validation)
+  - [ggen-node](#ggen-node)
+  - [ggen-e2e](#ggen-e2e)
+  - [ggen-test-audit](#ggen-test-audit)
+  - [ggen-test-opt](#ggen-test-opt)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Clean Crates — No Significant Issues
 
 These crates have no stubs, no dead code, and no architectural issues requiring core team attention.

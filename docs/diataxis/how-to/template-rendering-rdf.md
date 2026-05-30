@@ -1,3 +1,17 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [How-To Guide: Writing Templates with RDF and SPARQL](#how-to-guide-writing-templates-with-rdf-and-sparql)
+  - [Problem](#problem)
+  - [Solution: The v2 RDF/SPARQL Engine](#solution-the-v2-rdfsparql-engine)
+    - [Step 1: Provide RDF Context](#step-1-provide-rdf-context)
+    - [Step 2: Define SPARQL Queries in Frontmatter](#step-2-define-sparql-queries-in-frontmatter)
+    - [Step 3: Iterate Over Results in the Template Body](#step-3-iterate-over-results-in-the-template-body)
+    - [Step 4: Multi-File Code Generation](#step-4-multi-file-code-generation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # How-To Guide: Writing Templates with RDF and SPARQL
 
 This guide explains how to leverage the `ggen` v2 template engine to integrate Open Ontologies directly into your generated code. The v2 engine allows you to define inline RDF contexts, execute SPARQL queries, and loop over semantic relationships directly within your Tera templates.

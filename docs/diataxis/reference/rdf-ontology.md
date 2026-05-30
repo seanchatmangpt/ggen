@@ -1,3 +1,15 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Reference: ggen Marketplace RDF Ontology](#reference-ggen-marketplace-rdf-ontology)
+  - [Core Namespaces](#core-namespaces)
+  - [Key Classes](#key-classes)
+  - [Key Properties](#key-properties)
+  - [Pre-defined SPARQL Queries](#pre-defined-sparql-queries)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Reference: ggen Marketplace RDF Ontology
 
 This document provides a technical reference for the core RDF ontology used within the `ggen-marketplace`. All marketplace data is stored as RDF triples in `oxigraph`.

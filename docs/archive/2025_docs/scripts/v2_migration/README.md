@@ -1,3 +1,39 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen v2.0.0 Migration Automation](#ggen-v200-migration-automation)
+  - [Overview](#overview)
+  - [Scripts](#scripts)
+    - [1. `generate_cli_wrapper.sh`](#1-generate_cli_wrappersh)
+    - [2. `migrate_remaining_commands.sh`](#2-migrate_remaining_commandssh)
+    - [3. `validate_migration.sh`](#3-validate_migrationsh)
+  - [Command Priority List](#command-priority-list)
+    - [HIGH Priority (30 commands)](#high-priority-30-commands)
+    - [MEDIUM Priority (25 commands)](#medium-priority-25-commands)
+    - [LOW Priority (12 commands)](#low-priority-12-commands)
+  - [Workflow](#workflow)
+    - [Step 1: Generate CLI Wrappers (Automated)](#step-1-generate-cli-wrappers-automated)
+    - [Step 2: Validate Migration](#step-2-validate-migration)
+    - [Step 3: Implement Domain Logic](#step-3-implement-domain-logic)
+    - [Step 4: Add Integration Tests](#step-4-add-integration-tests)
+    - [Step 5: Final Validation](#step-5-final-validation)
+  - [Timeline Estimate](#timeline-estimate)
+  - [Success Criteria](#success-criteria)
+    - [CLI Layer ✅](#cli-layer-)
+    - [Domain Layer ✅](#domain-layer-)
+    - [Tests ✅](#tests-)
+    - [Performance ✅](#performance-)
+  - [Troubleshooting](#troubleshooting)
+    - ["Domain logic not found" warning](#domain-logic-not-found-warning)
+    - [Compilation errors](#compilation-errors)
+    - [Tests failing](#tests-failing)
+  - [Files Generated](#files-generated)
+  - [Next Steps](#next-steps)
+  - [Support](#support)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen v2.0.0 Migration Automation
 
 Automated migration scripts for converting remaining 67 commands to v2.0.0 architecture.

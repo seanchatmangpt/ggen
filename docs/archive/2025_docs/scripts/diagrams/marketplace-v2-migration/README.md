@@ -1,3 +1,35 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Marketplace-V2 Migration Planning Diagrams](#marketplace-v2-migration-planning-diagrams)
+  - [Diagram Index](#diagram-index)
+    - [1. C4 Architecture Diagrams](#1-c4-architecture-diagrams)
+      - [🏢 **c4-context.puml** - System Context](#-c4-contextpuml---system-context)
+      - [📦 **c4-container.puml** - Container Architecture](#-c4-containerpuml---container-architecture)
+      - [🔧 **c4-component.puml** - Component Details](#-c4-componentpuml---component-details)
+    - [2. Migration & Implementation Diagrams](#2-migration--implementation-diagrams)
+      - [🛣️ **migration-strategy.puml** - 8-Phase Migration Workflow](#-migration-strategypuml---8-phase-migration-workflow)
+      - [🔄 **api-refactor-sequence.puml** - API Refactor & Integration](#-api-refactor-sequencepuml---api-refactor--integration)
+      - [❌ **error-resolution-plan.puml** - Error Resolution Strategy](#-error-resolution-planpuml---error-resolution-strategy)
+    - [3. Testing & Validation Diagrams](#3-testing--validation-diagrams)
+      - [🧪 **test-strategy.puml** - Comprehensive Testing](#-test-strategypuml---comprehensive-testing)
+    - [4. Deployment & Release Diagrams](#4-deployment--release-diagrams)
+      - [🚀 **deployment-plan.puml** - Release Pipeline](#-deployment-planpuml---release-pipeline)
+      - [📅 **timeline-phases.puml** - Project Timeline](#-timeline-phasespuml---project-timeline)
+    - [5. Reference Diagrams](#5-reference-diagrams)
+      - [📊 **file-dependency-graph.puml** - File Dependencies](#-file-dependency-graphpuml---file-dependencies)
+    - [6. Implementation Guide](#6-implementation-guide)
+      - [📋 **MIGRATION_GUIDE.md** - Comprehensive Implementation](#-migration_guidemd---comprehensive-implementation)
+  - [Quick Navigation](#quick-navigation)
+    - [By Task Type](#by-task-type)
+  - [Current Status](#current-status)
+  - [How to Use These Diagrams](#how-to-use-these-diagrams)
+  - [Diagram File Formats](#diagram-file-formats)
+  - [Key Takeaways](#key-takeaways)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Marketplace-V2 Migration Planning Diagrams
 
 **Location**: `/scripts/diagrams/marketplace-v2-migration/`

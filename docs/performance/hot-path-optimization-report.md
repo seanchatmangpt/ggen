@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Hot Path Optimization Report - ggen v26.5.19](#hot-path-optimization-report---ggen-v26519)
+  - [Executive Summary](#executive-summary)
+  - [Identified Hot Paths](#identified-hot-paths)
+    - [1. Template Parsing (HIGHEST PRIORITY)](#1-template-parsing-highest-priority)
+    - [2. Frontmatter Rendering](#2-frontmatter-rendering)
+    - [3. RDF/SPARQL Processing](#3-rdfsparql-processing)
+    - [4. LLM API Calls](#4-llm-api-calls)
+  - [Optimization Strategies](#optimization-strategies)
+    - [Strategy 1: Template Parsing - Pre-allocate String Capacity](#strategy-1-template-parsing---pre-allocate-string-capacity)
+    - [Strategy 2: Template Caching](#strategy-2-template-caching)
+    - [Strategy 3: Reduce String Allocations with &str](#strategy-3-reduce-string-allocations-with-str)
+    - [Strategy 4: Cow<str> for Conditional Ownership](#strategy-4-cowstr-for-conditional-ownership)
+  - [Implementation Plan](#implementation-plan)
+    - [Phase 1: Template Parsing Optimization (Highest ROI)](#phase-1-template-parsing-optimization-highest-roi)
+    - [Phase 2: Template Caching](#phase-2-template-caching)
+    - [Phase 3: Context Insertion Optimization](#phase-3-context-insertion-optimization)
+    - [Phase 4: RDF Processing Optimization](#phase-4-rdf-processing-optimization)
+  - [Benchmark Results](#benchmark-results)
+    - [Baseline (Before Optimization)](#baseline-before-optimization)
+    - [Projected (After Optimization)](#projected-after-optimization)
+  - [Next Steps](#next-steps)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Hot Path Optimization Report - ggen v26.5.19
 
 **Date:** 2026-03-31

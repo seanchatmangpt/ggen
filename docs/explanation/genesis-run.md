@@ -1,3 +1,14 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [The Genesis Run](#the-genesis-run)
+  - [The equation](#the-equation)
+  - [Why the ordering is load-bearing](#why-the-ordering-is-load-bearing)
+  - [See also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # The Genesis Run
 
 > Explanation. This page tells you *why* ggen is built and released the way it is.

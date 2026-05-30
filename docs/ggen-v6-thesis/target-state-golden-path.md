@@ -1,3 +1,13 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Target State — Golden Path (v26.5.19)](#target-state--golden-path-v26519)
+  - [Flow Diagram](#flow-diagram)
+  - [Target Lockfile Schema (SINGLE)](#target-lockfile-schema-single)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Target State — Golden Path (v26.5.19)
 
 ## Flow Diagram

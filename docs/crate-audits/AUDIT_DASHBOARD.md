@@ -1,3 +1,25 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Workspace Audit Dashboard](#ggen-workspace-audit-dashboard)
+  - [Executive Summary](#executive-summary)
+  - [R1: Workspace Crate Dependency Graph](#r1-workspace-crate-dependency-graph)
+  - [R2: Priority Distribution by Crate](#r2-priority-distribution-by-crate)
+  - [R3: Deletion Phases Gantt Chart](#r3-deletion-phases-gantt-chart)
+  - [R4: Execution Path Reachability](#r4-execution-path-reachability)
+  - [R5: Dead Code Distribution](#r5-dead-code-distribution)
+  - [R6: P0 Issues Cascade](#r6-p0-issues-cascade)
+  - [Remediation Sequencing](#remediation-sequencing)
+    - [3-Phase Plan](#3-phase-plan)
+  - [Individual Crate Audits](#individual-crate-audits)
+  - [Appendix](#appendix)
+    - [Data Sources](#data-sources)
+    - [Metrics](#metrics)
+    - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Workspace Audit Dashboard
 
 **Generated:** 2026-04-01

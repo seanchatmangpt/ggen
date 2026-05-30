@@ -1,3 +1,12 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Witnessed Agent Truthfulness GALL Protocol](#witnessed-agent-truthfulness-gall-protocol)
+  - [Protocol Architecture](#protocol-architecture)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Witnessed Agent Truthfulness GALL Protocol
 
 The Witnessed Agent Truthfulness GALL Protocol enforces transcript-bearing, sabotage-tested, clean-room verified execution for all agent work.

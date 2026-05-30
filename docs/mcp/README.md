@@ -1,3 +1,28 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen MCP Documentation](#ggen-mcp-documentation)
+  - [Quick Links](#quick-links)
+  - [Overview](#overview)
+  - [Key Features](#key-features)
+  - [Documentation Structure](#documentation-structure)
+  - [MCP Tools](#mcp-tools)
+    - [Pipeline](#pipeline)
+    - [Query](#query)
+    - [Examples](#examples)
+    - [Validation](#validation)
+    - [Orchestration](#orchestration)
+  - [Getting Started](#getting-started)
+    - [1. Install](#1-install)
+    - [2. Configure Claude Desktop](#2-configure-claude-desktop)
+    - [3. Start Using](#3-start-using)
+  - [Architecture](#architecture)
+  - [Support](#support)
+  - [License](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen MCP Documentation
 
 Complete documentation for the ggen Model Context Protocol (MCP) server implementation.

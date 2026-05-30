@@ -1,3 +1,18 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [SYNC-ACTUATOR-1 Receipt](#sync-actuator-1-receipt)
+  - [Final State](#final-state)
+  - [The boundary](#the-boundary)
+  - [Acceptance — all met (one honest gap)](#acceptance--all-met-one-honest-gap)
+  - [The actuation command](#the-actuation-command)
+  - [OCEL correctness + feedback (the "fed back when appropriate" loop)](#ocel-correctness--feedback-the-fed-back-when-appropriate-loop)
+  - [Order this unlocks](#order-this-unlocks)
+  - [Remaining work](#remaining-work)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # SYNC-ACTUATOR-1 Receipt
 
 ## Final State

@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [07. Truex Lifecycle Spec](#07-truex-lifecycle-spec)
+  - [1. Truex Thesis](#1-truex-thesis)
+  - [2. Relationship to Genesis](#2-relationship-to-genesis)
+  - [3. Relationship to ggen](#3-relationship-to-ggen)
+  - [4. Relationship to Interchangeable Parts](#4-relationship-to-interchangeable-parts)
+  - [5. Lifecycle States](#5-lifecycle-states)
+  - [6. Promotion Criteria](#6-promotion-criteria)
+  - [7. Accounting Model](#7-accounting-model)
+  - [8. Receipt Model](#8-receipt-model)
+  - [9. Refusal Model](#9-refusal-model)
+  - [10. Replay Model](#10-replay-model)
+  - [11. Audit/Export Model](#11-auditexport-model)
+  - [12. Role in Blue River Dam](#12-role-in-blue-river-dam)
+  - [13. Definition of Done](#13-definition-of-done)
+  - [Lifecycle Stage Routing](#lifecycle-stage-routing)
+  - [Interop Boundaries](#interop-boundaries)
+    - [Truex ↔ Genesis (via Part Custody)](#truex--genesis-via-part-custody)
+    - [Truex ↔ ggen](#truex--ggen)
+    - [Truex ↔ wasm4pm / External Checkers](#truex--wasm4pm--external-checkers)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 07. Truex Lifecycle Spec
 
 **[DOC_ONLY]** Truex governs the enterprise lifecycle of receipted consequence. Genesis is the kernel that constructs local consequence inside the part.

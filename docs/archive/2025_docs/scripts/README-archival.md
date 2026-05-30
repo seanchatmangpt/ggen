@@ -1,3 +1,47 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Archival Scripts Documentation](#archival-scripts-documentation)
+  - [Overview](#overview)
+  - [Scripts](#scripts)
+    - [identify-archived.sh](#identify-archivedsh)
+    - [archive-files.sh](#archive-filessh)
+  - [Identification Criteria](#identification-criteria)
+    - [7-Day Unmodified Files](#7-day-unmodified-files)
+    - [Deprecated Files](#deprecated-files)
+  - [Workflow](#workflow)
+    - [Step 1: Identify Files](#step-1-identify-files)
+    - [Step 2: Review (Optional)](#step-2-review-optional)
+    - [Step 3: Archive Files](#step-3-archive-files)
+    - [Step 4: Verify](#step-4-verify)
+  - [Recovery](#recovery)
+    - [Restore Individual Archived File](#restore-individual-archived-file)
+    - [Full Rollback (Undo All Archival)](#full-rollback-undo-all-archival)
+    - [If Archival Went Wrong](#if-archival-went-wrong)
+    - [Create Backup Tag (Optional)](#create-backup-tag-optional)
+  - [Assumptions & Constraints](#assumptions--constraints)
+    - [Assumptions](#assumptions)
+    - [Constraints](#constraints)
+  - [Archival Structure](#archival-structure)
+  - [Configuration](#configuration)
+    - [Environment Variables](#environment-variables)
+    - [Dependencies](#dependencies)
+    - [Platform Support](#platform-support)
+  - [Troubleshooting](#troubleshooting)
+    - ["Not a git repository" Error](#not-a-git-repository-error)
+    - [No Files Found](#no-files-found)
+    - [Archive Script Fails](#archive-script-fails)
+    - [Git History Issues](#git-history-issues)
+  - [Examples](#examples)
+    - [Archive Files Updated Before Today](#archive-files-updated-before-today)
+    - [Dry Run Before Committing](#dry-run-before-committing)
+    - [Selective Archival](#selective-archival)
+  - [Safety Notes](#safety-notes)
+  - [Questions?](#questions)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Archival Scripts Documentation
 
 ## Overview

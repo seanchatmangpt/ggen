@@ -1,3 +1,53 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [μ₀ Pack Resolution Stage - Implementation Summary](#%CE%BC%E2%82%80-pack-resolution-stage---implementation-summary)
+  - [Overview](#overview)
+  - [Pipeline Architecture](#pipeline-architecture)
+    - [μ₀ Stage Responsibilities](#%CE%BC%E2%82%80-stage-responsibilities)
+  - [Implementation Details](#implementation-details)
+    - [Core Types](#core-types)
+      - [`PackResolver`](#packresolver)
+      - [`ResolvedPacks`](#resolvedpacks)
+      - [`BundleExpansion`](#bundleexpansion)
+    - [μ₀ Resolution Algorithm](#%CE%BC%E2%82%80-resolution-algorithm)
+    - [Bundle Expansion](#bundle-expansion)
+    - [Foundation Packs (CISO Requirement)](#foundation-packs-ciso-requirement)
+  - [Integration Points](#integration-points)
+    - [1. Module Export (`crates/ggen-core/src/lib.rs`)](#1-module-export-cratesggen-coresrclibrs)
+    - [2. Dependencies (`crates/ggen-core/Cargo.toml`)](#2-dependencies-cratesggen-corecargotoml)
+    - [3. Next Steps (Future Work)](#3-next-steps-future-work)
+  - [Testing](#testing)
+    - [Unit Tests](#unit-tests)
+    - [Compilation Status](#compilation-status)
+  - [Usage Example](#usage-example)
+  - [Files Modified/Created](#files-modifiedcreated)
+    - [Created](#created)
+    - [Modified](#modified)
+  - [Dependencies](#dependencies)
+    - [External Crates](#external-crates)
+    - [Internal Modules](#internal-modules)
+  - [Design Principles](#design-principles)
+    - [1. Atomic Packs are Canonical (CISO Requirement)](#1-atomic-packs-are-canonical-ciso-requirement)
+    - [2. Foundation First](#2-foundation-first)
+    - [3. Deterministic Ordering](#3-deterministic-ordering)
+    - [4. Multi-Dimensional Compatibility](#4-multi-dimensional-compatibility)
+    - [5. Provenance Tracking](#5-provenance-tracking)
+  - [Limitations & Future Work](#limitations--future-work)
+    - [Current Limitations](#current-limitations)
+    - [Future Enhancements (Per Plan)](#future-enhancements-per-plan)
+  - [Alignment with Plan](#alignment-with-plan)
+    - [✅ Completed](#-completed)
+    - [🔄 Pending (Next Steps)](#-pending-next-steps)
+  - [Verification](#verification)
+    - [Compilation](#compilation)
+    - [Module Export](#module-export)
+    - [Dependencies](#dependencies-1)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # μ₀ Pack Resolution Stage - Implementation Summary
 
 **Date:** 2026-03-31

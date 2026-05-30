@@ -3,6 +3,7 @@
 **Table of Contents**
 
 - [ggen Documentation](#ggen-documentation)
+  - [📐 Canonical documentation map — ggen v26.5.28](#-canonical-documentation-map--ggen-v26528)
   - [Quick Start](#quick-start)
   - [🗺️ Choose Your Learning Path](#-choose-your-learning-path)
     - [Question 1: Are you familiar with RDF/Semantic Web?](#question-1-are-you-familiar-with-rdfsemantic-web)

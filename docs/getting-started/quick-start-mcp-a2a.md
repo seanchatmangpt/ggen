@@ -1,4 +1,4 @@
-<!-- START doctoc generated TOC please keep comment here allow auto update -->
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
@@ -14,7 +14,7 @@
   - [Troubleshooting](#troubleshooting)
   - [Next Steps](#next-steps)
 
-<!-- END doctoc generated TOC -->
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # MCP & A2A Quick Start Tutorial
 

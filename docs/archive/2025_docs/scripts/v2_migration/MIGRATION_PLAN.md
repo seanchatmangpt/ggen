@@ -1,3 +1,46 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Migration Automation Plan - 67 Remaining Commands](#migration-automation-plan---67-remaining-commands)
+  - [Executive Summary](#executive-summary)
+  - [Pattern Established by 10 Core Commands](#pattern-established-by-10-core-commands)
+  - [67 Commands to Automate](#67-commands-to-automate)
+    - [HIGH Priority (30 commands)](#high-priority-30-commands)
+    - [MEDIUM Priority (25 commands)](#medium-priority-25-commands)
+    - [LOW Priority (12 commands)](#low-priority-12-commands)
+  - [Automation Scripts](#automation-scripts)
+    - [1. `generate_cli_wrapper.sh`](#1-generate_cli_wrappersh)
+    - [2. `migrate_remaining_commands.sh`](#2-migrate_remaining_commandssh)
+    - [3. `validate_migration.sh`](#3-validate_migrationsh)
+  - [Domain Logic Templates](#domain-logic-templates)
+  - [Testing Strategy](#testing-strategy)
+    - [Unit Tests (Automated)](#unit-tests-automated)
+    - [Integration Tests (Manual - Critical Paths)](#integration-tests-manual---critical-paths)
+  - [Timeline Breakdown](#timeline-breakdown)
+    - [Phase 1: Core Pattern (4-6 hours) ✅ sparc-coder](#phase-1-core-pattern-4-6-hours--sparc-coder)
+    - [Phase 2: Automation Development (2 hours) ✅ This task](#phase-2-automation-development-2-hours--this-task)
+    - [Phase 3: Automated Migration (10 minutes)](#phase-3-automated-migration-10-minutes)
+    - [Phase 4: Domain Logic Implementation (8-12 hours)](#phase-4-domain-logic-implementation-8-12-hours)
+    - [Phase 5: Integration Testing (4-6 hours)](#phase-5-integration-testing-4-6-hours)
+    - [Phase 6: Final Validation (30 minutes)](#phase-6-final-validation-30-minutes)
+  - [Success Metrics](#success-metrics)
+    - [Code Quality](#code-quality)
+    - [Performance](#performance)
+    - [Architecture](#architecture)
+    - [Documentation](#documentation)
+  - [Risk Assessment](#risk-assessment)
+    - [LOW RISK ✅](#low-risk-)
+    - [MEDIUM RISK ⚠️](#medium-risk-)
+    - [HIGH RISK 🔴](#high-risk-)
+  - [Rollback Plan](#rollback-plan)
+  - [Communication Plan](#communication-plan)
+    - [Internal Team](#internal-team)
+    - [Users](#users)
+  - [Next Actions](#next-actions)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Migration Automation Plan - 67 Remaining Commands
 
 ## Executive Summary

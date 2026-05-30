@@ -1,3 +1,14 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Explanation: The 8 Canonical Proof Gates](#explanation-the-8-canonical-proof-gates)
+  - [Why Gates?](#why-gates)
+  - [The 8 Canonical Gates](#the-8-canonical-gates)
+  - [Implementation in Rust](#implementation-in-rust)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Explanation: The 8 Canonical Proof Gates
 
 Proof Gates are the hard-coded validation invariants that govern the `ggen` manufacturing pipeline. They ensure that every artifact released by the factory is lawful, conformant, and verifiable.

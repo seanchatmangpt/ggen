@@ -1,3 +1,21 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen-marketplace — Crate Audit](#ggen-marketplace--crate-audit)
+  - [CRITICAL: THREE COMPETING ONTOLOGY NAMESPACES](#critical-three-competing-ontology-namespaces)
+  - [STUBS](#stubs)
+    - [RdfControlPlane (v2) — `rdf/control.rs`](#rdfcontrolplane-v2--rdfcontrolrs)
+    - [V3OptimizedRegistry — `v3.rs`](#v3optimizedregistry--v3rs)
+    - [Validation — `install.rs`](#validation--installrs)
+    - [Validation — `validation.rs`](#validation--validationrs)
+    - [SHACL — `rdf/rdf_control.rs`](#shacl--rdfrdf_controlrs)
+  - [DEAD CODE](#dead-code)
+  - [WHAT WORKS WELL](#what-works-well)
+  - [FIX / DELETE / REFACTOR](#fix--delete--refactor)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen-marketplace — Crate Audit
 
 **Path:** `crates/ggen-marketplace/`

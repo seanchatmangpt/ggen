@@ -1,3 +1,40 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Fake-Detection Strategy — Part B Implementation](#fake-detection-strategy--part-b-implementation)
+  - [Executive Summary](#executive-summary)
+  - [What Was Implemented](#what-was-implemented)
+    - [Workspace-Level Lint Configuration](#workspace-level-lint-configuration)
+    - [Crate Inheritance](#crate-inheritance)
+    - [Files Modified](#files-modified)
+  - [Why This Addresses Coding-Agent Mistakes](#why-this-addresses-coding-agent-mistakes)
+    - [Mistake Classes Targeted](#mistake-classes-targeted)
+    - [Authority Deepening (Section 6, coding-agent-mistakes.md)](#authority-deepening-section-6-coding-agent-mistakesmd)
+  - [Three-Phase Rollout](#three-phase-rollout)
+    - [Phase B.1 — Warn-First Inventory (CURRENT)](#phase-b1--warn-first-inventory-current)
+    - [Phase B.2 — Deny After Fixes (PENDING)](#phase-b2--deny-after-fixes-pending)
+    - [Phase B.3 — TRUTH-LSP-1 Proof-of-Absence (PENDING)](#phase-b3--truth-lsp-1-proof-of-absence-pending)
+  - [Implementation Details](#implementation-details)
+    - [Lint Categories](#lint-categories)
+    - [Workspace Inheritance Model](#workspace-inheritance-model)
+    - [Complementary Scripts](#complementary-scripts)
+  - [Authority & Drift](#authority--drift)
+    - [Authority Deepened](#authority-deepened)
+    - [Drift Reduced](#drift-reduced)
+  - [References](#references)
+    - [Project Documentation](#project-documentation)
+    - [Implementation References](#implementation-references)
+  - [Success Metrics](#success-metrics)
+    - [Phase B.1 (Warn-First Inventory)](#phase-b1-warn-first-inventory)
+    - [Phase B.2 (Deny-Mode Enforcement)](#phase-b2-deny-mode-enforcement)
+    - [Phase B.3 (TRUTH-LSP-1 Proof)](#phase-b3-truth-lsp-1-proof)
+  - [Next Steps](#next-steps)
+  - [Appendix A: Phase B.1 Inventory Procedure](#appendix-a-phase-b1-inventory-procedure)
+  - [Appendix B: Lint Configuration Reference](#appendix-b-lint-configuration-reference)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Fake-Detection Strategy — Part B Implementation
 
 **Status:** Part B.1 (Warn-First Inventory) — ACTIVE  

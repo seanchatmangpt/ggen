@@ -1,3 +1,15 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [13 DEFINITION OF DONE](#13-definition-of-done)
+  - [1. v0.1 Definition of Done](#1-v01-definition-of-done)
+  - [2. v0.2 Definition of Done](#2-v02-definition-of-done)
+  - [3. Vision 2030 Definition of Done](#3-vision-2030-definition-of-done)
+  - [Finish Recommendation: Complete the Core Extraction](#finish-recommendation-complete-the-core-extraction)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 13 DEFINITION OF DONE
 
 This document formalizes the completion criteria for the Genesis-bearing interchangeable parts architecture across three horizons.

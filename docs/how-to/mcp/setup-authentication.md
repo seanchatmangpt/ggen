@@ -5,19 +5,36 @@
 - [How to Setup Authentication](#how-to-setup-authentication)
   - [Authentication Methods Overview](#authentication-methods-overview)
   - [API Key Authentication](#api-key-authentication)
+    - [Generate API Key](#generate-api-key)
+    - [Configure API Key](#configure-api-key)
+    - [Use API Key in Requests](#use-api-key-in-requests)
   - [JWT Authentication](#jwt-authentication)
+    - [Generate JWT Secret](#generate-jwt-secret)
+    - [Configure JWT](#configure-jwt)
+    - [Generate JWT Token](#generate-jwt-token)
+    - [Verify JWT Token](#verify-jwt-token)
   - [Mutual TLS Authentication](#mutual-tls-authentication)
+    - [Generate Certificates](#generate-certificates)
+    - [Configure mTLS](#configure-mtls)
+    - [Test mTLS Connection](#test-mtls-connection)
   - [OAuth 2.0 Integration](#oauth-20-integration)
+    - [Configure OAuth 2.0](#configure-oauth-20)
+    - [Supported Providers](#supported-providers)
   - [Token Management](#token-management)
+    - [List Active Tokens](#list-active-tokens)
+    - [Revoke Tokens](#revoke-tokens)
+    - [Refresh Tokens](#refresh-tokens)
   - [Security Best Practices](#security-best-practices)
   - [Testing Authentication](#testing-authentication)
+    - [Test API Key Authentication](#test-api-key-authentication)
+    - [Test JWT Authentication](#test-jwt-authentication)
   - [Troubleshooting](#troubleshooting)
     - [Authentication Failed](#authentication-failed)
     - [Token Expired](#token-expired)
     - [Certificate Errors](#certificate-errors)
   - [Next Steps](#next-steps)
 
-<!-- END doctoc generated TOC -->
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # How to Setup Authentication
 

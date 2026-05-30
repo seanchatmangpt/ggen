@@ -1,3 +1,25 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Requirements Checklist: FMEA & Poka-Yoke Marketplace Framework](#requirements-checklist-fmea--poka-yoke-marketplace-framework)
+  - [Domain Protection (Core)](#domain-protection-core)
+  - [Poka-Yoke Controls](#poka-yoke-controls)
+  - [FMEA Integration](#fmea-integration)
+  - [Team Ownership](#team-ownership)
+  - [Success Criteria](#success-criteria)
+  - [User Story Acceptance](#user-story-acceptance)
+    - [US1 - Protected Domain Logic (P1) - COMPLETE](#us1---protected-domain-logic-p1---complete)
+    - [US2 - Poka-Yoke Warning System (P1) - COMPLETE](#us2---poka-yoke-warning-system-p1---complete)
+    - [US3 - FMEA Validation Gate (P2) - COMPLETE](#us3---fmea-validation-gate-p2---complete)
+    - [US4 - Team Ownership Enforcement (P2) - COMPLETE](#us4---team-ownership-enforcement-p2---complete)
+    - [US5 - Zero-Conflict Parallel Development (P3) - DEFERRED](#us5---zero-conflict-parallel-development-p3---deferred)
+  - [Implementation Summary](#implementation-summary)
+    - [Core Infrastructure Completed](#core-infrastructure-completed)
+    - [Test Coverage](#test-coverage)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Requirements Checklist: FMEA & Poka-Yoke Marketplace Framework
 
 **Feature Branch**: `006-marketplace-fmea-poka-yoke`

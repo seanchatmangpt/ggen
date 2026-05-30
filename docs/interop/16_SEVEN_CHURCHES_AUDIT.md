@@ -1,3 +1,21 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [The Seven Churches Audit](#the-seven-churches-audit)
+  - ["I know your works." — Revelation 2:2](#i-know-your-works--revelation-22)
+  - [Church 1: Genesis — OVERCOMES](#church-1-genesis--overcomes)
+  - [Church 2: ggen — PARTIAL](#church-2-ggen--partial)
+  - [Church 3: AtomVM/WASM — DOC_ONLY](#church-3-atomvmwasm--doc_only)
+  - [Church 4: Truex — PARTIAL](#church-4-truex--partial)
+  - [Church 5: wasm4pm/pictl — LAMPSTAND REMOVED](#church-5-wasm4pmpictl--lampstand-removed)
+  - [Church 6: open-ontologies — PARTIAL](#church-6-open-ontologies--partial)
+  - [Church 7: BCINR/unibit — PARTIAL](#church-7-bcinrunibit--partial)
+  - [Active Plagues](#active-plagues)
+  - [New Jerusalem Gate Status](#new-jerusalem-gate-status)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # The Seven Churches Audit
 ## "I know your works." — Revelation 2:2
 

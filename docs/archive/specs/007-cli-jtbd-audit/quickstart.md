@@ -1,3 +1,24 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Quickstart: CLI JTBD Audit Execution](#quickstart-cli-jtbd-audit-execution)
+  - [Prerequisites](#prerequisites)
+  - [Directory Setup](#directory-setup)
+  - [Audit Execution Process](#audit-execution-process)
+    - [Step 1: Audit a Single Command](#step-1-audit-a-single-command)
+    - [Step 2: Score Agent Accessibility](#step-2-score-agent-accessibility)
+    - [Step 3: Determine Maturity Level](#step-3-determine-maturity-level)
+    - [Step 4: Add Avatar Notes](#step-4-add-avatar-notes)
+    - [Step 5: Validate Case Studies](#step-5-validate-case-studies)
+  - [Daily Execution Schedule](#daily-execution-schedule)
+  - [Report Generation](#report-generation)
+  - [Validation Checklist](#validation-checklist)
+  - [Troubleshooting](#troubleshooting)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Quickstart: CLI JTBD Audit Execution
 
 **Feature Branch**: `007-cli-jtbd-audit`

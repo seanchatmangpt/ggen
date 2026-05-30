@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Feature Gate Enablement Report — Path A Test Suite](#feature-gate-enablement-report--path-a-test-suite)
+  - [1. Feature Gates Defined in ggen-core](#1-feature-gates-defined-in-ggen-core)
+  - [2. Feature-Gated Code Locations](#2-feature-gated-code-locations)
+    - [2.1 OTEL Feature (13 code locations)](#21-otel-feature-13-code-locations)
+    - [2.2 PROPTEST Feature (3 code locations)](#22-proptest-feature-3-code-locations)
+    - [2.3 INTEGRATION Feature (3 test modules)](#23-integration-feature-3-test-modules)
+    - [2.4 DOCKER Feature (3 code locations)](#24-docker-feature-3-code-locations)
+  - [3. Test Compilation & Execution Summary](#3-test-compilation--execution-summary)
+    - [3.1 Compilation Status](#31-compilation-status)
+    - [3.2 Feature-Gated Test Modules](#32-feature-gated-test-modules)
+    - [3.3 Evidence of Unblocking](#33-evidence-of-unblocking)
+  - [4. CI Configuration](#4-ci-configuration)
+    - [4.1 Makefile.toml Tasks](#41-makefiletoml-tasks)
+    - [4.2 GitHub Actions Workflow](#42-github-actions-workflow)
+  - [5. Detailed Feature Gate Breakdown](#5-detailed-feature-gate-breakdown)
+    - [5.1 otel (OpenTelemetry)](#51-otel-opentelemetry)
+    - [5.2 proptest (Property-Based Testing)](#52-proptest-property-based-testing)
+    - [5.3 integration (E2E Testing)](#53-integration-e2e-testing)
+    - [5.4 docker (Container Testing)](#54-docker-container-testing)
+  - [6. Test Execution Timeline](#6-test-execution-timeline)
+    - [Expected Timings (Empirical)](#expected-timings-empirical)
+    - [Typical Execution Order](#typical-execution-order)
+  - [7. Path A Test Coverage](#7-path-a-test-coverage)
+    - [Gate-Specific Coverage](#gate-specific-coverage)
+    - [Proof of Unblocking](#proof-of-unblocking)
+  - [8. Validation Checklist](#8-validation-checklist)
+  - [9. Quick Reference Commands](#9-quick-reference-commands)
+  - [10. Related Documentation](#10-related-documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Feature Gate Enablement Report — Path A Test Suite
 
 **Generated**: 2026-05-29  

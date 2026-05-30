@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Migration Automation - File Index](#migration-automation---file-index)
+  - [Quick Navigation](#quick-navigation)
+    - [🚀 Get Started](#-get-started)
+    - [📚 Documentation](#-documentation)
+    - [🛠️ Scripts](#-scripts)
+    - [📊 Reports](#-reports)
+  - [File Summary](#file-summary)
+  - [Usage Paths](#usage-paths)
+    - [Path 1: Quick Start (10 minutes)](#path-1-quick-start-10-minutes)
+    - [Path 2: Full Understanding (30 minutes)](#path-2-full-understanding-30-minutes)
+    - [Path 3: Single Command Testing (5 minutes)](#path-3-single-command-testing-5-minutes)
+  - [Directory Structure](#directory-structure)
+  - [Command Categories](#command-categories)
+    - [HIGH Priority (30 commands)](#high-priority-30-commands)
+    - [MEDIUM Priority (25 commands)](#medium-priority-25-commands)
+    - [LOW Priority (12 commands)](#low-priority-12-commands)
+  - [Key Concepts](#key-concepts)
+    - [Pattern Established (10 core commands)](#pattern-established-10-core-commands)
+    - [Automation Coverage (67 commands)](#automation-coverage-67-commands)
+    - [Validation (7 phases)](#validation-7-phases)
+  - [Timeline](#timeline)
+  - [Support](#support)
+  - [Contributing](#contributing)
+  - [License](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Migration Automation - File Index
 
 ## Quick Navigation

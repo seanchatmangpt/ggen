@@ -1,3 +1,22 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Data Model: FMEA & Poka-Yoke Marketplace Framework](#data-model-fmea--poka-yoke-marketplace-framework)
+  - [Entity Relationship Diagram](#entity-relationship-diagram)
+  - [Type Definitions](#type-definitions)
+    - [Core Types (ggen-core)](#core-types-ggen-core)
+    - [Package Extensions (ggen-domain)](#package-extensions-ggen-domain)
+  - [Validation Rules](#validation-rules)
+    - [Path Protection Rules](#path-protection-rules)
+    - [FMEA Validation Rules](#fmea-validation-rules)
+    - [Poka-Yoke Validation Rules](#poka-yoke-validation-rules)
+  - [State Transitions](#state-transitions)
+    - [Generation State Machine](#generation-state-machine)
+  - [Sample package.toml](#sample-packagetoml)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Data Model: FMEA & Poka-Yoke Marketplace Framework
 
 **Branch**: `006-marketplace-fmea-poka-yoke`
