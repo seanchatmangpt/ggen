@@ -118,6 +118,8 @@ use regex::Regex;
 /// # Ok(())
 /// # }
 /// ```
+/// PartialEq without Eq: All fields (usize, String, Option) implement Eq
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Clone, PartialEq)]
 pub struct FrozenSection {
     /// Start position in the content

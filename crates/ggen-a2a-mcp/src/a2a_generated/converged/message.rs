@@ -13,7 +13,7 @@ use std::collections::HashMap;
 /// This structure consolidates basic and rich message patterns into a single,
 /// extensible format that maintains backward compatibility while dramatically
 /// reducing code duplication and semantic overlap.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ConvergedMessage {
     /// Core message identifier (immutable)
     #[serde(rename = "messageId")]
@@ -47,7 +47,7 @@ pub struct ConvergedMessage {
 ///
 /// Consolidates message headers, routing, and metadata from multiple
 /// message patterns into a single, coherent structure.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MessageEnvelope {
     /// Message type with semantic meaning
     #[serde(rename = "messageType")]
@@ -81,7 +81,7 @@ pub struct MessageEnvelope {
 ///
 /// Eliminates 85% duplication by unifying text, file, data, and
 /// structured content into a single, extensible payload format.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ConvergedPayload {
     /// Unified content representation
     pub content: UnifiedContent,
@@ -104,7 +104,7 @@ pub struct ConvergedPayload {
 /// Consolidates all content types (text, file, data, structured)
 /// into a single, extensible format that maintains compatibility
 /// with existing message patterns.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "contentKind")]
 pub enum UnifiedContent {
     /// Text content with metadata
@@ -151,7 +151,7 @@ pub enum UnifiedContent {
 }
 
 /// Unified file content consolidating multiple patterns
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct UnifiedFileContent {
     /// File name
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -179,7 +179,7 @@ pub struct UnifiedFileContent {
 }
 
 /// Unified semantic context
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct UnifiedContext {
     /// Task associations
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -199,7 +199,7 @@ pub struct UnifiedContext {
 }
 
 /// Task context for task-related messages
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct TaskContext {
     /// Task ID
     pub task_id: String,
@@ -222,7 +222,7 @@ pub struct TaskContext {
 }
 
 /// Conversation context for chat-like messages
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ConversationContext {
     /// Conversation ID
     pub conversation_id: String,
@@ -241,7 +241,7 @@ pub struct ConversationContext {
 }
 
 /// Domain context for domain-specific messages
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DomainContext {
     /// Domain namespace
     pub namespace: String,
@@ -255,7 +255,7 @@ pub struct DomainContext {
 }
 
 /// Temporal context for time-sensitive messages
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct TemporalContext {
     /// Event time
     #[serde(rename = "eventTime")]
@@ -271,7 +271,7 @@ pub struct TemporalContext {
 }
 
 /// Message hints for processing agents
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MessageHints {
     /// Required capabilities
     #[serde(rename = "requiredCapabilities")]
@@ -287,7 +287,7 @@ pub struct MessageHints {
 }
 
 /// Processing hints
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ProcessingHints {
     /// Parallel processing allowed
     #[serde(rename = "parallelAllowed")]
@@ -303,7 +303,7 @@ pub struct ProcessingHints {
 }
 
 /// Security hints
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SecurityHints {
     /// Classification level
     pub classification: SecurityClassification,
@@ -318,7 +318,7 @@ pub struct SecurityHints {
 }
 
 /// Resource requirements
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ResourceRequirements {
     /// Memory requirements in bytes
     pub memory: Option<u64>,
@@ -335,7 +335,7 @@ pub struct ResourceRequirements {
 }
 
 /// Security classification levels
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum SecurityClassification {
     Public,
     Internal,
@@ -345,7 +345,7 @@ pub enum SecurityClassification {
 }
 
 /// Encryption requirements
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct EncryptionRequirements {
     /// Algorithm requirement
     pub algorithm: String,
@@ -360,7 +360,7 @@ pub struct EncryptionRequirements {
 }
 
 /// Message integrity data
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MessageIntegrity {
     /// Content hash
     pub hash: String,
@@ -378,7 +378,7 @@ pub struct MessageIntegrity {
 }
 
 /// Message routing information
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MessageRouting {
     /// Routing path
     pub path: Vec<String>,
@@ -393,7 +393,7 @@ pub struct MessageRouting {
 }
 
 /// Quality of service requirements
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct QoSRequirements {
     /// Reliability level
     pub reliability: ReliabilityLevel,
@@ -408,7 +408,7 @@ pub struct QoSRequirements {
 }
 
 /// Reliability levels
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum ReliabilityLevel {
     BestEffort,
     AtLeastOnce,
@@ -417,7 +417,7 @@ pub enum ReliabilityLevel {
 }
 
 /// Latency requirements
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct LatencyRequirements {
     /// Maximum latency in milliseconds
     #[serde(rename = "maxLatencyMs")]
@@ -429,7 +429,7 @@ pub struct LatencyRequirements {
 }
 
 /// Throughput requirements
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ThroughputRequirements {
     /// Minimum messages per second
     #[serde(rename = "minMps")]
@@ -445,7 +445,7 @@ pub struct ThroughputRequirements {
 }
 
 /// Message lifecycle state
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MessageLifecycle {
     /// Current state
     pub state: MessageState,
@@ -460,7 +460,7 @@ pub struct MessageLifecycle {
 }
 
 /// Message states
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum MessageState {
     /// Message created
     Created,
@@ -488,7 +488,7 @@ pub enum MessageState {
 ///
 /// Note: Eq cannot be implemented because `serde_json::Value` and `HashMap` do not implement Eq,
 /// but PartialEq is needed for state transition comparison and testing semantics.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 pub struct MessageStateTransition {
     /// Previous state
@@ -511,7 +511,7 @@ pub struct MessageStateTransition {
 }
 
 /// Message timeout information
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MessageTimeout {
     /// Timeout duration
     pub duration: std::time::Duration,
@@ -525,7 +525,7 @@ pub struct MessageTimeout {
 }
 
 /// Timeout types
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum TimeoutType {
     /// Overall message timeout
     Message,
@@ -538,7 +538,7 @@ pub enum TimeoutType {
 }
 
 /// Converged message types
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum ConvergedMessageType {
     /// Task request/response
@@ -564,7 +564,7 @@ pub enum ConvergedMessageType {
 }
 
 /// Message priority levels
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub enum MessagePriority {
     Lowest,
     Low,
@@ -575,7 +575,7 @@ pub enum MessagePriority {
 }
 
 /// Task status
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum TaskStatus {
     /// Task created
     Created,
@@ -997,7 +997,7 @@ mod tests {
 }
 
 /// Message handler actions
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum HandlerAction {
     /// Process the message
@@ -1019,7 +1019,7 @@ pub enum HandlerAction {
 }
 
 /// Message handler priorities
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum HandlerPriority {
     /// Lowest priority
@@ -1037,7 +1037,7 @@ pub enum HandlerPriority {
 }
 
 /// Message handler status
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum HandlerStatus {
     /// Handler is idle
@@ -1057,7 +1057,7 @@ pub enum HandlerStatus {
 }
 
 /// Message router for advanced routing scenarios
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MessageRouter {
     /// Router identifier
     pub id: String,
@@ -1078,7 +1078,7 @@ pub struct MessageRouter {
 }
 
 /// Routing rule for message routing decisions
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct RoutingRule {
     /// Rule identifier
     pub id: String,
@@ -1105,7 +1105,7 @@ pub struct RoutingRule {
 }
 
 /// Routing condition for message routing
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum RoutingCondition {
     /// Route by message type
@@ -1123,7 +1123,7 @@ pub enum RoutingCondition {
 }
 
 /// Route action for routing decisions
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum RouteAction {
     /// Direct route
@@ -1139,7 +1139,7 @@ pub enum RouteAction {
 }
 
 /// Route definition
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Route {
     /// Target identifier
     pub target: String,

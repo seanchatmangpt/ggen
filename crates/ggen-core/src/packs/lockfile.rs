@@ -88,6 +88,8 @@ use std::path::{Path, PathBuf};
 ///
 /// This structure represents the `.ggen/packs.lock` file, which tracks
 /// all installed packs, their versions, sources, and dependencies.
+/// PartialEq without Eq: updated_at (DateTime<Utc>) field does not implement Eq
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct PackLockfile {
     /// Map of pack IDs to their locked versions
@@ -110,6 +112,8 @@ pub struct PackLockfile {
 ///
 /// Contains all information needed to reproduce a pack installation,
 /// including source, version, integrity checksum, and dependencies.
+/// PartialEq without Eq: installed_at (DateTime<Utc>) field does not implement Eq
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct LockedPack {
     /// Semantic version of the pack (e.g., "1.0.0")
@@ -138,6 +142,8 @@ pub struct LockedPack {
 /// - Registry: Official ggen registry
 /// - GitHub: Direct from GitHub repository
 /// - Local: Local filesystem path
+/// PartialEq without Eq: All fields (String) implement Eq
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(tag = "type")]
 pub enum PackSource {

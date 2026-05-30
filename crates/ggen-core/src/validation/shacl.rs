@@ -25,6 +25,8 @@ use std::collections::BTreeMap;
 /// A property constraint from a SHACL shape
 ///
 /// Represents a single \`sh:property\` block with all its constraints.
+/// PartialEq without Eq: All fields (u32, String, Option, Vec, Severity) implement Eq
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Clone, PartialEq)]
 pub struct PropertyConstraint {
     /// Property path (IRI)
@@ -67,6 +69,8 @@ impl PropertyConstraint {
 }
 
 /// A SHACL NodeShape with its property constraints
+/// PartialEq without Eq: All fields (String, BTreeMap, Option, Severity) implement Eq
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Clone, PartialEq)]
 pub struct ShaclShape {
     /// Shape IRI
