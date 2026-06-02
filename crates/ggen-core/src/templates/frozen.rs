@@ -475,6 +475,7 @@ impl FrozenMerger {
     /// assert!(!stripped.contains("{% frozen"));
     /// assert!(stripped.contains("preserved code"));
     /// ```
+    #[allow(clippy::panic)] // SAFETY: compile-time constant regex literals — invalid syntax is a programmer error
     pub fn strip_frozen_tags(content: &str) -> String {
         // SAFETY: These regex literals are compile-time constants with valid syntax.
         // Failure here means the literal was edited incorrectly — a programmer

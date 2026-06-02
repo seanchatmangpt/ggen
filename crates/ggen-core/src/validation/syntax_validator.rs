@@ -145,9 +145,50 @@ fn validate_json_syntax(content: &str) -> Result<()> {
 }
 
 /// Validates Tera template syntax
-fn validate_tera_syntax(_content: &str) -> Result<()> {
-    // Tera syntax validation is complex and requires a full Tera engine.
-    // For now, we passthrough as Tera errors are caught at render time.
+///
+/// Separates parse validation from render validation:
+/// - Parse: Check Tera syntax (no context required)
+/// - Render: Validate with sample context (catches missing variables separately)
+fn validate_tera_syntax(content: &str) -> Result<()> {
+    use gray_matter::{engine::YAML, Matter, ParsedEntity};
+
+    // Parse frontmatter (YAML)
+    let matter = Matter::<YAML>::new();
+    let _parsed = matter.parse::<serde_yaml::Value>(content).map_err(|e| {
+        ValidationError::syntax_validation_failed(
+            "<tera>",
+            0,
+            0,
+            "Tera",
+            format!("Frontmatter parse error: {}", e),
+        )
+    })?;
+
+    // Extract body (everything after frontmatter)
+    let body = if let Some(end_pos) = content.find("\n---\n") {
+        if end_pos + 5 < content.len() {
+            &content[end_pos + 5..]
+        } else {
+            ""
+        }
+    } else {
+        // No frontmatter, entire content is body
+        content
+    };
+
+    // Validate Tera syntax by attempting to parse as a template
+    // This checks for syntactic errors without requiring context
+    let mut tera = tera::Tera::default();
+    tera.add_raw_template("_validate", body).map_err(|e| {
+        ValidationError::syntax_validation_failed(
+            "<tera>",
+            0,
+            0,
+            "Tera",
+            format!("Tera syntax error: {}", e),
+        )
+    })?;
+
     Ok(())
 }
 

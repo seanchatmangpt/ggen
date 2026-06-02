@@ -339,6 +339,7 @@ impl PackInstaller {
                 let semaphore = semaphore.clone();
                 let progress = progress.clone();
                 async move {
+                    #[allow(clippy::unwrap_used)] // semaphore closed only on programmer error
                     let _permit = semaphore.acquire().await.unwrap();
                     let dep_name = format!("Dependency: {}", dep_id);
                     progress.update_item_progress(&dep_name, 0, total_deps);
@@ -522,6 +523,7 @@ impl PackInstaller {
 /// Mock repository for testing
 struct TestRepository {}
 
+#[allow(clippy::unwrap_used)] // test fixture — panicking on invalid literals is correct
 #[async_trait]
 impl AsyncRepository for TestRepository {
     type PackageIterator = std::vec::IntoIter<Package>;

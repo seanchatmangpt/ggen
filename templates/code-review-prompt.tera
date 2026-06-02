@@ -51,7 +51,7 @@ Review the following files with the rules below.
 
 The following rules only fire in specific code contexts. Apply them ONLY when reviewing code in the matching context.
 
-{% for rule in rules | selectattr("contextName", "defined") | groupby(attribute="contextName") %}
+{% for rule in rules   %}
 
 ### Context: {{ rule.grouper | upper }}
 
@@ -60,7 +60,7 @@ The following rules only fire in specific code contexts. Apply them ONLY when re
 {% endfor %}
 {% endfor %}
 
-{% if not rules | selectattr("contextName", "defined") | list | length %}
+{% if not rules  | length %}
 > No context-specific rules defined for this project. All rules apply globally.
 {% endif %}
 
@@ -68,7 +68,7 @@ The following rules only fire in specific code contexts. Apply them ONLY when re
 
 The following rules **block merge** when violated. Any violation requires fix before the PR can proceed.
 
-{% set merge_gate_rules = rules | selectattr("isMergeGate", "defined") | selectattr("isMergeGate", "eq", "true") | list %}
+{% set merge_gate_rules = rules  | filter(attribute="isMergeGate", value="true") %}
 {% if merge_gate_rules | length %}
 
 | Rule ID | Description | Category | Auto-Fixable? |
@@ -85,7 +85,7 @@ The following rules **block merge** when violated. Any violation requires fix be
 
 The following rule pairs have known conflicts. When both apply, use the resolution guidance.
 
-{% set conflict_rules = rules | selectattr("conflictingRuleId", "defined") | list %}
+{% set conflict_rules = rules  %}
 {% if conflict_rules | length %}
 
 {% for r in conflict_rules %}
@@ -102,7 +102,7 @@ The following rule pairs have known conflicts. When both apply, use the resoluti
 
 The following violations can be automatically fixed with a single CLI command.
 
-{% set autofix_rules = rules | selectattr("isAutoFixable", "defined") | selectattr("isAutoFixable", "eq", "true") | list %}
+{% set autofix_rules = rules  | filter(attribute="isAutoFixable", value="true") %}
 {% if autofix_rules | length %}
 
 | Rule ID | Fix Command | Applies To |

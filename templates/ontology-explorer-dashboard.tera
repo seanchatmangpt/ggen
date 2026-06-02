@@ -16,7 +16,7 @@
 {% set partial = profiles | filter(attribute="status", value="partial") | length %}
 {% set missing = profiles | filter(attribute="status", value="missing") | length %}
 {% set total = profiles | length %}
-{% set coverage_pct = total > 0 ? (annotated + partial) * 100 / total : 0 %}
+{% if total > 0 %}{% set coverage_pct = (annotated + partial) * 100 / total %}{% else %}{% set coverage_pct = 0 %}{% endif %}
 
 | Metric | Value |
 |--------|-------|
@@ -24,13 +24,13 @@
 | **Fully Annotated** | {{ annotated }} |
 | **Partially Annotated** | {{ partial }} |
 | **Missing Annotations** | {{ missing }} |
-| **Coverage** | {{ "%.0f" | format(coverage_pct) }}% |
+| **Coverage** | {{ coverage_pct | round }}% |
 
 ### Coverage Progress Bar
 
 ```
 {% set filled = (coverage_pct / 5) | round(method="floor") | int %}
-{% for i in range(end=20) %}{% if i < filled %}{% elif i == filled %}{% else %}{% endif %}{% endfor %} {{ "%.0f" | format(coverage_pct) }}%
+{% for i in range(end=20) %}{% if i < filled %}{% elif i == filled %}{% else %}{% endif %}{% endfor %} {{ coverage_pct | round }}%
 ```
 
 Legend: `█` Annotated | `░` Missing
@@ -60,7 +60,7 @@ Legend: `█` Annotated | `░` Missing
 {% if item.elementIri == "https://ggen.dev/explorer/coverage/classes"
    or item.elementIri == "https://ggen.dev/explorer/coverage/obj-props"
    or item.elementIri == "https://ggen.dev/explorer/coverage/dt-props" %}
-{% set cat_filled = (item.overallCoverage | int / 5) | round(method="floor") | int %}
+{% set cat_val = item.overallCoverage | int %}{% set cat_filled = cat_val / 5 | round | int %}
 ### {{ item.elementName }}
 
 ```
@@ -194,7 +194,7 @@ No partially annotated elements.
 
 ## 7. Cross-References
 
-{% set xrefs = profiles | filter(attribute="elementIri") | selectattr("elementIri", "matching", "^https://ggen\\.dev/explorer/xref/") | sort(attribute="crossRefTarget") %}
+{% set xrefs = profiles | filter(attribute="elementIri")  | sort(attribute="crossRefTarget") %}
 {% if xrefs | length > 0 %}
 References to external ontologies detected:
 

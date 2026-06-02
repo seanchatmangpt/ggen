@@ -630,8 +630,16 @@ mod integration_tests {
             output_dir: Some(PathBuf::from(".")),
             cache_dir: Some(PathBuf::from(".ggen/cache")),
             flags: SyncFlags {
-                mode: ModeFlags { validate_only: false, dry_run: false, watch: false },
-                behavior: BehaviorFlags { verbose: true, force: false, audit: true },
+                mode: ModeFlags {
+                    validate_only: false,
+                    dry_run: false,
+                    watch: false,
+                },
+                behavior: BehaviorFlags {
+                    verbose: true,
+                    force: false,
+                    audit: true,
+                },
             },
             output_format: OutputFormat::Json,
             selected_rules: Some(vec!["structs".to_string(), "traits".to_string()]),
@@ -658,8 +666,16 @@ mod integration_tests {
             output_dir: Some(PathBuf::from("crates/a2a-generated/src")),
             cache_dir: None,
             flags: SyncFlags {
-                mode: ModeFlags { validate_only: false, dry_run: false, watch: false },
-                behavior: BehaviorFlags { verbose: true, force: false, audit: true },
+                mode: ModeFlags {
+                    validate_only: false,
+                    dry_run: false,
+                    watch: false,
+                },
+                behavior: BehaviorFlags {
+                    verbose: true,
+                    force: false,
+                    audit: true,
+                },
             },
             output_format: OutputFormat::Text,
             selected_rules: None,
@@ -689,8 +705,16 @@ mod integration_tests {
             output_dir: None,
             cache_dir: None,
             flags: SyncFlags {
-                mode: ModeFlags { validate_only: true, dry_run: false, watch: false },
-                behavior: BehaviorFlags { verbose: false, force: false, audit: false },
+                mode: ModeFlags {
+                    validate_only: true,
+                    dry_run: false,
+                    watch: false,
+                },
+                behavior: BehaviorFlags {
+                    verbose: false,
+                    force: false,
+                    audit: false,
+                },
             },
             output_format: OutputFormat::Text,
             selected_rules: None,
@@ -712,8 +736,16 @@ mod integration_tests {
             output_dir: Some(PathBuf::from("output")),
             cache_dir: None,
             flags: SyncFlags {
-                mode: ModeFlags { validate_only: false, dry_run: true, watch: false },
-                behavior: BehaviorFlags { verbose: true, force: false, audit: true },
+                mode: ModeFlags {
+                    validate_only: false,
+                    dry_run: true,
+                    watch: false,
+                },
+                behavior: BehaviorFlags {
+                    verbose: true,
+                    force: false,
+                    audit: true,
+                },
             },
             output_format: OutputFormat::Text,
             selected_rules: None,
@@ -736,8 +768,16 @@ mod integration_tests {
             output_dir: None,
             cache_dir: None,
             flags: SyncFlags {
-                mode: ModeFlags { validate_only: false, dry_run: false, watch: true },
-                behavior: BehaviorFlags { verbose: true, force: false, audit: false },
+                mode: ModeFlags {
+                    validate_only: false,
+                    dry_run: false,
+                    watch: true,
+                },
+                behavior: BehaviorFlags {
+                    verbose: true,
+                    force: false,
+                    audit: false,
+                },
             },
             output_format: OutputFormat::Text,
             selected_rules: None,
@@ -760,8 +800,16 @@ mod integration_tests {
             output_dir: None,
             cache_dir: None,
             flags: SyncFlags {
-                mode: ModeFlags { validate_only: true, dry_run: false, watch: false },
-                behavior: BehaviorFlags { verbose: false, force: false, audit: false },
+                mode: ModeFlags {
+                    validate_only: true,
+                    dry_run: false,
+                    watch: false,
+                },
+                behavior: BehaviorFlags {
+                    verbose: false,
+                    force: false,
+                    audit: false,
+                },
             },
             output_format: OutputFormat::Json, // Machine-readable
             selected_rules: None,
@@ -784,10 +832,18 @@ mod integration_tests {
                 manifest_path: PathBuf::from("ggen.toml"),
                 output_dir: None,
                 cache_dir: None,
-            flags: SyncFlags {
-                mode: ModeFlags { validate_only: false, dry_run: false, watch: false },
-                behavior: BehaviorFlags { verbose: true, force: false, audit: false },
-            },
+                flags: SyncFlags {
+                    mode: ModeFlags {
+                        validate_only: false,
+                        dry_run: false,
+                        watch: false,
+                    },
+                    behavior: BehaviorFlags {
+                        verbose: true,
+                        force: false,
+                        audit: false,
+                    },
+                },
                 output_format: OutputFormat::Text,
                 selected_rules: None,
                 use_cache: false,
@@ -884,10 +940,18 @@ mod integration_tests {
                 manifest_path: PathBuf::from("ggen.toml"),
                 output_dir: None,
                 cache_dir: None,
-            flags: SyncFlags {
-                mode: ModeFlags { validate_only: false, dry_run: false, watch: false },
-                behavior: BehaviorFlags { verbose: false, force: false, audit: false },
-            },
+                flags: SyncFlags {
+                    mode: ModeFlags {
+                        validate_only: false,
+                        dry_run: false,
+                        watch: false,
+                    },
+                    behavior: BehaviorFlags {
+                        verbose: false,
+                        force: false,
+                        audit: false,
+                    },
+                },
                 output_format: OutputFormat::Text,
                 selected_rules: Some(rules.clone()),
                 use_cache: false,

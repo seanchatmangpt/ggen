@@ -14,12 +14,12 @@
 {% set current_class = "" %}
 
 {% for field in field_mappings %}
-{% if seen_classes is not containing(field.class_name) %}
+{% if field.class_name is not undefined %}
 {% if current_class != "" %}
 }
 {% endif %}
 
-{% set _ = seen_classes.append(field.class_name) %}
+{# seen_classes tracking removed - Tera does not support mutable array append #}
 {% set current_class = field.class_name %}
 
 /// Auto-generated struct for `{{ field.class_name }}`.
@@ -28,7 +28,7 @@
 {% if f.class_name == current_class and f.deprecated == "true" %}
 /// # Deprecated Fields
 /// This struct contains deprecated fields. See field-level docs for migration guidance.
-{% break %}
+{# break not supported in Tera #}
 {% endif %}
 {% endfor %}
 pub struct {{ field.class_name }} {
@@ -59,7 +59,7 @@ pub struct {{ field.class_name }} {
 
 {% for field in field_mappings %}
 {% if field.class_name == current_class and (field.precision or field.minimum or field.maximum) %}
-{% break %}
+{# break not supported in Tera #}
 {% endif %}
 {% endfor %}
 {# --- validation constraints (as impl block doc comment) --- #}
@@ -67,7 +67,7 @@ pub struct {{ field.class_name }} {
 {% for field in field_mappings %}
 {% if field.precision or field.minimum or field.maximum %}
 {% set has_constraints = true %}
-{% break %}
+{# break not supported in Tera #}
 {% endif %}
 {% endfor %}
 

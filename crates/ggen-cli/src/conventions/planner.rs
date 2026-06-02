@@ -160,7 +160,7 @@ impl GenerationPlanner {
     }
 
     /// DFS-based cycle detection
-    #[allow(clippy::only_used_in_recursion)] // Parameter used in recursive calls
+    #[allow(clippy::self_only_used_in_recursion)] // self needed for recursive dispatch
     fn has_cycle(
         &self, task: &str, graph: &HashMap<String, Vec<String>>, visited: &mut HashSet<String>,
         rec_stack: &mut HashSet<String>,

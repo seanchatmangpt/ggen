@@ -19,7 +19,7 @@
 | **Total Checks** | {{ total_checks }} |
 | **Verified** | {{ verified_count }} |
 | **Remaining** | {{ total_checks - verified_count }} |
-| **Pass Rate** | {{ "%.1f" | format(pass_rate * 100) }}% |
+| **Pass Rate** | {{ pass_rate * 100 | round(precision=1) }}% |
 | **Critical Remaining** | {{ critical_remaining }} |
 
 {% if critical_remaining > 0 %}

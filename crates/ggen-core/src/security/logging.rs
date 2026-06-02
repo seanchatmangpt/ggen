@@ -64,6 +64,7 @@ pub enum LoggingError {
 }
 
 /// Boolean feature enables for security logging
+#[allow(clippy::struct_excessive_bools)] // Four bools are semantically distinct security feature enables
 #[derive(Debug, Clone, Copy)]
 pub struct SecurityFeatures {
     /// Enable audit trail

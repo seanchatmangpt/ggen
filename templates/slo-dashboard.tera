@@ -8,7 +8,7 @@
 | Service | Target SLO | Current SLO | Status | Uptime |
 |---------|-----------|-------------|--------|--------|
 {% for service in services -%}
-| {{ service.name }} | {{ service.target_slo }}% | {{ service.current_slo }}% | {% if service.current_slo >= service.target_slo %}{{ green_indicator }}{% elif service.current_slo >= (service.target_slo * 0.9) | round(1) %}{{ yellow_indicator }}{% else %}{{ red_indicator }}{% endif %} | {{ service.uptime }}% |
+| {{ service.name }} | {{ service.target_slo }}% | {{ service.current_slo }}% | {% if service.current_slo >= service.target_slo %}{{ green_indicator }}{% elif service.current_slo >= (service.target_slo * 0.9) | round(precision=1) %}{{ yellow_indicator }}{% else %}{{ red_indicator }}{% endif %} | {{ service.uptime }}% |
 {% endfor %}
 
 ## Error Budget
@@ -20,7 +20,7 @@
 - **Allowed downtime**: {{ service.error_budget_hours }}h
 - **Consumed**: {{ service.error_budget_consumed }}h
 - **Remaining**: {{ service.error_budget_remaining }}h
-- **Status**: {% if service.error_budget_consumed < (service.error_budget_hours * 0.5) | round(2) %}{{ green_indicator }} Healthy{% elif service.error_budget_consumed < service.error_budget_hours %}{{ yellow_indicator }} Warning{% else %}{{ red_indicator }} Exhausted{% endif %}
+- **Status**: {% if service.error_budget_consumed < (service.error_budget_hours * 0.5) | round(precision=2) %}{{ green_indicator }} Healthy{% elif service.error_budget_consumed < service.error_budget_hours %}{{ yellow_indicator }} Warning{% else %}{{ red_indicator }} Exhausted{% endif %}
 
 {% endfor -%}
 
@@ -29,7 +29,7 @@
 | Service | Target (p99) | Current (p99) | Target (p50) | Current (p50) | Status |
 |---------|-------------|--------------|-------------|--------------|--------|
 {% for service in services -%}
-| {{ service.name }} | {{ service.latency_target_p99 }}ms | {{ service.latency_current_p99 }}ms | {{ service.latency_target_p50 }}ms | {{ service.latency_current_p50 }}ms | {% if service.latency_current_p99 <= service.latency_target_p99 %}{{ green_indicator }}{% elif service.latency_current_p99 <= (service.latency_target_p99 * 1.5) | round(0) %}{{ yellow_indicator }}{% else %}{{ red_indicator }}{% endif %} |
+| {{ service.name }} | {{ service.latency_target_p99 }}ms | {{ service.latency_current_p99 }}ms | {{ service.latency_target_p50 }}ms | {{ service.latency_current_p50 }}ms | {% if service.latency_current_p99 <= service.latency_target_p99 %}{{ green_indicator }}{% elif service.latency_current_p99 <= (service.latency_target_p99 * 1.5) | round(precision=0) %}{{ yellow_indicator }}{% else %}{{ red_indicator }}{% endif %} |
 {% endfor %}
 
 ## Dependency Health
@@ -42,7 +42,7 @@
 
 ## Recent Incidents (Last {{ window }} Days)
 
-{% if incidents.len() > 0 -%}
+{% if incidents | length > 0 -%}
 | Date | Service | Severity | Summary | Duration | Status |
 |------|---------|----------|---------|----------|--------|
 {% for incident in incidents -%}
@@ -56,7 +56,7 @@
 
 | Metric | Value |
 |--------|-------|
-| **Total services tracked** | {{ services.len() }} |
+| **Total services tracked** | {{ services | length }} |
 | **Services meeting SLO** | {{ services | filter(attribute="current_slo", op=">=", value=services[0].target_slo) | length }} |
 | **Services breaching SLO** | {{ services | filter(attribute="current_slo", op="<", value=services[0].target_slo) | length }} |
 | **Active incidents** | {{ incidents | filter(attribute="status", value="active") | length }} |

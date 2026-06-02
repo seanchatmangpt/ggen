@@ -290,7 +290,9 @@ mod tests {
                         gitignore_generated: false,
                         gitattributes_generated: false,
                     },
-                    validation: ValidationFeatures { validate_imports: false },
+                    validation: ValidationFeatures {
+                        validate_imports: false,
+                    },
                 },
             }),
         };
@@ -316,7 +318,9 @@ mod tests {
                         gitignore_generated: false,
                         gitattributes_generated: false,
                     },
-                    validation: ValidationFeatures { validate_imports: false },
+                    validation: ValidationFeatures {
+                        validate_imports: false,
+                    },
                 },
             }),
         };

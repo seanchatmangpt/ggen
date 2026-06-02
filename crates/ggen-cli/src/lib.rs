@@ -62,7 +62,9 @@
     clippy::too_many_arguments,
     clippy::unnecessary_lazy_evaluations,
     clippy::unnecessary_map_or,
-    clippy::useless_conversion
+    clippy::useless_conversion,
+    clippy::used_underscore_binding, // #[verb] macro generates code referencing underscore-prefixed CLI flag params
+    clippy::expect_used              // Option::expect used after invariant-guaranteed Some assignments
 )]
 pub mod config_clap;
 pub mod error;

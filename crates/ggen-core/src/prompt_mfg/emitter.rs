@@ -126,6 +126,7 @@ impl PromptEmitter {
 }
 
 impl Default for PromptEmitter {
+    #[allow(clippy::panic)] // SAFETY: panicking on a broken binary is correct — malformed embedded templates are a programmer error
     fn default() -> Self {
         // SAFETY: PromptEmitter::new() only fails if the embedded Tera templates
         // (compiled into the binary via include_str!) are syntactically invalid.

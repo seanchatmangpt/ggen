@@ -109,7 +109,7 @@ impl ReceiptManager {
             self.signing_key = Some(signing_key);
             self.verifying_key = Some(verifying_key);
 
-            return Ok(self.verifying_key.as_ref().unwrap());
+            return Ok(self.verifying_key.as_ref().expect("just assigned above"));
         }
 
         // Generate new keys
@@ -136,7 +136,7 @@ impl ReceiptManager {
         self.signing_key = Some(signing_key);
         self.verifying_key = Some(verifying_key);
 
-        Ok(self.verifying_key.as_ref().unwrap())
+        Ok(self.verifying_key.as_ref().expect("just assigned above"))
     }
 
     /// Generate a receipt for a pack installation
@@ -179,7 +179,11 @@ impl ReceiptManager {
             output_hashes,
             None, // Genesis receipt (no previous)
         )
-        .sign(self.signing_key.as_ref().unwrap())
+        .sign(
+            self.signing_key
+                .as_ref()
+                .expect("signing_key must be initialized before generating receipt"),
+        )
         .map_err(|e| ggen_core::utils::Error::new(&format!("Failed to sign receipt: {}", e)))?;
 
         // Write receipt to file
@@ -318,7 +322,11 @@ impl ReceiptManager {
             output_hashes,
             None, // Genesis receipt (no previous)
         )
-        .sign(self.signing_key.as_ref().unwrap())
+        .sign(
+            self.signing_key
+                .as_ref()
+                .expect("signing_key must be initialized before generating receipt"),
+        )
         .map_err(|e| ggen_core::utils::Error::new(&format!("Failed to sign receipt: {}", e)))?;
 
         // Write receipt to file

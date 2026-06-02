@@ -6,7 +6,7 @@
  *
  * Description: {{ command.description }}
 {%- if command.aliases %}
- * Aliases: {{ command.aliases | join(", ") }}
+ * Aliases: {{ command.aliases | join(sep=", ") }}
 {%- endif %}
  *
  * MANUAL EDITS WILL BE LOST on next `ggen sync`
@@ -26,7 +26,7 @@ export default class {{ command.name | capitalize }}Command extends CommandBase 
   constructor() {
     super({
       name: '{{ command.name }}',
-      aliases: [{{ command.aliases | map(attribute='value') | map(attr='value') | join(', ') }}],
+      aliases: [{{ command.aliases | map(attribute='value') | map(attr='value') | join(sep=', ') }}],
       category: '{{ command.category }}',
       description: `{{ command.description }}`,
       examples: `
@@ -50,7 +50,7 @@ export default class {{ command.name | capitalize }}Command extends CommandBase 
           name: '{{ arg.name }}',
           type: '{{ arg.type }}',
           required: {{ arg.required | lower }},
-          choices: [{{ arg.choices | map(attr='value') | join(', ') }}],
+          choices: [{{ arg.choices | map(attr='value') | join(sep=', ') }}],
           description: '{{ arg.description }}',
         },
 {%- endfor %}
@@ -63,7 +63,7 @@ export default class {{ command.name | capitalize }}Command extends CommandBase 
           type: '{{ option.type }}',
           default: {{ option.default }},
 {%- if option.choices %}
-          choices: [{{ option.choices | map(attr='value') | join(', ') }}],
+          choices: [{{ option.choices | map(attr='value') | join(sep=', ') }}],
 {%- endif %}
           description: '{{ option.description }}',
           stackable: {{ option.stackable | default(value=false) | lower }},
@@ -183,10 +183,10 @@ export default class {{ command.name | capitalize }}Command extends CommandBase 
     }
 
 {%- if arg.choices %}
-    if (args['{{ arg.name }}'] && !['{{ arg.choices | join("', '") }}'].includes(args['{{ arg.name }}'])) {
+    if (args['{{ arg.name }}'] && !['{{ arg.choices | join(sep="', '") }}'].includes(args['{{ arg.name }}'])) {
       return {
         valid: false,
-        error: `Invalid {{ arg.name }}. Must be one of: {{ arg.choices | join(", ") }}`
+        error: `Invalid {{ arg.name }}. Must be one of: {{ arg.choices | join(sep=", ") }}`
       };
     }
 
@@ -197,10 +197,10 @@ export default class {{ command.name | capitalize }}Command extends CommandBase 
 {%- for option in command.options %}
     if (options['{{ option.name }}'] !== undefined) {
 {%- if option.choices %}
-      if (!['{{ option.choices | join("', '") }}'].includes(options['{{ option.name }}'])) {
+      if (!['{{ option.choices | join(sep="', '") }}'].includes(options['{{ option.name }}'])) {
         return {
           valid: false,
-          error: `Invalid --{{ option.name }} option. Must be one of: {{ option.choices | join(", ") }}`
+          error: `Invalid --{{ option.name }} option. Must be one of: {{ option.choices | join(sep=", ") }}`
         };
       }
 {%- endif %}

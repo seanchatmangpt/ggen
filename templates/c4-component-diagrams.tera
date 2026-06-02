@@ -392,9 +392,9 @@ ORDER BY ?actionName
 
 | # | Component | Latency SLO | Throughput SLO | Key Technology |
 |---|-----------|------------|---|---|
-| 1 | OTP Topology | {{ signal_latency_slo \| default(value='<50ms') }} | {{ signal_throughput_slo \| default(value='10k+/sec') }} | Supervisor trees, gen_statem |
+| 1 | OTP Topology | {{ signal_latency_slo | default(value='<50ms') }} | {{ signal_throughput_slo | default(value='10k+/sec') }} | Supervisor trees, gen_statem |
 | 2 | Ingress | <100ms | 20k+/sec | Cowboy HTTP, jose JWT |
-| 3 | Governor | {{ decision_latency_slo_secs \| default(value='<2s') }} | 5k+/sec | gen_statem FSM, RETE |
+| 3 | Governor | {{ decision_latency_slo_secs | default(value='<2s') }} | 5k+/sec | gen_statem FSM, RETE |
 | 4 | Receipt | <100ms | 10k+/sec | SHA-256 hash-chain |
 | 5 | Observability | <1ms | 50k+/sec | Prometheus, OTEL |
 | 6 | Actuator | <10s | 500+/sec | Circuit breakers, backoff |
