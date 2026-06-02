@@ -1,0 +1,8 @@
+---
+to: "bad-block.md"
+---
+# Bad Block
+
+{% bad %}
+This tag does not exist.
+{% endbad %}

@@ -1,0 +1,6 @@
+---
+to: "output.md"
+---
+# Hello {{ name }}
+
+This is a basic template with a variable substitution.
