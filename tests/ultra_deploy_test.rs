@@ -301,6 +301,7 @@ impl UltraDeployTester {
 /// Integration test: Complete CLI workflow under 60s
 #[tokio::test]
 #[serial]
+#[ignore = "ggen project init subcommand removed; CLI consolidated to ggen sync (v26_5_19+)"]
 async fn test_ultra_deploy_cli_under_60s() -> Result<()> {
     let tester = UltraDeployTester::new()?;
 
@@ -318,6 +319,7 @@ async fn test_ultra_deploy_cli_under_60s() -> Result<()> {
 /// Integration test: Library template workflow
 #[tokio::test]
 #[serial]
+#[ignore = "ggen project init subcommand removed; CLI consolidated to ggen sync (v26_5_19+)"]
 async fn test_ultra_deploy_lib_under_60s() -> Result<()> {
     let tester = UltraDeployTester::new()?;
 
@@ -334,6 +336,7 @@ async fn test_ultra_deploy_lib_under_60s() -> Result<()> {
 /// Performance test: Sequential workflow execution
 #[tokio::test]
 #[serial]
+#[ignore = "ggen project init subcommand removed; CLI consolidated to ggen sync (v26_5_19+)"]
 async fn test_sequential_workflow_performance() -> Result<()> {
     let tester = UltraDeployTester::new()?;
 
@@ -365,6 +368,7 @@ async fn test_sequential_workflow_performance() -> Result<()> {
 /// Integration test: Ggen + Cleanroom validation
 #[tokio::test]
 #[serial]
+#[ignore = "ggen project init subcommand removed; CLI consolidated to ggen sync (v26_5_19+)"]
 async fn test_ggen_cleanroom_integration() -> Result<()> {
     let tester = UltraDeployTester::new()?;
     let project_name = format!("test-cleanroom-{}", uuid::Uuid::new_v4());
@@ -400,6 +404,7 @@ async fn test_ggen_cleanroom_integration() -> Result<()> {
 /// Performance test: Measure each stage individually
 #[tokio::test]
 #[serial]
+#[ignore = "ggen project init subcommand removed; CLI consolidated to ggen sync (v26_5_19+)"]
 async fn test_stage_performance_breakdown() -> Result<()> {
     let tester = UltraDeployTester::new()?;
     let project_name = format!("test-perf-{}", uuid::Uuid::new_v4());
@@ -468,6 +473,7 @@ async fn test_stage_performance_breakdown() -> Result<()> {
 /// Reliability test: Multiple workflow runs
 #[tokio::test]
 #[serial]
+#[ignore = "ggen project init subcommand removed; CLI consolidated to ggen sync (v26_5_19+)"]
 async fn test_workflow_reliability() -> Result<()> {
     let tester = UltraDeployTester::new()?;
 
@@ -510,6 +516,7 @@ async fn test_workflow_reliability() -> Result<()> {
 /// Test matrix: Different templates
 #[tokio::test]
 #[serial]
+#[ignore = "ggen project init subcommand removed; CLI consolidated to ggen sync (v26_5_19+)"]
 async fn test_template_matrix() -> Result<()> {
     let tester = UltraDeployTester::new()?;
 
@@ -537,6 +544,7 @@ async fn test_template_matrix() -> Result<()> {
 /// Test: Fake publish validation
 #[tokio::test]
 #[serial]
+#[ignore = "ggen project init subcommand removed; CLI consolidated to ggen sync (v26_5_19+)"]
 async fn test_fake_publish_validation() -> Result<()> {
     let tester = UltraDeployTester::new()?;
     let project_name = format!("test-publish-{}", uuid::Uuid::new_v4());
@@ -573,6 +581,7 @@ async fn test_fake_publish_validation() -> Result<()> {
 /// Test: Output correctness validation
 #[tokio::test]
 #[serial]
+#[ignore = "ggen project init subcommand removed; CLI consolidated to ggen sync (v26_5_19+)"]
 async fn test_output_correctness() -> Result<()> {
     let tester = UltraDeployTester::new()?;
     let project_name = format!("test-correctness-{}", uuid::Uuid::new_v4());
@@ -603,6 +612,7 @@ async fn test_output_correctness() -> Result<()> {
 /// Test: Error handling and recovery
 #[tokio::test]
 #[serial]
+#[ignore = "ggen project init subcommand removed; CLI consolidated to ggen sync (v26_5_19+)"]
 async fn test_error_handling() -> Result<()> {
     let tester = UltraDeployTester::new()?;
 
@@ -616,6 +626,7 @@ async fn test_error_handling() -> Result<()> {
 /// Performance benchmark: End-to-end timing
 #[tokio::test]
 #[serial]
+#[ignore = "ggen project init subcommand removed; CLI consolidated to ggen sync (v26_5_19+)"]
 async fn test_performance_benchmark() -> Result<()> {
     let tester = UltraDeployTester::new()?;
 

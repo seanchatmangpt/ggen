@@ -131,6 +131,7 @@ fn test_ggen_help_shows_template_noun() {
 }
 
 #[test]
+#[ignore = "ggen template subcommand removed; CLI consolidated to ggen sync (v26_5_19+)"]
 fn test_template_help_shows_all_verbs() {
     // Verify: ggen template --help lists all available verbs
     ggen()
@@ -146,6 +147,7 @@ fn test_template_help_shows_all_verbs() {
 }
 
 #[test]
+#[ignore = "ggen template subcommand removed; CLI consolidated to ggen sync (v26_5_19+)"]
 fn test_template_list_executes_successfully() {
     // Verify: ggen template list executes without error
     let temp_dir = TempDir::new().unwrap();
@@ -159,6 +161,7 @@ fn test_template_list_executes_successfully() {
 }
 
 #[test]
+#[ignore = "ggen template subcommand removed; CLI consolidated to ggen sync (v26_5_19+)"]
 fn test_template_lint_help_shows_arguments() {
     // Verify: ggen template lint --help shows expected arguments
     ggen()
@@ -210,6 +213,7 @@ fn test_template_noun_in_main_help() {
 }
 
 #[test]
+#[ignore = "ggen template subcommand removed; CLI consolidated to ggen sync (v26_5_19+)"]
 fn test_template_generate_verb_auto_discovery() {
     // Verify: 'generate' verb is auto-discovered under template
     ggen()
@@ -525,6 +529,7 @@ fn test_rdf_spec_structure_valid() {
 }
 
 #[test]
+#[ignore = "ggen template subcommand removed; CLI consolidated to ggen sync (v26_5_19+)"]
 fn test_render_template_with_rdf_data() {
     // Verify: Can render template with data extracted from RDF
     let temp_dir = TempDir::new().unwrap();
@@ -591,6 +596,7 @@ files:
 }
 
 #[test]
+#[ignore = "ggen template subcommand removed; CLI consolidated to ggen sync (v26_5_19+)"]
 fn test_generated_project_structure_valid() {
     // Verify: Generated project has valid structure
     let temp_dir = TempDir::new().unwrap();
@@ -631,6 +637,7 @@ files:
 }
 
 #[test]
+#[ignore = "ggen template subcommand removed; CLI consolidated to ggen sync (v26_5_19+)"]
 fn test_generated_cargo_toml_has_clap_dependency() {
     // Verify: Generated Cargo.toml includes clap dependencies
     let temp_dir = TempDir::new().unwrap();
@@ -665,6 +672,7 @@ fn test_generated_cargo_toml_has_clap_dependency() {
 }
 
 #[test]
+#[ignore = "ggen template subcommand removed; CLI consolidated to ggen sync (v26_5_19+)"]
 fn test_generated_cli_code_matches_rdf_spec() {
     // Verify: Generated code structure matches RDF definition
     let temp_dir = TempDir::new().unwrap();
@@ -703,6 +711,7 @@ fn test_generated_cli_code_matches_rdf_spec() {
 // =============================================================================
 
 #[test]
+#[ignore = "ggen template subcommand removed; CLI consolidated to ggen sync (v26_5_19+)"]
 fn test_e2e_ttl_to_working_cli_project() {
     // End-to-end: RDF spec → Template → Complete working CLI project
     let temp_dir = TempDir::new().unwrap();
@@ -746,6 +755,7 @@ fn test_e2e_ttl_to_working_cli_project() {
 }
 
 #[test]
+#[ignore = "ggen template subcommand removed; CLI consolidated to ggen sync (v26_5_19+)"]
 fn test_e2e_generated_project_compiles() {
     // Verify: Generated project passes cargo check
     let temp_dir = TempDir::new().unwrap();
@@ -776,6 +786,7 @@ fn test_e2e_generated_project_compiles() {
 }
 
 #[test]
+#[ignore = "ggen template subcommand removed; CLI consolidated to ggen sync (v26_5_19+)"]
 fn test_e2e_generated_cli_help_works() {
     // Verify: Generated CLI structure supports --help
     let temp_dir = TempDir::new().unwrap();
@@ -808,6 +819,7 @@ fn test_e2e_generated_cli_help_works() {
 }
 
 #[test]
+#[ignore = "ggen template subcommand removed; CLI consolidated to ggen sync (v26_5_19+)"]
 fn test_e2e_generated_commands_execute() {
     // Verify: Generated CLI has command handling structure
     let temp_dir = TempDir::new().unwrap();
@@ -848,6 +860,7 @@ fn test_e2e_generated_commands_execute() {
 // =============================================================================
 
 #[test]
+#[ignore = "ggen template subcommand removed; CLI consolidated to ggen sync (v26_5_19+)"]
 fn test_performance_generation_under_one_second() {
     // Verify: Template generation completes in <1 second
     let temp_dir = TempDir::new().unwrap();
@@ -883,6 +896,7 @@ fn test_performance_generation_under_one_second() {
 }
 
 #[test]
+#[ignore = "ggen template subcommand removed; CLI consolidated to ggen sync (v26_5_19+)"]
 fn test_performance_cli_help_fast() {
     // Verify: CLI help commands are fast (<100ms)
     let start = std::time::Instant::now();
