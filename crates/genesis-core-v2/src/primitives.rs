@@ -301,6 +301,8 @@ const _: () = {
 };
 
 #[cfg(test)]
+// Tests use unwrap()/unwrap_err() for clear failure messages; panics are intentional.
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 

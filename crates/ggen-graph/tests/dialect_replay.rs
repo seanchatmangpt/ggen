@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used)]
 use ggen_graph::dialect::{check_n3, check_sparql};
 
 #[test]

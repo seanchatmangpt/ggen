@@ -171,14 +171,14 @@ impl EvidenceProjector {
         let mut log = OcelLog::new();
 
         // Let's query all objects
-        let query_objects = r#"
+        let query_objects = r"
             PREFIX ocel: <http://www.ocel-standard.org/ns#>
             SELECT ?obj ?type
             WHERE {
                 ?obj a ocel:Object .
                 ?obj ocel:objectType ?type .
             }
-        "#;
+        ";
 
         let solutions = graph.query(query_objects)?;
         let mut objects_map = HashMap::new();
@@ -238,7 +238,7 @@ impl EvidenceProjector {
         }
 
         // Let's query all events
-        let query_events = r#"
+        let query_events = r"
             PREFIX ocel: <http://www.ocel-standard.org/ns#>
             SELECT ?ev ?activity ?timestamp
             WHERE {
@@ -246,7 +246,7 @@ impl EvidenceProjector {
                 ?ev ocel:activity ?activity .
                 ?ev ocel:timestamp ?timestamp .
             }
-        "#;
+        ";
 
         let solutions_ev = graph.query(query_events)?;
         if let oxigraph::sparql::QueryResults::Solutions(solutions_ev_iter) = solutions_ev {
@@ -563,10 +563,10 @@ impl EvidenceProjector {
         let mut doc = ProvDocument::new();
 
         // 1. Entities
-        let query_entities = r#"
+        let query_entities = r"
             PREFIX prov: <http://www.w3.org/ns/prov#>
             SELECT ?ent WHERE { ?ent a prov:Entity . }
-        "#;
+        ";
         if let oxigraph::sparql::QueryResults::Solutions(solutions) = graph.query(query_entities)? {
             for sol_res in solutions {
                 let sol = sol_res?;
@@ -612,7 +612,7 @@ impl EvidenceProjector {
         }
 
         // 2. Activities
-        let query_activities = r#"
+        let query_activities = r"
             PREFIX prov: <http://www.w3.org/ns/prov#>
             SELECT ?act ?start ?end
             WHERE {
@@ -620,7 +620,7 @@ impl EvidenceProjector {
                 OPTIONAL { ?act prov:startedAtTime ?start . }
                 OPTIONAL { ?act prov:endedAtTime ?end . }
             }
-        "#;
+        ";
         if let oxigraph::sparql::QueryResults::Solutions(solutions) =
             graph.query(query_activities)?
         {
@@ -687,10 +687,10 @@ impl EvidenceProjector {
         }
 
         // 3. Agents
-        let query_agents = r#"
+        let query_agents = r"
             PREFIX prov: <http://www.w3.org/ns/prov#>
             SELECT ?agt WHERE { ?agt a prov:Agent . }
-        "#;
+        ";
         if let oxigraph::sparql::QueryResults::Solutions(solutions) = graph.query(query_agents)? {
             for sol_res in solutions {
                 let sol = sol_res?;
@@ -736,10 +736,10 @@ impl EvidenceProjector {
         }
 
         // 4. Generations
-        let query_generations = r#"
+        let query_generations = r"
             PREFIX prov: <http://www.w3.org/ns/prov#>
             SELECT ?ent ?act WHERE { ?ent prov:wasGeneratedBy ?act . }
-        "#;
+        ";
         if let oxigraph::sparql::QueryResults::Solutions(solutions) =
             graph.query(query_generations)?
         {
@@ -768,10 +768,10 @@ impl EvidenceProjector {
         }
 
         // 5. Usages
-        let query_usages = r#"
+        let query_usages = r"
             PREFIX prov: <http://www.w3.org/ns/prov#>
             SELECT ?act ?ent WHERE { ?act prov:used ?ent . }
-        "#;
+        ";
         if let oxigraph::sparql::QueryResults::Solutions(solutions) = graph.query(query_usages)? {
             for sol_res in solutions {
                 let sol = sol_res?;
@@ -798,10 +798,10 @@ impl EvidenceProjector {
         }
 
         // 6. Derivations
-        let query_derivations = r#"
+        let query_derivations = r"
             PREFIX prov: <http://www.w3.org/ns/prov#>
             SELECT ?gen ?used WHERE { ?gen prov:wasDerivedFrom ?used . }
-        "#;
+        ";
         if let oxigraph::sparql::QueryResults::Solutions(solutions) =
             graph.query(query_derivations)?
         {

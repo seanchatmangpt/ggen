@@ -269,8 +269,8 @@ pub fn execute(input: GgenConstructInput) -> GgenConstructOutput {
 }
 
 #[cfg(test)]
-#[allow(clippy::unwrap_used)]
-/// Test module: unwrap() acceptable after validating JSON structure in tests.
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+/// Test module: unwrap()/expect() acceptable after validating JSON structure in tests.
 mod tests {
     use super::*;
 

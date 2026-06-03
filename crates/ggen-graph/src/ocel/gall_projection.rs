@@ -48,12 +48,12 @@ pub fn query_relationship(
 ) -> Result<Vec<(String, String)>, GraphError> {
     let safe_qual = to_safe_qualifier(qualifier);
     let query_str = format!(
-        r#"
+        r"
         SELECT ?ev ?obj
         WHERE {{
             ?ev <http://www.ocel-standard.org/ns#qualifier_{}> ?obj .
         }}
-        "#,
+        ",
         safe_qual
     );
 

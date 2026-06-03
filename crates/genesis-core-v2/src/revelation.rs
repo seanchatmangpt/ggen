@@ -370,6 +370,8 @@ pub fn passes_all_gates(gates: &[JerusalemGate; 7]) -> bool {
 }
 
 #[cfg(test)]
+// Tests use unwrap()/unwrap_err() for clear failure messages; panics are intentional.
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
     use crate::primitives::{Construct8, Pair2, Receipt, Refusal, RefusalReason};

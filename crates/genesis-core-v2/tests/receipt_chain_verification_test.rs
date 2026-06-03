@@ -3,6 +3,9 @@
 //! Proves the truex T0–T6 receipt chain verification:
 //! 1. truex loads ggen and mcpp receipts from multi-directory ledger
 //! 2. Verifies Ed25519 signatures (reads verifying keys)
+
+// Tests use unwrap()/unwrap_err()/expect() for clear failure messages; panics are intentional.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //! 3. Proves causal chain: ggen output_hash == mcpp input_hash
 //! 4. Validates BLAKE3 determinism (re-execute pipeline, verify hash match)
 //! 5. Records validated chain to consequence cell state

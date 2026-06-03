@@ -1,4 +1,4 @@
-#![allow(clippy::unwrap_used)]
+#![allow(clippy::unwrap_used, clippy::match_wildcard_for_single_variants)]
 //! Canonical sorting and formatting of RDF quads and datasets.
 
 use oxigraph::model::{BlankNode, GraphName, NamedOrBlankNode, Quad, Term};

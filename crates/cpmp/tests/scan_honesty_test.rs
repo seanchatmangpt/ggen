@@ -5,6 +5,9 @@
 //! NOT fabricate stub catalog/SHACL TTL files, and must NOT list any `.ttl`
 //! artifact that nothing downstream reads.
 
+// Tests use expect() for clear failure messages; panics are intentional in test context.
+#![allow(clippy::expect_used)]
+
 use std::path::PathBuf;
 
 use cpmp::models::Receipt;

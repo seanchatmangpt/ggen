@@ -1,5 +1,5 @@
 //! Tests for the Genesis-bearing interchangeable part architecture in ggen-graph.
-
+#![allow(clippy::unwrap_used)]
 use ggen_graph::graph::quad::parse_nquad;
 use ggen_graph::ocel::{OcelEvent, OcelLog, OcelObject};
 use ggen_graph::{AdapterLayer, GenesisCore, OuterMembrane, ProjectionLayer};

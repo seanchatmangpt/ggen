@@ -1,3 +1,8 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::unnecessary_debug_formatting,
+    clippy::branches_sharing_code
+)]
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::fs::File;
@@ -52,7 +57,7 @@ struct DocMetadata {
     verification_status: String,
 }
 
-fn walk_docs(dir: &Path, _base_dir: &Path, docs_list: &mut Vec<PathBuf>) -> std::io::Result<()> {
+fn walk_docs(dir: &Path, base_dir: &Path, docs_list: &mut Vec<PathBuf>) -> std::io::Result<()> {
     if dir.is_dir() {
         for entry in std::fs::read_dir(dir)? {
             let entry = entry?;
@@ -65,7 +70,7 @@ fn walk_docs(dir: &Path, _base_dir: &Path, docs_list: &mut Vec<PathBuf>) -> std:
                     && name != ".gemini"
                     && name != ".antigravitycli"
                 {
-                    walk_docs(&path, _base_dir, docs_list)?;
+                    walk_docs(&path, base_dir, docs_list)?;
                 }
             } else {
                 let name = path.file_name().unwrap_or_default().to_string_lossy();

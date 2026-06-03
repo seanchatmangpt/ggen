@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::unnecessary_debug_formatting)]
 use chrono::Utc;
 use oxigraph::io::{RdfFormat, RdfParser};
 use oxigraph::model::Term;
@@ -276,7 +277,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     serde_json::to_writer_pretty(out_file, &signed_payload)?;
 
     println!("VERDICT: {}", verdict);
-    println!("Results saved to {:?}", adjudication_file);
+    println!("Results saved to {}", adjudication_file.display());
 
     if verdict == "Promoted" {
         Ok(())

@@ -4,6 +4,15 @@
 //! of interface redundancy between basic and rich agent implementations.
 //! Following the BB80 pattern with convergence through selection pressure.
 
+// Generated code: allow clippy lints that are not applicable to generated structs.
+#![allow(
+    clippy::derive_partial_eq_without_eq,
+    clippy::duration_suboptimal_units,
+    clippy::expect_used,
+    clippy::unwrap_used,
+    clippy::panic
+)]
+
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;

@@ -85,7 +85,7 @@ fn test_hook_pack_ttl_contains_no_gall_namespace_terms() -> Result<(), Box<dyn E
 
     // SPARQL: find any triple where subject, predicate, or IRI object
     // contains 'gall' in the IRI string.
-    let gall_scan_query = r#"
+    let gall_scan_query = r"
         SELECT ?s ?p ?o WHERE {
             ?s ?p ?o .
             FILTER(
@@ -94,7 +94,7 @@ fn test_hook_pack_ttl_contains_no_gall_namespace_terms() -> Result<(), Box<dyn E
                 (isIRI(?o) && CONTAINS(STR(?o), 'gall'))
             )
         }
-    "#;
+    ";
 
     let results = oxigraph::sparql::SparqlEvaluator::new()
         .parse_query(gall_scan_query)?
@@ -150,7 +150,7 @@ fn test_audit_doctest_results_ttl_vocab_is_clean() -> Result<(), Box<dyn Error>>
         .map_err(|e| format!("Failed to parse doctest_results.ttl: {}", e))?;
 
     // 1. No 'gall:' terms anywhere
-    let gall_query = r#"
+    let gall_query = r"
         SELECT ?s ?p ?o WHERE {
             ?s ?p ?o .
             FILTER(
@@ -159,7 +159,7 @@ fn test_audit_doctest_results_ttl_vocab_is_clean() -> Result<(), Box<dyn Error>>
                 (isIRI(?o) && CONTAINS(STR(?o), 'gall'))
             )
         }
-    "#;
+    ";
 
     let results = oxigraph::sparql::SparqlEvaluator::new()
         .parse_query(gall_query)?
@@ -255,7 +255,7 @@ fn test_all_ttl_files_have_no_gall_terms() -> Result<(), Box<dyn Error>> {
                     continue;
                 }
 
-                let query = r#"
+                let query = r"
                     SELECT ?s ?p ?o WHERE {
                         ?s ?p ?o .
                         FILTER(
@@ -264,7 +264,7 @@ fn test_all_ttl_files_have_no_gall_terms() -> Result<(), Box<dyn Error>> {
                             (isIRI(?o) && CONTAINS(STR(?o), 'gall'))
                         )
                     }
-                "#;
+                ";
 
                 let results = oxigraph::sparql::SparqlEvaluator::new()
                     .parse_query(query)?

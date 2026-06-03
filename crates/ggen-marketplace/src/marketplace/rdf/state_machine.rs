@@ -114,7 +114,7 @@ impl StateMachineExecutor {
         );
 
         // Define transitions
-        let draft_transitions = ["Published".to_string()].into_iter().collect();
+        let draft_transitions = std::iter::once("Published".to_string()).collect();
         transitions.insert("Draft".to_string(), draft_transitions);
 
         let published_transitions = ["Deprecated".to_string(), "Yanked".to_string()]
@@ -122,7 +122,7 @@ impl StateMachineExecutor {
             .collect();
         transitions.insert("Published".to_string(), published_transitions);
 
-        let deprecated_transitions = ["Yanked".to_string()].into_iter().collect();
+        let deprecated_transitions = std::iter::once("Yanked".to_string()).collect();
         transitions.insert("Deprecated".to_string(), deprecated_transitions);
 
         // Define guards

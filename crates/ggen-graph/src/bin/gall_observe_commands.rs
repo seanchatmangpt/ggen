@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::unnecessary_debug_formatting)]
 use chrono::Utc;
 use oxigraph::io::{RdfFormat, RdfParser};
 use oxigraph::model::Term;
@@ -89,7 +90,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             .join(script_name);
 
         if !script_path.exists() {
-            eprintln!("Warning: Script not found: {:?}", script_path);
+            eprintln!("Warning: Script not found: {}", script_path.display());
             continue;
         }
 

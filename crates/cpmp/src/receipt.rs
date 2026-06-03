@@ -3,10 +3,11 @@ use anyhow::Result;
 use std::path::PathBuf;
 use uuid::Uuid;
 
-/// Deterministic aggregate hash over the scanned file set: BLAKE3 of each
-/// `(path, content-hash)` pair in sorted order. Independent of scan order, so two
-/// scans of the same tree produce the same `aggregate_hash` — the stable scan
-/// identity a downstream pack receipt binds to.
+/// Deterministic aggregate hash over the scanned file set.
+///
+/// Computes BLAKE3 of each `(path, content-hash)` pair in sorted order. Independent of
+/// scan order, so two scans of the same tree produce the same `aggregate_hash` — the
+/// stable scan identity a downstream pack receipt binds to.
 #[must_use]
 pub fn aggregate_hash(files: &[FileEntry]) -> String {
     let mut pairs: Vec<(&str, &str)> = files
@@ -24,9 +25,11 @@ pub fn aggregate_hash(files: &[FileEntry]) -> String {
     hasher.finalize().to_hex().to_string()
 }
 
-/// Emit the scan receipt. Writes a JSON `scan-receipt.json` (consumed by
-/// `ggen lsp emit_pack --from_scan`) carrying the deterministic `aggregate_hash`,
-/// plus a TOML copy under `receipts/` for `verify-no-deletion` compatibility.
+/// Emit the scan receipt.
+///
+/// Writes a JSON `scan-receipt.json` (consumed by `ggen lsp emit_pack --from_scan`)
+/// carrying the deterministic `aggregate_hash`, plus a TOML copy under `receipts/`
+/// for `verify-no-deletion` compatibility.
 pub fn generate_receipt(
     files: &[FileEntry], out: &std::path::Path, scan_roots: Vec<String>,
     output_artifacts: Vec<String>,

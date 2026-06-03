@@ -39,7 +39,7 @@ pub fn discover_dfg(
     graph: &DeterministicGraph, case_qualifier_iri: &str,
 ) -> Result<Vec<DfgEdge>, GraphError> {
     let q = format!(
-        r#"
+        r"
         PREFIX ocel: <http://www.ocel-standard.org/ns#>
         SELECT ?a1 ?a2 (COUNT(*) AS ?freq) WHERE {{
             ?e1 ocel:activity ?a1 ;
@@ -56,7 +56,7 @@ pub fn discover_dfg(
         }}
         GROUP BY ?a1 ?a2
         ORDER BY DESC(?freq)
-        "#,
+        ",
         q = case_qualifier_iri
     );
 

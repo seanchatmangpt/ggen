@@ -116,11 +116,11 @@ fn test_hook_pack_w0_construct_query_against_real_store() -> Result<(), Box<dyn 
 
     // Create a data store with SPDX file triples (simulating worktree evidence)
     let data_store = Store::new()?;
-    let spdx_data = r#"
+    let spdx_data = r"
         @prefix spdx: <http://spdx.org/rdf/terms#> .
         <http://example.org/file1> a spdx:File .
         <http://example.org/file2> a spdx:File .
-    "#;
+    ";
     data_store
         .load_from_reader(
             RdfParser::from_format(RdfFormat::Turtle),
@@ -265,7 +265,7 @@ fn test_all_hook_pack_queries_are_valid_sparql() -> Result<(), Box<dyn Error>> {
         )
         .map_err(|e| format!("Failed to parse hook pack: {}", e))?;
 
-    let fetch_all_queries = r#"
+    let fetch_all_queries = r"
         PREFIX prov: <http://www.w3.org/ns/prov#>
         PREFIX dcterms: <http://purl.org/dc/terms/>
         SELECT ?id ?query WHERE {
@@ -274,7 +274,7 @@ fn test_all_hook_pack_queries_are_valid_sparql() -> Result<(), Box<dyn Error>> {
                   prov:value ?query .
         }
         ORDER BY ?id
-    "#;
+    ";
 
     #[allow(deprecated)]
     let results = hook_store.query(fetch_all_queries)?;

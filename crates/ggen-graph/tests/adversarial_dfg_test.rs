@@ -1,4 +1,5 @@
 //! Adversarial DFG/conformance probes — interleaving, singletons, ties, isolation.
+#![allow(clippy::unwrap_used)]
 use chrono::{TimeZone, Utc};
 use ggen_graph::ocel::{EvidenceProjector, OcelEvent, OcelLog, OcelObjectRef};
 use ggen_graph::{check_lifecycle_order, discover_dfg, DeterministicGraph};

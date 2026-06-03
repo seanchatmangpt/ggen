@@ -1,3 +1,5 @@
+// Tests use unwrap() for clear failure messages; panics are intentional in test context.
+#![allow(clippy::unwrap_used)]
 use ggen_graph::dialect::check_n3;
 
 #[test]

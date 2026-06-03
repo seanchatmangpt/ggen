@@ -3,6 +3,9 @@
 //! Verifies the complete causal chain:
 //!   act1 → receipt1 → act2(receipt1) → receipt2 → act3(receipt2) → receipt3
 //!
+
+// Tests use unwrap()/unwrap_err() for clear failure messages; panics are intentional.
+#![allow(clippy::unwrap_used)]
 //! Anti-cheating requirements:
 //! 1. All receipts must be real BLAKE3 outputs (non-zero, input-sensitive)
 //! 2. Tampering with any receipt in the chain must cause `ReceiptMismatch` refusal
