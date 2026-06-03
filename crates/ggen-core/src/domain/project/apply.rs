@@ -158,10 +158,7 @@ mod tests {
         // Create a test plan file
         let plan = GenerationPlan {
             template_ref: "test.tmpl".to_string(),
-            variables: [("key".to_string(), "value".to_string())]
-                .iter()
-                .cloned()
-                .collect(),
+            variables: std::collections::HashMap::from([("key".to_string(), "value".to_string())]),
             timestamp: chrono::Utc::now(),
             format: "json".to_string(),
         };

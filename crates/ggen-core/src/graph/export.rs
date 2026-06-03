@@ -315,7 +315,7 @@ mod tests {
         // Assert
         assert!(!result.is_empty());
         // RDF/XML format should contain XML tags
-        assert!(result.contains("<") && result.contains(">"));
+        assert!(result.contains('<') && result.contains('>'));
     }
 
     #[test]
@@ -477,7 +477,7 @@ mod tests {
         let rdfxml = export.write_to_string(RdfFormat::RdfXml).unwrap();
 
         // Assert - RDF/XML format should have XML structure
-        assert!(rdfxml.contains("<") && rdfxml.contains(">"));
+        assert!(rdfxml.contains('<') && rdfxml.contains('>'));
         assert!(rdfxml.contains("rdf:") || rdfxml.contains("RDF"));
     }
 

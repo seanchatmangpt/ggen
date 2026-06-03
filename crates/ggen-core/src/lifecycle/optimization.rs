@@ -449,7 +449,7 @@ mod tests {
         assert_eq!(targets.total, Duration::from_secs(45));
 
         let required = PerformanceTargets::required();
-        assert_eq!(required.total, Duration::from_secs(60));
+        assert_eq!(required.total, Duration::from_mins(1));
 
         let stretch = PerformanceTargets::stretch();
         assert_eq!(stretch.total, Duration::from_secs(45));
@@ -672,7 +672,7 @@ mod tests {
         let required = PerformanceTargets::required();
         let stretch = PerformanceTargets::stretch();
 
-        assert_eq!(required.total, Duration::from_secs(60));
+        assert_eq!(required.total, Duration::from_mins(1));
         assert_eq!(stretch.total, Duration::from_secs(45));
         assert!(required.total > stretch.total);
     }

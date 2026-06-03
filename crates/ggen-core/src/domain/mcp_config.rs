@@ -1214,7 +1214,7 @@ mod tests {
             .with_arg("--verbose")
             .with_arg("--output")
             .with_env("TEST_VAR", "test_value")
-            .with_timeout(Duration::from_secs(60))
+            .with_timeout(Duration::from_mins(1))
             .with_cwd("/tmp");
 
         assert_eq!(config.command, "test-command");

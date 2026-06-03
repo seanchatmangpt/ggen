@@ -1,3 +1,8 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::unnecessary_debug_formatting
+)]
 //! Validate the ggen project using all quality gates
 
 use ggen_core::manifest::GgenManifest;

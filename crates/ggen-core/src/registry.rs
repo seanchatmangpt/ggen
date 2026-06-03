@@ -924,7 +924,7 @@ mod tests {
 
         // Create registry client with file:// URL
         let base_url = Url::from_file_path(temp_dir.path())
-            .map_err(|_| Error::new("Failed to create file URL"))?;
+            .map_err(|()| Error::new("Failed to create file URL"))?;
         let client = RegistryClient::with_base_url(base_url)?;
 
         // Test search
@@ -966,7 +966,7 @@ mod tests {
             .map_err(|e| Error::with_context("Failed to write mock index", &e.to_string()))?;
 
         let base_url = Url::from_file_path(temp_dir.path())
-            .map_err(|_| Error::new("Failed to create file URL"))?;
+            .map_err(|()| Error::new("Failed to create file URL"))?;
         let client = RegistryClient::with_base_url(base_url)?;
 
         // Test resolve

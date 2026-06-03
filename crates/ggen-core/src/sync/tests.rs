@@ -65,9 +65,9 @@ fn setup_fixture(
 /// yet must still return the paths that *would* have been written.
 #[test]
 fn test_sync_dry_run_produces_no_files() {
-    let (_dir, ont_path, queries_dir) = setup_fixture(MINIMAL_TTL, &[("services", SERVICES_QUERY)]);
+    let (dir, ont_path, queries_dir) = setup_fixture(MINIMAL_TTL, &[("services", SERVICES_QUERY)]);
 
-    let output_dir = _dir.path().join("output");
+    let output_dir = dir.path().join("output");
 
     let config = SyncConfig {
         ontology_path: ont_path,
@@ -110,9 +110,9 @@ fn test_sync_dry_run_produces_no_files() {
 /// must contain a Go `struct` definition.
 #[test]
 fn test_sync_go_generates_service_struct() {
-    let (_dir, ont_path, queries_dir) = setup_fixture(MINIMAL_TTL, &[("services", SERVICES_QUERY)]);
+    let (dir, ont_path, queries_dir) = setup_fixture(MINIMAL_TTL, &[("services", SERVICES_QUERY)]);
 
-    let output_dir = _dir.path().join("output");
+    let output_dir = dir.path().join("output");
 
     let config = SyncConfig {
         ontology_path: ont_path,
@@ -157,8 +157,8 @@ fn test_sync_go_generates_service_struct() {
 #[test]
 fn test_sync_receipt_is_deterministic() {
     // Run #1
-    let (_dir1, ont1, qdir1) = setup_fixture(MINIMAL_TTL, &[("services", SERVICES_QUERY)]);
-    let out1 = _dir1.path().join("out1");
+    let (dir1, ont1, qdir1) = setup_fixture(MINIMAL_TTL, &[("services", SERVICES_QUERY)]);
+    let out1 = dir1.path().join("out1");
 
     let receipt1 = sync(SyncConfig {
         ontology_path: ont1,
@@ -172,8 +172,8 @@ fn test_sync_receipt_is_deterministic() {
     .receipt;
 
     // Run #2 — identical inputs in a fresh temp directory
-    let (_dir2, ont2, qdir2) = setup_fixture(MINIMAL_TTL, &[("services", SERVICES_QUERY)]);
-    let out2 = _dir2.path().join("out2");
+    let (dir2, ont2, qdir2) = setup_fixture(MINIMAL_TTL, &[("services", SERVICES_QUERY)]);
+    let out2 = dir2.path().join("out2");
 
     let receipt2 = sync(SyncConfig {
         ontology_path: ont2,

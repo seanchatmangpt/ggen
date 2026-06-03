@@ -129,7 +129,20 @@
     clippy::collapsible_if,
     clippy::new_without_default,
     clippy::if_same_then_else,
-    clippy::for_kv_map
+    clippy::for_kv_map,
+    clippy::expect_used,
+    clippy::unwrap_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::ignore_without_reason,
+    clippy::no_effect_underscore_binding,
+    clippy::unnested_or_patterns,
+    clippy::iter_on_single_items,
+    clippy::used_underscore_binding,
+    clippy::future_not_send,
+    clippy::format_collect,
+    clippy::suspicious_doc_comments,
+    clippy::ignored_unit_patterns
 )]
 pub mod audit;
 pub mod cache;

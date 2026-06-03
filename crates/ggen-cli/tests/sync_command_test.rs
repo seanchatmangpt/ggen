@@ -4,14 +4,9 @@
     unused_variables,
     deprecated,
     clippy::all,
-    unused_mut
-)]
-#![allow(
-    dead_code,
-    unused_imports,
-    unused_variables,
-    deprecated,
-    clippy::all,
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
     unused_mut
 )]
 

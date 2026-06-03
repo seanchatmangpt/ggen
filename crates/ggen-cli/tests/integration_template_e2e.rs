@@ -1,3 +1,9 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes
+)]
 //! End-to-end integration tests for template workflow
 //!
 //! **Chicago TDD Principles**:

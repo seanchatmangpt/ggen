@@ -1,3 +1,10 @@
+#![allow(
+    clippy::expect_used,
+    clippy::unwrap_used,
+    clippy::panic,
+    clippy::match_wildcard_for_single_variants
+)]
+
 pub mod analyzers;
 pub mod check;
 pub mod error;

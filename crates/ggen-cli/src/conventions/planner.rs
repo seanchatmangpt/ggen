@@ -249,6 +249,7 @@ impl GenerationPlanner {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::needless_raw_string_hashes)]
 mod tests {
     use super::*;
     use std::fs;

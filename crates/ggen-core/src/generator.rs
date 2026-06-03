@@ -525,7 +525,7 @@ mod tests {
 
     #[test]
     fn test_generate_simple_template() {
-        let (_temp_dir, template_path) = create_test_template(
+        let (temp_dir, template_path) = create_test_template(
             r#"---
 to: "output/{{ name | lower }}.rs"
 ---
@@ -535,7 +535,7 @@ to: "output/{{ name | lower }}.rs"
 "#,
         );
 
-        let output_dir = _temp_dir.path();
+        let output_dir = temp_dir.path();
         let pipeline = create_test_pipeline();
         let mut vars = BTreeMap::new();
         vars.insert("name".to_string(), "MyApp".to_string());
@@ -562,7 +562,7 @@ to: "output/{{ name | lower }}.rs"
 
     #[test]
     fn test_generate_dry_run() {
-        let (_temp_dir, template_path) = create_test_template(
+        let (temp_dir, template_path) = create_test_template(
             r#"---
 to: "output/{{ name | lower }}.rs"
 ---
@@ -570,7 +570,7 @@ to: "output/{{ name | lower }}.rs"
 "#,
         );
 
-        let output_dir = _temp_dir.path();
+        let output_dir = temp_dir.path();
         let pipeline = create_test_pipeline();
         let mut vars = BTreeMap::new();
         vars.insert("name".to_string(), "MyApp".to_string());
@@ -592,7 +592,7 @@ to: "output/{{ name | lower }}.rs"
 
     #[test]
     fn test_generate_with_default_output() {
-        let (_temp_dir, template_path) = create_test_template(
+        let (temp_dir, template_path) = create_test_template(
             r#"---
 {}
 ---
@@ -600,7 +600,7 @@ to: "output/{{ name | lower }}.rs"
 "#,
         );
 
-        let output_dir = _temp_dir.path();
+        let output_dir = temp_dir.path();
         let pipeline = create_test_pipeline();
         let ctx = GenContext::new(template_path, output_dir.to_path_buf());
 
@@ -621,7 +621,7 @@ to: "output/{{ name | lower }}.rs"
 
     #[test]
     fn test_generate_with_nested_output_path() {
-        let (_temp_dir, template_path) = create_test_template(
+        let (temp_dir, template_path) = create_test_template(
             r#"---
 to: "src/{{ module }}/{{ name | lower }}.rs"
 ---
@@ -629,7 +629,7 @@ to: "src/{{ module }}/{{ name | lower }}.rs"
 "#,
         );
 
-        let output_dir = _temp_dir.path();
+        let output_dir = temp_dir.path();
         let pipeline = create_test_pipeline();
         let mut vars = BTreeMap::new();
         vars.insert("name".to_string(), "MyModule".to_string());
@@ -652,7 +652,7 @@ to: "src/{{ module }}/{{ name | lower }}.rs"
 
     #[test]
     fn test_generate_invalid_template() {
-        let (_temp_dir, template_path) = create_test_template(
+        let (temp_dir, template_path) = create_test_template(
             r#"---
 invalid_yaml: [unclosed
 ---
@@ -660,7 +660,7 @@ invalid_yaml: [unclosed
 "#,
         );
 
-        let output_dir = _temp_dir.path();
+        let output_dir = temp_dir.path();
         let pipeline = create_test_pipeline();
         let ctx = GenContext::new(template_path, output_dir.to_path_buf());
 
