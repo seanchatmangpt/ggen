@@ -1,7 +1,8 @@
 ---
 receipt: GALL_CONFORM_001_RECEIPT
 date: 2026-06-02
-status: STAGE_0_COMPLETE
+updated: 2026-06-03
+status: STAGE_0_COMPLETE_FOUR_GATE_VERIFIED
 gate: Inspection Gate (prerequisite)
 authority: GAP_FIRMAMENT_002_LIVING_LSP_GALL_CODEMANUFACTORY (GAP_003 remediation)
 pre_inventory: GALL_CONFORM_001_PRE_INVENTORY.md (2026-05-30)
@@ -177,6 +178,31 @@ Issue an updated version of this receipt with `status: COMPLETE` upon Stage 4 pa
 | wpm mining subcommand implementation | File read: wasm4pm/crates/wasm4pm-cli/src/commands/mining.rs |
 | Proof tests grep JSONL value substrings (resilient to key rename) | File read: ggen/crates/ggen-lsp/tests/ggen_tpl_001_stale_clear.rs:84-91, ggen_tpl_001_living_loop.rs:175-181 |
 | Pre-inventory analysis | GALL_CONFORM_001_PRE_INVENTORY.md (2026-05-30) |
+
+---
+
+## 4-Gate Proof — 2026-06-03 (GAP_FIRMAMENT_002_GGEN closure)
+
+**Gate 1:** `cargo clippy --workspace --all-targets -- -D warnings` → exit 0
+- Run date: 2026-06-03
+- Commit: workspace lint gate clean (4e2d56af in ggen repo)
+- Result: PASS
+
+**Gate 2:** `cargo test -p ggen-lsp` → all tests pass
+- Run date: 2026-06-03
+- Key: `intel::mine::tests::mine_promotes_a_conformant_route_with_measured_success` PASS
+- All ggen-lsp test suites: PASS
+
+**Gate 3:** `cargo clippy -p ggen-lsp --no-deps -- -D warnings` → exit 0
+- Run date: 2026-06-03
+- Result: PASS
+
+**Gate 4:** `cargo fmt -p ggen-lsp -- --check` → exit 0
+- Run date: 2026-06-03
+- Result: PASS
+
+**ocel-core dep verification:**
+- `crates/ggen-graph/Cargo.toml`: single path dep `ocel-core = { path = "/Users/sac/wasm4pm/crates/ocel-core" }` — no git+path duplication
 
 ---
 
