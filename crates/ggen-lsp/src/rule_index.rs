@@ -95,6 +95,15 @@ impl RuleIndexEntry {
                     }
                 }
             }
+            QuerySource::Pack { pack, output, file } => {
+                issues.push(format!(
+                    "pack query (pack={}, output={}, file={}) resolved at generation time",
+                    pack,
+                    output,
+                    file.display()
+                ));
+                (false, String::new())
+            }
         };
 
         // --- Resolve the template ----------------------------------------
@@ -123,6 +132,15 @@ impl RuleIndexEntry {
                     "unsupported template source for MVP: package ({}:{})",
                     package,
                     path.display()
+                ));
+                (None, None)
+            }
+            TemplateSource::Pack { pack, output, file } => {
+                issues.push(format!(
+                    "pack template (pack={}, output={}, file={}) resolved at generation time",
+                    pack,
+                    output,
+                    file.display()
                 ));
                 (None, None)
             }

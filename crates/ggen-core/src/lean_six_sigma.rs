@@ -311,6 +311,7 @@ impl LeanSixSigmaGate {
                                 }
                                 crate::manifest::TemplateSource::Git { .. } => {}
                                 crate::manifest::TemplateSource::Package { .. } => {}
+                                crate::manifest::TemplateSource::Pack { .. } => {}
                             }
                         }
                         Ok(())

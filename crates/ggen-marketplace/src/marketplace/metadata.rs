@@ -11,6 +11,7 @@ use crate::marketplace::error::{Error, Result};
 use crate::marketplace::models::PackageId;
 use crate::marketplace::trust::{RegistryType, TrustTier};
 use serde::Deserialize;
+use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 use tracing::{debug, warn};
@@ -28,6 +29,8 @@ pub struct PackMetadata {
     pub registry_type: Option<RegistryType>,
     /// Origin URL where the artifact was fetched from
     pub origin_url: Option<String>,
+    /// Named outputs declared in [pack.outputs] (key → relative path within pack)
+    pub outputs: HashMap<String, String>,
 }
 
 impl Default for PackMetadata {
@@ -38,6 +41,7 @@ impl Default for PackMetadata {
             checksum: None,
             registry_type: None,
             origin_url: None,
+            outputs: HashMap::new(),
         }
     }
 }
@@ -48,6 +52,17 @@ struct PackageToml {
     package: PackageSection,
     #[serde(default)]
     security: Option<SecuritySection>,
+    /// Named outputs: [pack.outputs] table mapping key → relative path
+    #[serde(default)]
+    pack: Option<PackSection>,
+}
+
+/// [pack] section containing [pack.outputs]
+#[derive(Debug, Deserialize, Default)]
+struct PackSection {
+    /// Named outputs: key → relative path within the pack directory
+    #[serde(default)]
+    outputs: HashMap<String, String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -184,12 +199,15 @@ fn load_from_toml(toml_path: &Path) -> Result<PackMetadata> {
 
     let origin_url = package_toml.package.origin_url.clone();
 
+    let outputs = package_toml.pack.map(|p| p.outputs).unwrap_or_default();
+
     debug!(
-        "Loaded metadata from package.toml: signature={}, trust_tier={:?}, checksum={}, registry={:?}",
+        "Loaded metadata from package.toml: signature={}, trust_tier={:?}, checksum={}, registry={:?}, outputs={}",
         signature.is_some(),
         trust_tier,
         checksum.is_some(),
-        registry_type
+        registry_type,
+        outputs.len()
     );
 
     Ok(PackMetadata {
@@ -198,6 +216,7 @@ fn load_from_toml(toml_path: &Path) -> Result<PackMetadata> {
         checksum,
         registry_type,
         origin_url,
+        outputs,
     })
 }
 
@@ -243,6 +262,7 @@ fn load_from_json(json_path: &Path) -> Result<PackMetadata> {
         checksum,
         registry_type,
         origin_url,
+        outputs: HashMap::new(),
     })
 }
 
