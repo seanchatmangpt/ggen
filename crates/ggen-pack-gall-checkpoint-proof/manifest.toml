@@ -1,0 +1,95 @@
+[checkpoint]
+id = "GALL-CHECKPOINT-003"
+name = "Boundary-Receipted Equation Enforcement"
+status_target = "ADMITTED_BY_DOGFOOD"
+
+[boundary]
+workspace = "."
+target = ".tmp_gc003/target"
+staging_dir = ".tmp_gc003/staging"
+receipt_sink = ".tmp_gc003/receipts"
+
+[equation]
+form = "R_B ⊢ A = μ(O*_B)"
+
+[[proofs]]
+id = "boundary-digest-required"
+kind = "receipt-binding"
+field = "boundary_digest"
+mutation = "alter_boundary"
+expected = "validate_sync_refuses"
+
+[[proofs]]
+id = "workspace-digest-required"
+kind = "receipt-binding"
+field = "workspace_digest"
+mutation = "move_workspace_or_change_workspace_digest"
+expected = "validate_sync_refuses"
+
+[[proofs]]
+id = "pack-plan-digest-required"
+kind = "receipt-binding"
+field = "pack_plan_digest"
+mutation = "alter_dependency_graph"
+expected = "validate_sync_refuses"
+
+[[proofs]]
+id = "pack-descriptor-digest-required"
+kind = "receipt-binding"
+field = "pack_descriptor_digest"
+mutation = "alter_pack_toml"
+expected = "validate_sync_refuses"
+
+[[proofs]]
+id = "template-digest-required"
+kind = "receipt-binding"
+field = "template_digest"
+mutation = "alter_template"
+expected = "validate_sync_refuses"
+
+[[proofs]]
+id = "customization-digest-required"
+kind = "receipt-binding"
+field = "customization_digest"
+mutation = "alter_manifest_values"
+expected = "validate_sync_refuses"
+
+[[proofs]]
+id = "staging-digest-required"
+kind = "receipt-binding"
+field = "staging_digest"
+mutation = "alter_staged_output_before_gate"
+expected = "validate_sync_refuses"
+
+[[proofs]]
+id = "mutation-gate-decision-required"
+kind = "receipt-binding"
+field = "mutation_gate_decision"
+mutation = "remove_or_change_gate_decision"
+expected = "validate_sync_refuses"
+
+[[proofs]]
+id = "verification-result-required"
+kind = "receipt-binding"
+field = "verification_result"
+mutation = "remove_or_change_verification_result"
+expected = "validate_sync_refuses"
+
+[[proofs]]
+id = "projection-engine-version-required"
+kind = "receipt-binding"
+field = "projection_engine_version"
+mutation = "alter_engine_version"
+expected = "validate_sync_refuses"
+
+[[proofs]]
+id = "after-the-fact-hash-laundering-refused"
+kind = "receipt-laundering"
+mutation = "create_file_then_forge_matching_artifact_digest"
+expected = "validate_sync_refuses"
+
+[[proofs]]
+id = "receipt-chain-broken-refused"
+kind = "receipt-chain"
+mutation = "alter_previous_receipt"
+expected = "validate_sync_refuses"

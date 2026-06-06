@@ -15,6 +15,7 @@ tracing-subscriber = "0.3"
 ggen-core = { path = "../ggen-core" }
 ggen-config = { path = "../ggen-config" }
 ggen-graph = { path = "../ggen-graph" }
+ggen-projection = { path = "../ggen-projection" }
 tera = "1"
 toml = "1.1.0"
 # Canonical RDF/SPARQL formatting (parse + reserialize). Matches the

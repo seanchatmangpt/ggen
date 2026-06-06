@@ -13,6 +13,24 @@ thiserror = { workspace = true }
 anyhow = { workspace = true }
 blake3 = { workspace = true }
 knhk-construct8 = { workspace = true }
+toml = { workspace = true }
+uuid = { workspace = true, features = ["v4", "serde"] }
+clap = { version = "4.4", features = ["derive"] }
+tera.workspace = true
 
 [dev-dependencies]
 tempfile = { workspace = true }
+assert_cmd = { workspace = true }
+ed25519-dalek = { workspace = true }
+rand = "0.8"
+tokio = { workspace = true }
+clap-noun-verb-pack-lsp = { path = "../ggen-pack-clap-noun-verb" }
+tower-lsp-max-pack-lsp = { path = "../ggen-pack-tower-lsp-max" }
+
+[[test]]
+name = "f7_bypass_kill"
+path = "tests/f7_bypass_kill.rs"
+
+[[test]]
+name = "f8_equation_enforcement"
+path = "tests/f8_equation_enforcement.rs"

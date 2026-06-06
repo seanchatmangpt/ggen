@@ -14,6 +14,7 @@ pub mod harness_index;
 pub mod init;
 pub mod intel;
 pub mod pack;
+pub mod pack_lsp_registry;
 pub mod project_index;
 pub mod protocol;
 pub mod route;
