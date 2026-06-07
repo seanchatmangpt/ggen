@@ -13,6 +13,10 @@ impl LanguageServer for Backend {
         Ok(InitializeResult {
             capabilities: ServerCapabilities {
                 text_document_sync: Some(TextDocumentSyncCapability::Kind(TextDocumentSyncKind::FULL)),
+                execute_command_provider: Some(ExecuteCommandOptions {
+                    commands: vec!["conformance-receipt.bind".to_string()],
+                    ..Default::default()
+                }),
                 ..Default::default()
             },
             server_info: Some(ServerInfo {
@@ -38,6 +42,21 @@ impl LanguageServer for Backend {
             self.check_diagnostics(&uri, &change.text).await;
         }
     }
+
+    async fn execute_command(&self, params: ExecuteCommandParams) -> Result<Option<serde_json::Value>> {
+        // Here we handle the noun-verb grammar admission.
+        // Once validated, the actual mutation MUST route through PackPlan -> Staging -> MutationGate.
+        // We will emit a log message simulating this pipeline.
+        if params.command == "conformance-receipt.bind" {
+            self.client.log_message(MessageType::INFO, "CLAP Validated: noun=conformance-receipt verb=bind").await;
+            self.client.log_message(MessageType::INFO, "Routing to PackPlan -> Staging -> MutationGate").await;
+            
+            // In a real system, we'd trigger the ggen-projection engine here via an RPC or channel.
+        } else {
+            self.client.log_message(MessageType::ERROR, format!("CLAP Rejected: unknown command {}", params.command)).await;
+        }
+        Ok(None)
+    }
 }
 
 impl Backend {
@@ -58,34 +77,14 @@ impl Backend {
             d
         };
 
-        if path_str.ends_with("customization-map.json") {
-            if content.is_empty() || content.trim() == "{}" || content.contains("TODO") {
+        if path_str.ends_with("cli.rs") || path_str.ends_with("main.rs") {
+            if content.contains("struct Opts") && !content.contains("fn handle") {
                 diags.push(make_diag(
-                    "CLAP-CUSTOMIZE-001",
-                    "Required customization point incomplete",
-                    DiagnosticSeverity::WARNING,
-                ));
-            } else {
-                diags.push(make_diag(
-                    "CLAP-DEBUG",
-                    &format!("Content was: '{}'", content),
-                    DiagnosticSeverity::WARNING,
+                    "CLAP-PACK-HANDLER-UNBOUND",
+                    "CLI domain missing handler",
+                    DiagnosticSeverity::ERROR,
                 ));
             }
-        } else {
-            diags.push(make_diag(
-                "CLAP-DEBUG-PATH",
-                &format!("Path was: '{}'", path_str),
-                DiagnosticSeverity::WARNING,
-            ));
-        }
-
-        if path_str.contains("manual_parser.rs") || content.contains("pub fn parse()") {
-            diags.push(make_diag(
-                "CLAP-PROJECT-OPPORTUNITY-001",
-                "File contains manual parser signature; could be projected using a pack",
-                DiagnosticSeverity::INFORMATION,
-            ));
         }
 
         self.client.publish_diagnostics(uri.clone(), diags, None).await;

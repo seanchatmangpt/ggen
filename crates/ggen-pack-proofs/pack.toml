@@ -25,3 +25,23 @@ variables = []
 path = "templates/dogfood_gc006_calver.rs.tmpl"
 description = "Release-Law CalVer Lock"
 variables = []
+
+[[templates]]
+path = "templates/dogfood_clap_command_route.rs.tmpl"
+description = "Dogfood CLAP Command Route Lock"
+variables = []
+
+[[templates]]
+path = "templates/dogfood_no_lsp_mutation.rs.tmpl"
+description = "Dogfood No LSP Mutation Lock"
+variables = []
+
+[[templates]]
+path = "templates/dogfood_gc008_route.rs.tmpl"
+description = "Dogfood GC008 Lawful Mutation Route"
+variables = []
+
+[[templates]]
+path = "templates/dogfood_gc008_b_c.rs.tmpl"
+description = "Dogfood test for GC008 B and C"
+variables = ["checkpoint", "proofs_gc008_b_c"]
