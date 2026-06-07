@@ -7,16 +7,15 @@ query_aliases = {}
 dependencies = {}
 
 [[templates]]
-path = "templates/dogfood_gc002.rs.tmpl"
-description = "Dogfood test for GC002"
-variables = ["checkpoint_id", "target_dir", "staging_dir", "receipt_sink"]
-
-[[templates]]
-path = "templates/f8_equation_enforcement.rs.tmpl"
-description = "Equation enforcement test"
-variables = []
-
-[[templates]]
 path = "templates/dogfood_gc004.rs.tmpl"
 description = "Dogfood test for GC004 read-only observer law"
 variables = []
+
+[[templates]]
+path = "templates/dogfood_gc005.rs.tmpl"
+description = "Dogfood test for GC005 wasm4pm admission"
+variables = []
+[[templates]]
+path = "templates/dogfood_gc006.rs.tmpl"
+description = "Dogfood test for GC006"
+variables = ["checkpoint", "proofs_gc006"]

@@ -1,0 +1,575 @@
+# mcp-a2a-protocol-example.ttl — Instance data: MCP server + A2A agent pair with bridge
+# A=mu(O) — Protocol artifacts = mu(concrete MCP/A2A ontology instances)
+#
+# Pipeline: mcp-a2a-protocol.ttl + this file → mcp-a2a-extract.rq → Tera templates
+#
+# Contents:
+#   - MCP Server: "ggen Code Generator" (6 tools, 16 parameters, full triple-term annotations)
+#   - A2A Agent: "Code Review Agent" (4 skills, full return-type annotations)
+#   - Bridge: 2 cross-protocol mappings (ToolAgentBridge + SkillToolBridge)
+
+@prefix mcp: <https://ggen.dev/ontology/mcp#> .
+@prefix a2a: <https://ggen.dev/ontology/a2a#> .
+@prefix bridge: <https://ggen.dev/ontology/bridge#> .
+@prefix ex: <https://ggen.dev/examples/mcp-a2a#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# 1. MCP SERVER — "ggen Code Generator"
+# ============================================================================
+
+ex:GgenCodegenServer
+  a mcp:McpsServer ;
+  mcp:serverName "ggen-codegen" ;
+  mcp:serverVersion "1.0.0" ;
+  mcp:serverDescription "Generates Rust, Go, Elixir, TypeScript, and Java code from RDF ontology specifications via SPARQL CONSTRUCT + Tera templates." ;
+  mcp:hasTransport mcp:StdioTransport .
+
+# ============================================================================
+# 2. MCP TOOLS
+# ============================================================================
+
+ex:generate
+  a mcp:Tool ;
+  mcp:toolName "generate" ;
+  mcp:toolDescription "Generates code from an ontology specification using the configured template engine." ;
+  mcp:hasParameter ex:generate_spec_uri ;
+  mcp:hasParameter ex:generate_template ;
+  mcp:hasParameter ex:generate_output_dir ;
+  mcp:hasParameter ex:generate_vars .
+
+ex:validate
+  a mcp:Tool ;
+  mcp:toolName "validate" ;
+  mcp:toolDescription "Validates an ontology file against the ggen schema and RDF 1.2 triple-term syntax." ;
+  mcp:hasParameter ex:validate_file_path ;
+  mcp:hasParameter ex:validate_format .
+
+ex:query_ontology
+  a mcp:Tool ;
+  mcp:toolName "query_ontology" ;
+  mcp:toolDescription "Runs a SPARQL-star query against loaded ontology data files and returns formatted results." ;
+  mcp:hasParameter ex:query_query ;
+  mcp:hasParameter ex:query_data_files ;
+  mcp:hasParameter ex:query_output_format .
+
+ex:list_templates
+  a mcp:Tool ;
+  mcp:toolName "list_templates" ;
+  mcp:toolDescription "Lists available Tera templates filtered by category and target language." ;
+  mcp:hasParameter ex:list_category ;
+  mcp:hasParameter ex:list_language .
+
+ex:sync
+  a mcp:Tool ;
+  mcp:toolName "sync" ;
+  mcp:toolDescription "Synchronizes ontology changes from a source directory to a target, optionally performing a dry run." ;
+  mcp:hasParameter ex:sync_source_dir ;
+  mcp:hasParameter ex:sync_target_dir ;
+  mcp:hasParameter ex:sync_dry_run .
+
+ex:health_check
+  a mcp:Tool ;
+  mcp:toolName "health_check" ;
+  mcp:toolDescription "Returns server health status including uptime, memory usage, and loaded ontology count." .
+
+# ============================================================================
+# 3. MCP TOOL PARAMETERS — with RDF 1.2 triple-term annotations
+# ============================================================================
+
+# --- generate tool parameters (4) ---
+
+<< ex:generate mcp:hasParameter ex:generate_spec_uri >>
+  mcp:rustType "String" ;
+  mcp:tsType "string" ;
+  mcp:goType "string" ;
+  mcp:elixirType "String.t" ;
+  mcp:javaType "String" ;
+  mcp:jsonSchema '{"type": "string", "format": "uri"}' ;
+  mcp:required true ;
+  mcp:validation "validate_uri" ;
+  mcp:paramName "spec_uri" ;
+  mcp:paramDescription "URI of the ontology specification file to generate from." ;
+  mcp:paramType "string" .
+
+<< ex:generate mcp:hasParameter ex:generate_template >>
+  mcp:rustType "String" ;
+  mcp:tsType "string" ;
+  mcp:goType "string" ;
+  mcp:elixirType "String.t" ;
+  mcp:javaType "String" ;
+  mcp:jsonSchema '{"type": "string"}' ;
+  mcp:required true ;
+  mcp:enumValues "rust-struct,rust-impl,go-struct,elixir-module,ts-interface,java-class" ;
+  mcp:paramName "template" ;
+  mcp:paramDescription "Name of the Tera template to use for code generation." ;
+  mcp:paramType "string" .
+
+<< ex:generate mcp:hasParameter ex:generate_output_dir >>
+  mcp:rustType "PathBuf" ;
+  mcp:tsType "string" ;
+  mcp:goType "string" ;
+  mcp:elixirType "Path.t" ;
+  mcp:javaType "Path" ;
+  mcp:jsonSchema '{"type": "string", "format": "path"}' ;
+  mcp:required true ;
+  mcp:validation "validate_path_exists" ;
+  mcp:paramName "output_dir" ;
+  mcp:paramDescription "Directory path where generated code files will be written." ;
+  mcp:paramType "string" .
+
+<< ex:generate mcp:hasParameter ex:generate_vars >>
+  mcp:rustType "HashMap<String, String>" ;
+  mcp:tsType "Record<string, string>" ;
+  mcp:goType "map[string]string" ;
+  mcp:elixirType "map()" ;
+  mcp:javaType "Map<String, String>" ;
+  mcp:jsonSchema '{"type": "object", "additionalProperties": {"type": "string"}}' ;
+  mcp:required false ;
+  mcp:defaultValue "{}" ;
+  mcp:paramName "vars" ;
+  mcp:paramDescription "Optional key-value pairs passed to the Tera template as context variables." ;
+  mcp:paramType "object" .
+
+# --- validate tool parameters (2) ---
+
+<< ex:validate mcp:hasParameter ex:validate_file_path >>
+  mcp:rustType "PathBuf" ;
+  mcp:tsType "string" ;
+  mcp:goType "string" ;
+  mcp:elixirType "Path.t" ;
+  mcp:javaType "Path" ;
+  mcp:jsonSchema '{"type": "string", "format": "path"}' ;
+  mcp:required true ;
+  mcp:validation "validate_file_readable" ;
+  mcp:paramName "file_path" ;
+  mcp:paramDescription "Path to the ontology file to validate." ;
+  mcp:paramType "string" .
+
+<< ex:validate mcp:hasParameter ex:validate_format >>
+  mcp:rustType "String" ;
+  mcp:tsType "string" ;
+  mcp:goType "string" ;
+  mcp:elixirType "String.t" ;
+  mcp:javaType "String" ;
+  mcp:jsonSchema '{"type": "string", "enum": ["turtle", "ntriples", "jsonld"]}' ;
+  mcp:required false ;
+  mcp:defaultValue "turtle" ;
+  mcp:enumValues "turtle,ntriples,jsonld" ;
+  mcp:paramName "format" ;
+  mcp:paramDescription "Serialization format of the ontology file." ;
+  mcp:paramType "string" .
+
+# --- query_ontology tool parameters (3) ---
+
+<< ex:query_ontology mcp:hasParameter ex:query_query >>
+  mcp:rustType "String" ;
+  mcp:tsType "string" ;
+  mcp:goType "string" ;
+  mcp:elixirType "String.t" ;
+  mcp:javaType "String" ;
+  mcp:jsonSchema '{"type": "string"}' ;
+  mcp:required true ;
+  mcp:validation "validate_sparql_syntax" ;
+  mcp:paramName "query" ;
+  mcp:paramDescription "SPARQL-star query string to execute against the loaded ontology data." ;
+  mcp:paramType "string" .
+
+<< ex:query_ontology mcp:hasParameter ex:query_data_files >>
+  mcp:rustType "Vec<PathBuf>" ;
+  mcp:tsType "string[]" ;
+  mcp:goType "[]string" ;
+  mcp:elixirType "list(Path.t)" ;
+  mcp:javaType "List<Path>" ;
+  mcp:jsonSchema '{"type": "array", "items": {"type": "string", "format": "path"}}' ;
+  mcp:required false ;
+  mcp:defaultValue "[]" ;
+  mcp:paramName "data_files" ;
+  mcp:paramDescription "List of .ttl or .rdf data files to load before executing the query." ;
+  mcp:paramType "array" .
+
+<< ex:query_ontology mcp:hasParameter ex:query_output_format >>
+  mcp:rustType "String" ;
+  mcp:tsType "string" ;
+  mcp:goType "string" ;
+  mcp:elixirType "String.t" ;
+  mcp:javaType "String" ;
+  mcp:jsonSchema '{"type": "string", "enum": ["json", "csv", "turtle", "table"]}' ;
+  mcp:required false ;
+  mcp:defaultValue "json" ;
+  mcp:enumValues "json,csv,turtle,table" ;
+  mcp:paramName "output_format" ;
+  mcp:paramDescription "Output format for query results." ;
+  mcp:paramType "string" .
+
+# --- list_templates tool parameters (2) ---
+
+<< ex:list_templates mcp:hasParameter ex:list_category >>
+  mcp:rustType "Option<String>" ;
+  mcp:tsType "string | null" ;
+  mcp:goType "string" ;
+  mcp:elixirType "String.t | nil" ;
+  mcp:javaType "String" ;
+  mcp:jsonSchema '{"type": "string", "enum": ["struct", "impl", "module", "interface", "class", "all"]}' ;
+  mcp:required false ;
+  mcp:defaultValue "all" ;
+  mcp:enumValues "struct,impl,module,interface,class,all" ;
+  mcp:paramName "category" ;
+  mcp:paramDescription "Template category filter (struct, impl, module, interface, class, or all)." ;
+  mcp:paramType "string" .
+
+<< ex:list_templates mcp:hasParameter ex:list_language >>
+  mcp:rustType "Option<String>" ;
+  mcp:tsType "string | null" ;
+  mcp:goType "string" ;
+  mcp:elixirType "String.t | nil" ;
+  mcp:javaType "String" ;
+  mcp:jsonSchema '{"type": "string", "enum": ["rust", "go", "elixir", "typescript", "java", "all"]}' ;
+  mcp:required false ;
+  mcp:defaultValue "all" ;
+  mcp:enumValues "rust,go,elixir,typescript,java,all" ;
+  mcp:paramName "language" ;
+  mcp:paramDescription "Target language filter for template listing." ;
+  mcp:paramType "string" .
+
+# --- sync tool parameters (3) ---
+
+<< ex:sync mcp:hasParameter ex:sync_source_dir >>
+  mcp:rustType "PathBuf" ;
+  mcp:tsType "string" ;
+  mcp:goType "string" ;
+  mcp:elixirType "Path.t" ;
+  mcp:javaType "Path" ;
+  mcp:jsonSchema '{"type": "string", "format": "path"}' ;
+  mcp:required true ;
+  mcp:validation "validate_path_exists" ;
+  mcp:paramName "source_dir" ;
+  mcp:paramDescription "Source directory containing modified ontology files." ;
+  mcp:paramType "string" .
+
+<< ex:sync mcp:hasParameter ex:sync_target_dir >>
+  mcp:rustType "PathBuf" ;
+  mcp:tsType "string" ;
+  mcp:goType "string" ;
+  mcp:elixirType "Path.t" ;
+  mcp:javaType "Path" ;
+  mcp:jsonSchema '{"type": "string", "format": "path"}' ;
+  mcp:required true ;
+  mcp:validation "validate_path_writable" ;
+  mcp:paramName "target_dir" ;
+  mcp:paramDescription "Target directory to write synchronized ontology files." ;
+  mcp:paramType "string" .
+
+<< ex:sync mcp:hasParameter ex:sync_dry_run >>
+  mcp:rustType "bool" ;
+  mcp:tsType "boolean" ;
+  mcp:goType "bool" ;
+  mcp:elixirType "boolean" ;
+  mcp:javaType "boolean" ;
+  mcp:jsonSchema '{"type": "boolean"}' ;
+  mcp:required false ;
+  mcp:defaultValue "false" ;
+  mcp:paramName "dry_run" ;
+  mcp:paramDescription "If true, preview changes without writing files." ;
+  mcp:paramType "boolean" .
+
+# ============================================================================
+# 4. A2A AGENT — "Code Review Agent"
+# ============================================================================
+
+ex:CodeReviewAgent
+  a a2a:Agent ;
+  a2a:agentName "code-review-agent" ;
+  a2a:agentVersion "1.0.0" ;
+  a2a:agentDescription "Reviews source code for quality, style, security, and performance issues. Supports streaming for large codebases." ;
+  a2a:agentUrl "http://localhost:8089/a2a" ;
+  a2a:hasSkill ex:review_code ;
+  a2a:hasSkill ex:check_style ;
+  a2a:hasSkill ex:suggest_fixes ;
+  a2a:hasSkill ex:generate_report ;
+  a2a:hasTaskHandler ex:CodeReviewTaskHandler ;
+  a2a:hasAgentCard ex:CodeReviewAgentCard .
+
+# ============================================================================
+# 5. A2A AGENT CARD
+# ============================================================================
+
+ex:CodeReviewAgentCard
+  a a2a:AgentCard ;
+  a2a:agentName "code-review-agent" ;
+  a2a:agentDescription "AI-powered code review agent supporting Rust, Go, Elixir, TypeScript, and Java." ;
+  a2a:agentUrl "http://localhost:8089/a2a" ;
+  a2a:agentProvider "ChatmanGPT" ;
+  a2a:skillTags "review,style,fixes,report,security,performance" .
+
+# ============================================================================
+# 6. A2A TASK HANDLER
+# ============================================================================
+
+ex:CodeReviewTaskHandler
+  a a2a:TaskHandler ;
+  a2a:agentName "code-review-agent" ;
+  rdfs:comment "Handles submit, cancel, status, and stream lifecycle for code review tasks."@en .
+
+# ============================================================================
+# 7. A2A SKILLS — with RDF 1.2 triple-term annotations
+# ============================================================================
+
+# --- review_code skill ---
+
+<< ex:CodeReviewAgent a2a:hasSkill ex:review_code >>
+  a2a:rustReturnType "Result<ReviewReport, ReviewError>" ;
+  a2a:tsReturnType "Promise<ReviewResult>" ;
+  a2a:goReturnType "*ReviewReport, error" ;
+  a2a:elixirReturnType "{:ok, map()} | {:error, term()}" ;
+  a2a:javaReturnType "CompletableFuture<ReviewResult>" ;
+  a2a:streaming true ;
+  a2a:timeout_ms 30000 ;
+  a2a:retryPolicy "exponential_backoff" ;
+  a2a:skillName "review_code" ;
+  a2a:skillDescription "Reviews code for bugs, security vulnerabilities, performance issues, and adherence to best practices. Streams findings as they are discovered." ;
+  a2a:skillTags "review,security,performance,bugs" .
+
+# --- check_style skill ---
+
+<< ex:CodeReviewAgent a2a:hasSkill ex:check_style >>
+  a2a:rustReturnType "Result<StyleReport, StyleError>" ;
+  a2a:tsReturnType "Promise<StyleResult>" ;
+  a2a:goReturnType "*StyleReport, error" ;
+  a2a:elixirReturnType "{:ok, map()} | {:error, term()}" ;
+  a2a:javaReturnType "CompletableFuture<StyleResult>" ;
+  a2a:streaming false ;
+  a2a:timeout_ms 5000 ;
+  a2a:retryPolicy "none" ;
+  a2a:skillName "check_style" ;
+  a2a:skillDescription "Checks code against language-specific style guides (rustfmt, gofmt, mix format, prettier, google-java-format)." ;
+  a2a:skillTags "style,formatting,lint" .
+
+# --- suggest_fixes skill ---
+
+<< ex:CodeReviewAgent a2a:hasSkill ex:suggest_fixes >>
+  a2a:rustReturnType "Result<Vec<FixSuggestion>, FixError>" ;
+  a2a:tsReturnType "AsyncIterable<FixSuggestion>" ;
+  a2a:goReturnType "chan FixSuggestion, error" ;
+  a2a:elixirReturnType "{:ok, [map()]} | {:error, term()}" ;
+  a2a:javaReturnType "Flow.Publisher<FixSuggestion>" ;
+  a2a:streaming true ;
+  a2a:timeout_ms 15000 ;
+  a2a:retryPolicy "fixed_3" ;
+  a2a:skillName "suggest_fixes" ;
+  a2a:skillDescription "Suggests specific code fixes for identified issues. Streams fix suggestions progressively." ;
+  a2a:skillTags "fixes,suggestions,autofix" .
+
+# --- generate_report skill ---
+
+<< ex:CodeReviewAgent a2a:hasSkill ex:generate_report >>
+  a2a:rustReturnType "Result<ReviewSummaryReport, ReportError>" ;
+  a2a:tsReturnType "Promise<ReviewSummaryReport>" ;
+  a2a:goReturnType "*ReviewSummaryReport, error" ;
+  a2a:elixirReturnType "{:ok, map()} | {:error, term()}" ;
+  a2a:javaReturnType "CompletableFuture<ReviewSummaryReport>" ;
+  a2a:streaming false ;
+  a2a:timeout_ms 10000 ;
+  a2a:retryPolicy "exponential_backoff" ;
+  a2a:skillName "generate_report" ;
+  a2a:skillDescription "Generates a comprehensive review summary report with findings, metrics, and trend analysis." ;
+  a2a:skillTags "report,summary,metrics,trends" .
+
+# ============================================================================
+# 8. BRIDGE MAPPINGS
+# ============================================================================
+
+# ============================================================================
+# 7b. A2A SKILL INPUT PARAMETERS — with RDF 1.2 triple-term annotations
+# ============================================================================
+
+# --- review_code skill input parameters (3) ---
+
+ex:review_code_code a a2a:SkillInputParam ;
+  a2a:inputParamName "code" ;
+  a2a:inputParamDescription "The source code to review" ;
+  a2a:inputParamType "string" ;
+  a2a:inputParamRequired true .
+
+ex:review_code_language a a2a:SkillInputParam ;
+  a2a:inputParamName "language" ;
+  a2a:inputParamDescription "Programming language of the code" ;
+  a2a:inputParamType "string" ;
+  a2a:inputParamRequired true .
+
+ex:review_code_focus_area a a2a:SkillInputParam ;
+  a2a:inputParamName "focus_area" ;
+  a2a:inputParamDescription "Optional area to focus review on (security, performance, style, all)" ;
+  a2a:inputParamType "string" ;
+  a2a:inputParamRequired false ;
+  a2a:inputParamDefaultValue "all" .
+
+<< ex:CodeReviewAgent a2a:hasSkill ex:review_code >>
+  a2a:hasInputParam ex:review_code_code ;
+  a2a:hasInputParam ex:review_code_language ;
+  a2a:hasInputParam ex:review_code_focus_area .
+
+# Triple-term type mappings for review_code params
+<< ex:review_code_code a2a:inputParamName "code" >>
+  a2a:rustType "String" ;
+  a2a:tsType "string" ;
+  a2a:goType "string" ;
+  a2a:elixirType "String.t" ;
+  a2a:javaType "String" .
+
+<< ex:review_code_language a2a:inputParamName "language" >>
+  a2a:rustType "String" ;
+  a2a:tsType "string" ;
+  a2a:goType "string" ;
+  a2a:elixirType "String.t" ;
+  a2a:javaType "String" .
+
+<< ex:review_code_focus_area a2a:inputParamName "focus_area" >>
+  a2a:rustType "Option<String>" ;
+  a2a:tsType "string | null" ;
+  a2a:goType "string" ;
+  a2a:elixirType "String.t | nil" ;
+  a2a:javaType "String" .
+
+# --- check_style skill input parameters (2) ---
+
+ex:check_style_code a a2a:SkillInputParam ;
+  a2a:inputParamName "code" ;
+  a2a:inputParamDescription "The source code to check for style compliance" ;
+  a2a:inputParamType "string" ;
+  a2a:inputParamRequired true .
+
+ex:check_style_config a a2a:SkillInputParam ;
+  a2a:inputParamName "config" ;
+  a2a:inputParamDescription "Style configuration override (format-specific options as JSON)" ;
+  a2a:inputParamType "object" ;
+  a2a:inputParamRequired false ;
+  a2a:inputParamDefaultValue "{}" .
+
+<< ex:CodeReviewAgent a2a:hasSkill ex:check_style >>
+  a2a:hasInputParam ex:check_style_code ;
+  a2a:hasInputParam ex:check_style_config .
+
+<< ex:check_style_code a2a:inputParamName "code" >>
+  a2a:rustType "String" ;
+  a2a:tsType "string" ;
+  a2a:goType "string" ;
+  a2a:elixirType "String.t" ;
+  a2a:javaType "String" .
+
+<< ex:check_style_config a2a:inputParamName "config" >>
+  a2a:rustType "Option<serde_json::Value>" ;
+  a2a:tsType "Record<string, unknown> | null" ;
+  a2a:goType "map[string]interface{}" ;
+  a2a:elixirType "map() | nil" ;
+  a2a:javaType "Map<String, Object>" .
+
+# --- suggest_fixes skill input parameters (3) ---
+
+ex:suggest_fixes_code a a2a:SkillInputParam ;
+  a2a:inputParamName "code" ;
+  a2a:inputParamDescription "The source code containing identified issues" ;
+  a2a:inputParamType "string" ;
+  a2a:inputParamRequired true .
+
+ex:suggest_fixes_issues a a2a:SkillInputParam ;
+  a2a:inputParamName "issues" ;
+  a2a:inputParamDescription "List of identified issues to suggest fixes for (JSON array)" ;
+  a2a:inputParamType "array" ;
+  a2a:inputParamRequired true .
+
+ex:suggest_fixes_auto_apply a a2a:SkillInputParam ;
+  a2a:inputParamName "auto_apply" ;
+  a2a:inputParamDescription "Whether to automatically apply suggested fixes" ;
+  a2a:inputParamType "boolean" ;
+  a2a:inputParamRequired false ;
+  a2a:inputParamDefaultValue "false" .
+
+<< ex:CodeReviewAgent a2a:hasSkill ex:suggest_fixes >>
+  a2a:hasInputParam ex:suggest_fixes_code ;
+  a2a:hasInputParam ex:suggest_fixes_issues ;
+  a2a:hasInputParam ex:suggest_fixes_auto_apply .
+
+<< ex:suggest_fixes_code a2a:inputParamName "code" >>
+  a2a:rustType "String" ;
+  a2a:tsType "string" ;
+  a2a:goType "string" ;
+  a2a:elixirType "String.t" ;
+  a2a:javaType "String" .
+
+<< ex:suggest_fixes_issues a2a:inputParamName "issues" >>
+  a2a:rustType "Vec<serde_json::Value>" ;
+  a2a:tsType "Issue[]" ;
+  a2a:goType "[]map[string]interface{}" ;
+  a2a:elixirType "list(map())" ;
+  a2a:javaType "List<Issue>" .
+
+<< ex:suggest_fixes_auto_apply a2a:inputParamName "auto_apply" >>
+  a2a:rustType "bool" ;
+  a2a:tsType "boolean" ;
+  a2a:goType "bool" ;
+  a2a:elixirType "boolean" ;
+  a2a:javaType "boolean" .
+
+# --- generate_report skill input parameters (2) ---
+
+ex:generate_report_reviews a a2a:SkillInputParam ;
+  a2a:inputParamName "reviews" ;
+  a2a:inputParamDescription "Completed review results to include in the report (JSON)" ;
+  a2a:inputParamType "object" ;
+  a2a:inputParamRequired true .
+
+ex:generate_report_format a a2a:SkillInputParam ;
+  a2a:inputParamName "format" ;
+  a2a:inputParamDescription "Output format for the report (markdown, json, html)" ;
+  a2a:inputParamType "string" ;
+  a2a:inputParamRequired false ;
+  a2a:inputParamDefaultValue "markdown" .
+
+<< ex:CodeReviewAgent a2a:hasSkill ex:generate_report >>
+  a2a:hasInputParam ex:generate_report_reviews ;
+  a2a:hasInputParam ex:generate_report_format .
+
+<< ex:generate_report_reviews a2a:inputParamName "reviews" >>
+  a2a:rustType "serde_json::Value" ;
+  a2a:tsType "ReviewResults" ;
+  a2a:goType "map[string]interface{}" ;
+  a2a:elixirType "map()" ;
+  a2a:javaType "ReviewResults" .
+
+<< ex:generate_report_format a2a:inputParamName "format" >>
+  a2a:rustType "String" ;
+  a2a:tsType "string" ;
+  a2a:goType "string" ;
+  a2a:elixirType "String.t" ;
+  a2a:javaType "String" .
+
+# ============================================================================
+# 9. BRIDGE MAPPINGS
+# ============================================================================
+
+ex:GenerateToReviewBridge
+  a bridge:ToolAgentBridge ;
+  bridge:bridgeType "tool-agent" .
+
+<< ex:GenerateToReviewBridge bridge:bridgesTool ex:generate >>
+  bridge:bridgesTool "generate" ;
+  bridge:bridgesSkill "review_code" ;
+  bridge:conversionNote "MCP generate tool output (file paths + code) is wrapped into an A2A TaskSendRequest. The spec_uri maps to the code context, and the template parameter maps to the review focus area." ;
+  bridge:toolSide "generate" ;
+  bridge:skillSide "review_code" .
+
+# --- SkillToolBridge: A2A check_style skill -> MCP validate tool ---
+
+ex:StyleToValidateBridge
+  a bridge:SkillToolBridge ;
+  bridge:bridgeType "skill-tool" .
+
+<< ex:StyleToValidateBridge bridge:bridgesSkill ex:check_style >>
+  bridge:bridgesSkill "check_style" ;
+  bridge:bridgesTool "validate" ;
+  bridge:conversionNote "A2A check_style skill results (style violations) are mapped to MCP validate tool response format. File paths are forwarded, and format parameter defaults to the detected language formatter." ;
+  bridge:skillSide "check_style" ;
+  bridge:toolSide "validate" .

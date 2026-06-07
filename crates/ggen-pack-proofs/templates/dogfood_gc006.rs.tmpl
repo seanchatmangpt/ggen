@@ -1,0 +1,55 @@
+use std::fs;
+use std::path::Path;
+
+#[test]
+fn test_gc006_authority_surface_lock() {
+    {% for proof in proofs_gc006 %}
+    // {{ proof.id }}
+    {
+        {% if proof.id == "no-shadow-crates" %}
+            // Ensure no forbidden shadow crates exist in the workspace.
+            let workspace_root = std::env::current_dir().unwrap().parent().unwrap().to_path_buf();
+            let forbidden = vec![
+                workspace_root.join("crates/wasm4pm"),
+                workspace_root.join("crates/wasm4pm-proper"),
+                workspace_root.join("crates/wasm4pm-compat"),
+                Path::new("/Users/sac/ggen/crates/wasm4pm").to_path_buf(),
+                Path::new("/Users/sac/ggen/crates/wasm4pm-proper").to_path_buf(),
+                Path::new("/Users/sac/ggen/crates/wasm4pm-compat").to_path_buf(),
+            ];
+            for path in forbidden {
+                assert!(!path.exists(), "Forbidden shadow crate found: {}", path.display());
+            }
+
+        {% elif proof.id == "wasm4pm-lsp-no-local-conformance" %}
+            let lsp_src = fs::read_to_string(Path::new("/Users/sac/tower-lsp-max/crates/wasm4pm-lsp/src/main.rs")).unwrap();
+            // The LSP must not implement its own conformance loop (e.g. searching for markers or checking cardinalities directly)
+            assert!(!lsp_src.contains("check_gall_conformance(&ocel) {")); // It shouldn't implement the logic directly
+            assert!(!lsp_src.contains("GallVerdict::Fit {")); // It shouldn't manufacture these
+            // It MUST call the adapter
+            assert!(lsp_src.contains("gc005_wasm4pm_adapter::analyze_ocel"));
+            
+        {% elif proof.id == "adapter-no-fake-fit" %}
+            let adapter_src = fs::read_to_string(Path::new("/Users/sac/tower-lsp-max/crates/gc005-wasm4pm-adapter/src/lib.rs")).unwrap();
+            // The adapter must not contain string replacement logic for verdicts or hardcode "FIT" conditionally outside of matching the authority's enum.
+            assert!(!adapter_src.contains("verdict = \"FIT\""));
+            assert!(!adapter_src.contains("fitness == 1.0"));
+            
+        {% elif proof.id == "adapter-uses-sealed-authority" %}
+            let adapter_src = fs::read_to_string(Path::new("/Users/sac/tower-lsp-max/crates/gc005-wasm4pm-adapter/src/lib.rs")).unwrap();
+            // The adapter MUST import check_gall_conformance from wasm4pm_algos
+            assert!(adapter_src.contains("check_gall_conformance"));
+            assert!(adapter_src.contains("check_gall_conformance(&ocel)"));
+            
+            let adapter_cargo = fs::read_to_string(Path::new("/Users/sac/tower-lsp-max/crates/gc005-wasm4pm-adapter/Cargo.toml")).unwrap();
+            assert!(adapter_cargo.contains("wasm4pm-algos = { path = \"../../../wasm4pm/crates/wasm4pm-algos\" }"));
+            assert!(adapter_cargo.contains("ocel-core = { path = \"../../../wasm4pm/crates/ocel-core\" }"));
+        {% endif %}
+    }
+    {% endfor %}
+
+    // Architecture Contract Checks
+    let authority_surface = fs::read_to_string(Path::new("/Users/sac/tower-lsp-max/crates/playground/receipts/authority_surface.toml")).unwrap();
+    assert!(authority_surface.contains("wasm4pm_algos::gall"));
+    assert!(authority_surface.contains("check_gall_conformance"));
+}
