@@ -95,10 +95,12 @@ fn test_gc005_wasm4pm_lsp_observation() {
     client.request("initialize", json!({ "capabilities": {} })).get("result").expect("initialize result");
     client.notify("initialized", json!({}));
 
+    let ocel_path = "../playground/ocel/admitted_evidence.ocel.json";
+    
     // Test FIT verdict
     {
         let uri = Url::parse("file:///tmp/valid.ocel.json").unwrap();
-        let content = fs::read_to_string("/Users/sac/tower-lsp-max/crates/playground/ocel/admitted_evidence.ocel.json").expect("read ocel");
+        let content = fs::read_to_string(ocel_path).expect("read ocel");
         client.notify("textDocument/didOpen", json!({
             "textDocument": { "uri": uri, "languageId": "json", "version": 1, "text": content }
         }));
@@ -113,10 +115,13 @@ fn test_gc005_wasm4pm_lsp_observation() {
     // Test DEVIATION verdict
     {
         let uri = Url::parse("file:///tmp/deviated.ocel.json").unwrap();
-        let raw_content = fs::read_to_string("/Users/sac/tower-lsp-max/crates/playground/ocel/admitted_evidence.ocel.json").unwrap();
-        // Replace FIT with DEVIATION globally in the JSON for simplicity of the test fixture
-        let content = raw_content.replace("\"FIT\"", "\"DEVIATION\"");
+        let mut ocel: Value = serde_json::from_str(&fs::read_to_string(ocel_path).unwrap()).unwrap();
         
+        if let Some(events) = ocel.get_mut("events").and_then(|e| e.as_array_mut()) {
+            events.retain(|e| !e.get("relationships").and_then(|r| r.as_array()).map(|r| r.iter().any(|o| o.get("objectId") == Some(&json!("GALL-CHECKPOINT-003")))).unwrap_or(false));
+        }
+        
+        let content = serde_json::to_string(&ocel).unwrap();
         client.notify("textDocument/didOpen", json!({
             "textDocument": { "uri": uri, "languageId": "json", "version": 1, "text": content }
         }));
@@ -126,5 +131,30 @@ fn test_gc005_wasm4pm_lsp_observation() {
         
         let dev_diag = diags.iter().find(|d| d.get("code").unwrap() == "WASM4PM-VERDICT-DEVIATION").expect("Must have DEVIATION verdict diagnostic");
         assert!(dev_diag.get("message").unwrap().as_str().unwrap().contains("DEVIATION"));
+    }
+
+    // Test BLOCKED verdict
+    {
+        let uri = Url::parse("file:///tmp/blocked.ocel.json").unwrap();
+        let mut ocel: Value = serde_json::from_str(&fs::read_to_string(ocel_path).unwrap()).unwrap();
+        
+        if let Some(events) = ocel.get_mut("events").and_then(|e| e.as_array_mut()) {
+            if events.len() > 1 {
+                if let Some(attrs) = events[1].get_mut("attributes").and_then(|a| a.as_array_mut()) {
+                    attrs.push(json!({"name": "previous_receipt", "value": "tampered_uuid"}));
+                }
+            }
+        }
+        
+        let content = serde_json::to_string(&ocel).unwrap();
+        client.notify("textDocument/didOpen", json!({
+            "textDocument": { "uri": uri, "languageId": "json", "version": 1, "text": content }
+        }));
+        
+        let notif = client.wait_for_notification("textDocument/publishDiagnostics");
+        let diags = notif.get("params").unwrap().get("diagnostics").unwrap().as_array().unwrap();
+        
+        let blocked_diag = diags.iter().find(|d| d.get("code").unwrap() == "WASM4PM-VERDICT-BLOCKED").expect("Must have BLOCKED verdict diagnostic");
+        assert!(blocked_diag.get("message").unwrap().as_str().unwrap().contains("BLOCKED"));
     }
 }
