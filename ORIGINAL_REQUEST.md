@@ -2078,6 +2078,104 @@ Please incorporate these requirements into your implementation and documentation
    - Output does not link to the scan activity via prov:wasGeneratedBy.
    - Files lack checksums.
    - Reports lack source graph hashes.
-   - Open Ontologies load, validation, or versioning fails.
+   - Please update the project plan, build and implement these structures, verify the tests pass, and report back.
 
-Please update the project plan, build and implement these structures, verify the tests pass, and report back.
+## Follow-up — 2026-06-07T00:57:59Z
+
+# Teamwork Project Prompt — Draft
+
+Implement **GC005A: Sealed wasm4pm Replay Surface Contract** and establish **Sealed Repo Integrity Baselines** to completely close the verification gate.
+
+Working directories:
+- `/Users/sac/ggen` (mutable)
+- `/Users/sac/tower-lsp-max` (mutable)
+- `/Users/sac/wasm4pm` (sealed read-only)
+- `/Users/sac/wasm4pm-compat` (sealed read-only)
+
+Integrity mode: benchmark
+
+## Requirements
+
+### R1. Sealed wasm4pm Replay Surface (GC005A)
+Ensure that the sealed authority `~/wasm4pm` contains a real, callable replay/conformance library (`wasm4pm_algos::gall::check_gall_conformance`) that:
+- Accepts OCEL/JSONL process evidence.
+- Returns a structured enum verdict: `FIT` / `DEVIATION` / `BLOCKED` / `INCONCLUSIVE`.
+The adapter `gc005-wasm4pm-adapter` must only act as a neutral forwarding/normalizing transport, and `wasm4pm-lsp` must only observe and publish diagnostics.
+
+### R2. LSP Integration Testing
+Verify through `dogfood_gc005.rs` that the complete path (`wasm4pm-lsp` → `gc005-wasm4pm-adapter` → sealed `wasm4pm` replay API) is executed under a real stdio tower-lsp integration boundary, publishing diagnostics with `WASM4PM-*` error codes.
+
+### R3. Sealed Workspace Sterility Baselines
+Create baseline manifest files `.gc-sealed-baseline` in the root of `~/wasm4pm` and `~/wasm4pm-compat`. The baseline manifest must record:
+- Tracked git status.
+- Ignored artifact inventory (e.g., target, node_modules, log/csv outputs).
+- Allowed ignored directories and forbidden generated paths.
+- A cryptographic digest over the baseline manifest content.
+
+The integration tests (such as `dogfood_gc006.rs` or workspace checks) must parse these manifests and assert that:
+- There are no new tracked changes.
+- There are no new untracked non-baselined files.
+- There are no new ignored files outside the baselined inventory.
+- No writes have occurred from `ggen` or `tower-lsp-max` into the sealed repositories.
+
+## Acceptance Criteria
+
+### GC005A Replay Contract
+- [ ] `wasm4pm_algos::gall::check_gall_conformance` parses raw OCEL/JSONL and evaluates conformance deterministically.
+- [ ] `dogfood_gc005` test passes and proves end-to-end execution of the real replay surface via Tower LSP diagnostics.
+
+### Workspace Baselines & Cleanliness
+- [ ] `.gc-sealed-baseline` manifests exist and are valid inside `/Users/sac/wasm4pm` and `/Users/sac/wasm4pm-compat`.
+- [ ] Git status verification asserts zero new tracked, untracked, or non-baselined ignored modifications against the baseline manifests.
+- [ ] All 7 closure gate commands run and pass successfully.
+
+## Follow-up — 2026-06-07T01:00:00Z
+
+Execute the GC003 team for Boundary-Receipted Equation Enforcement inside the projection engine.
+
+Working directory: `/Users/sac/ggen`
+Integrity mode: benchmark
+
+## Requirements
+
+### R1. Boundary-Receipted Equation Enforcement
+Implement or verify the equation $R_B \vdash A = \mu(O^*_B)$ inside the projection engine using the owning surfaces in `~/ggen`:
+- `crates/ggen-projection/`
+- `crates/ggen-lsp/`
+- `crates/ggen-pack-gall-checkpoint-proof/`
+
+The producing workspace boundary must be `~/ggen` and branch `feat/ggen-lsp-source-laws`.
+
+### R2. Downstream Export & Mutation Restrictions
+Do not use `~/tower-lsp-max` as the authority for GC003. Do not mutate `~/tower-lsp-max` unless the mutation is declared as an exported receipt artifact with the following metadata:
+- `producing_workspace = ~/ggen`
+- `storing_workspace = ~/tower-lsp-max`
+- `export_reason = checkpoint_receipt_archive | downstream_playground_receipt`
+- `exported_artifact_digest`
+- `export_receipt_digest`
+
+No checkpoint status may be admitted from `~/tower-lsp-max` for GC003.
+
+### R3. Clean Sandboxed Boundary
+All execution must use the following clean boundary paths strictly:
+- `workspace = ~/ggen`
+- `target = ~/ggen/.tmp_gc003/target`
+- `staging = ~/ggen/.tmp_gc003/staging`
+- `receipt_sink = ~/ggen/.tmp_gc003/receipts`
+- `proof_pack = crates/ggen-pack-gall-checkpoint-proof`
+
+### R4. Complete & Verifiable Implementation
+No stubs, mocks, or placeholder hashes. All tests must be real Chicago-style tests using actual cryptographic derivations (BLAKE3) and real OpenTelemetry traces where applicable. Follow the AGENTS.md constitution.
+
+## Acceptance Criteria
+
+### Execution & Isolation
+- [ ] The entire execution runs within `~/ggen`. No mutations are made to `~/tower-lsp-max` unless declared as an exported receipt artifact containing the five required fields.
+- [ ] Target outputs are generated into `.tmp_gc003/target`, staging into `.tmp_gc003/staging`, and receipts into `.tmp_gc003/receipts`.
+- [ ] No checkpoint status is read or admitted from `~/tower-lsp-max` for GC003.
+
+### Mathematical Correctness & Verification
+- [ ] The equation $R_B \vdash A = \mu(O^*_B)$ is successfully enforced, and all 12 proofs in `crates/ggen-pack-gall-checkpoint-proof/manifest.toml` are verified.
+- [ ] All tests in `crates/ggen-projection` (including `dogfood_gc003.rs` and `f8_equation_enforcement.rs`) compile and pass successfully.
+- [ ] `cargo make check` and `cargo make test` pass successfully on the `feat/ggen-lsp-source-laws` branch.
+

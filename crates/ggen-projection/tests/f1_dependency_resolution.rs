@@ -10,7 +10,7 @@ fn test_f1_t1_parse_valid_toml() {
     let toml_content = r#"
         id = "pack_a"
         name = "Pack A"
-        version = "1.0.0"
+        version = "26.6.6"
         description = "A valid pack"
         license = "MIT"
         dependencies = { "pack_b" = "^2.0.0" }
@@ -23,7 +23,7 @@ fn test_f1_t1_parse_valid_toml() {
     let desc = PackDescriptor::from_toml(toml_content).unwrap();
     assert_eq!(desc.id, "pack_a");
     assert_eq!(desc.name, "Pack A");
-    assert_eq!(desc.version, "1.0.0");
+    assert_eq!(desc.version, "26.6.6");
     assert_eq!(desc.dependencies.get("pack_b").unwrap(), "^2.0.0");
     assert_eq!(desc.templates.len(), 1);
     assert_eq!(desc.templates[0].path, PathBuf::from("src/main.rs"));
@@ -34,7 +34,7 @@ fn test_f1_t1_resolve_linear_dependency() {
     let p_a = PackDescriptor {
         id: "pack_a".to_string(),
         name: "Pack A".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         description: "A".to_string(),
         license: "MIT".to_string(),
         dependencies: {
@@ -72,7 +72,7 @@ fn test_f1_t1_resolve_multi_dependency() {
     let p_a = PackDescriptor {
         id: "pack_a".to_string(),
         name: "Pack A".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         description: "A".to_string(),
         license: "MIT".to_string(),
         dependencies: {
@@ -91,7 +91,7 @@ fn test_f1_t1_resolve_multi_dependency() {
     let p_b = PackDescriptor {
         id: "pack_b".to_string(),
         name: "Pack B".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         description: "B".to_string(),
         license: "MIT".to_string(),
         dependencies: BTreeMap::new(),
@@ -105,7 +105,7 @@ fn test_f1_t1_resolve_multi_dependency() {
     let p_c = PackDescriptor {
         id: "pack_c".to_string(),
         name: "Pack C".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         description: "C".to_string(),
         license: "MIT".to_string(),
         dependencies: BTreeMap::new(),
@@ -128,7 +128,7 @@ fn test_f1_t1_validate_metadata_fields() {
     let p_no_id = PackDescriptor {
         id: "".to_string(),
         name: "A".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         description: "A".to_string(),
         license: "MIT".to_string(),
         dependencies: BTreeMap::new(),
@@ -145,7 +145,7 @@ fn test_f1_t1_validate_metadata_fields() {
     let p_no_name = PackDescriptor {
         id: "pack_a".to_string(),
         name: "".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         description: "A".to_string(),
         license: "MIT".to_string(),
         dependencies: BTreeMap::new(),
@@ -179,7 +179,7 @@ fn test_f1_t1_validate_metadata_fields() {
     let p_no_templates = PackDescriptor {
         id: "pack_a".to_string(),
         name: "Pack A".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         description: "A".to_string(),
         license: "MIT".to_string(),
         dependencies: BTreeMap::new(),
@@ -194,7 +194,7 @@ fn test_f1_t1_check_version_compatibility() {
     let p_a = PackDescriptor {
         id: "pack_a".to_string(),
         name: "Pack A".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         description: "A".to_string(),
         license: "MIT".to_string(),
         dependencies: {
@@ -232,7 +232,7 @@ fn test_f1_t2_dependency_cycle() {
     let p_a = PackDescriptor {
         id: "pack_a".to_string(),
         name: "Pack A".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         description: "A".to_string(),
         license: "MIT".to_string(),
         dependencies: {
@@ -250,7 +250,7 @@ fn test_f1_t2_dependency_cycle() {
     let p_b = PackDescriptor {
         id: "pack_b".to_string(),
         name: "Pack B".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         description: "B".to_string(),
         license: "MIT".to_string(),
         dependencies: {
@@ -274,7 +274,7 @@ fn test_f1_t2_missing_dependency() {
     let p_a = PackDescriptor {
         id: "pack_a".to_string(),
         name: "Pack A".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         description: "A".to_string(),
         license: "MIT".to_string(),
         dependencies: {
@@ -298,7 +298,7 @@ fn test_f1_t2_invalid_toml_syntax() {
     let invalid_toml = r#"
         id = "pack_a"
         name = "Pack A"
-        version = "1.0.0"
+        version = "26.6.6"
         license = MIT
     "#; // MIT without quotes is syntax error
     let res = PackDescriptor::from_toml(invalid_toml);
@@ -310,10 +310,10 @@ fn test_f1_t2_duplicate_dependency_name() {
     let toml_content = r#"
         id = "pack_a"
         name = "Pack A"
-        version = "1.0.0"
+        version = "26.6.6"
         description = "A valid pack"
         license = "MIT"
-        dependencies = { "pack_b" = "^1.0.0", "pack_b" = "^2.0.0" }
+        dependencies = { "pack_b" = "^26.6.6", "pack_b" = "^2.0.0" }
         query_aliases = {}
         [[templates]]
         path = "src/main.rs"
@@ -329,7 +329,7 @@ fn test_f1_t2_incompatible_version_conflict() {
     let p_a = PackDescriptor {
         id: "pack_a".to_string(),
         name: "Pack A".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         description: "A".to_string(),
         license: "MIT".to_string(),
         dependencies: {
@@ -347,7 +347,7 @@ fn test_f1_t2_incompatible_version_conflict() {
     let p_b = PackDescriptor {
         id: "pack_b".to_string(),
         name: "Pack B".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         description: "B".to_string(),
         license: "MIT".to_string(),
         dependencies: BTreeMap::new(),

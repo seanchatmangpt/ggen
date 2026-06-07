@@ -91,7 +91,7 @@ mod tests {
         let signer = PartSigner::new();
         let manufactured = ManufacturedPart {
             id: "test-part".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             payload: vec![1, 2, 3],
             payload_hash: "abcd1234".to_string(),
             payload_size: 3,
@@ -115,7 +115,7 @@ mod tests {
         let signer = PartSigner::new();
         let manufactured = ManufacturedPart {
             id: "test-part".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             payload: vec![1, 2, 3],
             payload_hash: "abcd1234".to_string(),
             payload_size: 3,
@@ -135,7 +135,7 @@ mod tests {
         let signed = SignedPart {
             manufactured: ManufacturedPart {
                 id: "test".to_string(),
-                version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
                 payload: vec![],
                 payload_hash: "hash".to_string(),
                 payload_size: 0,

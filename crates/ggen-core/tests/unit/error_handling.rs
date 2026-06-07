@@ -49,10 +49,10 @@ async_test!(test_missing_version_error, async {
                 "keywords": [],
                 "category": null,
                 "author": null,
-                "latest_version": "1.0.0",
+                "latest_version": "26.6.6",
                 "versions": {
-                    "1.0.0": {
-                        "version": "1.0.0",
+                    "26.6.6": {
+                        "version": "26.6.6",
                         "git_url": "https://github.com/test/repo.git",
                         "git_rev": "main",
                         "manifest_url": null,
@@ -189,7 +189,7 @@ async_test!(test_invalid_version_comparison_error, async {
     let client = RegistryClient::with_base_url(base_url).unwrap();
 
     // Act
-    let result = client.check_updates("test-pack", "1.0.0").await;
+    let result = client.check_updates("test-pack", "26.6.6").await;
 
     // Assert
     assert_err!(&result);
@@ -216,7 +216,7 @@ test!(test_empty_version_map_error, {
         keywords: vec![],
         category: None,
         author: None,
-        latest_version: "1.0.0".to_string(),
+        latest_version: "26.6.6".to_string(),
         versions: HashMap::new(),
         downloads: None,
         updated: None,

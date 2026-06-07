@@ -33,7 +33,7 @@ mod ed25519_security_tests {
         let manager = SignatureManager::new();
         let (_public_key, private_key) = manager.generate_keypair();
 
-        let message = b"Package: test-package v1.0.0";
+        let message = b"Package: test-package v26.6.6";
         let signature = manager.sign(message, &private_key);
 
         // Ed25519 signature should be 64 bytes
@@ -75,7 +75,7 @@ mod ed25519_security_tests {
         let manager = SignatureManager::new();
         let (public_key, private_key) = manager.generate_keypair();
 
-        let original_message = b"Package: test-package v1.0.0";
+        let original_message = b"Package: test-package v26.6.6";
         let signature = manager.sign(original_message, &private_key);
 
         let tampered_message = b"Package: test-package v2.0.0"; // Version changed

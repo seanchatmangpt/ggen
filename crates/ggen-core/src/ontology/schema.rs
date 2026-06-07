@@ -359,7 +359,7 @@ mod tests {
 
     #[test]
     fn test_ontology_schema() {
-        let mut schema = OntologySchema::new("http://example.org/", "1.0.0");
+        let mut schema = OntologySchema::new("http://example.org/", "26.6.6");
         schema.classes.push(OntClass {
             uri: "http://example.org/#Product".to_string(),
             name: "Product".to_string(),

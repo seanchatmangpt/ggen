@@ -212,7 +212,7 @@ mod tests {
         let toml = r#"
 [project]
 name = "test"
-version = "1.0.0"
+version = "26.6.6"
 
 [ontology]
 source = "Cargo.toml"  # Use existing file for test
@@ -228,7 +228,7 @@ rules = []
         let toml = r#"
 [project]
 name = ""
-version = "1.0.0"
+version = "26.6.6"
 
 [ontology]
 source = "test.ttl"

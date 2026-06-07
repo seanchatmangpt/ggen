@@ -125,7 +125,7 @@ fn test_t4_clap_noun_verb_lsp_projection_flow() {
     let base_pack = PackDescriptor {
         id: "clap-noun-verb".to_string(),
         name: "CLAP Noun Verb Base".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         description: "CLI parser".to_string(),
         license: "MIT".to_string(),
         dependencies: BTreeMap::new(),
@@ -135,12 +135,12 @@ fn test_t4_clap_noun_verb_lsp_projection_flow() {
 
     // Setup LSP pack descriptor depending on base pack
     let mut lsp_deps = BTreeMap::new();
-    lsp_deps.insert("clap-noun-verb".to_string(), ">=1.0.0".to_string());
+    lsp_deps.insert("clap-noun-verb".to_string(), ">=26.6.6".to_string());
 
     let lsp_pack = PackDescriptor {
         id: "clap-noun-verb-lsp".to_string(),
         name: "CLAP Noun Verb LSP Pack".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         description: "LSP integrations".to_string(),
         license: "MIT".to_string(),
         dependencies: lsp_deps,
@@ -325,7 +325,7 @@ fn test_t4_dynamic_manifest_reload() {
     let pack_a = PackDescriptor {
         id: "pack_a".to_string(),
         name: "Pack A".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         description: "A".to_string(),
         license: "MIT".to_string(),
         dependencies: BTreeMap::new(),
@@ -340,7 +340,7 @@ fn test_t4_dynamic_manifest_reload() {
     let mut updated_pack_a = pack_a.clone();
     updated_pack_a
         .dependencies
-        .insert("missing_pack".to_string(), ">=1.0.0".to_string());
+        .insert("missing_pack".to_string(), ">=26.6.6".to_string());
 
     let resolve_res = PackPlan::resolve(&[updated_pack_a]);
 

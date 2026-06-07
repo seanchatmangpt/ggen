@@ -236,7 +236,7 @@ mod tests {
             ],
             relationships: vec![],
             namespace: "http://example.org#".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             label: "Example Schema".to_string(),
             description: None,
             metadata: Default::default(),

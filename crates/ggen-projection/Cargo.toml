@@ -1,9 +1,10 @@
 [package]
 name = "ggen-projection"
-version = "1.0.0"
+version = "26.6.6"
 edition = "2021"
 description = "ggen Projection Membrane - Expand relation page Pair2 streams and local receipts into external formats"
 authors = ["KNHK Team"]
+autotests = false
 
 [dependencies]
 serde = { workspace = true, features = ["derive"] }
@@ -24,10 +25,13 @@ assert_cmd = { workspace = true }
 ed25519-dalek = { workspace = true }
 rand = "0.8"
 tokio = { workspace = true }
+tower-lsp = "0.20.0"
 clap-noun-verb-pack-lsp = { path = "../ggen-pack-clap-noun-verb" }
 tower-lsp-max-pack-lsp = { path = "../ggen-pack-tower-lsp-max" }
-wasm4pm-lsp = { path = "../wasm4pm-lsp" }
-wasm4pm-compat = { path = "../wasm4pm-compat" }
+
+[[test]]
+name = "f4_lsp_diagnostics"
+path = "tests/f4_lsp_diagnostics.rs"
 
 [[test]]
 name = "f7_bypass_kill"
@@ -40,3 +44,16 @@ path = "tests/f8_equation_enforcement.rs"
 [[test]]
 name = "dogfood_gc004"
 path = "tests/dogfood_gc004.rs"
+
+[[test]]
+name = "dogfood_gc005"
+path = "tests/dogfood_gc005.rs"
+
+[[test]]
+name = "dogfood_gc006"
+path = "tests/dogfood_gc006.rs"
+
+
+[[test]]
+name = "dogfood_gc006_calver"
+path = "tests/dogfood_gc006_calver.rs"

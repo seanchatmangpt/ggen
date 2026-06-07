@@ -145,7 +145,7 @@ fn main() -> Result<(), anyhow::Error> {
 
             let rendered_str = match tera.render_str(&template_str, &context) {
                 Ok(s) => s,
-                Err(e) => anyhow::bail!("Template render failed for {}: {}", path.display(), e),
+                Err(e) => { let mut err_msg = format!("Template render failed for {}: {}", path.display(), e); if let Some(src) = std::error::Error::source(&e) { err_msg = format!("{} \nSource: {}", err_msg, src); } anyhow::bail!(err_msg); }
             };
             let content = rendered_str.as_bytes();
 

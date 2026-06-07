@@ -16,7 +16,7 @@ test!(test_version_parsing, {
 
 test!(test_version_comparison, {
     // Arrange
-    let v1 = Version::parse("1.0.0").unwrap();
+    let v1 = Version::parse("26.6.6").unwrap();
     let v2 = Version::parse("1.0.1").unwrap();
     let v3 = Version::parse("1.1.0").unwrap();
     let v4 = Version::parse("2.0.0").unwrap();
@@ -39,10 +39,10 @@ test!(test_version_equality, {
 
 test!(test_version_prerelease, {
     // Arrange
-    let stable = Version::parse("1.0.0").unwrap();
-    let alpha = Version::parse("1.0.0-alpha").unwrap();
-    let beta = Version::parse("1.0.0-beta").unwrap();
-    let rc = Version::parse("1.0.0-rc.1").unwrap();
+    let stable = Version::parse("26.6.6").unwrap();
+    let alpha = Version::parse("26.6.6-alpha").unwrap();
+    let beta = Version::parse("26.6.6-beta").unwrap();
+    let rc = Version::parse("26.6.6-rc.1").unwrap();
 
     // Assert
     assert!(stable > alpha);
@@ -58,8 +58,8 @@ test!(test_version_prerelease, {
 
 test!(test_version_build_metadata, {
     // Arrange
-    let v1 = Version::parse("1.0.0+build.123").unwrap();
-    let v2 = Version::parse("1.0.0+build.456").unwrap();
+    let v1 = Version::parse("26.6.6+build.123").unwrap();
+    let v2 = Version::parse("26.6.6+build.456").unwrap();
 
     // Assert
     assert_eq!(v1, v2);
@@ -119,7 +119,7 @@ test!(test_version_zero_versions, {
     let v0_0_0 = Version::parse("0.0.0").unwrap();
     let v0_0_1 = Version::parse("0.0.1").unwrap();
     let v0_1_0 = Version::parse("0.1.0").unwrap();
-    let v1_0_0 = Version::parse("1.0.0").unwrap();
+    let v1_0_0 = Version::parse("26.6.6").unwrap();
 
     // Assert
     assert!(v0_0_0 < v0_0_1);
@@ -131,7 +131,7 @@ test!(test_version_sorting, {
     // Arrange
     let mut versions = vec![
         Version::parse("2.0.0").unwrap(),
-        Version::parse("1.0.0").unwrap(),
+        Version::parse("26.6.6").unwrap(),
         Version::parse("1.1.0").unwrap(),
         Version::parse("1.0.1").unwrap(),
     ];
@@ -140,7 +140,7 @@ test!(test_version_sorting, {
     versions.sort();
 
     // Assert
-    assert_eq!(versions[0], Version::parse("1.0.0").unwrap());
+    assert_eq!(versions[0], Version::parse("26.6.6").unwrap());
     assert_eq!(versions[1], Version::parse("1.0.1").unwrap());
     assert_eq!(versions[2], Version::parse("1.1.0").unwrap());
     assert_eq!(versions[3], Version::parse("2.0.0").unwrap());
@@ -149,20 +149,20 @@ test!(test_version_sorting, {
 test!(test_version_prerelease_ordering, {
     // Arrange
     let mut versions = vec![
-        Version::parse("1.0.0").unwrap(),
-        Version::parse("1.0.0-rc.2").unwrap(),
-        Version::parse("1.0.0-beta").unwrap(),
-        Version::parse("1.0.0-alpha").unwrap(),
-        Version::parse("1.0.0-rc.1").unwrap(),
+        Version::parse("26.6.6").unwrap(),
+        Version::parse("26.6.6-rc.2").unwrap(),
+        Version::parse("26.6.6-beta").unwrap(),
+        Version::parse("26.6.6-alpha").unwrap(),
+        Version::parse("26.6.6-rc.1").unwrap(),
     ];
 
     // Act
     versions.sort();
 
     // Assert
-    assert_eq!(versions[0].to_string(), "1.0.0-alpha");
-    assert_eq!(versions[1].to_string(), "1.0.0-beta");
-    assert_eq!(versions[2].to_string(), "1.0.0-rc.1");
-    assert_eq!(versions[3].to_string(), "1.0.0-rc.2");
-    assert_eq!(versions[4].to_string(), "1.0.0");
+    assert_eq!(versions[0].to_string(), "26.6.6-alpha");
+    assert_eq!(versions[1].to_string(), "26.6.6-beta");
+    assert_eq!(versions[2].to_string(), "26.6.6-rc.1");
+    assert_eq!(versions[3].to_string(), "26.6.6-rc.2");
+    assert_eq!(versions[4].to_string(), "26.6.6");
 });

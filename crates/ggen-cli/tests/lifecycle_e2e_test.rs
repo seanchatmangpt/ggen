@@ -45,7 +45,7 @@ fn create_test_project() -> TempDir {
 [project]
 name = "test-project"
 type = "webapp"
-version = "1.0.0"
+version = "26.6.6"
 description = "Test project for lifecycle e2e tests"
 
 [lifecycle.validate]

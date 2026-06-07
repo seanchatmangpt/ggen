@@ -64,7 +64,7 @@ mod tests {
         let toml = r#"
 [project]
 name = "test-project"
-version = "1.0.0"
+version = "26.6.6"
 
 [ontology]
 source = "domain/model.ttl"
@@ -75,7 +75,7 @@ rules = []
 
         let manifest = ManifestParser::parse_str(toml).expect("Should parse");
         assert_eq!(manifest.project.name, "test-project");
-        assert_eq!(manifest.project.version, "1.0.0");
+        assert_eq!(manifest.project.version, "26.6.6");
     }
 
     #[test]
@@ -83,7 +83,7 @@ rules = []
         let toml = r#"
 [project]
 name = "my-domain"
-version = "1.0.0"
+version = "26.6.6"
 description = "My domain model"
 
 [ontology]

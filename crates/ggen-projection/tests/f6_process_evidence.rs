@@ -147,7 +147,7 @@ fn test_f6_t1_receipt_blake3_binding() {
         "src/main.rs".to_string(),
         template_content,
         generated_content,
-        "1.0.0".to_string(),
+        "26.6.6".to_string(),
         &signing_key,
         None,
     );
@@ -170,7 +170,7 @@ fn test_f6_t1_receipt_causal_chain() {
         "src/lib.rs".to_string(),
         b"tmpl1",
         b"gen1",
-        "1.0.0".to_string(),
+        "26.6.6".to_string(),
         &signing_key,
         None,
     );
@@ -179,7 +179,7 @@ fn test_f6_t1_receipt_causal_chain() {
         "src/main.rs".to_string(),
         b"tmpl2",
         b"gen2",
-        "1.0.0".to_string(),
+        "26.6.6".to_string(),
         &signing_key,
         Some(receipt1.blake3_hash.clone()),
     );
@@ -197,7 +197,7 @@ fn test_f6_t1_receipt_signature_check() {
         "src/main.rs".to_string(),
         b"tmpl",
         b"gen",
-        "1.0.0".to_string(),
+        "26.6.6".to_string(),
         &signing_key,
         None,
     );
@@ -214,7 +214,7 @@ fn test_f6_t1_receipt_process_evidence_format() {
         "src/main.rs".to_string(),
         b"tmpl",
         b"gen",
-        "1.0.0".to_string(),
+        "26.6.6".to_string(),
         &signing_key,
         None,
     );
@@ -239,7 +239,7 @@ fn test_f6_t1_export_package() {
         "src/main.rs".to_string(),
         b"tmpl",
         b"gen",
-        "1.0.0".to_string(),
+        "26.6.6".to_string(),
         &signing_key,
         None,
     );
@@ -250,7 +250,7 @@ fn test_f6_t1_export_package() {
 
     let package_manifest = r#"{
         "name": "clap-noun-verb-lsp",
-        "version": "1.0.0",
+        "version": "26.6.6",
         "wasm4pm_compat": true
     }"#;
     fs::write(tmp.path().join("package.json"), package_manifest).unwrap();
@@ -272,7 +272,7 @@ fn test_f6_t2_mismatched_blake3_hash() {
         "src/main.rs".to_string(),
         b"tmpl",
         b"gen",
-        "1.0.0".to_string(),
+        "26.6.6".to_string(),
         &signing_key,
         None,
     );
@@ -293,7 +293,7 @@ fn test_f6_t2_broken_causal_link() {
         "src/lib.rs".to_string(),
         b"tmpl1",
         b"gen1",
-        "1.0.0".to_string(),
+        "26.6.6".to_string(),
         &signing_key,
         None,
     );
@@ -302,7 +302,7 @@ fn test_f6_t2_broken_causal_link() {
         "src/main.rs".to_string(),
         b"tmpl2",
         b"gen2",
-        "1.0.0".to_string(),
+        "26.6.6".to_string(),
         &signing_key,
         Some("brokenparentlink".to_string()),
     );
@@ -320,7 +320,7 @@ fn test_f6_t2_expired_certificate() {
         "src/main.rs".to_string(),
         b"tmpl",
         b"gen",
-        "1.0.0".to_string(),
+        "26.6.6".to_string(),
         &signing_key,
         None,
     );
@@ -354,7 +354,7 @@ fn test_f6_t2_unwritable_export_target() {
         "src/main.rs".to_string(),
         b"tmpl",
         b"gen",
-        "1.0.0".to_string(),
+        "26.6.6".to_string(),
         &signing_key,
         None,
     );

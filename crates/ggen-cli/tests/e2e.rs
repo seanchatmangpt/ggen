@@ -46,7 +46,7 @@ fn e2e_template_generate_complete() {
             r#"
 name: "rust-microservice"
 description: "Production-ready Rust microservice"
-version: "1.0.0"
+version: "26.6.6"
 
 variables:
   - name: service_name
@@ -385,7 +385,7 @@ fn e2e_lifecycle_complete_workflow() {
             r#"
 [project]
 name = "production-service"
-version = "1.0.0"
+version = "26.6.6"
 
 [[phases]]
 name = "clean"
@@ -500,7 +500,7 @@ fn e2e_graph_import_and_query() {
 ex:project1 a ex:Project ;
     dc:title "My Project" ;
     dc:description "A test project" ;
-    ex:version "1.0.0" ;
+    ex:version "26.6.6" ;
     ex:language "Rust" .
 
 ex:project2 a ex:Project ;

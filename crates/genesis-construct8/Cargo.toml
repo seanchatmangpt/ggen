@@ -1,6 +1,6 @@
 [package]
 name = "knhk-construct8"
-version = "1.0.0"
+version = "26.6.6"
 edition = "2021"
 description = "KNHK Genesis8 Engine - Lawful triple materialization 8 triples at a time"
 authors = ["KNHK Team"]

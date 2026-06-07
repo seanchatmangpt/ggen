@@ -543,7 +543,7 @@ mod tests {
         let cache_path = temp_dir.path().join("test-pack");
 
         let package_id = PackageId::new("test-pkg").unwrap();
-        let version = PackageVersion::new("1.0.0").unwrap();
+        let version = PackageVersion::new("26.6.6").unwrap();
         let digest = "abc123".to_string();
 
         let pack = CachedPack::new(
@@ -559,7 +559,7 @@ mod tests {
         assert_eq!(pack.digest, digest);
         assert_eq!(pack.size_bytes, 1024);
         assert_eq!(pack.access_count, 0);
-        assert_eq!(pack.cache_key(), "test-pkg@1.0.0");
+        assert_eq!(pack.cache_key(), "test-pkg@26.6.6");
     }
 
     #[test]
@@ -568,7 +568,7 @@ mod tests {
         let cache_path = temp_dir.path().join("test-pack");
 
         let package_id = PackageId::new("test-pkg").unwrap();
-        let version = PackageVersion::new("1.0.0").unwrap();
+        let version = PackageVersion::new("26.6.6").unwrap();
 
         let mut pack = CachedPack::new(package_id, version, "abc123".to_string(), 1024, cache_path);
 
@@ -590,7 +590,7 @@ mod tests {
         let cache = PackCache::new(config).unwrap();
 
         let package_id = PackageId::new("test-pkg").unwrap();
-        let version = PackageVersion::new("1.0.0").unwrap();
+        let version = PackageVersion::new("26.6.6").unwrap();
         let cache_path = temp_dir.path().join("test-pack");
 
         let pack = CachedPack::new(
@@ -622,7 +622,7 @@ mod tests {
         let cache = PackCache::new(config).unwrap();
 
         let package_id = PackageId::new("test-pkg").unwrap();
-        let version = PackageVersion::new("1.0.0").unwrap();
+        let version = PackageVersion::new("26.6.6").unwrap();
         let cache_path = temp_dir.path().join("test-pack");
 
         let pack = CachedPack::new(
@@ -676,7 +676,7 @@ mod tests {
         // Insert 3 packs
         for i in 1..=3 {
             let package_id = PackageId::new(&format!("test-pkg-{}", i)).unwrap();
-            let version = PackageVersion::new("1.0.0").unwrap();
+            let version = PackageVersion::new("26.6.6").unwrap();
             let cache_path = temp_dir.path().join(&format!("pack-{}", i));
 
             let pack = CachedPack::new(
@@ -692,12 +692,12 @@ mod tests {
 
         // Access pack 1 to make it more recently used
         let package_id = PackageId::new("test-pkg-1").unwrap();
-        let version = PackageVersion::new("1.0.0").unwrap();
+        let version = PackageVersion::new("26.6.6").unwrap();
         cache.get(&package_id, &version);
 
         // Insert a 4th pack (should evict pack 2, which is least recently used)
         let package_id = PackageId::new("test-pkg-4").unwrap();
-        let version = PackageVersion::new("1.0.0").unwrap();
+        let version = PackageVersion::new("26.6.6").unwrap();
         let cache_path = temp_dir.path().join("pack-4");
 
         let pack = CachedPack::new(
@@ -716,7 +716,7 @@ mod tests {
 
         // Pack 1 should still be there (was accessed)
         let package_id1 = PackageId::new("test-pkg-1").unwrap();
-        let version1 = PackageVersion::new("1.0.0").unwrap();
+        let version1 = PackageVersion::new("26.6.6").unwrap();
         assert!(cache.get(&package_id1, &version1).is_some());
 
         // Pack 4 should be there
@@ -724,7 +724,7 @@ mod tests {
 
         // Pack 2 should have been evicted
         let package_id2 = PackageId::new("test-pkg-2").unwrap();
-        let version2 = PackageVersion::new("1.0.0").unwrap();
+        let version2 = PackageVersion::new("26.6.6").unwrap();
         assert!(cache.get(&package_id2, &version2).is_none());
     }
 }

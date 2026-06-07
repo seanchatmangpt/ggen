@@ -1,10 +1,10 @@
 {
-  "bound_at": "2026-06-06T23:31:22.894931+00:00",
-  "boundary_digest": "ca817381eebf7d9cb593dc3d23bd51cfbd13ff0a0e84ce7056e40661a23f5c1f",
-  "customization_map_digest": "0a884af9183516af07c97773c85400c53b4e450ec7954764b0344a58c9476de2",
-  "git_ref": "35ccdf266e32664248301324dfa7ab345611faa2",
-  "pack_graph_digest": "0fdcaa323ab857b1e7fc26fd6fbd6bdc78b7421d0e74aadaaf80c06f10733100",
-  "projection_map_digest": "d0e4b2ff8877bc2fa38fd8bd3958840496c50f70537f21bb673ff404a54dfaf1",
+  "bound_at": "2026-06-07T01:07:14.964823+00:00",
+  "boundary_digest": "46f25f8ef4e0c8c5176c14b610b72a0c7a9f959709bcda121a4d898f1d603d96",
+  "customization_map_digest": "5872f46c06377002428992a98902eb6b220ac99c95ebb63b1ae2e550ba693741",
+  "git_ref": "9f86fd973de5e3467390118735b5b12ee51e385f",
+  "pack_graph_digest": "4641e31fe6363d2d22f9d7052d00dda709f819927d442484efd660bdced71d1f",
+  "projection_map_digest": "903feeb77dfc402af59324f16e15ce403eb865001e3be462db2485952dfb0eb4",
   "resolution_order": [
     "ggen-pack-proofs"
   ],

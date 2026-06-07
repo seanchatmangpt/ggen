@@ -147,7 +147,7 @@ test!(test_lifecycle_execution_integration, {
         .write_str(
             r#"[project]
 name = "test-project"
-version = "1.0.0"
+version = "26.6.6"
 
 [[phases]]
 name = "init"
@@ -291,7 +291,7 @@ test!(test_json_output_project_info, {
             r#"
 [project]
 name = "test-project"
-version = "1.0.0"
+version = "26.6.6"
 "#,
         )
         .unwrap();
@@ -407,7 +407,7 @@ test!(test_workflow_graph_operations, {
 
 ex:project1 a ex:Project ;
     ex:name "Test Project" ;
-    ex:version "1.0.0" .
+    ex:version "26.6.6" .
 "#,
         )
         .unwrap();
@@ -476,7 +476,7 @@ test!(test_config_file_loading, {
         .write_str(
             r#"[project]
 name = "test"
-version = "1.0.0"
+version = "26.6.6"
 
 [templates]
 search_paths = ["./templates"]
@@ -507,7 +507,7 @@ test!(test_manifest_path_option, {
         .write_str(
             r#"[project]
 name = "custom-project"
-version = "1.0.0"
+version = "26.6.6"
 "#,
         )
         .unwrap();
@@ -764,7 +764,7 @@ test!(test_v2_rdf_based_template_generation, {
 
 ex:service a ex:Service ;
     ex:name "MyService" ;
-    ex:version "1.0.0" .
+    ex:version "26.6.6" .
 "#,
         )
         .unwrap();

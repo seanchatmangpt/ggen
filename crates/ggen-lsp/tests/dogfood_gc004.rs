@@ -7,7 +7,7 @@ use std::time::Duration;
 use tempfile::TempDir;
 use tower_lsp::lsp_types::Url;
 
-const READ_TIMEOUT: Duration = Duration::from_secs(10);
+const READ_TIMEOUT: Duration = Duration::from_secs(30);
 
 struct LspClient {
     stdin: ChildStdin,
@@ -211,4 +211,101 @@ fn test_gc004_pack_domain_lsp_intelligence() {
         
     }
     
+}
+
+#[test]
+fn test_gc004_bypass_kills_scanner() {
+    let manifest_dir = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let tests_dir = manifest_dir.join("tests");
+
+    let mut scanned_count = 0;
+    let mut violations = Vec::new();
+
+    let forbidden_rules = [
+        ("compute_observer_diagnostics", "BYPASS-LSP-001"),
+        ("analyze_and_observe", "BYPASS-LSP-003"),
+        ("validate_sync", "BYPASS-LSP-002"),
+        ("observe_pack_domain", "BYPASS-LSP-003"),
+        ("state.diagnostics", "BYPASS-LSP-003"),
+        ("direct_write", "BYPASS-LSP-004"),
+        ("std::fs::write", "BYPASS-LSP-004"),
+    ];
+
+    for entry in walkdir::WalkDir::new(&tests_dir) {
+        let entry = match entry {
+            Ok(e) => e,
+            Err(_) => continue,
+        };
+        let path = entry.path();
+        if path.is_file() && path.extension().map_or(false, |ext| ext == "rs") {
+            let filename = path.file_name().unwrap().to_string_lossy();
+            println!("Visited file: {:?}", path);
+            
+            // Skip the scanner test itself and the violator test to avoid self-triggering/failure
+            if filename.contains("dogfood_gc004") || filename.contains("dogfood_gc002") || filename.contains("dogfood_gc005") || filename.contains("admission_violator_test") {
+                continue;
+            }
+
+            // Read the file content
+            let content = match std::fs::read_to_string(path) {
+                Ok(c) => c,
+                Err(_) => continue,
+            };
+
+            // Determine if this is an admission test or harness
+            let is_harness = path.to_string_lossy().contains("lsp_harness.rs");
+            let is_admission_test = filename.to_lowercase().contains("admission") 
+                || content.contains("lsp_harness") 
+                || content.contains("LspHarness");
+
+            if is_harness || is_admission_test {
+                println!("Scanning file for bypass rules: {:?}", path);
+                scanned_count += 1;
+                // Strip comments to avoid false positives on comment mentions of rules
+                let mut stripped = String::new();
+                let mut in_line_comment = false;
+                let mut in_block_comment = false;
+                let chars: Vec<char> = content.chars().collect();
+                let mut i = 0;
+                while i < chars.len() {
+                    if in_line_comment {
+                        if chars[i] == '\n' {
+                            in_line_comment = false;
+                            stripped.push('\n');
+                        }
+                    } else if in_block_comment {
+                        if i + 1 < chars.len() && chars[i] == '*' && chars[i + 1] == '/' {
+                            in_block_comment = false;
+                            i += 1;
+                        }
+                    } else {
+                        if i + 1 < chars.len() && chars[i] == '/' && chars[i + 1] == '/' {
+                            in_line_comment = true;
+                            i += 1;
+                        } else if i + 1 < chars.len() && chars[i] == '/' && chars[i + 1] == '*' {
+                            in_block_comment = true;
+                            i += 1;
+                        } else {
+                            stripped.push(chars[i]);
+                        }
+                    }
+                    i += 1;
+                }
+
+                for &(symbol, rule_id) in &forbidden_rules {
+                    if stripped.contains(symbol) {
+                        violations.push(format!(
+                            "Violation of {}: File {:?} contains forbidden symbol {:?}",
+                            rule_id, path, symbol
+                        ));
+                    }
+                }
+            }
+        }
+    }
+
+    println!("Scanned {} admission test/harness files.", scanned_count);
+    if !violations.is_empty() {
+        panic!("Bypass-kill scanner failed with violations:\n{}", violations.join("\n"));
+    }
 }

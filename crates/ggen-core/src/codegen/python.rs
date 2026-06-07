@@ -112,7 +112,7 @@ impl PythonGenerator {
         writeln!(out, "\napp = FastAPI(").map_err(|e| e.to_string())?;
         writeln!(out, "    title=\"{service_name}\",").map_err(|e| e.to_string())?;
         writeln!(out, "    description=\"{description}\",").map_err(|e| e.to_string())?;
-        writeln!(out, "    version=\"1.0.0\",").map_err(|e| e.to_string())?;
+        writeln!(out, "    version=\"26.6.6\",").map_err(|e| e.to_string())?;
         writeln!(out, "    lifespan=lifespan,").map_err(|e| e.to_string())?;
         writeln!(out, ")\n").map_err(|e| e.to_string())?;
 

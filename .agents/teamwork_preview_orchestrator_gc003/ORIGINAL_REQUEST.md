@@ -166,6 +166,129 @@ Compute BLAKE3 hashes over canonical events and link each event sequence. Implem
 - [ ] The wasm4pm replay verifier accurately computes replay verdicts over the OCEL logs.
 - [ ] All check/test runs compile and pass successfully inside `~/wasm4pm` and `~/wasm4pm-compat`.
 
+## 2026-06-07T00:13:08Z
+
+Hello Project Orchestrator,
+
+Please note the following corrections and required updates for your active milestones and execution:
+
+1. Remove or receipt the liveness heartbeat claim.
+2. Update stale status from MIGRATING_TO_OCEL_ONLY to the current GC005 state.
+3. Do not claim verifier completion until the verifier output is shown.
+4. Preserve the admitted distinction:
+   - wasm4pm-lsp dogfood integration is ALIVE.
+   - Final verifier validation remains PENDING until concrete command output is provided.
+
+Required next receipt:
+Show the verifier validation command and output proving FIT / DEVIATION / BLOCKED over actual evidence fixtures through wasm4pm-backed computation.
+
+Please classify the current operational status parameters exactly as follows:
+- GC004 doctrine pressure: ALIVE
+- No-fake surface law: ALIVE
+- GC003/GC004 task merge: PARTIAL_ALIVE
+- Template mapping: PARTIAL_ALIVE
+- LSP stdio client setup: IN_PROGRESS
+- Heartbeat/liveness claim: UNSUPPORTED until receipted
+- GC004_ADMITTED_BY_DOGFOOD: NOT SHOWN
+- final verifier validation: PENDING until concrete command output provided
+- wasm4pm-lsp dogfood integration: ALIVE
+
+## 2026-06-07T00:31:39Z
+
+Hello Project Orchestrator,
+
+Please update your execution parameters to enforce the "GC005 Correct Architecture — C4 + Filesystem Law" immediately:
+
+## Requirements
+
+### R1. Sealed Read-Only Workspace Boundaries
+`~/wasm4pm` and `~/wasm4pm-compat` are sealed read-only authority workspaces.
+- Do NOT write into `~/wasm4pm` or `~/wasm4pm-compat`.
+- Do NOT create fake local `wasm4pm`, `wasm4pm-proper`, or `wasm4pm-compat` crates/directories in `~/ggen` or `~/tower-lsp-max`.
+- If a local compatibility adapter exists, rename/fence it as `gc005-wasm4pm-adapter`, `ggen-wasm4pm-adapter`, or `tower-wasm4pm-adapter`.
+
+### R2. Neutral wasm4pm Adapter
+Implement `gc005-wasm4pm-adapter` to act as a neutral adapter:
+- It may translate inputs, call sealed libraries/CLIs, and normalize returned issues/verdicts.
+- It must NOT implement replay/conformance itself, emit FIT from local logic, or write to sealed workspaces.
+- If the required sealed authority is unavailable, it must emit BLOCKED.
+
+### R3. wasm4pm-lsp Server
+Implement or align `wasm4pm-lsp` to act as a process-evidence observer only:
+- Owns only `WASM4PM-*` diagnostics (e.g., `WASM4PM-EVIDENCE-MISSING`, `WASM4PM-OCEL-SHAPE-INVALID`, `WASM4PM-DIGEST-CHAIN-BROKEN`, `WASM4PM-CONFORMANCE-BLOCKED`, `WASM4PM-REPLAY-DEVIATION`, `WASM4PM-VERDICT-FIT`, `WASM4PM-VERDICT-DEVIATION`, `WASM4PM-VERDICT-BLOCKED`, `WASM4PM-VERDICT-INCONCLUSIVE`).
+- It does NOT own `GGEN-*`, `CLAP-*`, or `TOWER-*` diagnostics.
+- It delegates evaluation to `gc005-wasm4pm-adapter` using a document buffer and adapter client, then publishes mapped diagnostics over standard stdio JSON-RPC.
+
+### R4. Proof Projection Harness
+Ensure the projection engine (`sync_target`) projects the protocol-only proof test `dogfood_gc005.rs` from `dogfood_gc005.rs.tmpl` template in `ggen-pack-gall-checkpoint-proof`.
+- Test must use LSP wire (`initialize` → `textDocument/didOpen` → `textDocument/publishDiagnostics`).
+- No hardcoded `/Users/sac/` paths in the generated tests.
+- FIT fixture must return `WASM4PM-VERDICT-FIT`.
+- Missing boundary fixture must return `WASM4PM-CONFORMANCE-BLOCKED`.
+- Artifact-before-staging fixture must return `WASM4PM-REPLAY-DEVIATION`.
+- Broken receipt chain fixture must return `WASM4PM-DIGEST-CHAIN-BROKEN` or `WASM4PM-CONFORMANCE-BLOCKED`.
+
+## Acceptance Criteria
+
+### Verification & Alignment
+- [ ] No writes to `~/wasm4pm` or `~/wasm4pm-compat` are performed by the agents.
+- [ ] No local fake or shadow `wasm4pm` or `wasm4pm-compat` crates exist in `~/ggen` or `~/tower-lsp-max`.
+- [ ] `wasm4pm-lsp` delegates to `gc005-wasm4pm-adapter` which calls sealed authorities.
+- [ ] `dogfood_gc005.rs` executes real LSP protocol flow over stdio and asserts the required verdicts correctly.
+- [ ] All tests pass successfully and code compiles cleanly.
+
+## 2026-06-07T00:46:16Z
+
+Hello Project Orchestrator,
+
+STOP.
+
+The swarm status is checkpoint-stale.
+
+Do not continue OCEL logging/verifier/verdict implementation unless it is strictly inside the sealed wasm4pm authority path. Do not implement append-only JSONL verifier authority inside ggen. Do not report GC004 LSP harness workers as GC006 progress. Do not set or claim heartbeat timers unless there is a real scheduler receipt.
+
+Your current task is GC006 only: Authority Surface Lock.
+
+You are required to:
+1. Use the existing C4 architecture contract.
+2. Resolve the canonical proof pack path.
+3. Register dogfood_gc006.rs.tmpl in the real proof pack.
+4. Remove all hardcoded /Users/sac paths from the template.
+5. Project dogfood_gc006.rs through sync_target.
+6. Run dogfood_gc006.
+7. Prove:
+   - No shadow wasm4pm crates exist in ggen or tower-lsp-max.
+   - wasm4pm-lsp does not own conformance/replay logic.
+   - Neutral adapter gc005-wasm4pm-adapter does not emit fake FIT from local logic.
+   - Neutral adapter calls sealed wasm4pm authority.
+   - Sealed workspaces ~/wasm4pm and ~/wasm4pm-compat remain 100% read-only.
+
+Your status must remain GC006_DRAFT / PROJECTION_BLOCKED until the generated test runs and passes. Please classify your status parameters accordingly.
+
+## 2026-06-07T00:47:54Z
+
+Hello Project Orchestrator,
+
+Please align your internal briefing and handoff records with the following canonical state:
+
+Checkpoint state:
+- GC001-GC004: ADMITTED per prior checkpoint scopes.
+- GC005: CONDITIONALLY_ADMITTED_BY_DOGFOOD (valid only under sealed-authority path: wasm4pm-lsp → gc005-wasm4pm-adapter → wasm4pm_algos::gall::check_gall_conformance).
+- GC006: DRAFT / PROJECTION_BLOCKED.
+
+Please note the following rejections and status alignments:
+- Heartbeat claims are rejected.
+- Stale verifier-pending status is rejected.
+- Ad hoc OCEL logging/verifier workers are rejected.
+- GC004 work reported as GC006 progress is rejected.
+- Local fake wasm4pm / wasm4pm-proper / wasm4pm-compat authority is rejected.
+
+Ensure your team focuses entirely on the GC006 Authority Surface Lock milestone using the registered dogfood_gc006.rs.tmpl template, projecting to dogfood_gc006.rs via sync_target, executing the test, and verifying C4 structure compliance.
+
+
+
+
+
 
 
 

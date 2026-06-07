@@ -154,7 +154,7 @@ impl PromptIR {
             metadata: PromptMetadata {
                 id: "generated".to_string(),
                 version: "0.1.0".to_string(),
-                schema_version: "1.0.0".to_string(),
+                schema_version: "26.6.6".to_string(),
                 source_ontology: "unknown".to_string(),
                 construct_query: construct_query.to_string(),
             },
@@ -201,7 +201,7 @@ impl PromptIR {
                     metadata: PromptMetadata {
                         id: "from_store".to_string(),
                         version: "0.1.0".to_string(),
-                        schema_version: "1.0.0".to_string(),
+                        schema_version: "26.6.6".to_string(),
                         source_ontology: "rdf_store".to_string(),
                         construct_query: construct_query.to_string(),
                     },

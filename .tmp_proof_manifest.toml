@@ -1,4 +1,0 @@
-checkpoint_id = "002"
-target_dir = ".tmp_proof_target"
-staging_dir = ".tmp_proof_staging"
-receipt_sink = ".tmp_proof_receipts"

@@ -1,0 +1,31 @@
+GALL-CHECKPOINT-002
+> [!IMPORTANT]
+> This file is a HUMAN-READABLE REPORT only and is not an admission receipt.
+> Admission is governed exclusively by OCEL event logs and wasm4pm replay verdicts.
+
+Pack Template Manufacturing
+Status: ADMITTED_BY_DOGFOOD
+
+Prior admitted state:
+  GC001_ADMITTED — portable boundary-declared projection.
+
+Delta:
+  Pack-declared Tera templates are now the source of projected artifacts.
+  Reference-copy manufacturing path removed.
+  Template digests added to receipts.
+  Missing templates refuse before write.
+  Template mutation shifts artifact digest and template_digest.
+  Proof tests are generated from a proof pack / manifest.
+  Dogfood replay passes.
+  First Gate Requirement prevents partial materialization before template validation.
+
+Not claimed:
+  full boundary-receipted equation enforcement
+  wasm4pm conformance
+  full Gall Floor
+  final Projection Intelligence victory
+
+Admitted Boundary:
+  workspace = ~/ggen
+  branch = feat/ggen-lsp-source-laws
+  target = declared .tmp_gc002 boundary

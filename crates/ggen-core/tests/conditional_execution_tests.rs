@@ -176,7 +176,7 @@ fn test_condition_logging() {
     let manifest = GgenManifest {
         project: ProjectConfig {
             name: "condition_test".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: Some("Testing conditional execution logging".to_string()),
         },
         ontology: OntologyConfig {
@@ -252,7 +252,7 @@ fn test_multiple_conditions_in_manifest() {
     let manifest = GgenManifest {
         project: ProjectConfig {
             name: "multi_condition_test".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: None,
         },
         ontology: OntologyConfig {
@@ -440,7 +440,7 @@ fn test_integration_rule_executed_when_ask_true() {
     let manifest = GgenManifest {
         project: ProjectConfig {
             name: "conditional_test".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: None,
         },
         ontology: OntologyConfig {
@@ -516,7 +516,7 @@ fn test_integration_rule_skipped_when_ask_false() {
     let manifest = GgenManifest {
         project: ProjectConfig {
             name: "skip_test".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: None,
         },
         ontology: OntologyConfig {
@@ -591,7 +591,7 @@ fn test_integration_malformed_ask_query_error() {
     let manifest = GgenManifest {
         project: ProjectConfig {
             name: "malformed_test".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: None,
         },
         ontology: OntologyConfig {
@@ -664,7 +664,7 @@ fn test_integration_multiple_conditions() {
     let manifest = GgenManifest {
         project: ProjectConfig {
             name: "multi_condition_test".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: None,
         },
         ontology: OntologyConfig {

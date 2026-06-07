@@ -127,7 +127,7 @@ struct MetadataJson {
 ///     r#"
 /// [package]
 /// name = "surface-mcp"
-/// version = "1.0.0"
+/// version = "26.6.6"
 ///
 /// [security]
 /// signature = "deadbeef"
@@ -317,7 +317,7 @@ mod tests {
         let toml_content = r#"
 [package]
 name = "test-package"
-version = "1.0.0"
+version = "26.6.6"
 
 [security]
 signature = "abc123def456"
@@ -367,7 +367,7 @@ checksum = "sha256:789xyz"
             r#"
 [package]
 name = "test"
-version = "1.0.0"
+version = "26.6.6"
 
 [security]
 signature = "toml_signature"
@@ -430,11 +430,11 @@ trust_tier = "EnterpriseCertified"
     #[test]
     fn test_get_pack_cache_dir() {
         let package_id = PackageId::new("test-package").unwrap();
-        let version = "1.0.0";
+        let version = "26.6.6";
 
         let cache_dir = get_pack_cache_dir(&package_id, version);
 
-        assert!(cache_dir.ends_with("ggen/packs/test-package/1.0.0"));
+        assert!(cache_dir.ends_with("ggen/packs/test-package/26.6.6"));
     }
 
     #[test]
@@ -446,7 +446,7 @@ trust_tier = "EnterpriseCertified"
         let toml_content = r#"
 [package]
 name = "minimal-package"
-version = "1.0.0"
+version = "26.6.6"
 "#;
 
         fs::write(&toml_path, toml_content).unwrap();

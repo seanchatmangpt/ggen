@@ -183,7 +183,7 @@ fn test_lifecycle_phase_execution_performance() {
         project: Project {
             name: "test".to_string(),
             project_type: Some("test".to_string()),
-            version: Some("1.0.0".to_string()),
+            version: Some("26.6.6".to_string()),
             description: None,
         },
         workspace: None,

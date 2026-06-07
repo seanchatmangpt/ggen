@@ -140,7 +140,7 @@ pub async fn initialize_ontology_project(
     let package_json = format!(
         r#"{{
   "name": "{}",
-  "version": "1.0.0",
+  "version": "26.6.6",
   "description": "Ontology-driven code generation project",
   "type": "module",
   "scripts": {{

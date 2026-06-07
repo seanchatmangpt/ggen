@@ -121,7 +121,7 @@ mod tests {
         let pack = Pack {
             id: "test".to_string(),
             name: "Test".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: String::new(),
             category: "test".to_string(),
             author: None,
@@ -146,7 +146,7 @@ mod tests {
         let pack = Pack {
             id: "test".to_string(),
             name: "Test".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: "A comprehensive test pack with detailed description for production use"
                 .to_string(),
             category: "test".to_string(),

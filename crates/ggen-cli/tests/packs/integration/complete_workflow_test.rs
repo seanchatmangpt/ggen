@@ -26,7 +26,7 @@ impl PackRegistry {
     fn get_pack(&self, _id: &str) -> Option<PackMetadata> {
         Some(PackMetadata {
             id: "test-pack".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             dependencies: vec![],
         })
     }

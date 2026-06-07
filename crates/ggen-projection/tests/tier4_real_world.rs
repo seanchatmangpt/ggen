@@ -168,7 +168,7 @@ fn test_s1_pack_creation_and_sync() {
     let pack_clap = PackDescriptor {
         id: "ggen-pack-clap-noun-verb".to_string(),
         name: "Clap Noun Verb Pack".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         description: "CLI parser".to_string(),
         license: "MIT".to_string(),
         dependencies: BTreeMap::new(),
@@ -181,11 +181,11 @@ fn test_s1_pack_creation_and_sync() {
     };
 
     let mut lsp_deps = BTreeMap::new();
-    lsp_deps.insert("ggen-pack-clap-noun-verb".to_string(), "^1.0.0".to_string());
+    lsp_deps.insert("ggen-pack-clap-noun-verb".to_string(), "^26.6.6".to_string());
     let pack_lsp = PackDescriptor {
         id: "ggen-pack-tower-lsp-max".to_string(),
         name: "Tower LSP Max Pack".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         description: "LSP server wrapper".to_string(),
         license: "MIT".to_string(),
         dependencies: lsp_deps,
@@ -232,7 +232,7 @@ fn test_s1_pack_creation_and_sync() {
     // Write rust codebase scaffolding
     std::fs::write(
         project_dir.join("Cargo.toml"),
-        b"[package]\nname=\"clap-noun-verb-lsp\"\nversion=\"1.0.0\"\nedition=\"2021\"\n",
+        b"[package]\nname=\"clap-noun-verb-lsp\"\nversion=\"26.6.6\"\nedition=\"2021\"\n",
     )
     .unwrap();
     std::fs::create_dir_all(project_dir.join("src")).unwrap();
@@ -412,7 +412,7 @@ fn test_s5_process_audit_and_wasm4pm_verification() {
         "src/lib.rs".to_string(),
         b"tmpl1",
         b"gen1",
-        "1.0.0".to_string(),
+        "26.6.6".to_string(),
         &signing_key,
         None,
     );
@@ -421,7 +421,7 @@ fn test_s5_process_audit_and_wasm4pm_verification() {
         "src/main.rs".to_string(),
         b"tmpl2",
         b"gen2",
-        "1.0.0".to_string(),
+        "26.6.6".to_string(),
         &signing_key,
         Some(receipt1.blake3_hash.clone()),
     );
@@ -435,7 +435,7 @@ fn test_s5_process_audit_and_wasm4pm_verification() {
     let tmp = TempDir::new().unwrap();
     let package_manifest = json!({
         "name": "clap-noun-verb-lsp",
-        "version": "1.0.0",
+        "version": "26.6.6",
         "wasm4pm_compat": true
     });
     std::fs::write(

@@ -459,11 +459,11 @@ fn create_test_packages() -> Result<Vec<PackMetadata>> {
     // Package 1: Rust web service
     let mut rust_web_versions = HashMap::new();
     rust_web_versions.insert(
-        "1.0.0".to_string(),
+        "26.6.6".to_string(),
         VersionMetadata {
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             git_url: "https://github.com/ggen/rust-web-service.git".to_string(),
-            git_rev: "v1.0.0".to_string(),
+            git_rev: "v26.6.6".to_string(),
             manifest_url: None,
             sha256: "a".repeat(64),
         },
@@ -500,11 +500,11 @@ fn create_test_packages() -> Result<Vec<PackMetadata>> {
     // Package 2: PostgreSQL database setup
     let mut postgres_versions = HashMap::new();
     postgres_versions.insert(
-        "1.0.0".to_string(),
+        "26.6.6".to_string(),
         VersionMetadata {
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             git_url: "https://github.com/ggen/postgresql-setup.git".to_string(),
-            git_rev: "v1.0.0".to_string(),
+            git_rev: "v26.6.6".to_string(),
             manifest_url: None,
             sha256: "c".repeat(64),
         },
@@ -518,7 +518,7 @@ fn create_test_packages() -> Result<Vec<PackMetadata>> {
         keywords: vec!["postgres".to_string(), "migrations".to_string()],
         category: Some("database".to_string()),
         author: Some("Ggen Team".to_string()),
-        latest_version: "1.0.0".to_string(),
+        latest_version: "26.6.6".to_string(),
         versions: postgres_versions,
         downloads: Some(800),
         updated: Some(chrono::Utc::now()),
@@ -591,8 +591,8 @@ mod tests {
         let harness = TestHarness::new().await?;
         let fixture = harness.marketplace_fixture().await?;
 
-        let version = fixture.resolve("rust-web-service", Some("1.0.0")).await?;
-        assert_eq!(version.version, "1.0.0");
+        let version = fixture.resolve("rust-web-service", Some("26.6.6")).await?;
+        assert_eq!(version.version, "26.6.6");
 
         Ok(())
     }

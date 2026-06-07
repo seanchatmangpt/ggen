@@ -843,10 +843,10 @@ mod projection_models_tests {
         let content = r#"
             id = "pack_1"
             name = "Test Pack"
-            version = "1.0.0"
+            version = "26.6.6"
             description = "A test pack"
             license = "MIT"
-            dependencies = { "pack_2" = ">=1.0.0" }
+            dependencies = { "pack_2" = ">=26.6.6" }
             query_aliases = { "alias_1" = "query_1" }
 
             [[templates]]
@@ -856,7 +856,7 @@ mod projection_models_tests {
         "#;
         let desc = PackDescriptor::from_toml(content).unwrap();
         assert_eq!(desc.id, "pack_1");
-        assert_eq!(desc.dependencies.get("pack_2").unwrap(), ">=1.0.0");
+        assert_eq!(desc.dependencies.get("pack_2").unwrap(), ">=26.6.6");
         assert_eq!(
             desc.templates[0].path.to_str().unwrap(),
             "templates/test.tmpl"
@@ -868,7 +868,7 @@ mod projection_models_tests {
         let p2 = PackDescriptor {
             id: "pack_2".to_string(),
             name: "Pack 2".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: "No deps".to_string(),
             license: "MIT".to_string(),
             dependencies: std::collections::BTreeMap::new(),
@@ -876,11 +876,11 @@ mod projection_models_tests {
             query_aliases: std::collections::BTreeMap::new(),
         };
         let mut deps = std::collections::BTreeMap::new();
-        deps.insert("pack_2".to_string(), ">=1.0.0".to_string());
+        deps.insert("pack_2".to_string(), ">=26.6.6".to_string());
         let p1 = PackDescriptor {
             id: "pack_1".to_string(),
             name: "Pack 1".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: "Depends on pack_2".to_string(),
             license: "MIT".to_string(),
             dependencies: deps,
@@ -902,7 +902,7 @@ mod projection_models_tests {
         let p1 = PackDescriptor {
             id: "pack_1".to_string(),
             name: "Pack 1".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: "Depends on pack_2".to_string(),
             license: "MIT".to_string(),
             dependencies: deps1,
@@ -915,7 +915,7 @@ mod projection_models_tests {
         let p2 = PackDescriptor {
             id: "pack_2".to_string(),
             name: "Pack 2".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: "Depends on pack_1".to_string(),
             license: "MIT".to_string(),
             dependencies: deps2,

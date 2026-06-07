@@ -54,9 +54,9 @@ test!(test_registry_index_serialization, {
     let mut versions = HashMap::new();
 
     versions.insert(
-        "1.0.0".to_string(),
+        "26.6.6".to_string(),
         VersionMetadata {
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             git_url: "https://github.com/test/repo.git".to_string(),
             git_rev: "main".to_string(),
             manifest_url: None,
@@ -74,7 +74,7 @@ test!(test_registry_index_serialization, {
             keywords: vec!["testing".to_string()],
             category: Some("development".to_string()),
             author: Some("Test Author".to_string()),
-            latest_version: "1.0.0".to_string(),
+            latest_version: "26.6.6".to_string(),
             versions,
             downloads: Some(100),
             updated: Some(chrono::Utc::now()),
@@ -105,9 +105,9 @@ test!(test_pack_metadata_validation, {
     // Arrange
     let mut versions = HashMap::new();
     versions.insert(
-        "1.0.0".to_string(),
+        "26.6.6".to_string(),
         VersionMetadata {
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             git_url: "https://github.com/test/repo.git".to_string(),
             git_rev: "main".to_string(),
             manifest_url: None,
@@ -123,7 +123,7 @@ test!(test_pack_metadata_validation, {
         keywords: vec!["testing".to_string()],
         category: Some("development".to_string()),
         author: Some("Test Author".to_string()),
-        latest_version: "1.0.0".to_string(),
+        latest_version: "26.6.6".to_string(),
         versions: versions.clone(),
         downloads: Some(100),
         updated: Some(chrono::Utc::now()),
@@ -146,7 +146,7 @@ test!(test_pack_metadata_validation, {
 test!(test_version_metadata_validation, {
     // Arrange
     let version = VersionMetadata {
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         git_url: "https://github.com/test/repo.git".to_string(),
         git_rev: "abc123def456".to_string(),
         manifest_url: Some("https://registry.example.com/manifest.json".to_string()),
@@ -164,9 +164,9 @@ test!(test_pack_metadata_optional_fields, {
     // Arrange
     let mut versions = HashMap::new();
     versions.insert(
-        "1.0.0".to_string(),
+        "26.6.6".to_string(),
         VersionMetadata {
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             git_url: "https://github.com/test/repo.git".to_string(),
             git_rev: "main".to_string(),
             manifest_url: None,
@@ -182,7 +182,7 @@ test!(test_pack_metadata_optional_fields, {
         keywords: vec![],
         category: None,
         author: None,
-        latest_version: "1.0.0".to_string(),
+        latest_version: "26.6.6".to_string(),
         versions,
         downloads: None,
         updated: None,
@@ -203,9 +203,9 @@ test!(test_empty_collections, {
     // Arrange
     let mut versions = HashMap::new();
     versions.insert(
-        "1.0.0".to_string(),
+        "26.6.6".to_string(),
         VersionMetadata {
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             git_url: "https://github.com/test/repo.git".to_string(),
             git_rev: "main".to_string(),
             manifest_url: None,
@@ -221,7 +221,7 @@ test!(test_empty_collections, {
         keywords: vec![],
         category: None,
         author: None,
-        latest_version: "1.0.0".to_string(),
+        latest_version: "26.6.6".to_string(),
         versions,
         downloads: None,
         updated: None,

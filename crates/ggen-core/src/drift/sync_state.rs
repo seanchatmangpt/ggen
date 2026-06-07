@@ -75,7 +75,7 @@ pub struct SyncState {
 
 impl SyncState {
     /// Current version of the state file format
-    pub const VERSION: &'static str = "1.0.0";
+    pub const VERSION: &'static str = "26.6.6";
 
     /// Create new sync state
     pub fn new(ontology: FileHashState, manifest: FileHashState) -> Self {

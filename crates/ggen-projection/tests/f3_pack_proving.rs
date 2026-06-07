@@ -348,7 +348,7 @@ fn test_f3_t2_missing_template() {
     let pack_c = PackDescriptor {
         id: "pack_c".to_string(),
         name: "Pack C".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         description: "C".to_string(),
         license: "MIT".to_string(),
         dependencies: BTreeMap::new(),
@@ -358,7 +358,7 @@ fn test_f3_t2_missing_template() {
 
     // Pack B depends on Pack C
     let mut deps_b = BTreeMap::new();
-    deps_b.insert("pack_c".to_string(), "^1.0.0".to_string());
+    deps_b.insert("pack_c".to_string(), "^26.6.6".to_string());
     let pack_b = PackDescriptor {
         id: "pack_b".to_string(),
         name: "Pack B".to_string(),
@@ -373,7 +373,7 @@ fn test_f3_t2_missing_template() {
     // Pack A depends on Pack B and Pack C
     let mut deps_a = BTreeMap::new();
     deps_a.insert("pack_b".to_string(), "^1.1.0".to_string());
-    deps_a.insert("pack_c".to_string(), "^1.0.0".to_string());
+    deps_a.insert("pack_c".to_string(), "^26.6.6".to_string());
     let pack_a = PackDescriptor {
         id: "pack_a".to_string(),
         name: "Pack A".to_string(),

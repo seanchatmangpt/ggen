@@ -74,7 +74,7 @@ impl {{ name }} {
         let pipeline = Pipeline::new()?;
         let mut vars = BTreeMap::new();
         vars.insert("name".to_string(), "TestModule".to_string());
-        vars.insert("version".to_string(), "1.0.0".to_string());
+        vars.insert("version".to_string(), "26.6.6".to_string());
 
         let ctx = crate::generator::GenContext::new(template_path, temp_dir.path().to_path_buf())
             .with_vars(vars);
@@ -87,7 +87,7 @@ impl {{ name }} {
         // Read and verify the content
         let generated_content = std::fs::read_to_string(&result_path)?;
         assert!(generated_content.contains("// Generated module: TestModule"));
-        assert!(generated_content.contains("// Version: 1.0.0"));
+        assert!(generated_content.contains("// Version: 26.6.6"));
         assert!(generated_content.contains("pub struct TestModule"));
         assert!(generated_content.contains("impl TestModule"));
 

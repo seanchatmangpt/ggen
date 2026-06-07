@@ -629,7 +629,7 @@ mod tests {
     #[test]
     fn test_insert_package_query() {
         let pkg_id = PackageId::new("new-package").unwrap();
-        let version = PackageVersion::new("1.0.0").unwrap();
+        let version = PackageVersion::new("26.6.6").unwrap();
         let license = "MIT".to_string();
         let query = SparqlQuery::insert_package(
             &pkg_id,

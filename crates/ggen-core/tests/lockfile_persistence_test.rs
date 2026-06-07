@@ -40,7 +40,7 @@ fn test_lockfile_save_and_load() {
 
     // Add a test pack
     let pack = LockedPack {
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         source: PackSource::Local {
             path: PathBuf::from("/tmp/test-pack"),
         },
@@ -66,7 +66,7 @@ fn test_lockfile_save_and_load() {
     assert!(loaded.packs.contains_key("test-pack"));
 
     let loaded_pack = loaded.get_pack("test-pack").expect("Pack not found");
-    assert_eq!(loaded_pack.version, "1.0.0");
+    assert_eq!(loaded_pack.version, "26.6.6");
     assert_eq!(loaded_pack.dependencies.len(), 0);
 
     // Test validation
@@ -82,7 +82,7 @@ fn test_lockfile_format_correctness() {
 
     // Add pack with all fields populated
     let pack = LockedPack {
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         source: PackSource::GitHub {
             org: "test-org".to_string(),
             repo: "test-repo".to_string(),
@@ -157,7 +157,7 @@ fn test_lockfile_validation_detects_missing_dependencies() {
 
     // Add a pack with a dependency that doesn't exist
     let pack = LockedPack {
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         source: PackSource::Registry {
             url: "https://registry.ggen.io".to_string(),
         },
@@ -195,7 +195,7 @@ fn test_lockfile_updates_timestamp() {
 
     // Add a pack
     let pack = LockedPack {
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         source: PackSource::Local {
             path: PathBuf::from("/tmp/test"),
         },

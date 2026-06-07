@@ -75,12 +75,12 @@ mod adapter_conversion_tests {
 
     #[test]
     fn test_v1_to_v2_basic_conversion() {
-        let v1_pkg = create_v1_package("test-package", "Test Package", "1.0.0");
+        let v1_pkg = create_v1_package("test-package", "Test Package", "26.6.6");
         let v2_pkg = v1_to_v2(&v1_pkg);
 
         assert_eq!(v2_pkg.metadata.id.to_string(), "test-package");
         assert_eq!(v2_pkg.metadata.name, "Test Package");
-        assert_eq!(v2_pkg.metadata.version.to_string(), "1.0.0");
+        assert_eq!(v2_pkg.metadata.version.to_string(), "26.6.6");
         assert_eq!(v2_pkg.metadata.author, "test-author");
         assert_eq!(v2_pkg.metadata.license, "MIT");
     }
@@ -114,7 +114,7 @@ mod adapter_conversion_tests {
 
     #[test]
     fn test_unicode_package_name_conversion() {
-        let v1_pkg = create_v1_package("unicode-test", "测试包 🚀 Тест", "1.0.0");
+        let v1_pkg = create_v1_package("unicode-test", "测试包 🚀 Тест", "26.6.6");
         let v2_pkg = v1_to_v2(&v1_pkg);
         let roundtrip = v2_to_v1(&v2_pkg);
 
@@ -124,7 +124,7 @@ mod adapter_conversion_tests {
 
     #[test]
     fn test_unicode_description_conversion() {
-        let mut v1_pkg = create_v1_package("desc-unicode", "Unicode Desc", "1.0.0");
+        let mut v1_pkg = create_v1_package("desc-unicode", "Unicode Desc", "26.6.6");
         v1_pkg.metadata.description = "This is a test with émojis 🎉 and ĆÝŘÏĻĻÏĆ".to_string();
 
         let v2_pkg = v1_to_v2(&v1_pkg);
@@ -135,7 +135,7 @@ mod adapter_conversion_tests {
 
     #[test]
     fn test_special_characters_in_tags() {
-        let mut v1_pkg = create_v1_package("special-tags", "Special Tags", "1.0.0");
+        let mut v1_pkg = create_v1_package("special-tags", "Special Tags", "26.6.6");
         v1_pkg.metadata.tags = vec![
             "rust".to_string(),
             "CLI-tool".to_string(),
@@ -151,7 +151,7 @@ mod adapter_conversion_tests {
 
     #[test]
     fn test_empty_optional_fields() {
-        let mut v1_pkg = create_v1_package("empty-opts", "Empty Options", "1.0.0");
+        let mut v1_pkg = create_v1_package("empty-opts", "Empty Options", "26.6.6");
         v1_pkg.metadata.repository_url = None;
 
         let v2_pkg = v1_to_v2(&v1_pkg);
@@ -162,7 +162,7 @@ mod adapter_conversion_tests {
 
     #[test]
     fn test_semantic_version_conversion() {
-        let versions = vec!["0.1.0", "1.0.0", "2.3.4", "10.20.30"];
+        let versions = vec!["0.1.0", "26.6.6", "2.3.4", "10.20.30"];
 
         for ver in versions {
             let v1_pkg = create_v1_package("semver-test", "SemVer Test", ver);
@@ -175,7 +175,7 @@ mod adapter_conversion_tests {
 
     #[test]
     fn test_large_description_conversion() {
-        let mut v1_pkg = create_v1_package("large-desc", "Large Description", "1.0.0");
+        let mut v1_pkg = create_v1_package("large-desc", "Large Description", "26.6.6");
         v1_pkg.metadata.description = "x".repeat(10000); // 10KB description
 
         let v2_pkg = v1_to_v2(&v1_pkg);
@@ -187,7 +187,7 @@ mod adapter_conversion_tests {
 
     #[test]
     fn test_many_tags_conversion() {
-        let mut v1_pkg = create_v1_package("many-tags", "Many Tags", "1.0.0");
+        let mut v1_pkg = create_v1_package("many-tags", "Many Tags", "26.6.6");
         v1_pkg.metadata.tags = (0..100).map(|i| format!("tag-{}", i)).collect();
 
         let v2_pkg = v1_to_v2(&v1_pkg);
@@ -199,7 +199,7 @@ mod adapter_conversion_tests {
 
     #[test]
     fn test_timestamp_preservation() {
-        let v1_pkg = create_v1_package("timestamp-test", "Timestamp Test", "1.0.0");
+        let v1_pkg = create_v1_package("timestamp-test", "Timestamp Test", "26.6.6");
         let original_created = v1_pkg.metadata.created_at;
         let original_updated = v1_pkg.metadata.updated_at;
 
@@ -218,7 +218,7 @@ mod adapter_conversion_tests {
 
     #[test]
     fn test_author_with_special_characters() {
-        let mut v1_pkg = create_v1_package("author-special", "Author Special", "1.0.0");
+        let mut v1_pkg = create_v1_package("author-special", "Author Special", "26.6.6");
         v1_pkg.metadata.author =
             "John O'Brien <john@example.com> (https://example.com)".to_string();
 
@@ -239,7 +239,7 @@ mod adapter_conversion_tests {
         ];
 
         for license in licenses {
-            let mut v1_pkg = create_v1_package("license-test", "License Test", "1.0.0");
+            let mut v1_pkg = create_v1_package("license-test", "License Test", "26.6.6");
             v1_pkg.metadata.license = license.to_string();
 
             let v2_pkg = v1_to_v2(&v1_pkg);
@@ -253,7 +253,7 @@ mod adapter_conversion_tests {
     fn test_conversion_performance() {
         use std::time::Instant;
 
-        let v1_pkg = create_v1_package("perf-test", "Performance Test", "1.0.0");
+        let v1_pkg = create_v1_package("perf-test", "Performance Test", "26.6.6");
 
         let start = Instant::now();
         for _ in 0..1000 {
@@ -273,7 +273,7 @@ mod adapter_conversion_tests {
     #[test]
     fn test_null_byte_handling() {
         // Ensure null bytes are handled/rejected properly
-        let v1_pkg = create_v1_package("null-test", "Null\0Test", "1.0.0");
+        let v1_pkg = create_v1_package("null-test", "Null\0Test", "26.6.6");
         let v2_pkg = v1_to_v2(&v1_pkg);
 
         // System should either strip null bytes or preserve them safely

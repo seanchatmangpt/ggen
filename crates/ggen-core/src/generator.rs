@@ -124,7 +124,7 @@ impl GenContext {
     ///
     /// let mut vars = BTreeMap::new();
     /// vars.insert("name".to_string(), "MyApp".to_string());
-    /// vars.insert("version".to_string(), "1.0.0".to_string());
+    /// vars.insert("version".to_string(), "26.6.6".to_string());
     ///
     /// let ctx = GenContext::new(
     ///     PathBuf::from("template.tmpl"),
@@ -132,7 +132,7 @@ impl GenContext {
     /// ).with_vars(vars);
     ///
     /// assert_eq!(ctx.vars.get("name"), Some(&"MyApp".to_string()));
-    /// assert_eq!(ctx.vars.get("version"), Some(&"1.0.0".to_string()));
+    /// assert_eq!(ctx.vars.get("version"), Some(&"26.6.6".to_string()));
     /// ```
     pub fn with_vars(mut self, vars: BTreeMap<String, String>) -> Self {
         self.vars = vars;
@@ -467,7 +467,7 @@ mod tests {
         let output_root = PathBuf::from("output");
         let mut vars = BTreeMap::new();
         vars.insert("name".to_string(), "TestApp".to_string());
-        vars.insert("version".to_string(), "1.0.0".to_string());
+        vars.insert("version".to_string(), "26.6.6".to_string());
 
         let ctx = GenContext::new(template_path, output_root).with_vars(vars.clone());
 

@@ -7,7 +7,7 @@
 /// ```ignore
 /// use ggen_core::deprecated_since;
 ///
-/// #[deprecated_since!("1.0.0", "Use new_api() instead. See migration guide at docs/MIGRATION.md")]
+/// #[deprecated_since!("26.6.6", "Use new_api() instead. See migration guide at docs/MIGRATION.md")]
 /// pub fn old_api() -> Result<String, Error> {
 ///     // Legacy implementation
 ///     Ok("deprecated".to_string())
@@ -26,7 +26,7 @@ macro_rules! deprecated_since {
 /// ```ignore
 /// use ggen_core::experimental;
 ///
-/// #[experimental!("1.0.0", "This API may change in future versions")]
+/// #[experimental!("26.6.6", "This API may change in future versions")]
 /// pub fn experimental_feature() -> Result<(), Error> {
 ///     // Experimental implementation
 ///     Ok(())
@@ -67,7 +67,7 @@ impl VersionChecker {
     /// ```
     /// use crate::utils::versioning::VersionChecker;
     ///
-    /// let compatible = VersionChecker::is_compatible("1.0.0", "1.2.0");
+    /// let compatible = VersionChecker::is_compatible("26.6.6", "1.2.0");
     /// assert!(compatible.unwrap());
     /// ```
     pub fn is_compatible(requested: &str, current: &str) -> Result<bool, String> {
@@ -108,8 +108,8 @@ mod tests {
     #[test]
     fn test_version_compatibility_same_version() {
         // Arrange
-        let requested = "1.0.0";
-        let current = "1.0.0";
+        let requested = "26.6.6";
+        let current = "26.6.6";
 
         // Act
         let result = VersionChecker::is_compatible(requested, current);
@@ -121,7 +121,7 @@ mod tests {
     #[test]
     fn test_version_compatibility_minor_upgrade() {
         // Arrange
-        let requested = "1.0.0";
+        let requested = "26.6.6";
         let current = "1.2.0";
 
         // Act
@@ -134,7 +134,7 @@ mod tests {
     #[test]
     fn test_version_compatibility_major_incompatible() {
         // Arrange
-        let requested = "1.0.0";
+        let requested = "26.6.6";
         let current = "2.0.0";
 
         // Act

@@ -212,7 +212,7 @@ mod tests {
 
     #[test]
     fn test_openapi_spec_creation() {
-        let spec = OpenApiSpec::new("Test API".to_string(), "1.0.0".to_string());
+        let spec = OpenApiSpec::new("Test API".to_string(), "26.6.6".to_string());
         assert_eq!(spec.info.title, "Test API");
         assert_eq!(spec.openapi, "3.1.0");
     }

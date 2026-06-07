@@ -38,7 +38,7 @@ fn test_membrane_bindings_and_boundary_crossings() {
     let part1 = InterchangeablePart {
         id: "wasm-crypto-module".to_string(),
         part_type: "wasm32".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         interfaces: vec!["hash_sha256".to_string(), "sign_ed25519".to_string()],
         payload_hash: "2e7d2c03a9507ae2ecf403cf6fd0062f627d2c03a9507ae2ecf403cf6fd0062f"
             .to_string(),

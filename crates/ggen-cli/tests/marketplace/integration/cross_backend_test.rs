@@ -55,7 +55,7 @@ mod cross_backend_tests {
 
     #[tokio::test]
     async fn test_same_package_data_both_backends() {
-        let (v1_pkg, v2_pkg) = create_test_packages("cross-test", "Cross Test", "1.0.0");
+        let (v1_pkg, v2_pkg) = create_test_packages("cross-test", "Cross Test", "26.6.6");
 
         // Core metadata should match
         assert_eq!(v1_pkg.metadata.id, v2_pkg.metadata.id.to_string());
@@ -96,7 +96,7 @@ mod cross_backend_tests {
 
     #[tokio::test]
     async fn test_install_behavior_consistency() {
-        let (v1_pkg, v2_pkg) = create_test_packages("install-test", "Install Test", "1.0.0");
+        let (v1_pkg, v2_pkg) = create_test_packages("install-test", "Install Test", "26.6.6");
 
         // Install behavior should be identical
         assert_eq!(v1_pkg.metadata.id, v2_pkg.metadata.id.to_string());
@@ -160,7 +160,7 @@ mod cross_backend_tests {
 
     #[tokio::test]
     async fn test_unicode_handling_consistency() {
-        let (v1_pkg, v2_pkg) = create_test_packages("unicode-cross", "Unicode 测试 🚀", "1.0.0");
+        let (v1_pkg, v2_pkg) = create_test_packages("unicode-cross", "Unicode 测试 🚀", "26.6.6");
 
         assert_eq!(v1_pkg.metadata.name, v2_pkg.metadata.name);
     }
@@ -168,14 +168,14 @@ mod cross_backend_tests {
     #[tokio::test]
     async fn test_special_characters_consistency() {
         let (v1_pkg, v2_pkg) =
-            create_test_packages("special-cross", "Test \"Package\" <Name>", "1.0.0");
+            create_test_packages("special-cross", "Test \"Package\" <Name>", "26.6.6");
 
         assert_eq!(v1_pkg.metadata.name, v2_pkg.metadata.name);
     }
 
     #[tokio::test]
     async fn test_version_sorting_consistency() {
-        let versions = vec!["1.0.0", "2.0.0", "1.5.0", "0.9.0"];
+        let versions = vec!["26.6.6", "2.0.0", "1.5.0", "0.9.0"];
 
         // Both backends should sort versions identically
         let mut v1_sorted = versions.clone();

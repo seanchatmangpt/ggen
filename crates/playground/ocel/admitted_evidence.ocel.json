@@ -1,0 +1,210 @@
+{
+  "eventTypes": [
+    {
+      "name": "checkpoint.admitted",
+      "attributes": []
+    },
+    {
+      "name": "diagnostic.published",
+      "attributes": []
+    },
+    {
+      "name": "file.projected",
+      "attributes": []
+    }
+  ],
+  "objectTypes": [
+    {
+      "name": "Artifact",
+      "attributes": []
+    },
+    {
+      "name": "Checkpoint",
+      "attributes": []
+    }
+  ],
+  "events": [
+    {
+      "id": "5ea0884d-1708-402a-aec7-644f7d114dbb",
+      "type": "file.projected",
+      "time": "2026-06-06T22:54:08.415151Z",
+      "attributes": [],
+      "relationships": [
+        {
+          "objectId": "crates/ggen-projection/tests/dogfood_gc002.rs",
+          "qualifier": "subject"
+        }
+      ]
+    },
+    {
+      "id": "e5d25256-d661-4acd-9579-440245012013",
+      "type": "file.projected",
+      "time": "2026-06-06T22:54:08.420147Z",
+      "attributes": [],
+      "relationships": [
+        {
+          "objectId": "crates/ggen-projection/tests/dogfood_gc003.rs",
+          "qualifier": "subject"
+        }
+      ]
+    },
+    {
+      "id": "0f5ccc63-d98e-4cc8-abae-a3386d918879",
+      "type": "file.projected",
+      "time": "2026-06-06T23:24:54.530013Z",
+      "attributes": [],
+      "relationships": [
+        {
+          "objectId": "crates/ggen-lsp/tests/dogfood_gc004.rs",
+          "qualifier": "subject"
+        }
+      ]
+    },
+    {
+      "id": "evt_cp_1",
+      "type": "checkpoint.admitted",
+      "time": "2026-06-06T23:33:07.196593Z",
+      "attributes": [],
+      "relationships": [
+        {
+          "objectId": "GALL-CHECKPOINT-001",
+          "qualifier": "proves"
+        }
+      ]
+    },
+    {
+      "id": "evt_cp_2",
+      "type": "checkpoint.admitted",
+      "time": "2026-06-06T23:33:07.196880Z",
+      "attributes": [],
+      "relationships": [
+        {
+          "objectId": "GALL-CHECKPOINT-002",
+          "qualifier": "proves"
+        }
+      ]
+    },
+    {
+      "id": "evt_cp_3",
+      "type": "checkpoint.admitted",
+      "time": "2026-06-06T23:33:07.196954Z",
+      "attributes": [],
+      "relationships": [
+        {
+          "objectId": "GALL-CHECKPOINT-003",
+          "qualifier": "proves"
+        }
+      ]
+    },
+    {
+      "id": "evt_cp_4",
+      "type": "checkpoint.admitted",
+      "time": "2026-06-06T23:33:07.197023Z",
+      "attributes": [],
+      "relationships": [
+        {
+          "objectId": "GALL-CHECKPOINT-004",
+          "qualifier": "proves"
+        }
+      ]
+    },
+    {
+      "id": "gen_diag_001",
+      "type": "diagnostic.published",
+      "time": "2026-06-06T23:24:54Z",
+      "attributes": [],
+      "relationships": [
+        {
+          "objectId": "file:///tmp/cli.rs",
+          "qualifier": "subject"
+        }
+      ]
+    },
+    {
+      "id": "gen_diag_002",
+      "type": "diagnostic.published",
+      "time": "2026-06-06T23:24:54.001Z",
+      "attributes": [],
+      "relationships": [
+        {
+          "objectId": "file:///tmp/server.rs",
+          "qualifier": "subject"
+        }
+      ]
+    },
+    {
+      "id": "gen_diag_003",
+      "type": "diagnostic.published",
+      "time": "2026-06-06T23:24:54.002Z",
+      "attributes": [],
+      "relationships": [
+        {
+          "objectId": "file:///tmp/receipts.json",
+          "qualifier": "subject"
+        }
+      ]
+    }
+  ],
+  "objects": [
+    {
+      "id": "crates/ggen-projection/tests/dogfood_gc002.rs",
+      "type": "Artifact",
+      "attributes": [],
+      "relationships": []
+    },
+    {
+      "id": "GALL-CHECKPOINT-001",
+      "type": "Checkpoint",
+      "attributes": [],
+      "relationships": []
+    },
+    {
+      "id": "crates/ggen-projection/tests/dogfood_gc003.rs",
+      "type": "Artifact",
+      "attributes": [],
+      "relationships": []
+    },
+    {
+      "id": "GALL-CHECKPOINT-003",
+      "type": "Checkpoint",
+      "attributes": [],
+      "relationships": []
+    },
+    {
+      "id": "file:///tmp/receipts.json",
+      "type": "Artifact",
+      "attributes": [],
+      "relationships": []
+    },
+    {
+      "id": "crates/ggen-lsp/tests/dogfood_gc004.rs",
+      "type": "Artifact",
+      "attributes": [],
+      "relationships": []
+    },
+    {
+      "id": "GALL-CHECKPOINT-002",
+      "type": "Checkpoint",
+      "attributes": [],
+      "relationships": []
+    },
+    {
+      "id": "file:///tmp/server.rs",
+      "type": "Artifact",
+      "attributes": [],
+      "relationships": []
+    },
+    {
+      "id": "GALL-CHECKPOINT-004",
+      "type": "Checkpoint",
+      "attributes": [],
+      "relationships": []
+    },
+    {
+      "id": "file:///tmp/cli.rs",
+      "type": "Artifact",
+      "attributes": [],
+      "relationships": []
+    }
+  ]
+}

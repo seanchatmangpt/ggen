@@ -27,7 +27,7 @@
 //!
 //! // Add a pack from registry
 //! let pack = LockedPack {
-//!     version: "1.0.0".to_string(),
+//!     version: "26.6.6".to_string(),
 //!     source: PackSource::Registry {
 //!         url: "https://registry.ggen.io".to_string()
 //!     },

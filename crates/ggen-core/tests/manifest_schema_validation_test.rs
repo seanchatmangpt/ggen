@@ -71,7 +71,7 @@ rules = []
 fn parse_missing_project_name_returns_error() {
     let toml = r#"
 [project]
-version = "1.0.0"
+version = "26.6.6"
 
 [ontology]
 source = "domain/model.ttl"
@@ -120,7 +120,7 @@ fn parse_missing_ontology_section_returns_error() {
     let toml = r#"
 [project]
 name = "test-project"
-version = "1.0.0"
+version = "26.6.6"
 
 [generation]
 rules = []
@@ -142,7 +142,7 @@ fn parse_missing_generation_section_returns_error() {
     let toml = r#"
 [project]
 name = "test-project"
-version = "1.0.0"
+version = "26.6.6"
 
 [ontology]
 source = "domain/model.ttl"
@@ -229,7 +229,7 @@ fn validate_empty_project_name_returns_error() {
     let toml = r#"
 [project]
 name = ""
-version = "1.0.0"
+version = "26.6.6"
 
 [ontology]
 source = "domain/model.ttl"
@@ -282,7 +282,7 @@ fn validate_nonexistent_ontology_source_returns_error() {
     let toml = r#"
 [project]
 name = "test-project"
-version = "1.0.0"
+version = "26.6.6"
 
 [ontology]
 source = "nonexistent_ontology.ttl"
@@ -310,7 +310,7 @@ fn validate_nonexistent_ontology_import_returns_error() {
     let toml = r#"
 [project]
 name = "test-project"
-version = "1.0.0"
+version = "26.6.6"
 
 [ontology]
 source = "ontology.ttl"
@@ -341,7 +341,7 @@ fn validate_generation_rule_with_nonexistent_query_file_returns_error() {
     let toml = r#"
 [project]
 name = "test-project"
-version = "1.0.0"
+version = "26.6.6"
 
 [ontology]
 source = "ontology.ttl"
@@ -377,7 +377,7 @@ fn validate_generation_rule_with_nonexistent_template_file_returns_error() {
     let toml = r#"
 [project]
 name = "test-project"
-version = "1.0.0"
+version = "26.6.6"
 
 [ontology]
 source = "ontology.ttl"
@@ -413,7 +413,7 @@ fn validate_generation_rule_with_empty_output_file_returns_error() {
     let toml = r#"
 [project]
 name = "test-project"
-version = "1.0.0"
+version = "26.6.6"
 
 [ontology]
 source = "ontology.ttl"
@@ -442,7 +442,7 @@ fn validate_nonexistent_shacl_file_returns_error() {
     let toml = r#"
 [project]
 name = "test-project"
-version = "1.0.0"
+version = "26.6.6"
 
 [ontology]
 source = "ontology.ttl"
@@ -474,7 +474,7 @@ fn validate_inference_rule_with_empty_name_returns_error() {
     let toml = r#"
 [project]
 name = "test-project"
-version = "1.0.0"
+version = "26.6.6"
 
 [ontology]
 source = "ontology.ttl"
@@ -507,7 +507,7 @@ fn validate_inference_rule_with_empty_construct_returns_error() {
     let toml = r#"
 [project]
 name = "test-project"
-version = "1.0.0"
+version = "26.6.6"
 
 [ontology]
 source = "ontology.ttl"

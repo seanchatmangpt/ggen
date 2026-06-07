@@ -196,12 +196,12 @@ fn test_t3_sync_during_manual_edit_drift() {
 fn test_t3_dependency_removal_breaks_diagnostic_chain() {
     // A depends on B
     let mut deps_ok = BTreeMap::new();
-    deps_ok.insert("pack_b".to_string(), "^1.0.0".to_string());
+    deps_ok.insert("pack_b".to_string(), "^26.6.6".to_string());
 
     let p_a = PackDescriptor {
         id: "pack_a".to_string(),
         name: "Pack A".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         description: "A".to_string(),
         license: "MIT".to_string(),
         dependencies: deps_ok,
@@ -216,7 +216,7 @@ fn test_t3_dependency_removal_breaks_diagnostic_chain() {
     let p_b = PackDescriptor {
         id: "pack_b".to_string(),
         name: "Pack B".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         description: "B".to_string(),
         license: "MIT".to_string(),
         dependencies: BTreeMap::new(),
@@ -241,7 +241,7 @@ fn test_t3_dependency_removal_breaks_diagnostic_chain() {
     client.did_open(
         "file:///virtual/project/pack.toml",
         "toml",
-        "id = \"pack_a\"\nname = \"Pack A\"\nversion = \"1.0.0\"\nlicense = \"MIT\"\ndependencies = { \"pack_b\" = \"^1.0.0\" }",
+        "id = \"pack_a\"\nname = \"Pack A\"\nversion = \"26.6.6\"\nlicense = \"MIT\"\ndependencies = { \"pack_b\" = \"^26.6.6\" }",
     ).unwrap();
 
     let _ = client.wait_for_notification_timeout(
@@ -426,7 +426,7 @@ fn test_t3_signature_change_invalidates_opportunity() {
     client.did_open(
         "file:///virtual/project/pack.toml",
         "toml",
-        "id = \"pack_1\"\nname = \"Pack 1\"\nversion = \"1.0.0\"\nlicense = \"MIT\"\nsignatures = { \"parse\" = \"new_signature_to_mismatch\" }",
+        "id = \"pack_1\"\nname = \"Pack 1\"\nversion = \"26.6.6\"\nlicense = \"MIT\"\nsignatures = { \"parse\" = \"new_signature_to_mismatch\" }",
     ).unwrap();
 
     let _ = client.wait_for_notification_timeout(
@@ -447,7 +447,7 @@ fn test_t3_corrupt_receipt_blocks_export() {
         "src/lib.rs".to_string(),
         b"tmpl1",
         b"gen1",
-        "1.0.0".to_string(),
+        "26.6.6".to_string(),
         &signing_key,
         None,
     );
@@ -456,7 +456,7 @@ fn test_t3_corrupt_receipt_blocks_export() {
         "src/main.rs".to_string(),
         b"tmpl2",
         b"gen2",
-        "1.0.0".to_string(),
+        "26.6.6".to_string(),
         &signing_key,
         Some(receipt1.blake3_hash.clone()),
     );

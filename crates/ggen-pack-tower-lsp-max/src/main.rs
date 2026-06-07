@@ -17,7 +17,7 @@ impl LanguageServer for Backend {
             },
             server_info: Some(ServerInfo {
                 name: "tower-lsp-max-pack-lsp".to_string(),
-                version: Some("1.0.0".to_string()),
+                version: Some("26.6.6".to_string()),
             }),
         })
     }

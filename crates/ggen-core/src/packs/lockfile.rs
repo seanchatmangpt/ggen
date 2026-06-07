@@ -20,7 +20,7 @@
 //! {
 //!   "packs": {
 //!     "io.ggen.rust.cli": {
-//!       "version": "1.0.0",
+//!       "version": "26.6.6",
 //!       "source": {
 //!         "Registry": { "url": "https://registry.ggen.io" }
 //!       },
@@ -51,7 +51,7 @@
 //! };
 //!
 //! let pack = LockedPack {
-//!     version: "1.0.0".to_string(),
+//!     version: "26.6.6".to_string(),
 //!     source: PackSource::Registry {
 //!         url: "https://registry.ggen.io".to_string()
 //!     },
@@ -114,7 +114,7 @@ pub struct PackLockfile {
 /// PartialEq without Eq: installed_at (`DateTime<Utc>`) field does not implement Eq
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct LockedPack {
-    /// Semantic version of the pack (e.g., "1.0.0")
+    /// Semantic version of the pack (e.g., "26.6.6")
     pub version: String,
 
     /// Source where the pack was installed from
@@ -156,7 +156,7 @@ pub enum PackSource {
         org: String,
         /// Repository name (e.g., "ggen")
         repo: String,
-        /// Branch or tag (e.g., "main", "v1.0.0")
+        /// Branch or tag (e.g., "main", "v26.6.6")
         branch: String,
     },
 
@@ -302,7 +302,7 @@ impl PackLockfile {
     ///
     /// let mut lockfile = PackLockfile::new("4.0.0");
     /// let pack = LockedPack {
-    ///     version: "1.0.0".to_string(),
+    ///     version: "26.6.6".to_string(),
     ///     source: PackSource::Registry {
     ///         url: "https://registry.ggen.io".to_string()
     ///     },
@@ -464,19 +464,19 @@ mod tests {
     #[test]
     fn test_add_and_get_pack() {
         let mut lockfile = PackLockfile::new("4.0.0");
-        let pack = create_test_pack("1.0.0", vec![]);
+        let pack = create_test_pack("26.6.6", vec![]);
 
         lockfile.add_pack("test.pack", pack.clone());
 
         let retrieved = lockfile.get_pack("test.pack");
         assert!(retrieved.is_some());
-        assert_eq!(retrieved.unwrap().version, "1.0.0");
+        assert_eq!(retrieved.unwrap().version, "26.6.6");
     }
 
     #[test]
     fn test_remove_pack() {
         let mut lockfile = PackLockfile::new("4.0.0");
-        let pack = create_test_pack("1.0.0", vec![]);
+        let pack = create_test_pack("26.6.6", vec![]);
 
         lockfile.add_pack("test.pack", pack);
         assert!(lockfile.get_pack("test.pack").is_some());

@@ -1,6 +1,6 @@
 # genesis-lockchain Architecture
 
-**Version:** 1.0.0
+**Version:** 26.6.6
 **Last Updated:** 2025-11-07
 
 ---
@@ -558,6 +558,6 @@ let quorum = QuorumManager::new(7, 5)?;
 
 ---
 
-**Document Version:** 1.0.0
+**Document Version:** 26.6.6
 **Last Updated:** 2025-11-07
 **Maintainer:** KNHK Team

@@ -283,7 +283,7 @@ fn test_generate_cargo_toml() -> Result<()> {
     let mut tera = mk_tera();
     let vars = ctx_from_pairs(&[
         ("service_name", "payment_service"),
-        ("version", "1.0.0"),
+        ("version", "26.6.6"),
         ("rust_edition", "2021"),
     ]);
 
@@ -306,7 +306,7 @@ fn test_generate_cargo_toml() -> Result<()> {
 
     let content = fs::read_to_string(&output_path)?;
     assert!(content.contains("name = \"payment_service\""));
-    assert!(content.contains("version = \"1.0.0\""));
+    assert!(content.contains("version = \"26.6.6\""));
     assert!(content.contains("axum = \"0.7\""));
     Ok(())
 }
@@ -367,7 +367,7 @@ fn test_generate_complete_microservice_structure() -> Result<()> {
             ("service_name", svc),
             ("port", prt),
             ("rust_edition", "2021"),
-            ("version", "1.0.0"),
+            ("version", "26.6.6"),
             ("database_url", "postgresql://localhost"),
         ]);
 

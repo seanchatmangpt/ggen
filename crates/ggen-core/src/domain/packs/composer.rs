@@ -136,7 +136,7 @@ impl PackComposer {
         let mut merged = Pack {
             id: format!("composed-{}", first.id),
             name: format!("Composed Pack"),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: format!("Composed from {} packs", packs.len()),
             category: first.category.clone(),
             author: first.author.clone(),
@@ -396,7 +396,7 @@ mod tests {
         Pack {
             id: id.to_string(),
             name: format!("Pack {}", id),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: format!("Test pack {}", id),
             category: "test".to_string(),
             author: None,

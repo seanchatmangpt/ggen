@@ -30,7 +30,7 @@ test!(test_registry_index_empty, {
 test!(test_registry_index_lookup, {
     // Arrange
     let mut index = create_mock_registry_index(0);
-    let pack = create_mock_pack("lookup-test", "Lookup Test", "1.0.0");
+    let pack = create_mock_pack("lookup-test", "Lookup Test", "26.6.6");
 
     // Act
     index.packs.insert("lookup-test".to_string(), pack);

@@ -1,6 +1,6 @@
 id = "ggen-pack-clap-noun-verb"
 name = "Clap Noun-Verb"
-version = "1.0.0"
+version = "26.6.6"
 description = "Clap Noun-Verb pack"
 license = "MIT"
 dependencies = {}

@@ -222,7 +222,7 @@ mod tests {
         Pack {
             id: id.to_string(),
             name: format!("Pack {}", id),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: format!("Test pack {}", id),
             category: "test".to_string(),
             author: None,
@@ -236,7 +236,7 @@ mod tests {
                 .into_iter()
                 .map(|d| PackDependency {
                     pack_id: d.to_string(),
-                    version: "1.0.0".to_string(),
+                    version: "26.6.6".to_string(),
                     optional: false,
                 })
                 .collect(),

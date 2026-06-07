@@ -47,12 +47,12 @@
 //     .unwrap();
 //
 //     // Create a lockfile entry for the local pack
-//     let lockfile_content = r#"version = "1.0.0"
+//     let lockfile_content = r#"version = "26.6.6"
 // generated = "2024-01-01T00:00:00Z"
 //
 // [[packs]]
 // id = "local.test"
-// version = "1.0.0"
+// version = "26.6.6"
 // sha256 = "abc123"
 // source = "local"
 // "#;
@@ -60,7 +60,7 @@
 //
 //     // Create a cache entry for the local pack in the system cache directory
 //     let system_cache_dir = dirs::cache_dir().unwrap().join("ggen/gpacks");
-//     let cache_dir = system_cache_dir.join("local.test/1.0.0");
+//     let cache_dir = system_cache_dir.join("local.test/26.6.6");
 //     let cache_templates_dir = cache_dir.join("templates");
 //     std::fs::create_dir_all(&cache_templates_dir).unwrap();
 //
@@ -80,10 +80,10 @@
 // [gpack]
 // id = "local.test"
 // name = "Local Test Pack"
-// version = "1.0.0"
+// version = "26.6.6"
 // description = "Local test pack"
 // license = "MIT"
-// ggen_compat = "1.0.0"
+// ggen_compat = "26.6.6"
 // "#,
 //     )
 //     .unwrap();

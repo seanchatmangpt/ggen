@@ -217,7 +217,7 @@ mod tests {
         let pass = ReceiptGenerationPass::new("6.0.0");
 
         let mut ctx = PassContext::new(&graph, temp_dir.path().to_path_buf(), output_dir)
-            .with_project("test".to_string(), "1.0.0".to_string());
+            .with_project("test".to_string(), "26.6.6".to_string());
 
         let result = pass.execute(&mut ctx).unwrap();
         assert!(result.success);
@@ -237,7 +237,7 @@ mod tests {
             ReceiptGenerationPass::new("6.0.0").with_receipt_path(PathBuf::from("receipt.json"));
 
         let mut ctx = PassContext::new(&graph, temp_dir.path().to_path_buf(), output_dir.clone())
-            .with_project("test".to_string(), "1.0.0".to_string());
+            .with_project("test".to_string(), "26.6.6".to_string());
         ctx.generated_files.push(PathBuf::from("model.rs"));
 
         let result = pass.execute(&mut ctx).unwrap();

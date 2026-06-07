@@ -66,7 +66,7 @@ fn build_mcp_ontology(server_name: &str, tool_names: &[String]) -> String {
 ex:Transport a mcp:Transport ; rdfs:label "stdio" .
 ex:Server a mcp:McpsServer ;
     mcp:serverName "{}" ;
-    mcp:serverVersion "1.0.0" ;
+    mcp:serverVersion "26.6.6" ;
     mcp:serverDescription "Test server" ;
     mcp:hasTransport ex:Transport .
 "#,

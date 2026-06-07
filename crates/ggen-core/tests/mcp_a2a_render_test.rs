@@ -351,7 +351,7 @@ fn adapter_mcp_sparql_context() -> Context {
 fn adapter_a2a_sparql_context() -> Context {
     let mut ctx = Context::new();
     ctx.insert("agent_name", "process_analyzer");
-    ctx.insert("agent_version", "1.0.0");
+    ctx.insert("agent_version", "26.6.6");
     ctx.insert(
         "agent_description",
         "Analyzes business processes and detects bottlenecks",

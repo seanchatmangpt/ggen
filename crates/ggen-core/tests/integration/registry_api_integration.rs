@@ -28,9 +28,9 @@ async_test_with_timeout!(test_get_popular_categories, 30, async {
         let id = format!("package-{}", i);
         let mut versions = HashMap::new();
         versions.insert(
-            "1.0.0".to_string(),
+            "26.6.6".to_string(),
             VersionMetadata {
-                version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
                 git_url: format!("https://github.com/test/{}.git", id),
                 git_rev: "main".to_string(),
                 manifest_url: None,
@@ -48,7 +48,7 @@ async_test_with_timeout!(test_get_popular_categories, 30, async {
                 keywords: vec![],
                 category: Some(category.to_string()),
                 author: Some("Test".to_string()),
-                latest_version: "1.0.0".to_string(),
+                latest_version: "26.6.6".to_string(),
                 versions,
                 downloads: None,
                 updated: None,
@@ -104,9 +104,9 @@ async_test_with_timeout!(test_get_popular_keywords, 30, async {
         let id = format!("package-{}", i);
         let mut versions = HashMap::new();
         versions.insert(
-            "1.0.0".to_string(),
+            "26.6.6".to_string(),
             VersionMetadata {
-                version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
                 git_url: format!("https://github.com/test/{}.git", id),
                 git_rev: "main".to_string(),
                 manifest_url: None,
@@ -124,7 +124,7 @@ async_test_with_timeout!(test_get_popular_keywords, 30, async {
                 keywords: keywords.iter().map(|k| k.to_string()).collect(),
                 category: None,
                 author: None,
-                latest_version: "1.0.0".to_string(),
+                latest_version: "26.6.6".to_string(),
                 versions,
                 downloads: None,
                 updated: None,
@@ -168,9 +168,9 @@ async_test_with_timeout!(test_list_all_packages, 30, async {
         let id = format!("package-{}", i);
         let mut versions = HashMap::new();
         versions.insert(
-            "1.0.0".to_string(),
+            "26.6.6".to_string(),
             VersionMetadata {
-                version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
                 git_url: format!("https://github.com/test/{}.git", id),
                 git_rev: "main".to_string(),
                 manifest_url: None,
@@ -188,7 +188,7 @@ async_test_with_timeout!(test_list_all_packages, 30, async {
                 keywords: vec![],
                 category: Some("test".to_string()),
                 author: Some("Test".to_string()),
-                latest_version: "1.0.0".to_string(),
+                latest_version: "26.6.6".to_string(),
                 versions,
                 downloads: Some(i as u64 * 10),
                 updated: Some(chrono::Utc::now()),

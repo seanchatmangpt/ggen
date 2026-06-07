@@ -458,7 +458,7 @@ fn handle_project(action: ProjectCommands) -> anyhow::Result<()> {
 
     // Create template metadata
     let metadata = r#"name = "clap-noun-verb-cli"
-version = "1.0.0"
+version = "26.6.6"
 description = "Template for generating clap-noun-verb CLI from RDF specification"
 
 [variables]

@@ -1,6 +1,6 @@
 id = "ggen-pack-proofs"
 name = "Gall Checkpoint Proofs"
-version = "1.0.0"
+version = "26.6.6"
 description = "Projected test artifacts for Gall Checkpoints"
 license = "MIT"
 query_aliases = {}
@@ -15,7 +15,17 @@ variables = []
 path = "templates/dogfood_gc005.rs.tmpl"
 description = "Dogfood test for GC005 wasm4pm admission"
 variables = []
+
+[[templates]]
+path = "templates/dogfood_gc006_calver.rs.tmpl"
+description = "Release-Law CalVer Lock"
+variables = []
 [[templates]]
 path = "templates/dogfood_gc006.rs.tmpl"
 description = "Dogfood test for GC006"
 variables = ["checkpoint", "proofs_gc006"]
+
+[[templates]]
+path = "templates/dogfood_gc007.rs.tmpl"
+description = "Dogfood test for GC007"
+variables = ["checkpoint", "proofs_gc007"]

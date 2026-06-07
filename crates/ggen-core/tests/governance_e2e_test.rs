@@ -80,7 +80,7 @@ fn test_ethos_conformant_gate_e2e() {
 
     // d. Run the pipeline and assert that the EthosConformant gate PASSES
     // We use a real pipeline run to get a valid BuildReceipt
-    let config = PipelineConfig::new("compliance-test", "1.0.0")
+    let config = PipelineConfig::new("compliance-test", "26.6.6")
         .with_base_path(base_path)
         .with_ontology("ontology.ttl")
         .with_output_dir("output");

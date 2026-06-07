@@ -1,6 +1,6 @@
 [package]
 name = "genesis-lockchain"
-version = "1.0.0"
+version = "26.6.6"
 edition = "2021"
 description = "Distributed locking mechanism with receipt-based verification"
 repository = "https://github.com/yourusername/knhk"

@@ -282,4 +282,276 @@ Compute BLAKE3 hashes over canonical events and link each event sequence. Implem
 - [ ] A canonical OCEL ledger exists with JSON/JSONL events, objects, digests, and verdicts under `crates/playground/ocel/` in `~/wasm4pm` and `~/wasm4pm-compat`.
 - [ ] No checkpoint admission is accepted without the required OCEL event coverage and valid cryptographic BLAKE3 chaining.
 - [ ] The wasm4pm replay verifier accurately computes replay verdicts over the OCEL logs.
-- [ ] All check/test runs compile and pass successfully inside `~/wasm4pm` and `~/wasm4pm-compat`.
+
+## Follow-up — 2026-06-07T00:12:48Z
+
+Status accepted as partial operational evidence.
+
+Corrections:
+  - Remove or receipt the liveness heartbeat claim.
+  - Update stale status from MIGRATING_TO_OCEL_ONLY to the current GC005 state.
+  - Do not claim verifier completion until the verifier output is shown.
+  - Preserve the admitted distinction:
+      wasm4pm-lsp dogfood integration is alive;
+      final verifier validation remains pending until concrete command output is provided.
+
+Required next receipt:
+  Show the verifier validation command and output proving FIT / DEVIATION / BLOCKED
+
+## Follow-up — 2026-06-07T00:31:15Z
+
+Please update your execution parameters to enforce the "GC005 Correct Architecture — C4 + Filesystem Law" immediately:
+
+## Requirements
+
+### R1. Sealed Read-Only Workspace Boundaries
+`~/wasm4pm` and `~/wasm4pm-compat` are sealed read-only authority workspaces.
+- Do NOT write into `~/wasm4pm` or `~/wasm4pm-compat`.
+- Do NOT create fake local `wasm4pm`, `wasm4pm-proper`, or `wasm4pm-compat` crates/directories in `~/ggen` or `~/tower-lsp-max`.
+- If a local compatibility adapter exists, rename/fence it as `gc005-wasm4pm-adapter`, `ggen-wasm4pm-adapter`, or `tower-wasm4pm-adapter`.
+
+### R2. Neutral wasm4pm Adapter
+Implement `gc005-wasm4pm-adapter` to act as a neutral adapter:
+- It may translate inputs, call sealed libraries/CLIs, and normalize returned issues/verdicts.
+- It must NOT implement replay/conformance itself, emit FIT from local logic, or write to sealed workspaces.
+- If the required sealed authority is unavailable, it must emit BLOCKED.
+
+### R3. wasm4pm-lsp Server
+Implement or align `wasm4pm-lsp` to act as a process-evidence observer only:
+- Owns only `WASM4PM-*` diagnostics (e.g., `WASM4PM-EVIDENCE-MISSING`, `WASM4PM-OCEL-SHAPE-INVALID`, `WASM4PM-DIGEST-CHAIN-BROKEN`, `WASM4PM-CONFORMANCE-BLOCKED`, `WASM4PM-REPLAY-DEVIATION`, `WASM4PM-VERDICT-FIT`, `WASM4PM-VERDICT-DEVIATION`, `WASM4PM-VERDICT-BLOCKED`, `WASM4PM-VERDICT-INCONCLUSIVE`).
+- It does NOT own `GGEN-*`, `CLAP-*`, or `TOWER-*` diagnostics.
+- It delegates evaluation to `gc005-wasm4pm-adapter` using a document buffer and adapter client, then publishes mapped diagnostics over standard stdio JSON-RPC.
+
+### R4. Proof Projection Harness
+Ensure the projection engine (`sync_target`) projects the protocol-only proof test `dogfood_gc005.rs` from `dogfood_gc005.rs.tmpl` template in `ggen-pack-gall-checkpoint-proof`.
+- Test must use LSP wire (`initialize` → `textDocument/didOpen` → `textDocument/publishDiagnostics`).
+- No hardcoded `/Users/sac/` paths in the generated tests.
+- FIT fixture must return `WASM4PM-VERDICT-FIT`.
+- Missing boundary fixture must return `WASM4PM-CONFORMANCE-BLOCKED`.
+- Artifact-before-staging fixture must return `WASM4PM-REPLAY-DEVIATION`.
+- Broken receipt chain fixture must return `WASM4PM-DIGEST-CHAIN-BROKEN` or `WASM4PM-CONFORMANCE-BLOCKED`.
+
+## Acceptance Criteria
+
+### Verification & Alignment
+- [ ] No writes to `~/wasm4pm` or `~/wasm4pm-compat` are performed by the agents.
+- [ ] No local fake or shadow `wasm4pm` or `wasm4pm-compat` crates exist in `~/ggen` or `~/tower-lsp-max`.
+- [ ] `wasm4pm-lsp` delegates to `gc005-wasm4pm-adapter` which calls sealed authorities.
+- [ ] `dogfood_gc005.rs` executes real LSP protocol flow over stdio and asserts the required verdicts correctly.
+
+## Follow-up — 2026-06-07T00:34:04Z
+
+Please spawn 5 subagents concurrently in your orchestrator swarm to close the remaining gaps for GC003/GC004/GC005:
+
+1. **Worker 1 (LSP Test Harness)**: Implement the reusable LSP test harness in `crates/ggen-lsp/tests/common/lsp_harness.rs`.
+2. **Worker 2 (Admission Tests & Protocol Paths)**: Implement the 5 admission test categories using the harness and verify the full LSP pipeline flow.
+3. **Worker 3 (Anti-Bypass Scanner)**: Implement the generated dogfood test to scan for forbidden symbols and enforce bypass-kills.
+4. **Worker 4 (OCEL Logs & Emitters)**: Implement deterministic OCEL logging in `~/wasm4pm` and `~/wasm4pm-compat`.
+5. **Worker 5 (Verifier & Verdicts)**: Implement the wasm4pm verifier and verdict logic (`FIT | DEVIATION | BLOCKED | INCONCLUSIVE`).
+
+
+## Follow-up — 2026-06-07T00:39:29Z
+
+Please execute the following GC006 capability requirements as the next milestone:
+
+## Requirements
+
+### R1. Authority Surface Manifest
+Add an `authority_surface.toml` (or equivalent manifest) in `~/ggen` and `~/tower-lsp-max` declaring the following parameters:
+- `sealed_workspace: ~/wasm4pm`
+- `sealed_compat_workspace: ~/wasm4pm-compat`
+- `conformance_function: wasm4pm_algos::gall::check_gall_conformance`
+- `observer: wasm4pm-lsp`
+- `adapter: gc005-wasm4pm-adapter`
+
+### R2. Forbidden Local Shadow Crate Guard
+Add tests that fail if any forbidden local shadow workspace member/crate exists under `~/ggen/crates/` or `~/tower-lsp-max/crates/` with names:
+- `wasm4pm`
+- `wasm4pm-proper`
+- `wasm4pm-compat`
+
+### R3. Neutral Adapter & Local Replay Check
+Add tests verifying that:
+- `wasm4pm-lsp` does NOT perform conformance/replay logic locally.
+- `gc005-wasm4pm-adapter` fails (produces `BLOCKED` instead of `FIT`) if the sealed authority is unavailable or if adapter logic tries to manufacture local verdicts without calling the sealed surface.
+
+### R4. Read-Only Workspace Enforcement
+Add checks that verify sealed workspaces (`~/wasm4pm` and `~/wasm4pm-compat`) remain unmodified and contain no generated files from the GC005/GC006 pipeline execution.
+
+### R5. C4 Architecture Compliance
+Add a C4 architecture compliance verification test that verifies the layout matches the architecture contract (ggen manufactures proof surfaces, tower-lsp-max hosts integration surfaces, wasm4pm-lsp observes process evidence, neutral adapter calls sealed authorities, and wasm4pm/compat decide replay/conformance).
+
+## Acceptance Criteria
+
+### Verification & Manifest Checks
+- [ ] `authority_surface.toml` exists and correctly declares workspace/function paths.
+- [ ] Anti-regression tests fail if local shadow crates are added or if authority is mutated.
+- [ ] Adapter failure tests confirm it refuses to generate `FIT` verdicts locally when the sealed authority is missing.
+- [ ] Sealed workspaces remain 100% read-only and free of generated files.
+
+## Follow-up — 2026-06-07T00:45:56Z
+
+STOP.
+
+The swarm status is checkpoint-stale.
+
+Do not continue OCEL logging/verifier/verdict implementation unless it is strictly
+inside the sealed wasm4pm authority path.
+
+Do not implement append-only JSONL verifier authority inside ggen.
+
+Do not report GC004 LSP harness workers as GC006 progress.
+
+Do not set or claim heartbeat timers unless there is a real scheduler receipt.
+
+Current task is GC006 only:
+
+  Authority Surface Lock.
+
+Required:
+  1. Use the existing C4 architecture contract.
+  2. Resolve the canonical proof pack path.
+  3. Register dogfood_gc006.rs.tmpl in the real proof pack.
+  4. Remove all hardcoded /Users/sac paths from the template.
+  5. Project dogfood_gc006.rs through sync_target.
+  6. Run dogfood_gc006.
+  7. Prove:
+       no shadow wasm4pm crates
+       wasm4pm-lsp does not own conformance logic
+       adapter does not emit fake FIT
+       adapter calls sealed wasm4pm authority
+       sealed workspaces are read-only
+
+Status must remain:
+  GC006_DRAFT / PROJECTION_BLOCKED
+
+
+## Follow-up — 2026-06-07T00:47:25Z
+
+Status corrections:
+  - Remove or receipt any liveness heartbeat claims.
+  - Awaiting next concrete worker output.
+  - No completion claim will be made until command output, projected files, and test results are available.
+
+Please align your internal briefing and handoff records with the following canonical state:
+
+Checkpoint state:
+  GC001-GC004:
+    ADMITTED per prior checkpoint scopes
+
+  GC005:
+    CONDITIONALLY_ADMITTED_BY_DOGFOOD
+    valid only under sealed-authority path:
+      wasm4pm-lsp
+      → gc005-wasm4pm-adapter
+      → wasm4pm_algos::gall::check_gall_conformance
+
+  GC006:
+    DRAFT / PROJECTION_BLOCKED
+
+Rejected:
+  - heartbeat claims
+  - stale verifier-pending status
+  - ad hoc OCEL logging/verifier workers
+  - GC004 work reported as GC006 progress
+  - local fake wasm4pm / wasm4pm-proper / wasm4pm-compat authority
+
+## Follow-up — 2026-06-07T00:57:59Z
+
+# Teamwork Project Prompt — Draft
+
+Implement **GC005A: Sealed wasm4pm Replay Surface Contract** and establish **Sealed Repo Integrity Baselines** to completely close the verification gate.
+
+Working directories:
+- `/Users/sac/ggen` (mutable)
+- `/Users/sac/tower-lsp-max` (mutable)
+- `/Users/sac/wasm4pm` (sealed read-only)
+- `/Users/sac/wasm4pm-compat` (sealed read-only)
+
+Integrity mode: benchmark
+
+## Requirements
+
+### R1. Sealed wasm4pm Replay Surface (GC005A)
+Ensure that the sealed authority `~/wasm4pm` contains a real, callable replay/conformance library (`wasm4pm_algos::gall::check_gall_conformance`) that:
+- Accepts OCEL/JSONL process evidence.
+- Returns a structured enum verdict: `FIT` / `DEVIATION` / `BLOCKED` / `INCONCLUSIVE`.
+The adapter `gc005-wasm4pm-adapter` must only act as a neutral forwarding/normalizing transport, and `wasm4pm-lsp` must only observe and publish diagnostics.
+
+### R2. LSP Integration Testing
+Verify through `dogfood_gc005.rs` that the complete path (`wasm4pm-lsp` → `gc005-wasm4pm-adapter` → sealed `wasm4pm` replay API) is executed under a real stdio tower-lsp integration boundary, publishing diagnostics with `WASM4PM-*` error codes.
+
+### R3. Sealed Workspace Sterility Baselines
+Create baseline manifest files `.gc-sealed-baseline` in the root of `~/wasm4pm` and `~/wasm4pm-compat`. The baseline manifest must record:
+- Tracked git status.
+- Ignored artifact inventory (e.g., target, node_modules, log/csv outputs).
+- Allowed ignored directories and forbidden generated paths.
+- A cryptographic digest over the baseline manifest content.
+
+The integration tests (such as `dogfood_gc006.rs` or workspace checks) must parse these manifests and assert that:
+- There are no new tracked changes.
+- There are no new untracked non-baselined files.
+- There are no new ignored files outside the baselined inventory.
+- No writes have occurred from `ggen` or `tower-lsp-max` into the sealed repositories.
+
+## Acceptance Criteria
+
+### GC005A Replay Contract
+- [ ] `wasm4pm_algos::gall::check_gall_conformance` parses raw OCEL/JSONL and evaluates conformance deterministically.
+- [ ] `dogfood_gc005` test passes and proves end-to-end execution of the real replay surface via Tower LSP diagnostics.
+
+### Workspace Baselines & Cleanliness
+- [ ] `.gc-sealed-baseline` manifests exist and are valid inside `/Users/sac/wasm4pm` and `/Users/sac/wasm4pm-compat`.
+- [ ] Git status verification asserts zero new tracked, untracked, or non-baselined ignored modifications against the baseline manifests.
+- [ ] All 7 closure gate commands run and pass successfully.
+
+## Follow-up — 2026-06-07T01:00:00Z
+
+Execute the GC003 team for Boundary-Receipted Equation Enforcement inside the projection engine.
+
+Working directory: `/Users/sac/ggen`
+Integrity mode: benchmark
+
+## Requirements
+
+### R1. Boundary-Receipted Equation Enforcement
+Implement or verify the equation $R_B \vdash A = \mu(O^*_B)$ inside the projection engine using the owning surfaces in `~/ggen`:
+- `crates/ggen-projection/`
+- `crates/ggen-lsp/`
+- `crates/ggen-pack-gall-checkpoint-proof/`
+
+The producing workspace boundary must be `~/ggen` and branch `feat/ggen-lsp-source-laws`.
+
+### R2. Downstream Export & Mutation Restrictions
+Do not use `~/tower-lsp-max` as the authority for GC003. Do not mutate `~/tower-lsp-max` unless the mutation is declared as an exported receipt artifact with the following metadata:
+- `producing_workspace = ~/ggen`
+- `storing_workspace = ~/tower-lsp-max`
+- `export_reason = checkpoint_receipt_archive | downstream_playground_receipt`
+- `exported_artifact_digest`
+- `export_receipt_digest`
+
+No checkpoint status may be admitted from `~/tower-lsp-max` for GC003.
+
+### R3. Clean Sandboxed Boundary
+All execution must use the following clean boundary paths strictly:
+- `workspace = ~/ggen`
+- `target = ~/ggen/.tmp_gc003/target`
+- `staging = ~/ggen/.tmp_gc003/staging`
+- `receipt_sink = ~/ggen/.tmp_gc003/receipts`
+- `proof_pack = crates/ggen-pack-gall-checkpoint-proof`
+
+### R4. Complete & Verifiable Implementation
+No stubs, mocks, or placeholder hashes. All tests must be real Chicago-style tests using actual cryptographic derivations (BLAKE3) and real OpenTelemetry traces where applicable. Follow the AGENTS.md constitution.
+
+## Acceptance Criteria
+
+### Execution & Isolation
+- [ ] The entire execution runs within `~/ggen`. No mutations are made to `~/tower-lsp-max` unless declared as an exported receipt artifact containing the five required fields.
+- [ ] Target outputs are generated into `.tmp_gc003/target`, staging into `.tmp_gc003/staging`, and receipts into `.tmp_gc003/receipts`.
+- [ ] No checkpoint status is read or admitted from `~/tower-lsp-max` for GC003.
+
+### Mathematical Correctness & Verification
+- [ ] The equation $R_B \vdash A = \mu(O^*_B)$ is successfully enforced, and all 12 proofs in `crates/ggen-pack-gall-checkpoint-proof/manifest.toml` are verified.
+- [ ] All tests in `crates/ggen-projection` (including `dogfood_gc003.rs` and `f8_equation_enforcement.rs`) compile and pass successfully.
+- [ ] `cargo make check` and `cargo make test` pass successfully on the `feat/ggen-lsp-source-laws` branch.
+

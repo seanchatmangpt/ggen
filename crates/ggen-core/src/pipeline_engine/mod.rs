@@ -35,7 +35,7 @@
 //!
 //! # fn main() -> crate::utils::error::Result<()> {
 //! // Create pipeline configuration
-//! let config = PipelineConfig::new("project", "1.0.0")
+//! let config = PipelineConfig::new("project", "26.6.6")
 //!     .with_ontology("ontology/domain.ttl")
 //!     .with_output_dir(".");
 //!

@@ -845,7 +845,7 @@ impl RdfControlPlane {
             let description = extract_literal_from_solution(&solution, "description");
             let version_str = extract_literal_from_solution(&solution, "version");
             let version = PackageVersion::new(version_str)
-                .unwrap_or_else(|_| PackageVersion::new("1.0.0").unwrap());
+                .unwrap_or_else(|_| PackageVersion::new("26.6.6").unwrap());
             let license = extract_literal_from_solution(&solution, "license");
 
             let metadata = PackageBuilder::new()
@@ -924,7 +924,7 @@ impl RdfControlPlane {
                         let description = extract_literal_from_solution(&solution, "description");
                         let version_str = extract_literal_from_solution(&solution, "version");
                         let version = PackageVersion::new(version_str)
-                            .unwrap_or_else(|_| PackageVersion::new("1.0.0").unwrap());
+                            .unwrap_or_else(|_| PackageVersion::new("26.6.6").unwrap());
 
                         // Determine relevance: 1.0 for name match, 0.5 for description match
                         let relevance = if name.to_lowercase().contains(&keyword.to_lowercase()) {
@@ -1010,7 +1010,7 @@ impl RdfControlPlane {
                         let name = extract_literal_from_solution(&solution, "name");
                         let version_str = extract_literal_from_solution(&solution, "version");
                         let version = PackageVersion::new(version_str)
-                            .unwrap_or_else(|_| PackageVersion::new("1.0.0").unwrap());
+                            .unwrap_or_else(|_| PackageVersion::new("26.6.6").unwrap());
 
                         let quality_score = opt_literal_from_solution(&solution, "quality")
                             .and_then(|q| q.parse::<f64>().ok())
@@ -1234,7 +1234,7 @@ mod tests {
         let control = RdfControlPlane::in_memory()?;
 
         let id = PackageId::new("test-package")?;
-        let version = PackageVersion::new("1.0.0")?;
+        let version = PackageVersion::new("26.6.6")?;
         let license = "MIT".to_string();
 
         let package =

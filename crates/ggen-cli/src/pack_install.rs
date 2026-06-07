@@ -461,7 +461,7 @@ impl PackInstaller {
     async fn get_latest_version(
         &self, _package_id: &PackageId,
     ) -> Result<PackageVersion, GgenError> {
-        Ok(PackageVersion::new("1.0.0")
+        Ok(PackageVersion::new("26.6.6")
             .map_err(|e| GgenError::ValidationError(format!("Invalid version: {}", e)))?)
     }
 
@@ -529,7 +529,7 @@ impl AsyncRepository for TestRepository {
     type PackageIterator = std::vec::IntoIter<Package>;
 
     async fn get_package(&self, package_id: &PackageId) -> Result<Package, MarketplaceError> {
-        let version = PackageVersion::new("1.0.0").unwrap();
+        let version = PackageVersion::new("26.6.6").unwrap();
         let metadata = ggen_core::marketplace::PackageMetadata::new(
             package_id.clone(),
             format!("Pack {}", package_id),
@@ -569,7 +569,7 @@ impl AsyncRepository for TestRepository {
     async fn list_versions(
         &self, _id: &PackageId,
     ) -> Result<Vec<PackageVersion>, MarketplaceError> {
-        Ok(vec![PackageVersion::new("1.0.0").unwrap()])
+        Ok(vec![PackageVersion::new("26.6.6").unwrap()])
     }
 
     async fn package_exists(&self, _id: &PackageId) -> Result<bool, MarketplaceError> {

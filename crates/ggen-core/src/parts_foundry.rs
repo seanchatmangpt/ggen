@@ -227,7 +227,7 @@ mod tests {
     fn test_part_spec_validation() {
         let spec = PartSpec {
             id: "test-part".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             part_type: "wasm32".to_string(),
             rdf_source: "(RDF source)".to_string(),
             target_language: "rust".to_string(),
@@ -241,7 +241,7 @@ mod tests {
     fn test_manufactured_part_fields() {
         let part = ManufacturedPart {
             id: "test".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             payload: vec![1, 2, 3],
             payload_hash: "abc123".to_string(),
             payload_size: 3,

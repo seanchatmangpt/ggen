@@ -34,11 +34,11 @@ fn create_test_registry(
     for (id, desc, tags) in packages {
         let mut versions = HashMap::new();
         versions.insert(
-            "1.0.0".to_string(),
+            "26.6.6".to_string(),
             VersionMetadata {
-                version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
                 git_url: format!("https://github.com/test/{}.git", id),
-                git_rev: "v1.0.0".to_string(),
+                git_rev: "v26.6.6".to_string(),
                 manifest_url: None,
                 sha256: format!("sha256-{}", id),
             },
@@ -54,7 +54,7 @@ fn create_test_registry(
                 keywords: tags.iter().map(|s| s.to_string()).collect(),
                 category: Some("test".to_string()),
                 author: Some("Test Author".to_string()),
-                latest_version: "1.0.0".to_string(),
+                latest_version: "26.6.6".to_string(),
                 versions,
                 downloads: Some(100),
                 updated: Some(Utc::now()),
@@ -210,9 +210,9 @@ async_test_with_timeout!(test_marketplace_package_resolve, 30, async {
     let resolved = client.resolve("test-package", None).await.unwrap();
 
     // Assert
-    assert_eq!(resolved.version, "1.0.0");
+    assert_eq!(resolved.version, "26.6.6");
     assert_eq!(resolved.git_url, "https://github.com/test/test-package.git");
-    assert_eq!(resolved.git_rev, "v1.0.0");
+    assert_eq!(resolved.git_rev, "v26.6.6");
 });
 
 async_test_with_timeout!(
@@ -226,11 +226,11 @@ async_test_with_timeout!(
         // Create package with multiple versions
         let mut versions = HashMap::new();
         versions.insert(
-            "1.0.0".to_string(),
+            "26.6.6".to_string(),
             VersionMetadata {
-                version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
                 git_url: "https://github.com/test/pkg.git".to_string(),
-                git_rev: "v1.0.0".to_string(),
+                git_rev: "v26.6.6".to_string(),
                 manifest_url: None,
                 sha256: "sha1".to_string(),
             },
@@ -282,11 +282,11 @@ async_test_with_timeout!(
 
         // Act & Assert
         let resolved_v1 = client
-            .resolve("multi-version-pkg", Some("1.0.0"))
+            .resolve("multi-version-pkg", Some("26.6.6"))
             .await
             .unwrap();
-        assert_eq!(resolved_v1.version, "1.0.0");
-        assert_eq!(resolved_v1.git_rev, "v1.0.0");
+        assert_eq!(resolved_v1.version, "26.6.6");
+        assert_eq!(resolved_v1.git_rev, "v26.6.6");
 
         let resolved_v2 = client
             .resolve("multi-version-pkg", Some("2.0.0"))
@@ -526,11 +526,11 @@ async_test_with_timeout!(test_marketplace_check_updates, 30, async {
     // Create package with multiple versions
     let mut versions = HashMap::new();
     versions.insert(
-        "1.0.0".to_string(),
+        "26.6.6".to_string(),
         VersionMetadata {
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             git_url: "https://github.com/test/update-pkg.git".to_string(),
-            git_rev: "v1.0.0".to_string(),
+            git_rev: "v26.6.6".to_string(),
             manifest_url: None,
             sha256: "sha1".to_string(),
         },
@@ -591,7 +591,7 @@ async_test_with_timeout!(test_marketplace_check_updates, 30, async {
     let client = RegistryClient::with_base_url(base_url).unwrap();
 
     // Act & Assert
-    let update = client.check_updates("update-pkg", "1.0.0").await.unwrap();
+    let update = client.check_updates("update-pkg", "26.6.6").await.unwrap();
     assert!(update.is_some());
     assert_eq!(update.unwrap().version, "2.0.0");
 
@@ -617,11 +617,11 @@ async_test_with_timeout!(test_marketplace_registry_categories, 30, async {
     for (id, category) in &[("pkg1", "web"), ("pkg2", "cli"), ("pkg3", "web")] {
         let mut versions = HashMap::new();
         versions.insert(
-            "1.0.0".to_string(),
+            "26.6.6".to_string(),
             VersionMetadata {
-                version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
                 git_url: format!("https://github.com/test/{}.git", id),
-                git_rev: "v1.0.0".to_string(),
+                git_rev: "v26.6.6".to_string(),
                 manifest_url: None,
                 sha256: format!("sha-{}", id),
             },
@@ -637,7 +637,7 @@ async_test_with_timeout!(test_marketplace_registry_categories, 30, async {
                 keywords: vec!["test".to_string()],
                 category: Some(category.to_string()),
                 author: Some("Tester".to_string()),
-                latest_version: "1.0.0".to_string(),
+                latest_version: "26.6.6".to_string(),
                 versions,
                 downloads: Some(10),
                 updated: Some(Utc::now()),
@@ -684,11 +684,11 @@ async_test_with_timeout!(test_marketplace_package_statistics, 30, async {
         let id = format!("stats-pkg-{}", i);
         let mut versions = HashMap::new();
         versions.insert(
-            "1.0.0".to_string(),
+            "26.6.6".to_string(),
             VersionMetadata {
-                version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
                 git_url: format!("https://github.com/test/{}.git", id),
-                git_rev: "v1.0.0".to_string(),
+                git_rev: "v26.6.6".to_string(),
                 manifest_url: None,
                 sha256: format!("sha-{}", i),
             },
@@ -704,7 +704,7 @@ async_test_with_timeout!(test_marketplace_package_statistics, 30, async {
                 keywords: vec!["test".to_string()],
                 category: Some("test".to_string()),
                 author: Some("Tester".to_string()),
-                latest_version: "1.0.0".to_string(),
+                latest_version: "26.6.6".to_string(),
                 versions,
                 downloads: Some((i + 1) as u64 * 100),
                 updated: Some(Utc::now()),

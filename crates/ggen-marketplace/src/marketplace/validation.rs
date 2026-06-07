@@ -527,7 +527,7 @@ mod tests {
         let metadata = PackageMetadata::new(id, "Test Package", "A test package", "MIT");
         let package = Package {
             metadata,
-            latest_version: crate::marketplace::models::PackageVersion::new("1.0.0").unwrap(),
+            latest_version: crate::marketplace::models::PackageVersion::new("26.6.6").unwrap(),
             versions: vec![],
             releases: indexmap::IndexMap::new(),
         };

@@ -220,7 +220,7 @@ impl Validator {
             if !is_semantic_version(version) {
                 report.add_warning(
                     "templateVersion".to_string(),
-                    "Version should follow semantic versioning (e.g., 1.0.0)".to_string(),
+                    "Version should follow semantic versioning (e.g., 26.6.6)".to_string(),
                     Some(version.clone()),
                 );
             }
@@ -374,7 +374,7 @@ mod tests {
             "http://example.org/template1".to_string(),
             "Test Template".to_string(),
         );
-        metadata.version = Some("1.0.0".to_string());
+        metadata.version = Some("26.6.6".to_string());
         metadata.description = Some("A valid template".to_string());
         metadata.category = Some("testing".to_string());
         metadata.stability = Some("stable".to_string());
@@ -463,14 +463,14 @@ mod tests {
 
     #[test]
     fn test_is_semantic_version() {
-        assert!(is_semantic_version("1.0.0"));
+        assert!(is_semantic_version("26.6.6"));
         assert!(is_semantic_version("1.2.3"));
         assert!(is_semantic_version("10.20.30"));
 
         assert!(!is_semantic_version("1.0"));
         assert!(!is_semantic_version("1"));
-        assert!(!is_semantic_version("1.0.0.0"));
-        assert!(!is_semantic_version("v1.0.0"));
+        assert!(!is_semantic_version("26.6.6.0"));
+        assert!(!is_semantic_version("v26.6.6"));
         assert!(!is_semantic_version("invalid"));
     }
 

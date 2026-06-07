@@ -1,0 +1,32 @@
+GALL-CHECKPOINT-003
+> [!IMPORTANT]
+> This file is a HUMAN-READABLE REPORT only and is not an admission receipt.
+> Admission is governed exclusively by OCEL event logs and wasm4pm replay verdicts.
+
+Boundary-Receipted Equation Enforcement
+Status: ADMITTED_BY_DOGFOOD
+
+Prior admitted state:
+  GC002_ADMITTED_BY_DOGFOOD — pack templates manufacture output and proof.
+
+Delta:
+  Receipt extended with boundary_digest, workspace_digest, pack_plan_digest, pack_descriptor_digest, customization_digest, staging_digest, mutation_gate_decision, verification_result, projection_engine_version, and previous_receipt.
+  validate_sync verifies all equation fields, rejecting on any mismatch.
+  Every mismatch produces a named domain error (e.g., BoundaryDigestMismatch).
+  Receipt index maintains a chronological chain.
+  After-the-fact hash laundering fails validation.
+  Mutation gate order (admitted before write) is enforced.
+  Bypass-kill tests strictly verify failure conditions for all equation fields.
+  Proof tests generated from ggen-pack-gall-checkpoint-proof and verified through dogfood replay.
+
+Admitted Boundary:
+  workspace = ~/ggen
+  branch = feat/ggen-lsp-source-laws
+  target = declared .tmp_gc003 boundary
+
+Export Metadata:
+  producing_workspace: ~/ggen
+  storing_workspace: ~/tower-lsp-max
+  export_reason: checkpoint tracking within tower-lsp-max playground
+  exported_artifact_digest: acb53f1ece164e2a35be621dc38fcd0492bc46dbc217de440b8f8900af06ea11
+  export_receipt_digest: cb65a6954139b51d2f99018aa0d3bac5aa8aaf38a121e1337169c8e6c8947214

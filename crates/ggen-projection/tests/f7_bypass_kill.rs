@@ -18,7 +18,7 @@ fn test_f7_t1_delete_template_fails_before_write() {
     let descriptor = PackDescriptor {
         id: "pack_1".to_string(),
         name: "Test Pack".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         description: "Test".to_string(),
         license: "MIT".to_string(),
         dependencies: std::collections::BTreeMap::new(),

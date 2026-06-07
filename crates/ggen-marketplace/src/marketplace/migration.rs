@@ -807,11 +807,11 @@ mod tests {
     #[test]
     fn test_upgrade_edge_creation() {
         let edge = UpgradeEdge::new(
-            PackageVersion::new("1.0.0").unwrap(),
+            PackageVersion::new("26.6.6").unwrap(),
             PackageVersion::new("2.0.0").unwrap(),
         );
 
-        assert_eq!(edge.from, PackageVersion::new("1.0.0").unwrap());
+        assert_eq!(edge.from, PackageVersion::new("26.6.6").unwrap());
         assert_eq!(edge.to, PackageVersion::new("2.0.0").unwrap());
         assert!(edge.is_direct);
     }
@@ -827,7 +827,7 @@ mod tests {
     fn test_linear_upgrade_path() {
         let mut migrator = Migrator::new();
         let versions = vec![
-            PackageVersion::new("1.0.0").unwrap(),
+            PackageVersion::new("26.6.6").unwrap(),
             PackageVersion::new("2.0.0").unwrap(),
             PackageVersion::new("3.0.0").unwrap(),
         ];
@@ -841,7 +841,7 @@ mod tests {
     #[test]
     fn test_compute_upgrade_path_linear() {
         let mut migrator = Migrator::new();
-        let v1 = PackageVersion::new("1.0.0").unwrap();
+        let v1 = PackageVersion::new("26.6.6").unwrap();
         let v2 = PackageVersion::new("2.0.0").unwrap();
         let v3 = PackageVersion::new("3.0.0").unwrap();
 
@@ -854,7 +854,7 @@ mod tests {
     #[test]
     fn test_compute_upgrade_path_same_version() {
         let migrator = Migrator::new();
-        let v1 = PackageVersion::new("1.0.0").unwrap();
+        let v1 = PackageVersion::new("26.6.6").unwrap();
 
         let path = migrator.compute_upgrade_path(&v1, &v1).unwrap();
         assert_eq!(path, vec![v1]);
@@ -863,7 +863,7 @@ mod tests {
     #[test]
     fn test_compute_upgrade_path_no_path() {
         let migrator = Migrator::new();
-        let v1 = PackageVersion::new("1.0.0").unwrap();
+        let v1 = PackageVersion::new("26.6.6").unwrap();
         let v2 = PackageVersion::new("2.0.0").unwrap();
 
         let result = migrator.compute_upgrade_path(&v1, &v2);
@@ -873,7 +873,7 @@ mod tests {
     #[test]
     fn test_direct_upgrade_check() {
         let mut migrator = Migrator::new();
-        let v1 = PackageVersion::new("1.0.0").unwrap();
+        let v1 = PackageVersion::new("26.6.6").unwrap();
         let v2 = PackageVersion::new("2.0.0").unwrap();
 
         migrator.add_upgrade_edge(UpgradeEdge::new(v1.clone(), v2.clone()));
@@ -885,7 +885,7 @@ mod tests {
     #[test]
     fn test_branching_upgrade_paths() {
         let mut migrator = Migrator::new();
-        let v1 = PackageVersion::new("1.0.0").unwrap();
+        let v1 = PackageVersion::new("26.6.6").unwrap();
         let v2a = PackageVersion::new("2.0.0").unwrap();
         let v2b = PackageVersion::new("2.1.0").unwrap();
 
@@ -903,7 +903,7 @@ mod tests {
     #[test]
     fn test_get_all_versions() {
         let mut migrator = Migrator::new();
-        let v1 = PackageVersion::new("1.0.0").unwrap();
+        let v1 = PackageVersion::new("26.6.6").unwrap();
         let v2 = PackageVersion::new("2.0.0").unwrap();
         let v3 = PackageVersion::new("3.0.0").unwrap();
 
@@ -916,7 +916,7 @@ mod tests {
     #[test]
     fn test_compatibility_matrix() {
         let mut migrator = Migrator::new();
-        let v1 = PackageVersion::new("1.0.0").unwrap();
+        let v1 = PackageVersion::new("26.6.6").unwrap();
         let v2 = PackageVersion::new("2.0.0").unwrap();
 
         migrator.add_linear_path(&[v1.clone(), v2.clone()]);
@@ -930,7 +930,7 @@ mod tests {
     #[test]
     fn test_migrate_linear_upgrade() {
         let mut migrator = Migrator::new();
-        let v1 = PackageVersion::new("1.0.0").unwrap();
+        let v1 = PackageVersion::new("26.6.6").unwrap();
         let v2 = PackageVersion::new("2.0.0").unwrap();
 
         migrator.add_linear_path(&[v1.clone(), v2.clone()]);
@@ -953,7 +953,7 @@ mod tests {
     #[test]
     fn test_indirect_upgrade_edge() {
         let edge = UpgradeEdge::new(
-            PackageVersion::new("1.0.0").unwrap(),
+            PackageVersion::new("26.6.6").unwrap(),
             PackageVersion::new("3.0.0").unwrap(),
         )
         .indirect();

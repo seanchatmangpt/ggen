@@ -1,0 +1,41 @@
+GALL-CHECKPOINT-004
+> [!IMPORTANT]
+> This file is a HUMAN-READABLE REPORT only and is not an admission receipt.
+> Admission is governed exclusively by OCEL event logs and wasm4pm replay verdicts.
+
+Pack-Domain LSP Intelligence
+Status: ADMITTED_BY_DOGFOOD
+
+Prior admitted state:
+  GC003_ADMITTED_BY_DOGFOOD — boundary-receipted equation enforcement.
+
+Delta:
+  General projection intelligence successfully separated from pack-domain intelligence.
+  ggen-lsp now exclusively manages projection state, receipt state, boundary state, drift, evidence, and projection opportunity.
+  Created PackObserver registry inside ggen-lsp.
+  clap-noun-verb-pack-lsp created to own CLI domain interpretation (e.g. missing CLAP-PACK-HANDLER).
+  tower-lsp-max-pack-lsp created to own LSP composition domain interpretation (e.g. unguarded mutation).
+  Pack-domain LSPs securely return PackObservations without modifying the filesystem.
+  ggen-lsp securely merges domain findings while retaining exact pack source_ids.
+  Bypass-kill verified that corrupting domain shapes does not trigger generic projection errors, and corrupting receipts does not trigger pack-domain errors.
+
+DOGFOOD-GATE-004 Proof:
+  - dogfood_gc004.rs was generated from ggen-pack-gall-checkpoint-proof.
+  - generated dogfood_gc004.rs was deleted and re-projected from declared proof templates.
+  - tests used only LSP protocol operations: initialize, didOpen, wait_for_notification(publishDiagnostics).
+  - no internal observer bypass (e.g. compute_observer_diagnostics) is called in the proof.
+  - CLAP diagnostic observed only through publishDiagnostics with correct source_id.
+  - TOWER diagnostic observed only through publishDiagnostics with correct source_id.
+  - GGEN receipt diagnostic observed only through publishDiagnostics with correct source_id.
+
+Export Metadata:
+  producing_workspace: ~/ggen
+  storing_workspace: ~/tower-lsp-max
+  export_reason: checkpoint tracking within tower-lsp-max playground
+  exported_artifact_digest: aa2dcd61030b414f2dcb84f007604170e89ac12a781c9202aaa21dc93c5e2d99
+  export_receipt_digest: 866c1e6b5a0ab8a237c250b58f41929a68759eb39d81076fd1d3d78c540c3280
+
+Admitted Boundary:
+  workspace = ~/ggen
+  branch = feat/ggen-lsp-source-laws
+  target = declared .tmp_gc004 boundary

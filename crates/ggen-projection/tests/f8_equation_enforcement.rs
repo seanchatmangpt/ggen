@@ -16,7 +16,7 @@ fn setup_test() -> (ReceiptIndex, EquationContext, ProjectionMap, TempDir, PathB
         staging_digest: "s_digest_1".to_string(),
         mutation_gate_decision: "approved".to_string(),
         verification_result: "passed".to_string(),
-        projection_engine_version: "1.0.0".to_string(),
+        projection_engine_version: "26.6.6".to_string(),
     };
     receipts.add_receipt("src/main.rs".to_string(), b"generated_code", b"template_content", &eq, None);
     

@@ -57,7 +57,7 @@ fn create_test_template(temp_dir: &TempDir, name: &str) -> std::path::PathBuf {
     // Create template metadata
     let metadata = r#"
 name = "{{ name }}"
-version = "1.0.0"
+version = "26.6.6"
 description = "Test template"
 
 [variables]

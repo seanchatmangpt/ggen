@@ -72,7 +72,7 @@ fn create_test_pack_metadata(pack_dir: &Path) -> Result<(), Box<dyn std::error::
     let metadata = r#"{
         "id": "test-pack",
         "name": "Test Pack",
-        "version": "1.0.0",
+        "version": "26.6.6",
         "description": "A test pack for E2E testing",
         "category": "test",
         "packages": [],
@@ -94,7 +94,7 @@ fn create_test_lockfile(lockfile_path: &Path) -> Result<(), Box<dyn std::error::
         "version": "6.0.1",
         "packs": {
             "surface-mcp": {
-                "version": "1.0.0",
+                "version": "26.6.6",
                 "source": {
                     "type": "Registry",
                     "url": "https://registry.ggen.io"

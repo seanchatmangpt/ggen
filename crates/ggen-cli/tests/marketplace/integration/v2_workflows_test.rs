@@ -40,7 +40,7 @@ mod v2_workflows_tests {
     #[tokio::test]
     async fn test_v2_insert_and_retrieve_package() {
         let registry = RdfRegistry::new();
-        let package = create_test_package("v2-test", "V2 Test Package", "1.0.0");
+        let package = create_test_package("v2-test", "V2 Test Package", "26.6.6");
 
         // Insert package
         let insert_result = registry.insert_package_rdf(&package).await;
@@ -56,9 +56,9 @@ mod v2_workflows_tests {
         let registry = RdfRegistry::new();
 
         // Insert test packages
-        let pkg1 = create_test_package("db-pkg", "Database Library", "1.0.0");
-        let pkg2 = create_test_package("web-pkg", "Web Framework", "1.0.0");
-        let pkg3 = create_test_package("db-utils", "Database Utilities", "1.0.0");
+        let pkg1 = create_test_package("db-pkg", "Database Library", "26.6.6");
+        let pkg2 = create_test_package("web-pkg", "Web Framework", "26.6.6");
+        let pkg3 = create_test_package("db-utils", "Database Utilities", "26.6.6");
 
         registry.insert_package_rdf(&pkg1).await.unwrap();
         registry.insert_package_rdf(&pkg2).await.unwrap();
@@ -77,10 +77,10 @@ mod v2_workflows_tests {
     async fn test_v2_sparql_filter_by_tag() {
         let registry = RdfRegistry::new();
 
-        let mut pkg1 = create_test_package("rust-pkg", "Rust Package", "1.0.0");
+        let mut pkg1 = create_test_package("rust-pkg", "Rust Package", "26.6.6");
         pkg1.metadata.tags = vec!["rust".to_string(), "cli".to_string()];
 
-        let mut pkg2 = create_test_package("js-pkg", "JavaScript Package", "1.0.0");
+        let mut pkg2 = create_test_package("js-pkg", "JavaScript Package", "26.6.6");
         pkg2.metadata.tags = vec!["javascript".to_string(), "web".to_string()];
 
         registry.insert_package_rdf(&pkg1).await.unwrap();
@@ -96,7 +96,7 @@ mod v2_workflows_tests {
     async fn test_v2_sparql_sort_by_version() {
         let registry = RdfRegistry::new();
 
-        let pkg_v1 = create_test_package("sort-pkg", "Sort Package", "1.0.0");
+        let pkg_v1 = create_test_package("sort-pkg", "Sort Package", "26.6.6");
         let pkg_v2 = create_test_package("sort-pkg", "Sort Package", "2.0.0");
         let pkg_v3 = create_test_package("sort-pkg", "Sort Package", "3.0.0");
 
@@ -116,7 +116,7 @@ mod v2_workflows_tests {
         // Insert 20 packages
         for i in 0..20 {
             let pkg =
-                create_test_package(&format!("pkg-{}", i), &format!("Package {}", i), "1.0.0");
+                create_test_package(&format!("pkg-{}", i), &format!("Package {}", i), "26.6.6");
             registry.insert_package_rdf(&pkg).await.unwrap();
         }
 
@@ -197,7 +197,7 @@ mod v2_workflows_tests {
                 let pkg = create_test_package(
                     &format!("concurrent-{}", i),
                     &format!("Concurrent {}", i),
-                    "1.0.0",
+                    "26.6.6",
                 );
                 reg.insert_package_rdf(&pkg).await
             });
@@ -274,7 +274,7 @@ mod v2_workflows_tests {
         assert_eq!(initial_stats.total_queries, 0);
 
         // Execute some operations
-        let pkg = create_test_package("stats-pkg", "Stats Package", "1.0.0");
+        let pkg = create_test_package("stats-pkg", "Stats Package", "26.6.6");
         registry.insert_package_rdf(&pkg).await.unwrap();
         registry.package_exists(&pkg.metadata.id).await.unwrap();
         registry.list_versions(&pkg.metadata.id).await.unwrap();
@@ -315,7 +315,7 @@ mod v2_workflows_tests {
         use std::time::Instant;
 
         let registry = RdfRegistry::new();
-        let pkg = create_test_package("perf-pkg", "Performance Test", "1.0.0");
+        let pkg = create_test_package("perf-pkg", "Performance Test", "26.6.6");
 
         // Insert package
         registry.insert_package_rdf(&pkg).await.unwrap();
@@ -343,7 +343,7 @@ mod v2_workflows_tests {
 
         // Bulk insert 100 packages
         for i in 0..100 {
-            let pkg = create_test_package(&format!("bulk-{}", i), &format!("Bulk {}", i), "1.0.0");
+            let pkg = create_test_package(&format!("bulk-{}", i), &format!("Bulk {}", i), "26.6.6");
             registry.insert_package_rdf(&pkg).await.unwrap();
         }
 
@@ -361,7 +361,7 @@ mod v2_workflows_tests {
     async fn test_v2_unicode_sparql_queries() {
         let registry = RdfRegistry::new();
 
-        let pkg = create_test_package("unicode-sparql", "Unicode 测试 🚀", "1.0.0");
+        let pkg = create_test_package("unicode-sparql", "Unicode 测试 🚀", "26.6.6");
         registry.insert_package_rdf(&pkg).await.unwrap();
 
         // SPARQL should handle unicode correctly
@@ -373,7 +373,7 @@ mod v2_workflows_tests {
     async fn test_v2_complex_sparql_filters() {
         let registry = RdfRegistry::new();
 
-        // Complex filter: name CONTAINS "database" AND tag="rust" AND version>=1.0.0
+        // Complex filter: name CONTAINS "database" AND tag="rust" AND version>=26.6.6
         let mut pkg = create_test_package("complex-pkg", "Database Library", "1.5.0");
         pkg.metadata.tags = vec!["rust".to_string(), "database".to_string()];
 
@@ -382,6 +382,6 @@ mod v2_workflows_tests {
         // Verify package matches complex criteria
         assert!(pkg.metadata.name.contains("Database"));
         assert!(pkg.metadata.tags.contains(&"rust".to_string()));
-        assert!(pkg.metadata.version >= PackageVersion::new("1.0.0").unwrap());
+        assert!(pkg.metadata.version >= PackageVersion::new("26.6.6").unwrap());
     }
 }

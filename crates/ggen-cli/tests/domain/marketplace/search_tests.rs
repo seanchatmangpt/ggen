@@ -57,7 +57,7 @@ impl TestPackage {
         Self {
             id: format!("pkg-{}", name),
             name: name.to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: format!("Description for {}", name),
             author: None,
             category: None,
@@ -931,7 +931,7 @@ async fn test_search_version_filtering() -> Result<()> {
     create_test_index(
         temp_dir.path(),
         vec![
-            TestPackage::new("tool").version("1.0.0"),
+            TestPackage::new("tool").version("26.6.6"),
             TestPackage::new("tool").version("2.0.0"),
             TestPackage::new("tool").version("3.0.0"),
         ],

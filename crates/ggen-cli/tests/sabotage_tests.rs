@@ -55,7 +55,7 @@ fn test_sabotage_remove_pack_toml_sync_locked_exits_nonzero() {
 
     // Write a lockfile that references a pack with a specific integrity hash
     // The pack will not actually exist (simulating deletion after install)
-    let lockfile_json = r#"{"packs":{"acme/base":{"version":"1.0.0","source":{"type":"Local","path":"/nonexistent/pack"},"integrity":"sha256-abc123def456","installed_at":"2024-01-01T00:00:00Z","dependencies":[]}},"updated_at":"2024-01-01T00:00:00Z","ggen_version":"6.1.0"}"#;
+    let lockfile_json = r#"{"packs":{"acme/base":{"version":"26.6.6","source":{"type":"Local","path":"/nonexistent/pack"},"integrity":"sha256-abc123def456","installed_at":"2024-01-01T00:00:00Z","dependencies":[]}},"updated_at":"2024-01-01T00:00:00Z","ggen_version":"6.1.0"}"#;
     fs::write(&lock_path, lockfile_json).unwrap();
 
     let cache_dir = TempDir::new().unwrap();

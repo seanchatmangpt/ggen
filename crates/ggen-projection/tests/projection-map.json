@@ -1,33 +1,43 @@
 {
   "mappings": {
-    "dogfood_gc004.rs": {
+    "dogfood_gc007.rs": {
       "pack_id": "ggen-pack-proofs",
-      "template_path": "crates/ggen-pack-proofs/templates/dogfood_gc004.rs.tmpl",
-      "query_path": null,
-      "bound_variables": [],
-      "merge_strategy": "Exclusive",
-      "start_line": 1,
-      "end_line": 9999
-    },
-    "f8_equation_enforcement.rs": {
-      "pack_id": "ggen-pack-proofs",
-      "template_path": "crates/ggen-pack-proofs/templates/f8_equation_enforcement.rs.tmpl",
-      "query_path": null,
-      "bound_variables": [],
-      "merge_strategy": "Exclusive",
-      "start_line": 1,
-      "end_line": 9999
-    },
-    "dogfood_gc002.rs": {
-      "pack_id": "ggen-pack-proofs",
-      "template_path": "crates/ggen-pack-proofs/templates/dogfood_gc002.rs.tmpl",
+      "template_path": "/Users/sac/ggen/crates/ggen-pack-proofs/templates/dogfood_gc007.rs.tmpl",
       "query_path": null,
       "bound_variables": [
-        "checkpoint_id",
-        "target_dir",
-        "staging_dir",
-        "receipt_sink"
+        "checkpoint",
+        "proofs_gc007"
       ],
+      "merge_strategy": "Exclusive",
+      "start_line": 1,
+      "end_line": 9999
+    },
+    "dogfood_gc006.rs": {
+      "pack_id": "ggen-pack-proofs",
+      "template_path": "/Users/sac/ggen/crates/ggen-pack-proofs/templates/dogfood_gc006.rs.tmpl",
+      "query_path": null,
+      "bound_variables": [
+        "checkpoint",
+        "proofs_gc006"
+      ],
+      "merge_strategy": "Exclusive",
+      "start_line": 1,
+      "end_line": 9999
+    },
+    "dogfood_gc005.rs": {
+      "pack_id": "ggen-pack-proofs",
+      "template_path": "/Users/sac/ggen/crates/ggen-pack-proofs/templates/dogfood_gc005.rs.tmpl",
+      "query_path": null,
+      "bound_variables": [],
+      "merge_strategy": "Exclusive",
+      "start_line": 1,
+      "end_line": 9999
+    },
+    "dogfood_gc004.rs": {
+      "pack_id": "ggen-pack-proofs",
+      "template_path": "/Users/sac/ggen/crates/ggen-pack-proofs/templates/dogfood_gc004.rs.tmpl",
+      "query_path": null,
+      "bound_variables": [],
       "merge_strategy": "Exclusive",
       "start_line": 1,
       "end_line": 9999

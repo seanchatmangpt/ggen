@@ -208,7 +208,7 @@ mod tests {
         let pack1 = Pack {
             id: "pack1".to_string(),
             name: "Pack 1".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: "Test pack 1".to_string(),
             category: "test".to_string(),
             author: None,
@@ -228,7 +228,7 @@ mod tests {
         let pack2 = Pack {
             id: "pack2".to_string(),
             name: "Pack 2".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: "Test pack 2".to_string(),
             category: "test".to_string(),
             author: None,
@@ -239,7 +239,7 @@ mod tests {
             sparql_queries: HashMap::new(),
             dependencies: vec![PackDependency {
                 pack_id: "pack1".to_string(),
-                version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
                 optional: false,
             }],
             tags: vec![],
@@ -258,7 +258,7 @@ mod tests {
         let pack1 = Pack {
             id: "pack1".to_string(),
             name: "Pack 1".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: "Test pack 1".to_string(),
             category: "test".to_string(),
             author: None,
@@ -278,7 +278,7 @@ mod tests {
         let pack2 = Pack {
             id: "pack2".to_string(),
             name: "Pack 2".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: "Test pack 2".to_string(),
             category: "test".to_string(),
             author: None,

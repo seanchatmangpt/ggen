@@ -41447,7 +41447,7 @@
       "inclusion_reason": "schema / ontology / query"
     },
     {
-      "path": "marketplace/packages/sector-api-gateway-8020/ontologies/api_gateway_v1.0.0.ttl",
+      "path": "marketplace/packages/sector-api-gateway-8020/ontologies/api_gateway_v26.6.6.ttl",
       "size_bytes": 7850,
       "modified_time": "2026-05-20T05:14:14Z",
       "sha256": "4138ea81bd80e34af7ac911d3bffc3df2bd8eee79a077697c4dd116db32d8423",
@@ -41465,7 +41465,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/packages/sector-observability-8020/ontologies/observability_v1.0.0.ttl",
+      "path": "marketplace/packages/sector-observability-8020/ontologies/observability_v26.6.6.ttl",
       "size_bytes": 6651,
       "modified_time": "2026-05-20T05:14:14Z",
       "sha256": "fe262ca5eb4c28fd3e280e5d3a89f25382709cf9b5caf7aed1e40d653c379483",
@@ -41492,7 +41492,7 @@
       "inclusion_reason": "untracked or temporary file"
     },
     {
-      "path": "marketplace/packages/sector-paper-lifecycle-8020/ontologies/paper_v1.0.0.ttl",
+      "path": "marketplace/packages/sector-paper-lifecycle-8020/ontologies/paper_v26.6.6.ttl",
       "size_bytes": 6655,
       "modified_time": "2026-05-20T05:14:14Z",
       "sha256": "e5b654a8509baaae0722a85ffdeccd8e24ad2179756a55abf5b154858cb87278",
@@ -41510,7 +41510,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/packages/sector-rust-microservice-8020/ontologies/microservice_v1.0.0.ttl",
+      "path": "marketplace/packages/sector-rust-microservice-8020/ontologies/microservice_v26.6.6.ttl",
       "size_bytes": 5125,
       "modified_time": "2026-05-20T05:14:14Z",
       "sha256": "d01f8922b079034e7a9782566f453507fc857473062146ec3ec6bd41c9bccad1",
@@ -41528,7 +41528,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/packages/sector-support-hooks-8020/ontologies/support_v1.0.0.ttl",
+      "path": "marketplace/packages/sector-support-hooks-8020/ontologies/support_v26.6.6.ttl",
       "size_bytes": 6954,
       "modified_time": "2026-05-20T05:14:14Z",
       "sha256": "b7e7c9422ca1e0fbf97329ec9b2b996330755447f983ec29208ca88938c52e84",
@@ -42293,7 +42293,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/academic-bibliography-manager/1.0.0.json",
+      "path": "marketplace/receipts/academic-bibliography-manager/26.6.6.json",
       "size_bytes": 1577,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "25a5684431058baceacddad88ff84a852012be3ef9c64d6950ce355aa3544310",
@@ -42302,7 +42302,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/academic-peer-review-workflow/1.0.0.json",
+      "path": "marketplace/receipts/academic-peer-review-workflow/26.6.6.json",
       "size_bytes": 1567,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "6f6eddba11ea5523645d3fc1df790177e9e2089884ab07ced8d4ff9672f4be42",
@@ -42311,7 +42311,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/advanced-rust-project/1.0.0.json",
+      "path": "marketplace/receipts/advanced-rust-project/26.6.6.json",
       "size_bytes": 1534,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "dcd1620578dc62626c61fdfe770718697c97bfdd8ca68a17a483d01b246c3407",
@@ -42320,7 +42320,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/agent-cli-copilot/1.0.0.json",
+      "path": "marketplace/receipts/agent-cli-copilot/26.6.6.json",
       "size_bytes": 1529,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "2ea565f08e8c9015e8de02b9f087dfcfcd0442cbb8e0f3aba7a55c1049b6d664",
@@ -42329,7 +42329,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/agent-context-crafter/1.0.0.json",
+      "path": "marketplace/receipts/agent-context-crafter/26.6.6.json",
       "size_bytes": 1533,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "b567c01c2baa7b24b6b1bea18730d1ece9a2d620efbd4ea1ceb46bb45b2d02cf",
@@ -42338,7 +42338,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/agent-editor/1.0.0.json",
+      "path": "marketplace/receipts/agent-editor/26.6.6.json",
       "size_bytes": 1538,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "30d94b20211e60b2de36988391d95cc1690332073a8b603958469e83c171efbe",
@@ -42347,7 +42347,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/agent-memory-forge/1.0.0.json",
+      "path": "marketplace/receipts/agent-memory-forge/26.6.6.json",
       "size_bytes": 1530,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "d3c4a8aaa47255fe2679c2b87047d20864bf09c4a56b5bc373673e49db496a0a",
@@ -42356,7 +42356,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/agent-reasoning-mcp/1.0.0.json",
+      "path": "marketplace/receipts/agent-reasoning-mcp/26.6.6.json",
       "size_bytes": 1531,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "b1ef64a21091ad3853d8106c7d3054f36e4acb0e9a2ba00569d8eea5bbaa1d6f",
@@ -42365,7 +42365,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/ai-code-generation/1.0.0.json",
+      "path": "marketplace/receipts/ai-code-generation/26.6.6.json",
       "size_bytes": 1567,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "add205adecb696c5b9ee25302c433c16655b72b83f056f94aac365e46f991cda",
@@ -42383,7 +42383,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/api-endpoint/1.0.0.json",
+      "path": "marketplace/receipts/api-endpoint/26.6.6.json",
       "size_bytes": 1560,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "c21bfb20fe8418d5e886cbf6ec3683383e64e3fb3349bf7e08703cb5100ec746",
@@ -42392,7 +42392,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/arxiv-paper-template/1.0.0.json",
+      "path": "marketplace/receipts/arxiv-paper-template/26.6.6.json",
       "size_bytes": 1526,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "3b0164b7f7d94e25aee56f406866fc5ab78624b4aa3bf72838b0920dd0ee8675",
@@ -42401,7 +42401,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/asset-management/1.0.0.json",
+      "path": "marketplace/receipts/asset-management/26.6.6.json",
       "size_bytes": 1564,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "e720915a1245521cda4d27dadfd26bc682913cf588ef7266dff8cbc3f1595658",
@@ -42410,7 +42410,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/banking-core/1.0.0.json",
+      "path": "marketplace/receipts/banking-core/26.6.6.json",
       "size_bytes": 1515,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "17a47c0025e776b8aedef5582a32b2de8ed6f08f1a8af195441729f6e324de51",
@@ -42419,7 +42419,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/business-intelligence-reporting/1.0.0.json",
+      "path": "marketplace/receipts/business-intelligence-reporting/26.6.6.json",
       "size_bytes": 1579,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "37e33b8c3bd2bcd5e08b09a4c5ecd8f8f4833a649eb2f275abf61dd2554f86b5",
@@ -42446,7 +42446,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/cli-application-template/1.0.0.json",
+      "path": "marketplace/receipts/cli-application-template/26.6.6.json",
       "size_bytes": 1520,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "132eb8a5089c294fba10b44a527b8c54dafd2faaf3fcf6b2b5bdd56dfa63faa7",
@@ -42455,7 +42455,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/clinical-trials-management/1.0.0.json",
+      "path": "marketplace/receipts/clinical-trials-management/26.6.6.json",
       "size_bytes": 1574,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "76db61ff912e3139779d8457d87e51759365acb309268468f256f9aea1df5475",
@@ -42464,7 +42464,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/comprehensive-rust-showcase/1.0.0.json",
+      "path": "marketplace/receipts/comprehensive-rust-showcase/26.6.6.json",
       "size_bytes": 1575,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "504123f7c4ac9e8c8dde80f6c28eb5c10ad6057db0c5aa0d70b1295cf9308694",
@@ -42473,7 +42473,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/crm-customer-management/1.0.0.json",
+      "path": "marketplace/receipts/crm-customer-management/26.6.6.json",
       "size_bytes": 1529,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "ba5e3b5fff8d915ff01a41d54ff5d914eebb78eb50afbaa373a5a0703075adb8",
@@ -42482,7 +42482,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/cryptocurrency-exchange/1.0.0.json",
+      "path": "marketplace/receipts/cryptocurrency-exchange/26.6.6.json",
       "size_bytes": 1509,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "4b69cbb6a704fd3985f732a57bf901cd95f9b11a2e2d34939d4bb220fb4c112f",
@@ -42491,7 +42491,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/customer-loyalty-rewards/1.0.0.json",
+      "path": "marketplace/receipts/customer-loyalty-rewards/26.6.6.json",
       "size_bytes": 1520,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "f3ceec951174ec9922101c9fa8acfd69d26897161acb33e40ce7d279fbf684ef",
@@ -42500,7 +42500,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/data-pipeline-cli/1.0.0.json",
+      "path": "marketplace/receipts/data-pipeline-cli/26.6.6.json",
       "size_bytes": 1456,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "358117a0647680b02de9d64f41127a1dbb746987bdd0e6e52eb4e189649eac0c",
@@ -42509,7 +42509,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/database-schema-generator/1.0.0.json",
+      "path": "marketplace/receipts/database-schema-generator/26.6.6.json",
       "size_bytes": 1521,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "34cfc614548e1a3bac62b4f59dc34503f105d88943521164bd000839f2f37d5f",
@@ -42518,7 +42518,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/document-management-system/1.0.0.json",
+      "path": "marketplace/receipts/document-management-system/26.6.6.json",
       "size_bytes": 1539,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "f4cde3ddfc52996e36ead718573cf8bdd739ef881a9aa83bb1911b6233b44614",
@@ -42527,7 +42527,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/ehr-integration/1.0.0.json",
+      "path": "marketplace/receipts/ehr-integration/26.6.6.json",
       "size_bytes": 1563,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "775b03297423769d4cea76d2ef88b8bd1075241ec758cf389d9a47c1f85e21f8",
@@ -42536,7 +42536,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/enterprise-erp-core/1.0.0.json",
+      "path": "marketplace/receipts/enterprise-erp-core/26.6.6.json",
       "size_bytes": 1515,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "b513aad6547230a0e46e2c33e5d11f2e411a387e00a73ef22df72db139a9dd0d",
@@ -42545,7 +42545,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/graphql-api-template/1.0.0.json",
+      "path": "marketplace/receipts/graphql-api-template/26.6.6.json",
       "size_bytes": 1516,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "207d39567d3d9c2ce6ade493c01ac486e320dddce261b3f9913aaa61794739eb",
@@ -42554,7 +42554,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/healthcare-analytics/1.0.0.json",
+      "path": "marketplace/receipts/healthcare-analytics/26.6.6.json",
       "size_bytes": 1568,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "63bf75b28f145395772dcd449b5272e7ea34a8d482b33f7f1e0b65feadef2b4a",
@@ -42563,7 +42563,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/hello-world/1.0.0.json",
+      "path": "marketplace/receipts/hello-world/26.6.6.json",
       "size_bytes": 1572,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "e621aa7589fdfabbdd684bec3719b2884232d79b747d57e35df6077d121b3889",
@@ -42572,7 +42572,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/human-resources-management/1.0.0.json",
+      "path": "marketplace/receipts/human-resources-management/26.6.6.json",
       "size_bytes": 1574,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "294a1cc6b999180e692173ea2b947bf4b100fdb13f397dd9e5a9e0ca2ff3e766",
@@ -42581,7 +42581,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/ieee-paper-template/1.0.0.json",
+      "path": "marketplace/receipts/ieee-paper-template/26.6.6.json",
       "size_bytes": 1525,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "6cb59bd7effb3491eebecb10a2e2b2b0426bfd230228990217873bc6ab9ac1eb",
@@ -42590,7 +42590,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/inventory-management/1.0.0.json",
+      "path": "marketplace/receipts/inventory-management/26.6.6.json",
       "size_bytes": 1568,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "e2013b104dccd2c451fa8d0ff2fe8526c9598ccf20c484b693a28979a4269a40",
@@ -42599,7 +42599,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/io.ggen.nextjs.ontology-crud/1.0.0.json",
+      "path": "marketplace/receipts/io.ggen.nextjs.ontology-crud/26.6.6.json",
       "size_bytes": 1566,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "b427533b985b1ea2a89fb3241040f129c70861961831b17e9ac4f8336075f90e",
@@ -42608,7 +42608,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/iso-20022-payments/1.0.0.json",
+      "path": "marketplace/receipts/iso-20022-payments/26.6.6.json",
       "size_bytes": 1514,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "23a531ef0081ee295f1d9c9445d7377f2445a7da8d221a8eb16c9c34b79fab89",
@@ -42617,7 +42617,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/knowledge-graph-cli/1.0.0.json",
+      "path": "marketplace/receipts/knowledge-graph-cli/26.6.6.json",
       "size_bytes": 1557,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "d14fd9755daa07d35955e6620177776363aaed0f738bd88b5818f32107edbfe5",
@@ -42626,7 +42626,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/kyc-aml-compliance/1.0.0.json",
+      "path": "marketplace/receipts/kyc-aml-compliance/26.6.6.json",
       "size_bytes": 1524,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "28b9a5479f1069e4eefb3b5199917ee2212219f6248f1f13c76876f3c09c031a",
@@ -42635,7 +42635,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/laboratory-information-system/1.0.0.json",
+      "path": "marketplace/receipts/laboratory-information-system/26.6.6.json",
       "size_bytes": 1577,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "984f4955d4cc148673e544b9a7c59962b3b8b60d803c9ff549d9774927202185",
@@ -42644,7 +42644,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/medical-billing/1.0.0.json",
+      "path": "marketplace/receipts/medical-billing/26.6.6.json",
       "size_bytes": 1563,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "94b16d3ca4770767a99b65cf010d16c5f8865dc8e34e4406fa98fce3103ee638",
@@ -42653,7 +42653,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/microservices-architecture-template/1.0.0.json",
+      "path": "marketplace/receipts/microservices-architecture-template/26.6.6.json",
       "size_bytes": 1549,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "649157fa5762ef97e3e6117ba11f5ee47734ed060e701a9eaf24a86cc6378fac",
@@ -42662,7 +42662,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/microservices-architecture/1.0.0.json",
+      "path": "marketplace/receipts/microservices-architecture/26.6.6.json",
       "size_bytes": 1575,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "6958a6509141bac61799e456337a42e6b438adb44434f162602dcc2a7b6c112c",
@@ -42671,7 +42671,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/multi-tenant-saas/1.0.0.json",
+      "path": "marketplace/receipts/multi-tenant-saas/26.6.6.json",
       "size_bytes": 1530,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "b1f64c2d1eb61424749f5fb05a5d004b5ba0eca8f9797de3c73bd678a1ee510c",
@@ -42680,7 +42680,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/neurips-paper-template/1.0.0.json",
+      "path": "marketplace/receipts/neurips-paper-template/26.6.6.json",
       "size_bytes": 1528,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "cd4e6bb4b53a82d756712d0cb68f69515bb76d9c0dc892d9b24a10429eda5168",
@@ -42689,7 +42689,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/order-management-system/1.0.0.json",
+      "path": "marketplace/receipts/order-management-system/26.6.6.json",
       "size_bytes": 1519,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "549680533174f5c50a1c54ef91ff3bf604b164b4afe426c78d428799d5cd3431",
@@ -42698,7 +42698,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/pharmacy-management/1.0.0.json",
+      "path": "marketplace/receipts/pharmacy-management/26.6.6.json",
       "size_bytes": 1567,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "567eeb3c25e83ae8d267a00b3d6a0273b69abdbe8012dd66ca9be392212fdf01",
@@ -42707,7 +42707,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/phd-thesis-template/1.0.0.json",
+      "path": "marketplace/receipts/phd-thesis-template/26.6.6.json",
       "size_bytes": 1525,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "4741187c577785ec32c1c4ac9bb1ed6b783f18ecf6e4c2e99b37d187066d00ce",
@@ -42716,7 +42716,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/product-recommendations/1.0.0.json",
+      "path": "marketplace/receipts/product-recommendations/26.6.6.json",
       "size_bytes": 1571,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "4c5b53f67663f9b769c7ec246054a29bc447174c3f0a094a7e290afbce60d707",
@@ -42725,7 +42725,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/project-management/1.0.0.json",
+      "path": "marketplace/receipts/project-management/26.6.6.json",
       "size_bytes": 1531,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "65eccd2c7a6c9db1cdf3c470ab7b3c8bbaf3fafdeee2d5292574f236790a8492",
@@ -42734,7 +42734,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/reasoner-cli/1.0.0.json",
+      "path": "marketplace/receipts/reasoner-cli/26.6.6.json",
       "size_bytes": 1474,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "7224fc8cb1f9d6053f3f0b90e35abff73662553dd52ed49a993f28bc8c08dc32",
@@ -42743,7 +42743,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/rest-api-template/1.0.0.json",
+      "path": "marketplace/receipts/rest-api-template/26.6.6.json",
       "size_bytes": 1491,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "83b2a698e5e86d5c867ce7b7f8d0436de1e52fabdeb45958a9a0a78adceefb62",
@@ -42752,7 +42752,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/risk-management/1.0.0.json",
+      "path": "marketplace/receipts/risk-management/26.6.6.json",
       "size_bytes": 1518,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "3d8881ea7421e6e3a462901eda1619c97bddb9fb5ea66e211debb39b1ee0a127",
@@ -42761,7 +42761,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/robo-advisor/1.0.0.json",
+      "path": "marketplace/receipts/robo-advisor/26.6.6.json",
       "size_bytes": 1515,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "7f5eead6c5879ca3befbdac22e49f96a9d217e00fbcdc075c71161b01efedd3f",
@@ -42770,7 +42770,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/schema-forge-cli/1.0.0.json",
+      "path": "marketplace/receipts/schema-forge-cli/26.6.6.json",
       "size_bytes": 1564,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "f3d9b1622404298ffa10320e6831b79abcf13e645dd6ec5ab05f1793aebd99f6",
@@ -42779,7 +42779,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/sector-api-gateway-8020/1.0.0.json",
+      "path": "marketplace/receipts/sector-api-gateway-8020/26.6.6.json",
       "size_bytes": 1571,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "09dda12befd12b520d0ce548e57a766919a53b3cc7a8624cec0b49857cdd7c0e",
@@ -42788,7 +42788,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/sector-observability-8020/1.0.0.json",
+      "path": "marketplace/receipts/sector-observability-8020/26.6.6.json",
       "size_bytes": 1573,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "fef070860a6901603aaea718194cc370c3552ddcdfbc46df1b61f5f324828746",
@@ -42797,7 +42797,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/sector-paper-lifecycle-8020/1.0.0.json",
+      "path": "marketplace/receipts/sector-paper-lifecycle-8020/26.6.6.json",
       "size_bytes": 1575,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "c2dda2ee7cd08fe018b24f7bc6410e231f1acdb9911bf4db0146b252c026ee7d",
@@ -42806,7 +42806,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/sector-rust-microservice-8020/1.0.0.json",
+      "path": "marketplace/receipts/sector-rust-microservice-8020/26.6.6.json",
       "size_bytes": 1577,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "a9151dfe5003abb3d9d72c1e44edae20c6c31e21b0eac894e9e31fc523bfea4d",
@@ -42815,7 +42815,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/sector-support-hooks-8020/1.0.0.json",
+      "path": "marketplace/receipts/sector-support-hooks-8020/26.6.6.json",
       "size_bytes": 1573,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "2a88cd42d3d59746fb2ea3bebdbbd9681e5388b976c7a2b3e71c4ec42b009ab0",
@@ -42824,7 +42824,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/semantic-cli/1.0.0.json",
+      "path": "marketplace/receipts/semantic-cli/26.6.6.json",
       "size_bytes": 1560,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "d44378f16ccf77778f4c457d600c0c7919afaff2fd165d12e753b122cfff32a6",
@@ -42842,7 +42842,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/sparql-cli/1.0.0.json",
+      "path": "marketplace/receipts/sparql-cli/26.6.6.json",
       "size_bytes": 1472,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "32b4ab96871bda3fff524a06b8d73694b0c66ae5ee271d15454c9cf5dcf4e0fd",
@@ -42851,7 +42851,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/supply-chain-management/1.0.0.json",
+      "path": "marketplace/receipts/supply-chain-management/26.6.6.json",
       "size_bytes": 1529,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "6f8e6d72de4c8df3b87b0af529f7c8f314507d755328d7467fea4882af144f43",
@@ -42860,7 +42860,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/telemedicine-platform/1.0.0.json",
+      "path": "marketplace/receipts/telemedicine-platform/26.6.6.json",
       "size_bytes": 1602,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "d124803df5c8d768e91736494b194a1f911007232891b7519284bd7e94174e0d",
@@ -42869,7 +42869,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/trading-platform/1.0.0.json",
+      "path": "marketplace/receipts/trading-platform/26.6.6.json",
       "size_bytes": 1522,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "5e35b8d8e4ffdbd6d7f0e82e616e9f4325b64b2724b9f4135eb02b36d257df55",
@@ -42878,7 +42878,7 @@
       "inclusion_reason": "configuration file"
     },
     {
-      "path": "marketplace/receipts/workflow-engine-cli/1.0.0.json",
+      "path": "marketplace/receipts/workflow-engine-cli/26.6.6.json",
       "size_bytes": 1458,
       "modified_time": "2026-05-20T05:10:24Z",
       "sha256": "dfa550952f4ea879b4dfd5575b96c2cf259065f69ef48275a9a50a69f986bcfe",
@@ -50762,7 +50762,7 @@
       "inclusion_reason": "untracked or temporary file"
     },
     {
-      "path": "tai-erlang-autonomics/_build/default/rel/tai_autonomics/bin/tai_autonomics-1.0.0",
+      "path": "tai-erlang-autonomics/_build/default/rel/tai_autonomics/bin/tai_autonomics-26.6.6",
       "size_bytes": 36181,
       "modified_time": "2026-04-30T04:53:20Z",
       "sha256": "b2995cc5f42a6355670d8d5472d4ef2ab919fd88e066b33067a5b3de50a0de6c",
@@ -50771,7 +50771,7 @@
       "inclusion_reason": "untracked or temporary file"
     },
     {
-      "path": "tai-erlang-autonomics/_build/default/rel/tai_autonomics/releases/1.0.0/no_dot_erlang.boot",
+      "path": "tai-erlang-autonomics/_build/default/rel/tai_autonomics/releases/26.6.6/no_dot_erlang.boot",
       "size_bytes": 6687,
       "modified_time": "2026-04-30T04:53:20Z",
       "sha256": "370b5591d37b524ba7a65b09be44b1ab4185c54d8bc453f756c9454e27b93a9e",
@@ -50780,7 +50780,7 @@
       "inclusion_reason": "untracked or temporary file"
     },
     {
-      "path": "tai-erlang-autonomics/_build/default/rel/tai_autonomics/releases/1.0.0/start.boot",
+      "path": "tai-erlang-autonomics/_build/default/rel/tai_autonomics/releases/26.6.6/start.boot",
       "size_bytes": 30669,
       "modified_time": "2026-04-30T04:53:20Z",
       "sha256": "d41d48a7e3483f7e4b3ce9bb2a7c56e32e4d2998cf75760641cb39c69b6f222a",
@@ -50789,7 +50789,7 @@
       "inclusion_reason": "untracked or temporary file"
     },
     {
-      "path": "tai-erlang-autonomics/_build/default/rel/tai_autonomics/releases/1.0.0/start.script",
+      "path": "tai-erlang-autonomics/_build/default/rel/tai_autonomics/releases/26.6.6/start.script",
       "size_bytes": 41325,
       "modified_time": "2026-04-30T04:53:20Z",
       "sha256": "72806487cce80de222ead22b9dbff3771df88205cc177fa98f619730224641b2",
@@ -50798,7 +50798,7 @@
       "inclusion_reason": "untracked or temporary file"
     },
     {
-      "path": "tai-erlang-autonomics/_build/default/rel/tai_autonomics/releases/1.0.0/start_clean.boot",
+      "path": "tai-erlang-autonomics/_build/default/rel/tai_autonomics/releases/26.6.6/start_clean.boot",
       "size_bytes": 16042,
       "modified_time": "2026-04-30T04:53:20Z",
       "sha256": "4888d07f67e312e87a6eba110ccf2b038a538f2814181e05feed34949577bcf2",
@@ -50807,7 +50807,7 @@
       "inclusion_reason": "untracked or temporary file"
     },
     {
-      "path": "tai-erlang-autonomics/_build/default/rel/tai_autonomics/releases/1.0.0/sys.config",
+      "path": "tai-erlang-autonomics/_build/default/rel/tai_autonomics/releases/26.6.6/sys.config",
       "size_bytes": 3854,
       "modified_time": "2026-05-03T04:26:39Z",
       "sha256": "116d9bd908eb60416d3a62e043aa0f34d39a7d7294213917e34dd979b6ca82e5",
@@ -50816,7 +50816,7 @@
       "inclusion_reason": "untracked or temporary file"
     },
     {
-      "path": "tai-erlang-autonomics/_build/default/rel/tai_autonomics/releases/1.0.0/tai_autonomics.rel",
+      "path": "tai-erlang-autonomics/_build/default/rel/tai_autonomics/releases/26.6.6/tai_autonomics.rel",
       "size_bytes": 585,
       "modified_time": "2026-04-30T04:53:20Z",
       "sha256": "91fd431283244f000cf9ac57ed8562a6fbd8282257ac2f0e6c8b93f11241fad1",
@@ -50825,7 +50825,7 @@
       "inclusion_reason": "untracked or temporary file"
     },
     {
-      "path": "tai-erlang-autonomics/_build/default/rel/tai_autonomics/releases/1.0.0/vm.args",
+      "path": "tai-erlang-autonomics/_build/default/rel/tai_autonomics/releases/26.6.6/vm.args",
       "size_bytes": 962,
       "modified_time": "2026-04-30T04:53:20Z",
       "sha256": "814fbe54a35acfbe5c90804cbfbfce470d7f86a7965792f46a8e55b69013186b",
@@ -50888,7 +50888,7 @@
       "inclusion_reason": "untracked or temporary file"
     },
     {
-      "path": "tai-erlang-autonomics/_build/prod/rel/tai_autonomics/bin/tai_autonomics-1.0.0",
+      "path": "tai-erlang-autonomics/_build/prod/rel/tai_autonomics/bin/tai_autonomics-26.6.6",
       "size_bytes": 36181,
       "modified_time": "2026-04-30T04:53:20Z",
       "sha256": "b2995cc5f42a6355670d8d5472d4ef2ab919fd88e066b33067a5b3de50a0de6c",
@@ -51077,7 +51077,7 @@
       "inclusion_reason": "untracked or temporary file"
     },
     {
-      "path": "tai-erlang-autonomics/_build/prod/rel/tai_autonomics/releases/1.0.0/no_dot_erlang.boot",
+      "path": "tai-erlang-autonomics/_build/prod/rel/tai_autonomics/releases/26.6.6/no_dot_erlang.boot",
       "size_bytes": 6723,
       "modified_time": "2026-04-30T04:53:20Z",
       "sha256": "7991d28d75a37c55797c096eaef0378e92a1acb413ff2b8b7d63ee630bb3d2ec",
@@ -51086,7 +51086,7 @@
       "inclusion_reason": "untracked or temporary file"
     },
     {
-      "path": "tai-erlang-autonomics/_build/prod/rel/tai_autonomics/releases/1.0.0/start.boot",
+      "path": "tai-erlang-autonomics/_build/prod/rel/tai_autonomics/releases/26.6.6/start.boot",
       "size_bytes": 31235,
       "modified_time": "2026-04-30T04:53:20Z",
       "sha256": "15a8abe6caa8d1583135e9148d4da722e0a414bfa7769796a1415b0911c65e2e",
@@ -51095,7 +51095,7 @@
       "inclusion_reason": "untracked or temporary file"
     },
     {
-      "path": "tai-erlang-autonomics/_build/prod/rel/tai_autonomics/releases/1.0.0/start.script",
+      "path": "tai-erlang-autonomics/_build/prod/rel/tai_autonomics/releases/26.6.6/start.script",
       "size_bytes": 42046,
       "modified_time": "2026-04-30T04:53:20Z",
       "sha256": "bce2acce7789289fc303e1b70b345d9c5cfa3e00a44de475b07933126f34695d",
@@ -51104,7 +51104,7 @@
       "inclusion_reason": "untracked or temporary file"
     },
     {
-      "path": "tai-erlang-autonomics/_build/prod/rel/tai_autonomics/releases/1.0.0/start_clean.boot",
+      "path": "tai-erlang-autonomics/_build/prod/rel/tai_autonomics/releases/26.6.6/start_clean.boot",
       "size_bytes": 16373,
       "modified_time": "2026-04-30T04:53:20Z",
       "sha256": "7008a2bd5d8361ca7f8a4a4bc01fbeda30e3577d2adab46651d9a52bfb575dc2",
@@ -51113,7 +51113,7 @@
       "inclusion_reason": "untracked or temporary file"
     },
     {
-      "path": "tai-erlang-autonomics/_build/prod/rel/tai_autonomics/releases/1.0.0/sys.config",
+      "path": "tai-erlang-autonomics/_build/prod/rel/tai_autonomics/releases/26.6.6/sys.config",
       "size_bytes": 3854,
       "modified_time": "2026-05-03T04:26:39Z",
       "sha256": "116d9bd908eb60416d3a62e043aa0f34d39a7d7294213917e34dd979b6ca82e5",
@@ -51122,7 +51122,7 @@
       "inclusion_reason": "untracked or temporary file"
     },
     {
-      "path": "tai-erlang-autonomics/_build/prod/rel/tai_autonomics/releases/1.0.0/tai_autonomics.rel",
+      "path": "tai-erlang-autonomics/_build/prod/rel/tai_autonomics/releases/26.6.6/tai_autonomics.rel",
       "size_bytes": 585,
       "modified_time": "2026-04-30T04:53:20Z",
       "sha256": "91fd431283244f000cf9ac57ed8562a6fbd8282257ac2f0e6c8b93f11241fad1",
@@ -51131,7 +51131,7 @@
       "inclusion_reason": "untracked or temporary file"
     },
     {
-      "path": "tai-erlang-autonomics/_build/prod/rel/tai_autonomics/releases/1.0.0/vm.args",
+      "path": "tai-erlang-autonomics/_build/prod/rel/tai_autonomics/releases/26.6.6/vm.args",
       "size_bytes": 962,
       "modified_time": "2026-04-30T04:53:20Z",
       "sha256": "814fbe54a35acfbe5c90804cbfbfce470d7f86a7965792f46a8e55b69013186b",
@@ -51149,7 +51149,7 @@
       "inclusion_reason": "untracked or temporary file"
     },
     {
-      "path": "tai-erlang-autonomics/_build/prod/rel/tai_autonomics/tai_autonomics-1.0.0.tar.gz",
+      "path": "tai-erlang-autonomics/_build/prod/rel/tai_autonomics/tai_autonomics-26.6.6.tar.gz",
       "size_bytes": 2931653,
       "modified_time": "2026-04-30T04:53:20Z",
       "sha256": "a91b8afcf8b2b7ac72d4a083d6de7c5d30a2bb34ccaa1034153060bbac56f5d8",
@@ -51158,7 +51158,7 @@
       "inclusion_reason": "untracked or temporary file"
     },
     {
-      "path": "tai-erlang-autonomics/_build/prod/rel/tai_autonomics/tai_autonomics-1.0.0.tar.gz.sha256",
+      "path": "tai-erlang-autonomics/_build/prod/rel/tai_autonomics/tai_autonomics-26.6.6.tar.gz.sha256",
       "size_bytes": 94,
       "modified_time": "2026-04-30T04:53:20Z",
       "sha256": "a945d39fe11452a40c3e8679d21f19c65e1fd26b54ff249eade5de305256b398",

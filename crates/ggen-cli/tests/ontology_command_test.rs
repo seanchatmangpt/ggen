@@ -101,7 +101,7 @@ mod command_integration_tests {
             r#"{{
   "project_name": "{}",
   "ontology_file": "ontologies/{}.ttl",
-  "version": "1.0.0"
+  "version": "26.6.6"
 }}
 "#,
             project_name, project_name

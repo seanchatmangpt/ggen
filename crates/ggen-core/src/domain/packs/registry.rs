@@ -201,7 +201,7 @@ mod tests {
         Pack {
             id: id.to_string(),
             name: format!("Pack {}", id),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: "Test pack".to_string(),
             category: "test".to_string(),
             author: Some("Test Author".to_string()),
@@ -225,7 +225,7 @@ mod tests {
         let pack = create_test_pack("test-pack");
 
         let metadata = PublishMetadata {
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             changelog: "Initial release".to_string(),
             tags: vec!["test".to_string()],
             documentation_url: None,
@@ -236,7 +236,7 @@ mod tests {
 
         let receipt = result.unwrap();
         assert_eq!(receipt.pack_id, "test-pack");
-        assert_eq!(receipt.version, "1.0.0");
+        assert_eq!(receipt.version, "26.6.6");
     }
 
     #[tokio::test]
@@ -246,7 +246,7 @@ mod tests {
         // Publish a pack first
         let pack = create_test_pack("searchable-pack");
         let metadata = PublishMetadata {
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             changelog: "Initial release".to_string(),
             tags: vec!["test".to_string()],
             documentation_url: None,

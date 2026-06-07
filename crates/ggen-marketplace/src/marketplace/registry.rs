@@ -315,8 +315,8 @@ mod tests {
         let metadata = PackageMetadata::new(id.clone(), "Test Package", "A test package", "MIT");
         let package = Package {
             metadata,
-            latest_version: PackageVersion::new("1.0.0").unwrap(),
-            versions: vec![PackageVersion::new("1.0.0").unwrap()],
+            latest_version: PackageVersion::new("26.6.6").unwrap(),
+            versions: vec![PackageVersion::new("26.6.6").unwrap()],
             releases: indexmap::IndexMap::new(),
         };
 
@@ -334,8 +334,8 @@ mod tests {
         let metadata = PackageMetadata::new(id.clone(), "Test Package", "A test package", "MIT");
         let package = Package {
             metadata,
-            latest_version: PackageVersion::new("1.0.0").unwrap(),
-            versions: vec![PackageVersion::new("1.0.0").unwrap()],
+            latest_version: PackageVersion::new("26.6.6").unwrap(),
+            versions: vec![PackageVersion::new("26.6.6").unwrap()],
             releases: indexmap::IndexMap::new(),
         };
 

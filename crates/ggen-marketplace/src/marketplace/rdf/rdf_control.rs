@@ -504,7 +504,7 @@ mod tests {
         let control_plane = RdfControlPlane::new(&config_dir).unwrap();
 
         let result =
-            control_plane.add_package("test-package", "A test package", "1.0.0", "Test Author");
+            control_plane.add_package("test-package", "A test package", "26.6.6", "Test Author");
         assert!(result.is_ok());
     }
 }

@@ -73,10 +73,10 @@ impl MarketplaceValidator {
             let (package_name, version) = if parts.len() >= 2 {
                 (
                     parts[0].to_string(),
-                    parts.get(1).unwrap_or(&"1.0.0").to_string(),
+                    parts.get(1).unwrap_or(&"26.6.6").to_string(),
                 )
             } else {
-                (rule.name.clone(), "1.0.0".to_string())
+                (rule.name.clone(), "26.6.6".to_string())
             };
 
             let passed = issues.is_empty();

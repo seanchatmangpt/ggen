@@ -1,6 +1,6 @@
 [package]
 name = "tower-lsp-max-pack-lsp"
-version = "1.0.0"
+version = "26.6.6"
 edition = "2021"
 publish = false
 

@@ -378,7 +378,7 @@ ex:p rdfs:domain ex:Thing .
         let toml = "\
 [project]
 name = \"demo\"
-version = \"1.0.0\"
+version = \"26.6.6\"
 
 [logging]
 level = \"info\"

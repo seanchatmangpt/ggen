@@ -98,7 +98,7 @@ ex:FileReadSkill a a2a:Skill ;
     a2a:hasTestExample "Input: { path: '/tmp/test.txt' } Output: { contents: 'Hello' }" ;
     a2a:hasErrorHandling "FileNotFoundError, PermissionError" ;
     a2a:hasPerformanceHint "Use BufReader for large files" ;
-    a2a:hasDependency "std >= 1.0.0" ;
+    a2a:hasDependency "std >= 26.6.6" ;
     a2a:hasValidationRule "Path must be non-empty" .
 
 # MCP Tool with auto-implementation

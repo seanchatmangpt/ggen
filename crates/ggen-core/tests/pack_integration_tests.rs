@@ -49,7 +49,7 @@ fn test_lockfile_lifecycle() {
     let mut lockfile = Lockfile::new(profile);
     let entry = LockfileEntry::new(
         "io.ggen.rust.cli".to_string(),
-        "1.0.0".to_string(),
+        "26.6.6".to_string(),
         RegistrySource::Registry {
             url: "https://registry.ggen.io".to_string(),
         },

@@ -692,7 +692,7 @@ fn test_rdf_triple_insertion_performance() {
 fn test_version_comparison_performance() {
     use std::cmp::Ordering;
 
-    let v1 = "1.0.0";
+    let v1 = "26.6.6";
     let v2 = "2.0.0";
 
     let start = Instant::now();

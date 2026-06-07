@@ -512,7 +512,7 @@ fn test_ggen_toml_marketplace_structure() {
     let ggen_toml_content = r#"
 [project]
 name = "chatman-businessos-platform"
-version = "1.0.0"
+version = "26.6.6"
 description = "BusinessOS platform regeneration via ggen"
 
 [ontology]

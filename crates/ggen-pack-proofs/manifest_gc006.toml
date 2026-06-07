@@ -1,7 +1,7 @@
 [checkpoint]
 id = "GALL-CHECKPOINT-006"
 name = "Authority Surface Lock"
-status_target = "CANDIDATE"
+status_target = "ADMITTED_BY_DOGFOOD"
 
 [boundary]
 workspace = "."

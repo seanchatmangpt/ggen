@@ -13,7 +13,7 @@
       "staging_digest": "e11ce1a6fa7e05aa6e4301e26de8a155b90eaa8303abb514948320aaf65ba9af",
       "mutation_gate_decision": "admitted",
       "verification_result": "passed",
-      "projection_engine_version": "1.0.0",
+      "projection_engine_version": "26.6.6",
       "signature": null,
       "verified_at": "2026-06-06T23:24:54.530013Z",
       "previous_receipt": null

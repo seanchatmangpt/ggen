@@ -55,7 +55,7 @@
 //!
 //! # async fn example() -> crate::utils::error::Result<()> {
 //! let client = RegistryClient::new()?;
-//! let resolved = client.resolve("io.ggen.rust.cli", Some("1.0.0")).await?;
+//! let resolved = client.resolve("io.ggen.rust.cli", Some("26.6.6")).await?;
 //!
 //! println!("Git URL: {}", resolved.git_url);
 //! println!("Git Rev: {}", resolved.git_rev);
@@ -819,7 +819,7 @@ mod tests {
                         keywords: vec!["test".to_string()],
                         category: Some("test".to_string()),
                         author: Some("test".to_string()),
-                        latest_version: "1.0.0".to_string(),
+                        latest_version: "26.6.6".to_string(),
                         downloads: Some(100),
                         updated: Some(chrono::Utc::now()),
                         license: Some("MIT".to_string()),

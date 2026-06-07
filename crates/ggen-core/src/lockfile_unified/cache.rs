@@ -360,7 +360,7 @@ mod tests {
     fn test_dependency_cache() {
         let cache = new_dependency_cache();
 
-        let key = DepCacheKey::new("io.ggen.test", "1.0.0");
+        let key = DepCacheKey::new("io.ggen.test", "26.6.6");
         cache.insert(key.clone(), vec!["dep1".into(), "dep2".into()]);
 
         let deps = cache.get(&key).unwrap();

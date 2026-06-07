@@ -1,0 +1,10 @@
+## 2026-06-06T17:34:29-07:00
+
+You are teamwork_preview_worker (Worker 4). Your working directory is /Users/sac/ggen/.agents/teamwork_preview_worker_gc005_ocel/.
+Your task is to:
+1. Reclassify existing `GALL-CHECKPOINT-*.txt` and `*.receipt.json` files in `crates/playground/receipts/` or legacy directories in `~/wasm4pm` and `~/wasm4pm-compat` as reports/human-readable narratives, not admission authorities. Add a fence declaring they are not admission receipts. (Note: ~/wasm4pm and ~/wasm4pm-compat are read-only to agent tool edits; any modifications/adaptations to the code should be in the adapter inside ~/ggen).
+2. Create an OCEL object and event schema supporting the minimum universe:
+   - Object Types: Workspace, BoundaryLedger, Checkpoint, Pack, Template, PackPlan, StagingArea, MutationGate, Artifact, Diagnostic, LspServer, LspClient, Observer, ReceiptLedger, TestRun, Commit, ExportRecord, Refusal, ConformanceModel, ReplayVerdict.
+   - Event Types: BoundaryDeclared, WorkspaceAdmitted, PackLoaded, TemplateResolved, TemplateRendered, PackPlanConstructed, StagingPrepared, MutationGateAdmitted, MutationGateDenied, ArtifactWritten, DigestComputed, ReceiptEventAppended, ReceiptChainLinked, ValidationPassed, ValidationFailed, LspServerSpawned, LspClientInitialized, DocumentOpened, DocumentChanged, DiagnosticPublished, DiagnosticAttributed, CodeActionReturned, CommandExecuted, ObserverWriteScanPerformed, ObserverWriteScanPassed, ObserverWriteScanFailed, DogfoodTestProjected, DogfoodTestDeleted, DogfoodTestReprojected, TestRunStarted, TestRunPassed, TestRunFailed, ExportRecordCreated, CheckpointCandidateDeclared, CheckpointAdmitted, CheckpointRefused, ReplayStarted, ReplayCompleted, ConformanceVerdictEmitted.
+3. Implement deterministic event emission matching the event types into append-only JSONL files under `crates/playground/ocel/` in `~/wasm4pm` and `~/wasm4pm-compat`: events.jsonl, objects.jsonl, digests.jsonl, verdicts.jsonl.
+4. Compile and run check/tests. Write changes.md and handoff.md in your working directory.

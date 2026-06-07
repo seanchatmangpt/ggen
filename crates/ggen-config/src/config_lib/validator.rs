@@ -36,7 +36,7 @@ impl<'a> ConfigValidator<'a> {
     /// let toml = r#"
     ///     [project]
     ///     name = "my-project"
-    ///     version = "1.0.0"
+    ///     version = "26.6.6"
     /// "#;
     ///
     /// let config = ConfigLoader::from_str(toml)?;
@@ -81,7 +81,7 @@ impl<'a> ConfigValidator<'a> {
         // Version validation (basic semver check)
         if !is_valid_version(&project.version) {
             self.errors.push(format!(
-                "Invalid version format: '{}'. Expected semver format (e.g., 1.0.0)",
+                "Invalid version format: '{}'. Expected semver format (e.g., 26.6.6)",
                 project.version
             ));
         }
@@ -320,7 +320,7 @@ mod tests {
         let config = GgenConfig {
             project: ProjectConfig {
                 name: "test".to_string(),
-                version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
                 description: None,
                 authors: None,
                 license: None,
@@ -337,7 +337,7 @@ mod tests {
         let config = GgenConfig {
             project: ProjectConfig {
                 name: String::new(),
-                version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
                 description: None,
                 authors: None,
                 license: None,
@@ -368,13 +368,13 @@ mod tests {
 
     #[test]
     fn test_version_validation() {
-        assert!(is_valid_version("1.0.0"));
+        assert!(is_valid_version("26.6.6"));
         assert!(is_valid_version("0.1.0"));
         assert!(is_valid_version("10.20.30"));
 
         assert!(!is_valid_version("1.0"));
         assert!(!is_valid_version("invalid"));
-        assert!(!is_valid_version("1.0.0.0"));
+        assert!(!is_valid_version("26.6.6.0"));
     }
 
     #[test]
@@ -393,7 +393,7 @@ mod tests {
         let toml = r#"
             [project]
             name = "test"
-            version = "1.0.0"
+            version = "26.6.6"
 
             [ai]
             provider = "openai"
@@ -410,7 +410,7 @@ mod tests {
         let toml = r#"
             [project]
             name = "test"
-            version = "1.0.0"
+            version = "26.6.6"
 
             [logging]
             level = "invalid"
@@ -426,7 +426,7 @@ mod tests {
         let toml = r#"
             [project]
             name = "test"
-            version = "1.0.0"
+            version = "26.6.6"
 
             [mcp]
             enabled = true
@@ -444,7 +444,7 @@ mod tests {
         let toml = r#"
             [project]
             name = "test"
-            version = "1.0.0"
+            version = "26.6.6"
 
             [a2a]
             enabled = true
@@ -462,7 +462,7 @@ mod tests {
         let toml = r#"
             [project]
             name = "test"
-            version = "1.0.0"
+            version = "26.6.6"
 
             [mcp]
             enabled = true
@@ -486,7 +486,7 @@ mod tests {
         let toml = r#"
             [project]
             name = "test"
-            version = "1.0.0"
+            version = "26.6.6"
 
             [a2a]
             enabled = true
@@ -512,7 +512,7 @@ mod tests {
         let toml = r#"
             [project]
             name = "test"
-            version = "1.0.0"
+            version = "26.6.6"
 
             [ai]
             provider = "anthropic"

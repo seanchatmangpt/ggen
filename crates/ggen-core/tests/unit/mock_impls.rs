@@ -64,7 +64,7 @@ pub fn create_mock_registry_index(pack_count: usize) -> RegistryIndex {
 /// Create a minimal mock pack with only required fields
 pub fn create_minimal_mock_pack(id: &str) -> PackMetadata {
     let mut versions = HashMap::new();
-    versions.insert("1.0.0".to_string(), create_mock_version("1.0.0"));
+    versions.insert("26.6.6".to_string(), create_mock_version("26.6.6"));
 
     PackMetadata {
         id: id.to_string(),
@@ -74,7 +74,7 @@ pub fn create_minimal_mock_pack(id: &str) -> PackMetadata {
         keywords: vec![],
         category: None,
         author: None,
-        latest_version: "1.0.0".to_string(),
+        latest_version: "26.6.6".to_string(),
         versions,
         downloads: None,
         updated: None,
@@ -131,13 +131,13 @@ mod tests {
 
     test!(test_create_mock_pack, {
         // Arrange & Act
-        let pack = create_mock_pack("test-id", "Test Name", "1.0.0");
+        let pack = create_mock_pack("test-id", "Test Name", "26.6.6");
 
         // Assert
         assert_eq!(pack.id, "test-id");
         assert_eq!(pack.name, "Test Name");
-        assert_eq!(pack.latest_version, "1.0.0");
-        assert!(pack.versions.contains_key("1.0.0"));
+        assert_eq!(pack.latest_version, "26.6.6");
+        assert!(pack.versions.contains_key("26.6.6"));
     });
 
     test!(test_create_mock_registry_index, {
@@ -165,7 +165,7 @@ mod tests {
 
     test!(test_create_multiver_mock_pack, {
         // Arrange
-        let versions = vec!["1.0.0", "1.1.0", "2.0.0"];
+        let versions = vec!["26.6.6", "1.1.0", "2.0.0"];
 
         // Act
         let pack = create_multiver_mock_pack("multiver", &versions);

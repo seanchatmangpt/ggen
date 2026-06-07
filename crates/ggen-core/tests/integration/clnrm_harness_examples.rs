@@ -35,8 +35,8 @@ async fn example_package_resolution() -> Result<()> {
     let fixture = harness.marketplace_fixture().await?;
 
     // Resolve specific version
-    let resolved = fixture.resolve("rust-web-service", Some("1.0.0")).await?;
-    assert_eq!(resolved.version, "1.0.0");
+    let resolved = fixture.resolve("rust-web-service", Some("26.6.6")).await?;
+    assert_eq!(resolved.version, "26.6.6");
 
     // Resolve latest version (no version specified)
     let latest = fixture.resolve("rust-web-service", None).await?;
@@ -64,15 +64,15 @@ async fn example_package_updates() -> Result<()> {
         keywords: vec!["example".to_string()],
         category: Some("testing".to_string()),
         author: Some("Test Author".to_string()),
-        latest_version: "1.0.0".to_string(),
+        latest_version: "26.6.6".to_string(),
         versions: {
             let mut versions = HashMap::new();
             versions.insert(
-                "1.0.0".to_string(),
+                "26.6.6".to_string(),
                 ggen_core::registry::VersionMetadata {
-                    version: "1.0.0".to_string(),
+                    version: "26.6.6".to_string(),
                     git_url: "https://github.com/test/new-package.git".to_string(),
-                    git_rev: "v1.0.0".to_string(),
+                    git_rev: "v26.6.6".to_string(),
                     manifest_url: None,
                     sha256: "e".repeat(64),
                 },

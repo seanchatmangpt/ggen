@@ -607,9 +607,9 @@ mod tests {
 
     #[test]
     fn test_package_version_validation() {
-        assert!(PackageVersion::new("1.0.0").is_ok());
-        assert!(PackageVersion::new("v1.0.0").is_ok());
-        assert!(PackageVersion::new("1.0.0-alpha").is_ok());
+        assert!(PackageVersion::new("26.6.6").is_ok());
+        assert!(PackageVersion::new("v26.6.6").is_ok());
+        assert!(PackageVersion::new("26.6.6-alpha").is_ok());
 
         assert!(PackageVersion::new("1.0").is_err());
         assert!(PackageVersion::new("abc").is_err());

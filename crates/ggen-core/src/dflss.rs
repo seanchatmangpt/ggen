@@ -272,7 +272,7 @@ mod tests {
             r#"
 [project]
 name = "dflss-test"
-version = "1.0.0"
+version = "26.6.6"
 
 [ontology]
 source = "model.ttl"

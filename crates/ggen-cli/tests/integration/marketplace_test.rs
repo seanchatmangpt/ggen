@@ -134,7 +134,7 @@ impl GpackInstaller for MockGpackInstaller {
         if self.should_succeed {
             Ok(InstallResult {
                 gpack_id,
-                version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
                 already_installed: false,
             })
         } else {
@@ -240,7 +240,7 @@ async fn test_package_listing_with_packages() {
     let packages = vec![
         super::list::InstalledGpack {
             id: "test-package-1".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             sha256: "abc123".to_string(),
             source: "registry".to_string(),
         },
@@ -309,7 +309,7 @@ async fn test_marketplace_package_validation() {
     assert!(result.is_ok());
 
     // Valid package ID with version
-    let result = validate_gpack_input("io.ggen.rust.cli@1.0.0");
+    let result = validate_gpack_input("io.ggen.rust.cli@26.6.6");
     assert!(result.is_ok());
 
     // Invalid empty package ID
@@ -317,7 +317,7 @@ async fn test_marketplace_package_validation() {
     assert!(result.is_err());
 
     // Invalid characters
-    let result = validate_gpack_input("invalid/package@1.0.0");
+    let result = validate_gpack_input("invalid/package@26.6.6");
     assert!(result.is_err());
 }
 
@@ -328,7 +328,7 @@ async fn test_marketplace_search_filters() {
         id: "test-package".to_string(),
         name: "Test Package".to_string(),
         description: "A test package".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         category: Some("utilities".to_string()),
         author: Some("test-author".to_string()),
         license: Some("MIT".to_string()),

@@ -312,7 +312,7 @@ const MINIMAL_A2A_ONTOLOGY: &str = r#"
 
 ex:ReviewAgent a a2a:Agent ;
     a2a:agentName "code_reviewer" ;
-    a2a:agentVersion "1.0.0" ;
+    a2a:agentVersion "26.6.6" ;
     a2a:agentDescription "Reviews code for quality issues" ;
     a2a:agentUrl "http://localhost:8090" ;
     a2a:providerName "ggen" ;

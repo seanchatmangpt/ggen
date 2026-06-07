@@ -1,6 +1,6 @@
 # Lockchain Auditing & Time-Travel
 
-**Version:** 1.0.0
+**Version:** 26.6.6
 **Features:** Receipt auditing, historical queries, time-travel verification
 **Status:** Production Ready ✅
 
@@ -649,6 +649,6 @@ if !MerkleTree::verify(&leaf, &proof, &root) {
 
 ---
 
-**Document Version:** 1.0.0
+**Document Version:** 26.6.6
 **Last Updated:** 2025-11-07
 **Maintainer:** KNHK Team

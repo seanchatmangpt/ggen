@@ -82,7 +82,7 @@ fn test_t3_sync_under_cyclic_dependencies() {
     let pack_a = PackDescriptor {
         id: "pack_a".to_string(),
         name: "Pack A".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         description: "Depends on B".to_string(),
         license: "MIT".to_string(),
         dependencies: deps_a,
@@ -95,7 +95,7 @@ fn test_t3_sync_under_cyclic_dependencies() {
     let pack_b = PackDescriptor {
         id: "pack_b".to_string(),
         name: "Pack B".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         description: "Depends on A".to_string(),
         license: "MIT".to_string(),
         dependencies: deps_b,

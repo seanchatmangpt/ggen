@@ -664,8 +664,8 @@ mod tests {
 
         let package = Package {
             metadata,
-            latest_version: PackageVersion::new("1.0.0").unwrap(),
-            versions: vec![PackageVersion::new("1.0.0").unwrap()],
+            latest_version: PackageVersion::new("26.6.6").unwrap(),
+            versions: vec![PackageVersion::new("26.6.6").unwrap()],
             releases: IndexMap::new(),
         };
 
@@ -700,8 +700,8 @@ mod tests {
 
         let package = Package {
             metadata,
-            latest_version: PackageVersion::new("1.0.0").unwrap(),
-            versions: vec![PackageVersion::new("1.0.0").unwrap()],
+            latest_version: PackageVersion::new("26.6.6").unwrap(),
+            versions: vec![PackageVersion::new("26.6.6").unwrap()],
             releases: IndexMap::new(),
         };
 
@@ -736,8 +736,8 @@ mod tests {
 
         let package = Package {
             metadata,
-            latest_version: PackageVersion::new("1.0.0").unwrap(),
-            versions: vec![PackageVersion::new("1.0.0").unwrap()],
+            latest_version: PackageVersion::new("26.6.6").unwrap(),
+            versions: vec![PackageVersion::new("26.6.6").unwrap()],
             releases: IndexMap::new(),
         };
 
@@ -782,8 +782,8 @@ mod tests {
 
         let package = Package {
             metadata: metadata.clone(),
-            latest_version: PackageVersion::new("1.0.0").unwrap(),
-            versions: vec![PackageVersion::new("1.0.0").unwrap()],
+            latest_version: PackageVersion::new("26.6.6").unwrap(),
+            versions: vec![PackageVersion::new("26.6.6").unwrap()],
             releases: IndexMap::new(),
         };
 
@@ -797,7 +797,7 @@ mod tests {
             metadata: updated_metadata,
             latest_version: PackageVersion::new("2.0.0").unwrap(),
             versions: vec![
-                PackageVersion::new("1.0.0").unwrap(),
+                PackageVersion::new("26.6.6").unwrap(),
                 PackageVersion::new("2.0.0").unwrap(),
             ],
             releases: IndexMap::new(),
@@ -833,8 +833,8 @@ mod tests {
 
             let package = Package {
                 metadata,
-                latest_version: PackageVersion::new("1.0.0").unwrap(),
-                versions: vec![PackageVersion::new("1.0.0").unwrap()],
+                latest_version: PackageVersion::new("26.6.6").unwrap(),
+                versions: vec![PackageVersion::new("26.6.6").unwrap()],
                 releases: IndexMap::new(),
             };
 
@@ -872,8 +872,8 @@ mod tests {
 
             let package = Package {
                 metadata,
-                latest_version: PackageVersion::new("1.0.0").unwrap(),
-                versions: vec![PackageVersion::new("1.0.0").unwrap()],
+                latest_version: PackageVersion::new("26.6.6").unwrap(),
+                versions: vec![PackageVersion::new("26.6.6").unwrap()],
                 releases: IndexMap::new(),
             };
 
@@ -911,8 +911,8 @@ mod tests {
 
             let package = Package {
                 metadata,
-                latest_version: PackageVersion::new("1.0.0").unwrap(),
-                versions: vec![PackageVersion::new("1.0.0").unwrap()],
+                latest_version: PackageVersion::new("26.6.6").unwrap(),
+                versions: vec![PackageVersion::new("26.6.6").unwrap()],
                 releases: IndexMap::new(),
             };
 
@@ -951,8 +951,8 @@ mod tests {
 
             let package = Package {
                 metadata,
-                latest_version: PackageVersion::new("1.0.0").unwrap(),
-                versions: vec![PackageVersion::new("1.0.0").unwrap()],
+                latest_version: PackageVersion::new("26.6.6").unwrap(),
+                versions: vec![PackageVersion::new("26.6.6").unwrap()],
                 releases: IndexMap::new(),
             };
 

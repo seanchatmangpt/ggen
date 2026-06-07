@@ -84,7 +84,7 @@ fn test_pack_cache_lru_eviction() {
         let package_id = ggen_core::marketplace::models::PackageId::new(&format!("test-pkg-{}", i))
             .expect("Invalid package ID");
         let version =
-            ggen_core::marketplace::models::PackageVersion::new("1.0.0").expect("Invalid version");
+            ggen_core::marketplace::models::PackageVersion::new("26.6.6").expect("Invalid version");
 
         let cached_pack = ggen_core::marketplace::cache::CachedPack::new(
             package_id,
@@ -132,7 +132,7 @@ fn test_pack_cache_digest_verification() {
     let package_id =
         ggen_core::marketplace::models::PackageId::new("test-pkg").expect("Invalid package ID");
     let version =
-        ggen_core::marketplace::models::PackageVersion::new("1.0.0").expect("Invalid version");
+        ggen_core::marketplace::models::PackageVersion::new("26.6.6").expect("Invalid version");
 
     let cached_pack = ggen_core::marketplace::cache::CachedPack::new(
         package_id,
@@ -176,7 +176,7 @@ fn test_pack_cache_persistence() {
         let package_id =
             ggen_core::marketplace::models::PackageId::new("test-pkg").expect("Invalid package ID");
         let version =
-            ggen_core::marketplace::models::PackageVersion::new("1.0.0").expect("Invalid version");
+            ggen_core::marketplace::models::PackageVersion::new("26.6.6").expect("Invalid version");
 
         let cached_pack = ggen_core::marketplace::cache::CachedPack::new(
             package_id,

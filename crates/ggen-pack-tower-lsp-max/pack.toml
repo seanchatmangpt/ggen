@@ -1,12 +1,12 @@
 id = "ggen-pack-tower-lsp-max"
 name = "Tower LSP Max"
-version = "1.0.0"
+version = "26.6.6"
 description = "Tower LSP Max pack"
 license = "MIT"
 query_aliases = {}
 
 [dependencies]
-ggen-pack-clap-noun-verb = "^1.0.0"
+ggen-pack-clap-noun-verb = "^26.6.6"
 
 [[templates]]
 path = "templates/Cargo.toml.tmpl"

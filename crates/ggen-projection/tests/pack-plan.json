@@ -1,6 +1,6 @@
 {
   "checksums": {
-    "ggen-pack-proofs": "a68b36ef0b094910c644923f276d49447a1d09084495655020e47b29fd0646b3"
+    "ggen-pack-proofs": "32b49637a5a059b5ac7167b32bb39a776d8b6c6e723341441b8aa6b9206d2e76"
   },
   "outputs": [
     "crates/ggen-projection/tests"

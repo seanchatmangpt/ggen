@@ -395,7 +395,7 @@ mod tests {
         let snapshot = SigmaSnapshot::new(
             None,
             vec![],
-            "1.0.0".to_string(),
+            "26.6.6".to_string(),
             "sig".to_string(),
             Default::default(),
         );

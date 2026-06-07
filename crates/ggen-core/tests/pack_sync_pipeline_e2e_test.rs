@@ -94,7 +94,7 @@ fn pack_lockfile_pipeline_populates_receipt_pack_provenance() {
     lf.add_pack(
         pack_id.to_string(),
         LockedPack {
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             source: PackSource::Local {
                 path: cache.path().to_path_buf(),
             },
@@ -105,7 +105,7 @@ fn pack_lockfile_pipeline_populates_receipt_pack_provenance() {
     );
     lf.save(&lock_path).expect("save lockfile");
 
-    let config = PipelineConfig::new("pack-e2e", "1.0.0")
+    let config = PipelineConfig::new("pack-e2e", "26.6.6")
         .with_base_path(project.path())
         .with_output_dir("output")
         .with_receipt_path(".ggen/receipt.json");

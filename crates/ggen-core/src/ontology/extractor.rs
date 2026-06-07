@@ -22,7 +22,7 @@ impl OntologyExtractor {
     /// # Returns
     /// Complete OntologySchema with all classes, properties, and relationships
     pub fn extract(graph: &Graph, namespace: &str) -> Result<OntologySchema, String> {
-        let mut schema = OntologySchema::new(namespace, "1.0.0");
+        let mut schema = OntologySchema::new(namespace, "26.6.6");
         schema.label = Self::extract_ontology_label(graph, namespace)?;
         schema.description = Self::extract_ontology_description(graph, namespace);
 

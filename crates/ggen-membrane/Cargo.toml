@@ -1,6 +1,6 @@
 [package]
 name = "ggen-membrane"
-version = "1.0.0"
+version = "26.6.6"
 edition = "2021"
 description = "ggen Membrane Foundry - Adapt messy source reality into RelationPages, symbol pages, and public expansion laws"
 authors = ["KNHK Team"]

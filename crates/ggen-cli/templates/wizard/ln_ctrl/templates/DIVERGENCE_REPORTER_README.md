@@ -189,7 +189,7 @@ Same structure as expected state. The analyzer compares the two and identifies d
   reproducible: true,
 
   metadata: {
-    detector_version: "1.0.0",
+    detector_version: "26.6.6",
     analysis_duration_ms: 127,
     context: { ... }
   }
@@ -458,6 +458,6 @@ Formula: A = μ(O) - Code precipitates from RDF ontologies.
 
 ---
 
-**Version:** 1.0.0
+**Version:** 26.6.6
 **Last Updated:** 2026-02-11
 **Maintainer:** ggen ln_ctrl wizard

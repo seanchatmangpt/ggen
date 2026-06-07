@@ -63,7 +63,7 @@ fn create_minimal_manifest() -> GgenManifest {
     GgenManifest {
         project: ggen_core::manifest::ProjectConfig {
             name: "test-project".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: None,
         },
         ontology: OntologyConfig {

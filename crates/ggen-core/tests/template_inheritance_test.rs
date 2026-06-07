@@ -200,7 +200,7 @@ fn test_block_overrides_produce_clean_merged_output() {
 
     let mut ctx = Context::new();
     ctx.insert("server_name", "TestMcpServer");
-    ctx.insert("server_version", "1.0.0");
+    ctx.insert("server_version", "26.6.6");
     ctx.insert("server_description", "Test server");
     ctx.insert("transport_type", "stdio");
     ctx.insert("file_description", "MCP server implementation");

@@ -228,7 +228,7 @@ fn test_manifest_verification_success() {
 
     let manifest = PackageManifest {
         name: "test-package".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         files: manifest_files,
         ggen_compat: "*".to_string(),
     };
@@ -251,7 +251,7 @@ fn test_manifest_verification_missing_file() {
 
     let manifest = PackageManifest {
         name: "test-package".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         files: manifest_files,
         ggen_compat: "*".to_string(),
     };
@@ -277,7 +277,7 @@ fn test_manifest_verification_checksum_mismatch() {
 
     let manifest = PackageManifest {
         name: "test-package".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         files: manifest_files,
         ggen_compat: "*".to_string(),
     };
@@ -303,7 +303,7 @@ fn test_version_compatibility_match() {
 
     let manifest = PackageManifest {
         name: "test".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         files: HashMap::new(),
         ggen_compat: "0.1.0".to_string(),
     };
@@ -318,7 +318,7 @@ fn test_version_compatibility_wildcard() {
 
     let manifest = PackageManifest {
         name: "test".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         files: HashMap::new(),
         ggen_compat: "*".to_string(),
     };
@@ -333,7 +333,7 @@ fn test_version_compatibility_mismatch() {
 
     let manifest = PackageManifest {
         name: "test".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         files: HashMap::new(),
         ggen_compat: "0.1.0".to_string(),
     };
@@ -361,7 +361,7 @@ fn test_verify_all_success() {
 
     let manifest = PackageManifest {
         name: "test-package".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         files: manifest_files,
         ggen_compat: "0.1.0".to_string(),
     };
@@ -379,7 +379,7 @@ fn test_verify_all_version_mismatch() {
 
     let manifest = PackageManifest {
         name: "test".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         files: HashMap::new(),
         ggen_compat: "0.1.0".to_string(),
     };
@@ -430,7 +430,7 @@ fn test_fmea_incomplete_package_detection() {
 
     let manifest = PackageManifest {
         name: "test".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         files: manifest_files,
         ggen_compat: "*".to_string(),
     };
@@ -463,7 +463,7 @@ fn test_fmea_version_incompatibility_detection() {
     };
 
     // Old version should be rejected
-    let result = verifier.verify_version_compatibility(&manifest, "1.0.0");
+    let result = verifier.verify_version_compatibility(&manifest, "26.6.6");
     assert!(result.is_err());
     assert_eq!(result.unwrap_err(), VerificationError::IncompatibleVersion);
 }

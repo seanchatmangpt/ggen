@@ -19,7 +19,7 @@ impl LanguageServer for Backend {
             },
             server_info: Some(ServerInfo {
                 name: "wasm4pm-lsp".to_string(),
-                version: Some("1.0.0".to_string()),
+                version: Some("26.6.6".to_string()),
             }),
         })
     }
@@ -63,8 +63,12 @@ impl Backend {
         // Observe process evidence
         if path_str.ends_with(".jsonl") || path_str.ends_with(".json") || path_str.ends_with(".ocel") {
             let mut bin_path = std::env::current_exe().unwrap_or_else(|_| std::path::PathBuf::from("."));
-            bin_path.pop();
-            let compat_bin = bin_path.join("wasm4pm-compat");
+            bin_path.pop(); // pop binary name
+            let mut compat_bin = bin_path.join("gc005-wasm4pm-adapter");
+            if !compat_bin.exists() && bin_path.ends_with("deps") {
+                bin_path.pop(); // pop "deps"
+                compat_bin = bin_path.join("gc005-wasm4pm-adapter");
+            }
             
             let child_res = Command::new(&compat_bin)
                 .stdin(Stdio::piped())

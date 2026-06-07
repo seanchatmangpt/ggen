@@ -173,7 +173,7 @@ async fn test_span_attributes_correctness() {
     // Perform resolve - should create span with:
     // - span name: "ggen.market.resolve"
     // - attributes: pack_id, version, resolved_version
-    let _resolved = client.resolve("test-pack", Some("1.0.0")).await;
+    let _resolved = client.resolve("test-pack", Some("26.6.6")).await;
 
     shutdown_telemetry();
 

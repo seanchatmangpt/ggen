@@ -164,7 +164,7 @@ mod tests {
         let mut manifest = GgenManifest {
             project: crate::manifest::ProjectConfig {
                 name: "test".to_string(),
-                version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
                 description: None,
             },
             ontology: crate::manifest::OntologyConfig {

@@ -934,7 +934,7 @@ mod tests {
 
         let pack = PackProvenance {
             pack_id: "surface-mcp".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             signature: "ed25519:abc123".to_string(),
             digest: "sha256:def456".to_string(),
             registry_type: Some("npm".to_string()),
@@ -1005,7 +1005,7 @@ mod tests {
         // Add pack provenance
         receipt.add_pack(PackProvenance {
             pack_id: "surface-mcp".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             signature: "sig1".to_string(),
             digest: "digest1".to_string(),
             registry_type: Some("local".to_string()),

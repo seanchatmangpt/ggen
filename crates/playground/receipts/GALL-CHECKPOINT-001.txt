@@ -1,0 +1,33 @@
+GALL-CHECKPOINT-001
+> [!IMPORTANT]
+> This file is a HUMAN-READABLE REPORT only and is not an admission receipt.
+> Admission is governed exclusively by OCEL event logs and wasm4pm replay verdicts.
+
+Portable Boundary-Declared Projection
+Status: ADMITTED
+
+Proof:
+  - sync_target.rs no longer hardcodes /Users/sac.
+  - projection requires declared inputs:
+      --workspace
+      --target
+      --pack-roots
+      --staging-dir
+      --receipt-sink
+  - PackPlan is constructed before output materialization.
+  - dependency failure blocks projection before writes.
+  - projection succeeds from dynamic temporary boundary.
+  - output can be deleted and replayed.
+  - generated artifacts land in declared target.
+
+Admitted Boundary:
+  workspace = ~/ggen
+  branch = feat/ggen-lsp-source-laws
+  target = dynamic temporary directory
+
+Export Metadata:
+  producing_workspace: ~/ggen
+  storing_workspace: ~/tower-lsp-max
+  export_reason: checkpoint tracking
+  exported_artifact_digest: "N/A - Backfilled"
+  export_receipt_digest: "N/A - Backfilled"

@@ -16,7 +16,7 @@ fn create_test_package(id: &str, downloads: u64, rating: f32, days_old: i64) -> 
         id: id.to_string(),
         name: format!("{}-package", id),
         description: "Test package".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         category: "tools".to_string(),
         language: "rust".to_string(),
         license: "MIT".to_string(),

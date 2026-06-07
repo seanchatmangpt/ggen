@@ -236,7 +236,7 @@ pub struct JsonAdapter {
 impl JsonAdapter {
     pub fn new() -> Self {
         Self {
-            base: BaseAdapter::new("json".to_string(), "1.0.0".to_string())
+            base: BaseAdapter::new("json".to_string(), "26.6.6".to_string())
                 .with_supported_formats(vec!["application/json".to_string()])
                 .with_max_message_size(10 * 1024 * 1024), // 10MB
         }
@@ -302,7 +302,7 @@ impl Default for XmlAdapter {
 impl XmlAdapter {
     pub fn new() -> Self {
         Self {
-            base: BaseAdapter::new("xml".to_string(), "1.0.0".to_string())
+            base: BaseAdapter::new("xml".to_string(), "26.6.6".to_string())
                 .with_supported_formats(vec!["application/xml".to_string(), "text/xml".to_string()])
                 .with_max_message_size(10 * 1024 * 1024), // 10MB
         }

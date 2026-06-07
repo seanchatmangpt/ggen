@@ -355,7 +355,7 @@ fn test_fmea_partial_installation_detection() {
     manager.begin_transaction();
 
     manager.record_file_install(PathBuf::from("/opt/app/critical.bin"));
-    manager.record_config_change("app.version".to_string(), "1.0.0".to_string());
+    manager.record_config_change("app.version".to_string(), "26.6.6".to_string());
 
     // System must know what needs cleanup
     let state = manager.get_current_state().unwrap();

@@ -204,6 +204,7 @@ fn render_template_with_graph(
     // 3. Build context with SPARQL results and any extra variables
     let mut ctx = Context::new();
     ctx.insert("sparql_results", &json);
+    ctx.insert("tools", &Vec::<Value>::new());
     for (key, val) in &extra_ctx {
         ctx.insert(*key, *val);
     }
@@ -256,7 +257,7 @@ const MINIMAL_A2A_ONTOLOGY: &str = r#"
 @prefix ex:   <https://ggen.dev/examples/e2e#> .
 ex:ReviewAgent a a2a:Agent ;
     a2a:agentName "code_reviewer" ;
-    a2a:agentVersion "1.0.0" ;
+    a2a:agentVersion "26.6.6" ;
     a2a:agentDescription "Reviews code for quality issues" ;
     a2a:agentUrl "http://localhost:8090" ;
     a2a:providerName "ggen" ;
@@ -623,7 +624,7 @@ fn test_no_tera_artifacts_in_any_rendered_output() {
 
     let a2a_extra_ctx = vec![
         ("agent_name", "code_reviewer"),
-        ("agent_version", "1.0.0"),
+        ("agent_version", "26.6.6"),
         ("agent_description", "Reviews code for quality issues"),
         ("agent_url", "http://localhost:8090"),
         ("provider_name", "ggen"),
@@ -782,7 +783,7 @@ fn test_rendered_code_contains_expected_language_constructs() {
         A2A_SPARQL,
         vec![
             ("agent_name", "code_reviewer"),
-            ("agent_version", "1.0.0"),
+            ("agent_version", "26.6.6"),
             ("agent_description", "Reviews code for quality issues"),
             ("agent_url", "http://localhost:8090"),
             ("provider_name", "ggen"),
@@ -809,7 +810,7 @@ fn test_rendered_code_contains_expected_language_constructs() {
         A2A_SPARQL,
         vec![
             ("agent_name", "code_reviewer"),
-            ("agent_version", "1.0.0"),
+            ("agent_version", "26.6.6"),
             ("agent_description", "Reviews code for quality issues"),
             ("agent_url", "http://localhost:8090"),
             ("provider_name", "ggen"),
@@ -836,7 +837,7 @@ fn test_rendered_code_contains_expected_language_constructs() {
         A2A_SPARQL,
         vec![
             ("agent_name", "code_reviewer"),
-            ("agent_version", "1.0.0"),
+            ("agent_version", "26.6.6"),
             ("agent_description", "Reviews code for quality issues"),
             ("agent_url", "http://localhost:8090"),
             ("provider_name", "ggen"),
@@ -863,7 +864,7 @@ fn test_rendered_code_contains_expected_language_constructs() {
         A2A_SPARQL,
         vec![
             ("agent_name", "code_reviewer"),
-            ("agent_version", "1.0.0"),
+            ("agent_version", "26.6.6"),
             ("agent_description", "Reviews code for quality issues"),
             ("agent_url", "http://localhost:8090"),
             ("provider_name", "ggen"),
@@ -939,7 +940,7 @@ fn render_a2a_elixir_with_skills() -> String {
     let mut ctx = Context::new();
     ctx.insert("skills", &skills);
     ctx.insert("agent_name", "code_reviewer");
-    ctx.insert("agent_version", "1.0.0");
+    ctx.insert("agent_version", "26.6.6");
     ctx.insert("agent_description", "Reviews code for quality issues");
     ctx.insert("agent_url", "http://localhost:8090");
     ctx.insert("provider_name", "ggen");

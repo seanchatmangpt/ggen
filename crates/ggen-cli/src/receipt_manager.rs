@@ -389,7 +389,7 @@ mod tests {
         let receipt_path = manager
             .generate_pack_install_receipt(
                 "test-pack",
-                "1.0.0",
+                "26.6.6",
                 &["pkg1".to_string(), "pkg2".to_string()],
                 &temp_dir.path().join("install"),
             )
@@ -412,7 +412,7 @@ mod tests {
         let receipt_path = manager
             .generate_pack_install_receipt(
                 "test-pack",
-                "1.0.0",
+                "26.6.6",
                 &["pkg1".to_string()],
                 &temp_dir.path().join("install"),
             )
