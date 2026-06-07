@@ -64,19 +64,32 @@ name = "test-llm-project"
 version = "0.1.0"
 description = "Test project for LLM integration"
 
-[generation]
-language = "rust"
-enable_llm = true
+[ontology]
+source = ".ggen/test.ttl"
 
-[llm]
-model = "groq::openai/gpt-oss-20b"
-temperature = 0.7
-max_tokens = 4096
+[[inference.rules]]
+name = "noop_rule"
+description = "Noop rule to satisfy quality gates"
+construct = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> CONSTRUCT { ?s rdf:type ?o } WHERE { ?s rdf:type ?o }"
+
+[generation]
+enable_llm = true
+llm_provider = "groq"
+llm_model = "groq::openai/gpt-oss-20b"
+
+[[generation.rules]]
+name = "generate-skills"
+query = { inline = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX a2a: <http://ggen.ai/a2a#> SELECT ?skill_name ?system_prompt ?implementation_hint WHERE { ?skill a a2a:Skill ; rdfs:label ?skill_name ; a2a:hasSystemPrompt ?system_prompt ; a2a:hasImplementationHint ?implementation_hint . }" }
+template = { inline = "{{ generated_impl }}" }
+output_file = "src/skills/{{ skill_name }}.rs"
+mode = "Overwrite"
 "#;
         fs::write(ggen_dir.join("ggen.toml"), ggen_toml).expect("Failed to write ggen.toml");
+        fs::write(project_dir.join("ggen.toml"), ggen_toml).expect("Failed to write ggen.toml");
 
         // Create a simple ontology with behavior predicates
         let ontology = r#"
+@prefix : <http://ggen.ai/test#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix a2a: <http://ggen.ai/a2a#> .
@@ -130,7 +143,7 @@ max_tokens = 4096
 }
 
 #[test]
-// #[ignore] // Only run with explicit permission (requires API key)
+#[ignore] // Only run with explicit permission (requires API key)
 fn test_llm_integration_e2e_with_real_api() {
     // Verify GROQ_API_KEY is set
     let api_key = std::env::var("GROQ_API_KEY");

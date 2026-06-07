@@ -31,6 +31,9 @@ include = [
 
 [workspace]
 members = [
+  "crates/wasm4pm-lsp",
+  "crates/ggen-pack-clap-noun-verb",
+  "crates/ggen-pack-tower-lsp-max",
   "crates/ggen-a2a-mcp",
   "crates/ggen-config",
   "crates/ggen-marketplace",
@@ -48,6 +51,9 @@ members = [
   "crates/genesis-core",
   "crates/cpmp",
   "crates/stpnt",
+  "crates/genesis-lockchain",
+  "crates/genesis-construct8",
+  "crates/ggen-projection", "crates/wasm4pm-compat",
   # ARCHIVED out of the v26.5.29 build boundary (SETTLEMENT-CHECK-1): this example
   # drifted from its own types in a prior release (ValidationAgent missing the
   # `agent_type` field; async fns misusing `?`) and does not compile under
@@ -98,6 +104,7 @@ rustc-hash = "2.0"
 itertools = "0.13"
 bcinr = "26.4.22"
 urlencoding = "2.1"
+rio_turtle = "0.8.6"
 
 rayon = "1.11"
 regex = "1.12"
@@ -114,6 +121,9 @@ rig-core = "0.15.1"
 # NOTE: v26.5.29 unified release
 ggen-core = { path = "crates/ggen-core", version = "26.5.29" }
 ggen-cli-lib = { path = "crates/ggen-cli", version = "26.5.29" }
+genesis-lockchain = { path = "crates/genesis-lockchain", version = "1.0.0" }
+knhk-construct8 = { path = "crates/genesis-construct8", version = "1.0.0" }
+ggen-projection = { path = "crates/ggen-projection", version = "1.0.0" }
 
 # Genesis kernel crates (pure Rust, IO-free — A = μ(O) foundation)
 genesis-types = { path = "crates/genesis-types-v2" }

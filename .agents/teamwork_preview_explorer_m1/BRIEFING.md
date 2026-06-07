@@ -1,7 +1,7 @@
-# BRIEFING — 2026-05-27T22:27:30Z
+# BRIEFING — 2026-06-06T20:34:00Z
 
 ## Mission
-Perform a comprehensive codebase audit of /Users/sac/capability-map and verify compilation, test status, existing codebase structures, CLI commands, enterprise modules, refusal gates, and docs.
+Analyze ggen project structures, LSP configuration, public APIs, E2E test boundaries, and design a testing strategy for ggen-projection and ggen-lsp.
 
 ## 🔒 My Identity
 - Archetype: Codebase Auditor
@@ -16,31 +16,27 @@ Perform a comprehensive codebase audit of /Users/sac/capability-map and verify c
 - Do not write project code files to tmp, in the .gemini dir, or directly to the Desktop and similar folders. Write only in /Users/sac/ggen/.agents/teamwork_preview_explorer_m1/
 
 ## Current Parent
-- Conversation ID: 78b02281-57d0-46c0-97ce-0b633125fe52
-- Updated: 2026-05-27T22:27:30Z
+- Conversation ID: 82143dc2-4d6c-4475-aa47-a75dadd8921c
+- Updated: 2026-06-06T20:35:10Z
 
 ## Investigation State
-- **Explored paths**: `src/scanner.rs`, `src/rdf.rs`, `src/receipt.rs`, `src/gates.rs`, `src/policy.rs`, `src/projection.rs`, `src/main.rs`, `src/db.rs`, `src/report.rs`, `tests/integration_tests.rs`, `docs/`, `open-ontologies` CLI.
+- **Explored paths**: `crates/ggen-projection/src/lib.rs`, `crates/ggen-projection/Cargo.toml`, `crates/ggen-lsp/src/lib.rs`, `crates/ggen-lsp/Cargo.toml`, `/Users/sac/tower-lsp-max/Cargo.toml`, `/Users/sac/tower-lsp-max/examples/`, `/Users/sac/ggen/tests/chicago_tdd/ontology_driven_e2e.rs`.
 - **Key findings**:
-  - Codebase does not compile due to 5 main compile errors:
-    1. Calling `capability::detect_capabilities` in `scanner.rs` and `integration_tests.rs` (does not exist on `capability.rs`).
-    2. Reversed arguments for `Store::dump_to_writer` in `rdf.rs:107`.
-    3. Reversed arguments for `Store::dump_graph_to_writer` in `rdf.rs:114`.
-    4. Constructing `CpmpError::Database(e)` in `db.rs` and `report.rs` when `CpmpError` is an alias for `anyhow::Error` which has no variants.
-  - `open-ontologies` CLI tool is available on the system.
-  - R3 commands are fully defined in `main.rs` but fail to execute because the source doesn't compile.
-  - R4 enterprise modules are listed as stubs and have no source files.
-  - R5 refusal gates are partially implemented but miss key refusal conditions.
-  - R2 documentation is mostly missing/empty.
+  - `tower-lsp-max` is an independent workspace located in `/Users/sac/tower-lsp-max`. It contains active development and a CLI/LSP example target `examples/clap-noun-verb-lsp`.
+  - `ggen-projection`'s current API does not yet define the required pack projection models (`PackDescriptor`, `PackPlan`, `ProjectionMap`, `CustomizationMap`, `ReceiptIndex`).
+  - Proposed an E2E testing architecture for features F1–F6 utilizing Chicago TDD and real boundary crossing, along with an explicit catalog of test cases.
+  - Resolved compilation strategy: recommend Option B (complete schema definitions) to comply with the `AGENTS.md` Constitution.
 - **Unexplored areas**: None.
 
 ## Key Decisions Made
-- Performed comprehensive audit.
-- Identified and detailed all five compilation issues.
-- Mapped existing and missing structures for R3, R4, R5, and R2.
-- Written structured handoff.md.
+- Analyzed the workspaces and mapped out the exact API contracts and boundary-crossing mechanics.
+- Formulated the 4-tier E2E testing strategy cataloging 70 test cases.
+- Drafted the compilation strategy for the M2 model structs.
+- Written the structured report to `analysis.md`.
 
 ## Artifact Index
 - /Users/sac/ggen/.agents/teamwork_preview_explorer_m1/original_prompt.md — Original prompt record
 - /Users/sac/ggen/.agents/teamwork_preview_explorer_m1/handoff.md — Handoff report
 - /Users/sac/ggen/.agents/teamwork_preview_explorer_m1/progress.md — Heartbeat progress
+- /Users/sac/ggen/.agents/teamwork_preview_explorer_m1/ORIGINAL_REQUEST.md — Detailed request log
+- /Users/sac/ggen/.agents/teamwork_preview_explorer_m1/analysis.md — Detailed E2E test plan and workspace report

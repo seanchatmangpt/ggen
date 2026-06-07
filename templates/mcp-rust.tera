@@ -69,7 +69,8 @@ use serde::Deserialize;
 /// {{ row.tool_description | default(value="(no description)") }}
 #[derive(Debug, Deserialize, schemars::JsonSchema)]
 pub struct {{ row.tool_name | pascal }}Params {
-    // TODO: add parameters from extract-mcp-params.rq
+    {% for tool in tools %}{% if tool.name == row.tool_name %}{% for param in tool.parameters %}pub {{ param.name }}: {{ param.rust_type }},
+    {% endfor %}{% endif %}{% endfor %}
 }
 
 {% endfor %}

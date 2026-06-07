@@ -1,0 +1,29 @@
+[package]
+name = "clap-noun-verb-lsp"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+clap = { version = "4.4", features = ["derive"] }
+clap-noun-verb = "26.6.2"
+clap-noun-verb-macros = "26.6.2"
+linkme = "0.3"
+tower-lsp-max = { path = "../../" }
+tower-lsp-max-protocol = { path = "../../tower-lsp-max-protocol" }
+tower-lsp-max-macros = { path = "../../tower-lsp-max-macros" }
+lsp-types-max = { path = "../../../lsp-types-max", version = "26.6.5", features = ["proposed"] }
+tokio = { version = "1.17", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+async-trait = "0.1"
+regex = "1.10"
+uuid = { version = "1.0", features = ["v4"] }
+chrono = "0.4"
+url = { version = "2.5", features = ["serde"] }
+
+[dev-dependencies]
+tempfile = "3"
+assert_cmd = "2.2"
+predicates = "3.1"

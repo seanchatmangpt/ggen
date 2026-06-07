@@ -1,0 +1,34 @@
+[checkpoint]
+id = "GALL-CHECKPOINT-002"
+name = "Pack Template Manufacturing"
+status_target = "ADMITTED"
+
+[boundary]
+workspace = "."
+target = ".tmp_gc002/target"
+staging_dir = ".tmp_gc002/staging"
+receipt_sink = ".tmp_gc002/receipts"
+
+[[proofs]]
+id = "template-source-of-truth"
+kind = "delete-and-replay"
+expected_projected_files = 13
+
+[[proofs]]
+id = "missing-template-refuses"
+kind = "bypass-kill"
+mutation = "delete_template"
+template = "ggen-pack-tower-lsp-max/templates/lsp.tmpl"
+expected = "refuse_before_write"
+
+[[proofs]]
+id = "template-digest-shifts"
+kind = "digest-shift"
+mutation = "modify_template"
+template = "ggen-pack-tower-lsp-max/templates/lsp.tmpl"
+expected = ["artifact_blake3_changes", "template_digest_changes"]
+
+[[proofs]]
+id = "no-copy-path"
+kind = "negative-search"
+forbidden_symbols = ["src_files", "reference implementation", "/Users/sac"]

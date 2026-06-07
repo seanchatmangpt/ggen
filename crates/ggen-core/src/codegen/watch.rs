@@ -347,6 +347,7 @@ mod tests {
                 llm_provider: None,
             },
             validation: ValidationConfig::default(),
+            packs: vec![],
         };
 
         let manifest_path = Path::new("ggen.toml");

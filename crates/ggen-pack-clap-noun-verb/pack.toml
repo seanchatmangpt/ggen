@@ -1,0 +1,43 @@
+id = "ggen-pack-clap-noun-verb"
+name = "Clap Noun-Verb"
+version = "1.0.0"
+description = "Clap Noun-Verb pack"
+license = "MIT"
+dependencies = {}
+query_aliases = {}
+
+[[templates]]
+path = "templates/README.md.tmpl"
+description = "README file"
+
+[[templates]]
+path = "templates/src/main.rs.tmpl"
+description = "Entry point"
+
+[[templates]]
+path = "templates/src/lib.rs.tmpl"
+description = "Library entry"
+
+[[templates]]
+path = "templates/src/command.rs.tmpl"
+description = "Command trait"
+
+[[templates]]
+path = "templates/src/doctor.rs.tmpl"
+description = "Doctor diagnostics"
+
+[[templates]]
+path = "templates/src/graph.rs.tmpl"
+description = "Graph builder"
+
+[[templates]]
+path = "templates/src/layout.rs.tmpl"
+description = "Layout checking"
+
+[[templates]]
+path = "templates/src/receipt.rs.tmpl"
+description = "Receipt index"
+
+[[templates]]
+path = "templates/src/scan.rs.tmpl"
+description = "Source scanner"

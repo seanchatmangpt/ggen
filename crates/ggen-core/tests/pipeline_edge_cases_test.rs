@@ -87,6 +87,7 @@ fn create_minimal_manifest() -> GgenManifest {
             llm_model: None,
         },
         validation: ggen_core::manifest::ValidationConfig::default(),
+        packs: vec![],
     }
 }
 

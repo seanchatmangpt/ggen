@@ -1,0 +1,13 @@
+{
+  "checksums": {
+    "ggen-pack-proofs": "a68b36ef0b094910c644923f276d49447a1d09084495655020e47b29fd0646b3"
+  },
+  "outputs": [
+    "crates/ggen-projection/tests"
+  ],
+  "required_receipts": true,
+  "resolved_packs": [
+    "ggen-pack-proofs"
+  ],
+  "write_mode": "stage-first"
+}

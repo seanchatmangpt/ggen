@@ -1,0 +1,31 @@
+diff --git a/Cargo.toml b/Cargo.toml
+index 72bb7e8..a9ff2c4 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -50,6 +50,9 @@ members = [
+   "crates/genesis-core",
+   "crates/cpmp",
+   "crates/stpnt",
++  "crates/genesis-lockchain",
++  "crates/genesis-construct8",
++  "crates/ggen-projection",
+   # ARCHIVED out of the v26.5.29 build boundary (SETTLEMENT-CHECK-1): this example
+   # drifted from its own types in a prior release (ValidationAgent missing the
+   # `agent_type` field; async fns misusing `?`) and does not compile under
+@@ -88,6 +91,7 @@ indexmap = { version = "2.7", features = ["serde"] }
+ tera = "1.20"
+ oxigraph = { version = "0.5.8", features = ["rdf-12"] }
+ toml = "1.1.0"
++rio_turtle = "0.8.6"
+ serde_yaml = "0.9"
+ hex = "0.4"
+ sha2 = "0.10"
+@@ -121,6 +125,9 @@ genesis-schema = { path = "crates/genesis-schema-v2" }
+ genesis-core = { path = "crates/genesis-core" }
+ 
++genesis-lockchain = { path = "crates/genesis-lockchain", version = "1.0.0" }
++knhk-construct8 = { path = "crates/genesis-construct8", version = "1.0.0" }
++ggen-projection = { path = "crates/ggen-projection", version = "1.0.0" }
++
+ # A2A Protocol Integration (Agent-to-Agent protocol) - using local a2a-generated
+ # The vendor a2a-rs is for reference only - we use our generated types

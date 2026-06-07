@@ -1,0 +1,24 @@
+{
+  "receipts": {
+    "dogfood_gc004.rs": {
+      "target_id": "dogfood_gc004.rs",
+      "receipt_id": "0f5ccc63-d98e-4cc8-abae-a3386d918879",
+      "boundary_digest": "384337ff0c58c233a71666f16ac5dc231e73aaa7d5ef995db6de781677a2b8b5",
+      "workspace_digest": "58f1dccfacfeb5d1d58cb224e3b00450e22bbd8ecf404b43cf996e8e0ee1ecfb",
+      "pack_plan_digest": "424de8edf5b081002b0f909cc5221e13803ec8c0cfe4d94d46d5743758219d95",
+      "pack_descriptor_digest": "6f3ee974fdd535c17c152f0165b0448d1953bd20020d6a0d6e8bc72e624a313b",
+      "template_digest": "76f4e80a412bbd355a9e69f5acfd792ae08006a8e57536ede779723f7be1a3b0",
+      "customization_digest": "5872f46c06377002428992a98902eb6b220ac99c95ebb63b1ae2e550ba693741",
+      "blake3_hash": "2fed9352ea54b471118187b6b535d8010c77413874f99e9d81ae2d931dc4edbc",
+      "staging_digest": "e11ce1a6fa7e05aa6e4301e26de8a155b90eaa8303abb514948320aaf65ba9af",
+      "mutation_gate_decision": "admitted",
+      "verification_result": "passed",
+      "projection_engine_version": "1.0.0",
+      "signature": null,
+      "verified_at": "2026-06-06T23:24:54.530013Z",
+      "previous_receipt": null
+    }
+  },
+  "last_updated": "2026-06-06T23:24:54.530033Z",
+  "index_hash": "ebacb2ec8e1888407fc52bda6c6aa2aa77641cfa506fa7447e01ea5fa3f4b229"
+}

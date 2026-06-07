@@ -10,3 +10,8 @@ dependencies = {}
 path = "templates/dogfood_gc004.rs.tmpl"
 description = "Dogfood test for GC004"
 variables = ["checkpoint", "proofs_gc004"]
+
+[[templates]]
+path = "templates/dogfood_gc005.rs.tmpl"
+description = "Dogfood test for GC005"
+variables = ["checkpoint"]

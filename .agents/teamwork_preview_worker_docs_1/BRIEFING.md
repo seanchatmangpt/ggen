@@ -1,7 +1,7 @@
-# BRIEFING — 2026-05-26T23:36:00Z
+# BRIEFING — 2026-06-06T13:36:12-07:00
 
 ## Mission
-Write the self-audit summary document and the final Vision 2030 GALL proof of correctness report, verifying they match the actual OCEL and coverage data.
+Write the project metadata files (PROJECT.md and TEST_INFRA.md) at the project root `/Users/sac/ggen/`.
 
 ## 🔒 My Identity
 - Archetype: teamwork_preview_worker_docs_1
@@ -9,43 +9,49 @@ Write the self-audit summary document and the final Vision 2030 GALL proof of co
 - Working directory: /Users/sac/ggen/.agents/teamwork_preview_worker_docs_1/
 - Original parent: f5c30d73-c213-4935-bd9d-5c2ce4c67f3e
 - Milestone: Vision 2030 Documentation & Proof Verification
+- Current Task Parent: 785da385-c679-460c-85ec-a33e193f9637
+- Current Task Milestone: Project Metadata Initialization (PROJECT.md & TEST_INFRA.md)
 
 ## 🔒 Key Constraints
 - Follow Chicago TDD, process mining, and verification standards.
 - Do not cheat, do not hardcode test results, do not use placeholders or dummy implementations.
 - Write actual content based on files `crates/ggen-graph/audit/vision2030.self_audit.ocel.json` and `crates/ggen-graph/audit/vision2030.coverage.json`.
+- CODE_ONLY network mode.
 
 ## Current Parent
-- Conversation ID: f5c30d73-c213-4935-bd9d-5c2ce4c67f3e
-- Updated: 2026-05-26T23:36:00Z
+- Conversation ID: 785da385-c679-460c-85ec-a33e193f9637
+- Updated: 2026-06-06T13:36:12-07:00
 
 ## Task Summary
 - **What to build**: 
-  1. `crates/ggen-graph/audit/vision2030.self_audit.summary.md`: Summary of events/objects from `vision2030.self_audit.ocel.json` and `vision2030.coverage.json`. Must list 18 Object Types, 17 Event Types, relationship qualifiers (`--checks-->`, `--produces-->`, `--verifies-->`, `--satisfied_by-->`, `--decides-->`), and summarize verification status.
-  2. `docs/VISION_2030_GALL_PROOF.md`: Vision 2030 GALL Checkpoint Proof of Correctness, deriving promotion decision, explaining how 5 Completeness Rules are satisfied, and declaring decision: PROMOTED.
-- **Success criteria**: Documentation is complete, matches the JSON data exactly, satisfies all constraints and rules, compiles and tests pass.
-- **Interface contracts**: Vision 2030 GALL Checkpoint Rules.
-- **Code layout**: Source in crates, docs in docs/.
+  1. `/Users/sac/ggen/PROJECT.md`: Project plan structure including milestones, interface contracts, and code layout.
+  2. `/Users/sac/ggen/TEST_INFRA.md`: E2E test infra template covering the 4-tier test case methodology.
+- **Success criteria**: Both files successfully created, containing highly comprehensive architectural and testing plans.
+- **Interface contracts**: `/Users/sac/ggen/PROJECT.md`
+- **Code layout**: `/Users/sac/ggen/PROJECT.md` § Code Layout
 
 ## Key Decisions Made
-- Read the existing OCEL and coverage JSON files to extract exact lists of objects, events, qualifiers, and verification metrics.
-- Verified local package `ggen-graph` correctness via `cargo test -p ggen-graph` and run verification tool `verify_audit` to ensure documentation matches code realities.
+- Re-read existing files in the workspace to verify the structure.
+- Aligned metadata files with the specifications from `/Users/sac/ggen/.agents/ORIGINAL_REQUEST.md` and `/Users/sac/tower-lsp-max`.
+- Documented positive validation, bypass-kill validation, and process-evidence schema compatibility.
 
 ## Artifact Index
-- `/Users/sac/ggen/crates/ggen-graph/audit/vision2030.self_audit.summary.md` — Self-audit and coverage summary.
-- `/Users/sac/ggen/docs/VISION_2030_GALL_PROOF.md` — Final Vision 2030 GALL Proof report.
+- `/Users/sac/ggen/PROJECT.md` — Project architecture, milestones, interface contracts, and layout.
+- `/Users/sac/ggen/TEST_INFRA.md` — E2E test infrastructure and 4-tier methodology.
 
 ## Change Tracker
-- **Files modified**: None (new files created)
-- **Build status**: Pass (for ggen-graph tests and verification tool)
-- **Pending issues**: None
+- **Files modified**: 
+  - `/Users/sac/ggen/PROJECT.md` — Rewritten with comprehensive project planning specs.
+  - `/Users/sac/ggen/TEST_INFRA.md` — Rewritten with detailed 4-tier test case inventory.
+- **Build status**: Pass (workspace checked successfully using cargo check).
+- **Pending issues**: None.
 
 ## Quality Status
-- **Build/test result**: Pass (for ggen-graph)
-- **Lint status**: Clean (no style violations in newly created docs)
-- **Tests added/modified**: Validated through the `vision2030_coverage` and `ocel_self_audit` integration tests.
+- **Build/test result**: Pass (cargo check verified).
+- **Lint status**: Clean (no code style violations).
+- **Tests added/modified**: N/A.
 
 ## Loaded Skills
-- **Source**: None
-- **Local copy**: None
-- **Core methodology**: N/A
+- **Source**: None.
+- **Local copy**: None.
+- **Core methodology**: N/A.

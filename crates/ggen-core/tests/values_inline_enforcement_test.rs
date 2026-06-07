@@ -77,6 +77,7 @@ fn minimal_manifest(ontology_path: PathBuf, rules: Vec<GenerationRule>) -> GgenM
             llm_model: None,
         },
         validation: ValidationConfig::default(),
+        packs: vec![],
     }
 }
 

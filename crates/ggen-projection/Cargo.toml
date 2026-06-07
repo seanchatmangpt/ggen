@@ -26,6 +26,8 @@ rand = "0.8"
 tokio = { workspace = true }
 clap-noun-verb-pack-lsp = { path = "../ggen-pack-clap-noun-verb" }
 tower-lsp-max-pack-lsp = { path = "../ggen-pack-tower-lsp-max" }
+wasm4pm-lsp = { path = "../wasm4pm-lsp" }
+wasm4pm-compat = { path = "../wasm4pm-compat" }
 
 [[test]]
 name = "f7_bypass_kill"
@@ -34,3 +36,7 @@ path = "tests/f7_bypass_kill.rs"
 [[test]]
 name = "f8_equation_enforcement"
 path = "tests/f8_equation_enforcement.rs"
+
+[[test]]
+name = "dogfood_gc004"
+path = "tests/dogfood_gc004.rs"

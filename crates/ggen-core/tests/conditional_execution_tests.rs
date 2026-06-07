@@ -227,6 +227,7 @@ fn test_condition_logging() {
             output_dir: PathBuf::from("generated"),
         },
         validation: ValidationConfig::default(),
+        packs: vec![],
     };
 
     // Assert: Manifest has mixed skip_empty rules
@@ -315,6 +316,7 @@ fn test_multiple_conditions_in_manifest() {
             output_dir: PathBuf::from("generated"),
         },
         validation: ValidationConfig::default(),
+        packs: vec![],
     };
 
     // Assert: Rules have different skip_empty settings
@@ -475,6 +477,7 @@ fn test_integration_rule_executed_when_ask_true() {
             output_dir: temp_dir.path().to_path_buf(),
         },
         validation: ValidationConfig::default(),
+        packs: vec![],
     };
 
     // Act: Execute pipeline
@@ -553,6 +556,7 @@ fn test_integration_rule_skipped_when_ask_false() {
             output_dir: temp_dir.path().to_path_buf(),
         },
         validation: ValidationConfig::default(),
+        packs: vec![],
     };
 
     // Act: Execute pipeline
@@ -624,6 +628,7 @@ fn test_integration_malformed_ask_query_error() {
             output_dir: temp_dir.path().to_path_buf(),
         },
         validation: ValidationConfig::default(),
+        packs: vec![],
     };
 
     // Act: Execute pipeline
@@ -734,6 +739,7 @@ fn test_integration_multiple_conditions() {
             output_dir: temp_dir.path().to_path_buf(),
         },
         validation: ValidationConfig::default(),
+        packs: vec![],
     };
 
     // Act: Execute pipeline

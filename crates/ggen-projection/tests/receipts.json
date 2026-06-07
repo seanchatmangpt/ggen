@@ -1,0 +1,60 @@
+{
+  "receipts": {
+    "dogfood_gc002.rs": {
+      "target_id": "dogfood_gc002.rs",
+      "receipt_id": "a58f5c13-8c89-4809-84b1-cee063a87ca0",
+      "boundary_digest": "ca817381eebf7d9cb593dc3d23bd51cfbd13ff0a0e84ce7056e40661a23f5c1f",
+      "workspace_digest": "58f1dccfacfeb5d1d58cb224e3b00450e22bbd8ecf404b43cf996e8e0ee1ecfb",
+      "pack_plan_digest": "325c79d6e673cbd767819c2cf1a6f76a133d3a4efa06afc19e20e7acdb1fc552",
+      "pack_descriptor_digest": "c4eaec961e0fc0a4632436b8932f6cc72373525760b47b131f0d734b5891aecb",
+      "template_digest": "dff3ce6a3c9d50ac70d42abf0effcb2a8d03c6e983bbcbad0a83870050eb84fd",
+      "customization_digest": "0a884af9183516af07c97773c85400c53b4e450ec7954764b0344a58c9476de2",
+      "blake3_hash": "dff3ce6a3c9d50ac70d42abf0effcb2a8d03c6e983bbcbad0a83870050eb84fd",
+      "staging_digest": "e11ce1a6fa7e05aa6e4301e26de8a155b90eaa8303abb514948320aaf65ba9af",
+      "mutation_gate_decision": "admitted",
+      "verification_result": "passed",
+      "projection_engine_version": "1.0.0",
+      "signature": null,
+      "verified_at": "2026-06-06T23:31:22.898994Z",
+      "previous_receipt": null
+    },
+    "f8_equation_enforcement.rs": {
+      "target_id": "f8_equation_enforcement.rs",
+      "receipt_id": "179dbdde-dab3-4c57-805e-7c057ad9b9e7",
+      "boundary_digest": "ca817381eebf7d9cb593dc3d23bd51cfbd13ff0a0e84ce7056e40661a23f5c1f",
+      "workspace_digest": "58f1dccfacfeb5d1d58cb224e3b00450e22bbd8ecf404b43cf996e8e0ee1ecfb",
+      "pack_plan_digest": "325c79d6e673cbd767819c2cf1a6f76a133d3a4efa06afc19e20e7acdb1fc552",
+      "pack_descriptor_digest": "c4eaec961e0fc0a4632436b8932f6cc72373525760b47b131f0d734b5891aecb",
+      "template_digest": "87fe762ff21aa6a0b7346dac9ec7077eaf0f24d852d4a9068e9989a7dfae556b",
+      "customization_digest": "0a884af9183516af07c97773c85400c53b4e450ec7954764b0344a58c9476de2",
+      "blake3_hash": "87fe762ff21aa6a0b7346dac9ec7077eaf0f24d852d4a9068e9989a7dfae556b",
+      "staging_digest": "e11ce1a6fa7e05aa6e4301e26de8a155b90eaa8303abb514948320aaf65ba9af",
+      "mutation_gate_decision": "admitted",
+      "verification_result": "passed",
+      "projection_engine_version": "1.0.0",
+      "signature": null,
+      "verified_at": "2026-06-06T23:31:22.902259Z",
+      "previous_receipt": "a58f5c13-8c89-4809-84b1-cee063a87ca0"
+    },
+    "dogfood_gc004.rs": {
+      "target_id": "dogfood_gc004.rs",
+      "receipt_id": "0129849e-f50a-4865-87be-bc5348363ef5",
+      "boundary_digest": "ca817381eebf7d9cb593dc3d23bd51cfbd13ff0a0e84ce7056e40661a23f5c1f",
+      "workspace_digest": "58f1dccfacfeb5d1d58cb224e3b00450e22bbd8ecf404b43cf996e8e0ee1ecfb",
+      "pack_plan_digest": "325c79d6e673cbd767819c2cf1a6f76a133d3a4efa06afc19e20e7acdb1fc552",
+      "pack_descriptor_digest": "c4eaec961e0fc0a4632436b8932f6cc72373525760b47b131f0d734b5891aecb",
+      "template_digest": "2ed5b1503f077a6fac8e4f6e97cb2927b3e5d845814b1e31526a6306a9479972",
+      "customization_digest": "0a884af9183516af07c97773c85400c53b4e450ec7954764b0344a58c9476de2",
+      "blake3_hash": "2ed5b1503f077a6fac8e4f6e97cb2927b3e5d845814b1e31526a6306a9479972",
+      "staging_digest": "e11ce1a6fa7e05aa6e4301e26de8a155b90eaa8303abb514948320aaf65ba9af",
+      "mutation_gate_decision": "admitted",
+      "verification_result": "passed",
+      "projection_engine_version": "1.0.0",
+      "signature": null,
+      "verified_at": "2026-06-06T23:31:22.903401Z",
+      "previous_receipt": "179dbdde-dab3-4c57-805e-7c057ad9b9e7"
+    }
+  },
+  "last_updated": "2026-06-06T23:31:22.903449Z",
+  "index_hash": "fc9ed82cc9f18ade49be699138cd51c7c14981d43a22c7e7f092f784f40b68df"
+}

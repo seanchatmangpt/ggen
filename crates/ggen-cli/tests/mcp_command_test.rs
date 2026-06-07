@@ -56,6 +56,32 @@ fn create_tera() -> Tera {
     tera_instance
 }
 
+fn read_template_file(relative_path: &str) -> String {
+    let path = PathBuf::from(relative_path);
+    if path.exists() {
+        return fs::read_to_string(path).expect("Failed to read template");
+    }
+    if let Ok(manifest_dir) = std::env::var("CARGO_MANIFEST_DIR") {
+        let path_from_manifest = Path::new(&manifest_dir).join(relative_path);
+        if path_from_manifest.exists() {
+            return fs::read_to_string(path_from_manifest).expect("Failed to read template");
+        }
+        let path_from_workspace = Path::new(&manifest_dir).parent().and_then(|p| p.parent()).map(|p| p.join(relative_path));
+        if let Some(ref p) = path_from_workspace {
+            if p.exists() {
+                return fs::read_to_string(p).expect("Failed to read template");
+            }
+        }
+        let path_core = Path::new(&manifest_dir).parent().and_then(|p| p.parent()).map(|p| p.join("crates/ggen-core").join(relative_path));
+        if let Some(ref p) = path_core {
+            if p.exists() {
+                return fs::read_to_string(p).expect("Failed to read template");
+            }
+        }
+    }
+    panic!("Failed to read template file: {}", relative_path);
+}
+
 /// Create a temporary directory with test structure
 fn setup_temp_dir() -> Result<TempDir, Box<dyn std::error::Error>> {
     TempDir::new().map_err(|e| format!("Failed to create temp dir: {}", e).into())
@@ -119,8 +145,7 @@ fn test_mcp_server_template_is_valid() {
 
     // Arrange: Load template
     let mut tera = create_tera();
-    let template_content = fs::read_to_string("templates/mcp-server/stdio_server.rs.tera")
-        .expect("Failed to read stdio_server.rs.tera template");
+    let template_content = read_template_file("templates/mcp-server/stdio_server.rs.tera");
 
     // Arrange: Create minimal context
     let mut ctx = Context::new();
@@ -128,13 +153,22 @@ fn test_mcp_server_template_is_valid() {
     ctx.insert("server_struct", "TestMcpServer");
     ctx.insert("description", "Test server");
     ctx.insert("version", "0.1.0");
+    ctx.insert("server_version", "0.1.0");
+    ctx.insert("ontology_path", "test-ontology.ttl");
+    ctx.insert("use_zai", &false);
+    ctx.insert("use_a2a", &false);
 
     let tools = vec![serde_json::json!({
         "name": "echo",
         "struct_name": "EchoParams",
         "description": "Echo back input",
+        "input_schema": "{}",
+        "arguments": [],
+        "enable_streaming": false,
     })];
     ctx.insert("tools", &tools);
+    ctx.insert("resources", &Vec::<serde_json::Value>::new());
+    ctx.insert("prompts", &Vec::<serde_json::Value>::new());
 
     // Act: Render template
     let result = tera.render_str(&template_content, &ctx);
@@ -165,9 +199,16 @@ fn test_mcp_generate_output_structure() {
     let mut tera = create_tera();
     let mut ctx = Context::new();
     ctx.insert("server_name", "TestMcpServer");
+    ctx.insert("server_version", "0.1.0");
+    ctx.insert("ontology_path", "test-ontology.ttl");
+    ctx.insert("description", "Test server description");
+    ctx.insert("use_zai", &false);
+    ctx.insert("use_a2a", &false);
+    ctx.insert("tools", &Vec::<serde_json::Value>::new());
+    ctx.insert("resources", &Vec::<serde_json::Value>::new());
+    ctx.insert("prompts", &Vec::<serde_json::Value>::new());
 
-    let template_content = fs::read_to_string("templates/mcp-server/stdio_server.rs.tera")
-        .expect("Failed to read template");
+    let template_content = read_template_file("templates/mcp-server/stdio_server.rs.tera");
 
     let rendered = tera
         .render_str(&template_content, &ctx)
@@ -249,8 +290,7 @@ fn test_mcp_tool_handler_template_is_valid() {
 
     // Arrange: Load template
     let mut tera = create_tera();
-    let template_content = fs::read_to_string("templates/mcp-server/tool_handler.rs.tera")
-        .expect("Failed to read tool_handler.rs.tera template");
+    let template_content = read_template_file("templates/mcp-server/tool_handler.rs.tera");
 
     // Arrange: Create context
     let mut ctx = Context::new();
@@ -258,6 +298,8 @@ fn test_mcp_tool_handler_template_is_valid() {
     ctx.insert("handler_context_type", "HandlerContext");
     ctx.insert("stream_result_type", "Receiver<String>");
     ctx.insert("server_impl_type", "TestMcpServer");
+    ctx.insert("handler_name", "TestMcpToolHandler");
+    ctx.insert("ontology_path", "test-ontology.ttl");
 
     let tools = vec![serde_json::json!({
         "name": "echo",
@@ -292,8 +334,7 @@ fn test_mcp_multiple_tools_template() {
 
     // Arrange: Load template
     let mut tera = create_tera();
-    let template_content = fs::read_to_string("templates/mcp-server/tool_handler.rs.tera")
-        .expect("Failed to read template");
+    let template_content = read_template_file("templates/mcp-server/tool_handler.rs.tera");
 
     // Arrange: Create context with multiple tools
     let mut ctx = Context::new();
@@ -301,6 +342,8 @@ fn test_mcp_multiple_tools_template() {
     ctx.insert("handler_context_type", "HandlerContext");
     ctx.insert("stream_result_type", "Receiver<String>");
     ctx.insert("server_impl_type", "TestMcpServer");
+    ctx.insert("handler_name", "TestMcpToolHandler");
+    ctx.insert("ontology_path", "test-ontology.ttl");
 
     let tools = vec![
         serde_json::json!({"name": "tool1", "description": "First", "input_schema": "{}", "input_type": "Tool1Params", "enable_streaming": false}),
@@ -389,8 +432,7 @@ fn test_mcp_template_context_completeness() {
 
     // Arrange: Load template
     let mut tera = create_tera();
-    let template_content = fs::read_to_string("templates/mcp-server/stdio_server.rs.tera")
-        .expect("Failed to read template");
+    let template_content = read_template_file("templates/mcp-server/stdio_server.rs.tera");
 
     // Arrange: Create complete context
     let mut ctx = Context::new();
@@ -398,13 +440,22 @@ fn test_mcp_template_context_completeness() {
     ctx.insert("server_struct", "TestMcpServer");
     ctx.insert("description", "Test server");
     ctx.insert("version", "0.1.0");
+    ctx.insert("server_version", "0.1.0");
+    ctx.insert("ontology_path", "test-ontology.ttl");
+    ctx.insert("use_zai", &false);
+    ctx.insert("use_a2a", &false);
 
     let tools = vec![serde_json::json!({
         "name": "echo",
         "struct_name": "EchoParams",
         "description": "Echo",
+        "input_schema": "{}",
+        "arguments": [],
+        "enable_streaming": false,
     })];
     ctx.insert("tools", &tools);
+    ctx.insert("resources", &Vec::<serde_json::Value>::new());
+    ctx.insert("prompts", &Vec::<serde_json::Value>::new());
 
     // Act: Render template
     let result = tera.render_str(&template_content, &ctx);
@@ -433,9 +484,16 @@ fn test_mcp_generated_file_permissions() {
     let mut tera = create_tera();
     let mut ctx = Context::new();
     ctx.insert("server_name", "TestMcpServer");
+    ctx.insert("server_version", "0.1.0");
+    ctx.insert("ontology_path", "test-ontology.ttl");
+    ctx.insert("description", "Test server description");
+    ctx.insert("use_zai", &false);
+    ctx.insert("use_a2a", &false);
+    ctx.insert("tools", &Vec::<serde_json::Value>::new());
+    ctx.insert("resources", &Vec::<serde_json::Value>::new());
+    ctx.insert("prompts", &Vec::<serde_json::Value>::new());
 
-    let template_content = fs::read_to_string("templates/mcp-server/stdio_server.rs.tera")
-        .expect("Failed to read template");
+    let template_content = read_template_file("templates/mcp-server/stdio_server.rs.tera");
 
     let rendered = tera
         .render_str(&template_content, &ctx)

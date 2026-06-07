@@ -67,6 +67,7 @@ fn create_test_manifest(base_dir: &PathBuf) -> GgenManifest {
             llm_provider: None,
         },
         validation: ValidationConfig::default(),
+        packs: vec![],
     }
 }
 

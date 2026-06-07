@@ -35,6 +35,9 @@ pub mod sync;
 #[cfg(feature = "experimental")]
 pub mod wizard;
 
+#[cfg(feature = "experimental")]
+pub mod construct;
+
 // Command modules - clap-noun-verb auto-discovery
 // ARCHIVED (v26.5.28): a2a/framework/mcp/sigma not provable as finished; gated
 // behind default-off `experimental` so they leave the default CLI surface while

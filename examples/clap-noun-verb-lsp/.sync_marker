@@ -1,0 +1,13 @@
+{
+  "bound_at": "2026-06-06T21:52:33.502123+00:00",
+  "boundary_digest": "64c76ee3a93c724c98306e7911fcf21c5d7f48165e75921d7a9faea0cc599578",
+  "customization_map_digest": "61f42fcbe08ac5a8d85d271ea97fac79a36b28c1f908074367bbaf7971f812b9",
+  "git_ref": "d7f3bba20c87740b43d274baa9f5ef1015be426b",
+  "pack_graph_digest": "291e4167a78e81cd00756a2df69b6acfc3c3b77a72ff40dfbe4d8d19f54324cb",
+  "projection_map_digest": "a53d9373d519b61bbb6d53c5000b3331f3d3106d7b4f10bb37e5296b03d7eaf4",
+  "resolution_order": [
+    "ggen-pack-clap-noun-verb",
+    "ggen-pack-tower-lsp-max"
+  ],
+  "toolchain": "rustc 1.95.0 (59807616e 2026-04-14)"
+}

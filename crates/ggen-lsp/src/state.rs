@@ -507,6 +507,10 @@ impl ServerState {
             self.set_analyzer(uri.clone(), analyzer).await;
         }
 
+        // Add boundary compliance observer diagnostics
+        let observer_diags = crate::handlers::diagnostics::compute_observer_diagnostics(uri, content);
+        own_diags.extend(observer_diags);
+
         // Cross-file GGEN-TPL-001: for rule-referenced surfaces (`.tera`/`.rq`) or
         // the ggen project manifest specifically. Both `ggen.toml` and `Cargo.toml`
         // classify as `FileType::Toml`, so we route by BASENAME: only `ggen.toml`

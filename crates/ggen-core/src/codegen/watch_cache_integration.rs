@@ -185,6 +185,7 @@ mod tests {
                 llm_provider: None,
             },
             validation: crate::manifest::ValidationConfig::default(),
+            packs: vec![],
         };
 
         manifest.generation.rules = vec![

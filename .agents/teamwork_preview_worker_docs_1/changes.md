@@ -1,18 +1,21 @@
-# Changes
+# Changes Tracker — teamwork_preview_worker_docs_1
 
-The following files have been created/modified to fulfill the Vision 2030 documentation requirements:
+The following files were created/modified at the project root to establish the project planning and test infrastructure specs:
 
-## 1. Summary of Self-Audit and Coverage Matrix
-- **File**: `crates/ggen-graph/audit/vision2030.self_audit.summary.md`
+## 1. Project Planning and Architecture File
+- **File**: `/Users/sac/ggen/PROJECT.md`
 - **Details**:
-  - High-level summary of the process events and objects recorded in `vision2030.self_audit.ocel.json` and `vision2030.coverage.json`.
-  - Enumeration of exactly 18 Object Types, 17 Event Types, and 5 relationship qualifiers (`--checks-->`, `--produces-->`, `--verifies-->`, `--satisfied_by-->`, `--decides-->`).
-  - Detailed verification status showing the success of compliance scans (Anti-Fake and Forbidden Surface scans) and verification scripts.
+  - Detailed the mission of the ggen Projection Intelligence project.
+  - Specified the 3 core crates (`ggen-projection`, `ggen-lsp`, `tower-lsp-max`) and durable packs (`ggen-pack-clap-noun-verb`, `ggen-pack-tower-lsp-max`).
+  - Outlined Milestones M1 through M6.
+  - Defined the interface contracts between core components, including the data exchange format, diagnostic proxy routing with `source_id`, and wasm4pm process-evidence format.
+  - Set up a clean directory layout index.
 
-## 2. Checkpoint Proof of Correctness
-- **File**: `docs/VISION_2030_GALL_PROOF.md`
+## 2. E2E Test Infrastructure File
+- **File**: `/Users/sac/ggen/TEST_INFRA.md`
 - **Details**:
-  - Formal statement of the Vision 2030 GALL Checkpoint Proof of Correctness.
-  - Derivation of the promotion decision based on the chronological events, objects, qualifiers, and coverage matrix.
-  - Verification of the 5 Completeness Rules defined in the verification scripts.
-  - State the final promotion decision: **PROMOTED**.
+  - Outlined the testing philosophy (Opaque-box, requirement-driven, Chicago TDD, multi-surface corroboration).
+  - Listed the feature inventory from Feature 1 to Feature 6.
+  - Formulated the 4-tier test case methodology (Tier 1 happy path, Tier 2 boundary cases, Tier 3 pairwise interactions, Tier 4 real-world application scenarios).
+  - Defined test architecture including JSON-RPC loop communication flow and mock upstreams.
+  - Specified coverage thresholds and detailed bypass-kill validation instructions.

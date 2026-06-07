@@ -1,20 +1,39 @@
-# Handoff Report: Capability-Map (cpmp) & Enterprise Wrapper Setup
+# Handoff Report: GC003/GC004/GC005 Boundary-Receipted Equation Enforcement, Reusable LSP Test Harness, and OCEL Event Ledgers
 
 ## Observation
-- Verbatim user request to build `capability-map` (`cpmp`) in `/Users/sac/capability-map` and the Enterprise Wrapper Architecture update were received.
-- The Sentinel recorded the requests in `/Users/sac/ggen/ORIGINAL_REQUEST.md` and `/Users/sac/ggen/.agents/original_prompt.md`.
-- The initial orchestrator failed due to a `RESOURCE_EXHAUSTED` (429) rate limit error.
-- After the quota reset period elapsed, the Sentinel spawned the new Project Orchestrator subagent (`78b02281-57d0-46c0-97ce-0b633125fe52`) under `/Users/sac/ggen/.agents/teamwork_preview_orchestrator_cpmp_gen2/`.
-- The Sentinel scheduled the Progress Reporting cron (Cron 1) and Liveness Check cron (Cron 2) to monitor implementation health.
+- Received user request to execute the GC003 team for Boundary-Receipted Equation Enforcement inside the projection engine.
+- Spawned Project Orchestrator subagent (`6ad094c2-b1ff-4d0a-8070-a705c371409d`) in `.agents/teamwork_preview_orchestrator_gc003/`.
+- Received follow-up request to execute GC004 capability requirements (Reusable LSP Test Harness, Protocol Path Enforcement, Admission Tests, and Source-Level Bypass-Kills).
+- Relayed GC004 requirements to the active Project Orchestrator.
+- Received follow-up update to enforce the "No-Fake Surface Law" and status classifications. Relayed this to the Project Orchestrator.
+- Received follow-up request to execute GC005 capability requirements (Reclassify legacy receipts, build canonical OCEL schemas, deterministic event log emission, cryptographic BLAKE3 chaining, and conformance verdict verification under `feat/ggen-lsp-source-laws`).
+- Received correction to GC005 working directories specifying `~/wasm4pm` and `~/wasm4pm-compat` as targets rather than `~/ggen`.
+- Appended the GC005 correction request verbatim in `/Users/sac/ggen/.agents/ORIGINAL_REQUEST.md` under timestamp `2026-06-06T23:47:46Z`.
+- Relayed GC005 directory corrections directly to the Project Orchestrator.
+- Configured cron jobs for progress monitoring and liveness checks.
 
 ## Logic Chain
-- Spawning a successor orchestrator ensures execution resumes cleanly now that the API quota has reset.
+- The Project Orchestrator has been instructed to execute GC005 targets inside `~/wasm4pm` and `~/wasm4pm-compat` instead of `~/ggen`.
+- Deterministic OCEL logs (events.jsonl, objects.jsonl, digests.jsonl, verdicts.jsonl) must be generated under `crates/playground/ocel/` in both workspaces.
+- Replay verifications must run in these directories.
+- Sentinel crons will monitor the active orchestrator.
+
+## Status Classifications
+- GC004 doctrine pressure: ALIVE
+- No-fake surface law: ALIVE
+- GC003/GC004 task merge: PARTIAL_ALIVE
+- Template mapping: PARTIAL_ALIVE
+- LSP stdio client setup: IN_PROGRESS
+- Heartbeat/liveness claim: UNSUPPORTED until receipted
+- GC004_ADMITTED_BY_DOGFOOD: NOT SHOWN
 
 ## Caveats
-- The new orchestrator inherits the full context of both original CPMP requirements and the Enterprise Wrapper Architecture requirements.
+- Legacy text/json receipts in `crates/playground/receipts/` or target directories in `~/wasm4pm`/`~/wasm4pm-compat` must be demoted with a warning fence.
+- No completion can be reported without a mandatory Victory Audit.
+- Conformance validation is strict; simulated logs are not permitted.
 
 ## Conclusion
-- Successor Project Orchestrator has been spawned and briefed. The sentinel's crons remain active and will monitor the new instance.
+- The Project Orchestrator has been updated with GC005 directory corrections and is actively executing.
 
 ## Verification Method
-- Monitor `progress.md` at `/Users/sac/ggen/.agents/teamwork_preview_orchestrator_cpmp_gen2/progress.md`.
+- Check progress logs in `/Users/sac/ggen/.agents/teamwork_preview_orchestrator_gc003/progress.md` and watch for the subagent's updates.

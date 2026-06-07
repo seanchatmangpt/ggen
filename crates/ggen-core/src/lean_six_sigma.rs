@@ -615,6 +615,7 @@ mod tests {
                 max_reasoning_timeout_ms: 5000,
             },
             validation: Default::default(),
+            packs: vec![],
         }
     }
 

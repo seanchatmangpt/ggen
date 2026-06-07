@@ -1,3 +1,4 @@
+#![cfg(feature = "experimental")]
 #![allow(
     dead_code,
     unused_imports,
