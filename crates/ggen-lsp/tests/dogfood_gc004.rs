@@ -5,7 +5,7 @@ use std::sync::mpsc::{self, Receiver};
 use std::thread;
 use std::time::Duration;
 use tempfile::TempDir;
-use tower_lsp::lsp_types::Url;
+use tower_lsp_max::lsp_types::Url;
 
 const READ_TIMEOUT: Duration = Duration::from_secs(30);
 
@@ -136,7 +136,7 @@ fn test_gc004_pack_domain_lsp_intelligence() {
             let tower_err = diags.iter().find(|d| d.get("code").unwrap() == "TOWER-PACK-UNGUARDED-MUTATION").expect("Must have tower error");
             
             let source_id = tower_err.get("data").unwrap().get("source_id").unwrap().as_str().unwrap();
-            assert_eq!(source_id, "tower_lsp_max_pack_lsp", "Owner must be tower pack");
+            assert_eq!(source_id, "tower_lsp_max_pack_lsp", "Owner must be clap pack");
             
         
     }

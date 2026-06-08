@@ -1,4 +1,4 @@
-use tower_lsp_max::lsp_types_max::*;
+use tower_lsp_max_max::lsp_types_max::*;
 
 use super::completions::{CAPABILITY_FIELDS, METHODS};
 use crate::Backend;

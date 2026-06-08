@@ -35,7 +35,7 @@ use ggen_lsp::intel::MetricValue;
 use ggen_lsp::state::ServerState;
 use ggen_lsp::{check_content, compute_metrics, IntelLog};
 use tempfile::TempDir;
-use tower_lsp::lsp_types::Url;
+use tower_lsp_max::lsp_types::Url;
 
 #[tokio::test]
 async fn editor_applied_repair_emits_repair_applied_and_closes_episode() {
@@ -53,7 +53,7 @@ async fn editor_applied_repair_emits_repair_applied_and_closes_episode() {
     assert!(
         broken.diagnostics.iter().any(|d| matches!(
             &d.code,
-            Some(tower_lsp::lsp_types::NumberOrString::String(c)) if c == "E0023"
+            Some(tower_lsp_max::lsp_types::NumberOrString::String(c)) if c == "E0023"
         )),
         "broken config raises E0023"
     );

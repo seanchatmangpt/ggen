@@ -1,0 +1,13 @@
+{
+  "checksums": {
+    "ggen-pack-proofs": "d6644cdf60a63bea574a714f7e698aca8b10b1f4c2c575e0663561dd4692882e"
+  },
+  "outputs": [
+    "crates/ggen-pack-clap-noun-verb/tests"
+  ],
+  "required_receipts": true,
+  "resolved_packs": [
+    "ggen-pack-proofs"
+  ],
+  "write_mode": "stage-first"
+}

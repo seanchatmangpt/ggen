@@ -25,7 +25,7 @@
 //! Following AGENTS.md Chicago TDD and anti-cheating mandates.
 
 use ggen_core::membrane::{
-    GenesisCore, GgenMembrane, InterchangeablePart, MembraneShaclValidator, OcelLog, ProvDocument,
+    GenesisCore, GgenMembrane, InterchangeablePart, MembraneShaclValidator, OCEL, ProvDocument,
     RdfMembraneProjector,
 };
 
@@ -100,7 +100,7 @@ fn test_membrane_bindings_and_boundary_crossings() {
     assert!(!out2.is_empty());
 
     // 5. Serialize and project to OCEL
-    let ocel_log = OcelLog::from_membrane(&membrane);
+    let ocel_log = OCEL::from_membrane(&membrane);
     let ocel_json = ocel_log.to_json().expect("Failed to serialize OCEL");
     assert!(ocel_json.contains("wasm-crypto-module"));
     assert!(ocel_json.contains("BoundaryCrossing:hash_sha256"));

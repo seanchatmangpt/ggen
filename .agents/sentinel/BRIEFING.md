@@ -1,23 +1,26 @@
-# BRIEFING — 2026-06-06T15:57:44-07:00
+# BRIEFING — 2026-06-06T21:13:30-07:00
 
 ## Mission
-Execute the GC003 team for Boundary-Receipted Equation Enforcement inside the projection engine.
+Verify the CLAP command grammar admission (GC008B) and lawful mutation route (GC008C) under Gall cash-busting mode, incorporating the Strange Stuff / Code Smell / Poor Practice Audit.
 
 ## 🔒 My Identity
 - Archetype: sentinel
 - Working directory: /Users/sac/ggen/.agents/sentinel/
-- Orchestrator: 6ad094c2-b1ff-4d0a-8070-a705c371409d
-- Victory Auditor: d471576e-293d-4c1a-92ea-fa5444140378
+- Orchestrator (GC003/GC005A): 6c61c6d7-abff-4c78-9edc-d329bf05ece5
+- Victory Auditor (GC003/GC005A): 6c5a5a14-107b-4118-bb13-db391ba06471
+- Orchestrator (GC008): 1331d086-0b4d-4d3d-becd-2df45e880011
+- Victory Auditor (GC008): TBD
 
 ## 🔒 Key Constraints
 - No technical decisions — relay only
 - Victory Audit is MANDATORY before reporting completion
-- Target outputs into `.tmp_gc003/target`, staging into `.tmp_gc003/staging`, receipts into `.tmp_gc003/receipts`
-- No mutations to `~/tower-lsp-max` unless declared as an exported receipt artifact with required metadata
-- No checkpoint status admitted from `~/tower-lsp-max` for GC003
+- Working directories: /Users/sac/ggen (mutable), /Users/sac/tower-lsp-max (mutable), /Users/sac/wasm4pm (sealed read-only), /Users/sac/wasm4pm-compat (sealed read-only)
+- Integrity mode: benchmark
+- Working directory (GC008): /Users/sac/ggen
+- Integrity mode (GC008): benchmark
 
 ## User Context
-- **Last user request**: Execute the GC003 team for Boundary-Receipted Equation Enforcement inside the projection engine.
+- **Last user request**: Strange Stuff / Code Smell / Poor Practice Audit for GC008B and GC008C, checking clap-noun-verb correctness, LSP surface audit (no plain tower-lsp), LSP 3.18 feature matrix, and mutation route authority.
 - **Pending clarifications**: none
 - **Delivered results**: none
 
@@ -25,11 +28,12 @@ Execute the GC003 team for Boundary-Receipted Equation Enforcement inside the pr
 - **Phase**: in progress
 
 ## Victory Audit Status
-- **Triggered**: yes
-- **Verdict**: VICTORY REJECTED
-- **Retry count**: 1
+- **Triggered**: no
+- **Verdict**: pending
+- **Retry count**: 0
 
 ## Artifact Index
-- /Users/sac/ggen/.agents/ORIGINAL_REQUEST.md — Verbatim user request document
+- /Users/sac/ggen/ORIGINAL_REQUEST.md — Verbatim user request document (root)
+- /Users/sac/ggen/.agents/ORIGINAL_REQUEST.md — Verbatim user request document (.agents)
 - /Users/sac/ggen/.agents/sentinel/BRIEFING.md — Sentinel state and briefing
 - /Users/sac/ggen/.agents/sentinel/handoff.md — Handoff status report

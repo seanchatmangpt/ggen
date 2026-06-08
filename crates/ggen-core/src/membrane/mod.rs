@@ -15,7 +15,7 @@ pub mod shacl;
 pub use self::core::{
     BoundaryCrossing, GenesisCore, GgenMembrane, InterchangeablePart, VectorClock,
 };
-pub use self::ocel::{OcelEvent, OcelLog, OcelObject, OcelValue};
+pub use self::ocel::{OCELEvent, OCEL, OCELObject, OcelValue};
 pub use self::prov::{ProvDocument, ProvRelation};
 pub use self::rdf::RdfMembraneProjector;
 pub use self::shacl::{MembraneShaclValidator, MEMBRANE_SHACL_SHAPES};

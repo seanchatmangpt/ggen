@@ -4,7 +4,7 @@
 //! from hand-written source. These detectors enforce that law before and after
 //! `ggen sync` runs.
 
-use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity};
+use tower_lsp_max::lsp_types::{Diagnostic, DiagnosticSeverity};
 
 use crate::analyzers::diag;
 
@@ -106,7 +106,7 @@ mod tests {
         assert_eq!(diags.len(), 1);
         assert_eq!(
             diags[0].code,
-            Some(tower_lsp::lsp_types::NumberOrString::String(
+            Some(tower_lsp_max::lsp_types::NumberOrString::String(
                 GGEN_SRC_002.into()
             ))
         );
@@ -129,7 +129,7 @@ mod tests {
         assert!(!diags.is_empty());
         assert_eq!(
             diags[0].code,
-            Some(tower_lsp::lsp_types::NumberOrString::String(
+            Some(tower_lsp_max::lsp_types::NumberOrString::String(
                 GGEN_SRC_002.into()
             ))
         );

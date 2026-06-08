@@ -3,8 +3,8 @@ use std::collections::HashMap;
 use std::str::FromStr;
 use serde_json::{json, Value};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
-use tower_lsp_max::lsp_types::*;
-use tower_lsp_max::{ComposedServer, LspService, Server};
+use tower_lsp_max_max::lsp_types::*;
+use tower_lsp_max_max::{ComposedServer, LspService, Server};
 
 // --- WORKSPACE INDEXER ---
 

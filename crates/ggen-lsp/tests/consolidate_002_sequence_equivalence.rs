@@ -54,7 +54,7 @@
 use std::path::{Path, PathBuf};
 
 use ggen_lsp::ServerState;
-use tower_lsp::lsp_types::Url;
+use tower_lsp_max::lsp_types::Url;
 
 /// Absolute path to the committed multi-species fixture project root.
 fn fixture_root() -> PathBuf {

@@ -45,7 +45,7 @@ fn values_in_external_rq_is_refused() {
     assert!(report.files[0]
         .diagnostics
         .iter()
-        .any(|d| d.code == Some(tower_lsp::lsp_types::NumberOrString::String("E0010".into()))));
+        .any(|d| d.code == Some(tower_lsp_max::lsp_types::NumberOrString::String("E0010".into()))));
 }
 
 #[test]
@@ -80,7 +80,7 @@ fn malformed_turtle_is_refused_with_location() {
     let diag = &report.files[0].diagnostics[0];
     assert_eq!(
         diag.severity,
-        Some(tower_lsp::lsp_types::DiagnosticSeverity::ERROR)
+        Some(tower_lsp_max::lsp_types::DiagnosticSeverity::ERROR)
     );
 }
 

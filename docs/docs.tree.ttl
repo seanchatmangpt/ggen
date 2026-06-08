@@ -13,7 +13,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "7efbea67897c3369300a07b2af4decc4aa46669ca9ac09412ea1e640b03c2e65"
+        spdx:checksumValue "d149bfcf55fb12091310e6715b5f12a83486e63b9baaa12eb599548392d75fc5"
     ] ;
     sh:conforms true .
 
@@ -24,7 +24,18 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "f46ea9772b703a00c30dd1e39fcfd0e572d22414ac47128d02c69103c5832a94"
+        spdx:checksumValue "2c764d64db4fbc882500f425b77f1a6335570d2d89175ea17c4fff2821615c0b"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_dflss_genesis_parts_charter_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "DFLSS Project Charter" ;
+    prov:atLocation <docs/DFLSS_GENESIS_PARTS_CHARTER.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "152d2bcd60147ecac6f6620449014d6ddfe12f142945f96a3f14364256d646cf"
     ] ;
     sh:conforms true .
 
@@ -35,18 +46,51 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "88bbec6cf2f36b59ea12a1106936f01438791c24068cea7727a8e34d95a99147"
+        spdx:checksumValue "c681e91340c2f4f39d7ad3d69d39cf00f083ce5659a3870d6e6a5bad77fbc2a6"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_fake_detection_strategy_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Fake-Detection Strategy \u2014 Part B Implementation" ;
+    prov:atLocation <docs/FAKE_DETECTION_STRATEGY.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "81a78888cda1e0e48807933341c270f96a1f2850f850295396a75d55b6ce6e2d"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_feature_gates_detailed_reference_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Feature Gates \u2014 Detailed Reference by File" ;
+    prov:atLocation <docs/FEATURE_GATES_DETAILED_REFERENCE.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "214dc09b074947adc3f45159b768800f96497c33305b7cec82b961bf01895b9b"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_feature_gate_analysis_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Feature Gate Enablement Report \u2014 Path A Test Suite" ;
+    prov:atLocation <docs/FEATURE_GATE_ANALYSIS.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "cf0f4d4461502f454f47c895eb957ccbce8215db9cf63de586e453efe7c2ab7f"
     ] ;
     sh:conforms true .
 
 <#doc_docs_ggen_dflss_charter_md> a prov:Entity , dcat:Distribution ;
-    dcterms:title "Lean Six Sigma Project Charter \u2014 ggen" ;
+    dcterms:title "DFLSS Project Charter" ;
     prov:atLocation <docs/GGEN_DFLSS_CHARTER.md> ;
     dcterms:subject "None" ;
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "9b24113385099e74577a3464fe0d40cd04467d110429ac5b7b0dd7c17f04e0c9"
+        spdx:checksumValue "152d2bcd60147ecac6f6620449014d6ddfe12f142945f96a3f14364256d646cf"
     ] ;
     sh:conforms true .
 
@@ -57,7 +101,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "d24729738746c215896046a2cb5d01dc29597dd1d48cea8d2efb623f122f6b89"
+        spdx:checksumValue "e58256d42316931f4f194adf07b001a45575e7a93634b036e143353cf8d5aff5"
     ] ;
     sh:conforms true .
 
@@ -81,7 +125,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "3b07d18b87c1f22b39b4b584f32dbd71b0cca348f8438798f4ab301fc0b7e2f0"
+        spdx:checksumValue "118c919a00d4f032f238cf8d2d98cba38d3008c5917f04c087e6ffeac9d20d85"
     ] ;
     sh:conforms true .
 
@@ -98,7 +142,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "8b0bea299f5de56785ef779259d5ee1a0e208bfb537206f1e425e7450ba807df"
+        spdx:checksumValue "4c1f034372b8f5f1f267482a10b3079f2d4ae411091ffb3583d092dd5d2d874b"
     ] ;
     sh:conforms true .
 
@@ -109,7 +153,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "5405c65ba6bab73108adb1abe288250fd4326c1622e55ae5c3f3cde186a0591d"
+        spdx:checksumValue "1763a3802a4fec420f2d213d48595d42108fc154699d484e91c6142cc6a491f9"
     ] ;
     sh:conforms true .
 
@@ -131,7 +175,18 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "e32b4f51917a0fc4873a872dd9518a2cef8565b2ff967582c52b47a294fdb8f4"
+        spdx:checksumValue "2f743447ed9704d84d294068d0df4e5fc626ca1b835f5670307c747a8897e67a"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_path_a_feature_gates_summary_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Path A Feature Gate Enablement Summary" ;
+    prov:atLocation <docs/PATH_A_FEATURE_GATES_SUMMARY.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "2e8b77457e28c06b53df1d1beb53f6b084b60c51e90036b43310da31a0b19760"
     ] ;
     sh:conforms true .
 
@@ -164,7 +219,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "fca1d2b706879aa0b0bb8de46d92adaabe26ad05ffd13e6bbc2bfa6f051f72ca"
+        spdx:checksumValue "0c40a02e5c051462faffbc0a1e553eac6518c087bb8284578d5aba9ddab86198"
     ] ;
     sh:conforms true .
 
@@ -175,7 +230,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "3948a84bfe682fe1a57ca4b5820180c547553aa72eed4d52d155112e68c02dba"
+        spdx:checksumValue "762cd0a426073e1d107d99dee16994a64d37e2eb0e3b0b783170becdb46603ce"
     ] ;
     sh:conforms true .
 
@@ -183,21 +238,22 @@
     dcterms:title "ggen Documentation" ;
     prov:atLocation <docs/README.md> ;
     dcterms:subject "None" ;
+    prov:wasDerivedFrom <#doc_docs_explanation_why-docs-must-match-the-build_md> ;
+    prov:wasDerivedFrom <#doc_docs_explanation_genesis-run_md> ;
+    prov:wasDerivedFrom <#doc_docs_reference_release_v26-5-28-boundary_md> ;
+    prov:wasDerivedFrom <#doc_docs_reference_cli_command-proof-matrix_md> ;
+    prov:wasDerivedFrom <#doc_docs_reference_workspace_crates_md> ;
+    prov:wasDerivedFrom <#doc_docs_reference_workspace_feature-flags_md> ;
     prov:wasDerivedFrom <#doc_docs_tutorials_getting-started_md> ;
     prov:wasDerivedFrom <#doc_docs_how-to-guides_installation_md> ;
     prov:wasDerivedFrom <#doc_docs_reference_cli_md> ;
     prov:wasDerivedFrom <#doc_docs_wip_muda_inventory_md> ;
     prov:wasDerivedFrom <#doc_docs_tutorials_ontology-to-code_md> ;
     prov:wasDerivedFrom <#doc_docs_reference_rdf-sparql_md> ;
-    prov:wasDerivedFrom <#doc_docs_explanations_rdf-for-beginners_md> ;
-    prov:wasDerivedFrom <#doc_docs_how-to-guides_configure-llm_md> ;
-    prov:wasDerivedFrom <#doc_docs_tutorials_ai-powered-generation_md> ;
-    prov:wasDerivedFrom <#doc_docs_reference_configuration_md> ;
-    prov:wasDerivedFrom <#doc_docs_tutorials_marketplace-quick-start_md> ;
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "7b406a1bc8ffaa1362652f617c5731b65b4c22d594f09b569d1ac667a01e826c"
+        spdx:checksumValue "e0f79075c4600474b2a2a70030c9ab44eaccd9a63926a452bf027856124b1c86"
     ] ;
     sh:conforms true .
 
@@ -219,7 +275,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "1cc12dd87f61a32d9afb389dda0c09f6104ac54871109d858cff1cdd6564a179"
+        spdx:checksumValue "e276fc8cd23954eafad67f0f502be84b8d3ebcd8658dbaa2c7a0a08546137ebc"
     ] ;
     sh:conforms true .
 
@@ -230,7 +286,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "17fe2b13a3a9e04d41f73d4eaa66d472add58521a8bf653b48a2c73c76e1e2db"
+        spdx:checksumValue "f5ff40fccb22768f52e6284084abfe920a785a43fe80c5e5567e66cff68c1915"
     ] ;
     sh:conforms true .
 
@@ -241,7 +297,44 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "66e248c620ef307ed117bd93e576357614b24aea83c14e9ad2a581dc27a7f70e"
+        spdx:checksumValue "0aca58ecc6c11f4fb719ed1035aa3800d0d83e5a3a4007ba00407eb2bf10686a"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_vision_2030_ggen_genesis_doctrine_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Reimagined Vision 2030: ggen and Genesis" ;
+    prov:atLocation <docs/VISION_2030_GGEN_GENESIS_DOCTRINE.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "4458f14bd7230624a83bd2cff79d0f89633d826c58ef855ab8eca42315d30fe9"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_wave2_phase1_kickoff_brief_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Wave 2 Phase 1 Kickoff Brief" ;
+    prov:atLocation <docs/WAVE2_PHASE1_KICKOFF_BRIEF.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "c2e4c15b800553594652b8e89f2928db7d6703f140494368d42c38c87a56deee"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_wave2_phase1_quick_start_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Wave 2 Phase 1 \u2014 Quick Start Guide" ;
+    prov:atLocation <docs/WAVE2_PHASE1_QUICK_START.md> ;
+    dcterms:subject "None" ;
+    prov:wasDerivedFrom <#doc_docs___wave2_phase1_kickoff_brief_md> ;
+    prov:wasDerivedFrom <#doc_docs___testing_md> ;
+    prov:wasDerivedFrom <#doc_docs_______claude_rules_rust_testing-forbidden_md> ;
+    prov:wasDerivedFrom <#doc_docs_______claude_rules_otel-validation_md> ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "6df5aa8b7dc43e37041dc9bc7f11eba9b92a983f463cbf124bbb4dab823f5621"
     ] ;
     sh:conforms true .
 
@@ -252,7 +345,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "c3fd7b8493d8e2623bf5f4e72fe29c2e04245ce755c6c0863694bf7932c3a752"
+        spdx:checksumValue "7e773ca5b318926198df107ad64d8c6274c286504e3c83e4f2175858a4b6fecc"
     ] ;
     sh:conforms true .
 
@@ -371,7 +464,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "c391577afb15d1ef16ed811afd7fb395ec280d8f0b084960b5621ceba9ea927f"
+        spdx:checksumValue "bcc19d4912c8bb5ad6eceee5f0aff83e872114d187759b197c98e5a3fae80160"
     ] ;
     sh:conforms true .
 
@@ -430,6 +523,17 @@
     ] ;
     sh:conforms true .
 
+<#doc_docs_architecture_autonomic_knowledge_actuation_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Autonomic Knowledge Actuation: Reimagined Vision 2030" ;
+    prov:atLocation <docs/architecture/AUTONOMIC_KNOWLEDGE_ACTUATION.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "a1cb2c52d0a9139fb93ae870a375da097a8960131efd513c79aec336661d2536"
+    ] ;
+    sh:conforms true .
+
 <#doc_docs_architecture_c4_ggen_paas_architecture_md> a prov:Entity , dcat:Distribution ;
     dcterms:title "ggen PaaS - C4 Architecture Documentation" ;
     prov:atLocation <docs/architecture/C4_GGEN_PAAS_ARCHITECTURE.md> ;
@@ -448,7 +552,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "77e1ea95936d499067775d4029acbac531c0f9e496250fb140680575e2d1a85a"
+        spdx:checksumValue "7fec5f0f4feed48b2f882f32f65f63f13afce5482cbfe5e193bf0338d755b310"
     ] ;
     sh:conforms true .
 
@@ -459,7 +563,40 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "10173d0f60ce58c2459a9ba07dc5dfacbc9a6e122a1d219dc5e8510f60ab00ee"
+        spdx:checksumValue "84c26c9cb5af4b02ad98370bf16348883d9d886f624fef59303539bca08cc3a8"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_architecture_ggen_lsp_living_project_graph_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "GGEN-LSP Living Project Graph" ;
+    prov:atLocation <docs/architecture/GGEN_LSP_LIVING_PROJECT_GRAPH.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "a09c6fbd6846a84b1fc43357af5ea6e66b18ffedad8610ffdb8f51ae5d90617e"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_architecture_process_intelligent_lsp_vision_2030_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Process-Intelligent Authoring Infrastructure \u2014 POWL \u00B7 OCEL \u00B7 SPARQL, and the LSP/MCP/A2A Pattern" ;
+    prov:atLocation <docs/architecture/PROCESS_INTELLIGENT_LSP_VISION_2030.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "5c4e075c45a0a7bef8b775381e7c92afb0fd6e3c38a81e264f974ec7e9632240"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_architecture_c4_readme_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "ggen Living LSP \u2014 C4 model (single source of truth)" ;
+    prov:atLocation <docs/architecture/c4/README.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "ab67b2133a836ea062cf49525febe12506000d6d35304f09b73bc71197626503"
     ] ;
     sh:conforms true .
 
@@ -1042,7 +1179,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "f4511da8120ada3e7d42cd80aa05d89ee684649f9611d041ed7a416ae95f6a17"
+        spdx:checksumValue "5c057ed7a5fe8c5c12042047be9af8f01a97f8a90fee99c1222be85a053ddfb0"
     ] ;
     sh:conforms true .
 
@@ -1053,7 +1190,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "3c2c207312dffa172bab148ce1f4cbd44c399a6b976fa2bb689dc22215cdd6a5"
+        spdx:checksumValue "085271c5a6353af1e1d7e388e5dfcff7e00c19ef71968daaf3bdc53a2ce0aa02"
     ] ;
     sh:conforms true .
 
@@ -1064,7 +1201,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "a01ae072aca77785593dbd1a96948270ac29bbd0519b3d5c4de8b0d4d9a1783e"
+        spdx:checksumValue "203b260daba5e341ab946c9cf54364824204ba4f59eff8252aa3e85f78ae7003"
     ] ;
     sh:conforms true .
 
@@ -1075,7 +1212,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "8ea78acebab7e4c450016269fbd99d193096b308e6bffd505a1758a4d0a73447"
+        spdx:checksumValue "b4024c911aec1425ccb80d177dfd5c1efcb3b5e2cc9d315d599275d4a281fc90"
     ] ;
     sh:conforms true .
 
@@ -1086,7 +1223,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "d9e3613b949cc10a632e91921dbd14adaa3955a10a1cc2e2f3441a708cd846b8"
+        spdx:checksumValue "c7742b3a46d7f693fc8a91d0a67e87d05b73d1d2a1211a28b09c4d1a0aa8d2a7"
     ] ;
     sh:conforms true .
 
@@ -1097,7 +1234,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "547f3994526ed5b0f5af20d60ea432a904205d6f35516d6897c6ffd2a6f4d1b3"
+        spdx:checksumValue "4e360c6d42f40be8aacc9a666ac5f165b3958b21a2d8df064263eb749b1d6f2c"
     ] ;
     sh:conforms true .
 
@@ -1108,7 +1245,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "44f62df75abaa6b58fd0bd8070808ca2d6a73cfe688634be549645ab3d042297"
+        spdx:checksumValue "b6fa3b33de9618942434341590d18c54c1117ff0e8501bc8805e91af26a68f92"
     ] ;
     sh:conforms true .
 
@@ -1119,7 +1256,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "4e60829a650f094f69ff9d7c236dea0a3cd62f7589cf9d13555c89ac8eabcfde"
+        spdx:checksumValue "e35fc12ce731e2ca6b497596af95acaeadac90d9e64aa3d7c64aec6a6bd6a904"
     ] ;
     sh:conforms true .
 
@@ -1130,7 +1267,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "42e4e2a197e33e9fc469339362139b8ee8ce5b25173256c52da66058cdc96106"
+        spdx:checksumValue "608b40e58acf05ff21c8e7d04ab12eb7d9ab1f91e521643461a1d56d88b1041d"
     ] ;
     sh:conforms true .
 
@@ -1141,7 +1278,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "60b47f555160510bdee026ebd4d3dda4b2dad98241734f48485b929b0eb57064"
+        spdx:checksumValue "15a52c70691b1774b2338faecdf15040c6143d31d1d628163c2d1b719b3a56b0"
     ] ;
     sh:conforms true .
 
@@ -1437,7 +1574,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "9e26338b8623cfc8fcc78f8b2267ca502e74e62ac94479f2e3273637ac593dba"
+        spdx:checksumValue "a7d92d66fffdff355d1da4f0dee7c2abc7f8e1376d7e1e9c1cf8faa3dec76be0"
     ] ;
     sh:conforms true .
 
@@ -1448,7 +1585,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "7deb2a77d96877a77020de7e068e4328d8ba9071289b6d7ff0a528281cb2abf7"
+        spdx:checksumValue "dfd756ab505c47adf6b0eb5f981f27bf15a9bde1178e8edb5468dc4efdc05cea"
     ] ;
     sh:conforms true .
 
@@ -1458,12 +1595,10 @@
     dcterms:subject "None" ;
     prov:wasDerivedFrom <#doc_docs_archive_2025_docs_scripts_diagrams_marketplace-v2-migration_summary_md> ;
     prov:wasDerivedFrom <#doc_docs_archive_2025_docs_scripts_diagrams_marketplace-v2-migration_migration_guide_md> ;
-    prov:wasDerivedFrom <#doc_docs_archive_2025_docs_scripts_diagrams_marketplace-v2-migration_readme_md> ;
-    prov:wasDerivedFrom <#doc_docs_archive_2025_docs_scripts_diagrams_marketplace-v2-migration_index_md> ;
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "ea0116d26271c07927210bd83ac5f122d8e5dfcfc2348db30f4f996728c4be9b"
+        spdx:checksumValue "f5cbc6426ac651f34e773794d0354e757b9feb0f6ceafcf681b16abd017b4459"
     ] ;
     sh:conforms true .
 
@@ -1474,7 +1609,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "ad444453c7f59e0e39c21a6eacb9f5082df4f14363a5eab84b18ebb6b3e6e5a4"
+        spdx:checksumValue "516e0021572b46fd2543c6c3ed4c5f0bf9750d450a64cf1ab35a316bc118ba0c"
     ] ;
     sh:conforms true .
 
@@ -1490,7 +1625,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "645c048008af132fde81523806000aed43e18cea541c21f7f05848f10158fd26"
+        spdx:checksumValue "96eb6a7b637fe6fb7f7779fec4ce5ed505b64b69a0f8808b24e00ceceaa64498"
     ] ;
     sh:conforms true .
 
@@ -1501,7 +1636,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "2210a70766ecd6f7d9ecae3591ed9e0663896bb21d8ec90982e58459d31a2987"
+        spdx:checksumValue "7fd87c5f99d0a43a681c68c4986804576e0357a64766125269d1e2622639dfb4"
     ] ;
     sh:conforms true .
 
@@ -1512,7 +1647,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "e090b2c7a9322801532eeb0eecfe3687d7699db76fdbedee4a00408488ae618c"
+        spdx:checksumValue "2e6844ee1f364be1354edb296df993da5bf547a5c7409fa77ebb1cfabd4b3c6e"
     ] ;
     sh:conforms true .
 
@@ -1523,7 +1658,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "d6c2d1b09e4f58c86247af27e78e50af1dc2f4c878ecd041b2fe0b3d8d57a682"
+        spdx:checksumValue "ffb1aa7d5d19dcd0cf69e64689472411c677d2154eb21720a57667801ebe9505"
     ] ;
     sh:conforms true .
 
@@ -1534,7 +1669,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "a65f2d217283174a1d78d181b163db01672f38cb95462445941d6a3d918913c5"
+        spdx:checksumValue "478f53fcf21ac09af8388c75bd649d267c268da837c953477b70311af4be6bf6"
     ] ;
     sh:conforms true .
 
@@ -1545,7 +1680,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "75f5e6a9f7b99ef60ea02cad43d92d52f4837e4d904a8107884a0ed11e0b4226"
+        spdx:checksumValue "5aa7007c5fef369b46fc37e79fac73bf61f2815632ed962850f21c3af2527576"
     ] ;
     sh:conforms true .
 
@@ -1556,7 +1691,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "e33e119535ea6a64a2411e5d82c47eb2696c628be7d646897ed12dfb3ef236f8"
+        spdx:checksumValue "9340cc27b5be1990000d73aa4726521387202ccea23dd4b92bdf7cd6a0525aa5"
     ] ;
     sh:conforms true .
 
@@ -1567,7 +1702,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "d79efc88fe2c79fe0c586d34a71d3d4af749109d396143b7e7caca09ac3f64d8"
+        spdx:checksumValue "7dca63cded1500ba710780f05f658b55b9b6fc4d47fc2d36aa2651876b89863d"
     ] ;
     sh:conforms true .
 
@@ -1578,7 +1713,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "c1a8d22084e408b8d9bfb0c31ef7aba687da942bf5556c261e32737d454e309a"
+        spdx:checksumValue "d0d1cd31d40e01f3a065b58c4beeeec959b4c3cdf691f9831a741723e782c8b0"
     ] ;
     sh:conforms true .
 
@@ -1589,7 +1724,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "0ce75faf2fb57be578cc431e5afd80c200017ea8a57945bcb12e8c210dbc0320"
+        spdx:checksumValue "cb447540b04b93219e9f3abc9fa5c39f3f55e46b7cb9d2084a9c6e2e0fbd1b71"
     ] ;
     sh:conforms true .
 
@@ -1600,7 +1735,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "c76e400f08567dc7215f1ae96469317d8f290db49a5bdec95fb635dc5303f82a"
+        spdx:checksumValue "4aa65e0f8f831794d884a5593d014e67b07721667b68290172f2bccd5ea92627"
     ] ;
     sh:conforms true .
 
@@ -1611,7 +1746,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "0443a356c292740008a54ac33fe7e600462a735ca01fe3a07f78cb2552d6b204"
+        spdx:checksumValue "f61df46d265330b802213627d4eab6c566e6718eab0aa6e9eaa8ba0f6a71478e"
     ] ;
     sh:conforms true .
 
@@ -1622,7 +1757,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "390b18dd21e5cb84dfcd09c0f321e2ed4851ea678d875e5f606585c8a655b01a"
+        spdx:checksumValue "4af58ceedcd4aae29766dd9592d8aece6636f8ff6c15f203f164d1a3b0320b14"
     ] ;
     sh:conforms true .
 
@@ -1633,7 +1768,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "ad5a788c2cdf0aa73293a5fd11fc9c3273daed60bf5cd2cba5317dca5f4475fa"
+        spdx:checksumValue "40cf3bd46398fec92d61fe6f5dabc5488a54f14812c5317a3cd092c98095cf3a"
     ] ;
     sh:conforms true .
 
@@ -1644,7 +1779,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "7c7308d7271e06abac4f7107aeb1e7ac205234d6fa9db78b97a341de6b0f697b"
+        spdx:checksumValue "28c1d345a66292d2c1e382935939b2f7dd9c29bc4a32c3fbd4329362ef20ad6e"
     ] ;
     sh:conforms true .
 
@@ -1655,7 +1790,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "e19d18f1c51df1d320667203a8e2e7194b540ae3527582c626910b290588c190"
+        spdx:checksumValue "034d5ec90d52a2823269c4fc6c1c1d0d1093e1f7cbb9ecdbc36756624499aeb0"
     ] ;
     sh:conforms true .
 
@@ -1666,7 +1801,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "d4091d2945132424e1c93eb842f1a79730c18a4eba42662af4ca086176028bd1"
+        spdx:checksumValue "9e544d688f26456f9a9b0f42c3e6b67297051ffae0cb10a55a15e215f6b793a0"
     ] ;
     sh:conforms true .
 
@@ -1713,7 +1848,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "fade3c5ee45b211360401ec8d4727bb414824946228fae377121fa70f971c337"
+        spdx:checksumValue "1d36caae92e3a3c242a48cf13136483e6621ad33b96e2b197f8d7c7589b5d826"
     ] ;
     sh:conforms true .
 
@@ -1724,7 +1859,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "f954dcf805779414d6fcaa48183235a59ca41dd245e9080eef467c688cbc48b0"
+        spdx:checksumValue "b1fe2923515954ce7aa015db9174c42fb9827f529d9e566e42e4f0a86aca7498"
     ] ;
     sh:conforms true .
 
@@ -1735,7 +1870,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "8b9ce42343e904a02b5f19c7c18cfda7f949c0ce3de72d4aeee34b317f5f0242"
+        spdx:checksumValue "409bd2fdacc9f68dd3facd229f3ab886dc9a00369b115832ef35ca961d321d00"
     ] ;
     sh:conforms true .
 
@@ -1747,7 +1882,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "8f31a255d046bfe9bf6a3a205fb3e7a4210dee07842d63f5b593ee3984bf1b57"
+        spdx:checksumValue "960613bbb04e0cfec41499f699f363f1b4543e09ab3efc3d42e56d1695ed2033"
     ] ;
     sh:conforms true .
 
@@ -1758,7 +1893,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "9cba0150d1012f6ba2107358a081a6b31ab12586dd80a8b3129e359f16712d77"
+        spdx:checksumValue "f842b546e6652e90c2fd241e21040ca599a901806466c0987e1dbc7c4a6020a6"
     ] ;
     sh:conforms true .
 
@@ -1769,7 +1904,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "5e99f9beebcd2f32f53d9ab71f2a9b92007c780301d27e0ef710cbaeba84f9ad"
+        spdx:checksumValue "7b82011e1b11527a5cc2e5443fcd5bd1bb830cd75c66cfc9c24fbc9c97e4e3b7"
     ] ;
     sh:conforms true .
 
@@ -1780,7 +1915,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "869230e5221de38bca678303c5507afa49698e42e9ca946e86b7020c82de735f"
+        spdx:checksumValue "059ad3db2cf862035fcc48949fa936804267639c4a0d9431dbfb58fed00705ce"
     ] ;
     sh:conforms true .
 
@@ -1791,7 +1926,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "a69ca415af4e4ab1b034befbfd37e886d5a3b9583b9d438ca402c0aa6979e617"
+        spdx:checksumValue "046a7603a711801a74c76565350ede88f2111d84c19518faf445097e7af35a50"
     ] ;
     sh:conforms true .
 
@@ -1802,7 +1937,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "c79f993c3aaf615cbc14df8bdcf729e5032dd57f63b54b2de3b56626b9d313e7"
+        spdx:checksumValue "303f80771b4370224a0db4c74a11688ca44a9e8853fbaadc5fd96d44373ac6a9"
     ] ;
     sh:conforms true .
 
@@ -1813,7 +1948,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "178f7b343977acd787a26987e5d258e1622ce5c62d634711fb27f90e2f719aff"
+        spdx:checksumValue "d5aab94aae620cc831da3c4151e04bbf5bc077def3e9bdf64f90300ecbdabd9b"
     ] ;
     sh:conforms true .
 
@@ -1824,7 +1959,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "4ce0d5e2c250350f94185e8a1d73ef15df4bed5a285ff335cf08453b168cab4b"
+        spdx:checksumValue "3b3046bc0d91de1c9b6a2bceaf5555a9b3f10f609e00e6b04dcd5836e0cf3ced"
     ] ;
     sh:conforms true .
 
@@ -1835,7 +1970,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "f0f842f722df5d8e3bbe9634a7273e65a474fd6d41ba0cb8ec5af672d2c63dae"
+        spdx:checksumValue "6d421aa0693227f5f6b0ab80b40b5f8e84f782da10c64b20861d9f28b148d5e9"
     ] ;
     sh:conforms true .
 
@@ -1846,7 +1981,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "a74a1e02b863f0f997a0243681b6d40610e2ec13f76f712c3fc99d2ac3392b53"
+        spdx:checksumValue "a5ecd7b0e48871f4fb46505efcaa4784eccc4325ab918e2f475273256ce1e107"
     ] ;
     sh:conforms true .
 
@@ -1857,7 +1992,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "b380aa948bb3d7d15746af1cbc63c745f5618eb07b15b4b0e63c434527c828a0"
+        spdx:checksumValue "fe818b6dcae12f6e3cfc67d65b80174a8c7567ea62b9876108c6dfcab1bf4019"
     ] ;
     sh:conforms true .
 
@@ -1868,7 +2003,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "cf2e4f230bd343512b4c5cd71605810df7f7e40e0e986114575b14eac5529d26"
+        spdx:checksumValue "21a5fff46313f4766c73888a9372c98bb57b19d8c6b11e32de1d7ba626621f68"
     ] ;
     sh:conforms true .
 
@@ -1879,7 +2014,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "d45148a2e1589b9c9033a7580795d01539db6dc9f11780ab577c8377b8a7cfed"
+        spdx:checksumValue "ad1fc98779d8f4b7854029f83d6c220fec3994f208ed9dd7619202f30656bd50"
     ] ;
     sh:conforms true .
 
@@ -1890,7 +2025,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "ab25e4552cc0a996497fa7c4f41b74176007127a47453c313d131186b6bc3392"
+        spdx:checksumValue "0a7be0ce03f27fb44a0b745187073ff7d15770a3250a327a9039c52d0c29184e"
     ] ;
     sh:conforms true .
 
@@ -1901,7 +2036,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "57bfc4dd787861cbaaae13bb9c27a6ffcdcab5080f5f0a4e8a106e37f954e559"
+        spdx:checksumValue "04c9a14fb19fd8c1b11a7d9f17d462c0475ceacc4d5fa3eb9c5f9a7dcb0d16b5"
     ] ;
     sh:conforms true .
 
@@ -1912,7 +2047,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "cc88460a1791adcf15aa7b5ac9291f8ec4f6a9799a1b43fa95672fcf7b4663b6"
+        spdx:checksumValue "c2e6177ad8c4bdc4e71c50c2d4e1ca4ad1751e39e58f855d231ae95a87e1a7ab"
     ] ;
     sh:conforms true .
 
@@ -1924,7 +2059,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "70a6139667f53f0d1ebcd80abe8fe445b27b3ed78d4e6e8270f07445a4943e2d"
+        spdx:checksumValue "12072de9672690d9cb3dd7e4b372e76123125ffe58009c35f6caa45682de27a2"
     ] ;
     sh:conforms true .
 
@@ -1935,7 +2070,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "477253a6648e32874a6df7904b442a02a6aafe616b89a43f3cc558840ec0e81a"
+        spdx:checksumValue "86113259aef0c33fed3955ddf94a0012e0439f8b542b9db7ef7ca26d9e85d350"
     ] ;
     sh:conforms true .
 
@@ -1946,7 +2081,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "b2e7c8a1629299973adfe1140c36cc4c4a266ead366c9dacb61813bc14658b26"
+        spdx:checksumValue "57b8f75112b58b2557583c91dc3b41b184073d48fad6b8738d43bde50576a2a5"
     ] ;
     sh:conforms true .
 
@@ -1957,7 +2092,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "19f9fc986f980c51f67aad1ef1271c5e763f9ee17950f77aaa5becfd2ccf7cf1"
+        spdx:checksumValue "f5b8bfb32bf939f084de04bcbe6b0089ae9f5a378a38c4216eca6ea76a820dfd"
     ] ;
     sh:conforms true .
 
@@ -1968,7 +2103,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "b2b97a863c022bc5e9bf56b6152134ca7d00a2643209fcb631aec9f8d34020d9"
+        spdx:checksumValue "4fda256f9da580eba01e70515ccdad166acba78d8ca64e71df78c052fad66df3"
     ] ;
     sh:conforms true .
 
@@ -1980,7 +2115,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "8e451a06c8702c6df1ffd5f5693102a6e396f612550c97e226c5f1088a2384fd"
+        spdx:checksumValue "a25065f50d5cfc67e87411a70715d6c59a2f9ff35f6dae847293154fc63e12fe"
     ] ;
     sh:conforms true .
 
@@ -1991,7 +2126,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "428dfdc47fe53e38a6ca02913114de1c37bdaecc21410cbd92ea2338aa9c98b1"
+        spdx:checksumValue "867586d14f9fa5e07858a9133c4a85ec3b94ab3f32bcbaee4989f3ad9fa1c850"
     ] ;
     sh:conforms true .
 
@@ -2003,7 +2138,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "e0156a681fc8df8ca5625207b657c771bdac31b16aba00b506f70e7bb030673a"
+        spdx:checksumValue "dbff6cbf55e207fdf50e0fed82539be3d033575dc9cacaae8653a0bfe7944552"
     ] ;
     sh:conforms true .
 
@@ -2014,7 +2149,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "3b6b12b2a359a280c4331b3cb374e71a5952b749bac77d9a74f3fe83a9a16b41"
+        spdx:checksumValue "34b84d69e820851dafbe65aa9cb682d6141d407aae5f39e6712c59596df5cda7"
     ] ;
     sh:conforms true .
 
@@ -2025,7 +2160,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "9fabff77a6cb1a5fdedf6233dedd83a8cde6c3bac59c7b7c632e082c262921ef"
+        spdx:checksumValue "8ea9352bb3032a748dfd5ef95a414d963558d312d711e133bfa9523563083adc"
     ] ;
     sh:conforms true .
 
@@ -2037,7 +2172,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "6227deb109eb62bf063cf4cf0db39d09bdfb2fec3fcbc8e48329b550eddd37c2"
+        spdx:checksumValue "d2afb9c028916f5285b0a0fda2456e8bbe9ce37ae428149c32af2f41c9f747f2"
     ] ;
     sh:conforms true .
 
@@ -2048,7 +2183,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "12254dfc928dc3522e2ddc0de5c0e65e7a27d4d115f8f3838d17c4a916554d0e"
+        spdx:checksumValue "5c4ddf229cfbdf0b418d25bf15022c3cf3e91f31df1e8da1cad8b4068aadd307"
     ] ;
     sh:conforms true .
 
@@ -2060,7 +2195,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "42c754b126639a68d8895fbf8a71d35982ba1ce93fc91898d1cd7b367ea184f7"
+        spdx:checksumValue "cfe6a3f6825b14a2a2ad3d1e403dde00db382ee56633c89f0795831b6801bc14"
     ] ;
     sh:conforms true .
 
@@ -2071,7 +2206,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "76ef8271746b8b0067946c992c7bb1a7ef65382408f08d62a50d779ef309c4d6"
+        spdx:checksumValue "b6aafc038fa477d278f9b0b161d51d162b833549407381fa66446d0fae2b6710"
     ] ;
     sh:conforms true .
 
@@ -2082,7 +2217,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "3ca11073709f418fb391f79fe0c8c7add747e9ce03e1c7c4adfcc9f232cc8668"
+        spdx:checksumValue "ef324457b22d442e59dfe5f7562d555fd1527a431dbf34ca904cc2f445048d97"
     ] ;
     sh:conforms true .
 
@@ -2093,7 +2228,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "64db1bafc4c6db325835dd32b5022b72412e984928d01565c27ca13baf9d9e5c"
+        spdx:checksumValue "b363e6df365b64a9a17c560edb291891abb26516140df8a4a7e9a2fcd9cde4ba"
     ] ;
     sh:conforms true .
 
@@ -2104,7 +2239,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "7ce09859f3337e2bb2bde04693866902b3cf3f48259c083457b4f059073e6d0a"
+        spdx:checksumValue "9e69afce0c4be9773f54574e8e107d6f0ce695e52821fa493dd4de5ced82e3e8"
     ] ;
     sh:conforms true .
 
@@ -2115,7 +2250,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "d2fb9b1871a46997218fabb49361a3dfc653ad94bf0a6549812a7c3aad0155c7"
+        spdx:checksumValue "90ebe05768998e86342c93404bb496174e989edc475ce062296ea08848345781"
     ] ;
     sh:conforms true .
 
@@ -2126,7 +2261,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "0040076b0026d783c8efb014553722cf83fc44cc21ee4d69d379879a7b1f0875"
+        spdx:checksumValue "fca85b7c07edb3d3ee680f31170d6e9d27b07b758cf98c6538eaf81e2733f5c2"
     ] ;
     sh:conforms true .
 
@@ -2137,7 +2272,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "9d1cf4f3d6502b9c6fdd9884e43fa86c28927c3e7eb56ce3bfbf05ba53282b5b"
+        spdx:checksumValue "4cb8ce2c356e81a4b782d2f50b9118c2e7a417601be0343d6ba77a235e3bed8b"
     ] ;
     sh:conforms true .
 
@@ -2148,7 +2283,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "8e7b10b5372595fb45122449b8faf2b7ed0ad14881ec41ffb9daaf53be30a670"
+        spdx:checksumValue "ca538e8b200ed3bc82f49332c93538e15acb88105c2bf2bcecb9827290f7f887"
     ] ;
     sh:conforms true .
 
@@ -2159,7 +2294,51 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "55c0ab9d49979d0d3f833b948b1f551ab7bfb5949f04277e68122c959c064938"
+        spdx:checksumValue "bd9aa62a8c46677c5cfcf71fe992802a076883273d8284918af71b70da9ea463"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_ark-covenant_ark_receipt_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "ARK-COVENANT: ProofPack Receipt" ;
+    prov:atLocation <docs/ark-covenant/ARK_RECEIPT.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "efc08dd9c3a85ea285cba785c6472cd899a744d330b76c522350b63827f1aa2c"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_ark-covenant_boundary_receipt_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "ProofPack Boundary Receipt \u2014 feat/ark-covenant-1" ;
+    prov:atLocation <docs/ark-covenant/BOUNDARY_RECEIPT.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "35cfe0414a523c9bfa0da741e176d9021521c601816c2e3bf09a8c452b049467"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_ark-covenant_phase9_execution_summary_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "feat/ark-covenant-1 Boundary Crossing \u2014 Execution Summary" ;
+    prov:atLocation <docs/ark-covenant/PHASE9_EXECUTION_SUMMARY.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "c05e26d13313825bdf92baa1ae1b6ff9e62866a96fd6c4025ae6e333fab3510e"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_ark-covenant_v26_5_29_release_receipt_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "ggen v26.5.29 Release Receipt" ;
+    prov:atLocation <docs/ark-covenant/v26.5.29_RELEASE_RECEIPT.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "6b5386cb6c32db4abab311421df625bccecc539bab8adeb06e17ed827ac0df08"
     ] ;
     sh:conforms true .
 
@@ -2170,7 +2349,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "3974bdeb397cf5d7858aa5807dded4def06ed2de7254755dcd2e6ce430dc72d3"
+        spdx:checksumValue "e9b3e0e66c87a30f46d1276d08451be77d9b3b2f322275ba42273414243efa12"
     ] ;
     sh:conforms true .
 
@@ -2181,7 +2360,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "bdb19108bf37c5f965081394e4aa0220a8342ebd3e2a579f1135c4f6b789a390"
+        spdx:checksumValue "fc1aff35cf5ac6be52c8a23db7b85b280a097de196de91e4c7f4287e0ad89a82"
     ] ;
     sh:conforms true .
 
@@ -2203,7 +2382,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "3eafbd9e4719ecd3be403e2027f8c7a765271fbf35183b61be32d9015e106526"
+        spdx:checksumValue "b7c8be64c623731e12e68838d0ac73b11862306e503ef3b28ff451daa2a13e99"
     ] ;
     sh:conforms true .
 
@@ -2214,7 +2393,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "949ad8865c35c72a7002a722fbaf92fd018d4a8e203500cb6a67df9128892a48"
+        spdx:checksumValue "1ffabb5a6a28cf8100a452522866379745311f94d40fa3f585c9059fe3c83bbd"
     ] ;
     sh:conforms true .
 
@@ -2225,7 +2404,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "ca15656ee0e679faa00bfe86e3616e07e9ecb3e36df14a3a46ef0360ff4dc5e1"
+        spdx:checksumValue "225d438d7513a39ee8ac3581323ce7243e7bc2b437d3b06da02794b205a93af1"
     ] ;
     sh:conforms true .
 
@@ -2236,7 +2415,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "22d9a9e25fb3d7deb7616518f7124af467741f82b53733d3a23e3309e0542c1a"
+        spdx:checksumValue "e19cec1670785e258284e11136de04acecbb9cde32bb20c2bd80a837545b84e4"
     ] ;
     sh:conforms true .
 
@@ -2247,7 +2426,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "d5bc57b681a70bed393b9f27981b7660bd93e3a8e648454af1f45434c21d276f"
+        spdx:checksumValue "305a2906c7665494944c777b65b3d29d4a4dee870a2f8997afc84ccd1d20b585"
     ] ;
     sh:conforms true .
 
@@ -2258,7 +2437,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "2fcb64cec2bd6c609d16f54f50e3d85627624af9fcf6ffed25cb4cc0de2550fd"
+        spdx:checksumValue "b75d99cf85390112587be0fd18edd2f77228f6f78a01ace6c7727211096f4d75"
     ] ;
     sh:conforms true .
 
@@ -2269,7 +2448,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "25405f4e86ad2d301d28b7a4d46102deb361df85463fbc97262140dfac1f0db5"
+        spdx:checksumValue "59398e2deaea70cf313a888147a7234e4a5ec433bc24cca1021bec6f805fb0e2"
     ] ;
     sh:conforms true .
 
@@ -2280,7 +2459,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "4ce12776c161ffff3bb4ab3f4b152a56272ef8379b59bbcfa71b92eacedf0aa5"
+        spdx:checksumValue "488e889332ce93a8fc34f259a6e427c7e5aabe0b36ad4838bf001a5913dd5cc2"
     ] ;
     sh:conforms true .
 
@@ -2291,7 +2470,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "653bd477e57100c3c8adb239e8d3af7c80e40d823762f70c3b40d02ef7426e20"
+        spdx:checksumValue "fd6891d6338f1e6726c29efb1c3856513113f250a5ca475d708bcf4faf2eb4a8"
     ] ;
     sh:conforms true .
 
@@ -2302,7 +2481,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "550425a3b989e5e06426de530ed660be4ac829c1be62512b5b386aece76541d8"
+        spdx:checksumValue "16242178f46cfccfdaf24e3a04e7055927129989a4e1594fe9778995349e42ba"
     ] ;
     sh:conforms true .
 
@@ -2313,7 +2492,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "5142c3d715d8c12fd66ade20aa10b3c6c442c99a29a23c832688783d653c53d6"
+        spdx:checksumValue "ae8150f436dc8ac6725ba94c6cab252d7237372ed203811c564c28b719718593"
     ] ;
     sh:conforms true .
 
@@ -2324,7 +2503,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "9e1d2156b30e734104f7cfab570f2055345426af935389128c14a63878452db0"
+        spdx:checksumValue "a67ab7e19821a0a6d4f909c11ce1b81a1b0521d39f9f04649871b939ccc3b909"
     ] ;
     sh:conforms true .
 
@@ -2335,7 +2514,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "b89025e4a2621c42eeac04cf4a80143ff7ee21e6ff9b9a1707d61607f62d4e46"
+        spdx:checksumValue "2fe07b9d19cad7be8aec0f30507214a6429a8f19adc1683ceeb173e3a19cc5c1"
     ] ;
     sh:conforms true .
 
@@ -2346,7 +2525,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "e026334404d5438c098f1edd693f5030a51919136a6dc8854061437822ba7bdd"
+        spdx:checksumValue "01851ca9f4be3f8e3b7ae0baaf04c9711dd69b40ecb4e52c3b69494af0c38cb4"
     ] ;
     sh:conforms true .
 
@@ -2357,7 +2536,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "9b2bf8fca35ccc3ff5073e6ac97b099bb7da90e061589c663dbcd6f16f30669f"
+        spdx:checksumValue "90ca26e3265c12a31a75f192819d0121633127a28486038b8af6e3dd9feb5401"
     ] ;
     sh:conforms true .
 
@@ -2368,7 +2547,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "52f9fca61c0a3b8a122c63bea46c31067621cbe012818f3a9fa24812abe2e647"
+        spdx:checksumValue "58fad91cd59a49bf6b76d3bfb26e1ff24ca34bc6194a3f367926cc8e8ee3e16d"
     ] ;
     sh:conforms true .
 
@@ -2379,7 +2558,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "6b19a6802f1e3c27db7138c97c3fe4806dcf37bad632f0be7692ee7071924a48"
+        spdx:checksumValue "51bac448850763d7c6cd4ff50f118ddcd90eaa335230a97fa287e461385717db"
     ] ;
     sh:conforms true .
 
@@ -2390,7 +2569,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "c1bb0540b2d57d613bbf7017f4ba7eb47f21de842b043c48b733788d5600baaf"
+        spdx:checksumValue "520884c9102b008ca5db037da583d724e6f34fbe7b9150af47826ed422290dd9"
     ] ;
     sh:conforms true .
 
@@ -2401,7 +2580,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "3b5b1b62e7b93a7f8f87095a3eb8d5a803361abf6bddda5136172220e361bc4a"
+        spdx:checksumValue "28dfa79768b658a257039c6ce9da1ff308b03030bb645140023d12a40a328f71"
     ] ;
     sh:conforms true .
 
@@ -2412,7 +2591,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "775b09ac36892b017474a0a9ff8ad1f258b60ae0a3c605cdb6276dfd9a1b315f"
+        spdx:checksumValue "36c76334abfacc33d8606a44cf6babc71decba9944ece83a9a97615dadc1b5a1"
     ] ;
     sh:conforms true .
 
@@ -2423,7 +2602,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "95c2b5b54f90784413d292c7fc5926fd8acbcbe8b48e2df4bd83c991b7a5e638"
+        spdx:checksumValue "79f93d1cc7438661df14f276857f240056a7428c328381cb44bad810d76fd46f"
     ] ;
     sh:conforms true .
 
@@ -2434,7 +2613,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "d6534cc80f75099e8e62aaf3580f00bf7825a6af3aa4870b628efb0033eb33b2"
+        spdx:checksumValue "3f8706231058190369f65d21b621c28c2fd3917c312d89cf47bc530084e80434"
     ] ;
     sh:conforms true .
 
@@ -2445,7 +2624,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "94d13a29868c5244c493117721a58f9a272bf4c3e515a94f963aa6970e7557d6"
+        spdx:checksumValue "9279545ffbd7b7547e4334b4d105424b6643e83ca24ff300f13d7c9dc242da97"
     ] ;
     sh:conforms true .
 
@@ -2456,7 +2635,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "52c65771419b3dce8786341ee405fadd0b4c51dd86f0ad641914a59c520642e1"
+        spdx:checksumValue "ca40500ced004f80a9621d24519d462d007e50899b13bc72a3266a91b6d85de4"
     ] ;
     sh:conforms true .
 
@@ -2467,7 +2646,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "ccd7ec561df3cfad40121b5bffe742c56ad5318b65a17b88083663bef3d39b97"
+        spdx:checksumValue "7108090f56eca1950967a594d4bd52b48bbc32363091b07cbbb2a907d2614504"
     ] ;
     sh:conforms true .
 
@@ -2478,7 +2657,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "b491ab0a3d03cd0e69766b11a8fbe9a789bd150e3ac7260346c9ab5d62ba01ad"
+        spdx:checksumValue "6c8963dda08f99163d531304d2f9818f8521e5079048b64ee45d08bb0a2e9324"
     ] ;
     sh:conforms true .
 
@@ -2489,7 +2668,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "ee73f0c3f7e4cac9428211d8d3205a46c9b3ed7a18c629dc88f85f25d9c25a22"
+        spdx:checksumValue "0e4c41de37472c090f1431a8145c9660ec3f8dd78c8943a37a9cdf5ee24a9c2a"
     ] ;
     sh:conforms true .
 
@@ -2500,7 +2679,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "d2507a2cdb2a9d53929bade079fb959d777d7a4f180c934083fc99c387ef143a"
+        spdx:checksumValue "cc5815dad8bcb6d9ef5147a3da8048a47b377025513b3e7811a884392fd6fdd7"
     ] ;
     sh:conforms true .
 
@@ -2511,7 +2690,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "d343e54a5ffdceb80bca6b03d933c3bd647e75d469eab617d80101b5428a09d5"
+        spdx:checksumValue "a1a66cb65cd14689b6b58aebba6bf60b23e5abda12bc724799523980fae2c561"
     ] ;
     sh:conforms true .
 
@@ -2522,7 +2701,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "b20efe0c1751269341390db8b745229a953c71218c0559569820eda6d569d121"
+        spdx:checksumValue "7e7b60c7d313a7f20129665960e649eff2efc969cc87862cad39f831005caffa"
     ] ;
     sh:conforms true .
 
@@ -2533,7 +2712,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "1eb3eba28c59d48643818939842ed7e63b5a5180d49d7b29487db2781a7239c5"
+        spdx:checksumValue "73dcede98b2e0faf1f5abb1f52c2b87993a13b4d6fdd86d1d31ac18739fb18f6"
     ] ;
     sh:conforms true .
 
@@ -2544,7 +2723,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "987eff16bf6942345bcccbeb9e8040335148bf0ff993053203c40e214c84cbec"
+        spdx:checksumValue "0e362ea1958cd740ed1757fab7c1792cfb33b0a01b0ba1e51df5b223137c9550"
     ] ;
     sh:conforms true .
 
@@ -2555,7 +2734,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "825f76d71dca21d49b3eea633cc146e84beb79bc1a79c330a038daa6cd81993d"
+        spdx:checksumValue "b4aeb999ce50da9381fc46c8589db94d39a86e084c1bb622f6527684d96dfb50"
     ] ;
     sh:conforms true .
 
@@ -2566,7 +2745,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "f00f193c6681a13c36285e0937e3627ba4cee0a014817cb2fe6eea171e8c512b"
+        spdx:checksumValue "e1b350d1f51e50cc78812358f7a22183bb8efcf64c1db61517c8c3cf498b0a70"
     ] ;
     sh:conforms true .
 
@@ -2628,6 +2807,98 @@
     ] ;
     sh:conforms true .
 
+<#doc_docs_explanation_g_n-foundation-retrofit_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Gall Foundation Retrofit \u2014 with `ggen sync` as the Only Actuation" ;
+    prov:atLocation <docs/explanation/witnessed-foundation-retrofit.md> ;
+    dcterms:subject "None" ;
+    prov:wasDerivedFrom <#doc_docs_explanation____reference_cli_delivery-plane-proof_md> ;
+    prov:wasDerivedFrom <#doc_docs_explanation____receipts_g_n_integration_1_receipt_md> ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "c255c86b9fd10238ebc76ca52962916793657a903ac67986edc3e11ba4a522af"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_explanation_genesis-run_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "The Genesis Run" ;
+    prov:atLocation <docs/explanation/genesis-run.md> ;
+    dcterms:subject "None" ;
+    prov:wasDerivedFrom <#doc_docs_explanation_motion-does-not-count_md> ;
+    prov:wasDerivedFrom <#doc_docs_explanation_sabbath-grade-done_md> ;
+    prov:wasDerivedFrom <#doc_docs_explanation_oracle-gaps_md> ;
+    prov:wasDerivedFrom <#doc_docs_explanation_why-docs-must-match-the-build_md> ;
+    prov:wasDerivedFrom <#doc_docs_explanation_g_n-foundation-retrofit_md> ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "26520dac84a301ae48a577d1d7659797a9ada5cb0bcf9f734ba22c4f0230813f"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_explanation_motion-does-not-count_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Motion Does Not Count" ;
+    prov:atLocation <docs/explanation/motion-does-not-count.md> ;
+    dcterms:subject "None" ;
+    prov:wasDerivedFrom <#doc_docs_explanation_genesis-run_md> ;
+    prov:wasDerivedFrom <#doc_docs_explanation_oracle-gaps_md> ;
+    prov:wasDerivedFrom <#doc_docs_explanation____reference_cli_command-proof-matrix_md> ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "7ded07b2e6a2bcf1d518a44bff5622a38f5250df9762f1e4baf3ac795fa4b27a"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_explanation_oracle-gaps_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Oracle Gaps" ;
+    prov:atLocation <docs/explanation/oracle-gaps.md> ;
+    dcterms:subject "None" ;
+    prov:wasDerivedFrom <#doc_docs_explanation_motion-does-not-count_md> ;
+    prov:wasDerivedFrom <#doc_docs_explanation____reference_cli_command-proof-matrix_md> ;
+    prov:wasDerivedFrom <#doc_docs_explanation____reference_release_v26-5-28-boundary_md> ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "8ef9e4531e1a0f557572dfac464be3d7bdc153f0f4855586ad42d7464cb2eb60"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_explanation_sabbath-grade-done_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Sabbath-Grade Done" ;
+    prov:atLocation <docs/explanation/sabbath-grade-done.md> ;
+    dcterms:subject "None" ;
+    prov:wasDerivedFrom <#doc_docs_explanation_oracle-gaps_md> ;
+    prov:wasDerivedFrom <#doc_docs_explanation_why-docs-must-match-the-build_md> ;
+    prov:wasDerivedFrom <#doc_docs_explanation_motion-does-not-count_md> ;
+    prov:wasDerivedFrom <#doc_docs_explanation_genesis-run_md> ;
+    prov:wasDerivedFrom <#doc_docs_explanation____reference_release_v26-5-28-boundary_md> ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "7b2c2d8edc3ae7d7715ae9a3454a6264f869254deff9a23e5a9dadc3238c1f3a"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_explanation_why-docs-must-match-the-build_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Why Docs Must Match the Build" ;
+    prov:atLocation <docs/explanation/why-docs-must-match-the-build.md> ;
+    dcterms:subject "None" ;
+    prov:wasDerivedFrom <#doc_docs_explanation_oracle-gaps_md> ;
+    prov:wasDerivedFrom <#doc_docs_explanation_motion-does-not-count_md> ;
+    prov:wasDerivedFrom <#doc_docs_explanation____reference_workspace_crates_md> ;
+    prov:wasDerivedFrom <#doc_docs_explanation____reference_workspace_feature-flags_md> ;
+    prov:wasDerivedFrom <#doc_docs_explanation____reference_cli_command-proof-matrix_md> ;
+    prov:wasDerivedFrom <#doc_docs_explanation_genesis-run_md> ;
+    prov:wasDerivedFrom <#doc_docs_explanation_sabbath-grade-done_md> ;
+    prov:wasDerivedFrom <#doc_docs_explanation____readme_md> ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "ef04ed63a8de0ecddc6d91fc1eff14c2d47c71007745d335becf16f67470f2cc"
+    ] ;
+    sh:conforms true .
+
 <#doc_docs_explanations_advanced_protocol-translation_md> a prov:Entity , dcat:Distribution ;
     dcterms:title "Protocol Translation" ;
     prov:atLocation <docs/explanations/advanced/protocol-translation.md> ;
@@ -2636,7 +2907,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "91e49c1e7df7614bd22e39f207ee6cf177128781ad17ed84408ee0b48dc684d4"
+        spdx:checksumValue "a0c13d657fe9723b711cec17884c9e7ec564cb9095d752966ca733a1e9de0bf5"
     ] ;
     sh:conforms true .
 
@@ -2648,7 +2919,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "8241a1468e3660814434f7245bc35242d86ce91c77b501cf7a495d44d11e496e"
+        spdx:checksumValue "1bd61c55ba531b37f24f1540b9057dddaa84dda0ed9c28aa29f808067c1d622d"
     ] ;
     sh:conforms true .
 
@@ -2660,7 +2931,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "e8453d296e525e8d5b79f691fc7c0570d617813c26c2dd93ba28af8874f5c2a7"
+        spdx:checksumValue "17b3c7237be58ebd1b66f8adaa86ab38356bd6cafb4005e9608ec686880d4d1c"
     ] ;
     sh:conforms true .
 
@@ -2672,7 +2943,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "98e1e985cd9e11c8b77cd403ba73c8bc587d850cce41ebb780faddbddde7dc9c"
+        spdx:checksumValue "d0d5ecb36dabb749d5526e2b4ea343e067814824d6420cf0d4a93f8591917da8"
     ] ;
     sh:conforms true .
 
@@ -2684,7 +2955,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "43d8662ed70b8aa3bf816a99f080c44ef91e6c63aa867d675e05d29954ee3360"
+        spdx:checksumValue "da2f8b3d39f0c1b611000a3242c8deb86e10b43db1029eaf5db47a9faf1ae863"
     ] ;
     sh:conforms true .
 
@@ -2706,7 +2977,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "64d479a7ec5f4e18cefd6c40e58816cda5e3ceff7fea244f8914047d2bfc134f"
+        spdx:checksumValue "2df972c536655bf8934c12c1f8883c7aa26194cc6e85912a3af8ffe4a2b1a14e"
     ] ;
     sh:conforms true .
 
@@ -2762,7 +3033,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "dd2efcaf6011006215fde763f38e7adeca44d90537bc30ac3da3fd69b7538a68"
+        spdx:checksumValue "667ee9d33774b3bfebb48301466653ebb80562065c1fe607e5fb2bdf67fd2b80"
     ] ;
     sh:conforms true .
 
@@ -2773,7 +3044,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "32b53c4b79bcaf4a25db30e197aa615ef6e3429db7364ab6633131490af1925a"
+        spdx:checksumValue "2fcebf4cc2730ad2f27bdc9ecb81ad99e646aebd9b0aebbe3614d994050ee48c"
     ] ;
     sh:conforms true .
 
@@ -2817,7 +3088,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "9c10036f616864737d9ac40e5017dcff39eb9ec1f532e0eca5f00a9b3ef43952"
+        spdx:checksumValue "0162621085b6feb0764b9d7223c62a3d4671f089c31a9a17220bfa723c897a1b"
     ] ;
     sh:conforms true .
 
@@ -2872,7 +3143,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "904cc9fdbcb140c9ff45d8b9d8ab02816f5a1cf8f1f208d84de20f6b68624bc7"
+        spdx:checksumValue "5a90501aa3a5671a696d783f4df80d776a2005d41796b6adc31bfd571d347acf"
     ] ;
     sh:conforms true .
 
@@ -2883,7 +3154,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "e81742c0097d63ecfe37c78be5de4ffae9be9deea1bc4bd6fd047fdd603094bb"
+        spdx:checksumValue "f9dde68d260eec4a96d6742dbd450a8e1cf25529bcf9c990b9b01bcd10523120"
     ] ;
     sh:conforms true .
 
@@ -2894,7 +3165,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "45981550c4dcc86a0f6470c797cfc888991b31a93369ea63bb87952bc65acba5"
+        spdx:checksumValue "2a81a10badf569adc5c8cb2332243682208b53a1d19dd37422319c499e63d7ac"
     ] ;
     sh:conforms true .
 
@@ -2905,7 +3176,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "47809fa40684f7928d543054c8b6551c2fe9f676af666ab3bc218234fb43f8c6"
+        spdx:checksumValue "cf08f2c13d2cd0575e0405fcd415d9776564fc091f4849982592917184bfd86b"
     ] ;
     sh:conforms true .
 
@@ -2916,7 +3187,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "b08d23bf923bf49daa2a5cbc56e73e2e469a67c931b36271e49b9a11e6ecea7c"
+        spdx:checksumValue "87e4bebe0e21866ef4f53a9f45390cbaf507d4d1a1eef8cee69d1c66076de25a"
     ] ;
     sh:conforms true .
 
@@ -2927,7 +3198,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "f56377f83ab99f2e341288de9e5873910da47b797467d18de0533a7954b26c09"
+        spdx:checksumValue "7e02573be815b3aca2bad6f2cd4c0aac2ba5a0d87e5586626d1162633dbd8eb1"
     ] ;
     sh:conforms true .
 
@@ -2938,7 +3209,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "0660cbac4e1564f414999e957a5431e2134af2d0d80a7268490e4df9069523b0"
+        spdx:checksumValue "b3c276384294c8c9cd7efb4b86bac96aca2cd3dbeff40fdb114b6b0aa33f7c64"
     ] ;
     sh:conforms true .
 
@@ -2949,7 +3220,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "6afbbce1a9651bc50d54429292f845e9b74a5c0190a44eb7814485ae885b6441"
+        spdx:checksumValue "18811459cdb48ce84ef1e75fadf2e7187dbd974c7551b59ab478b456691abe6f"
     ] ;
     sh:conforms true .
 
@@ -2960,7 +3231,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "6fe017d0d055a39723ec0eefe3718de2bfa3201923d058c5eca5cd48b428cb61"
+        spdx:checksumValue "8c7600601f9bdc5a8e0d997454224fc54efa69417ec1017ff49cfb5f9934313c"
     ] ;
     sh:conforms true .
 
@@ -2971,7 +3242,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "c297430c2dced1b2b0bb5dbb1396d5fa43354af03129712cb514bca2f157b0b0"
+        spdx:checksumValue "5ec38272ad6fc8cde92b9a60a515b6dc01e42c561f5833986f11ea7d3d0e055d"
     ] ;
     sh:conforms true .
 
@@ -2982,7 +3253,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "879a9632464b42dea9cee0db5fd795355937b74f2d0bbc43ab9c580cef52e2ef"
+        spdx:checksumValue "0220dabf3d98c57a0a0c4ffd82355650b7c070e20171a8def0ef949cd427a1a0"
     ] ;
     sh:conforms true .
 
@@ -2993,7 +3264,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "e45dd8ac7ad1d2ac0ea6d4b84af19c2d0787c89b9bdc43c0846fa096a3121131"
+        spdx:checksumValue "175d18adfa90183e8ac1fb8e9aaa6487da0cef223aa2383f9e98f76e536e481e"
     ] ;
     sh:conforms true .
 
@@ -3004,7 +3275,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "51c8e60f363753218e9c5ef061bd1f72738358e941b2d5f68ece46956e1309f2"
+        spdx:checksumValue "5b9f72465cbc1b6f687de9b2bd8a98334d367ddfe8d3648da53d292fdca58b1b"
     ] ;
     sh:conforms true .
 
@@ -3015,7 +3286,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "c71fbbb7b480a89ee23a41168e213f322e3afc6d8920779e0818f4e73ecab24e"
+        spdx:checksumValue "399f07f0afbd83b17e584f91c16967c7fff957727e1e77aee77cd756ae7794a3"
     ] ;
     sh:conforms true .
 
@@ -3026,7 +3297,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "7da1e990a9be87c6f2258deeff8d12f9a4fbbf90c3df324eb1ac3093864dee49"
+        spdx:checksumValue "0d569b36e3bd1f8d8ff37c2e1f05e48eb62dfc7335b4209487c41d173ac975c9"
     ] ;
     sh:conforms true .
 
@@ -3037,7 +3308,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "e3d62936d13d1bd96a15dbc4cbe62c868f4f58c0c01bb0cb150bc4bbec2de0c0"
+        spdx:checksumValue "a0dcde19a1eab3f4037a8ff27078dab707daa45930fb1512879a1573caa810f1"
     ] ;
     sh:conforms true .
 
@@ -3048,7 +3319,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "db71eac154659829e1de8d0c6cbfec2e23ff50fc3db2c990286f7119e28438b0"
+        spdx:checksumValue "59ecf60ae7bdbe659123b95b7c159b3e68138a213dd5729d07f8e69b8f93f76a"
     ] ;
     sh:conforms true .
 
@@ -3059,7 +3330,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "636487ab54c6606e27e50fd6c4077eab4d04509e7c8893cadf07e3707e554148"
+        spdx:checksumValue "bc297a6f832e1fa1656e3b56f774fa594baa178f412c28929b0e7575ac3892c4"
     ] ;
     sh:conforms true .
 
@@ -3070,7 +3341,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "466c8b8e3ccb8aff887379f66b34e576aaf473d577f7ae844bbd66b2e361c46c"
+        spdx:checksumValue "d3a04a4cb57ed1d84fe4072cb20b88594310d755cadfa57e52f56d87cd45afd1"
     ] ;
     sh:conforms true .
 
@@ -3081,7 +3352,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "9e1b8b0ffb89f98f9c55b3ccee560a12af7c0db121f0580a8ada6963937303a1"
+        spdx:checksumValue "714fd03ed96f02e1d8c927bac72df56ecf3d53ea36435a996fc6bfe026961528"
     ] ;
     sh:conforms true .
 
@@ -3107,6 +3378,19 @@
     ] ;
     sh:conforms true .
 
+<#doc_docs_how-to_integrate-ggen-lsp-with-claude-code_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "How to integrate ggen-lsp with the Claude Code lifecycle" ;
+    prov:atLocation <docs/how-to/integrate-ggen-lsp-with-claude-code.md> ;
+    dcterms:subject "None" ;
+    prov:wasDerivedFrom <#doc_docs_how-to____reference_cli_delivery-plane-proof_md> ;
+    prov:wasDerivedFrom <#doc_docs_how-to____explanation_genesis-run_md> ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "8b7148d475da860ae73f3612d76dd8e6685d7a35ca888c2416febd934e852e3a"
+    ] ;
+    sh:conforms true .
+
 <#doc_docs_how-to_mcp_bridge-agents_md> a prov:Entity , dcat:Distribution ;
     dcterms:title "How to Bridge A2A Agents as MCP Tools" ;
     prov:atLocation <docs/how-to/mcp/bridge-agents.md> ;
@@ -3114,7 +3398,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "26ded07b59e7d9c28518f5cf6e01c9e0b2108e93167491822d3d63ece1285c04"
+        spdx:checksumValue "e439e986d38998551cc0b9dde159f00419a0a9de122fbe9bc318fb5bc44b685a"
     ] ;
     sh:conforms true .
 
@@ -3125,7 +3409,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "7bb03340adfde74cc7ffb7f5359695109934d214af817d46f566be43d1a4ae04"
+        spdx:checksumValue "959b89fe5373425d959bcd8df4a1902e7811502f1560c1b1cdab63b8bb797b69"
     ] ;
     sh:conforms true .
 
@@ -3136,7 +3420,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "c5727089887f254cbe3fd3dae0571d7ee78e5b44d4755772bd6cc2a240b0b612"
+        spdx:checksumValue "2d9871f73b3f35405ca84ff2a1166a6d2ca7b6322feb3a751085a8103bfc8993"
     ] ;
     sh:conforms true .
 
@@ -3147,7 +3431,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "69851b247f00b442df5f58f4c9b0bde85fa1aaaa328620eb2e8f11d7615838b2"
+        spdx:checksumValue "754fcec6c63111521cdfed047056fcd3a82b9b6b11a1b0af13a18c403a79d681"
     ] ;
     sh:conforms true .
 
@@ -3158,7 +3442,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "88210e424aaa5c76a42b4748bf7db10616a258fa51a5dc50ad97ac395c9ab552"
+        spdx:checksumValue "7cbbe9e59b88456e89fa304970e36dec630b8ca202ebca7405db4aab01aa17fd"
     ] ;
     sh:conforms true .
 
@@ -3169,7 +3453,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "8142ebde5cd721c46220f597dd1f85667adb20cc397266cda4452f98865de093"
+        spdx:checksumValue "c2a0dbc9919efdad60a7916ac2f21f4c1d1b3a4a109f1c980e4b2cbac0c07d6f"
     ] ;
     sh:conforms true .
 
@@ -3228,6 +3512,492 @@
     ] ;
     sh:conforms true .
 
+<#doc_docs_interop_00_index_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "INTEROP DOCUMENTATION & FINISH INDEX" ;
+    prov:atLocation <docs/interop/00_INDEX.md> ;
+    dcterms:subject "None" ;
+    prov:wasDerivedFrom <#doc_docs_interop_01_portfolio_map_md> ;
+    prov:wasDerivedFrom <#doc_docs_interop_02_boundary_doctrine_md> ;
+    prov:wasDerivedFrom <#doc_docs_interop_02_m2m_closure_protocol_md> ;
+    prov:wasDerivedFrom <#doc_docs_interop_03_interop_contracts_md> ;
+    prov:wasDerivedFrom <#doc_docs_interop_04_genesis_core_spec_md> ;
+    prov:wasDerivedFrom <#doc_docs_interop_05_ggen_foundry_spec_md> ;
+    prov:wasDerivedFrom <#doc_docs_interop_06_part_runtime_spec_md> ;
+    prov:wasDerivedFrom <#doc_docs_interop_16_code_catalog_architecture_md> ;
+    prov:wasDerivedFrom <#doc_docs_interop_17_capability_manufacturing_theory_md> ;
+    prov:wasDerivedFrom <#doc_docs_interop_07_truex_lifecycle_spec_md> ;
+    prov:wasDerivedFrom <#doc_docs_interop_07a_proof_surfaces_spec_md> ;
+    prov:wasDerivedFrom <#doc_docs_interop_08_process_intelligence_spec_md> ;
+    prov:wasDerivedFrom <#doc_docs_interop_09_external_validation_spec_md> ;
+    prov:wasDerivedFrom <#doc_docs_interop_09a_data_algebra_g_n_md> ;
+    prov:wasDerivedFrom <#doc_docs_interop_10_public_vocabulary_g_n_md> ;
+    prov:wasDerivedFrom <#doc_docs_interop_18_g_n_cap_spec_md> ;
+    prov:wasDerivedFrom <#doc_docs_interop_10_dflss_finish_charter_md> ;
+    prov:wasDerivedFrom <#doc_docs_interop_11_gap_register_md> ;
+    prov:wasDerivedFrom <#doc_docs_interop_12_risk_register_md> ;
+    prov:wasDerivedFrom <#doc_docs_interop_13_definition_of_done_md> ;
+    prov:wasDerivedFrom <#doc_docs_interop_14_agent_work_queue_md> ;
+    prov:wasDerivedFrom <#doc_docs_interop_15_finish_plan_md> ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "59189d962e839c8b2431d36d569618bcc4810a8bf24a7b53b566ed23b6eccd71"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_01_portfolio_map_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Portfolio Cartographer Map" ;
+    prov:atLocation <docs/interop/01_PORTFOLIO_MAP.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "34fce08bbcad4149ee010d787e907675bc2fd1bc2efb8636e67cbd0ff757da2b"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_02_boundary_doctrine_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Boundary Doctrine" ;
+    prov:atLocation <docs/interop/02_BOUNDARY_DOCTRINE.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "d6e4cd7c46c5f2fd6f0f7e907b671185cdea56c0fd37e0550e3e878d55ec9496"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_02_m2m_closure_protocol_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "GENESIS MACHINE-TO-MACHINE CLOSURE PROTOCOL" ;
+    prov:atLocation <docs/interop/02_M2M_CLOSURE_PROTOCOL.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "f301b11864152421489a8545d56da478c588ffc8f4c3a449c1ec456ce813b781"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_03_interop_contracts_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Interop Contracts" ;
+    prov:atLocation <docs/interop/03_INTEROP_CONTRACTS.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "679dff2d5051526618720b74c4d55f454060e447abe1bccca57aa210eb75c067"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_04_genesis_core_spec_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Genesis Kernel Specification" ;
+    prov:atLocation <docs/interop/04_GENESIS_CORE_SPEC.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "18872fb066f5f7465722179b08f2402c5e489cec108797af716560cddb192d3c"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_05_ggen_foundry_spec_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "AGENT: ggen Foundry and Membrane Spec" ;
+    prov:atLocation <docs/interop/05_GGEN_FOUNDRY_SPEC.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "d047d8097f9f9fffcd5ca91cf310103c153d8f9cfa2f0f838e6ce4173ef18475"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_06_part_runtime_spec_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Genesis-Bearing Interchangeable Part Spec" ;
+    prov:atLocation <docs/interop/06_PART_RUNTIME_SPEC.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "33080698030c97e3d9b1d87723b37eaea05c2f7f29f42a98e15ba73f955271b4"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_07_proof_surfaces_spec_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Proof Surfaces and Receipt Replay Refusal Spec" ;
+    prov:atLocation <docs/interop/07_PROOF_SURFACES_SPEC.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "f2c8abe9addec568704ce66cac90bcdd6524839696cd6e6838fc354a3d8a1794"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_07_truex_lifecycle_spec_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "07. Truex Lifecycle Spec" ;
+    prov:atLocation <docs/interop/07_TRUEX_LIFECYCLE_SPEC.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "ef4c57f88a3b7e02d84e4d08443ccfcf418628e5d98713dee5130482ad77c68b"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_07a_proof_surfaces_spec_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Proof Surfaces Specification (Receipt, Replay, Refusal)" ;
+    prov:atLocation <docs/interop/07a_PROOF_SURFACES_SPEC.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "420656ec873dcba82a8d07af9ebcc7fa3e8da51c5ff5dd7ebd2c458b1f68f993"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_08_process_intelligence_spec_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Process Intelligence Interop Specification" ;
+    prov:atLocation <docs/interop/08_PROCESS_INTELLIGENCE_SPEC.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "d65835aacb4be5d03945920ae696adec6182a5f37815d9485db05007ff8e5ed7"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_09_data_algebra_g_n_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "09_DATA_ALGEBRA_GALL.md" ;
+    prov:atLocation <docs/interop/09_DATA_ALGEBRA_witnessed.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "8ddcec34999b1dd060f63720167275cb53aac9596040edbfcbb87d521c0742a1"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_09_external_validation_spec_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "External Projection and Validation Specification" ;
+    prov:atLocation <docs/interop/09_EXTERNAL_VALIDATION_SPEC.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "72d049cca3e3e8303317196ac4540e8ba541f99d3182aa2663ebbd7a7cb06077"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_09a_data_algebra_g_n_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Data Algebra GALL (Gate for Algebraic Logic Limits)" ;
+    prov:atLocation <docs/interop/09a_DATA_ALGEBRA_witnessed.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "96bbbc7e4f130d3734520999966fa46f42bb150f377a887d44de85733ba19ebf"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_10_dflss_finish_charter_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "DFLSS Finish Charter (Reference)" ;
+    prov:atLocation <docs/interop/10_DFLSS_FINISH_CHARTER.md> ;
+    dcterms:subject "None" ;
+    prov:wasDerivedFrom <#doc_docs_interop____dflss_genesis_parts_charter_md> ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "a676bb5f8ad029ad28b37e0abc82b6df4528630f0a994e88662f4190da878c11"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_10_public_vocabulary_g_n_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Public Vocabulary GALL Specification" ;
+    prov:atLocation <docs/interop/10_PUBLIC_VOCABULARY_witnessed.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "6255e241b1a2ba26647b083ae0bf003de84da5ffcd371d7d81b97d89ed38dcaf"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_11_gap_register_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Gap Register" ;
+    prov:atLocation <docs/interop/11_GAP_REGISTER.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "1a147bfbb37e5eb2db4cabaa04cfecc1821b864c9262918add6ef33749ca3d38"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_12_risk_register_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Risk Register" ;
+    prov:atLocation <docs/interop/12_RISK_REGISTER.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "5952756be47145d8d579a668b1a775f0892b28b687b5f216d960072f42c1c547"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_13_definition_of_done_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "13 DEFINITION OF DONE" ;
+    prov:atLocation <docs/interop/13_DEFINITION_OF_DONE.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "8c88f7650f9056e411bd1dd51e7071948ca39b53bc9936870ff6e12bc0bc4c6e"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_14_agent_work_queue_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "14 AGENT WORK QUEUE" ;
+    prov:atLocation <docs/interop/14_AGENT_WORK_QUEUE.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "4984194cfc06dcc36b059f26ea59a6c16ad6e91a565adf934cadcdbdc8e2e709"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_15_finish_plan_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "15 FINISH PLAN" ;
+    prov:atLocation <docs/interop/15_FINISH_PLAN.md> ;
+    dcterms:subject "None" ;
+    prov:wasDerivedFrom <#doc_docs_interop_14_agent_work_queue_md> ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "eedadc7f573f154c61dd8ab5c1ce44b1d48da1535ab80613294b95475955a5ea"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_16_code_catalog_architecture_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Executive Summary: Open-Source Tools for Code Catalogs" ;
+    prov:atLocation <docs/interop/16_CODE_CATALOG_ARCHITECTURE.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "5c2aa3f4f62fbe00f930fd1ec8914653a8e31e0322cd084efa8f74c1a6c66ef4"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_16_machine_closure_protocol_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "GENESIS MACHINE-TO-MACHINE CLOSURE PROTOCOL" ;
+    prov:atLocation <docs/interop/16_MACHINE_CLOSURE_PROTOCOL.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "28ba48120953693a3ecd0b30f690f6f2f70d79e7a926e880c3f5f6375c89edd6"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_16_seven_churches_audit_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "The Seven Churches Audit" ;
+    prov:atLocation <docs/interop/16_SEVEN_CHURCHES_AUDIT.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "6b4478618933b43e2d2744949b8418c87338cab4557cc562a7a97076eab89fcf"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_17_capability_manufacturing_theory_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Capability Manufacturing Theory" ;
+    prov:atLocation <docs/interop/17_CAPABILITY_MANUFACTURING_THEORY.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "afb425ac34910e4102b241aa362374e9201d6e8792e837c59addb4d0d5240462"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_17_revelation_audit_doctrine_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "REVELATION AUDIT DOCTRINE: The Apocalypse of Unreceipted Claims" ;
+    prov:atLocation <docs/interop/17_REVELATION_AUDIT_DOCTRINE.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "24b554dbd524849a541f5e3dbadcf496a67c32d7db2de5d2197a5f4e306b3af7"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_18_code_catalog_spec_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Executive Summary: Code Catalogor Architecture" ;
+    prov:atLocation <docs/interop/18_CODE_CATALOG_SPEC.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "0dbc284f822d42ca7c3d5a52eb5820bb1667a0d0336f29bb6ea0a6fecdc25592"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_18_g_n_cap_spec_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "GALL-CAP: Capability Admissibility & Process Interchangeability Layer" ;
+    prov:atLocation <docs/interop/18_witnessed_CAP_SPEC.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "68ad22813e9c53f11391445b04d55e77e9a87286f31882585dcf0a262e4bc877"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_19_capability_manufacturing_theory_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "CAPABILITY MANUFACTURING THEORY: The Operational Capability Foundry" ;
+    prov:atLocation <docs/interop/19_CAPABILITY_MANUFACTURING_THEORY.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "077fdad8b121c781a9626f80df556e640ffdf2d05c4cc207c540a6a3ec7020f6"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_20_stewards_of_pentecost_vision_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Stewards of the Pentecost (`stpnt`)" ;
+    prov:atLocation <docs/interop/20_STEWARDS_OF_PENTECOST_VISION.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "906074eb2630a27cd7d0fc9c289593e35df151edda94d6d8264f7dcd60c04642"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_21_stpnt_dflss_charter_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "DFLSS for `stpnt` \u2699\uFE0F\U0001F525" ;
+    prov:atLocation <docs/interop/21_STPNT_DFLSS_CHARTER.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "0c175117b2772f41d1ec3ae4eed79f4656368d54efa8cf43b5b20c0d5c103682"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_22_genesis_scale_manifesto_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "GENESIS-SCALE COMBINATORIAL MAXIMALISM: Vision 2035" ;
+    prov:atLocation <docs/interop/22_GENESIS_SCALE_MANIFESTO.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "56570648e3757e6453c0484cc2cd93838be7c843350794e20c78302ce3f3bbed"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_24_genesis_scale_invariant_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "GENESIS-SCALE INVARIANT: The Architecture of Consequence" ;
+    prov:atLocation <docs/interop/24_GENESIS_SCALE_INVARIANT.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "fff7708a969588a4701a7522ca5b9f061971f1cbde9fdf54025754beaee17c1e"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_25_csc_1_operational_spec_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "CSC-1: The Canonical Stewardship Cell" ;
+    prov:atLocation <docs/interop/25_CSC_1_OPERATIONAL_SPEC.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "d391900dc691027134242965878d9d99bbe7242c65ca64faca200efdf0a35f00"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_26_v30_1_1_manifesto_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "`v30.1.1` Manifesto" ;
+    prov:atLocation <docs/interop/26_V30_1_1_MANIFESTO.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "4d623eb66de9854b892de3a6c274157502fb5bf2375cbf4d24665eef88eaff3f"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_additive_finish_plan_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Additive Finish Plan" ;
+    prov:atLocation <docs/interop/ADDITIVE_FINISH_PLAN.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "316c7f792f3abc1621ca52448deafa7560d5238829e4fd320e8d6a8a9d48cc44"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_capability_inventory_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Capability Inventory" ;
+    prov:atLocation <docs/interop/CAPABILITY_INVENTORY.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "203460af55760973b2d8ce8589909ff45d11d7e4357be809b5f2365d86bad338"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_capability_seed_backlog_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Capability Seed Backlog" ;
+    prov:atLocation <docs/interop/CAPABILITY_SEED_BACKLOG.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "2bf4a2c418e4dcffa9b81a9ed5d51987a18beeca4f9a7f4d5d12eb2937f7ecfc"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_dormant_code_register_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Dormant Code Register" ;
+    prov:atLocation <docs/interop/DORMANT_CODE_REGISTER.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "4d73c7ab65fa695c5661dc7e2b1cd22b5a2221afda638cfa54aec538a1a90a8b"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_legacy_name_map_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Legacy Name Map" ;
+    prov:atLocation <docs/interop/LEGACY_NAME_MAP.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "808c27f5703daa8a9f888b07315aa82ea3ca30ea3b4dead83068f6fcabc84644"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_interop_pattern_atlas_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Pattern Atlas" ;
+    prov:atLocation <docs/interop/PATTERN_ATLAS.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "a0c52a0609fa02d1e597e80124bd9ea7a4730e249b3437803c603500888fcd19"
+    ] ;
+    sh:conforms true .
+
 <#doc_docs_jtbd-verb-classification_md> a prov:Entity , dcat:Distribution ;
     dcterms:title "JTBD Verb Classification Report" ;
     prov:atLocation <docs/jtbd-verb-classification.md> ;
@@ -3235,7 +4005,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "6a9b59de7f18e24b7d61756512536afe6c1d3b8dab9e01d48e53c803b1b50f68"
+        spdx:checksumValue "36d033d9c8e1987781cb21c38771041813dd5c42ca0681dd99782ca78112bc63"
     ] ;
     sh:conforms true .
 
@@ -3246,7 +4016,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "12cdb176dd32dd856c8ac97e50de30f90b6af227dff5465db72761905809e4c9"
+        spdx:checksumValue "a74e5846a19c8feab00e3bd6543289016d55058f90c608fa15f85b6d8c2f312e"
     ] ;
     sh:conforms true .
 
@@ -3257,7 +4027,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "4626137529ac1007c6c3ddd62259c23a4c4276eb5d9e926ffa897fb44970b955"
+        spdx:checksumValue "6482e37cba768a49126a9efdbd4068d6107d08466593fc0b4055f2bbad7a4bf1"
     ] ;
     sh:conforms true .
 
@@ -3268,7 +4038,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "47fdd9b482c4550edb735e6b0c1017e3686cd8909fc5fd561843428f3e27056e"
+        spdx:checksumValue "7a8168a8a78c5be44d8aa4f9244870ba6da8b2914192b0598e10d029af9d353a"
     ] ;
     sh:conforms true .
 
@@ -3279,7 +4049,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "839fa09664b38768ac848269cea51ff47841bb008736b967a56b6f9de7619c0b"
+        spdx:checksumValue "dc63618ab2f1bd8d70eeeedc47a05998de49ba9ed730d66577a1954e620ed7a9"
     ] ;
     sh:conforms true .
 
@@ -3294,7 +4064,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "cf17963c45a485f0d86a0670830e34e7480b6b0f7fa7814c27dd3a5b88fd41f1"
+        spdx:checksumValue "f153b9adeac91e7c044816c66ae3d8bef2b0a22c50caf773571bb572c1f91176"
     ] ;
     sh:conforms true .
 
@@ -3305,7 +4075,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "1d2c302b333f4e159ecd3c56baac9601b5e80d6f8a4ed3c300b0515ee7da6437"
+        spdx:checksumValue "eb56ca922f5610e44df6c47d4383b0a258690c6bd4d229d7ab0755ca2474f578"
     ] ;
     sh:conforms true .
 
@@ -3322,7 +4092,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "44379cd32dade2c4a08b888b6b8c931f53cae1acd7fbf1b1deaeba499be54fc5"
+        spdx:checksumValue "0801a058753f37c90cf58ffe164a038d0e2e0ea8fb164c5d654cd9d18da48b63"
     ] ;
     sh:conforms true .
 
@@ -3333,7 +4103,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "d5fae0ed5485e350204ce244e153ad132166db26ac05ad6c6df28e809972eedd"
+        spdx:checksumValue "bb47290ebfccc8d2406b9deac2e477a89ebe1a5dd4183dd9cd2f66204c2d4cc2"
     ] ;
     sh:conforms true .
 
@@ -3344,7 +4114,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "49057eff1e5575b245a9c20ec44f5e6fe8b7a10f8ac43600ed3126ccaa49417d"
+        spdx:checksumValue "7cfbdfda94bad118c72b5e87033bb5398d3c8dbfaff20316adc6a34f840f513b"
     ] ;
     sh:conforms true .
 
@@ -3355,7 +4125,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "8449f2d91a639592839df917cd585b5b1356d3e8beb722fd5721d53d4ba566c4"
+        spdx:checksumValue "cd91faa1d2a6b751e934150b7fc5a0f90f862e2fdf6cc32b88fb7184995deb5a"
     ] ;
     sh:conforms true .
 
@@ -3366,7 +4136,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "2b9e407472e8de7d5d94b13613e68085783dd862f061891e86792553fd765784"
+        spdx:checksumValue "6085116c066cce65e9198d7743d5b40fe2af1885329df0465b0b9946833ecf7e"
     ] ;
     sh:conforms true .
 
@@ -3377,7 +4147,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "e7eeaf99c4b817512bfe67ea93509766e5d001220dea360d1ae233c9bf279f44"
+        spdx:checksumValue "aeec73d27a0a74aff46f272cd5cf65f5046e279e01138291a87b9bd930f265ac"
     ] ;
     sh:conforms true .
 
@@ -3388,7 +4158,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "462819ae0aab60f2d2b519bf31dd938c30c1cf96baf3b75babea4911adf4bc19"
+        spdx:checksumValue "238af41866f4627c90f3458da434f9769eea14c9e0bedaae1ef531bbfe5c0fe5"
     ] ;
     sh:conforms true .
 
@@ -3399,7 +4169,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "4f9d7e1cfdcc1cf72ca7d3af5cfc5c39321f38e398f897ff378a818d95bb4b50"
+        spdx:checksumValue "48ea84f82db0497a5d70f9d2a21c97820e6dd551b7369ecf4cac04c4372f2ae5"
     ] ;
     sh:conforms true .
 
@@ -3410,7 +4180,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "82b28a5063240d5310071ff56f7b2c757cc9b01663664f6fe6d8393cda9209bc"
+        spdx:checksumValue "7cbed5fb167fc646f83ae39e7c50bc9c95a63c962da940113b4432de3994744f"
     ] ;
     sh:conforms true .
 
@@ -3421,7 +4191,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "d819f1806c006439e569da8695fc9049361305f4cbb5ab8ae097cda3ca9a2f19"
+        spdx:checksumValue "f248977620252176a8744e62b29a2a4065f351a124a836099dd144db2e84c386"
     ] ;
     sh:conforms true .
 
@@ -3432,7 +4202,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "1bebd9e45e63c4f4f5be3ea237dd7b39bed1934a61c8d0bd7209c18bd94c446f"
+        spdx:checksumValue "b93302862703ddf6dad00b28b100076a852854941c2800674e6293063bdfe7bc"
     ] ;
     sh:conforms true .
 
@@ -3443,7 +4213,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "8c4b1a770cce643be3823df1c3d33070b020aea48ee156e887fd92b550ea2196"
+        spdx:checksumValue "4d3f040ffc1137778a416b1a5a2891f68360bbedd3a2c5fec01e62aa15a9728d"
     ] ;
     sh:conforms true .
 
@@ -3454,7 +4224,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "00f64d7dc4bb304c5c5e19e204d6b1358452ff6ad8a45b75f3294a257b8f1dde"
+        spdx:checksumValue "4c66ad636c99b6220e42a828264057cf20e8f30e1ff9741f0e5c6b06f965e482"
     ] ;
     sh:conforms true .
 
@@ -3466,7 +4236,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "74130036428837a94c38d25a9cca3a6fd42fd95dda5ae9b9e8abbd06422629ec"
+        spdx:checksumValue "49feca4da8f2fbc42cba6535975ebe26301fcf3956b1e4036feedb4bf702c230"
     ] ;
     sh:conforms true .
 
@@ -3477,7 +4247,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "ef08a44bd6cdf10b50a2167ec13e8deb27f2331a5ebd4c2b090e77b78cfda7fb"
+        spdx:checksumValue "347a675f6e20a5d80ddb87fa04a60c249b562968b7108cb72e3918f547d73abf"
     ] ;
     sh:conforms true .
 
@@ -3488,7 +4258,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "c682b16dfcc4c7d99bed26dcc171ef356abd368f202fa15a18989b4912ac3c98"
+        spdx:checksumValue "d021e38a74ff31ed0c7352090b3d624afa64ef8f25bd950d4a76db205604a10d"
     ] ;
     sh:conforms true .
 
@@ -3499,7 +4269,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "c0af6c98e5858186c8414147b3bfe124f70905c0fdd7d0ce0c8d5dce68a29791"
+        spdx:checksumValue "a7b6de33a0605b54e5a9c96f3f6a51b8cea35cd5d48272af00bfae85473779c8"
     ] ;
     sh:conforms true .
 
@@ -3510,7 +4280,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "3733b1dd850edd7b604654d9daade0befde12a5f2dc8115490f2610f1fb2d6ae"
+        spdx:checksumValue "aca92613c5e10e0cd85608e318c8de875ad1bc3d45cf26b2e8d5b6c4dd4a62b4"
     ] ;
     sh:conforms true .
 
@@ -3525,7 +4295,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "08edecbbb25211cea8fd07aef1723ede9635f291c06ddeafac3327316d4859a9"
+        spdx:checksumValue "75c6a22569e6be6fc24f1dd22f8d396ebbd43694a4f2713a93a7a4ef5889618a"
     ] ;
     sh:conforms true .
 
@@ -3536,7 +4306,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "24af860f7c43aa5224ba2d487b08a636e43e084874de291853a45301c9db546c"
+        spdx:checksumValue "007647c4c393a197b53df75ddb07a04dc1429f59ae3ce73059fee4810cce5235"
     ] ;
     sh:conforms true .
 
@@ -3580,7 +4350,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "1d47c43105bb7a76febfab2e09422a88404a56657c78f0667b3fcbf65115f80e"
+        spdx:checksumValue "46ca9ee15c4369663b32a2a0300ac0e0c8f5d45992a54ca43ccda0553cc7fe2d"
     ] ;
     sh:conforms true .
 
@@ -3592,7 +4362,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "34c621988ca74a6a897dfa7ac37cd0d81015aea2153221ad6c18a784d8da26b6"
+        spdx:checksumValue "03a9e5480f8566c38cc2bc7750b3e9537f7a6bcc4b82c40eb2f56d64a4426e66"
     ] ;
     sh:conforms true .
 
@@ -3600,12 +4370,10 @@
     dcterms:title "What is MCP?" ;
     prov:atLocation <docs/mcp/01-overview/what-is-mcp.md> ;
     dcterms:subject "None" ;
-    prov:wasDerivedFrom <#doc_docs_mcp_01-overview___quick-start_md> ;
-    prov:wasDerivedFrom <#doc_docs_mcp_01-overview___installation_md> ;
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "ed4e36b8cc975050d8f902bec01d45fb89abed66eb649718445a11d8eea1d8b0"
+        spdx:checksumValue "98c465871b96c3145ccc41dbd9d1c9e2571405e83df1ca40bc5c036ce275dc63"
     ] ;
     sh:conforms true .
 
@@ -3616,7 +4384,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "b17082964985bc142252eb846a41e704e3ce8534c038ba16675b6ffb842f5844"
+        spdx:checksumValue "6e7d3f27e9300ca669b16fcf2ad4f81f7290db79f501e8c6794ac373313200c2"
     ] ;
     sh:conforms true .
 
@@ -3627,7 +4395,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "1b48908c874a779b4db544d088973889862bf8ee8a8fa6ccfc08cd1b9359abfa"
+        spdx:checksumValue "9d072a63117efd0f193a71a32a45fb2fc8320a07dbc10949007966d4b3db7e8b"
     ] ;
     sh:conforms true .
 
@@ -3638,7 +4406,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "63c675bf13cc5392aec97b7774fef93b8c3a1144ae393b5cebacb1a0df3a79d1"
+        spdx:checksumValue "ac81fe9fe70a3c746bbc73b062ce0387cebd5ba1330122b2781bd86c81465da6"
     ] ;
     sh:conforms true .
 
@@ -3649,7 +4417,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "07d3c568dec441e4f757af42503ac240bdc6fc4eb778eac24b1ded724acd09c7"
+        spdx:checksumValue "a9790e9dbadde7c0591dc497c51d65ec8cce4cba9ecd5e80389f844031197566"
     ] ;
     sh:conforms true .
 
@@ -3660,7 +4428,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "b64ae612ba912220a7648f30f778b952c78263e399e4ca54e8a816f6f9589cd7"
+        spdx:checksumValue "d4b469257b894a4d94ff5283bc4407aa4120106576fc2acfb39e1e9efef1c432"
     ] ;
     sh:conforms true .
 
@@ -3671,7 +4439,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "23bfdc9006bebf513e6745f4abcf83e5ceee3af8fc790674cd58b0093fc27980"
+        spdx:checksumValue "2ce8217084eb92cda0d3fd12b8d61d7cc42216033911684ab3164f0ed1ece6fe"
     ] ;
     sh:conforms true .
 
@@ -3700,7 +4468,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "82aa12d4102abd141dd77c5ac7c1ce4454d1b63b4de63998dfafebe5adf05d55"
+        spdx:checksumValue "491250482c971d206b711c189a500a07459d4b908c04c17ed95af4259fa51512"
     ] ;
     sh:conforms true .
 
@@ -3711,7 +4479,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "1f184dba40f90bb8e4e6955b5b776e7667b06ead61653f9db896ad0890981187"
+        spdx:checksumValue "96c1543ac7fac09e639353ebc6c2a320ddb1b7a8f4815db9eb3edf51a2426bba"
     ] ;
     sh:conforms true .
 
@@ -3722,7 +4490,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "5ae154dc94fbbcaf9079b3ee88bd0695c50613e532ee5488a997314a32f853a3"
+        spdx:checksumValue "f522b5ccf3ce3dbac195705990954722795184e08e7c3db22b0600f386665aa0"
     ] ;
     sh:conforms true .
 
@@ -3733,7 +4501,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "7759bf26c63a3930cf5c3181de2e590402c4af5b4686af3d843baf8dbd1b4cb1"
+        spdx:checksumValue "a5d0fb7325ecb80329febb4f806e1b8c08b3240a75b8b03f556b2983902b6d91"
     ] ;
     sh:conforms true .
 
@@ -3744,7 +4512,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "1c452aff3183dda055fcf795994d71cc69196ef27bd6310890aa49475f374c72"
+        spdx:checksumValue "68157329388cde631c9ecee923c3fedf2f4c08c8c1394cb37c605f340e65db48"
     ] ;
     sh:conforms true .
 
@@ -3755,7 +4523,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "6f908b101d99d5f727e3ac6d24f70a9f9e6209265ceb2f30f0b8e80e3cdc52bb"
+        spdx:checksumValue "fc42eb37df01123f0d3a3ffcfb65e6fc4cba393e15f05c85a7789da0baaf12bb"
     ] ;
     sh:conforms true .
 
@@ -3766,7 +4534,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "51bd39ba726299373232fc70bba038f8329e814f249b48ce9969e6dfc03cfeea"
+        spdx:checksumValue "147329411649340c54f7269d88d09e90b85b5ba0e5d4304ec21de0032913f1bd"
     ] ;
     sh:conforms true .
 
@@ -3777,7 +4545,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "e074da77ce03cc4f0ddf91b447c1dbc0ff15ce84f256c5b09f872d7f3222c528"
+        spdx:checksumValue "6d2cf8ab5148e61671710cc361e3774d321fc796e315dabf4361fa49ae956dba"
     ] ;
     sh:conforms true .
 
@@ -3788,7 +4556,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "075f668e7bbd85a4a51e1e80e43568372dd86ddab05e30f786dd9acc5d41af56"
+        spdx:checksumValue "f31afd6bd4f5fccfb2f0920b8f09d945dd95771ec7e903b07c465cada476efd6"
     ] ;
     sh:conforms true .
 
@@ -3799,7 +4567,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "f57edac95c7c994106a0b71995414b932b81634be89fac49fe611b5b3537d282"
+        spdx:checksumValue "2c812672a0b81d183d6d27ae4d666a69fc09a3cb471ce3423a531d89ba051d97"
     ] ;
     sh:conforms true .
 
@@ -3807,13 +4575,10 @@
     dcterms:title "ggen RDF-Driven MCP Server Generation" ;
     prov:atLocation <docs/mcp-rdf/README.md> ;
     dcterms:subject "None" ;
-    prov:wasDerivedFrom <#doc_docs_mcp-rdf_01-user-guide_generating-servers_md> ;
-    prov:wasDerivedFrom <#doc_docs_mcp-rdf_01-user-guide_troubleshooting_md> ;
-    prov:wasDerivedFrom <#doc_docs_mcp-rdf_implementation_summary_md> ;
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "60f78f1e6bfe4c54cc932201d559b82b8797d945a4d50fcf42737b1a1b60c60a"
+        spdx:checksumValue "c40ad1cdfebb1f5a3bc21e5c1ac288e0f1358754d1bff926be02a06351ed0fff"
     ] ;
     sh:conforms true .
 
@@ -3824,7 +4589,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "11d3338a59dfea1600f285a4909c638a65a044e8e467baebed17a636ad3ad612"
+        spdx:checksumValue "c5f61e42975367bccbe622d73ae100cde4841ca9eff7ef42182b56473568712d"
     ] ;
     sh:conforms true .
 
@@ -3835,7 +4600,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "bdd086d404810831ca6af626e3ae6b5c75f18e8a5fbf309f12edb50c4a4e5f19"
+        spdx:checksumValue "433f3c72ed410e4e4da5adcaf23eaa892fd3cdf17843b27ba72e9d640119797e"
     ] ;
     sh:conforms true .
 
@@ -3846,7 +4611,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "6a8cd6776eb43c1d59ec1fbcefdd2fcf360e7e2a7d74c727934e5f0e1008264a"
+        spdx:checksumValue "a334aad2fdca620a3411bd3fec493d03ca4660d78f95794ccf16347c1a08dd15"
     ] ;
     sh:conforms true .
 
@@ -3857,7 +4622,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "a06c13a1e6bb4c119de34cdb7343f6e04210d08bea6825518c3233eefb83aa02"
+        spdx:checksumValue "02d0c18673fc054bfda1c16b0fe0deac16e57e1bfe84b670af8b9ae4f2d231b7"
     ] ;
     sh:conforms true .
 
@@ -3973,6 +4738,17 @@
     ] ;
     sh:conforms true .
 
+<#doc_docs_open-ontologies_cpmp_integration_plan_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "CPMP Integration Plan: OpenOntologies Governance Mesh" ;
+    prov:atLocation <docs/open-ontologies/CPMP_INTEGRATION_PLAN.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "2f1595b52a49bcd04b2035e1367e980f14e1969ac36e748d0838cc85237fdc77"
+    ] ;
+    sh:conforms true .
+
 <#doc_docs_performance_benchmark_results_md> a prov:Entity , dcat:Distribution ;
     dcterms:title "Hive Mind Swarm Performance Benchmark Results" ;
     prov:atLocation <docs/performance/BENCHMARK_RESULTS.md> ;
@@ -4049,7 +4825,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "1b46ff74837fdccdc61c623d95222da12fe4ee2dd69fd1de3d020623f5c4c623"
+        spdx:checksumValue "0845bd19f913949412725ec8b61883e5e00ff1cdad55f1592dae89d702896c85"
     ] ;
     sh:conforms true .
 
@@ -4060,7 +4836,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "12f48fc7fe629badcea7b066bd7354c937909b6009e4a087044f2e0511b84249"
+        spdx:checksumValue "964254b1fa46fc736d9f6469d032142c2d6f43059320d2f6e1bbd4c95b4de117"
     ] ;
     sh:conforms true .
 
@@ -4071,7 +4847,51 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "3df97ba6c17a7d2d66606474b4ac7f27bf717adb78178fe823634e1f921d97e3"
+        spdx:checksumValue "c906070d3c59f996023420dbb10a9de819d9235b16fc1c3c7253a7e78345d592"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_consolidate_001_pre_inventory_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "CONSOLIDATE-001 \u2014 Pre-Inventory & Lawful-Extent Decision" ;
+    prov:atLocation <docs/receipts/CONSOLIDATE_001_PRE_INVENTORY.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "1a0738692a5ada266eb8ebddd780a6d9d7ca24576c06eaf24c646f7b28356168"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_consolidate_001_receipt_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "CONSOLIDATE-001 \u2014 Receipt" ;
+    prov:atLocation <docs/receipts/CONSOLIDATE_001_RECEIPT.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "b707e1832a8f1157fcc73b966ec3fafa5324ed4e3814a7486979514d0f911356"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_consolidate_002_pre_inventory_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "CONSOLIDATE-002 \u2014 Pre-Inventory: merge the three order-sensitive publish branches" ;
+    prov:atLocation <docs/receipts/CONSOLIDATE_002_PRE_INVENTORY.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "81f451e0d26afefaf6198c2f2a119e5ef6e8593c3ff24c58a21541bab03dea12"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_consolidate_002_receipt_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "CONSOLIDATE-002 \u2014 Verifier Receipt" ;
+    prov:atLocation <docs/receipts/CONSOLIDATE_002_RECEIPT.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "7fd07d0d464e0ba5f799d4119ed2ff59a4f281670d355df6807ac867d3148c4a"
     ] ;
     sh:conforms true .
 
@@ -4082,7 +4902,398 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "3281cb2c68e20d1295c68d5d285c2c9be243bbe601c654e97c6a759a5ca78486"
+        spdx:checksumValue "dca38847fe38b43d470811842234e980f8af93cf86055c7133fcf519a23a7eee"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_dogfood_foundation_audit_1_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Dogfood Foundation Audit #1" ;
+    prov:atLocation <docs/receipts/DOGFOOD_FOUNDATION_AUDIT_1.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "85f3743e09b4c5049fb08fb4668c6715c62fc64f6ae5895dcff34ece2ba1c016"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_dogfood_foundation_audit_2_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Dogfood Foundation Audit #2" ;
+    prov:atLocation <docs/receipts/DOGFOOD_FOUNDATION_AUDIT_2.md> ;
+    dcterms:subject "None" ;
+    prov:wasDerivedFrom <#doc_docs_receipts_dogfood_foundation_audit_1_md> ;
+    prov:wasDerivedFrom <#doc_docs_receipts____reference_release_v26-5-28-boundary_md> ;
+    prov:wasDerivedFrom <#doc_docs_receipts____reference_cli_command-proof-matrix_md> ;
+    prov:wasDerivedFrom <#doc_docs_receipts_o_star_receipt_closure_1_receipt_md> ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "c3e8978a445d91b5bd4aa7e127efac5f2d62a3b416021e3b0c91c6dcb3a9fd9a"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_fake_inventory_ledger_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "FAKE / STUB / PLACEHOLDER INVENTORY LEDGER" ;
+    prov:atLocation <docs/receipts/FAKE_INVENTORY_LEDGER.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "e9f55f14acf2ed28a853c11b37aaa45e986d73f81303c4b63712ea523ef0feae"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_foundation_audit_master_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Foundation Audit \u2014 Master Synthesis (ggen v26.5.28 @ cf7a6004)" ;
+    prov:atLocation <docs/receipts/FOUNDATION_AUDIT_MASTER.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "81b2c5758486beb3326e37b02b66c0c714807659c8c610e5df8966287af6e380"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_g_n_checkpoint_001b_agent_1_server_wiring_handoff_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "GALL-CHECKPOINT-001B \u2014 Agent 1 Handoff: server.rs live wiring" ;
+    prov:atLocation <docs/receipts/witnessed_CHECKPOINT_001B_AGENT_1_SERVER_WIRING_HANDOFF.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "a10f782a6840741e4e37a259d7e9008cae064c8105018b0ec2054968f540d314"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_g_n_checkpoint_001b_agent_2_check_gate_handoff_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "GALL-CHECKPOINT-001B \u2014 Agent 2 (Check Gate) Handoff" ;
+    prov:atLocation <docs/receipts/witnessed_CHECKPOINT_001B_AGENT_2_CHECK_GATE_HANDOFF.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "86cfb411e23f101efd5e45b75732388e22423dd563cca6e01fa4b07b3ed3eb09"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_g_n_checkpoint_001b_agent_3_living_loop_handoff_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "GALL-CHECKPOINT-001B \u2014 Agent 3 Handoff: GGEN-TPL-001 LIVING LOOP" ;
+    prov:atLocation <docs/receipts/witnessed_CHECKPOINT_001B_AGENT_3_LIVING_LOOP_HANDOFF.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "3f843a6e6beedc1bd00ef90c753d4e64563a9f990f0fb856e172010a3d8e2ec4"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_g_n_checkpoint_001b_agent_4_regression_handoff_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "GALL-CHECKPOINT-001B \u2014 Agent 4 (Regression / No-Scope-Creep) Handoff" ;
+    prov:atLocation <docs/receipts/witnessed_CHECKPOINT_001B_AGENT_4_REGRESSION_HANDOFF.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "83eff65a9c2dbc8a033b602e1984e2df4a30a3955938d147f40c5314c30fefa5"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_g_n_checkpoint_001b_coordination_receipt_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "GALL-CHECKPOINT-001B \u2014 Coordination Receipt" ;
+    prov:atLocation <docs/receipts/witnessed_CHECKPOINT_001B_COORDINATION_RECEIPT.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "64cdf49bdd81887ba9544172385ac8259c45d750e803e07db400e1870ef9bbd0"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_g_n_checkpoint_001b_pre_inventory_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "GALL-CHECKPOINT-001B \u2014 Pre-Inventory (Phase 0)" ;
+    prov:atLocation <docs/receipts/witnessed_CHECKPOINT_001B_PRE_INVENTORY.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "e12521911946d11bce069cfa4078bead7c157ad2d863000f22e257bda42f2575"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_g_n_checkpoint_001b_stale_clear_gate_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "GALL-CHECKPOINT-001B \u2014 Hard Gate: Stale-Clear Evidence" ;
+    prov:atLocation <docs/receipts/witnessed_CHECKPOINT_001B_STALE_CLEAR_GATE.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "bac2424c1f94558634f7840408d4d0c5540adcb1f8e6255e0c018046f6fa9b8c"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_g_n_checkpoint_002_coordination_receipt_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "GALL-CHECKPOINT-002 \u2014 Coordination Receipt (Verifier Workcell)" ;
+    prov:atLocation <docs/receipts/witnessed_CHECKPOINT_002_COORDINATION_RECEIPT.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "3060e4cbe1bef369bebe3baec1eda769622ff61a61f2026adeea981150311d52"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_g_n_checkpoint_002_pre_inventory_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "GALL-CHECKPOINT-002 \u2014 Pre-Implementation Inventory" ;
+    prov:atLocation <docs/receipts/witnessed_CHECKPOINT_002_PRE_INVENTORY.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "0d32231153014218f807b5521ecfd9477578e9af72f66e3b3b02e93922f3c2e2"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_g_n_checkpoint_002_receipt_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "GALL-CHECKPOINT-002 \u2014 Implementation Receipt" ;
+    prov:atLocation <docs/receipts/witnessed_CHECKPOINT_002_RECEIPT.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "7b8e4ac5c062db26f175f8016227253a3e330e148718cc399f252d5e0d32d7ab"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_g_n_conform_001_pre_inventory_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "GALL_CONFORM_001 \u2014 PM-Retirement Pre-Inventory" ;
+    prov:atLocation <docs/receipts/witnessed_CONFORM_001_PRE_INVENTORY.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "0459d0239ece3ec9005d3d332cf9d70b4cb06ed7c3a2c0876699cb9a0b9e5ea7"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_g_n_conform_001_receipt_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "GALL-CONFORM-001 Migration Receipt" ;
+    prov:atLocation <docs/receipts/witnessed_CONFORM_001_RECEIPT.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "1a21ca0ad288099fa0936422d435af45912fe884ac7149037aa8e6403adede65"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_g_n_integration_1_receipt_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "GALL-INTEGRATION-1 Receipt" ;
+    prov:atLocation <docs/receipts/witnessed_INTEGRATION_1_RECEIPT.md> ;
+    dcterms:subject "None" ;
+    prov:wasDerivedFrom <#doc_docs_receipts____reference_cli_delivery-plane-proof_md> ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "f56507116b7bec7d970cf877f5155041b88cefd8d9a2b54fa9bcc5108be4d3e2"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_g_n_out_001_pre_inventory_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "GGEN-OUT-001 \u2014 Pre-Implementation Inventory" ;
+    prov:atLocation <docs/receipts/witnessed_OUT_001_PRE_INVENTORY.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "0fd6ffdfd7f1d8254781b1f306538d417231b93ad5026f154ae50b44af1b71bf"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_ggen_finish_gaps_receipt_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "GGEN FINISH-GAPS \u2014 COORDINATION RECEIPT" ;
+    prov:atLocation <docs/receipts/GGEN_FINISH_GAPS_RECEIPT.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "9b7a020ac95225a66e6271bca1607124e9e9a69d910dc83315de6e4d973e01f1"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_ggen_rule_001_pre_inventory_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "GGEN-RULE-001 Pre-Implementation Inventory" ;
+    prov:atLocation <docs/receipts/GGEN_RULE_001_PRE_INVENTORY.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "ef3c49852ab9d87d74e049858545b703a0e030544418b69ffec9291a08ebccbf"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_ggen_rule_001_receipt_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "GGEN-RULE-001 Verifier Receipt \u2014 `unbound_rule_file`" ;
+    prov:atLocation <docs/receipts/GGEN_RULE_001_RECEIPT.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "99a845cc358243d03f8ba5d9967b8f98b4786a61c23014d3e0c118489e11ef45"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_ggen_tpl_001_agent_1_rule_index_handoff_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "GGEN-TPL-001 \u2014 Agent 1 Handoff: Rule / Project Index Layer" ;
+    prov:atLocation <docs/receipts/GGEN_TPL_001_AGENT_1_RULE_INDEX_HANDOFF.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "7a3f743ded34f9851c1164d633757056df1a418642e54b805026ad5c544a8cf7"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_ggen_tpl_001_agent_2_tera_binding_handoff_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "GGEN-TPL-001 \u2014 Agent 2 Handoff: Tera Binding Detector" ;
+    prov:atLocation <docs/receipts/GGEN_TPL_001_AGENT_2_TERA_BINDING_HANDOFF.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "454d6ec98e0da9ed881717d3f27e35a984ca66eadde7705e42d9fe5900d855c8"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_ggen_tpl_001_agent_3_route_registry_handoff_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "GGEN-TPL-001 \u2014 Agent 3 Handoff: Diagnostic Species + Route Registry" ;
+    prov:atLocation <docs/receipts/GGEN_TPL_001_AGENT_3_ROUTE_REGISTRY_HANDOFF.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "4f2f73a075f3e5ccfe024bc47c6f1a862d96f920b1ab4c912676c5a481e3a051"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_ggen_tpl_001_agent_4_test_handoff_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "GGEN-TPL-001 \u2014 Agent 4 (Integration Tests) Handoff" ;
+    prov:atLocation <docs/receipts/GGEN_TPL_001_AGENT_4_TEST_HANDOFF.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "53c24dac5cd61b4da9facf81205935a330b27e9a671baf9db4e47efc61351104"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_ggen_tpl_001_coordination_receipt_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "GGEN-TPL-001 Coordination Receipt" ;
+    prov:atLocation <docs/receipts/GGEN_TPL_001_COORDINATION_RECEIPT.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "e6a733b46666a76d26b31b55dc2179d0d0b3777d0a9262abefc3eec95811a228"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_ggen_tpl_001_pre_implementation_inventory_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "GGEN-TPL-001 \u2014 Pre-Implementation Inventory (Phase 0)" ;
+    prov:atLocation <docs/receipts/GGEN_TPL_001_PRE_IMPLEMENTATION_INVENTORY.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "87b83c035c215f748a40805754d2d5481256de441ea9fe4d5e6de002bfae951f"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_live_buffer_001_pre_inventory_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "LIVE-BUFFER-001 \u2014 Pre-Inventory (Live-Buffer Architect)" ;
+    prov:atLocation <docs/receipts/LIVE_BUFFER_001_PRE_INVENTORY.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "d5f1bccf036b91567fdc9776ff71f7e61a7fa59096bc76fc59d476d5f9894e62"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_live_buffer_001_receipt_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "LIVE-BUFFER-001 \u2014 Verification Receipt" ;
+    prov:atLocation <docs/receipts/LIVE_BUFFER_001_RECEIPT.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "81bb07caeb5b143583d1778e5728549be6fa354faec907c4434eca0d6004411d"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_merge_001b_receipt_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "MERGE 001B \u2192 main \u2014 Receipt" ;
+    prov:atLocation <docs/receipts/MERGE_001B_RECEIPT.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "34166e72900ace990daed02842846204a6ed38b0cd8b0c6b65b0950663996725"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_next_session_handoff_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Next Session Handoff" ;
+    prov:atLocation <docs/receipts/NEXT_SESSION_HANDOFF.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "eea6bf77a964c1e745d86794dcee07c891d76e5dc4cec68489394c1105353ad4"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_o_star_receipt_closure_1_receipt_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "O-STAR-RECEIPT-CLOSURE-1 Receipt" ;
+    prov:atLocation <docs/receipts/O_STAR_RECEIPT_CLOSURE_1_RECEIPT.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "984569402bd93b1866e46cace8ad0f42acf959a4b151a57b9ef5cad49fedf060"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_sync_actuator_1_receipt_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "SYNC-ACTUATOR-1 Receipt" ;
+    prov:atLocation <docs/receipts/SYNC_ACTUATOR_1_RECEIPT.md> ;
+    dcterms:subject "None" ;
+    prov:wasDerivedFrom <#doc_docs_receipts_o_star_receipt_closure_1_receipt_md> ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "33b75d4759da1f4812c0b856981464baa109b83dcf0617ccf5b97249813b7065"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_v26_5_29_closeout_receipt_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "v26.5.29 Closeout Receipt" ;
+    prov:atLocation <docs/receipts/V26_5_29_CLOSEOUT_RECEIPT.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "48218d9f77b94db0993e9ff151204bacf2cdb7d5dd300be4da67754b78e38fc5"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_receipts_v26_5_30_path_a_closeout_receipt_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "v26.5.30 Path A Closeout Receipt" ;
+    prov:atLocation <docs/receipts/V26_5_30_PATH_A_CLOSEOUT_RECEIPT.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "e8953478f771c130decf9407cdc2413cdf95530e987ef3b6e6bc2c5b3041c908"
     ] ;
     sh:conforms true .
 
@@ -4093,7 +5304,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "029a63e80734e520c753b91faefc38e28ebd3ff07312a792e81b2216b81e7d6e"
+        spdx:checksumValue "3338de21e98de83374a61e8247b5e2c1fb625d1a8eaca2084ff94e8582199d46"
     ] ;
     sh:conforms true .
 
@@ -4108,6 +5319,32 @@
     ] ;
     sh:conforms true .
 
+<#doc_docs_reference_cli_command-proof-matrix_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Command-Proof Matrix (Reference)" ;
+    prov:atLocation <docs/reference/cli/command-proof-matrix.md> ;
+    dcterms:subject "None" ;
+    prov:wasDerivedFrom <#doc_docs_reference_cli_delivery-plane-proof_md> ;
+    prov:wasDerivedFrom <#doc_docs_reference_cli_______explanation_oracle-gaps_md> ;
+    prov:wasDerivedFrom <#doc_docs_reference_cli_______explanation_motion-does-not-count_md> ;
+    prov:wasDerivedFrom <#doc_docs_reference_cli____release_v26-5-28-boundary_md> ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "b212624a344597f137f0e409e5491f30498b9b296d8d09bd04b27ea888c08468"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_reference_cli_delivery-plane-proof_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Delivery-Plane Proof: LSP / MCP / A2A on the Playground (Reference)" ;
+    prov:atLocation <docs/reference/cli/delivery-plane-proof.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "84aa57f76fe1ebd4c3ded5c8d743cb5c80e87b2bbe95d9c2905d66edf3986cac"
+    ] ;
+    sh:conforms true .
+
 <#doc_docs_reference_commands_a2a_md> a prov:Entity , dcat:Distribution ;
     dcterms:title "`ggen a2a` Command Reference" ;
     prov:atLocation <docs/reference/commands/a2a.md> ;
@@ -4115,7 +5352,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "e70f54e594bece564dcbfdf4c30b033d0772c8fe126252586a4a1000e8e3b849"
+        spdx:checksumValue "f36e4950c40977b3ccff1593f495e355d08bc7cd9f3360880c917225438a4b51"
     ] ;
     sh:conforms true .
 
@@ -4126,7 +5363,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "c286da90cfa985b5c85702774976247d643af099584a2ca8c2fdc1d02d18b0de"
+        spdx:checksumValue "bb3ae7721919e0fadc24e8fc55383e284e06c63f88e6c5cb4c5e3ce248094be0"
     ] ;
     sh:conforms true .
 
@@ -4137,7 +5374,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "eece593cd9cab514dea388c4cadda57cc7a9e7308d1edc5c14a54158e2026830"
+        spdx:checksumValue "c3e4169637618427b817430ba1cf404e2f3bef1ad7b0a061b7217abc1fdc1bf0"
     ] ;
     sh:conforms true .
 
@@ -4170,7 +5407,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "6d1691d8300f66e5a1d527f2128921cb89efd2f2f2130259ea48fd27e20cecae"
+        spdx:checksumValue "919a95a08c94da9e104bc91fdce7c47935a29f6c3df33331cf359bcf1b04c150"
     ] ;
     sh:conforms true .
 
@@ -4196,6 +5433,22 @@
     ] ;
     sh:conforms true .
 
+<#doc_docs_reference_release_v26-5-28-boundary_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "v26.5.28 Release Boundary (Reference)" ;
+    prov:atLocation <docs/reference/release/v26-5-28-boundary.md> ;
+    dcterms:subject "None" ;
+    prov:wasDerivedFrom <#doc_docs_reference_release_______explanation_sabbath-grade-done_md> ;
+    prov:wasDerivedFrom <#doc_docs_reference_release____cli_command-proof-matrix_md> ;
+    prov:wasDerivedFrom <#doc_docs_reference_release_______explanation_oracle-gaps_md> ;
+    prov:wasDerivedFrom <#doc_docs_reference_release____workspace_feature-flags_md> ;
+    prov:wasDerivedFrom <#doc_docs_reference_release____workspace_crates_md> ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "47fa4eeb3ebcc9735653cf4dc7f80808785b7f8685a4fe2c81287af276d3c9c8"
+    ] ;
+    sh:conforms true .
+
 <#doc_docs_reference_schemas_tool-schema_md> a prov:Entity , dcat:Distribution ;
     dcterms:title "MCP Tool Schema Reference" ;
     prov:atLocation <docs/reference/schemas/tool-schema.md> ;
@@ -4203,7 +5456,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "e1372ebebb3571e4bad5053d00c600edc80cf2a20cd03e5405efb9d79645df19"
+        spdx:checksumValue "5f4743559e594bf2d9c67bec8ef1029e7d6d48b902bf9a11ec1ab457306029c8"
     ] ;
     sh:conforms true .
 
@@ -4240,6 +5493,45 @@
     ] ;
     sh:conforms true .
 
+<#doc_docs_reference_workspace_crates_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Workspace Crates (Reference)" ;
+    prov:atLocation <docs/reference/workspace/crates.md> ;
+    dcterms:subject "None" ;
+    prov:wasDerivedFrom <#doc_docs_reference_workspace_feature-flags_md> ;
+    prov:wasDerivedFrom <#doc_docs_reference_workspace____cli_command-proof-matrix_md> ;
+    prov:wasDerivedFrom <#doc_docs_reference_workspace____release_v26-5-28-boundary_md> ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "b25c0c127c88be834a62e7e8bdcab31192a0a819f1a96552b4cc2092066c08db"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_reference_workspace_feature-flags_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Feature Flags (Reference)" ;
+    prov:atLocation <docs/reference/workspace/feature-flags.md> ;
+    dcterms:subject "None" ;
+    prov:wasDerivedFrom <#doc_docs_reference_workspace_crates_md> ;
+    prov:wasDerivedFrom <#doc_docs_reference_workspace____release_v26-5-28-boundary_md> ;
+    prov:wasDerivedFrom <#doc_docs_reference_workspace____cli_command-proof-matrix_md> ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "f57c9507d1b07b59f7d394943c7b375ecc538275aa4d8bc33384b75e8c14259d"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_research_thesis_provable_completion_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "On Provable Completion: An Epistemology of \"Done\" in Autonomic Code-Generation Systems" ;
+    prov:atLocation <docs/research/THESIS_provable_completion.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "fd63c84174723cd78c599b0cc73e15b9a58489d12fcfd14360b8cdb9ecad16e4"
+    ] ;
+    sh:conforms true .
+
 <#doc_docs_security_architecture_md> a prov:Entity , dcat:Distribution ;
     dcterms:title "Security Architecture (v26.5.19)" ;
     prov:atLocation <docs/security/ARCHITECTURE.md> ;
@@ -4247,7 +5539,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "3751aa54c9196594157f4885fba83ff21f7ce1e40c0daea121750aa1a4c6237f"
+        spdx:checksumValue "c55e2910a90aa4c7f5ce332a36be89d4e304014f2249ba41085dfe75a65b9c64"
     ] ;
     sh:conforms true .
 
@@ -4260,7 +5552,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "81f1ea96b0da9a146d404ec8cddd158f90f0dbbf86e0f084d804b1e9ae07f476"
+        spdx:checksumValue "71f055a62a143b6949e5f7f7acbcee87e75de9c2cdbc08437a10c46df2687c1b"
     ] ;
     sh:conforms true .
 
@@ -4271,7 +5563,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "1dd843ea14387796e490b913456adafa2c86477cbae74e140eabb15bcabee448"
+        spdx:checksumValue "5f31534154cfbf790488b6e07c74c44a067001376d30d8e8f0a36005c243c529"
     ] ;
     sh:conforms true .
 
@@ -4289,7 +5581,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "d2e85a982c43ed911e19332e20e613865154d14d2aa31d6aab74957cc73d0216"
+        spdx:checksumValue "e682d6b3f58343a500ef6c108812083536251074708879576bb8ef995b0f5c01"
     ] ;
     sh:conforms true .
 
@@ -4300,7 +5592,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "64d2cf44dacd087e2edd050b4f6a12a10f5e53870d26b20984e2ca79d898f01a"
+        spdx:checksumValue "b499476fc971a20eb402e44404d47f27c1bfc6345d70c8b50a8fd0310ea53cd4"
     ] ;
     sh:conforms true .
 
@@ -4311,7 +5603,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "7a5ae0bfa5be379adf355ab30565b11e1929c3e0cd041c1773e0ce6c21eee3a1"
+        spdx:checksumValue "6e4d98d28734b4287d4b9075a8e0e94a801b7541ac3086dde4feabec7f76474c"
     ] ;
     sh:conforms true .
 
@@ -4322,7 +5614,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "87d2885959d87a36689e0ece62f51612ef368a41cd033d02951090840609101e"
+        spdx:checksumValue "b95221cd01fe4d9228255b1bcbaf00bb580e4aa4277af5a2ab93f61ec46ef876"
     ] ;
     sh:conforms true .
 
@@ -4333,7 +5625,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "03986d6857cb7ec5c782a9bc04ed5d089cff21c56823e5109d6d1dfd8324c9cc"
+        spdx:checksumValue "b2d1852087e5537c20b480ac7af5f2fb7f92822e8523faad85b6b479b415502f"
     ] ;
     sh:conforms true .
 
@@ -4388,7 +5680,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "34c5dab9b4c0e4606249bd9b896cafe7cdd4d37f68484994c424c69407074ed6"
+        spdx:checksumValue "ef8d071fc4806891d2b6223926862dd52e04a93d10deb471ea89a1c08664d6de"
     ] ;
     sh:conforms true .
 
@@ -4399,7 +5691,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "ba92917748006038ceea20b80d36f242d8af1aa1e034d3832d52d0bca40c5ccf"
+        spdx:checksumValue "e10d10ba60c63ecd19b4c19fa8145ecde1a8bf10fc5c5acda5490ea53046ba92"
     ] ;
     sh:conforms true .
 
@@ -4410,7 +5702,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "f2681fc1979dd7a55018b9dcbad4c0235be70adf83dd73745b7e4381932543d5"
+        spdx:checksumValue "468fc9b393ee9160e0a6d4f63b1bfa805e99618a540215439cb302ba11d8cf0c"
     ] ;
     sh:conforms true .
 
@@ -4421,7 +5713,18 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "493f244bbac17225d7d693799b5480395af82b006bfc0b979d70e3fc25f2b753"
+        spdx:checksumValue "738691ba4d2eb255b440dfa68cc4a3c790e400b9e80a53aa4333f09314fd54f2"
+    ] ;
+    sh:conforms true .
+
+<#doc_docs_swarm_test_plan_md> a prov:Entity , dcat:Distribution ;
+    dcterms:title "Capability Map Test Plan" ;
+    prov:atLocation <docs/swarm/TEST_PLAN.md> ;
+    dcterms:subject "None" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "cd129e2a67b3bcff5a6288ae4d8ef7c1c114561e18ae09037ff0b1d6fc256793"
     ] ;
     sh:conforms true .
 
@@ -4487,7 +5790,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "7d955684d92e9e98276099823ece6c32500b3b73bd040ff15d6ddbdc967e58fa"
+        spdx:checksumValue "1e86bfd6b7442414a2848ed6ed9c9e227fc3f357b8e85e19effb61f1f62c55cc"
     ] ;
     sh:conforms true .
 
@@ -4498,7 +5801,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "47b2ff54fadff3136ecf2904cfcf4bf099cf40b05d8a1568727f0fe7841d9d61"
+        spdx:checksumValue "098872317db901d658350ad76be39eb8bed7758b2dfd04a623b614fc41147a27"
     ] ;
     sh:conforms true .
 
@@ -4520,7 +5823,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "9a3e2fca3ceda31beb88de55616367bf2da95762395190a3b1ae5129e1fad72f"
+        spdx:checksumValue "6b1da51c2626dcaedacbee757bd1942b1b8ce04d1d17b8473903094c366e833b"
     ] ;
     sh:conforms true .
 
@@ -4531,7 +5834,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "770c0a9a7e1136b9be63600ab3ac23e0b9eed833b6eedc3ecd2467a83fc8ba52"
+        spdx:checksumValue "159c760f46649c74248689a6ae5eff60e51666fac926066b686c6fe0b5293e35"
     ] ;
     sh:conforms true .
 
@@ -4542,7 +5845,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "36d52f5308fdfba0d573d5742d1b001d50b91a2156e5b618de6e77f66ba89ac6"
+        spdx:checksumValue "944d0f63040d6634145e7f89a269d4c5a86104699c4a4a0d1ee8f465a64492d3"
     ] ;
     sh:conforms true .
 
@@ -4575,7 +5878,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "43e63e8bece0495ad3799038172433e0aa441aa88aadb6f8b5f57217a772b7df"
+        spdx:checksumValue "c0b98b97e81ee7ecfe8ed65be95308ba4720bb591536786396520df604046e8a"
     ] ;
     sh:conforms true .
 
@@ -4762,7 +6065,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "0af0a7c7a85b276827afbe02b1ead470e6fa9c814975797dc25c7eca1516f389"
+        spdx:checksumValue "8feb044653f5e277d8c9ea2473b294ce4fc57903b90e267a9e6a5b0071a7f031"
     ] ;
     sh:conforms true .
 
@@ -4863,7 +6166,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "251d2f6667cde62e0dbf18bed453791ccea10c39a4840b9435b4498913f81d0b"
+        spdx:checksumValue "17c9ee8a377573153a2d8ad9661c410075e81653a2b834aaf248476901ac93ed"
     ] ;
     sh:conforms true .
 
@@ -4898,7 +6201,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "bdae71726b022fbaa5159d9fbc62ce50ec3e2c613202c0c763b7f06689c88ba6"
+        spdx:checksumValue "b9f0b047598b2219b3bd8371365ce8c54555b691651b88f70027b1b26d4a60d0"
     ] ;
     sh:conforms true .
 
@@ -5002,7 +6305,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "e80c351abf80525b0586475d38fd83eaa58fca6ca10ae14e304d0d0627a15cc5"
+        spdx:checksumValue "073a4ddeab9aff8edc517dc05396693087f47fba36bc78785f80227d851028f8"
     ] ;
     sh:conforms true .
 
@@ -5073,7 +6376,7 @@
     spdx:checksum [
         a spdx:Checksum ;
         spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
-        spdx:checksumValue "01fec6eb503fa1c775f8a205e8f69e62091589a5bcbff2506a823f0790cf5528"
+        spdx:checksumValue "cdee13122af462f4fe5b41bedd13b535aa75d30c2e1a0c482219786775f0bfd2"
     ] ;
     sh:conforms true .
 

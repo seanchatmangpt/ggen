@@ -1,5 +1,5 @@
 use ggen_projection::protocol::{PackObservation, PackFinding, ProjectionSignature, CustomizationPoint, PackActionIntent};
-use tower_lsp::lsp_types::Url;
+use tower_lsp_max::lsp_types::Url;
 
 pub trait PackObserver {
     fn source_id(&self) -> &str;
@@ -41,10 +41,10 @@ impl PackObserver for ClapNounVerbObserver {
     }
 }
 
-pub struct TowerLspMaxObserver;
-impl PackObserver for TowerLspMaxObserver {
-    fn source_id(&self) -> &str { "tower_lsp_max_pack_lsp" }
-    fn domain(&self) -> &str { "tower-lsp-max" }
+pub struct TowerLspObserver;
+impl PackObserver for TowerLspObserver {
+    fn source_id(&self) -> &str { "tower_lsp_pack_lsp" }
+    fn domain(&self) -> &str { "tower-lsp" }
     fn observe(&self, uri: &Url, content: &str) -> Vec<PackObservation> {
         let mut obs = Vec::new();
         let path_str = uri.path();
@@ -53,7 +53,7 @@ impl PackObserver for TowerLspMaxObserver {
         if path_str.ends_with("server.rs") || path_str.ends_with("lsp.rs") {
             if content.contains("write_to_disk") && !content.contains("MutationGate") {
                 obs.push(PackObservation {
-                    pack_id: "ggen-pack-tower-lsp-max".to_string(),
+                    pack_id: "ggen-pack-tower-lsp".to_string(),
                     source_id: self.source_id().to_string(),
                     domain: self.domain().to_string(),
                     document_uri: uri.to_string(),

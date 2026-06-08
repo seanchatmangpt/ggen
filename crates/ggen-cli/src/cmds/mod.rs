@@ -48,6 +48,7 @@ pub mod doctor;
 #[cfg(feature = "experimental")]
 pub mod framework; // Framework bridge commands (LangChain, etc.)
 pub mod graph;
+pub mod conformance_receipt;
 #[cfg(feature = "lsp")]
 pub mod lsp; // ggen lsp noun (start/check/init/serve/mine/metrics/replay/field-status/emit_pack/verify_pack) — opt-in: --features lsp
 #[cfg(feature = "experimental")]

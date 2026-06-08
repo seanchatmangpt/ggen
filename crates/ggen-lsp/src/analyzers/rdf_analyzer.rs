@@ -4,7 +4,7 @@
 //! class/property completion, hover over declared terms, definition jumps, an
 //! outline of declared terms, and safe (text-level) rename across the document.
 
-use tower_lsp::lsp_types::{
+use tower_lsp_max::lsp_types::{
     CompletionItem, CompletionItemKind, CompletionResponse, DiagnosticSeverity, Hover,
     HoverContents, Location, MarkupContent, MarkupKind, Position, Range, SymbolKind, TextEdit, Url,
     WorkspaceEdit,
@@ -81,7 +81,7 @@ impl RdfAnalyzer {
 
     /// Located syntax diagnostics — the core "refusal before execution" output.
     #[must_use]
-    pub fn diagnostics(&self) -> Vec<tower_lsp::lsp_types::Diagnostic> {
+    pub fn diagnostics(&self) -> Vec<tower_lsp_max::lsp_types::Diagnostic> {
         self.located
             .diagnostics
             .iter()
@@ -202,13 +202,13 @@ impl RdfAnalyzer {
         }
     }
 
-    pub fn semantic_tokens(&self) -> Option<tower_lsp::lsp_types::SemanticTokens> {
+    pub fn semantic_tokens(&self) -> Option<tower_lsp_max::lsp_types::SemanticTokens> {
         // Minimal but real: highlight prefixed-name tokens as PROPERTY/CLASS roles.
         // (Full tokenization is a future refinement; None keeps clients happy.)
         None
     }
 
-    pub fn document_symbols(&self) -> Option<Vec<tower_lsp::lsp_types::DocumentSymbol>> {
+    pub fn document_symbols(&self) -> Option<Vec<tower_lsp_max::lsp_types::DocumentSymbol>> {
         let mut symbols = Vec::new();
         for class in &self.terms.classes {
             symbols.push(make_symbol(
@@ -231,11 +231,11 @@ impl RdfAnalyzer {
         }
     }
 
-    pub fn code_lenses(&self) -> Option<Vec<tower_lsp::lsp_types::CodeLens>> {
+    pub fn code_lenses(&self) -> Option<Vec<tower_lsp_max::lsp_types::CodeLens>> {
         None
     }
 
-    pub fn folding_ranges(&self) -> Option<Vec<tower_lsp::lsp_types::FoldingRange>> {
+    pub fn folding_ranges(&self) -> Option<Vec<tower_lsp_max::lsp_types::FoldingRange>> {
         let mut ranges = Vec::new();
         let mut open: Option<u32> = None;
         for (idx, text) in self.source.lines().enumerate() {
@@ -245,12 +245,12 @@ impl RdfAnalyzer {
             } else if text.contains(']') {
                 if let Some(start) = open.take() {
                     if line > start {
-                        ranges.push(tower_lsp::lsp_types::FoldingRange {
+                        ranges.push(tower_lsp_max::lsp_types::FoldingRange {
                             start_line: start,
                             end_line: line,
                             start_character: None,
                             end_character: None,
-                            kind: Some(tower_lsp::lsp_types::FoldingRangeKind::Region),
+                            kind: Some(tower_lsp_max::lsp_types::FoldingRangeKind::Region),
                             collapsed_text: None,
                         });
                     }
@@ -268,7 +268,7 @@ impl RdfAnalyzer {
         None
     }
 
-    pub fn inlay_hints(&self) -> Option<Vec<tower_lsp::lsp_types::InlayHint>> {
+    pub fn inlay_hints(&self) -> Option<Vec<tower_lsp_max::lsp_types::InlayHint>> {
         None
     }
 
@@ -303,18 +303,19 @@ impl RdfAnalyzer {
             changes: Some(changes),
             document_changes: None,
             change_annotations: None,
+            metadata: None,
         })
     }
 
     pub fn call_hierarchy_items(
         &self, _position: Position,
-    ) -> Option<Vec<tower_lsp::lsp_types::CallHierarchyItem>> {
+    ) -> Option<Vec<tower_lsp_max::lsp_types::CallHierarchyItem>> {
         None
     }
 
     pub fn type_hierarchy_items(
         &self, _position: Position,
-    ) -> Option<Vec<tower_lsp::lsp_types::TypeHierarchyItem>> {
+    ) -> Option<Vec<tower_lsp_max::lsp_types::TypeHierarchyItem>> {
         None
     }
 
@@ -374,7 +375,7 @@ fn find_decl_line(source: &str, iri: &str, prefixes: &[(String, String)]) -> u32
     0
 }
 
-fn make_symbol(name: &str, kind: SymbolKind, line: u32) -> tower_lsp::lsp_types::DocumentSymbol {
+fn make_symbol(name: &str, kind: SymbolKind, line: u32) -> tower_lsp_max::lsp_types::DocumentSymbol {
     let range = Range {
         start: Position { line, character: 0 },
         end: Position {
@@ -383,7 +384,7 @@ fn make_symbol(name: &str, kind: SymbolKind, line: u32) -> tower_lsp::lsp_types:
         },
     };
     #[allow(deprecated)]
-    tower_lsp::lsp_types::DocumentSymbol {
+    tower_lsp_max::lsp_types::DocumentSymbol {
         name: name.to_string(),
         detail: None,
         kind,

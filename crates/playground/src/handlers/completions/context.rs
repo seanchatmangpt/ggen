@@ -1,4 +1,4 @@
-use tower_lsp_max::lsp_types_max::Position;
+use tower_lsp_max_max::lsp_types_max::Position;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum CompletionContext {

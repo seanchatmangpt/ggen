@@ -99,16 +99,16 @@ fn term_to_u64(term: &Term) -> Option<u64> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ocel::{EvidenceProjector, OcelEvent, OcelLog, OcelObjectRef};
+    use crate::ocel::{EvidenceProjector, OCELEvent, OCEL, OCELObjectRef};
     use chrono::{TimeZone, Utc};
     use std::collections::HashMap;
 
-    fn ev(id: &str, activity: &str, secs: i64, case: &str) -> OcelEvent {
-        OcelEvent {
+    fn ev(id: &str, activity: &str, secs: i64, case: &str) -> OCELEvent {
+        OCELEvent {
             id: id.to_string(),
             activity: activity.to_string(),
             timestamp: Utc.timestamp_opt(secs, 0).single().unwrap_or_else(Utc::now),
-            objects: vec![OcelObjectRef {
+            objects: vec![OCELObjectRef {
                 id: case.to_string(),
                 r#type: "case".to_string(),
                 qualifier: Some("case".to_string()),
@@ -120,7 +120,7 @@ mod tests {
     #[test]
     fn discovers_directly_follows_edges() -> Result<(), GraphError> {
         // Two cases, same A→B→C pattern → DFG edges A→B (2), B→C (2).
-        let log = OcelLog {
+        let log = OCEL {
             objects: vec![],
             events: vec![
                 ev("e1", "A", 10, "c1"),

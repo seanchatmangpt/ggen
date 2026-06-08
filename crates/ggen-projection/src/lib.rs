@@ -135,14 +135,14 @@ fn infer_attribute_type(val: &str) -> &'static str {
     }
 }
 
-struct OcelEvent {
+struct OCELEvent {
     activity: String,
     time: String,
     attributes: BTreeMap<String, String>,
     relationships: Vec<(String, String)>,
 }
 
-struct OcelObject {
+struct OCELObject {
     object_type: String,
     attributes: BTreeMap<String, (String, String)>, // name -> (value, time)
     relationships: Vec<(String, String)>,
@@ -150,8 +150,8 @@ struct OcelObject {
 
 /// Projects a set of RelationPages into OCEL v2 JSON format conforming to the official schema.
 pub fn project_ocel2(pages: &[RelationPage]) -> serde_json::Value {
-    let mut events_map: BTreeMap<String, OcelEvent> = BTreeMap::new();
-    let mut objects_map: BTreeMap<String, OcelObject> = BTreeMap::new();
+    let mut events_map: BTreeMap<String, OCELEvent> = BTreeMap::new();
+    let mut objects_map: BTreeMap<String, OCELObject> = BTreeMap::new();
 
     for page in pages {
         for pair in &page.pairs {
@@ -178,7 +178,7 @@ pub fn project_ocel2(pages: &[RelationPage]) -> serde_json::Value {
             if is_event_src {
                 let event = events_map
                     .entry(clean_src.clone())
-                    .or_insert_with(|| OcelEvent {
+                    .or_insert_with(|| OCELEvent {
                         activity: "Activity".to_string(),
                         time: page.timestamp.to_rfc3339(),
                         attributes: BTreeMap::new(),
@@ -201,7 +201,7 @@ pub fn project_ocel2(pages: &[RelationPage]) -> serde_json::Value {
                     };
                     event.relationships.push((clean_tgt.clone(), qualifier));
                     // Ensure object exists
-                    objects_map.entry(clean_tgt).or_insert_with(|| OcelObject {
+                    objects_map.entry(clean_tgt).or_insert_with(|| OCELObject {
                         object_type: "Object".to_string(),
                         attributes: BTreeMap::new(),
                         relationships: Vec::new(),
@@ -212,7 +212,7 @@ pub fn project_ocel2(pages: &[RelationPage]) -> serde_json::Value {
             } else if is_object_src {
                 let object = objects_map
                     .entry(clean_src.clone())
-                    .or_insert_with(|| OcelObject {
+                    .or_insert_with(|| OCELObject {
                         object_type: "Object".to_string(),
                         attributes: BTreeMap::new(),
                         relationships: Vec::new(),
@@ -228,7 +228,7 @@ pub fn project_ocel2(pages: &[RelationPage]) -> serde_json::Value {
                         .relationships
                         .push((clean_tgt.clone(), rel.to_string()));
                     // Ensure target object exists
-                    objects_map.entry(clean_tgt).or_insert_with(|| OcelObject {
+                    objects_map.entry(clean_tgt).or_insert_with(|| OCELObject {
                         object_type: "Object".to_string(),
                         attributes: BTreeMap::new(),
                         relationships: Vec::new(),

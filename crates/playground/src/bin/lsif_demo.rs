@@ -1,6 +1,6 @@
-use tower_lsp_max::lsp_types_max::{Position, Range};
-use tower_lsp_max::lsif::lsif_builder::LsifBuilder;
-use tower_lsp_max::lsif::lsif_types::{ToolInfo};
+use tower_lsp_max_max::lsp_types_max::{Position, Range};
+use tower_lsp_max_max::lsif::lsif_builder::LsifBuilder;
+use tower_lsp_max_max::lsif::lsif_types::{ToolInfo};
 
 fn main() {
     let mut buffer = Vec::new();

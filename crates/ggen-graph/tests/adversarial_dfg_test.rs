@@ -23,16 +23,16 @@
 )]
 //! Adversarial DFG/conformance probes — interleaving, singletons, ties, isolation.
 use chrono::{TimeZone, Utc};
-use ggen_graph::ocel::{EvidenceProjector, OcelEvent, OcelLog, OcelObjectRef};
+use ggen_graph::ocel::{EvidenceProjector, OCELEvent, OCEL, OCELObjectRef};
 use ggen_graph::{check_lifecycle_order, discover_dfg, DeterministicGraph};
 use std::collections::HashMap;
 
-fn ev(id: &str, act: &str, secs: i64, case: &str) -> OcelEvent {
-    OcelEvent {
+fn ev(id: &str, act: &str, secs: i64, case: &str) -> OCELEvent {
+    OCELEvent {
         id: id.into(),
         activity: act.into(),
         timestamp: Utc.timestamp_opt(secs, 0).single().unwrap(),
-        objects: vec![OcelObjectRef {
+        objects: vec![OCELObjectRef {
             id: case.into(),
             r#type: "diagnostic_code".into(),
             qualifier: Some("diag".into()),
@@ -46,7 +46,7 @@ const Q: &str = "http://www.ocel-standard.org/ns#qualifier_diag";
 fn distinct_cases_do_not_create_cross_edges() {
     // Two cases interleaved in TIME but distinct case objects must NOT produce
     // A->X edges across cases.
-    let log = OcelLog {
+    let log = OCEL {
         objects: vec![],
         events: vec![
             ev("1", "A", 10, "c1"),
@@ -77,7 +77,7 @@ fn distinct_cases_do_not_create_cross_edges() {
 
 #[test]
 fn single_event_has_no_edges() {
-    let log = OcelLog {
+    let log = OCEL {
         objects: vec![],
         events: vec![ev("1", "Solo", 10, "c1")],
     };
@@ -99,7 +99,7 @@ fn empty_graph_yields_empty_dfg() {
 fn equal_timestamps_produce_no_direct_follow() {
     // Two events at the SAME timestamp: strict `<` means neither directly-follows
     // the other (no spurious edge, no panic).
-    let log = OcelLog {
+    let log = OCEL {
         objects: vec![],
         events: vec![ev("1", "A", 10, "c1"), ev("2", "B", 10, "c1")],
     };
@@ -115,7 +115,7 @@ fn equal_timestamps_produce_no_direct_follow() {
 #[test]
 fn lifecycle_requires_all_three_in_order() {
     // Missing the middle step must fail conformance.
-    let log = OcelLog {
+    let log = OCEL {
         objects: vec![],
         events: vec![
             ev("1", "DiagnosticRaised", 10, "E1"),

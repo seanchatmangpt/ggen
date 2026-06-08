@@ -2179,3 +2179,1087 @@ No stubs, mocks, or placeholder hashes. All tests must be real Chicago-style tes
 - [ ] All tests in `crates/ggen-projection` (including `dogfood_gc003.rs` and `f8_equation_enforcement.rs`) compile and pass successfully.
 - [ ] `cargo make check` and `cargo make test` pass successfully on the `feat/ggen-lsp-source-laws` branch.
 
+## Follow-up — 2026-06-06T20:52:29-07:00
+
+# Teamwork Project Prompt — Draft
+
+Verify the CLAP command grammar admission (GC008B) and lawful mutation route (GC008C) under Gall cash-busting mode.
+
+Working directory: `/Users/sac/ggen`
+Integrity mode: benchmark
+
+## Requirements
+
+### R1. GC008B — CLAP Command Grammar Admission
+Prove that `conformance-receipt.bind` is admitted by the actual CLAP noun/verb authority, while `wasm4pm.bind_receipt` and other malformed commands are refused.
+
+### R2. GC008C — PackPlan / Staging / MutationGate Route
+Prove that a valid `conformance-receipt.bind` intent flows strictly through:
+```text
+CodeAction → PackActionIntent → PackPlan → Staging → MutationGate → Receipt
+```
+with negative controls verifying that direct command executions or direct file writes are blocked/refused.
+
+## Acceptance Criteria
+
+### Verification Structures
+- `GC008B_STATUS` must be reported as one of: `BLOCKED`, `CANDIDATE`, `REPORTED_ADMITTED_BY_DOGFOOD`.
+- `GC008C_STATUS` must be reported as one of: `BLOCKED`, `CANDIDATE`, `REPORTED_ADMITTED_BY_DOGFOOD`.
+- The final output must match the exact YAML/markdown block schema requested, providing a `FAILSET` list, `RAW_PROOFS` with commands and digests, `LSP_TRANSCRIPTS`, `NEGATIVE_CONTROLS`, and `FORBIDDEN_CLAIMS`.
+
+### Anti-Cheating & Static Surveillance
+- No shadow crates or fake returns allowed.
+- No direct file mutations inside LSP observer path.
+- No `v1.0.0` or `version = "1.0.0"` placeholders.
+
+## Follow-up — 2026-06-07T03:54:40Z
+
+# Final Teamwork Project Prompt — GC008B / GC008C
+
+Status: Launched
+Goal: Swarm verification in progress
+Working directory: `/Users/sac/ggen`
+Integrity mode: benchmark
+Operating mode: Gall cash-busting
+Success predicate: external evaluator only
+
+## Mission
+
+Verify the CLAP command grammar admission for **GC008B** and the lawful mutation route for **GC008C**.
+
+Do not produce victory language.
+Do not claim DONE.
+Do not claim ADMITTED unless the proof boundary is actually satisfied.
+Return failures, blockers, raw proofs, transcripts, and receipts only.
+
+Current target:
+
+| Checkpoint                                      | Current Status               |
+| ----------------------------------------------- | ---------------------------- |
+| GC008A: No LSP mutation lock                    | REPORTED_ADMITTED_BY_DOGFOOD |
+| GC008B: CLAP validation                         | CANDIDATE                    |
+| GC008C: PackPlan / Staging / MutationGate route | OPEN                         |
+
+---
+
+## Core Gall Law
+
+All work must preserve:
+
+[
+R_B \vdash A = \mu(O^{*}_{B})
+]
+
+The LLM/team does not declare success.
+
+External success predicate:
+
+[
+Done_B(A)
+=========
+
+[FailSet_B(A)=\varnothing]
+\land
+[R_B \vdash A=\mu(O^{*}_{B})]
+]
+
+Your job is to reduce the failset, not narrate victory.
+
+---
+
+# Requirements
+
+## R1. GC008B — CLAP Command Grammar Admission
+
+Prove that:
+
+`conformance-receipt.bind`
+
+is admitted by the actual CLAP noun/verb authority.
+
+It is not sufficient for the string to merely look CLAP-shaped.
+
+Required positive proof:
+
+[
+CLAPValidate(noun=\text{conformance-receipt}, verb=\text{bind}) = ADMITTED
+]
+
+Required negative proof:
+
+[
+CLAPValidate(command=\text{wasm4pm.bind_receipt}) = REFUSED
+]
+
+Also prove refusal for malformed or unauthorized variants:
+
+* `receipt.bind`
+* `wasm4pm.bind`
+* `conformance.bind_receipt`
+* `conformance-receipt.write`
+* `conformance-receipt.apply`
+* `conformance-receipt.mutate`
+* `receipt.conformance-bind`
+
+Accepted GC008B statuses only:
+
+* `BLOCKED`
+* `CANDIDATE`
+* `REPORTED_ADMITTED_BY_DOGFOOD`
+
+Forbidden GC008B claim:
+
+* “CLAP governance proven” unless the actual CLAP authority validates the command and refuses the malformed controls.
+
+---
+
+## R2. GC008C — PackPlan / Staging / MutationGate Route
+
+Prove that a valid `conformance-receipt.bind` intent flows strictly through:
+
+`CodeAction → PackActionIntent → PackPlan → Staging → MutationGate → Receipt`
+
+Required positive proof:
+
+1. Real LSP protocol emits a `CodeAction`.
+2. The returned action contains `conformance-receipt.bind`.
+3. The action is converted into `PackActionIntent`.
+4. `PackActionIntent` resolves into `PackPlan`.
+5. `PackPlan` creates or requires `Staging`.
+6. `Staging` requires `MutationGate`.
+7. MutationGate denial prevents write.
+8. Receipt emission requires admitted mutation.
+
+Required negative controls:
+
+* direct `executeCommand` is refused or absent
+* direct `WorkspaceEdit` receipt binding is impossible
+* command without CLAP admission is refused
+* PackPlan bypass is refused
+* Staging bypass is refused
+* MutationGate denial blocks write
+* receipt emission without admitted mutation refuses
+* adapter cannot append receipt events
+* LSP cannot write files
+* LSP cannot manufacture receipt strings
+
+Accepted GC008C statuses only:
+
+* `BLOCKED`
+* `CANDIDATE`
+* `REPORTED_ADMITTED_BY_DOGFOOD`
+
+Forbidden GC008C claim:
+
+* “All mutations flow through PackPlan / Staging / MutationGate” unless the positive route and negative controls are both proven.
+
+---
+
+# Protocol Proof Requirement
+
+At least one proof must use the real LSP boundary:
+
+`initialize → didOpen → publishDiagnostics → textDocument/codeAction → returned conformance-receipt.bind intent`
+
+Forbidden proof shortcuts:
+
+* direct internal function calls as final proof
+* private state inspection as final proof
+* unit-only proof for protocol behavior
+* string-only proof for CLAP validation
+* static scan only for lawful mutation route
+
+Static scans are allowed as supporting evidence, not final route proof.
+
+---
+
+# Anti-Cheating Static Surveillance
+
+Scan all relevant boundaries:
+
+* `/Users/sac/ggen`
+* `/Users/sac/tower-lsp-max`
+* `/Users/sac/wasm4pm`
+* `/Users/sac/wasm4pm-compat`
+
+Forbidden patterns:
+
+* `wasm4pm.bind_receipt`
+* `bind_conformance_receipt`
+* `execute_command` mutation path
+* `WorkspaceEdit` receipt binding
+* `std::fs::write` in LSP mutation path
+* `tokio::fs::write` in LSP mutation path
+* `std::fs::read_to_string` in receipt-binding path
+* `ocel.events.push` in adapter
+* manual `FIT` return
+* manual `ADMITTED` return
+* `v1.0.0`
+* `version = "1.0.0"`
+* fake `wasm4pm` shadow crate
+* fake `wasm4pm-lsp` shadow crate
+* fake `wasm4pm-compat` shadow crate
+
+If no forbidden patterns are found, include the exact scan commands and raw output.
+
+---
+
+# Acceptance Criteria
+
+## Required Output Schema
+
+Final output must match this structure:
+
+```yaml
+GC008B_STATUS: BLOCKED | CANDIDATE | REPORTED_ADMITTED_BY_DOGFOOD
+
+GC008C_STATUS: BLOCKED | CANDIDATE | REPORTED_ADMITTED_BY_DOGFOOD
+
+FAILSET:
+  - failure_id:
+    checkpoint:
+    law:
+    evidence:
+    blocking:
+    required_next_proof:
+
+RAW_PROOFS:
+  - proof_id:
+    command:
+    output_excerpt:
+    receipt_path:
+    digest:
+
+LSP_TRANSCRIPTS:
+  - transcript_id:
+    path:
+    covers:
+      - initialize
+      - didOpen
+      - publishDiagnostics
+      - textDocument/codeAction
+    digest:
+
+NEGATIVE_CONTROLS:
+  - control_id:
+    expected:
+    observed:
+    status:
+    raw_output_excerpt:
+
+ANTI_CHEAT_SCAN:
+  commands:
+    - command:
+      output_excerpt:
+      digest:
+  forbidden_matches:
+    - pattern:
+      path:
+      line:
+      status:
+
+FORBIDDEN_CLAIMS:
+  - claim:
+    reason:
+```
+
+---
+
+# Status Rules
+
+## Allowed
+
+`GC008B_STATUS: REPORTED_ADMITTED_BY_DOGFOOD`
+
+Only if:
+
+* actual CLAP authority admits `conformance-receipt.bind`
+* malformed controls are refused
+* raw proof and receipt paths are provided
+
+`GC008C_STATUS: CANDIDATE`
+
+Allowed if:
+
+* no LSP mutation lock still holds
+* CodeAction intent exists
+* route design is partially wired
+* full PackPlan/Staging/MutationGate receipt path is not yet fully proven
+
+`GC008C_STATUS: REPORTED_ADMITTED_BY_DOGFOOD`
+
+Only if:
+
+* LSP protocol proof exists
+* CLAP validation proof exists
+* PackActionIntent proof exists
+* PackPlan proof exists
+* Staging proof exists
+* MutationGate denial proof exists
+* receipt emission proof exists
+* negative controls pass
+
+## Forbidden
+
+Do not say:
+
+* “Victory confirmed”
+* “All gaps resolved”
+* “GC008 fully admitted”
+* “CLAP governance proven”
+* “All mutations flow through the gate”
+* “The path is guaranteed”
+* “No future bypass is possible”
+
+unless the raw proof structure explicitly supports the claim.
+
+---
+
+# Agent Assignments
+
+## Agent 1 — CLAP Grammar Auditor
+
+Target: GC008B
+
+Tasks:
+
+1. Locate the actual CLAP noun/verb authority.
+2. Validate `conformance-receipt.bind` through that authority.
+3. Refuse `wasm4pm.bind_receipt`.
+4. Refuse malformed command variants.
+5. Return raw commands, outputs, receipts, and failset.
+
+Do not accept string shape as validation.
+
+---
+
+## Agent 2 — LSP Protocol Auditor
+
+Target: protocol evidence
+
+Tasks:
+
+1. Run real `tower-lsp` stdio boundary.
+2. Send `initialize`.
+3. Send `didOpen`.
+4. Observe `publishDiagnostics`.
+5. Request `textDocument/codeAction`.
+6. Verify returned CodeAction contains `conformance-receipt.bind`.
+7. Capture transcript and digest.
+
+Do not use internal function calls as final proof.
+
+---
+
+## Agent 3 — Mutation Route Auditor
+
+Target: GC008C
+
+Tasks:
+
+1. Trace CodeAction into `PackActionIntent`.
+2. Trace `PackActionIntent` into `PackPlan`.
+3. Prove `Staging` is required.
+4. Prove `MutationGate` is required.
+5. Prove denial prevents write.
+6. Prove receipt emission requires admitted mutation.
+
+Do not add shortcuts.
+
+---
+
+## Agent 4 — Anti-Cheating Auditor
+
+Target: forbidden paths
+
+Tasks:
+
+1. Scan all relevant workspaces.
+2. Report forbidden patterns.
+3. Verify no shadow crates.
+4. Verify no `v1.0.0`.
+5. Verify no fake return paths.
+6. Return raw scan commands and digests.
+
+No prose victory summary.
+
+---
+
+# Final Instruction
+
+Operate in Gall cash-busting mode.
+
+Return only:
+
+* statuses
+* failset
+* raw proofs
+* LSP transcripts
+* negative controls
+* anti-cheat scans
+* forbidden claims
+
+Do not narrate success.
+
+## Follow-up — 2026-06-07T03:56:02Z
+
+# Teamwork Project Prompt — Surgical Patches
+
+Please ensure your team is aligned with these corrected requirements and constraints.
+
+Here are the details of the patches:
+
+1. Equation formatting corrected:
+Done_B(A) = [FailSet_B(A)=∅] ∧ [R_B ⊢ A = μ(O*_B)]
+
+2. R2 Important Distinction:
+Absence of known bad mutation paths is not enough. The team must distinguish [¬KnownBadPath] from [AllMutation ⊆ PackPlan → Staging → MutationGate → Receipt]. Static scans can support GC008A, but GC008C requires positive route proof.
+
+3. Hard No Upgrade Rules:
+- Do not upgrade GC008B_STATUS to REPORTED_ADMITTED_BY_DOGFOOD unless the actual CLAP noun/verb authority validates the positive command and refuses the malformed controls.
+- Do not upgrade GC008C_STATUS to REPORTED_ADMITTED_BY_DOGFOOD unless the full route is observed: CodeAction → CLAP validation → PackActionIntent → PackPlan → Staging → MutationGate → Receipt, with negative controls proving bypass refusal.
+
+4. Receipt path specificity under RAW_PROOFS:
+The receipt_path field must point to the actual emitted Gall receipt, refusal receipt, or checkpoint receipt, not merely a test log. Test stdout alone is not a receipt.
+
+## Follow-up — 2026-06-07T03:56:46Z
+
+# Teamwork Project Prompt — Equation Normalization
+
+The teamwork project prompt equations have been normalized into plain-text to ensure correct rendering.
+
+Please refer to the updated prompt draft for the finalized text:
+
+# Final Teamwork Project Prompt — GC008B / GC008C
+
+Status: Launched
+Goal: Swarm verification in progress
+Working directory: `/Users/sac/ggen`
+Integrity mode: benchmark
+Operating mode: Gall cash-busting
+Success predicate: external evaluator only
+
+## Mission
+
+Verify the CLAP command grammar admission for **GC008B** and the lawful mutation route for **GC008C**.
+
+Do not produce victory language.
+Do not claim DONE.
+Do not claim ADMITTED unless the proof boundary is actually satisfied.
+Return failures, blockers, raw proofs, transcripts, and receipts only.
+
+Current target:
+
+| Checkpoint                                      | Current Status               |
+| ----------------------------------------------- | ---------------------------- |
+| GC008A: No LSP mutation lock                    | REPORTED_ADMITTED_BY_DOGFOOD |
+| GC008B: CLAP validation                         | CANDIDATE                    |
+| GC008C: PackPlan / Staging / MutationGate route | OPEN                         |
+
+---
+
+## Core Gall Law
+
+All work must preserve:
+
+Core Gall Law:
+R_B ⊢ A = μ(O*_B)
+
+The LLM/team does not declare success.
+
+External success predicate:
+Done_B(A) = [FailSet_B(A)=∅] ∧ [R_B ⊢ A = μ(O*_B)]
+
+Your job is to reduce the failset, not narrate victory.
+
+---
+
+# Requirements
+
+## R1. GC008B — CLAP Command Grammar Admission
+
+Prove that:
+
+`conformance-receipt.bind`
+
+is admitted by the actual CLAP noun/verb authority.
+
+It is not sufficient for the string to merely look CLAP-shaped.
+
+Required positive proof:
+CLAPValidate(noun="conformance-receipt", verb="bind") = ADMITTED
+
+Required negative proof:
+CLAPValidate(command="wasm4pm.bind_receipt") = REFUSED
+
+Also prove refusal for malformed or unauthorized variants:
+
+* `receipt.bind`
+* `wasm4pm.bind`
+* `conformance.bind_receipt`
+* `conformance-receipt.write`
+* `conformance-receipt.apply`
+* `conformance-receipt.mutate`
+* `receipt.conformance-bind`
+
+Accepted GC008B statuses only:
+
+* `BLOCKED`
+* `CANDIDATE`
+* `REPORTED_ADMITTED_BY_DOGFOOD`
+
+## No Upgrade Rule
+
+Do not upgrade:
+
+GC008B_STATUS to REPORTED_ADMITTED_BY_DOGFOOD
+
+unless the actual CLAP noun/verb authority validates the positive command and refuses the malformed controls.
+
+Forbidden GC008B claim:
+
+* “CLAP governance proven” unless the actual CLAP authority validates the command and refuses the malformed controls.
+
+---
+
+## R2. GC008C — PackPlan / Staging / MutationGate Route
+
+Prove that a valid `conformance-receipt.bind` intent flows strictly through:
+
+`CodeAction → PackActionIntent → PackPlan → Staging → MutationGate → Receipt`
+
+Required positive proof:
+
+1. Real LSP protocol emits a `CodeAction`.
+2. The returned action contains `conformance-receipt.bind`.
+3. The action is converted into `PackActionIntent`.
+4. `PackActionIntent` resolves into `PackPlan`.
+5. `PackPlan` creates or requires `Staging`.
+6. `Staging` requires `MutationGate`.
+7. MutationGate denial prevents write.
+8. Receipt emission requires admitted mutation.
+
+Required negative controls:
+
+* direct `executeCommand` is refused or absent
+* direct `WorkspaceEdit` receipt binding is impossible
+* command without CLAP admission is refused
+* PackPlan bypass is refused
+* Staging bypass is refused
+* MutationGate denial blocks write
+* receipt emission without admitted mutation refuses
+* adapter cannot append receipt events
+* LSP cannot write files
+* LSP cannot manufacture receipt strings
+
+Accepted GC008C statuses only:
+
+* `BLOCKED`
+* `CANDIDATE`
+* `REPORTED_ADMITTED_BY_DOGFOOD`
+
+## Important Distinction
+
+Absence of known bad mutation paths is not enough.
+
+The team must distinguish:
+
+Absence of known bad paths:
+¬KnownBadPath
+
+is not equivalent to:
+
+AllMutation ⊆ PackPlan → Staging → MutationGate → Receipt
+
+Static scans can support GC008A, but GC008C requires positive route proof.
+
+## No Upgrade Rule
+
+Do not upgrade:
+
+GC008C_STATUS to REPORTED_ADMITTED_BY_DOGFOOD
+
+unless the full route is observed:
+
+CodeAction → CLAP validation → PackActionIntent → PackPlan → Staging → MutationGate → Receipt
+
+with negative controls proving bypass refusal.
+
+Forbidden GC008C claim:
+
+* “All mutations flow through PackPlan / Staging / MutationGate” unless the positive route and negative controls are both proven.
+
+---
+
+# Protocol Proof Requirement
+
+At least one proof must use the real LSP boundary:
+
+`initialize → didOpen → publishDiagnostics → textDocument/codeAction → returned conformance-receipt.bind intent`
+
+Forbidden proof shortcuts:
+
+* direct internal function calls as final proof
+* private state inspection as final proof
+* unit-only proof for protocol behavior
+* string-only proof for CLAP validation
+* static scan only for lawful mutation route
+
+Static scans are allowed as supporting evidence, not final route proof.
+
+---
+
+# Anti-Cheating Static Surveillance
+
+Scan all relevant boundaries:
+
+* `/Users/sac/ggen`
+* `/Users/sac/tower-lsp-max`
+* `/Users/sac/wasm4pm`
+* `/Users/sac/wasm4pm-compat`
+
+Forbidden patterns:
+
+* `wasm4pm.bind_receipt`
+* `bind_conformance_receipt`
+* `execute_command` mutation path
+* `WorkspaceEdit` receipt binding
+* `std::fs::write` in LSP mutation path
+* `tokio::fs::write` in LSP mutation path
+* `std::fs::read_to_string` in receipt-binding path
+* `ocel.events.push` in adapter
+* manual `FIT` return
+* manual `ADMITTED` return
+* `v1.0.0`
+* `version = "1.0.0"`
+* fake `wasm4pm` shadow crate
+* fake `wasm4pm-lsp` shadow crate
+* fake `wasm4pm-compat` shadow crate
+
+If no forbidden patterns are found, include the exact scan commands and raw output.
+
+---
+
+# Acceptance Criteria
+
+## Required Output Schema
+
+Final output must match this structure:
+
+```yaml
+GC008B_STATUS: BLOCKED | CANDIDATE | REPORTED_ADMITTED_BY_DOGFOOD
+
+GC008C_STATUS: BLOCKED | CANDIDATE | REPORTED_ADMITTED_BY_DOGFOOD
+
+FAILSET:
+  - failure_id:
+    checkpoint:
+    law:
+    evidence:
+    blocking:
+    required_next_proof:
+
+RAW_PROOFS:
+  - proof_id:
+    command:
+    output_excerpt:
+    receipt_path: # Must point to the emitted Gall receipt, refusal receipt, or checkpoint receipt, not merely a test log. Test stdout alone is not a receipt.
+    digest:
+
+LSP_TRANSCRIPTS:
+  - transcript_id:
+    path:
+    covers:
+      - initialize
+      - didOpen
+      - publishDiagnostics
+      - textDocument/codeAction
+    digest:
+
+NEGATIVE_CONTROLS:
+  - control_id:
+    expected:
+    observed:
+    status:
+    raw_output_excerpt:
+
+ANTI_CHEAT_SCAN:
+  commands:
+    - command:
+      output_excerpt:
+      digest:
+  forbidden_matches:
+    - pattern:
+      path:
+      line:
+      status:
+
+FORBIDDEN_CLAIMS:
+  - claim:
+    reason:
+```
+
+## Follow-up — 2026-06-07T04:01:13Z
+
+# Final Teamwork Project Prompt — GC008B / GC008C / LSP 3.18
+
+Status: Launched
+Goal: Swarm verification in progress
+Working directory: `/Users/sac/ggen`
+Integrity mode: benchmark
+Operating mode: Gall cash-busting
+Success predicate: external evaluator only
+
+## Mission
+
+Verify the CLAP command grammar admission for **GC008B**, the lawful mutation route for **GC008C**, and the strict LSP 3.18 protocol boundary (GC004B, GC004C, GC004D, GC008D).
+
+Do not produce victory language.
+Do not claim DONE.
+Do not claim ADMITTED unless the proof boundary is actually satisfied.
+Return failures, blockers, raw proofs, transcripts, and receipts only.
+
+Current target:
+
+| Checkpoint | Current Status |
+| :--- | :--- |
+| **GC004B: No plain tower-lsp lock** | OPEN / BLOCKING |
+| **GC004C: LSP 3.18 capability negotiation** | OPEN |
+| **GC004D: LSP 3.18 feature exercise** | OPEN |
+| **GC008A: No LSP mutation lock** | REPORTED_ADMITTED_BY_DOGFOOD |
+| **GC008B: CLAP validation** | CANDIDATE |
+| **GC008C: PackPlan / Staging / MutationGate route** | OPEN |
+| **GC008D: GC008 over LSP 3.18 surface** | OPEN |
+| **GC009** | OPEN |
+
+---
+
+## Core Gall Invariants
+
+All work must preserve:
+
+Core Gall Law:
+R_B ⊢ A = μ(O*_B)
+
+The LLM/team does not declare success.
+
+External success predicate:
+Done_B(A) = [FailSet_B(A)=∅] ∧ [R_B ⊢ A = μ(O*_B)]
+
+Your job is to reduce the failset, not narrate victory.
+
+---
+
+# Requirements
+
+## R1. GC008B — CLAP Command Grammar Admission
+Prove that `conformance-receipt.bind` is admitted by the actual CLAP noun/verb authority, while `wasm4pm.bind_receipt` and other malformed commands are refused.
+
+Required positive proof:
+CLAPValidate(noun="conformance-receipt", verb="bind") = ADMITTED
+
+Required negative proof:
+CLAPValidate(command="wasm4pm.bind_receipt") = REFUSED
+
+Also prove refusal for malformed or unauthorized variants:
+* `receipt.bind`, `wasm4pm.bind`, `conformance.bind_receipt`
+* `conformance-receipt.write`, `conformance-receipt.apply`, `conformance-receipt.mutate`, `receipt.conformance-bind`
+
+## R2. GC008C & GC008D — Lawful Mutation Route over LSP 3.18
+Prove that a valid `conformance-receipt.bind` intent flows strictly through:
+```text
+CodeAction → PackActionIntent → PackPlan → Staging → MutationGate → Receipt
+```
+This route must be observed over the LSP 3.18 runtime surface (GC008D), not the old plain `tower-lsp` surface.
+
+### Important Distinction
+Absence of known bad mutation paths is not enough. The team must distinguish:
+Absence of known bad paths: ¬KnownBadPath
+is not equivalent to: AllMutation ⊆ PackPlan → Staging → MutationGate → Receipt
+Static scans can support GC008A, but GC008C requires positive route proof.
+
+## R3. GC004B, GC004C, GC004D — LSP 3.18 Surface Lock
+- **LAW-LSP-001 (No plain tower-lsp)**: Remove all `tower-lsp` / `tower_lsp` dependencies, imports, and lock entries from `/Users/sac/ggen`, `/Users/sac/tower-lsp-max`, `/Users/sac/wasm4pm`, and `/Users/sac/wasm4pm-compat`.
+- **LAW-LSP-002 (LSP 3.18 only)**: The actual runtime, server, and test harness must use the LSP 3.18 protocol model (advertised capability negotiation in `initialize` payload and server response).
+- **LSP 3.18 Feature Matrix**: Verify that the 15 required LSP 3.18 features are supported, refused by law, or blocked by missing surface (but not "not tested").
+
+---
+
+# LSP 3.18 Feature Matrix
+
+| ID | LSP 3.18 Feature | Status Codomain |
+| :--- | :--- | :--- |
+| **LSP318-001** | inline completions | SUPPORTED \| REFUSED_BY_LAW \| BLOCKED |
+| **LSP318-002** | dynamic text document content | SUPPORTED \| REFUSED_BY_LAW \| BLOCKED |
+| **LSP318-003** | folding range refresh | SUPPORTED \| REFUSED_BY_LAW \| BLOCKED |
+| **LSP318-004** | multi-range formatting | SUPPORTED \| REFUSED_BY_LAW \| BLOCKED |
+| **LSP318-005** | snippets in workspace edits | SUPPORTED \| REFUSED_BY_LAW \| BLOCKED |
+| **LSP318-006** | relative patterns in document filters | SUPPORTED \| REFUSED_BY_LAW \| BLOCKED |
+| **LSP318-007** | relative patterns in notebook filters | SUPPORTED \| REFUSED_BY_LAW \| BLOCKED |
+| **LSP318-008** | code action kind documentation | SUPPORTED \| REFUSED_BY_LAW \| BLOCKED |
+| **LSP318-009** | activeParameter on SignatureHelp | SUPPORTED \| REFUSED_BY_LAW \| BLOCKED |
+| **LSP318-010** | command tooltips | SUPPORTED \| REFUSED_BY_LAW \| BLOCKED |
+| **LSP318-011** | workspace edit metadata | SUPPORTED \| REFUSED_BY_LAW \| BLOCKED |
+| **LSP318-012** | snippets in text document edits | SUPPORTED \| REFUSED_BY_LAW \| BLOCKED |
+| **LSP318-013** | debug message kind | SUPPORTED \| REFUSED_BY_LAW \| BLOCKED |
+| **LSP318-014** | code lens resolve properties | SUPPORTED \| REFUSED_BY_LAW \| BLOCKED |
+| **LSP318-015** | completionList.applyKind | SUPPORTED \| REFUSED_BY_LAW \| BLOCKED |
+
+---
+
+# Anti-Cheating Static Surveillance
+
+Scan all relevant boundaries for forbidden patterns:
+- `tower-lsp`, `tower_lsp`, `lsp-types` or `lsp_types` version lacking 3.18 coverage
+- `wasm4pm.bind_receipt`, `bind_conformance_receipt`, `execute_command` mutation path
+- `WorkspaceEdit` receipt binding
+- `std::fs::write` or `tokio::fs::write` in LSP mutation path
+- `std::fs::read_to_string` in receipt-binding path
+- `ocel.events.push` in adapter
+- manual `FIT` / `ADMITTED` returns, `v1.0.0` or `version = "1.0.0"`
+- fake shadow crates (`crates/wasm4pm`, `crates/wasm4pm-lsp`, `crates/wasm4pm-compat`)
+
+---
+
+# Acceptance Criteria
+
+## Required Output Schema
+
+```yaml
+GC004B_STATUS: BLOCKED | REPORTED_ADMITTED_BY_DOGFOOD
+GC004C_STATUS: BLOCKED | CANDIDATE | REPORTED_ADMITTED_BY_DOGFOOD
+GC004D_STATUS: BLOCKED | CANDIDATE | REPORTED_ADMITTED_BY_DOGFOOD
+GC008B_STATUS: BLOCKED | CANDIDATE | REPORTED_ADMITTED_BY_DOGFOOD
+GC008C_STATUS: BLOCKED | CANDIDATE | REPORTED_ADMITTED_BY_DOGFOOD
+GC008D_STATUS: BLOCKED | CANDIDATE | REPORTED_ADMITTED_BY_DOGFOOD
+
+FAILSET:
+  - failure_id:
+    checkpoint:
+    law:
+    evidence:
+    blocking:
+    required_next_proof:
+
+LSP318_FEATURE_MATRIX:
+  - feature_id: LSP318-001
+    name: inline completions
+    status: SUPPORTED | REFUSED_BY_LAW | BLOCKED
+    protocol_proof:
+    negative_control:
+    receipt:
+
+RAW_PROOFS:
+  - proof_id:
+    command:
+    output_excerpt:
+    receipt_path: # Must point to the emitted Gall receipt, refusal receipt, or checkpoint receipt, not merely a test log. Test stdout alone is not a receipt.
+    digest:
+
+LSP_TRANSCRIPTS:
+  - transcript_id:
+    path:
+    covers:
+      - initialize
+      - didOpen
+      - publishDiagnostics
+      - textDocument/codeAction
+    digest:
+
+NEGATIVE_CONTROLS:
+  - control_id:
+    expected:
+    observed:
+    status:
+    raw_output_excerpt:
+
+ANTI_CHEAT_SCAN:
+  commands:
+    - command:
+      output_excerpt:
+      digest:
+  forbidden_matches:
+    - pattern:
+      path:
+      line:
+      status:
+
+FORBIDDEN_CLAIMS:
+  - claim:
+    reason:
+```
+
+---
+
+# Status & Upgrade Rules
+
+- **Do not upgrade GC008B_STATUS to `REPORTED_ADMITTED_BY_DOGFOOD`** unless the actual CLAP noun/verb authority validates the positive command and refuses the malformed controls.
+- **Do not upgrade GC008C_STATUS to `REPORTED_ADMITTED_BY_DOGFOOD`** unless the full route is observed: `CodeAction` → CLAP validation → `PackActionIntent` → `PackPlan` → `Staging` → `MutationGate` → `Receipt` (with negative controls proving bypass refusal).
+- **Do not claim GC008C admitted** while any proof depends on plain `tower-lsp`.
+- **Do not claim LSP 3.18** because `tower-lsp-max-pack-lsp` is present. Pack observer dependency is not runtime protocol authority.
+- **Forbidden Claims**: Do not say "Victory confirmed", "All gaps resolved", "GC008 fully admitted", "CLAP governance proven", or "All mutations flow through the gate" unless the raw proof structure explicitly supports the claim.
+
+## Follow-up — 2026-06-07T04:12:49Z
+
+# Final Teamwork Project Prompt — Strange Stuff / Code Smell / Poor Practice Audit
+
+Verify the CLAP command grammar admission for **GC008B** and the lawful mutation route for **GC008C**.
+
+Do not produce victory language.
+Do not claim DONE.
+Do not claim ADMITTED unless the proof boundary is actually satisfied.
+Return failures, blockers, raw proofs, transcripts, and receipts only.
+
+Working directories:
+- `/Users/sac/ggen`
+- `/Users/sac/tower-lsp-max`
+- `/Users/sac/wasm4pm`
+- `/Users/sac/wasm4pm-compat`
+
+Operating mode: Gall cash-busting
+Success predicate: external evaluator only
+Output mode: failset only
+
+---
+
+# Requirements
+
+## R1. Strange Code / Suspicious Behavior
+Find code that looks like debugging, scaffolding, cargo-culting, or “make the test pass” logic.
+Flag examples like:
+- diagnostics named `DEBUG`
+- diagnostics that print raw file content or paths
+- warnings emitted for non-error states
+- substring checks used as authority
+- fake validated log messages
+- placeholder code that sounds authoritative
+
+## R2. clap-noun-verb Correctness
+Search for any invented abstraction around `CLAP` (like `CLAP` as an acronym or `CLAPValidate` unless it actually exists). Verify where `clap-noun-verb` actually lives, which binary admits noun/verb shapes, and if invalid shapes are refused.
+
+## R3. LSP Surface Audit
+No `tower-lsp` anywhere. Search for old protocol crates in dependencies or lockfiles, and old tower-lsp imports. Verify that the runtime does not depend on plain `tower-lsp`.
+
+## R4. LSP 3.18 Feature Coverage Audit
+Verify if every LSP 3.18 feature (LSP318-001 through LSP318-015) is implemented, tested, or lawfully refused.
+
+## R5. Receipt, Checkpoint, and Mutation Authority Audit
+Find places where logs/summaries are treated as receipts. Verify CalVer versioning. Verify that no mutation route bypasses `CodeAction` -> `clap-noun-verb` -> `PackActionIntent` -> `PackPlan` -> `Staging` -> `MutationGate` -> `Receipt`. Check for poor Rust practices (unwraps in authority path, silent defaults, etc.).
+
+---
+
+# Acceptance Criteria
+
+Final output must match the requested YAML structure:
+
+```yaml
+GC_STRANGENESS_AUDIT_STATUS: FAILSET_NONEMPTY | NO_FAILURES_REPORTED_WITH_RECEIPTS
+
+FAILSET:
+  - failure_id:
+    category:
+    checkpoint_impacted:
+    law:
+    path:
+    line:
+    evidence:
+    why_strange:
+    blocking:
+    required_correction:
+    required_next_proof:
+
+CODE_SMELLS:
+  - smell_id:
+    category:
+    path:
+    line:
+    snippet:
+    severity:
+    reason:
+    suggested_correction:
+
+POOR_PRACTICES:
+  - practice_id:
+    path:
+    line:
+    evidence:
+    severity:
+    why_poor:
+    required_correction:
+
+TEST_SMELLS:
+  - test_smell_id:
+    path:
+    line:
+    evidence:
+    why_test_can_pass_for_wrong_reason:
+    required_correction:
+
+LSP_SURFACE_AUDIT:
+  no_tower_lsp_status: BLOCKED | REPORTED_CLEAN_WITH_RAW_SCAN
+  tower_lsp_matches:
+    - path:
+      line:
+      evidence:
+  lsp318_matrix:
+    - feature_id:
+      feature:
+      status: SUPPORTED | REFUSED_BY_LAW | BLOCKED | NOT_FOUND
+      evidence:
+      required_next_proof:
+
+CLAP_NOUN_VERB_AUDIT:
+  status: BLOCKED | CANDIDATE | REPORTED_ADMITTED_BY_DOGFOOD
+  fake_clap_matches:
+    - path:
+      line:
+      evidence:
+  noun_verb_validation_evidence:
+    - command:
+      expected:
+      observed:
+      proof_path:
+      digest:
+
+MUTATION_ROUTE_AUDIT:
+  status: BLOCKED | CANDIDATE | REPORTED_ADMITTED_BY_DOGFOOD
+  bypass_matches:
+    - path:
+      line:
+      evidence:
+      bypass_type:
+  route_proofs:
+    - step:
+      evidence:
+      receipt:
+
+RECEIPT_AND_VERSION_AUDIT:
+  calver_status: BLOCKED | REPORTED_CLEAN_WITH_RAW_SCAN
+  receipt_status: BLOCKED | CANDIDATE | REPORTED_RECEIPTED
+  bad_version_matches:
+    - path:
+      line:
+      evidence:
+  receipt_smells:
+    - path:
+      line:
+      evidence:
+      reason:
+
+RAW_COMMANDS:
+  - command:
+    exit_code:
+    output_excerpt:
+    digest:
+
+FORBIDDEN_CLAIMS:
+  - claim:
+    reason:
+```
+
+
+
+
+
+
+

@@ -60,7 +60,7 @@ use std::path::Path;
 
 use ggen_lsp::ServerState;
 use tempfile::TempDir;
-use tower_lsp::lsp_types::Url;
+use tower_lsp_max::lsp_types::Url;
 
 /// Write a minimal but valid ggen project: one rule binding `queries/items.rq`
 /// to `templates/item.tera` with output `out.txt`. Identical shape to the

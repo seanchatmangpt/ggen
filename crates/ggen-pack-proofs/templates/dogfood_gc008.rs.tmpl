@@ -1,0 +1,37 @@
+use std::fs;
+use std::path::Path;
+
+#[test]
+fn test_gc008_clap_governed_mutation_route() {
+    let current_dir = std::env::current_dir().unwrap();
+    // Assuming current_dir is inside tower-lsp-max/crates/gc005-wasm4pm-adapter
+    let tower_lsp_max_root = current_dir.parent().unwrap().parent().unwrap().to_path_buf();
+    let parent_dir = tower_lsp_max_root.parent().unwrap().to_path_buf();
+    let wasm4pm_root = parent_dir.join("wasm4pm");
+    
+    let lsp_main_path = wasm4pm_root.join("crates/wasm4pm-lsp/src/main.rs");
+    let lsp_src = fs::read_to_string(&lsp_main_path).expect("Could not read wasm4pm-lsp main.rs");
+    
+    let adapter_lib_path = tower_lsp_max_root.join("crates/gc005-wasm4pm-adapter/src/lib.rs");
+    let adapter_src = fs::read_to_string(&adapter_lib_path).expect("Could not read gc005-wasm4pm-adapter lib.rs");
+
+    {% for proof in proofs_gc008 %}
+    // {{ proof.id }}
+    {
+        {% if proof.id == "no-lsp-mutation" %}
+            // The LSP observer must NOT have executeCommand logic for receipt binding.
+            assert!(!lsp_src.contains("async fn execute_command"), "executeCommand block found in LSP; direct mutation is forbidden");
+            assert!(!lsp_src.contains("std::fs::read_to_string"), "Direct fs read found in LSP; disk access for mutation is forbidden");
+            assert!(!lsp_src.contains("WorkspaceEdit {"), "WorkspaceEdit found in LSP; direct receipt binding is forbidden");
+            
+            // The adapter must not contain logic to mutate the OCEL and append receipts
+            assert!(!adapter_src.contains("pub fn bind_conformance_receipt"), "bind_conformance_receipt found in adapter; adapter cannot authorize mutation");
+            assert!(!adapter_src.contains("ocel.events.push(receipt_event)"), "OCEL mutation found in adapter; adapter cannot alter evidence");
+        {% elif proof.id == "clap-command-grammar" %}
+            // The intent published must conform to CLAP noun/verb syntax
+            assert!(!lsp_src.contains("\"wasm4pm.bind_receipt\""), "Invented command wasm4pm.bind_receipt is forbidden");
+            assert!(lsp_src.contains("\"conformance-receipt.bind\""), "Command intent must be CLAP-governed (noun-verb)");
+        {% endif %}
+    }
+    {% endfor %}
+}

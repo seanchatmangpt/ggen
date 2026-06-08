@@ -41,7 +41,15 @@ impl TestLspClient {
     /// Spawn a specific LSP binary with a hermetic working directory.
     pub fn spawn_bin(bin_name: &str) -> Result<Self, anyhow::Error> {
         let bin = if bin_name == "ggen-lsp" {
-            assert_cmd::cargo::cargo_bin(bin_name)
+            match std::env::var("CARGO_BIN_EXE_ggen-lsp") {
+                Ok(val) => PathBuf::from(val),
+                Err(_) => {
+                    let mut path = std::env::current_exe()?;
+                    path.pop(); // deps
+                    path.pop(); // debug
+                    path.join(bin_name)
+                }
+            }
         } else {
             // Find the binary in target/debug
             let mut path = std::env::current_exe()?;

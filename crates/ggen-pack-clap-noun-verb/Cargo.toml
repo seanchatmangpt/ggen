@@ -5,6 +5,14 @@ edition = "2021"
 publish = false
 
 [dependencies]
-tower-lsp = "0.20.0"
+tower-lsp-max = { path = "../../../tower-lsp-max", features = ["proposed"] }
 serde_json = "1.0"
 tokio = { version = "1.0", features = ["rt-multi-thread", "macros", "io-std"] }
+url = "2.5"
+ggen-projection = { workspace = true }
+
+[dev-dependencies]
+walkdir = "2.5"
+tempfile = { workspace = true }
+ggen-projection = { workspace = true }
+

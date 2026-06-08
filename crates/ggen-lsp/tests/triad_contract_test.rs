@@ -84,7 +84,7 @@ fn refusal_is_one_shared_shape() {
     let target = DiagnosticRef {
         code: "E9999".to_string(),
         message: "hypothetical unrouted diagnostic".to_string(),
-        range: tower_lsp::lsp_types::Range::default(),
+        range: tower_lsp_max::lsp_types::Range::default(),
         severity: "error".to_string(),
     };
     let refusal = RouteRefusal::from_target(&target);

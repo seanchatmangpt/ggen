@@ -23,7 +23,7 @@
 )]
 //! Tests for the Genesis-bearing interchangeable part architecture in ggen-graph.
 use ggen_graph::graph::quad::parse_nquad;
-use ggen_graph::ocel::{OcelEvent, OcelLog, OcelObject};
+use ggen_graph::ocel::{OCELEvent, OCEL, OCELObject};
 use ggen_graph::{AdapterLayer, GenesisCore, OuterMembrane, ProjectionLayer};
 use serde_json::json;
 
@@ -148,13 +148,13 @@ fn test_adapter_layer_json_rpc() -> Result<(), Box<dyn std::error::Error>> {
 fn test_projection_layer_ocel() -> Result<(), Box<dyn std::error::Error>> {
     // Arrange: Setup a Genesis core and target logs
     let core = GenesisCore::new()?;
-    let log = OcelLog {
-        objects: vec![OcelObject {
+    let log = OCEL {
+        objects: vec![OCELObject {
             id: "obj-1".to_string(),
             r#type: "CustomType".to_string(),
             attributes: std::collections::HashMap::new(),
         }],
-        events: vec![OcelEvent {
+        events: vec![OCELEvent {
             id: "ev-1".to_string(),
             activity: "PerformAction".to_string(),
             timestamp: chrono::DateTime::parse_from_rfc3339("2026-05-27T06:00:00Z")

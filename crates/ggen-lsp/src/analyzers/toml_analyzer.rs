@@ -5,7 +5,7 @@
 //! `logging.format`, and `rdf.default_format`. Offers completion for the known
 //! sections and enum values so agents can only author admitted configuration.
 
-use tower_lsp::lsp_types::{
+use tower_lsp_max::lsp_types::{
     CodeLens, CompletionItem, CompletionItemKind, CompletionResponse, Diagnostic,
     DiagnosticSeverity, DocumentSymbol, FoldingRange, Hover, HoverContents, InlayHint,
     MarkupContent, MarkupKind, Position, Range, SymbolKind, TextEdit, WorkspaceEdit,
@@ -193,7 +193,7 @@ impl TomlAnalyzer {
         })
     }
 
-    pub fn semantic_tokens(&self) -> Option<tower_lsp::lsp_types::SemanticTokens> {
+    pub fn semantic_tokens(&self) -> Option<tower_lsp_max::lsp_types::SemanticTokens> {
         None
     }
 
@@ -282,7 +282,7 @@ fn section_fold(start: u32, end: u32) -> FoldingRange {
         end_line: end,
         start_character: None,
         end_character: None,
-        kind: Some(tower_lsp::lsp_types::FoldingRangeKind::Region),
+        kind: Some(tower_lsp_max::lsp_types::FoldingRangeKind::Region),
         collapsed_text: None,
     }
 }
@@ -319,7 +319,7 @@ mod tests {
         let diags = analyzer.diagnostics();
         assert!(diags
             .iter()
-            .any(|d| d.code == Some(tower_lsp::lsp_types::NumberOrString::String("E0023".into()))));
+            .any(|d| d.code == Some(tower_lsp_max::lsp_types::NumberOrString::String("E0023".into()))));
     }
 
     #[test]
@@ -349,7 +349,7 @@ mod tests {
         let diags = analyzer.diagnostics();
         assert_eq!(
             diags[0].code,
-            Some(tower_lsp::lsp_types::NumberOrString::String("E0001".into()))
+            Some(tower_lsp_max::lsp_types::NumberOrString::String("E0001".into()))
         );
     }
 

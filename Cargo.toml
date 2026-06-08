@@ -1,5 +1,5 @@
 [workspace.package]
-version = "26.5.29"
+version = "26.6.6"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 repository = "https://github.com/seanchatmangpt/ggen"
@@ -52,8 +52,8 @@ members = [
   "crates/stpnt",
   "crates/genesis-lockchain",
   "crates/genesis-construct8",
-  "crates/gc005-wasm4pm-adapter",
-  "crates/wasm4pm-lsp",
+  # ARCHIVED: gc005-wasm4pm-adapter removed from build boundary — external path dep
+  # (wasm4pm-algos at ../../../wasm4pm) + broken ocel_core import. Preserved on disk.
   # ARCHIVED out of the v26.5.29 build boundary (SETTLEMENT-CHECK-1): this example
   # drifted from its own types in a prior release (ValidationAgent missing the
   # `agent_type` field; async fns misusing `?`) and does not compile under
@@ -62,7 +62,7 @@ members = [
   # on disk (non-deletion doctrine); re-add after repair.
   # "examples/7-agent-validation",
   ]
-exclude = ["examples/7-agent-validation"]
+exclude = ["examples/7-agent-validation", "crates/gc005-wasm4pm-adapter"]
 resolver = "2" # Use new resolver for better dependency resolution
 
 # Workspace-wide dependencies for version consistency
@@ -119,8 +119,8 @@ rig-core = "0.15.1"
 
 # Workspace-local crates (use workspace = true pattern in workspace members)
 # NOTE: v26.5.29 unified release
-ggen-core = { path = "crates/ggen-core", version = "26.5.29" }
-ggen-cli-lib = { path = "crates/ggen-cli", version = "26.5.29" }
+ggen-core = { path = "crates/ggen-core", version = "26.6.6" }
+ggen-cli-lib = { path = "crates/ggen-cli", version = "26.6.6" }
 genesis-lockchain = { path = "crates/genesis-lockchain", version = "26.6.6" }
 knhk-construct8 = { path = "crates/genesis-construct8", version = "26.6.6" }
 ggen-projection = { path = "crates/ggen-projection", version = "26.6.6" }
@@ -787,3 +787,7 @@ unused-shlibs = []
 # a wide blast radius unsuitable for the release foundation. Land kebab via a
 # MINIMAL published clap-noun-verb release on top of the stable 26.5.x line, then
 # bump the dep. ggen works today on published 26.5.19 (snake flags).
+
+[patch.crates-io]
+wasm4pm-compat = { path = "/Users/sac/wasm4pm-compat" }
+

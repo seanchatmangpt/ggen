@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 use tokio::sync::Mutex;
-use tower_lsp::lsp_types::{Diagnostic, Url};
+use tower_lsp_max::lsp_types::{Diagnostic, Url};
 
 use crate::analyzers::DocumentAnalyzer;
 use crate::project_index::BufferOverlay;

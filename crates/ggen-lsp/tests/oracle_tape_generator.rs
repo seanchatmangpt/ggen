@@ -61,7 +61,7 @@
 
 use std::path::{Path, PathBuf};
 
-use tower_lsp::lsp_types::{Diagnostic, NumberOrString, Url};
+use tower_lsp_max::lsp_types::{Diagnostic, NumberOrString, Url};
 
 use ggen_lsp::ServerState;
 

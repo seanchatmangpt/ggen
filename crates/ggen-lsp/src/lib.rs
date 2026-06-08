@@ -46,7 +46,7 @@ pub use route::{
 pub use server::GgenLanguageServer;
 pub use state::ServerState;
 
-use tower_lsp::{LspService, Server};
+use tower_lsp_max::{LspService, Server};
 
 /// Run the LSP server over stdio (the transport editors use).
 pub async fn run_stdio() -> anyhow::Result<()> {

@@ -1,5 +1,5 @@
-use tower_lsp_max::{LspService, Server};
-use tower_lsp_max_playground::Backend;
+use tower_lsp_max_max::{LspService, Server};
+use tower_lsp_max_max_playground::Backend;
 
 #[tokio::main]
 async fn main() {

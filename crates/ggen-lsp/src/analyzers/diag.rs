@@ -4,7 +4,7 @@
 //! one of ggen's runtime error codes (E00XX), that code is attached so the editor
 //! shows the *same* law the pipeline enforces at `ggen sync` time.
 
-use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Position, Range};
+use tower_lsp_max::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Position, Range};
 
 /// Build a diagnostic spanning a single line/column range.
 ///

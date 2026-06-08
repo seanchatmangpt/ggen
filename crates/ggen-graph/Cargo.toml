@@ -22,7 +22,7 @@ urlencoding = { workspace = true }
 # GALL-CONFORM-001 Stage 0: pin ocel-core from wasm4pm as the canonical OCEL type authority.
 # ggen is an OCEL *producer*; wasm4pm is the PM authority (per GGEN-NEEDS.md §0).
 # This dependency gates Stages 1-4 of the PM-retirement migration.
-ocel-core = { path = "/Users/sac/wasm4pm/crates/ocel-core" }
+ocel-core = { version = "26.6.8", package = "wasm4pm-compat" }
 
 [lints]
 workspace = true

@@ -17,7 +17,7 @@
 //! lenses.
 
 use serde_json::Value;
-use tower_lsp::lsp_types::{CodeLens, Command, Position, Range};
+use tower_lsp_max::lsp_types::{CodeLens, Command, Position, Range};
 
 use crate::state::FileType;
 

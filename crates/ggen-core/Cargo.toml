@@ -118,15 +118,15 @@ itertools = "0.12"
 
 [dependencies.ggen-config]
 path = "../ggen-config"
-version = "26.5.29"
+version = "26.6.6"
 
 [dependencies.ggen-a2a-mcp]
 path = "../ggen-a2a-mcp"
-version = "26.5.29"
+version = "26.6.6"
 
 [dependencies.ggen-marketplace]
 path = "../ggen-marketplace"
-version = "26.5.29"
+version = "26.6.6"
 optional = true
 
 [dependencies.oxigraph]

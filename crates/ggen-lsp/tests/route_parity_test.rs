@@ -33,7 +33,7 @@ use ggen_lsp::route::{
     RouteId, RouteRegistry, StepId,
 };
 use tempfile::TempDir;
-use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Position, Range};
+use tower_lsp_max::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Position, Range};
 
 fn diag(code: &str) -> Diagnostic {
     Diagnostic {

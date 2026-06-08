@@ -29,20 +29,25 @@ fn walk_dir(dir: &Path, base_dir: &Path, file_list: &mut Vec<String>) -> std::io
             let rel_path = path.strip_prefix(base_dir).unwrap_or(&path);
             let path_str = rel_path.to_string_lossy().replace('\\', "/");
 
-            if path_str.starts_with(".git")
-                || path_str.starts_with(".agents")
-                || path_str.starts_with(".gemini")
-                || path_str.starts_with(".antigravitycli")
-                || path_str.starts_with(".claude")
-                || path_str.starts_with(".cursor")
-                || path_str.starts_with(".vscode")
-                || path_str.starts_with("target")
-            {
-                continue;
-            }
             if path.is_dir() {
+                if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
+                    let name_lower = name.to_lowercase();
+                    if name.starts_with('.')
+                        || name_lower.starts_with("target")
+                        || name_lower == "node_modules"
+                        || name_lower == "_build"
+                        || name == "~"
+                    {
+                        continue;
+                    }
+                }
                 walk_dir(&path, base_dir, file_list)?;
             } else {
+                if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
+                    if name.starts_with('.') && name != ".gitignore" {
+                        continue;
+                    }
+                }
                 file_list.push(path_str);
             }
         }

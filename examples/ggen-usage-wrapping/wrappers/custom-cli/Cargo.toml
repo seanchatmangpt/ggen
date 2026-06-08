@@ -1,6 +1,6 @@
 [package]
 name = "ggen-custom-cli"
-version = "1.0.0"
+version = "26.6.6"
 edition = "2021"
 description = "Custom CLI wrapper for ggen"
 
@@ -10,8 +10,8 @@ path = "src/main.rs"
 
 [dependencies]
 # Core ggen
-ggen-core = { path = "../../../../ggen-core", version = "1.0.0" }
-ggen-ai = { path = "../../../../ggen-ai", version = "1.0.0" }
+ggen-core = { path = "../../../../ggen-core", version = "26.6.6" }
+ggen-ai = { path = "../../../../ggen-ai", version = "26.6.6" }
 
 # CLI framework
 clap = { version = "4.0", features = ["derive", "env"] }

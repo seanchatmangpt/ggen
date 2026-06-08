@@ -58,7 +58,7 @@
 
 use std::path::{Path, PathBuf};
 
-use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Position, Range, Url};
+use tower_lsp_max::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Position, Range, Url};
 
 use ggen_lsp::check::{check_files_in_root, discover_law_surfaces, CheckReport};
 use ggen_lsp::route::{Provenance, RouteRegistry};
@@ -420,7 +420,7 @@ fn headless_gate_never_materializes_output_file() {
 ///
 ///   1. **A constructible `GgenLanguageServer` with an injectable root.**
 ///      `GgenLanguageServer::new(client: Client)` (server.rs:13) is the ONLY
-///      public constructor. It (a) requires a `tower_lsp::Client`, which is
+///      public constructor. It (a) requires a `tower_lsp_max::Client`, which is
 ///      produced solely by `LspService::new(...)` inside `run_stdio` and is not
 ///      independently constructible in a unit test, and (b) hard-codes
 ///      `ServerState::default()` (server.rs:15) whose `root` is `current_dir()`
@@ -480,7 +480,7 @@ fn headless_gate_never_materializes_output_file() {
 /// `server::refresh_analyzer` now calls (the wrapper adds only
 /// `Client::publish_diagnostics`). The test below drives that REAL orchestration,
 /// so the live `ReceiptEmitted` chain is now observable from the on-disk OCEL log
-/// without a `tower_lsp::Client`. The proof exercises production code, not a
+/// without a `tower_lsp_max::Client`. The proof exercises production code, not a
 /// test-local reconstruction of it.
 ///
 /// raise (analyze the template) → cross-surface repair (fix the SPARQL query) →

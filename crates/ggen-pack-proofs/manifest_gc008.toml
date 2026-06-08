@@ -1,0 +1,24 @@
+[checkpoint]
+id = "GALL-CHECKPOINT-008"
+name = "CLAP-Governed Mutation Route"
+status_target = "CANDIDATE"
+
+[boundary]
+workspace = "."
+target = ".tmp_gc008/target"
+staging_dir = ".tmp_gc008/staging"
+receipt_sink = ".tmp_gc008/receipts"
+
+proofs_gc006 = []
+proofs_gc004 = []
+proofs_gc003 = []
+proofs = []
+equation = { form = "R_B" }
+
+[[proofs_gc008]]
+id = "no-lsp-mutation"
+kind = "code-law"
+
+[[proofs_gc008]]
+id = "clap-command-grammar"
+kind = "code-law"

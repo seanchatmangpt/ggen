@@ -40,7 +40,7 @@ use ggen_lsp::intel::MetricValue;
 use ggen_lsp::state::ServerState;
 use ggen_lsp::{check_content, check_files_in_root, compute_metrics, mine};
 use tempfile::TempDir;
-use tower_lsp::lsp_types::Url;
+use tower_lsp_max::lsp_types::Url;
 
 fn write(dir: &Path, name: &str, content: &str) -> PathBuf {
     let p = dir.join(name);

@@ -1,6 +1,6 @@
-use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Position, Range, Url};
+use tower_lsp_max::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Position, Range, Url};
 use serde_json::json;
-use crate::pack_lsp_registry::{Registry, ClapNounVerbObserver, TowerLspMaxObserver};
+use crate::pack_lsp_registry::{Registry, ClapNounVerbObserver, TowerLspObserver};
 
 pub fn compute_observer_diagnostics(uri: &Url, content: &str) -> Vec<Diagnostic> {
     let mut diags = Vec::new();
@@ -26,7 +26,7 @@ pub fn compute_observer_diagnostics(uri: &Url, content: &str) -> Vec<Diagnostic>
     // Instantiate and run pack-domain LSPs
     let mut registry = Registry::new();
     registry.register(Box::new(ClapNounVerbObserver));
-    registry.register(Box::new(TowerLspMaxObserver));
+    registry.register(Box::new(TowerLspObserver));
     
     let pack_obs = registry.observe_all(uri, content);
     for obs in pack_obs {

@@ -1,6 +1,6 @@
 [package]
 name = "tai-payment-system"
-version = "1.0.0"
+version = "26.6.6"
 edition = "2021"
 authors = ["TAI Reference Team"]
 description = "TAI Pattern Reference Implementation - Payment Processing System"

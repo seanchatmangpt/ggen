@@ -155,7 +155,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let ocel_file_path = audit_dir.join("gall_evidence.ocel.json");
     if ocel_file_path.exists() {
         let f = File::open(&ocel_file_path)?;
-        match serde_json::from_reader::<_, ggen_graph::ocel::OcelLog>(f) {
+        match serde_json::from_reader::<_, ggen_graph::ocel::OCEL>(f) {
             Ok(log) => {
                 for i in 1..log.events.len() {
                     if log.events[i].timestamp < log.events[i - 1].timestamp {

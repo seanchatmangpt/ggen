@@ -1,4 +1,7 @@
 {
-  "vars": {},
+  "vars": {
+    "app_name": "my_app",
+    "port": "8080"
+  },
   "file_overrides": {}
 }

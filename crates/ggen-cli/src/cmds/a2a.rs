@@ -6,7 +6,7 @@ use clap_noun_verb::Result;
 use clap_noun_verb_macros::verb;
 use ggen_a2a_mcp::a2a::receipt::{
     AlignmentEvidence, ExpectedPathEvidence, McpInvocationEvidence, ObservedPathEvidence,
-    OcelEvent, OcelObject, OcelObjectRef, ReceiptOcelSlice,
+    OCELEvent, OCELObject, OCELObjectRef, ReceiptOcelSlice,
 };
 use ggen_a2a_mcp::a2a::{
     A2ARefusalState, A2AState, A2ATaskReceipt, Avatar8, Jtbd8, Task, TaskState,
@@ -237,23 +237,23 @@ fn do_verify(run: Option<String>, out: Option<String>) -> Result<VerifyOutput> {
 
         let mut ocel_events = vec![];
         let ocel_objects = vec![
-            OcelObject {
+            OCELObject {
                 id: entry.task_id.clone(),
                 r#type: "A2ATask".to_string(),
             },
-            OcelObject {
+            OCELObject {
                 id: format!("{:?}", entry.avatar),
                 r#type: "Avatar8".to_string(),
             },
-            OcelObject {
+            OCELObject {
                 id: format!("{:?}", entry.jtbd),
                 r#type: "Jtbd8".to_string(),
             },
-            OcelObject {
+            OCELObject {
                 id: "ggen".to_string(),
                 r#type: "MCPServer".to_string(),
             },
-            OcelObject {
+            OCELObject {
                 id: receipt_id.clone(),
                 r#type: "Receipt".to_string(),
             },
@@ -262,32 +262,32 @@ fn do_verify(run: Option<String>, out: Option<String>) -> Result<VerifyOutput> {
         let mut expected_ocel = ReceiptOcelSlice {
             schema: "CanonicalOCEL.v1".to_string(),
             events: vec![
-                OcelEvent {
+                OCELEvent {
                     id: format!("expected_task_created_{}", entry.task_id),
                     activity: "a2a.task.created".to_string(),
                     timestamp: "2026-05-21T00:00:00.000Z".to_string(),
-                    objects: vec![OcelObjectRef {
+                    objects: vec![OCELObjectRef {
                         id: entry.task_id.clone(),
                         r#type: "A2ATask".to_string(),
                         qualifier: Some("task".to_string()),
                     }],
                     attributes: std::collections::HashMap::new(),
                 },
-                OcelEvent {
+                OCELEvent {
                     id: format!("expected_tool_invoked_{}", entry.task_id),
                     activity: "a2a.mcp.tool.invoked".to_string(),
                     timestamp: "2026-05-21T00:00:01.000Z".to_string(),
                     objects: vec![],
                     attributes: std::collections::HashMap::new(),
                 },
-                OcelEvent {
+                OCELEvent {
                     id: format!("expected_artifact_emitted_{}", entry.task_id),
                     activity: "a2a.artifact.emitted".to_string(),
                     timestamp: "2026-05-21T00:00:02.000Z".to_string(),
                     objects: vec![],
                     attributes: std::collections::HashMap::new(),
                 },
-                OcelEvent {
+                OCELEvent {
                     id: format!("expected_task_closed_{}", entry.task_id),
                     activity: "a2a.task.closed".to_string(),
                     timestamp: "2026-05-21T00:00:03.000Z".to_string(),
@@ -309,27 +309,27 @@ fn do_verify(run: Option<String>, out: Option<String>) -> Result<VerifyOutput> {
             })?;
             if let Ok(task) = serde_json::from_str::<Task>(&content) {
                 // 1. Task Created
-                ocel_events.push(OcelEvent {
+                ocel_events.push(OCELEvent {
                     id: format!("evt_task_created_{}", entry.task_id),
                     activity: "a2a.task.created".to_string(),
                     timestamp: task.created_at.to_rfc3339(),
                     objects: vec![
-                        OcelObjectRef {
+                        OCELObjectRef {
                             id: entry.task_id.clone(),
                             r#type: "A2ATask".to_string(),
                             qualifier: Some("task".to_string()),
                         },
-                        OcelObjectRef {
+                        OCELObjectRef {
                             id: format!("{:?}", entry.avatar),
                             r#type: "Avatar8".to_string(),
                             qualifier: Some("actor".to_string()),
                         },
-                        OcelObjectRef {
+                        OCELObjectRef {
                             id: format!("{:?}", entry.jtbd),
                             r#type: "Jtbd8".to_string(),
                             qualifier: Some("job".to_string()),
                         },
-                        OcelObjectRef {
+                        OCELObjectRef {
                             id: "ggen".to_string(),
                             r#type: "MCPServer".to_string(),
                             qualifier: Some("tool-server".to_string()),
@@ -348,17 +348,17 @@ fn do_verify(run: Option<String>, out: Option<String>) -> Result<VerifyOutput> {
                             .to_hex()
                             .to_string(),
                     );
-                    ocel_events.push(OcelEvent {
+                    ocel_events.push(OCELEvent {
                         id: format!("evt_tool_invoked_{}", entry.task_id),
                         activity: "a2a.mcp.tool.invoked".to_string(),
                         timestamp: task.created_at.to_rfc3339(),
                         objects: vec![
-                            OcelObjectRef {
+                            OCELObjectRef {
                                 id: entry.task_id.clone(),
                                 r#type: "A2ATask".to_string(),
                                 qualifier: Some("task".to_string()),
                             },
-                            OcelObjectRef {
+                            OCELObjectRef {
                                 id: "ggen".to_string(),
                                 r#type: "MCPServer".to_string(),
                                 qualifier: Some("tool-server".to_string()),
@@ -379,17 +379,17 @@ fn do_verify(run: Option<String>, out: Option<String>) -> Result<VerifyOutput> {
                     };
                     observed_artifact_hash =
                         Some(blake3::hash(content_str.as_bytes()).to_hex().to_string());
-                    ocel_events.push(OcelEvent {
+                    ocel_events.push(OCELEvent {
                         id: format!("evt_artifact_emitted_{}", entry.task_id),
                         activity: "a2a.artifact.emitted".to_string(),
                         timestamp: task.updated_at.to_rfc3339(),
                         objects: vec![
-                            OcelObjectRef {
+                            OCELObjectRef {
                                 id: entry.task_id.clone(),
                                 r#type: "A2ATask".to_string(),
                                 qualifier: Some("task".to_string()),
                             },
-                            OcelObjectRef {
+                            OCELObjectRef {
                                 id: "artifact_needed.md".to_string(),
                                 r#type: "Artifact".to_string(),
                                 qualifier: Some("output".to_string()),
@@ -405,11 +405,11 @@ fn do_verify(run: Option<String>, out: Option<String>) -> Result<VerifyOutput> {
                 if task.state == TaskState::Completed {
                     task_state = A2AState::Closed;
                     let closed_at = task.completed_at.unwrap_or(task.updated_at);
-                    ocel_events.push(OcelEvent {
+                    ocel_events.push(OCELEvent {
                         id: format!("evt_task_closed_{}", entry.task_id),
                         activity: "a2a.task.closed".to_string(),
                         timestamp: closed_at.to_rfc3339(),
-                        objects: vec![OcelObjectRef {
+                        objects: vec![OCELObjectRef {
                             id: entry.task_id.clone(),
                             r#type: "A2ATask".to_string(),
                             qualifier: Some("task".to_string()),
@@ -438,17 +438,17 @@ fn do_verify(run: Option<String>, out: Option<String>) -> Result<VerifyOutput> {
             overall_status = "ReceiptScaffoldRefused".to_string();
         }
 
-        ocel_events.push(OcelEvent {
+        ocel_events.push(OCELEvent {
             id: format!("evt_task_validated_{}", entry.task_id),
             activity: "a2a.task.validated".to_string(),
             timestamp: "2026-05-21T00:00:04.000Z".to_string(),
             objects: vec![
-                OcelObjectRef {
+                OCELObjectRef {
                     id: entry.task_id.clone(),
                     r#type: "A2ATask".to_string(),
                     qualifier: Some("task".to_string()),
                 },
-                OcelObjectRef {
+                OCELObjectRef {
                     id: receipt_id.clone(),
                     r#type: "Receipt".to_string(),
                     qualifier: Some("validation".to_string()),

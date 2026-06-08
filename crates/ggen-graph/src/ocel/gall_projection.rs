@@ -1,9 +1,9 @@
 //! Projecting self-audit logs to and from the deterministic graph.
 //!
-//! Provides functions to project an `OcelLog` with compliant qualifiers to a graph,
+//! Provides functions to project an `OCEL` with compliant qualifiers to a graph,
 //! extract it back, and query relationship qualifiers.
 
-use crate::ocel::{EvidenceProjector, OcelLog};
+use crate::ocel::{EvidenceProjector, OCEL};
 use crate::{DeterministicGraph, GraphError};
 
 /// Encodes unsafe qualifiers to IRI-compatible percent-encoded strings.
@@ -16,8 +16,8 @@ pub fn to_orig_qualifier(q: &str) -> String {
     q.replace("%3C", "<").replace("%3E", ">")
 }
 
-/// Projects a self-audit `OcelLog` into the `DeterministicGraph` after mapping qualifiers to IRI-safe strings.
-pub fn project_self_audit(graph: &DeterministicGraph, log: &OcelLog) -> Result<(), GraphError> {
+/// Projects a self-audit `OCEL` into the `DeterministicGraph` after mapping qualifiers to IRI-safe strings.
+pub fn project_self_audit(graph: &DeterministicGraph, log: &OCEL) -> Result<(), GraphError> {
     let mut safe_log = log.clone();
     for ev in &mut safe_log.events {
         for obj_ref in &mut ev.objects {
@@ -29,8 +29,8 @@ pub fn project_self_audit(graph: &DeterministicGraph, log: &OcelLog) -> Result<(
     EvidenceProjector::project_ocel(graph, &safe_log)
 }
 
-/// Extracts a self-audit `OcelLog` from the `DeterministicGraph` and maps IRI-safe qualifiers back to their original forms.
-pub fn extract_self_audit(graph: &DeterministicGraph) -> Result<OcelLog, GraphError> {
+/// Extracts a self-audit `OCEL` from the `DeterministicGraph` and maps IRI-safe qualifiers back to their original forms.
+pub fn extract_self_audit(graph: &DeterministicGraph) -> Result<OCEL, GraphError> {
     let mut log = EvidenceProjector::extract_ocel(graph)?;
     for ev in &mut log.events {
         for obj_ref in &mut ev.objects {

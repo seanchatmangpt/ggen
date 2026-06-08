@@ -3,15 +3,15 @@ use std::collections::HashMap;
 
 /// Represents an OCEL (Object-Centric Event Log) data structure.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Default)]
-pub struct OcelLog {
+pub struct OCEL {
     /// The list of objects in the log.
-    pub objects: Vec<OcelObject>,
+    pub objects: Vec<OCELObject>,
     /// The list of events in the log.
-    pub events: Vec<OcelEvent>,
+    pub events: Vec<OCELEvent>,
 }
 
-impl OcelLog {
-    /// Creates a new empty `OcelLog`.
+impl OCEL {
+    /// Creates a new empty `OCEL`.
     pub fn new() -> Self {
         Self::default()
     }
@@ -19,7 +19,7 @@ impl OcelLog {
 
 /// Represents an object in the OCEL log.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-pub struct OcelObject {
+pub struct OCELObject {
     /// The unique identifier of the object.
     pub id: String,
     /// The type classification of the object.
@@ -30,7 +30,7 @@ pub struct OcelObject {
 
 /// Represents an event in the OCEL log.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-pub struct OcelEvent {
+pub struct OCELEvent {
     /// The unique identifier of the event.
     pub id: String,
     /// The activity name associated with this event.
@@ -38,14 +38,14 @@ pub struct OcelEvent {
     /// The timestamp when the event occurred.
     pub timestamp: chrono::DateTime<chrono::Utc>,
     /// Reference to objects involved in this event.
-    pub objects: Vec<OcelObjectRef>,
+    pub objects: Vec<OCELObjectRef>,
     /// Custom attributes associated with the event.
     pub attributes: HashMap<String, String>,
 }
 
 /// A reference to an object from an event, optionally with a qualifier.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-pub struct OcelObjectRef {
+pub struct OCELObjectRef {
     /// The unique identifier of the referenced object.
     pub id: String,
     /// The type of the referenced object.

@@ -1,9 +1,9 @@
 use clap_noun_verb_macros::verb;
 use clap_noun_verb::Result;
 use crate::types::CommandResult;
-use tower_lsp_max::jsonrpc;
-use tower_lsp_max::lsp_types::*;
-use tower_lsp_max::{Client, LanguageServer, LspService, Server};
+use tower_lsp_max_max::jsonrpc;
+use tower_lsp_max_max::lsp_types::*;
+use tower_lsp_max_max::{Client, LanguageServer, LspService, Server};
 use tokio::runtime::Runtime;
 
 #[derive(Debug)]

@@ -1,13 +1,13 @@
 use serde_json::json;
-use tower_lsp::jsonrpc::Result;
-use tower_lsp::lsp_types::*;
-use tower_lsp::{Client, LanguageServer, LspService, Server};
+use tower_lsp_max::jsonrpc::Result;
+use tower_lsp_max::lsp_types::*;
+use tower_lsp_max::{Client, LanguageServer, LspService, Server};
 
 struct Backend {
     client: Client,
 }
 
-#[tower_lsp::async_trait]
+#[tower_lsp_max::async_trait]
 impl LanguageServer for Backend {
     async fn initialize(&self, _: InitializeParams) -> Result<InitializeResult> {
         Ok(InitializeResult {

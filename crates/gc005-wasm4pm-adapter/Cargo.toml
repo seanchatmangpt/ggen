@@ -8,5 +8,6 @@ publish = false
 serde = { workspace = true }
 serde_json = { workspace = true }
 anyhow = { workspace = true }
+chrono = { workspace = true }
 wasm4pm-algos = { path = "../../../wasm4pm/crates/wasm4pm-algos" }
-ocel-core = { path = "../../../wasm4pm/crates/ocel-core" }
+ocel-core = { version = "26.6.8", package = "wasm4pm-compat" }

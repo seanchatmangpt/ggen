@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-05-27T15:08:06Z",
-  "verdict": "Promoted",
-  "reason": "Witnessed Agent Truthfulness validation checks satisfied. All T0-T10 and W0-W7 verifiers pass.",
-  "integrity_status": "PASS",
-  "witness_adjudication_blake3_receipt": "2926d354a7c72de725355a9b99c5c8268f164da8c8a3ad556e8855257a32fdea"
+  "timestamp": "2026-06-07T02:35:55Z",
+  "verdict": "Refused",
+  "reason": "Witnessed Agent Adjudication refused. 5 violation(s) detected: Checkpoint W1 failed; Checkpoint R7 failed; Checkpoint W1 did not pass or was not evaluated; Validation report public_vocab.validation.ttl exists but does not conform, or is missing; Validation report hook_actuation.validation.ttl exists but does not conform, or is missing",
+  "integrity_status": "FAIL",
+  "witness_adjudication_blake3_receipt": "f9d0a6b66ec3f015c4c1a1be6dac70810d4a2b4e9fb1a59ec14ab14d96a89aa5"
 }

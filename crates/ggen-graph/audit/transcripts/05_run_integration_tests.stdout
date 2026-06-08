@@ -1,10 +1,22 @@
 === [05] Running Integration Tests ===
 
-running 2 tests
+running 14 tests
+test sparql::tests::detects_query_forms ... ok
+test graph::locate::tests::extract_prefixes_returns_declared_prefixes ... ok
+test graph::locate::tests::clean_turtle_has_no_diagnostics ... ok
+test graph::locate::tests::malformed_turtle_reports_located_diagnostic ... ok
+test sparql::tests::invalid_query_fails_syntax_check ... ok
+test sparql::tests::valid_query_passes_syntax_check ... ok
+test ocel::conformance::tests::conforming_repair_lifecycle_passes ... ok
+test graph::introspect::tests::enumerates_classes_and_properties ... ok
+test ocel::conformance::tests::out_of_order_repair_fails ... ok
+test shacl::tests::conforming_data_has_no_violations ... ok
+test shacl::tests::missing_required_property_is_a_violation ... ok
+test ocel::dfg::tests::discovers_directly_follows_edges ... ok
 test tests::test_graph_and_receipt_flow ... ok
 test ocel::self_audit::tests::test_self_audit_log_generation_and_projection ... ok
 
-test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
 
 
 running 0 tests
@@ -60,12 +72,22 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 running 0 tests
 
 test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 5 tests
+test empty_graph_yields_empty_dfg ... ok
+test lifecycle_requires_all_three_in_order ... ok
+test single_event_has_no_edges ... ok
+test equal_timestamps_produce_no_direct_follow ... ok
+test distinct_cases_do_not_create_cross_edges ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
 
 
 running 1 test
 test test_anti_fake_implementation_scan ... ok
 
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
 
 
 running 2 tests
@@ -76,13 +98,13 @@ test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 
 running 5 tests
+test test_datalog_completeness ... ok
 test test_shex_completeness ... ok
 test test_n3_completeness ... ok
-test test_datalog_completeness ... ok
 test test_sparql_completeness ... ok
 test test_shacl_completeness ... ok
 
-test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
 
 
 running 1 test
@@ -94,13 +116,13 @@ test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 running 1 test
 test test_dialect_replay ... ok
 
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
 
 
 running 1 test
 test test_dialect_sabotage_checks ... ok
 
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
 
 
 running 2 tests
@@ -113,13 +135,13 @@ test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 running 1 test
 test test_hash_stability_order_independence ... ok
 
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
 
 running 4 tests
 test test_hook_serialization_and_deserialization ... ok
-test test_load_hooks_from_json_array ... ok
 test test_all_ttl_hooks_have_nonempty_sparql_query ... ok
+test test_load_hooks_from_json_array ... ok
 test test_load_ttl_hook_pack_has_14_hooks ... ok
 
 test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
@@ -145,20 +167,20 @@ running 2 tests
 test test_prov_roundtrip ... ok
 test test_ocel_roundtrip_and_diagnostics_flow ... ok
 
-test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
 
 
 running 1 test
 test test_integration_self_audit_graph_projection_and_sparql ... ok
 
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
 
 
 running 2 tests
 test test_receipt_tamper_detection ... ok
 test test_receipt_replay_success ... ok
 
-test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
 
 
 running 6 tests
@@ -169,13 +191,13 @@ test test_hook_pack_w0_construct_query_against_real_store ... ok
 test test_hook_pack_w0_construct_query_empty_store_returns_nonconforming_report ... ok
 test test_all_hook_pack_queries_are_valid_sparql ... ok
 
-test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
 
 
 running 1 test
 test test_coverage_matrix_schema_and_contents ... ok
 
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
 
 
 running 5 tests
@@ -185,6 +207,6 @@ test test_hook_pack_ttl_contains_no_gall_namespace_terms ... ok
 test test_audit_doctest_results_ttl_vocab_is_clean ... ok
 test test_all_ttl_files_have_no_gall_terms ... ok
 
-test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.63s
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
 
 PASS: Integration tests passed successfully.

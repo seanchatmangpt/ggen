@@ -4,8 +4,8 @@
       "id": "obj_crate_ggen",
       "type": "RustCrate",
       "attributes": {
-        "name": "ggen-graph",
-        "version": "0.1.0"
+        "version": "0.1.0",
+        "name": "ggen-graph"
       }
     },
     {
@@ -20,8 +20,8 @@
       "id": "obj_ard_mapping",
       "type": "ARDRequirement",
       "attributes": {
-        "title": "Deterministic Graph Mapping",
-        "description": "Self-audit logs must project deterministically to and from RDF triple graphs."
+        "description": "Self-audit logs must project deterministically to and from RDF triple graphs.",
+        "title": "Deterministic Graph Mapping"
       }
     },
     {
@@ -36,8 +36,8 @@
       "id": "req_r2_ontology",
       "type": "PRDRequirement",
       "attributes": {
-        "description": "Vocabulary constants must be emitted directly from public ontology profiles.",
-        "title": "Public Ontology Governance and Vocabulary Emission"
+        "title": "Public Ontology Governance and Vocabulary Emission",
+        "description": "Vocabulary constants must be emitted directly from public ontology profiles."
       }
     },
     {
@@ -60,8 +60,8 @@
       "id": "req_r5_ocel_prov",
       "type": "PRDRequirement",
       "attributes": {
-        "description": "Every graph transition must produce a replayable cryptographic receipt bundle and project PROV-O/OCEL.",
-        "title": "OCEL/PROV Evidence Projection & Replayable Receipts"
+        "title": "OCEL/PROV Evidence Projection & Replayable Receipts",
+        "description": "Every graph transition must produce a replayable cryptographic receipt bundle and project PROV-O/OCEL."
       }
     },
     {
@@ -84,8 +84,8 @@
       "id": "req_r8_coverage_matrix",
       "type": "PRDRequirement",
       "attributes": {
-        "title": "Coverage Matrix & Verification Scripts",
-        "description": "Implement coverage mapping in coverage.rs and verify via scripts."
+        "description": "Implement coverage mapping in coverage.rs and verify via scripts.",
+        "title": "Coverage Matrix & Verification Scripts"
       }
     },
     {
@@ -100,8 +100,8 @@
       "id": "req_r10_interchangeable",
       "type": "PRDRequirement",
       "attributes": {
-        "title": "Genesis-bearing Interchangeable Part Architecture",
-        "description": "Ensure interchangeable parts where Genesis is the embedded core and ggen forms the outer membrane, adapter layer, and projection layer."
+        "description": "Ensure interchangeable parts where Genesis is the embedded core and ggen forms the outer membrane, adapter layer, and projection layer.",
+        "title": "Genesis-bearing Interchangeable Part Architecture"
       }
     },
     {
@@ -132,8 +132,8 @@
       "id": "obj_source_file_self_audit",
       "type": "SourceFile",
       "attributes": {
-        "language": "rust",
-        "path": "crates/ggen-graph/src/ocel/self_audit.rs"
+        "path": "crates/ggen-graph/src/ocel/self_audit.rs",
+        "language": "rust"
       }
     },
     {
@@ -156,8 +156,8 @@
       "id": "obj_fixture_file_self_audit",
       "type": "FixtureFile",
       "attributes": {
-        "path": "crates/ggen-graph/tests/fixtures/self_audit_log.json",
-        "format": "json"
+        "format": "json",
+        "path": "crates/ggen-graph/tests/fixtures/self_audit_log.json"
       }
     },
     {
@@ -172,8 +172,8 @@
       "id": "obj_command_test",
       "type": "Command",
       "attributes": {
-        "args": "test --package ggen-graph",
-        "binary": "cargo"
+        "binary": "cargo",
+        "args": "test --package ggen-graph"
       }
     },
     {
@@ -188,8 +188,8 @@
       "id": "obj_evidence_artifact_1",
       "type": "EvidenceArtifact",
       "attributes": {
-        "size_bytes": "1024",
-        "sha256": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+        "sha256": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+        "size_bytes": "1024"
       }
     },
     {
@@ -204,16 +204,16 @@
       "id": "obj_coverage_matrix_1",
       "type": "CoverageMatrix",
       "attributes": {
-        "line_coverage": "0.965",
-        "branch_coverage": "0.921"
+        "branch_coverage": "0.921",
+        "line_coverage": "0.965"
       }
     },
     {
       "id": "obj_promotion_decision_1",
       "type": "PromotionDecision",
       "attributes": {
-        "status": "Promoted",
-        "approver": "OrchestratorAgent"
+        "approver": "OrchestratorAgent",
+        "status": "Promoted"
       }
     },
     {

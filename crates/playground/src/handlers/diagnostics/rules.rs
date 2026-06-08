@@ -1,4 +1,4 @@
-use tower_lsp_max::lsp_types_max::*;
+use tower_lsp_max_max::lsp_types_max::*;
 
 use crate::handlers::completions::METHODS;
 use crate::handlers::diagnostics::analysis::{analyze_impl_block, ImplAnalysis};

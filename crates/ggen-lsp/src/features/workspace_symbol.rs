@@ -21,7 +21,7 @@
 
 use std::path::Path;
 
-use tower_lsp::lsp_types::{Location, SymbolInformation, SymbolKind, Url};
+use tower_lsp_max::lsp_types::{Location, SymbolInformation, SymbolKind, Url};
 
 /// Maximum number of symbols returned for a single `workspace/symbol` request.
 ///
@@ -64,7 +64,7 @@ pub fn workspace_symbols(root: &Path, query: &str) -> Vec<SymbolInformation> {
             continue;
         };
 
-        let mut flat: Vec<&tower_lsp::lsp_types::DocumentSymbol> = Vec::new();
+        let mut flat: Vec<&tower_lsp_max::lsp_types::DocumentSymbol> = Vec::new();
         for sym in &doc_symbols {
             flatten(sym, &mut flat);
         }
@@ -101,8 +101,8 @@ pub fn workspace_symbols(root: &Path, query: &str) -> Vec<SymbolInformation> {
 /// Flatten a (possibly nested) [`DocumentSymbol`] into a list of references,
 /// parent-before-children (pre-order), so containment order is preserved.
 fn flatten<'a>(
-    sym: &'a tower_lsp::lsp_types::DocumentSymbol,
-    acc: &mut Vec<&'a tower_lsp::lsp_types::DocumentSymbol>,
+    sym: &'a tower_lsp_max::lsp_types::DocumentSymbol,
+    acc: &mut Vec<&'a tower_lsp_max::lsp_types::DocumentSymbol>,
 ) {
     acc.push(sym);
     if let Some(children) = &sym.children {
@@ -115,7 +115,7 @@ fn flatten<'a>(
 /// Convert a [`DocumentSymbol`] + the owning file URL into a
 /// [`SymbolInformation`] addressed at the symbol's own range.
 fn to_symbol_information(
-    sym: &tower_lsp::lsp_types::DocumentSymbol, url: Url,
+    sym: &tower_lsp_max::lsp_types::DocumentSymbol, url: Url,
 ) -> SymbolInformation {
     #[allow(deprecated)] // `deprecated` field is required by the struct; superseded by `tags`.
     SymbolInformation {

@@ -50,7 +50,7 @@
 
 use std::path::{Path, PathBuf};
 
-use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Position, Range, Url};
+use tower_lsp_max::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Position, Range, Url};
 
 use ggen_lsp::check::{check_files_in_root, discover_law_surfaces, CheckReport};
 use ggen_lsp::route::{Provenance, RouteRegistry};

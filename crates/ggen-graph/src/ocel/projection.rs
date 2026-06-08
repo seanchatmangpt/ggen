@@ -1,5 +1,5 @@
 use crate::ocel::prov_types::ProvDerivation;
-use crate::ocel::{OcelEvent, OcelLog, OcelObject, OcelObjectRef};
+use crate::ocel::{OCELEvent, OCEL, OCELObject, OCELObjectRef};
 use crate::ocel::{ProvActivity, ProvAgent, ProvDocument, ProvEntity, ProvGeneration, ProvUsage};
 use crate::DeterministicGraph;
 use crate::GraphError;
@@ -10,8 +10,8 @@ use std::collections::HashMap;
 pub struct EvidenceProjector;
 
 impl EvidenceProjector {
-    /// Projects an `OcelLog` into the given `DeterministicGraph`.
-    pub fn project_ocel(graph: &DeterministicGraph, log: &OcelLog) -> Result<(), GraphError> {
+    /// Projects an `OCEL` into the given `DeterministicGraph`.
+    pub fn project_ocel(graph: &DeterministicGraph, log: &OCEL) -> Result<(), GraphError> {
         let type_pred = NamedNode::new("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")
             .map_err(|e| GraphError::Other(e.to_string()))?;
         let object_class = NamedNode::new("http://www.ocel-standard.org/ns#Object")
@@ -166,9 +166,9 @@ impl EvidenceProjector {
         Ok(())
     }
 
-    /// Extracts an `OcelLog` from the given `DeterministicGraph`.
-    pub fn extract_ocel(graph: &DeterministicGraph) -> Result<OcelLog, GraphError> {
-        let mut log = OcelLog::new();
+    /// Extracts an `OCEL` from the given `DeterministicGraph`.
+    pub fn extract_ocel(graph: &DeterministicGraph) -> Result<OCEL, GraphError> {
+        let mut log = OCEL::new();
 
         // Let's query all objects
         let query_objects = r"
@@ -228,7 +228,7 @@ impl EvidenceProjector {
                     }
 
                     objects_map.insert(id.clone(), r#type.clone());
-                    log.objects.push(OcelObject {
+                    log.objects.push(OCELObject {
                         id,
                         r#type,
                         attributes,
@@ -348,7 +348,7 @@ impl EvidenceProjector {
                             .get(&obj_id)
                             .cloned()
                             .unwrap_or_else(|| "Unknown".to_string());
-                        objects.push(OcelObjectRef {
+                        objects.push(OCELObjectRef {
                             id: obj_id,
                             r#type,
                             qualifier,
@@ -356,7 +356,7 @@ impl EvidenceProjector {
                     }
                     objects.sort_by(|a, b| a.id.cmp(&b.id));
 
-                    log.events.push(OcelEvent {
+                    log.events.push(OCELEvent {
                         id,
                         activity,
                         timestamp,

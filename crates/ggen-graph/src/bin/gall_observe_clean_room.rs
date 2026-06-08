@@ -28,6 +28,7 @@ fn copy_dir_all(src: &Path, dst: &Path) -> std::io::Result<()> {
         let name_str = name.to_string_lossy();
 
         if name_str == "target"
+            || name_str.starts_with("target_")
             || name_str == ".git"
             || name_str == ".agents"
             || name_str == ".gemini"
@@ -35,6 +36,8 @@ fn copy_dir_all(src: &Path, dst: &Path) -> std::io::Result<()> {
             || name_str == ".claude"
             || name_str == ".cursor"
             || name_str == ".vscode"
+            || name_str == ".venv_shacl"
+            || name_str == "~"
         {
             continue;
         }
@@ -98,6 +101,47 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("W3: Copying workspace to clean room at {:?}", temp_path);
     copy_dir_all(&workspace_root, temp_path)?;
+
+    if let Some(parent) = temp_path.parent() {
+        let parent_dir = workspace_root.parent().unwrap();
+        
+        let wasm4pm_src = parent_dir.join("wasm4pm");
+        if wasm4pm_src.exists() {
+            println!("W3: Copying wasm4pm to clean room parent directory...");
+            copy_dir_all(&wasm4pm_src, &parent.join("wasm4pm"))?;
+        }
+        
+        let wasm4pm_compat_src = parent_dir.join("wasm4pm-compat");
+        if wasm4pm_compat_src.exists() {
+            println!("W3: Copying wasm4pm-compat to clean room parent directory...");
+            copy_dir_all(&wasm4pm_compat_src, &parent.join("wasm4pm-compat"))?;
+        }
+
+        let lsp_types_max_src = parent_dir.join("lsp-types-max");
+        if lsp_types_max_src.exists() {
+            println!("W3: Copying lsp-types-max to clean room parent directory...");
+            copy_dir_all(&lsp_types_max_src, &parent.join("lsp-types-max"))?;
+        }
+    }
+
+    let clean_lock = temp_path.join("Cargo.lock");
+    if clean_lock.exists() {
+        std::fs::remove_file(clean_lock)?;
+    }
+    if let Some(parent) = temp_path.parent() {
+        let clean_wasm4pm_lock = parent.join("wasm4pm/Cargo.lock");
+        if clean_wasm4pm_lock.exists() {
+            std::fs::remove_file(clean_wasm4pm_lock)?;
+        }
+        let clean_compat_lock = parent.join("wasm4pm-compat/Cargo.lock");
+        if clean_compat_lock.exists() {
+            std::fs::remove_file(clean_compat_lock)?;
+        }
+        let clean_lsp_types_lock = parent.join("lsp-types-max/Cargo.lock");
+        if clean_lsp_types_lock.exists() {
+            std::fs::remove_file(clean_lsp_types_lock)?;
+        }
+    }
 
     let start = Instant::now();
 

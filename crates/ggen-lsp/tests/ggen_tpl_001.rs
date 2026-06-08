@@ -38,13 +38,13 @@
 //!   field `rule_entries: Vec<RuleIndexEntry>`; each `RuleIndexEntry` carries a
 //!   public `issues: Vec<String>` for index/source-level problems.
 //! * Agent 2 — `ggen_lsp::analyzers::detect_tpl_001(&ProjectIndex)
-//!   -> Vec<(PathBuf, Vec<tower_lsp::lsp_types::Diagnostic>)>`. Each emitted
+//!   -> Vec<(PathBuf, Vec<tower_lsp_max::lsp_types::Diagnostic>)>`. Each emitted
 //!   `Diagnostic` carries `code == "GGEN-TPL-001"` and
 //!   `severity == DiagnosticSeverity::ERROR`.
 
 use std::path::{Path, PathBuf};
 
-use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString};
+use tower_lsp_max::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString};
 
 use ggen_lsp::analyzers::{detect_out_001, detect_tpl_001};
 use ggen_lsp::project_index::ProjectIndex;

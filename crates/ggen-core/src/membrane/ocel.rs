@@ -26,7 +26,7 @@ pub enum OcelValue {
 
 /// Object representation in OCEL
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct OcelObject {
+pub struct OCELObject {
     /// The class or type of the object
     #[serde(rename = "ocel:type")]
     pub object_type: String,
@@ -37,7 +37,7 @@ pub struct OcelObject {
 
 /// Event representation in OCEL
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct OcelEvent {
+pub struct OCELEvent {
     /// The activity name
     #[serde(rename = "ocel:activity")]
     pub activity: String,
@@ -54,16 +54,16 @@ pub struct OcelEvent {
 
 /// Full Object-Centric Event Log (OCEL)
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct OcelLog {
+pub struct OCEL {
     /// Objects in the log
     #[serde(rename = "ocel:objects")]
-    pub objects: HashMap<String, OcelObject>,
+    pub objects: HashMap<String, OCELObject>,
     /// Events in the log
     #[serde(rename = "ocel:events")]
-    pub events: HashMap<String, OcelEvent>,
+    pub events: HashMap<String, OCELEvent>,
 }
 
-impl OcelLog {
+impl OCEL {
     /// Generate an OCEL log from the membrane state
     pub fn from_membrane(membrane: &GgenMembrane) -> Self {
         let mut objects = HashMap::new();
@@ -95,7 +95,7 @@ impl OcelLog {
 
             objects.insert(
                 part_id.clone(),
-                OcelObject {
+                OCELObject {
                     object_type: "InterchangeablePart".to_string(),
                     attributes: attrs,
                 },
@@ -112,7 +112,7 @@ impl OcelLog {
 
             objects.insert(
                 format!("adapter:{}", outer_port),
-                OcelObject {
+                OCELObject {
                     object_type: "AdapterBinding".to_string(),
                     attributes: attrs,
                 },
@@ -157,7 +157,7 @@ impl OcelLog {
 
             events.insert(
                 crossing.id.clone(),
-                OcelEvent {
+                OCELEvent {
                     activity: format!("BoundaryCrossing:{}", crossing.interface_fn),
                     timestamp: crossing.timestamp.to_rfc3339(),
                     objects: related_objects,

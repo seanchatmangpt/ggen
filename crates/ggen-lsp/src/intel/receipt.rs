@@ -15,7 +15,7 @@ pub struct RepairReceipt {
     pub version: u8,
     /// When the receipt was minted.
     pub timestamp: DateTime<Utc>,
-    /// `OcelEvent.id` of the `DiagnosticRaised` that opened this episode.
+    /// `OCELEvent.id` of the `DiagnosticRaised` that opened this episode.
     pub diagnostic_event_id: String,
     /// The E00XX code being repaired.
     pub diagnostic_code: String,

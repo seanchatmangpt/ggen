@@ -4,7 +4,7 @@ use std::process::{Child, ChildStdin, Command, Stdio};
 use std::sync::mpsc::{self, Receiver};
 use std::{thread, fs};
 use std::time::Duration;
-use tower_lsp::lsp_types::Url;
+use url::Url;
 
 const READ_TIMEOUT: Duration = Duration::from_secs(10);
 
@@ -21,7 +21,7 @@ impl LspClient {
         let mut child = Command::new(bin_name)
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
-            .stderr(Stdio::inherit())
+            .stderr(Stdio::null())
             .spawn()
             .unwrap_or_else(|_| panic!("spawn {}", bin_name));
 

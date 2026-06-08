@@ -8,7 +8,7 @@ pub mod toml_analyzer;
 
 use std::collections::BTreeSet;
 use std::fmt;
-use tower_lsp::lsp_types::{
+use tower_lsp_max::lsp_types::{
     CallHierarchyItem, CodeLens, CompletionResponse, Diagnostic, DocumentSymbol, FoldingRange,
     Hover, InlayHint, Location, Position, SemanticTokens, TextEdit, TypeHierarchyItem,
     WorkspaceEdit,
@@ -154,7 +154,7 @@ pub fn detect_src_001(
                 0,
                 0,
                 u32::MAX,
-                tower_lsp::lsp_types::DiagnosticSeverity::ERROR,
+                tower_lsp_max::lsp_types::DiagnosticSeverity::ERROR,
                 Some(GGEN_SRC_001),
                 format!(
                     "GGEN-SRC-001 SECOND_CLASS_PATH: rule `{}` output_file `{output}` \

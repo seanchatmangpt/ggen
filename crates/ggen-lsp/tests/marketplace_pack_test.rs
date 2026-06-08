@@ -29,7 +29,7 @@ use ggen_lsp::route::default_pack_routes_path;
 use ggen_lsp::state::ServerState;
 use ggen_lsp::{check_content, envelope_for_diagnostic, init_project, IntelLog, RouteRegistry};
 use tempfile::TempDir;
-use tower_lsp::lsp_types::Url;
+use tower_lsp_max::lsp_types::Url;
 
 #[tokio::test]
 async fn install_then_route_apply_receipt_end_to_end() {

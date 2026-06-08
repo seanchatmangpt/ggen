@@ -1,4 +1,4 @@
-use tower_lsp_max::lsp_types_max::*;
+use tower_lsp_max_max::lsp_types_max::*;
 
 /// Build the `ServerCapabilities` advertised during `initialize`.
 ///
