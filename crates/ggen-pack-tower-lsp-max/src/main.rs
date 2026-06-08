@@ -19,6 +19,7 @@ impl LanguageServer for Backend {
                 name: "tower-lsp-max-pack-lsp".to_string(),
                 version: Some("26.6.6".to_string()),
             }),
+            offset_encoding: None,
         })
     }
 
