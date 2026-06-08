@@ -13,7 +13,7 @@
 //! ```toml
 //! [project]
 //! name = "my-domain"
-//! version = "1.0.0"
+//! version = "26.6.6"
 //!
 //! [ontology]
 //! source = "domain/model.ttl"

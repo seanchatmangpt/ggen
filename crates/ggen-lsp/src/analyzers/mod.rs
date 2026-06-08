@@ -1,13 +1,14 @@
 pub mod diag;
 pub mod harness_analyzer;
 pub mod rdf_analyzer;
+pub mod source_law_analyzer;
 pub mod sparql_analyzer;
 pub mod tera_analyzer;
 pub mod toml_analyzer;
 
 use std::collections::BTreeSet;
 use std::fmt;
-use tower_lsp::lsp_types::{
+use tower_lsp_max::lsp_types::{
     CallHierarchyItem, CodeLens, CompletionResponse, Diagnostic, DocumentSymbol, FoldingRange,
     Hover, InlayHint, Location, Position, SemanticTokens, TextEdit, TypeHierarchyItem,
     WorkspaceEdit,
@@ -15,12 +16,13 @@ use tower_lsp::lsp_types::{
 
 pub use harness_analyzer::{harness_mismatch_diagnostics, DeclaredTarget, GGEN_HARNESS_001};
 pub use rdf_analyzer::{RdfAnalyzer, RdfFlavor};
+pub use source_law_analyzer::{do_not_edit_diagnostics, GGEN_SRC_002, GGEN_SRC_003};
 pub use sparql_analyzer::SparqlAnalyzer;
 pub use tera_analyzer::{
     unbound_output_path_diagnostics, unbound_projection_diagnostics, unbound_rule_file_diagnostics,
     TeraAnalyzer, GGEN_OUT_001, GGEN_RULE_001, GGEN_TPL_001,
 };
-pub use toml_analyzer::TomlAnalyzer;
+pub use toml_analyzer::{source_caste_path_violation, TomlAnalyzer, GGEN_SRC_001};
 
 use crate::state::FileType;
 
@@ -127,6 +129,73 @@ pub fn detect_rule_001(
         let diags = unbound_rule_file_diagnostics(&entry.issues);
         if !diags.is_empty() {
             out.push((entry.manifest_path.clone(), diags));
+        }
+    }
+    out
+}
+
+/// Cross-surface GGEN-SRC-001 detection over a whole project index.
+///
+/// For each generation rule, check that `output_file` does not target a
+/// source-caste directory (`generated/`, `output/`, `outputs/`, `gen/`, etc.).
+/// RenderedSource is source — caste paths are a first-class source law violation.
+/// Diagnostics anchor on the rule's `ggen.toml` manifest.
+#[must_use]
+pub fn detect_src_001(
+    project: &crate::project_index::ProjectIndex,
+) -> Vec<(std::path::PathBuf, Vec<Diagnostic>)> {
+    let mut out = Vec::new();
+    for entry in &project.rule_entries {
+        let output = &entry.output_file;
+        if let Some(violated) = source_caste_path_violation(output) {
+            // Anchor the diagnostic on the manifest where output_file is declared.
+            let diags = vec![diag::at(
+                0,
+                0,
+                0,
+                u32::MAX,
+                tower_lsp_max::lsp_types::DiagnosticSeverity::ERROR,
+                Some(GGEN_SRC_001),
+                format!(
+                    "GGEN-SRC-001 SECOND_CLASS_PATH: rule `{}` output_file `{output}` \
+                     targets a source-caste directory (`{violated}/`). \
+                     RenderedSource is source — move to a first-class path.",
+                    entry.rule_id
+                ),
+            )];
+            out.push((entry.manifest_path.clone(), diags));
+        }
+    }
+    out
+}
+
+/// Cross-surface GGEN-SRC-002/003 detection over a project's emitted Rust sources.
+///
+/// Scans every `.rs` file in the project root's `src/` tree for DO NOT EDIT
+/// banners and source-caste comments. Returns diagnostics anchored on the
+/// offending source file.
+///
+/// This is a file-system scan, not an index lookup: it runs over whatever `.rs`
+/// files actually exist, so it catches violations whether or not ggen knows about them.
+#[must_use]
+pub fn detect_src_002_003_in_dir(
+    src_dir: &std::path::Path,
+) -> Vec<(std::path::PathBuf, Vec<Diagnostic>)> {
+    let mut out = Vec::new();
+    let Ok(entries) = std::fs::read_dir(src_dir) else {
+        return out;
+    };
+    for entry in entries.flatten() {
+        let path = entry.path();
+        if path.extension().and_then(|e| e.to_str()) != Some("rs") {
+            continue;
+        }
+        let Ok(content) = std::fs::read_to_string(&path) else {
+            continue;
+        };
+        let diags = do_not_edit_diagnostics(&content);
+        if !diags.is_empty() {
+            out.push((path, diags));
         }
     }
     out

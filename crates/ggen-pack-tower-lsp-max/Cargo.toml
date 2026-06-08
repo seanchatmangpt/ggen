@@ -1,0 +1,10 @@
+[package]
+name = "tower-lsp-max-pack-lsp"
+version = "26.6.6"
+edition = "2021"
+publish = false
+
+[dependencies]
+tower-lsp-max = { path = "../../../tower-lsp-max", features = ["proposed"] }
+serde_json = "1.0"
+tokio = { version = "1.0", features = ["rt-multi-thread", "macros", "io-std"] }

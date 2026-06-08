@@ -150,6 +150,8 @@ pub enum Error {
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[cfg(test)]
+// Tests use unwrap() for clear failure messages; panics are intentional in test context.
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 

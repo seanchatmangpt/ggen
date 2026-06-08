@@ -4,6 +4,15 @@
 //! of interface redundancy between basic and rich agent implementations.
 //! Following the BB80 pattern with convergence through selection pressure.
 
+// Generated code: allow clippy lints that are not applicable to generated structs.
+#![allow(
+    clippy::derive_partial_eq_without_eq,
+    clippy::duration_suboptimal_units,
+    clippy::expect_used,
+    clippy::unwrap_used,
+    clippy::panic
+)]
+
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -2428,7 +2437,7 @@ impl UnifiedAgentBuilder {
                 id,
                 name,
                 agent_type,
-                version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
                 namespace,
                 tags: None,
             },
@@ -2455,7 +2464,7 @@ impl UnifiedAgentBuilder {
                 metrics: None,
                 configuration: AgentConfiguration {
                     parameters: HashMap::new(),
-                    version: "1.0.0".to_string(),
+                    version: "26.6.6".to_string(),
                     timestamp: Utc::now(),
                     source: None,
                     validation: None,
@@ -2649,7 +2658,7 @@ mod tests {
     fn test_agent_with_capabilities() {
         let capability = Capability {
             name: "text-processing".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: Some("Process text content".to_string()),
             requirements: None,
             metadata: None,
@@ -2670,7 +2679,7 @@ mod tests {
     fn test_agent_validation() {
         let capability = Capability {
             name: "test-capability".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: Some("Test capability".to_string()),
             requirements: None,
             metadata: None,
@@ -2694,7 +2703,7 @@ mod tests {
     fn test_agent_builder() {
         let capability = Capability {
             name: "data-processing".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: Some("Process data".to_string()),
             requirements: None,
             metadata: None,

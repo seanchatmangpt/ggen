@@ -241,7 +241,7 @@ mod tests {
         let pack = Pack {
             id: "test-pack".to_string(),
             name: "Test Pack".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: "A test pack".to_string(),
             category: "test".to_string(),
             author: Some("Test Author".to_string()),
@@ -285,7 +285,7 @@ mod tests {
             let pack = Pack {
                 id: format!("pack{}", i),
                 name: format!("Pack {}", i),
-                version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
                 description: format!("Pack {}", i),
                 category: if i == 1 {
                     "web".to_string()
@@ -327,7 +327,7 @@ mod tests {
         let pack = Pack {
             id: "exists-pack".to_string(),
             name: "Exists Pack".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: "Test".to_string(),
             category: "test".to_string(),
             author: None,
@@ -360,7 +360,7 @@ mod tests {
         let pack = Pack {
             id: "delete-pack".to_string(),
             name: "Delete Pack".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: "Test".to_string(),
             category: "test".to_string(),
             author: None,

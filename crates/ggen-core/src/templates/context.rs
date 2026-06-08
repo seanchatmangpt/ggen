@@ -21,7 +21,7 @@
 //!
 //! // Add variables
 //! ctx.set("name", json!("MyApp")).unwrap();
-//! ctx.set("version", json!("1.0.0")).unwrap();
+//! ctx.set("version", json!("26.6.6")).unwrap();
 //! ctx.set("author", json!("Alice")).unwrap();
 //!
 //! // Verify variables are set
@@ -39,7 +39,7 @@
 //! // Add nested object
 //! ctx.set("project", json!({
 //!     "name": "MyApp",
-//!     "version": "1.0.0",
+//!     "version": "26.6.6",
 //!     "dependencies": ["serde", "tokio"]
 //! })).unwrap();
 //!
@@ -66,7 +66,7 @@ use tera::Context;
 ///
 /// let mut ctx = TemplateContext::new();
 /// ctx.set("name", json!("MyApp")).unwrap();
-/// ctx.set("version", json!("1.0.0")).unwrap();
+/// ctx.set("version", json!("26.6.6")).unwrap();
 ///
 /// assert_eq!(ctx.get_string("name"), Some("MyApp".to_string()));
 /// ```
@@ -170,7 +170,7 @@ impl TemplateContext {
     /// // Set nested object
     /// ctx.set("project", json!({
     ///     "name": "MyApp",
-    ///     "version": "1.0.0"
+    ///     "version": "26.6.6"
     /// }))?;
     /// # Ok(())
     /// # }
@@ -383,7 +383,7 @@ impl TemplateContext {
     /// let mut ctx = TemplateContext::new();
     /// ctx.set("name", json!("MyApp"))?;
     /// ctx.set("port", json!(8080))?;
-    /// ctx.set("version", json!("1.0.0"))?;
+    /// ctx.set("version", json!("26.6.6"))?;
     ///
     /// let names = ctx.variable_names();
     /// assert_eq!(names.len(), 3);

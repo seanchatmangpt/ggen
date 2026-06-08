@@ -1,3 +1,26 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
 //! Negative tests for ggen.toml manifest parsing and validation.
 //!
 //! These tests verify that ManifestParser and ManifestValidator correctly
@@ -48,7 +71,7 @@ rules = []
 fn parse_missing_project_name_returns_error() {
     let toml = r#"
 [project]
-version = "1.0.0"
+version = "26.6.6"
 
 [ontology]
 source = "domain/model.ttl"
@@ -97,7 +120,7 @@ fn parse_missing_ontology_section_returns_error() {
     let toml = r#"
 [project]
 name = "test-project"
-version = "1.0.0"
+version = "26.6.6"
 
 [generation]
 rules = []
@@ -119,7 +142,7 @@ fn parse_missing_generation_section_returns_error() {
     let toml = r#"
 [project]
 name = "test-project"
-version = "1.0.0"
+version = "26.6.6"
 
 [ontology]
 source = "domain/model.ttl"
@@ -206,7 +229,7 @@ fn validate_empty_project_name_returns_error() {
     let toml = r#"
 [project]
 name = ""
-version = "1.0.0"
+version = "26.6.6"
 
 [ontology]
 source = "domain/model.ttl"
@@ -259,7 +282,7 @@ fn validate_nonexistent_ontology_source_returns_error() {
     let toml = r#"
 [project]
 name = "test-project"
-version = "1.0.0"
+version = "26.6.6"
 
 [ontology]
 source = "nonexistent_ontology.ttl"
@@ -287,7 +310,7 @@ fn validate_nonexistent_ontology_import_returns_error() {
     let toml = r#"
 [project]
 name = "test-project"
-version = "1.0.0"
+version = "26.6.6"
 
 [ontology]
 source = "ontology.ttl"
@@ -318,7 +341,7 @@ fn validate_generation_rule_with_nonexistent_query_file_returns_error() {
     let toml = r#"
 [project]
 name = "test-project"
-version = "1.0.0"
+version = "26.6.6"
 
 [ontology]
 source = "ontology.ttl"
@@ -354,7 +377,7 @@ fn validate_generation_rule_with_nonexistent_template_file_returns_error() {
     let toml = r#"
 [project]
 name = "test-project"
-version = "1.0.0"
+version = "26.6.6"
 
 [ontology]
 source = "ontology.ttl"
@@ -390,7 +413,7 @@ fn validate_generation_rule_with_empty_output_file_returns_error() {
     let toml = r#"
 [project]
 name = "test-project"
-version = "1.0.0"
+version = "26.6.6"
 
 [ontology]
 source = "ontology.ttl"
@@ -419,7 +442,7 @@ fn validate_nonexistent_shacl_file_returns_error() {
     let toml = r#"
 [project]
 name = "test-project"
-version = "1.0.0"
+version = "26.6.6"
 
 [ontology]
 source = "ontology.ttl"
@@ -451,7 +474,7 @@ fn validate_inference_rule_with_empty_name_returns_error() {
     let toml = r#"
 [project]
 name = "test-project"
-version = "1.0.0"
+version = "26.6.6"
 
 [ontology]
 source = "ontology.ttl"
@@ -484,7 +507,7 @@ fn validate_inference_rule_with_empty_construct_returns_error() {
     let toml = r#"
 [project]
 name = "test-project"
-version = "1.0.0"
+version = "26.6.6"
 
 [ontology]
 source = "ontology.ttl"

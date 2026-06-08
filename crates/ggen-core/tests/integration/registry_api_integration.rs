@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::needless_raw_string_hashes, clippy::duration_suboptimal_units, clippy::branches_sharing_code, clippy::used_underscore_binding, clippy::single_char_pattern, clippy::ignore_without_reason, clippy::cloned_ref_to_slice_refs, clippy::doc_overindented_list_items, clippy::match_wildcard_for_single_variants, clippy::ignored_unit_patterns, clippy::needless_collect, clippy::unnecessary_map_or, clippy::manual_flatten, clippy::manual_strip, clippy::future_not_send, clippy::unnested_or_patterns, clippy::no_effect_underscore_binding, clippy::literal_string_with_formatting_args)]
 //! Registry API integration tests
 
 use chicago_tdd_tools::prelude::*;
@@ -27,9 +28,9 @@ async_test_with_timeout!(test_get_popular_categories, 30, async {
         let id = format!("package-{}", i);
         let mut versions = HashMap::new();
         versions.insert(
-            "1.0.0".to_string(),
+            "26.6.6".to_string(),
             VersionMetadata {
-                version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
                 git_url: format!("https://github.com/test/{}.git", id),
                 git_rev: "main".to_string(),
                 manifest_url: None,
@@ -47,7 +48,7 @@ async_test_with_timeout!(test_get_popular_categories, 30, async {
                 keywords: vec![],
                 category: Some(category.to_string()),
                 author: Some("Test".to_string()),
-                latest_version: "1.0.0".to_string(),
+                latest_version: "26.6.6".to_string(),
                 versions,
                 downloads: None,
                 updated: None,
@@ -103,9 +104,9 @@ async_test_with_timeout!(test_get_popular_keywords, 30, async {
         let id = format!("package-{}", i);
         let mut versions = HashMap::new();
         versions.insert(
-            "1.0.0".to_string(),
+            "26.6.6".to_string(),
             VersionMetadata {
-                version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
                 git_url: format!("https://github.com/test/{}.git", id),
                 git_rev: "main".to_string(),
                 manifest_url: None,
@@ -123,7 +124,7 @@ async_test_with_timeout!(test_get_popular_keywords, 30, async {
                 keywords: keywords.iter().map(|k| k.to_string()).collect(),
                 category: None,
                 author: None,
-                latest_version: "1.0.0".to_string(),
+                latest_version: "26.6.6".to_string(),
                 versions,
                 downloads: None,
                 updated: None,
@@ -167,9 +168,9 @@ async_test_with_timeout!(test_list_all_packages, 30, async {
         let id = format!("package-{}", i);
         let mut versions = HashMap::new();
         versions.insert(
-            "1.0.0".to_string(),
+            "26.6.6".to_string(),
             VersionMetadata {
-                version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
                 git_url: format!("https://github.com/test/{}.git", id),
                 git_rev: "main".to_string(),
                 manifest_url: None,
@@ -187,7 +188,7 @@ async_test_with_timeout!(test_list_all_packages, 30, async {
                 keywords: vec![],
                 category: Some("test".to_string()),
                 author: Some("Test".to_string()),
-                latest_version: "1.0.0".to_string(),
+                latest_version: "26.6.6".to_string(),
                 versions,
                 downloads: Some(i as u64 * 10),
                 updated: Some(chrono::Utc::now()),

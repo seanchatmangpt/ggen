@@ -1,13 +1,13 @@
 [package]
 name = "ggen-rest-api"
-version = "1.0.0"
+version = "26.6.6"
 edition = "2021"
 description = "REST API wrapper for ggen"
 
 [dependencies]
 # Core ggen
-ggen-core = { path = "../../../../ggen-core", version = "1.0.0" }
-ggen-ai = { path = "../../../../ggen-ai", version = "1.0.0" }
+ggen-core = { path = "../../../../ggen-core", version = "26.6.6" }
+ggen-ai = { path = "../../../../ggen-ai", version = "26.6.6" }
 
 # Web framework
 actix-web = "4.5"

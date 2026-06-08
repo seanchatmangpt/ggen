@@ -241,7 +241,7 @@ Tests are automatically run in CI with:
 ```rust
 #[test]
 fn test_package_id_validation() {
-    let pack = create_mock_pack("test-id", "Test", "1.0.0");
+    let pack = create_mock_pack("test-id", "Test", "26.6.6");
     assert_eq!(pack.id, "test-id");
 }
 ```

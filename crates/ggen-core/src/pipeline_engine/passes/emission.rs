@@ -769,7 +769,7 @@ mod tests {
         });
 
         let mut ctx = PassContext::new(&graph, temp_dir.path().to_path_buf(), output_dir.clone())
-            .with_project("TestProject".to_string(), "1.0.0".to_string());
+            .with_project("TestProject".to_string(), "26.6.6".to_string());
 
         let result = pass.execute(&mut ctx).unwrap();
 

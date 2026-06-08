@@ -156,7 +156,14 @@ impl<'a> ConstructExecutor<'a> {
 
         let hash = hasher.finalize();
         // Use first 16 bytes (32 hex chars) for reasonably unique IRI
-        let hash_str: String = hash.iter().take(16).map(|b| format!("{:02x}", b)).collect();
+        let hash_str: String = hash
+            .iter()
+            .take(16)
+            .fold(String::with_capacity(32), |mut s, b| {
+                use std::fmt::Write as _;
+                let _ = write!(s, "{:02x}", b);
+                s
+            });
 
         format!("{}{}", base, hash_str)
     }

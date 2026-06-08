@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::needless_raw_string_hashes, clippy::duration_suboptimal_units, clippy::branches_sharing_code, clippy::used_underscore_binding, clippy::single_char_pattern, clippy::ignore_without_reason, clippy::cloned_ref_to_slice_refs, clippy::doc_overindented_list_items, clippy::match_wildcard_for_single_variants, clippy::ignored_unit_patterns, clippy::needless_collect, clippy::unnecessary_map_or, clippy::manual_flatten, clippy::manual_strip, clippy::future_not_send, clippy::unnested_or_patterns, clippy::no_effect_underscore_binding, clippy::literal_string_with_formatting_args)]
 //! Consolidated security tests for marketplace operations
 //!
 //! Merges Ed25519 signature and validation test suites covering:
@@ -32,7 +33,7 @@ mod ed25519_security_tests {
         let manager = SignatureManager::new();
         let (_public_key, private_key) = manager.generate_keypair();
 
-        let message = b"Package: test-package v1.0.0";
+        let message = b"Package: test-package v26.6.6";
         let signature = manager.sign(message, &private_key);
 
         // Ed25519 signature should be 64 bytes
@@ -74,7 +75,7 @@ mod ed25519_security_tests {
         let manager = SignatureManager::new();
         let (public_key, private_key) = manager.generate_keypair();
 
-        let original_message = b"Package: test-package v1.0.0";
+        let original_message = b"Package: test-package v26.6.6";
         let signature = manager.sign(original_message, &private_key);
 
         let tampered_message = b"Package: test-package v2.0.0"; // Version changed

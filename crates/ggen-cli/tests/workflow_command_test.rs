@@ -4,6 +4,10 @@
     unused_variables,
     deprecated,
     clippy::all,
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
     unused_mut
 )]
 

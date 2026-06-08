@@ -69,8 +69,9 @@ impl ProjectWatcher {
                     .watch(dir, RecursiveMode::Recursive)
                     .map_err(|e| {
                         ggen_core::utils::error::Error::new(&format!(
-                            "Failed to watch directory {:?}: {}",
-                            dir, e
+                            "Failed to watch directory {}: {}",
+                            dir.display(),
+                            e
                         ))
                     })?;
             }
@@ -110,18 +111,14 @@ impl ProjectWatcher {
     }
 
     /// Handle a file system change event
-    fn handle_change(&mut self, event: Event) -> Result<Option<GenerationPlan>> {
+    fn handle_change(&self, event: Event) -> Result<Option<GenerationPlan>> {
         use notify::EventKind;
 
         match event.kind {
             EventKind::Create(_) | EventKind::Modify(_) | EventKind::Remove(_) => {
-                let changed_files: Vec<PathBuf> = event
-                    .paths
-                    .into_iter()
-                    .filter(|p| self.should_process_file(p))
-                    .collect();
+                let has_changed_files = event.paths.iter().any(|p| self.should_process_file(p));
 
-                if changed_files.is_empty() {
+                if !has_changed_files {
                     return Ok(None);
                 }
 

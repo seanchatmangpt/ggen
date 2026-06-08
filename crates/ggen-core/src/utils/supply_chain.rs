@@ -253,7 +253,7 @@ mod tests {
         let deps = vec![
             Dependency {
                 name: "serde".to_string(),
-                version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
                 license: Some("MIT".to_string()),
                 checksum: None,
             },
@@ -270,7 +270,7 @@ mod tests {
         let deps = vec![
             Dependency {
                 name: "serde_rs".to_string(),
-                version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
                 license: Some("MIT".to_string()),
                 checksum: None,
             },
@@ -288,7 +288,7 @@ mod tests {
         let deps = vec![
             Dependency {
                 name: "serda".to_string(),
-                version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
                 license: Some("MIT".to_string()),
                 checksum: None,
             },
@@ -307,7 +307,7 @@ mod tests {
         let deps = vec![
             Dependency {
                 name: "serde".to_string(),
-                version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
                 license: Some("MIT".to_string()),
                 checksum: None,
             },
@@ -325,7 +325,7 @@ mod tests {
         let deps = vec![
             Dependency {
                 name: "bad-crate".to_string(),
-                version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
                 license: Some("GPL-3.0".to_string()),
                 checksum: None,
             },
@@ -343,7 +343,7 @@ mod tests {
     fn test_verify_checksum_match() {
         let dep = Dependency {
             name: "serde".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             license: Some("MIT".to_string()),
             checksum: Some("abc123".to_string()),
         };
@@ -356,7 +356,7 @@ mod tests {
     fn test_verify_checksum_mismatch() {
         let dep = Dependency {
             name: "serde".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             license: Some("MIT".to_string()),
             checksum: Some("abc123".to_string()),
         };

@@ -8,7 +8,7 @@
 //! Plus keyword/variable completion and a variable outline.
 
 use std::collections::BTreeSet;
-use tower_lsp::lsp_types::{
+use tower_lsp_max::lsp_types::{
     CompletionItem, CompletionItemKind, CompletionResponse, Diagnostic, DiagnosticSeverity, Hover,
     Location, Position, Range, SymbolKind, TextEdit, WorkspaceEdit,
 };
@@ -128,11 +128,11 @@ impl SparqlAnalyzer {
         None
     }
 
-    pub fn semantic_tokens(&self) -> Option<tower_lsp::lsp_types::SemanticTokens> {
+    pub fn semantic_tokens(&self) -> Option<tower_lsp_max::lsp_types::SemanticTokens> {
         None
     }
 
-    pub fn document_symbols(&self) -> Option<Vec<tower_lsp::lsp_types::DocumentSymbol>> {
+    pub fn document_symbols(&self) -> Option<Vec<tower_lsp_max::lsp_types::DocumentSymbol>> {
         let symbols: Vec<_> = self
             .variables()
             .into_iter()
@@ -145,11 +145,11 @@ impl SparqlAnalyzer {
         }
     }
 
-    pub fn code_lenses(&self) -> Option<Vec<tower_lsp::lsp_types::CodeLens>> {
+    pub fn code_lenses(&self) -> Option<Vec<tower_lsp_max::lsp_types::CodeLens>> {
         None
     }
 
-    pub fn folding_ranges(&self) -> Option<Vec<tower_lsp::lsp_types::FoldingRange>> {
+    pub fn folding_ranges(&self) -> Option<Vec<tower_lsp_max::lsp_types::FoldingRange>> {
         None
     }
 
@@ -157,7 +157,7 @@ impl SparqlAnalyzer {
         None
     }
 
-    pub fn inlay_hints(&self) -> Option<Vec<tower_lsp::lsp_types::InlayHint>> {
+    pub fn inlay_hints(&self) -> Option<Vec<tower_lsp_max::lsp_types::InlayHint>> {
         None
     }
 
@@ -167,7 +167,7 @@ impl SparqlAnalyzer {
 
     pub fn call_hierarchy_items(
         &self, _position: Position,
-    ) -> Option<Vec<tower_lsp::lsp_types::CallHierarchyItem>> {
+    ) -> Option<Vec<tower_lsp_max::lsp_types::CallHierarchyItem>> {
         None
     }
 
@@ -199,7 +199,7 @@ fn find_line(source: &str, needle: &str) -> Option<u32> {
     })
 }
 
-fn make_symbol(name: &str) -> tower_lsp::lsp_types::DocumentSymbol {
+fn make_symbol(name: &str) -> tower_lsp_max::lsp_types::DocumentSymbol {
     let range = Range {
         start: Position {
             line: 0,
@@ -211,7 +211,7 @@ fn make_symbol(name: &str) -> tower_lsp::lsp_types::DocumentSymbol {
         },
     };
     #[allow(deprecated)]
-    tower_lsp::lsp_types::DocumentSymbol {
+    tower_lsp_max::lsp_types::DocumentSymbol {
         name: name.to_string(),
         detail: None,
         kind: SymbolKind::VARIABLE,
@@ -234,7 +234,7 @@ mod tests {
         let diags = analyzer.diagnostics();
         assert!(diags
             .iter()
-            .any(|d| d.code == Some(tower_lsp::lsp_types::NumberOrString::String("E0010".into()))));
+            .any(|d| d.code == Some(tower_lsp_max::lsp_types::NumberOrString::String("E0010".into()))));
     }
 
     #[test]
@@ -244,7 +244,7 @@ mod tests {
         let diags = analyzer.diagnostics();
         assert!(diags
             .iter()
-            .any(|d| d.code == Some(tower_lsp::lsp_types::NumberOrString::String("E0011".into()))));
+            .any(|d| d.code == Some(tower_lsp_max::lsp_types::NumberOrString::String("E0011".into()))));
     }
 
     #[test]

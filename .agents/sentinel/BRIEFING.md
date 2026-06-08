@@ -1,20 +1,26 @@
-# BRIEFING — 2026-05-27T19:32:55Z
+# BRIEFING — 2026-06-06T21:13:30-07:00
 
 ## Mission
-Build and finish `capability-map` (`cpmp`) in `/Users/sac/capability-map` leveraging `open-ontologies` as the primary catalog store.
+Verify the CLAP command grammar admission (GC008B) and lawful mutation route (GC008C) under Gall cash-busting mode, incorporating the Strange Stuff / Code Smell / Poor Practice Audit.
 
 ## 🔒 My Identity
 - Archetype: sentinel
 - Working directory: /Users/sac/ggen/.agents/sentinel/
-- Orchestrator: 78b02281-57d0-46c0-97ce-0b633125fe52
-- Victory Auditor: TBD
+- Orchestrator (GC003/GC005A): 6c61c6d7-abff-4c78-9edc-d329bf05ece5
+- Victory Auditor (GC003/GC005A): 6c5a5a14-107b-4118-bb13-db391ba06471
+- Orchestrator (GC008): 1331d086-0b4d-4d3d-becd-2df45e880011
+- Victory Auditor (GC008): TBD
 
 ## 🔒 Key Constraints
 - No technical decisions — relay only
 - Victory Audit is MANDATORY before reporting completion
+- Working directories: /Users/sac/ggen (mutable), /Users/sac/tower-lsp-max (mutable), /Users/sac/wasm4pm (sealed read-only), /Users/sac/wasm4pm-compat (sealed read-only)
+- Integrity mode: benchmark
+- Working directory (GC008): /Users/sac/ggen
+- Integrity mode (GC008): benchmark
 
 ## User Context
-- **Last user request**: Architecture update and extension of CPMP and ggen to include the Enterprise Wrapper Architecture.
+- **Last user request**: Strange Stuff / Code Smell / Poor Practice Audit for GC008B and GC008C, checking clap-noun-verb correctness, LSP surface audit (no plain tower-lsp), LSP 3.18 feature matrix, and mutation route authority.
 - **Pending clarifications**: none
 - **Delivered results**: none
 
@@ -27,7 +33,7 @@ Build and finish `capability-map` (`cpmp`) in `/Users/sac/capability-map` levera
 - **Retry count**: 0
 
 ## Artifact Index
-- /Users/sac/ggen/ORIGINAL_REQUEST.md — Verbatim user request document
-- /Users/sac/ggen/.agents/original_prompt.md — Internal record of user prompt
+- /Users/sac/ggen/ORIGINAL_REQUEST.md — Verbatim user request document (root)
+- /Users/sac/ggen/.agents/ORIGINAL_REQUEST.md — Verbatim user request document (.agents)
 - /Users/sac/ggen/.agents/sentinel/BRIEFING.md — Sentinel state and briefing
-- /Users/sac/ggen/.agents/sentinel/handoff.md — Sentinel handoff report
+- /Users/sac/ggen/.agents/sentinel/handoff.md — Handoff status report

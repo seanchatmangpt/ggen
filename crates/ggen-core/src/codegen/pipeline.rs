@@ -637,6 +637,39 @@ impl GenerationPipeline {
                     content
                 }
                 QuerySource::Inline { inline } => inline.clone(),
+                QuerySource::Pack { pack, output, file } => {
+                    // Resolve pack output directory from packs list, then read file within it.
+                    // At pipeline execution time the pack must already be resolved to a local path.
+                    let pack_ref = self
+                        .manifest
+                        .packs
+                        .iter()
+                        .find(|p| p.name == *pack)
+                        .ok_or_else(|| {
+                            Error::new(&format!(
+                                "Generation rule '{}': pack '{}' not declared in [[packs]]",
+                                rule.name, pack
+                            ))
+                        })?;
+                    let pack_root = pack_ref.path.as_ref().ok_or_else(|| {
+                        Error::new(&format!(
+                            "Generation rule '{}': pack '{}' has no local path (registry = '{}')",
+                            rule.name, pack, pack_ref.registry
+                        ))
+                    })?;
+                    // The output key maps to a sub-directory name by convention when no
+                    // package.toml [pack.outputs] is present; if present the caller should
+                    // pre-resolve before reaching the pipeline.  For now treat the key as a
+                    // sub-directory name directly so local packs work without marketplace metadata.
+                    let query_path = self.base_path.join(pack_root).join(output).join(file);
+                    std::fs::read_to_string(&query_path).map_err(|e| {
+                        Error::new(&format!(
+                            "Failed to read pack query file '{}': {}",
+                            query_path.display(),
+                            e
+                        ))
+                    })?
+                }
             };
 
             // 2. Execute SELECT query (with well-known vocabulary prefixes available)
@@ -750,6 +783,44 @@ impl GenerationPipeline {
                     })?;
 
                     (content, format!("package '{}'", package))
+                }
+                TemplateSource::Pack { pack, output, file } => {
+                    let pack_ref = self
+                        .manifest
+                        .packs
+                        .iter()
+                        .find(|p| p.name == *pack)
+                        .ok_or_else(|| {
+                            Error::new(&format!(
+                                "Generation rule '{}': pack '{}' not declared in [[packs]]",
+                                rule.name, pack
+                            ))
+                        })?;
+                    let pack_root = pack_ref.path.as_ref().ok_or_else(|| {
+                        Error::new(&format!(
+                            "Generation rule '{}': pack '{}' has no local path (registry = '{}')",
+                            rule.name, pack, pack_ref.registry
+                        ))
+                    })?;
+                    let template_path = self.base_path.join(pack_root).join(output).join(file);
+                    let content = std::fs::read_to_string(&template_path).map_err(|e| {
+                        Error::new(&format!(
+                            "Failed to read template from pack '{}' output '{}' file '{}': {}",
+                            pack,
+                            output,
+                            file.display(),
+                            e
+                        ))
+                    })?;
+                    (
+                        content,
+                        format!(
+                            "pack '{}' output '{}' file '{}'",
+                            pack,
+                            output,
+                            file.display()
+                        ),
+                    )
                 }
             };
 

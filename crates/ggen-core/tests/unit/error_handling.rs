@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::needless_raw_string_hashes, clippy::duration_suboptimal_units, clippy::branches_sharing_code, clippy::used_underscore_binding, clippy::single_char_pattern, clippy::ignore_without_reason, clippy::cloned_ref_to_slice_refs, clippy::doc_overindented_list_items, clippy::match_wildcard_for_single_variants, clippy::ignored_unit_patterns, clippy::needless_collect, clippy::unnecessary_map_or, clippy::manual_flatten, clippy::manual_strip, clippy::future_not_send, clippy::unnested_or_patterns, clippy::no_effect_underscore_binding, clippy::literal_string_with_formatting_args)]
 //! Unit tests for error handling paths
 
 use chicago_tdd_tools::prelude::*;
@@ -48,10 +49,10 @@ async_test!(test_missing_version_error, async {
                 "keywords": [],
                 "category": null,
                 "author": null,
-                "latest_version": "1.0.0",
+                "latest_version": "26.6.6",
                 "versions": {
-                    "1.0.0": {
-                        "version": "1.0.0",
+                    "26.6.6": {
+                        "version": "26.6.6",
                         "git_url": "https://github.com/test/repo.git",
                         "git_rev": "main",
                         "manifest_url": null,
@@ -188,7 +189,7 @@ async_test!(test_invalid_version_comparison_error, async {
     let client = RegistryClient::with_base_url(base_url).unwrap();
 
     // Act
-    let result = client.check_updates("test-pack", "1.0.0").await;
+    let result = client.check_updates("test-pack", "26.6.6").await;
 
     // Assert
     assert_err!(&result);
@@ -215,7 +216,7 @@ test!(test_empty_version_map_error, {
         keywords: vec![],
         category: None,
         author: None,
-        latest_version: "1.0.0".to_string(),
+        latest_version: "26.6.6".to_string(),
         versions: HashMap::new(),
         downloads: None,
         updated: None,

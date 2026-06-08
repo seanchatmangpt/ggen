@@ -1,20 +1,20 @@
-# Handoff Report: Capability-Map (cpmp) & Enterprise Wrapper Setup
+# Handoff Report: GC008 Strange Stuff & Poor Practice Audit
 
 ## Observation
-- Verbatim user request to build `capability-map` (`cpmp`) in `/Users/sac/capability-map` and the Enterprise Wrapper Architecture update were received.
-- The Sentinel recorded the requests in `/Users/sac/ggen/ORIGINAL_REQUEST.md` and `/Users/sac/ggen/.agents/original_prompt.md`.
-- The initial orchestrator failed due to a `RESOURCE_EXHAUSTED` (429) rate limit error.
-- After the quota reset period elapsed, the Sentinel spawned the new Project Orchestrator subagent (`78b02281-57d0-46c0-97ce-0b633125fe52`) under `/Users/sac/ggen/.agents/teamwork_preview_orchestrator_cpmp_gen2/`.
-- The Sentinel scheduled the Progress Reporting cron (Cron 1) and Liveness Check cron (Cron 2) to monitor implementation health.
+- Received updated user prompt requesting a thorough Code Smell, Strange Stuff, and Poor Practice Audit alongside GC008B/GC008C verification.
+- Appended request to `ORIGINAL_REQUEST.md` under `.agents`.
+- Relayed the updated prompt and instructions to the active orchestrator (`1331d086-0b4d-4d3d-becd-2df45e880011`).
+- Active monitoring crons (Progress Reporting and Liveness check) have been scheduled.
 
 ## Logic Chain
-- Spawning a successor orchestrator ensures execution resumes cleanly now that the API quota has reset.
+- Propagating the updated constraints and YAML schema format immediately ensures the orchestrator aligns its plan and final output generator before completing its run.
 
 ## Caveats
-- The new orchestrator inherits the full context of both original CPMP requirements and the Enterprise Wrapper Architecture requirements.
+- The output schema for this run is different, requiring the failset-only structure if failures are found.
 
 ## Conclusion
-- Successor Project Orchestrator has been spawned and briefed. The sentinel's crons remain active and will monitor the new instance.
+- Swarm is aligned with the Code Smell, Strange Stuff, and Poor Practice Audit requirements.
 
 ## Verification Method
-- Monitor `progress.md` at `/Users/sac/ggen/.agents/teamwork_preview_orchestrator_cpmp_gen2/progress.md`.
+- Progress cron (Cron 1) will monitor progress.
+- Liveness cron (Cron 2) will verify status and mtime.

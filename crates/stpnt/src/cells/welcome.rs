@@ -59,6 +59,7 @@ impl PartExecutor for WelcomeOneAnotherPart {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 mod tests {
     use super::*;
 

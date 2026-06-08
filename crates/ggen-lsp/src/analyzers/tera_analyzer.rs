@@ -5,7 +5,7 @@
 //! directives, and folding over `{% for %}`/`{% if %}`/`{% block %}` blocks.
 
 use std::collections::BTreeSet;
-use tower_lsp::lsp_types::{
+use tower_lsp_max::lsp_types::{
     CallHierarchyItem, CodeLens, CompletionItem, CompletionItemKind, CompletionResponse,
     Diagnostic, DiagnosticSeverity, DocumentSymbol, FoldingRange, FoldingRangeKind, Hover,
     InlayHint, Location, NumberOrString, Position, Range, SymbolKind, TextEdit, WorkspaceEdit,
@@ -170,7 +170,7 @@ impl TeraAnalyzer {
         None
     }
 
-    pub fn semantic_tokens(&self) -> Option<tower_lsp::lsp_types::SemanticTokens> {
+    pub fn semantic_tokens(&self) -> Option<tower_lsp_max::lsp_types::SemanticTokens> {
         None
     }
 
@@ -612,7 +612,7 @@ mod tests {
         assert!(!diags.is_empty());
         assert_eq!(
             diags[0].code,
-            Some(tower_lsp::lsp_types::NumberOrString::String("E0024".into()))
+            Some(tower_lsp_max::lsp_types::NumberOrString::String("E0024".into()))
         );
     }
 

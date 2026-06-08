@@ -13,12 +13,27 @@ type TestResult = Result<(), Box<dyn std::error::Error>>;
 
 /// Helper: Create a minimal ggen.toml in a temp directory
 fn setup_minimal_ggen_toml(dir: &TempDir) -> TestResult {
+    // description is required by the DMAIC Phase 1: Define quality gate
+    // inference.rules with CONSTRUCT queries required by DMAIC Phase 2: Measure quality gate
+    // generation section is required by ggen sync (preflight validates at least one rule)
     let ggen_toml = r#"[project]
 name = "test-project"
 version = "0.1.0"
+description = "Minimal test project for proof invariant validation"
 
 [ontology]
 source = "ontology.ttl"
+
+[inference]
+rules = [
+    { name = "standard-normalization", construct = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }" }
+]
+
+[[generation.rules]]
+name = "test-rule"
+query = { inline = "SELECT ?s WHERE { ?s a ?t } LIMIT 1" }
+template = { inline = "{{results}}" }
+output_file = "test-output.txt"
 "#;
     fs::write(dir.path().join("ggen.toml"), ggen_toml)?;
     Ok(())
@@ -26,7 +41,9 @@ source = "ontology.ttl"
 
 /// Helper: Create a minimal valid TTL file
 fn setup_minimal_ttl(dir: &TempDir) -> TestResult {
+    // rdfs: prefix must be declared before use; ex:Thing is a plain resource
     let ttl = r#"@prefix ex: <http://example.org/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 ex:Thing a rdfs:Class .
 "#;
     fs::write(dir.path().join("ontology.ttl"), ttl)?;
@@ -97,9 +114,10 @@ fn cli_02_sync_locked_fails_without_packs_lock() -> TestResult {
 fn cli_03_init_creates_valid_ggen_toml() -> TestResult {
     let temp = TempDir::new()?;
 
-    // Act: run init
+    // Act: run init (--name flag required; positional arg no longer accepted)
     let _ = Command::cargo_bin("ggen")?
         .arg("init")
+        .arg("--name")
         .arg("test-proj")
         .current_dir(temp.path())
         .assert()
@@ -199,10 +217,11 @@ fn pipe_02_validate_succeeds_on_valid_ttl() -> TestResult {
     let temp = TempDir::new()?;
     setup_minimal_ttl(&temp)?;
 
-    // Act: run graph validate on valid TTL
+    // Act: run graph validate on valid TTL (--schema_file flag required; positional arg no longer accepted)
     let _ = Command::cargo_bin("ggen")?
         .arg("graph")
         .arg("validate")
+        .arg("--schema_file")
         .arg(temp.path().join("ontology.ttl"))
         .assert()
         .success();
@@ -298,9 +317,10 @@ fn rcpt_02_receipt_has_non_empty_signature() -> TestResult {
 fn man_01_ggen_toml_contains_project_section() -> TestResult {
     let temp = TempDir::new()?;
 
-    // Act: run init
+    // Act: run init (--name flag required; positional arg no longer accepted)
     let _ = Command::cargo_bin("ggen")?
         .arg("init")
+        .arg("--name")
         .arg("test-proj")
         .current_dir(temp.path())
         .assert()
@@ -333,16 +353,18 @@ fn graph_01_deterministic_validate_output() -> TestResult {
 
     let ttl_path = temp.path().join("ontology.ttl");
 
-    // Act: run validate twice
+    // Act: run validate twice (--schema_file flag required; positional arg no longer accepted)
     let output1 = Command::cargo_bin("ggen")?
         .arg("graph")
         .arg("validate")
+        .arg("--schema_file")
         .arg(&ttl_path)
         .output()?;
 
     let output2 = Command::cargo_bin("ggen")?
         .arg("graph")
         .arg("validate")
+        .arg("--schema_file")
         .arg(&ttl_path)
         .output()?;
 

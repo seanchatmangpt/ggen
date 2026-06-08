@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::unnecessary_debug_formatting)]
 use chrono::Utc;
 use oxigraph::io::{RdfFormat, RdfParser};
 use oxigraph::model::Term;
@@ -154,7 +155,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let ocel_file_path = audit_dir.join("gall_evidence.ocel.json");
     if ocel_file_path.exists() {
         let f = File::open(&ocel_file_path)?;
-        match serde_json::from_reader::<_, ggen_graph::ocel::OcelLog>(f) {
+        match serde_json::from_reader::<_, ggen_graph::ocel::OCEL>(f) {
             Ok(log) => {
                 for i in 1..log.events.len() {
                     if log.events[i].timestamp < log.events[i - 1].timestamp {
@@ -276,7 +277,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     serde_json::to_writer_pretty(out_file, &signed_payload)?;
 
     println!("VERDICT: {}", verdict);
-    println!("Results saved to {:?}", adjudication_file);
+    println!("Results saved to {}", adjudication_file.display());
 
     if verdict == "Promoted" {
         Ok(())

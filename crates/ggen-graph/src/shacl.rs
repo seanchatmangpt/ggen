@@ -185,14 +185,14 @@ pub fn validate_shacl(
 mod tests {
     use super::*;
 
-    const SHAPES: &str = r#"
+    const SHAPES: &str = r"
         @prefix sh: <http://www.w3.org/ns/shacl#> .
         @prefix ex: <http://example.org/> .
         @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
         ex:PersonShape a sh:NodeShape ;
             sh:targetClass ex:Person ;
             sh:property [ sh:path ex:name ; sh:minCount 1 ] .
-    "#;
+    ";
 
     #[test]
     fn conforming_data_has_no_violations() -> Result<(), GraphError> {
@@ -210,10 +210,10 @@ mod tests {
 
     #[test]
     fn missing_required_property_is_a_violation() -> Result<(), GraphError> {
-        let data = r#"
+        let data = r"
             @prefix ex: <http://example.org/> .
             ex:bob a ex:Person .
-        "#;
+        ";
         let violations = validate_shacl(data, &[SHAPES])?;
         assert_eq!(violations.len(), 1);
         assert_eq!(violations[0].focus, "http://example.org/bob");

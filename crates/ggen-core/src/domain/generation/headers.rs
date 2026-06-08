@@ -54,7 +54,7 @@ fn default_true() -> bool {
 /// Generation safety configuration
 ///
 /// Local definition to avoid cyclic dependency with ggen-config.
-/// Mirrors [generation] from ggen.toml.
+/// Mirrors \[generation\] from ggen.toml.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct GenerationSafetyConfig {
     /// Enable generation safety features
@@ -284,10 +284,16 @@ mod tests {
             require_confirmation: false,
             backup_before_write: false,
             poka_yoke: Some(PokaYokeSettings {
-                warning_headers: true,
-                gitignore_generated: false,
-                gitattributes_generated: false,
-                validate_imports: false,
+                features: PokaYokeFeatures {
+                    generation: GenerationFeatures {
+                        warning_headers: true,
+                        gitignore_generated: false,
+                        gitattributes_generated: false,
+                    },
+                    validation: ValidationFeatures {
+                        validate_imports: false,
+                    },
+                },
             }),
         };
 
@@ -306,10 +312,16 @@ mod tests {
             require_confirmation: false,
             backup_before_write: false,
             poka_yoke: Some(PokaYokeSettings {
-                warning_headers: false, // Disabled
-                gitignore_generated: false,
-                gitattributes_generated: false,
-                validate_imports: false,
+                features: PokaYokeFeatures {
+                    generation: GenerationFeatures {
+                        warning_headers: false, // Disabled
+                        gitignore_generated: false,
+                        gitattributes_generated: false,
+                    },
+                    validation: ValidationFeatures {
+                        validate_imports: false,
+                    },
+                },
             }),
         };
 

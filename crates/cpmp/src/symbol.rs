@@ -11,6 +11,8 @@ pub fn extract_symbols(path: &Path, content: &str) -> Vec<Symbol> {
         .to_lowercase();
     let path_str = path.to_string_lossy().to_string();
 
+    // Safety: all patterns are compile-time string literals verified to be valid regex.
+    #[allow(clippy::unwrap_used)]
     match extension.as_str() {
         "rs" => {
             let re_fn = Regex::new(r"(?m)^(?:\s*pub\s+)?(?:async\s+)?fn\s+(\w+)").unwrap();

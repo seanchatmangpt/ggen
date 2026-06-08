@@ -1,3 +1,26 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
 //! End-to-End Tests - Complete User Workflows
 //!
 //! Tests full execution paths from CLI invocation to final output:
@@ -23,7 +46,7 @@ fn e2e_template_generate_complete() {
             r#"
 name: "rust-microservice"
 description: "Production-ready Rust microservice"
-version: "1.0.0"
+version: "26.6.6"
 
 variables:
   - name: service_name
@@ -362,7 +385,7 @@ fn e2e_lifecycle_complete_workflow() {
             r#"
 [project]
 name = "production-service"
-version = "1.0.0"
+version = "26.6.6"
 
 [[phases]]
 name = "clean"
@@ -477,7 +500,7 @@ fn e2e_graph_import_and_query() {
 ex:project1 a ex:Project ;
     dc:title "My Project" ;
     dc:description "A test project" ;
-    ex:version "1.0.0" ;
+    ex:version "26.6.6" ;
     ex:language "Rust" .
 
 ex:project2 a ex:Project ;

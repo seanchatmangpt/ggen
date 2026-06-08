@@ -42,12 +42,12 @@ pub fn generate_rdf_fallback(
     for c in caps {
         ttl.push_str(&format!(
             "<urn:cpmp:capability:{}> a skos:Concept .\n",
-            c.capability.replace(" ", "_")
+            c.capability.replace(' ', "_")
         ));
         ttl.push_str(&format!(
             "<file://{}> cpmp:implementsCapability <urn:cpmp:capability:{}> .\n\n",
             c.file_path,
-            c.capability.replace(" ", "_")
+            c.capability.replace(' ', "_")
         ));
     }
 

@@ -55,7 +55,7 @@
 //!
 //! # async fn example() -> crate::utils::error::Result<()> {
 //! let client = RegistryClient::new()?;
-//! let resolved = client.resolve("io.ggen.rust.cli", Some("1.0.0")).await?;
+//! let resolved = client.resolve("io.ggen.rust.cli", Some("26.6.6")).await?;
 //!
 //! println!("Git URL: {}", resolved.git_url);
 //! println!("Git Rev: {}", resolved.git_rev);
@@ -819,7 +819,7 @@ mod tests {
                         keywords: vec!["test".to_string()],
                         category: Some("test".to_string()),
                         author: Some("test".to_string()),
-                        latest_version: "1.0.0".to_string(),
+                        latest_version: "26.6.6".to_string(),
                         downloads: Some(100),
                         updated: Some(chrono::Utc::now()),
                         license: Some("MIT".to_string()),
@@ -924,7 +924,7 @@ mod tests {
 
         // Create registry client with file:// URL
         let base_url = Url::from_file_path(temp_dir.path())
-            .map_err(|_| Error::new("Failed to create file URL"))?;
+            .map_err(|()| Error::new("Failed to create file URL"))?;
         let client = RegistryClient::with_base_url(base_url)?;
 
         // Test search
@@ -966,7 +966,7 @@ mod tests {
             .map_err(|e| Error::with_context("Failed to write mock index", &e.to_string()))?;
 
         let base_url = Url::from_file_path(temp_dir.path())
-            .map_err(|_| Error::new("Failed to create file URL"))?;
+            .map_err(|()| Error::new("Failed to create file URL"))?;
         let client = RegistryClient::with_base_url(base_url)?;
 
         // Test resolve

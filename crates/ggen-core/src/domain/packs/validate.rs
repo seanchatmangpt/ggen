@@ -138,10 +138,10 @@ mod tests {
 
     #[test]
     fn test_is_valid_semver() {
-        assert!(is_valid_semver("1.0.0"));
+        assert!(is_valid_semver("26.6.6"));
         assert!(is_valid_semver("2.5.10"));
         assert!(!is_valid_semver("1.0"));
-        assert!(!is_valid_semver("1.0.0.0"));
+        assert!(!is_valid_semver("26.6.6.0"));
         assert!(!is_valid_semver("abc"));
     }
 

@@ -276,7 +276,7 @@ pub mod prelude {
 
 // Version information
 pub const VERSION: &str = "0.1.0";
-pub const ONTOLOGY_VERSION: &str = "1.0.0";
+pub const ONTOLOGY_VERSION: &str = "26.6.6";
 
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
@@ -349,7 +349,7 @@ mod tests {
             .unwrap();
 
         assert_eq!(json_adapter.name(), "json");
-        assert_eq!(json_adapter.version(), "1.0.0");
+        assert_eq!(json_adapter.version(), "26.6.6");
 
         let test_json = serde_json::json!({"test": "message"});
         let converted = json_adapter.to_a2a(&test_json).await.unwrap();

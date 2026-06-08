@@ -1,0 +1,26 @@
+[checkpoint]
+id = "GALL-CHECKPOINT-006"
+name = "Authority Surface Lock"
+status_target = "ADMITTED_BY_DOGFOOD"
+
+[boundary]
+workspace = "."
+target = ".tmp_gc006/target"
+staging_dir = ".tmp_gc006/staging"
+receipt_sink = ".tmp_gc006/receipts"
+
+[[proofs_gc006]]
+id = "no-shadow-crates"
+kind = "filesystem-law"
+
+[[proofs_gc006]]
+id = "wasm4pm-lsp-no-local-conformance"
+kind = "code-law"
+
+[[proofs_gc006]]
+id = "adapter-no-fake-fit"
+kind = "code-law"
+
+[[proofs_gc006]]
+id = "adapter-uses-sealed-authority"
+kind = "code-law"

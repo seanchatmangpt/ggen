@@ -582,7 +582,7 @@ mod tests {
             .canonicalize(&path, r#"{"z":1,"a":2}"#, &mut receipt)
             .unwrap();
         assert!(result.contains(r#""a""#));
-        assert!(result.ends_with("\n"));
+        assert!(result.ends_with('\n'));
     }
 
     #[test]

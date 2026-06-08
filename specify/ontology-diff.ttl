@@ -1,0 +1,299 @@
+# ontology-diff.ttl — RDF 1.2 Ontology Diff & Migration Vocabulary
+# A=mu(O) — Migration guides are projections of ontology version diffs through SPARQL CONSTRUCT + Tera
+#
+# Uses RDF 1.2 triple terms (<<s p o>>) to annotate changed axioms with diff metadata.
+# When an ontology evolves between versions, triple terms capture what changed, why,
+# the impact on downstream consumers, and the migration path.
+#
+# Pipeline: ontology-diff.ttl + ontology-diff-example.ttl
+#        -> ontology-diff-extract.rq (SPARQL-star CONSTRUCT)
+#        -> ontology-diff-report.tera (Tera template)
+#        -> ontology-diff-report.md (generated artifact)
+
+@prefix diff: <https://ggen.dev/ontology/diff#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <https://ggen.dev/examples/diff#> .
+
+<https://ggen.dev/ontology/diff>
+  a owl:Ontology ;
+  owl:imports rdf: rdfs: owl: xsd: ;
+  rdfs:label "Ontology Diff & Migration Vocabulary"@en ;
+  rdfs:comment "Vocabulary for annotating ontology changes between versions. Uses RDF 1.2 triple terms to attach change metadata (type, reason, impact, migration steps) directly to the changed axiom. Enables automated changelog generation, impact assessment, and migration guide production."@en .
+
+# ============================================================================
+# 1. ANNOTATION PROPERTIES — Change metadata on triple terms
+# ============================================================================
+#
+# Pattern: the CHANGED triple becomes the subject of diff annotations:
+#   << ex:Person ex:hasPhone xsd:string >> diff:changeType "removed" ;
+#                                         diff:changeReason "Phone field consolidated into ex:hasContact" ;
+#                                         diff:removedInVersion "2.1.0" ;
+#                                         diff:replacementTriple "<< ex:Person ex:hasContact xsd:string >>" ;
+#                                         diff:impactLevel "medium" ;
+#                                         diff:affectedTemplates "person-form.tera" .
+
+diff:changeType
+  a owl:AnnotationProperty ;
+  rdfs:label "change type"@en ;
+  rdfs:comment "The type of change: added, removed, modified, renamed, deprecated, type_changed, cardinality_changed."@en ;
+  rdfs:range xsd:string .
+
+diff:changeReason
+  a owl:AnnotationProperty ;
+  rdfs:label "change reason"@en ;
+  rdfs:comment "Human-readable explanation of why this change was made."@en ;
+  rdfs:range xsd:string .
+
+diff:removedInVersion
+  a owl:AnnotationProperty ;
+  rdfs:label "removed in version"@en ;
+  rdfs:comment "The version in which this element was removed or deprecated."@en ;
+  rdfs:range xsd:string .
+
+diff:addedInVersion
+  a owl:AnnotationProperty ;
+  rdfs:label "added in version"@en ;
+  rdfs:comment "The version in which this element was first introduced."@en ;
+  rdfs:range xsd:string .
+
+diff:modifiedInVersion
+  a owl:AnnotationProperty ;
+  rdfs:label "modified in version"@en ;
+  rdfs:comment "The version in which this element was modified."@en ;
+  rdfs:range xsd:string .
+
+diff:replacementTriple
+  a owl:AnnotationProperty ;
+  rdfs:label "replacement triple"@en ;
+  rdfs:comment "The RDF 1.2 triple term that replaces this one (as a serialized string). Used for renamed and removed properties."@en ;
+  rdfs:range xsd:string .
+
+diff:oldRange
+  a owl:AnnotationProperty ;
+  rdfs:label "old range"@en ;
+  rdfs:comment "The previous range/datatype before the change (for type_changed and modified changes)."@en ;
+  rdfs:range xsd:string .
+
+diff:newRange
+  a owl:AnnotationProperty ;
+  rdfs:label "new range"@en ;
+  rdfs:comment "The new range/datatype after the change."@en ;
+  rdfs:range xsd:string .
+
+diff:oldCardinality
+  a owl:AnnotationProperty ;
+  rdfs:label "old cardinality"@en ;
+  rdfs:comment "The previous cardinality constraint before the change (e.g., '1..1', '0..*', '1..*')."@en ;
+  rdfs:range xsd:string .
+
+diff:newCardinality
+  a owl:AnnotationProperty ;
+  rdfs:label "new cardinality"@en ;
+  rdfs:comment "The new cardinality constraint after the change."@en ;
+  rdfs:range xsd:string .
+
+# ============================================================================
+# 2. IMPACT PROPERTIES — Assess downstream consequences
+# ============================================================================
+
+diff:impactLevel
+  a owl:AnnotationProperty ;
+  rdfs:label "impact level"@en ;
+  rdfs:comment "Severity of downstream impact: critical, high, medium, low. Critical = breaking change requiring immediate migration. High = significant refactoring needed. Medium = minor code changes. Low = informational."@en ;
+  rdfs:range xsd:string .
+
+diff:affectedTemplates
+  a owl:AnnotationProperty ;
+  rdfs:label "affected templates"@en ;
+  rdfs:comment "Comma-separated list of Tera templates that consume this triple. Used to identify which generated artifacts need updating."@en ;
+  rdfs:range xsd:string .
+
+diff:affectedQueries
+  a owl:AnnotationProperty ;
+  rdfs:label "affected queries"@en ;
+  rdfs:comment "Comma-separated list of SPARQL queries that reference this triple."@en ;
+  rdfs:range xsd:string .
+
+diff:breakingChange
+  a owl:AnnotationProperty ;
+  rdfs:label "breaking change"@en ;
+  rdfs:comment "Whether this change breaks backward compatibility. True means existing consumers will fail without migration."@en ;
+  rdfs:range xsd:boolean .
+
+diff:autoMigration
+  a owl:AnnotationProperty ;
+  rdfs:label "auto migration"@en ;
+  rdfs:comment "Whether ggen can automatically apply this migration. True means a deterministic transformation exists."@en ;
+  rdfs:range xsd:boolean .
+
+# ============================================================================
+# 3. MIGRATION PROPERTIES — Steps to apply the change
+# ============================================================================
+
+diff:migrationStep
+  a owl:AnnotationProperty ;
+  rdfs:label "migration step"@en ;
+  rdfs:comment "Natural language description of the migration step needed to adopt this change."@en ;
+  rdfs:range xsd:string .
+
+diff:migrationCode
+  a owl:AnnotationProperty ;
+  rdfs:label "migration code"@en ;
+  rdfs:comment "Code snippet (SPARQL UPDATE, shell command, or ggen CLI command) for the migration. Optional -- some migrations require manual intervention."@en ;
+  rdfs:range xsd:string .
+
+diff:verificationQuery
+  a owl:AnnotationProperty ;
+  rdfs:label "verification query"@en ;
+  rdfs:comment "SPARQL SELECT or ASK query to verify the migration was applied correctly."@en ;
+  rdfs:range xsd:string .
+
+# ============================================================================
+# 4. CLASSES — Diff domain model
+# ============================================================================
+
+diff:OntologyChange
+  a owl:Class ;
+  rdfs:label "Ontology Change"@en ;
+  rdfs:comment "Top-level class for any change between ontology versions. Serves as the root type for the diff taxonomy."@en .
+
+diff:AddedElement
+  a owl:Class ;
+  rdfs:label "Added Element"@en ;
+  rdfs:comment "A class, property, or axiom that was added in a new version. Non-breaking if the element is optional."@en ;
+  rdfs:subClassOf diff:OntologyChange .
+
+diff:RemovedElement
+  a owl:Class ;
+  rdfs:label "Removed Element"@en ;
+  rdfs:comment "A class, property, or axiom that was removed in a new version. Always breaking unless a replacement is provided."@en ;
+  rdfs:subClassOf diff:OntologyChange .
+
+diff:ModifiedElement
+  a owl:Class ;
+  rdfs:label "Modified Element"@en ;
+  rdfs:comment "A class, property, or axiom whose definition changed (type, cardinality, domain/range). Breaking if the change is incompatible."@en ;
+  rdfs:subClassOf diff:OntologyChange .
+
+diff:ImpactAssessment
+  a owl:Class ;
+  rdfs:label "Impact Assessment"@en ;
+  rdfs:comment "Aggregated impact analysis for a set of ontology changes. Contains summary statistics and risk classification."@en .
+
+diff:MigrationStep
+  a owl:Class ;
+  rdfs:label "Migration Step"@en ;
+  rdfs:comment "A single step in the migration process from one ontology version to another. Contains the step description, code, and verification query."@en ;
+  rdfs:subClassOf diff:OntologyChange .
+
+# ============================================================================
+# 5. OBJECT PROPERTIES — Report structure
+# ============================================================================
+
+diff:hasChange
+  a owl:ObjectProperty ;
+  rdfs:label "has change"@en ;
+  rdfs:comment "Links a DiffReport to a specific detected change."@en ;
+  rdfs:domain diff:ImpactAssessment ;
+  rdfs:range diff:OntologyChange .
+
+diff:hasMigrationStep
+  a owl:ObjectProperty ;
+  rdfs:label "has migration step"@en ;
+  rdfs:comment "Links a change to a migration step that addresses it."@en ;
+  rdfs:domain diff:OntologyChange ;
+  rdfs:range diff:MigrationStep .
+
+diff:fromVersion
+  a owl:DatatypeProperty ;
+  rdfs:label "from version"@en ;
+  rdfs:comment "The source ontology version."@en ;
+  rdfs:domain diff:ImpactAssessment ;
+  rdfs:range xsd:string .
+
+diff:toVersion
+  a owl:DatatypeProperty ;
+  rdfs:label "to version"@en ;
+  rdfs:comment "The target ontology version."@en ;
+  rdfs:domain diff:ImpactAssessment ;
+  rdfs:range xsd:string .
+
+diff:totalChanges
+  a owl:DatatypeProperty ;
+  rdfs:label "total changes"@en ;
+  rdfs:comment "Total number of changes detected between versions."@en ;
+  rdfs:domain diff:ImpactAssessment ;
+  rdfs:range xsd:integer .
+
+diff:breakingChanges
+  a owl:DatatypeProperty ;
+  rdfs:label "breaking changes"@en ;
+  rdfs:comment "Number of changes that break backward compatibility."@en ;
+  rdfs:domain diff:ImpactAssessment ;
+  rdfs:range xsd:integer .
+
+diff:autoMigratableChanges
+  a owl:DatatypeProperty ;
+  rdfs:label "auto migratable changes"@en ;
+  rdfs:comment "Number of changes that can be automatically migrated by ggen."@en ;
+  rdfs:domain diff:ImpactAssessment ;
+  rdfs:range xsd:integer .
+
+diff:manualChanges
+  a owl:DatatypeProperty ;
+  rdfs:label "manual changes"@en ;
+  rdfs:comment "Number of changes that require manual intervention."@en ;
+  rdfs:domain diff:ImpactAssessment ;
+  rdfs:range xsd:integer .
+
+diff:entity
+  a owl:DatatypeProperty ;
+  rdfs:label "entity"@en ;
+  rdfs:comment "The subject IRI of the changed axiom (the entity being described)."@en ;
+  rdfs:domain diff:OntologyChange ;
+  rdfs:range xsd:string .
+
+diff:property
+  a owl:DatatypeProperty ;
+  rdfs:label "property"@en ;
+  rdfs:comment "The predicate IRI of the changed axiom (the property that changed)."@en ;
+  rdfs:domain diff:OntologyChange ;
+  rdfs:range xsd:string .
+
+diff:range
+  a owl:DatatypeProperty ;
+  rdfs:label "range"@en ;
+  rdfs:comment "The object/range IRI of the changed axiom."@en ;
+  rdfs:domain diff:OntologyChange ;
+  rdfs:range xsd:string .
+
+diff:stepOrder
+  a owl:DatatypeProperty ;
+  rdfs:label "step order"@en ;
+  rdfs:comment "The execution order of this migration step (1 = first, N = last)."@en ;
+  rdfs:domain diff:MigrationStep ;
+  rdfs:range xsd:integer .
+
+diff:stepDescription
+  a owl:DatatypeProperty ;
+  rdfs:label "step description"@en ;
+  rdfs:comment "Human-readable description of what this migration step does."@en ;
+  rdfs:domain diff:MigrationStep ;
+  rdfs:range xsd:string .
+
+diff:stepCode
+  a owl:DatatypeProperty ;
+  rdfs:label "step code"@en ;
+  rdfs:comment "Executable code (SPARQL UPDATE, shell, ggen CLI) for this migration step."@en ;
+  rdfs:domain diff:MigrationStep ;
+  rdfs:range xsd:string .
+
+diff:stepVerification
+  a owl:DatatypeProperty ;
+  rdfs:label "step verification"@en ;
+  rdfs:comment "SPARQL query to verify this migration step was applied correctly."@en ;
+  rdfs:domain diff:MigrationStep ;
+  rdfs:range xsd:string .

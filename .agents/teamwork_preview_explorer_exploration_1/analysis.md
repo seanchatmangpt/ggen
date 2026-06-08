@@ -1,236 +1,196 @@
-# Analysis Report: OCEL v2 Self-Audit Log & Coverage Matrix
+# ggen Projection Intelligence Analysis Report
 
-This analysis report provides a read-only investigation and design specification for implementing the OCEL v2 self-audit log generator, the coverage matrix, integration tests, and verification scripts required for the Vision 2030 GALL checkpoint promotion.
-
----
-
-## 1. Executive Summary
-
-We have established the baseline status of the repository, confirming that all existing tests compile and pass. The `crates/ggen-graph` package provides a robust substrate for deterministic RDF graph operations, SPARQL queries, knowledge hooks, and cryptographic transition receipts. 
-
-To satisfy the **Vision 2030 GALL Checkpoint** requirements, we must implement:
-1. **OCEL v2 Self-Audit Log Generator** (`src/ocel/self_audit.rs` and `src/ocel/gall_projection.rs`): Generates a qualified process log capturing the team's implementation, testing, scanning, and promotion events, outputting `audit/vision2030.self_audit.ocel.json`.
-2. **Coverage Mapping Matrix** (`src/ocel/coverage.rs`): Maps requirements to files, tests, commands, and evidence, outputting `audit/vision2030.coverage.json`.
-3. **Integration Tests & Validation Scripts**: Integration tests verifying self-audit and coverage invariants, and shell scripts (`scripts/gall/emit_ocel_self_audit.sh` and `scripts/gall/verify_ocel_self_audit.sh`) enforcing the 5 Completeness Rules.
-4. **Derived Proof Report**: Updating the summary and final proof documentation.
-
-We propose implementing these generators natively as standard Rust source files within the `ocel` module, and exposing them via binary targets (`src/bin/emit_audit.rs` and `src/bin/verify_audit.rs`) to ensure robust, mock-free execution.
+This report analyzes the existing pack structures, resolver architecture, LSP diagnostics pipeline, and `tower-lsp-max` composition layer, providing concrete architectural recommendations for implementing the **ggen Projection Intelligence** requirement.
 
 ---
 
-## 2. Current Architecture & Projection Design
+## 1. Existing Pack Structure and Resolver
 
-The `crates/ggen-graph/src/ocel/` module currently manages two core data representations:
-1. **OCEL Log (`ocel_types.rs`)**: Captures events (`OcelEvent`), objects (`OcelObject`), and object references with qualifiers (`OcelObjectRef`).
-2. **W3C PROV-DM Document (`prov_types.rs`)**: Captures entities, activities, agents, and their respective relationships.
+### 1.1 Gpack Structure
+* **File Representation**: `crates/ggen-core/src/gpack.rs` defines the manifest structure for `gpack.toml` through `GpackManifest` (lines 123-140).
+* **Metadata & Fields**:
+  - `gpack`: `GpackMetadata` containing `id`, `name`, `version`, `description`, `license`, and `ggen_compat` (lines 144-151).
+  - `dependencies`: `BTreeMap<String, String>` mapping pack IDs to semver constraints (line 127).
+  - `templates`: `TemplatesConfig` with glob patterns and Tera includes (line 129).
+  - `macros`: `MacrosConfig` specifying paths (line 131).
+  - `rdf`: `RdfConfig` specifying base IRI, prefixes, glob patterns, and inline RDF content (line 133).
+  - `queries`: `QueriesConfig` specifying query glob patterns and query aliases (line 135).
+  - `shapes`: `ShapesConfig` with glob patterns for SHACL shape file discovery (line 137).
+  - `preset`: `PresetConfig` for default configuration paths and variable bindings (line 139).
+* **Conventions**: By default, `PackConventions` (lines 95-101) discover files in structured paths:
+  - Templates: `templates/**/*.tmpl`, `templates/**/*.tera`
+  - RDF: `templates/**/graphs/*.ttl`, `templates/**/graphs/*.rdf`, etc.
+  - Queries: `templates/**/queries/*.rq`, `templates/**/queries/*.sparql`
+  - Shapes: `templates/**/graphs/shapes/*.shacl.ttl`, `templates/**/shapes/*.ttl`
 
-The projection layer (`projection.rs` via `EvidenceProjector`) implements:
-- `project_ocel`: Projects an `OcelLog` into the `DeterministicGraph` by generating RDF triples/quads for objects and events under the `http://ggen.dev/ocel/` namespace. Qualifiers are projected as properties prefixed with `http://www.ocel-standard.org/ns#qualifier_`.
-- `extract_ocel`: Uses SPARQL queries to reconstruct a full `OcelLog` from the RDF store.
-- `project_prov` & `extract_prov`: Manages the equivalent translation for PROV-DM concepts.
+### 1.2 Domain Pack Representation
+* **File Representation**: `crates/ggen-core/src/domain/packs/types.rs` defines a domain-level `Pack` struct (lines 9-53) and `PackTemplate` (lines 57-63) representing an installed and fully resolved pack in memory. It tracks variables, SPARQL query contents (`sparql_queries`), dependency lists, readiness flag, and metadata.
+* **Storage Location**: Determined by `domain/packs/metadata.rs:get_packs_dir()` (lines 14-47), resolved from:
+  1. `GGEN_PACKS_DIR` environment variable.
+  2. Relative development paths: `marketplace/packs`, `../marketplace/packs`, `../../marketplace/packs`.
+  3. User home directory: `~/.ggen/packs`.
 
-To support GALL promotion, our new modules must leverage this existing `EvidenceProjector` to store and query self-audit data directly within the deterministic RDF store, validating the entire execution history using SPARQL query constraints.
+### 1.3 Pack Resolver
+* **File Representation**: `crates/ggen-core/src/pack_resolver.rs` contains the `PackResolver` struct (lines 171-178), executing **μ₀ Stage (Pack Resolution)** of the generation pipeline.
+* **Resolution Workflow** (`PackResolver::resolve`, lines 232-307):
+  1. **Read Lockfile**: Invokes `read_lockfile` to load `.ggen/packs.lock` (deserialized as `PackLockfile` defined in `crates/ggen-core/src/packs/lockfile.rs`).
+  2. **Expand Bundles**: Converts bundle aliases (like `"mcp-rust"`) to atomic pack IDs (like `"surface-mcp"`, `"projection-rust"`) using `expand_bundles`.
+  3. **Resolve Dependencies**: Recursively resolves transitive dependencies of atomic packs using registry metadata (`get_pack_dependencies` via `package.toml` or `dependencies.json`).
+  4. **Check Compatibility**: Validates pack namespace, protocol field, and output path ownership constraints using `OwnershipMap` from `ownership.json` or `package.toml` declarations.
+  5. **Enforce Policy Profiles**: Invokes `PolicyEnforcer::enforce` against policy profiles (e.g., `"development"`, `"production"`, `"ciso"`) using `pack_contexts`.
+  6. **Merge Ontologies**: Loads RDF ontology files (`ontology/pack.ttl`) from all resolved packs and parses them into a single Oxigraph-compatible `Graph`. Foundation packs are merged first.
+  7. **Load Templates & Queries**: Scans cache directories for Tera templates (`.tera`) and SPARQL queries (`.rq`) to produce a final `ResolvedPacks` struct.
 
 ---
 
-## 3. Detailed Component Designs
+## 2. LSP Diagnostics: Detection, Processing, and Publication
 
-### A. Self-Audit Log (`self_audit.rs` & `gall_projection.rs`)
-The self-audit log records the actual events and objects representing the software engineering and validation process.
+The `ggen-lsp` server (`crates/ggen-lsp/src/`) behaves as a type-system gate that evaluates "refusal before execution" constraints on source-law surfaces.
 
-#### Proposed Location:
-- `crates/ggen-graph/src/ocel/self_audit.rs`
-- `crates/ggen-graph/src/ocel/gall_projection.rs`
+### 2.1 Diagnostics Detection
+Diagnostics are divided into single-file syntax validations and cross-surface semantic validations:
+* **Single-File Validation**:
+  - `analyzers::mod.rs:build_analyzer` (lines 286-303) parses the path extension to produce a `DocumentAnalyzer` enum (variant of `Rdf`, `Sparql`, `Tera`, or `Toml`).
+  - Each analyzer runs custom parsing logic. E.g., `TomlAnalyzer` parses TOML manifests and extracts structural validation errors; `TeraAnalyzer` evaluates Tera syntax.
+* **Cross-Surface (Cross-File) Validation**:
+  - `detect_rule_001` (`GGEN-RULE-001`): Detects missing template/query files declared in rules (lines 124-135).
+  - `detect_tpl_001` (`GGEN-TPL-001`): Detects unbound variables in Tera templates compared against the SPARQL SELECT projection variables (lines 59-73).
+  - `detect_out_001` (`GGEN-OUT-001`): Detects unbound variables inside dynamic output paths (`output_file` patterns) (lines 93-107).
+  - `detect_harness_001` (`GGEN-HARNESS-001`): Detects mismatched test/bench harnesses declaring paths to non-existent proof files (lines 37-46).
+  - `detect_src_001` (`GGEN-SRC-001`): Detects output files targeting disallowed directories like `generated/` (lines 144-170).
+  - `detect_src_002_003_in_dir`: Scans output directories to find missing `DO NOT EDIT` banners or improper source-caste comments in generated Rust code.
 
-#### Data Specification:
-- **Object Types**:
-  - `RustCrate`, `PRDRequirement`, `ARDRequirement`, `GALLCheckpoint`, `PublicOntology`, `OntologyTerm`, `SourceFile`, `TestFile`, `ExampleFile`, `FixtureFile`, `ScriptFile`, `Command`, `CommandRun`, `EvidenceArtifact`, `GraphReceipt`, `CoverageMatrix`, `PromotionDecision`, `UnsupportedCapability`.
-- **Event Types**:
-  - `RequirementDeclared`, `OntologyMapped`, `FileEmitted`, `ImplementationChanged`, `FixtureCreated`, `CommandExecuted`, `TestPassed`, `TestFailed`, `ForbiddenSurfaceScanned`, `AntiFakeScanned`, `ReceiptEmitted`, `ReplayVerified`, `CoverageEvaluated`, `CheckpointEvaluated`, `CheckpointPromoted`, `CheckpointRefused`, `UnsupportedCapabilityDeclared`.
-- **Qualifiers / Predicates**:
-  - `--checks-->`, `--produces-->`, `--verifies-->`, `--satisfied_by-->`, `--decides-->`.
+### 2.2 Diagnostics Processing
+* **Server State Loop** (`state.rs:ServerState::analyze_and_observe`):
+  - Splices the current document contents into a live in-memory buffer overlay (`BufferOverlay`) to support live-editing cross-surface updates.
+  - Sequentially runs single-file parsing followed by cross-surface detectors (`TPL`, `HARNESS`, `OUT`, `RULE` in Phase A).
+  - Merges single-file diagnostics with cross-surface diagnostics (merge-once behavior ensures error squiggles align correctly).
+  - Logs lifecycle events (`DiagnosticRaised`, `RouteSelected`, `RepairSuggested`, `RepairApplied`, `GatePassed`, `ReceiptEmitted`) to the on-disk OCEL log (`.agent-admissibility/self_audit.ocel.json`).
+* **Headless Gate Loop** (`check.rs:check_files_in_root`):
+  - Performs the same single-file and cross-surface detection on disk.
+  - Aggregates errors and warnings, and compiles a `CheckReport`.
+  - Terminates the process with exit code `1` if any `ERROR`-severity diagnostics are present, functioning as a commit/CI check gate.
 
-#### Implementation Sketch (`self_audit.rs`):
+### 2.3 Diagnostics Publication
+* **Interactive LSP** (`server.rs`): Runs `refresh_analyzer` inside `did_open`/`did_change`, which maps output arrays of `(Url, Vec<Diagnostic>)` and publishes them to the client editor via `self.client.publish_diagnostics(target_uri, diagnostics, None)`.
+* **Headless CLI**: Outputs diagnostic details to `stdout` (plain text or structured JSON).
+
+---
+
+## 3. tower-lsp-max Crate Layout & Integration
+
+### 3.1 tower-lsp-max Crate Layout
+The `tower-lsp-max` repository is composed of several modular crates:
+* `tower-lsp-max-base`: Contains pipeline trait abstractions: `SourceObservation`, `ParseIngress` (parses raw files), `RelationAdmitter` (determines relational semantic validity), and `StaticIndexEmitter` (emits LSIF 0.6.0).
+* `tower-lsp-max-protocol`: Declares LSP structures, custom RPC methods (`max/*`), capability vectors, receipts, and the extended `MaxDiagnostic` containing metadata (violated axes, repair actions, verification gates, receipt obligations).
+* `tower-lsp-max-runtime`: Contains the typestate lifecycle engine (`AutonomicMesh` with instances mapping `Uninitialized -> Initializing -> Initialized -> ShutDown -> Exited`), process ledger, and mesh hooks. It also implements the `MaterializedViewStore` which stores materialized hovers, definitions, and diagnostics in `DashMap` indices.
+* `crates/playground`: A testing server harness acting as a mock provider of LSP operations.
+
+### 3.2 Routing, Composition, and Composition Strategy
+* **Oxigraph view population**: `tower-lsp-max-runtime/src/control_plane/views/update.rs` clears and rebuilds views from the Oxigraph triple store. Diagnostics are populated via `populate_diagnostics` (in `populate_hover_diag.rs`) using SPARQL queries `QUERY_LSIF_DIAGNOSTICS` (loading serialized LSIF diagnostic data) and `QUERY_LIVE_DIAGNOSTICS` (loading live control-plane errors).
+* **Materialized Storage**: Diagnostics are stored inside `MaterializedViewStore.diagnostics` which maps `Url -> Vec<Diagnostic>` (defined in `types.rs`).
+
+### 3.3 Composing ggen-lsp Diagnostics
+`tower-lsp-max` can compose and load `ggen-lsp` diagnostics using two clean pathways:
+1. **Direct Composition In Client Wrapper**: `tower-lsp-max` acts as a composite LSP proxy. When fanning out document syncs and hover/diagnostic requests, it calls the `ggen-lsp` analyzer engine (either running as a child process or integrated library) and merges the resulting diagnostics into the `MaterializedViewStore` under the respective document `Url`.
+2. **Attribution tagging via `source_id`**: Diagnostics returned from `ggen-lsp` should be converted into `MaxDiagnostic` instances, assigning `source_id = "ggen-lsp"`. These are placed in the `MaterializedViewStore` alongside dynamic compiler or downstream diagnostics (e.g. `rust-analyzer`), fanning out a consolidated list to the editor.
+
+---
+
+## 4. Recommended R1 Structures
+
+To support ggen Projection Intelligence, R1 structures must manage metadata, plans, mappings, overrides, and verification chains. These should be defined inside a new library module in `crates/ggen-projection/src/` (as planned in the `PROJECT.md` layout) or under `crates/ggen-core/src/domain/packs/projection.rs` and re-exported.
+
+The proposed Rust structures look as follows:
+
 ```rust
-use std::collections::HashMap;
-use chrono::Utc;
-use crate::ocel::{OcelLog, OcelObject, OcelEvent, OcelObjectRef};
-
-/// Generates the deterministic OCEL v2 self-audit log.
-pub fn generate_self_audit_log() -> OcelLog {
-    let mut log = OcelLog::new();
-
-    // 1. Declare Objects
-    // Requirements (R1-R6, etc.)
-    log.objects.push(OcelObject {
-        id: "req-r1-one-crate".to_string(),
-        r#type: "PRDRequirement".to_string(),
-        attributes: [("description".to_string(), "One-Crate Package Boundary".to_string())].into(),
-    });
-    // Add other requirements, source files, commands, etc.
-    // ...
-
-    // 2. Declare Events (RequirementDeclared, FileEmitted, etc.)
-    log.events.push(OcelEvent {
-        id: "event-r1-declared".to_string(),
-        activity: "RequirementDeclared".to_string(),
-        timestamp: Utc::now(),
-        objects: vec![OcelObjectRef {
-            id: "req-r1-one-crate".to_string(),
-            r#type: "PRDRequirement".to_string(),
-            qualifier: None,
-        }],
-        attributes: HashMap::new(),
-    });
-    // Add other events capturing the execution history
-    // ...
-
-    log
-}
-```
-
-#### Implementation Sketch (`gall_projection.rs`):
-`gall_projection.rs` wraps the `EvidenceProjector` to project the generated self-audit log and run SPARQL verification queries mapping custom GALL qualifiers into standard predicates.
-```rust
-use crate::{DeterministicGraph, GraphError};
-use crate::ocel::OcelLog;
-use crate::ocel::projection::EvidenceProjector;
-
-pub struct GallProjector;
-
-impl GallProjector {
-    /// Project self-audit log into the graph.
-    pub fn project_audit_log(graph: &DeterministicGraph, log: &OcelLog) -> Result<(), GraphError> {
-        EvidenceProjector::project_ocel(graph, log)
-    }
-
-    /// Run a custom verification query to validate promotion criteria.
-    pub fn verify_promotion_rules(graph: &DeterministicGraph) -> Result<bool, GraphError> {
-        let query = r#"
-            ASK WHERE {
-                ?dec a <http://www.ocel-standard.org/ns#Object> ;
-                     <http://www.ocel-standard.org/ns#objectType> "PromotionDecision" .
-                # Add validation logic to ensure a positive decision exists with backing evidence
-            }
-        "#;
-        let results = graph.query(query)?;
-        if let oxigraph::sparql::QueryResults::Boolean(val) = results {
-            Ok(val)
-        } else {
-            Ok(false)
-        }
-    }
-}
-```
-
----
-
-### B. Coverage Matrix (`coverage.rs`)
-The coverage matrix defines how each PRD/ARD requirement is satisfied and verified, mapping requirements to specific source files, test cases, execution commands, and cryptographic evidence.
-
-#### Proposed Location:
-- `crates/ggen-graph/src/ocel/coverage.rs`
-
-#### Structure:
-```rust
+use std::collections::{BTreeMap, HashMap};
+use std::path::PathBuf;
 use serde::{Serialize, Deserialize};
 
+/// 1. PackDescriptor: Represents the versioned metadata and file bindings of a template pack.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct PackDescriptor {
+    pub id: String,
+    pub name: String,
+    pub version: String,
+    pub description: String,
+    pub license: String,
+    pub dependencies: BTreeMap<String, String>, // Pack ID -> Semver constraint
+    pub templates: Vec<PackTemplateDescriptor>,
+    pub query_aliases: BTreeMap<String, String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct PackTemplateDescriptor {
+    pub path: PathBuf,
+    pub description: String,
+    pub variables: Vec<String>,
+}
+
+/// 2. PackPlan: Represents the execution plan resolved for a target sync.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct PackPlan {
+    pub target_profile: String,
+    pub packs: Vec<PackDescriptor>,
+    pub resolution_order: Vec<String>, // Topologically sorted pack IDs
+    pub checksums: HashMap<String, String>, // Pack ID -> Blake3 hash
+}
+
+/// 3. ProjectionMap: Maps generated output files back to their source templates and queries.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct ProjectionMap {
+    pub mappings: HashMap<PathBuf, ProjectionMapping>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct ProjectionMapping {
+    pub pack_id: String,
+    pub template_path: PathBuf,
+    pub query_path: Option<PathBuf>,
+    pub bound_variables: Vec<String>,
+    pub merge_strategy: String, // E.g., "Exclusive", "Mergeable", "Overlay"
+}
+
+/// 4. CustomizationMap: Tracks overrides, manual sections, and variable overrides.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct CustomizationMap {
+    pub vars: HashMap<String, String>, // Variable name -> Override value
+    pub file_overrides: HashMap<PathBuf, String>, // File path -> Specific merge rules
+}
+
+/// 5. ReceiptIndex: Tracks and chains cryptographic verification receipts.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct RequirementCoverage {
-    pub requirement_id: String,
-    pub requirement_type: String, // "PRDRequirement" or "ARDRequirement"
-    pub satisfied_by_files: Vec<String>,
-    pub verified_by_tests: Vec<String>,
-    pub evidence_commands: Vec<String>,
+pub struct ReceiptIndex {
+    pub receipts: HashMap<String, CryptographicReceipt>,
+    pub last_updated: chrono::DateTime<chrono::Utc>,
+    pub index_hash: String, // Blake3 hash of the combined index
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct CoverageMatrix {
-    pub requirements: Vec<RequirementCoverage>,
+pub struct CryptographicReceipt {
+    pub target_id: String,      // Output file path or Pack ID
+    pub receipt_id: String,     // Unique UUID
+    pub blake3_hash: String,    // Hash of the generated code / ontology state
+    pub signature: Option<String>,
+    pub verified_at: chrono::DateTime<chrono::Utc>,
 }
 ```
 
 ---
 
-### C. Execution & Verification Binaries
+## 5. Files to Modify for "ggen sync" CLI / Pipeline Step
 
-To ensure absolute completeness and avoid mock-based testing, we propose adding two lightweight CLI binaries directly in the library workspace. Under Cargo, files located in `src/bin/*.rs` are automatically treated as executable targets.
+Implementing the Projection Intelligence step in `ggen sync` requires updating the CLI parsing layer, the step execution sequence, and the verification/receipt pipeline:
 
-#### 1. `src/bin/emit_audit.rs`:
-Generates the self-audit log and coverage matrix, then writes them to their respective paths (`audit/vision2030.self_audit.ocel.json` and `audit/vision2030.coverage.json`).
-```rust
-use std::fs::File;
-use std::io::Write;
-use ggen_graph::ocel::self_audit::generate_self_audit_log;
-use ggen_graph::ocel::coverage::generate_coverage_matrix;
-
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Generate and write self-audit log
-    let audit_log = generate_self_audit_log();
-    let audit_json = serde_json::to_string_pretty(&audit_log)?;
-    let mut file = File::create("audit/vision2030.self_audit.ocel.json")?;
-    file.write_all(audit_json.as_bytes())?;
-
-    // Generate and write coverage matrix
-    let coverage_matrix = generate_coverage_matrix();
-    let coverage_json = serde_json::to_string_pretty(&coverage_matrix)?;
-    let mut file = File::create("audit/vision2030.coverage.json")?;
-    file.write_all(coverage_json.as_bytes())?;
-
-    println!("Audit artifacts emitted successfully.");
-    Ok(())
-}
-```
-
-#### 2. `src/bin/verify_audit.rs`:
-Performs structural analysis of the generated JSON files to enforce the **5 Completeness Rules**:
-1. **Requirements have evidence**: Checks that every requirement ID is associated with a file, test, or command.
-2. **Checkpoints have Command evidence**: Checks that evaluating checkpoints is linked to execution events of validation commands.
-3. **Prior evaluations exist**: Verifies that any promotion event is preceded chronologically by evaluation events.
-4. **Anti-fake is audited**: Verifies that `AntiFakeScanned` and `ForbiddenSurfaceScanned` events are present and point to verified runs.
-5. **Unsupported capabilities are linked**: Validates that all declared unsupported capabilities are mapped directly back to their originating constraints.
-
-```rust
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Load JSON logs and execute completeness rules
-    // ...
-    println!("OCEL self-audit log complies with all 5 Completeness Rules.");
-    Ok(())
-}
-```
-
----
-
-## 4. Integration Verification Plan
-
-### Integration Tests
-We will add two files to `crates/ggen-graph/tests/`:
-1. `tests/ocel_self_audit.rs`:
-   - Projects the self-audit log into a `DeterministicGraph` using `GallProjector`.
-   - Runs SPARQL queries to verify that the projected event sequence matches expected variants.
-   - Evaluates overall graph state hashing and transition determinism.
-2. `tests/vision2030_coverage.rs`:
-   - Checks the coverage matrix schema correctness.
-   - Asserts that 100% of the PRD/ARD requirements listed in `ORIGINAL_REQUEST.md` map to at least one valid source and test file.
-
-### Shell Verification Scripts
-1. `scripts/gall/emit_ocel_self_audit.sh`:
-   ```bash
-   #!/usr/bin/env bash
-   set -euo pipefail
-   cargo run -p ggen-graph --bin emit_audit
-   ```
-2. `scripts/gall/verify_ocel_self_audit.sh`:
-   ```bash
-   #!/usr/bin/env bash
-   set -euo pipefail
-   cargo run -p ggen-graph --bin verify_audit
-   ```
-
----
-
-## 5. Potential Pitfalls and Constraints
-
-1. **Deterministic Hashing**: Because we serialize the output to JSON, any hash calculation over the audit files must guarantee field sorting and key stabilization to satisfy replay verifiers.
-2. **Completeness Enforcement**: Under the `AGENTS.md` and `GEMINI.md` anti-cheating mandates, placeholders like `"TODO"`, `""`, or `"hash_placeholder"` will fail both the Rust verification checks and the AST scanners. Real BLAKE3 hashes of files and actual command stdout logs must be compiled into the generated log structure.
-3. **Network Isolation**: All implementation tools and validation scripts must run locally without downloading resources or relying on remote registries.
+1. **`crates/ggen-cli/src/cmds/sync.rs`**:
+   - Expose new CLI options, such as `--pack-plan <PATH>`, `--profile <PROFILE>`, and `--locked` mode validation.
+   - Refactor `emit_sync_receipt` to support the new `ReceiptIndex` formatting and write it to `.ggen/receipts/index.json`.
+2. **`crates/ggen-core/src/codegen/executor.rs`**:
+   - Extend `SyncExecutor::execute` to include a **μ₀ stage** check before proceeding to manifest parsing.
+   - Invoke `PackResolver` to load resolved packs, build the `PackPlan`, and verify the safety of pack dependencies.
+3. **`crates/ggen-core/src/codegen/pipeline.rs`**:
+   - Integrate the `ResolvedPacks` ontology graph and custom Tera templates directly into the generator pipeline.
+   - Export the compilation audit trail to serialize the `ProjectionMap` and `CustomizationMap` to the generated output directory.
+4. **`crates/ggen-core/src/pack_resolver.rs`**:
+   - Update resolver interfaces to output structural `PackPlan` objects containing fully populated `PackDescriptor`s.

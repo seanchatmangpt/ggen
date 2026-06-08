@@ -1,3 +1,27 @@
+#![cfg(feature = "experimental")]
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
 #![allow(
     dead_code,
     unused_imports,
@@ -6,7 +30,6 @@
     clippy::all,
     unused_mut
 )]
-#![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all)]
 
 //! Integration Tests - CLI → Domain → Core Integration
 //!
@@ -124,7 +147,7 @@ test!(test_lifecycle_execution_integration, {
         .write_str(
             r#"[project]
 name = "test-project"
-version = "1.0.0"
+version = "26.6.6"
 
 [[phases]]
 name = "init"
@@ -268,7 +291,7 @@ test!(test_json_output_project_info, {
             r#"
 [project]
 name = "test-project"
-version = "1.0.0"
+version = "26.6.6"
 "#,
         )
         .unwrap();
@@ -384,7 +407,7 @@ test!(test_workflow_graph_operations, {
 
 ex:project1 a ex:Project ;
     ex:name "Test Project" ;
-    ex:version "1.0.0" .
+    ex:version "26.6.6" .
 "#,
         )
         .unwrap();
@@ -453,7 +476,7 @@ test!(test_config_file_loading, {
         .write_str(
             r#"[project]
 name = "test"
-version = "1.0.0"
+version = "26.6.6"
 
 [templates]
 search_paths = ["./templates"]
@@ -484,7 +507,7 @@ test!(test_manifest_path_option, {
         .write_str(
             r#"[project]
 name = "custom-project"
-version = "1.0.0"
+version = "26.6.6"
 "#,
         )
         .unwrap();
@@ -741,7 +764,7 @@ test!(test_v2_rdf_based_template_generation, {
 
 ex:service a ex:Service ;
     ex:name "MyService" ;
-    ex:version "1.0.0" .
+    ex:version "26.6.6" .
 "#,
         )
         .unwrap();

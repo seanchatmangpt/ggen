@@ -503,7 +503,7 @@ mod tests {
 
     #[test]
     fn test_recursive_semver_higher_b() {
-        let r = execute_merge_strategy("1.0.0", "2.0.0", &MergeStrategy::Recursive).unwrap();
+        let r = execute_merge_strategy("26.6.6", "2.0.0", &MergeStrategy::Recursive).unwrap();
         assert_eq!(r.content, "2.0.0");
         assert!(r.had_conflict);
     }
@@ -515,8 +515,8 @@ mod tests {
     }
     #[test]
     fn test_recursive_semver_prerelease() {
-        let r = execute_merge_strategy("1.0.0-alpha", "1.0.0", &MergeStrategy::Recursive).unwrap();
-        assert_eq!(r.content, "1.0.0");
+        let r = execute_merge_strategy("26.6.6-alpha", "26.6.6", &MergeStrategy::Recursive).unwrap();
+        assert_eq!(r.content, "26.6.6");
     }
     #[test]
     fn test_recursive_line_by_line() {

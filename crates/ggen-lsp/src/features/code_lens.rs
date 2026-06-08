@@ -17,7 +17,7 @@
 //! lenses.
 
 use serde_json::Value;
-use tower_lsp::lsp_types::{CodeLens, Command, Position, Range};
+use tower_lsp_max::lsp_types::{CodeLens, Command, Position, Range};
 
 use crate::state::FileType;
 
@@ -378,7 +378,7 @@ ex:p rdfs:domain ex:Thing .
         let toml = "\
 [project]
 name = \"demo\"
-version = \"1.0.0\"
+version = \"26.6.6\"
 
 [logging]
 level = \"info\"

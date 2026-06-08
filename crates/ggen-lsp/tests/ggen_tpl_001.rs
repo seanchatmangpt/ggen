@@ -1,3 +1,27 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
+
 //! Integration tests proving GGEN-TPL-001 ("unbound projection variable in
 //! template") from real project context.
 //!
@@ -14,13 +38,13 @@
 //!   field `rule_entries: Vec<RuleIndexEntry>`; each `RuleIndexEntry` carries a
 //!   public `issues: Vec<String>` for index/source-level problems.
 //! * Agent 2 — `ggen_lsp::analyzers::detect_tpl_001(&ProjectIndex)
-//!   -> Vec<(PathBuf, Vec<tower_lsp::lsp_types::Diagnostic>)>`. Each emitted
+//!   -> Vec<(PathBuf, Vec<tower_lsp_max::lsp_types::Diagnostic>)>`. Each emitted
 //!   `Diagnostic` carries `code == "GGEN-TPL-001"` and
 //!   `severity == DiagnosticSeverity::ERROR`.
 
 use std::path::{Path, PathBuf};
 
-use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString};
+use tower_lsp_max::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString};
 
 use ggen_lsp::analyzers::{detect_out_001, detect_tpl_001};
 use ggen_lsp::project_index::ProjectIndex;

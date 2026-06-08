@@ -1,3 +1,10 @@
+#![allow(
+    clippy::expect_used,
+    clippy::unwrap_used,
+    clippy::panic,
+    clippy::match_wildcard_for_single_variants
+)]
+
 pub mod analyzers;
 pub mod check;
 pub mod error;
@@ -7,6 +14,7 @@ pub mod harness_index;
 pub mod init;
 pub mod intel;
 pub mod pack;
+pub mod pack_lsp_registry;
 pub mod project_index;
 pub mod protocol;
 pub mod route;
@@ -38,7 +46,7 @@ pub use route::{
 pub use server::GgenLanguageServer;
 pub use state::ServerState;
 
-use tower_lsp::{LspService, Server};
+use tower_lsp_max::{LspService, Server};
 
 /// Run the LSP server over stdio (the transport editors use).
 pub async fn run_stdio() -> anyhow::Result<()> {

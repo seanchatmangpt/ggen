@@ -9,7 +9,7 @@
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
-use ggen_graph::ocel::{EvidenceProjector, OcelEvent, OcelLog};
+use ggen_graph::ocel::{EvidenceProjector, OCELEvent, OCEL};
 use ggen_graph::{check_lifecycle_order, discover_dfg, DeterministicGraph, DfgEdge};
 
 use super::events::{activity, obj_type, EPISODE_QUALIFIER};
@@ -59,9 +59,9 @@ struct FamilyEvidence {
 /// Group events into episodes and compute, per diagnostic family, the support
 /// (episode count) and measured success_rate (fraction of episodes that lawfully
 /// close: `DiagnosticRaised ≺ GatePassed`, via SPARQL on the episode sub-graph).
-fn family_evidence(log: &OcelLog) -> BTreeMap<String, FamilyEvidence> {
+fn family_evidence(log: &OCEL) -> BTreeMap<String, FamilyEvidence> {
     // episode id -> (diagnostic code, events)
-    let mut episodes: BTreeMap<String, (String, Vec<OcelEvent>)> = BTreeMap::new();
+    let mut episodes: BTreeMap<String, (String, Vec<OCELEvent>)> = BTreeMap::new();
     for ev in &log.events {
         let epid = ev
             .objects
@@ -121,8 +121,8 @@ fn family_evidence(log: &OcelLog) -> BTreeMap<String, FamilyEvidence> {
 
 /// Measured lawful closure for one episode: project its events and ASK whether
 /// `DiagnosticRaised ≺ GatePassed` holds (SPARQL conformance). Errors → false.
-fn episode_closed(events: &[OcelEvent]) -> bool {
-    let sub = OcelLog {
+fn episode_closed(events: &[OCELEvent]) -> bool {
+    let sub = OCEL {
         objects: vec![],
         events: events.to_vec(),
     };
@@ -140,7 +140,7 @@ fn episode_closed(events: &[OcelEvent]) -> bool {
     .unwrap_or(false)
 }
 
-fn episode_time_bounds(events: &[OcelEvent]) -> (String, String) {
+fn episode_time_bounds(events: &[OCELEvent]) -> (String, String) {
     let mut ts: Vec<String> = events.iter().map(|e| e.timestamp.to_rfc3339()).collect();
     ts.sort();
     let first = ts.first().cloned().unwrap_or_default();

@@ -22,7 +22,7 @@
 //!   "packs": [
 //!     {
 //!       "pack_id": "surface-mcp",
-//!       "version": "1.0.0",
+//!       "version": "26.6.6",
 //!       "source": {
 //!         "Registry": { "url": "https://registry.ggen.io" }
 //!       },
@@ -81,7 +81,7 @@
 //!
 //! let entry = LockfileEntry::new(
 //!     "io.ggen.rust.cli".to_string(),
-//!     "1.0.0".to_string(),
+//!     "26.6.6".to_string(),
 //!     RegistrySource::Registry { url: "https://github.com/example/pack.git".to_string() },
 //!     "abc123...".to_string(),
 //!     String::new(),
@@ -382,7 +382,7 @@ mod tests {
 
         let entry = LockfileEntry::new(
             "surface-mcp".to_string(),
-            "1.0.0".to_string(),
+            "26.6.6".to_string(),
             RegistrySource::Registry {
                 url: "https://registry.ggen.io".to_string(),
             },
@@ -426,7 +426,7 @@ mod tests {
 
         let entry = LockfileEntry::new(
             "surface-mcp".to_string(),
-            "1.0.0".to_string(),
+            "26.6.6".to_string(),
             RegistrySource::Local {
                 path: PathBuf::from("/tmp/pack"),
             },
@@ -461,7 +461,7 @@ mod tests {
 
         let entry = LockfileEntry::new(
             "surface-mcp".to_string(),
-            "1.0.0".to_string(),
+            "26.6.6".to_string(),
             RegistrySource::Registry {
                 url: "https://registry.ggen.io".to_string(),
             },
@@ -475,7 +475,7 @@ mod tests {
 
         let retrieved = lockfile.get_pack("surface-mcp");
         assert!(retrieved.is_some());
-        assert_eq!(retrieved.unwrap().version, "1.0.0");
+        assert_eq!(retrieved.unwrap().version, "26.6.6");
 
         let missing = lockfile.get_pack("nonexistent");
         assert!(missing.is_none());
@@ -490,7 +490,7 @@ mod tests {
         let mut lockfile2 = Lockfile::new(profile);
         lockfile2.add_pack(LockfileEntry::new(
             "surface-mcp".to_string(),
-            "1.0.0".to_string(),
+            "26.6.6".to_string(),
             RegistrySource::Registry {
                 url: "https://registry.ggen.io".to_string(),
             },

@@ -6,7 +6,7 @@
 //! is sound iff its step graph is acyclic with a single entry and reachable exit.
 
 use serde::{Deserialize, Serialize};
-use tower_lsp::lsp_types::Range;
+use tower_lsp_max::lsp_types::Range;
 
 /// Stable identifier for a route within its family (e.g. "unknown-prefix.declare").
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]

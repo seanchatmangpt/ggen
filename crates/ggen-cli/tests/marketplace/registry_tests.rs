@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::needless_raw_string_hashes, clippy::duration_suboptimal_units, clippy::branches_sharing_code, clippy::used_underscore_binding, clippy::single_char_pattern, clippy::ignore_without_reason, clippy::cloned_ref_to_slice_refs, clippy::doc_overindented_list_items, clippy::match_wildcard_for_single_variants, clippy::ignored_unit_patterns, clippy::needless_collect, clippy::unnecessary_map_or, clippy::manual_flatten, clippy::manual_strip, clippy::future_not_send, clippy::unnested_or_patterns, clippy::no_effect_underscore_binding, clippy::literal_string_with_formatting_args)]
 //! Chicago TDD Tests for Registry Infrastructure
 //!
 //! These tests follow Chicago TDD methodology:
@@ -52,7 +53,7 @@ fn create_test_package(name: &str, version: &str) -> PackageMetadata {
 /// Create a test registry index with sample packages
 async fn create_test_index(index_path: &Path) -> Result<()> {
     let packages = vec![
-        create_test_package("web/react-app", "1.0.0"),
+        create_test_package("web/react-app", "26.6.6"),
         create_test_package("cli/awesome-tool", "2.3.1"),
         create_test_package("backend/api-server", "0.5.0"),
         create_test_package("util/logger", "1.2.0"),
@@ -191,7 +192,7 @@ async fn test_registry_save_persists_to_disk() -> Result<()> {
     registry.load().await?;
 
     // Add a new package
-    let new_package = create_test_package("new/package", "1.0.0");
+    let new_package = create_test_package("new/package", "26.6.6");
     registry.add_package(new_package).await?;
 
     // WHEN: Save the registry
@@ -303,7 +304,7 @@ async fn test_registry_list_versions_returns_all_versions() -> Result<()> {
     let temp_dir = TempDir::new()?;
     let index_path = temp_dir.path().join("registry/index.json");
 
-    let mut package = create_test_package("test/multi-version", "1.0.0");
+    let mut package = create_test_package("test/multi-version", "26.6.6");
     package.versions.push(VersionMetadata {
         version: "1.1.0".to_string(),
         published_at: "2024-02-01T00:00:00Z".to_string(),
@@ -344,7 +345,7 @@ async fn test_registry_list_versions_returns_all_versions() -> Result<()> {
 
     // THEN: Should return all versions
     assert_eq!(versions.len(), 3);
-    assert!(versions.contains(&"1.0.0".to_string()));
+    assert!(versions.contains(&"26.6.6".to_string()));
     assert!(versions.contains(&"1.1.0".to_string()));
     assert!(versions.contains(&"2.0.0".to_string()));
 
@@ -376,7 +377,7 @@ async fn test_registry_get_version_returns_specific_version() -> Result<()> {
     let temp_dir = TempDir::new()?;
     let index_path = temp_dir.path().join("registry/index.json");
 
-    let mut package = create_test_package("test/pkg", "1.0.0");
+    let mut package = create_test_package("test/pkg", "26.6.6");
     package.versions.push(VersionMetadata {
         version: "2.0.0".to_string(),
         published_at: "2024-02-01T00:00:00Z".to_string(),
@@ -429,7 +430,7 @@ async fn test_registry_add_package_persists_to_memory() -> Result<()> {
     registry.load().await?;
 
     // WHEN: Add a new package
-    let new_package = create_test_package("new/package", "1.0.0");
+    let new_package = create_test_package("new/package", "26.6.6");
     registry.add_package(new_package).await?;
 
     // THEN: Package should be retrievable
@@ -473,7 +474,7 @@ async fn test_registry_add_package_and_save_persists_to_disk() -> Result<()> {
     registry.load().await?;
 
     // WHEN: Add package and save
-    let new_package = create_test_package("persistent/package", "1.0.0");
+    let new_package = create_test_package("persistent/package", "26.6.6");
     registry.add_package(new_package).await?;
     registry.save().await?;
 
@@ -637,7 +638,7 @@ async fn test_registry_concurrent_add_operations() -> Result<()> {
     for i in 0..5 {
         let reg = registry.clone();
         let handle = tokio::spawn(async move {
-            let pkg = create_test_package(&format!("concurrent/pkg-{}", i), "1.0.0");
+            let pkg = create_test_package(&format!("concurrent/pkg-{}", i), "26.6.6");
             reg.add_package(pkg).await.unwrap();
         });
         handles.push(handle);

@@ -1,0 +1,16 @@
+{
+  "checksums": {
+    "ggen-pack-clap-noun-verb": "fc5643f4b0ff06c4552f07a653276347407e093887737d8ec696b245bd2edbdc",
+    "ggen-pack-tower-lsp-max": "a8d011c9a58795bc7876a56e6990b16fe1ff7c1e3e6778f191660cd57c7e3894"
+  },
+  "outputs": [
+    "examples/clap-noun-verb-lsp"
+  ],
+  "required_receipts": true,
+  "resolved_packs": [
+    "ggen-pack-clap-noun-verb",
+    "ggen-pack-tower-lsp-max"
+  ],
+  "root_pack": "ggen-pack-tower-lsp-max",
+  "write_mode": "stage-first"
+}

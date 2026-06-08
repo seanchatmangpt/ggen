@@ -1,4 +1,27 @@
 #![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
+#![allow(
     dead_code,
     unused_imports,
     unused_variables,
@@ -32,7 +55,7 @@ fn test_sabotage_remove_pack_toml_sync_locked_exits_nonzero() {
 
     // Write a lockfile that references a pack with a specific integrity hash
     // The pack will not actually exist (simulating deletion after install)
-    let lockfile_json = r#"{"packs":{"acme/base":{"version":"1.0.0","source":{"type":"Local","path":"/nonexistent/pack"},"integrity":"sha256-abc123def456","installed_at":"2024-01-01T00:00:00Z","dependencies":[]}},"updated_at":"2024-01-01T00:00:00Z","ggen_version":"6.1.0"}"#;
+    let lockfile_json = r#"{"packs":{"acme/base":{"version":"26.6.6","source":{"type":"Local","path":"/nonexistent/pack"},"integrity":"sha256-abc123def456","installed_at":"2024-01-01T00:00:00Z","dependencies":[]}},"updated_at":"2024-01-01T00:00:00Z","ggen_version":"6.1.0"}"#;
     fs::write(&lock_path, lockfile_json).unwrap();
 
     let cache_dir = TempDir::new().unwrap();

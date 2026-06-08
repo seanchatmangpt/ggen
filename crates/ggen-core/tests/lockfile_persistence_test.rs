@@ -1,3 +1,26 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
 //! Test lockfile persistence operations
 //!
 //! This test verifies that PackLockfile::save() and PackLockfile::from_file()
@@ -17,7 +40,7 @@ fn test_lockfile_save_and_load() {
 
     // Add a test pack
     let pack = LockedPack {
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         source: PackSource::Local {
             path: PathBuf::from("/tmp/test-pack"),
         },
@@ -43,7 +66,7 @@ fn test_lockfile_save_and_load() {
     assert!(loaded.packs.contains_key("test-pack"));
 
     let loaded_pack = loaded.get_pack("test-pack").expect("Pack not found");
-    assert_eq!(loaded_pack.version, "1.0.0");
+    assert_eq!(loaded_pack.version, "26.6.6");
     assert_eq!(loaded_pack.dependencies.len(), 0);
 
     // Test validation
@@ -59,7 +82,7 @@ fn test_lockfile_format_correctness() {
 
     // Add pack with all fields populated
     let pack = LockedPack {
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         source: PackSource::GitHub {
             org: "test-org".to_string(),
             repo: "test-repo".to_string(),
@@ -134,7 +157,7 @@ fn test_lockfile_validation_detects_missing_dependencies() {
 
     // Add a pack with a dependency that doesn't exist
     let pack = LockedPack {
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         source: PackSource::Registry {
             url: "https://registry.ggen.io".to_string(),
         },
@@ -172,7 +195,7 @@ fn test_lockfile_updates_timestamp() {
 
     // Add a pack
     let pack = LockedPack {
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         source: PackSource::Local {
             path: PathBuf::from("/tmp/test"),
         },

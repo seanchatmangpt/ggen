@@ -35,6 +35,9 @@ pub mod sync;
 #[cfg(feature = "experimental")]
 pub mod wizard;
 
+#[cfg(feature = "experimental")]
+pub mod construct;
+
 // Command modules - clap-noun-verb auto-discovery
 // ARCHIVED (v26.5.28): a2a/framework/mcp/sigma not provable as finished; gated
 // behind default-off `experimental` so they leave the default CLI surface while
@@ -45,6 +48,7 @@ pub mod doctor;
 #[cfg(feature = "experimental")]
 pub mod framework; // Framework bridge commands (LangChain, etc.)
 pub mod graph;
+pub mod conformance_receipt;
 #[cfg(feature = "lsp")]
 pub mod lsp; // ggen lsp noun (start/check/init/serve/mine/metrics/replay/field-status/emit_pack/verify_pack) — opt-in: --features lsp
 #[cfg(feature = "experimental")]

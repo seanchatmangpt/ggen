@@ -1,8 +1,8 @@
 //! Append-only NDJSON event store at `.ggen/ocel/agent-edit-events.ocel.jsonl`.
 //!
-//! One serialized `OcelEvent` per line. Append-only + per-line flush is the only
-//! crash-safe shape (rewriting a whole `OcelLog` each event would lose data and
-//! be O(n)). The reader folds lines back into an `OcelLog`, reconstructing the
+//! One serialized `OCELEvent` per line. Append-only + per-line flush is the only
+//! crash-safe shape (rewriting a whole `OCEL` each event would lose data and
+//! be O(n)). The reader folds lines back into an `OCEL`, reconstructing the
 //! object table from each event's refs and skipping any truncated trailing line.
 
 use std::collections::BTreeMap;
@@ -10,7 +10,7 @@ use std::fs::{create_dir_all, OpenOptions};
 use std::io::{self, Write};
 use std::path::{Path, PathBuf};
 
-use ggen_graph::ocel::{OcelEvent, OcelLog, OcelObject};
+use ggen_graph::ocel::{OCELEvent, OCEL, OCELObject};
 
 /// Append-only OCEL event log.
 #[derive(Debug, Clone)]
@@ -50,7 +50,7 @@ impl IntelLog {
     ///
     /// # Errors
     /// Returns an I/O error if the directory or file cannot be created/written.
-    pub fn append(&self, events: &[OcelEvent]) -> io::Result<()> {
+    pub fn append(&self, events: &[OCELEvent]) -> io::Result<()> {
         if events.is_empty() {
             return Ok(());
         }
@@ -75,22 +75,22 @@ impl IntelLog {
         file.flush()
     }
 
-    /// Read the log and fold it into an `OcelLog`, reconstructing the object
+    /// Read the log and fold it into an `OCEL`, reconstructing the object
     /// table from event refs. Unparseable (e.g. truncated) lines are skipped.
     #[must_use]
-    pub fn read(&self) -> OcelLog {
+    pub fn read(&self) -> OCEL {
         let content = std::fs::read_to_string(&self.path).unwrap_or_default();
         let mut events = Vec::new();
-        let mut objects: BTreeMap<String, OcelObject> = BTreeMap::new();
+        let mut objects: BTreeMap<String, OCELObject> = BTreeMap::new();
         for line in content.lines() {
             if line.trim().is_empty() {
                 continue;
             }
-            let Ok(ev) = serde_json::from_str::<OcelEvent>(line) else {
+            let Ok(ev) = serde_json::from_str::<OCELEvent>(line) else {
                 continue; // skip truncated/corrupt trailing line
             };
             for r in &ev.objects {
-                objects.entry(r.id.clone()).or_insert_with(|| OcelObject {
+                objects.entry(r.id.clone()).or_insert_with(|| OCELObject {
                     id: r.id.clone(),
                     r#type: r.r#type.clone(),
                     attributes: std::collections::HashMap::new(),
@@ -98,7 +98,7 @@ impl IntelLog {
             }
             events.push(ev);
         }
-        OcelLog {
+        OCEL {
             objects: objects.into_values().collect(),
             events,
         }

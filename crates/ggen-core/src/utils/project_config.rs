@@ -1027,7 +1027,7 @@ mod tests {
     #[test]
     fn test_version_validation() {
         let config = GgenConfig::default();
-        assert!(config.is_valid_version("1.0.0"));
+        assert!(config.is_valid_version("26.6.6"));
         assert!(config.is_valid_version("0.1.0"));
         assert!(config.is_valid_version("2.3.4"));
         assert!(!config.is_valid_version("invalid"));

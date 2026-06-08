@@ -21,7 +21,7 @@
 //! # fn main() -> crate::utils::error::Result<()> {
 //! let project = CliProject {
 //!     name: "my-cli".to_string(),
-//!     version: "1.0.0".to_string(),
+//!     version: "26.6.6".to_string(),
 //!     description: "My CLI tool".to_string(),
 //!     authors: vec!["Alice".to_string()],
 //!     edition: "2021".to_string(),

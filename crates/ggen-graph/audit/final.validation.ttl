@@ -4,7 +4,11 @@
 @prefix dcterms: <http://purl.org/dc/terms/> .
 
 <#final_adjudication_report> a sh:ValidationReport ;
-    sh:conforms "true"^^xsd:boolean ;
+    sh:conforms "false"^^xsd:boolean ;
     dcterms:identifier "final.validation" ;
     dcterms:description "Final Adjudication Report" ;
-    dcterms:title "All checkpoints passed. Promotion approved." .
+    sh:result [
+        a sh:ValidationResult ;
+        sh:resultSeverity sh:Violation ;
+        sh:resultMessage "Witnessed Agent Adjudication refused. 5 violation(s) detected: Checkpoint W1 failed; Checkpoint R7 failed; Checkpoint W1 did not pass or was not evaluated; Validation report public_vocab.validation.ttl exists but does not conform, or is missing; Validation report hook_actuation.validation.ttl exists but does not conform, or is missing"
+    ] .

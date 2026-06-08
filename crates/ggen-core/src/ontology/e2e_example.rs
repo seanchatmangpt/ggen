@@ -20,7 +20,7 @@ mod e2e_tests {
         let initial_snapshot = SigmaSnapshot::new(
             None,
             vec![],
-            "1.0.0".to_string(),
+            "26.6.6".to_string(),
             "initial_signature".to_string(),
             SnapshotMetadata {
                 backward_compatible: true,
@@ -151,7 +151,7 @@ mod e2e_tests {
         let snapshot = SigmaSnapshot::new(
             None,
             vec![],
-            "1.0.0".to_string(),
+            "26.6.6".to_string(),
             "sig".to_string(),
             Default::default(),
         );
@@ -181,7 +181,7 @@ mod e2e_tests {
         let snap1 = Arc::new(SigmaSnapshot::new(
             None,
             vec![],
-            "1.0.0".to_string(),
+            "26.6.6".to_string(),
             "sig1".to_string(),
             Default::default(),
         ));
@@ -245,7 +245,7 @@ mod e2e_tests {
         let current_snapshot = SigmaSnapshot::new(
             None,
             vec![],
-            "1.0.0".to_string(),
+            "26.6.6".to_string(),
             "sig".to_string(),
             Default::default(),
         );

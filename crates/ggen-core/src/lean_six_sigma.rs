@@ -311,6 +311,7 @@ impl LeanSixSigmaGate {
                                 }
                                 crate::manifest::TemplateSource::Git { .. } => {}
                                 crate::manifest::TemplateSource::Package { .. } => {}
+                                crate::manifest::TemplateSource::Pack { .. } => {}
                             }
                         }
                         Ok(())
@@ -577,7 +578,7 @@ mod tests {
         GgenManifest {
             project: crate::manifest::ProjectConfig {
                 name: "test-project".to_string(),
-                version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
                 description: Some("Test project for DMAIC validation".to_string()),
             },
             ontology: crate::manifest::OntologyConfig {
@@ -614,6 +615,7 @@ mod tests {
                 max_reasoning_timeout_ms: 5000,
             },
             validation: Default::default(),
+            packs: vec![],
         }
     }
 

@@ -1,3 +1,26 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
 //! Conditional execution tests (T019) - Chicago School TDD
 //!
 //! Tests the rule conditional execution functionality (`when` field in generation rules).
@@ -153,7 +176,7 @@ fn test_condition_logging() {
     let manifest = GgenManifest {
         project: ProjectConfig {
             name: "condition_test".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: Some("Testing conditional execution logging".to_string()),
         },
         ontology: OntologyConfig {
@@ -204,6 +227,7 @@ fn test_condition_logging() {
             output_dir: PathBuf::from("generated"),
         },
         validation: ValidationConfig::default(),
+        packs: vec![],
     };
 
     // Assert: Manifest has mixed skip_empty rules
@@ -228,7 +252,7 @@ fn test_multiple_conditions_in_manifest() {
     let manifest = GgenManifest {
         project: ProjectConfig {
             name: "multi_condition_test".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: None,
         },
         ontology: OntologyConfig {
@@ -292,6 +316,7 @@ fn test_multiple_conditions_in_manifest() {
             output_dir: PathBuf::from("generated"),
         },
         validation: ValidationConfig::default(),
+        packs: vec![],
     };
 
     // Assert: Rules have different skip_empty settings
@@ -415,7 +440,7 @@ fn test_integration_rule_executed_when_ask_true() {
     let manifest = GgenManifest {
         project: ProjectConfig {
             name: "conditional_test".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: None,
         },
         ontology: OntologyConfig {
@@ -452,6 +477,7 @@ fn test_integration_rule_executed_when_ask_true() {
             output_dir: temp_dir.path().to_path_buf(),
         },
         validation: ValidationConfig::default(),
+        packs: vec![],
     };
 
     // Act: Execute pipeline
@@ -490,7 +516,7 @@ fn test_integration_rule_skipped_when_ask_false() {
     let manifest = GgenManifest {
         project: ProjectConfig {
             name: "skip_test".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: None,
         },
         ontology: OntologyConfig {
@@ -530,6 +556,7 @@ fn test_integration_rule_skipped_when_ask_false() {
             output_dir: temp_dir.path().to_path_buf(),
         },
         validation: ValidationConfig::default(),
+        packs: vec![],
     };
 
     // Act: Execute pipeline
@@ -564,7 +591,7 @@ fn test_integration_malformed_ask_query_error() {
     let manifest = GgenManifest {
         project: ProjectConfig {
             name: "malformed_test".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: None,
         },
         ontology: OntologyConfig {
@@ -601,6 +628,7 @@ fn test_integration_malformed_ask_query_error() {
             output_dir: temp_dir.path().to_path_buf(),
         },
         validation: ValidationConfig::default(),
+        packs: vec![],
     };
 
     // Act: Execute pipeline
@@ -636,7 +664,7 @@ fn test_integration_multiple_conditions() {
     let manifest = GgenManifest {
         project: ProjectConfig {
             name: "multi_condition_test".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: None,
         },
         ontology: OntologyConfig {
@@ -711,6 +739,7 @@ fn test_integration_multiple_conditions() {
             output_dir: temp_dir.path().to_path_buf(),
         },
         validation: ValidationConfig::default(),
+        packs: vec![],
     };
 
     // Act: Execute pipeline

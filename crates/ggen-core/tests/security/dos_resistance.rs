@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::needless_raw_string_hashes, clippy::duration_suboptimal_units, clippy::branches_sharing_code, clippy::used_underscore_binding, clippy::single_char_pattern, clippy::ignore_without_reason, clippy::cloned_ref_to_slice_refs, clippy::doc_overindented_list_items, clippy::match_wildcard_for_single_variants, clippy::ignored_unit_patterns, clippy::needless_collect, clippy::unnecessary_map_or, clippy::manual_flatten, clippy::manual_strip, clippy::future_not_send, clippy::unnested_or_patterns, clippy::no_effect_underscore_binding, clippy::literal_string_with_formatting_args)]
 //! DoS resistance tests
 
 use ggen_core::registry::{PackMetadata, RegistryIndex, VersionMetadata};
@@ -115,9 +116,9 @@ fn test_extremely_long_strings() {
 
     let mut versions = HashMap::new();
     versions.insert(
-        "1.0.0".to_string(),
+        "26.6.6".to_string(),
         VersionMetadata {
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             git_url: "https://github.com/test/repo.git".to_string(),
             git_rev: "main".to_string(),
             manifest_url: None,
@@ -133,7 +134,7 @@ fn test_extremely_long_strings() {
         keywords: vec![],
         category: None,
         author: None,
-        latest_version: "1.0.0".to_string(),
+        latest_version: "26.6.6".to_string(),
         versions,
         downloads: None,
         updated: None,
@@ -155,9 +156,9 @@ fn test_many_tags_and_keywords() {
 
     let mut versions = HashMap::new();
     versions.insert(
-        "1.0.0".to_string(),
+        "26.6.6".to_string(),
         VersionMetadata {
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             git_url: "https://github.com/test/repo.git".to_string(),
             git_rev: "main".to_string(),
             manifest_url: None,
@@ -173,7 +174,7 @@ fn test_many_tags_and_keywords() {
         keywords,
         category: None,
         author: None,
-        latest_version: "1.0.0".to_string(),
+        latest_version: "26.6.6".to_string(),
         versions,
         downloads: None,
         updated: None,
@@ -196,9 +197,9 @@ fn test_serialization_bomb_prevention() {
         let id = format!("pack{}", i);
         let mut versions = HashMap::new();
         versions.insert(
-            "1.0.0".to_string(),
+            "26.6.6".to_string(),
             VersionMetadata {
-                version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
                 git_url: "https://github.com/test/repo.git".to_string(),
                 git_rev: "main".to_string(),
                 manifest_url: None,
@@ -216,7 +217,7 @@ fn test_serialization_bomb_prevention() {
                 keywords: vec!["test".to_string()],
                 category: Some("test".to_string()),
                 author: Some("Test".to_string()),
-                latest_version: "1.0.0".to_string(),
+                latest_version: "26.6.6".to_string(),
                 versions,
                 downloads: Some(i as u64),
                 updated: Some(chrono::Utc::now()),
@@ -250,9 +251,9 @@ fn test_hash_collision_resistance() {
         let id = format!("pack{:04}", i);
         let mut versions = HashMap::new();
         versions.insert(
-            "1.0.0".to_string(),
+            "26.6.6".to_string(),
             VersionMetadata {
-                version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
                 git_url: "https://github.com/test/repo.git".to_string(),
                 git_rev: "main".to_string(),
                 manifest_url: None,
@@ -270,7 +271,7 @@ fn test_hash_collision_resistance() {
                 keywords: vec![],
                 category: None,
                 author: None,
-                latest_version: "1.0.0".to_string(),
+                latest_version: "26.6.6".to_string(),
                 versions,
                 downloads: None,
                 updated: None,
@@ -297,9 +298,9 @@ fn test_recursive_structure_prevention() {
 
     let mut versions = HashMap::new();
     versions.insert(
-        "1.0.0".to_string(),
+        "26.6.6".to_string(),
         VersionMetadata {
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             git_url: "https://github.com/test/repo.git".to_string(),
             git_rev: "main".to_string(),
             manifest_url: None,
@@ -315,7 +316,7 @@ fn test_recursive_structure_prevention() {
         keywords: vec![],
         category: None,
         author: None,
-        latest_version: "1.0.0".to_string(),
+        latest_version: "26.6.6".to_string(),
         versions,
         downloads: None,
         updated: None,

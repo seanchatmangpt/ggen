@@ -1,0 +1,37 @@
+Checkpoint:
+  GALL-CHECKPOINT-005
+> [!IMPORTANT]
+> This file is a HUMAN-READABLE REPORT only and is not an admission receipt.
+> Admission is governed exclusively by OCEL event logs and wasm4pm replay verdicts.
+
+
+Name:
+  wasm4pm-lsp Process Evidence Admission
+
+Status:
+  ADMITTED_BY_DOGFOOD
+
+Admission receipt:
+  GC005 removes LM-written receipt authority and replaces it with machine-executed
+  process-evidence replay.
+
+  ggen remains a projection producer, not an OCEL receipt authority.
+
+  wasm4pm-lsp is the protocol observation boundary for process evidence.
+
+  wasm4pm-backed replay computes FIT, DEVIATION, and BLOCKED verdicts from
+  process evidence.
+
+  Dogfood-projected tests observe all WASM4PM-* diagnostics exclusively through
+  textDocument/publishDiagnostics over the real LSP protocol.
+
+  Negative fixtures remove GC003 admission evidence and corrupt previous_receipt
+  linkage, forcing verdicts from the evidence graph rather than from edited verdict
+  strings.
+
+  No Python OCEL factories, substring sentinels, LM receipt authority, or hardcoded
+  absolute test paths remain.
+
+Not claimed:
+  AtomVM supervision cells.
+  full Gall Floor.

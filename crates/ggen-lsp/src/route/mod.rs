@@ -31,7 +31,7 @@ pub use promoted::{
 pub use registry::{family_of_code, family_of_diagnostic, RouteRegistry};
 // `action_route_for` and `route_plan_for_diagnostic` are defined in this module.
 
-use tower_lsp::lsp_types::Diagnostic;
+use tower_lsp_max::lsp_types::Diagnostic;
 
 /// The single route-selection entry point used by the editor `code_action` path.
 ///

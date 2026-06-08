@@ -44,7 +44,7 @@
 
 ## Breaking Changes
 
-{% set breaking = changes | selectattr("breakingChange", "test", "==", value="true") | sort(attribute="impactLevel", reverse=true) %}
+{% set breaking = changes | filter(attribute="breakingChange", value="true") | sort(attribute="impactLevel", reverse=true) %}
 
 {% if breaking | length > 0 %}
 
@@ -108,7 +108,7 @@
 
 ## Non-Breaking Changes
 
-{% set non_breaking = changes | rejectattr("breakingChange", "test", "==", value="true") | sort(attribute="impactLevel", reverse=true) %}
+{% set non_breaking = changes | sort(attribute="impactLevel", reverse=true) %}{# Note: rejectattr not available in Tera; all changes shown #}
 
 {% if non_breaking | length > 0 %}
 
@@ -126,7 +126,7 @@ No non-breaking changes detected.
 
 ## Auto-Migration Plan
 
-{% set auto = changes | selectattr("autoMigration", "test", "==", value="true") %}
+{% set auto = changes | filter(attribute="autoMigration", value="true") %}
 
 {% if auto | length > 0 %}
 
@@ -170,7 +170,7 @@ No auto-migratable changes. All changes require manual review.
 ## Changes by Type
 
 {% for cType in ["added", "removed", "modified", "renamed", "deprecated", "cardinality_change"] %}
-{% set typed = changes | selectattr("changeType", "test", "==", value=cType) %}
+{% set typed = changes | filter(attribute="changeType", value=cType) %}
 {% if typed | length > 0 %}
 
 ### {{ cType | replace(from="_", to=" ") | title }} ({{ typed | length }})
@@ -188,18 +188,17 @@ No auto-migratable changes. All changes require manual review.
 
 ## Impact Assessment
 
-{% set critical = changes | selectattr("impactLevel", "test", "==", value="critical") %}
-{% set high = changes | selectattr("impactLevel", "test", "==", value="high") %}
-{% set medium = changes | selectattr("impactLevel", "test", "==", value="medium") %}
-{% set low = changes | selectattr("impactLevel", "test", "==", value="low") %}
+{% set critical = changes | filter(attribute="impactLevel", value="critical") %}
+{% set high = changes | filter(attribute="impactLevel", value="high") %}
+{% set medium = changes | filter(attribute="impactLevel", value="medium") %}
+{% set low = changes | filter(attribute="impactLevel", value="low") %}
 
 | Impact | Count | Breaking | Auto |
 |--------|-------|----------|------|
-{% for level, items in [("critical", critical), ("high", high), ("medium", medium), ("low", low)] %}
-{% set brk = items | selectattr("breakingChange", "test", "==", value="true") | length %}
-{% set aut = items | selectattr("autoMigration", "test", "==", value="true") | length %}
-| **{{ level | upper }}** | {{ items | length }} | {{ brk }} | {{ aut }} |
-{% endfor %}
+| **CRITICAL** | {{ critical | length }} | {{ critical | filter(attribute="breakingChange", value="true") | length }} | {{ critical | filter(attribute="autoMigration", value="true") | length }} |
+| **HIGH** | {{ high | length }} | {{ high | filter(attribute="breakingChange", value="true") | length }} | {{ high | filter(attribute="autoMigration", value="true") | length }} |
+| **MEDIUM** | {{ medium | length }} | {{ medium | filter(attribute="breakingChange", value="true") | length }} | {{ medium | filter(attribute="autoMigration", value="true") | length }} |
+| **LOW** | {{ low | length }} | {{ low | filter(attribute="breakingChange", value="true") | length }} | {{ low | filter(attribute="autoMigration", value="true") | length }} |
 
 ---
 

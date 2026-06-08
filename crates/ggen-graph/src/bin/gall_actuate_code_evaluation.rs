@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::unnecessary_debug_formatting)]
 use chrono::Utc;
 use ggen_graph::graph::serialize::serialize_to_string;
 use oxigraph::io::{RdfFormat, RdfParser};
@@ -349,6 +350,7 @@ fn check_uri(uri: &str) -> Option<String> {
         || uri.starts_with("file://")
         || uri.starts_with("https://schema.org/")
         || uri.starts_with("http://schema.org/")
+        || uri.starts_with("http://stewards.faith/ontology#")
     {
         return None;
     }
@@ -368,7 +370,7 @@ fn scan_file_for_private_namespaces(
     // Allowed prefixes — standard public vocabulary prefixes only.
     let allowed_prefixes = [
         "rdf", "rdfs", "owl", "xsd", "prov", "dcat", "dcterms", "dc", "skos", "sh", "time", "spdx",
-        "ocel", "schema", "mcp", "ex", "mp", "vann", "foaf",
+        "ocel", "schema", "mcp", "ex", "mp", "vann", "foaf", "stpnt",
     ];
 
     // 1. Scan prefix declarations in the Turtle text

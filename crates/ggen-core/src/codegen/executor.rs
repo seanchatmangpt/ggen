@@ -131,7 +131,7 @@ pub struct SyncOptions {
 
     /// Optional LLM service for auto-generating skill implementations
     /// If None, uses default TemplateFallback generator
-    /// Note: Box<dyn LlmService> avoids cyclic dependency with ggen-ai
+    /// Note: `Box<dyn LlmService>` avoids cyclic dependency with ggen-ai
     pub llm_service: Option<Box<dyn LlmService>>,
 
     /// Timeout for sync operations in milliseconds (None = no timeout)

@@ -219,7 +219,7 @@ mod tests {
         config.variables.insert("name".to_string(), "test".to_string());
         config
             .variables
-            .insert("version".to_string(), "1.0.0".to_string());
+            .insert("version".to_string(), "26.6.6".to_string());
 
         assert_eq!(config.variables.len(), 2);
         assert_eq!(config.variables.get("name").unwrap(), "test");

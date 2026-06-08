@@ -28,9 +28,10 @@ fn to_adapter_err<E: std::fmt::Display>(e: E) -> AdapterError {
     AdapterError::new(e.to_string(), AdapterErrorType::ConversionFailed)
 }
 
-/// Dispatch an A2A route task `{ "tool": <name>, "arguments": { ... } }` to the
-/// corresponding `ggen-lsp-mcp` tool. The result is byte-identical to calling the
-/// MCP tool directly — one route engine, two transports.
+/// Dispatch an A2A route task to the corresponding `ggen-lsp-mcp` tool.
+///
+/// Accepts `{ "tool": <name>, "arguments": { ... } }`. The result is byte-identical
+/// to calling the MCP tool directly — one route engine, two transports.
 ///
 /// # Errors
 /// Returns `AdapterError` for an unknown tool or invalid arguments (the MCP
@@ -53,7 +54,7 @@ pub fn dispatch_tool(tool: &str, arguments: &Value) -> Result<Value, AdapterErro
 pub fn agent_card() -> Value {
     json!({
         "name": "ggen-lsp-route",
-        "version": "26.5.28",
+        "version": "26.5.29",
         "description": "ggen route engine over A2A: repair routes, replay, and improvement metrics.",
         "capabilities": {
             "ggen.lsp.repair_route": "Return the canonical RouteEnvelope for a law-surface file's diagnostics.",
@@ -84,7 +85,7 @@ impl Adapter for RepairRouteAdapter {
     }
 
     fn version(&self) -> &str {
-        "26.5.28"
+        "26.5.29"
     }
 
     async fn initialize(&mut self, _config: Value) -> Result<(), AdapterError> {

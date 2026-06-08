@@ -238,7 +238,10 @@ impl ConventionResolver {
                     match path.file_stem().and_then(|s| s.to_str()) {
                         Some(stem) => stem.to_string(),
                         None => {
-                            log::warn!("Could not extract template name from path: {:?}", path);
+                            log::warn!(
+                                "Could not extract template name from path: {}",
+                                path.display()
+                            );
                             continue; // Skip templates with invalid names
                         }
                     }
@@ -282,11 +285,12 @@ impl ConventionResolver {
                 let content = Context::with_context(
                     std::fs::read_to_string(&path).map_err(|e| {
                         ggen_core::utils::error::Error::new(&format!(
-                            "Failed to read query file {:?}: {}",
-                            path, e
+                            "Failed to read query file {}: {}",
+                            path.display(),
+                            e
                         ))
                     }),
-                    || format!("Failed to read query file: {:?}", path),
+                    || format!("Failed to read query file: {}", path.display()),
                 )?;
 
                 // Convert nested path to query name
@@ -301,7 +305,10 @@ impl ConventionResolver {
                     match path.file_stem().and_then(|s| s.to_str()) {
                         Some(stem) => stem.to_string(),
                         None => {
-                            log::warn!("Could not extract query name from path: {:?}", path);
+                            log::warn!(
+                                "Could not extract query name from path: {}",
+                                path.display()
+                            );
                             continue; // Skip queries with invalid names
                         }
                     }

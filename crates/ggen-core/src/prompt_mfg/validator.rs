@@ -228,8 +228,8 @@ mod tests {
             sections: BTreeMap::new(),
             metadata: PromptMetadata {
                 id: "".to_string(),
-                version: "1.0.0".to_string(),
-                schema_version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
+                schema_version: "26.6.6".to_string(),
                 source_ontology: "test://ontology".to_string(),
                 construct_query: "".to_string(),
             },
@@ -247,7 +247,7 @@ mod tests {
             metadata: PromptMetadata {
                 id: "test".to_string(),
                 version: "invalid".to_string(),
-                schema_version: "1.0.0".to_string(),
+                schema_version: "26.6.6".to_string(),
                 source_ontology: "test://ontology".to_string(),
                 construct_query: "".to_string(),
             },
@@ -264,8 +264,8 @@ mod tests {
             sections: BTreeMap::new(),
             metadata: PromptMetadata {
                 id: "test_prompt".to_string(),
-                version: "1.0.0".to_string(),
-                schema_version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
+                schema_version: "26.6.6".to_string(),
                 source_ontology: "test://ontology".to_string(),
                 construct_query: "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }".to_string(),
             },
@@ -311,7 +311,7 @@ mod tests {
 
     #[test]
     fn test_semver_comparison() {
-        let v1 = semver::Version::parse("1.0.0").unwrap();
+        let v1 = semver::Version::parse("26.6.6").unwrap();
         let v2 = semver::Version::parse("2.0.0").unwrap();
         let v3 = semver::Version::parse("1.5.0").unwrap();
 

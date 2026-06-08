@@ -1,3 +1,26 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
 //! Integration test: render ALL MCP + A2A templates with mock data
 //!
 //! Validates that every template in /templates/ and /crates/ggen-core/templates/
@@ -146,6 +169,19 @@ fn mcp_context() -> Context {
         }
     ]);
     ctx.insert("tools", &tools);
+
+    let sparql_results = serde_json::json!([
+        {
+            "tool_name": "create_order",
+            "tool_description": "Create a new customer order"
+        },
+        {
+            "tool_name": "get_order_status",
+            "tool_description": "Retrieve the status of an existing order"
+        }
+    ]);
+    ctx.insert("sparql_results", &sparql_results);
+
     ctx
 }
 
@@ -256,6 +292,27 @@ fn a2a_context() -> Context {
         }
     ]);
     ctx.insert("skills", &skills);
+
+    let sparql_results = serde_json::json!([
+        {
+            "skill_name": "check_stock",
+            "skill_description": "Check current stock level for a product SKU",
+            "skill_tags": "[]string{\"inventory\", \"read\"}",
+            "streaming": "false",
+            "timeout_ms": "5000",
+            "retry_policy": "exponential"
+        },
+        {
+            "skill_name": "update_stock",
+            "skill_description": "Update inventory stock level for a product SKU",
+            "skill_tags": "[]string{\"inventory\", \"write\"}",
+            "streaming": "false",
+            "timeout_ms": "5000",
+            "retry_policy": "exponential"
+        }
+    ]);
+    ctx.insert("sparql_results", &sparql_results);
+
     ctx
 }
 
@@ -294,7 +351,7 @@ fn adapter_mcp_sparql_context() -> Context {
 fn adapter_a2a_sparql_context() -> Context {
     let mut ctx = Context::new();
     ctx.insert("agent_name", "process_analyzer");
-    ctx.insert("agent_version", "1.0.0");
+    ctx.insert("agent_version", "26.6.6");
     ctx.insert(
         "agent_description",
         "Analyzes business processes and detects bottlenecks",
@@ -752,6 +809,7 @@ fn test_render_mcp_rust_empty_tools() {
     let mut ctx = mcp_context();
     let empty_tools: serde_json::Value = serde_json::json!([]);
     ctx.insert("tools", &empty_tools);
+    ctx.insert("sparql_results", &empty_tools);
 
     let result = render_and_save(
         &mut tera,
@@ -776,6 +834,7 @@ fn test_render_a2a_rust_empty_skills() {
     let mut ctx = a2a_context();
     let empty_skills: serde_json::Value = serde_json::json!([]);
     ctx.insert("skills", &empty_skills);
+    ctx.insert("sparql_results", &empty_skills);
 
     let result = render_and_save(
         &mut tera,

@@ -1,4 +1,27 @@
 #![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all)]
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
 
 //! Chicago TDD comprehensive tests for critical CLI commands
 //!
@@ -25,10 +48,10 @@ fn test_marketplace_lockfile_valid_json() {
     let lockfile_path = temp_dir.path().join("ggen.lock");
 
     let lockfile_content = r#"{
-  "version": "1.0.0",
+  "version": "26.6.6",
   "packages": {
     "test-pkg": {
-      "version": "1.0.0",
+      "version": "26.6.6",
       "installed_at": "2024-01-01T00:00:00Z"
     }
   }
@@ -51,7 +74,7 @@ fn test_marketplace_lockfile_valid_json() {
 fn test_marketplace_manifest_required_fields() {
     let manifest = r#"{
   "name": "test-pkg",
-  "version": "1.0.0",
+  "version": "26.6.6",
   "title": "Test Package",
   "description": "A test package"
 }"#;
@@ -75,7 +98,7 @@ fn test_marketplace_registry_prevents_duplicates() {
     let registry = r#"{
   "packages": {
     "my-pkg": {
-      "1.0.0": { "published": "2024-01-01T00:00:00Z" },
+      "26.6.6": { "published": "2024-01-01T00:00:00Z" },
       "2.0.0": { "published": "2024-01-02T00:00:00Z" }
     }
   }
@@ -87,12 +110,12 @@ fn test_marketplace_registry_prevents_duplicates() {
     let reg: serde_json::Value = serde_json::from_str(&content).unwrap();
 
     // Verify both versions exist
-    assert!(reg["packages"]["my-pkg"]["1.0.0"].is_object());
+    assert!(reg["packages"]["my-pkg"]["26.6.6"].is_object());
     assert!(reg["packages"]["my-pkg"]["2.0.0"].is_object());
 
     // Verify they're different
     assert_ne!(
-        reg["packages"]["my-pkg"]["1.0.0"],
+        reg["packages"]["my-pkg"]["26.6.6"],
         reg["packages"]["my-pkg"]["2.0.0"]
     );
 }
@@ -109,7 +132,7 @@ fn test_project_init_creates_config() {
     fs::create_dir_all(&project_dir).unwrap();
 
     let config = r#"name: my-project
-version: 1.0.0
+version: 26.6.6
 preset: standard"#;
 
     let config_path = project_dir.join("ggen.yml");
@@ -263,7 +286,7 @@ fn test_e2e_project_scaffold_and_generate() {
     // Step 1: Create project structure
     fs::create_dir_all(&project_dir).unwrap();
     let config_path = project_dir.join("ggen.yml");
-    fs::write(&config_path, "name: test-project\nversion: 1.0.0").unwrap();
+    fs::write(&config_path, "name: test-project\nversion: 26.6.6").unwrap();
 
     // Step 2: Create template
     let template_dir = project_dir.join("templates");
@@ -292,9 +315,9 @@ fn test_e2e_install_and_list() {
     // Create lockfile
     let lockfile_path = packages_dir.join("ggen.lock");
     let lockfile = r#"{
-  "version": "1.0.0",
+  "version": "26.6.6",
   "packages": {
-    "pkg1": { "version": "1.0.0", "installed_at": "2024-01-01T00:00:00Z" },
+    "pkg1": { "version": "26.6.6", "installed_at": "2024-01-01T00:00:00Z" },
     "pkg2": { "version": "2.0.0", "installed_at": "2024-01-02T00:00:00Z" }
   }
 }"#;

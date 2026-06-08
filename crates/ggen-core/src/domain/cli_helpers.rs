@@ -158,7 +158,7 @@ pub async fn create_ontology_project(
 
     // Create package.json
     let package_json = format!(
-        r#"{{\n  "name": "{}",\n  "version": "1.0.0",\n  "description": "Ontology-driven code generation project",\n  "type": "module",\n  "scripts": {{\n    "extract": "ggen ontology extract ontologies/schema.ttl --output schema.json",\n    "generate": "ggen ontology generate schema.json --language typescript --zod --utilities",\n    "validate": "ggen ontology validate schema.json --strict"\n  }},\n  "dependencies": {{\n    "zod": "^3.0.0"\n  }},\n  "devDependencies": {{\n    "typescript": "^5.0.0"\n  }}\n}}\n"#,
+        r#"{{\n  "name": "{}",\n  "version": "26.6.6",\n  "description": "Ontology-driven code generation project",\n  "type": "module",\n  "scripts": {{\n    "extract": "ggen ontology extract ontologies/schema.ttl --output schema.json",\n    "generate": "ggen ontology generate schema.json --language typescript --zod --utilities",\n    "validate": "ggen ontology validate schema.json --strict"\n  }},\n  "dependencies": {{\n    "zod": "^3.0.0"\n  }},\n  "devDependencies": {{\n    "typescript": "^5.0.0"\n  }}\n}}\n"#,
         proj_name
     );
     let pkg_path = proj_dir.join("package.json");

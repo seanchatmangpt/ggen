@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::needless_raw_string_hashes, clippy::duration_suboptimal_units, clippy::branches_sharing_code, clippy::used_underscore_binding, clippy::single_char_pattern, clippy::ignore_without_reason, clippy::cloned_ref_to_slice_refs, clippy::doc_overindented_list_items, clippy::match_wildcard_for_single_variants, clippy::ignored_unit_patterns, clippy::needless_collect, clippy::unnecessary_map_or, clippy::manual_flatten, clippy::manual_strip, clippy::future_not_send, clippy::unnested_or_patterns, clippy::no_effect_underscore_binding, clippy::literal_string_with_formatting_args)]
 //! Unit tests for package verification
 //!
 //! Tests cover:
@@ -227,7 +228,7 @@ fn test_manifest_verification_success() {
 
     let manifest = PackageManifest {
         name: "test-package".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         files: manifest_files,
         ggen_compat: "*".to_string(),
     };
@@ -250,7 +251,7 @@ fn test_manifest_verification_missing_file() {
 
     let manifest = PackageManifest {
         name: "test-package".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         files: manifest_files,
         ggen_compat: "*".to_string(),
     };
@@ -276,7 +277,7 @@ fn test_manifest_verification_checksum_mismatch() {
 
     let manifest = PackageManifest {
         name: "test-package".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         files: manifest_files,
         ggen_compat: "*".to_string(),
     };
@@ -302,7 +303,7 @@ fn test_version_compatibility_match() {
 
     let manifest = PackageManifest {
         name: "test".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         files: HashMap::new(),
         ggen_compat: "0.1.0".to_string(),
     };
@@ -317,7 +318,7 @@ fn test_version_compatibility_wildcard() {
 
     let manifest = PackageManifest {
         name: "test".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         files: HashMap::new(),
         ggen_compat: "*".to_string(),
     };
@@ -332,7 +333,7 @@ fn test_version_compatibility_mismatch() {
 
     let manifest = PackageManifest {
         name: "test".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         files: HashMap::new(),
         ggen_compat: "0.1.0".to_string(),
     };
@@ -360,7 +361,7 @@ fn test_verify_all_success() {
 
     let manifest = PackageManifest {
         name: "test-package".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         files: manifest_files,
         ggen_compat: "0.1.0".to_string(),
     };
@@ -378,7 +379,7 @@ fn test_verify_all_version_mismatch() {
 
     let manifest = PackageManifest {
         name: "test".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         files: HashMap::new(),
         ggen_compat: "0.1.0".to_string(),
     };
@@ -429,7 +430,7 @@ fn test_fmea_incomplete_package_detection() {
 
     let manifest = PackageManifest {
         name: "test".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         files: manifest_files,
         ggen_compat: "*".to_string(),
     };
@@ -462,7 +463,7 @@ fn test_fmea_version_incompatibility_detection() {
     };
 
     // Old version should be rejected
-    let result = verifier.verify_version_compatibility(&manifest, "1.0.0");
+    let result = verifier.verify_version_compatibility(&manifest, "26.6.6");
     assert!(result.is_err());
     assert_eq!(result.unwrap_err(), VerificationError::IncompatibleVersion);
 }

@@ -1,5 +1,12 @@
 #![allow(dead_code)]
 #![allow(unused_imports)]
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::single_char_pattern,
+    clippy::needless_pass_by_ref_mut
+)]
 //! MCP Error Handling Test Suite
 //!
 //! Comprehensive tests for error handling in MCP operations including:

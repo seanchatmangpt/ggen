@@ -217,6 +217,8 @@ impl Default for Transport {
 }
 
 #[cfg(test)]
+// Tests use expect() for clear failure messages; panics are intentional in test context.
+#[allow(clippy::expect_used)]
 mod tests {
     use super::*;
 

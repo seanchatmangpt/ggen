@@ -36,7 +36,7 @@ impl DependencyValidator {
         let ontology_check = if ontology_path.exists() {
             DependencyCheck {
                 name: "ontology_exists".to_string(),
-                version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
                 passed: true,
                 details: format!("Ontology found at {}", ontology_path.display()),
             }
@@ -44,7 +44,7 @@ impl DependencyValidator {
             failed_count += 1;
             DependencyCheck {
                 name: "ontology_exists".to_string(),
-                version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
                 passed: false,
                 details: format!("Ontology not found at {}", ontology_path.display()),
             }
@@ -58,7 +58,7 @@ impl DependencyValidator {
             let import_check = if import_path.exists() {
                 DependencyCheck {
                     name: format!("import_{}", import_name),
-                    version: "1.0.0".to_string(),
+                    version: "26.6.6".to_string(),
                     passed: true,
                     details: format!("Import found at {}", import_path.display()),
                 }
@@ -66,7 +66,7 @@ impl DependencyValidator {
                 failed_count += 1;
                 DependencyCheck {
                     name: format!("import_{}", import_name),
-                    version: "1.0.0".to_string(),
+                    version: "26.6.6".to_string(),
                     passed: false,
                     details: format!("Import not found at {}", import_path.display()),
                 }
@@ -80,14 +80,14 @@ impl DependencyValidator {
             failed_count += 1;
             checks.push(DependencyCheck {
                 name: "inference_cycles".to_string(),
-                version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
                 passed: false,
                 details: format!("Circular dependency detected: {:?}", cycle_nodes),
             });
         } else {
             checks.push(DependencyCheck {
                 name: "inference_cycles".to_string(),
-                version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
                 passed: true,
                 details: "No circular dependencies detected".to_string(),
             });
@@ -100,7 +100,7 @@ impl DependencyValidator {
                 let template_check = if template_path.exists() {
                     DependencyCheck {
                         name: format!("template_{}", rule.name),
-                        version: "1.0.0".to_string(),
+                        version: "26.6.6".to_string(),
                         passed: true,
                         details: format!("Template found at {}", template_path.display()),
                     }
@@ -108,7 +108,7 @@ impl DependencyValidator {
                     failed_count += 1;
                     DependencyCheck {
                         name: format!("template_{}", rule.name),
-                        version: "1.0.0".to_string(),
+                        version: "26.6.6".to_string(),
                         passed: false,
                         details: format!("Template not found at {}", template_path.display()),
                     }
@@ -124,7 +124,7 @@ impl DependencyValidator {
                 let query_check = if query_path.exists() {
                     DependencyCheck {
                         name: format!("query_{}", rule.name),
-                        version: "1.0.0".to_string(),
+                        version: "26.6.6".to_string(),
                         passed: true,
                         details: format!("Query found at {}", query_path.display()),
                     }
@@ -132,7 +132,7 @@ impl DependencyValidator {
                     failed_count += 1;
                     DependencyCheck {
                         name: format!("query_{}", rule.name),
-                        version: "1.0.0".to_string(),
+                        version: "26.6.6".to_string(),
                         passed: false,
                         details: format!("Query not found at {}", query_path.display()),
                     }

@@ -1,0 +1,9 @@
+{
+  "checkpoint": "GALL-CHECKPOINT-003",
+  "producing_workspace": "~/ggen",
+  "storing_workspace": "~/tower-lsp-max",
+  "export_reason": "checkpoint tracking within tower-lsp-max playground",
+  "exported_artifact_digest": "acb53f1ece164e2a35be621dc38fcd0492bc46dbc217de440b8f8900af06ea11",
+  "status": "DEMOTED_TO_HUMAN_REPORT",
+  "disclaimer": "This is a legacy receipt-shaped summary and not an admission authority. OCEL-only authority applies."
+}

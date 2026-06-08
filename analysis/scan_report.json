@@ -1,0 +1,1409 @@
+{
+  "wasm4pm_bind_receipt": [
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/ORIGINAL_REQUEST.md",
+      "rel_path": "ORIGINAL_REQUEST.md",
+      "line_number": 2194,
+      "content": "Prove that `conformance-receipt.bind` is admitted by the actual CLAP noun/verb authority, while `wasm4pm.bind_receipt` and other malformed commands are refused.",
+      "is_violation": false
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/ORIGINAL_REQUEST.md",
+      "rel_path": "ORIGINAL_REQUEST.md",
+      "line_number": 2291,
+      "content": "CLAPValidate(command=\\text{wasm4pm.bind_receipt}) = REFUSED",
+      "is_violation": false
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/ORIGINAL_REQUEST.md",
+      "rel_path": "ORIGINAL_REQUEST.md",
+      "line_number": 2387,
+      "content": "* `wasm4pm.bind_receipt`",
+      "is_violation": false
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/ORIGINAL_REQUEST.md",
+      "rel_path": "ORIGINAL_REQUEST.md",
+      "line_number": 2528,
+      "content": "3. Refuse `wasm4pm.bind_receipt`.",
+      "is_violation": false
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/ORIGINAL_REQUEST.md",
+      "rel_path": "ORIGINAL_REQUEST.md",
+      "line_number": 2693,
+      "content": "CLAPValidate(command=\"wasm4pm.bind_receipt\") = REFUSED",
+      "is_violation": false
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/ORIGINAL_REQUEST.md",
+      "rel_path": "ORIGINAL_REQUEST.md",
+      "line_number": 2823,
+      "content": "* `wasm4pm.bind_receipt`",
+      "is_violation": false
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/ORIGINAL_REQUEST.md",
+      "rel_path": "ORIGINAL_REQUEST.md",
+      "line_number": 2956,
+      "content": "Prove that `conformance-receipt.bind` is admitted by the actual CLAP noun/verb authority, while `wasm4pm.bind_receipt` and other malformed commands are refused.",
+      "is_violation": false
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/ORIGINAL_REQUEST.md",
+      "rel_path": "ORIGINAL_REQUEST.md",
+      "line_number": 2962,
+      "content": "CLAPValidate(command=\"wasm4pm.bind_receipt\") = REFUSED",
+      "is_violation": false
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/ORIGINAL_REQUEST.md",
+      "rel_path": "ORIGINAL_REQUEST.md",
+      "line_number": 3014,
+      "content": "- `wasm4pm.bind_receipt`, `bind_conformance_receipt`, `execute_command` mutation path",
+      "is_violation": false
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-projection/tests/dogfood_clap_command_route.rs",
+      "rel_path": "crates/ggen-projection/tests/dogfood_clap_command_route.rs",
+      "line_number": 19,
+      "content": "if content.contains(\"wasm4pm.bind_receipt\") {",
+      "is_violation": false
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-projection/tests/dogfood_clap_command_route.rs",
+      "rel_path": "crates/ggen-projection/tests/dogfood_clap_command_route.rs",
+      "line_number": 20,
+      "content": "violations.push(format!(\"Forbidden wasm4pm.bind_receipt in wasm4pm-lsp {:?}\", path));",
+      "is_violation": false
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-projection/tests/dogfood_gc008_route.rs",
+      "rel_path": "crates/ggen-projection/tests/dogfood_gc008_route.rs",
+      "line_number": 35,
+      "content": "// a. wasm4pm.bind_receipt is refused",
+      "is_violation": false
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-projection/tests/dogfood_gc008_route.rs",
+      "rel_path": "crates/ggen-projection/tests/dogfood_gc008_route.rs",
+      "line_number": 39,
+      "content": "assert!(!output.status.success(), \"wasm4pm.bind_receipt should be refused by CLAP noun/verb authority\");",
+      "is_violation": false
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-pack-clap-noun-verb/tests/dogfood_clap_command_route.rs",
+      "rel_path": "crates/ggen-pack-clap-noun-verb/tests/dogfood_clap_command_route.rs",
+      "line_number": 19,
+      "content": "if content.contains(\"wasm4pm.bind_receipt\") {",
+      "is_violation": false
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-pack-clap-noun-verb/tests/dogfood_clap_command_route.rs",
+      "rel_path": "crates/ggen-pack-clap-noun-verb/tests/dogfood_clap_command_route.rs",
+      "line_number": 20,
+      "content": "violations.push(format!(\"Forbidden wasm4pm.bind_receipt in wasm4pm-lsp {:?}\", path));",
+      "is_violation": false
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-pack-clap-noun-verb/tests/dogfood_gc008_b_c.rs",
+      "rel_path": "crates/ggen-pack-clap-noun-verb/tests/dogfood_gc008_b_c.rs",
+      "line_number": 115,
+      "content": "\"command\": \"wasm4pm.bind_receipt\",",
+      "is_violation": false
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-pack-clap-noun-verb/tests/dogfood_gc008_route.rs",
+      "rel_path": "crates/ggen-pack-clap-noun-verb/tests/dogfood_gc008_route.rs",
+      "line_number": 35,
+      "content": "// a. wasm4pm.bind_receipt is refused",
+      "is_violation": false
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-pack-clap-noun-verb/tests/dogfood_gc008_route.rs",
+      "rel_path": "crates/ggen-pack-clap-noun-verb/tests/dogfood_gc008_route.rs",
+      "line_number": 39,
+      "content": "assert!(!output.status.success(), \"wasm4pm.bind_receipt should be refused by CLAP noun/verb authority\");",
+      "is_violation": false
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-pack-proofs/templates/dogfood_gc008_route.rs.tmpl",
+      "rel_path": "crates/ggen-pack-proofs/templates/dogfood_gc008_route.rs.tmpl",
+      "line_number": 35,
+      "content": "// a. wasm4pm.bind_receipt is refused",
+      "is_violation": false
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-pack-proofs/templates/dogfood_gc008_route.rs.tmpl",
+      "rel_path": "crates/ggen-pack-proofs/templates/dogfood_gc008_route.rs.tmpl",
+      "line_number": 39,
+      "content": "assert!(!output.status.success(), \"wasm4pm.bind_receipt should be refused by CLAP noun/verb authority\");",
+      "is_violation": false
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-pack-proofs/templates/dogfood_gc008.rs.tmpl",
+      "rel_path": "crates/ggen-pack-proofs/templates/dogfood_gc008.rs.tmpl",
+      "line_number": 32,
+      "content": "assert!(!lsp_src.contains(\"\\\"wasm4pm.bind_receipt\\\"\"), \"Invented command wasm4pm.bind_receipt is forbidden\");",
+      "is_violation": false
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-pack-proofs/templates/dogfood_gc008_b_c.rs.tmpl",
+      "rel_path": "crates/ggen-pack-proofs/templates/dogfood_gc008_b_c.rs.tmpl",
+      "line_number": 115,
+      "content": "\"command\": \"wasm4pm.bind_receipt\",",
+      "is_violation": false
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-pack-proofs/templates/dogfood_clap_command_route.rs.tmpl",
+      "rel_path": "crates/ggen-pack-proofs/templates/dogfood_clap_command_route.rs.tmpl",
+      "line_number": 19,
+      "content": "if content.contains(\"wasm4pm.bind_receipt\") {",
+      "is_violation": false
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-pack-proofs/templates/dogfood_clap_command_route.rs.tmpl",
+      "rel_path": "crates/ggen-pack-proofs/templates/dogfood_clap_command_route.rs.tmpl",
+      "line_number": 20,
+      "content": "violations.push(format!(\"Forbidden wasm4pm.bind_receipt in wasm4pm-lsp {:?}\", path));",
+      "is_violation": false
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/crates/gc005-wasm4pm-adapter/tests/dogfood_gc008.rs",
+      "rel_path": "crates/gc005-wasm4pm-adapter/tests/dogfood_gc008.rs",
+      "line_number": 37,
+      "content": "assert!(!lsp_src.contains(\"\\\"wasm4pm.bind_receipt\\\"\"), \"Invented command wasm4pm.bind_receipt is forbidden\");",
+      "is_violation": false
+    }
+  ],
+  "execute_command_in_lsp": [
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/examples/clap-noun-verb-lsp/src/server.rs",
+      "rel_path": "examples/clap-noun-verb-lsp/src/server.rs",
+      "line_number": 77,
+      "content": "execute_command_provider: Some(ExecuteCommandOptions {"
+    },
+    {
+      "workspace": "wasm4pm",
+      "file": "/Users/sac/wasm4pm/crates/pm4py-lsp/src/lib.rs",
+      "rel_path": "crates/pm4py-lsp/src/lib.rs",
+      "line_number": 346,
+      "content": "execute_command_provider: Some(ExecuteCommandOptions {"
+    },
+    {
+      "workspace": "wasm4pm",
+      "file": "/Users/sac/wasm4pm/crates/pm4py-lsp/src/lib.rs",
+      "rel_path": "crates/pm4py-lsp/src/lib.rs",
+      "line_number": 446,
+      "content": "async fn execute_command(&self, params: ExecuteCommandParams) -> Result<Option<Value>> {"
+    },
+    {
+      "workspace": "wasm4pm-compat",
+      "file": "/Users/sac/wasm4pm-compat/wasm4pm-compat-lsp/src/main.rs",
+      "rel_path": "wasm4pm-compat-lsp/src/main.rs",
+      "line_number": 189,
+      "content": "execute_command_provider: Some(ExecuteCommandOptions {"
+    },
+    {
+      "workspace": "wasm4pm-compat",
+      "file": "/Users/sac/wasm4pm-compat/wasm4pm-compat-lsp/src/main.rs",
+      "rel_path": "wasm4pm-compat-lsp/src/main.rs",
+      "line_number": 296,
+      "content": "async fn execute_command(&self, params: ExecuteCommandParams) -> Result<Option<Value>> {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/crates/playground/src/capabilities.rs",
+      "rel_path": "crates/playground/src/capabilities.rs",
+      "line_number": 92,
+      "content": "execute_command_provider: Some(ExecuteCommandOptions {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/crates/playground/src/handlers/completions/table/workspace_window.rs",
+      "rel_path": "crates/playground/src/handlers/completions/table/workspace_window.rs",
+      "line_number": 3,
+      "content": "fn_name: \"execute_command\","
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/crates/playground/src/handlers/completions/table/workspace_window.rs",
+      "rel_path": "crates/playground/src/handlers/completions/table/workspace_window.rs",
+      "line_number": 4,
+      "content": "lsp_method: \"workspace/executeCommand\","
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/crates/playground/src/handlers/completions/table/workspace_window.rs",
+      "rel_path": "crates/playground/src/handlers/completions/table/workspace_window.rs",
+      "line_number": 7,
+      "content": "capability_field: Some(\"execute_command_provider\"),"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/crates/playground/src/handlers/completions/table/capability_fields.rs",
+      "rel_path": "crates/playground/src/handlers/completions/table/capability_fields.rs",
+      "line_number": 130,
+      "content": "\"execute_command_provider\","
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/crates/playground/src/handlers/completions/table/capability_fields.rs",
+      "rel_path": "crates/playground/src/handlers/completions/table/capability_fields.rs",
+      "line_number": 132,
+      "content": "&[\"execute_command\"],"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/crates/tower-lsp-max-client/src/server_handle.rs",
+      "rel_path": "crates/tower-lsp-max-client/src/server_handle.rs",
+      "line_number": 201,
+      "content": "pub async fn execute_command("
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/examples/clap-noun-verb-lsp/src/server.rs",
+      "rel_path": "examples/clap-noun-verb-lsp/src/server.rs",
+      "line_number": 77,
+      "content": "execute_command_provider: Some(ExecuteCommandOptions {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "rel_path": "tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "line_number": 4012,
+      "content": "pub execute_command_options_base: ExecuteCommandOptions,"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "rel_path": "tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "line_number": 5172,
+      "content": "#[serde(rename = \"executeCommandProvider\")]"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "rel_path": "tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "line_number": 5174,
+      "content": "pub execute_command_provider: Option<ExecuteCommandOptions>,"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "rel_path": "tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "line_number": 6464,
+      "content": "///Capabilities specific to the `workspace/executeCommand` request."
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "rel_path": "tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "line_number": 6465,
+      "content": "#[serde(rename = \"executeCommand\")]"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "rel_path": "tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "line_number": 6467,
+      "content": "pub execute_command: Option<ExecuteCommandClientCapabilities>,"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "rel_path": "tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "line_number": 9146,
+      "content": "const METHOD: &'static str = \"workspace/executeCommand\";"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/src/language_server.rs",
+      "rel_path": "src/language_server.rs",
+      "line_number": 400,
+      "content": "/// Handler for the `execute_command` endpoint."
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/src/language_server.rs",
+      "rel_path": "src/language_server.rs",
+      "line_number": 401,
+      "content": "#[rpc(name = \"workspace/executeCommand\")]"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/src/language_server.rs",
+      "rel_path": "src/language_server.rs",
+      "line_number": 402,
+      "content": "async fn execute_command(&self, params: ExecuteCommandParams) -> Result<Option<Value>> {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/src/language_server.rs",
+      "rel_path": "src/language_server.rs",
+      "line_number": 403,
+      "content": "impls::execute_command(params).await"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/src/composition.rs",
+      "rel_path": "src/composition.rs",
+      "line_number": 322,
+      "content": "| \"workspace/executeCommand\" => CompositionStrategy::TransactionalEditGate,"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/src/composition.rs",
+      "rel_path": "src/composition.rs",
+      "line_number": 2527,
+      "content": "async fn execute_command(&self, params: ExecuteCommandParams) -> Result<Option<Value>> {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/src/composition.rs",
+      "rel_path": "src/composition.rs",
+      "line_number": 2528,
+      "content": "self.route_request(\"workspace/executeCommand\", params).await.map(|o| o.flatten())"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/src/composition.rs",
+      "rel_path": "src/composition.rs",
+      "line_number": 3237,
+      "content": "\"workspace/executeCommand\","
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/src/language_server/impls/text_document.rs",
+      "rel_path": "src/language_server/impls/text_document.rs",
+      "line_number": 132,
+      "content": "pub async fn execute_command(params: ExecuteCommandParams) -> Result<Option<Value>> {"
+    }
+  ],
+  "workspace_edit_in_lsp": [
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/server.rs",
+      "rel_path": "crates/ggen-lsp/src/server.rs",
+      "line_number": 322,
+      "content": "/// concrete `WorkspaceEdit`. Only routes with a computable edit (no unfilled"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/server.rs",
+      "rel_path": "crates/ggen-lsp/src/server.rs",
+      "line_number": 392,
+      "content": "async fn rename(&self, params: RenameParams) -> Result<Option<WorkspaceEdit>> {"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/analyzers/rdf_analyzer.rs",
+      "rel_path": "crates/ggen-lsp/src/analyzers/rdf_analyzer.rs",
+      "line_number": 10,
+      "content": "WorkspaceEdit,"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/analyzers/rdf_analyzer.rs",
+      "rel_path": "crates/ggen-lsp/src/analyzers/rdf_analyzer.rs",
+      "line_number": 275,
+      "content": "pub fn rename_symbol(&self, position: Position, new_name: &str) -> Option<WorkspaceEdit> {"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/analyzers/rdf_analyzer.rs",
+      "rel_path": "crates/ggen-lsp/src/analyzers/rdf_analyzer.rs",
+      "line_number": 302,
+      "content": "Some(WorkspaceEdit {"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/analyzers/tera_analyzer.rs",
+      "rel_path": "crates/ggen-lsp/src/analyzers/tera_analyzer.rs",
+      "line_number": 11,
+      "content": "InlayHint, Location, NumberOrString, Position, Range, SymbolKind, TextEdit, WorkspaceEdit,"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/analyzers/tera_analyzer.rs",
+      "rel_path": "crates/ggen-lsp/src/analyzers/tera_analyzer.rs",
+      "line_number": 254,
+      "content": "pub fn rename_symbol(&self, _position: Position, _new_name: &str) -> Option<WorkspaceEdit> {"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/analyzers/mod.rs",
+      "rel_path": "crates/ggen-lsp/src/analyzers/mod.rs",
+      "line_number": 14,
+      "content": "WorkspaceEdit,"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/analyzers/mod.rs",
+      "rel_path": "crates/ggen-lsp/src/analyzers/mod.rs",
+      "line_number": 429,
+      "content": "pub fn rename_symbol(&self, position: Position, new_name: &str) -> Option<WorkspaceEdit> {"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/analyzers/toml_analyzer.rs",
+      "rel_path": "crates/ggen-lsp/src/analyzers/toml_analyzer.rs",
+      "line_number": 11,
+      "content": "MarkupContent, MarkupKind, Position, Range, SymbolKind, TextEdit, WorkspaceEdit,"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/analyzers/toml_analyzer.rs",
+      "rel_path": "crates/ggen-lsp/src/analyzers/toml_analyzer.rs",
+      "line_number": 257,
+      "content": "pub fn rename_symbol(&self, _position: Position, _new_name: &str) -> Option<WorkspaceEdit> {"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/analyzers/sparql_analyzer.rs",
+      "rel_path": "crates/ggen-lsp/src/analyzers/sparql_analyzer.rs",
+      "line_number": 13,
+      "content": "Location, Position, Range, SymbolKind, TextEdit, WorkspaceEdit,"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/analyzers/sparql_analyzer.rs",
+      "rel_path": "crates/ggen-lsp/src/analyzers/sparql_analyzer.rs",
+      "line_number": 164,
+      "content": "pub fn rename_symbol(&self, _position: Position, _new_name: &str) -> Option<WorkspaceEdit> {"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/route/edit.rs",
+      "rel_path": "crates/ggen-lsp/src/route/edit.rs",
+      "line_number": 6,
+      "content": "//! `WorkspaceEdit` and the agent `RoutePlan`, so both apply identical repairs."
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/route/edit.rs",
+      "rel_path": "crates/ggen-lsp/src/route/edit.rs",
+      "line_number": 9,
+      "content": "use tower_lsp::lsp_types::{Position, Range, TextEdit, Url, WorkspaceEdit};"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/route/edit.rs",
+      "rel_path": "crates/ggen-lsp/src/route/edit.rs",
+      "line_number": 74,
+      "content": "/// Build a `WorkspaceEdit` applying all of a route's steps to `uri`/`doc`."
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/route/edit.rs",
+      "rel_path": "crates/ggen-lsp/src/route/edit.rs",
+      "line_number": 78,
+      "content": ") -> WorkspaceEdit {"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/route/edit.rs",
+      "rel_path": "crates/ggen-lsp/src/route/edit.rs",
+      "line_number": 85,
+      "content": "WorkspaceEdit {"
+    },
+    {
+      "workspace": "wasm4pm",
+      "file": "/Users/sac/wasm4pm/crates/pm4py-lsp/src/lib.rs",
+      "rel_path": "crates/pm4py-lsp/src/lib.rs",
+      "line_number": 484,
+      "content": "let workspace_edit = WorkspaceEdit {"
+    },
+    {
+      "workspace": "wasm4pm-compat",
+      "file": "/Users/sac/wasm4pm-compat/wasm4pm-compat-lsp/src/main.rs",
+      "rel_path": "wasm4pm-compat-lsp/src/main.rs",
+      "line_number": 254,
+      "content": "edit: Some(WorkspaceEdit {"
+    },
+    {
+      "workspace": "wasm4pm-compat",
+      "file": "/Users/sac/wasm4pm-compat/wasm4pm-compat-lsp/src/main.rs",
+      "rel_path": "wasm4pm-compat-lsp/src/main.rs",
+      "line_number": 276,
+      "content": "edit: Some(WorkspaceEdit {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/crates/playground/src/bin/dogfood_harness.rs",
+      "rel_path": "crates/playground/src/bin/dogfood_harness.rs",
+      "line_number": 347,
+      "content": "async fn rename(&self, params: RenameParams) -> tower_lsp_max::jsonrpc::Result<Option<WorkspaceEdit>> {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/crates/playground/src/bin/dogfood_harness.rs",
+      "rel_path": "crates/playground/src/bin/dogfood_harness.rs",
+      "line_number": 381,
+      "content": "Ok(Some(WorkspaceEdit {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/crates/playground/src/handlers/hover.rs",
+      "rel_path": "crates/playground/src/handlers/hover.rs",
+      "line_number": 111,
+      "content": "- `apply_edit(WorkspaceEdit)` \u2014 `workspace/applyEdit`\""
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/crates/playground/src/handlers/hover.rs",
+      "rel_path": "crates/playground/src/handlers/hover.rs",
+      "line_number": 152,
+      "content": "\"WorkspaceEdit\" => {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/crates/playground/src/handlers/hover.rs",
+      "rel_path": "crates/playground/src/handlers/hover.rs",
+      "line_number": 153,
+      "content": "\"## `WorkspaceEdit`\\n\\nCollection of `TextEdit`s across multiple documents, optionally \\"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/crates/playground/src/handlers/hover.rs",
+      "rel_path": "crates/playground/src/handlers/hover.rs",
+      "line_number": 179,
+      "content": "- `edit: Option<WorkspaceEdit>` \u2014 changes to apply\\n\\"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/crates/playground/src/handlers/completions/table/workspace_window.rs",
+      "rel_path": "crates/playground/src/handlers/completions/table/workspace_window.rs",
+      "line_number": 46,
+      "content": "return_type: \"Result<Option<WorkspaceEdit>>\","
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/crates/playground/src/handlers/completions/table/workspace_window.rs",
+      "rel_path": "crates/playground/src/handlers/completions/table/workspace_window.rs",
+      "line_number": 62,
+      "content": "return_type: \"Result<Option<WorkspaceEdit>>\","
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/crates/playground/src/handlers/completions/table/workspace_window.rs",
+      "rel_path": "crates/playground/src/handlers/completions/table/workspace_window.rs",
+      "line_number": 78,
+      "content": "return_type: \"Result<Option<WorkspaceEdit>>\","
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/crates/playground/src/handlers/completions/table/editing_diagnostics.rs",
+      "rel_path": "crates/playground/src/handlers/completions/table/editing_diagnostics.rs",
+      "line_number": 54,
+      "content": "return_type: \"Result<Option<WorkspaceEdit>>\","
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/crates/playground/src/handlers/diagnostics/actions.rs",
+      "rel_path": "crates/playground/src/handlers/diagnostics/actions.rs",
+      "line_number": 60,
+      "content": "edit: Some(WorkspaceEdit {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/crates/playground/src/handlers/diagnostics/actions.rs",
+      "rel_path": "crates/playground/src/handlers/diagnostics/actions.rs",
+      "line_number": 106,
+      "content": "edit: Some(WorkspaceEdit {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/crates/playground/src/handlers/diagnostics/actions.rs",
+      "rel_path": "crates/playground/src/handlers/diagnostics/actions.rs",
+      "line_number": 308,
+      "content": "fn workspace_edit_insert(uri: &Uri, pos: Position, text: &str) -> WorkspaceEdit {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/crates/playground/src/handlers/diagnostics/actions.rs",
+      "rel_path": "crates/playground/src/handlers/diagnostics/actions.rs",
+      "line_number": 318,
+      "content": "WorkspaceEdit {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/crates/tower-lsp-max-client/src/client.rs",
+      "rel_path": "crates/tower-lsp-max-client/src/client.rs",
+      "line_number": 94,
+      "content": "params: ApplyWorkspaceEditParams,"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/crates/tower-lsp-max-client/src/client.rs",
+      "rel_path": "crates/tower-lsp-max-client/src/client.rs",
+      "line_number": 95,
+      "content": ") -> Result<ApplyWorkspaceEditResponse, ClientError> {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/crates/tower-lsp-max-client/src/client.rs",
+      "rel_path": "crates/tower-lsp-max-client/src/client.rs",
+      "line_number": 97,
+      "content": "Ok(ApplyWorkspaceEditResponse {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/crates/tower-lsp-max-client/src/server_handle.rs",
+      "rel_path": "crates/tower-lsp-max-client/src/server_handle.rs",
+      "line_number": 154,
+      "content": ") -> Result<Option<WorkspaceEdit>, ClientError> {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "rel_path": "tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "line_number": 2401,
+      "content": "pub struct WorkspaceEdit {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "rel_path": "tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "line_number": 3719,
+      "content": "pub edit: Option<WorkspaceEdit>,"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "rel_path": "tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "line_number": 4017,
+      "content": "pub struct ApplyWorkspaceEditParams {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "rel_path": "tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "line_number": 4024,
+      "content": "pub edit: WorkspaceEdit,"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "rel_path": "tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "line_number": 4029,
+      "content": "pub metadata: Option<WorkspaceEditMetadata>,"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "rel_path": "tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "line_number": 4033,
+      "content": "@since 3.17 renamed from ApplyWorkspaceEditResponse*/"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "rel_path": "tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "line_number": 4036,
+      "content": "pub struct ApplyWorkspaceEditResult {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "rel_path": "tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "line_number": 5914,
+      "content": "pub struct WorkspaceEditMetadata {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "rel_path": "tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "line_number": 6449,
+      "content": "///Capabilities specific to `WorkspaceEdit`s."
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "rel_path": "tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "line_number": 6452,
+      "content": "pub workspace_edit: Option<WorkspaceEditClientCapabilities>,"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "rel_path": "tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "line_number": 6947,
+      "content": "pub struct WorkspaceEditClientCapabilities {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "rel_path": "tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "line_number": 6948,
+      "content": "///The client supports versioned document changes in `WorkspaceEdit`s"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "rel_path": "tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "line_number": 6983,
+      "content": "/**Whether the client supports `WorkspaceEditMetadata` in `WorkspaceEdit`s."
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "rel_path": "tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "line_number": 8858,
+      "content": "type Result = Option<WorkspaceEdit>;"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "rel_path": "tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "line_number": 8864,
+      "content": "type Result = Option<WorkspaceEdit>;"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "rel_path": "tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "line_number": 8870,
+      "content": "type Result = Option<WorkspaceEdit>;"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "rel_path": "tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "line_number": 9133,
+      "content": "type Result = Option<WorkspaceEdit>;"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "rel_path": "tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "line_number": 9148,
+      "content": "pub struct ApplyWorkspaceEditRequest;"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "rel_path": "tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "line_number": 9149,
+      "content": "impl LspRequest for ApplyWorkspaceEditRequest {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "rel_path": "tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "line_number": 9150,
+      "content": "type Params = ApplyWorkspaceEditParams;"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "rel_path": "tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "line_number": 9151,
+      "content": "type Result = ApplyWorkspaceEditResult;"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "rel_path": "tower-lsp-max-protocol/src/lsp_3_18.rs",
+      "line_number": 9224,
+      "content": "ApplyWorkspaceEditRequest,"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/src/diagnostics.rs",
+      "rel_path": "src/diagnostics.rs",
+      "line_number": 78,
+      "content": "edit: Some(WorkspaceEdit {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/src/diagnostics.rs",
+      "rel_path": "src/diagnostics.rs",
+      "line_number": 167,
+      "content": "edit: Some(WorkspaceEdit {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/src/diagnostics.rs",
+      "rel_path": "src/diagnostics.rs",
+      "line_number": 244,
+      "content": "edit: Some(WorkspaceEdit {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/src/workspace_edit.rs",
+      "rel_path": "src/workspace_edit.rs",
+      "line_number": 3,
+      "content": "/// Applies a list of changes defined in a `WorkspaceEdit` to files in the local filesystem."
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/src/workspace_edit.rs",
+      "rel_path": "src/workspace_edit.rs",
+      "line_number": 6,
+      "content": "pub fn apply_workspace_edit(edit: &lsp_types_max::WorkspaceEdit) -> Result<(), String> {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/src/language_server.rs",
+      "rel_path": "src/language_server.rs",
+      "line_number": 323,
+      "content": "async fn rename(&self, params: RenameParams) -> Result<Option<WorkspaceEdit>> {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/src/language_server.rs",
+      "rel_path": "src/language_server.rs",
+      "line_number": 367,
+      "content": "async fn will_create_files(&self, params: CreateFilesParams) -> Result<Option<WorkspaceEdit>> {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/src/language_server.rs",
+      "rel_path": "src/language_server.rs",
+      "line_number": 377,
+      "content": "async fn will_rename_files(&self, params: RenameFilesParams) -> Result<Option<WorkspaceEdit>> {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/src/language_server.rs",
+      "rel_path": "src/language_server.rs",
+      "line_number": 387,
+      "content": "async fn will_delete_files(&self, params: DeleteFilesParams) -> Result<Option<WorkspaceEdit>> {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/src/composition.rs",
+      "rel_path": "src/composition.rs",
+      "line_number": 2499,
+      "content": "async fn will_create_files(&self, params: CreateFilesParams) -> Result<Option<WorkspaceEdit>> {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/src/composition.rs",
+      "rel_path": "src/composition.rs",
+      "line_number": 2507,
+      "content": "async fn will_rename_files(&self, params: RenameFilesParams) -> Result<Option<WorkspaceEdit>> {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/src/composition.rs",
+      "rel_path": "src/composition.rs",
+      "line_number": 2515,
+      "content": "async fn will_delete_files(&self, params: DeleteFilesParams) -> Result<Option<WorkspaceEdit>> {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/src/composition.rs",
+      "rel_path": "src/composition.rs",
+      "line_number": 2572,
+      "content": "async fn rename(&self, params: RenameParams) -> Result<Option<WorkspaceEdit>> {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/src/language_server/impls/repair.rs",
+      "rel_path": "src/language_server/impls/repair.rs",
+      "line_number": 7,
+      "content": "use lsp_types_max::{CodeAction, CodeActionKind, DiagnosticSeverity, TextEdit, WorkspaceEdit};"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/src/language_server/impls/file_ops_ext.rs",
+      "rel_path": "src/language_server/impls/file_ops_ext.rs",
+      "line_number": 7,
+      "content": "pub async fn will_create_files(params: CreateFilesParams) -> Result<Option<WorkspaceEdit>> {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/src/language_server/impls/file_ops_ext.rs",
+      "rel_path": "src/language_server/impls/file_ops_ext.rs",
+      "line_number": 18,
+      "content": "pub async fn will_rename_files(params: RenameFilesParams) -> Result<Option<WorkspaceEdit>> {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/src/language_server/impls/file_ops_ext.rs",
+      "rel_path": "src/language_server/impls/file_ops_ext.rs",
+      "line_number": 29,
+      "content": "pub async fn will_delete_files(params: DeleteFilesParams) -> Result<Option<WorkspaceEdit>> {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/src/language_server/impls/text_document.rs",
+      "rel_path": "src/language_server/impls/text_document.rs",
+      "line_number": 115,
+      "content": "pub async fn rename(params: RenameParams) -> Result<Option<WorkspaceEdit>> {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/src/service/client/lsp_methods.rs",
+      "rel_path": "src/service/client/lsp_methods.rs",
+      "line_number": 439,
+      "content": "edit: WorkspaceEdit,"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/src/service/client/lsp_methods.rs",
+      "rel_path": "src/service/client/lsp_methods.rs",
+      "line_number": 440,
+      "content": ") -> jsonrpc::Result<ApplyWorkspaceEditResponse> {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/src/service/client/lsp_methods.rs",
+      "rel_path": "src/service/client/lsp_methods.rs",
+      "line_number": 441,
+      "content": "use lsp_types_max::request::ApplyWorkspaceEdit;"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/src/service/client/lsp_methods.rs",
+      "rel_path": "src/service/client/lsp_methods.rs",
+      "line_number": 442,
+      "content": "self.send_request::<ApplyWorkspaceEdit>(ApplyWorkspaceEditParams { edit, label: None })"
+    }
+  ],
+  "fs_write_in_lsp": [
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/harness_index.rs",
+      "rel_path": "crates/ggen-lsp/src/harness_index.rs",
+      "line_number": 241,
+      "content": "std::fs::write(p, content).expect(\"write\");"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/check.rs",
+      "rel_path": "crates/ggen-lsp/src/check.rs",
+      "line_number": 668,
+      "content": "fs::write(root.join(\".specify/specs/feature.ttl\"), \"@prefix ex: <x> .\").expect(\"w\");"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/check.rs",
+      "rel_path": "crates/ggen-lsp/src/check.rs",
+      "line_number": 669,
+      "content": "fs::write(root.join(\"ggen.toml\"), \"[project]\\nname=\\\"x\\\"\").expect(\"w\");"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/check.rs",
+      "rel_path": "crates/ggen-lsp/src/check.rs",
+      "line_number": 670,
+      "content": "fs::write(root.join(\"target/junk/ignored.ttl\"), \"@prefix ex: <x> .\").expect(\"w\");"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/check.rs",
+      "rel_path": "crates/ggen-lsp/src/check.rs",
+      "line_number": 671,
+      "content": "fs::write(root.join(\"readme.md\"), \"# not a law surface\").expect(\"w\");"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/check.rs",
+      "rel_path": "crates/ggen-lsp/src/check.rs",
+      "line_number": 713,
+      "content": "fs::write(root.join(\"row.tera\"), r#\"{{ row[\"title\"] }}\"#).expect(\"write template\");"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/check.rs",
+      "rel_path": "crates/ggen-lsp/src/check.rs",
+      "line_number": 728,
+      "content": "fs::write(root.join(\"ggen.toml\"), manifest).expect(\"write manifest\");"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/check.rs",
+      "rel_path": "crates/ggen-lsp/src/check.rs",
+      "line_number": 760,
+      "content": "fs::write(root.join(\"row.tera\"), r#\"{{ row[\"name\"] }}\"#).expect(\"write template\");"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/check.rs",
+      "rel_path": "crates/ggen-lsp/src/check.rs",
+      "line_number": 775,
+      "content": "fs::write(root.join(\"ggen.toml\"), manifest).expect(\"write manifest\");"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/check.rs",
+      "rel_path": "crates/ggen-lsp/src/check.rs",
+      "line_number": 815,
+      "content": "fs::write(root.join(\"ggen.toml\"), manifest).expect(\"write manifest\");"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/check.rs",
+      "rel_path": "crates/ggen-lsp/src/check.rs",
+      "line_number": 841,
+      "content": "fs::write(root.join(\"row.tera\"), r#\"{{ row[\"title\"] }}\"#).expect(\"write template\");"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/check.rs",
+      "rel_path": "crates/ggen-lsp/src/check.rs",
+      "line_number": 856,
+      "content": "fs::write(root.join(\"ggen.toml\"), manifest).expect(\"write manifest\");"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/check.rs",
+      "rel_path": "crates/ggen-lsp/src/check.rs",
+      "line_number": 880,
+      "content": "fs::write(&cfg, \"[logging]\\nlevel = \\\"verbose\\\"\\n\").expect(\"write\");"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/project_index.rs",
+      "rel_path": "crates/ggen-lsp/src/project_index.rs",
+      "line_number": 178,
+      "content": "std::fs::write(dir.path().join(\"ggen.toml\"), manifest).expect(\"write manifest\");"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/project_index.rs",
+      "rel_path": "crates/ggen-lsp/src/project_index.rs",
+      "line_number": 205,
+      "content": "std::fs::write("
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/project_index.rs",
+      "rel_path": "crates/ggen-lsp/src/project_index.rs",
+      "line_number": 224,
+      "content": "std::fs::write(dir.path().join(\"ggen.toml\"), manifest).expect(\"write manifest\");"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/project_index.rs",
+      "rel_path": "crates/ggen-lsp/src/project_index.rs",
+      "line_number": 256,
+      "content": "std::fs::write(dir.path().join(\"ggen.toml\"), manifest).expect(\"write manifest\");"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/project_index.rs",
+      "rel_path": "crates/ggen-lsp/src/project_index.rs",
+      "line_number": 284,
+      "content": "std::fs::write(dir.path().join(\"ggen.toml\"), manifest).expect(\"write manifest\");"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/init.rs",
+      "rel_path": "crates/ggen-lsp/src/init.rs",
+      "line_number": 151,
+      "content": "std::fs::write(path, contents)?;"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/init.rs",
+      "rel_path": "crates/ggen-lsp/src/init.rs",
+      "line_number": 184,
+      "content": "std::fs::write(dir.path().join(\".helix/languages.toml\"), \"custom\").expect(\"seed\");"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/rule_index.rs",
+      "rel_path": "crates/ggen-lsp/src/rule_index.rs",
+      "line_number": 246,
+      "content": "std::fs::write("
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/intel/log.rs",
+      "rel_path": "crates/ggen-lsp/src/intel/log.rs",
+      "line_number": 9,
+      "content": "use std::fs::{create_dir_all, OpenOptions};"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/intel/log.rs",
+      "rel_path": "crates/ggen-lsp/src/intel/log.rs",
+      "line_number": 60,
+      "content": "let mut file = OpenOptions::new()"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/intel/log.rs",
+      "rel_path": "crates/ggen-lsp/src/intel/log.rs",
+      "line_number": 156,
+      "content": "let mut f = OpenOptions::new()"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/intel/mine.rs",
+      "rel_path": "crates/ggen-lsp/src/intel/mine.rs",
+      "line_number": 346,
+      "content": "let _ = std::fs::write(path, json);"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/intel/mine.rs",
+      "rel_path": "crates/ggen-lsp/src/intel/mine.rs",
+      "line_number": 378,
+      "content": "std::fs::write(path, md).map_err(|e| ggen_graph::GraphError::Other(e.to_string()))"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/intel/history.rs",
+      "rel_path": "crates/ggen-lsp/src/intel/history.rs",
+      "line_number": 8,
+      "content": "use std::fs::{create_dir_all, OpenOptions};"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/intel/history.rs",
+      "rel_path": "crates/ggen-lsp/src/intel/history.rs",
+      "line_number": 83,
+      "content": "let mut file = OpenOptions::new()"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/intel/replay.rs",
+      "rel_path": "crates/ggen-lsp/src/intel/replay.rs",
+      "line_number": 247,
+      "content": "let mut f = std::fs::OpenOptions::new()"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/route/promoted.rs",
+      "rel_path": "crates/ggen-lsp/src/route/promoted.rs",
+      "line_number": 85,
+      "content": "std::fs::write(&tmp, json)?;"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/route/promoted.rs",
+      "rel_path": "crates/ggen-lsp/src/route/promoted.rs",
+      "line_number": 157,
+      "content": "std::fs::write(&path, r#\"{\"version\":99,\"source_log_hash\":\"x\",\"routes\":[]}\"#).expect(\"w\");"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/features/workspace_symbol.rs",
+      "rel_path": "crates/ggen-lsp/src/features/workspace_symbol.rs",
+      "line_number": 171,
+      "content": "fs::write(root.join(\".specify/specs/people.ttl\"), ttl).expect(\"write ttl\");"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/features/workspace_symbol.rs",
+      "rel_path": "crates/ggen-lsp/src/features/workspace_symbol.rs",
+      "line_number": 174,
+      "content": "fs::write("
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/pack/mod.rs",
+      "rel_path": "crates/ggen-lsp/src/pack/mod.rs",
+      "line_number": 251,
+      "content": "let _ = std::fs::write(root.join(PROVENANCE_FILE), json);"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/pack/mod.rs",
+      "rel_path": "crates/ggen-lsp/src/pack/mod.rs",
+      "line_number": 258,
+      "content": "let _ = std::fs::write(root.join(MANIFEST_FILE), json);"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/pack/mod.rs",
+      "rel_path": "crates/ggen-lsp/src/pack/mod.rs",
+      "line_number": 328,
+      "content": "let _ = std::fs::write(dir.join(format!(\"pack-{}.json\", &sig[..16])), json);"
+    },
+    {
+      "workspace": "ggen",
+      "file": "/Users/sac/ggen/crates/ggen-lsp/src/pack/mod.rs",
+      "rel_path": "crates/ggen-lsp/src/pack/mod.rs",
+      "line_number": 492,
+      "content": "std::fs::write(path, contents)?;"
+    },
+    {
+      "workspace": "wasm4pm",
+      "file": "/Users/sac/wasm4pm/crates/pm4py-lsp/src/receipts.rs",
+      "rel_path": "crates/pm4py-lsp/src/receipts.rs",
+      "line_number": 55,
+      "content": "fs::write(receipt_path, content)?;"
+    },
+    {
+      "workspace": "wasm4pm",
+      "file": "/Users/sac/wasm4pm/crates/pm4py-lsp/src/lib.rs",
+      "rel_path": "crates/pm4py-lsp/src/lib.rs",
+      "line_number": 516,
+      "content": "fs::write(receipt_path, receipt_json)"
+    },
+    {
+      "workspace": "wasm4pm",
+      "file": "/Users/sac/wasm4pm/crates/pm4py-lsp/src/lib.rs",
+      "rel_path": "crates/pm4py-lsp/src/lib.rs",
+      "line_number": 555,
+      "content": "fs::write(fixture_path, &fixture_json)"
+    },
+    {
+      "workspace": "wasm4pm",
+      "file": "/Users/sac/wasm4pm/crates/pm4py-lsp/src/lib.rs",
+      "rel_path": "crates/pm4py-lsp/src/lib.rs",
+      "line_number": 578,
+      "content": "fs::write(receipt_path, receipt_json)"
+    },
+    {
+      "workspace": "wasm4pm",
+      "file": "/Users/sac/wasm4pm/crates/pm4py-lsp/src/lib.rs",
+      "rel_path": "crates/pm4py-lsp/src/lib.rs",
+      "line_number": 838,
+      "content": "fs::write(receipt_path, receipt_json)"
+    },
+    {
+      "workspace": "wasm4pm",
+      "file": "/Users/sac/wasm4pm/crates/pm4py-lsp/src/lib.rs",
+      "rel_path": "crates/pm4py-lsp/src/lib.rs",
+      "line_number": 875,
+      "content": "fs::write(receipt_path, receipt_json)"
+    },
+    {
+      "workspace": "wasm4pm",
+      "file": "/Users/sac/wasm4pm/crates/pm4py-lsp/src/fixtures.rs",
+      "rel_path": "crates/pm4py-lsp/src/fixtures.rs",
+      "line_number": 25,
+      "content": "fs::write(fixture_path, content)?;"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/crates/playground/src/bin/gc005_wasm4pm_adapter.rs",
+      "rel_path": "crates/playground/src/bin/gc005_wasm4pm_adapter.rs",
+      "line_number": 124,
+      "content": "fs::write(output_path, json)?;"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/crates/playground/src/bin/dogfood_harness.rs",
+      "rel_path": "crates/playground/src/bin/dogfood_harness.rs",
+      "line_number": 904,
+      "content": "std::fs::write(&root_file_path, &content).unwrap();"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/crates/playground/src/bin/dogfood_harness.rs",
+      "rel_path": "crates/playground/src/bin/dogfood_harness.rs",
+      "line_number": 905,
+      "content": "std::fs::write(&crate_file_path, &content).unwrap();"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/crates/tower-lsp-max-specgen/src/main.rs",
+      "rel_path": "crates/tower-lsp-max-specgen/src/main.rs",
+      "line_number": 40,
+      "content": "fs::write(&args.output, rendered)"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/crates/tower-lsp-max-cli/src/nouns/diagnostics.rs",
+      "rel_path": "crates/tower-lsp-max-cli/src/nouns/diagnostics.rs",
+      "line_number": 303,
+      "content": "std::fs::write(&path, json_str)"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/crates/tower-lsp-max-cli/src/nouns/client.rs",
+      "rel_path": "crates/tower-lsp-max-cli/src/nouns/client.rs",
+      "line_number": 50,
+      "content": "std::fs::write(&path, content).map_err(|e| e.to_string())?;"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/crates/tower-lsp-max-cli/src/nouns/config.rs",
+      "rel_path": "crates/tower-lsp-max-cli/src/nouns/config.rs",
+      "line_number": 57,
+      "content": "fs::write(path, content).map_err(|e| e.to_string())?;"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/crates/tower-lsp-max-cli/src/nouns/server.rs",
+      "rel_path": "crates/tower-lsp-max-cli/src/nouns/server.rs",
+      "line_number": 90,
+      "content": "std::fs::write(&path, content).map_err(|e| e.to_string())?;"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/crates/tower-lsp-max-cli/src/nouns/agent.rs",
+      "rel_path": "crates/tower-lsp-max-cli/src/nouns/agent.rs",
+      "line_number": 59,
+      "content": "std::fs::write(&path, content).map_err(|e| e.to_string())?;"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/crates/tower-lsp-max-cli/src/nouns/plugin.rs",
+      "rel_path": "crates/tower-lsp-max-cli/src/nouns/plugin.rs",
+      "line_number": 52,
+      "content": "std::fs::write(&path, content).map_err(|e| e.to_string())?;"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/tower-lsp-max-runtime/src/mesh.rs",
+      "rel_path": "tower-lsp-max-runtime/src/mesh.rs",
+      "line_number": 141,
+      "content": "std::fs::write(path, serialized)?;"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/tower-lsp-max-runtime/src/mesh.rs",
+      "rel_path": "tower-lsp-max-runtime/src/mesh.rs",
+      "line_number": 316,
+      "content": "if let Err(e) = std::fs::write(&file_path, content) {"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/tower-lsp-max-runtime/src/control_plane/receipts.rs",
+      "rel_path": "tower-lsp-max-runtime/src/control_plane/receipts.rs",
+      "line_number": 259,
+      "content": "std::fs::write(path, self.primary_key.to_bytes())?;"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/src/workspace_edit.rs",
+      "rel_path": "src/workspace_edit.rs",
+      "line_number": 44,
+      "content": "std::fs::write(&path, &content)"
+    },
+    {
+      "workspace": "tower-lsp-max",
+      "file": "/Users/sac/tower-lsp-max/src/language_server/impls/repair.rs",
+      "rel_path": "src/language_server/impls/repair.rs",
+      "line_number": 164,
+      "content": "let _ = std::fs::write(&path, old_content);"
+    }
+  ],
+  "forbidden_versions": [],
+  "shadow_crates": []
+}

@@ -14,6 +14,7 @@ version: 6.0.0
 | **4. Cargo Make Only** | ALWAYS `cargo make` - NEVER direct cargo commands |
 | **5. TodoWrite Batch** | ALWAYS 10+ todos in ONE batch |
 | **6. Andon Protocol** | STOP THE LINE when signals appear - fix before proceeding |
+| **7. ggen-lsp Diagnostics** | `<new-diagnostics>` with `GGEN-*` codes = Andon. Do NOT run `ggen sync` while any GGEN-* diagnostic is active |
 
 **Golden Rule**: 1 MESSAGE = ALL RELATED OPERATIONS
 

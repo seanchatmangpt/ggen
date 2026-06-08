@@ -1,3 +1,26 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
 // Unused imports removed - test file contains only commented legacy tests
 
 // COMMENTED OUT: Legacy "gen" command test (use "ggen project gen" instead)
@@ -24,12 +47,12 @@
 //     .unwrap();
 //
 //     // Create a lockfile entry for the local pack
-//     let lockfile_content = r#"version = "1.0.0"
+//     let lockfile_content = r#"version = "26.6.6"
 // generated = "2024-01-01T00:00:00Z"
 //
 // [[packs]]
 // id = "local.test"
-// version = "1.0.0"
+// version = "26.6.6"
 // sha256 = "abc123"
 // source = "local"
 // "#;
@@ -37,7 +60,7 @@
 //
 //     // Create a cache entry for the local pack in the system cache directory
 //     let system_cache_dir = dirs::cache_dir().unwrap().join("ggen/gpacks");
-//     let cache_dir = system_cache_dir.join("local.test/1.0.0");
+//     let cache_dir = system_cache_dir.join("local.test/26.6.6");
 //     let cache_templates_dir = cache_dir.join("templates");
 //     std::fs::create_dir_all(&cache_templates_dir).unwrap();
 //
@@ -57,10 +80,10 @@
 // [gpack]
 // id = "local.test"
 // name = "Local Test Pack"
-// version = "1.0.0"
+// version = "26.6.6"
 // description = "Local test pack"
 // license = "MIT"
-// ggen_compat = "1.0.0"
+// ggen_compat = "26.6.6"
 // "#,
 //     )
 //     .unwrap();

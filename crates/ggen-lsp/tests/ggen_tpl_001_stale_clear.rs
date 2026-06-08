@@ -1,3 +1,27 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
+
 //! GALL-CHECKPOINT-001B — stale-clear hard gate (the alive-vs-fake-live proof).
 //!
 //! Proves the cross-surface living-loop closure for GGEN-TPL-001:
@@ -27,7 +51,7 @@ use ggen_lsp::analyzers::detect_tpl_001;
 use ggen_lsp::project_index::ProjectIndex;
 use ggen_lsp::ServerState;
 use tempfile::TempDir;
-use tower_lsp::lsp_types::Url;
+use tower_lsp_max::lsp_types::Url;
 
 /// Write a minimal but valid ggen project: one rule binding `queries/items.rq`
 /// to `templates/item.tera` with output `out.txt`.
@@ -251,7 +275,7 @@ async fn clear_preserves_unrelated_diagnostic_on_same_template() {
     .map(|a| a.diagnostics())
     .unwrap_or_default();
     assert!(
-        own.iter().any(|d| matches!(&d.code, Some(tower_lsp::lsp_types::NumberOrString::String(s)) if s == "E0024")),
+        own.iter().any(|d| matches!(&d.code, Some(tower_lsp_max::lsp_types::NumberOrString::String(s)) if s == "E0024")),
         "precondition: template must have an E0024 syntax error"
     );
     let mut raised = own.clone();
@@ -294,11 +318,11 @@ async fn clear_preserves_unrelated_diagnostic_on_same_template() {
     .map(|a| a.diagnostics())
     .unwrap_or_default();
     assert!(
-        residual.iter().any(|d| matches!(&d.code, Some(tower_lsp::lsp_types::NumberOrString::String(s)) if s == "E0024")),
+        residual.iter().any(|d| matches!(&d.code, Some(tower_lsp_max::lsp_types::NumberOrString::String(s)) if s == "E0024")),
         "residual must still carry the E0024 (it was never repaired)"
     );
     assert!(
-        !residual.iter().any(|d| matches!(&d.code, Some(tower_lsp::lsp_types::NumberOrString::String(s)) if s == "GGEN-TPL-001")),
+        !residual.iter().any(|d| matches!(&d.code, Some(tower_lsp_max::lsp_types::NumberOrString::String(s)) if s == "GGEN-TPL-001")),
         "residual must NOT carry GGEN-TPL-001 (single-file path has empty bindings)"
     );
     state.observe_diagnostics(&template_uri, &residual).await;
@@ -314,7 +338,7 @@ async fn clear_preserves_unrelated_diagnostic_on_same_template() {
     assert!(
         residual
             .iter()
-            .any(|d| matches!(&d.code, Some(tower_lsp::lsp_types::NumberOrString::String(s)) if s == "E0024")),
+            .any(|d| matches!(&d.code, Some(tower_lsp_max::lsp_types::NumberOrString::String(s)) if s == "E0024")),
         "unrelated E0024 preserved through the clear"
     );
 }

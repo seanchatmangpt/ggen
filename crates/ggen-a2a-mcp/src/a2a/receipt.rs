@@ -54,7 +54,7 @@ pub enum A2ARefusalState {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct OcelObjectRef {
+pub struct OCELObjectRef {
     pub id: String,
     pub r#type: String,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -62,16 +62,16 @@ pub struct OcelObjectRef {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct OcelEvent {
+pub struct OCELEvent {
     pub id: String,
     pub activity: String,
     pub timestamp: String,
-    pub objects: Vec<OcelObjectRef>,
+    pub objects: Vec<OCELObjectRef>,
     pub attributes: std::collections::HashMap<String, String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct OcelObject {
+pub struct OCELObject {
     pub id: String,
     pub r#type: String,
 }
@@ -80,8 +80,8 @@ pub struct OcelObject {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ReceiptOcelSlice {
     pub schema: String,
-    pub events: Vec<OcelEvent>,
-    pub objects: Vec<OcelObject>,
+    pub events: Vec<OCELEvent>,
+    pub objects: Vec<OCELObject>,
     pub canonical_hash: String,
 }
 

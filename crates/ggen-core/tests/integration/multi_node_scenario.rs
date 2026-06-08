@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::needless_raw_string_hashes, clippy::duration_suboptimal_units, clippy::branches_sharing_code, clippy::used_underscore_binding, clippy::single_char_pattern, clippy::ignore_without_reason, clippy::cloned_ref_to_slice_refs, clippy::doc_overindented_list_items, clippy::match_wildcard_for_single_variants, clippy::ignored_unit_patterns, clippy::needless_collect, clippy::unnecessary_map_or, clippy::manual_flatten, clippy::manual_strip, clippy::future_not_send, clippy::unnested_or_patterns, clippy::no_effect_underscore_binding, clippy::literal_string_with_formatting_args)]
 //! Multi-node scenario tests
 //!
 //! These tests simulate multiple registry nodes and client interactions
@@ -20,9 +21,9 @@ async fn test_multiple_registry_instances() -> Result<()> {
     let mut packs1 = HashMap::new();
     let mut versions1 = HashMap::new();
     versions1.insert(
-        "1.0.0".to_string(),
+        "26.6.6".to_string(),
         VersionMetadata {
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             git_url: "https://github.com/test/package-a.git".to_string(),
             git_rev: "main".to_string(),
             manifest_url: None,
@@ -40,7 +41,7 @@ async fn test_multiple_registry_instances() -> Result<()> {
             keywords: vec!["test".to_string()],
             category: Some("tools".to_string()),
             author: Some("Registry 1".to_string()),
-            latest_version: "1.0.0".to_string(),
+            latest_version: "26.6.6".to_string(),
             versions: versions1,
             downloads: Some(100),
             updated: Some(chrono::Utc::now()),
@@ -143,9 +144,9 @@ async fn test_concurrent_registry_access() -> Result<()> {
         let id = format!("package-{}", i);
         let mut versions = HashMap::new();
         versions.insert(
-            "1.0.0".to_string(),
+            "26.6.6".to_string(),
             VersionMetadata {
-                version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
                 git_url: format!("https://github.com/test/{}.git", id),
                 git_rev: "main".to_string(),
                 manifest_url: None,
@@ -163,7 +164,7 @@ async fn test_concurrent_registry_access() -> Result<()> {
                 keywords: vec!["concurrent".to_string()],
                 category: Some("test".to_string()),
                 author: Some("Test".to_string()),
-                latest_version: "1.0.0".to_string(),
+                latest_version: "26.6.6".to_string(),
                 versions,
                 downloads: Some(i as u64 * 10),
                 updated: Some(chrono::Utc::now()),
@@ -275,11 +276,11 @@ async fn test_registry_failover_simulation() -> Result<()> {
     let mut packs = HashMap::new();
     let mut versions = HashMap::new();
     versions.insert(
-        "1.0.0".to_string(),
+        "26.6.6".to_string(),
         VersionMetadata {
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             git_url: "https://github.com/test/package.git".to_string(),
-            git_rev: "v1.0.0".to_string(),
+            git_rev: "v26.6.6".to_string(),
             manifest_url: None,
             sha256: "primary".to_string(),
         },
@@ -295,7 +296,7 @@ async fn test_registry_failover_simulation() -> Result<()> {
             keywords: vec!["test".to_string()],
             category: Some("test".to_string()),
             author: Some("Test".to_string()),
-            latest_version: "1.0.0".to_string(),
+            latest_version: "26.6.6".to_string(),
             versions,
             downloads: Some(100),
             updated: Some(chrono::Utc::now()),
@@ -326,7 +327,7 @@ async fn test_registry_failover_simulation() -> Result<()> {
     let primary_client = RegistryClient::with_base_url(primary_url)?;
 
     let primary_result = primary_client.resolve("shared-package", None).await?;
-    assert_eq!(primary_result.version, "1.0.0");
+    assert_eq!(primary_result.version, "26.6.6");
 
     // Test fallback registry
     let fallback_url = Url::from_file_path(fallback_dir.path())
@@ -334,7 +335,7 @@ async fn test_registry_failover_simulation() -> Result<()> {
     let fallback_client = RegistryClient::with_base_url(fallback_url)?;
 
     let fallback_result = fallback_client.resolve("shared-package", None).await?;
-    assert_eq!(fallback_result.version, "1.0.0");
+    assert_eq!(fallback_result.version, "26.6.6");
 
     // Simulate primary failure by removing index
     fs::remove_file(&primary_index_path)?;

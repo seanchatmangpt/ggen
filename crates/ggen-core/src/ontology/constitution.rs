@@ -341,7 +341,7 @@ mod tests {
     async fn test_all_invariants_pass() {
         let constitution = Constitution::default();
         let proposal = create_test_proposal();
-        let current = create_test_snapshot("1.0.0");
+        let current = create_test_snapshot("26.6.6");
         let proposed = create_test_snapshot("2.0.0");
 
         let validation = constitution
@@ -355,7 +355,7 @@ mod tests {
     async fn test_invariant_results() {
         let constitution = Constitution::default();
         let proposal = create_test_proposal();
-        let current = create_test_snapshot("1.0.0");
+        let current = create_test_snapshot("26.6.6");
         let proposed = create_test_snapshot("2.0.0");
 
         let validation = constitution
@@ -372,7 +372,7 @@ mod tests {
     async fn test_constitution_to_receipt() {
         let constitution = Constitution::default();
         let proposal = create_test_proposal();
-        let current = create_test_snapshot("1.0.0");
+        let current = create_test_snapshot("26.6.6");
         let proposed = create_test_snapshot("2.0.0");
 
         let validation = constitution

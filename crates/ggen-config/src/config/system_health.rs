@@ -486,6 +486,8 @@ impl HealthMonitor {
         let recent = &self.recent_results[self.recent_results.len() - 1];
         let previous = &self.recent_results[self.recent_results.len() - 2];
 
+        // Floating-point comparison chain; match not applicable for f64 ordering.
+        #[allow(clippy::comparison_chain)]
         if recent.metrics.health_score > previous.metrics.health_score {
             HealthTrend::Improving
         } else if recent.metrics.health_score < previous.metrics.health_score {

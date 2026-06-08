@@ -194,13 +194,13 @@ mod tests {
         let mut config = TemplateConfig::default();
 
         config.set_default_variable("project_name".to_string(), "my-project".to_string());
-        config.set_default_variable("version".to_string(), "1.0.0".to_string());
+        config.set_default_variable("version".to_string(), "26.6.6".to_string());
 
         assert_eq!(
             config.get_default_variable("project_name").unwrap(),
             "my-project"
         );
-        assert_eq!(config.get_default_variable("version").unwrap(), "1.0.0");
+        assert_eq!(config.get_default_variable("version").unwrap(), "26.6.6");
         assert!(config.get_default_variable("nonexistent").is_none());
     }
 }

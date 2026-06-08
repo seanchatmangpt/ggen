@@ -1,3 +1,26 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
 //! GGEN-TPL-001 — LIVING LSP LOOP proof (Checkpoint-001B, Agent 3).
 //!
 //! Checkpoint-001 / Agent 4 already prove the *pure* detector
@@ -35,7 +58,7 @@
 
 use std::path::{Path, PathBuf};
 
-use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Position, Range, Url};
+use tower_lsp_max::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Position, Range, Url};
 
 use ggen_lsp::check::{check_files_in_root, discover_law_surfaces, CheckReport};
 use ggen_lsp::route::{Provenance, RouteRegistry};
@@ -397,7 +420,7 @@ fn headless_gate_never_materializes_output_file() {
 ///
 ///   1. **A constructible `GgenLanguageServer` with an injectable root.**
 ///      `GgenLanguageServer::new(client: Client)` (server.rs:13) is the ONLY
-///      public constructor. It (a) requires a `tower_lsp::Client`, which is
+///      public constructor. It (a) requires a `tower_lsp_max::Client`, which is
 ///      produced solely by `LspService::new(...)` inside `run_stdio` and is not
 ///      independently constructible in a unit test, and (b) hard-codes
 ///      `ServerState::default()` (server.rs:15) whose `root` is `current_dir()`
@@ -457,7 +480,7 @@ fn headless_gate_never_materializes_output_file() {
 /// `server::refresh_analyzer` now calls (the wrapper adds only
 /// `Client::publish_diagnostics`). The test below drives that REAL orchestration,
 /// so the live `ReceiptEmitted` chain is now observable from the on-disk OCEL log
-/// without a `tower_lsp::Client`. The proof exercises production code, not a
+/// without a `tower_lsp_max::Client`. The proof exercises production code, not a
 /// test-local reconstruction of it.
 ///
 /// raise (analyze the template) → cross-surface repair (fix the SPARQL query) →

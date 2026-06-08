@@ -32,7 +32,7 @@ mod integration_tests {
 [project]
 name = "test-project"
 type = "app"
-version = "1.0.0"
+version = "26.6.6"
 description = "Test project for lifecycle integration"
 
 [lifecycle.init]
@@ -151,7 +151,7 @@ command = "echo 'Building...'"
         // Verify project metadata
         assert_eq!(make.project.name, "test-project");
         assert_eq!(make.project.project_type, Some("app".to_string()));
-        assert_eq!(make.project.version, Some("1.0.0".to_string()));
+        assert_eq!(make.project.version, Some("26.6.6".to_string()));
 
         // Verify lifecycle phases exist
         assert!(make.lifecycle.contains_key("init"));

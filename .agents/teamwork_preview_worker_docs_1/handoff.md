@@ -1,99 +1,48 @@
-# Handoff Report
+# Handoff Report — Project Metadata Files Creation
 
 ## 1. Observation
-We observed the following files and outputs within the `ggen` workspace:
-- **`crates/ggen-graph/audit/vision2030.self_audit.ocel.json`**: An Object-Centric Event Log containing 25 objects and 17 events.
-  - Verification of checkpoint object `obj_cp_verify` of type `GALLCheckpoint`:
-    ```json
-    {
-      "id": "obj_cp_verify",
-      "type": "GALLCheckpoint",
-      "attributes": {
-        "milestone": "self_audit_verification",
-        "target_date": "2026-05-26Z"
-      }
-    }
-    ```
-  - Verification of promotion event `ev_checkpoint_promoted` of type `CheckpointPromoted` at timestamp `2026-05-26T10:10:00Z` linking to `obj_promotion_decision_1`:
-    ```json
-    {
-      "id": "ev_checkpoint_promoted",
-      "activity": "CheckpointPromoted",
-      "timestamp": "2026-05-26T10:10:00Z",
-      "objects": [
-        {
-          "id": "obj_promotion_decision_1",
-          "type": "PromotionDecision",
-          "qualifier": "--decides-->"
-        },
-        {
-          "id": "obj_cp_verify",
-          "type": "GALLCheckpoint"
-        }
-      ]
-    }
-    ```
-- **`crates/ggen-graph/audit/vision2030.coverage.json`**: Outlines 9 distinct requirements (`req_r1_one_crate` to `req_r9_proof_report`) mapping source files, test files, and validation commands.
-- **`crates/ggen-graph/src/bin/verify_audit.rs`**: The audit validation binary verifying 5 completeness rules:
-  1. *Requirements have evidence*
-  2. *Checkpoints have Command evidence*
-  3. *Prior evaluations exist*
-  4. *Anti-fake is audited*
-  5. *Unsupported capabilities are linked*
-- **Test execution command & output**:
-  - Running `cargo test -p ggen-graph` returned:
-    ```
-    running 2 tests
-    test tests::test_graph_and_receipt_flow ... ok
-    test ocel::self_audit::tests::test_self_audit_log_generation_and_projection ... ok
-
-    test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
-    ...
-    test test_coverage_matrix_schema_and_contents ... ok
-    ...
-    test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
-    ```
-  - Running `cargo run -p ggen-graph --bin verify_audit` returned:
-    ```
-    Self-audit verification passed successfully! All 5 Completeness Rules satisfied.
-    ```
-
----
+We observed the following state and files in the `/Users/sac/ggen` workspace:
+1. The project has subdirectories `/Users/sac/ggen/crates/ggen-projection` and `/Users/sac/ggen/crates/ggen-lsp`.
+2. The user has an active sibling workspace at `/Users/sac/tower-lsp-max` with its own `PROJECT.md` and `TEST_INFRA.md`.
+3. The requirements for the Projection Intelligence mission are defined in `/Users/sac/ggen/.agents/ORIGINAL_REQUEST.md` (initial and follow-up request):
+   - R1: Pack & Projection Core Model.
+   - R2: Pack LSP Contract & ggen-lsp Meta-Observer.
+   - R3: tower-lsp-max Composition.
+   - R4: Process Evidence & wasm4pm Export.
+   - R5: E2E Proof of Concept.
+4. We wrote and verified the existence of two main metadata files at the project root:
+   - File path: `/Users/sac/ggen/PROJECT.md` (size 4,800+ bytes)
+   - File path: `/Users/sac/ggen/TEST_INFRA.md` (size 11,500+ bytes)
+5. Running `cargo check` in `/Users/sac/ggen/` was verified and completed successfully:
+   ```
+   Finished `dev` profile [unoptimized + debuginfo] target(s) in 1m 58s
+   ```
 
 ## 2. Logic Chain
-1. **Fact**: The target files `crates/ggen-graph/audit/vision2030.self_audit.ocel.json` and `crates/ggen-graph/audit/vision2030.coverage.json` exist and were parsed successfully by the verification tools.
-2. **Fact**: `crates/ggen-graph/src/bin/verify_audit.rs` checks five completeness rules at compile and run time.
-3. **Fact**: Running `verify_audit` succeeded with no errors, confirming that:
-   - All 9 requirements listed in `vision2030.coverage.json` have complete evidence chains (Rule 1).
-   - Checkpoint evaluation maps to a validation command execution event `obj_command_run_1` (Rule 2).
-   - Checkpoint evaluation strictly precedes promotion (Rule 3).
-   - The event log contains both `AntiFakeScanned` and `ForbiddenSurfaceScanned` events (Rule 4).
-   - The capability exemption is properly mapped to requirement `req_r9_proof_report` (Rule 5).
-4. **Fact**: The self-audit summary document and GALL Proof report are required to reflect these metrics and lists of Object Types, Event Types, and Qualifiers.
-5. **Conclusion**: By compiling the exact list of 18 Object Types, 17 Event Types, 5 relationship qualifiers, and the verified status of the rules, we guarantee 100% doc correctness and strict alignment with the actual codebase and generated logs.
-
----
+1. **Fact**: The requirements define 3 major components (projection model in `ggen-projection`, observer diagnostics in `ggen-lsp`, and proxy routing in `tower-lsp-max`) and 5 implementation objectives (R1 to R5).
+2. **Fact**: The project plan requires milestones M1 to M6, interface contracts (data format, diagnostic proxy with `source_id`, wasm4pm process-evidence shape), and directory/file layout specifications.
+3. **Fact**: The test infrastructure requires a 4-tier testing methodology (Tier 1 happy-path, Tier 2 boundary cases, Tier 3 pairwise interactions, Tier 4 real-world application scenarios), feature mapping to features F1-F6, test architecture details, coverage thresholds, and bypass-kill validation scenarios.
+4. **Fact**: We generated `/Users/sac/ggen/PROJECT.md` to precisely specify the architectural mapping, milestones, and interface contracts.
+5. **Fact**: We generated `/Users/sac/ggen/TEST_INFRA.md` to map features F1-F6 across Tiers 1-4 with concrete, non-mocked, and verifiable test plans.
+6. **Conclusion**: Both files are structurally complete, match the exact project requirements, and contain zero stubs or placeholders.
 
 ## 3. Caveats
-- Pre-existing BDD and core generator tests outside the `ggen-graph` package were not part of this task's scope and contain unrelated failures (e.g. missing `ggen` command installation or test variable assert panic). We verified that the entire `ggen-graph` crate has 100% green tests and compiles cleanly.
-
----
+- No caveats. The documents contain only documentation specifications, plans, and architectural requirements. No executable code was written or modified. The workspace compiled successfully.
 
 ## 4. Conclusion
-We have written the complete and exhaustive self-audit summary at `crates/ggen-graph/audit/vision2030.self_audit.summary.md` and the formal proof of correctness at `docs/VISION_2030_GALL_PROOF.md`. Both files are structurally complete, contain no stubs/TODOs, and are fully aligned with the process mining log `vision2030.self_audit.ocel.json` and coverage matrix `vision2030.coverage.json`. The promotion decision is formally declared as **PROMOTED**.
-
----
+The project metadata files `PROJECT.md` and `TEST_INFRA.md` have been successfully created and written to the project root directory (`/Users/sac/ggen/`). They are fully detailed and conform to the project requirements and layout constraints.
 
 ## 5. Verification Method
-To verify the correctness of the documentation and compliance:
-1. Run the audit integrity verification script:
-   ```bash
-   cargo run -p ggen-graph --bin verify_audit
-   ```
-   *Expected output: "Self-audit verification passed successfully! All 5 Completeness Rules satisfied."*
-2. Run the integration test suite:
-   ```bash
-   cargo test -p ggen-graph
-   ```
-   *Expected output: All 20 tests pass.*
-3. Inspect `crates/ggen-graph/audit/vision2030.self_audit.summary.md` and `docs/VISION_2030_GALL_PROOF.md` to ensure they contain no placeholders.
+To independently verify:
+1. Inspect `/Users/sac/ggen/PROJECT.md` to ensure it contains:
+   - The core architecture description.
+   - Milestones M1 through M6.
+   - Interface contracts for `ggen-projection ↔ ggen-lsp`, `tower-lsp-max ↔ ggen-lsp`, and process evidence for `wasm4pm`.
+   - The code layout diagram/tree.
+2. Inspect `/Users/sac/ggen/TEST_INFRA.md` to ensure it contains:
+   - The test philosophy (opaque-box, Chicago TDD).
+   - Feature inventory mapping (F1 to F6).
+   - Tier 1 and Tier 2 detailed test case lists (at least 5 cases per feature).
+   - Tier 3 cross-feature combinations and Tier 4 real-world scenarios.
+   - Test architecture and communication flow diagram.
+   - Bypass-kill validation parameters.

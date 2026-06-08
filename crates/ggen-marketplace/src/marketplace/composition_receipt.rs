@@ -736,7 +736,7 @@ mod tests {
 
         let pack = AtomicPackRef {
             pack_id: "surface-mcp".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             digest: "abc123".to_string(),
             signature: "def456".to_string(),
             trust_tier: TrustTier::EnterpriseCertified,
@@ -746,7 +746,7 @@ mod tests {
         assert_eq!(receipt.pack_count(), 1);
         assert_eq!(
             receipt.versions.get("surface-mcp"),
-            Some(&"1.0.0".to_string())
+            Some(&"26.6.6".to_string())
         );
     }
 

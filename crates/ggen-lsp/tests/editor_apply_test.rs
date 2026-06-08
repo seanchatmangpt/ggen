@@ -1,3 +1,26 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
 //! APPLY-1 — the editor observes *applied* repairs, not only proposed routes.
 //!
 //! Drives the real `ServerState` editor-observation path (the same methods the
@@ -12,7 +35,7 @@ use ggen_lsp::intel::MetricValue;
 use ggen_lsp::state::ServerState;
 use ggen_lsp::{check_content, compute_metrics, IntelLog};
 use tempfile::TempDir;
-use tower_lsp::lsp_types::Url;
+use tower_lsp_max::lsp_types::Url;
 
 #[tokio::test]
 async fn editor_applied_repair_emits_repair_applied_and_closes_episode() {
@@ -30,7 +53,7 @@ async fn editor_applied_repair_emits_repair_applied_and_closes_episode() {
     assert!(
         broken.diagnostics.iter().any(|d| matches!(
             &d.code,
-            Some(tower_lsp::lsp_types::NumberOrString::String(c)) if c == "E0023"
+            Some(tower_lsp_max::lsp_types::NumberOrString::String(c)) if c == "E0023"
         )),
         "broken config raises E0023"
     );

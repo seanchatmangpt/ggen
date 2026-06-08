@@ -621,7 +621,7 @@ fn main() {}
         let input = r#"{"a":1,"b":2}"#;
         let options = CanonicalizeOptions::new();
         let result = canonicalize_json(input, &options).unwrap();
-        assert!(result.contains("\n")); // Pretty-printed
+        assert!(result.contains('\n')); // Pretty-printed
         assert!(result.ends_with('\n'));
     }
 

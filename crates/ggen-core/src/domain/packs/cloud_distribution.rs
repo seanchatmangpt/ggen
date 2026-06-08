@@ -186,7 +186,7 @@ mod tests {
         Pack {
             id: "test-pack".to_string(),
             name: "Test Pack".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: "Test".to_string(),
             category: "test".to_string(),
             author: None,
@@ -213,7 +213,7 @@ mod tests {
 
         let info = result.unwrap();
         assert!(info.cdn_url.contains("test-pack"));
-        assert!(info.cdn_url.contains("1.0.0"));
+        assert!(info.cdn_url.contains("26.6.6"));
     }
 
     #[tokio::test]
@@ -258,7 +258,7 @@ mod tests {
             .await
             .unwrap();
 
-        // Try to get stats - the cache key is "pack:test-pack:1.0.0"
+        // Try to get stats - the cache key is "pack:test-pack:26.6.6"
         // but the get_cache_stats looks for "pack:{pack_id}"
         // Since we don't have exact match, let's just verify the download worked
         assert!(temp_dir.path().join("pack1.json").exists());

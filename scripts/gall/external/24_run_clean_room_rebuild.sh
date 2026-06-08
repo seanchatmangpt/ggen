@@ -19,7 +19,28 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 # Sync workspace files into the clean room (avoid target build dir & git files)
-rsync -a --exclude="target" --exclude=".git" --exclude=".agents" --exclude=".gemini" --exclude=".antigravitycli" "$WORKSPACE_ROOT/" "$TEMP_DIR/"
+rsync -a --exclude="target" --exclude="target_*" --exclude=".venv_shacl" --exclude="~" --exclude=".git" --exclude=".agents" --exclude=".gemini" --exclude=".antigravitycli" "$WORKSPACE_ROOT/" "$TEMP_DIR/"
+
+# Also copy sibling repositories to the parent of TEMP_DIR (TEMP_DIR/..)
+PARENT_DIR="$(dirname "$WORKSPACE_ROOT")"
+CLEAN_ROOM_PARENT="$(dirname "$TEMP_DIR")"
+
+if [ -d "$PARENT_DIR/wasm4pm" ]; then
+    rsync -a --exclude="target" --exclude="target_*" --exclude=".venv_shacl" --exclude="~" --exclude=".git" "$PARENT_DIR/wasm4pm/" "$CLEAN_ROOM_PARENT/wasm4pm/"
+    rm -f "$CLEAN_ROOM_PARENT/wasm4pm/Cargo.lock"
+fi
+
+if [ -d "$PARENT_DIR/wasm4pm-compat" ]; then
+    rsync -a --exclude="target" --exclude="target_*" --exclude=".venv_shacl" --exclude="~" --exclude=".git" "$PARENT_DIR/wasm4pm-compat/" "$CLEAN_ROOM_PARENT/wasm4pm-compat/"
+    rm -f "$CLEAN_ROOM_PARENT/wasm4pm-compat/Cargo.lock"
+fi
+
+if [ -d "$PARENT_DIR/lsp-types-max" ]; then
+    rsync -a --exclude="target" --exclude="target_*" --exclude=".venv_shacl" --exclude="~" --exclude=".git" "$PARENT_DIR/lsp-types-max/" "$CLEAN_ROOM_PARENT/lsp-types-max/"
+    rm -f "$CLEAN_ROOM_PARENT/lsp-types-max/Cargo.lock"
+fi
+
+rm -f "$TEMP_DIR/Cargo.lock"
 
 start_time=$(date +%s)
 set +e

@@ -1,0 +1,66 @@
+---
+receipt: LSP_318_CONFORM_001
+project: ggen-lsp
+canonical_path: /Users/sac/ggen
+date: 2026-06-07
+status: CONFORM
+gate: Capability Negotiation Gate
+verdict_basis:
+  - client_lsp_3_18_capabilities_advertised
+  - server_capabilities_negotiated_and_refused
+  - handshake_transcript_captured
+  - cryptographic_receipt_emitted
+
+# This receipt satisfies the LSP 3.18 conformance validation requirements
+# for capability negotiation between LSP 3.18 client and ggen-lsp server.
+
+---
+
+# Evidence Map
+
+## Condition 1: Client LSP 3.18 capabilities advertised
+
+evidence_type: raw_request_params
+advertised_capabilities:
+  textDocument:
+    hover:
+      dynamicRegistration: true
+      contentFormat: ["markdown", "plaintext"]
+    completion:
+      dynamicRegistration: true
+      completionItem:
+        snippetSupport: true
+    inlineCompletion:
+      dynamicRegistration: true
+  notebookDocument:
+    synchronization:
+      dynamicRegistration: true
+      executionOrderSupport: true
+
+## Condition 2: Server capabilities negotiated and refused
+
+evidence_type: raw_response_capabilities
+negotiated_capabilities:
+  hoverProvider: true
+  completionProvider:
+    triggerCharacters: [":", "@", ".", "{", "[", "\"", "|"]
+refused_capabilities:
+  - inlineCompletionProvider (absent/refused)
+  - notebookDocumentSync (absent/refused)
+
+## Condition 3: Handshake transcript captured
+
+evidence_type: file_hash
+transcript_file: target_my_tests/lsp_initialize_transcript.json
+sha256: 3f160d7401d2a4b713333d5fdcadf3a754d7a1bc123ef9dd54e5018adf8bd9f2
+blake3: 12417ca88364000bd9e3af9cc91add543d702b1b377dd234d81595bfbd8d223d
+
+---
+
+# Firmament Gate Statement
+
+project: ggen-lsp
+canonical_path: /Users/sac/ggen
+gate: Capability Negotiation Gate
+date: 2026-06-07
+admission_status: ADMITTED

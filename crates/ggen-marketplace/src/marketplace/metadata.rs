@@ -2,7 +2,7 @@
 //!
 //! This module provides functionality to load pack metadata (signatures, trust tiers, checksums)
 //! from cached pack directories. Packs can store metadata in either:
-//! - `package.toml` - TOML format with [package] and [security] sections
+//! - `package.toml` - TOML format with \[package\] and \[security\] sections
 //! - `metadata.json` - JSON format with signature, `trust_tier`, checksum fields
 //!
 //! Both formats are supported with fallback logic for backwards compatibility.
@@ -11,6 +11,7 @@ use crate::marketplace::error::{Error, Result};
 use crate::marketplace::models::PackageId;
 use crate::marketplace::trust::{RegistryType, TrustTier};
 use serde::Deserialize;
+use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 use tracing::{debug, warn};
@@ -28,6 +29,8 @@ pub struct PackMetadata {
     pub registry_type: Option<RegistryType>,
     /// Origin URL where the artifact was fetched from
     pub origin_url: Option<String>,
+    /// Named outputs declared in [pack.outputs] (key → relative path within pack)
+    pub outputs: HashMap<String, String>,
 }
 
 impl Default for PackMetadata {
@@ -38,6 +41,7 @@ impl Default for PackMetadata {
             checksum: None,
             registry_type: None,
             origin_url: None,
+            outputs: HashMap::new(),
         }
     }
 }
@@ -48,6 +52,17 @@ struct PackageToml {
     package: PackageSection,
     #[serde(default)]
     security: Option<SecuritySection>,
+    /// Named outputs: [pack.outputs] table mapping key → relative path
+    #[serde(default)]
+    pack: Option<PackSection>,
+}
+
+/// [pack] section containing [pack.outputs]
+#[derive(Debug, Deserialize, Default)]
+struct PackSection {
+    /// Named outputs: key → relative path within the pack directory
+    #[serde(default)]
+    outputs: HashMap<String, String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -112,7 +127,7 @@ struct MetadataJson {
 ///     r#"
 /// [package]
 /// name = "surface-mcp"
-/// version = "1.0.0"
+/// version = "26.6.6"
 ///
 /// [security]
 /// signature = "deadbeef"
@@ -184,12 +199,15 @@ fn load_from_toml(toml_path: &Path) -> Result<PackMetadata> {
 
     let origin_url = package_toml.package.origin_url.clone();
 
+    let outputs = package_toml.pack.map(|p| p.outputs).unwrap_or_default();
+
     debug!(
-        "Loaded metadata from package.toml: signature={}, trust_tier={:?}, checksum={}, registry={:?}",
+        "Loaded metadata from package.toml: signature={}, trust_tier={:?}, checksum={}, registry={:?}, outputs={}",
         signature.is_some(),
         trust_tier,
         checksum.is_some(),
-        registry_type
+        registry_type,
+        outputs.len()
     );
 
     Ok(PackMetadata {
@@ -198,6 +216,7 @@ fn load_from_toml(toml_path: &Path) -> Result<PackMetadata> {
         checksum,
         registry_type,
         origin_url,
+        outputs,
     })
 }
 
@@ -243,6 +262,7 @@ fn load_from_json(json_path: &Path) -> Result<PackMetadata> {
         checksum,
         registry_type,
         origin_url,
+        outputs: HashMap::new(),
     })
 }
 
@@ -297,7 +317,7 @@ mod tests {
         let toml_content = r#"
 [package]
 name = "test-package"
-version = "1.0.0"
+version = "26.6.6"
 
 [security]
 signature = "abc123def456"
@@ -347,7 +367,7 @@ checksum = "sha256:789xyz"
             r#"
 [package]
 name = "test"
-version = "1.0.0"
+version = "26.6.6"
 
 [security]
 signature = "toml_signature"
@@ -410,11 +430,11 @@ trust_tier = "EnterpriseCertified"
     #[test]
     fn test_get_pack_cache_dir() {
         let package_id = PackageId::new("test-package").unwrap();
-        let version = "1.0.0";
+        let version = "26.6.6";
 
         let cache_dir = get_pack_cache_dir(&package_id, version);
 
-        assert!(cache_dir.ends_with("ggen/packs/test-package/1.0.0"));
+        assert!(cache_dir.ends_with("ggen/packs/test-package/26.6.6"));
     }
 
     #[test]
@@ -426,7 +446,7 @@ trust_tier = "EnterpriseCertified"
         let toml_content = r#"
 [package]
 name = "minimal-package"
-version = "1.0.0"
+version = "26.6.6"
 "#;
 
         fs::write(&toml_path, toml_content).unwrap();

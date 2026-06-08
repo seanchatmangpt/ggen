@@ -8,7 +8,7 @@ use std::path::{Path, PathBuf};
 use super::ProjectConventions;
 
 /// Metadata extracted from template comments
-/// PartialEq without Eq: All fields (String, Vec<String>) implement Eq
+/// PartialEq without Eq: All fields (`String`, `Vec<String>`) implement Eq
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Clone, PartialEq)]
 pub struct TemplateMetadata {
@@ -160,7 +160,7 @@ impl GenerationPlanner {
     }
 
     /// DFS-based cycle detection
-    #[allow(clippy::only_used_in_recursion)] // Parameter used in recursive calls
+    #[allow(clippy::self_only_used_in_recursion)] // self needed for recursive dispatch
     fn has_cycle(
         &self, task: &str, graph: &HashMap<String, Vec<String>>, visited: &mut HashSet<String>,
         rec_stack: &mut HashSet<String>,
@@ -249,6 +249,7 @@ impl GenerationPlanner {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::needless_raw_string_hashes)]
 mod tests {
     use super::*;
     use std::fs;

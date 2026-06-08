@@ -1,7 +1,29 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
 //! Tests for the Genesis-bearing interchangeable part architecture in ggen-graph.
-
 use ggen_graph::graph::quad::parse_nquad;
-use ggen_graph::ocel::{OcelEvent, OcelLog, OcelObject};
+use ggen_graph::ocel::{OCELEvent, OCEL, OCELObject};
 use ggen_graph::{AdapterLayer, GenesisCore, OuterMembrane, ProjectionLayer};
 use serde_json::json;
 
@@ -126,13 +148,13 @@ fn test_adapter_layer_json_rpc() -> Result<(), Box<dyn std::error::Error>> {
 fn test_projection_layer_ocel() -> Result<(), Box<dyn std::error::Error>> {
     // Arrange: Setup a Genesis core and target logs
     let core = GenesisCore::new()?;
-    let log = OcelLog {
-        objects: vec![OcelObject {
+    let log = OCEL {
+        objects: vec![OCELObject {
             id: "obj-1".to_string(),
             r#type: "CustomType".to_string(),
             attributes: std::collections::HashMap::new(),
         }],
-        events: vec![OcelEvent {
+        events: vec![OCELEvent {
             id: "ev-1".to_string(),
             activity: "PerformAction".to_string(),
             timestamp: chrono::DateTime::parse_from_rfc3339("2026-05-27T06:00:00Z")

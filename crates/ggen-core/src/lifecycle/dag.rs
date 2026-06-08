@@ -100,7 +100,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_topo_simple() -> Result<(), Box<dyn std::error::Error>> {
+    fn test_topo_simple() -> std::result::Result<(), Box<dyn std::error::Error>> {
         let phases = &["init", "setup", "build"];
         let deps = &[("init", "setup"), ("setup", "build")];
 
@@ -111,7 +111,7 @@ mod tests {
     }
 
     #[test]
-    fn test_topo_parallel() -> Result<(), Box<dyn std::error::Error>> {
+    fn test_topo_parallel() -> std::result::Result<(), Box<dyn std::error::Error>> {
         let phases = &["test", "lint", "build"];
         let deps = &[("test", "build"), ("lint", "build")];
 

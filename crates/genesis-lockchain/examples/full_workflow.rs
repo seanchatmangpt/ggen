@@ -14,7 +14,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Step 1: Beat execution generates receipts
     println!("STEP 1: Beat Execution (ticks 0-7)");
     println!("====================================");
-    let receipts = vec![
+    let receipts = [
         Receipt::new(cycle_id, 0, 1, 5, 0x1234567890abcdef),
         Receipt::new(cycle_id, 1, 2, 6, 0x2345678901bcdef0),
         Receipt::new(cycle_id, 2, 3, 7, 0x3456789012cdef01),

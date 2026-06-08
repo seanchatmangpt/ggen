@@ -1,9 +1,10 @@
 [package]
 name = "ggen-projection"
-version = "1.0.0"
+version = "26.6.6"
 edition = "2021"
 description = "ggen Projection Membrane - Expand relation page Pair2 streams and local receipts into external formats"
 authors = ["KNHK Team"]
+autotests = false
 
 [dependencies]
 serde = { workspace = true, features = ["derive"] }
@@ -13,6 +14,69 @@ thiserror = { workspace = true }
 anyhow = { workspace = true }
 blake3 = { workspace = true }
 knhk-construct8 = { workspace = true }
+toml = { workspace = true }
+uuid = { workspace = true, features = ["v4", "serde"] }
+clap = { version = "4.4", features = ["derive"] }
+tera.workspace = true
+sha2 = { workspace = true }
 
 [dev-dependencies]
+ggen = { package = "ggen-cli-lib", path = "../ggen-cli" }
 tempfile = { workspace = true }
+assert_cmd = { workspace = true }
+ed25519-dalek = { workspace = true }
+rand = "0.8"
+tokio = { workspace = true }
+clap-noun-verb-pack-lsp = { path = "../ggen-pack-clap-noun-verb" }
+tower-lsp-max = { path = "../../../tower-lsp-max", features = ["proposed"] }
+sha2 = { workspace = true }
+walkdir = "2.5.0"
+
+[[test]]
+name = "f4_lsp_diagnostics"
+path = "tests/f4_lsp_diagnostics.rs"
+
+[[test]]
+name = "f7_bypass_kill"
+path = "tests/f7_bypass_kill.rs"
+
+[[test]]
+name = "f8_equation_enforcement"
+path = "tests/f8_equation_enforcement.rs"
+
+[[test]]
+name = "dogfood_gc003"
+path = "tests/dogfood_gc003.rs"
+
+[[test]]
+name = "dogfood_gc004"
+path = "tests/dogfood_gc004.rs"
+
+[[test]]
+name = "dogfood_gc005"
+path = "tests/dogfood_gc005.rs"
+
+[[test]]
+name = "dogfood_gc006"
+path = "tests/dogfood_gc006.rs"
+
+
+[[test]]
+name = "dogfood_gc006_calver"
+path = "tests/dogfood_gc006_calver.rs"
+
+[[test]]
+name = "dogfood_gc007"
+path = "tests/dogfood_gc007.rs"
+
+[[test]]
+name = "dogfood_clap_command_route"
+path = "tests/dogfood_clap_command_route.rs"
+
+[[test]]
+name = "dogfood_no_lsp_mutation"
+path = "tests/dogfood_no_lsp_mutation.rs"
+
+[[test]]
+name = "dogfood_gc008_route"
+path = "tests/dogfood_gc008_route.rs"

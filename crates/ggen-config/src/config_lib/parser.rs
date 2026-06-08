@@ -75,7 +75,7 @@ impl ConfigLoader {
     /// let toml = r#"
     ///     [project]
     ///     name = "my-project"
-    ///     version = "1.0.0"
+    ///     version = "26.6.6"
     /// "#;
     ///
     /// let config = ConfigLoader::from_str(toml)?;
@@ -493,12 +493,12 @@ mod tests {
         let toml = r#"
             [project]
             name = "test-project"
-            version = "1.0.0"
+            version = "26.6.6"
         "#;
 
         let config = ConfigLoader::from_str(toml).unwrap();
         assert_eq!(config.project.name, "test-project");
-        assert_eq!(config.project.version, "1.0.0");
+        assert_eq!(config.project.version, "26.6.6");
         assert!(config.ai.is_none());
     }
 
@@ -539,7 +539,7 @@ mod tests {
         let toml = r#"
             [project]
             name = "defaults"
-            version = "1.0.0"
+            version = "26.6.6"
 
             [ai]
             provider = "ollama"

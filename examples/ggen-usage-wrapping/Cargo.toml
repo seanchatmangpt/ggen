@@ -1,6 +1,6 @@
 [package]
 name = "ggen-usage-wrapping"
-version = "1.0.0"
+version = "26.6.6"
 edition = "2021"
 authors = ["ggen contributors"]
 description = "Comprehensive examples demonstrating how to use and wrap ggen as a library"
@@ -14,8 +14,8 @@ members = [
 
 [dependencies]
 # Core ggen dependencies
-ggen-core = { path = "../../ggen-core", version = "1.0.0" }
-ggen-ai = { path = "../../ggen-ai", version = "1.0.0" }
+ggen-core = { path = "../../ggen-core", version = "26.6.6" }
+ggen-ai = { path = "../../ggen-ai", version = "26.6.6" }
 
 # Async runtime
 tokio = { version = "1.0", features = ["full"] }

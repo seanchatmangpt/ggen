@@ -1330,7 +1330,7 @@ fn generate_mcp_a2a_configs(
     }}
   }},
   "description": "MCP servers for ggen project",
-  "version": "1.0.0",
+  "version": "26.6.6",
   "metadata": {{
     "project": "{}",
     "profile": "mcp-a2a"

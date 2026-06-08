@@ -1,4 +1,27 @@
 #![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
+#![allow(
     dead_code,
     unused_imports,
     unused_variables,
@@ -24,13 +47,13 @@ use tempfile::TempDir;
 fn create_test_spec(id: &str, part_type: &str) -> PartSpec {
     PartSpec {
         id: id.to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         part_type: part_type.to_string(),
         rdf_source: r#"
 @prefix ex: <http://example.org/> .
 ex:TestPart a ex:Part ;
     ex:name "Test Part" ;
-    ex:version "1.0.0" .
+    ex:version "26.6.6" .
         "#
         .to_string(),
         target_language: if part_type == "beam" {
@@ -98,7 +121,7 @@ fn test_part_signing() {
     let signer = PartSigner::new();
     let manufactured = ManufacturedPart {
         id: "test-part".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         payload: vec![1, 2, 3, 4, 5],
         payload_hash: "abcd1234".to_string(),
         payload_size: 5,
@@ -114,7 +137,7 @@ fn test_part_signing() {
     assert!(!signed.signature.is_empty());
     assert!(!signed.verifying_key.is_empty());
     assert_eq!(signed.manufactured.id, "test-part");
-    assert_eq!(signed.manufactured.version, "1.0.0");
+    assert_eq!(signed.manufactured.version, "26.6.6");
     assert_eq!(signed.manufactured.payload_size, 5);
 }
 
@@ -123,7 +146,7 @@ fn test_signature_verification() {
     let signer = PartSigner::new();
     let manufactured = ManufacturedPart {
         id: "test-part".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         payload: vec![1, 2, 3],
         payload_hash: "hash".to_string(),
         payload_size: 3,
@@ -144,13 +167,13 @@ fn test_signature_verification() {
 #[test]
 fn test_manufactured_part_to_file() {
     let temp_dir = TempDir::new().expect("Failed to create temp dir");
-    let part_dir = temp_dir.path().join("test-part").join("1.0.0");
+    let part_dir = temp_dir.path().join("test-part").join("26.6.6");
 
     fs::create_dir_all(&part_dir).expect("Failed to create part directory");
 
     let manufactured = ManufacturedPart {
         id: "test-part".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         payload: vec![0xDE, 0xAD, 0xBE, 0xEF],
         payload_hash: "deadbeef".to_string(),
         payload_size: 4,
@@ -172,7 +195,7 @@ fn test_manufactured_part_to_file() {
 
     let read_manifest = fs::read_to_string(&manifest_path).expect("Failed to read manifest");
     assert!(read_manifest.contains("test-part"));
-    assert!(read_manifest.contains("1.0.0"));
+    assert!(read_manifest.contains("26.6.6"));
 
     let read_binary = fs::read(&binary_path).expect("Failed to read binary");
     assert_eq!(read_binary, vec![0xDE, 0xAD, 0xBE, 0xEF]);
@@ -215,7 +238,7 @@ fn test_part_payload_size_tracking() {
     for (payload, expected_size) in payloads {
         let part = ManufacturedPart {
             id: "test".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             payload: payload.clone(),
             payload_hash: "test".to_string(),
             payload_size: payload.len() as u64,
@@ -264,7 +287,7 @@ fn test_signed_part_deterministic() {
     let signer = PartSigner::new();
     let manufactured = ManufacturedPart {
         id: "test-part".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         payload: vec![1, 2, 3],
         payload_hash: "hash".to_string(),
         payload_size: 3,
@@ -314,7 +337,7 @@ async fn test_adapter_generator_language_support() {
     // Test Erlang
     let erlang_spec = PartSpec {
         id: "test".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         part_type: "beam".to_string(),
         rdf_source: "(RDF)".to_string(),
         target_language: "erlang".to_string(),
@@ -328,7 +351,7 @@ async fn test_adapter_generator_language_support() {
     // Test unsupported language
     let bad_spec = PartSpec {
         id: "test".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         part_type: "wasm32".to_string(),
         rdf_source: "(RDF)".to_string(),
         target_language: "cobol".to_string(),
@@ -342,7 +365,7 @@ fn test_part_spec_fields() {
     let spec = create_test_spec("my-part", "wasm32");
 
     assert_eq!(spec.id, "my-part");
-    assert_eq!(spec.version, "1.0.0");
+    assert_eq!(spec.version, "26.6.6");
     assert_eq!(spec.part_type, "wasm32");
     assert_eq!(spec.target_language, "rust");
     assert!(!spec.rdf_source.is_empty());

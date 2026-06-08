@@ -43,13 +43,13 @@ pub fn check_lifecycle_order(
     }
 
     let q = format!(
-        r#"
+        r"
         PREFIX ocel: <http://www.ocel-standard.org/ns#>
         ASK {{
             {patterns}
             FILTER({filter})
         }}
-        "#,
+        ",
         patterns = patterns,
         filter = filters.join(" && ")
     );
@@ -77,16 +77,16 @@ pub fn check_guard(graph: &DeterministicGraph, ask_query: &str) -> Result<bool, 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ocel::{EvidenceProjector, OcelEvent, OcelLog, OcelObjectRef};
+    use crate::ocel::{EvidenceProjector, OCELEvent, OCEL, OCELObjectRef};
     use chrono::{TimeZone, Utc};
     use std::collections::HashMap;
 
-    fn ev(id: &str, activity: &str, secs: i64, diag: &str) -> OcelEvent {
-        OcelEvent {
+    fn ev(id: &str, activity: &str, secs: i64, diag: &str) -> OCELEvent {
+        OCELEvent {
             id: id.to_string(),
             activity: activity.to_string(),
             timestamp: Utc.timestamp_opt(secs, 0).single().unwrap_or_else(Utc::now),
-            objects: vec![OcelObjectRef {
+            objects: vec![OCELObjectRef {
                 id: diag.to_string(),
                 r#type: "diagnostic_code".to_string(),
                 qualifier: Some("diag".to_string()),
@@ -99,7 +99,7 @@ mod tests {
 
     #[test]
     fn conforming_repair_lifecycle_passes() -> Result<(), GraphError> {
-        let log = OcelLog {
+        let log = OCEL {
             objects: vec![],
             events: vec![
                 ev("e1", "DiagnosticRaised", 10, "E0010"),
@@ -122,7 +122,7 @@ mod tests {
     #[test]
     fn out_of_order_repair_fails() -> Result<(), GraphError> {
         // GatePassed BEFORE RepairApplied — not lawful.
-        let log = OcelLog {
+        let log = OCEL {
             objects: vec![],
             events: vec![
                 ev("e1", "DiagnosticRaised", 10, "E0010"),

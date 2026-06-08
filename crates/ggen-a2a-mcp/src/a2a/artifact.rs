@@ -209,8 +209,8 @@ impl ArtifactCollection {
 }
 
 #[cfg(test)]
-#[allow(clippy::unwrap_used)]
-/// Test module: unwrap() acceptable for test setup and assertions.
+#[allow(clippy::unwrap_used, clippy::panic)]
+/// Test module: unwrap()/panic() acceptable for test setup and assertions.
 /// The Result returns from ArtifactCollection methods are always Ok in these tests.
 mod tests {
     use super::*;

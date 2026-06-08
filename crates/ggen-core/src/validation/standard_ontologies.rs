@@ -36,25 +36,25 @@ pub enum StandardOntology {
     ///
     /// Largest vocabulary with 500+ types for real-world domains:
     /// Person, Organization, Place, Event, Product, etc.
-    /// **Canonical source**: https://schema.org/
+    /// **Canonical source**: <https://schema.org/>
     SchemaOrg,
 
     /// FOAF (Friend of a Friend) - Social networks and profiles
     ///
     /// RDF vocabulary for describing people, their interests, connections.
-    /// **Canonical source**: http://xmlns.com/foaf/0.1/
+    /// **Canonical source**: <http://xmlns.com/foaf/0.1/>
     Foaf,
 
     /// Dublin Core (v1.1) - Metadata and document properties
     ///
     /// 15 core metadata properties: title, creator, date, subject, etc.
-    /// **Canonical source**: http://purl.org/dc/elements/1.1/
+    /// **Canonical source**: <http://purl.org/dc/elements/1.1/>
     DublinCore,
 
     /// SKOS (Simple Knowledge Organization System) - Thesauri
     ///
     /// Controlled vocabularies, concept schemes, hierarchies.
-    /// **Canonical source**: http://www.w3.org/2004/02/skos/core#
+    /// **Canonical source**: <http://www.w3.org/2004/02/skos/core#>
     Skos,
 
     /// Big Five Personality Traits (OCEAN) - Behavioral modeling

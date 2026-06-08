@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::needless_raw_string_hashes, clippy::duration_suboptimal_units, clippy::branches_sharing_code, clippy::used_underscore_binding, clippy::single_char_pattern, clippy::ignore_without_reason, clippy::cloned_ref_to_slice_refs, clippy::doc_overindented_list_items, clippy::match_wildcard_for_single_variants, clippy::ignored_unit_patterns, clippy::needless_collect, clippy::unnecessary_map_or, clippy::manual_flatten, clippy::manual_strip, clippy::future_not_send, clippy::unnested_or_patterns, clippy::no_effect_underscore_binding, clippy::literal_string_with_formatting_args)]
 //! Unit tests for Package→RDF triple mapping
 //!
 //! Tests the conversion of package metadata into RDF triples,
@@ -67,7 +68,7 @@ mod rdf_mapping_tests {
 
     #[test]
     fn test_basic_rdf_triple_generation() {
-        let pkg = create_test_package("basic-pkg", "Basic Package", "1.0.0");
+        let pkg = create_test_package("basic-pkg", "Basic Package", "26.6.6");
         let triples = package_to_rdf_triples(&pkg);
 
         assert!(!triples.is_empty());
@@ -82,7 +83,7 @@ mod rdf_mapping_tests {
 
     #[test]
     fn test_rdf_name_property_mapping() {
-        let pkg = create_test_package("name-test", "Name Test Package", "1.0.0");
+        let pkg = create_test_package("name-test", "Name Test Package", "26.6.6");
         let triples = package_to_rdf_triples(&pkg);
 
         let name_triple = triples
@@ -110,7 +111,7 @@ mod rdf_mapping_tests {
 
     #[test]
     fn test_rdf_unicode_handling() {
-        let pkg = create_test_package("unicode-rdf", "Unicode 测试 🚀", "1.0.0");
+        let pkg = create_test_package("unicode-rdf", "Unicode 测试 🚀", "26.6.6");
         let triples = package_to_rdf_triples(&pkg);
 
         let name_triple = triples
@@ -124,7 +125,7 @@ mod rdf_mapping_tests {
 
     #[test]
     fn test_rdf_uri_generation() {
-        let pkg = create_test_package("uri-test", "URI Test", "1.0.0");
+        let pkg = create_test_package("uri-test", "URI Test", "26.6.6");
         let triples = package_to_rdf_triples(&pkg);
 
         // All triples should use the same subject URI
@@ -148,7 +149,7 @@ mod rdf_mapping_tests {
 
     #[test]
     fn test_rdf_special_characters_escaping() {
-        let mut pkg = create_test_package("special-chars", "Special Test", "1.0.0");
+        let mut pkg = create_test_package("special-chars", "Special Test", "26.6.6");
         pkg.metadata.description = r#"Description with "quotes" and <tags>"#.to_string();
 
         let triples = package_to_rdf_triples(&pkg);
@@ -166,7 +167,7 @@ mod rdf_mapping_tests {
 
     #[test]
     fn test_rdf_optional_fields() {
-        let mut pkg = create_test_package("optional-test", "Optional Test", "1.0.0");
+        let mut pkg = create_test_package("optional-test", "Optional Test", "26.6.6");
         pkg.metadata.repository_url = None;
 
         let triples = package_to_rdf_triples(&pkg);
@@ -181,7 +182,7 @@ mod rdf_mapping_tests {
 
     #[test]
     fn test_rdf_multi_valued_properties() {
-        let mut pkg = create_test_package("tags-test", "Tags Test", "1.0.0");
+        let mut pkg = create_test_package("tags-test", "Tags Test", "26.6.6");
         pkg.metadata.tags = vec!["rust".to_string(), "cli".to_string(), "async".to_string()];
 
         // In RDF, multi-valued properties generate multiple triples
@@ -197,7 +198,7 @@ mod rdf_mapping_tests {
 
     #[test]
     fn test_rdf_triple_count() {
-        let pkg = create_test_package("count-test", "Count Test", "1.0.0");
+        let pkg = create_test_package("count-test", "Count Test", "26.6.6");
         let triples = package_to_rdf_triples(&pkg);
 
         // Minimum expected triples: type, id, name, version, description, author, license
@@ -206,7 +207,7 @@ mod rdf_mapping_tests {
 
     #[test]
     fn test_rdf_round_trip_conversion() {
-        let original_pkg = create_test_package("roundtrip-rdf", "RDF Roundtrip", "1.0.0");
+        let original_pkg = create_test_package("roundtrip-rdf", "RDF Roundtrip", "26.6.6");
         let triples = package_to_rdf_triples(&original_pkg);
 
         // Simulate parsing triples back to package (simplified)
@@ -231,7 +232,7 @@ mod rdf_mapping_tests {
 
     #[test]
     fn test_rdf_timestamp_serialization() {
-        let pkg = create_test_package("timestamp-rdf", "Timestamp RDF", "1.0.0");
+        let pkg = create_test_package("timestamp-rdf", "Timestamp RDF", "26.6.6");
 
         // Timestamps should be serialized in ISO 8601 format for RDF
         let created_iso = pkg.metadata.created_at.to_rfc3339();
@@ -245,7 +246,7 @@ mod rdf_mapping_tests {
     fn test_rdf_performance() {
         use std::time::Instant;
 
-        let pkg = create_test_package("perf-rdf", "Performance RDF", "1.0.0");
+        let pkg = create_test_package("perf-rdf", "Performance RDF", "26.6.6");
 
         let start = Instant::now();
         for _ in 0..1000 {

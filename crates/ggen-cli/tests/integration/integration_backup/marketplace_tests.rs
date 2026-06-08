@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::needless_raw_string_hashes, clippy::duration_suboptimal_units, clippy::branches_sharing_code, clippy::used_underscore_binding, clippy::single_char_pattern, clippy::ignore_without_reason, clippy::cloned_ref_to_slice_refs, clippy::doc_overindented_list_items, clippy::match_wildcard_for_single_variants, clippy::ignored_unit_patterns, clippy::needless_collect, clippy::unnecessary_map_or, clippy::manual_flatten, clippy::manual_strip, clippy::future_not_send, clippy::unnested_or_patterns, clippy::no_effect_underscore_binding, clippy::literal_string_with_formatting_args)]
 // DEAD: cmds::market removed; quarantined. References `ggen_cli_lib::cmds::market::*`,
 // a module that no longer exists in crates/ggen-cli/src/cmds/mod.rs. This is a backup
 // copy under integration_backup/ and is not compiled into any test target. The
@@ -17,7 +18,7 @@ use tempfile::TempDir;
 /// Helper to create a test registry with sample packages
 fn create_test_registry() -> Registry {
     Registry {
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         packages: vec![
             Package {
                 name: "rig-mcp".to_string(),
@@ -40,7 +41,7 @@ fn create_test_registry() -> Registry {
             Package {
                 name: "api-endpoint".to_string(),
                 full_name: "api-endpoint-templates".to_string(),
-                version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
                 description: "REST API endpoint templates with OpenAPI".to_string(),
                 category: "templates".to_string(),
                 author: "ggen-team".to_string(),
@@ -88,7 +89,7 @@ fn test_lockfile_crud_operations() {
 
     // Create new lockfile
     let mut lockfile = Lockfile::new();
-    assert_eq!(lockfile.version, "1.0.0");
+    assert_eq!(lockfile.version, "26.6.6");
     assert!(lockfile.packages.is_empty());
 
     // Add package
@@ -114,7 +115,7 @@ fn test_lockfile_crud_operations() {
     // Load lockfile
     let loaded_lockfile = Lockfile::load_from_path(&lockfile_path).unwrap();
     assert_eq!(loaded_lockfile.packages.len(), 1);
-    assert_eq!(loaded_lockfile.version, "1.0.0");
+    assert_eq!(loaded_lockfile.version, "26.6.6");
 
     // Get package
     let retrieved = loaded_lockfile.get_package("rig-mcp").unwrap();
@@ -126,7 +127,7 @@ fn test_lockfile_crud_operations() {
     let another_package = InstalledPackage {
         name: "api-endpoint".to_string(),
         full_name: "api-endpoint-templates".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         checksum: "xyz789".to_string(),
         source: "registry".to_string(),
         path: ".ggen/packages/api-endpoint".to_string(),
@@ -230,7 +231,7 @@ fn test_lockfile_concurrent_access() {
     let package1 = InstalledPackage {
         name: "pkg1".to_string(),
         full_name: "package-1".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         checksum: "check1".to_string(),
         source: "registry".to_string(),
         path: ".ggen/packages/pkg1".to_string(),
@@ -293,7 +294,7 @@ fn test_lockfile_persistence_format() {
     let package = InstalledPackage {
         name: "test-pkg".to_string(),
         full_name: "test-package".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         checksum: "abc123".to_string(),
         source: "registry".to_string(),
         path: ".ggen/packages/test-pkg".to_string(),
@@ -306,7 +307,7 @@ fn test_lockfile_persistence_format() {
 
     // Read raw JSON to verify format
     let content = fs::read_to_string(&lockfile_path).unwrap();
-    assert!(content.contains("\"version\": \"1.0.0\""));
+    assert!(content.contains("\"version\": \"26.6.6\""));
     assert!(content.contains("\"test-pkg\""));
     assert!(content.contains("\"checksum\": \"abc123\""));
     assert!(content.contains("\"dependencies\""));
@@ -368,7 +369,7 @@ mod production_readiness_tests {
         let package = InstalledPackage {
             name: "prod-pkg".to_string(),
             full_name: "production-package".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             checksum: "sha256:abc123def456".to_string(),
             source: "registry".to_string(),
             path: ".ggen/packages/prod-pkg".to_string(),
@@ -399,7 +400,7 @@ mod production_readiness_tests {
             let package = InstalledPackage {
                 name: format!("pkg-{}", i),
                 full_name: format!("package-{}", i),
-                version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
                 checksum: format!("checksum-{}", i),
                 source: "registry".to_string(),
                 path: format!(".ggen/packages/pkg-{}", i),

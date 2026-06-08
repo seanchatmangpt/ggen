@@ -4,6 +4,9 @@
     unused_variables,
     deprecated,
     clippy::all,
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
     unused_mut
 )]
 
@@ -346,7 +349,7 @@ fn test_add_nonexistent_pack_does_not_fake_success_or_emit_receipt() {
 #[test]
 fn test_list_reports_packs_present_in_real_registry() {
     let world = World::new();
-    world.write_pack("alpha", "1.0.0");
+    world.write_pack("alpha", "26.6.6");
     world.write_pack("beta", "2.0.0");
 
     world
@@ -413,7 +416,7 @@ fn test_show_nonexistent_pack_exits_nonzero() {
 #[test]
 fn test_remove_mutates_real_lockfile() {
     let world = World::new();
-    world.seed_lockfile("delta", "1.0.0");
+    world.seed_lockfile("delta", "26.6.6");
     assert!(
         world.lockfile_has_pack("delta"),
         "precondition: seeded lockfile must contain delta"
@@ -467,7 +470,7 @@ fn test_remove_without_lockfile_exits_nonzero() {
 #[test]
 fn test_remove_absent_pack_exits_nonzero_and_preserves_lockfile() {
     let world = World::new();
-    world.seed_lockfile("delta", "1.0.0");
+    world.seed_lockfile("delta", "26.6.6");
 
     world
         .pack()

@@ -1,8 +1,31 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
 //! Integration and correctness tests for the ggen membrane bindings and serialization/projection systems.
 //! Following AGENTS.md Chicago TDD and anti-cheating mandates.
 
 use ggen_core::membrane::{
-    GenesisCore, GgenMembrane, InterchangeablePart, MembraneShaclValidator, OcelLog, ProvDocument,
+    GenesisCore, GgenMembrane, InterchangeablePart, MembraneShaclValidator, OCEL, ProvDocument,
     RdfMembraneProjector,
 };
 
@@ -15,7 +38,7 @@ fn test_membrane_bindings_and_boundary_crossings() {
     let part1 = InterchangeablePart {
         id: "wasm-crypto-module".to_string(),
         part_type: "wasm32".to_string(),
-        version: "1.0.0".to_string(),
+        version: "26.6.6".to_string(),
         interfaces: vec!["hash_sha256".to_string(), "sign_ed25519".to_string()],
         payload_hash: "2e7d2c03a9507ae2ecf403cf6fd0062f627d2c03a9507ae2ecf403cf6fd0062f"
             .to_string(),
@@ -77,7 +100,7 @@ fn test_membrane_bindings_and_boundary_crossings() {
     assert!(!out2.is_empty());
 
     // 5. Serialize and project to OCEL
-    let ocel_log = OcelLog::from_membrane(&membrane);
+    let ocel_log = OCEL::from_membrane(&membrane);
     let ocel_json = ocel_log.to_json().expect("Failed to serialize OCEL");
     assert!(ocel_json.contains("wasm-crypto-module"));
     assert!(ocel_json.contains("BoundaryCrossing:hash_sha256"));

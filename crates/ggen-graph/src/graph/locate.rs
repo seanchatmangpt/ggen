@@ -93,10 +93,10 @@ pub fn parse_nquads_located(content: &str) -> LocatedParse {
     parse_located(RdfFormat::NQuads, content)
 }
 
-/// Extract the `@prefix`/`PREFIX` declarations from a Turtle document as
-/// `(prefix, iri)` pairs, for completion and hover. Prefixes are collected after
-/// draining the parser (oxrdfio discovers them during parsing). Malformed input
-/// yields whatever prefixes were seen before the error.
+/// Extract the `@prefix`/`PREFIX` declarations from a Turtle document as `(prefix, iri)` pairs.
+///
+/// Prefixes are collected after draining the parser (oxrdfio discovers them during parsing).
+/// Malformed input yields whatever prefixes were seen before the error.
 pub fn extract_prefixes(content: &str) -> Vec<(String, String)> {
     let mut parser = RdfParser::from_format(RdfFormat::Turtle).for_slice(content.as_bytes());
     // Drain the parser so all prefix declarations are observed.

@@ -9,7 +9,7 @@
 use std::path::{Path, PathBuf};
 
 use serde::Serialize;
-use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity};
+use tower_lsp_max::lsp_types::{Diagnostic, DiagnosticSeverity};
 use walkdir::WalkDir;
 
 use crate::analyzers::build_analyzer;
@@ -216,8 +216,8 @@ impl CheckReport {
 
 pub(crate) fn diag_code(d: &Diagnostic) -> String {
     match &d.code {
-        Some(tower_lsp::lsp_types::NumberOrString::String(s)) => s.clone(),
-        Some(tower_lsp::lsp_types::NumberOrString::Number(n)) => n.to_string(),
+        Some(tower_lsp_max::lsp_types::NumberOrString::String(s)) => s.clone(),
+        Some(tower_lsp_max::lsp_types::NumberOrString::Number(n)) => n.to_string(),
         None => "RDF".to_string(),
     }
 }
@@ -230,7 +230,7 @@ pub(crate) fn severity_str(sev: Option<DiagnosticSeverity>) -> &'static str {
     }
 }
 
-pub(crate) fn span_str(range: tower_lsp::lsp_types::Range) -> String {
+pub(crate) fn span_str(range: tower_lsp_max::lsp_types::Range) -> String {
     format!(
         "{}:{}-{}:{}",
         range.start.line, range.start.character, range.end.line, range.end.character
@@ -582,8 +582,8 @@ fn summarize_routes(files: &[FileReport]) -> RouteSummary {
                     && d.code
                         .as_ref()
                         .map_or(r.target.code.is_empty(), |c| match c {
-                            tower_lsp::lsp_types::NumberOrString::String(s) => s == &r.target.code,
-                            tower_lsp::lsp_types::NumberOrString::Number(n) => {
+                            tower_lsp_max::lsp_types::NumberOrString::String(s) => s == &r.target.code,
+                            tower_lsp_max::lsp_types::NumberOrString::Number(n) => {
                                 n.to_string() == r.target.code
                             }
                         })
@@ -617,7 +617,7 @@ fn summarize_routes(files: &[FileReport]) -> RouteSummary {
 /// Results are sorted for deterministic output.
 ///
 /// Note: dotdirs are NOT skipped wholesale — ggen specs live under `.specify/`,
-/// which is the source-of-truth law surface; only [`SKIP_DIRS`] are pruned.
+/// which is the source-of-truth law surface; only `SKIP_DIRS` are pruned.
 #[must_use]
 pub fn discover_law_surfaces(root: &Path) -> Vec<PathBuf> {
     let mut found: Vec<PathBuf> = WalkDir::new(root)
@@ -744,7 +744,7 @@ template = { file = "row.tera" }
         assert!(
             tera_report.diagnostics.iter().any(|d| matches!(
                 &d.code,
-                Some(tower_lsp::lsp_types::NumberOrString::String(s)) if s == "GGEN-TPL-001"
+                Some(tower_lsp_max::lsp_types::NumberOrString::String(s)) if s == "GGEN-TPL-001"
             )),
             "the template report must carry a GGEN-TPL-001 diagnostic"
         );
@@ -785,7 +785,7 @@ template = { file = "row.tera" }
                 .iter()
                 .any(|f| f.diagnostics.iter().any(|d| matches!(
                     &d.code,
-                    Some(tower_lsp::lsp_types::NumberOrString::String(s)) if s == "GGEN-TPL-001"
+                    Some(tower_lsp_max::lsp_types::NumberOrString::String(s)) if s == "GGEN-TPL-001"
                 ))),
             "no GGEN-TPL-001 diagnostic must remain after repair"
         );
@@ -826,7 +826,7 @@ template = { file = "nope.tera" }
                 .iter()
                 .any(|f| f.diagnostics.iter().any(|d| matches!(
                     &d.code,
-                    Some(tower_lsp::lsp_types::NumberOrString::String(s)) if s == "GGEN-TPL-001"
+                    Some(tower_lsp_max::lsp_types::NumberOrString::String(s)) if s == "GGEN-TPL-001"
                 ))),
             "a missing template must stay an index issue, not GGEN-TPL-001"
         );

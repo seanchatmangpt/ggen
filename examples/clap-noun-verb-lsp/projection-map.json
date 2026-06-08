@@ -1,0 +1,147 @@
+{
+  "mappings": {
+    "src/layout.rs": {
+      "pack_id": "ggen-pack-clap-noun-verb",
+      "template_path": "templates/layout.tmpl",
+      "query_path": null,
+      "bound_variables": [
+        "app_name"
+      ],
+      "merge_strategy": "Exclusive",
+      "start_line": 1,
+      "end_line": 9999
+    },
+    "src/graph.rs": {
+      "pack_id": "ggen-pack-clap-noun-verb",
+      "template_path": "templates/graph.tmpl",
+      "query_path": null,
+      "bound_variables": [
+        "app_name"
+      ],
+      "merge_strategy": "Exclusive",
+      "start_line": 1,
+      "end_line": 9999
+    },
+    "src/doctor.rs": {
+      "pack_id": "ggen-pack-clap-noun-verb",
+      "template_path": "templates/doctor.tmpl",
+      "query_path": null,
+      "bound_variables": [
+        "app_name"
+      ],
+      "merge_strategy": "Exclusive",
+      "start_line": 1,
+      "end_line": 9999
+    },
+    "src/receipt.rs": {
+      "pack_id": "ggen-pack-clap-noun-verb",
+      "template_path": "templates/receipt.tmpl",
+      "query_path": null,
+      "bound_variables": [
+        "app_name"
+      ],
+      "merge_strategy": "Exclusive",
+      "start_line": 1,
+      "end_line": 9999
+    },
+    "src/server.rs": {
+      "pack_id": "ggen-pack-tower-lsp-max",
+      "template_path": "templates/server.tmpl",
+      "query_path": null,
+      "bound_variables": [
+        "app_name"
+      ],
+      "merge_strategy": "Exclusive",
+      "start_line": 1,
+      "end_line": 9999
+    },
+    "src/command.rs": {
+      "pack_id": "ggen-pack-clap-noun-verb",
+      "template_path": "templates/command.tmpl",
+      "query_path": null,
+      "bound_variables": [
+        "app_name"
+      ],
+      "merge_strategy": "Exclusive",
+      "start_line": 1,
+      "end_line": 9999
+    },
+    "src/lib.rs": {
+      "pack_id": "ggen-pack-clap-noun-verb",
+      "template_path": "templates/lib.tmpl",
+      "query_path": null,
+      "bound_variables": [
+        "app_name"
+      ],
+      "merge_strategy": "Exclusive",
+      "start_line": 1,
+      "end_line": 9999
+    },
+    "README.md": {
+      "pack_id": "ggen-pack-clap-noun-verb",
+      "template_path": "templates/README.tmpl",
+      "query_path": null,
+      "bound_variables": [
+        "app_name"
+      ],
+      "merge_strategy": "Exclusive",
+      "start_line": 1,
+      "end_line": 9999
+    },
+    "src/types.rs": {
+      "pack_id": "ggen-pack-clap-noun-verb",
+      "template_path": "templates/types.tmpl",
+      "query_path": null,
+      "bound_variables": [
+        "app_name"
+      ],
+      "merge_strategy": "Exclusive",
+      "start_line": 1,
+      "end_line": 9999
+    },
+    "Cargo.toml": {
+      "pack_id": "ggen-pack-tower-lsp-max",
+      "template_path": "templates/Cargo.tmpl",
+      "query_path": null,
+      "bound_variables": [
+        "app_name"
+      ],
+      "merge_strategy": "Exclusive",
+      "start_line": 1,
+      "end_line": 9999
+    },
+    "src/main.rs": {
+      "pack_id": "ggen-pack-clap-noun-verb",
+      "template_path": "templates/main.tmpl",
+      "query_path": null,
+      "bound_variables": [
+        "app_name"
+      ],
+      "merge_strategy": "Exclusive",
+      "start_line": 1,
+      "end_line": 9999
+    },
+    "src/rules.rs": {
+      "pack_id": "ggen-pack-clap-noun-verb",
+      "template_path": "templates/rules.tmpl",
+      "query_path": null,
+      "bound_variables": [
+        "app_name"
+      ],
+      "merge_strategy": "Exclusive",
+      "start_line": 1,
+      "end_line": 9999
+    },
+    "src/scan.rs": {
+      "pack_id": "ggen-pack-clap-noun-verb",
+      "template_path": "templates/scan.tmpl",
+      "query_path": null,
+      "bound_variables": [
+        "app_name"
+      ],
+      "merge_strategy": "Exclusive",
+      "start_line": 1,
+      "end_line": 9999
+    }
+  }
+}

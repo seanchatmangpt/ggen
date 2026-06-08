@@ -84,7 +84,7 @@ impl Default for McpConfigFile {
 }
 
 fn default_mcp_version() -> String {
-    "1.0.0".to_string()
+    "26.6.6".to_string()
 }
 
 /// Metadata for MCP configuration
@@ -349,7 +349,7 @@ pub struct A2aMetadata {
 }
 
 fn default_a2a_config_version() -> String {
-    "1.0.0".to_string()
+    "26.6.6".to_string()
 }
 
 impl Default for A2aMetadata {
@@ -1214,7 +1214,7 @@ mod tests {
             .with_arg("--verbose")
             .with_arg("--output")
             .with_env("TEST_VAR", "test_value")
-            .with_timeout(Duration::from_secs(60))
+            .with_timeout(Duration::from_mins(1))
             .with_cwd("/tmp");
 
         assert_eq!(config.command, "test-command");
@@ -1281,7 +1281,7 @@ mod tests {
     fn test_mcp_config_file_default() {
         let config = McpConfigFile::default();
         assert!(config.mcp_servers.is_empty());
-        assert_eq!(config.version, "1.0.0");
+        assert_eq!(config.version, "26.6.6");
         assert!(config.description.is_some());
     }
 

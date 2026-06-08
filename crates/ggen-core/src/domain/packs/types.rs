@@ -2,6 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::path::PathBuf;
 
 /// Pack definition
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -1,0 +1,289 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dod: <https://ggen.dev/ontology/dod/> .
+@prefix ex: <https://ggen.dev/ontology/example/> .
+
+# ==============================================================================
+# OWL Ontology: Definition of Done (DoD) Compliance Mining
+# ==============================================================================
+
+<https://ggen.dev/ontology/dod>
+    a owl:Ontology ;
+    rdfs:label "DoD Compliance Mining Ontology" ;
+    rdfs:comment "Defines DoD compliance events, gaps, and workflow patterns for process mining of git history." ;
+    owl:versionInfo "1.0.0" .
+
+# ==============================================================================
+# Classes
+# ==============================================================================
+
+dod:ComplianceEvent a owl:Class ;
+    rdfs:label "Compliance Event" ;
+    rdfs:comment "An event representing a DoD step execution in the git history." .
+
+dod:DoDStep a owl:Class ;
+    rdfs:label "DoD Step" ;
+    rdfs:comment "A step in the Definition of Done checklist." .
+
+dod:ComplianceGap a owl:Class ;
+    rdfs:label "Compliance Gap" ;
+    rdfs:comment "A gap where a DoD step was skipped or not verified." .
+
+dod:WorkflowPattern a owl:Class ;
+    rdfs:label "Workflow Pattern" ;
+    rdfs:comment "A recurring pattern discovered in the development workflow." .
+
+dod:SprintCompliance a owl:Class ;
+    rdfs:label "Sprint Compliance" ;
+    rdfs:comment "Compliance summary for a sprint or time period." .
+
+dod:CommitSignature a owl:Class ;
+    rdfs:label "Commit Signature" ;
+    rdfs:comment "A pattern detected in a commit message that indicates a DoD step." .
+
+# ==============================================================================
+# Object Properties
+# ==============================================================================
+
+dod:hasDoDStep a owl:ObjectProperty ;
+    rdfs:label "has DoD step" ;
+    rdfs:domain dod:ComplianceEvent ;
+    rdfs:range dod:DoDStep .
+
+dod:hasGap a owl:ObjectProperty ;
+    rdfs:label "has gap" ;
+    rdfs:domain dod:SprintCompliance ;
+    rdfs:range dod:ComplianceGap .
+
+dod:hasPattern a owl:ObjectProperty ;
+    rdfs:label "has pattern" ;
+    rdfs:domain dod:SprintCompliance ;
+    rdfs:range dod:WorkflowPattern .
+
+dod:hasEvent a owl:ObjectProperty ;
+    rdfs:label "has event" ;
+    rdfs:domain dod:SprintCompliance ;
+    rdfs:range dod:ComplianceEvent .
+
+dod:hasSignature a owl:ObjectProperty ;
+    rdfs:label "has signature" ;
+    rdfs:domain dod:ComplianceEvent ;
+    rdfs:range dod:CommitSignature .
+
+# ==============================================================================
+# Datatype Properties
+# ==============================================================================
+
+dod:stepName a owl:DatatypeProperty ;
+    rdfs:label "step name" ;
+    rdfs:domain dod:DoDStep ;
+    rdfs:range xsd:string .
+
+dod:stepDescription a owl:DatatypeProperty ;
+    rdfs:label "step description" ;
+    rdfs:domain dod:DoDStep ;
+    rdfs:range xsd:string .
+
+dod:stepCategory a owl:DatatypeProperty ;
+    rdfs:label "step category" ;
+    rdfs:comment "Categories: testing, verification, review, documentation, soundness" ;
+    rdfs:domain dod:DoDStep ;
+    rdfs:range xsd:string .
+
+dod:isCompliant a owl:DatatypeProperty ;
+    rdfs:label "is compliant" ;
+    rdfs:domain dod:ComplianceEvent ;
+    rdfs:range xsd:boolean .
+
+dod:frequency a owl:DatatypeProperty ;
+    rdfs:label "frequency" ;
+    rdfs:comment "How often this step was executed in the sprint." ;
+    rdfs:domain dod:ComplianceEvent ;
+    rdfs:range xsd:integer .
+
+dod:lastOccurrence a owl:DatatypeProperty ;
+    rdfs:label "last occurrence" ;
+    rdfs:domain dod:ComplianceEvent ;
+    rdfs:range xsd:dateTime .
+
+dod:gapDescription a owl:DatatypeProperty ;
+    rdfs:label "gap description" ;
+    rdfs:domain dod:ComplianceGap ;
+    rdfs:range xsd:string .
+
+dod:gapSeverity a owl:DatatypeProperty ;
+    rdfs:label "gap severity" ;
+    rdfs:domain dod:ComplianceGap ;
+    rdfs:range xsd:string .
+
+dod:gapFrequency a owl:DatatypeProperty ;
+    rdfs:label "gap frequency" ;
+    rdfs:domain dod:ComplianceGap ;
+    rdfs:range xsd:integer .
+
+dod:patternName a owl:DatatypeProperty ;
+    rdfs:label "pattern name" ;
+    rdfs:domain dod:WorkflowPattern ;
+    rdfs:range xsd:string .
+
+dod:patternConfidence a owl:DatatypeProperty ;
+    rdfs:label "pattern confidence" ;
+    rdfs:domain dod:WorkflowPattern ;
+    rdfs:range xsd:decimal .
+
+dod:sprintName a owl:DatatypeProperty ;
+    rdfs:label "sprint name" ;
+    rdfs:domain dod:SprintCompliance ;
+    rdfs:range xsd:string .
+
+dod:complianceScore a owl:DatatypeProperty ;
+    rdfs:label "compliance score" ;
+    rdfs:domain dod:SprintCompliance ;
+    rdfs:range xsd:decimal .
+
+dod:totalCommits a owl:DatatypeProperty ;
+    rdfs:label "total commits" ;
+    rdfs:domain dod:SprintCompliance ;
+    rdfs:range xsd:integer .
+
+dod:signaturePattern a owl:DatatypeProperty ;
+    rdfs:label "signature pattern" ;
+    rdfs:domain dod:CommitSignature ;
+    rdfs:range xsd:string .
+
+dod:signatureCategory a owl:DatatypeProperty ;
+    rdfs:label "signature category" ;
+    rdfs:domain dod:CommitSignature ;
+    rdfs:range xsd:string .
+
+dod:signatureWeight a owl:DatatypeProperty ;
+    rdfs:label "signature weight" ;
+    rdfs:comment "Weight of this signature toward the DoD step (0.0-1.0)." ;
+    rdfs:domain dod:CommitSignature ;
+    rdfs:range xsd:decimal .
+
+dod:commitHash a owl:DatatypeProperty ;
+    rdfs:label "commit hash" ;
+    rdfs:domain dod:ComplianceEvent ;
+    rdfs:range xsd:string .
+
+dod:commitTimestamp a owl:DatatypeProperty ;
+    rdfs:label "commit timestamp" ;
+    rdfs:domain dod:ComplianceEvent ;
+    rdfs:range xsd:dateTime .
+
+dod:commitMessage a owl:DatatypeProperty ;
+    rdfs:label "commit message" ;
+    rdfs:domain dod:ComplianceEvent ;
+    rdfs:range xsd:string .
+
+# ==============================================================================
+# DoD Step Instances
+# ==============================================================================
+
+dod:step-tdd-red a dod:DoDStep ;
+    dod:stepName "TDD Red Phase" ;
+    dod:stepDescription "Write a failing test before implementing the feature." ;
+    dod:stepCategory "testing" .
+
+dod:step-tdd-green a dod:DoDStep ;
+    dod:stepName "TDD Green Phase" ;
+    dod:stepDescription "Implement minimal code to make the test pass." ;
+    dod:stepCategory "testing" .
+
+dod:step-otel-span a dod:DoDStep ;
+    dod:stepName "OTEL Span Proof" ;
+    dod:stepDescription "Feature emits an OpenTelemetry span with service_name, span_name, and status." ;
+    dod:stepCategory "verification" .
+
+dod:step-weaver-schema a dod:DoDStep ;
+    dod:stepName "Weaver Schema Conformance" ;
+    dod:stepDescription "Span definition exists in semconv/model/ and passes weaver registry check." ;
+    dod:stepCategory "verification" .
+
+dod:step-wvda-deadlock a dod:DoDStep ;
+    dod:stepName "WvdA Deadlock Freedom" ;
+    dod:stepDescription "All blocking operations have explicit timeout_ms with fallback." ;
+    dod:stepCategory "soundness" .
+
+dod:step-wvda-liveness a dod:DoDStep ;
+    dod:stepName "WvdA Liveness" ;
+    dod:stepDescription "All loops have bounded iteration or explicit exit conditions." ;
+    dod:stepCategory "soundness" .
+
+dod:step-wvda-boundedness a dod:DoDStep ;
+    dod:stepName "WvdA Boundedness" ;
+    dod:stepDescription "All queues, caches, and memory structures have explicit size limits." ;
+    dod:stepCategory "soundness" .
+
+dod:step-armstrong-supervision a dod:DoDStep ;
+    dod:stepName "Armstrong Supervision" ;
+    dod:stepDescription "Every worker process has an explicit supervisor with restart strategy." ;
+    dod:stepCategory "soundness" .
+
+dod:step-armstrong-no-shared-state a dod:DoDStep ;
+    dod:stepName "Armstrong No Shared State" ;
+    dod:stepDescription "All inter-process communication via message passing. No shared mutable state." ;
+    dod:stepCategory "soundness" .
+
+dod:step-code-review a dod:DoDStep ;
+    dod:stepName "Code Review" ;
+    dod:stepDescription "Code reviewed by at least one other developer." ;
+    dod:stepCategory "review" .
+
+dod:step-commit-convention a dod:DoDStep ;
+    dod:stepName "Commit Convention" ;
+    dod:stepDescription "Commit message follows conventional commit format: type(scope): description." ;
+    dod:stepCategory "documentation" .
+
+dod:step-compiler-clean a dod:DoDStep ;
+    dod:stepName "Compiler Clean" ;
+    dod:stepDescription "Zero compiler warnings across all projects." ;
+    dod:stepCategory "testing" .
+
+# ==============================================================================
+# Commit Signature Instances (patterns detected in commit messages)
+# ==============================================================================
+
+dod:sig-test a dod:CommitSignature ;
+    dod:signaturePattern "(test|TDD|RED|GREEN|assert|_test\\.)" ;
+    dod:signatureCategory "testing" ;
+    dod:signatureWeight "0.8"^^xsd:decimal .
+
+dod:sig-otel a dod:CommitSignature ;
+    dod:signaturePattern "(otel|opentelemetry|span|trace|jaeger|telemetry)" ;
+    dod:signatureCategory "verification" ;
+    dod:signatureWeight "0.9"^^xsd:decimal .
+
+dod:sig-weaver a dod:CommitSignature ;
+    dod:signaturePattern "(weaver|semconv|registry.?check|spans\\.yaml)" ;
+    dod:signatureCategory "verification" ;
+    dod:signatureWeight "0.9"^^xsd:decimal .
+
+dod:sig-wvda a dod:CommitSignature ;
+    dod:signaturePattern "(wvda|deadlock|liveness|bounded|timeout|soundness)" ;
+    dod:signatureCategory "soundness" ;
+    dod:signatureWeight "0.7"^^xsd:decimal .
+
+dod:sig-armstrong a dod:CommitSignature ;
+    dod:signaturePattern "(armstrong|supervision|let.?it.?crash|restart|supervisor)" ;
+    dod:signatureCategory "soundness" ;
+    dod:signatureWeight "0.7"^^xsd:decimal .
+
+dod:sig-review a dod:CommitSignature ;
+    dod:signaturePattern "(review|pr|pull.?request|merge)" ;
+    dod:signatureCategory "review" ;
+    dod:signatureWeight "0.5"^^xsd:decimal .
+
+dod:sig-conventional-commit a dod:CommitSignature ;
+    dod:signaturePattern "^(feat|fix|docs|refactor|test|chore|perf|ci|build|style)\\(" ;
+    dod:signatureCategory "documentation" ;
+    dod:signatureWeight "1.0"^^xsd:decimal .
+
+dod:sig-compiler a dod:CommitSignature ;
+    dod:signaturePattern "(clippy|warnings.?as.?errors|go.?vet|cargo.?fmt|mix.?format)" ;
+    dod:signatureCategory "testing" ;
+    dod:signatureWeight "0.6"^^xsd:decimal .

@@ -17,12 +17,12 @@ impl OntologyExtractor {
     ///
     /// # Arguments
     /// - `graph`: RDF graph containing OWL/RDFS definitions
-    /// - `namespace`: Ontology namespace filter (e.g., "http://example.org/")
+    /// - `namespace`: Ontology namespace filter (e.g., `"http://example.org/"`)
     ///
     /// # Returns
     /// Complete OntologySchema with all classes, properties, and relationships
     pub fn extract(graph: &Graph, namespace: &str) -> Result<OntologySchema, String> {
-        let mut schema = OntologySchema::new(namespace, "1.0.0");
+        let mut schema = OntologySchema::new(namespace, "26.6.6");
         schema.label = Self::extract_ontology_label(graph, namespace)?;
         schema.description = Self::extract_ontology_description(graph, namespace);
 

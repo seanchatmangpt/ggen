@@ -323,7 +323,7 @@ mod tests {
         let manifest = GgenManifest {
             project: ProjectConfig {
                 name: "test".to_string(),
-                version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
                 description: None,
             },
             ontology: OntologyConfig {
@@ -347,6 +347,7 @@ mod tests {
                 llm_provider: None,
             },
             validation: ValidationConfig::default(),
+            packs: vec![],
         };
 
         let manifest_path = Path::new("ggen.toml");

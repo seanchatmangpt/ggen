@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 use tokio::sync::Mutex;
-use tower_lsp::lsp_types::{Diagnostic, Url};
+use tower_lsp_max::lsp_types::{Diagnostic, Url};
 
 use crate::analyzers::DocumentAnalyzer;
 use crate::project_index::BufferOverlay;
@@ -335,7 +335,7 @@ impl ServerState {
     /// the closed surface sustained therefore disappears from `current` and falls
     /// out through the SAME keyed-subtraction + residual-preservation path the
     /// edit flow uses (the generic [`Self::clears_for`] +
-    /// [`Self::residual_single_file_diags`] + [`Self::observe_diagnostics`]). A
+    /// `residual_single_file_diags` + [`Self::observe_diagnostics`]). A
     /// flag still sustained by a SURVIVING peer surface stays in `current` and is
     /// NOT cleared — so closing one of several open rule surfaces never regresses
     /// a still-lawfully-flagged peer.
@@ -506,6 +506,10 @@ impl ServerState {
             own_diags = analyzer.diagnostics();
             self.set_analyzer(uri.clone(), analyzer).await;
         }
+
+        // Add boundary compliance observer diagnostics
+        let observer_diags = crate::handlers::diagnostics::compute_observer_diagnostics(uri, content);
+        own_diags.extend(observer_diags);
 
         // Cross-file GGEN-TPL-001: for rule-referenced surfaces (`.tera`/`.rq`) or
         // the ggen project manifest specifically. Both `ggen.toml` and `Cargo.toml`

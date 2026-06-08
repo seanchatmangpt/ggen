@@ -1,0 +1,47 @@
+[checkpoint]
+id = "GALL-CHECKPOINT-004"
+name = "Pack-Domain LSP Intelligence"
+status_target = "ADMITTED_BY_DOGFOOD"
+
+[boundary]
+workspace = "."
+target = ".tmp_gc004/target"
+staging_dir = ".tmp_gc004/staging"
+receipt_sink = ".tmp_gc004/receipts"
+
+[[proofs]]
+id = "ggen-does-not-own-clap-domain"
+kind = "authority-boundary"
+domain = "clap-noun-verb"
+expected_owner = "clap_noun_verb_pack_lsp"
+forbidden_owner = "ggen_lsp_observer"
+
+[[proofs]]
+id = "ggen-does-not-own-tower-domain"
+kind = "authority-boundary"
+domain = "tower-lsp-max"
+expected_owner = "tower_lsp_max_pack_lsp"
+forbidden_owner = "ggen_lsp_observer"
+
+[[proofs]]
+id = "projection-state-overlay"
+kind = "composition"
+expected = "pack_domain_diagnostic_plus_ggen_projection_state"
+
+[[proofs]]
+id = "receipt-errors-owned-by-ggen"
+kind = "authority-boundary"
+mutation = "corrupt_receipt"
+expected_owner = "ggen_lsp_observer"
+
+[[proofs]]
+id = "domain-errors-owned-by-pack"
+kind = "authority-boundary"
+mutation = "corrupt_clap_domain_shape"
+expected_owner = "clap_noun_verb_pack_lsp"
+
+[[proofs]]
+id = "pack-lsp-direct-write-refused"
+kind = "mutation-boundary"
+mutation = "pack_lsp_attempts_direct_edit"
+expected = "mutation_gate_required"

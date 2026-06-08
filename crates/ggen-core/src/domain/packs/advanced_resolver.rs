@@ -98,13 +98,13 @@ pub struct VersionConstraint {
 /// Constraint type
 #[derive(Debug, Clone)]
 pub enum ConstraintType {
-    Exact,           // =1.0.0
-    GreaterThan,     // >1.0.0
-    GreaterOrEqual,  // >=1.0.0
+    Exact,           // =26.6.6
+    GreaterThan,     // >26.6.6
+    GreaterOrEqual,  // >=26.6.6
     LessThan,        // <2.0.0
     LessOrEqual,     // <=2.0.0
-    Compatible,      // ^1.0.0 (same major)
-    MinorCompatible, // ~1.0.0 (same major.minor)
+    Compatible,      // ^26.6.6 (same major)
+    MinorCompatible, // ~26.6.6 (same major.minor)
 }
 
 impl AdvancedResolver {
@@ -449,7 +449,7 @@ mod tests {
         Pack {
             id: id.to_string(),
             name: format!("Pack {}", id),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: "Test pack".to_string(),
             category: "test".to_string(),
             author: None,
@@ -512,7 +512,7 @@ mod tests {
     fn test_find_latest_version() {
         let resolver = AdvancedResolver::new();
         let versions = vec![
-            "1.0.0".to_string(),
+            "26.6.6".to_string(),
             "1.2.0".to_string(),
             "1.1.0".to_string(),
             "2.0.0".to_string(),
@@ -527,8 +527,8 @@ mod tests {
         let mut resolver = AdvancedResolver::new();
 
         let packs = vec![
-            create_test_pack("pack1", vec!["pkg1@1.0.0", "pkg2@2.0.0"]),
-            create_test_pack("pack2", vec!["pkg3@1.0.0"]),
+            create_test_pack("pack1", vec!["pkg1@26.6.6", "pkg2@2.0.0"]),
+            create_test_pack("pack2", vec!["pkg3@26.6.6"]),
         ];
 
         let result = resolver.resolve_multi_pack_conflicts(packs, ConflictResolution::Merge);
@@ -544,7 +544,7 @@ mod tests {
         let mut resolver = AdvancedResolver::new();
 
         let packs = vec![
-            create_test_pack("pack1", vec!["pkg1@1.0.0"]),
+            create_test_pack("pack1", vec!["pkg1@26.6.6"]),
             create_test_pack("pack2", vec!["pkg1@2.0.0"]),
         ];
 

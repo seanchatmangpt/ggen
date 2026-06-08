@@ -38,6 +38,7 @@ use crate::graph::Graph;
 use crate::preprocessor::{FreezePolicy, FreezeStage, PrepCtx, Preprocessor};
 
 /// Boolean control flags for frontmatter template directives
+#[allow(clippy::struct_excessive_bools)] // Seven bools are semantically distinct frontmatter directive flags
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct FrontmatterFlags {
     // Hygen core

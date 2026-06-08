@@ -1,0 +1,34 @@
+Checkpoint:
+  GALL-CHECKPOINT-006
+
+> [!IMPORTANT]
+> This file is a HUMAN-READABLE REPORT only and is not an admission receipt.
+> Admission is governed exclusively by OCEL event logs and wasm4pm replay verdicts.
+
+Name:
+  Authority Surface Lock
+
+Status:
+  ADMITTED_BY_DOGFOOD
+
+Admission receipt:
+  GC006 establishes the Authority Surface Lock, freezing the boundaries and roles
+  between tower-lsp-max, ggen, wasm4pm, and wasm4pm-compat.
+
+  Sealed Workspaces Lock:
+    - ~/wasm4pm and ~/wasm4pm-compat remain read-only workspaces.
+    - Integration tests run git status checks with the --ignored flag to prove that
+      no files have been modified or added in these repositories, allowing only pre-existing
+      ignored build/scratch paths.
+
+  No Local Conformance Shadows:
+    - wasm4pm-lsp delegates conformance analysis to gc005-wasm4pm-adapter.
+    - gc005-wasm4pm-adapter makes real calls to the sealed authority (wasm4pm_algos).
+    - Local shadow crates crates/wasm4pm, crates/wasm4pm-proper, and crates/wasm4pm-compat
+      are strictly prohibited in the ggen workspace.
+
+  Evidence Replay:
+    - The integration test dogfood_gc006.rs is dynamically projected using the
+      sync_target engine.
+    - Dynamic path lookup has replaced all hardcoded absolute /Users/sac paths.
+    - The test verifies all surface constraints and passes under cargo test.

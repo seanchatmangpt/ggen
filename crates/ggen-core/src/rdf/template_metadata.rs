@@ -585,6 +585,7 @@ impl TemplateMetadataStore {
 }
 
 impl Default for TemplateMetadataStore {
+    #[allow(clippy::panic)] // SAFETY: Oxigraph in-memory store failure is an unrecoverable programmer error
     fn default() -> Self {
         // The in-memory store should never fail to initialize.
         // If it does, we create an empty store as fallback.

@@ -129,7 +129,7 @@ mod tests {
         let gen = AdapterGenerator::new();
         let spec = PartSpec {
             id: "test-part".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             part_type: "wasm32".to_string(),
             rdf_source: "(RDF)".to_string(),
             target_language: "rust".to_string(),
@@ -156,7 +156,7 @@ mod tests {
         let gen = AdapterGenerator::new();
         let spec = PartSpec {
             id: "test-part".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             part_type: "beam".to_string(),
             rdf_source: "(RDF)".to_string(),
             target_language: "erlang".to_string(),
@@ -183,7 +183,7 @@ mod tests {
         let gen = AdapterGenerator::new();
         let spec = PartSpec {
             id: "test-part".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             part_type: "wasm32".to_string(),
             rdf_source: "(RDF)".to_string(),
             target_language: "python".to_string(),

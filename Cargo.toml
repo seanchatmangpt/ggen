@@ -1,5 +1,5 @@
 [workspace.package]
-version = "26.5.29"
+version = "26.6.6"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 repository = "https://github.com/seanchatmangpt/ggen"
@@ -31,6 +31,8 @@ include = [
 
 [workspace]
 members = [
+  "crates/ggen-pack-clap-noun-verb",
+  "crates/ggen-pack-tower-lsp-max",
   "crates/ggen-a2a-mcp",
   "crates/ggen-config",
   "crates/ggen-marketplace",
@@ -48,6 +50,10 @@ members = [
   "crates/genesis-core",
   "crates/cpmp",
   "crates/stpnt",
+  "crates/genesis-lockchain",
+  "crates/genesis-construct8",
+  # ARCHIVED: gc005-wasm4pm-adapter removed from build boundary — external path dep
+  # (wasm4pm-algos at ../../../wasm4pm) + broken ocel_core import. Preserved on disk.
   # ARCHIVED out of the v26.5.29 build boundary (SETTLEMENT-CHECK-1): this example
   # drifted from its own types in a prior release (ValidationAgent missing the
   # `agent_type` field; async fns misusing `?`) and does not compile under
@@ -56,7 +62,7 @@ members = [
   # on disk (non-deletion doctrine); re-add after repair.
   # "examples/7-agent-validation",
   ]
-exclude = ["examples/7-agent-validation"]
+exclude = ["examples/7-agent-validation", "crates/gc005-wasm4pm-adapter"]
 resolver = "2" # Use new resolver for better dependency resolution
 
 # Workspace-wide dependencies for version consistency
@@ -98,6 +104,7 @@ rustc-hash = "2.0"
 itertools = "0.13"
 bcinr = "26.4.22"
 urlencoding = "2.1"
+rio_turtle = "0.8.6"
 
 rayon = "1.11"
 regex = "1.12"
@@ -112,8 +119,11 @@ rig-core = "0.15.1"
 
 # Workspace-local crates (use workspace = true pattern in workspace members)
 # NOTE: v26.5.29 unified release
-ggen-core = { path = "crates/ggen-core", version = "26.5.29" }
-ggen-cli-lib = { path = "crates/ggen-cli", version = "26.5.29" }
+ggen-core = { path = "crates/ggen-core", version = "26.6.6" }
+ggen-cli-lib = { path = "crates/ggen-cli", version = "26.6.6" }
+genesis-lockchain = { path = "crates/genesis-lockchain", version = "26.6.6" }
+knhk-construct8 = { path = "crates/genesis-construct8", version = "26.6.6" }
+ggen-projection = { path = "crates/ggen-projection", version = "26.6.6" }
 
 # Genesis kernel crates (pure Rust, IO-free — A = μ(O) foundation)
 genesis-types = { path = "crates/genesis-types-v2" }
@@ -481,7 +491,7 @@ explicit_iter_loop = "allow"
 #
 # derive_more duplicates (3 versions):
 #   - v2.1.1: genai (production) - unavoidable, genai's choice
-#   - v1.0.0: value-ext ← genai (production, transitive) - unavoidable
+#   - v26.6.6: value-ext ← genai (production, transitive) - unavoidable
 #   - v0.99.20: cucumber (dev-only) - ACCEPTABLE
 #
 # darling duplicates (2 versions):
@@ -777,3 +787,7 @@ unused-shlibs = []
 # a wide blast radius unsuitable for the release foundation. Land kebab via a
 # MINIMAL published clap-noun-verb release on top of the stable 26.5.x line, then
 # bump the dep. ggen works today on published 26.5.19 (snake flags).
+
+[patch.crates-io]
+wasm4pm-compat = { path = "/Users/sac/wasm4pm-compat" }
+

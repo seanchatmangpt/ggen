@@ -1,0 +1,15 @@
+{"object_id": "workspace:ggen", "object_type": "Workspace", "attributes": {"path": "~/ggen"}}
+{"object_id": "workspace:tower-lsp-max", "object_type": "Workspace", "attributes": {"path": "~/tower-lsp-max"}}
+{"object_id": "checkpoint:GC001", "object_type": "Checkpoint", "attributes": {"id": "GALL-CHECKPOINT-001"}}
+{"object_id": "checkpoint:GC002", "object_type": "Checkpoint", "attributes": {"id": "GALL-CHECKPOINT-002"}}
+{"object_id": "checkpoint:GC003", "object_type": "Checkpoint", "attributes": {"id": "GALL-CHECKPOINT-003"}}
+{"object_id": "checkpoint:GC004", "object_type": "Checkpoint", "attributes": {"id": "GALL-CHECKPOINT-004"}}
+{"object_id": "observer:ggen_lsp_observer", "object_type": "Observer", "attributes": {"source_id": "ggen_lsp_observer"}}
+{"object_id": "observer:clap_noun_verb_pack_lsp", "object_type": "Observer", "attributes": {"source_id": "clap_noun_verb_pack_lsp"}}
+{"object_id": "observer:tower_lsp_max_pack_lsp", "object_type": "Observer", "attributes": {"source_id": "tower_lsp_max_pack_lsp"}}
+{"object_id": "artifact:crates/ggen-projection/tests/dogfood_gc002.rs", "object_type": "Artifact", "attributes": {"path": "crates/ggen-projection/tests/dogfood_gc002.rs", "blake3": "338bd906784f800617a44aa50099b591bc9bd2ec05ed114da00d98d8494a7fe2"}}
+{"object_id": "artifact:crates/ggen-projection/tests/dogfood_gc003.rs", "object_type": "Artifact", "attributes": {"path": "crates/ggen-projection/tests/dogfood_gc003.rs", "blake3": "fa2e96bf756047e1041d984ac5efdfd6549d350eacedadb79669105752dd89b7"}}
+{"object_id": "artifact:crates/ggen-lsp/tests/dogfood_gc004.rs", "object_type": "Artifact", "attributes": {"path": "crates/ggen-lsp/tests/dogfood_gc004.rs", "blake3": "2fed9352ea54b471118187b6b535d8010c77413874f99e9d81ae2d931dc4edbc"}}
+{"object_id": "diagnostic:CLAP-PACK-HANDLER-UNBOUND", "object_type": "Diagnostic", "attributes": {"code": "CLAP-PACK-HANDLER-UNBOUND"}}
+{"object_id": "diagnostic:TOWER-PACK-UNGUARDED-MUTATION", "object_type": "Diagnostic", "attributes": {"code": "TOWER-PACK-UNGUARDED-MUTATION"}}
+{"object_id": "diagnostic:GGEN-EVIDENCE-001", "object_type": "Diagnostic", "attributes": {"code": "GGEN-EVIDENCE-001"}}

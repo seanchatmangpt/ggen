@@ -657,7 +657,7 @@ mod tests {
     fn test_insert_installation() {
         let sparql = MarketplaceQueries::insert_installation(
             "http://ggen.dev/packages/test",
-            "1.0.0",
+            "26.6.6",
             "installed",
             "/path/to/install",
         );
@@ -667,7 +667,7 @@ mod tests {
 
     #[test]
     fn test_get_dependencies() {
-        let query = MarketplaceQueries::get_dependencies("http://ggen.dev/packages/test", "1.0.0");
+        let query = MarketplaceQueries::get_dependencies("http://ggen.dev/packages/test", "26.6.6");
         assert!(query.is_ok());
     }
 

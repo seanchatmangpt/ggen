@@ -51,7 +51,13 @@
 #![deny(warnings)]
 #![allow(unexpected_cfgs)]
 #![allow(unused_imports)]
-#![allow(dead_code)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
+#![allow(dead_code)]
+// Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
+// Crate-level clippy exceptions for CLI conventions and test code:
+// - expect_used: explicit panic messages improve diagnostics in CLI error paths
+// - unwrap_used: pervasive in conventions/watcher patterns and test code
+// - panic: test assertions in integration tests
+#![allow(clippy::expect_used, clippy::unwrap_used, clippy::panic)]
 #![allow(non_upper_case_globals)] // Allow macro-generated static variables from clap-noun-verb
 #![allow(clippy::unused_unit)] // clap-noun-verb #[verb] macro generates unit expressions
 #![allow(
@@ -62,7 +68,8 @@
     clippy::too_many_arguments,
     clippy::unnecessary_lazy_evaluations,
     clippy::unnecessary_map_or,
-    clippy::useless_conversion
+    clippy::useless_conversion,
+    clippy::used_underscore_binding  // #[verb] macro generates code referencing underscore-prefixed CLI flag params
 )]
 pub mod config_clap;
 pub mod error;

@@ -210,21 +210,33 @@ where
                 status: SpanStatus::Ok,
             };
 
-            // Walk up parent chain to find the collector in span extensions or global registry
-            let mut current = ctx.span(&id);
-            while let Some(span) = current {
-                let extensions = span.extensions();
-                if let Some(collector) = extensions.get::<TraceCollector>() {
+            // The closing span itself may already be removed from the registry by the time
+            // on_close fires, so ctx.span(&id) returns None. Check GLOBAL_COLLECTORS directly
+            // with the closing span's own id first, then walk up any surviving parent chain.
+            let mut delivered = false;
+            if let Ok(map) = GLOBAL_COLLECTORS.lock() {
+                if let Some(collector) = map.get(&id) {
                     collector.record_span(record.clone());
-                    break;
+                    delivered = true;
                 }
-                if let Ok(map) = GLOBAL_COLLECTORS.lock() {
-                    if let Some(collector) = map.get(&span.id()) {
+            }
+
+            if !delivered {
+                let mut current = ctx.span(&id);
+                while let Some(span) = current {
+                    let extensions = span.extensions();
+                    if let Some(collector) = extensions.get::<TraceCollector>() {
                         collector.record_span(record.clone());
                         break;
                     }
+                    if let Ok(map) = GLOBAL_COLLECTORS.lock() {
+                        if let Some(collector) = map.get(&span.id()) {
+                            collector.record_span(record.clone());
+                            break;
+                        }
+                    }
+                    current = span.parent();
                 }
-                current = span.parent();
             }
         }
     }

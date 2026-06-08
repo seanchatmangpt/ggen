@@ -25,7 +25,7 @@
 
 use oxigraph::io::{RdfFormat, RdfParser, RdfSerializer};
 use oxigraph::model::Quad;
-use tower_lsp::lsp_types::{Position, Range, TextEdit};
+use tower_lsp_max::lsp_types::{Position, Range, TextEdit};
 
 use crate::state::FileType;
 

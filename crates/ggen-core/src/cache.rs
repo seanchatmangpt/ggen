@@ -40,9 +40,9 @@
 //! let cache = CacheManager::new()?;
 //! let resolved_pack = ResolvedPack {
 //!     id: "io.ggen.example".to_string(),
-//!     version: "1.0.0".to_string(),
+//!     version: "26.6.6".to_string(),
 //!     git_url: "https://github.com/example/pack.git".to_string(),
-//!     git_rev: "v1.0.0".to_string(),
+//!     git_rev: "v26.6.6".to_string(),
 //!     sha256: "abc123...".to_string(),
 //! };
 //!
@@ -203,9 +203,9 @@ impl CacheManager {
     /// let cache = CacheManager::new()?;
     /// let pack = ResolvedPack {
     ///     id: "io.ggen.example".to_string(),
-    ///     version: "1.0.0".to_string(),
+    ///     version: "26.6.6".to_string(),
     ///     git_url: "https://github.com/example/pack.git".to_string(),
-    ///     git_rev: "v1.0.0".to_string(),
+    ///     git_rev: "v26.6.6".to_string(),
     ///     sha256: "abc123...".to_string(),
     /// };
     ///
@@ -225,9 +225,9 @@ impl CacheManager {
     /// let cache = CacheManager::new()?;
     /// let pack = ResolvedPack {
     ///     id: "io.ggen.example".to_string(),
-    ///     version: "1.0.0".to_string(),
+    ///     version: "26.6.6".to_string(),
     ///     git_url: "https://invalid-url-that-does-not-exist.git".to_string(),
-    ///     git_rev: "v1.0.0".to_string(),
+    ///     git_rev: "v26.6.6".to_string(),
     ///     sha256: "".to_string(),
     /// };
     ///
@@ -337,7 +337,7 @@ impl CacheManager {
     /// # fn main() -> crate::utils::error::Result<()> {
     /// let cache = CacheManager::new()?;
     /// // Assuming pack is already cached
-    /// let cached = cache.load_cached("io.ggen.example", "1.0.0")?;
+    /// let cached = cache.load_cached("io.ggen.example", "26.6.6")?;
     /// println!("Pack path: {:?}", cached.path);
     /// println!("Pack SHA256: {}", cached.sha256);
     /// # Ok(())
@@ -352,7 +352,7 @@ impl CacheManager {
     /// # fn main() -> crate::utils::error::Result<()> {
     /// let cache = CacheManager::new()?;
     /// // This will fail because the pack is not cached
-    /// let result = cache.load_cached("nonexistent.pack", "1.0.0");
+    /// let result = cache.load_cached("nonexistent.pack", "26.6.6");
     /// assert!(result.is_err());
     /// # Ok(())
     /// # }
@@ -488,7 +488,7 @@ impl CacheManager {
     /// # fn main() -> crate::utils::error::Result<()> {
     /// let cache = CacheManager::new()?;
     /// // Remove a specific version of a pack
-    /// cache.remove("io.ggen.example", "1.0.0")?;
+    /// cache.remove("io.ggen.example", "26.6.6")?;
     /// # Ok(())
     /// # }
     /// ```
@@ -501,7 +501,7 @@ impl CacheManager {
     /// # fn main() -> crate::utils::error::Result<()> {
     /// let cache = CacheManager::new()?;
     /// // This may fail if we don't have permission to remove the pack
-    /// let result = cache.remove("io.ggen.example", "1.0.0");
+    /// let result = cache.remove("io.ggen.example", "26.6.6");
     /// // Handle error appropriately
     /// if let Err(e) = result {
     ///     eprintln!("Failed to remove pack: {}", e);

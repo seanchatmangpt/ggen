@@ -1429,7 +1429,7 @@ mod tests {
         let installer = Installer::with_profile(registry, cache, profile);
 
         let package_id = PackageId::new("public-crate").unwrap();
-        let version = PackageVersion::new("1.0.0").unwrap();
+        let version = PackageVersion::new("26.6.6").unwrap();
         let public_registry = RegistryClass::Public {
             url: "https://crates.io".to_string(),
             registry_type: crate::marketplace::trust::RegistryType::default(),
@@ -1478,7 +1478,7 @@ mod tests {
         let installer = Installer::with_profile(registry, cache, profile);
 
         let package_id = PackageId::new("private-crate").unwrap();
-        let version = PackageVersion::new("1.0.0").unwrap();
+        let version = PackageVersion::new("26.6.6").unwrap();
         let private_registry = RegistryClass::PrivateEnterprise {
             url: "https://registry.internal.corp".to_string(),
             require_signature: true,
@@ -1514,7 +1514,7 @@ mod tests {
         let installer = Installer::new(registry, cache);
 
         let package_id = PackageId::new("any-crate").unwrap();
-        let version = PackageVersion::new("1.0.0").unwrap();
+        let version = PackageVersion::new("26.6.6").unwrap();
         let public_registry = RegistryClass::Public {
             url: "https://crates.io".to_string(),
             registry_type: crate::marketplace::trust::RegistryType::default(),
@@ -1554,8 +1554,8 @@ mod tests {
                     "Test",
                     "MIT",
                 ),
-                latest_version: crate::marketplace::models::PackageVersion::new("1.0.0").unwrap(),
-                versions: vec![crate::marketplace::models::PackageVersion::new("1.0.0").unwrap()],
+                latest_version: crate::marketplace::models::PackageVersion::new("26.6.6").unwrap(),
+                versions: vec![crate::marketplace::models::PackageVersion::new("26.6.6").unwrap()],
                 releases: indexmap::IndexMap::new(),
             })
             .unwrap();
@@ -1587,8 +1587,8 @@ mod tests {
                     "Test",
                     "MIT",
                 ),
-                latest_version: crate::marketplace::models::PackageVersion::new("1.0.0").unwrap(),
-                versions: vec![crate::marketplace::models::PackageVersion::new("1.0.0").unwrap()],
+                latest_version: crate::marketplace::models::PackageVersion::new("26.6.6").unwrap(),
+                versions: vec![crate::marketplace::models::PackageVersion::new("26.6.6").unwrap()],
                 releases: indexmap::IndexMap::new(),
             })
             .unwrap();
@@ -1600,8 +1600,8 @@ mod tests {
                     "Test",
                     "MIT",
                 ),
-                latest_version: crate::marketplace::models::PackageVersion::new("1.0.0").unwrap(),
-                versions: vec![crate::marketplace::models::PackageVersion::new("1.0.0").unwrap()],
+                latest_version: crate::marketplace::models::PackageVersion::new("26.6.6").unwrap(),
+                versions: vec![crate::marketplace::models::PackageVersion::new("26.6.6").unwrap()],
                 releases: indexmap::IndexMap::new(),
             })
             .unwrap();
@@ -1665,8 +1665,8 @@ mod tests {
                     "Test",
                     "MIT",
                 ),
-                latest_version: crate::marketplace::models::PackageVersion::new("1.0.0").unwrap(),
-                versions: vec![crate::marketplace::models::PackageVersion::new("1.0.0").unwrap()],
+                latest_version: crate::marketplace::models::PackageVersion::new("26.6.6").unwrap(),
+                versions: vec![crate::marketplace::models::PackageVersion::new("26.6.6").unwrap()],
                 releases: indexmap::IndexMap::new(),
             })
             .unwrap();
@@ -1678,8 +1678,8 @@ mod tests {
                     "Test",
                     "MIT",
                 ),
-                latest_version: crate::marketplace::models::PackageVersion::new("1.0.0").unwrap(),
-                versions: vec![crate::marketplace::models::PackageVersion::new("1.0.0").unwrap()],
+                latest_version: crate::marketplace::models::PackageVersion::new("26.6.6").unwrap(),
+                versions: vec![crate::marketplace::models::PackageVersion::new("26.6.6").unwrap()],
                 releases: indexmap::IndexMap::new(),
             })
             .unwrap();
@@ -1716,8 +1716,8 @@ mod tests {
                     "Test",
                     "MIT",
                 ),
-                latest_version: crate::marketplace::models::PackageVersion::new("1.0.0").unwrap(),
-                versions: vec![crate::marketplace::models::PackageVersion::new("1.0.0").unwrap()],
+                latest_version: crate::marketplace::models::PackageVersion::new("26.6.6").unwrap(),
+                versions: vec![crate::marketplace::models::PackageVersion::new("26.6.6").unwrap()],
                 releases: indexmap::IndexMap::new(),
             })
             .unwrap();

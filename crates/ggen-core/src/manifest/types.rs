@@ -22,6 +22,29 @@ fn default_output_dir() -> PathBuf {
     PathBuf::from(".")
 }
 
+/// A reference to a ggen pack declared in ggen.toml
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PackRef {
+    /// Pack name (used to reference this pack from generation rules)
+    pub name: String,
+
+    /// Registry type: "local", "marketplace", etc.
+    #[serde(default = "default_registry")]
+    pub registry: String,
+
+    /// Local filesystem path (used when registry = "local")
+    #[serde(default)]
+    pub path: Option<PathBuf>,
+
+    /// Pack version constraint (used when registry != "local")
+    #[serde(default)]
+    pub version: Option<String>,
+}
+
+fn default_registry() -> String {
+    "local".to_string()
+}
+
 /// Root manifest structure from ggen.toml
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GgenManifest {
@@ -41,6 +64,10 @@ pub struct GgenManifest {
     /// Validation settings
     #[serde(default)]
     pub validation: ValidationConfig,
+
+    /// Pack declarations (resolved before generation)
+    #[serde(default)]
+    pub packs: Vec<PackRef>,
 }
 
 /// Project metadata section
@@ -173,10 +200,24 @@ pub struct GenerationRule {
     pub when: Option<String>,
 }
 
-/// Source for a SPARQL query - file or inline
+/// Source for a SPARQL query - file, inline, or pack output key
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum QuerySource {
+    /// Load query from a declared pack's named output
+    ///
+    /// Example in ggen.toml:
+    /// ```toml
+    /// query = { pack = "wasm4pm-compat", output = "queries", file = "pm-rust-bridge.rq" }
+    /// ```
+    Pack {
+        /// Pack name (must be declared in [[packs]])
+        pack: String,
+        /// Named output key from [pack.outputs] in the pack's package.toml
+        output: String,
+        /// File within that output directory
+        file: PathBuf,
+    },
     /// Load query from file
     File {
         /// Path to .sparql file
@@ -189,10 +230,24 @@ pub enum QuerySource {
     },
 }
 
-/// Source for a Tera template - file, inline, git, or package manager
+/// Source for a Tera template - file, inline, git, pack output, or package manager
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TemplateSource {
+    /// Load template from a declared pack's named output
+    ///
+    /// Example in ggen.toml:
+    /// ```toml
+    /// template = { pack = "wasm4pm-compat", output = "templates", file = "rust-struct.tera" }
+    /// ```
+    Pack {
+        /// Pack name (must be declared in [[packs]])
+        pack: String,
+        /// Named output key from [pack.outputs] in the pack's package.toml
+        output: String,
+        /// File within that output directory
+        file: PathBuf,
+    },
     /// Load template from file
     File {
         /// Path to .tera file

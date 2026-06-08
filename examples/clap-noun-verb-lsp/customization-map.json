@@ -1,0 +1,9 @@
+{
+  "vars": {
+    "port": "50051",
+    "lsp_version": "0.1.0",
+    "app_name": "clap-noun-verb-lsp",
+    "lsp_name": "clap-noun-verb-lsp"
+  },
+  "file_overrides": {}
+}

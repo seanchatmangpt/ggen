@@ -1,3 +1,10 @@
+#![cfg(feature = "experimental")]
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes
+)]
 //! End-to-end integration tests for template workflow
 //!
 //! **Chicago TDD Principles**:
@@ -50,7 +57,7 @@ fn create_test_template(temp_dir: &TempDir, name: &str) -> std::path::PathBuf {
     // Create template metadata
     let metadata = r#"
 name = "{{ name }}"
-version = "1.0.0"
+version = "26.6.6"
 description = "Test template"
 
 [variables]

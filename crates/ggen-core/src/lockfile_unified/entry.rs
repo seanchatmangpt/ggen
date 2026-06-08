@@ -316,7 +316,7 @@ mod tests {
     fn test_unified_entry_creation() {
         let entry = UnifiedLockEntry::new(
             "io.ggen.test",
-            "1.0.0",
+            "26.6.6",
             "abc123def456",
             LockSource::Registry {
                 url: "https://registry.ggen.io".into(),
@@ -324,7 +324,7 @@ mod tests {
             },
         );
 
-        assert_eq!(entry.version, "1.0.0");
+        assert_eq!(entry.version, "26.6.6");
         assert_eq!(entry.integrity, "abc123def456");
     }
 

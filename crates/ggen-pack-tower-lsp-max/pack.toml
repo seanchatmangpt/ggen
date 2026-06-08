@@ -1,0 +1,25 @@
+id = "ggen-pack-tower-lsp-max"
+name = "Tower LSP Max"
+version = "26.6.6"
+description = "Tower LSP Max pack"
+license = "MIT"
+query_aliases = {}
+
+[dependencies]
+ggen-pack-clap-noun-verb = "^26.6.6"
+
+[[templates]]
+path = "templates/Cargo.toml.tmpl"
+description = "Cargo manifest"
+
+[[templates]]
+path = "templates/src/server.rs.tmpl"
+description = "LSP Server"
+
+[[templates]]
+path = "templates/src/types.rs.tmpl"
+description = "LSP types"
+
+[[templates]]
+path = "templates/src/rules.rs.tmpl"
+description = "Validation rules"

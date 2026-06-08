@@ -54,8 +54,8 @@ impl Registry {
     /// # Errors
     ///
     /// This function currently always returns `Ok(())`. Future implementations may return:
-    /// * [`Error::PackageAlreadyExists`] - When a package with the same ID already exists
-    /// * [`Error::InvalidPackageId`] - When the package ID format is invalid
+    /// * `Error::PackageAlreadyExists` - When a package with the same ID already exists
+    /// * `Error::InvalidPackageId` - When the package ID format is invalid
     pub fn insert(&self, package: &Package) -> Result<()> {
         let package_id = package.metadata.id.clone();
 
@@ -80,7 +80,7 @@ impl Registry {
     /// # Errors
     ///
     /// This function currently always returns `Ok`. Future implementations may return:
-    /// * [`Error::PackageNotFound`] - When attempting to remove a non-existent package
+    /// * `Error::PackageNotFound` - When attempting to remove a non-existent package
     pub fn remove(&self, id: &PackageId) -> Result<Option<Package>> {
         let removed = self.packages.remove(id).map(|(_, pkg)| pkg);
 
@@ -108,7 +108,7 @@ impl Registry {
     ///
     /// # Errors
     ///
-    /// * [`Error::PackageNotFound`] - When the package ID does not exist in the registry
+    /// * `Error::PackageNotFound` - When the package ID does not exist in the registry
     pub fn update(&self, id: &PackageId, package: Package) -> Result<()> {
         if !self.packages.contains_key(id) {
             return Err(crate::marketplace::error::Error::package_not_found(
@@ -174,7 +174,7 @@ impl AsyncRepository for Registry {
     ///
     /// # Errors
     ///
-    /// * [`Error::PackageNotFound`] - When the package ID does not exist in the registry
+    /// * `Error::PackageNotFound` - When the package ID does not exist in the registry
     async fn get_package(&self, id: &PackageId) -> Result<Package> {
         // Check if in primary storage
         if let Some(package) = self.packages.get(id) {
@@ -196,8 +196,8 @@ impl AsyncRepository for Registry {
     ///
     /// # Errors
     ///
-    /// * [`Error::PackageNotFound`] - When the package ID does not exist in the registry
-    /// * [`Error::InvalidVersion`] - When the version does not exist for the package
+    /// * `Error::PackageNotFound` - When the package ID does not exist in the registry
+    /// * `Error::InvalidVersion` - When the version does not exist for the package
     async fn get_package_version(
         &self, id: &PackageId, version: &PackageVersion,
     ) -> Result<Package> {
@@ -227,8 +227,8 @@ impl AsyncRepository for Registry {
     /// # Errors
     ///
     /// This function currently always returns `Ok`. Future implementations may return:
-    /// * [`Error::RegistryError`] - When the registry is unavailable or corrupted
-    /// * [`Error::ConcurrencyError`] - When concurrent access causes inconsistency
+    /// * `Error::RegistryError` - When the registry is unavailable or corrupted
+    /// * `Error::ConcurrencyError` - When concurrent access causes inconsistency
     async fn all_packages(&self) -> Result<Vec<Package>> {
         // Try cache first
         let cache_key = "all_packages".to_string();
@@ -262,7 +262,7 @@ impl AsyncRepository for Registry {
     ///
     /// # Errors
     ///
-    /// * [`Error::PackageNotFound`] - When the package ID does not exist in the registry
+    /// * `Error::PackageNotFound` - When the package ID does not exist in the registry
     async fn list_versions(&self, id: &PackageId) -> Result<Vec<PackageVersion>> {
         let package = self.get_package(id).await?;
         Ok(package.versions)
@@ -273,7 +273,7 @@ impl AsyncRepository for Registry {
     /// # Errors
     ///
     /// This function currently always returns `Ok`. Future implementations may return:
-    /// * [`Error::RegistryError`] - When the registry is unavailable
+    /// * `Error::RegistryError` - When the registry is unavailable
     async fn package_exists(&self, id: &PackageId) -> Result<bool> {
         Ok(self.packages.contains_key(id))
     }
@@ -315,8 +315,8 @@ mod tests {
         let metadata = PackageMetadata::new(id.clone(), "Test Package", "A test package", "MIT");
         let package = Package {
             metadata,
-            latest_version: PackageVersion::new("1.0.0").unwrap(),
-            versions: vec![PackageVersion::new("1.0.0").unwrap()],
+            latest_version: PackageVersion::new("26.6.6").unwrap(),
+            versions: vec![PackageVersion::new("26.6.6").unwrap()],
             releases: indexmap::IndexMap::new(),
         };
 
@@ -334,8 +334,8 @@ mod tests {
         let metadata = PackageMetadata::new(id.clone(), "Test Package", "A test package", "MIT");
         let package = Package {
             metadata,
-            latest_version: PackageVersion::new("1.0.0").unwrap(),
-            versions: vec![PackageVersion::new("1.0.0").unwrap()],
+            latest_version: PackageVersion::new("26.6.6").unwrap(),
+            versions: vec![PackageVersion::new("26.6.6").unwrap()],
             releases: indexmap::IndexMap::new(),
         };
 

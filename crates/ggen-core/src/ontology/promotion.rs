@@ -218,16 +218,16 @@ mod tests {
 
     #[test]
     fn test_promoter_creation() {
-        let snap = create_test_snapshot("1.0.0");
+        let snap = create_test_snapshot("26.6.6");
         let promoter = AtomicSnapshotPromoter::new(snap.clone());
 
         let current = promoter.get_current().unwrap();
-        assert_eq!(current.snapshot().version, "1.0.0");
+        assert_eq!(current.snapshot().version, "26.6.6");
     }
 
     #[test]
     fn test_atomic_promotion() {
-        let snap1 = create_test_snapshot("1.0.0");
+        let snap1 = create_test_snapshot("26.6.6");
         let promoter = AtomicSnapshotPromoter::new(snap1);
 
         let snap2 = create_test_snapshot("2.0.0");
@@ -243,7 +243,7 @@ mod tests {
 
     #[test]
     fn test_promotion_metrics() {
-        let snap1 = create_test_snapshot("1.0.0");
+        let snap1 = create_test_snapshot("26.6.6");
         let promoter = AtomicSnapshotPromoter::new(snap1);
 
         assert_eq!(promoter.metrics().total_promotions, 0);
@@ -257,7 +257,7 @@ mod tests {
 
     #[test]
     fn test_multiple_promotions() {
-        let snap1 = create_test_snapshot("1.0.0");
+        let snap1 = create_test_snapshot("26.6.6");
         let promoter = Arc::new(AtomicSnapshotPromoter::new(snap1));
 
         for i in 2..=5 {
@@ -274,7 +274,7 @@ mod tests {
 
     #[test]
     fn test_concurrent_reads() -> Result<(), Box<dyn std::error::Error>> {
-        let snap1 = create_test_snapshot("1.0.0");
+        let snap1 = create_test_snapshot("26.6.6");
         let promoter = Arc::new(AtomicSnapshotPromoter::new(snap1));
 
         let mut handles = vec![];
@@ -299,7 +299,7 @@ mod tests {
 
     #[test]
     fn test_snapshot_guard_raii() {
-        let snap = create_test_snapshot("1.0.0");
+        let snap = create_test_snapshot("26.6.6");
         let promoter = AtomicSnapshotPromoter::new(snap);
 
         {
@@ -310,22 +310,22 @@ mod tests {
 
         // All guards dropped, no leaks
         let current = promoter.get_current().unwrap();
-        assert_eq!(current.snapshot().version, "1.0.0");
+        assert_eq!(current.snapshot().version, "26.6.6");
     }
 
     #[test]
     fn test_promotion_with_guards() {
-        let snap1 = create_test_snapshot("1.0.0");
+        let snap1 = create_test_snapshot("26.6.6");
         let promoter = Arc::new(AtomicSnapshotPromoter::new(snap1));
 
         let guard1 = promoter.get_current().unwrap();
-        assert_eq!(guard1.snapshot().version, "1.0.0");
+        assert_eq!(guard1.snapshot().version, "26.6.6");
 
         let snap2 = create_test_snapshot("2.0.0");
         promoter.promote(snap2).unwrap();
 
         // Old guard still valid (ref count prevents deallocation)
-        assert_eq!(guard1.snapshot().version, "1.0.0");
+        assert_eq!(guard1.snapshot().version, "26.6.6");
 
         // New promoter reads give new version
         let guard2 = promoter.get_current().unwrap();
@@ -335,7 +335,7 @@ mod tests {
     #[test]
     fn test_safe_concurrent_promotion_and_reads() -> Result<(), Box<dyn std::error::Error>> {
         // Stress test: concurrent promotions and reads
-        let snap1 = create_test_snapshot("1.0.0");
+        let snap1 = create_test_snapshot("26.6.6");
         let promoter = Arc::new(AtomicSnapshotPromoter::new(snap1));
 
         let mut handles = vec![];

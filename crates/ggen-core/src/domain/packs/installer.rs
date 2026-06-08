@@ -466,7 +466,7 @@ mod tests {
         let report = InstallReport {
             pack_id: "test-pack".to_string(),
             pack_name: "Test Pack".to_string(),
-            pack_version: "1.0.0".to_string(),
+            pack_version: "26.6.6".to_string(),
             packages_installed: vec!["pkg1".to_string(), "pkg2".to_string()],
             templates_available: vec![],
             install_path: PathBuf::from("/tmp/test"),
@@ -479,7 +479,7 @@ mod tests {
 
         let summary = report.summary();
         assert!(summary.contains("Test Pack"));
-        assert!(summary.contains("1.0.0"));
+        assert!(summary.contains("26.6.6"));
         assert!(summary.contains("2 packages"));
     }
 
@@ -488,7 +488,7 @@ mod tests {
         let report = InstallReport {
             pack_id: "test-pack".to_string(),
             pack_name: "Test Pack".to_string(),
-            pack_version: "1.0.0".to_string(),
+            pack_version: "26.6.6".to_string(),
             packages_installed: vec!["pkg1".to_string()],
             templates_available: vec!["template1".to_string()],
             install_path: PathBuf::from("/tmp/test"),

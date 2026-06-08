@@ -392,7 +392,7 @@ mod tests {
         Pack {
             id: "test-pack".to_string(),
             name: "Test Pack".to_string(),
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             description: "A test pack for SPARQL".to_string(),
             category: "testing".to_string(),
             author: Some("Test Author".to_string()),
@@ -408,7 +408,7 @@ mod tests {
             sparql_queries: HashMap::new(),
             dependencies: vec![PackDependency {
                 pack_id: "dep-pack".to_string(),
-                version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
                 optional: false,
             }],
             tags: vec!["test".to_string(), "sparql".to_string()],
@@ -437,7 +437,7 @@ mod tests {
         // Check for some expected triples
         let rdf_str = rdf.join("\n");
         assert!(rdf_str.contains("Test Pack"));
-        assert!(rdf_str.contains("1.0.0"));
+        assert!(rdf_str.contains("26.6.6"));
         assert!(rdf_str.contains("testing"));
         assert!(rdf_str.contains("pkg1"));
         assert!(rdf_str.contains("pkg2"));

@@ -221,7 +221,7 @@ mod tests {
     fn test_pqc_pack_signature() {
         let signer = PqcSigner::new();
         let pack_id = "io.ggen.test";
-        let version = "1.0.0";
+        let version = "26.6.6";
         let sha256 = "abc123";
 
         let signature = signer.sign_pack(pack_id, version, sha256);

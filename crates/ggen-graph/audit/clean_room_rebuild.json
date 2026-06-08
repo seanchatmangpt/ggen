@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-05-27T15:08:04Z",
-  "clean_room_directory": "/var/folders/s6/jqyw48zs39z38b_3f6f_x2sc0000gn/T/tmp.8KBryuaotH",
+  "timestamp": "2026-06-07T02:25:45Z",
+  "clean_room_directory": "/Users/sac/.cache/tmp/.tmpeaJxQA",
   "rebuild_status": "PASS",
   "exit_code": 0,
-  "duration_seconds": 11
+  "duration_seconds": 104
 }

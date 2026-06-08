@@ -1,8 +1,9 @@
+#![allow(clippy::unwrap_used, clippy::unnecessary_debug_formatting)]
 use chrono::Utc;
 use ggen_graph::dialect::{check_datalog, check_n3, check_shacl, check_shex, check_sparql};
 use ggen_graph::graph::parse::parse_turtle;
 use ggen_graph::graph::serialize::serialize_to_string;
-use ggen_graph::ocel::{OcelEvent, OcelLog, OcelObject, OcelObjectRef};
+use ggen_graph::ocel::{OCELEvent, OCEL, OCELObject, OCELObjectRef};
 use oxigraph::io::RdfFormat;
 use std::collections::HashMap;
 use std::fs::File;
@@ -221,7 +222,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     all_quads.extend(quads);
                 }
                 Err(e) => {
-                    eprintln!("Warning: Failed to parse Turtle file {:?}: {}", ttl_path, e);
+                    eprintln!(
+                        "Warning: Failed to parse Turtle file {}: {}",
+                        ttl_path.display(),
+                        e
+                    );
                 }
             }
         }
@@ -343,7 +348,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("W6: gall_evidence.ttl written successfully.");
 
     // 5. Construct cohesive OCEL log
-    let mut ocel_log = OcelLog::new();
+    let mut ocel_log = OCEL::new();
 
     // Add general objects
     let mut worktree_attr = HashMap::new();
@@ -360,7 +365,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
     }
-    ocel_log.objects.push(OcelObject {
+    ocel_log.objects.push(OCELObject {
         id: "obj_worktree".to_string(),
         r#type: "WorktreeInventory".to_string(),
         attributes: worktree_attr,
@@ -381,7 +386,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             );
         }
     }
-    ocel_log.objects.push(OcelObject {
+    ocel_log.objects.push(OCELObject {
         id: "obj_clean_room".to_string(),
         r#type: "CleanRoomRebuild".to_string(),
         attributes: clean_room_attr,
@@ -402,7 +407,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             );
         }
     }
-    ocel_log.objects.push(OcelObject {
+    ocel_log.objects.push(OCELObject {
         id: "obj_doctests".to_string(),
         r#type: "DoctestVerification".to_string(),
         attributes: doctest_attr,
@@ -419,7 +424,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             );
         }
     }
-    ocel_log.objects.push(OcelObject {
+    ocel_log.objects.push(OCELObject {
         id: "obj_sabotage".to_string(),
         r#type: "SabotageVerification".to_string(),
         attributes: sabotage_attr,
@@ -427,11 +432,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Events
     let now = Utc::now();
-    ocel_log.events.push(OcelEvent {
+    ocel_log.events.push(OCELEvent {
         id: "evt_observe_worktree".to_string(),
         activity: "ObserveWorktree".to_string(),
         timestamp: now,
-        objects: vec![OcelObjectRef {
+        objects: vec![OCELObjectRef {
             id: "obj_worktree".to_string(),
             r#type: "WorktreeInventory".to_string(),
             qualifier: None,
@@ -439,11 +444,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         attributes: HashMap::new(),
     });
 
-    ocel_log.events.push(OcelEvent {
+    ocel_log.events.push(OCELEvent {
         id: "evt_observe_clean_room".to_string(),
         activity: "ObserveCleanRoom".to_string(),
         timestamp: now,
-        objects: vec![OcelObjectRef {
+        objects: vec![OCELObjectRef {
             id: "obj_clean_room".to_string(),
             r#type: "CleanRoomRebuild".to_string(),
             qualifier: None,
@@ -451,11 +456,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         attributes: HashMap::new(),
     });
 
-    ocel_log.events.push(OcelEvent {
+    ocel_log.events.push(OCELEvent {
         id: "evt_observe_doctests".to_string(),
         activity: "ObserveDoctests".to_string(),
         timestamp: now,
-        objects: vec![OcelObjectRef {
+        objects: vec![OCELObjectRef {
             id: "obj_doctests".to_string(),
             r#type: "DoctestVerification".to_string(),
             qualifier: None,
@@ -463,11 +468,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         attributes: HashMap::new(),
     });
 
-    ocel_log.events.push(OcelEvent {
+    ocel_log.events.push(OCELEvent {
         id: "evt_observe_sabotage".to_string(),
         activity: "ObserveSabotage".to_string(),
         timestamp: now,
-        objects: vec![OcelObjectRef {
+        objects: vec![OCELObjectRef {
             id: "obj_sabotage".to_string(),
             r#type: "SabotageVerification".to_string(),
             qualifier: None,

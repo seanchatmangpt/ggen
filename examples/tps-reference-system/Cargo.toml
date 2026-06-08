@@ -1,6 +1,6 @@
 [package]
 name = "tps-reference-system"
-version = "1.0.0"
+version = "26.6.6"
 edition = "2021"
 authors = ["TPS Reference Team"]
 description = "TPS Reference System - Production-ready implementation with all 6 principles"

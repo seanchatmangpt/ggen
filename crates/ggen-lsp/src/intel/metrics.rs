@@ -9,7 +9,7 @@
 
 use std::collections::BTreeMap;
 
-use ggen_graph::ocel::{OcelEvent, OcelLog};
+use ggen_graph::ocel::{OCELEvent, OCEL};
 use serde::Serialize;
 
 use super::events::{activity, obj_type};
@@ -56,11 +56,11 @@ pub struct ImproveMetrics {
 /// One reconstructed episode (events sharing an episode object), with its code.
 pub(crate) struct Episode {
     pub(crate) code: String,
-    pub(crate) events: Vec<OcelEvent>,
+    pub(crate) events: Vec<OCELEvent>,
 }
 
-pub(crate) fn group_episodes(log: &OcelLog) -> Vec<Episode> {
-    let mut map: BTreeMap<String, (String, Vec<OcelEvent>)> = BTreeMap::new();
+pub(crate) fn group_episodes(log: &OCEL) -> Vec<Episode> {
+    let mut map: BTreeMap<String, (String, Vec<OCELEvent>)> = BTreeMap::new();
     for ev in &log.events {
         let epid = ev
             .objects

@@ -567,6 +567,23 @@ pub struct Construct8 {
 }
 
 impl Construct8 {
+    #[allow(clippy::too_many_arguments)] // Eight-tuple construct requires all eight semantic fields
+    pub fn new(
+        subject: Node8, predicate: Predicate8, object: Object8, graph: Graph8, mask: Mask8,
+        provenance: Provenance8, admission: Admission8, receipt_hint: ReceiptHint8,
+    ) -> Self {
+        Self {
+            subject,
+            predicate,
+            object,
+            graph,
+            mask,
+            provenance,
+            admission,
+            receipt_hint,
+        }
+    }
+
     /// Serialize structural representation to bytes for hashing
     pub fn to_bytes(&self) -> [u8; 64] {
         let mut out = [0u8; 64];
@@ -621,7 +638,7 @@ impl fmt::Debug for Receipt {
 }
 
 struct HexSlice<'a>(&'a [u8; HASH_SIZE]);
-impl<'a> fmt::Debug for HexSlice<'a> {
+impl fmt::Debug for HexSlice<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for byte in self.0 {
             write!(f, "{:02x}", byte)?;
@@ -631,7 +648,7 @@ impl<'a> fmt::Debug for HexSlice<'a> {
 }
 
 struct HexSlice64<'a>(&'a [u8; SIGNATURE_SIZE]);
-impl<'a> fmt::Debug for HexSlice64<'a> {
+impl fmt::Debug for HexSlice64<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for byte in self.0 {
             write!(f, "{:02x}", byte)?;

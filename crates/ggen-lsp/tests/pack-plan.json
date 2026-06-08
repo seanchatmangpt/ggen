@@ -1,0 +1,13 @@
+{
+  "checksums": {
+    "ggen-pack-gall-checkpoint-proof": "05f3c41633f3bb4582940ee907916b9d5e33f713f8df525b0d3bf07575c2a7f9"
+  },
+  "outputs": [
+    "crates/ggen-lsp/tests"
+  ],
+  "required_receipts": true,
+  "resolved_packs": [
+    "ggen-pack-gall-checkpoint-proof"
+  ],
+  "write_mode": "stage-first"
+}

@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::needless_raw_string_hashes, clippy::duration_suboptimal_units, clippy::branches_sharing_code, clippy::used_underscore_binding, clippy::single_char_pattern, clippy::ignore_without_reason, clippy::cloned_ref_to_slice_refs, clippy::doc_overindented_list_items, clippy::match_wildcard_for_single_variants, clippy::ignored_unit_patterns, clippy::needless_collect, clippy::unnecessary_map_or, clippy::manual_flatten, clippy::manual_strip, clippy::future_not_send, clippy::unnested_or_patterns, clippy::no_effect_underscore_binding, clippy::literal_string_with_formatting_args)]
 //! Mock implementations for testing
 
 use chrono::Utc;
@@ -63,7 +64,7 @@ pub fn create_mock_registry_index(pack_count: usize) -> RegistryIndex {
 /// Create a minimal mock pack with only required fields
 pub fn create_minimal_mock_pack(id: &str) -> PackMetadata {
     let mut versions = HashMap::new();
-    versions.insert("1.0.0".to_string(), create_mock_version("1.0.0"));
+    versions.insert("26.6.6".to_string(), create_mock_version("26.6.6"));
 
     PackMetadata {
         id: id.to_string(),
@@ -73,7 +74,7 @@ pub fn create_minimal_mock_pack(id: &str) -> PackMetadata {
         keywords: vec![],
         category: None,
         author: None,
-        latest_version: "1.0.0".to_string(),
+        latest_version: "26.6.6".to_string(),
         versions,
         downloads: None,
         updated: None,
@@ -130,13 +131,13 @@ mod tests {
 
     test!(test_create_mock_pack, {
         // Arrange & Act
-        let pack = create_mock_pack("test-id", "Test Name", "1.0.0");
+        let pack = create_mock_pack("test-id", "Test Name", "26.6.6");
 
         // Assert
         assert_eq!(pack.id, "test-id");
         assert_eq!(pack.name, "Test Name");
-        assert_eq!(pack.latest_version, "1.0.0");
-        assert!(pack.versions.contains_key("1.0.0"));
+        assert_eq!(pack.latest_version, "26.6.6");
+        assert!(pack.versions.contains_key("26.6.6"));
     });
 
     test!(test_create_mock_registry_index, {
@@ -164,7 +165,7 @@ mod tests {
 
     test!(test_create_multiver_mock_pack, {
         // Arrange
-        let versions = vec!["1.0.0", "1.1.0", "2.0.0"];
+        let versions = vec!["26.6.6", "1.1.0", "2.0.0"];
 
         // Act
         let pack = create_multiver_mock_pack("multiver", &versions);

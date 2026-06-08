@@ -2,18 +2,18 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Ocel2Log {
-    pub objects: Vec<OcelObject>,
-    pub events: Vec<OcelEvent>,
+    pub objects: Vec<OCELObject>,
+    pub events: Vec<OCELEvent>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct OcelObject {
+pub struct OCELObject {
     pub id: String,
     pub object_type: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct OcelEvent {
+pub struct OCELEvent {
     pub id: String,
     pub activity: String,
     pub timestamp: String,

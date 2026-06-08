@@ -1,8 +1,31 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
 use chrono::{TimeZone, Utc};
 use ggen_graph::diagnostics::{DiagnosticStatus, DiagnosticsRunner};
 use ggen_graph::doctor::ProcessDoctor;
 use ggen_graph::ocel::{
-    EvidenceProjector, OcelEvent, OcelLog, OcelObject, OcelObjectRef, ProvActivity, ProvAgent,
+    EvidenceProjector, OCELEvent, OCEL, OCELObject, OCELObjectRef, ProvActivity, ProvAgent,
     ProvDocument, ProvEntity, ProvGeneration, ProvUsage,
 };
 use ggen_graph::DeterministicGraph;
@@ -14,10 +37,10 @@ fn test_ocel_roundtrip_and_diagnostics_flow() -> Result<(), Box<dyn std::error::
     let graph = DeterministicGraph::new()?;
 
     // 2. Define an OCEL Log representing a standard process run
-    let mut log = OcelLog::new();
+    let mut log = OCEL::new();
 
     // Objects
-    log.objects.push(OcelObject {
+    log.objects.push(OCELObject {
         id: "artifact-123".to_string(),
         r#type: "Artifact".to_string(),
         attributes: {
@@ -32,11 +55,11 @@ fn test_ocel_roundtrip_and_diagnostics_flow() -> Result<(), Box<dyn std::error::
     let ts2 = Utc.with_ymd_and_hms(2026, 5, 26, 12, 10, 0).unwrap();
     let ts3 = Utc.with_ymd_and_hms(2026, 5, 26, 12, 20, 0).unwrap();
 
-    log.events.push(OcelEvent {
+    log.events.push(OCELEvent {
         id: "event-1".to_string(),
         activity: "CreatedOnly".to_string(),
         timestamp: ts1,
-        objects: vec![OcelObjectRef {
+        objects: vec![OCELObjectRef {
             id: "artifact-123".to_string(),
             r#type: "Artifact".to_string(),
             qualifier: Some("input".to_string()),
@@ -44,11 +67,11 @@ fn test_ocel_roundtrip_and_diagnostics_flow() -> Result<(), Box<dyn std::error::
         attributes: HashMap::new(),
     });
 
-    log.events.push(OcelEvent {
+    log.events.push(OCELEvent {
         id: "event-2".to_string(),
         activity: "ArtifactEmitted".to_string(),
         timestamp: ts2,
-        objects: vec![OcelObjectRef {
+        objects: vec![OCELObjectRef {
             id: "artifact-123".to_string(),
             r#type: "Artifact".to_string(),
             qualifier: Some("output".to_string()),
@@ -56,11 +79,11 @@ fn test_ocel_roundtrip_and_diagnostics_flow() -> Result<(), Box<dyn std::error::
         attributes: HashMap::new(),
     });
 
-    log.events.push(OcelEvent {
+    log.events.push(OCELEvent {
         id: "event-3".to_string(),
         activity: "Closed".to_string(),
         timestamp: ts3,
-        objects: vec![OcelObjectRef {
+        objects: vec![OCELObjectRef {
             id: "artifact-123".to_string(),
             r#type: "Artifact".to_string(),
             qualifier: None,

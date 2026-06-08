@@ -1,6 +1,6 @@
 use std::sync::Arc;
-use tower_lsp::lsp_types::*;
-use tower_lsp::{jsonrpc::Result, Client, LanguageServer};
+use tower_lsp_max::lsp_types::*;
+use tower_lsp_max::{jsonrpc::Result, Client, LanguageServer};
 
 use crate::state::ServerState;
 
@@ -40,7 +40,7 @@ impl GgenLanguageServer {
     }
 }
 
-#[tower_lsp::async_trait]
+#[tower_lsp_max::async_trait]
 impl LanguageServer for GgenLanguageServer {
     async fn initialize(&self, _: InitializeParams) -> Result<InitializeResult> {
         Ok(InitializeResult {
@@ -119,6 +119,7 @@ impl LanguageServer for GgenLanguageServer {
                 name: "ggen-lsp".to_string(),
                 version: Some("26.5.28".to_string()),
             }),
+            offset_encoding: None,
         })
     }
 
@@ -195,7 +196,7 @@ impl LanguageServer for GgenLanguageServer {
             if range_contains(&d.range, position) {
                 if let Some(plan) = crate::route::route_plan_for_diagnostic(&registry, &d, &content)
                 {
-                    let view = crate::route::CompactTraceView::from_route_plan(&plan, uri.path());
+                    let view = crate::route::CompactTraceView::from_route_plan(&plan, uri.path().as_str());
                     return Ok(Some(Hover {
                         contents: HoverContents::Markup(MarkupContent {
                             kind: MarkupKind::Markdown,
@@ -354,7 +355,7 @@ impl LanguageServer for GgenLanguageServer {
                 .unwrap_or_else(|| route.description.clone());
             // Carry the canonical RouteEnvelope in `data` — the SAME shape the
             // headless gate, MCP tool, and A2A bridge project for this diagnostic.
-            let data = crate::route::envelope_for_diagnostic(&registry, d, &doc, uri.path())
+            let data = crate::route::envelope_for_diagnostic(&registry, d, &doc, uri.path().as_str())
                 .and_then(|env| serde_json::to_value(env).ok());
             actions.push(CodeActionOrCommand::CodeAction(CodeAction {
                 title,
@@ -365,6 +366,8 @@ impl LanguageServer for GgenLanguageServer {
                 is_preferred: Some(true),
                 disabled: None,
                 data,
+                documentation: None,
+                tags: None,
             }));
         }
         Ok(if actions.is_empty() {

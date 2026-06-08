@@ -382,7 +382,7 @@ mod tests {
     #[test]
     fn test_signature_receipt_display() {
         let receipt = SignatureReceipt {
-            package_identifier: "test-pack-1.0.0".to_string(),
+            package_identifier: "test-pack-26.6.6".to_string(),
             signature: "abc123...".to_string(),
             public_key: "def456...".to_string(),
             signed_at: Utc::now(),
@@ -391,6 +391,6 @@ mod tests {
 
         let display = format!("{}", receipt);
         assert!(display.contains("Signature Receipt"));
-        assert!(display.contains("test-pack-1.0.0"));
+        assert!(display.contains("test-pack-26.6.6"));
     }
 }

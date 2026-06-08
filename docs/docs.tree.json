@@ -4,7 +4,7 @@
     "title": "Autonomous System - Simple Design",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "7efbea67897c3369300a07b2af4decc4aa46669ca9ac09412ea1e640b03c2e65",
+    "sha256": "d149bfcf55fb12091310e6715b5f12a83486e63b9baaa12eb599548392d75fc5",
     "verification_status": "PASS"
   },
   {
@@ -12,7 +12,15 @@
     "title": "Vision 2030 Deployment Strategy",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "f46ea9772b703a00c30dd1e39fcfd0e572d22414ac47128d02c69103c5832a94",
+    "sha256": "2c764d64db4fbc882500f425b77f1a6335570d2d89175ea17c4fff2821615c0b",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/DFLSS_GENESIS_PARTS_CHARTER.md",
+    "title": "DFLSS Project Charter",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "152d2bcd60147ecac6f6620449014d6ddfe12f142945f96a3f14364256d646cf",
     "verification_status": "PASS"
   },
   {
@@ -20,15 +28,39 @@
     "title": "Diátaxis Best Practices in ggen",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "88bbec6cf2f36b59ea12a1106936f01438791c24068cea7727a8e34d95a99147",
+    "sha256": "c681e91340c2f4f39d7ad3d69d39cf00f083ce5659a3870d6e6a5bad77fbc2a6",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/FAKE_DETECTION_STRATEGY.md",
+    "title": "Fake-Detection Strategy — Part B Implementation",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "81a78888cda1e0e48807933341c270f96a1f2850f850295396a75d55b6ce6e2d",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/FEATURE_GATES_DETAILED_REFERENCE.md",
+    "title": "Feature Gates — Detailed Reference by File",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "214dc09b074947adc3f45159b768800f96497c33305b7cec82b961bf01895b9b",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/FEATURE_GATE_ANALYSIS.md",
+    "title": "Feature Gate Enablement Report — Path A Test Suite",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "cf0f4d4461502f454f47c895eb957ccbce8215db9cf63de586e453efe7c2ab7f",
     "verification_status": "PASS"
   },
   {
     "path": "docs/GGEN_DFLSS_CHARTER.md",
-    "title": "Lean Six Sigma Project Charter — ggen",
+    "title": "DFLSS Project Charter",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "9b24113385099e74577a3464fe0d40cd04467d110429ac5b7b0dd7c17f04e0c9",
+    "sha256": "152d2bcd60147ecac6f6620449014d6ddfe12f142945f96a3f14364256d646cf",
     "verification_status": "PASS"
   },
   {
@@ -36,7 +68,7 @@
     "title": "Developer Experience & Quality of Life (DX/QOL)",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "d24729738746c215896046a2cb5d01dc29597dd1d48cea8d2efb623f122f6b89",
+    "sha256": "e58256d42316931f4f194adf07b001a45575e7a93634b036e143353cf8d5aff5",
     "verification_status": "PASS"
   },
   {
@@ -58,7 +90,7 @@
       "gall/W9_EXTERNAL_WITNESS_ADJUDICATION.md"
     ],
     "checkpoint_mapping": "None",
-    "sha256": "3b07d18b87c1f22b39b4b584f32dbd71b0cca348f8438798f4ab301fc0b7e2f0",
+    "sha256": "118c919a00d4f032f238cf8d2d98cba38d3008c5917f04c087e6ffeac9d20d85",
     "verification_status": "PASS"
   },
   {
@@ -73,7 +105,7 @@
       "GENERATED_EXAMPLES.md"
     ],
     "checkpoint_mapping": "None",
-    "sha256": "8b0bea299f5de56785ef779259d5ee1a0e208bfb537206f1e425e7450ba807df",
+    "sha256": "4c1f034372b8f5f1f267482a10b3079f2d4ae411091ffb3583d092dd5d2d874b",
     "verification_status": "PASS"
   },
   {
@@ -81,7 +113,7 @@
     "title": "Infrastructure Setup",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "5405c65ba6bab73108adb1abe288250fd4326c1622e55ae5c3f3cde186a0591d",
+    "sha256": "1763a3802a4fec420f2d213d48595d42108fc154699d484e91c6142cc6a491f9",
     "verification_status": "PASS"
   },
   {
@@ -97,7 +129,15 @@
     "title": "ggen Rust Core Team — Master TODO List",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "e32b4f51917a0fc4873a872dd9518a2cef8565b2ff967582c52b47a294fdb8f4",
+    "sha256": "2f743447ed9704d84d294068d0df4e5fc626ca1b835f5670307c747a8897e67a",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/PATH_A_FEATURE_GATES_SUMMARY.md",
+    "title": "Path A Feature Gate Enablement Summary",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "2e8b77457e28c06b53df1d1beb53f6b084b60c51e90036b43310da31a0b19760",
     "verification_status": "PASS"
   },
   {
@@ -121,7 +161,7 @@
     "title": "Public Ontology Governance Specification",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "fca1d2b706879aa0b0bb8de46d92adaabe26ad05ffd13e6bbc2bfa6f051f72ca",
+    "sha256": "0c40a02e5c051462faffbc0a1e553eac6518c087bb8284578d5aba9ddab86198",
     "verification_status": "PASS"
   },
   {
@@ -129,27 +169,28 @@
     "title": "ggen v26.5.19 - Quick Reference",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "3948a84bfe682fe1a57ca4b5820180c547553aa72eed4d52d155112e68c02dba",
+    "sha256": "762cd0a426073e1d107d99dee16994a64d37e2eb0e3b0b783170becdb46603ce",
     "verification_status": "PASS"
   },
   {
     "path": "docs/README.md",
     "title": "ggen Documentation",
     "sources": [
+      "explanation/why-docs-must-match-the-build.md",
+      "explanation/genesis-run.md",
+      "reference/release/v26-5-28-boundary.md",
+      "reference/cli/command-proof-matrix.md",
+      "reference/workspace/crates.md",
+      "reference/workspace/feature-flags.md",
       "tutorials/getting-started.md",
       "how-to-guides/installation.md",
       "reference/cli.md",
       "wip/MUDA_INVENTORY.md",
       "tutorials/ontology-to-code.md",
-      "reference/rdf-sparql.md",
-      "explanations/rdf-for-beginners.md",
-      "how-to-guides/configure-llm.md",
-      "tutorials/ai-powered-generation.md",
-      "reference/configuration.md",
-      "tutorials/marketplace-quick-start.md"
+      "reference/rdf-sparql.md"
     ],
     "checkpoint_mapping": "None",
-    "sha256": "7b406a1bc8ffaa1362652f617c5731b65b4c22d594f09b569d1ac667a01e826c",
+    "sha256": "e0f79075c4600474b2a2a70030c9ab44eaccd9a63926a452bf027856124b1c86",
     "verification_status": "PASS"
   },
   {
@@ -165,7 +206,7 @@
     "title": "Vision 2030 GALL requirements (PRD / ARD)",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "1cc12dd87f61a32d9afb389dda0c09f6104ac54871109d858cff1cdd6564a179",
+    "sha256": "e276fc8cd23954eafad67f0f502be84b8d3ebcd8658dbaa2c7a0a08546137ebc",
     "verification_status": "PASS"
   },
   {
@@ -173,7 +214,7 @@
     "title": "Vision 2030 Witnessed Agent Checkpoint Proof of Correctness",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "17fe2b13a3a9e04d41f73d4eaa66d472add58521a8bf653b48a2c73c76e1e2db",
+    "sha256": "f5ff40fccb22768f52e6284084abfe920a785a43fe80c5e5567e66cff68c1915",
     "verification_status": "PASS"
   },
   {
@@ -181,7 +222,36 @@
     "title": "Vision 2030 GALL Readiness Report",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "66e248c620ef307ed117bd93e576357614b24aea83c14e9ad2a581dc27a7f70e",
+    "sha256": "0aca58ecc6c11f4fb719ed1035aa3800d0d83e5a3a4007ba00407eb2bf10686a",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/VISION_2030_GGEN_GENESIS_DOCTRINE.md",
+    "title": "Reimagined Vision 2030: ggen and Genesis",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "4458f14bd7230624a83bd2cff79d0f89633d826c58ef855ab8eca42315d30fe9",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/WAVE2_PHASE1_KICKOFF_BRIEF.md",
+    "title": "Wave 2 Phase 1 Kickoff Brief",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "c2e4c15b800553594652b8e89f2928db7d6703f140494368d42c38c87a56deee",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/WAVE2_PHASE1_QUICK_START.md",
+    "title": "Wave 2 Phase 1 — Quick Start Guide",
+    "sources": [
+      "./WAVE2_PHASE1_KICKOFF_BRIEF.md",
+      "./TESTING.md",
+      "./../.claude/rules/rust/testing-forbidden.md",
+      "./../.claude/rules/otel-validation.md"
+    ],
+    "checkpoint_mapping": "None",
+    "sha256": "6df5aa8b7dc43e37041dc9bc7f11eba9b92a983f463cbf124bbb4dab823f5621",
     "verification_status": "PASS"
   },
   {
@@ -189,7 +259,7 @@
     "title": "Witnessed Agent Truthfulness GALL Protocol",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "c3fd7b8493d8e2623bf5f4e72fe29c2e04245ce755c6c0863694bf7932c3a752",
+    "sha256": "7e773ca5b318926198df107ad64d8c6274c286504e3c83e4f2175858a4b6fecc",
     "verification_status": "PASS"
   },
   {
@@ -279,7 +349,7 @@
     "title": "Polyglot Code Generation Guide",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "c391577afb15d1ef16ed811afd7fb395ec280d8f0b084960b5621ceba9ea927f",
+    "sha256": "bcc19d4912c8bb5ad6eceee5f0aff83e872114d187759b197c98e5a3fae80160",
     "verification_status": "PASS"
   },
   {
@@ -323,6 +393,14 @@
     "verification_status": "PASS"
   },
   {
+    "path": "docs/architecture/AUTONOMIC_KNOWLEDGE_ACTUATION.md",
+    "title": "Autonomic Knowledge Actuation: Reimagined Vision 2030",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "a1cb2c52d0a9139fb93ae870a375da097a8960131efd513c79aec336661d2536",
+    "verification_status": "PASS"
+  },
+  {
     "path": "docs/architecture/C4_GGEN_PAAS_ARCHITECTURE.md",
     "title": "ggen PaaS - C4 Architecture Documentation",
     "sources": [],
@@ -335,7 +413,7 @@
     "title": "ggen Architecture — Compressed Reference",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "77e1ea95936d499067775d4029acbac531c0f9e496250fb140680575e2d1a85a",
+    "sha256": "7fec5f0f4feed48b2f882f32f65f63f13afce5482cbfe5e193bf0338d755b310",
     "verification_status": "PASS"
   },
   {
@@ -343,7 +421,31 @@
     "title": "Architecture Diagram Corrections & Hidden Insights",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "10173d0f60ce58c2459a9ba07dc5dfacbc9a6e122a1d219dc5e8510f60ab00ee",
+    "sha256": "84c26c9cb5af4b02ad98370bf16348883d9d886f624fef59303539bca08cc3a8",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/architecture/GGEN_LSP_LIVING_PROJECT_GRAPH.md",
+    "title": "GGEN-LSP Living Project Graph",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "a09c6fbd6846a84b1fc43357af5ea6e66b18ffedad8610ffdb8f51ae5d90617e",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/architecture/PROCESS_INTELLIGENT_LSP_VISION_2030.md",
+    "title": "Process-Intelligent Authoring Infrastructure — POWL · OCEL · SPARQL, and the LSP/MCP/A2A Pattern",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "5c4e075c45a0a7bef8b775381e7c92afb0fd6e3c38a81e264f974ec7e9632240",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/architecture/c4/README.md",
+    "title": "ggen Living LSP — C4 model (single source of truth)",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "ab67b2133a836ea062cf49525febe12506000d6d35304f09b73bc71197626503",
     "verification_status": "PASS"
   },
   {
@@ -782,7 +884,7 @@
     "title": "Testing Guide for ggen",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "f4511da8120ada3e7d42cd80aa05d89ee684649f9611d041ed7a416ae95f6a17",
+    "sha256": "5c057ed7a5fe8c5c12042047be9af8f01a97f8a90fee99c1222be85a053ddfb0",
     "verification_status": "PASS"
   },
   {
@@ -790,7 +892,7 @@
     "title": "Implementation Guide - Architecture Gap Resolution",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "3c2c207312dffa172bab148ce1f4cbd44c399a6b976fa2bb689dc22215cdd6a5",
+    "sha256": "085271c5a6353af1e1d7e388e5dfcff7e00c19ef71968daaf3bdc53a2ce0aa02",
     "verification_status": "PASS"
   },
   {
@@ -798,7 +900,7 @@
     "title": "Performance Benchmarks",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "a01ae072aca77785593dbd1a96948270ac29bbd0519b3d5c4de8b0d4d9a1783e",
+    "sha256": "203b260daba5e341ab946c9cf54364824204ba4f59eff8252aa3e85f78ae7003",
     "verification_status": "PASS"
   },
   {
@@ -806,7 +908,7 @@
     "title": "ggen-cli-lib",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "8ea78acebab7e4c450016269fbd99d193096b308e6bffd505a1758a4d0a73447",
+    "sha256": "b4024c911aec1425ccb80d177dfd5c1efcb3b5e2cc9d315d599275d4a281fc90",
     "verification_status": "PASS"
   },
   {
@@ -814,7 +916,7 @@
     "title": "ggen-core Examples - Production-Ready Rust Lifecycle Management",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "d9e3613b949cc10a632e91921dbd14adaa3955a10a1cc2e2f3441a708cd846b8",
+    "sha256": "c7742b3a46d7f693fc8a91d0a67e87d05b73d1d2a1211a28b09c4d1a0aa8d2a7",
     "verification_status": "PASS"
   },
   {
@@ -822,7 +924,7 @@
     "title": "Advanced CLI Tool",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "547f3994526ed5b0f5af20d60ea432a904205d6f35516d6897c6ffd2a6f4d1b3",
+    "sha256": "4e360c6d42f40be8aacc9a666ac5f165b3958b21a2d8df064263eb749b1d6f2c",
     "verification_status": "PASS"
   },
   {
@@ -830,7 +932,7 @@
     "title": "Async Web Service Example",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "44f62df75abaa6b58fd0bd8070808ca2d6a73cfe688634be549645ab3d042297",
+    "sha256": "b6fa3b33de9618942434341590d18c54c1117ff0e8501bc8805e91af26a68f92",
     "verification_status": "PASS"
   },
   {
@@ -838,7 +940,7 @@
     "title": "WASM Crypto Module",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "4e60829a650f094f69ff9d7c236dea0a3cd62f7589cf9d13555c89ac8eabcfde",
+    "sha256": "e35fc12ce731e2ca6b497596af95acaeadac90d9e64aa3d7c64aec6a6bd6a904",
     "verification_status": "PASS"
   },
   {
@@ -846,7 +948,7 @@
     "title": "Poka-Yoke Design for Marketplace Package Lifecycle",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "42e4e2a197e33e9fc469339362139b8ee8ce5b25173256c52da66058cdc96106",
+    "sha256": "608b40e58acf05ff21c8e7d04ab12eb7d9ab1f91e521643461a1d56d88b1041d",
     "verification_status": "PASS"
   },
   {
@@ -854,7 +956,7 @@
     "title": "Error Modes Inventory - Marketplace Package Lifecycle",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "60b47f555160510bdee026ebd4d3dda4b2dad98241734f48485b929b0eb57064",
+    "sha256": "15a52c70691b1774b2338faecdf15040c6143d31d1d628163c2d1b719b3a56b0",
     "verification_status": "PASS"
   },
   {
@@ -1076,7 +1178,7 @@
     "title": "Archival Scripts Documentation",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "9e26338b8623cfc8fcc78f8b2267ca502e74e62ac94479f2e3273637ac593dba",
+    "sha256": "a7d92d66fffdff355d1da4f0dee7c2abc7f8e1376d7e1e9c1cf8faa3dec76be0",
     "verification_status": "PASS"
   },
   {
@@ -1084,7 +1186,7 @@
     "title": "Ggen Scripts - Dogfooding Tools",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "7deb2a77d96877a77020de7e068e4328d8ba9071289b6d7ff0a528281cb2abf7",
+    "sha256": "dfd756ab505c47adf6b0eb5f981f27bf15a9bde1178e8edb5468dc4efdc05cea",
     "verification_status": "PASS"
   },
   {
@@ -1092,12 +1194,10 @@
     "title": "🏗️ Marketplace-V2 Integration Planning Suite",
     "sources": [
       "SUMMARY.md",
-      "MIGRATION_GUIDE.md",
-      "README.md",
-      "INDEX.md"
+      "MIGRATION_GUIDE.md"
     ],
     "checkpoint_mapping": "None",
-    "sha256": "ea0116d26271c07927210bd83ac5f122d8e5dfcfc2348db30f4f996728c4be9b",
+    "sha256": "f5cbc6426ac651f34e773794d0354e757b9feb0f6ceafcf681b16abd017b4459",
     "verification_status": "PASS"
   },
   {
@@ -1105,7 +1205,7 @@
     "title": "Marketplace-V2 Migration Planning Diagrams",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "ad444453c7f59e0e39c21a6eacb9f5082df4f14363a5eab84b18ebb6b3e6e5a4",
+    "sha256": "516e0021572b46fd2543c6c3ed4c5f0bf9750d450a64cf1ab35a316bc118ba0c",
     "verification_status": "PASS"
   },
   {
@@ -1119,7 +1219,7 @@
       "../docs/v2_migration/AUTOMATION_TEST_REPORT.md"
     ],
     "checkpoint_mapping": "None",
-    "sha256": "645c048008af132fde81523806000aed43e18cea541c21f7f05848f10158fd26",
+    "sha256": "96eb6a7b637fe6fb7f7779fec4ce5ed505b64b69a0f8808b24e00ceceaa64498",
     "verification_status": "PASS"
   },
   {
@@ -1127,7 +1227,7 @@
     "title": "Migration Automation Plan - 67 Remaining Commands",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "2210a70766ecd6f7d9ecae3591ed9e0663896bb21d8ec90982e58459d31a2987",
+    "sha256": "7fd87c5f99d0a43a681c68c4986804576e0357a64766125269d1e2622639dfb4",
     "verification_status": "PASS"
   },
   {
@@ -1135,7 +1235,7 @@
     "title": "Migration Automation - Quick Reference",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "e090b2c7a9322801532eeb0eecfe3687d7699db76fdbedee4a00408488ae618c",
+    "sha256": "2e6844ee1f364be1354edb296df993da5bf547a5c7409fa77ebb1cfabd4b3c6e",
     "verification_status": "PASS"
   },
   {
@@ -1143,7 +1243,7 @@
     "title": "ggen v2.0.0 Migration Automation",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "d6c2d1b09e4f58c86247af27e78e50af1dc2f4c878ecd041b2fe0b3d8d57a682",
+    "sha256": "ffb1aa7d5d19dcd0cf69e64689472411c677d2154eb21720a57667801ebe9505",
     "verification_status": "PASS"
   },
   {
@@ -1151,7 +1251,7 @@
     "title": "Documentation Validation Scripts",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "a65f2d217283174a1d78d181b163db01672f38cb95462445941d6a3d918913c5",
+    "sha256": "478f53fcf21ac09af8388c75bd649d267c268da837c953477b70311af4be6bf6",
     "verification_status": "PASS"
   },
   {
@@ -1159,7 +1259,7 @@
     "title": "ggen Documentation Validation Report",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "75f5e6a9f7b99ef60ea02cad43d92d52f4837e4d904a8107884a0ed11e0b4226",
+    "sha256": "5aa7007c5fef369b46fc37e79fac73bf61f2815632ed962850f21c3af2527576",
     "verification_status": "PASS"
   },
   {
@@ -1167,7 +1267,7 @@
     "title": "Cleanroom Templates - Usage Examples",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "e33e119535ea6a64a2411e5d82c47eb2696c628be7d646897ed12dfb3ef236f8",
+    "sha256": "9340cc27b5be1990000d73aa4726521387202ccea23dd4b92bdf7cd6a0525aa5",
     "verification_status": "PASS"
   },
   {
@@ -1175,7 +1275,7 @@
     "title": "Cleanroom Testing Framework - Gpack Templates",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "d79efc88fe2c79fe0c586d34a71d3d4af749109d396143b7e7caca09ac3f64d8",
+    "sha256": "7dca63cded1500ba710780f05f658b55b9b6fc4d47fc2d36aa2651876b89863d",
     "verification_status": "PASS"
   },
   {
@@ -1183,7 +1283,7 @@
     "title": "Noun-Verb CLI Generator - Marketplace Package",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "c1a8d22084e408b8d9bfb0c31ef7aba687da942bf5556c261e32737d454e309a",
+    "sha256": "d0d1cd31d40e01f3a065b58c4beeeec959b4c3cdf691f9831a741723e782c8b0",
     "verification_status": "PASS"
   },
   {
@@ -1191,7 +1291,7 @@
     "title": "Noun-Verb CLI Generator",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "0ce75faf2fb57be578cc431e5afd80c200017ea8a57945bcb12e8c210dbc0320",
+    "sha256": "cb447540b04b93219e9f3abc9fa5c39f3f55e46b7cb9d2084a9c6e2e0fbd1b71",
     "verification_status": "PASS"
   },
   {
@@ -1199,7 +1299,7 @@
     "title": "Noun-Verb CLI Generator Guide",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "c76e400f08567dc7215f1ae96469317d8f290db49a5bdec95fb635dc5303f82a",
+    "sha256": "4aa65e0f8f831794d884a5593d014e67b07721667b68290172f2bccd5ea92627",
     "verification_status": "PASS"
   },
   {
@@ -1207,7 +1307,7 @@
     "title": "Noun-Verb CLI Generator - Usage Guide",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "0443a356c292740008a54ac33fe7e600462a735ca01fe3a07f78cb2552d6b204",
+    "sha256": "f61df46d265330b802213627d4eab6c566e6718eab0aa6e9eaa8ba0f6a71478e",
     "verification_status": "PASS"
   },
   {
@@ -1215,7 +1315,7 @@
     "title": "Node.js Bindings: Data-Driven Generation Flow",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "390b18dd21e5cb84dfcd09c0f321e2ed4851ea678d875e5f606585c8a655b01a",
+    "sha256": "4af58ceedcd4aae29766dd9592d8aece6636f8ff6c15f203f164d1a3b0320b14",
     "verification_status": "PASS"
   },
   {
@@ -1223,7 +1323,7 @@
     "title": "Node.js Bindings Generator (3T Approach)",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "ad5a788c2cdf0aa73293a5fd11fc9c3273daed60bf5cd2cba5317dca5f4475fa",
+    "sha256": "40cf3bd46398fec92d61fe6f5dabc5488a54f14812c5317a3cd092c98095cf3a",
     "verification_status": "PASS"
   },
   {
@@ -1231,7 +1331,7 @@
     "title": "Backward Thinking: Output → Ontology → Queries → Templates",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "7c7308d7271e06abac4f7107aeb1e7ac205234d6fa9db78b97a341de6b0f697b",
+    "sha256": "28c1d345a66292d2c1e382935939b2f7dd9c29bc4a32c3fbd4329362ef20ad6e",
     "verification_status": "PASS"
   },
   {
@@ -1239,7 +1339,7 @@
     "title": "Ultra-Fast Template Examples",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "e19d18f1c51df1d320667203a8e2e7194b540ae3527582c626910b290588c190",
+    "sha256": "034d5ec90d52a2823269c4fc6c1c1d0d1093e1f7cbb9ecdbc36756624499aeb0",
     "verification_status": "PASS"
   },
   {
@@ -1247,7 +1347,7 @@
     "title": "Ultra-Fast Code Generation Templates",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "d4091d2945132424e1c93eb842f1a79730c18a4eba42662af4ca086176028bd1",
+    "sha256": "9e544d688f26456f9a9b0f42c3e6b67297051ffae0cb10a55a15e215f6b793a0",
     "verification_status": "PASS"
   },
   {
@@ -1284,7 +1384,7 @@
     "title": "Big Bang 80/20 Specification Analysis Report",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "fade3c5ee45b211360401ec8d4727bb414824946228fae377121fa70f971c337",
+    "sha256": "1d36caae92e3a3c242a48cf13136483e6621ad33b96e2b197f8d7c7589b5d826",
     "verification_status": "PASS"
   },
   {
@@ -1292,7 +1392,7 @@
     "title": "Requirements Checklist: FMEA & Poka-Yoke Marketplace Framework",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "f954dcf805779414d6fcaa48183235a59ca41dd245e9080eef467c688cbc48b0",
+    "sha256": "b1fe2923515954ce7aa015db9174c42fb9827f529d9e566e42e4f0a86aca7498",
     "verification_status": "PASS"
   },
   {
@@ -1300,7 +1400,7 @@
     "title": "Data Model: FMEA & Poka-Yoke Marketplace Framework",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "8b9ce42343e904a02b5f19c7c18cfda7f949c0ce3de72d4aeee34b317f5f0242",
+    "sha256": "409bd2fdacc9f68dd3facd229f3ab886dc9a00369b115832ef35ca961d321d00",
     "verification_status": "PASS"
   },
   {
@@ -1310,7 +1410,7 @@
       "./spec.md"
     ],
     "checkpoint_mapping": "None",
-    "sha256": "8f31a255d046bfe9bf6a3a205fb3e7a4210dee07842d63f5b593ee3984bf1b57",
+    "sha256": "960613bbb04e0cfec41499f699f363f1b4543e09ab3efc3d42e56d1695ed2033",
     "verification_status": "PASS"
   },
   {
@@ -1318,7 +1418,7 @@
     "title": "Quickstart: FMEA & Poka-Yoke for Enterprise Packages",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "9cba0150d1012f6ba2107358a081a6b31ab12586dd80a8b3129e359f16712d77",
+    "sha256": "f842b546e6652e90c2fd241e21040ca599a901806466c0987e1dbc7c4a6020a6",
     "verification_status": "PASS"
   },
   {
@@ -1326,7 +1426,7 @@
     "title": "Research: FMEA & Poka-Yoke Marketplace Framework",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "5e99f9beebcd2f32f53d9ab71f2a9b92007c780301d27e0ef710cbaeba84f9ad",
+    "sha256": "7b82011e1b11527a5cc2e5443fcd5bd1bb830cd75c66cfc9c24fbc9c97e4e3b7",
     "verification_status": "PASS"
   },
   {
@@ -1334,7 +1434,7 @@
     "title": "FMEA Analysis & Poka-Yoke Code Recommendations for ggen",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "869230e5221de38bca678303c5507afa49698e42e9ca946e86b7020c82de735f",
+    "sha256": "059ad3db2cf862035fcc48949fa936804267639c4a0d9431dbfb58fed00705ce",
     "verification_status": "PASS"
   },
   {
@@ -1342,7 +1442,7 @@
     "title": "Tasks: FMEA & Poka-Yoke Marketplace Framework",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "a69ca415af4e4ab1b034befbfd37e886d5a3b9583b9d438ca402c0aa6979e617",
+    "sha256": "046a7603a711801a74c76565350ede88f2111d84c19518faf445097e7af35a50",
     "verification_status": "PASS"
   },
   {
@@ -1350,7 +1450,7 @@
     "title": "/speckit.finish Execution Summary",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "c79f993c3aaf615cbc14df8bdcf729e5032dd57f63b54b2de3b56626b9d313e7",
+    "sha256": "303f80771b4370224a0db4c74a11688ca44a9e8853fbaadc5fd96d44373ac6a9",
     "verification_status": "PASS"
   },
   {
@@ -1358,7 +1458,7 @@
     "title": "007-CLI-JTBD-Audit: Gap Analysis Complete",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "178f7b343977acd787a26987e5d258e1622ce5c62d634711fb27f90e2f719aff",
+    "sha256": "d5aab94aae620cc831da3c4151e04bbf5bc077def3e9bdf64f90300ecbdabd9b",
     "verification_status": "PASS"
   },
   {
@@ -1366,7 +1466,7 @@
     "title": "CLI JTBD Audit - Implementation Guide",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "4ce0d5e2c250350f94185e8a1d73ef15df4bed5a285ff335cf08453b168cab4b",
+    "sha256": "3b3046bc0d91de1c9b6a2bceaf5555a9b3f10f609e00e6b04dcd5836e0cf3ced",
     "verification_status": "PASS"
   },
   {
@@ -1374,7 +1474,7 @@
     "title": "Implementation Status: 007-CLI-JTBD-Audit",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "f0f842f722df5d8e3bbe9634a7273e65a474fd6d41ba0cb8ec5af672d2c63dae",
+    "sha256": "6d421aa0693227f5f6b0ab80b40b5f8e84f782da10c64b20861d9f28b148d5e9",
     "verification_status": "PASS"
   },
   {
@@ -1382,7 +1482,7 @@
     "title": "Phase 3: US1 Functional Audit - Progress Report",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "a74a1e02b863f0f997a0243681b6d40610e2ec13f76f712c3fc99d2ac3392b53",
+    "sha256": "a5ecd7b0e48871f4fb46505efcaa4784eccc4325ab918e2f475273256ce1e107",
     "verification_status": "PASS"
   },
   {
@@ -1390,7 +1490,7 @@
     "title": "Requirements Checklist: CLI Jobs-to-be-Done Audit",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "b380aa948bb3d7d15746af1cbc63c745f5618eb07b15b4b0e63c434527c828a0",
+    "sha256": "fe818b6dcae12f6e3cfc67d65b80174a8c7567ea62b9876108c6dfcab1bf4019",
     "verification_status": "PASS"
   },
   {
@@ -1398,7 +1498,7 @@
     "title": "Data Model: CLI Jobs-to-be-Done Audit",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "cf2e4f230bd343512b4c5cd71605810df7f7e40e0e986114575b14eac5529d26",
+    "sha256": "21a5fff46313f4766c73888a9372c98bb57b19d8c6b11e32de1d7ba626621f68",
     "verification_status": "PASS"
   },
   {
@@ -1406,7 +1506,7 @@
     "title": "Phase 2: Foundational Audit Infrastructure - COMPLETED",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "d45148a2e1589b9c9033a7580795d01539db6dc9f11780ab577c8377b8a7cfed",
+    "sha256": "ad1fc98779d8f4b7854029f83d6c220fec3994f208ed9dd7619202f30656bd50",
     "verification_status": "PASS"
   },
   {
@@ -1414,7 +1514,7 @@
     "title": "Phase 3: Day 1 Functional Audit Summary",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "ab25e4552cc0a996497fa7c4f41b74176007127a47453c313d131186b6bc3392",
+    "sha256": "0a7be0ce03f27fb44a0b745187073ff7d15770a3250a327a9039c52d0c29184e",
     "verification_status": "PASS"
   },
   {
@@ -1422,7 +1522,7 @@
     "title": "Phase 3: Days 2-5 Functional Audit Summary",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "57bfc4dd787861cbaaae13bb9c27a6ffcdcab5080f5f0a4e8a106e37f954e559",
+    "sha256": "04c9a14fb19fd8c1b11a7d9f17d462c0475ceacc4d5fa3eb9c5f9a7dcb0d16b5",
     "verification_status": "PASS"
   },
   {
@@ -1430,7 +1530,7 @@
     "title": "Agent Accessibility Scoring Reference Card",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "cc88460a1791adcf15aa7b5ac9291f8ec4f6a9799a1b43fa95672fcf7b4663b6",
+    "sha256": "c2e6177ad8c4bdc4e71c50c2d4e1ca4ad1751e39e58f855d231ae95a87e1a7ab",
     "verification_status": "PASS"
   },
   {
@@ -1440,7 +1540,7 @@
       "./spec.md"
     ],
     "checkpoint_mapping": "None",
-    "sha256": "70a6139667f53f0d1ebcd80abe8fe445b27b3ed78d4e6e8270f07445a4943e2d",
+    "sha256": "12072de9672690d9cb3dd7e4b372e76123125ffe58009c35f6caa45682de27a2",
     "verification_status": "PASS"
   },
   {
@@ -1448,7 +1548,7 @@
     "title": "Quickstart: CLI JTBD Audit Execution",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "477253a6648e32874a6df7904b442a02a6aafe616b89a43f3cc558840ec0e81a",
+    "sha256": "86113259aef0c33fed3955ddf94a0012e0439f8b542b9db7ef7ca26d9e85d350",
     "verification_status": "PASS"
   },
   {
@@ -1456,7 +1556,7 @@
     "title": "Research: CLI Jobs-to-be-Done Audit",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "b2e7c8a1629299973adfe1140c36cc4c4a266ead366c9dacb61813bc14658b26",
+    "sha256": "57b8f75112b58b2557583c91dc3b41b184073d48fad6b8738d43bde50576a2a5",
     "verification_status": "PASS"
   },
   {
@@ -1464,7 +1564,7 @@
     "title": "Feature Specification: CLI Jobs-to-be-Done Audit",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "19f9fc986f980c51f67aad1ef1271c5e763f9ee17950f77aaa5becfd2ccf7cf1",
+    "sha256": "f5b8bfb32bf939f084de04bcbe6b0089ae9f5a378a38c4216eca6ea76a820dfd",
     "verification_status": "PASS"
   },
   {
@@ -1472,7 +1572,7 @@
     "title": "Tasks: CLI Jobs-to-be-Done Audit",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "b2b97a863c022bc5e9bf56b6152134ca7d00a2643209fcb631aec9f8d34020d9",
+    "sha256": "4fda256f9da580eba01e70515ccdad166acba78d8ca64e71df78c052fad66df3",
     "verification_status": "PASS"
   },
   {
@@ -1482,7 +1582,7 @@
       "../spec.md"
     ],
     "checkpoint_mapping": "None",
-    "sha256": "8e451a06c8702c6df1ffd5f5693102a6e396f612550c97e226c5f1088a2384fd",
+    "sha256": "a25065f50d5cfc67e87411a70715d6c59a2f9ff35f6dae847293154fc63e12fe",
     "verification_status": "PASS"
   },
   {
@@ -1490,7 +1590,7 @@
     "title": "Data Model: Thesis Generation Ontology Schema",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "428dfdc47fe53e38a6ca02913114de1c37bdaecc21410cbd92ea2338aa9c98b1",
+    "sha256": "867586d14f9fa5e07858a9133c4a85ec3b94ab3f32bcbaee4989f3ad9fa1c850",
     "verification_status": "PASS"
   },
   {
@@ -1500,7 +1600,7 @@
       "./spec.md"
     ],
     "checkpoint_mapping": "None",
-    "sha256": "e0156a681fc8df8ca5625207b657c771bdac31b16aba00b506f70e7bb030673a",
+    "sha256": "dbff6cbf55e207fdf50e0fed82539be3d033575dc9cacaae8653a0bfe7944552",
     "verification_status": "PASS"
   },
   {
@@ -1508,7 +1608,7 @@
     "title": "Feature Specification: Reusable Ontology-Driven PhD Thesis Generation System",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "3b6b12b2a359a280c4331b3cb374e71a5952b749bac77d9a74f3fe83a9a16b41",
+    "sha256": "34b84d69e820851dafbe65aa9cb682d6141d407aae5f39e6712c59596df5cda7",
     "verification_status": "PASS"
   },
   {
@@ -1516,7 +1616,7 @@
     "title": "Tasks: Reusable Ontology-Driven PhD Thesis Generation System",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "9fabff77a6cb1a5fdedf6233dedd83a8cde6c3bac59c7b7c632e082c262921ef",
+    "sha256": "8ea9352bb3032a748dfd5ef95a414d963558d312d711e133bfa9523563083adc",
     "verification_status": "PASS"
   },
   {
@@ -1526,7 +1626,7 @@
       "../spec.md"
     ],
     "checkpoint_mapping": "None",
-    "sha256": "6227deb109eb62bf063cf4cf0db39d09bdfb2fec3fcbc8e48329b550eddd37c2",
+    "sha256": "d2afb9c028916f5285b0a0fda2456e8bbe9ce37ae428149c32af2f41c9f747f2",
     "verification_status": "PASS"
   },
   {
@@ -1534,7 +1634,7 @@
     "title": "Data Model: End-to-End Testing with Testcontainers",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "12254dfc928dc3522e2ddc0de5c0e65e7a27d4d115f8f3838d17c4a916554d0e",
+    "sha256": "5c4ddf229cfbdf0b418d25bf15022c3cf3e91f31df1e8da1cad8b4068aadd307",
     "verification_status": "PASS"
   },
   {
@@ -1544,7 +1644,7 @@
       "./spec.md"
     ],
     "checkpoint_mapping": "None",
-    "sha256": "42c754b126639a68d8895fbf8a71d35982ba1ce93fc91898d1cd7b367ea184f7",
+    "sha256": "cfe6a3f6825b14a2a2ad3d1e403dde00db382ee56633c89f0795831b6801bc14",
     "verification_status": "PASS"
   },
   {
@@ -1552,7 +1652,7 @@
     "title": "Quickstart: Running E2E Tests",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "76ef8271746b8b0067946c992c7bb1a7ef65382408f08d62a50d779ef309c4d6",
+    "sha256": "b6aafc038fa477d278f9b0b161d51d162b833549407381fa66446d0fae2b6710",
     "verification_status": "PASS"
   },
   {
@@ -1560,7 +1660,7 @@
     "title": "Research: End-to-End Testing with Testcontainers",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "3ca11073709f418fb391f79fe0c8c7add747e9ce03e1c7c4adfcc9f232cc8668",
+    "sha256": "ef324457b22d442e59dfe5f7562d555fd1527a431dbf34ca904cc2f445048d97",
     "verification_status": "PASS"
   },
   {
@@ -1568,7 +1668,7 @@
     "title": "Feature Specification: End-to-End Testing with Testcontainers",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "64db1bafc4c6db325835dd32b5022b72412e984928d01565c27ca13baf9d9e5c",
+    "sha256": "b363e6df365b64a9a17c560edb291891abb26516140df8a4a7e9a2fcd9cde4ba",
     "verification_status": "PASS"
   },
   {
@@ -1576,7 +1676,7 @@
     "title": "Tasks: End-to-End Testing with Testcontainers",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "7ce09859f3337e2bb2bde04693866902b3cf3f48259c083457b4f059073e6d0a",
+    "sha256": "9e69afce0c4be9773f54574e8e107d6f0ce695e52821fa493dd4de5ced82e3e8",
     "verification_status": "PASS"
   },
   {
@@ -1584,7 +1684,7 @@
     "title": "Phase 5 & Phase 6 Task Validation Report",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "d2fb9b1871a46997218fabb49361a3dfc653ad94bf0a6549812a7c3aad0155c7",
+    "sha256": "90ebe05768998e86342c93404bb496174e989edc475ce062296ea08848345781",
     "verification_status": "PASS"
   },
   {
@@ -1592,7 +1692,7 @@
     "title": "Data Model: Grand Unified KGC Thesis",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "0040076b0026d783c8efb014553722cf83fc44cc21ee4d69d379879a7b1f0875",
+    "sha256": "fca85b7c07edb3d3ee680f31170d6e9d27b07b758cf98c6538eaf81e2733f5c2",
     "verification_status": "PASS"
   },
   {
@@ -1600,7 +1700,7 @@
     "title": "Chapter 8: CONSTRUCT, FIBO, BPMN Integration - Evidence Summary",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "9d1cf4f3d6502b9c6fdd9884e43fa86c28927c3e7eb56ce3bfbf05ba53282b5b",
+    "sha256": "4cb8ce2c356e81a4b782d2f50b9118c2e7a417601be0343d6ba77a235e3bed8b",
     "verification_status": "PASS"
   },
   {
@@ -1608,7 +1708,7 @@
     "title": "Research Phase: Grand Unified KGC Thesis",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "8e7b10b5372595fb45122449b8faf2b7ed0ad14881ec41ffb9daaf53be30a670",
+    "sha256": "ca538e8b200ed3bc82f49332c93538e15acb88105c2bf2bcecb9827290f7f887",
     "verification_status": "PASS"
   },
   {
@@ -1616,7 +1716,39 @@
     "title": "Tasks: Grand Unified KGC Thesis",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "55c0ab9d49979d0d3f833b948b1f551ab7bfb5949f04277e68122c959c064938",
+    "sha256": "bd9aa62a8c46677c5cfcf71fe992802a076883273d8284918af71b70da9ea463",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/ark-covenant/ARK_RECEIPT.md",
+    "title": "ARK-COVENANT: ProofPack Receipt",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "efc08dd9c3a85ea285cba785c6472cd899a744d330b76c522350b63827f1aa2c",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/ark-covenant/BOUNDARY_RECEIPT.md",
+    "title": "ProofPack Boundary Receipt — feat/ark-covenant-1",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "35cfe0414a523c9bfa0da741e176d9021521c601816c2e3bf09a8c452b049467",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/ark-covenant/PHASE9_EXECUTION_SUMMARY.md",
+    "title": "feat/ark-covenant-1 Boundary Crossing — Execution Summary",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "c05e26d13313825bdf92baa1ae1b6ff9e62866a96fd6c4025ae6e333fab3510e",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/ark-covenant/v26.5.29_RELEASE_RECEIPT.md",
+    "title": "ggen v26.5.29 Release Receipt",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "6b5386cb6c32db4abab311421df625bccecc539bab8adeb06e17ed827ac0df08",
     "verification_status": "PASS"
   },
   {
@@ -1624,7 +1756,7 @@
     "title": "Accepted Security Advisories",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "3974bdeb397cf5d7858aa5807dded4def06ed2de7254755dcd2e6ce430dc72d3",
+    "sha256": "e9b3e0e66c87a30f46d1276d08451be77d9b3b2f322275ba42273414243efa12",
     "verification_status": "PASS"
   },
   {
@@ -1632,7 +1764,7 @@
     "title": "Phase 3 Validation Audit Report",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "bdb19108bf37c5f965081394e4aa0220a8342ebd3e2a579f1135c4f6b789a390",
+    "sha256": "fc1aff35cf5ac6be52c8a23db7b85b280a097de196de91e4c7f4287e0ad89a82",
     "verification_status": "PASS"
   },
   {
@@ -1648,7 +1780,7 @@
     "title": "ggen Workspace Audit Dashboard",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "3eafbd9e4719ecd3be403e2027f8c7a765271fbf35183b61be32d9015e106526",
+    "sha256": "b7c8be64c623731e12e68838d0ac73b11862306e503ef3b28ff451daa2a13e99",
     "verification_status": "PASS"
   },
   {
@@ -1656,7 +1788,7 @@
     "title": "Stub Classification — Execution-Trace Verified",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "949ad8865c35c72a7002a722fbaf92fd018d4a8e203500cb6a67df9128892a48",
+    "sha256": "1ffabb5a6a28cf8100a452522866379745311f94d40fa3f585c9059fe3c83bbd",
     "verification_status": "PASS"
   },
   {
@@ -1664,7 +1796,7 @@
     "title": "Clean Crates — No Significant Issues",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "ca15656ee0e679faa00bfe86e3616e07e9ecb3e36df14a3a46ef0360ff4dc5e1",
+    "sha256": "225d438d7513a39ee8ac3581323ce7243e7bc2b437d3b06da02794b205a93af1",
     "verification_status": "PASS"
   },
   {
@@ -1672,7 +1804,7 @@
     "title": "ggen-a2a-mcp — Crate Audit",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "22d9a9e25fb3d7deb7616518f7124af467741f82b53733d3a23e3309e0542c1a",
+    "sha256": "e19cec1670785e258284e11136de04acecbb9cde32bb20c2bd80a837545b84e4",
     "verification_status": "PASS"
   },
   {
@@ -1680,7 +1812,7 @@
     "title": "ggen-ai — Crate Audit",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "d5bc57b681a70bed393b9f27981b7660bd93e3a8e648454af1f45434c21d276f",
+    "sha256": "305a2906c7665494944c777b65b3d29d4a4dee870a2f8997afc84ccd1d20b585",
     "verification_status": "PASS"
   },
   {
@@ -1688,7 +1820,7 @@
     "title": "ggen-cli — Crate Audit",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "2fcb64cec2bd6c609d16f54f50e3d85627624af9fcf6ffed25cb4cc0de2550fd",
+    "sha256": "b75d99cf85390112587be0fd18edd2f77228f6f78a01ace6c7727211096f4d75",
     "verification_status": "PASS"
   },
   {
@@ -1696,7 +1828,7 @@
     "title": "ggen-config — Crate Audit",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "25405f4e86ad2d301d28b7a4d46102deb361df85463fbc97262140dfac1f0db5",
+    "sha256": "59398e2deaea70cf313a888147a7234e4a5ec433bc24cca1021bec6f805fb0e2",
     "verification_status": "PASS"
   },
   {
@@ -1704,7 +1836,7 @@
     "title": "ggen-core — Crate Audit",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "4ce12776c161ffff3bb4ab3f4b152a56272ef8379b59bbcfa71b92eacedf0aa5",
+    "sha256": "488e889332ce93a8fc34f259a6e427c7e5aabe0b36ad4838bf001a5913dd5cc2",
     "verification_status": "PASS"
   },
   {
@@ -1712,7 +1844,7 @@
     "title": "ggen-domain — Crate Audit",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "653bd477e57100c3c8adb239e8d3af7c80e40d823762f70c3b40d02ef7426e20",
+    "sha256": "fd6891d6338f1e6726c29efb1c3856513113f250a5ca475d708bcf4faf2eb4a8",
     "verification_status": "PASS"
   },
   {
@@ -1720,7 +1852,7 @@
     "title": "ggen-dspy — Crate Audit",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "550425a3b989e5e06426de530ed660be4ac829c1be62512b5b386aece76541d8",
+    "sha256": "16242178f46cfccfdaf24e3a04e7055927129989a4e1594fe9778995349e42ba",
     "verification_status": "PASS"
   },
   {
@@ -1728,7 +1860,7 @@
     "title": "ggen-macros — Crate Audit",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "5142c3d715d8c12fd66ade20aa10b3c6c442c99a29a23c832688783d653c53d6",
+    "sha256": "ae8150f436dc8ac6725ba94c6cab252d7237372ed203811c564c28b719718593",
     "verification_status": "PASS"
   },
   {
@@ -1736,7 +1868,7 @@
     "title": "ggen-marketplace — Crate Audit",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "9e1d2156b30e734104f7cfab570f2055345426af935389128c14a63878452db0",
+    "sha256": "a67ab7e19821a0a6d4f909c11ce1b81a1b0521d39f9f04649871b939ccc3b909",
     "verification_status": "PASS"
   },
   {
@@ -1744,7 +1876,7 @@
     "title": "ggen-testing — Crate Audit",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "b89025e4a2621c42eeac04cf4a80143ff7ee21e6ff9b9a1707d61607f62d4e46",
+    "sha256": "2fe07b9d19cad7be8aec0f30507214a6429a8f19adc1683ceeb173e3a19cc5c1",
     "verification_status": "PASS"
   },
   {
@@ -1752,7 +1884,7 @@
     "title": "ggen-utils — Crate Audit",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "e026334404d5438c098f1edd693f5030a51919136a6dc8854061437822ba7bdd",
+    "sha256": "01851ca9f4be3f8e3b7ae0baaf04c9711dd69b40ecb4e52c3b69494af0c38cb4",
     "verification_status": "PASS"
   },
   {
@@ -1760,7 +1892,7 @@
     "title": "DFLSS Validation: A2A Swarm Scaling (1000x)",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "9b2bf8fca35ccc3ff5073e6ac97b099bb7da90e061589c663dbcd6f16f30669f",
+    "sha256": "90ca26e3265c12a31a75f192819d0121633127a28486038b8af6e3dd9feb5401",
     "verification_status": "PASS"
   },
   {
@@ -1768,7 +1900,7 @@
     "title": "Explanation: Control Plane Security in the Marketplace",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "52f9fca61c0a3b8a122c63bea46c31067621cbe012818f3a9fa24812abe2e647",
+    "sha256": "58fad91cd59a49bf6b76d3bfb26e1ff24ca34bc6194a3f367926cc8e8ee3e16d",
     "verification_status": "PASS"
   },
   {
@@ -1776,7 +1908,7 @@
     "title": "Explanation: The 8 Canonical Proof Gates",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "6b19a6802f1e3c27db7138c97c3fe4806dcf37bad632f0be7692ee7071924a48",
+    "sha256": "51bac448850763d7c6cd4ff50f118ddcd90eaa335230a97fa287e461385717db",
     "verification_status": "PASS"
   },
   {
@@ -1784,7 +1916,7 @@
     "title": "Explanation: The Ontology Architecture in ggen",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "c1bb0540b2d57d613bbf7017f4ba7eb47f21de842b043c48b733788d5600baaf",
+    "sha256": "520884c9102b008ca5db037da583d724e6f34fbe7b9150af47826ed422290dd9",
     "verification_status": "PASS"
   },
   {
@@ -1792,7 +1924,7 @@
     "title": "Explanation: Vision 2030 Strategic Best Practices",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "3b5b1b62e7b93a7f8f87095a3eb8d5a803361abf6bddda5136172220e361bc4a",
+    "sha256": "28dfa79768b658a257039c6ce9da1ff308b03030bb645140023d12a40a328f71",
     "verification_status": "PASS"
   },
   {
@@ -1800,7 +1932,7 @@
     "title": "Explanation: The `ggen-graph` Substrate and Semantic Verification",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "775b09ac36892b017474a0a9ff8ad1f258b60ae0a3c605cdb6276dfd9a1b315f",
+    "sha256": "36c76334abfacc33d8606a44cf6babc71decba9944ece83a9a97615dadc1b5a1",
     "verification_status": "PASS"
   },
   {
@@ -1808,7 +1940,7 @@
     "title": "How-To Guide: Implementing 8-Operator Governance",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "95c2b5b54f90784413d292c7fc5926fd8acbcbe8b48e2df4bd83c991b7a5e638",
+    "sha256": "79f93d1cc7438661df14f276857f240056a7428c328381cb44bad810d76fd46f",
     "verification_status": "PASS"
   },
   {
@@ -1816,7 +1948,7 @@
     "title": "How-To Guide: Mapping Domain Models to RDF Triples",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "d6534cc80f75099e8e62aaf3580f00bf7825a6af3aa4870b628efb0033eb33b2",
+    "sha256": "3f8706231058190369f65d21b621c28c2fd3917c312d89cf47bc530084e80434",
     "verification_status": "PASS"
   },
   {
@@ -1824,7 +1956,7 @@
     "title": "How-to: Run Process Conformance Checking",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "94d13a29868c5244c493117721a58f9a272bf4c3e515a94f963aa6970e7557d6",
+    "sha256": "9279545ffbd7b7547e4334b4d105424b6643e83ca24ff300f13d7c9dc242da97",
     "verification_status": "PASS"
   },
   {
@@ -1832,7 +1964,7 @@
     "title": "How-To Guide: Writing Templates with RDF and SPARQL",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "52c65771419b3dce8786341ee405fadd0b4c51dd86f0ad641914a59c520642e1",
+    "sha256": "ca40500ced004f80a9621d24519d462d007e50899b13bc72a3266a91b6d85de4",
     "verification_status": "PASS"
   },
   {
@@ -1840,7 +1972,7 @@
     "title": "How-To Guides: State Management and Provenance with `ggen-graph`",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "ccd7ec561df3cfad40121b5bffe742c56ad5318b65a17b88083663bef3d39b97",
+    "sha256": "7108090f56eca1950967a594d4bd52b48bbc32363091b07cbbb2a907d2614504",
     "verification_status": "PASS"
   },
   {
@@ -1848,7 +1980,7 @@
     "title": "Reference: 8-Operator Lifecycle States",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "b491ab0a3d03cd0e69766b11a8fbe9a789bd150e3ac7260346c9ab5d62ba01ad",
+    "sha256": "6c8963dda08f99163d531304d2f9818f8521e5079048b64ee45d08bb0a2e9324",
     "verification_status": "PASS"
   },
   {
@@ -1856,7 +1988,7 @@
     "title": "Reference: Ontology Packs & Metadata Configuration",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "ee73f0c3f7e4cac9428211d8d3205a46c9b3ed7a18c629dc88f85f25d9c25a22",
+    "sha256": "0e4c41de37472c090f1431a8145c9660ec3f8dd78c8943a37a9cdf5ee24a9c2a",
     "verification_status": "PASS"
   },
   {
@@ -1864,7 +1996,7 @@
     "title": "Reference: Manufacturing Proof Gates",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "d2507a2cdb2a9d53929bade079fb959d777d7a4f180c934083fc99c387ef143a",
+    "sha256": "cc5815dad8bcb6d9ef5147a3da8048a47b377025513b3e7811a884392fd6fdd7",
     "verification_status": "PASS"
   },
   {
@@ -1872,7 +2004,7 @@
     "title": "Reference: ggen Marketplace RDF Ontology",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "d343e54a5ffdceb80bca6b03d933c3bd647e75d469eab617d80101b5428a09d5",
+    "sha256": "a1a66cb65cd14689b6b58aebba6bf60b23e5abda12bc724799523980fae2c561",
     "verification_status": "PASS"
   },
   {
@@ -1880,7 +2012,7 @@
     "title": "Reference: ggen-graph API & Vocabulary Specifications",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "b20efe0c1751269341390db8b745229a953c71218c0559569820eda6d569d121",
+    "sha256": "7e7b60c7d313a7f20129665960e649eff2efc969cc87862cad39f831005caffa",
     "verification_status": "PASS"
   },
   {
@@ -1888,7 +2020,7 @@
     "title": "Tutorial: KGC-4D Time-Travel and Temporal Reconstruction",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "1eb3eba28c59d48643818939842ed7e63b5a5180d49d7b29487db2781a7239c5",
+    "sha256": "73dcede98b2e0faf1f5abb1f52c2b87993a13b4d6fdd86d1d31ac18739fb18f6",
     "verification_status": "PASS"
   },
   {
@@ -1896,7 +2028,7 @@
     "title": "Tutorial: Manufacturing Your First Semantic Artifact",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "987eff16bf6942345bcccbeb9e8040335148bf0ff993053203c40e214c84cbec",
+    "sha256": "0e362ea1958cd740ed1757fab7c1792cfb33b0a01b0ba1e51df5b223137c9550",
     "verification_status": "PASS"
   },
   {
@@ -1904,7 +2036,7 @@
     "title": "Tutorial: Getting Started with Open Ontologies in ggen",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "825f76d71dca21d49b3eea633cc146e84beb79bc1a79c330a038daa6cd81993d",
+    "sha256": "b4aeb999ce50da9381fc46c8589db94d39a86e084c1bb622f6527684d96dfb50",
     "verification_status": "PASS"
   },
   {
@@ -1912,7 +2044,7 @@
     "title": "Tutorial: State Transitions in `ggen-graph`",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "f00f193c6681a13c36285e0937e3627ba4cee0a014817cb2fe6eea171e8c512b",
+    "sha256": "e1b350d1f51e50cc78812358f7a22183bb8efcf64c1db61517c8c3cf498b0a70",
     "verification_status": "PASS"
   },
   {
@@ -1961,13 +2093,93 @@
     "verification_status": "PASS"
   },
   {
+    "path": "docs/explanation/gall-foundation-retrofit.md",
+    "title": "Gall Foundation Retrofit — with `ggen sync` as the Only Actuation",
+    "sources": [
+      "../reference/cli/delivery-plane-proof.md",
+      "../receipts/GALL_INTEGRATION_1_RECEIPT.md"
+    ],
+    "checkpoint_mapping": "None",
+    "sha256": "c255c86b9fd10238ebc76ca52962916793657a903ac67986edc3e11ba4a522af",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/explanation/genesis-run.md",
+    "title": "The Genesis Run",
+    "sources": [
+      "motion-does-not-count.md",
+      "sabbath-grade-done.md",
+      "oracle-gaps.md",
+      "why-docs-must-match-the-build.md",
+      "gall-foundation-retrofit.md"
+    ],
+    "checkpoint_mapping": "None",
+    "sha256": "26520dac84a301ae48a577d1d7659797a9ada5cb0bcf9f734ba22c4f0230813f",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/explanation/motion-does-not-count.md",
+    "title": "Motion Does Not Count",
+    "sources": [
+      "genesis-run.md",
+      "oracle-gaps.md",
+      "../reference/cli/command-proof-matrix.md"
+    ],
+    "checkpoint_mapping": "None",
+    "sha256": "7ded07b2e6a2bcf1d518a44bff5622a38f5250df9762f1e4baf3ac795fa4b27a",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/explanation/oracle-gaps.md",
+    "title": "Oracle Gaps",
+    "sources": [
+      "motion-does-not-count.md",
+      "../reference/cli/command-proof-matrix.md",
+      "../reference/release/v26-5-28-boundary.md"
+    ],
+    "checkpoint_mapping": "None",
+    "sha256": "8ef9e4531e1a0f557572dfac464be3d7bdc153f0f4855586ad42d7464cb2eb60",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/explanation/sabbath-grade-done.md",
+    "title": "Sabbath-Grade Done",
+    "sources": [
+      "oracle-gaps.md",
+      "why-docs-must-match-the-build.md",
+      "motion-does-not-count.md",
+      "genesis-run.md",
+      "../reference/release/v26-5-28-boundary.md"
+    ],
+    "checkpoint_mapping": "None",
+    "sha256": "7b2c2d8edc3ae7d7715ae9a3454a6264f869254deff9a23e5a9dadc3238c1f3a",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/explanation/why-docs-must-match-the-build.md",
+    "title": "Why Docs Must Match the Build",
+    "sources": [
+      "oracle-gaps.md",
+      "motion-does-not-count.md",
+      "../reference/workspace/crates.md",
+      "../reference/workspace/feature-flags.md",
+      "../reference/cli/command-proof-matrix.md",
+      "genesis-run.md",
+      "sabbath-grade-done.md",
+      "../README.md"
+    ],
+    "checkpoint_mapping": "None",
+    "sha256": "ef04ed63a8de0ecddc6d91fc1eff14c2d47c71007745d335becf16f67470f2cc",
+    "verification_status": "PASS"
+  },
+  {
     "path": "docs/explanations/advanced/protocol-translation.md",
     "title": "Protocol Translation",
     "sources": [
       "../../README.md"
     ],
     "checkpoint_mapping": "None",
-    "sha256": "91e49c1e7df7614bd22e39f207ee6cf177128781ad17ed84408ee0b48dc684d4",
+    "sha256": "a0c13d657fe9723b711cec17884c9e7ec564cb9095d752966ca733a1e9de0bf5",
     "verification_status": "PASS"
   },
   {
@@ -1977,7 +2189,7 @@
       "../../README.md"
     ],
     "checkpoint_mapping": "None",
-    "sha256": "8241a1468e3660814434f7245bc35242d86ce91c77b501cf7a495d44d11e496e",
+    "sha256": "1bd61c55ba531b37f24f1540b9057dddaa84dda0ed9c28aa29f808067c1d622d",
     "verification_status": "PASS"
   },
   {
@@ -1987,7 +2199,7 @@
       "../../README.md"
     ],
     "checkpoint_mapping": "None",
-    "sha256": "e8453d296e525e8d5b79f691fc7c0570d617813c26c2dd93ba28af8874f5c2a7",
+    "sha256": "17b3c7237be58ebd1b66f8adaa86ab38356bd6cafb4005e9608ec686880d4d1c",
     "verification_status": "PASS"
   },
   {
@@ -1997,7 +2209,7 @@
       "../../README.md"
     ],
     "checkpoint_mapping": "None",
-    "sha256": "98e1e985cd9e11c8b77cd403ba73c8bc587d850cce41ebb780faddbddde7dc9c",
+    "sha256": "d0d5ecb36dabb749d5526e2b4ea343e067814824d6420cf0d4a93f8591917da8",
     "verification_status": "PASS"
   },
   {
@@ -2007,7 +2219,7 @@
       "../../README.md"
     ],
     "checkpoint_mapping": "None",
-    "sha256": "43d8662ed70b8aa3bf816a99f080c44ef91e6c63aa867d675e05d29954ee3360",
+    "sha256": "da2f8b3d39f0c1b611000a3242c8deb86e10b43db1029eaf5db47a9faf1ae863",
     "verification_status": "PASS"
   },
   {
@@ -2023,7 +2235,7 @@
     "title": "RDF for Programmers",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "64d479a7ec5f4e18cefd6c40e58816cda5e3ceff7fea244f8914047d2bfc134f",
+    "sha256": "2df972c536655bf8934c12c1f8883c7aa26194cc6e85912a3af8ffe4a2b1a14e",
     "verification_status": "PASS"
   },
   {
@@ -2065,7 +2277,7 @@
     "title": "Feature Completeness Matrix - ggen v26.5.19.2.0 Phase 3 MEDIUM",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "dd2efcaf6011006215fde763f38e7adeca44d90537bc30ac3da3fd69b7538a68",
+    "sha256": "667ee9d33774b3bfebb48301466653ebb80562065c1fe607e5fb2bdf67fd2b80",
     "verification_status": "PASS"
   },
   {
@@ -2073,7 +2285,7 @@
     "title": "A2A-RS μ Pipeline Documentation",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "32b53c4b79bcaf4a25db30e197aa615ef6e3429db7364ab6633131490af1925a",
+    "sha256": "2fcebf4cc2730ad2f27bdc9ecb81ad99e646aebd9b0aebbe3614d994050ee48c",
     "verification_status": "PASS"
   },
   {
@@ -2105,7 +2317,7 @@
     "title": "Marketplace Sync Command",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "9c10036f616864737d9ac40e5017dcff39eb9ec1f532e0eca5f00a9b3ef43952",
+    "sha256": "0162621085b6feb0764b9d7223c62a3d4671f089c31a9a17220bfa723c897a1b",
     "verification_status": "PASS"
   },
   {
@@ -2145,7 +2357,7 @@
     "title": "W0: No Narrative Promotion",
     "sources": [],
     "checkpoint_mapping": "W0",
-    "sha256": "904cc9fdbcb140c9ff45d8b9d8ab02816f5a1cf8f1f208d84de20f6b68624bc7",
+    "sha256": "5a90501aa3a5671a696d783f4df80d776a2005d41796b6adc31bfd571d347acf",
     "verification_status": "PASS"
   },
   {
@@ -2153,7 +2365,7 @@
     "title": "W1: Full Worktree Inventory",
     "sources": [],
     "checkpoint_mapping": "W1",
-    "sha256": "e81742c0097d63ecfe37c78be5de4ffae9be9deea1bc4bd6fd047fdd603094bb",
+    "sha256": "f9dde68d260eec4a96d6742dbd450a8e1cf25529bcf9c990b9b01bcd10523120",
     "verification_status": "PASS"
   },
   {
@@ -2161,7 +2373,7 @@
     "title": "W2: Transcript Command Evidence",
     "sources": [],
     "checkpoint_mapping": "W2",
-    "sha256": "45981550c4dcc86a0f6470c797cfc888991b31a93369ea63bb87952bc65acba5",
+    "sha256": "2a81a10badf569adc5c8cb2332243682208b53a1d19dd37422319c499e63d7ac",
     "verification_status": "PASS"
   },
   {
@@ -2169,7 +2381,7 @@
     "title": "W3: Script Adequacy",
     "sources": [],
     "checkpoint_mapping": "W3",
-    "sha256": "47809fa40684f7928d543054c8b6551c2fe9f676af666ab3bc218234fb43f8c6",
+    "sha256": "cf08f2c13d2cd0575e0405fcd415d9776564fc091f4849982592917184bfd86b",
     "verification_status": "PASS"
   },
   {
@@ -2177,7 +2389,7 @@
     "title": "W4: Negative Control Sabotage",
     "sources": [],
     "checkpoint_mapping": "W4",
-    "sha256": "b08d23bf923bf49daa2a5cbc56e73e2e469a67c931b36271e49b9a11e6ecea7c",
+    "sha256": "87e4bebe0e21866ef4f53a9f45390cbaf507d4d1a1eef8cee69d1c66076de25a",
     "verification_status": "PASS"
   },
   {
@@ -2185,7 +2397,7 @@
     "title": "W5: Clean Room Rebuild",
     "sources": [],
     "checkpoint_mapping": "W5",
-    "sha256": "f56377f83ab99f2e341288de9e5873910da47b797467d18de0533a7954b26c09",
+    "sha256": "7e02573be815b3aca2bad6f2cd4c0aac2ba5a0d87e5586626d1162633dbd8eb1",
     "verification_status": "PASS"
   },
   {
@@ -2193,7 +2405,7 @@
     "title": "W6: Cross Artifact Consistency",
     "sources": [],
     "checkpoint_mapping": "W6",
-    "sha256": "0660cbac4e1564f414999e957a5431e2134af2d0d80a7268490e4df9069523b0",
+    "sha256": "b3c276384294c8c9cd7efb4b86bac96aca2cd3dbeff40fdb114b6b0aa33f7c64",
     "verification_status": "PASS"
   },
   {
@@ -2201,7 +2413,7 @@
     "title": "W7: OCEL Causal Sufficiency",
     "sources": [],
     "checkpoint_mapping": "W7",
-    "sha256": "6afbbce1a9651bc50d54429292f845e9b74a5c0190a44eb7814485ae885b6441",
+    "sha256": "18811459cdb48ce84ef1e75fadf2e7187dbd974c7551b59ab478b456691abe6f",
     "verification_status": "PASS"
   },
   {
@@ -2209,7 +2421,7 @@
     "title": "W8: Contradiction Supersession",
     "sources": [],
     "checkpoint_mapping": "W8",
-    "sha256": "6fe017d0d055a39723ec0eefe3718de2bfa3201923d058c5eca5cd48b428cb61",
+    "sha256": "8c7600601f9bdc5a8e0d997454224fc54efa69417ec1017ff49cfb5f9934313c",
     "verification_status": "PASS"
   },
   {
@@ -2217,7 +2429,7 @@
     "title": "W9: External Witness Adjudication",
     "sources": [],
     "checkpoint_mapping": "W9",
-    "sha256": "c297430c2dced1b2b0bb5dbb1396d5fa43354af03129712cb514bca2f157b0b0",
+    "sha256": "5ec38272ad6fc8cde92b9a60a515b6dc01e42c561f5833986f11ea7d3d0e055d",
     "verification_status": "PASS"
   },
   {
@@ -2225,7 +2437,7 @@
     "title": "MCP & A2A Quick Start Tutorial",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "879a9632464b42dea9cee0db5fd795355937b74f2d0bbc43ab9c580cef52e2ef",
+    "sha256": "0220dabf3d98c57a0a0c4ffd82355650b7c070e20171a8def0ef949cd427a1a0",
     "verification_status": "PASS"
   },
   {
@@ -2233,7 +2445,7 @@
     "title": "Current State — Golden Path Trace",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "e45dd8ac7ad1d2ac0ea6d4b84af19c2d0787c89b9bdc43c0846fa096a3121131",
+    "sha256": "175d18adfa90183e8ac1fb8e9aaa6487da0cef223aa2383f9e98f76e536e481e",
     "verification_status": "PASS"
   },
   {
@@ -2241,7 +2453,7 @@
     "title": "Golden Path Delta — Current vs Target",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "51c8e60f363753218e9c5ef061bd1f72738358e941b2d5f68ece46956e1309f2",
+    "sha256": "5b9f72465cbc1b6f687de9b2bd8a98334d367ddfe8d3648da53d292fdca58b1b",
     "verification_status": "PASS"
   },
   {
@@ -2249,7 +2461,7 @@
     "title": "Target State — Golden Path (v26.5.19)",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "c71fbbb7b480a89ee23a41168e213f322e3afc6d8920779e0818f4e73ecab24e",
+    "sha256": "399f07f0afbd83b17e584f91c16967c7fff957727e1e77aee77cd756ae7794a3",
     "verification_status": "PASS"
   },
   {
@@ -2257,7 +2469,7 @@
     "title": "ggen v26.5.19 Perfected Plan",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "7da1e990a9be87c6f2258deeff8d12f9a4fbbf90c3df324eb1ac3093864dee49",
+    "sha256": "0d569b36e3bd1f8d8ff37c2e1f05e48eb62dfc7335b4209487c41d173ac975c9",
     "verification_status": "PASS"
   },
   {
@@ -2265,7 +2477,7 @@
     "title": "How-To: Common Tasks",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "e3d62936d13d1bd96a15dbc4cbe62c868f4f58c0c01bb0cb150bc4bbec2de0c0",
+    "sha256": "a0dcde19a1eab3f4037a8ff27078dab707daa45930fb1512879a1573caa810f1",
     "verification_status": "PASS"
   },
   {
@@ -2273,7 +2485,7 @@
     "title": "How to Configure Transport Protocols",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "db71eac154659829e1de8d0c6cbfec2e23ff50fc3db2c990286f7119e28438b0",
+    "sha256": "59ecf60ae7bdbe659123b95b7c159b3e68138a213dd5729d07f8e69b8f93f76a",
     "verification_status": "PASS"
   },
   {
@@ -2281,7 +2493,7 @@
     "title": "How to Monitor Agent Health and Metrics",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "636487ab54c6606e27e50fd6c4077eab4d04509e7c8893cadf07e3707e554148",
+    "sha256": "bc297a6f832e1fa1656e3b56f774fa594baa178f412c28929b0e7575ac3892c4",
     "verification_status": "PASS"
   },
   {
@@ -2289,7 +2501,7 @@
     "title": "How to Send Messages Between Agents",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "466c8b8e3ccb8aff887379f66b34e576aaf473d577f7ae844bbd66b2e361c46c",
+    "sha256": "d3a04a4cb57ed1d84fe4072cb20b88594310d755cadfa57e52f56d87cd45afd1",
     "verification_status": "PASS"
   },
   {
@@ -2297,7 +2509,7 @@
     "title": "How to Start and Manage A2A Agents",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "9e1b8b0ffb89f98f9c55b3ccee560a12af7c0db121f0580a8ada6963937303a1",
+    "sha256": "714fd03ed96f02e1d8c927bac72df56ecf3d53ea36435a996fc6bfe026961528",
     "verification_status": "PASS"
   },
   {
@@ -2317,11 +2529,22 @@
     "verification_status": "PASS"
   },
   {
+    "path": "docs/how-to/integrate-ggen-lsp-with-claude-code.md",
+    "title": "How to integrate ggen-lsp with the Claude Code lifecycle",
+    "sources": [
+      "../reference/cli/delivery-plane-proof.md",
+      "../explanation/genesis-run.md"
+    ],
+    "checkpoint_mapping": "None",
+    "sha256": "8b7148d475da860ae73f3612d76dd8e6685d7a35ca888c2416febd934e852e3a",
+    "verification_status": "PASS"
+  },
+  {
     "path": "docs/how-to/mcp/bridge-agents.md",
     "title": "How to Bridge A2A Agents as MCP Tools",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "26ded07b59e7d9c28518f5cf6e01c9e0b2108e93167491822d3d63ece1285c04",
+    "sha256": "e439e986d38998551cc0b9dde159f00419a0a9de122fbe9bc318fb5bc44b685a",
     "verification_status": "PASS"
   },
   {
@@ -2329,7 +2552,7 @@
     "title": "How to Configure MCP Server Settings",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "7bb03340adfde74cc7ffb7f5359695109934d214af817d46f566be43d1a4ae04",
+    "sha256": "959b89fe5373425d959bcd8df4a1902e7811502f1560c1b1cdab63b8bb797b69",
     "verification_status": "PASS"
   },
   {
@@ -2337,7 +2560,7 @@
     "title": "How to List and Filter MCP Tools",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "c5727089887f254cbe3fd3dae0571d7ee78e5b44d4755772bd6cc2a240b0b612",
+    "sha256": "2d9871f73b3f35405ca84ff2a1166a6d2ca7b6322feb3a751085a8103bfc8993",
     "verification_status": "PASS"
   },
   {
@@ -2345,7 +2568,7 @@
     "title": "How to Setup Authentication",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "69851b247f00b442df5f58f4c9b0bde85fa1aaaa328620eb2e8f11d7615838b2",
+    "sha256": "754fcec6c63111521cdfed047056fcd3a82b9b6b11a1b0af13a18c403a79d681",
     "verification_status": "PASS"
   },
   {
@@ -2353,7 +2576,7 @@
     "title": "How to Troubleshoot Connection Issues",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "88210e424aaa5c76a42b4748bf7db10616a258fa51a5dc50ad97ac395c9ab552",
+    "sha256": "7cbbe9e59b88456e89fa304970e36dec630b8ca202ebca7405db4aab01aa17fd",
     "verification_status": "PASS"
   },
   {
@@ -2361,7 +2584,7 @@
     "title": "MCP & A2A Troubleshooting Reference",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "8142ebde5cd721c46220f597dd1f85667adb20cc397266cda4452f98865de093",
+    "sha256": "c2a0dbc9919efdad60a7916ac2f21f4c1d1b3a4a109f1c980e4b2cbac0c07d6f",
     "verification_status": "PASS"
   },
   {
@@ -2405,11 +2628,374 @@
     "verification_status": "PASS"
   },
   {
+    "path": "docs/interop/00_INDEX.md",
+    "title": "INTEROP DOCUMENTATION & FINISH INDEX",
+    "sources": [
+      "01_PORTFOLIO_MAP.md",
+      "02_BOUNDARY_DOCTRINE.md",
+      "02_M2M_CLOSURE_PROTOCOL.md",
+      "03_INTEROP_CONTRACTS.md",
+      "04_GENESIS_CORE_SPEC.md",
+      "05_GGEN_FOUNDRY_SPEC.md",
+      "06_PART_RUNTIME_SPEC.md",
+      "16_CODE_CATALOG_ARCHITECTURE.md",
+      "17_CAPABILITY_MANUFACTURING_THEORY.md",
+      "07_TRUEX_LIFECYCLE_SPEC.md",
+      "07a_PROOF_SURFACES_SPEC.md",
+      "08_PROCESS_INTELLIGENCE_SPEC.md",
+      "09_EXTERNAL_VALIDATION_SPEC.md",
+      "09a_DATA_ALGEBRA_GALL.md",
+      "10_PUBLIC_VOCABULARY_GALL.md",
+      "18_GALL_CAP_SPEC.md",
+      "10_DFLSS_FINISH_CHARTER.md",
+      "11_GAP_REGISTER.md",
+      "12_RISK_REGISTER.md",
+      "13_DEFINITION_OF_DONE.md",
+      "14_AGENT_WORK_QUEUE.md",
+      "15_FINISH_PLAN.md"
+    ],
+    "checkpoint_mapping": "None",
+    "sha256": "59189d962e839c8b2431d36d569618bcc4810a8bf24a7b53b566ed23b6eccd71",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/01_PORTFOLIO_MAP.md",
+    "title": "Portfolio Cartographer Map",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "34fce08bbcad4149ee010d787e907675bc2fd1bc2efb8636e67cbd0ff757da2b",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/02_BOUNDARY_DOCTRINE.md",
+    "title": "Boundary Doctrine",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "d6e4cd7c46c5f2fd6f0f7e907b671185cdea56c0fd37e0550e3e878d55ec9496",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/02_M2M_CLOSURE_PROTOCOL.md",
+    "title": "GENESIS MACHINE-TO-MACHINE CLOSURE PROTOCOL",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "f301b11864152421489a8545d56da478c588ffc8f4c3a449c1ec456ce813b781",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/03_INTEROP_CONTRACTS.md",
+    "title": "Interop Contracts",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "679dff2d5051526618720b74c4d55f454060e447abe1bccca57aa210eb75c067",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/04_GENESIS_CORE_SPEC.md",
+    "title": "Genesis Kernel Specification",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "18872fb066f5f7465722179b08f2402c5e489cec108797af716560cddb192d3c",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/05_GGEN_FOUNDRY_SPEC.md",
+    "title": "AGENT: ggen Foundry and Membrane Spec",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "d047d8097f9f9fffcd5ca91cf310103c153d8f9cfa2f0f838e6ce4173ef18475",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/06_PART_RUNTIME_SPEC.md",
+    "title": "Genesis-Bearing Interchangeable Part Spec",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "33080698030c97e3d9b1d87723b37eaea05c2f7f29f42a98e15ba73f955271b4",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/07_PROOF_SURFACES_SPEC.md",
+    "title": "Proof Surfaces and Receipt Replay Refusal Spec",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "f2c8abe9addec568704ce66cac90bcdd6524839696cd6e6838fc354a3d8a1794",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/07_TRUEX_LIFECYCLE_SPEC.md",
+    "title": "07. Truex Lifecycle Spec",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "ef4c57f88a3b7e02d84e4d08443ccfcf418628e5d98713dee5130482ad77c68b",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/07a_PROOF_SURFACES_SPEC.md",
+    "title": "Proof Surfaces Specification (Receipt, Replay, Refusal)",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "420656ec873dcba82a8d07af9ebcc7fa3e8da51c5ff5dd7ebd2c458b1f68f993",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/08_PROCESS_INTELLIGENCE_SPEC.md",
+    "title": "Process Intelligence Interop Specification",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "d65835aacb4be5d03945920ae696adec6182a5f37815d9485db05007ff8e5ed7",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/09_DATA_ALGEBRA_GALL.md",
+    "title": "09_DATA_ALGEBRA_GALL.md",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "8ddcec34999b1dd060f63720167275cb53aac9596040edbfcbb87d521c0742a1",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/09_EXTERNAL_VALIDATION_SPEC.md",
+    "title": "External Projection and Validation Specification",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "72d049cca3e3e8303317196ac4540e8ba541f99d3182aa2663ebbd7a7cb06077",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/09a_DATA_ALGEBRA_GALL.md",
+    "title": "Data Algebra GALL (Gate for Algebraic Logic Limits)",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "96bbbc7e4f130d3734520999966fa46f42bb150f377a887d44de85733ba19ebf",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/10_DFLSS_FINISH_CHARTER.md",
+    "title": "DFLSS Finish Charter (Reference)",
+    "sources": [
+      "../DFLSS_GENESIS_PARTS_CHARTER.md"
+    ],
+    "checkpoint_mapping": "None",
+    "sha256": "a676bb5f8ad029ad28b37e0abc82b6df4528630f0a994e88662f4190da878c11",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/10_PUBLIC_VOCABULARY_GALL.md",
+    "title": "Public Vocabulary GALL Specification",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "6255e241b1a2ba26647b083ae0bf003de84da5ffcd371d7d81b97d89ed38dcaf",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/11_GAP_REGISTER.md",
+    "title": "Gap Register",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "1a147bfbb37e5eb2db4cabaa04cfecc1821b864c9262918add6ef33749ca3d38",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/12_RISK_REGISTER.md",
+    "title": "Risk Register",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "5952756be47145d8d579a668b1a775f0892b28b687b5f216d960072f42c1c547",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/13_DEFINITION_OF_DONE.md",
+    "title": "13 DEFINITION OF DONE",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "8c88f7650f9056e411bd1dd51e7071948ca39b53bc9936870ff6e12bc0bc4c6e",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/14_AGENT_WORK_QUEUE.md",
+    "title": "14 AGENT WORK QUEUE",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "4984194cfc06dcc36b059f26ea59a6c16ad6e91a565adf934cadcdbdc8e2e709",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/15_FINISH_PLAN.md",
+    "title": "15 FINISH PLAN",
+    "sources": [
+      "14_AGENT_WORK_QUEUE.md"
+    ],
+    "checkpoint_mapping": "None",
+    "sha256": "eedadc7f573f154c61dd8ab5c1ce44b1d48da1535ab80613294b95475955a5ea",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/16_CODE_CATALOG_ARCHITECTURE.md",
+    "title": "Executive Summary: Open-Source Tools for Code Catalogs",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "5c2aa3f4f62fbe00f930fd1ec8914653a8e31e0322cd084efa8f74c1a6c66ef4",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/16_MACHINE_CLOSURE_PROTOCOL.md",
+    "title": "GENESIS MACHINE-TO-MACHINE CLOSURE PROTOCOL",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "28ba48120953693a3ecd0b30f690f6f2f70d79e7a926e880c3f5f6375c89edd6",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/16_SEVEN_CHURCHES_AUDIT.md",
+    "title": "The Seven Churches Audit",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "6b4478618933b43e2d2744949b8418c87338cab4557cc562a7a97076eab89fcf",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/17_CAPABILITY_MANUFACTURING_THEORY.md",
+    "title": "Capability Manufacturing Theory",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "afb425ac34910e4102b241aa362374e9201d6e8792e837c59addb4d0d5240462",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/17_REVELATION_AUDIT_DOCTRINE.md",
+    "title": "REVELATION AUDIT DOCTRINE: The Apocalypse of Unreceipted Claims",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "24b554dbd524849a541f5e3dbadcf496a67c32d7db2de5d2197a5f4e306b3af7",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/18_CODE_CATALOG_SPEC.md",
+    "title": "Executive Summary: Code Catalogor Architecture",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "0dbc284f822d42ca7c3d5a52eb5820bb1667a0d0336f29bb6ea0a6fecdc25592",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/18_GALL_CAP_SPEC.md",
+    "title": "GALL-CAP: Capability Admissibility & Process Interchangeability Layer",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "68ad22813e9c53f11391445b04d55e77e9a87286f31882585dcf0a262e4bc877",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/19_CAPABILITY_MANUFACTURING_THEORY.md",
+    "title": "CAPABILITY MANUFACTURING THEORY: The Operational Capability Foundry",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "077fdad8b121c781a9626f80df556e640ffdf2d05c4cc207c540a6a3ec7020f6",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/20_STEWARDS_OF_PENTECOST_VISION.md",
+    "title": "Stewards of the Pentecost (`stpnt`)",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "906074eb2630a27cd7d0fc9c289593e35df151edda94d6d8264f7dcd60c04642",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/21_STPNT_DFLSS_CHARTER.md",
+    "title": "DFLSS for `stpnt` ⚙️🔥",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "0c175117b2772f41d1ec3ae4eed79f4656368d54efa8cf43b5b20c0d5c103682",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/22_GENESIS_SCALE_MANIFESTO.md",
+    "title": "GENESIS-SCALE COMBINATORIAL MAXIMALISM: Vision 2035",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "56570648e3757e6453c0484cc2cd93838be7c843350794e20c78302ce3f3bbed",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/24_GENESIS_SCALE_INVARIANT.md",
+    "title": "GENESIS-SCALE INVARIANT: The Architecture of Consequence",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "fff7708a969588a4701a7522ca5b9f061971f1cbde9fdf54025754beaee17c1e",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/25_CSC_1_OPERATIONAL_SPEC.md",
+    "title": "CSC-1: The Canonical Stewardship Cell",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "d391900dc691027134242965878d9d99bbe7242c65ca64faca200efdf0a35f00",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/26_V30_1_1_MANIFESTO.md",
+    "title": "`v30.1.1` Manifesto",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "4d623eb66de9854b892de3a6c274157502fb5bf2375cbf4d24665eef88eaff3f",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/ADDITIVE_FINISH_PLAN.md",
+    "title": "Additive Finish Plan",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "316c7f792f3abc1621ca52448deafa7560d5238829e4fd320e8d6a8a9d48cc44",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/CAPABILITY_INVENTORY.md",
+    "title": "Capability Inventory",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "203460af55760973b2d8ce8589909ff45d11d7e4357be809b5f2365d86bad338",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/CAPABILITY_SEED_BACKLOG.md",
+    "title": "Capability Seed Backlog",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "2bf4a2c418e4dcffa9b81a9ed5d51987a18beeca4f9a7f4d5d12eb2937f7ecfc",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/DORMANT_CODE_REGISTER.md",
+    "title": "Dormant Code Register",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "4d73c7ab65fa695c5661dc7e2b1cd22b5a2221afda638cfa54aec538a1a90a8b",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/LEGACY_NAME_MAP.md",
+    "title": "Legacy Name Map",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "808c27f5703daa8a9f888b07315aa82ea3ca30ea3b4dead83068f6fcabc84644",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/interop/PATTERN_ATLAS.md",
+    "title": "Pattern Atlas",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "a0c52a0609fa02d1e597e80124bd9ea7a4730e249b3437803c603500888fcd19",
+    "verification_status": "PASS"
+  },
+  {
     "path": "docs/jtbd-verb-classification.md",
     "title": "JTBD Verb Classification Report",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "6a9b59de7f18e24b7d61756512536afe6c1d3b8dab9e01d48e53c803b1b50f68",
+    "sha256": "36d033d9c8e1987781cb21c38771041813dd5c42ca0681dd99782ca78112bc63",
     "verification_status": "PASS"
   },
   {
@@ -2417,7 +3003,7 @@
     "title": "Governed Marketplace Architecture",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "12cdb176dd32dd856c8ac97e50de30f90b6af227dff5465db72761905809e4c9",
+    "sha256": "a74e5846a19c8feab00e3bd6543289016d55058f90c608fa15f85b6d8c2f312e",
     "verification_status": "PASS"
   },
   {
@@ -2425,7 +3011,7 @@
     "title": "Atomic Packs Reference",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "4626137529ac1007c6c3ddd62259c23a4c4276eb5d9e926ffa897fb44970b955",
+    "sha256": "6482e37cba768a49126a9efdbd4068d6107d08466593fc0b4055f2bbad7a4bf1",
     "verification_status": "PASS"
   },
   {
@@ -2433,7 +3019,7 @@
     "title": "Bundles and Profiles",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "47fdd9b482c4550edb735e6b0c1017e3686cd8909fc5fd561843428f3e27056e",
+    "sha256": "7a8168a8a78c5be44d8aa4f9244870ba6da8b2914192b0598e10d029af9d353a",
     "verification_status": "PASS"
   },
   {
@@ -2441,7 +3027,7 @@
     "title": "Marketplace CLI Reference",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "839fa09664b38768ac848269cea51ff47841bb008736b967a56b6f9de7619c0b",
+    "sha256": "dc63618ab2f1bd8d70eeeedc47a05998de49ba9ed730d66577a1954e620ed7a9",
     "verification_status": "PASS"
   },
   {
@@ -2454,7 +3040,7 @@
       "PACK_QUERY_CONTRACT.md"
     ],
     "checkpoint_mapping": "None",
-    "sha256": "cf17963c45a485f0d86a0670830e34e7480b6b0f7fa7814c27dd3a5b88fd41f1",
+    "sha256": "f153b9adeac91e7c044816c66ae3d8bef2b0a22c50caf773571bb572c1f91176",
     "verification_status": "PASS"
   },
   {
@@ -2462,7 +3048,7 @@
     "title": "Fortune 5 CISO Comprehensive Validation Report",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "1d2c302b333f4e159ecd3c56baac9601b5e80d6f8a4ed3c300b0515ee7da6437",
+    "sha256": "eb56ca922f5610e44df6c47d4383b0a258690c6bd4d229d7ab0755ca2474f578",
     "verification_status": "PASS"
   },
   {
@@ -2477,7 +3063,7 @@
       "DELTA.md"
     ],
     "checkpoint_mapping": "None",
-    "sha256": "44379cd32dade2c4a08b888b6b8c931f53cae1acd7fbf1b1deaeba499be54fc5",
+    "sha256": "0801a058753f37c90cf58ffe164a038d0e2e0ea8fb164c5d654cd9d18da48b63",
     "verification_status": "PASS"
   },
   {
@@ -2485,7 +3071,7 @@
     "title": "Fortune 5 CISO Production Readiness Report",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "d5fae0ed5485e350204ce244e153ad132166db26ac05ad6c6df28e809972eedd",
+    "sha256": "bb47290ebfccc8d2406b9deac2e477a89ebe1a5dd4183dd9cd2f66204c2d4cc2",
     "verification_status": "PASS"
   },
   {
@@ -2493,7 +3079,7 @@
     "title": "Fortune 5 CISO - Quick Remediation Guide",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "49057eff1e5575b245a9c20ec44f5e6fe8b7a10f8ac43600ed3126ccaa49417d",
+    "sha256": "7cfbdfda94bad118c72b5e87033bb5398d3c8dbfaff20316adc6a34f840f513b",
     "verification_status": "PASS"
   },
   {
@@ -2501,7 +3087,7 @@
     "title": "Fortune 5 CISO Production Readiness - WIP Status",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "8449f2d91a639592839df917cd585b5b1356d3e8beb722fd5721d53d4ba566c4",
+    "sha256": "cd91faa1d2a6b751e934150b7fc5a0f90f862e2fdf6cc32b88fb7184995deb5a",
     "verification_status": "PASS"
   },
   {
@@ -2509,7 +3095,7 @@
     "title": "Gate 2 Validation Report: Compiler Truth",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "2b9e407472e8de7d5d94b13613e68085783dd862f061891e86792553fd765784",
+    "sha256": "6085116c066cce65e9198d7743d5b40fe2af1885329df0465b0b9946833ecf7e",
     "verification_status": "PASS"
   },
   {
@@ -2517,7 +3103,7 @@
     "title": "Gate 3 Validation Report: Conflict Truth",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "e7eeaf99c4b817512bfe67ea93509766e5d001220dea360d1ae233c9bf279f44",
+    "sha256": "aeec73d27a0a74aff46f272cd5cf65f5046e279e01138291a87b9bd930f265ac",
     "verification_status": "PASS"
   },
   {
@@ -2525,7 +3111,7 @@
     "title": "Pack Cache Implementation Summary",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "462819ae0aab60f2d2b519bf31dd938c30c1cf96baf3b75babea4911adf4bc19",
+    "sha256": "238af41866f4627c90f3458da434f9769eea14c9e0bedaae1ef531bbfe5c0fe5",
     "verification_status": "PASS"
   },
   {
@@ -2533,7 +3119,7 @@
     "title": "Pack Query/Template Integration Summary",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "4f9d7e1cfdcc1cf72ca7d3af5cfc5c39321f38e398f897ff378a818d95bb4b50",
+    "sha256": "48ea84f82db0497a5d70f9d2a21c97820e6dd551b7369ecf4cac04c4372f2ae5",
     "verification_status": "PASS"
   },
   {
@@ -2541,7 +3127,7 @@
     "title": "Pack Metadata Loading Implementation",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "82b28a5063240d5310071ff56f7b2c757cc9b01663664f6fe6d8393cda9209bc",
+    "sha256": "7cbed5fb167fc646f83ae39e7c50bc9c95a63c962da940113b4432de3994744f",
     "verification_status": "PASS"
   },
   {
@@ -2549,7 +3135,7 @@
     "title": "Pack Migration System - Implementation Guide",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "d819f1806c006439e569da8695fc9049361305f4cbb5ab8ae097cda3ca9a2f19",
+    "sha256": "f248977620252176a8744e62b29a2a4065f351a124a836099dd144db2e84c386",
     "verification_status": "PASS"
   },
   {
@@ -2557,7 +3143,7 @@
     "title": "Pack query contract (μ₂ / v26.5.19 extraction)",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "1bebd9e45e63c4f4f5be3ea237dd7b39bed1934a61c8d0bd7209c18bd94c446f",
+    "sha256": "b93302862703ddf6dad00b28b100076a852854941c2800674e6293063bdfe7bc",
     "verification_status": "PASS"
   },
   {
@@ -2565,7 +3151,7 @@
     "title": "Pack Query and Template Integration (μ₂/μ₃)",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "8c4b1a770cce643be3823df1c3d33070b020aea48ee156e887fd92b550ea2196",
+    "sha256": "4d3f040ffc1137778a416b1a5a2891f68360bbedd3a2c5fec01e62aa15a9728d",
     "verification_status": "PASS"
   },
   {
@@ -2573,7 +3159,7 @@
     "title": "Pack Template Registration Status",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "00f64d7dc4bb304c5c5e19e204d6b1358452ff6ad8a45b75f3294a257b8f1dde",
+    "sha256": "4c66ad636c99b6220e42a828264057cf20e8f30e1ff9741f0e5c6b06f965e482",
     "verification_status": "PASS"
   },
   {
@@ -2583,7 +3169,7 @@
       "PACK_QUERY_CONTRACT.md"
     ],
     "checkpoint_mapping": "None",
-    "sha256": "74130036428837a94c38d25a9cca3a6fd42fd95dda5ae9b9e8abbd06422629ec",
+    "sha256": "49feca4da8f2fbc42cba6535975ebe26301fcf3956b1e4036feedb4bf702c230",
     "verification_status": "PASS"
   },
   {
@@ -2591,7 +3177,7 @@
     "title": "Fortune 5 CISO Production Readiness - Quick Reference",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "ef08a44bd6cdf10b50a2167ec13e8deb27f2331a5ebd4c2b090e77b78cfda7fb",
+    "sha256": "347a675f6e20a5d80ddb87fa04a60c249b562968b7108cb72e3918f547d73abf",
     "verification_status": "PASS"
   },
   {
@@ -2599,7 +3185,7 @@
     "title": "Security Model",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "c682b16dfcc4c7d99bed26dcc171ef356abd368f202fa15a18989b4912ac3c98",
+    "sha256": "d021e38a74ff31ed0c7352090b3d624afa64ef8f25bd950d4a76db205604a10d",
     "verification_status": "PASS"
   },
   {
@@ -2607,7 +3193,7 @@
     "title": "Task #68 Completion Summary: Pack Metadata Loading for Signatures",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "c0af6c98e5858186c8414147b3bfe124f70905c0fdd7d0ce0c8d5dce68a29791",
+    "sha256": "a7b6de33a0605b54e5a9c96f3f6a51b8cea35cd5d48272af00bfae85473779c8",
     "verification_status": "PASS"
   },
   {
@@ -2615,7 +3201,7 @@
     "title": "μ₀ Pack Resolution Stage - Implementation Summary",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "3733b1dd850edd7b604654d9daade0befde12a5f2dc8115490f2610f1fb2d6ae",
+    "sha256": "aca92613c5e10e0cd85608e318c8de875ad1bc3d45cf26b2e8d5b6c4dd4a62b4",
     "verification_status": "PASS"
   },
   {
@@ -2628,7 +3214,7 @@
       "FORTUNE_5_LEAN_SIX_SIGMA_CHARTER.md"
     ],
     "checkpoint_mapping": "None",
-    "sha256": "08edecbbb25211cea8fd07aef1723ede9635f291c06ddeafac3327316d4859a9",
+    "sha256": "75c6a22569e6be6fc24f1dd22f8d396ebbd43694a4f2713a93a7a4ef5889618a",
     "verification_status": "PASS"
   },
   {
@@ -2636,7 +3222,7 @@
     "title": "Validation Agent Summary - Fortune 5 CISO Production Readiness",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "24af860f7c43aa5224ba2d487b08a636e43e084874de291853a45301c9db546c",
+    "sha256": "007647c4c393a197b53df75ddb07a04dc1429f59ae3ce73059fee4810cce5235",
     "verification_status": "PASS"
   },
   {
@@ -2668,7 +3254,7 @@
     "title": "MCP Installation",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "1d47c43105bb7a76febfab2e09422a88404a56657c78f0667b3fcbf65115f80e",
+    "sha256": "46ca9ee15c4369663b32a2a0300ac0e0c8f5d45992a54ca43ccda0553cc7fe2d",
     "verification_status": "PASS"
   },
   {
@@ -2678,18 +3264,15 @@
       "./installation.md"
     ],
     "checkpoint_mapping": "None",
-    "sha256": "34c621988ca74a6a897dfa7ac37cd0d81015aea2153221ad6c18a784d8da26b6",
+    "sha256": "03a9e5480f8566c38cc2bc7750b3e9537f7a6bcc4b82c40eb2f56d64a4426e66",
     "verification_status": "PASS"
   },
   {
     "path": "docs/mcp/01-overview/what-is-mcp.md",
     "title": "What is MCP?",
-    "sources": [
-      "./quick-start.md",
-      "./installation.md"
-    ],
+    "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "ed4e36b8cc975050d8f902bec01d45fb89abed66eb649718445a11d8eea1d8b0",
+    "sha256": "98c465871b96c3145ccc41dbd9d1c9e2571405e83df1ca40bc5c036ce275dc63",
     "verification_status": "PASS"
   },
   {
@@ -2697,7 +3280,7 @@
     "title": "generate Tool",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "b17082964985bc142252eb846a41e704e3ce8534c038ba16675b6ffb842f5844",
+    "sha256": "6e7d3f27e9300ca669b16fcf2ad4f81f7290db79f501e8c6794ac373313200c2",
     "verification_status": "PASS"
   },
   {
@@ -2705,7 +3288,7 @@
     "title": "query_ontology Tool",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "1b48908c874a779b4db544d088973889862bf8ee8a8fa6ccfc08cd1b9359abfa",
+    "sha256": "9d072a63117efd0f193a71a32a45fb2fc8320a07dbc10949007966d4b3db7e8b",
     "verification_status": "PASS"
   },
   {
@@ -2713,7 +3296,7 @@
     "title": "validate Tool",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "63c675bf13cc5392aec97b7774fef93b8c3a1144ae393b5cebacb1a0df3a79d1",
+    "sha256": "ac81fe9fe70a3c746bbc73b062ce0387cebd5ba1330122b2781bd86c81465da6",
     "verification_status": "PASS"
   },
   {
@@ -2721,7 +3304,7 @@
     "title": "API Reference: ggen-a2a-mcp",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "07d3c568dec441e4f757af42503ac240bdc6fc4eb778eac24b1ded724acd09c7",
+    "sha256": "a9790e9dbadde7c0591dc497c51d65ec8cce4cba9ecd5e80389f844031197566",
     "verification_status": "PASS"
   },
   {
@@ -2729,7 +3312,7 @@
     "title": "API Reference: ggen-transport",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "b64ae612ba912220a7648f30f778b952c78263e399e4ca54e8a816f6f9589cd7",
+    "sha256": "d4b469257b894a4d94ff5283bc4407aa4120106576fc2acfb39e1e9efef1c432",
     "verification_status": "PASS"
   },
   {
@@ -2737,7 +3320,7 @@
     "title": "MCP Implementation Delta: Plan vs Reality",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "23bfdc9006bebf513e6745f4abcf83e5ceee3af8fc790674cd58b0093fc27980",
+    "sha256": "2ce8217084eb92cda0d3fd12b8d61d7cc42216033911684ab3164f0ed1ece6fe",
     "verification_status": "PASS"
   },
   {
@@ -2764,7 +3347,7 @@
       "./02-user-guide/tools/fix_cycles.md"
     ],
     "checkpoint_mapping": "None",
-    "sha256": "82aa12d4102abd141dd77c5ac7c1ce4454d1b63b4de63998dfafebe5adf05d55",
+    "sha256": "491250482c971d206b711c189a500a07459d4b908c04c17ed95af4259fa51512",
     "verification_status": "PASS"
   },
   {
@@ -2772,7 +3355,7 @@
     "title": "Quick Start: Generate Your First MCP Server",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "1f184dba40f90bb8e4e6955b5b776e7667b06ead61653f9db896ad0890981187",
+    "sha256": "96c1543ac7fac09e639353ebc6c2a320ddb1b7a8f4815db9eb3edf51a2426bba",
     "verification_status": "PASS"
   },
   {
@@ -2780,7 +3363,7 @@
     "title": "Generating MCP Servers from RDF Ontologies",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "5ae154dc94fbbcaf9079b3ee88bd0695c50613e532ee5488a997314a32f853a3",
+    "sha256": "f522b5ccf3ce3dbac195705990954722795184e08e7c3db22b0600f386665aa0",
     "verification_status": "PASS"
   },
   {
@@ -2788,7 +3371,7 @@
     "title": "MCP Server Generation - Troubleshooting Guide",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "7759bf26c63a3930cf5c3181de2e590402c4af5b4686af3d843baf8dbd1b4cb1",
+    "sha256": "a5d0fb7325ecb80329febb4f806e1b8c08b3240a75b8b03f556b2983902b6d91",
     "verification_status": "PASS"
   },
   {
@@ -2796,7 +3379,7 @@
     "title": "RDF Schema Reference",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "1c452aff3183dda055fcf795994d71cc69196ef27bd6310890aa49475f374c72",
+    "sha256": "68157329388cde631c9ecee923c3fedf2f4c08c8c1394cb37c605f340e65db48",
     "verification_status": "PASS"
   },
   {
@@ -2804,7 +3387,7 @@
     "title": "Code Generation Guide",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "6f908b101d99d5f727e3ac6d24f70a9f9e6209265ceb2f30f0b8e80e3cdc52bb",
+    "sha256": "fc42eb37df01123f0d3a3ffcfb65e6fc4cba393e15f05c85a7789da0baaf12bb",
     "verification_status": "PASS"
   },
   {
@@ -2812,7 +3395,7 @@
     "title": "Template Customization Guide",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "51bd39ba726299373232fc70bba038f8329e814f249b48ce9969e6dfc03cfeea",
+    "sha256": "147329411649340c54f7269d88d09e90b85b5ba0e5d4304ec21de0032913f1bd",
     "verification_status": "PASS"
   },
   {
@@ -2820,7 +3403,7 @@
     "title": "SPARQL Query Guide",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "e074da77ce03cc4f0ddf91b447c1dbc0ff15ce84f256c5b09f872d7f3222c528",
+    "sha256": "6d2cf8ab5148e61671710cc361e3774d321fc796e315dabf4361fa49ae956dba",
     "verification_status": "PASS"
   },
   {
@@ -2828,7 +3411,7 @@
     "title": "Example MCP Server Definitions",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "075f668e7bbd85a4a51e1e80e43568372dd86ddab05e30f786dd9acc5d41af56",
+    "sha256": "f31afd6bd4f5fccfb2f0920b8f09d945dd95771ec7e903b07c465cada476efd6",
     "verification_status": "PASS"
   },
   {
@@ -2836,19 +3419,15 @@
     "title": "Future-State MCP Documentation Summary",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "f57edac95c7c994106a0b71995414b932b81634be89fac49fe611b5b3537d282",
+    "sha256": "2c812672a0b81d183d6d27ae4d666a69fc09a3cb471ce3423a531d89ba051d97",
     "verification_status": "PASS"
   },
   {
     "path": "docs/mcp-rdf/README.md",
     "title": "ggen RDF-Driven MCP Server Generation",
-    "sources": [
-      "01-user-guide/generating-servers.md",
-      "01-user-guide/troubleshooting.md",
-      "IMPLEMENTATION_SUMMARY.md"
-    ],
+    "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "60f78f1e6bfe4c54cc932201d559b82b8797d945a4d50fcf42737b1a1b60c60a",
+    "sha256": "c40ad1cdfebb1f5a3bc21e5c1ac288e0f1358754d1bff926be02a06351ed0fff",
     "verification_status": "PASS"
   },
   {
@@ -2856,7 +3435,7 @@
     "title": "Autonomic Closure: Implementation of Second-Order Meta-Feedback",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "11d3338a59dfea1600f285a4909c638a65a044e8e467baebed17a636ad3ad612",
+    "sha256": "c5f61e42975367bccbe622d73ae100cde4841ca9eff7ef42182b56473568712d",
     "verification_status": "PASS"
   },
   {
@@ -2864,7 +3443,7 @@
     "title": "MCPP Runtime & Control Substrate",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "bdd086d404810831ca6af626e3ae6b5c75f18e8a5fbf309f12edb50c4a4e5f19",
+    "sha256": "433f3c72ed410e4e4da5adcaf23eaa892fd3cdf17843b27ba72e9d640119797e",
     "verification_status": "PASS"
   },
   {
@@ -2872,7 +3451,7 @@
     "title": "mcpp.toml Specification",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "6a8cd6776eb43c1d59ec1fbcefdd2fcf360e7e2a7d74c727934e5f0e1008264a",
+    "sha256": "a334aad2fdca620a3411bd3fec493d03ca4660d78f95794ccf16347c1a08dd15",
     "verification_status": "PASS"
   },
   {
@@ -2880,7 +3459,7 @@
     "title": "The Chatman Equation and MCPP: A Formal Semantic Closure of the Execution Manifold",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "a06c13a1e6bb4c119de34cdb7343f6e04210d08bea6825518c3233eefb83aa02",
+    "sha256": "02d0c18673fc054bfda1c16b0fe0deac16e57e1bfe84b670af8b9ae4f2d231b7",
     "verification_status": "PASS"
   },
   {
@@ -2967,6 +3546,14 @@
     "verification_status": "PASS"
   },
   {
+    "path": "docs/open-ontologies/CPMP_INTEGRATION_PLAN.md",
+    "title": "CPMP Integration Plan: OpenOntologies Governance Mesh",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "2f1595b52a49bcd04b2035e1367e980f14e1969ac36e748d0838cc85237fdc77",
+    "verification_status": "PASS"
+  },
+  {
     "path": "docs/performance/BENCHMARK_RESULTS.md",
     "title": "Hive Mind Swarm Performance Benchmark Results",
     "sources": [],
@@ -3023,7 +3610,7 @@
     "title": "Hot Path Optimization - Benchmark Results",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "1b46ff74837fdccdc61c623d95222da12fe4ee2dd69fd1de3d020623f5c4c623",
+    "sha256": "0845bd19f913949412725ec8b61883e5e00ff1cdad55f1592dae89d702896c85",
     "verification_status": "PASS"
   },
   {
@@ -3031,7 +3618,7 @@
     "title": "Hot Path Optimization Report - ggen v26.5.19",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "12f48fc7fe629badcea7b066bd7354c937909b6009e4a087044f2e0511b84249",
+    "sha256": "964254b1fa46fc736d9f6469d032142c2d6f43059320d2f6e1bbd4c95b4de117",
     "verification_status": "PASS"
   },
   {
@@ -3039,7 +3626,39 @@
     "title": "Preserved Artifacts — Recovery Guide",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "3df97ba6c17a7d2d66606474b4ac7f27bf717adb78178fe823634e1f921d97e3",
+    "sha256": "c906070d3c59f996023420dbb10a9de819d9235b16fc1c3c7253a7e78345d592",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/CONSOLIDATE_001_PRE_INVENTORY.md",
+    "title": "CONSOLIDATE-001 — Pre-Inventory & Lawful-Extent Decision",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "1a0738692a5ada266eb8ebddd780a6d9d7ca24576c06eaf24c646f7b28356168",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/CONSOLIDATE_001_RECEIPT.md",
+    "title": "CONSOLIDATE-001 — Receipt",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "b707e1832a8f1157fcc73b966ec3fafa5324ed4e3814a7486979514d0f911356",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/CONSOLIDATE_002_PRE_INVENTORY.md",
+    "title": "CONSOLIDATE-002 — Pre-Inventory: merge the three order-sensitive publish branches",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "81f451e0d26afefaf6198c2f2a119e5ef6e8593c3ff24c58a21541bab03dea12",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/CONSOLIDATE_002_RECEIPT.md",
+    "title": "CONSOLIDATE-002 — Verifier Receipt",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "7fd07d0d464e0ba5f799d4119ed2ff59a4f281670d355df6807ac867d3148c4a",
     "verification_status": "PASS"
   },
   {
@@ -3047,7 +3666,296 @@
     "title": "LLM-Construct CLI Implementation Receipt",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "3281cb2c68e20d1295c68d5d285c2c9be243bbe601c654e97c6a759a5ca78486",
+    "sha256": "dca38847fe38b43d470811842234e980f8af93cf86055c7133fcf519a23a7eee",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/DOGFOOD_FOUNDATION_AUDIT_1.md",
+    "title": "Dogfood Foundation Audit #1",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "85f3743e09b4c5049fb08fb4668c6715c62fc64f6ae5895dcff34ece2ba1c016",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/DOGFOOD_FOUNDATION_AUDIT_2.md",
+    "title": "Dogfood Foundation Audit #2",
+    "sources": [
+      "DOGFOOD_FOUNDATION_AUDIT_1.md",
+      "../reference/release/v26-5-28-boundary.md",
+      "../reference/cli/command-proof-matrix.md",
+      "O_STAR_RECEIPT_CLOSURE_1_RECEIPT.md"
+    ],
+    "checkpoint_mapping": "None",
+    "sha256": "c3e8978a445d91b5bd4aa7e127efac5f2d62a3b416021e3b0c91c6dcb3a9fd9a",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/FAKE_INVENTORY_LEDGER.md",
+    "title": "FAKE / STUB / PLACEHOLDER INVENTORY LEDGER",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "e9f55f14acf2ed28a853c11b37aaa45e986d73f81303c4b63712ea523ef0feae",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/FOUNDATION_AUDIT_MASTER.md",
+    "title": "Foundation Audit — Master Synthesis (ggen v26.5.28 @ cf7a6004)",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "81b2c5758486beb3326e37b02b66c0c714807659c8c610e5df8966287af6e380",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/GALL_CHECKPOINT_001B_AGENT_1_SERVER_WIRING_HANDOFF.md",
+    "title": "GALL-CHECKPOINT-001B — Agent 1 Handoff: server.rs live wiring",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "a10f782a6840741e4e37a259d7e9008cae064c8105018b0ec2054968f540d314",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/GALL_CHECKPOINT_001B_AGENT_2_CHECK_GATE_HANDOFF.md",
+    "title": "GALL-CHECKPOINT-001B — Agent 2 (Check Gate) Handoff",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "86cfb411e23f101efd5e45b75732388e22423dd563cca6e01fa4b07b3ed3eb09",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/GALL_CHECKPOINT_001B_AGENT_3_LIVING_LOOP_HANDOFF.md",
+    "title": "GALL-CHECKPOINT-001B — Agent 3 Handoff: GGEN-TPL-001 LIVING LOOP",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "3f843a6e6beedc1bd00ef90c753d4e64563a9f990f0fb856e172010a3d8e2ec4",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/GALL_CHECKPOINT_001B_AGENT_4_REGRESSION_HANDOFF.md",
+    "title": "GALL-CHECKPOINT-001B — Agent 4 (Regression / No-Scope-Creep) Handoff",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "83eff65a9c2dbc8a033b602e1984e2df4a30a3955938d147f40c5314c30fefa5",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/GALL_CHECKPOINT_001B_COORDINATION_RECEIPT.md",
+    "title": "GALL-CHECKPOINT-001B — Coordination Receipt",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "64cdf49bdd81887ba9544172385ac8259c45d750e803e07db400e1870ef9bbd0",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/GALL_CHECKPOINT_001B_PRE_INVENTORY.md",
+    "title": "GALL-CHECKPOINT-001B — Pre-Inventory (Phase 0)",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "e12521911946d11bce069cfa4078bead7c157ad2d863000f22e257bda42f2575",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/GALL_CHECKPOINT_001B_STALE_CLEAR_GATE.md",
+    "title": "GALL-CHECKPOINT-001B — Hard Gate: Stale-Clear Evidence",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "bac2424c1f94558634f7840408d4d0c5540adcb1f8e6255e0c018046f6fa9b8c",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/GALL_CHECKPOINT_002_COORDINATION_RECEIPT.md",
+    "title": "GALL-CHECKPOINT-002 — Coordination Receipt (Verifier Workcell)",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "3060e4cbe1bef369bebe3baec1eda769622ff61a61f2026adeea981150311d52",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/GALL_CHECKPOINT_002_PRE_INVENTORY.md",
+    "title": "GALL-CHECKPOINT-002 — Pre-Implementation Inventory",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "0d32231153014218f807b5521ecfd9477578e9af72f66e3b3b02e93922f3c2e2",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/GALL_CHECKPOINT_002_RECEIPT.md",
+    "title": "GALL-CHECKPOINT-002 — Implementation Receipt",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "7b8e4ac5c062db26f175f8016227253a3e330e148718cc399f252d5e0d32d7ab",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/GALL_CONFORM_001_PRE_INVENTORY.md",
+    "title": "GALL_CONFORM_001 — PM-Retirement Pre-Inventory",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "0459d0239ece3ec9005d3d332cf9d70b4cb06ed7c3a2c0876699cb9a0b9e5ea7",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/GALL_CONFORM_001_RECEIPT.md",
+    "title": "GALL-CONFORM-001 Migration Receipt",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "1a21ca0ad288099fa0936422d435af45912fe884ac7149037aa8e6403adede65",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/GALL_INTEGRATION_1_RECEIPT.md",
+    "title": "GALL-INTEGRATION-1 Receipt",
+    "sources": [
+      "../reference/cli/delivery-plane-proof.md"
+    ],
+    "checkpoint_mapping": "None",
+    "sha256": "f56507116b7bec7d970cf877f5155041b88cefd8d9a2b54fa9bcc5108be4d3e2",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/GALL_OUT_001_PRE_INVENTORY.md",
+    "title": "GGEN-OUT-001 — Pre-Implementation Inventory",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "0fd6ffdfd7f1d8254781b1f306538d417231b93ad5026f154ae50b44af1b71bf",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/GGEN_FINISH_GAPS_RECEIPT.md",
+    "title": "GGEN FINISH-GAPS — COORDINATION RECEIPT",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "9b7a020ac95225a66e6271bca1607124e9e9a69d910dc83315de6e4d973e01f1",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/GGEN_RULE_001_PRE_INVENTORY.md",
+    "title": "GGEN-RULE-001 Pre-Implementation Inventory",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "ef3c49852ab9d87d74e049858545b703a0e030544418b69ffec9291a08ebccbf",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/GGEN_RULE_001_RECEIPT.md",
+    "title": "GGEN-RULE-001 Verifier Receipt — `unbound_rule_file`",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "99a845cc358243d03f8ba5d9967b8f98b4786a61c23014d3e0c118489e11ef45",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/GGEN_TPL_001_AGENT_1_RULE_INDEX_HANDOFF.md",
+    "title": "GGEN-TPL-001 — Agent 1 Handoff: Rule / Project Index Layer",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "7a3f743ded34f9851c1164d633757056df1a418642e54b805026ad5c544a8cf7",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/GGEN_TPL_001_AGENT_2_TERA_BINDING_HANDOFF.md",
+    "title": "GGEN-TPL-001 — Agent 2 Handoff: Tera Binding Detector",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "454d6ec98e0da9ed881717d3f27e35a984ca66eadde7705e42d9fe5900d855c8",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/GGEN_TPL_001_AGENT_3_ROUTE_REGISTRY_HANDOFF.md",
+    "title": "GGEN-TPL-001 — Agent 3 Handoff: Diagnostic Species + Route Registry",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "4f2f73a075f3e5ccfe024bc47c6f1a862d96f920b1ab4c912676c5a481e3a051",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/GGEN_TPL_001_AGENT_4_TEST_HANDOFF.md",
+    "title": "GGEN-TPL-001 — Agent 4 (Integration Tests) Handoff",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "53c24dac5cd61b4da9facf81205935a330b27e9a671baf9db4e47efc61351104",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/GGEN_TPL_001_COORDINATION_RECEIPT.md",
+    "title": "GGEN-TPL-001 Coordination Receipt",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "e6a733b46666a76d26b31b55dc2179d0d0b3777d0a9262abefc3eec95811a228",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/GGEN_TPL_001_PRE_IMPLEMENTATION_INVENTORY.md",
+    "title": "GGEN-TPL-001 — Pre-Implementation Inventory (Phase 0)",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "87b83c035c215f748a40805754d2d5481256de441ea9fe4d5e6de002bfae951f",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/LIVE_BUFFER_001_PRE_INVENTORY.md",
+    "title": "LIVE-BUFFER-001 — Pre-Inventory (Live-Buffer Architect)",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "d5f1bccf036b91567fdc9776ff71f7e61a7fa59096bc76fc59d476d5f9894e62",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/LIVE_BUFFER_001_RECEIPT.md",
+    "title": "LIVE-BUFFER-001 — Verification Receipt",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "81bb07caeb5b143583d1778e5728549be6fa354faec907c4434eca0d6004411d",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/MERGE_001B_RECEIPT.md",
+    "title": "MERGE 001B → main — Receipt",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "34166e72900ace990daed02842846204a6ed38b0cd8b0c6b65b0950663996725",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/NEXT_SESSION_HANDOFF.md",
+    "title": "Next Session Handoff",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "eea6bf77a964c1e745d86794dcee07c891d76e5dc4cec68489394c1105353ad4",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/O_STAR_RECEIPT_CLOSURE_1_RECEIPT.md",
+    "title": "O-STAR-RECEIPT-CLOSURE-1 Receipt",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "984569402bd93b1866e46cace8ad0f42acf959a4b151a57b9ef5cad49fedf060",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/SYNC_ACTUATOR_1_RECEIPT.md",
+    "title": "SYNC-ACTUATOR-1 Receipt",
+    "sources": [
+      "O_STAR_RECEIPT_CLOSURE_1_RECEIPT.md"
+    ],
+    "checkpoint_mapping": "None",
+    "sha256": "33b75d4759da1f4812c0b856981464baa109b83dcf0617ccf5b97249813b7065",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/V26_5_29_CLOSEOUT_RECEIPT.md",
+    "title": "v26.5.29 Closeout Receipt",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "48218d9f77b94db0993e9ff151204bacf2cdb7d5dd300be4da67754b78e38fc5",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/receipts/V26_5_30_PATH_A_CLOSEOUT_RECEIPT.md",
+    "title": "v26.5.30 Path A Closeout Receipt",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "e8953478f771c130decf9407cdc2413cdf95530e987ef3b6e6bc2c5b3041c908",
     "verification_status": "PASS"
   },
   {
@@ -3055,7 +3963,7 @@
     "title": "GGen-DSPy Adapter Fixes Receipt",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "029a63e80734e520c753b91faefc38e28ebd3ff07312a792e81b2216b81e7d6e",
+    "sha256": "3338de21e98de83374a61e8247b5e2c1fb625d1a8eaca2084ff94e8582199d46",
     "verification_status": "PASS"
   },
   {
@@ -3067,11 +3975,32 @@
     "verification_status": "PASS"
   },
   {
+    "path": "docs/reference/cli/command-proof-matrix.md",
+    "title": "Command-Proof Matrix (Reference)",
+    "sources": [
+      "delivery-plane-proof.md",
+      "../../explanation/oracle-gaps.md",
+      "../../explanation/motion-does-not-count.md",
+      "../release/v26-5-28-boundary.md"
+    ],
+    "checkpoint_mapping": "None",
+    "sha256": "b212624a344597f137f0e409e5491f30498b9b296d8d09bd04b27ea888c08468",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/reference/cli/delivery-plane-proof.md",
+    "title": "Delivery-Plane Proof: LSP / MCP / A2A on the Playground (Reference)",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "84aa57f76fe1ebd4c3ded5c8d743cb5c80e87b2bbe95d9c2905d66edf3986cac",
+    "verification_status": "PASS"
+  },
+  {
     "path": "docs/reference/commands/a2a.md",
     "title": "`ggen a2a` Command Reference",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "e70f54e594bece564dcbfdf4c30b033d0772c8fe126252586a4a1000e8e3b849",
+    "sha256": "f36e4950c40977b3ccff1593f495e355d08bc7cd9f3360880c917225438a4b51",
     "verification_status": "PASS"
   },
   {
@@ -3079,7 +4008,7 @@
     "title": "`ggen mcp` Command Reference",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "c286da90cfa985b5c85702774976247d643af099584a2ca8c2fdc1d02d18b0de",
+    "sha256": "bb3ae7721919e0fadc24e8fc55383e284e06c63f88e6c5cb4c5e3ce248094be0",
     "verification_status": "PASS"
   },
   {
@@ -3087,7 +4016,7 @@
     "title": "A2A Configuration Reference",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "eece593cd9cab514dea388c4cadda57cc7a9e7308d1edc5c14a54158e2026830",
+    "sha256": "c3e4169637618427b817430ba1cf404e2f3bef1ad7b0a061b7217abc1fdc1bf0",
     "verification_status": "PASS"
   },
   {
@@ -3111,7 +4040,7 @@
     "title": "MCP Configuration Reference",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "6d1691d8300f66e5a1d527f2128921cb89efd2f2f2130259ea48fd27e20cecae",
+    "sha256": "919a95a08c94da9e104bc91fdce7c47935a29f6c3df33331cf359bcf1b04c150",
     "verification_status": "PASS"
   },
   {
@@ -3131,11 +4060,25 @@
     "verification_status": "PASS"
   },
   {
+    "path": "docs/reference/release/v26-5-28-boundary.md",
+    "title": "v26.5.28 Release Boundary (Reference)",
+    "sources": [
+      "../../explanation/sabbath-grade-done.md",
+      "../cli/command-proof-matrix.md",
+      "../../explanation/oracle-gaps.md",
+      "../workspace/feature-flags.md",
+      "../workspace/crates.md"
+    ],
+    "checkpoint_mapping": "None",
+    "sha256": "47fa4eeb3ebcc9735653cf4dc7f80808785b7f8685a4fe2c81287af276d3c9c8",
+    "verification_status": "PASS"
+  },
+  {
     "path": "docs/reference/schemas/tool-schema.md",
     "title": "MCP Tool Schema Reference",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "e1372ebebb3571e4bad5053d00c600edc80cf2a20cd03e5405efb9d79645df19",
+    "sha256": "5f4743559e594bf2d9c67bec8ef1029e7d6d48b902bf9a11ec1ab457306029c8",
     "verification_status": "PASS"
   },
   {
@@ -3163,11 +4106,43 @@
     "verification_status": "PASS"
   },
   {
+    "path": "docs/reference/workspace/crates.md",
+    "title": "Workspace Crates (Reference)",
+    "sources": [
+      "feature-flags.md",
+      "../cli/command-proof-matrix.md",
+      "../release/v26-5-28-boundary.md"
+    ],
+    "checkpoint_mapping": "None",
+    "sha256": "b25c0c127c88be834a62e7e8bdcab31192a0a819f1a96552b4cc2092066c08db",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/reference/workspace/feature-flags.md",
+    "title": "Feature Flags (Reference)",
+    "sources": [
+      "crates.md",
+      "../release/v26-5-28-boundary.md",
+      "../cli/command-proof-matrix.md"
+    ],
+    "checkpoint_mapping": "None",
+    "sha256": "f57c9507d1b07b59f7d394943c7b375ecc538275aa4d8bc33384b75e8c14259d",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/research/THESIS_provable_completion.md",
+    "title": "On Provable Completion: An Epistemology of \"Done\" in Autonomic Code-Generation Systems",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "fd63c84174723cd78c599b0cc73e15b9a58489d12fcfd14360b8cdb9ecad16e4",
+    "verification_status": "PASS"
+  },
+  {
     "path": "docs/security/ARCHITECTURE.md",
     "title": "Security Architecture (v26.5.19)",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "3751aa54c9196594157f4885fba83ff21f7ce1e40c0daea121750aa1a4c6237f",
+    "sha256": "c55e2910a90aa4c7f5ce332a36be89d4e304014f2249ba41085dfe75a65b9c64",
     "verification_status": "PASS"
   },
   {
@@ -3178,7 +4153,7 @@
       "ARCHITECTURE.md"
     ],
     "checkpoint_mapping": "None",
-    "sha256": "81f1ea96b0da9a146d404ec8cddd158f90f0dbbf86e0f084d804b1e9ae07f476",
+    "sha256": "71f055a62a143b6949e5f7f7acbcee87e75de9c2cdbc08437a10c46df2687c1b",
     "verification_status": "PASS"
   },
   {
@@ -3186,7 +4161,7 @@
     "title": "Incident Response Plan (v26.5.19)",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "1dd843ea14387796e490b913456adafa2c86477cbae74e140eabb15bcabee448",
+    "sha256": "5f31534154cfbf790488b6e07c74c44a067001376d30d8e8f0a36005c243c529",
     "verification_status": "PASS"
   },
   {
@@ -3202,7 +4177,7 @@
       "../../SECURITY.md"
     ],
     "checkpoint_mapping": "None",
-    "sha256": "d2e85a982c43ed911e19332e20e613865154d14d2aa31d6aab74957cc73d0216",
+    "sha256": "e682d6b3f58343a500ef6c108812083536251074708879576bb8ef995b0f5c01",
     "verification_status": "PASS"
   },
   {
@@ -3210,7 +4185,7 @@
     "title": "Safe Coding Guidelines (v26.5.19)",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "64d2cf44dacd087e2edd050b4f6a12a10f5e53870d26b20984e2ca79d898f01a",
+    "sha256": "b499476fc971a20eb402e44404d47f27c1bfc6345d70c8b50a8fd0310ea53cd4",
     "verification_status": "PASS"
   },
   {
@@ -3218,7 +4193,7 @@
     "title": "Security Testing Guide (v26.5.19)",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "7a5ae0bfa5be379adf355ab30565b11e1929c3e0cd041c1773e0ce6c21eee3a1",
+    "sha256": "6e4d98d28734b4287d4b9075a8e0e94a801b7541ac3086dde4feabec7f76474c",
     "verification_status": "PASS"
   },
   {
@@ -3226,7 +4201,7 @@
     "title": "Security Migration Guide: v26.5.19.x → v26.5.19",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "87d2885959d87a36689e0ece62f51612ef368a41cd033d02951090840609101e",
+    "sha256": "b95221cd01fe4d9228255b1bcbaf00bb580e4aa4277af5a2ab93f61ec46ef876",
     "verification_status": "PASS"
   },
   {
@@ -3234,7 +4209,7 @@
     "title": "ggen v26.5.19 Week 1 Security Audit Report",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "03986d6857cb7ec5c782a9bc04ed5d089cff21c56823e5109d6d1dfd8324c9cc",
+    "sha256": "b2d1852087e5537c20b480ac7af5f2fb7f92822e8523faad85b6b479b415502f",
     "verification_status": "PASS"
   },
   {
@@ -3274,7 +4249,7 @@
     "title": "MCP Server Validation, Benchmarks, and Stress Tests",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "34c5dab9b4c0e4606249bd9b896cafe7cdd4d37f68484994c424c69407074ed6",
+    "sha256": "ef8d071fc4806891d2b6223926862dd52e04a93d10deb471ea89a1c08664d6de",
     "verification_status": "PASS"
   },
   {
@@ -3282,7 +4257,7 @@
     "title": "Documentation Validation Against Runtime Results, Benchmarks, and Stress Tests",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "ba92917748006038ceea20b80d36f242d8af1aa1e034d3832d52d0bca40c5ccf",
+    "sha256": "e10d10ba60c63ecd19b4c19fa8145ecde1a8bf10fc5c5acda5490ea53046ba92",
     "verification_status": "PASS"
   },
   {
@@ -3290,7 +4265,7 @@
     "title": "ggen Documentation Validation Plan - Completion Status",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "f2681fc1979dd7a55018b9dcbad4c0235be70adf83dd73745b7e4381932543d5",
+    "sha256": "468fc9b393ee9160e0a6d4f63b1bfa805e99618a540215439cb302ba11d8cf0c",
     "verification_status": "PASS"
   },
   {
@@ -3298,7 +4273,15 @@
     "title": "ggen MCP v1 Server Generation Implementation Plan",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "493f244bbac17225d7d693799b5480395af82b006bfc0b979d70e3fc25f2b753",
+    "sha256": "738691ba4d2eb255b440dfa68cc4a3c790e400b9e80a53aa4333f09314fd54f2",
+    "verification_status": "PASS"
+  },
+  {
+    "path": "docs/swarm/TEST_PLAN.md",
+    "title": "Capability Map Test Plan",
+    "sources": [],
+    "checkpoint_mapping": "None",
+    "sha256": "cd129e2a67b3bcff5a6288ae4d8ef7c1c114561e18ae09037ff0b1d6fc256793",
     "verification_status": "PASS"
   },
   {
@@ -3346,7 +4329,7 @@
     "title": "CLI Command Testing Results",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "7d955684d92e9e98276099823ece6c32500b3b73bd040ff15d6ddbdc967e58fa",
+    "sha256": "1e86bfd6b7442414a2848ed6ed9c9e227fc3f357b8e85e19effb61f1f62c55cc",
     "verification_status": "PASS"
   },
   {
@@ -3354,7 +4337,7 @@
     "title": "CLI End-to-End Test Report",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "47b2ff54fadff3136ecf2904cfcf4bf099cf40b05d8a1568727f0fe7841d9d61",
+    "sha256": "098872317db901d658350ad76be39eb8bed7758b2dfd04a623b614fc41147a27",
     "verification_status": "PASS"
   },
   {
@@ -3370,7 +4353,7 @@
     "title": "E2E Pack Workflow Tests - Summary",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "9a3e2fca3ceda31beb88de55616367bf2da95762395190a3b1ae5129e1fad72f",
+    "sha256": "6b1da51c2626dcaedacbee757bd1942b1b8ce04d1d17b8473903094c366e833b",
     "verification_status": "PASS"
   },
   {
@@ -3378,7 +4361,7 @@
     "title": "MCP Server Generation Tests - Implementation Report",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "770c0a9a7e1136b9be63600ab3ac23e0b9eed833b6eedc3ecd2467a83fc8ba52",
+    "sha256": "159c760f46649c74248689a6ae5eff60e51666fac926066b686c6fe0b5293e35",
     "verification_status": "PASS"
   },
   {
@@ -3386,7 +4369,7 @@
     "title": "MCP Server Generation Tests - Final Summary",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "36d52f5308fdfba0d573d5742d1b001d50b91a2156e5b618de6e77f66ba89ac6",
+    "sha256": "944d0f63040d6634145e7f89a269d4c5a86104699c4a4a0d1ee8f465a64492d3",
     "verification_status": "PASS"
   },
   {
@@ -3410,7 +4393,7 @@
     "title": "Ontology-Native Enterprise Construction",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "43e63e8bece0495ad3799038172433e0aa441aa88aadb6f8b5f57217a772b7df",
+    "sha256": "c0b98b97e81ee7ecfe8ed65be95308ba4720bb591536786396520df604046e8a",
     "verification_status": "PASS"
   },
   {
@@ -3546,7 +4529,7 @@
     "title": "Thesis: AI-Assisted Code Generation",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "0af0a7c7a85b276827afbe02b1ead470e6fa9c814975797dc25c7eca1516f389",
+    "sha256": "8feb044653f5e277d8c9ea2473b294ce4fc57903b90e267a9e6a5b0071a7f031",
     "verification_status": "PASS"
   },
   {
@@ -3622,7 +4605,7 @@
       "../../getting-started/quick-start-mcp-a2a.md"
     ],
     "checkpoint_mapping": "None",
-    "sha256": "251d2f6667cde62e0dbf18bed453791ccea10c39a4840b9435b4498913f81d0b",
+    "sha256": "17c9ee8a377573153a2d8ad9661c410075e81653a2b834aaf248476901ac93ed",
     "verification_status": "PASS"
   },
   {
@@ -3650,7 +4633,7 @@
       "./01-first-mcp-tool.md"
     ],
     "checkpoint_mapping": "None",
-    "sha256": "bdae71726b022fbaa5159d9fbc62ce50ec3e2c613202c0c763b7f06689c88ba6",
+    "sha256": "b9f0b047598b2219b3bd8371365ce8c54555b691651b88f70027b1b26d4a60d0",
     "verification_status": "PASS"
   },
   {
@@ -3731,7 +4714,7 @@
     "title": "Gate 6 Validation Report: Proof Truth",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "e80c351abf80525b0586475d38fd83eaa58fca6ca10ae14e304d0d0627a15cc5",
+    "sha256": "073a4ddeab9aff8edc517dc05396693087f47fba36bc78785f80227d851028f8",
     "verification_status": "PASS"
   },
   {
@@ -3785,7 +4768,7 @@
     "title": "Weaver Registry Integration - Architecture Diagrams",
     "sources": [],
     "checkpoint_mapping": "None",
-    "sha256": "01fec6eb503fa1c775f8a205e8f69e62091589a5bcbff2506a823f0790cf5528",
+    "sha256": "cdee13122af462f4fe5b41bedd13b535aa75d30c2e1a0c482219786775f0bfd2",
     "verification_status": "PASS"
   }
 ]

@@ -8,7 +8,7 @@
 
 use crate::delta::RdfDelta;
 use crate::graph::dataset::DeterministicGraph;
-use crate::ocel::{EvidenceProjector, OcelLog};
+use crate::ocel::{EvidenceProjector, OCEL};
 use crate::receipt::GraphReceipt;
 use crate::GraphError;
 use oxigraph::model::Quad;
@@ -158,13 +158,13 @@ impl AdapterLayer {
 pub struct ProjectionLayer;
 
 impl ProjectionLayer {
-    /// Projects the core state into an `OcelLog` format.
-    pub fn project_state_to_ocel(core: &GenesisCore) -> Result<OcelLog, GraphError> {
+    /// Projects the core state into an `OCEL` format.
+    pub fn project_state_to_ocel(core: &GenesisCore) -> Result<OCEL, GraphError> {
         EvidenceProjector::extract_ocel(core.graph())
     }
 
-    /// Projects an `OcelLog` back into the core state.
-    pub fn project_ocel_to_state(core: &GenesisCore, log: &OcelLog) -> Result<(), GraphError> {
+    /// Projects an `OCEL` back into the core state.
+    pub fn project_ocel_to_state(core: &GenesisCore, log: &OCEL) -> Result<(), GraphError> {
         EvidenceProjector::project_ocel(core.graph(), log)
     }
 }

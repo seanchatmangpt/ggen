@@ -44,10 +44,10 @@ fn author_uri(email: &str) -> String {
     format!("{}author/{}", namespaces::GGEN, email.replace('@', "_at_"))
 }
 
-/// SPARQL executor using thread-safe Arc<Store> pattern
+/// SPARQL executor using thread-safe `Arc<Store>` pattern
 ///
 /// Follows oxigraph best practices:
-/// - Uses Arc<Store> for cheap cloning and concurrent access
+/// - Uses `Arc<Store>` for cheap cloning and concurrent access
 /// - All operations are thread-safe via Arc
 pub struct SparqlExecutor {
     store: Arc<Store>,
@@ -629,7 +629,7 @@ mod tests {
     #[test]
     fn test_insert_package_query() {
         let pkg_id = PackageId::new("new-package").unwrap();
-        let version = PackageVersion::new("1.0.0").unwrap();
+        let version = PackageVersion::new("26.6.6").unwrap();
         let license = "MIT".to_string();
         let query = SparqlQuery::insert_package(
             &pkg_id,

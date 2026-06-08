@@ -717,20 +717,20 @@ mod tests {
 
     #[test]
     fn test_pipeline_config_builder() {
-        let config = PipelineConfig::new("test", "1.0.0")
+        let config = PipelineConfig::new("test", "26.6.6")
             .with_ontology("ontology/domain.ttl")
             .with_output_dir(".")
             .with_verify_mode(VerifyMode::Full);
 
         assert_eq!(config.project_name, "test");
-        assert_eq!(config.project_version, "1.0.0");
+        assert_eq!(config.project_version, "26.6.6");
         assert_eq!(config.ontology_sources.len(), 1);
         assert_eq!(config.verify_mode, VerifyMode::Full);
     }
 
     #[test]
     fn test_pipeline_creation() {
-        let config = PipelineConfig::new("test", "1.0.0");
+        let config = PipelineConfig::new("test", "26.6.6");
         let pipeline = StagedPipeline::new(config);
         assert!(pipeline.is_ok());
     }
@@ -754,7 +754,7 @@ mod tests {
         )
         .unwrap();
 
-        let config = PipelineConfig::new("test", "1.0.0")
+        let config = PipelineConfig::new("test", "26.6.6")
             .with_base_path(temp_dir.path())
             .with_ontology(PathBuf::from("ontology/domain.ttl"))
             .with_output_dir("output");

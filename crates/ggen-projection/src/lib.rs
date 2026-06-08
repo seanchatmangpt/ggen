@@ -2,6 +2,24 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
+pub mod boundary;
+pub mod descriptor;
+pub mod mapping;
+pub mod pipeline;
+pub mod plan;
+pub mod receipt;
+pub mod protocol;
+
+pub use boundary::BoundaryLedger;
+pub use descriptor::{PackDescriptor, PackTemplateDescriptor};
+pub use mapping::{CustomizationMap, ProjectionMap, ProjectionMapping};
+pub use pipeline::{sync, StagingGate};
+pub use plan::{
+    is_compatible, DependencyCycleError, DependencyNotFoundError, PackPlan, VersionConflictError,
+};
+pub use protocol::{PackObservation, PackFinding, ProjectionSignature, CustomizationPoint, PackActionIntent, GgenObservedDiagnostic};
+pub use receipt::{CryptographicReceipt, Receipt, ReceiptIndex, EquationContext, ReceiptValidationError};
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Pair2 {
     pub source: String,   // e.g., "event:e1" or "object:o1"
@@ -117,14 +135,14 @@ fn infer_attribute_type(val: &str) -> &'static str {
     }
 }
 
-struct OcelEvent {
+struct OCELEvent {
     activity: String,
     time: String,
     attributes: BTreeMap<String, String>,
     relationships: Vec<(String, String)>,
 }
 
-struct OcelObject {
+struct OCELObject {
     object_type: String,
     attributes: BTreeMap<String, (String, String)>, // name -> (value, time)
     relationships: Vec<(String, String)>,
@@ -132,8 +150,8 @@ struct OcelObject {
 
 /// Projects a set of RelationPages into OCEL v2 JSON format conforming to the official schema.
 pub fn project_ocel2(pages: &[RelationPage]) -> serde_json::Value {
-    let mut events_map: BTreeMap<String, OcelEvent> = BTreeMap::new();
-    let mut objects_map: BTreeMap<String, OcelObject> = BTreeMap::new();
+    let mut events_map: BTreeMap<String, OCELEvent> = BTreeMap::new();
+    let mut objects_map: BTreeMap<String, OCELObject> = BTreeMap::new();
 
     for page in pages {
         for pair in &page.pairs {
@@ -160,7 +178,7 @@ pub fn project_ocel2(pages: &[RelationPage]) -> serde_json::Value {
             if is_event_src {
                 let event = events_map
                     .entry(clean_src.clone())
-                    .or_insert_with(|| OcelEvent {
+                    .or_insert_with(|| OCELEvent {
                         activity: "Activity".to_string(),
                         time: page.timestamp.to_rfc3339(),
                         attributes: BTreeMap::new(),
@@ -183,7 +201,7 @@ pub fn project_ocel2(pages: &[RelationPage]) -> serde_json::Value {
                     };
                     event.relationships.push((clean_tgt.clone(), qualifier));
                     // Ensure object exists
-                    objects_map.entry(clean_tgt).or_insert_with(|| OcelObject {
+                    objects_map.entry(clean_tgt).or_insert_with(|| OCELObject {
                         object_type: "Object".to_string(),
                         attributes: BTreeMap::new(),
                         relationships: Vec::new(),
@@ -194,7 +212,7 @@ pub fn project_ocel2(pages: &[RelationPage]) -> serde_json::Value {
             } else if is_object_src {
                 let object = objects_map
                     .entry(clean_src.clone())
-                    .or_insert_with(|| OcelObject {
+                    .or_insert_with(|| OCELObject {
                         object_type: "Object".to_string(),
                         attributes: BTreeMap::new(),
                         relationships: Vec::new(),
@@ -210,7 +228,7 @@ pub fn project_ocel2(pages: &[RelationPage]) -> serde_json::Value {
                         .relationships
                         .push((clean_tgt.clone(), rel.to_string()));
                     // Ensure target object exists
-                    objects_map.entry(clean_tgt).or_insert_with(|| OcelObject {
+                    objects_map.entry(clean_tgt).or_insert_with(|| OCELObject {
                         object_type: "Object".to_string(),
                         attributes: BTreeMap::new(),
                         relationships: Vec::new(),
@@ -811,5 +829,124 @@ mod tests {
         assert!(bad_report.contains("sh:conforms false"));
         assert!(bad_report.contains("sh:ValidationResult"));
         assert!(bad_report.contains("Pair source must be a prefixed name, blank node, or IRI"));
+    }
+}
+
+// Structs and functions are now implemented in submodules and re-exported above.
+
+#[cfg(test)]
+mod projection_models_tests {
+    use super::*;
+
+    #[test]
+    fn test_pack_descriptor_from_toml() {
+        let content = r#"
+            id = "pack_1"
+            name = "Test Pack"
+            version = "26.6.6"
+            description = "A test pack"
+            license = "MIT"
+            dependencies = { "pack_2" = ">=26.6.6" }
+            query_aliases = { "alias_1" = "query_1" }
+
+            [[templates]]
+            path = "templates/test.tmpl"
+            description = "Test template"
+            variables = ["var1", "var2"]
+        "#;
+        let desc = PackDescriptor::from_toml(content).unwrap();
+        assert_eq!(desc.id, "pack_1");
+        assert_eq!(desc.dependencies.get("pack_2").unwrap(), ">=26.6.6");
+        assert_eq!(
+            desc.templates[0].path.to_str().unwrap(),
+            "templates/test.tmpl"
+        );
+    }
+
+    #[test]
+    fn test_pack_plan_resolve_success() {
+        let p2 = PackDescriptor {
+            id: "pack_2".to_string(),
+            name: "Pack 2".to_string(),
+            version: "26.6.6".to_string(),
+            description: "No deps".to_string(),
+            license: "MIT".to_string(),
+            dependencies: std::collections::BTreeMap::new(),
+            templates: vec![],
+            query_aliases: std::collections::BTreeMap::new(),
+        };
+        let mut deps = std::collections::BTreeMap::new();
+        deps.insert("pack_2".to_string(), ">=26.6.6".to_string());
+        let p1 = PackDescriptor {
+            id: "pack_1".to_string(),
+            name: "Pack 1".to_string(),
+            version: "26.6.6".to_string(),
+            description: "Depends on pack_2".to_string(),
+            license: "MIT".to_string(),
+            dependencies: deps,
+            templates: vec![],
+            query_aliases: std::collections::BTreeMap::new(),
+        };
+
+        let descriptors = vec![p1, p2];
+        let plan = PackPlan::resolve(&descriptors).unwrap();
+        assert_eq!(plan.resolution_order, vec!["pack_2", "pack_1"]);
+        assert!(plan.checksums.contains_key("pack_1"));
+        assert!(plan.checksums.contains_key("pack_2"));
+    }
+
+    #[test]
+    fn test_pack_plan_resolve_cycle() {
+        let mut deps1 = std::collections::BTreeMap::new();
+        deps1.insert("pack_2".to_string(), "*".to_string());
+        let p1 = PackDescriptor {
+            id: "pack_1".to_string(),
+            name: "Pack 1".to_string(),
+            version: "26.6.6".to_string(),
+            description: "Depends on pack_2".to_string(),
+            license: "MIT".to_string(),
+            dependencies: deps1,
+            templates: vec![],
+            query_aliases: std::collections::BTreeMap::new(),
+        };
+
+        let mut deps2 = std::collections::BTreeMap::new();
+        deps2.insert("pack_1".to_string(), "*".to_string());
+        let p2 = PackDescriptor {
+            id: "pack_2".to_string(),
+            name: "Pack 2".to_string(),
+            version: "26.6.6".to_string(),
+            description: "Depends on pack_1".to_string(),
+            license: "MIT".to_string(),
+            dependencies: deps2,
+            templates: vec![],
+            query_aliases: std::collections::BTreeMap::new(),
+        };
+
+        let descriptors = vec![p1, p2];
+        let plan_res = PackPlan::resolve(&descriptors);
+        assert!(plan_res.is_err());
+        assert!(plan_res.unwrap_err().to_string().contains("Cycle detected"));
+    }
+
+    #[test]
+    fn test_maps_serialization() {
+        let mut mappings = std::collections::HashMap::new();
+        mappings.insert(
+            std::path::PathBuf::from("src/main.rs"),
+            ProjectionMapping {
+                pack_id: "pack_1".to_string(),
+                template_path: std::path::PathBuf::from("templates/main.tmpl"),
+                query_path: None,
+                bound_variables: vec!["var1".to_string()],
+                merge_strategy: "Exclusive".to_string(),
+                start_line: None,
+                end_line: None,
+            },
+        );
+        let map = ProjectionMap { mappings };
+        let serialized = serde_json::to_string(&map).unwrap();
+        let deserialized: ProjectionMap = serde_json::from_str(&serialized).unwrap();
+        assert_eq!(map, deserialized);
     }
 }

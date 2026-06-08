@@ -47,6 +47,7 @@ struct EnvSetOutput {
 // ============================================================================
 
 /// Run system diagnostics
+#[allow(clippy::used_underscore_binding)] // _fix is a CLI flag name required by #[verb] macro; unused in body
 #[verb]
 fn doctor(all: bool, _fix: bool, format: Option<String>) -> Result<DoctorOutput> {
     let format = format.unwrap_or_else(|| "table".to_string());
@@ -100,19 +101,20 @@ fn doctor(all: bool, _fix: bool, format: Option<String>) -> Result<DoctorOutput>
 }
 
 /// Manage environment variables
+#[allow(clippy::used_underscore_binding)] // _system is a CLI flag name required by #[verb] macro; unused in body
 #[verb]
 fn env(list: bool, get: Option<String>, set: Option<String>, _system: bool) -> Result<EnvOutput> {
-    let variables = run_env(list, &get, &set);
+    let variables = run_env(list, get.as_deref(), set.as_deref());
     let total = variables.len();
     Ok(EnvOutput { variables, total })
 }
 
-fn run_env(list: bool, get: &Option<String>, set: &Option<String>) -> HashMap<String, String> {
+fn run_env(list: bool, get: Option<&str>, set: Option<&str>) -> HashMap<String, String> {
     let mut variables = HashMap::new();
 
     if let Some(key) = get {
         if let Ok(value) = std::env::var(key) {
-            variables.insert(key.clone(), value);
+            variables.insert(key.to_string(), value);
         }
     } else if let Some(kv) = set {
         if let Some((key, value)) = kv.split_once('=') {

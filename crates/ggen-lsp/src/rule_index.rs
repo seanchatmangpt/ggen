@@ -63,7 +63,7 @@ impl RuleIndexEntry {
     /// for the query/template file reads (LIVE-BUFFER-001).
     ///
     /// Identical to [`Self::from_rule`] except the two file reads go through
-    /// [`read_overlay_or_disk`]: a file present in `overlay` (keyed by its resolved
+    /// `read_overlay_or_disk`: a file present in `overlay` (keyed by its resolved
     /// on-disk path) is read from the buffer; a miss falls back to
     /// `std::fs::read_to_string` with the SAME `io::Error` semantics — so an empty
     /// overlay yields byte-identical behavior (and the same `issues` strings) as the
@@ -95,6 +95,15 @@ impl RuleIndexEntry {
                     }
                 }
             }
+            QuerySource::Pack { pack, output, file } => {
+                issues.push(format!(
+                    "pack query (pack={}, output={}, file={}) resolved at generation time",
+                    pack,
+                    output,
+                    file.display()
+                ));
+                (false, String::new())
+            }
         };
 
         // --- Resolve the template ----------------------------------------
@@ -123,6 +132,15 @@ impl RuleIndexEntry {
                     "unsupported template source for MVP: package ({}:{})",
                     package,
                     path.display()
+                ));
+                (None, None)
+            }
+            TemplateSource::Pack { pack, output, file } => {
+                issues.push(format!(
+                    "pack template (pack={}, output={}, file={}) resolved at generation time",
+                    pack,
+                    output,
+                    file.display()
                 ));
                 (None, None)
             }

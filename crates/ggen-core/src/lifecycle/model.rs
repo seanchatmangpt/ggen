@@ -38,7 +38,7 @@
 //! ```toml
 //! [project]
 //! name = "my-project"
-//! version = "1.0.0"
+//! version = "26.6.6"
 //!
 //! [lifecycle.build]
 //! commands = ["cargo build --release"]

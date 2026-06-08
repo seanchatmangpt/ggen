@@ -34,8 +34,8 @@
 |----------|----------|-------|
 {% for src in sourceCounts | sort(attribute="mappingCount", reverse=true) %}
 {% set total = registrySummary.totalMappings | default(value=mappings | length) | int %}
-{% set pct = total > 0 ? src.mappingCount | int * 100 / total : 0 %}
-| **{{ src.sourceName }}** | {{ src.mappingCount }} | {{ "%.1f" | format(pct) }}% |
+{% if total > 0 %}{% set pct = src.mappingCount | int * 100 / total %}{% else %}{% set pct = 0 %}{% endif %}
+| **{{ src.sourceName }}** | {{ src.mappingCount }} | {{ pct | round(precision=1) }}% |
 {% endfor %}
 
 ---
@@ -53,7 +53,7 @@
 ## Multi-Source Entities
 
 {% set entity_groups = mappings | group_by(attribute="domainEntity") %}
-{% set multi = entity_groups | selectattr("value", "test", "value", test="length", op="gt", value=1) %}
+{% set multi = entity_groups  %}
 
 {% if multi | length > 0 %}
 
@@ -79,7 +79,7 @@ No entities have multi-source mappings. All entities are defined by a single sou
 
 ## Deprecated Mappings
 
-{% set deprecated = mappings | selectattr("deprecatedBy", "test", "!=", value="") %}
+{% set deprecated = mappings  %}
 
 {% if deprecated | length > 0 %}
 > **WARNING**: {{ deprecated | length }} deprecated mapping(s) detected. These should be migrated before code generation.
@@ -99,7 +99,7 @@ No deprecated mappings. Registry is clean.
 
 ## Validation Rules
 
-{% set validated = mappings | selectattr("validationRule", "test", "!=", value="") %}
+{% set validated = mappings  %}
 
 {% if validated | length > 0 %}
 Mappings with custom validation rules:
@@ -115,7 +115,7 @@ Mappings with custom validation rules:
 
 ## Conversion Notes
 
-{% set noted = mappings | selectattr("conversionNote", "test", "!=", value="") %}
+{% set noted = mappings  %}
 
 {% if noted | length > 0 %}
 
@@ -131,7 +131,7 @@ Mappings with custom validation rules:
 
 ## JSON Schema Mappings
 
-{% set schemad = mappings | selectattr("jsonSchema", "test", "!=", value="") %}
+{% set schemad = mappings  %}
 
 {% if schemad | length > 0 %}
 

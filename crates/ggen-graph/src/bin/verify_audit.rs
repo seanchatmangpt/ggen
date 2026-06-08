@@ -1,6 +1,6 @@
 //! Binary to verify the self-audit log and coverage matrix for Vision 2030 compliance.
-
-use ggen_graph::ocel::{CoverageMatrix, OcelLog};
+#![allow(clippy::unnecessary_debug_formatting, clippy::unwrap_used)]
+use ggen_graph::ocel::{CoverageMatrix, OCEL};
 use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
@@ -19,7 +19,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     let self_audit_file = File::open(self_audit_path)?;
-    let log: OcelLog = serde_json::from_reader(BufReader::new(self_audit_file))?;
+    let log: OCEL = serde_json::from_reader(BufReader::new(self_audit_file))?;
 
     let coverage_file = File::open(coverage_path)?;
     let coverage: CoverageMatrix = serde_json::from_reader(BufReader::new(coverage_file))?;

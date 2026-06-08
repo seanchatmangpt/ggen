@@ -2,6 +2,7 @@
 //!
 //! Provides real-time progress feedback with visual indicators,
 //! step tracking, and cancellation support.
+#![allow(clippy::unwrap_used)] // Mutex::lock() poisoning is an unrecoverable programmer error; panic is correct
 
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};

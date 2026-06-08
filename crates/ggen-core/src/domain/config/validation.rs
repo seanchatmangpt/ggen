@@ -81,7 +81,7 @@ impl ConfigValidator {
             if !self.is_valid_semver(&config.project.version) {
                 warnings.push(ValidationWarning {
                     field: Some("project.version".to_string()),
-                    message: "Version does not follow semver format (e.g., 1.0.0)".to_string(),
+                    message: "Version does not follow semver format (e.g., 26.6.6)".to_string(),
                 });
             }
         }
@@ -464,7 +464,7 @@ mod tests {
         GgenConfig {
             project: ProjectMetadata {
                 name: "test-project".to_string(),
-                version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
                 description: "Test project".to_string(),
                 authors: vec!["Test Author".to_string()],
                 license: "MIT".to_string(),
@@ -598,11 +598,11 @@ mod tests {
     #[test]
     fn test_is_valid_semver() {
         let validator = ConfigValidator::new();
-        assert!(validator.is_valid_semver("1.0.0"));
+        assert!(validator.is_valid_semver("26.6.6"));
         assert!(validator.is_valid_semver("2.1.3"));
         assert!(!validator.is_valid_semver("1.0"));
         assert!(!validator.is_valid_semver("abc"));
-        assert!(validator.is_valid_semver("1.0.0-alpha")); // Has extra parts but starts valid
+        assert!(validator.is_valid_semver("26.6.6-alpha")); // Has extra parts but starts valid
     }
 
     #[test]

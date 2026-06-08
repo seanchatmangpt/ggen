@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::needless_raw_string_hashes, clippy::duration_suboptimal_units, clippy::branches_sharing_code, clippy::used_underscore_binding, clippy::single_char_pattern, clippy::ignore_without_reason, clippy::cloned_ref_to_slice_refs, clippy::doc_overindented_list_items, clippy::match_wildcard_for_single_variants, clippy::ignored_unit_patterns, clippy::needless_collect, clippy::unnecessary_map_or, clippy::manual_flatten, clippy::manual_strip, clippy::future_not_send, clippy::unnested_or_patterns, clippy::no_effect_underscore_binding, clippy::literal_string_with_formatting_args)]
 //! Clnrm-based test harness for ggen marketplace and lifecycle testing
 //!
 //! This module provides a production-ready test harness using the cleanroom (clnrm)
@@ -458,11 +459,11 @@ fn create_test_packages() -> Result<Vec<PackMetadata>> {
     // Package 1: Rust web service
     let mut rust_web_versions = HashMap::new();
     rust_web_versions.insert(
-        "1.0.0".to_string(),
+        "26.6.6".to_string(),
         VersionMetadata {
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             git_url: "https://github.com/ggen/rust-web-service.git".to_string(),
-            git_rev: "v1.0.0".to_string(),
+            git_rev: "v26.6.6".to_string(),
             manifest_url: None,
             sha256: "a".repeat(64),
         },
@@ -499,11 +500,11 @@ fn create_test_packages() -> Result<Vec<PackMetadata>> {
     // Package 2: PostgreSQL database setup
     let mut postgres_versions = HashMap::new();
     postgres_versions.insert(
-        "1.0.0".to_string(),
+        "26.6.6".to_string(),
         VersionMetadata {
-            version: "1.0.0".to_string(),
+            version: "26.6.6".to_string(),
             git_url: "https://github.com/ggen/postgresql-setup.git".to_string(),
-            git_rev: "v1.0.0".to_string(),
+            git_rev: "v26.6.6".to_string(),
             manifest_url: None,
             sha256: "c".repeat(64),
         },
@@ -517,7 +518,7 @@ fn create_test_packages() -> Result<Vec<PackMetadata>> {
         keywords: vec!["postgres".to_string(), "migrations".to_string()],
         category: Some("database".to_string()),
         author: Some("Ggen Team".to_string()),
-        latest_version: "1.0.0".to_string(),
+        latest_version: "26.6.6".to_string(),
         versions: postgres_versions,
         downloads: Some(800),
         updated: Some(chrono::Utc::now()),
@@ -590,8 +591,8 @@ mod tests {
         let harness = TestHarness::new().await?;
         let fixture = harness.marketplace_fixture().await?;
 
-        let version = fixture.resolve("rust-web-service", Some("1.0.0")).await?;
-        assert_eq!(version.version, "1.0.0");
+        let version = fixture.resolve("rust-web-service", Some("26.6.6")).await?;
+        assert_eq!(version.version, "26.6.6");
 
         Ok(())
     }

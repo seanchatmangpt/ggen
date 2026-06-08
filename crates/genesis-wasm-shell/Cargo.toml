@@ -1,6 +1,6 @@
 [package]
 name = "genesis-wasm-shell"
-version = "1.0.0"
+version = "26.6.6"
 edition = "2021"
 description = "Portable WASM Wrapper Shell encapsulating the Genesis Core and ggen membrane bindings"
 authors = ["KNHK Team"]

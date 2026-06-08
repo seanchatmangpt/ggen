@@ -1,12 +1,12 @@
 //! Render repair-step edit templates into concrete LSP edits.
 //!
-//! A step's [`EditTemplate`](super::model::EditTemplate) is instantiated against
-//! the diagnostic's [`RouteBindings`](super::model::RouteBindings) and the
+//! A step's [`EditTemplate`] is instantiated against
+//! the diagnostic's [`RouteBindings`] and the
 //! document text to yield a `TextEdit`. The same renderer feeds both the editor
 //! `WorkspaceEdit` and the agent `RoutePlan`, so both apply identical repairs.
 
 use std::collections::HashMap;
-use tower_lsp::lsp_types::{Position, Range, TextEdit, Url, WorkspaceEdit};
+use tower_lsp_max::lsp_types::{Position, Range, TextEdit, Url, WorkspaceEdit};
 
 use super::model::{Anchor, EditTemplate, PartialOrder, RepairRoute, RouteBindings};
 use super::plan::{DiagnosticRef, RoutePlan, RoutePlanStep};
@@ -86,6 +86,7 @@ pub fn workspace_edit_from_route(
         changes: Some(changes),
         document_changes: None,
         change_annotations: None,
+        metadata: None,
     }
 }
 

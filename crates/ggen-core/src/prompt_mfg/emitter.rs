@@ -126,6 +126,7 @@ impl PromptEmitter {
 }
 
 impl Default for PromptEmitter {
+    #[allow(clippy::panic)] // SAFETY: panicking on a broken binary is correct — malformed embedded templates are a programmer error
     fn default() -> Self {
         // SAFETY: PromptEmitter::new() only fails if the embedded Tera templates
         // (compiled into the binary via include_str!) are syntactically invalid.
@@ -181,8 +182,8 @@ mod tests {
             sections: BTreeMap::new(),
             metadata: PromptMetadata {
                 id: "test".to_string(),
-                version: "1.0.0".to_string(),
-                schema_version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
+                schema_version: "26.6.6".to_string(),
                 source_ontology: "test://ontology".to_string(),
                 construct_query: "".to_string(),
             },
@@ -201,8 +202,8 @@ mod tests {
             sections: BTreeMap::new(),
             metadata: PromptMetadata {
                 id: "test".to_string(),
-                version: "1.0.0".to_string(),
-                schema_version: "1.0.0".to_string(),
+                version: "26.6.6".to_string(),
+                schema_version: "26.6.6".to_string(),
                 source_ontology: "test://ontology".to_string(),
                 construct_query: "".to_string(),
             },

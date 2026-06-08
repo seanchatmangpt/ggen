@@ -24,7 +24,7 @@
   system_id => {{ system.id }},
   system_name => {{ system.name }},
   status => connecting | connected | error,
-  auth => {{ system.auth_type | default: "none" }},
+  auth => {{ system.auth_type | default(value="none") }},
   retry_count => non_neg_integer(),
   last_error => term(),
   event_queue => queue:queue(event()),

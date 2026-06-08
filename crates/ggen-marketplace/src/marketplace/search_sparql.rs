@@ -37,8 +37,8 @@ impl SparqlSearchEngine {
     ///
     /// # Errors
     ///
-    /// * [`Error::SparqlError`] - When the SPARQL query syntax is invalid
-    /// * [`Error::SearchError`] - When querying the RDF store fails
+    /// * `Error::SparqlError` - When the SPARQL query syntax is invalid
+    /// * `Error::SearchError` - When querying the RDF store fails
     #[must_use]
     pub fn search_by_name(&self, name: &str) -> Result<Vec<String>> {
         let query = Queries::search_by_name(name);
@@ -49,8 +49,8 @@ impl SparqlSearchEngine {
     ///
     /// # Errors
     ///
-    /// * [`Error::SparqlError`] - When the SPARQL query syntax is invalid
-    /// * [`Error::SearchError`] - When querying the RDF store fails
+    /// * `Error::SparqlError` - When the SPARQL query syntax is invalid
+    /// * `Error::SearchError` - When querying the RDF store fails
     #[must_use]
     pub fn search_by_description(&self, text: &str) -> Result<Vec<String>> {
         let query = Queries::search_by_description(text);
@@ -61,8 +61,8 @@ impl SparqlSearchEngine {
     ///
     /// # Errors
     ///
-    /// * [`Error::SparqlError`] - When the SPARQL query syntax is invalid
-    /// * [`Error::SearchError`] - When querying the RDF store fails
+    /// * `Error::SparqlError` - When the SPARQL query syntax is invalid
+    /// * `Error::SearchError` - When querying the RDF store fails
     #[must_use]
     pub fn search_by_keyword(&self, keyword: &str) -> Result<Vec<String>> {
         let query = Queries::packages_by_keyword(keyword);
@@ -73,8 +73,8 @@ impl SparqlSearchEngine {
     ///
     /// # Errors
     ///
-    /// * [`Error::SparqlError`] - When the SPARQL query syntax is invalid
-    /// * [`Error::SearchError`] - When querying the RDF store fails
+    /// * `Error::SparqlError` - When the SPARQL query syntax is invalid
+    /// * `Error::SearchError` - When querying the RDF store fails
     #[must_use]
     pub fn search_by_author(&self, author: &str) -> Result<Vec<String>> {
         let query = Queries::packages_by_author(author);
@@ -85,8 +85,8 @@ impl SparqlSearchEngine {
     ///
     /// # Errors
     ///
-    /// * [`Error::SparqlError`] - When the SPARQL query syntax is invalid
-    /// * [`Error::SearchError`] - When querying the RDF store fails
+    /// * `Error::SparqlError` - When the SPARQL query syntax is invalid
+    /// * `Error::SearchError` - When querying the RDF store fails
     #[must_use]
     pub fn trending_packages(&self, limit: usize) -> Result<Vec<String>> {
         let query = Queries::trending_packages(limit);
@@ -97,8 +97,8 @@ impl SparqlSearchEngine {
     ///
     /// # Errors
     ///
-    /// * [`Error::SparqlError`] - When the SPARQL query syntax is invalid
-    /// * [`Error::SearchError`] - When querying the RDF store fails
+    /// * `Error::SparqlError` - When the SPARQL query syntax is invalid
+    /// * `Error::SearchError` - When querying the RDF store fails
     #[must_use]
     pub fn recent_packages(&self, limit: usize) -> Result<Vec<String>> {
         let query = Queries::recent_packages(limit);
@@ -109,8 +109,8 @@ impl SparqlSearchEngine {
     ///
     /// # Errors
     ///
-    /// * [`Error::SparqlError`] - When the SPARQL query syntax is invalid
-    /// * [`Error::SearchError`] - When querying the RDF store fails
+    /// * `Error::SparqlError` - When the SPARQL query syntax is invalid
+    /// * `Error::SearchError` - When querying the RDF store fails
     #[must_use]
     pub fn search_by_quality(&self, min_score: u32) -> Result<Vec<String>> {
         let query = Queries::packages_by_quality(min_score);
@@ -121,8 +121,8 @@ impl SparqlSearchEngine {
     ///
     /// # Errors
     ///
-    /// * [`Error::SparqlError`] - When the SPARQL query syntax is invalid
-    /// * [`Error::SearchError`] - When querying the RDF store fails
+    /// * `Error::SparqlError` - When the SPARQL query syntax is invalid
+    /// * `Error::SearchError` - When querying the RDF store fails
     #[must_use]
     pub fn all_packages(&self) -> Result<Vec<String>> {
         let query = Queries::all_packages();

@@ -1,0 +1,20 @@
+[checkpoint]
+id = "GALL-CHECKPOINT-007"
+name = "wasm4pm-lsp Ownership Relocation"
+status_target = "CANDIDATE"
+
+[boundary]
+workspace = "."
+target = ".tmp_gc007/target"
+staging_dir = ".tmp_gc007/staging"
+receipt_sink = ".tmp_gc007/receipts"
+
+proofs_gc006 = []
+proofs_gc004 = []
+proofs_gc003 = []
+proofs = []
+equation = { form = "R_B" }
+
+[[proofs_gc007]]
+id = "wasm4pm-lsp-ownership-surface"
+kind = "filesystem-law"

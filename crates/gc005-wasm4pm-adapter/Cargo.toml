@@ -1,0 +1,13 @@
+[package]
+name = "gc005-wasm4pm-adapter"
+version = "26.6.6"
+edition = "2021"
+publish = false
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+chrono = { workspace = true }
+wasm4pm-algos = { path = "../../../wasm4pm/crates/wasm4pm-algos" }
+ocel-core = { version = "26.6.8", package = "wasm4pm-compat" }
