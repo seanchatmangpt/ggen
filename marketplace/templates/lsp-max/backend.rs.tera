@@ -1,4 +1,4 @@
-use lsp_max::{Client, LanguageServer, LspService, Server};
+use lsp_max::{Client, LanguageServer};
 use lsp_max::lsp_types::*;
 use std::sync::Mutex;
 
@@ -54,7 +54,7 @@ impl {{ server_name | capitalize }}Backend {
     }
 
     async fn diagnose(&self, uri: Url, _content: String) {
-        use lsp_max::lsp_types::{Diagnostic, NumberOrString};
+        use lsp_max::lsp_types::Diagnostic;
         // Populate diagnostics below. Every diagnostic must carry:
         //   code: Some(NumberOrString::String("YOUR-CODE".to_string()))
         //   data: Some(serde_json::json!({"source_id": "{{ diagnostic_source_id }}"}))

@@ -10,7 +10,7 @@ pub fn cmd_serve(stdio: bool) -> clap_noun_verb::Result<()> {
             let stdin = tokio::io::stdin();
             let stdout = tokio::io::stdout();
             let (service, socket) =
-                LspService::new(|client| {{ server_name | capitalize }}Backend::new(client));
+                LspService::new({{ server_name | capitalize }}Backend::new);
             Server::new(stdin, stdout, socket).serve(service).await.unwrap();
         }
     });
