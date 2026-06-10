@@ -1,0 +1,41 @@
+use lsp_max::max_protocol::{ConformanceVector, SnapshotId};
+use std::collections::HashSet;
+
+/// Query an lsp-max server's conformance vector.
+/// Caller owns the stdio pipe halves to the running server process.
+pub async fn query_conformance(
+    tx: &mut (impl tokio::io::AsyncWrite + Unpin),
+    rx: &mut (impl tokio::io::AsyncRead + Unpin),
+) -> ConformanceVector {
+    write_lsp_msg(tx, serde_json::json!({
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "max/snapshot",
+        "params": null
+    }))
+    .await;
+    let snap_resp = read_lsp_response(rx, 1).await;
+    let snap_id: SnapshotId =
+        serde_json::from_value(snap_resp["result"].clone()).expect("max/snapshot result");
+
+    write_lsp_msg(tx, serde_json::json!({
+        "jsonrpc": "2.0",
+        "id": 2,
+        "method": "max/conformanceVector",
+        "params": serde_json::to_value(&snap_id).unwrap()
+    }))
+    .await;
+    let cv_resp = read_lsp_response(rx, 2).await;
+    let cv: ConformanceVector =
+        serde_json::from_value(cv_resp["result"].clone()).expect("max/conformanceVector result");
+
+    // Invariant: admitted and refused must be disjoint; Unknown is never collapsed.
+    let admitted: HashSet<_> = cv.admitted.iter().collect();
+    let refused: HashSet<_> = cv.refused.iter().collect();
+    assert!(
+        admitted.is_disjoint(&refused),
+        "ConformanceVector invariant violated: axis appears in both admitted and refused"
+    );
+
+    cv
+}

@@ -1,0 +1,72 @@
+use clap_noun_verb::cli::{run_cli, Result};
+use clap_noun_verb_macros::verb;
+use std::sync::Arc;
+use lsp_max::{LspService, Server};
+use lsp_max::auto_lsp::AutoLspAdapter;
+
+// This is a ggen-generated Framework LSP.
+// It is structurally compliant with the wasm4pm-compat baseline admissibility laws.
+
+pub struct {{ framework_name | capitalize }}Backend {
+    pub client: lsp_max::Client,
+    pub auto_lsp: Arc<AutoLspAdapter>,
+}
+
+#[lsp_max::async_trait]
+impl lsp_max::LanguageServer for {{ framework_name | capitalize }}Backend {
+    async fn initialize(
+        &self,
+        _params: lsp_max::lsp_types::InitializeParams,
+    ) -> lsp_max::jsonrpc::Result<lsp_max::lsp_types::InitializeResult> {
+        Ok(lsp_max::lsp_types::InitializeResult {
+            server_info: Some(lsp_max::lsp_types::ServerInfo {
+                name: "{{ framework_name }}-lsp".to_string(),
+                version: Some("1.0.0".to_string()),
+            }),
+            offset_encoding: None,
+            capabilities: lsp_max::lsp_types::ServerCapabilities {
+                text_document_sync: Some(lsp_max::lsp_types::TextDocumentSyncCapability::Kind(
+                    lsp_max::lsp_types::TextDocumentSyncKind::INCREMENTAL,
+                )),
+                ..Default::default()
+            },
+        })
+    }
+
+    async fn shutdown(&self) -> lsp_max::jsonrpc::Result<()> {
+        Ok(())
+    }
+
+    async fn did_open(&self, params: lsp_max::lsp_types::DidOpenTextDocumentParams) {
+        self.auto_lsp.handle_did_open(params, {{ language_grammar }}::LANGUAGE.into());
+    }
+
+    async fn did_change(&self, params: lsp_max::lsp_types::DidChangeTextDocumentParams) {
+        self.auto_lsp.handle_did_change(params, {{ language_grammar }}::LANGUAGE.into());
+    }
+}
+
+#[verb("start", noun="server")]
+fn start_server(
+    /// Launch in stdio mode for IDE integration
+    #[arg(long)]
+    stdio: bool,
+) -> clap_noun_verb::Result<()> {
+    tokio::runtime::Runtime::new().unwrap().block_on(async {
+        let stdin = tokio::io::stdin();
+        let stdout = tokio::io::stdout();
+
+        let (service, socket) = LspService::new(|client| {{ framework_name | capitalize }}Backend {
+            client,
+            auto_lsp: Arc::new(AutoLspAdapter::new_default()),
+        });
+
+        let _ = Server::new(stdin, stdout, socket).serve(service).await;
+    });
+
+    Ok(())
+}
+
+fn main() -> clap_noun_verb::Result<()> {
+    run_cli()
+}

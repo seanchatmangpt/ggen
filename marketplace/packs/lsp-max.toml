@@ -1,0 +1,68 @@
+[pack]
+id = "lsp-max"
+name = "LSP Max"
+version = "26.6.9"
+description = "Law-state LSP server scaffold for lsp-max. Generates servers born-compliant: REGISTRY/MESH init, ConformanceVector, receipt-chain evidence, source attribution on all diagnostics."
+category = "infrastructure"
+author = "ggen"
+repository = "https://github.com/seanchatmangpt/lsp-max"
+license = "MIT OR Apache-2.0"
+production_ready = true
+
+packages = [
+    "lsp-max",
+    "lsp-max-protocol",
+    "clap-noun-verb",
+    "clap-noun-verb-macros",
+    "linkme",
+    "tokio",
+    "serde",
+    "serde_json",
+    "tracing",
+    "tracing-subscriber"
+]
+
+[[pack.templates]]
+name = "lsp-backend"
+path = "templates/lsp-max/backend.rs.tera"
+description = "Backend struct implementing lsp_max::LanguageServer with REGISTRY/MESH init and source-attributed diagnostics"
+variables = ["server_name", "diagnostic_source_id"]
+
+[[pack.templates]]
+name = "lsp-cli"
+path = "templates/lsp-max/cli.rs.tera"
+description = "clap-noun-verb #[verb] entry point for stdio LSP server"
+variables = ["server_name"]
+
+[[pack.templates]]
+name = "lsp-semantics"
+path = "templates/lsp-max/semantics.rs.tera"
+description = "Semantic rule dispatch engine for real-time diagnostics"
+variables = ["server_name", "rules"]
+
+[[pack.templates]]
+name = "lsp-build"
+path = "templates/lsp-max/build.rs.tera"
+description = "Optional build script for tree-sitter grammar codegen"
+variables = ["tree_sitter_crate"]
+
+[pack.conformance]
+vector_axes = ["Protocol", "Domain", "Receipt", "Hook"]
+unknown_preservation = true
+admission_gate = "max/admission"
+
+[pack.metadata]
+tags = ["lsp", "language-server", "lsp-max", "conformance", "receipt-chain", "clap-noun-verb"]
+keywords = ["lsp", "lsp-max", "conformance-vector", "law-state", "clap-noun-verb"]
+
+[pack.sparql_queries]
+extract_capabilities = """
+PREFIX lsp: <http://ggen.io/ontology/lsp#>
+SELECT ?cap ?enabled
+WHERE {
+    ?server a lsp:Server ;
+            lsp:hasCapability ?capNode .
+    ?capNode lsp:capabilityName ?cap ;
+             lsp:isEnabled ?enabled .
+}
+"""

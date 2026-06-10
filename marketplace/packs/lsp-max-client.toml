@@ -1,0 +1,36 @@
+[pack]
+id = "lsp-max-client"
+name = "LSP Max Client"
+version = "26.6.9"
+description = "Client scaffold for querying lsp-max servers via max/* RPC methods. Generates conformance vector queries, admission gate checks, and CI-ready release gates."
+category = "infrastructure"
+author = "ggen"
+repository = "https://github.com/seanchatmangpt/lsp-max"
+license = "MIT OR Apache-2.0"
+production_ready = true
+
+packages = [
+    "lsp-max",
+    "lsp-max-protocol",
+    "tokio",
+    "serde_json"
+]
+
+[[pack.templates]]
+name = "conformance-client"
+path = "templates/lsp-max-client/conformance_client.rs.tera"
+description = "Client that queries max/snapshot then max/conformanceVector with invariant checks"
+variables = ["client_name"]
+
+[[pack.templates]]
+name = "admission-gate"
+path = "templates/lsp-max-client/admission_gate.rs.tera"
+description = "CI release gate: calls max/admission for a LawAxis, blocks if Refused or Unknown in strict mode"
+variables = ["client_name", "gate_axis"]
+
+[pack.conformance]
+unknown_preservation = true
+
+[pack.metadata]
+tags = ["lsp", "lsp-max", "conformance", "ci-gate", "agent-client", "max-rpc"]
+keywords = ["lsp-max", "conformance-vector", "admission-gate", "max-rpc", "ci"]

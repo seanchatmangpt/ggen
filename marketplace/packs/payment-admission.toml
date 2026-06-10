@@ -12,12 +12,3 @@ production_ready = true
 packages = [
     "payment-admission"
 ]
-
-[[pack.templates]]
-name = "semantic-law"
-path = "crates/ggen-core/templates/semantic_os/law.rs.tera"
-description = "Compiled Rust law from ontology"
-
-[pack.sparql_queries]
-laws = "crates/ggen-core/queries/semantic_os/extract-laws.rq"
-transitions = "crates/ggen-core/queries/semantic_os/extract-transitions.rq"

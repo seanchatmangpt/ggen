@@ -1,0 +1,23 @@
+fn main() {
+    // Generate the AST for the target framework language using auto-lsp-codegen
+    let source = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/node-types.json"));
+    let tokens = std::collections::HashMap::from([("`", "Backtick")]);
+
+    // Use the auto_lsp_codegen engine to mathematically guarantee the AST
+    let token_stream = auto_lsp_codegen::generate(
+        source, 
+        &{{ language_grammar }}::LANGUAGE.into(), 
+        Some(tokens)
+    );
+
+    let out_dir = std::env::var_os("OUT_DIR").unwrap();
+    let dest_path = std::path::Path::new(&out_dir).join("generated_ast.rs");
+    
+    std::fs::write(
+        &dest_path, 
+        token_stream.to_string()
+    ).expect("Failed to write AST generation");
+
+    println!("cargo:rerun-if-changed=node-types.json");
+    println!("cargo:rerun-if-changed=build.rs");
+}

@@ -1,0 +1,28 @@
+[pack]
+id = "{{ pack_id }}"
+name = "{{ pack_name }}"
+version = "{{ pack_version | default(value="26.6.9") }}"
+description = "{{ pack_description }}"
+category = "{{ pack_category | default(value="infrastructure") }}"
+author = "{{ author }}"
+repository = "{{ repository }}"
+license = "MIT OR Apache-2.0"
+production_ready = false
+
+packages = []
+
+# Add [[pack.templates]] entries below for each template you create.
+# Each template file must exist at marketplace/templates/{{ pack_id }}/<name>.tera
+#
+# [[pack.templates]]
+# name = "my-template"
+# path = "templates/{{ pack_id }}/my-template.rs.tera"
+# description = "What this template generates"
+# variables = ["var1", "var2"]
+
+[pack.conformance]
+unknown_preservation = true
+
+[pack.metadata]
+tags = ["{{ pack_id }}"]
+keywords = ["{{ pack_id }}"]
