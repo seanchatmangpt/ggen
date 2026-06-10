@@ -49,7 +49,15 @@
 
 use std::path::{Path, PathBuf};
 
-use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Position, Range, Url};
+use lsp_max::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Position, Range, Url};
+
+fn url_from_path(path: impl AsRef<std::path::Path>) -> Url {
+    url::Url::from_file_path(path.as_ref())
+        .expect("absolute path")
+        .to_string()
+        .parse::<Url>()
+        .expect("valid uri")
+}
 
 use ggen_lsp::check::{check_files_in_root, discover_law_surfaces, CheckReport};
 use ggen_lsp::route::{Provenance, RouteRegistry};
@@ -381,9 +389,9 @@ async fn analyze_and_observe_records_live_out_001_receipt_chain() {
     let state = ServerState::with_root(&root);
 
     let manifest_path = root.join("ggen.toml");
-    let manifest_uri = Url::from_file_path(&manifest_path).expect("manifest url");
+    let manifest_uri = url_from_path(&manifest_path);
     let rq_path = root.join("queries/items.rq");
-    let rq_uri = Url::from_file_path(&rq_path).expect("rq url");
+    let rq_uri = url_from_path(&rq_path);
 
     // ── Act 1 — RAISE: analyze the SPARQL query (a TPL/OUT trigger surface) so the
     // orchestration recomputes the project graph and flags the ggen.toml manifest.

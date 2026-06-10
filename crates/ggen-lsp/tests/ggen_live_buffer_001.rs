@@ -43,7 +43,15 @@
 
 use std::path::Path;
 
-use tower_lsp::lsp_types::{Diagnostic, NumberOrString, Url};
+use lsp_max::lsp_types::{Diagnostic, NumberOrString, Url};
+
+fn url_from_path(path: impl AsRef<std::path::Path>) -> Url {
+    url::Url::from_file_path(path.as_ref())
+        .expect("absolute path")
+        .to_string()
+        .parse::<Url>()
+        .expect("valid uri")
+}
 
 use ggen_lsp::ServerState;
 
@@ -132,9 +140,9 @@ async fn buffer_only_query_repair_clears_template_tpl_001_with_disk_still_broken
     let state = ServerState::with_root(root);
 
     let tera_path = root.join("templates/item.tera");
-    let tera_uri = Url::from_file_path(&tera_path).expect("tera url");
+    let tera_uri = url_from_path(&tera_path);
     let rq_path = root.join("queries/items.rq");
-    let rq_uri = Url::from_file_path(&rq_path).expect("rq url");
+    let rq_uri = url_from_path(&rq_path);
 
     // ── Act 1 — RAISE: analyze the template through the real orchestration.
     // The query is still broken (both on disk AND in any buffer), so the template

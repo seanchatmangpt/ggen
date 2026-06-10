@@ -59,8 +59,16 @@ use std::fs;
 use std::path::Path;
 
 use ggen_lsp::ServerState;
+use lsp_max::lsp_types::Url;
 use tempfile::TempDir;
-use tower_lsp::lsp_types::Url;
+
+fn url_from_path(path: impl AsRef<std::path::Path>) -> Url {
+    url::Url::from_file_path(path.as_ref())
+        .expect("absolute path")
+        .to_string()
+        .parse::<Url>()
+        .expect("valid uri")
+}
 
 /// Write a minimal but valid ggen project: one rule binding `queries/items.rq`
 /// to `templates/item.tera` with output `out.txt`. Identical shape to the
@@ -170,9 +178,9 @@ async fn closing_query_surface_clears_template_through_living_loop() {
         r#"{{ row["title"] }}"#,
     );
     let state = ServerState::with_root(root);
-    let rq_uri = Url::from_file_path(root.join("queries/items.rq")).expect("rq url");
-    let manifest_uri = Url::from_file_path(root.join("ggen.toml")).expect("manifest url");
-    let template_uri = Url::from_file_path(root.join("templates/item.tera")).expect("template url");
+    let rq_uri = url_from_path(root.join("queries/items.rq"));
+    let manifest_uri = url_from_path(root.join("ggen.toml"));
+    let template_uri = url_from_path(root.join("templates/item.tera"));
 
     // ── Act 1 — RAISE: open/analyze the QUERY surface through the real edit path.
     // The cross-surface detector flags the PEER template (GGEN-TPL-001), and
@@ -198,7 +206,10 @@ async fn closing_query_surface_clears_template_through_living_loop() {
     assert!(
         published.iter().any(|(u, _)| *u == template_uri),
         "close must republish the cleared peer template, got: {:?}",
-        published.iter().map(|(u, _)| u.path()).collect::<Vec<_>>()
+        published
+            .iter()
+            .map(|(u, _)| u.as_str().to_owned())
+            .collect::<Vec<_>>()
     );
     // The closed URI's own empty clear is present (LSP conformance).
     assert!(
@@ -251,8 +262,8 @@ async fn closing_query_with_surviving_peer_keeps_flag() {
     );
     add_second_query_rule(root);
     let state = ServerState::with_root(root);
-    let rq1_uri = Url::from_file_path(root.join("queries/items.rq")).expect("rq1 url");
-    let template_uri = Url::from_file_path(root.join("templates/item.tera")).expect("template url");
+    let rq1_uri = url_from_path(root.join("queries/items.rq"));
+    let template_uri = url_from_path(root.join("templates/item.tera"));
 
     // RAISE through the first query: the peer template is flagged, `tpl_flagged`
     // records it.

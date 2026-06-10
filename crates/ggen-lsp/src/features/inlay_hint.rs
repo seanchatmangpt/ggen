@@ -17,7 +17,7 @@
 //! label, and a `kind`. Only hints whose position falls within the requested
 //! `range` are emitted, per the LSP contract.
 
-use tower_lsp::lsp_types::{InlayHint, InlayHintKind, InlayHintLabel, Position, Range};
+use lsp_max::lsp_types::{InlayHint, InlayHintKind, InlayHintLabel, Position, Range};
 
 use crate::state::FileType;
 

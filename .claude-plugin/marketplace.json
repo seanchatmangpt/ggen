@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "ggen",
-  "description": "ggen plugins for Claude Code — author-time language intelligence for the ggen specification-driven code-generation pipeline.",
+  "description": "ggen plugins for Claude Code \u2014 author-time language intelligence for the ggen specification-driven code-generation pipeline.",
   "owner": {
     "name": "Sean Chatman",
     "email": "xpointsh@gmail.com"
@@ -10,7 +10,7 @@
     {
       "name": "ggen-lsp",
       "description": "ggen language server: live diagnostics, completion, hover, definitions, references, document/workspace symbols, formatting, and repair-route code actions for ggen law surfaces (RDF .ttl/.nt/.nq, SPARQL .rq/.sparql, Tera .tera, and ggen.toml).",
-      "version": "26.5.29",
+      "version": "26.6.9",
       "author": {
         "name": "Sean Chatman",
         "email": "xpointsh@gmail.com"

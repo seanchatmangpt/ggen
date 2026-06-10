@@ -32,8 +32,8 @@ use ggen_lsp::route::{
     EditTemplate, PartialOrder, PromotedRoutes, Provenance, RepairFamily, RepairRoute, RepairStep,
     RouteId, RouteRegistry, StepId,
 };
+use lsp_max::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Position, Range};
 use tempfile::TempDir;
-use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Position, Range};
 
 fn diag(code: &str) -> Diagnostic {
     Diagnostic {

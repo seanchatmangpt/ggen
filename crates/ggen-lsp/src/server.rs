@@ -1,6 +1,6 @@
+use lsp_max::lsp_types::*;
+use lsp_max::{jsonrpc::Result, Client, LanguageServer};
 use std::sync::Arc;
-use tower_lsp::lsp_types::*;
-use tower_lsp::{jsonrpc::Result, Client, LanguageServer};
 
 use crate::state::ServerState;
 
@@ -27,12 +27,14 @@ impl GgenLanguageServer {
     /// This wrapper adds only the editor transport: it pushes each returned
     /// `(uri, diagnostics)` pair to the client, in order. Keeping the orchestration
     /// in `ServerState` is what lets a hermetic test drive the SAME path (and assert
-    /// the full receipt chain from the on-disk OCEL log) without a `tower_lsp::Client`.
+    /// the full receipt chain from the on-disk OCEL log) without a `lsp_max::Client`.
     ///
     /// Strictly read-only: builds an index (which only reads files) and never
     /// writes any artifact.
     async fn refresh_analyzer(&self, uri: &Url, content: &str) {
         for (target_uri, diagnostics) in self.state.analyze_and_observe(uri, content).await {
+            // Task C — mirror diagnostics into lsp-max REGISTRY.
+            push_diagnostics_to_registry(&diagnostics);
             self.client
                 .publish_diagnostics(target_uri, diagnostics, None)
                 .await;
@@ -40,9 +42,23 @@ impl GgenLanguageServer {
     }
 }
 
-#[tower_lsp::async_trait]
+#[lsp_max::async_trait]
 impl LanguageServer for GgenLanguageServer {
-    async fn initialize(&self, _: InitializeParams) -> Result<InitializeResult> {
+    async fn initialize(&self, params: InitializeParams) -> Result<InitializeResult> {
+        // Task A — prime REGISTRY (set root_path) and MESH via lsp-max surfaces.
+        #[allow(deprecated)]
+        let root = params
+            .root_uri
+            .as_ref()
+            .and_then(|u| url::Url::parse(u.as_str()).ok()?.to_file_path().ok())
+            .unwrap_or_default();
+        // get_registry() calls REGISTRY.get_or_init internally, priming the lock.
+        if let Ok(mut reg) = lsp_max::get_registry().lock() {
+            reg.root_path = root;
+        }
+        lsp_max::MESH
+            .get_or_init(|| std::sync::Mutex::new(lsp_max::max_runtime::AutonomicMesh::new()));
+
         Ok(InitializeResult {
             capabilities: ServerCapabilities {
                 text_document_sync: Some(TextDocumentSyncCapability::Kind(
@@ -117,8 +133,9 @@ impl LanguageServer for GgenLanguageServer {
             },
             server_info: Some(ServerInfo {
                 name: "ggen-lsp".to_string(),
-                version: Some("26.5.28".to_string()),
+                version: Some(env!("CARGO_PKG_VERSION").to_string()),
             }),
+            ..Default::default()
         })
     }
 
@@ -155,8 +172,10 @@ impl LanguageServer for GgenLanguageServer {
         // URI's own empty clear is the last pair returned. This wrapper adds only
         // the editor transport — pushing each `(uri, diagnostics)` pair in order —
         // exactly like `refresh_analyzer`, keeping the receipt chain testable
-        // without a `tower_lsp::Client`.
+        // without a `lsp_max::Client`.
         for (target_uri, diagnostics) in self.state.close_document(&uri).await {
+            // Task C — mirror diagnostics into lsp-max REGISTRY.
+            push_diagnostics_to_registry(&diagnostics);
             self.client
                 .publish_diagnostics(target_uri, diagnostics, None)
                 .await;
@@ -195,7 +214,8 @@ impl LanguageServer for GgenLanguageServer {
             if range_contains(&d.range, position) {
                 if let Some(plan) = crate::route::route_plan_for_diagnostic(&registry, &d, &content)
                 {
-                    let view = crate::route::CompactTraceView::from_route_plan(&plan, uri.path());
+                    let view =
+                        crate::route::CompactTraceView::from_route_plan(&plan, uri.path().as_str());
                     return Ok(Some(Hover {
                         contents: HoverContents::Markup(MarkupContent {
                             kind: MarkupKind::Markdown,
@@ -354,8 +374,9 @@ impl LanguageServer for GgenLanguageServer {
                 .unwrap_or_else(|| route.description.clone());
             // Carry the canonical RouteEnvelope in `data` — the SAME shape the
             // headless gate, MCP tool, and A2A bridge project for this diagnostic.
-            let data = crate::route::envelope_for_diagnostic(&registry, d, &doc, uri.path())
-                .and_then(|env| serde_json::to_value(env).ok());
+            let data =
+                crate::route::envelope_for_diagnostic(&registry, d, &doc, uri.path().as_str())
+                    .and_then(|env| serde_json::to_value(env).ok());
             actions.push(CodeActionOrCommand::CodeAction(CodeAction {
                 title,
                 kind: Some(CodeActionKind::QUICKFIX),
@@ -365,6 +386,8 @@ impl LanguageServer for GgenLanguageServer {
                 is_preferred: Some(true),
                 disabled: None,
                 data,
+                documentation: None,
+                ..Default::default()
             }));
         }
         Ok(if actions.is_empty() {
@@ -432,6 +455,32 @@ impl LanguageServer for GgenLanguageServer {
             &root,
             &params.query,
         )))
+    }
+}
+
+/// Task C helper — push GGEN-* diagnostics into the lsp-max REGISTRY so the
+/// autonomic mesh can observe them. Best-effort: lock failures are silently ignored.
+fn push_diagnostics_to_registry(diagnostics: &[lsp_max::lsp_types::Diagnostic]) {
+    use lsp_max_protocol::{LawAxis, MaxDiagnostic};
+    if let Ok(mut reg) = lsp_max::get_registry().lock() {
+        for diag in diagnostics {
+            if let Some(lsp_max::lsp_types::NumberOrString::String(ref code)) = diag.code {
+                let id = {
+                    let mut h = blake3::Hasher::new();
+                    h.update(diag.message.as_bytes());
+                    format!("{}-{:.8}", code, h.finalize().to_hex())
+                };
+                let max_diag = MaxDiagnostic {
+                    lsp: diag.clone(),
+                    diagnostic_id: id.clone(),
+                    law_id: code.clone(),
+                    law_axis: LawAxis::Domain,
+                    violated_invariant: diag.message.clone(),
+                    ..MaxDiagnostic::default()
+                };
+                reg.diagnostics.insert(id, max_diag);
+            }
+        }
     }
 }
 

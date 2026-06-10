@@ -34,8 +34,16 @@ use ggen_lsp::intel::events::activity;
 use ggen_lsp::intel::MetricValue;
 use ggen_lsp::state::ServerState;
 use ggen_lsp::{check_content, compute_metrics, IntelLog};
+use lsp_max::lsp_types::Url;
 use tempfile::TempDir;
-use tower_lsp::lsp_types::Url;
+
+fn url_from_path(path: impl AsRef<std::path::Path>) -> Url {
+    url::Url::from_file_path(path.as_ref())
+        .expect("absolute path")
+        .to_string()
+        .parse::<Url>()
+        .expect("valid uri")
+}
 
 #[tokio::test]
 async fn editor_applied_repair_emits_repair_applied_and_closes_episode() {
@@ -44,24 +52,24 @@ async fn editor_applied_repair_emits_repair_applied_and_closes_episode() {
     let state = ServerState::with_root(root);
 
     let cfg_path = root.join("ggen.toml");
-    let uri = Url::from_file_path(&cfg_path).expect("file url");
+    let uri = url_from_path(&cfg_path);
 
     // 1) Open broken: invalid enum `level = "verbose"` → E0023 (ConfigValue).
     //    A route is offered (advisory seed) and remembered as a pending repair.
-    let broken =
-        check_content(uri.path(), "[logging]\nlevel = \"verbose\"\n").expect("toml law surface");
+    let broken = check_content(uri.path().as_str(), "[logging]\nlevel = \"verbose\"\n")
+        .expect("toml law surface");
     assert!(
         broken.diagnostics.iter().any(|d| matches!(
             &d.code,
-            Some(tower_lsp::lsp_types::NumberOrString::String(c)) if c == "E0023"
+            Some(lsp_max::lsp_types::NumberOrString::String(c)) if c == "E0023"
         )),
         "broken config raises E0023"
     );
     state.observe_diagnostics(&uri, &broken.diagnostics).await;
 
     // 2) The agent applies the fix: `level = "info"` → E0023 disappears.
-    let fixed =
-        check_content(uri.path(), "[logging]\nlevel = \"info\"\n").expect("toml law surface");
+    let fixed = check_content(uri.path().as_str(), "[logging]\nlevel = \"info\"\n")
+        .expect("toml law surface");
     assert!(fixed.diagnostics.is_empty(), "fixed config is clean");
     state.observe_diagnostics(&uri, &fixed.diagnostics).await;
 
@@ -113,10 +121,10 @@ async fn unrepaired_diagnostic_emits_no_repair_applied() {
     let dir = TempDir::new().expect("tempdir");
     let root = dir.path();
     let state = ServerState::with_root(root);
-    let uri = Url::from_file_path(root.join("ggen.toml")).expect("file url");
+    let uri = url_from_path(root.join("ggen.toml"));
 
-    let broken =
-        check_content(uri.path(), "[logging]\nlevel = \"verbose\"\n").expect("toml law surface");
+    let broken = check_content(uri.path().as_str(), "[logging]\nlevel = \"verbose\"\n")
+        .expect("toml law surface");
     state.observe_diagnostics(&uri, &broken.diagnostics).await;
     // Re-publish the SAME broken diagnostics (no fix applied).
     state.observe_diagnostics(&uri, &broken.diagnostics).await;

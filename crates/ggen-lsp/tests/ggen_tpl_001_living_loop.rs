@@ -58,7 +58,15 @@
 
 use std::path::{Path, PathBuf};
 
-use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Position, Range, Url};
+use lsp_max::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Position, Range, Url};
+
+fn url_from_path(path: impl AsRef<std::path::Path>) -> Url {
+    url::Url::from_file_path(path.as_ref())
+        .expect("absolute path")
+        .to_string()
+        .parse::<Url>()
+        .expect("valid uri")
+}
 
 use ggen_lsp::check::{check_files_in_root, discover_law_surfaces, CheckReport};
 use ggen_lsp::route::{Provenance, RouteRegistry};
@@ -420,7 +428,7 @@ fn headless_gate_never_materializes_output_file() {
 ///
 ///   1. **A constructible `GgenLanguageServer` with an injectable root.**
 ///      `GgenLanguageServer::new(client: Client)` (server.rs:13) is the ONLY
-///      public constructor. It (a) requires a `tower_lsp::Client`, which is
+///      public constructor. It (a) requires a `lsp_max::Client`, which is
 ///      produced solely by `LspService::new(...)` inside `run_stdio` and is not
 ///      independently constructible in a unit test, and (b) hard-codes
 ///      `ServerState::default()` (server.rs:15) whose `root` is `current_dir()`
@@ -480,7 +488,7 @@ fn headless_gate_never_materializes_output_file() {
 /// `server::refresh_analyzer` now calls (the wrapper adds only
 /// `Client::publish_diagnostics`). The test below drives that REAL orchestration,
 /// so the live `ReceiptEmitted` chain is now observable from the on-disk OCEL log
-/// without a `tower_lsp::Client`. The proof exercises production code, not a
+/// without a `lsp_max::Client`. The proof exercises production code, not a
 /// test-local reconstruction of it.
 ///
 /// raise (analyze the template) → cross-surface repair (fix the SPARQL query) →
@@ -500,9 +508,9 @@ async fn analyze_and_observe_records_live_receipt_chain() {
     let state = ServerState::with_root(root);
 
     let tera_path = root.join("templates/item.tera");
-    let tera_uri = Url::from_file_path(&tera_path).expect("tera url");
+    let tera_uri = url_from_path(&tera_path);
     let rq_path = root.join("queries/items.rq");
-    let rq_uri = Url::from_file_path(&rq_path).expect("rq url");
+    let rq_uri = url_from_path(&rq_path);
 
     // ── Act 1 — RAISE: analyze the template through the real orchestration.
     let tera_src = std::fs::read_to_string(&tera_path).expect("read tera");

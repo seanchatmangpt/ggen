@@ -29,7 +29,7 @@
 use std::collections::BTreeSet;
 use std::path::PathBuf;
 
-use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Position, Range};
+use lsp_max::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Position, Range};
 
 /// Stable diagnostic code for a harness mismatch.
 pub const GGEN_HARNESS_001: &str = "GGEN-HARNESS-001";

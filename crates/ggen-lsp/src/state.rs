@@ -1,9 +1,18 @@
+use lsp_max::lsp_types::{Diagnostic, Url};
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 use tokio::sync::Mutex;
-use tower_lsp::lsp_types::{Diagnostic, Url};
+
+/// Convert a `DocumentUri` to a `PathBuf` for `file://` URIs.
+/// Uses `url::Url` (the real crate) as a shim since `DocumentUri` (fluent_uri) has
+/// no `to_file_path()` method.
+fn uri_to_file_path(uri: &Url) -> Result<PathBuf, ()> {
+    url::Url::parse(uri.as_str())
+        .map_err(|_| ())?
+        .to_file_path()
+}
 
 use crate::analyzers::DocumentAnalyzer;
 use crate::project_index::BufferOverlay;
@@ -24,7 +33,7 @@ pub enum FileType {
 
 impl FileType {
     pub fn from_uri(uri: &Url) -> Self {
-        Self::from_path(uri.path())
+        Self::from_path(uri.path().as_str())
     }
 
     /// Classify a path/URI string into a law-surface file type.
@@ -145,6 +154,7 @@ impl ServerState {
     /// tpl_clears_for/harness_clears_for/out_clears_for methods (their bodies were
     /// byte-identical modulo the locked field). A new species reconciles by passing
     /// its code as the map key — no fourth copy.
+    #[allow(clippy::mutable_key_type)]
     pub async fn clears_for(
         &self, code: &'static str, edited: &Url, current: &HashSet<Url>,
     ) -> Vec<Url> {
@@ -162,6 +172,7 @@ impl ServerState {
     /// GGEN-TPL-001 stale-clear reconciler — preserved public entry (the hermetic
     /// stale-clear test drives it directly). Thin shim over the generic
     /// [`Self::clears_for`] keyed on the TPL species code; behavior is identical.
+    #[allow(clippy::mutable_key_type)]
     pub async fn tpl_clears_for(&self, edited: &Url, current: &HashSet<Url>) -> Vec<Url> {
         self.clears_for(crate::analyzers::GGEN_TPL_001, edited, current)
             .await
@@ -185,7 +196,7 @@ impl ServerState {
             diagnostic_raised, gate_result, receipt_emitted, repair_applied, repair_suggested,
             route_selected,
         };
-        let file = uri.path().to_string();
+        let file = uri.path().as_str().to_string();
         let key = |d: &Diagnostic| {
             format!(
                 "{}|{}",
@@ -307,7 +318,7 @@ impl ServerState {
     async fn buffer_overlay(&self) -> BufferOverlay {
         let docs = self.documents.lock().await;
         docs.iter()
-            .filter_map(|(u, c)| u.to_file_path().ok().map(|p| (p, c.clone())))
+            .filter_map(|(u, c)| uri_to_file_path(u).ok().map(|p| (p, c.clone())))
             .collect()
     }
 
@@ -349,6 +360,7 @@ impl ServerState {
     /// editor, in order: first each cleared peer's residual set, then an explicit
     /// empty-publish pair for the closed URI itself (LSP conformance — clear the
     /// closed document's own squiggles). Strictly read-only w.r.t. the project.
+    #[allow(clippy::mutable_key_type)]
     pub async fn close_document(&self, uri: &Url) -> Vec<(Url, Vec<Diagnostic>)> {
         // Drop the closed doc's own state FIRST so re-detection / residual reads
         // no longer see its in-memory copy.
@@ -366,9 +378,9 @@ impl ServerState {
         // (`.tera`/`.rq`/`.sparql` or the `ggen.toml` manifest). Mirrors the
         // trigger gate in `analyze_and_observe`.
         let tpl_is_trigger = matches!(
-            FileType::from_path(uri.path()),
+            FileType::from_path(uri.path().as_str()),
             FileType::Tera | FileType::Sparql
-        ) || is_ggen_manifest(uri.path());
+        ) || is_ggen_manifest(uri.path().as_str());
         if tpl_is_trigger {
             // Re-detect AFTER removal: `current` = templates STILL flagged by the
             // surviving surfaces. A flag only the closed surface sustained is gone.
@@ -425,7 +437,7 @@ impl ServerState {
 
         // HARNESS reconcile: only if the closed surface is a harness trigger
         // (`Cargo.toml`/`Makefile.toml`). Disjoint from the TPL trigger by basename.
-        if is_harness_surface(uri.path()) {
+        if is_harness_surface(uri.path().as_str()) {
             let mut current: HashSet<Url> = HashSet::new();
             for (manifest_path, _) in self.detect_harness_001_for(uri, &overlay) {
                 if let Some(u) = url_from_path(&manifest_path) {
@@ -465,7 +477,7 @@ impl ServerState {
     /// Analyze `content` for `uri` and record every resulting publish through the
     /// living OCEL loop (`observe_diagnostics`), returning the per-URI diagnostic
     /// sets that should be published to the editor — WITHOUT requiring a
-    /// `tower_lsp::Client`.
+    /// `lsp_max::Client`.
     ///
     /// This is the Client-free core of `server::GgenLanguageServer::refresh_analyzer`:
     /// it runs the SAME orchestration (single-file `build_analyzer`, cross-surface
@@ -485,7 +497,7 @@ impl ServerState {
         &self, uri: &Url, content: &str,
     ) -> Vec<(Url, Vec<Diagnostic>)> {
         let mut published: Vec<(Url, Vec<Diagnostic>)> = Vec::new();
-        let file_type = FileType::from_path(uri.path());
+        let file_type = FileType::from_path(uri.path().as_str());
 
         // LIVE-BUFFER-001: snapshot the open buffers as a disk-path→content overlay
         // for the cross-surface index, AND splice in the edited `(uri, content)`
@@ -496,13 +508,13 @@ impl ServerState {
         // buffer-liveness the living loop requires. With no buffers open this is just
         // the edited pair (or empty), so the disk path stays the fallback.
         let mut overlay = self.buffer_overlay().await;
-        if let Ok(p) = uri.to_file_path() {
+        if let Ok(p) = uri_to_file_path(uri) {
             overlay.insert(p, content.to_string());
         }
 
         // Single-file diagnostics for the edited document (E0024 etc.).
         let mut own_diags: Vec<Diagnostic> = Vec::new();
-        if let Some(analyzer) = crate::analyzers::build_analyzer(uri.path(), content) {
+        if let Some(analyzer) = crate::analyzers::build_analyzer(uri.path().as_str(), content) {
             own_diags = analyzer.diagnostics();
             self.set_analyzer(uri.clone(), analyzer).await;
         }
@@ -514,8 +526,8 @@ impl ServerState {
         // `ggen.toml` via `ProjectIndex::from_root`, so a `Cargo.toml`-only dir was
         // already silent — this tightening just makes the intent explicit and keeps
         // HARNESS edits from spuriously recomputing the TPL graph.)
-        let tpl_is_trigger =
-            matches!(file_type, FileType::Tera | FileType::Sparql) || is_ggen_manifest(uri.path());
+        let tpl_is_trigger = matches!(file_type, FileType::Tera | FileType::Sparql)
+            || is_ggen_manifest(uri.path().as_str());
         let tpl_groups = if tpl_is_trigger {
             self.detect_tpl_001_for(uri, &overlay)
         } else {
@@ -525,7 +537,7 @@ impl ServerState {
         // Cross-file GGEN-HARNESS-001: only for harness declaration surfaces
         // (`Cargo.toml`/`Makefile.toml`). Disjoint from the TPL trigger by basename,
         // so a TPL fixture raises zero HARNESS and a HARNESS fixture raises zero TPL.
-        let harness_is_trigger = is_harness_surface(uri.path());
+        let harness_is_trigger = is_harness_surface(uri.path().as_str());
         let harness_groups = if harness_is_trigger {
             self.detect_harness_001_for(uri, &overlay)
         } else {
@@ -554,7 +566,7 @@ impl ServerState {
             Vec::new()
         };
 
-        let edited_self_url = url_from_path_str(uri.path());
+        let edited_self_url = url_from_path_str(uri.path().as_str());
         let mut published_self = false;
 
         // CONSOLIDATE-002: the three former order-sensitive publish branches (TPL /
@@ -679,12 +691,12 @@ impl ServerState {
     async fn residual_single_file_diags(&self, uri: &Url) -> Vec<Diagnostic> {
         let content = match self.get_document(uri).await {
             Some(c) => c,
-            None => match uri.to_file_path() {
+            None => match uri_to_file_path(uri) {
                 Ok(path) => std::fs::read_to_string(&path).unwrap_or_default(),
                 Err(()) => String::new(),
             },
         };
-        crate::analyzers::build_analyzer(uri.path(), &content)
+        crate::analyzers::build_analyzer(uri.path().as_str(), &content)
             .map(|a| a.diagnostics())
             .unwrap_or_default()
     }
@@ -746,7 +758,7 @@ impl ServerState {
     /// `self.root` when the URI is not a local file path or no manifest is found
     /// above it.
     fn project_root_for(&self, uri: &Url) -> Option<PathBuf> {
-        if let Ok(file_path) = uri.to_file_path() {
+        if let Ok(file_path) = uri_to_file_path(uri) {
             let mut dir: Option<&Path> = file_path.parent();
             while let Some(d) = dir {
                 if d.join("ggen.toml").is_file() {
@@ -785,7 +797,7 @@ impl ServerState {
     /// to `self.root` when the URI is not a local file path or no manifest is found
     /// above it (only if that root itself holds a `Cargo.toml`).
     fn harness_root_for(&self, uri: &Url) -> Option<PathBuf> {
-        if let Ok(file_path) = uri.to_file_path() {
+        if let Ok(file_path) = uri_to_file_path(uri) {
             let mut dir: Option<&Path> = file_path.parent();
             while let Some(d) = dir {
                 if d.join("Cargo.toml").is_file() {
@@ -804,9 +816,11 @@ impl ServerState {
 }
 
 /// Convert a filesystem path to a `file://` `Url`, or `None` if it is not an
-/// absolute path `Url::from_file_path` accepts.
+/// absolute path. Uses `url::Url` (the real crate) to build the URI string, then
+/// parses it into the workspace's `DocumentUri` type.
 fn url_from_path(path: &Path) -> Option<Url> {
-    Url::from_file_path(path).ok()
+    let s = url::Url::from_file_path(path).ok()?.to_string();
+    s.parse().ok()
 }
 
 /// Convert a `Url::path()` string back to a `file://` `Url`. `Url::path()` yields
@@ -814,7 +828,10 @@ fn url_from_path(path: &Path) -> Option<Url> {
 /// URI against the `template_path` reported by the detector.
 fn url_from_path_str(path: &str) -> Option<Url> {
     let decoded = percent_decode_path(path);
-    Url::from_file_path(&decoded).ok()
+    let s = url::Url::from_file_path(std::path::Path::new(&decoded))
+        .ok()?
+        .to_string();
+    s.parse().ok()
 }
 
 /// Minimal percent-decoding for the `%XX` sequences `Url::path()` may contain

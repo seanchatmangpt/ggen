@@ -50,7 +50,15 @@
 
 use std::path::{Path, PathBuf};
 
-use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Position, Range, Url};
+use lsp_max::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Position, Range, Url};
+
+fn url_from_path(path: impl AsRef<std::path::Path>) -> Url {
+    url::Url::from_file_path(path.as_ref())
+        .expect("absolute path")
+        .to_string()
+        .parse::<Url>()
+        .expect("valid uri")
+}
 
 use ggen_lsp::check::{check_files_in_root, discover_law_surfaces, CheckReport};
 use ggen_lsp::route::{Provenance, RouteRegistry};
@@ -406,7 +414,7 @@ async fn analyze_and_observe_records_live_harness_receipt_chain() {
     let state = ServerState::with_root(root);
 
     let cargo_path = root.join("Cargo.toml");
-    let cargo_uri = Url::from_file_path(&cargo_path).expect("cargo url");
+    let cargo_uri = url_from_path(&cargo_path);
     let cargo_src = std::fs::read_to_string(&cargo_path).expect("read Cargo.toml");
 
     // ── Act 1 — RAISE: analyze the manifest through the real orchestration.
@@ -465,7 +473,7 @@ async fn harness_seam_raises_zero_tpl_001() {
     write_mismatch_crate(root, "tests/proof/nonexistent.rs");
     let state = ServerState::with_root(root);
 
-    let cargo_uri = Url::from_file_path(root.join("Cargo.toml")).expect("cargo url");
+    let cargo_uri = url_from_path(root.join("Cargo.toml"));
     let cargo_src = std::fs::read_to_string(root.join("Cargo.toml")).expect("read Cargo.toml");
 
     let published = state.analyze_and_observe(&cargo_uri, &cargo_src).await;

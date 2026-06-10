@@ -4,9 +4,9 @@
 //! routes from a pack `powl/` dir) and read on the hot path via two hashmap
 //! probes — no mining, no I/O, sub-100ms.
 
+use lsp_max::lsp_types::{Diagnostic, NumberOrString};
 use std::collections::HashMap;
 use std::path::Path;
-use tower_lsp::lsp_types::{Diagnostic, NumberOrString};
 
 use super::model::{
     Anchor, EditTemplate, PartialOrder, Provenance, RepairFamily, RepairRoute, RepairStep, RouteId,
@@ -399,7 +399,7 @@ fn seed_routes() -> Vec<RepairRoute> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tower_lsp::lsp_types::{DiagnosticSeverity, Position, Range};
+    use lsp_max::lsp_types::{DiagnosticSeverity, Position, Range};
 
     fn diag(code: &str, msg: &str) -> Diagnostic {
         Diagnostic {

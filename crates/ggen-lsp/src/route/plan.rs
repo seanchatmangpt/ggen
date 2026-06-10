@@ -6,8 +6,8 @@
 //! the editor-agnostic, topologically-ordered projection returned to non-editor
 //! agents (MCP / headless), shared byte-identically across all channels.
 
+use lsp_max::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Range, TextEdit};
 use serde::{Deserialize, Serialize};
-use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Range, TextEdit};
 
 use super::model::{Provenance, RepairFamily, RouteBindings, RouteId};
 

@@ -8,8 +8,8 @@
 
 use std::path::{Path, PathBuf};
 
+use lsp_max::lsp_types::{Diagnostic, DiagnosticSeverity};
 use serde::Serialize;
-use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity};
 use walkdir::WalkDir;
 
 use crate::analyzers::build_analyzer;
@@ -216,8 +216,8 @@ impl CheckReport {
 
 pub(crate) fn diag_code(d: &Diagnostic) -> String {
     match &d.code {
-        Some(tower_lsp::lsp_types::NumberOrString::String(s)) => s.clone(),
-        Some(tower_lsp::lsp_types::NumberOrString::Number(n)) => n.to_string(),
+        Some(lsp_max::lsp_types::NumberOrString::String(s)) => s.clone(),
+        Some(lsp_max::lsp_types::NumberOrString::Number(n)) => n.to_string(),
         None => "RDF".to_string(),
     }
 }
@@ -230,7 +230,7 @@ pub(crate) fn severity_str(sev: Option<DiagnosticSeverity>) -> &'static str {
     }
 }
 
-pub(crate) fn span_str(range: tower_lsp::lsp_types::Range) -> String {
+pub(crate) fn span_str(range: lsp_max::lsp_types::Range) -> String {
     format!(
         "{}:{}-{}:{}",
         range.start.line, range.start.character, range.end.line, range.end.character
@@ -582,8 +582,8 @@ fn summarize_routes(files: &[FileReport]) -> RouteSummary {
                     && d.code
                         .as_ref()
                         .map_or(r.target.code.is_empty(), |c| match c {
-                            tower_lsp::lsp_types::NumberOrString::String(s) => s == &r.target.code,
-                            tower_lsp::lsp_types::NumberOrString::Number(n) => {
+                            lsp_max::lsp_types::NumberOrString::String(s) => s == &r.target.code,
+                            lsp_max::lsp_types::NumberOrString::Number(n) => {
                                 n.to_string() == r.target.code
                             }
                         })
@@ -744,7 +744,7 @@ template = { file = "row.tera" }
         assert!(
             tera_report.diagnostics.iter().any(|d| matches!(
                 &d.code,
-                Some(tower_lsp::lsp_types::NumberOrString::String(s)) if s == "GGEN-TPL-001"
+                Some(lsp_max::lsp_types::NumberOrString::String(s)) if s == "GGEN-TPL-001"
             )),
             "the template report must carry a GGEN-TPL-001 diagnostic"
         );
@@ -785,7 +785,7 @@ template = { file = "row.tera" }
                 .iter()
                 .any(|f| f.diagnostics.iter().any(|d| matches!(
                     &d.code,
-                    Some(tower_lsp::lsp_types::NumberOrString::String(s)) if s == "GGEN-TPL-001"
+                    Some(lsp_max::lsp_types::NumberOrString::String(s)) if s == "GGEN-TPL-001"
                 ))),
             "no GGEN-TPL-001 diagnostic must remain after repair"
         );
@@ -826,7 +826,7 @@ template = { file = "nope.tera" }
                 .iter()
                 .any(|f| f.diagnostics.iter().any(|d| matches!(
                     &d.code,
-                    Some(tower_lsp::lsp_types::NumberOrString::String(s)) if s == "GGEN-TPL-001"
+                    Some(lsp_max::lsp_types::NumberOrString::String(s)) if s == "GGEN-TPL-001"
                 ))),
             "a missing template must stay an index issue, not GGEN-TPL-001"
         );

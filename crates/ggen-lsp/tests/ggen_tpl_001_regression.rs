@@ -65,7 +65,7 @@
 
 use std::path::{Path, PathBuf};
 
-use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Position, Range};
+use lsp_max::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Position, Range};
 
 use ggen_lsp::analyzers::{detect_out_001, detect_tpl_001};
 use ggen_lsp::project_index::ProjectIndex;

@@ -21,7 +21,7 @@
 
 use std::path::Path;
 
-use tower_lsp::lsp_types::{Location, SymbolInformation, SymbolKind, Url};
+use lsp_max::lsp_types::{Location, SymbolInformation, SymbolKind, Url};
 
 /// Maximum number of symbols returned for a single `workspace/symbol` request.
 ///
@@ -60,11 +60,15 @@ pub fn workspace_symbols(root: &Path, query: &str) -> Vec<SymbolInformation> {
         // A file:// URL is required for the editor to resolve the location. If the
         // path can't be turned into one (e.g. not absolute on some platforms), the
         // symbols are unaddressable — skip the file rather than emit a broken jump.
-        let Ok(url) = Url::from_file_path(&path) else {
+        let Ok(url) = url::Url::from_file_path(&path)
+            .ok()
+            .and_then(|u| u.to_string().parse::<Url>().ok())
+            .ok_or(())
+        else {
             continue;
         };
 
-        let mut flat: Vec<&tower_lsp::lsp_types::DocumentSymbol> = Vec::new();
+        let mut flat: Vec<&lsp_max::lsp_types::DocumentSymbol> = Vec::new();
         for sym in &doc_symbols {
             flatten(sym, &mut flat);
         }
@@ -101,8 +105,8 @@ pub fn workspace_symbols(root: &Path, query: &str) -> Vec<SymbolInformation> {
 /// Flatten a (possibly nested) [`DocumentSymbol`] into a list of references,
 /// parent-before-children (pre-order), so containment order is preserved.
 fn flatten<'a>(
-    sym: &'a tower_lsp::lsp_types::DocumentSymbol,
-    acc: &mut Vec<&'a tower_lsp::lsp_types::DocumentSymbol>,
+    sym: &'a lsp_max::lsp_types::DocumentSymbol,
+    acc: &mut Vec<&'a lsp_max::lsp_types::DocumentSymbol>,
 ) {
     acc.push(sym);
     if let Some(children) = &sym.children {
@@ -114,9 +118,7 @@ fn flatten<'a>(
 
 /// Convert a [`DocumentSymbol`] + the owning file URL into a
 /// [`SymbolInformation`] addressed at the symbol's own range.
-fn to_symbol_information(
-    sym: &tower_lsp::lsp_types::DocumentSymbol, url: Url,
-) -> SymbolInformation {
+fn to_symbol_information(sym: &lsp_max::lsp_types::DocumentSymbol, url: Url) -> SymbolInformation {
     #[allow(deprecated)] // `deprecated` field is required by the struct; superseded by `tags`.
     SymbolInformation {
         name: sym.name.clone(),
@@ -198,14 +200,13 @@ ex:name a owl:DatatypeProperty ;
             .expect("ex:Person class symbol present");
         assert_eq!(person.kind, SymbolKind::CLASS);
         assert!(
-            person
-                .location
-                .uri
-                .to_file_path()
+            url::Url::parse(person.location.uri.as_str())
+                .ok()
+                .and_then(|u| u.to_file_path().ok())
                 .map(|p| p.ends_with("people.ttl"))
                 .unwrap_or(false),
             "Person location must point at people.ttl, got {}",
-            person.location.uri
+            person.location.uri.as_str()
         );
 
         // The RDF property is present, addressed at the .ttl file.
@@ -222,14 +223,13 @@ ex:name a owl:DatatypeProperty ;
             .find(|s| s.name == "project")
             .expect("[project] section symbol present");
         assert!(
-            project
-                .location
-                .uri
-                .to_file_path()
+            url::Url::parse(project.location.uri.as_str())
+                .ok()
+                .and_then(|u| u.to_file_path().ok())
                 .map(|p| p.ends_with("ggen.toml"))
                 .unwrap_or(false),
             "project section must point at ggen.toml, got {}",
-            project.location.uri
+            project.location.uri.as_str()
         );
         assert!(
             symbols.iter().any(|s| s.name == "logging"),

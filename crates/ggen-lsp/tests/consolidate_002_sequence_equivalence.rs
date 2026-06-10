@@ -54,7 +54,15 @@
 use std::path::{Path, PathBuf};
 
 use ggen_lsp::ServerState;
-use tower_lsp::lsp_types::Url;
+use lsp_max::lsp_types::Url;
+
+fn url_from_path(path: impl AsRef<std::path::Path>) -> Url {
+    url::Url::from_file_path(path.as_ref())
+        .expect("absolute path")
+        .to_string()
+        .parse::<Url>()
+        .expect("valid uri")
+}
 
 /// Absolute path to the committed multi-species fixture project root.
 fn fixture_root() -> PathBuf {
@@ -198,7 +206,7 @@ async fn capture_multispecies_sequence(tmp_root: &Path) -> Vec<NormEvent> {
     let state = ServerState::with_root(&dst);
 
     let manifest_path = dst.join("ggen.toml");
-    let manifest_uri = Url::from_file_path(&manifest_path).expect("manifest url");
+    let manifest_uri = url_from_path(&manifest_path);
     let manifest_src = std::fs::read_to_string(&manifest_path).expect("read ggen.toml");
 
     // ONE pass: ggen.toml is a tpl_is_trigger surface → TPL (.tera) + OUT (ggen.toml).

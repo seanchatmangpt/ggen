@@ -28,8 +28,16 @@ use ggen_lsp::intel::events::activity;
 use ggen_lsp::route::default_pack_routes_path;
 use ggen_lsp::state::ServerState;
 use ggen_lsp::{check_content, envelope_for_diagnostic, init_project, IntelLog, RouteRegistry};
+use lsp_max::lsp_types::Url;
 use tempfile::TempDir;
-use tower_lsp::lsp_types::Url;
+
+fn url_from_path(path: impl AsRef<std::path::Path>) -> Url {
+    url::Url::from_file_path(path.as_ref())
+        .expect("absolute path")
+        .to_string()
+        .parse::<Url>()
+        .expect("valid uri")
+}
 
 #[tokio::test]
 async fn install_then_route_apply_receipt_end_to_end() {
@@ -68,7 +76,7 @@ async fn install_then_route_apply_receipt_end_to_end() {
 
     // --- Apply: the editor applies the fix → rework closure → receipt. ---
     let state = ServerState::with_root(root);
-    let uri = Url::from_file_path(root.join("ggen.toml")).expect("file url");
+    let uri = url_from_path(root.join("ggen.toml"));
     state.observe_diagnostics(&uri, &broken.diagnostics).await;
     let fixed = check_content("ggen.toml", "[logging]\nlevel = \"info\"\n").expect("toml");
     state.observe_diagnostics(&uri, &fixed.diagnostics).await;

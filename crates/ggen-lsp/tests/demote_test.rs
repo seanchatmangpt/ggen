@@ -37,8 +37,16 @@ use ggen_lsp::intel::{MetricValue, PromotionHistory, RouteStatus};
 use ggen_lsp::route::{default_pack_routes_path, RouteRegistry};
 use ggen_lsp::state::ServerState;
 use ggen_lsp::{check_content, check_files_in_root, compute_metrics, mine};
+use lsp_max::lsp_types::Url;
 use tempfile::TempDir;
-use tower_lsp::lsp_types::Url;
+
+fn url_from_path(path: impl AsRef<std::path::Path>) -> Url {
+    url::Url::from_file_path(path.as_ref())
+        .expect("absolute path")
+        .to_string()
+        .parse::<Url>()
+        .expect("valid uri")
+}
 
 fn write(dir: &Path, name: &str, content: &str) -> PathBuf {
     let p = dir.join(name);
@@ -47,12 +55,12 @@ fn write(dir: &Path, name: &str, content: &str) -> PathBuf {
 }
 
 async fn editor_rework_config(state: &ServerState, root: &Path, name: &str) {
-    let uri = Url::from_file_path(root.join(name)).expect("file url");
-    let broken =
-        check_content(uri.path(), "[logging]\nlevel = \"verbose\"\n").expect("toml law surface");
+    let uri = url_from_path(root.join(name));
+    let broken = check_content(uri.path().as_str(), "[logging]\nlevel = \"verbose\"\n")
+        .expect("toml law surface");
     state.observe_diagnostics(&uri, &broken.diagnostics).await;
-    let fixed =
-        check_content(uri.path(), "[logging]\nlevel = \"info\"\n").expect("toml law surface");
+    let fixed = check_content(uri.path().as_str(), "[logging]\nlevel = \"info\"\n")
+        .expect("toml law surface");
     state.observe_diagnostics(&uri, &fixed.diagnostics).await;
 }
 

@@ -5,8 +5,8 @@
 //! document text to yield a `TextEdit`. The same renderer feeds both the editor
 //! `WorkspaceEdit` and the agent `RoutePlan`, so both apply identical repairs.
 
+use lsp_max::lsp_types::{Position, Range, TextEdit, Url, WorkspaceEdit};
 use std::collections::HashMap;
-use tower_lsp::lsp_types::{Position, Range, TextEdit, Url, WorkspaceEdit};
 
 use super::model::{Anchor, EditTemplate, PartialOrder, RepairRoute, RouteBindings};
 use super::plan::{DiagnosticRef, RoutePlan, RoutePlanStep};
@@ -80,12 +80,14 @@ pub fn workspace_edit_from_route(
         .iter()
         .filter_map(|s| render_edit(&s.edit, bindings, doc))
         .collect();
+    #[allow(clippy::mutable_key_type)]
     let mut changes = HashMap::new();
     changes.insert(uri.clone(), edits);
     WorkspaceEdit {
         changes: Some(changes),
         document_changes: None,
         change_annotations: None,
+        metadata: None,
     }
 }
 
@@ -132,7 +134,7 @@ mod tests {
     use super::*;
 
     fn uri() -> Url {
-        Url::parse("file:///spec.ttl").expect("valid uri")
+        "file:///spec.ttl".parse::<Url>().expect("valid uri")
     }
 
     #[test]
