@@ -400,6 +400,12 @@ pub fn check_files_in_root(root: &Path, paths: &[PathBuf], with_routes: bool) ->
     // path-injection risk. This cannot be caught by single-file analyzers.
     error_count += fold_yield_001(root, &mut files, registry.as_ref());
 
+    // Cross-surface laws: GGEN-YIELD-003/004/005 (orphaned output, competing
+    // authority, remote fetch). All are ERROR severity.
+    error_count += fold_yield_003(root, &mut files, registry.as_ref());
+    error_count += fold_yield_004(root, &mut files, registry.as_ref());
+    error_count += fold_yield_005(root, &mut files, registry.as_ref());
+
     // Cross-surface advisory: GGEN-QUERY-002 (SELECT * disables TPL-001/OUT-001).
     // WARNING only — does not increment error_count.
     let warn_added = fold_query_002(root, &mut files, registry.as_ref());
@@ -584,6 +590,33 @@ fn fold_yield_001(
         return 0;
     };
     fold_species(files, registry, crate::analyzers::detect_yield_001(&project))
+}
+
+fn fold_yield_003(
+    root: &Path, files: &mut Vec<FileReport>, registry: Option<&crate::route::RouteRegistry>,
+) -> usize {
+    let Ok(project) = crate::project_index::ProjectIndex::from_root(root) else {
+        return 0;
+    };
+    fold_species(files, registry, crate::analyzers::detect_yield_003(&project))
+}
+
+fn fold_yield_004(
+    root: &Path, files: &mut Vec<FileReport>, registry: Option<&crate::route::RouteRegistry>,
+) -> usize {
+    let Ok(project) = crate::project_index::ProjectIndex::from_root(root) else {
+        return 0;
+    };
+    fold_species(files, registry, crate::analyzers::detect_yield_004(&project))
+}
+
+fn fold_yield_005(
+    root: &Path, files: &mut Vec<FileReport>, registry: Option<&crate::route::RouteRegistry>,
+) -> usize {
+    let Ok(project) = crate::project_index::ProjectIndex::from_root(root) else {
+        return 0;
+    };
+    fold_species(files, registry, crate::analyzers::detect_yield_005(&project))
 }
 
 /// Fold GGEN-QUERY-002 (SELECT * blindspot) advisories from the project index

@@ -180,7 +180,7 @@ impl Pipeline {
         PipelineTracer::rdf_loading_complete(self.graph.len());
 
         // Render body
-        let rendered = template.render(&mut self.tera, &ctx)?;
+        let rendered = template.render(&mut self.tera, &ctx, std::path::Path::new(""))?;
         PipelineTracer::template_rendering_complete(&out_path, rendered.len());
 
         // Create plan

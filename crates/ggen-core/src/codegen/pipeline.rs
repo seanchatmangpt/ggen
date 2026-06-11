@@ -649,7 +649,7 @@ impl GenerationPipeline {
         };
 
         // Create transaction for atomic file operations
-        let mut transaction = FileTransaction::new()?;
+        let transaction = FileTransaction::new()?;
 
         for rule in &rules {
             let start = Instant::now();
@@ -945,18 +945,11 @@ impl GenerationPipeline {
                 let final_content = match rule.mode {
                     GenerationMode::Create => {
                         if full_output_path.exists() {
-                            // Skip — do not advance to the per-row loop
-                            let duration = start.elapsed();
-                            let query_hash =
-                                format!("{:x}", sha2::Sha256::digest(query.as_bytes()));
-                            self.executed_rules.push(ExecutedRule {
-                                name: rule.name.clone(),
-                                rule_type: RuleType::Generation,
-                                triples_added: 0,
-                                duration_ms: duration.as_millis() as u64,
-                                query_hash,
-                            });
-                            continue;
+                            return Err(Error::new(&format!(
+                                "error[E0011]: Output file already exists in 'Create' mode\n  --> rule: '{}', output: '{}'\n  |\n  = help: mode=Create requires that the file does not exist\n  = help: Use mode=Overwrite to replace the file, or mode=Merge to combine content",
+                                rule.name,
+                                full_output_path.display()
+                            )));
                         }
                         rendered
                     }
@@ -1100,15 +1093,11 @@ impl GenerationPipeline {
                 let final_content = match rule.mode {
                     GenerationMode::Create => {
                         if full_output_path.exists() {
-                            // mode=Create is idempotent scaffolding: skip if the file
-                            // already exists so manual edits are preserved. Use
-                            // mode=Overwrite to replace on every sync.
-                            tracing::debug!(
-                                rule = %rule.name,
-                                path = %full_output_path.display(),
-                                "mode=Create: file exists, skipping (use mode=Overwrite to replace)"
-                            );
-                            continue;
+                            return Err(Error::new(&format!(
+                                "error[E0011]: Output file already exists in 'Create' mode\n  --> rule: '{}', output: '{}'\n  |\n  = help: mode=Create requires that the file does not exist\n  = help: Use mode=Overwrite to replace the file, or mode=Merge to combine content",
+                                rule.name,
+                                full_output_path.display()
+                            )));
                         }
                         rendered.clone()
                     }

@@ -51,9 +51,6 @@ pub fn detect_tpl_001(
 ) -> Vec<(std::path::PathBuf, Vec<MaxDiagnostic>)> {
     let mut out = Vec::new();
     for entry in &project.rule_entries {
-        if is_select_star(&entry.query_content) {
-            continue;
-        }
         let Some(template) = entry.template_content.as_deref() else {
             continue;
         };
@@ -72,9 +69,6 @@ pub fn detect_out_001(
 ) -> Vec<(std::path::PathBuf, Vec<MaxDiagnostic>)> {
     let mut out = Vec::new();
     for entry in &project.rule_entries {
-        if is_select_star(&entry.query_content) {
-            continue;
-        }
         if entry.selected_vars.is_empty() {
             continue; 
         }
@@ -212,6 +206,36 @@ pub fn detect_yield_004(
                     out.push((entry.manifest_path.clone(), diags));
                 }
             }
+        }
+    }
+    out
+}
+
+/// Cross-surface GGEN-YIELD-003 detection: output_file lacks a static filename base.
+#[must_use]
+pub fn detect_yield_003(
+    project: &crate::project_index::ProjectIndex,
+) -> Vec<(std::path::PathBuf, Vec<MaxDiagnostic>)> {
+    let mut out = Vec::new();
+    for entry in &project.rule_entries {
+        let diags = yield_003_diagnostics(&entry.output_file);
+        if !diags.is_empty() {
+            out.push((entry.manifest_path.clone(), diags));
+        }
+    }
+    out
+}
+
+/// Cross-surface GGEN-YIELD-005 detection: output_file is a remote URL.
+#[must_use]
+pub fn detect_yield_005(
+    project: &crate::project_index::ProjectIndex,
+) -> Vec<(std::path::PathBuf, Vec<MaxDiagnostic>)> {
+    let mut out = Vec::new();
+    for entry in &project.rule_entries {
+        let diags = yield_005_diagnostics(&entry.output_file);
+        if !diags.is_empty() {
+            out.push((entry.manifest_path.clone(), diags));
         }
     }
     out
