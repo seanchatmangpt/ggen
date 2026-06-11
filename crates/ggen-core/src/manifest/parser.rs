@@ -3,6 +3,7 @@
 //! Parses TOML manifests into strongly-typed `GgenManifest` structures.
 
 use crate::manifest::types::GgenManifest;
+use crate::manifest::validation::ManifestValidator;
 use crate::utils::error::{Error, Result};
 use std::path::Path;
 
@@ -40,6 +41,28 @@ impl ManifestParser {
 
         // Parse TOML
         Self::parse_str(&content)
+    }
+
+    /// Parse a ggen.toml manifest and validate it in one step.
+    ///
+    /// This is the preferred entry point for all production callers. It
+    /// combines TOML parsing with semantic validation (file existence, required
+    /// fields, dependency checks), emitting a hard error at the first missing
+    /// file so that misconfigured manifests are caught at load time rather than
+    /// silently producing empty generation output.
+    ///
+    /// # Arguments
+    /// * `path` - Path to ggen.toml file (used as base for relative paths)
+    ///
+    /// # Errors
+    /// Returns a descriptive error if any `imports` path, query file, or
+    /// template file does not exist on disk. Example:
+    /// `Ontology import not found: /project/domain/base.ttl`
+    pub fn parse_and_validate(path: &Path) -> Result<GgenManifest> {
+        let manifest = Self::parse(path)?;
+        let base_path = path.parent().unwrap_or(Path::new("."));
+        ManifestValidator::new(&manifest, base_path).validate()?;
+        Ok(manifest)
     }
 
     /// Parse a ggen.toml manifest from a string

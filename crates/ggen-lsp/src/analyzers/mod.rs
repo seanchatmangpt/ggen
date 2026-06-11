@@ -6,11 +6,12 @@ pub mod sparql_analyzer;
 pub mod tera_analyzer;
 pub mod toml_analyzer;
 
-use lsp_max::lsp_types::{
-    CallHierarchyItem, CodeLens, CompletionResponse, Diagnostic, DocumentSymbol, FoldingRange,
-    Hover, InlayHint, Location, Position, SemanticTokens, TextEdit, TypeHierarchyItem,
+use lsp_max::lsp_types_max::{
+    CallHierarchyItem, CodeLens, CompletionResponse, DocumentSymbol, FoldingRange,
+    Hover, InlayHint, Location, Position, Range, SemanticTokens, TextEdit, TypeHierarchyItem,
     WorkspaceEdit,
 };
+use lsp_max_protocol::MaxDiagnostic;
 use std::collections::BTreeSet;
 use std::fmt;
 
@@ -19,46 +20,32 @@ pub use rdf_analyzer::{RdfAnalyzer, RdfFlavor};
 pub use source_law_analyzer::{do_not_edit_diagnostics, GGEN_SRC_002, GGEN_SRC_003};
 pub use sparql_analyzer::SparqlAnalyzer;
 pub use tera_analyzer::{
-    unbound_output_path_diagnostics, unbound_projection_diagnostics, unbound_rule_file_diagnostics,
-    TeraAnalyzer, GGEN_OUT_001, GGEN_RULE_001, GGEN_TPL_001,
+    lexical_clean, select_star_diagnostics, strip_tera_vars, unbound_output_path_diagnostics,
+    unbound_projection_diagnostics, unbound_rule_file_diagnostics, yield_001_diagnostics,
+    TeraAnalyzer, GGEN_OUT_001, GGEN_QUERY_002, GGEN_RULE_001, GGEN_TPL_001, GGEN_YIELD_001,
 };
 pub use toml_analyzer::{source_caste_path_violation, TomlAnalyzer, GGEN_SRC_001};
 
 use crate::state::FileType;
 
 /// Cross-surface GGEN-HARNESS-001 detection over a harness index.
-///
-/// Runs the pure [`harness_mismatch_diagnostics`] detector against the index's
-/// declared targets and on-disk proof files. Groups every resulting diagnostic
-/// onto the crate's `Cargo.toml` — the declaration/squiggle surface. Mirror of
-/// [`detect_tpl_001`]'s `Vec<(PathBuf, Vec<Diagnostic>)>` shape. Reads no files
-/// (the [`crate::harness_index::HarnessIndex`] already did the I/O).
 #[must_use]
 pub fn detect_harness_001(
     index: &crate::harness_index::HarnessIndex,
-) -> Vec<(std::path::PathBuf, Vec<Diagnostic>)> {
+) -> Vec<(std::path::PathBuf, Vec<MaxDiagnostic>)> {
     let diags = harness_mismatch_diagnostics(&index.targets, &index.existing_files);
     if diags.is_empty() {
         return Vec::new();
     }
-    // Every mismatch in this index anchors on the same crate Cargo.toml.
-    vec![(index.root.join("Cargo.toml"), diags)]
+    let max_diags = diags.into_iter().map(|d| to_max_diagnostic(d, lsp_max_protocol::LawAxis::Fixture)).collect();
+    vec![(index.root.join("Cargo.toml"), max_diags)]
 }
 
 /// Cross-surface GGEN-TPL-001 detection over a whole project index.
-///
-/// For each rule whose template content was resolved, run the pure
-/// [`unbound_projection_diagnostics`] detector against the rule's SPARQL
-/// `SELECT` variables. Rules with no resolved template content are skipped —
-/// a missing template is an index-level issue (Agent 1's `issues`), not
-/// GGEN-TPL-001. Reads/writes no files: the index already did the I/O.
-///
-/// The returned route is always source-law repair (handled by the route
-/// engine); diagnostics never target emitted output.
 #[must_use]
 pub fn detect_tpl_001(
     project: &crate::project_index::ProjectIndex,
-) -> Vec<(std::path::PathBuf, Vec<Diagnostic>)> {
+) -> Vec<(std::path::PathBuf, Vec<MaxDiagnostic>)> {
     let mut out = Vec::new();
     for entry in &project.rule_entries {
         let Some(template) = entry.template_content.as_deref() else {
@@ -73,30 +60,14 @@ pub fn detect_tpl_001(
 }
 
 /// Cross-surface GGEN-OUT-001 detection over a whole project index.
-///
-/// The dual of [`detect_tpl_001`]: for each rule, run the pure
-/// [`unbound_output_path_diagnostics`] detector against the rule's `output_file`
-/// pattern and its SPARQL `SELECT` variables. Diagnostics anchor on the rule's
-/// `ggen.toml` manifest (the declaration surface where `output_file` is written),
-/// NOT on the template file (that is GGEN-TPL-001's anchor) and NEVER on an
-/// emitted output file.
-///
-/// Rules whose `selected_vars` is empty (`SELECT *` / a missing query file) are
-/// SKIPPED: there is no introspectable producer to compare the output-path
-/// references against, so firing would be noise rather than law. Static
-/// `output_file` paths (no `{{`) are silent by construction inside the pure
-/// detector. Reads/writes no files: the index already did the I/O.
-///
-/// The returned route is always source-law repair (handled by the route engine);
-/// diagnostics never target emitted output.
 #[must_use]
 pub fn detect_out_001(
     project: &crate::project_index::ProjectIndex,
-) -> Vec<(std::path::PathBuf, Vec<Diagnostic>)> {
+) -> Vec<(std::path::PathBuf, Vec<MaxDiagnostic>)> {
     let mut out = Vec::new();
     for entry in &project.rule_entries {
         if entry.selected_vars.is_empty() {
-            continue; // SELECT * / missing query → no lawful comparison
+            continue; 
         }
         let diags = unbound_output_path_diagnostics(&entry.output_file, &entry.selected_vars);
         if !diags.is_empty() {
@@ -107,23 +78,10 @@ pub fn detect_out_001(
 }
 
 /// Cross-surface GGEN-RULE-001 detection over a whole project index.
-///
-/// For each rule, run the pure [`unbound_rule_file_diagnostics`] detector against
-/// the rule's index-level `issues`, surfacing any MISSING query/template
-/// `{file=...}` as a live GGEN-RULE-001 error. This is the FOUNDATIONAL
-/// binding-integrity check the GGEN-TPL-001 / GGEN-OUT-001 detectors PRESUPPOSE:
-/// they skip a rule whose bound file is missing (`template_content` `None` /
-/// empty `selected_vars`), so the previously-silent
-/// [`crate::rule_index::RuleIndexEntry::issues`] channel gains exactly one lawful
-/// publishing consumer.
-///
-/// Diagnostics anchor on the rule's `ggen.toml` manifest (the declaration surface
-/// where the dangling `{file=...}` is written), NEVER an emitted output. Reads /
-/// writes no files: the index already did its overlay-aware I/O.
 #[must_use]
 pub fn detect_rule_001(
     project: &crate::project_index::ProjectIndex,
-) -> Vec<(std::path::PathBuf, Vec<Diagnostic>)> {
+) -> Vec<(std::path::PathBuf, Vec<MaxDiagnostic>)> {
     let mut out = Vec::new();
     for entry in &project.rule_entries {
         let diags = unbound_rule_file_diagnostics(&entry.issues);
@@ -135,33 +93,26 @@ pub fn detect_rule_001(
 }
 
 /// Cross-surface GGEN-SRC-001 detection over a whole project index.
-///
-/// For each generation rule, check that `output_file` does not target a
-/// source-caste directory (`generated/`, `output/`, `outputs/`, `gen/`, etc.).
-/// RenderedSource is source — caste paths are a first-class source law violation.
-/// Diagnostics anchor on the rule's `ggen.toml` manifest.
 #[must_use]
 pub fn detect_src_001(
     project: &crate::project_index::ProjectIndex,
-) -> Vec<(std::path::PathBuf, Vec<Diagnostic>)> {
+) -> Vec<(std::path::PathBuf, Vec<MaxDiagnostic>)> {
     let mut out = Vec::new();
     for entry in &project.rule_entries {
         let output = &entry.output_file;
         if let Some(violated) = source_caste_path_violation(output) {
-            // Anchor the diagnostic on the manifest where output_file is declared.
-            let diags = vec![diag::at(
+            let msg = format!(
+                "GGEN-SRC-001 SECOND_CLASS_PATH: rule `{}` output_file `{output}` \
+                 targets a source-caste directory (`{violated}/`). \
+                 RenderedSource is source — move to a first-class path.",
+                entry.rule_id
+            );
+            let diags = vec![diag::max_whole_line(
                 0,
-                0,
-                0,
-                u32::MAX,
                 lsp_max::lsp_types::DiagnosticSeverity::ERROR,
                 Some(GGEN_SRC_001),
-                format!(
-                    "GGEN-SRC-001 SECOND_CLASS_PATH: rule `{}` output_file `{output}` \
-                     targets a source-caste directory (`{violated}/`). \
-                     RenderedSource is source — move to a first-class path.",
-                    entry.rule_id
-                ),
+                msg,
+                lsp_max_protocol::LawAxis::Domain,
             )];
             out.push((entry.manifest_path.clone(), diags));
         }
@@ -170,17 +121,10 @@ pub fn detect_src_001(
 }
 
 /// Cross-surface GGEN-SRC-002/003 detection over a project's emitted Rust sources.
-///
-/// Scans every `.rs` file in the project root's `src/` tree for DO NOT EDIT
-/// banners and source-caste comments. Returns diagnostics anchored on the
-/// offending source file.
-///
-/// This is a file-system scan, not an index lookup: it runs over whatever `.rs`
-/// files actually exist, so it catches violations whether or not ggen knows about them.
 #[must_use]
 pub fn detect_src_002_003_in_dir(
     src_dir: &std::path::Path,
-) -> Vec<(std::path::PathBuf, Vec<Diagnostic>)> {
+) -> Vec<(std::path::PathBuf, Vec<MaxDiagnostic>)> {
     let mut out = Vec::new();
     let Ok(entries) = std::fs::read_dir(src_dir) else {
         return out;
@@ -195,54 +139,101 @@ pub fn detect_src_002_003_in_dir(
         };
         let diags = do_not_edit_diagnostics(&content);
         if !diags.is_empty() {
-            out.push((path, diags));
+            let max_diags = diags.into_iter().map(|d| to_max_diagnostic(d, lsp_max_protocol::LawAxis::Autopoiesis)).collect();
+            out.push((path, max_diags));
         }
     }
     out
 }
 
-/// Canonical SPARQL `SELECT`-projection variable extractor (no leading `?`).
+/// Cross-surface GGEN-YIELD-001 detection: output_file escapes the project root.
 ///
-/// Single source of truth shared by [`crate::rule_index`] (`selected_vars`,
-/// the law-of-record) and [`tera_analyzer`] (`available_vars`, single-file
-/// isolation). Both call sites previously carried divergent copies — a
-/// case-sensitive, paren-blind one in the analyzer and the robust one here —
-/// which could disagree on the same query. Unifying removes that drift.
+/// For each rule whose `output_file` pattern (after stripping Tera `{{ }}`
+/// interpolations) resolves outside `project_root`, emits an ERROR diagnostic
+/// anchored on the `ggen.toml` declaration surface. Best-effort: a missing or
+/// unparseable manifest yields no diagnostics.
+#[must_use]
+pub fn detect_yield_001(
+    project: &crate::project_index::ProjectIndex,
+) -> Vec<(std::path::PathBuf, Vec<MaxDiagnostic>)> {
+    let mut out = Vec::new();
+    for entry in &project.rule_entries {
+        let diags = yield_001_diagnostics(
+            &entry.output_file,
+            &entry.manifest_path,
+            &project.root,
+        );
+        if !diags.is_empty() {
+            out.push((entry.manifest_path.clone(), diags));
+        }
+    }
+    out
+}
+
+/// Cross-surface GGEN-QUERY-002 detection: SELECT * disables TPL-001/OUT-001.
 ///
-/// `issues` (when `Some`) receives a non-fatal note for `SELECT *`.
-///
-/// Algorithm:
-/// 1. Find `SELECT` (case-insensitive).
-/// 2. Take the text after `SELECT` up to the next `WHERE` (case-insensitive);
-///    if no `WHERE`, use the rest of the string.
-/// 3. Collect whitespace/paren-delimited tokens starting with `?`, strip the
-///    `?`, keep only the leading SPARQL-var-char run, and insert into a
-///    [`BTreeSet`].
-/// 4. `SELECT DISTINCT` is handled naturally (`DISTINCT` is not a `?`-token).
-/// 5. `SELECT *` yields an empty set and (if a sink is provided) pushes an info
-///    issue.
+/// For each rule that uses `SELECT *`, emits a WARNING diagnostic anchored on
+/// the `ggen.toml` declaration surface. Pack-sourced queries (resolved at
+/// generation time) are skipped. Best-effort: a missing manifest yields no
+/// diagnostics.
+#[must_use]
+pub fn detect_query_002(
+    project: &crate::project_index::ProjectIndex,
+) -> Vec<(std::path::PathBuf, Vec<MaxDiagnostic>)> {
+    let mut out = Vec::new();
+    for entry in &project.rule_entries {
+        // Skip pack-sourced queries (empty query_content with no inline flag).
+        if entry.query_content.is_empty() && !entry.query_inline {
+            continue;
+        }
+        let diags = select_star_diagnostics(&entry.rule_id, &entry.query_content);
+        if !diags.is_empty() {
+            out.push((entry.manifest_path.clone(), diags));
+        }
+    }
+    out
+}
+
+fn to_max_diagnostic(d: lsp_max::lsp_types::Diagnostic, axis: lsp_max_protocol::LawAxis) -> lsp_max_protocol::MaxDiagnostic {
+    let code_str = match &d.code {
+        Some(lsp_max::lsp_types::NumberOrString::String(s)) => s.clone(),
+        Some(lsp_max::lsp_types::NumberOrString::Number(n)) => n.to_string(),
+        None => "GGEN-UNKNOWN".to_string(),
+    };
+    let mut h = blake3::Hasher::new();
+    h.update(d.message.as_bytes());
+    let id = format!("{}-{:.8}", code_str, h.finalize().to_hex());
+    
+    let lsp_max_diag: lsp_max::lsp_types_max::Diagnostic = serde_json::from_value(
+        serde_json::to_value(d).unwrap()
+    ).unwrap();
+    
+    lsp_max_protocol::MaxDiagnostic {
+        lsp: lsp_max_diag.clone(),
+        diagnostic_id: id,
+        law_id: code_str,
+        law_axis: axis,
+        violated_invariant: lsp_max_diag.message.clone(),
+        ..lsp_max_protocol::MaxDiagnostic::default()
+    }
+}
+
 #[must_use]
 pub(crate) fn select_projection_vars(
     query: &str, issues: Option<&mut Vec<String>>,
 ) -> BTreeSet<String> {
     let mut vars = BTreeSet::new();
-
     let lower = query.to_ascii_lowercase();
     let select_pos = match lower.find("select") {
         Some(pos) => pos,
         None => return vars,
     };
-
-    // Slice starting right after the literal "select".
     let after_select = &query[select_pos + "select".len()..];
     let after_select_lower = &lower[select_pos + "select".len()..];
-
-    // Bound the projection by the first WHERE (if present).
     let projection = match after_select_lower.find("where") {
         Some(where_pos) => &after_select[..where_pos],
         None => after_select,
     };
-
     let mut saw_star = false;
     for raw in projection.split(|c: char| c.is_whitespace() || c == '(' || c == ')') {
         let token = raw.trim();
@@ -254,8 +245,6 @@ pub(crate) fn select_projection_vars(
             continue;
         }
         if let Some(name) = token.strip_prefix('?') {
-            // Guard against bindings like `?x` followed by punctuation; keep the
-            // leading identifier-ish run only (SPARQL var chars).
             let cleaned: String = name
                 .chars()
                 .take_while(|c| c.is_alphanumeric() || *c == '_')
@@ -265,7 +254,6 @@ pub(crate) fn select_projection_vars(
             }
         }
     }
-
     if vars.is_empty() && saw_star {
         if let Some(issues) = issues {
             issues.push(
@@ -273,15 +261,9 @@ pub(crate) fn select_projection_vars(
             );
         }
     }
-
     vars
 }
 
-/// Build the appropriate analyzer for a document path + content, or `None` if the
-/// path is not a recognized ggen law surface.
-///
-/// Shared by the interactive server
-/// and the headless `ggen lsp check` gate so both enforce identical law.
 #[must_use]
 pub fn build_analyzer(path: &str, content: &str) -> Option<DocumentAnalyzer> {
     match FileType::from_path(path) {
@@ -302,9 +284,6 @@ pub fn build_analyzer(path: &str, content: &str) -> Option<DocumentAnalyzer> {
     }
 }
 
-/// A document analyzer dispatched on file type. Each variant is a pure function
-/// over document text, so the same analyzer drives both the interactive server
-/// and the headless `ggen lsp check` gate.
 #[derive(Clone)]
 pub enum DocumentAnalyzer {
     Rdf(RdfAnalyzer),
@@ -325,9 +304,8 @@ impl fmt::Debug for DocumentAnalyzer {
 }
 
 impl DocumentAnalyzer {
-    /// The law-surface diagnostics for this document — the core of the LSP-as-type-system.
     #[must_use]
-    pub fn diagnostics(&self) -> Vec<Diagnostic> {
+    pub fn diagnostics(&self) -> Vec<MaxDiagnostic> {
         match self {
             Self::Rdf(a) => a.diagnostics(),
             Self::Sparql(a) => a.diagnostics(),
@@ -417,12 +395,35 @@ impl DocumentAnalyzer {
         }
     }
 
-    pub fn inlay_hints(&self) -> Option<Vec<InlayHint>> {
+    pub fn inlay_hints(&self, _range: Range) -> Option<Vec<InlayHint>> {
         match self {
-            Self::Rdf(a) => a.inlay_hints(),
-            Self::Sparql(a) => a.inlay_hints(),
-            Self::Tera(a) => a.inlay_hints(),
-            Self::Toml(a) => a.inlay_hints(),
+            Self::Rdf(a) => a.inlay_hints().map(|v| v.into_iter().map(|h| {
+                // Convert lsp_types::InlayHint to lsp_types_max::InlayHint if they differ,
+                // otherwise serde roundtrip/transmute or direct cast. Let's do a direct json roundtrip if they differ,
+                // or let Serde handle it. Wait, let's see if they are the same type.
+                // If they are not the same type, we can serialize/deserialize.
+                // Let's do a serialize/deserialize using serde_json to be extremely safe,
+                // or just map it if they are identical.
+                // Actually, let's see if they are the same. In rust, if two structs have the same path/module they are the same.
+                // Let's just serialize/deserialize via json:
+                serde_json::from_value(serde_json::to_value(h).unwrap()).unwrap()
+            }).collect()),
+            Self::Sparql(a) => a.inlay_hints().map(|v| v.into_iter().map(|h| {
+                serde_json::from_value(serde_json::to_value(h).unwrap()).unwrap()
+            }).collect()),
+            Self::Tera(a) => a.inlay_hints().map(|v| v.into_iter().map(|h| {
+                serde_json::from_value(serde_json::to_value(h).unwrap()).unwrap()
+            }).collect()),
+            Self::Toml(a) => a.inlay_hints().map(|v| v.into_iter().map(|h| {
+                serde_json::from_value(serde_json::to_value(h).unwrap()).unwrap()
+            }).collect()),
+        }
+    }
+
+    pub fn prepare_rename(&self, position: Position) -> Option<Range> {
+        match self {
+            Self::Rdf(a) => a.prepare_rename(position),
+            _ => None,
         }
     }
 

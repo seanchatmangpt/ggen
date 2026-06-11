@@ -47,8 +47,8 @@ impl WatchMode {
             .parent()
             .unwrap_or(Path::new("."));
 
-        // Load initial manifest
-        let mut manifest_data = ManifestParser::parse(&self.options.manifest_path)
+        // Load and validate initial manifest
+        let mut manifest_data = ManifestParser::parse_and_validate(&self.options.manifest_path)
             .map_err(|e| Error::new(&format!("Failed to parse manifest: {}", e)))?;
 
         // Add ontology to watched paths
@@ -93,8 +93,8 @@ impl WatchMode {
                 eprintln!("Debouncing changes for {}ms...", self.config.debounce_ms);
                 sleep(Duration::from_millis(self.config.debounce_ms)).await;
 
-                // Reload manifest to detect new files
-                if let Ok(new_manifest) = ManifestParser::parse(&self.options.manifest_path) {
+                // Reload and validate manifest to detect new files
+                if let Ok(new_manifest) = ManifestParser::parse_and_validate(&self.options.manifest_path) {
                     manifest_data = new_manifest;
 
                     // Update watched paths

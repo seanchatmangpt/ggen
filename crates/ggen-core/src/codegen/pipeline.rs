@@ -10,6 +10,7 @@
 use crate::codegen::transaction::FileTransaction;
 use crate::graph::{ConstructExecutor, Graph};
 use crate::manifest::{GenerationRule, GgenManifest, InferenceRule};
+use crate::template_types::Template;
 use crate::utils::error::{Error, Result};
 use serde::Serialize;
 use std::collections::BTreeMap;
@@ -435,6 +436,29 @@ impl GenerationPipeline {
             .execute_and_materialize(&rule.construct)
             .map_err(|e| Error::new(&format!("Inference rule '{}' failed: {}", rule.name, e)))?;
 
+        // GGEN-INFER-001: warn when a CONSTRUCT rule adds zero new triples.
+        // Identity queries (CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }) or
+        // queries that match nothing produce zero output silently — this makes
+        // misconfigured inference rules very hard to diagnose.
+        if triples_added == 0 {
+            if self.manifest.validation.strict_mode {
+                return Err(Error::new(&format!(
+                    "error[GGEN-INFER-001]: Inference rule '{}' added 0 triples\n  \
+                     = strict_mode is enabled: identity/no-match CONSTRUCT rules are rejected\n  \
+                     = help: Verify the query pattern against the loaded ontology\n  \
+                     = help: If intentionally conditional, add a `when` clause",
+                    rule.name
+                )));
+            }
+            log::warn!(
+                "warning[GGEN-INFER-001]: Inference rule '{}' added 0 triples\n  \
+                 = CONSTRUCT query matched no triples in the current graph\n  \
+                 = help: Verify the query pattern against the loaded ontology\n  \
+                 = help: If intentionally conditional, add a `when` clause to suppress this warning",
+                rule.name
+            );
+        }
+
         let duration = start.elapsed();
         let query_hash = format!("{:x}", sha2::Sha256::digest(rule.construct.as_bytes()));
 
@@ -579,6 +603,29 @@ impl GenerationPipeline {
         }
     }
 
+    /// Resolve a pack `output` key to an absolute directory path using the pack's `package.toml`.
+    /// Falls back to treating `output_key` as a literal directory name if no package.toml is
+    /// present or if the key is absent from `[outputs]`.
+    fn resolve_pack_output(&self, pack_name: &str, output_key: &str) -> std::path::PathBuf {
+        if let Some(pack_root) = self
+            .manifest
+            .packs
+            .iter()
+            .find(|p| p.name == pack_name)
+            .and_then(|p| p.path.as_ref())
+            .map(|p| self.base_path.join(p))
+        {
+            use crate::manifest::types::PackageToml;
+            let pkg = PackageToml::load(&pack_root);
+            let resolved = pkg.resolve_output_key(output_key);
+            pack_root.join(resolved)
+        } else {
+            // Pack not found in manifest — return output_key literally so the caller
+            // surfaces the missing-pack error from the surrounding lookup.
+            std::path::PathBuf::from(output_key)
+        }
+    }
+
     /// Execute all generation rules (SELECT → Template → Code)
     pub fn execute_generation_rules(&mut self) -> Result<Vec<GeneratedFile>> {
         use crate::manifest::{GenerationMode, QuerySource, TemplateSource};
@@ -657,11 +704,14 @@ impl GenerationPipeline {
                             rule.name, pack, pack_ref.registry
                         ))
                     })?;
-                    // The output key maps to a sub-directory name by convention when no
-                    // package.toml [pack.outputs] is present; if present the caller should
-                    // pre-resolve before reaching the pipeline.  For now treat the key as a
-                    // sub-directory name directly so local packs work without marketplace metadata.
-                    let query_path = self.base_path.join(pack_root).join(output).join(file);
+                    // Resolve the output key via package.toml [outputs] table when present;
+                    // falls back to treating output as a literal subdirectory name.
+                    // pack_root is still used for the missing-path error above; the
+                    // resolve_pack_output helper performs the same base_path.join(pack_root)
+                    // lookup internally.
+                    let _ = pack_root; // already validated above; resolution re-derives path
+                    let pack_dir = self.resolve_pack_output(pack, output.as_str());
+                    let query_path = pack_dir.join(file);
                     std::fs::read_to_string(&query_path).map_err(|e| {
                         Error::new(&format!(
                             "Failed to read pack query file '{}': {}",
@@ -802,7 +852,10 @@ impl GenerationPipeline {
                             rule.name, pack, pack_ref.registry
                         ))
                     })?;
-                    let template_path = self.base_path.join(pack_root).join(output).join(file);
+                    // Validate path exists before resolution; then resolve via package.toml.
+                    let _ = pack_root;
+                    let pack_dir = self.resolve_pack_output(pack, output.as_str());
+                    let template_path = pack_dir.join(file);
                     let content = std::fs::read_to_string(&template_path).map_err(|e| {
                         Error::new(&format!(
                             "Failed to read template from pack '{}' output '{}' file '{}': {}",
@@ -832,7 +885,16 @@ impl GenerationPipeline {
             //     can expand to a differently-named file
             let mut tera = tera::Tera::default();
             crate::register::register_all(&mut tera);
-            tera.add_raw_template("generation_rule", &template_content)
+
+            // Parse template to strip frontmatter (if any)
+            let parsed_template = Template::parse(&template_content).map_err(|e| {
+                Error::new(&format!(
+                    "Frontmatter parse error in rule '{}': {}",
+                    rule.name, e
+                ))
+            })?;
+
+            tera.add_raw_template("generation_rule", &parsed_template.body)
                 .map_err(|e| {
                     Error::new(&format!(
                         "Template parse error in rule '{}': {}",
@@ -862,6 +924,15 @@ impl GenerationPipeline {
                 // when LLM is disabled (generate_skill_impl returns a stub in that case).
                 self.inject_generated_impl(&rows[0], rule, &mut context);
 
+                // BUG-002: render frontmatter through Tera so {{ }} vars in front.to are resolved
+                let mut tpl_with_front = parsed_template.clone();
+                if let Err(e) = tpl_with_front.render_frontmatter(&mut tera, &context) {
+                    log::warn!("Frontmatter render error in rule '{}': {e}", rule.name);
+                }
+                let effective_output_file_static = tpl_with_front.front.to.as_deref()
+                    .filter(|s| !s.is_empty())
+                    .unwrap_or(&rule.output_file);
+
                 let rendered = tera.render("generation_rule", &context).map_err(|e| {
                     Error::new(&format!(
                         "Failed to render template for rule '{}': {}",
@@ -869,7 +940,7 @@ impl GenerationPipeline {
                     ))
                 })?;
 
-                let full_output_path = output_dir.join(&rule.output_file);
+                let full_output_path = output_dir.join(effective_output_file_static);
 
                 let final_content = match rule.mode {
                     GenerationMode::Create => {
@@ -959,6 +1030,15 @@ impl GenerationPipeline {
                 // Inject `generated_impl` (LLM result or stub) when skill fields exist.
                 self.inject_generated_impl(row, rule, &mut context);
 
+                // BUG-002: render frontmatter per-row so {{ var }} in front.to resolves to row values
+                let mut row_tpl = parsed_template.clone();
+                if let Err(e) = row_tpl.render_frontmatter(&mut tera, &context) {
+                    log::warn!("Frontmatter render error in rule '{}': {e}", rule.name);
+                }
+                let effective_output = row_tpl.front.to.as_deref()
+                    .filter(|s| !s.is_empty())
+                    .map(str::to_owned);
+
                 // Render template
                 let rendered = tera.render("generation_rule", &context).map_err(|e| {
                     // Build comprehensive error context for debugging
@@ -1003,20 +1083,31 @@ impl GenerationPipeline {
                 })?;
 
                 // Expand output path with Tera (supports filters like {{ name | lower }})
-                let output_path_rendered =
+                // BUG-002: if frontmatter provided a resolved `to:` path, use it; otherwise expand rule.output_file
+                let output_path_rendered = if let Some(ref eff) = effective_output {
+                    eff.clone()
+                } else {
                     tera.render_str(&rule.output_file, &context).map_err(|e| {
                         Error::new(&format!(
                             "Output path template error in rule '{}': {}",
                             rule.name, e
                         ))
-                    })?;
+                    })?
+                };
                 let full_output_path = output_dir.join(&output_path_rendered);
 
                 // T015-T016: Check generation mode and apply merge logic
                 let final_content = match rule.mode {
                     GenerationMode::Create => {
                         if full_output_path.exists() {
-                            // Skip - file already exists
+                            // mode=Create is idempotent scaffolding: skip if the file
+                            // already exists so manual edits are preserved. Use
+                            // mode=Overwrite to replace on every sync.
+                            tracing::debug!(
+                                rule = %rule.name,
+                                path = %full_output_path.display(),
+                                "mode=Create: file exists, skipping (use mode=Overwrite to replace)"
+                            );
                             continue;
                         }
                         rendered.clone()

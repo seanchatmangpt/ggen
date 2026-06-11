@@ -33,6 +33,16 @@ pub const GGEN_OUT_001: &str = "GGEN-OUT-001";
 /// as a live diagnostic on the `ggen.toml` declaration surface.
 pub const GGEN_RULE_001: &str = "GGEN-RULE-001";
 
+/// Canonical diagnostic code for the output-path-escape law: a rule's
+/// `output_file` (after stripping Tera `{{ }}` interpolations) resolves to a
+/// path outside the project root — a pack-root traversal / path-injection risk.
+pub const GGEN_YIELD_001: &str = "GGEN-YIELD-001";
+
+/// Canonical diagnostic code for the SELECT * blindspot advisory: a rule uses
+/// `SELECT *` which disables GGEN-TPL-001 and GGEN-OUT-001 because the
+/// projected variable set is unknowable at author time.
+pub const GGEN_QUERY_002: &str = "GGEN-QUERY-002";
+
 const FILTERS: &[&str] = &[
     "upper",
     "lower",
@@ -110,7 +120,7 @@ impl TeraAnalyzer {
     /// (`available_vars` empty) only the E0024 syntax law is checked, since
     /// there is no rule context to compare against.
     #[must_use]
-    pub fn diagnostics(&self) -> Vec<Diagnostic> {
+    pub fn diagnostics(&self) -> Vec<lsp_max_protocol::MaxDiagnostic> {
         let mut tera = tera::Tera::default();
         let mut diags = match tera.add_raw_template("__ggen_lsp_doc__", &self.source) {
             Ok(()) => Vec::new(),
@@ -121,11 +131,12 @@ impl TeraAnalyzer {
                     message.push_str(&format!(": {cause}"));
                     source = cause.source();
                 }
-                vec![diag::whole_line(
+                vec![diag::max_whole_line(
                     0,
                     DiagnosticSeverity::ERROR,
                     Some("E0024"),
                     format!("Tera template error: {message}"),
+                    lsp_max_protocol::LawAxis::Autopoiesis,
                 )]
             }
         };
@@ -155,10 +166,57 @@ impl TeraAnalyzer {
                 ..Default::default()
             });
         }
+        // Project variables: bare `VAR` for `{{ VAR }}` interpolation (the canonical
+        // path). Also offer `row.VAR` as a legacy alias recognised by consumed_vars().
+        for var in &self.available_vars {
+            items.push(CompletionItem {
+                label: var.clone(),
+                kind: Some(CompletionItemKind::VARIABLE),
+                detail: Some("SPARQL projection variable".to_string()),
+                ..Default::default()
+            });
+            items.push(CompletionItem {
+                label: format!("row.{var}"),
+                kind: Some(CompletionItemKind::FIELD),
+                detail: Some(format!("SPARQL projection variable `{var}` (via row.{var} — legacy alias)")),
+                ..Default::default()
+            });
+        }
         Some(CompletionResponse::Array(items))
     }
 
-    pub fn hover_at(&self, _line: u32, _character: u32) -> Option<Hover> {
+    pub fn hover_at(&self, line: u32, character: u32) -> Option<Hover> {
+        let token = word_at(&self.source, line, character)?;
+        // Strip `row.` prefix if present for variable lookup.
+        let lookup = token.strip_prefix("row.").unwrap_or(&token);
+
+        if FILTERS.iter().any(|f| *f == token) {
+            return Some(Hover {
+                contents: lsp_max::lsp_types::HoverContents::Markup(lsp_max::lsp_types::MarkupContent {
+                    kind: lsp_max::lsp_types::MarkupKind::Markdown,
+                    value: format!("**Tera filter** `{token}`\n\nSee [Tera documentation](https://keats.github.io/tera/docs/#built-in-filters) for usage."),
+                }),
+                range: None,
+            });
+        }
+        if KEYWORDS.iter().any(|kw| *kw == token) {
+            return Some(Hover {
+                contents: lsp_max::lsp_types::HoverContents::Markup(lsp_max::lsp_types::MarkupContent {
+                    kind: lsp_max::lsp_types::MarkupKind::Markdown,
+                    value: format!("**Tera keyword** `{token}`"),
+                }),
+                range: None,
+            });
+        }
+        if self.available_vars.contains(lookup) {
+            return Some(Hover {
+                contents: lsp_max::lsp_types::HoverContents::Markup(lsp_max::lsp_types::MarkupContent {
+                    kind: lsp_max::lsp_types::MarkupKind::Markdown,
+                    value: format!("**SPARQL variable** `{lookup}`\n\nProjected from the bound rule query."),
+                }),
+                range: None,
+            });
+        }
         None
     }
 
@@ -278,6 +336,36 @@ fn make_symbol(name: &str, kind: SymbolKind, line: u32) -> DocumentSymbol {
         range,
         selection_range: range,
         children: None,
+    }
+}
+
+/// Extract the token under the cursor — a contiguous run of Tera identifier characters.
+fn word_at(source: &str, line: u32, character: u32) -> Option<String> {
+    let text = source.lines().nth(line as usize)?;
+    let chars: Vec<char> = text.chars().collect();
+    let is_word = |c: char| c.is_alphanumeric() || matches!(c, '_' | '.' | '[' | ']' | '"' | '\'');
+    let idx = character as usize;
+    if idx >= chars.len() {
+        return None;
+    }
+    let mut start = idx;
+    while start > 0 && is_word(chars[start - 1]) {
+        start -= 1;
+    }
+    let mut end = idx;
+    while end < chars.len() && is_word(chars[end]) {
+        end += 1;
+    }
+    if start == end {
+        return None;
+    }
+    let token: String = chars[start..end].iter().collect();
+    // Clean up surrounding syntax if needed.
+    let token = token.trim_matches(|c| c == '[' || c == ']' || c == '"' || c == '\'').to_string();
+    if token.is_empty() {
+        None
+    } else {
+        Some(token)
     }
 }
 
@@ -421,12 +509,12 @@ fn is_identifier(s: &str) -> bool {
 #[must_use]
 pub fn unbound_projection_diagnostics(
     template: &str, available_vars: &BTreeSet<String>,
-) -> Vec<Diagnostic> {
+) -> Vec<lsp_max_protocol::MaxDiagnostic> {
     consumed_vars(template)
         .into_iter()
         .filter(|var| !available_vars.contains(var))
         .map(|var| {
-            let mut d = diag::whole_line(
+            diag::max_whole_line(
                 0,
                 DiagnosticSeverity::ERROR,
                 Some(GGEN_TPL_001),
@@ -434,10 +522,8 @@ pub fn unbound_projection_diagnostics(
                     "{GGEN_TPL_001} unbound_projection: template consumes `{var}` which the \
                      rule's SPARQL SELECT does not produce"
                 ),
-            );
-            // Be explicit about the code type for downstream route matching.
-            d.code = Some(NumberOrString::String(GGEN_TPL_001.to_string()));
-            d
+                lsp_max_protocol::LawAxis::Domain,
+            )
         })
         .collect()
 }
@@ -465,12 +551,12 @@ pub fn unbound_projection_diagnostics(
 #[must_use]
 pub fn unbound_output_path_diagnostics(
     output_file: &str, available_vars: &BTreeSet<String>,
-) -> Vec<Diagnostic> {
+) -> Vec<lsp_max_protocol::MaxDiagnostic> {
     consumed_vars(output_file)
         .into_iter()
         .filter(|var| !available_vars.contains(var))
         .map(|var| {
-            let mut d = diag::whole_line(
+            diag::max_whole_line(
                 0,
                 DiagnosticSeverity::ERROR,
                 Some(GGEN_OUT_001),
@@ -478,10 +564,8 @@ pub fn unbound_output_path_diagnostics(
                     "{GGEN_OUT_001} unbound_output_path: output_file consumes `{var}` which the \
                      rule's SPARQL SELECT does not produce"
                 ),
-            );
-            // Be explicit about the code type for downstream route matching.
-            d.code = Some(NumberOrString::String(GGEN_OUT_001.to_string()));
-            d
+                lsp_max_protocol::LawAxis::Domain,
+            )
         })
         .collect()
 }
@@ -500,42 +584,160 @@ pub fn unbound_output_path_diagnostics(
 /// declaration surface — NEVER an emitted output. Reads/writes no files: this is
 /// a pure function over its inputs (the index already did the overlay-aware I/O).
 #[must_use]
-pub fn unbound_rule_file_diagnostics(issues: &[String]) -> Vec<Diagnostic> {
+pub fn unbound_rule_file_diagnostics(issues: &[String]) -> Vec<lsp_max_protocol::MaxDiagnostic> {
     issues
         .iter()
         .filter(|i| i.starts_with("query file missing:") || i.starts_with("template file missing:"))
         .map(|i| {
-            let mut d = diag::whole_line(
+            diag::max_whole_line(
                 0,
                 DiagnosticSeverity::ERROR,
                 Some(GGEN_RULE_001),
                 format!("{GGEN_RULE_001} unbound_rule_file: {i}"),
-            );
-            // Be explicit about the code type for downstream route matching.
-            d.code = Some(NumberOrString::String(GGEN_RULE_001.to_string()));
-            d
+                lsp_max_protocol::LawAxis::Domain,
+            )
         })
         .collect()
+}
+
+/// Pure output-path-escape detector (GGEN-YIELD-001).
+///
+/// Strips `{{ }}` Tera interpolations from `output_file` to get the static
+/// skeleton, resolves it against the manifest directory, and checks whether the
+/// result escapes `project_root`. A conservatively lexical check: `..` in the
+/// skeleton path always escapes regardless of variable values at render time.
+///
+/// Returns an ERROR diagnostic when the skeleton escapes, or when
+/// `output_file` is an absolute path that starts outside `project_root`.
+///
+/// Reads no files, writes no files — pure over its inputs.
+#[must_use]
+pub fn yield_001_diagnostics(
+    output_file: &str,
+    manifest_path: &std::path::Path,
+    project_root: &std::path::Path,
+) -> Vec<lsp_max_protocol::MaxDiagnostic> {
+    let skeleton = strip_tera_vars(output_file);
+    let manifest_dir = manifest_path.parent().unwrap_or(std::path::Path::new("."));
+    let candidate = manifest_dir.join(&skeleton);
+    let cleaned = lexical_clean(&candidate);
+    let root_clean = lexical_clean(project_root);
+    if !cleaned.starts_with(&root_clean) {
+        return vec![diag::max_whole_line(
+            0,
+            DiagnosticSeverity::ERROR,
+            Some(GGEN_YIELD_001),
+            format!(
+                "{GGEN_YIELD_001} LAYER_VIOLATION: output_file `{output_file}` resolves outside \
+                 the project root. Stripped skeleton: `{}`. \
+                 = help: Use a path within the project (e.g. `src/{{{{ name }}}}.rs`)",
+                cleaned.display()
+            ),
+            lsp_max_protocol::LawAxis::Domain,
+        )];
+    }
+    Vec::new()
+}
+
+/// Strip `{{ … }}` Tera interpolation blocks from `s`, returning the static skeleton.
+#[must_use]
+pub fn strip_tera_vars(s: &str) -> String {
+    let mut result = String::with_capacity(s.len());
+    let mut rest = s;
+    while let Some(open) = rest.find("{{") {
+        result.push_str(&rest[..open]);
+        if let Some(close_rel) = rest[open..].find("}}") {
+            rest = &rest[open + close_rel + 2..];
+        } else {
+            result.push_str(&rest[open..]);
+            return result;
+        }
+    }
+    result.push_str(rest);
+    result
+}
+
+/// Lexically collapse `.` and `..` segments in `path` without touching the
+/// filesystem (no `canonicalize`). Safe to call on paths that do not exist yet.
+#[must_use]
+pub fn lexical_clean(path: &std::path::Path) -> std::path::PathBuf {
+    let mut components: Vec<std::path::Component> = Vec::new();
+    for c in path.components() {
+        match c {
+            std::path::Component::CurDir => {}
+            std::path::Component::ParentDir => {
+                if matches!(components.last(), Some(std::path::Component::Normal(_))) {
+                    components.pop();
+                } else {
+                    components.push(c);
+                }
+            }
+            other => components.push(other),
+        }
+    }
+    components.iter().collect()
+}
+
+/// Pure SELECT * blindspot advisory (GGEN-QUERY-002).
+///
+/// When a generation rule's query uses `SELECT *` the variable projection set
+/// is unknowable at author time, silently disabling GGEN-TPL-001 / GGEN-OUT-001.
+#[must_use]
+pub fn select_star_diagnostics(rule_id: &str, query_text: &str) -> Vec<lsp_max_protocol::MaxDiagnostic> {
+    if !is_select_star(query_text) {
+        return Vec::new();
+    }
+    vec![diag::max_whole_line(
+        0,
+        DiagnosticSeverity::WARNING,
+        Some(GGEN_QUERY_002),
+        format!(
+            "{GGEN_QUERY_002} rule `{rule_id}` uses SELECT * — explicit projections required. \
+             This disables GGEN-TPL-001 and GGEN-OUT-001 for this rule."
+        ),
+        lsp_max_protocol::LawAxis::Domain,
+    )]
+}
+
+/// Returns `true` if `query` is a `SELECT *` query (case-insensitive).
+#[must_use]
+fn is_select_star(query: &str) -> bool {
+    let stripped: String = query
+        .lines()
+        .filter(|l| !l.trim_start().starts_with('#'))
+        .collect::<Vec<_>>()
+        .join(" ");
+    let upper = stripped.to_uppercase();
+    let after_select = match upper.find("SELECT") {
+        Some(pos) => &upper[pos + 6..],
+        None => return false,
+    };
+    let projection = after_select
+        .trim_start()
+        .trim_start_matches("DISTINCT")
+        .trim_start();
+    projection.starts_with('*')
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use lsp_max_protocol::MaxDiagnostic;
 
     fn vars(names: &[&str]) -> BTreeSet<String> {
         names.iter().map(|s| (*s).to_string()).collect()
     }
 
-    fn has_tpl_001(diags: &[Diagnostic]) -> bool {
+    fn has_tpl_001(diags: &[MaxDiagnostic]) -> bool {
         diags
             .iter()
-            .any(|d| d.code == Some(NumberOrString::String(GGEN_TPL_001.to_string())))
+            .any(|d| d.lsp.code == Some(NumberOrString::String(GGEN_TPL_001.to_string())))
     }
 
-    fn has_out_001(diags: &[Diagnostic]) -> bool {
+    fn has_out_001(diags: &[MaxDiagnostic]) -> bool {
         diags
             .iter()
-            .any(|d| d.code == Some(NumberOrString::String(GGEN_OUT_001.to_string())))
+            .any(|d| d.lsp.code == Some(NumberOrString::String(GGEN_OUT_001.to_string())))
     }
 
     #[test]
@@ -551,7 +753,7 @@ mod tests {
         let diags = unbound_projection_diagnostics(t, &vars(&["name"]));
         assert_eq!(diags.len(), 1, "expected exactly one diagnostic: {diags:?}");
         assert!(has_tpl_001(&diags));
-        assert!(diags[0].message.contains("title"));
+        assert!(diags[0].lsp.message.contains("title"));
     }
 
     #[test]
@@ -567,7 +769,7 @@ mod tests {
         let diags = unbound_projection_diagnostics(t, &BTreeSet::new());
         assert_eq!(diags.len(), 1, "expected one diagnostic: {diags:?}");
         assert!(has_tpl_001(&diags));
-        assert!(diags[0].message.contains('x'));
+        assert!(diags[0].lsp.message.contains('x'));
     }
 
     #[test]
@@ -611,7 +813,7 @@ mod tests {
         let diags = analyzer.diagnostics();
         assert!(!diags.is_empty());
         assert_eq!(
-            diags[0].code,
+            diags[0].lsp.code,
             Some(lsp_max::lsp_types::NumberOrString::String("E0024".into()))
         );
     }
@@ -632,8 +834,8 @@ mod tests {
         let diags = unbound_output_path_diagnostics("src/{{missing}}.rs", &vars(&["name"]));
         assert_eq!(diags.len(), 1, "expected exactly one diagnostic: {diags:?}");
         assert!(has_out_001(&diags));
-        assert!(diags[0].message.contains("missing"));
-        assert_eq!(diags[0].severity, Some(DiagnosticSeverity::ERROR));
+        assert!(diags[0].lsp.message.contains("missing"));
+        assert_eq!(diags[0].lsp.severity, Some(DiagnosticSeverity::ERROR));
     }
 
     #[test]
@@ -652,8 +854,8 @@ mod tests {
         // `{{a}}` is bound, `{{b}}` is not → exactly one OUT-001 (for `b`).
         let diags = unbound_output_path_diagnostics("{{a}}/{{b}}.rs", &vars(&["a"]));
         assert_eq!(diags.len(), 1, "only the unbound `b`: {diags:?}");
-        assert!(diags[0].message.contains('b'));
-        assert!(!diags[0].message.contains("`a`"));
+        assert!(diags[0].lsp.message.contains('b'));
+        assert!(!diags[0].lsp.message.contains("`a`"));
     }
 
     #[test]
@@ -664,7 +866,7 @@ mod tests {
         let diags = unbound_output_path_diagnostics("out/{{slug}}.txt", &BTreeSet::new());
         assert_eq!(diags.len(), 1, "expected one diagnostic: {diags:?}");
         assert!(has_out_001(&diags));
-        assert!(diags[0].message.contains("slug"));
+        assert!(diags[0].lsp.message.contains("slug"));
     }
 
     #[test]
@@ -678,10 +880,10 @@ mod tests {
 
     // ---- GGEN-RULE-001: unbound rule file ----
 
-    fn has_rule_001(diags: &[Diagnostic]) -> bool {
+    fn has_rule_001(diags: &[MaxDiagnostic]) -> bool {
         diags
             .iter()
-            .any(|d| d.code == Some(NumberOrString::String(GGEN_RULE_001.to_string())))
+            .any(|d| d.lsp.code == Some(NumberOrString::String(GGEN_RULE_001.to_string())))
     }
 
     #[test]
@@ -690,8 +892,8 @@ mod tests {
         let diags = unbound_rule_file_diagnostics(&issues);
         assert_eq!(diags.len(), 1, "expected one RULE-001: {diags:?}");
         assert!(has_rule_001(&diags));
-        assert_eq!(diags[0].severity, Some(DiagnosticSeverity::ERROR));
-        assert!(diags[0].message.contains("query file missing"));
+        assert_eq!(diags[0].lsp.severity, Some(DiagnosticSeverity::ERROR));
+        assert!(diags[0].lsp.message.contains("query file missing"));
     }
 
     #[test]
@@ -700,7 +902,7 @@ mod tests {
         let diags = unbound_rule_file_diagnostics(&issues);
         assert_eq!(diags.len(), 1, "expected one RULE-001: {diags:?}");
         assert!(has_rule_001(&diags));
-        assert!(diags[0].message.contains("template file missing"));
+        assert!(diags[0].lsp.message.contains("template file missing"));
     }
 
     #[test]
@@ -736,5 +938,84 @@ mod tests {
         let diags = unbound_rule_file_diagnostics(&issues);
         assert_eq!(diags.len(), 2, "both bindings dangling: {diags:?}");
         assert!(diags.iter().all(|d| has_rule_001(std::slice::from_ref(d))));
+    }
+
+    // ───────────── GGEN-YIELD-001: output_file path escape ───────────────────
+
+    #[test]
+    fn yield_001_escaping_path_emits_error() {
+        use std::path::Path;
+        let diags = yield_001_diagnostics(
+            "../../escaped/{{ name }}.rs",
+            Path::new("/project/ggen.toml"),
+            Path::new("/project"),
+        );
+        assert!(!diags.is_empty(), "expected YIELD-001 diagnostic, got none");
+        assert!(
+            diags[0].lsp.message.contains("GGEN-YIELD-001"),
+            "message must contain GGEN-YIELD-001: {}",
+            diags[0].lsp.message
+        );
+    }
+
+    #[test]
+    fn yield_001_in_project_path_is_clean() {
+        use std::path::Path;
+        let diags = yield_001_diagnostics(
+            "src/{{ name }}.rs",
+            Path::new("/project/ggen.toml"),
+            Path::new("/project"),
+        );
+        assert!(diags.is_empty(), "in-project path must not raise YIELD-001: {diags:?}");
+    }
+
+    #[test]
+    fn strip_tera_vars_removes_interpolations() {
+        assert_eq!(strip_tera_vars("src/{{ name }}.rs"), "src/.rs");
+        assert_eq!(strip_tera_vars("static.rs"), "static.rs");
+        assert_eq!(strip_tera_vars("{{ a }}/{{ b }}.rs"), "/.rs");
+    }
+
+    #[test]
+    fn lexical_clean_collapses_dotdot() {
+        use std::path::PathBuf;
+        let p = lexical_clean(std::path::Path::new("/project/src/../escaped"));
+        assert_eq!(p, PathBuf::from("/project/escaped"));
+    }
+
+    // ───────────── GGEN-QUERY-002: SELECT * blindspot ────────────────────────
+
+    #[test]
+    fn select_star_emits_query_002() {
+        let diags = select_star_diagnostics("my-rule", "SELECT * WHERE { ?s ?p ?o }");
+        assert!(!diags.is_empty(), "expected QUERY-002 diagnostic, got none");
+        assert!(
+            diags[0].lsp.message.contains("GGEN-QUERY-002"),
+            "message must contain GGEN-QUERY-002: {}",
+            diags[0].lsp.message
+        );
+        assert!(
+            diags[0].lsp.message.contains("my-rule"),
+            "message must contain the rule id: {}",
+            diags[0].lsp.message
+        );
+    }
+
+    #[test]
+    fn select_distinct_star_emits_query_002() {
+        let diags = select_star_diagnostics("r", "SELECT DISTINCT * WHERE { ?s ?p ?o }");
+        assert!(!diags.is_empty(), "SELECT DISTINCT * must also raise QUERY-002: {diags:?}");
+    }
+
+    #[test]
+    fn explicit_select_does_not_emit_query_002() {
+        let diags = select_star_diagnostics("r", "SELECT ?name ?label WHERE { ?s :name ?name }");
+        assert!(diags.is_empty(), "explicit projections must not raise QUERY-002: {diags:?}");
+    }
+
+    #[test]
+    fn empty_query_does_not_emit_query_002() {
+        let diags = select_star_diagnostics("r", "");
+        assert!(diags.is_empty(), "empty query must not raise QUERY-002: {diags:?}");
     }
 }

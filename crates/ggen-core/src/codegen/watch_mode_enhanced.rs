@@ -36,8 +36,8 @@ impl EnhancedWatchMode {
         // Install SIGINT handler for graceful shutdown
         let shutdown = install_shutdown_handler()?;
 
-        // Parse manifest to get watch paths
-        let manifest_data = ManifestParser::parse(manifest_path).map_err(|e| {
+        // Parse and validate manifest to get watch paths
+        let manifest_data = ManifestParser::parse_and_validate(manifest_path).map_err(|e| {
             Error::new(&format!(
                 "error[E0001]: Manifest parse error\n  --> {}\n  |\n  = error: {}\n  = help: Check ggen.toml syntax",
                 manifest_path.display(),

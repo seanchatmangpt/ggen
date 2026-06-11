@@ -75,8 +75,9 @@ fn test_receipt_verify_with_valid_signature() {
         .args([
             "receipt",
             "verify",
+            "--receipt_path",
             &receipt_path,
-            "--public-key",
+            "--public_key",
             &key_path,
         ])
         .output()
@@ -107,8 +108,9 @@ fn test_receipt_verify_with_wrong_key() {
         .args([
             "receipt",
             "verify",
+            "--receipt_path",
             &receipt_path,
-            "--public-key",
+            "--public_key",
             &key_path,
         ])
         .output()
@@ -131,7 +133,7 @@ fn test_receipt_info_displays_receipt_details() {
     // Run the receipt info command via CLI
     let output = assert_cmd::Command::cargo_bin("ggen")
         .unwrap()
-        .args(["receipt", "info", &receipt_path])
+        .args(["receipt", "info", "--receipt_path", &receipt_path])
         .output()
         .expect("Failed to execute command");
 
@@ -149,10 +151,10 @@ fn test_receipt_verify_without_key_returns_error() {
 
     let (receipt_path, _) = create_test_receipt(temp_dir.path());
 
-    // Run without --public-key flag
+    // Run without --public_key flag
     let output = assert_cmd::Command::cargo_bin("ggen")
         .unwrap()
-        .args(["receipt", "verify", &receipt_path])
+        .args(["receipt", "verify", "--receipt_path", &receipt_path])
         .output()
         .expect("Failed to execute command");
 
@@ -173,7 +175,7 @@ fn test_receipt_verify_nonexistent_file() {
     // Run with nonexistent file
     let output = assert_cmd::Command::cargo_bin("ggen")
         .unwrap()
-        .args(["receipt", "verify", &fake_path_str])
+        .args(["receipt", "verify", "--receipt_path", &fake_path_str])
         .output()
         .expect("Failed to execute command");
 
