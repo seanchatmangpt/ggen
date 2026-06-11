@@ -20,9 +20,12 @@ pub use rdf_analyzer::{RdfAnalyzer, RdfFlavor};
 pub use source_law_analyzer::{do_not_edit_diagnostics, GGEN_SRC_002, GGEN_SRC_003};
 pub use sparql_analyzer::SparqlAnalyzer;
 pub use tera_analyzer::{
-    lexical_clean, select_star_diagnostics, strip_tera_vars, unbound_output_path_diagnostics,
-    unbound_projection_diagnostics, unbound_rule_file_diagnostics, yield_001_diagnostics,
-    TeraAnalyzer, GGEN_OUT_001, GGEN_QUERY_002, GGEN_RULE_001, GGEN_TPL_001, GGEN_YIELD_001,
+    is_select_star, lexical_clean, pack_001_diagnostics, select_star_diagnostics,
+    strip_tera_vars, unbound_output_path_diagnostics, unbound_projection_diagnostics,
+    unbound_rule_file_diagnostics, yield_001_diagnostics, yield_003_diagnostics,
+    yield_004_diagnostics, yield_005_diagnostics, TeraAnalyzer, GGEN_OUT_001,
+    GGEN_PACK_001, GGEN_QUERY_002, GGEN_RULE_001, GGEN_TPL_001, GGEN_YIELD_001,
+    GGEN_YIELD_003, GGEN_YIELD_004, GGEN_YIELD_005,
 };
 pub use toml_analyzer::{source_caste_path_violation, TomlAnalyzer, GGEN_SRC_001};
 
@@ -48,6 +51,9 @@ pub fn detect_tpl_001(
 ) -> Vec<(std::path::PathBuf, Vec<MaxDiagnostic>)> {
     let mut out = Vec::new();
     for entry in &project.rule_entries {
+        if is_select_star(&entry.query_content) {
+            continue;
+        }
         let Some(template) = entry.template_content.as_deref() else {
             continue;
         };
@@ -66,6 +72,9 @@ pub fn detect_out_001(
 ) -> Vec<(std::path::PathBuf, Vec<MaxDiagnostic>)> {
     let mut out = Vec::new();
     for entry in &project.rule_entries {
+        if is_select_star(&entry.query_content) {
+            continue;
+        }
         if entry.selected_vars.is_empty() {
             continue; 
         }
@@ -170,6 +179,44 @@ pub fn detect_yield_001(
     out
 }
 
+/// Cross-surface GGEN-YIELD-004 detection: multiple rules target the same output file.
+#[must_use]
+pub fn detect_yield_004(
+    project: &crate::project_index::ProjectIndex,
+) -> Vec<(std::path::PathBuf, Vec<MaxDiagnostic>)> {
+    let mut out = Vec::new();
+    let mut output_to_rules: std::collections::HashMap<String, Vec<String>> =
+        std::collections::HashMap::new();
+
+    for entry in &project.rule_entries {
+        output_to_rules
+            .entry(entry.output_file.clone())
+            .or_default()
+            .push(entry.rule_id.clone());
+    }
+
+    for entry in &project.rule_entries {
+        if let Some(rules) = output_to_rules.get(&entry.output_file) {
+            if rules.len() > 1 {
+                let competing: Vec<String> = rules
+                    .iter()
+                    .filter(|&r| r != &entry.rule_id)
+                    .cloned()
+                    .collect();
+                let diags = yield_004_diagnostics(
+                    &entry.rule_id,
+                    &entry.output_file,
+                    &competing,
+                );
+                if !diags.is_empty() {
+                    out.push((entry.manifest_path.clone(), diags));
+                }
+            }
+        }
+    }
+    out
+}
+
 /// Cross-surface GGEN-QUERY-002 detection: SELECT * disables TPL-001/OUT-001.
 ///
 /// For each rule that uses `SELECT *`, emits a WARNING diagnostic anchored on
@@ -187,6 +234,27 @@ pub fn detect_query_002(
             continue;
         }
         let diags = select_star_diagnostics(&entry.rule_id, &entry.query_content);
+        if !diags.is_empty() {
+            out.push((entry.manifest_path.clone(), diags));
+        }
+    }
+    out
+}
+
+/// Cross-surface GGEN-PACK-001 detection: pack-sourced query/template disables
+/// author-time provision checks (GGEN-TPL-001 / GGEN-OUT-001).
+///
+/// For each rule whose query or template resolves via `QuerySource::Pack` /
+/// `TemplateSource::Pack`, emits a WARNING diagnostic on the `ggen.toml` surface
+/// so the author knows author-time checks are inactive for that rule. Best-effort:
+/// a missing manifest yields no diagnostics.
+#[must_use]
+pub fn detect_pack_001(
+    project: &crate::project_index::ProjectIndex,
+) -> Vec<(std::path::PathBuf, Vec<MaxDiagnostic>)> {
+    let mut out = Vec::new();
+    for entry in &project.rule_entries {
+        let diags = pack_001_diagnostics(&entry.issues);
         if !diags.is_empty() {
             out.push((entry.manifest_path.clone(), diags));
         }

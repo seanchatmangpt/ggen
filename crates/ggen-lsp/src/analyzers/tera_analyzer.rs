@@ -38,10 +38,27 @@ pub const GGEN_RULE_001: &str = "GGEN-RULE-001";
 /// path outside the project root — a pack-root traversal / path-injection risk.
 pub const GGEN_YIELD_001: &str = "GGEN-YIELD-001";
 
+/// Canonical diagnostic code for the orphaned-output law: a rule's output_file
+/// lacks a static filename base (e.g. is just an extension like `.rs`).
+pub const GGEN_YIELD_003: &str = "GGEN-YIELD-003";
+
+/// Canonical diagnostic code for the competing-authority law: multiple rules
+/// target the same output file.
+pub const GGEN_YIELD_004: &str = "GGEN-YIELD-004";
+
+/// Canonical diagnostic code for the remote-fetch law: output_file is a URL.
+pub const GGEN_YIELD_005: &str = "GGEN-YIELD-005";
+
 /// Canonical diagnostic code for the SELECT * blindspot advisory: a rule uses
 /// `SELECT *` which disables GGEN-TPL-001 and GGEN-OUT-001 because the
 /// projected variable set is unknowable at author time.
 pub const GGEN_QUERY_002: &str = "GGEN-QUERY-002";
+
+/// Canonical diagnostic code for the pack-source advisory: a rule's query or
+/// template source is `{ pack = "...", output = "...", file = "..." }`, which
+/// ggen-lsp cannot resolve at author time (resolution happens at `ggen sync`).
+/// GGEN-TPL-001 and GGEN-OUT-001 are therefore disabled for this rule.
+pub const GGEN_PACK_001: &str = "GGEN-PACK-001";
 
 const FILTERS: &[&str] = &[
     "upper",
@@ -469,6 +486,10 @@ fn leading_var(head: &str) -> Option<String> {
     }
     // `row.name` (or deeper) → take the segment after the first dot.
     if let Some(dot) = head.find('.') {
+        let prefix = head[..dot].trim();
+        if prefix == "loop" {
+            return None;
+        }
         let key = head[dot + 1..]
             .split(|c: char| !(c.is_alphanumeric() || c == '_'))
             .next()
@@ -481,6 +502,9 @@ fn leading_var(head: &str) -> Option<String> {
         .take_while(|c| c.is_alphanumeric() || *c == '_')
         .collect();
     if ident == head && is_identifier(&ident) {
+        if ident == "loop" {
+            return None;
+        }
         Some(ident)
     } else {
         None
@@ -600,6 +624,36 @@ pub fn unbound_rule_file_diagnostics(issues: &[String]) -> Vec<lsp_max_protocol:
         .collect()
 }
 
+/// Pack-source advisory diagnostics (GGEN-PACK-001).
+///
+/// When a rule's query or template is supplied via `{ pack = "...", output = "...",
+/// file = "..." }`, ggen-lsp cannot resolve the content at author time. GGEN-TPL-001
+/// and GGEN-OUT-001 checks are therefore vacuous for the rule. This function emits
+/// a WARNING for each pack-source issue recorded in `entry.issues` so the author is
+/// informed that author-time provision checks are disabled.
+///
+/// Pure function over its inputs (no I/O).
+#[must_use]
+pub fn pack_001_diagnostics(issues: &[String]) -> Vec<lsp_max_protocol::MaxDiagnostic> {
+    issues
+        .iter()
+        .filter(|i| i.starts_with("pack query (") || i.starts_with("pack template ("))
+        .map(|i| {
+            diag::max_whole_line(
+                0,
+                DiagnosticSeverity::WARNING,
+                Some(GGEN_PACK_001),
+                format!(
+                    "{GGEN_PACK_001}: pack source resolved at generation time — \
+                     GGEN-TPL-001 and GGEN-OUT-001 are disabled for this rule. \
+                     Use a direct file path for author-time checks. ({i})"
+                ),
+                lsp_max_protocol::LawAxis::Domain,
+            )
+        })
+        .collect()
+}
+
 /// Pure output-path-escape detector (GGEN-YIELD-001).
 ///
 /// Strips `{{ }}` Tera interpolations from `output_file` to get the static
@@ -637,6 +691,74 @@ pub fn yield_001_diagnostics(
         )];
     }
     Vec::new()
+}
+
+/// Pure orphaned-output detector (GGEN-YIELD-003).
+///
+/// Detects output paths that lack a static filename base (e.g. just `.rs` or empty
+/// after stripping Tera variables).
+#[must_use]
+pub fn yield_003_diagnostics(output_file: &str) -> Vec<lsp_max_protocol::MaxDiagnostic> {
+    let skeleton = strip_tera_vars(output_file);
+    if skeleton.is_empty() || (skeleton.starts_with('.') && !skeleton.contains('/')) {
+        return vec![diag::max_whole_line(
+            0,
+            DiagnosticSeverity::ERROR,
+            Some(GGEN_YIELD_003),
+            format!(
+                "{GGEN_YIELD_003} ORPHANED_OUTPUT: output_file `{output_file}` lacks a static \
+                 filename base. Orphaned output paths are not permitted."
+            ),
+            lsp_max_protocol::LawAxis::Domain,
+        )];
+    }
+    Vec::new()
+}
+
+/// Pure remote-fetch detector (GGEN-YIELD-005).
+///
+/// Detects output paths that look like remote URLs (http:// or https://).
+#[must_use]
+pub fn yield_005_diagnostics(output_file: &str) -> Vec<lsp_max_protocol::MaxDiagnostic> {
+    if output_file.starts_with("http://") || output_file.starts_with("https://") {
+        return vec![diag::max_whole_line(
+            0,
+            DiagnosticSeverity::ERROR,
+            Some(GGEN_YIELD_005),
+            format!(
+                "{GGEN_YIELD_005} REMOTE_FETCH: output_file `{output_file}` is a remote URL. \
+                 Only local filesystem paths are permitted."
+            ),
+            lsp_max_protocol::LawAxis::Domain,
+        )];
+    }
+    Vec::new()
+}
+
+/// Pure competing-authority detector (GGEN-YIELD-004).
+///
+/// Detects multiple rules targeting the same output file.
+#[must_use]
+pub fn yield_004_diagnostics(
+    rule_id: &str,
+    output_file: &str,
+    competing_rules: &[String],
+) -> Vec<lsp_max_protocol::MaxDiagnostic> {
+    if competing_rules.is_empty() {
+        return Vec::new();
+    }
+    vec![diag::max_whole_line(
+        0,
+        DiagnosticSeverity::ERROR,
+        Some(GGEN_YIELD_004),
+        format!(
+            "{GGEN_YIELD_004} COMPETING_AUTHORITY: rule `{rule_id}` targets output_file \
+             `{output_file}`, which is also targeted by rule(s): {}. \
+             Only one rule may target a given output path.",
+            competing_rules.join(", ")
+        ),
+        lsp_max_protocol::LawAxis::Domain,
+    )]
 }
 
 /// Strip `{{ … }}` Tera interpolation blocks from `s`, returning the static skeleton.
@@ -701,7 +823,7 @@ pub fn select_star_diagnostics(rule_id: &str, query_text: &str) -> Vec<lsp_max_p
 
 /// Returns `true` if `query` is a `SELECT *` query (case-insensitive).
 #[must_use]
-fn is_select_star(query: &str) -> bool {
+pub fn is_select_star(query: &str) -> bool {
     let stripped: String = query
         .lines()
         .filter(|l| !l.trim_start().starts_with('#'))

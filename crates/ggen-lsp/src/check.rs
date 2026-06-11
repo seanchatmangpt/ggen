@@ -405,6 +405,11 @@ pub fn check_files_in_root(root: &Path, paths: &[PathBuf], with_routes: bool) ->
     let warn_added = fold_query_002(root, &mut files, registry.as_ref());
     warning_count += warn_added;
 
+    // Cross-surface advisory: GGEN-PACK-001 (pack source disables author-time checks).
+    // WARNING only — does not increment error_count.
+    let pack_warn_added = fold_pack_001(root, &mut files, registry.as_ref());
+    warning_count += pack_warn_added;
+
     let route_summary = with_routes.then(|| summarize_routes(&files));
 
     CheckReport {
@@ -609,6 +614,27 @@ fn fold_query_002(
 /// string equality first (the common case), then falls back to canonicalized
 /// comparison so a relative path supplied to the gate matches the absolute
 /// `template_path` the index resolved (e.g. `templates/row.tera` vs
+/// Fold GGEN-PACK-001 (pack-source disables author-time checks) advisories from
+/// the project index at `root` into `files`, returning the number of newly added
+/// WARNING diagnostics (does NOT increment `error_count`).
+fn fold_pack_001(
+    root: &Path, files: &mut Vec<FileReport>, registry: Option<&crate::route::RouteRegistry>,
+) -> usize {
+    let Ok(project) = crate::project_index::ProjectIndex::from_root(root) else {
+        return 0;
+    };
+    let groups = crate::analyzers::detect_pack_001(&project);
+    let warn_count: usize = groups
+        .iter()
+        .flat_map(|(_, diags)| diags)
+        .filter(|d| {
+            d.lsp.severity == Some(lsp_max::lsp_types::DiagnosticSeverity::WARNING)
+        })
+        .count();
+    fold_species(files, registry, groups);
+    warn_count
+}
+
 /// `/abs/proj/templates/row.tera`). Canonicalization is best-effort: if either
 /// path cannot be canonicalized, only the exact-string result stands.
 fn paths_match(a: &str, b: &str) -> bool {
