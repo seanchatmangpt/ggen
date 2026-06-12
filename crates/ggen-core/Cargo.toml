@@ -251,7 +251,7 @@ version = "1.18"
 features = [ "v4"]
 
 [dev-dependencies.chicago-tdd-tools]
-version = "1.4.0"
+version = "26.6.11"
 features = [ "testing-extras", "testcontainers"]
 
 [dev-dependencies.testcontainers]
