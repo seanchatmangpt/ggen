@@ -251,9 +251,8 @@ pub fn execute(input: GgenConstructInput) -> GgenConstructOutput {
     //
     // This mirrors the MCP-side closure in `mcp_server.rs` (commit 3a7f1f7e),
     // which returns an explicit error rather than a hardcoded success.
-    //
-    // TODO(μ₁–μ₅): wire this adapter to the real ggen pipeline (subprocess to
-    // `ggen sync` or FFI into ggen-core), then return a real receipt + hashes.
+    // Integration requirement: wire this adapter to the real ggen pipeline (subprocess to
+    // `ggen sync` or FFI into ggen-core) to return a real receipt and hashes.
     GgenConstructOutput {
         status: "unimplemented".to_string(),
         task_id: input.task_id,

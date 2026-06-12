@@ -150,7 +150,8 @@ fn mcp_handshake_lists_three_tools_with_current_identity() {
     let init = c.initialize();
     assert_eq!(init["result"]["serverInfo"]["name"], "ggen-lsp-mcp");
     assert_eq!(
-        init["result"]["serverInfo"]["version"], env!("CARGO_PKG_VERSION"),
+        init["result"]["serverInfo"]["version"],
+        env!("CARGO_PKG_VERSION"),
         "MCP server advertises the workspace version identity"
     );
 

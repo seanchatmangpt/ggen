@@ -62,3 +62,6 @@ ggen template generate api-endpoint-templates \\
 quick_start = "Complete REST API endpoint templates with OpenAPI"
 features = "CRUD operations, validation, error handling, rate limiting, security"
 frameworks = "Axum, OpenAPI 3.0"
+
+[marketplace]
+production_ready = false

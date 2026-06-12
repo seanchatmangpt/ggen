@@ -29,3 +29,6 @@ validation = []
 [metadata]
 ontology = "rdf/ontology.ttl"
 rdf_format = "turtle"
+
+[marketplace]
+production_ready = false

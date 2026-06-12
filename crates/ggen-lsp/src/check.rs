@@ -486,7 +486,9 @@ fn fold_species(
         let routes: Vec<crate::route::RoutePlan> = match registry {
             Some(reg) => max_diags
                 .iter()
-                .filter_map(|d| crate::route::route_plan_for_diagnostic(reg, &d.lsp, &anchor_content))
+                .filter_map(|d| {
+                    crate::route::route_plan_for_diagnostic(reg, &d.lsp, &anchor_content)
+                })
                 .collect(),
             None => Vec::new(),
         };
@@ -594,7 +596,11 @@ fn fold_yield_001(
     let Ok(project) = crate::project_index::ProjectIndex::from_root(root) else {
         return 0;
     };
-    fold_species(files, registry, crate::analyzers::detect_yield_001(&project))
+    fold_species(
+        files,
+        registry,
+        crate::analyzers::detect_yield_001(&project),
+    )
 }
 
 fn fold_yield_003(
@@ -603,7 +609,11 @@ fn fold_yield_003(
     let Ok(project) = crate::project_index::ProjectIndex::from_root(root) else {
         return 0;
     };
-    fold_species(files, registry, crate::analyzers::detect_yield_003(&project))
+    fold_species(
+        files,
+        registry,
+        crate::analyzers::detect_yield_003(&project),
+    )
 }
 
 fn fold_yield_004(
@@ -612,7 +622,11 @@ fn fold_yield_004(
     let Ok(project) = crate::project_index::ProjectIndex::from_root(root) else {
         return 0;
     };
-    fold_species(files, registry, crate::analyzers::detect_yield_004(&project))
+    fold_species(
+        files,
+        registry,
+        crate::analyzers::detect_yield_004(&project),
+    )
 }
 
 fn fold_yield_005(
@@ -621,7 +635,11 @@ fn fold_yield_005(
     let Ok(project) = crate::project_index::ProjectIndex::from_root(root) else {
         return 0;
     };
-    fold_species(files, registry, crate::analyzers::detect_yield_005(&project))
+    fold_species(
+        files,
+        registry,
+        crate::analyzers::detect_yield_005(&project),
+    )
 }
 
 /// Fold GGEN-QUERY-002 (SELECT * blindspot) advisories from the project index
@@ -638,10 +656,7 @@ fn fold_query_002(
     let warn_count: usize = groups
         .iter()
         .flat_map(|(_, diags)| diags)
-        .filter(|d| {
-            d.lsp.severity
-                == Some(lsp_max::lsp_types::DiagnosticSeverity::WARNING)
-        })
+        .filter(|d| d.lsp.severity == Some(lsp_max::lsp_types::DiagnosticSeverity::WARNING))
         .count();
     // Still call fold_species so the diagnostics appear in the file reports.
     fold_species(files, registry, groups);
@@ -665,14 +680,11 @@ fn fold_pack_001(
     let warn_count: usize = groups
         .iter()
         .flat_map(|(_, diags)| diags)
-        .filter(|d| {
-            d.lsp.severity == Some(lsp_max::lsp_types::DiagnosticSeverity::WARNING)
-        })
+        .filter(|d| d.lsp.severity == Some(lsp_max::lsp_types::DiagnosticSeverity::WARNING))
         .count();
     fold_species(files, registry, groups);
     warn_count
 }
-
 
 fn fold_src_001(
     root: &Path, files: &mut Vec<FileReport>, registry: Option<&crate::route::RouteRegistry>,
@@ -690,13 +702,20 @@ fn fold_src_002_003(
         return 0;
     };
     // Collect unique parent directories of each rule's output file.
-    let mut dirs: Vec<std::path::PathBuf> = project.rule_entries.iter()
+    let mut dirs: Vec<std::path::PathBuf> = project
+        .rule_entries
+        .iter()
         .map(|e| {
             let p = std::path::Path::new(&e.output_file);
             if p.is_absolute() {
-                p.parent().map(|x| x.to_path_buf()).unwrap_or_else(|| root.to_path_buf())
+                p.parent()
+                    .map(|x| x.to_path_buf())
+                    .unwrap_or_else(|| root.to_path_buf())
             } else {
-                root.join(p).parent().map(|x| x.to_path_buf()).unwrap_or_else(|| root.to_path_buf())
+                root.join(p)
+                    .parent()
+                    .map(|x| x.to_path_buf())
+                    .unwrap_or_else(|| root.to_path_buf())
             }
         })
         .collect();

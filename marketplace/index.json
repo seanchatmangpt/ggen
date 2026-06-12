@@ -178,16 +178,6 @@
     "category": "ai-tools"
   },
   {
-    "id": "chatman-cli",
-    "name": "chatman-cli",
-    "version": "0.1.0",
-    "path": "packages/chatman-cli-0.1.0",
-    "description": "Knowledge Hook-powered chat automation framework with semantic understanding, AI integration, and production-grade conversation management",
-    "author": "Sean Chatman <sean@chatmangpt.com>",
-    "license": "MIT OR Apache-2.0",
-    "category": "ai-tools"
-  },
-  {
     "id": "clap-noun-verb",
     "name": "clap-noun-verb",
     "version": "5.3.2",
@@ -274,15 +264,6 @@
     "category": "database"
   },
   {
-    "id": "dicom-medical-imaging",
-    "name": "dicom-medical-imaging",
-    "version": "1.0.0",
-    "path": "packages/dicom-medical-imaging",
-    "description": "DICOM medical imaging with PACS integration and DICOMweb support",
-    "license": "MIT",
-    "category": "healthcare"
-  },
-  {
     "id": "dlss-curriculum",
     "name": "dlss-curriculum",
     "version": "1.0.0",
@@ -322,15 +303,6 @@
     "category": "enterprise"
   },
   {
-    "id": "fhir-patient-management",
-    "name": "fhir-patient-management",
-    "version": "1.0.0",
-    "path": "packages/fhir-patient-management",
-    "description": "FHIR R4 Patient Management with comprehensive healthcare interoperability",
-    "license": "MIT",
-    "category": "healthcare"
-  },
-  {
     "id": "graphql-api-template",
     "name": "graphql-api-template",
     "version": "1.0.0",
@@ -359,15 +331,6 @@
     "author": "ggen-team",
     "license": "MIT",
     "category": "starter"
-  },
-  {
-    "id": "hl7-v2-integration",
-    "name": "hl7-v2-integration",
-    "version": "1.0.0",
-    "path": "packages/hl7-v2-integration",
-    "description": "HL7 v2.x message integration with parsing, routing, and FHIR transformation",
-    "license": "MIT",
-    "category": "healthcare"
   },
   {
     "id": "human-resources-management",

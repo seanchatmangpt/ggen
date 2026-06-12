@@ -49,3 +49,6 @@ storage_backends = ["rdf-store", "vector-db", "sqlite", "redis"]
 context_types = ["conversation", "code", "files", "tasks", "decisions"]
 semantic_features = ["ontology-based", "reasoning", "inference", "summarization"]
 sharing_features = ["multi-agent", "permissions", "encryption", "versioning"]
+
+[marketplace]
+production_ready = false

@@ -41,3 +41,6 @@ complexity = "medium"
 domain = "sales-marketing"
 rdf_classes = 30
 sparql_queries = 12
+
+[marketplace]
+production_ready = false

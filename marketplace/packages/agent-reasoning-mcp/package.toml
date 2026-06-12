@@ -49,3 +49,6 @@ reasoning_types = ["deductive", "inductive", "abductive", "analogical", "causal"
 inference_engines = ["sparql-entailment", "rdf-reasoner", "forward-chaining", "backward-chaining"]
 mcp_features = ["tool-integration", "multi-agent-reasoning", "distributed-inference"]
 explanation = ["proof-traces", "natural-language", "visualization", "confidence-scores"]
+
+[marketplace]
+production_ready = false

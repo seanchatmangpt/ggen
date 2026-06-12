@@ -50,3 +50,6 @@ chicago_tdd = true
 test_suite = "tests/chicago_tdd/test_graphql_schema.py"
 min_pass_rate = 100
 performance_budget_ms = 100
+
+[marketplace]
+production_ready = false

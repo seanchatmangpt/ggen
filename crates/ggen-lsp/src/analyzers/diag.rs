@@ -45,7 +45,9 @@ pub fn max(
     code: Option<&str>, message: impl Into<String>, axis: LawAxis,
 ) -> MaxDiagnostic {
     let msg = message.into();
-    let diag = at(start_line, start_col, end_line, end_col, severity, code, &msg);
+    let diag = at(
+        start_line, start_col, end_line, end_col, severity, code, &msg,
+    );
     let code_str = code.unwrap_or("GGEN-UNKNOWN").to_string();
 
     let id = {

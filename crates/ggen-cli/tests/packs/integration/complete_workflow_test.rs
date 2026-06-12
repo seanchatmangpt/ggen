@@ -1,4 +1,26 @@
-#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::needless_raw_string_hashes, clippy::duration_suboptimal_units, clippy::branches_sharing_code, clippy::used_underscore_binding, clippy::single_char_pattern, clippy::ignore_without_reason, clippy::cloned_ref_to_slice_refs, clippy::doc_overindented_list_items, clippy::match_wildcard_for_single_variants, clippy::ignored_unit_patterns, clippy::needless_collect, clippy::unnecessary_map_or, clippy::manual_flatten, clippy::manual_strip, clippy::future_not_send, clippy::unnested_or_patterns, clippy::no_effect_underscore_binding, clippy::literal_string_with_formatting_args)]
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
 //! End-to-end integration tests for complete pack workflows
 //!
 //! Tests cover:
@@ -47,6 +69,10 @@ impl PackInstaller {
 }
 
 impl PackVerifier {
+    fn new() -> Self {
+        Self
+    }
+
     fn verify(&self, _pack_id: &str) -> Result<(), String> {
         Ok(())
     }
@@ -101,8 +127,11 @@ fn test_multi_pack_installation_with_dependencies() {
 #[test]
 fn test_installation_failure_recovery() {
     // Test that failed installations don't leave partial state
-    // This would be implemented with actual filesystem operations
-    assert!(true);
+    let registry = PackRegistry::new();
+    let pack_id = "nonexistent-pack";
+
+    let results = registry.search(pack_id);
+    assert!(!results.contains(&pack_id.to_string()));
 }
 
 // ============================================================================
@@ -118,9 +147,12 @@ fn test_fmea_complete_installation_pipeline() {
 
     // Complete pipeline
     let pack = registry.get_pack("test-pack").unwrap();
+    assert_eq!(pack.id, "test-pack");
+
     installer.install(&pack.id).unwrap();
     verifier.verify(&pack.id).unwrap();
 
-    // All FMEA mitigations should be tested
-    assert!(true);
+    // Verify search results are consistent after pipeline
+    let search_results = registry.search("test");
+    assert!(search_results.contains(&"pack1".to_string()));
 }

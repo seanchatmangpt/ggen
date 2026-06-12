@@ -76,3 +76,6 @@ ggen template generate armstrong-compliance-dod/template.tera \\
 quick_start = "Armstrong fault tolerance DoD: supervision, no-shared-state, let-it-crash, budget"
 features = "Supervision tree audit, shared state detection, exception handling review, budget enforcement"
 use_cases = "Erlang/OTP systems, Elixir Phoenix apps, fault-tolerant microservices, distributed systems"
+
+[marketplace]
+production_ready = false

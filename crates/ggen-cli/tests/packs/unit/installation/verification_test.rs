@@ -1,4 +1,26 @@
-#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::needless_raw_string_hashes, clippy::duration_suboptimal_units, clippy::branches_sharing_code, clippy::used_underscore_binding, clippy::single_char_pattern, clippy::ignore_without_reason, clippy::cloned_ref_to_slice_refs, clippy::doc_overindented_list_items, clippy::match_wildcard_for_single_variants, clippy::ignored_unit_patterns, clippy::needless_collect, clippy::unnecessary_map_or, clippy::manual_flatten, clippy::manual_strip, clippy::future_not_send, clippy::unnested_or_patterns, clippy::no_effect_underscore_binding, clippy::literal_string_with_formatting_args)]
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
 //! Unit tests for package verification
 //!
 //! Tests cover:
@@ -94,12 +116,16 @@ impl PackageVerifier {
     pub fn verify_manifest(
         &self, manifest: &PackageManifest, files: &HashMap<String, Vec<u8>>,
     ) -> Result<(), VerificationError> {
-        // Check all manifest files exist
-        for (filename, expected_checksum) in &manifest.files {
-            let file_data = files
-                .get(filename)
-                .ok_or_else(|| VerificationError::MissingFile(filename.clone()))?;
+        // First, check all manifest files exist
+        for filename in manifest.files.keys() {
+            if !files.contains_key(filename) {
+                return Err(VerificationError::MissingFile(filename.clone()));
+            }
+        }
 
+        // Then, verify checksums
+        for (filename, expected_checksum) in &manifest.files {
+            let file_data = &files[filename];
             self.verify_checksum(file_data, expected_checksum)?;
         }
 

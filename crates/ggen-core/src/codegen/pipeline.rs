@@ -556,8 +556,7 @@ impl GenerationPipeline {
     /// Static version of inject_generated_impl for use in parallel contexts
     fn inject_generated_impl_static(
         row: &BTreeMap<String, String>, rule: &crate::manifest::GenerationRule,
-        context: &mut tera::Context, manifest: &GgenManifest,
-        llm_service: Option<&dyn LlmService>,
+        context: &mut tera::Context, manifest: &GgenManifest, llm_service: Option<&dyn LlmService>,
     ) {
         // Look for skill-specific fields in SPARQL results
         let skill_name = row
@@ -1206,10 +1205,11 @@ impl GenerationPipeline {
         }
 
         // Commit transaction - all files written successfully
-        // We use Arc::try_unwrap to get the owned transaction back if possible, 
+        // We use Arc::try_unwrap to get the owned transaction back if possible,
         // or we just call commit on the Arc if we modify FileTransaction (but we didn't).
         // Since rayon join finished, we should be able to unwrap.
-        let tx = Arc::try_unwrap(transaction).map_err(|_| Error::new("Transaction still has multiple owners"))?;
+        let tx = Arc::try_unwrap(transaction)
+            .map_err(|_| Error::new("Transaction still has multiple owners"))?;
         let _receipt = tx.commit()?;
 
         self.generated_files.extend(all_generated.clone());

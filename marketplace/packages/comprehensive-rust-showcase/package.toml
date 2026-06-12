@@ -83,3 +83,6 @@ quick_start = "The ultimate showcase of all ggen capabilities"
 features = "Complete lifecycle, multi-provider AI, advanced SPARQL, production security, monitoring"
 use_cases = "Enterprise applications, production deployments, comprehensive microservices"
 architecture = "Multi-layered architecture with database, API, services, and infrastructure"
+
+[marketplace]
+production_ready = false

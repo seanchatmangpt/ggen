@@ -22,15 +22,16 @@ rust = "templates/rust/src/lib.rs"
 typescript = "templates/typescript/src/index.ts"
 python = "templates/python/trading/__init__.py"
 
-[features]
-- "Order book management (bids, asks, spreads)"
-- "High-frequency matching engine (<1ms latency)"
-- "Order types (Market, Limit, Stop, Stop-Limit, Iceberg, FOK, IOC)"
-- "FIX protocol message generation"
-- "Real-time market data streaming"
-- "Position management and PnL calculation"
-- "Risk management (VaR, position limits, margin)"
-- "Backtesting engine with technical indicators"
+features = [
+    "Order book management (bids, asks, spreads)",
+    "High-frequency matching engine (<1ms latency)",
+    "Order types (Market, Limit, Stop, Stop-Limit, Iceberg, FOK, IOC)",
+    "FIX protocol message generation",
+    "Real-time market data streaming",
+    "Position management and PnL calculation",
+    "Risk management (VaR, position limits, margin)",
+    "Backtesting engine with technical indicators"
+]
 
 [performance]
 matching_latency = "<1ms"
@@ -40,3 +41,6 @@ websocket_latency = "<10ms"
 [compliance]
 protocols = ["FIX 4.2", "FIX 4.4", "FIXT 1.1"]
 regulations = ["MiFID II", "Reg NMS"]
+
+[marketplace]
+production_ready = false

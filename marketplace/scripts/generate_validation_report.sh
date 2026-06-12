@@ -30,6 +30,11 @@ error() {
     echo -e "${RED}✗${NC} $1"
 }
 
+warn() {
+    echo -e "${YELLOW}⚠${NC} $1"
+}
+
+
 # Check if ggen CLI is available
 if ! command -v cargo &> /dev/null; then
     error "cargo not found. Please install Rust toolchain."
@@ -57,7 +62,7 @@ success "ggen CLI ready: $GGEN_BIN"
 
 # Run validation
 log "Running validation on all packages..."
-VALIDATION_OUTPUT=$("$GGEN_BIN" marketplace validate --packages-dir "$PACKAGES_DIR" --json 2>&1 || true)
+VALIDATION_OUTPUT=$(python3 "$SCRIPT_DIR/validate_marketplace.py" --packages-dir "$PACKAGES_DIR" --json 2>&1 || true)
 
 # Generate JSON report
 log "Generating JSON report..."
@@ -117,7 +122,7 @@ if command -v jq &> /dev/null && echo "$VALIDATION_OUTPUT" | jq . &> /dev/null; 
 EOF
 
     # Add package details
-    echo "$VALIDATION_OUTPUT" | jq -r '.all_results[]? | "### \(.package_name)\n\n- **Score**: \(.score | tostring | .[0:5])%\n- **Production Ready**: \(if .production_ready then "✅ Yes" else "❌ No" end)\n- **Errors**: \(.errors | length)\n- **Warnings**: \(.warnings | length)\n\n#### Required Checks\n\(.required_checks[] | "- \(.1.message)")\n\n#### Quality Checks\n\(.quality_checks[] | "- \(.1.message)")\n\n---\n"' >> "$REPORT_MD"
+    echo "$VALIDATION_OUTPUT" | jq -r '.all_results[]? | "### \(.package_name)\n\n- **Score**: \(.score | tostring | .[0:5])%\n- **Production Ready**: \(if .production_ready then "✅ Yes" else "❌ No" end)\n- **Errors**: \(.errors | length)\n- **Warnings**: \(.warnings | length)\n\n#### Required Checks\n\([.required_checks[] | "- \(.[1].message)"] | join("\n"))\n\n#### Quality Checks\n\([.quality_checks[] | "- \(.[1].message)"] | join("\n"))\n\n---\n"' >> "$REPORT_MD"
     
     # Add recommendations
     cat >> "$REPORT_MD" <<EOF

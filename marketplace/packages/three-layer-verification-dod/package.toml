@@ -80,3 +80,6 @@ weaver registry check -r ./semconv/model -p ./semconv/policies/ --quiet
 quick_start = "Three-layer verification DoD: OTEL span + test assertion + weaver schema conformance"
 features = "Evidence-based verification, category grouping, merge gate enforcement, critical blocker detection"
 use_cases = "Production projects, compliance requirements, enterprise verification standards"
+
+[marketplace]
+production_ready = false

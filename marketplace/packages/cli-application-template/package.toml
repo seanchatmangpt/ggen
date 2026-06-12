@@ -36,3 +36,6 @@ readme = "docs/README.md"
 command_reference = "docs/COMMANDS.md"
 config_guide = "docs/CONFIG.md"
 examples = "docs/EXAMPLES.md"
+
+[marketplace]
+production_ready = false

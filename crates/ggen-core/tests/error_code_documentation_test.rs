@@ -42,9 +42,7 @@ const ACTIVE_ERROR_CODES: &[&str] = &[
 
 /// Reserved codes (gaps in the E00XX sequence)
 /// These should not appear in error messages, only in documentation
-const RESERVED_ERROR_CODES: &[&str] = &[
-    "E0015", "E0016", "E0017", "E0018", "E0019", "E0026",
-];
+const RESERVED_ERROR_CODES: &[&str] = &["E0015", "E0016", "E0017", "E0018", "E0019", "E0026"];
 
 #[test]
 fn test_all_active_error_codes_documented() {

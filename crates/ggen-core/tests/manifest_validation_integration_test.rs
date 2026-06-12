@@ -16,8 +16,8 @@
 //! BUG-006: E0013 fires for SELECT without ORDER BY (strict_mode enforcement)
 
 use ggen_core::manifest::{
-    GenerationConfig, GenerationMode, GenerationRule, GgenManifest, InferenceConfig, OntologyConfig,
-    ProjectConfig, QuerySource, TemplateSource, ValidationConfig,
+    GenerationConfig, GenerationMode, GenerationRule, GgenManifest, InferenceConfig,
+    OntologyConfig, ProjectConfig, QuerySource, TemplateSource, ValidationConfig,
 };
 use ggen_core::manifest::{ManifestParser, ManifestValidator};
 use std::collections::BTreeMap;
@@ -136,7 +136,10 @@ rules = []
 
     let result = ManifestParser::parse_and_validate(&toml_path);
 
-    assert!(result.is_err(), "parse_and_validate must reject missing import");
+    assert!(
+        result.is_err(),
+        "parse_and_validate must reject missing import"
+    );
     let msg = result.unwrap_err().to_string();
     assert!(
         msg.contains("import") || msg.contains("missing") || msg.contains("not found"),
@@ -168,7 +171,11 @@ rules = []
 
     let result = ManifestParser::parse_and_validate(&toml_path);
 
-    assert!(result.is_ok(), "parse_and_validate must accept valid manifest, got: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "parse_and_validate must accept valid manifest, got: {:?}",
+        result
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -189,7 +196,10 @@ fn test_e0013_fires_for_select_without_order_by_strict_mode() {
 
     let result = ManifestValidator::new(&manifest, dir.path()).validate();
 
-    assert!(result.is_err(), "E0013 must fire in strict_mode without ORDER BY");
+    assert!(
+        result.is_err(),
+        "E0013 must fire in strict_mode without ORDER BY"
+    );
     let msg = result.unwrap_err().to_string();
     assert!(
         msg.contains("E0013"),

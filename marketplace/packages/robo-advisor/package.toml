@@ -30,3 +30,6 @@ disclosures = ["adv-part-2", "fee-disclosure", "conflict-of-interest"]
 entities = ["Client", "Goal", "Portfolio", "Asset", "Allocation", "Transaction", "TaxLot"]
 relations = ["has_goal", "invests_in", "rebalances_to", "harvests", "optimizes"]
 complexity = "high"
+
+[marketplace]
+production_ready = false

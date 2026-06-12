@@ -339,7 +339,10 @@ impl ServerHandler for RepairRouteServer {
     fn get_info(&self) -> ServerInfo {
         ServerInfo::new(ServerCapabilities::builder().enable_tools().build())
             .with_protocol_version(ProtocolVersion::V_2024_11_05)
-            .with_server_info(Implementation::new("ggen-lsp-mcp", env!("CARGO_PKG_VERSION")))
+            .with_server_info(Implementation::new(
+                "ggen-lsp-mcp",
+                env!("CARGO_PKG_VERSION"),
+            ))
             .with_instructions("ggen-lsp repair-route MCP server")
     }
 

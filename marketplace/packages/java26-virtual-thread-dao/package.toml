@@ -14,3 +14,6 @@ prefix = "java26"
 
 [dependencies]
 required = ["java26-core"]
+
+[marketplace]
+production_ready = false

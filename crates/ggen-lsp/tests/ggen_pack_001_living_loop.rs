@@ -63,11 +63,7 @@ output_file = "out/{{ name }}.rs"
 
 fn ggen_toml_with_inline_query(dir: &std::path::Path) {
     fs::create_dir_all(dir.join("templates")).expect("create templates dir");
-    fs::write(
-        dir.join("templates").join("row.tera"),
-        "{{ name }}\n",
-    )
-    .expect("write row.tera");
+    fs::write(dir.join("templates").join("row.tera"), "{{ name }}\n").expect("write row.tera");
     fs::write(
         dir.join("ggen.toml"),
         r#"[project]

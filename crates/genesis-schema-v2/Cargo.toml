@@ -4,6 +4,7 @@ version.workspace = true
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
+description = "KNHK V2 schema system — OpenAPI specs, RDF ontology, 43 YAWL pattern definitions, workflow schema validation."
 
 [dependencies]
 serde.workspace = true

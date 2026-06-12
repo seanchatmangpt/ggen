@@ -20,8 +20,8 @@
 
 use ggen_core::codegen::pipeline::GenerationPipeline;
 use ggen_core::manifest::{
-    GenerationConfig, GenerationMode, GenerationRule, GgenManifest, InferenceConfig, OntologyConfig,
-    ProjectConfig, QuerySource, TemplateSource, ValidationConfig,
+    GenerationConfig, GenerationMode, GenerationRule, GgenManifest, InferenceConfig,
+    OntologyConfig, ProjectConfig, QuerySource, TemplateSource, ValidationConfig,
 };
 use std::collections::BTreeMap;
 use std::path::PathBuf;

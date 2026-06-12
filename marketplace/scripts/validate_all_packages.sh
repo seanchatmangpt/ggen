@@ -67,8 +67,8 @@ success "ggen CLI ready: $GGEN_BIN"
 # Validate all packages
 log "Validating all packages in $PACKAGES_DIR..."
 
-# Run validation using ggen CLI
-VALIDATION_OUTPUT=$("$GGEN_BIN" marketplace validate --packages-dir "$PACKAGES_DIR" --json 2>&1 || true)
+# Run validation using validate_marketplace.py
+VALIDATION_OUTPUT=$(python3 "$SCRIPT_DIR/validate_marketplace.py" --packages-dir "$PACKAGES_DIR" --json 2>&1 || true)
 
 # Parse JSON output if available
 if command -v jq &> /dev/null && echo "$VALIDATION_OUTPUT" | jq . &> /dev/null; then
@@ -100,7 +100,7 @@ else
         log "Validating: $package_name"
         
         # Run validation for single package
-        PKG_OUTPUT=$("$GGEN_BIN" marketplace validate "$package_name" --packages-dir "$PACKAGES_DIR" --json 2>&1 || true)
+        PKG_OUTPUT=$(python3 "$SCRIPT_DIR/validate_marketplace.py" --packages-dir "$PACKAGES_DIR" --json "$package_name" 2>&1 || true)
         
         if echo "$PKG_OUTPUT" | grep -q "production_ready.*true"; then
             READY=$((READY + 1))

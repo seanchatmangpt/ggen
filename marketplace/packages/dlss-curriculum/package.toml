@@ -79,3 +79,6 @@ ggen validate marketplace/packages/dlss-curriculum/shapes.ttl
 quick_start = "DLSS Black Belt curriculum: 53 modules across 5 DMEDI phases with two-track examples, statistical datasets, and capstone project"
 features = "DMEDI methodology, QFD, DOE, ANOVA, TRIZ, Robust Design, RSM, Lean Design, DfM, Reliability, Process Capability"
 use_cases = "Black Belt certification training, engineering team skill development, quality improvement programs, process optimization"
+
+[marketplace]
+production_ready = true

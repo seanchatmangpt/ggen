@@ -46,10 +46,9 @@ impl LanguageServer for GgenLanguageServer {
         if let Ok(mut reg) = lsp_max::get_registry().lock() {
             reg.root_path = root;
         }
-        
-        lsp_max::MESH.get_or_init(|| {
-            std::sync::Mutex::new(lsp_max::max_runtime::AutonomicMesh::new())
-        });
+
+        lsp_max::MESH
+            .get_or_init(|| std::sync::Mutex::new(lsp_max::max_runtime::AutonomicMesh::new()));
 
         Ok(InitializeResult {
             capabilities: ServerCapabilities {

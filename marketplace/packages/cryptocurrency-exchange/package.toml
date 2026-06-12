@@ -30,3 +30,6 @@ audit_requirements = ["transaction-logs", "custody-audit", "proof-of-reserves"]
 entities = ["Wallet", "Order", "Trade", "Token", "LiquidityPool", "StakingContract"]
 relations = ["owns", "trades", "deposits", "withdraws", "stakes", "provides_liquidity"]
 complexity = "high"
+
+[marketplace]
+production_ready = false

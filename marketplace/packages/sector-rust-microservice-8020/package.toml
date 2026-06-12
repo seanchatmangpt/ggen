@@ -25,3 +25,6 @@ default = []
 [metadata]
 keywords = ["microservice", "rust", "service-architecture", "scaffolding", "production", "api", "rest"]
 categories = ["development-tools", "microservices", "web-programming"]
+
+[marketplace]
+production_ready = false

@@ -377,9 +377,8 @@ async fn test_ggen_cleanroom_integration() -> Result<()> {
     // Generate project with ggen
     tester.generate_project("rust-cli-minimal", &project_name)?;
 
-    // Validate with cleanroom (using testcontainers)
-    let config = clnrm::CleanroomConfig::default();
-    let environment = clnrm::CleanroomEnvironment::new(config).await?;
+    // Validate with cleanroom (using testcontainers) — clnrm 1.3.0: no-args new(), Drop for cleanup
+    let environment = clnrm::CleanroomEnvironment::new().await?;
 
     // Execute cargo check in cleanroom
     let result = environment
@@ -388,15 +387,12 @@ async fn test_ggen_cleanroom_integration() -> Result<()> {
                 .args(["check"])
                 .current_dir(&project_dir)
                 .output()
-                .map_err(|e| clnrm::Error::io_error(format!("Cargo check failed: {}", e)))
+                .map_err(|e| clnrm::CleanroomError::io_error(format!("Cargo check failed: {}", e)))
         })
         .await?;
 
     assert!(result.status.success(), "Cargo check failed in cleanroom");
-
-    // Cleanup
-    let mut env = environment;
-    env.cleanup().await?;
+    // CleanroomEnvironment cleans up on Drop (clnrm 1.3.0)
 
     Ok(())
 }

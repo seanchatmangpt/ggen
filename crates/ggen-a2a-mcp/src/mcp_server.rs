@@ -56,7 +56,10 @@ impl GgenMcpServer {
 
         // 1. Locate and load the manifest from CWD
         let base_path = std::env::current_dir().map_err(|e| {
-            rmcp::model::ErrorData::internal_error(format!("Failed to get current directory: {}", e), None)
+            rmcp::model::ErrorData::internal_error(
+                format!("Failed to get current directory: {}", e),
+                None,
+            )
         })?;
 
         let manifest_path = base_path.join("ggen.toml");
@@ -73,26 +76,37 @@ impl GgenMcpServer {
 
         // 2. Initialize and run the GenerationPipeline
         let mut pipeline = GenerationPipeline::new(manifest, base_path);
-        
+
         // Connect LLM service if available in global slot (e.g. from ggen-cli)
         if let Some(svc) = ggen_core::codegen::pipeline::get_llm_service() {
             pipeline.set_llm_service(Some(svc));
         }
 
         let state = pipeline.run().map_err(|e| {
-            rmcp::model::ErrorData::internal_error(format!("Generation pipeline failed: {}", e), None)
+            rmcp::model::ErrorData::internal_error(
+                format!("Generation pipeline failed: {}", e),
+                None,
+            )
         })?;
 
         // 3. Formulate success response with artifact details
-        let mut text = format!("Successfully constructed artifact for task {}.\n", params.task_id);
+        let mut text = format!(
+            "Successfully constructed artifact for task {}.\n",
+            params.task_id
+        );
         text.push_str(&format!("JTBD: {}\n", params.jtbd));
-        text.push_str(&format!("Generated {} files:\n", state.generated_files.len()));
-        
+        text.push_str(&format!(
+            "Generated {} files:\n",
+            state.generated_files.len()
+        ));
+
         for file in &state.generated_files {
-            text.push_str(&format!("- {} ({} bytes, hash: {})\n", 
-                file.path.display(), 
-                file.size_bytes, 
-                &file.content_hash[..8]));
+            text.push_str(&format!(
+                "- {} ({} bytes, hash: {})\n",
+                file.path.display(),
+                file.size_bytes,
+                &file.content_hash[..8]
+            ));
         }
 
         let result_data = serde_json::json!({

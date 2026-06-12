@@ -121,8 +121,8 @@ ggen-core = { path = "crates/ggen-core", version = "26.6.11" }
 ggen-cli-lib = { path = "crates/ggen-cli", version = "26.6.11" }
 
 # Genesis kernel crates (pure Rust, IO-free — A = μ(O) foundation)
-genesis-types = { path = "crates/genesis-types-v2" }
-genesis-schema = { path = "crates/genesis-schema-v2" }
+genesis-types = { path = "crates/genesis-types-v2", version = "26.6.11" }
+genesis-schema = { path = "crates/genesis-schema-v2", version = "26.6.11" }
 genesis-core = { path = "crates/genesis-core" }
 
 # A2A Protocol Integration (Agent-to-Agent protocol) - using local a2a-generated
@@ -746,6 +746,11 @@ required-features = ["integration"]
 [[test]]
 name = "proof"
 path = "tests/proof/mod.rs"
+
+[[test]]
+name = "contract"
+path = "tests/contract/mod.rs"
+
 
 # ============================================================================
 # DEBIAN PACKAGING (cargo-deb)

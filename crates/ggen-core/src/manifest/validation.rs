@@ -173,12 +173,7 @@ impl<'a> ManifestValidator<'a> {
                 },
             };
             if let Some(pack_name) = rule_pack_name {
-                if !self
-                    .manifest
-                    .packs
-                    .iter()
-                    .any(|p| p.name == pack_name)
-                {
+                if !self.manifest.packs.iter().any(|p| p.name == pack_name) {
                     return Err(Error::new(&format!(
                         "error[E0014]: Pack '{}' used in rule '{}' is not declared in [[packs]]",
                         pack_name, rule.name

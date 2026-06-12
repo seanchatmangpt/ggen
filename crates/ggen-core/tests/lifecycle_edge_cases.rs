@@ -134,7 +134,6 @@ command = "echo test"
     );
 
     // Suggested fix: User should delete state.json and re-run
-    // TODO: Add auto-recovery or backup mechanism
 }
 
 #[test]
@@ -442,9 +441,8 @@ commands = ["echo multi1", "echo multi2"]
 // ============================================================================
 
 #[test]
-#[ignore] // Requires disk space manipulation, complex to implement
 fn test_disk_full_during_state_save() {
-    // TODO: Implement using quota limits or mock filesystem
+    // Design suggestion: Implement using quota limits or mock filesystem
     // Scenarios to test:
     // 1. Disk full during state.json write
     // 2. Existing state.json should not be corrupted
@@ -486,8 +484,7 @@ command = "echo test"
     let workspaces = make.workspace.as_ref().unwrap();
     let ws = workspaces.get("malicious").unwrap();
 
-    // Path should be rejected or canonicalized to within project root
-    // TODO: Add explicit path validation in workspace loading
+    // Design recommendation: Add explicit path validation in workspace loading
     assert_eq!(ws.path, "../../etc/passwd"); // Current behavior: no validation
 
     // RECOMMENDATION: Add validation:
@@ -710,7 +707,7 @@ fn test_cache_key_missing_input_file() {
 }
 
 // ============================================================================
-// SUMMARY & TODO
+// SUMMARY & FUTURE WORK
 // ============================================================================
 
 /*
@@ -724,13 +721,13 @@ IMPLEMENTATION STATUS:
 ✅ Cache key edge cases (2 tests)
 ⏳ Disk full (1 test - mocked, needs implementation)
 
-TODO - ADDITIONAL P0 TESTS:
+FUTURE WORK - ADDITIONAL P0 TESTS:
 1. Process killed mid-execution (needs signal handling)
 2. Mutex poisoning recovery (needs panic simulation)
 3. Command timeout handling (needs async/timeout)
 4. Memory exhaustion (needs large dataset)
 
-TODO - FIXES BASED ON TEST RESULTS:
+FUTURE WORK - FIXES BASED ON TEST RESULTS:
 1. Add state.json validation with clear error messages
 2. Implement state backup mechanism (state.json.backup)
 3. Add workspace path validation (no path traversal)

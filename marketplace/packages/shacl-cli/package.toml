@@ -94,3 +94,6 @@ opt-level = 0
 
 [profile.test]
 opt-level = 1
+
+[marketplace]
+production_ready = false

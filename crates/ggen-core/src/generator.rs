@@ -439,7 +439,10 @@ const ENV_WHITELIST: &[&str] = &[
 fn insert_env(ctx: &mut Context) {
     for (k, v) in env::vars() {
         // Only insert variables that are in the whitelist or start with GGEN_ or TEST_GGEN_ (for tests)
-        if ENV_WHITELIST.contains(&k.as_str()) || k.starts_with("GGEN_") || k.starts_with("TEST_GGEN_") {
+        if ENV_WHITELIST.contains(&k.as_str())
+            || k.starts_with("GGEN_")
+            || k.starts_with("TEST_GGEN_")
+        {
             ctx.insert(&k, &v);
         }
     }
