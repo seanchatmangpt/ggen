@@ -27,6 +27,12 @@
         "source": "github",
         "repo": "anthropics/claude-plugins-official"
       }
+    },
+    "ggen": {
+      "source": {
+        "source": "local",
+        "path": "plugins"
+      }
     }
   },
   "extendedThinking": true,
@@ -684,7 +690,8 @@
     ]
   },
   "enabledPlugins": {
-    "rust-analyzer-lsp@claude-plugins-official": true
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "ggen-lsp@ggen": true
   },
   "hooks": {
     "SessionStart": [
