@@ -1,0 +1,151 @@
+# ggen manifest for MCP + A2A code generation
+#
+# Pipeline: ontology (.ttl) -> SPARQL SELECT (.rq) -> Tera (.tera) -> code artifact
+# A = mu(O) -- Protocol artifacts are projections of ontology instances through SPARQL + Tera
+#
+# Usage: ggen generate --manifest specify/mcp-a2a/ggen.toml
+#
+# Architecture:
+#   Each rule has ONE SELECT query that returns N rows.
+#   The pipeline renders the template once per row and writes to output_file.
+#   `sparql_results` (all rows as JSON) is injected into every rendering.
+#   Full-file templates use sparql_results to build tools/skills arrays.
+#   Output file is constant (not per-row), so last write wins.
+#   All rows produce identical output because sparql_results is the same for all.
+
+[project]
+name = "mcp-a2a-codegen"
+version = "1.0.0"
+description = "Generates MCP server and A2A agent code from RDF ontology"
+
+[ontology]
+source = "../mcp-a2a-protocol.ttl"
+imports = ["../mcp-a2a-protocol-example.ttl"]
+base_iri = "https://ggen.dev/"
+
+[generation]
+output_dir = "generated"
+
+# ============================================================================
+# MCP Rules
+# ============================================================================
+# Query: extract-mcp-full.rq returns one row per tool with server metadata.
+# Adapter templates in crates/ggen-core/templates/mcp/ handle sparql_results.
+
+# MCP Server + Tools -> Rust (rmcp 1.3.0) [adapter template]
+[[generation.rules]]
+name = "mcp-rust-server"
+query = { file = "../../crates/ggen-core/queries/mcp/extract-mcp-full.rq" }
+template = { file = "../../crates/ggen-core/templates/mcp/server.rs.tera" }
+output_file = "mcp-server/src/main.rs"
+mode = "Overwrite"
+skip_empty = true
+
+# MCP Server + Tools -> Elixir [original template - needs sparql_results adapter]
+[[generation.rules]]
+name = "mcp-elixir-server"
+query = { file = "../../crates/ggen-core/queries/mcp/extract-mcp-full.rq" }
+template = { file = "../../templates/mcp-elixir.tera" }
+output_file = "mcp-server/lib/mcp_server.ex"
+mode = "Overwrite"
+skip_empty = true
+
+# MCP Server + Tools -> Go [original template - needs sparql_results adapter]
+[[generation.rules]]
+name = "mcp-go-server"
+query = { file = "../../crates/ggen-core/queries/mcp/extract-mcp-full.rq" }
+template = { file = "../../templates/mcp-go.tera" }
+output_file = "mcp-server/mcp_server.go"
+mode = "Overwrite"
+skip_empty = true
+
+# MCP Server + Tools -> TypeScript [original template - needs sparql_results adapter]
+[[generation.rules]]
+name = "mcp-ts-server"
+query = { file = "../../crates/ggen-core/queries/mcp/extract-mcp-full.rq" }
+template = { file = "../../templates/mcp-typescript.tera" }
+output_file = "mcp-server/src/index.ts"
+mode = "Overwrite"
+skip_empty = true
+
+# MCP Server + Tools -> Java [original template - needs sparql_results adapter]
+[[generation.rules]]
+name = "mcp-java-server"
+query = { file = "../../crates/ggen-core/queries/mcp/extract-mcp-full.rq" }
+template = { file = "../../templates/mcp-java.tera" }
+output_file = "mcp-server/src/main/java/McpServer.java"
+mode = "Overwrite"
+skip_empty = true
+
+# MCP Parameters only (for parameter module generation)
+[[generation.rules]]
+name = "mcp-params"
+query = { file = "../../crates/ggen-core/queries/mcp/extract-mcp-params.rq" }
+template = { file = "../../crates/ggen-core/templates/mcp/params.rs.tera" }
+output_file = "mcp-server/src/params.rs"
+mode = "Overwrite"
+skip_empty = true
+
+# ============================================================================
+# A2A Rules
+# ============================================================================
+# Query: extract-a2a-full.rq returns one row per skill with agent metadata.
+# Adapter templates in crates/ggen-core/templates/a2a/ handle sparql_results.
+
+# A2A Agent + Skills -> Elixir (GenServer) [adapter template]
+[[generation.rules]]
+name = "a2a-elixir-agent"
+query = { file = "../../crates/ggen-core/queries/a2a/extract-a2a-full.rq" }
+template = { file = "../../crates/ggen-core/templates/a2a/agent.ex.tera" }
+output_file = "a2a-agent/lib/a2a_agent.ex"
+mode = "Overwrite"
+skip_empty = true
+
+# A2A Agent + Skills -> Rust [original template - needs sparql_results adapter]
+[[generation.rules]]
+name = "a2a-rust-agent"
+query = { file = "../../crates/ggen-core/queries/a2a/extract-a2a-full.rq" }
+template = { file = "../../templates/a2a-rust.tera" }
+output_file = "a2a-agent/src/lib.rs"
+mode = "Overwrite"
+skip_empty = true
+
+# A2A Agent + Skills -> Go [original template - needs sparql_results adapter]
+[[generation.rules]]
+name = "a2a-go-agent"
+query = { file = "../../crates/ggen-core/queries/a2a/extract-a2a-full.rq" }
+template = { file = "../../templates/a2a-go.tera" }
+output_file = "a2a-agent/a2a_agent.go"
+mode = "Overwrite"
+skip_empty = true
+
+# A2A Agent + Skills -> TypeScript [original template - needs sparql_results adapter]
+[[generation.rules]]
+name = "a2a-ts-agent"
+query = { file = "../../crates/ggen-core/queries/a2a/extract-a2a-full.rq" }
+template = { file = "../../templates/a2a-typescript.tera" }
+output_file = "a2a-agent/src/index.ts"
+mode = "Overwrite"
+skip_empty = true
+
+# A2A Agent + Skills -> Java [original template - needs sparql_results adapter]
+[[generation.rules]]
+name = "a2a-java-agent"
+query = { file = "../../crates/ggen-core/queries/a2a/extract-a2a-full.rq" }
+template = { file = "../../templates/a2a-java.tera" }
+output_file = "a2a-agent/src/main/java/A2aAgent.java"
+mode = "Overwrite"
+skip_empty = true
+
+# ============================================================================
+# MCP/A2A Bridge Rules
+# ============================================================================
+
+# MCP Tools -> Bridge mapping (one row per bridge)
+[[generation.rules]]
+name = "mcp-a2a-bridges"
+query = { file = "../../crates/ggen-core/queries/bridge/extract-bridges.rq" }
+template = { file = "../../crates/ggen-core/templates/bridge/bridges.rs.tera" }
+output_file = "bridge/src/bridges.rs"
+mode = "Overwrite"
+skip_empty = true

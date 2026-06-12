@@ -8,7 +8,7 @@
 //! \`\`\`text
 //! shapes.ttl (SHACL) → ShapeLoader (SPARQL queries) → ShaclShapeSet
 //!                                                           ↓
-//!                                           Vec<ShaclShape> with PropertyConstraints
+//!                                           Vec&lt;ShaclShape&gt; with PropertyConstraints
 //! \`\`\`
 //!
 //! ## Constitution Compliance

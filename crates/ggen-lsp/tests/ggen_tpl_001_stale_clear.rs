@@ -1,3 +1,27 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
+
 //! GALL-CHECKPOINT-001B — stale-clear hard gate (the alive-vs-fake-live proof).
 //!
 //! Proves the cross-surface living-loop closure for GGEN-TPL-001:
@@ -26,8 +50,17 @@ use std::path::Path;
 use ggen_lsp::analyzers::detect_tpl_001;
 use ggen_lsp::project_index::ProjectIndex;
 use ggen_lsp::ServerState;
+use lsp_max::lsp_types::Url;
 use tempfile::TempDir;
-use tower_lsp::lsp_types::Url;
+
+/// Convert a filesystem path to a `DocumentUri` for test use.
+fn url_from_path(path: impl AsRef<std::path::Path>) -> Url {
+    url::Url::from_file_path(path.as_ref())
+        .expect("absolute path")
+        .to_string()
+        .parse::<Url>()
+        .expect("valid uri")
+}
 
 /// Write a minimal but valid ggen project: one rule binding `queries/items.rq`
 /// to `templates/item.tera` with output `out.txt`.
@@ -114,7 +147,7 @@ async fn query_side_repair_clears_template_through_living_loop() {
     // Capture the template URI from the detector's own resolved path so it
     // matches byte-for-byte across passes (no canonicalization skew).
     let (template_path, raise_diags) = groups.into_iter().next().expect("one group");
-    let template_uri = Url::from_file_path(&template_path).expect("template url");
+    let template_uri = url_from_path(&template_path);
     let mut flagged_now: HashSet<Url> = HashSet::new();
     flagged_now.insert(template_uri.clone());
     // Mirror refresh_analyzer: publish-through-observe for the flagged template,
@@ -130,7 +163,7 @@ async fn query_side_repair_clears_template_through_living_loop() {
          <https://schema.org/title> ?title }",
     )
     .expect("rewrite rq");
-    let rq_uri = Url::from_file_path(root.join("queries/items.rq")).expect("rq url");
+    let rq_uri = url_from_path(root.join("queries/items.rq"));
 
     let project2 = ProjectIndex::from_root(root).expect("index rebuilds");
     let groups2 = detect_tpl_001(&project2);
@@ -199,7 +232,7 @@ async fn raise_without_clear_has_no_repair_receipt() {
         .into_iter()
         .next()
         .expect("flagged");
-    let template_uri = Url::from_file_path(&template_path).expect("url");
+    let template_uri = url_from_path(&template_path);
     state.observe_diagnostics(&template_uri, &raise_diags).await;
 
     // No clear performed → only the raise is in the log.
@@ -233,25 +266,25 @@ async fn clear_preserves_unrelated_diagnostic_on_same_template() {
         r#"{{ row["title"] }}{% for x in items %}"#, // missing endfor → E0024
     );
     let state = ServerState::with_root(root);
-    let template_uri = Url::from_file_path(root.join("templates/item.tera")).expect("template url");
+    let template_uri = url_from_path(root.join("templates/item.tera"));
 
     // RAISE: the template's published set = E0024 (single-file) + GGEN-TPL-001.
     let project = ProjectIndex::from_root(root).expect("index");
     let groups = detect_tpl_001(&project);
     let tpl_diags = groups
         .into_iter()
-        .find(|(p, _)| Url::from_file_path(p).ok().as_ref() == Some(&template_uri))
+        .find(|(p, _)| url_from_path(p).as_str() == template_uri.as_str())
         .map(|(_, d)| d)
         .expect("template flagged with GGEN-TPL-001");
     // Mirror the server's merge-once: own single-file diags + cross-file TPL-001.
     let own = ggen_lsp::analyzers::build_analyzer(
-        template_uri.path(),
+        template_uri.path().as_str(),
         &fs::read_to_string(root.join("templates/item.tera")).unwrap(),
     )
     .map(|a| a.diagnostics())
     .unwrap_or_default();
     assert!(
-        own.iter().any(|d| matches!(&d.code, Some(tower_lsp::lsp_types::NumberOrString::String(s)) if s == "E0024")),
+        own.iter().any(|d| matches!(&d.lsp.code, Some(lsp_max::lsp_types::NumberOrString::String(s)) if s == "E0024")),
         "precondition: template must have an E0024 syntax error"
     );
     let mut raised = own.clone();
@@ -265,7 +298,7 @@ async fn clear_preserves_unrelated_diagnostic_on_same_template() {
     assert!(raise_clears.is_empty(), "raise pass clears nothing");
 
     // CROSS-SURFACE REPAIR: fix the query (template, incl. its E0024, untouched).
-    let rq_uri = Url::from_file_path(root.join("queries/items.rq")).expect("rq url");
+    let rq_uri = url_from_path(root.join("queries/items.rq"));
     fs::write(
         root.join("queries/items.rq"),
         "SELECT ?name ?title WHERE { ?s <https://schema.org/name> ?name ; \
@@ -288,17 +321,17 @@ async fn clear_preserves_unrelated_diagnostic_on_same_template() {
         "template marked for clear"
     );
     let residual = ggen_lsp::analyzers::build_analyzer(
-        template_uri.path(),
+        template_uri.path().as_str(),
         &fs::read_to_string(root.join("templates/item.tera")).unwrap(),
     )
     .map(|a| a.diagnostics())
     .unwrap_or_default();
     assert!(
-        residual.iter().any(|d| matches!(&d.code, Some(tower_lsp::lsp_types::NumberOrString::String(s)) if s == "E0024")),
+        residual.iter().any(|d| matches!(&d.lsp.code, Some(lsp_max::lsp_types::NumberOrString::String(s)) if s == "E0024")),
         "residual must still carry the E0024 (it was never repaired)"
     );
     assert!(
-        !residual.iter().any(|d| matches!(&d.code, Some(tower_lsp::lsp_types::NumberOrString::String(s)) if s == "GGEN-TPL-001")),
+        !residual.iter().any(|d| matches!(&d.lsp.code, Some(lsp_max::lsp_types::NumberOrString::String(s)) if s == "GGEN-TPL-001")),
         "residual must NOT carry GGEN-TPL-001 (single-file path has empty bindings)"
     );
     state.observe_diagnostics(&template_uri, &residual).await;
@@ -314,7 +347,7 @@ async fn clear_preserves_unrelated_diagnostic_on_same_template() {
     assert!(
         residual
             .iter()
-            .any(|d| matches!(&d.code, Some(tower_lsp::lsp_types::NumberOrString::String(s)) if s == "E0024")),
+            .any(|d| matches!(&d.lsp.code, Some(lsp_max::lsp_types::NumberOrString::String(s)) if s == "E0024")),
         "unrelated E0024 preserved through the clear"
     );
 }

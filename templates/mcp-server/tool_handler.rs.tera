@@ -178,7 +178,7 @@ impl {{ tool.name | pascal }}Handler {
             schema: ToolSchema {
                 name: "{{ tool.name }}".to_string(),
                 description: "{{ tool.description }}".to_string(),
-                input_schema: serde_json::from_str(r#"{{ tool.input_schema | default(default="{}") }}"#)
+                input_schema: serde_json::from_str(r#"{{ tool.input_schema | default(value="{}") }}"#)
                     .unwrap_or_default(),
             },
             {% if tool.use_zai %}

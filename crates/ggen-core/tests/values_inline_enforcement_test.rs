@@ -1,3 +1,26 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
 //! VALUES-inline enforcement tests — Chicago TDD
 //!
 //! Proves that VALUES clauses in external .rq files are rejected at both
@@ -35,12 +58,14 @@ fn minimal_manifest(ontology_path: PathBuf, rules: Vec<GenerationRule>) -> GgenM
             name: "test".to_string(),
             version: "0.1.0".to_string(),
             description: None,
+            ..Default::default()
         },
         ontology: OntologyConfig {
             source: ontology_path,
             imports: vec![],
             base_iri: None,
             prefixes: Default::default(),
+            ..Default::default()
         },
         inference: InferenceConfig::default(),
         generation: GenerationConfig {
@@ -54,6 +79,8 @@ fn minimal_manifest(ontology_path: PathBuf, rules: Vec<GenerationRule>) -> GgenM
             llm_model: None,
         },
         validation: ValidationConfig::default(),
+        packs: vec![],
+        ..Default::default()
     }
 }
 

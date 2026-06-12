@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// Root configuration structure for ggen.toml
-/// PartialEq without Eq: Contains nested config structs via composition
+/// `PartialEq` without Eq: Contains nested config structs via composition
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct GgenConfig {
@@ -106,7 +106,7 @@ pub struct ProjectConfig {
 }
 
 /// AI provider configuration
-/// PartialEq without Eq: temperature (f32) does not implement Eq
+/// `PartialEq` without Eq: temperature (f32) does not implement Eq
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct AiConfig {
@@ -150,7 +150,7 @@ pub struct AiPrompts {
 }
 
 /// AI validation configuration
-/// PartialEq without Eq: quality_threshold (f32) does not implement Eq
+/// `PartialEq` without Eq: `quality_threshold` (f32) does not implement Eq
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct AiValidation {

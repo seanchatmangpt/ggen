@@ -1,0 +1,8 @@
+---
+to: "items.md"
+---
+# Items List
+
+{% for item in items %}
+- {{ item.name }}: {{ item.description }}
+{% endfor %}

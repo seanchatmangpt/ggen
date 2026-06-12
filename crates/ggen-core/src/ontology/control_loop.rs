@@ -432,10 +432,10 @@ mod tests {
 
         let obs = Observation {
             entity: "test_entity".to_string(),
-            properties: [("type".to_string(), "test".to_string())]
-                .iter()
-                .cloned()
-                .collect(),
+            properties: std::collections::BTreeMap::from([(
+                "type".to_string(),
+                "test".to_string(),
+            )]),
             timestamp: 1000,
             source: ObservationSource::Data,
         };
@@ -454,10 +454,10 @@ mod tests {
         for i in 0..3 {
             let obs = Observation {
                 entity: format!("entity_{}", i),
-                properties: [("type".to_string(), "test".to_string())]
-                    .iter()
-                    .cloned()
-                    .collect(),
+                properties: std::collections::BTreeMap::from([(
+                    "type".to_string(),
+                    "test".to_string(),
+                )]),
                 timestamp: 1000 + i as u64,
                 source: ObservationSource::Data,
             };
@@ -477,10 +477,10 @@ mod tests {
         for i in 0..5 {
             let obs = Observation {
                 entity: format!("entity_{}", i),
-                properties: [("type".to_string(), "test".to_string())]
-                    .iter()
-                    .cloned()
-                    .collect(),
+                properties: std::collections::BTreeMap::from([(
+                    "type".to_string(),
+                    "test".to_string(),
+                )]),
                 timestamp: 1000 + i as u64,
                 source: ObservationSource::Data,
             };
@@ -503,10 +503,10 @@ mod tests {
         for i in 0..3 {
             let obs = Observation {
                 entity: format!("entity_{}", i),
-                properties: [("type".to_string(), "test".to_string())]
-                    .iter()
-                    .cloned()
-                    .collect(),
+                properties: std::collections::BTreeMap::from([(
+                    "type".to_string(),
+                    "test".to_string(),
+                )]),
                 timestamp: 1000 + i as u64,
                 source: ObservationSource::Data,
             };

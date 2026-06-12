@@ -1,5 +1,5 @@
 //! Binary to verify the self-audit log and coverage matrix for Vision 2030 compliance.
-
+#![allow(clippy::unnecessary_debug_formatting, clippy::unwrap_used)]
 use ggen_graph::ocel::{CoverageMatrix, OcelLog};
 use std::fs::File;
 use std::io::BufReader;

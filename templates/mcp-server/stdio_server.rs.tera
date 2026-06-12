@@ -541,7 +541,7 @@ impl McpStdioServer {
             Tool {
                 name: "{{ tool.name }}".to_string(),
                 description: "{{ tool.description }}".to_string(),
-                input_schema: Some(serde_json::from_str(r#"{{ tool.input_schema | default(default="{}") }}"#)?),
+                input_schema: Some(serde_json::from_str(r#"{{ tool.input_schema | default(value="{}") }}"#)?),
             },
             {% endfor %}
         ];
@@ -600,7 +600,7 @@ impl McpStdioServer {
                 uri: "{{ resource.uri }}".to_string(),
                 name: "{{ resource.name }}".to_string(),
                 description: "{{ resource.description }}".to_string(),
-                mime_type: Some("{{ resource.mime_type | default(default="text/plain") }}".to_string()),
+                mime_type: Some("{{ resource.mime_type | default(value="text/plain") }}".to_string()),
             },
             {% endfor %}
         ];
@@ -648,7 +648,7 @@ impl McpStdioServer {
                     PromptArgument {
                         name: "{{ arg.name }}".to_string(),
                         description: "{{ arg.description }}".to_string(),
-                        required: Some({{ arg.required | default(default="false") }}),
+                        required: Some({{ arg.required | default(value="false") }}),
                     },
                     {% endfor %}
                 ]),

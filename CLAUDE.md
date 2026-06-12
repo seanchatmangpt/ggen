@@ -96,7 +96,7 @@ Verified against `Cargo.toml` `members = [...]`. These are the only crates that 
 | Rule | Requirement |
 |------|-------------|
 | **Andon Signals** | 🔴 Compiler errors/test failures = STOP THE LINE. Fix immediately. |
-| **Cargo Make Only** | NEVER use direct cargo commands. Always `cargo make [target]`. |
+| **just Is the Entry Point** | ALWAYS `just <task>`. Never call `cargo make` or bare `cargo` directly. |
 | **Testing** | Chicago TDD ONLY (no mocks, no test doubles). 80%+ coverage. Mutation score ≥60%. All tests pass. |
 | **No Unwrap** | Zero `unwrap()/expect()` in production. `Result<T,E>` required. |
 | **RDF is Truth** | Edit `.specify/*.ttl` (source). Never edit `.md` (generated). |
@@ -112,17 +112,48 @@ Verified against `Cargo.toml` `members = [...]`. These are the only crates that 
 
 ## Commands
 
+Use `just` as the entry point for all tasks (native cargo recipes; Makefile.toml is historical reference only).
+
 | Command | Purpose | Timeout |
 |---------|---------|---------|
-| `cargo make check` | Compilation check | <5s |
-| `cargo make test` | Full test suite (unit + integration + property) | <30s |
-| `cargo make test-mutation` | Mutation testing (≥60% score) | <5min |
-| `cargo make lint` | Clippy + rustfmt | <60s |
-| `cargo make pre-commit` | check → lint → test-unit | <2min |
-| `cargo make slo-check` | Performance SLOs validation | - |
-| `cargo make audit` | Security vulnerabilities scan | - |
-| `ggen sync` | Full μ₁-μ₅ pipeline | - |
+| `just check` | Compilation check | <5s |
+| `just test` | Full test suite (unit + integration + property) | <30s |
+| `just test-unit` | Unit tests only (fast dev loop) | <10s |
+| `just test-mutation` | Mutation testing (≥60% score) | <5min |
+| `just lint` | Clippy + rustfmt | <60s |
+| `just pre-commit` | check → lint → test-unit | <2min |
+| `just slo-check` | Performance SLOs validation | - |
+| `just audit` | Security vulnerabilities scan | - |
+| `just doc` | Build HTML docs into `target/doc/` | - |
+| `just test-doc` | Validate all `# Examples` blocks compile/run | - |
+| `just test-marketplace` | Marketplace pack tests (no network) | - |
+| `just bench` | Run benchmarks | - |
+| `just sync` | Full μ₁-μ₅ pipeline with audit | - |
+| `just sync-dry` | Preview sync without writing | - |
 | `ggen validate <ttl>` | SHACL validation | - |
+| `ggen receipt verify <path>` | Verify cryptographic receipt | - |
+
+## 🛡️ Verification & Strict Mode
+
+ggen enforces a multi-surface "Strict Mode" (enabled via `[validation] strict_mode = true` in `ggen.toml`).
+
+### Diagnostic Codes (Law Surfaces)
+
+| Code | Law Surface | Severity | Meaning |
+|------|-------------|----------|---------|
+| **GGEN-TPL-001** | SPARQL ↔ Tera | ERROR | Template consumes `{{ var }}` that SELECT does not produce. |
+| **GGEN-OUT-001** | SPARQL ↔ ggen.toml | ERROR | `output_file` pattern consumes unbound variable. |
+| **GGEN-YIELD-001**| ggen.toml ↔ OS | ERROR | `output_file` escapes the project root (Layer Violation). |
+| **GGEN-RULE-001** | ggen.toml ↔ OS | ERROR | `{file = ...}` binding points at a missing file. |
+| **GGEN-QUERY-002**| SPARQL | WARNING | `SELECT *` used (disables provision checks). |
+| **E0011 / E0013** | SPARQL | WARNING* | `CONSTRUCT` / `SELECT` lacks `ORDER BY` (Strict Mode: ERROR). |
+| **E0015** | SPARQL | WARNING | Identity `CONSTRUCT` detected (no-op mapping). |
+
+### Cryptographic Receipts
+
+Every `ggen sync` produces a signed BLAKE3 transition receipt at `.ggen/receipts/latest.json`.
+- **Verify:** `ggen receipt verify .ggen/receipts/latest.json --public-key .ggen/keys/public.pem`
+- **Audit:** Receipts bind all input hashes (ontology, queries, templates, manifest) to all output hashes.
 
 ## Git Hooks & Build Gotchas
 
@@ -246,13 +277,13 @@ ggen validate .specify/specs/NNN-feature/feature.ttl
 
 # 2. Chicago TDD (RED → GREEN → REFACTOR)
 vim crates/ggen-core/tests/feature_test.rs  # Write failing test (RED)
-cargo make test-unit                        # Verify fails
+just test-unit                              # Verify fails
 vim crates/ggen-core/src/feature.rs         # Implement (GREEN)
-cargo make test-unit                        # Verify passes
-cargo make pre-commit                       # Refactor (maintain GREEN)
+just test-unit                              # Verify passes
+just pre-commit                             # Refactor (maintain GREEN)
 
 # 3. Validation (Definition of Done)
-cargo make check && cargo make lint && cargo make test && cargo make slo-check
+just check && just lint && just test && just slo-check
 
 # 4. Generate from Ontology
 ggen sync --audit true  # Full sync with cryptographic receipt

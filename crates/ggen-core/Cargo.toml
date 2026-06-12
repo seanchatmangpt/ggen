@@ -5,6 +5,11 @@ readme = "README.md"
 keywords = [ "cli", "code-generation", "rdf", "templates"]
 categories = [ "development-tools", "command-line-utilities"]
 
+[lib]
+name = "ggen_core"
+path = "src/lib.rs"
+doctest = false
+
 [package.version]
 workspace = true
 
@@ -118,15 +123,11 @@ itertools = "0.12"
 
 [dependencies.ggen-config]
 path = "../ggen-config"
-version = "26.5.29"
-
-[dependencies.ggen-a2a-mcp]
-path = "../ggen-a2a-mcp"
-version = "26.5.29"
+version = "26.6.11"
 
 [dependencies.ggen-marketplace]
 path = "../ggen-marketplace"
-version = "26.5.29"
+version = "26.6.11"
 optional = true
 
 [dependencies.oxigraph]
@@ -230,6 +231,10 @@ features = [ "derive"]
 version = "0.12"
 features = [ "future"]
 
+[dev-dependencies.env_logger]
+version = "0.11"
+features = ["auto-color"]
+
 [dev-dependencies.criterion]
 version = "0.7"
 features = [ "html_reports"]
@@ -246,7 +251,7 @@ version = "1.18"
 features = [ "v4"]
 
 [dev-dependencies.chicago-tdd-tools]
-version = "1.4.0"
+version = "26.6.11"
 features = [ "testing-extras", "testcontainers"]
 
 [dev-dependencies.testcontainers]

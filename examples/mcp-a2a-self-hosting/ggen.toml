@@ -5,24 +5,14 @@ description = "Complete MCP/A2A self-hosting example with LLM generation and qua
 
 [ontology]
 source = "ontology/"
-format = "turtle"
 
 [generation]
 output_dir = "src"
-templates_dir = "templates/"
 rules = [
     { name = "agent-rs", query = { file = "queries/extract-agent.rq" }, template = { file = "agent.rs.tera" }, output_file = "agent.rs" },
     { name = "skills-rs", query = { file = "queries/extract-skills.rq" }, template = { file = "skills.tera" }, output_file = "skills.rs" },
     { name = "agent-card-json", query = { file = "queries/extract-agent-card.rq" }, template = { file = "agent-card.json.tera" }, output_file = "agent_card.json" },
 ]
-
-[llm]
-# Enable LLM-powered code generation
-enabled = true
-provider = "openai"  # or "anthropic"
-model = "gpt-4"
-temperature = 0.7
-max_tokens = 2000
 
 [validation]
 validate_syntax = true

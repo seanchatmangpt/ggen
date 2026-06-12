@@ -1,3 +1,27 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
+
 //! Integration tests for receipt commands
 //!
 //! Chicago TDD: Tests verify actual receipt verification behavior
@@ -46,20 +70,25 @@ fn test_receipt_verify_with_valid_signature() {
     let key_path = create_public_key_file(temp_dir.path(), &verifying_key_hex);
 
     // Run the receipt verify command via CLI
-    let output = assert_cmd::Command::cargo_bin("ggen")
-        .unwrap()
+    let output = assert_cmd::Command::new(env!("CARGO_BIN_EXE_ggen"))
         .args([
             "receipt",
             "verify",
+            "--receipt_path",
             &receipt_path,
-            "--public-key",
+            "--public_key",
             &key_path,
         ])
         .output()
         .expect("Failed to execute command");
 
-    // Command should succeed (exit code 0)
-    assert!(output.status.success());
+    if !output.status.success() {
+        panic!(
+            "Command failed.\nstdout: {}\nstderr: {}",
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr)
+        );
+    }
 
     // Output should contain verification success message
     let stdout = String::from_utf8_lossy(&output.stdout);
@@ -78,20 +107,25 @@ fn test_receipt_verify_with_wrong_key() {
     let key_path = create_public_key_file(temp_dir.path(), &wrong_key_hex);
 
     // Run the receipt verify command via CLI
-    let output = assert_cmd::Command::cargo_bin("ggen")
-        .unwrap()
+    let output = assert_cmd::Command::new(env!("CARGO_BIN_EXE_ggen"))
         .args([
             "receipt",
             "verify",
+            "--receipt_path",
             &receipt_path,
-            "--public-key",
+            "--public_key",
             &key_path,
         ])
         .output()
         .expect("Failed to execute command");
 
-    // Command should still succeed (exit code 0), but verification should fail
-    assert!(output.status.success());
+    if !output.status.success() {
+        panic!(
+            "Command failed.\nstdout: {}\nstderr: {}",
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr)
+        );
+    }
 
     // Output should indicate verification failure
     let stdout = String::from_utf8_lossy(&output.stdout);
@@ -105,14 +139,18 @@ fn test_receipt_info_displays_receipt_details() {
     let (receipt_path, _) = create_test_receipt(temp_dir.path());
 
     // Run the receipt info command via CLI
-    let output = assert_cmd::Command::cargo_bin("ggen")
-        .unwrap()
-        .args(["receipt", "info", &receipt_path])
+    let output = assert_cmd::Command::new(env!("CARGO_BIN_EXE_ggen"))
+        .args(["receipt", "info", "--receipt_path", &receipt_path])
         .output()
         .expect("Failed to execute command");
 
-    // Command should succeed
-    assert!(output.status.success());
+    if !output.status.success() {
+        panic!(
+            "Command failed.\nstdout: {}\nstderr: {}",
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr)
+        );
+    }
 
     // Output should contain operation details
     let stdout = String::from_utf8_lossy(&output.stdout);
@@ -125,15 +163,19 @@ fn test_receipt_verify_without_key_returns_error() {
 
     let (receipt_path, _) = create_test_receipt(temp_dir.path());
 
-    // Run without --public-key flag
-    let output = assert_cmd::Command::cargo_bin("ggen")
-        .unwrap()
-        .args(["receipt", "verify", &receipt_path])
+    // Run without --public_key flag
+    let output = assert_cmd::Command::new(env!("CARGO_BIN_EXE_ggen"))
+        .args(["receipt", "verify", "--receipt_path", &receipt_path])
         .output()
         .expect("Failed to execute command");
 
-    // Command should succeed but report missing key
-    assert!(output.status.success());
+    if !output.status.success() {
+        panic!(
+            "Command failed.\nstdout: {}\nstderr: {}",
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr)
+        );
+    }
 
     let stdout = String::from_utf8_lossy(&output.stdout);
     assert!(stdout.contains("Public key required") || stdout.contains("is_valid"));
@@ -147,14 +189,18 @@ fn test_receipt_verify_nonexistent_file() {
     let fake_path_str = fake_path.to_string_lossy().to_string();
 
     // Run with nonexistent file
-    let output = assert_cmd::Command::cargo_bin("ggen")
-        .unwrap()
-        .args(["receipt", "verify", &fake_path_str])
+    let output = assert_cmd::Command::new(env!("CARGO_BIN_EXE_ggen"))
+        .args(["receipt", "verify", "--receipt_path", &fake_path_str])
         .output()
         .expect("Failed to execute command");
 
-    // Command should succeed but report file not found
-    assert!(output.status.success());
+    if !output.status.success() {
+        panic!(
+            "Command failed.\nstdout: {}\nstderr: {}",
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr)
+        );
+    }
 
     let stdout = String::from_utf8_lossy(&output.stdout);
     assert!(stdout.contains("not found") || stdout.contains("is_valid"));

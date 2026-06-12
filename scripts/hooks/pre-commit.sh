@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# pre-commit.sh - Fast Tier Git Hook (80/20 Optimized)
+# pre-commit.sh - Fast Tier Git Hook
 # Target: <10 seconds | Value: 62% defect detection
 # Philosophy: Fast feedback, catch compile errors early
 
@@ -15,7 +15,6 @@ fi
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
 BOLD='\033[1m'
 NC='\033[0m'
 
@@ -23,26 +22,26 @@ echo ""
 echo -e "${BOLD}Pre-Commit Validation${NC} (Fast Tier)"
 echo ""
 
-# Gate 1: Cargo Check (60% of defects - VITAL)
-echo -n "  Cargo check... "
-if timeout 300s cargo check --quiet 2>/dev/null; then
+# Gate 1: Check (60% of defects - VITAL)
+echo -n "  Check... "
+if just check >/dev/null 2>&1; then
     echo -e "${GREEN}PASS${NC}"
 else
     echo -e "${RED}FAIL${NC}"
     echo ""
     echo -e "${RED}${BOLD}STOP: Compilation errors must be fixed${NC}"
-    cargo check 2>&1 | head -30
+    just check 2>&1 | head -30
     exit 1
 fi
 
 # Gate 2: Format check (2% but ensures consistency)
 echo -n "  Format check... "
-if cargo fmt --all -- --check >/dev/null 2>&1; then
+if just fmt-check >/dev/null 2>&1; then
     echo -e "${GREEN}PASS${NC}"
 else
     echo -e "${RED}FAIL${NC}"
     echo ""
-    echo -e "${RED}${BOLD}STOP: Code not formatted. Run 'cargo fmt --all' before committing.${NC}"
+    echo -e "${RED}${BOLD}STOP: Code not formatted. Run 'just fmt' before committing.${NC}"
     exit 1
 fi
 

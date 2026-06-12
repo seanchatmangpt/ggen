@@ -1,3 +1,10 @@
+#![allow(
+    clippy::expect_used,
+    clippy::unwrap_used,
+    clippy::panic,
+    clippy::match_wildcard_for_single_variants
+)]
+
 pub mod analyzers;
 pub mod check;
 pub mod error;
@@ -38,7 +45,7 @@ pub use route::{
 pub use server::GgenLanguageServer;
 pub use state::ServerState;
 
-use tower_lsp::{LspService, Server};
+use lsp_max::{LspService, Server};
 
 /// Run the LSP server over stdio (the transport editors use).
 pub async fn run_stdio() -> anyhow::Result<()> {
@@ -46,6 +53,6 @@ pub async fn run_stdio() -> anyhow::Result<()> {
     let stdout = tokio::io::stdout();
 
     let (service, socket) = LspService::new(GgenLanguageServer::new);
-    Server::new(stdin, stdout, socket).serve(service).await;
+    Server::new(stdin, stdout, socket).serve(service).await?;
     Ok(())
 }

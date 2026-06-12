@@ -161,6 +161,7 @@ impl PathProtectionConfig {
 }
 
 impl Default for PathProtectionConfig {
+    #[allow(clippy::panic)] // SAFETY: compile-time constant glob patterns — invalid syntax is a programmer error
     fn default() -> Self {
         // SAFETY: The hardcoded glob patterns below are compile-time constants
         // that are syntactically valid globs. Failure here is a programmer error

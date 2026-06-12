@@ -231,7 +231,7 @@ impl StreamingGenerator {
         }
 
         // Render template
-        let rendered = template.render(&mut self.pipeline.tera, vars)?;
+        let rendered = template.render(&mut self.pipeline.tera, vars, std::path::Path::new(""))?;
 
         // Determine output path
         let output_path = if let Some(to_path) = &template.front.to {

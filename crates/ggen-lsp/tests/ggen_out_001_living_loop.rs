@@ -1,3 +1,26 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
 //! GGEN-OUT-001 — LIVING LSP LOOP proof (GALL-OUT-001).
 //!
 //! The dual of `ggen_tpl_001_living_loop.rs` on the `ggen.toml`/SPARQL surfaces.
@@ -26,7 +49,15 @@
 
 use std::path::{Path, PathBuf};
 
-use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Position, Range, Url};
+use lsp_max::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Position, Range, Url};
+
+fn url_from_path(path: impl AsRef<std::path::Path>) -> Url {
+    url::Url::from_file_path(path.as_ref())
+        .expect("absolute path")
+        .to_string()
+        .parse::<Url>()
+        .expect("valid uri")
+}
 
 use ggen_lsp::check::{check_files_in_root, discover_law_surfaces, CheckReport};
 use ggen_lsp::route::{Provenance, RouteRegistry};
@@ -358,9 +389,9 @@ async fn analyze_and_observe_records_live_out_001_receipt_chain() {
     let state = ServerState::with_root(&root);
 
     let manifest_path = root.join("ggen.toml");
-    let manifest_uri = Url::from_file_path(&manifest_path).expect("manifest url");
+    let manifest_uri = url_from_path(&manifest_path);
     let rq_path = root.join("queries/items.rq");
-    let rq_uri = Url::from_file_path(&rq_path).expect("rq url");
+    let rq_uri = url_from_path(&rq_path);
 
     // ── Act 1 — RAISE: analyze the SPARQL query (a TPL/OUT trigger surface) so the
     // orchestration recomputes the project graph and flags the ggen.toml manifest.
@@ -368,7 +399,7 @@ async fn analyze_and_observe_records_live_out_001_receipt_chain() {
     let raised = state.analyze_and_observe(&rq_uri, &rq_src).await;
     assert!(
         raised.iter().any(
-            |(u, diags)| u == &manifest_uri && diags.iter().any(|d| is_code(d, "GGEN-OUT-001"))
+            |(u, diags)| u == &manifest_uri && diags.iter().any(|d| is_code(&d.lsp, "GGEN-OUT-001"))
         ),
         "analyze_and_observe must raise GGEN-OUT-001 on the ggen.toml manifest. \
          published: {raised:?}"

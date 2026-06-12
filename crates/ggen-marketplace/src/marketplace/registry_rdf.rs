@@ -126,8 +126,8 @@ impl RdfRegistry {
     ///
     /// # Errors
     ///
-    /// * [`Error::RdfStoreError`] - When inserting triples into the RDF store fails
-    /// * [`Error::SerializationError`] - When serializing package data to RDF fails
+    /// * `Error::RdfStoreError` - When inserting triples into the RDF store fails
+    /// * `Error::SerializationError` - When serializing package data to RDF fails
     fn insert_package_rdf_inner(&self, package: &Package) -> Result<()> {
         self.mapper.package_to_rdf(package)
     }
@@ -136,8 +136,8 @@ impl RdfRegistry {
     ///
     /// # Errors
     ///
-    /// * [`Error::RdfStoreError`] - When inserting triples into the RDF store fails
-    /// * [`Error::SerializationError`] - When serializing package data to RDF fails
+    /// * `Error::RdfStoreError` - When inserting triples into the RDF store fails
+    /// * `Error::SerializationError` - When serializing package data to RDF fails
     pub fn insert_package_rdf(&self, package: &Package) -> Result<()> {
         let _lock = self.write_lock.write();
         self.insert_package_rdf_inner(package)
@@ -147,8 +147,8 @@ impl RdfRegistry {
     ///
     /// # Errors
     ///
-    /// * [`Error::RdfStoreError`] - When inserting triples into the RDF store fails
-    /// * [`Error::SerializationError`] - When serializing package data to RDF fails
+    /// * `Error::RdfStoreError` - When inserting triples into the RDF store fails
+    /// * `Error::SerializationError` - When serializing package data to RDF fails
     pub fn batch_insert_packages(&self, packages: Vec<Package>) -> Result<usize> {
         let _lock = self.write_lock.write();
         let mut inserted = 0;
@@ -170,8 +170,8 @@ impl RdfRegistry {
     ///
     /// # Errors
     ///
-    /// * [`Error::SparqlError`] - When the SPARQL query syntax is invalid
-    /// * [`Error::RdfStoreError`] - When querying the RDF store fails
+    /// * `Error::SparqlError` - When the SPARQL query syntax is invalid
+    /// * `Error::RdfStoreError` - When querying the RDF store fails
     pub fn query_sparql(&self, query: &str) -> Result<Vec<String>> {
         let results = self.store.query(query).map_err(|e| {
             crate::marketplace::error::Error::SearchError(format!("SPARQL query failed: {e}"))
@@ -352,7 +352,7 @@ impl RdfRegistry {
     ///
     /// # Errors
     ///
-    /// * [`Error::RdfStoreError`] - When deleting from the RDF store fails
+    /// * `Error::RdfStoreError` - When deleting from the RDF store fails
     fn delete_package_triples(&self, id: &PackageId) -> Result<()> {
         let delete_query = format!(
             r#"
@@ -380,9 +380,9 @@ impl RdfRegistry {
     ///
     /// # Errors
     ///
-    /// * [`Error::PackageAlreadyExists`] - When a package with the same ID already exists
-    /// * [`Error::RdfStoreError`] - When inserting into the RDF store fails
-    /// * [`Error::SerializationError`] - When serializing package data fails
+    /// * `Error::PackageAlreadyExists` - When a package with the same ID already exists
+    /// * `Error::RdfStoreError` - When inserting into the RDF store fails
+    /// * `Error::SerializationError` - When serializing package data fails
     pub async fn create_package(&self, package: Package) -> Result<Package> {
         // Check if package already exists BEFORE acquiring lock (to avoid holding sync lock during async)
         if self.package_exists(&package.metadata.id).await? {
@@ -404,9 +404,9 @@ impl RdfRegistry {
     ///
     /// # Errors
     ///
-    /// * [`Error::PackageNotFound`] - When the package does not exist
-    /// * [`Error::RdfStoreError`] - When updating the RDF store fails
-    /// * [`Error::SerializationError`] - When serializing updated package data fails
+    /// * `Error::PackageNotFound` - When the package does not exist
+    /// * `Error::RdfStoreError` - When updating the RDF store fails
+    /// * `Error::SerializationError` - When serializing updated package data fails
     pub async fn update_package(&self, id: &PackageId, package: Package) -> Result<Package> {
         // Check if package exists BEFORE acquiring lock (to avoid holding sync lock during async)
         if !self.package_exists(id).await? {
@@ -431,8 +431,8 @@ impl RdfRegistry {
     ///
     /// # Errors
     ///
-    /// * [`Error::PackageNotFound`] - When the package does not exist
-    /// * [`Error::RdfStoreError`] - When deleting from the RDF store fails
+    /// * `Error::PackageNotFound` - When the package does not exist
+    /// * `Error::RdfStoreError` - When deleting from the RDF store fails
     pub async fn delete_package(&self, id: &PackageId) -> Result<()> {
         // Check if package exists BEFORE acquiring lock (to avoid holding sync lock during async)
         if !self.package_exists(id).await? {
@@ -458,7 +458,7 @@ impl RdfRegistry {
     ///
     /// # Errors
     ///
-    /// * [`Error::SearchError`] - When the search query fails
+    /// * `Error::SearchError` - When the search query fails
     pub async fn search_packages(&self, keyword: &str, limit: usize) -> Result<Vec<SearchResult>> {
         // Build SPARQL FILTER for case-insensitive substring matching
         let escaped_keyword = keyword.replace('\"', "\\\"");
@@ -523,7 +523,7 @@ impl RdfRegistry {
     ///
     /// # Errors
     ///
-    /// * [`Error::SearchError`] - When listing packages fails
+    /// * `Error::SearchError` - When listing packages fails
     pub async fn list_packages(&self, offset: usize, limit: usize) -> Result<Vec<Package>> {
         let query = format!(
             r"
@@ -565,7 +565,7 @@ impl RdfRegistry {
     ///
     /// # Errors
     ///
-    /// * [`Error::SearchError`] - When querying the count fails
+    /// * `Error::SearchError` - When querying the count fails
     pub async fn count_packages(&self) -> Result<u64> {
         let query = format!(
             r"

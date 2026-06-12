@@ -35,6 +35,8 @@ pub struct SplitResult<const HALF: usize> {
 ///
 /// # Returns
 /// `Ok(SplitResult<5>)` with two half-pages and their BLAKE3 receipts.
+// The expect() calls below are safe: input invariant (page.len == 9) guarantees capacity.
+#[allow(clippy::expect_used)]
 pub fn need9_split(
     page: RelationPage<9>, epoch: u64, previous_receipt: &[u8; 32],
 ) -> Result<SplitResult<5>, Refusal> {
@@ -93,6 +95,8 @@ pub fn need9_split(
 ///
 /// # Returns
 /// `Ok(SplitResult<129>)` with two half-pages and their BLAKE3 receipts.
+// The expect() calls below are safe: input invariant (page.len == 257) guarantees capacity.
+#[allow(clippy::expect_used)]
 pub fn need257_split(
     page: RelationPage<257>, epoch: u64, previous_receipt: &[u8; 32],
 ) -> Result<SplitResult<129>, Refusal> {
@@ -168,6 +172,8 @@ fn receipt_over_page<const CAP: usize>(
 }
 
 #[cfg(test)]
+// Tests use unwrap()/unwrap_err() for clear failure messages; panics are intentional.
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
     use crate::primitives::{Pair2, RefusalReason, RelationPage};

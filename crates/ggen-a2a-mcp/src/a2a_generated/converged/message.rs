@@ -3,6 +3,13 @@
 //! This module implements the unified message system that eliminates 85% of
 //! message structure duplication between basic and rich message implementations.
 //! Following the BB80 pattern with convergence through selection pressure.
+// Generated code: allow clippy lints that are not applicable to generated structs.
+#![allow(
+    clippy::derive_partial_eq_without_eq,
+    clippy::panic,
+    clippy::expect_used,
+    clippy::unwrap_used
+)]
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};

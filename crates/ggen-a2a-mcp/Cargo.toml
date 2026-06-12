@@ -30,6 +30,7 @@ async-trait = "0.1"
 tracing = "0.1"
 rmcp = { version = "1.7.0", features = ["transport-io", "schemars"] }
 schemars = "1.2.1"
+ggen-core = { path = "../ggen-core" }
 anyhow.workspace = true
 blake3 = "1.5"
 
@@ -40,10 +41,15 @@ workspace = true
 workspace = true
 features = ["json"]
 
+[dependencies.criterion]
+workspace = true
+optional = true
+
 [features]
 http-adapter = []
 all-adapters = ["http-adapter"]
 default = ["http-adapter"]
+benchmark = ["dep:criterion"]
 
 [dev-dependencies]
 tempfile = "3"

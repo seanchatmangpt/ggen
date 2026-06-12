@@ -1,0 +1,22 @@
+use lsp_max::{LspService, Server};
+use clap_noun_verb_macros::verb;
+use crate::backend::{{ server_name | capitalize }}Backend;
+
+#[verb("serve")]
+pub fn cmd_serve(stdio: bool) -> clap_noun_verb::Result<()> {
+    let rt = tokio::runtime::Runtime::new().unwrap();
+    rt.block_on(async {
+        if stdio {
+            let stdin = tokio::io::stdin();
+            let stdout = tokio::io::stdout();
+            let (service, socket) =
+                LspService::new({{ server_name | capitalize }}Backend::new);
+            Server::new(stdin, stdout, socket).serve(service).await.unwrap();
+        }
+    });
+    Ok(())
+}
+
+pub fn main() -> clap_noun_verb::Result<()> {
+    clap_noun_verb::run()
+}

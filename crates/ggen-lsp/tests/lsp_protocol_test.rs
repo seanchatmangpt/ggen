@@ -1,3 +1,18 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    unused_imports
+)]
 //! Protocol-level test of the ggen-lsp plugin: spawn the REAL `ggen-lsp` binary and
 //! drive the exact LSP JSON-RPC-over-stdio wire contract Claude Code uses. This is the
 //! end-to-end face of the plugin — the existing 25 tests exercise library functions;

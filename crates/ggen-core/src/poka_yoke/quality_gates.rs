@@ -454,6 +454,9 @@ impl QualityGate for TemplateValidationGate {
                 }
                 crate::manifest::TemplateSource::Git { .. } => {}
                 crate::manifest::TemplateSource::Package { .. } => {}
+                crate::manifest::TemplateSource::Pack { .. } => {
+                    // Pack output templates are resolved at generation time; skip existence check here
+                }
             }
         }
 
@@ -473,6 +476,7 @@ impl QualityGate for TemplateValidationGate {
                 crate::manifest::TemplateSource::Inline { inline } => inline.clone(),
                 crate::manifest::TemplateSource::Git { .. } => String::new(),
                 crate::manifest::TemplateSource::Package { .. } => String::new(),
+                crate::manifest::TemplateSource::Pack { .. } => String::new(),
             };
 
             // Validate template syntax
@@ -593,6 +597,9 @@ impl QualityGate for RuleValidationGate {
                 }
                 crate::manifest::TemplateSource::Git { .. } => {}
                 crate::manifest::TemplateSource::Package { .. } => {}
+                crate::manifest::TemplateSource::Pack { .. } => {
+                    // Pack output templates are resolved at generation time
+                }
             }
         }
 

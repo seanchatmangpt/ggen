@@ -1,3 +1,27 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
+
 //! GGEN-HARNESS-001 — LIVING LSP LOOP proof (GALL-CHECKPOINT-002).
 //!
 //! Activates the harness-mismatch species from metadata-only to a *living*
@@ -26,7 +50,15 @@
 
 use std::path::{Path, PathBuf};
 
-use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Position, Range, Url};
+use lsp_max::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Position, Range, Url};
+
+fn url_from_path(path: impl AsRef<std::path::Path>) -> Url {
+    url::Url::from_file_path(path.as_ref())
+        .expect("absolute path")
+        .to_string()
+        .parse::<Url>()
+        .expect("valid uri")
+}
 
 use ggen_lsp::check::{check_files_in_root, discover_law_surfaces, CheckReport};
 use ggen_lsp::route::{Provenance, RouteRegistry};
@@ -382,7 +414,7 @@ async fn analyze_and_observe_records_live_harness_receipt_chain() {
     let state = ServerState::with_root(root);
 
     let cargo_path = root.join("Cargo.toml");
-    let cargo_uri = Url::from_file_path(&cargo_path).expect("cargo url");
+    let cargo_uri = url_from_path(&cargo_path);
     let cargo_src = std::fs::read_to_string(&cargo_path).expect("read Cargo.toml");
 
     // ── Act 1 — RAISE: analyze the manifest through the real orchestration.
@@ -390,7 +422,7 @@ async fn analyze_and_observe_records_live_harness_receipt_chain() {
     assert!(
         raised
             .iter()
-            .any(|(u, diags)| u == &cargo_uri && diags.iter().any(is_harness_001)),
+            .any(|(u, diags)| u == &cargo_uri && diags.iter().any(|d| is_harness_001(&d.lsp))),
         "analyze_and_observe must raise GGEN-HARNESS-001 on the manifest. published: {raised:?}"
     );
 
@@ -404,7 +436,7 @@ async fn analyze_and_observe_records_live_harness_receipt_chain() {
     assert!(
         cleared
             .iter()
-            .any(|(u, diags)| u == &cargo_uri && !diags.iter().any(is_harness_001)),
+            .any(|(u, diags)| u == &cargo_uri && !diags.iter().any(|d| is_harness_001(&d.lsp))),
         "the proof-file repair must re-publish the manifest URI without GGEN-HARNESS-001. \
          published: {cleared:?}"
     );
@@ -441,7 +473,7 @@ async fn harness_seam_raises_zero_tpl_001() {
     write_mismatch_crate(root, "tests/proof/nonexistent.rs");
     let state = ServerState::with_root(root);
 
-    let cargo_uri = Url::from_file_path(root.join("Cargo.toml")).expect("cargo url");
+    let cargo_uri = url_from_path(root.join("Cargo.toml"));
     let cargo_src = std::fs::read_to_string(root.join("Cargo.toml")).expect("read Cargo.toml");
 
     let published = state.analyze_and_observe(&cargo_uri, &cargo_src).await;
@@ -449,8 +481,8 @@ async fn harness_seam_raises_zero_tpl_001() {
     let raised_harness = published
         .iter()
         .flat_map(|(_, d)| d.iter())
-        .any(is_harness_001);
-    let raised_tpl = published.iter().flat_map(|(_, d)| d.iter()).any(is_tpl_001);
+        .any(|d| is_harness_001(&d.lsp));
+    let raised_tpl = published.iter().flat_map(|(_, d)| d.iter()).any(|d| is_tpl_001(&d.lsp));
 
     assert!(
         raised_harness,

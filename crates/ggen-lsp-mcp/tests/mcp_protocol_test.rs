@@ -1,3 +1,26 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
 //! Protocol-level test of the ggen-lsp-mcp plugin: spawn the REAL `ggen-lsp-mcp`
 //! binary and drive the MCP JSON-RPC-over-stdio handshake an MCP client (Claude Code,
 //! via `.mcp.json`) performs — initialize → tools/list → tools/call. The existing
@@ -122,13 +145,13 @@ impl Drop for McpClient {
 }
 
 #[test]
-fn mcp_handshake_lists_three_tools_with_v26_5_28_identity() {
+fn mcp_handshake_lists_three_tools_with_current_identity() {
     let mut c = McpClient::spawn();
     let init = c.initialize();
     assert_eq!(init["result"]["serverInfo"]["name"], "ggen-lsp-mcp");
     assert_eq!(
-        init["result"]["serverInfo"]["version"], "26.5.28",
-        "MCP server advertises the v26.5.28 identity"
+        init["result"]["serverInfo"]["version"], env!("CARGO_PKG_VERSION"),
+        "MCP server advertises the workspace version identity"
     );
 
     let tools = c.request("tools/list", Value::Null);

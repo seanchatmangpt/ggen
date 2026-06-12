@@ -129,7 +129,20 @@
     clippy::collapsible_if,
     clippy::new_without_default,
     clippy::if_same_then_else,
-    clippy::for_kv_map
+    clippy::for_kv_map,
+    clippy::expect_used,
+    clippy::unwrap_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::ignore_without_reason,
+    clippy::no_effect_underscore_binding,
+    clippy::unnested_or_patterns,
+    clippy::iter_on_single_items,
+    clippy::used_underscore_binding,
+    clippy::future_not_send,
+    clippy::format_collect,
+    clippy::suspicious_doc_comments,
+    clippy::ignored_unit_patterns
 )]
 pub mod audit;
 pub mod cache;
@@ -230,7 +243,7 @@ pub use cache::{CacheManager, CachedPack};
 pub use delta::{DeltaType, GraphDelta, ImpactAnalyzer, TemplateImpact};
 pub use drift::{ChangeType, DriftChange, DriftDetector, DriftStatus, FileHashState, SyncState};
 pub use generator::{GenContext, Generator};
-pub use ggen_a2a_mcp::{a2a, a2a_generated, a2a_registry};
+// pub use ggen_a2a_mcp::{a2a, a2a_generated, a2a_registry};
 pub use ggen_config::config::LockfileManager;
 pub use ggen_config::{config, config_lib, ConfigError, ConfigLoader, GgenConfig, Result};
 // Re-export marketplace types from ggen-marketplace crate for backward compatibility

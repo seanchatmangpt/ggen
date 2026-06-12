@@ -215,6 +215,8 @@ fn enumerate_proof_files(root: &Path) -> BTreeSet<PathBuf> {
             continue;
         }
         for entry in WalkDir::new(&dir)
+            .max_depth(5)
+            .follow_links(false)
             .into_iter()
             .filter_map(std::result::Result::ok)
             .filter(|e| e.file_type().is_file())

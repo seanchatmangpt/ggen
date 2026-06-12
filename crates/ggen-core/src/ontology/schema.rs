@@ -15,7 +15,7 @@ pub struct OntologySchema {
     pub properties: Vec<OntProperty>,
     /// Relationships between classes (derived from properties)
     pub relationships: Vec<OntRelationship>,
-    /// Ontology namespace (e.g., http://example.org/schema#)
+    /// Ontology namespace (e.g., `http://example.org/schema#`)
     pub namespace: String,
     /// Ontology version (rdfs:comment or owl:versionInfo)
     pub version: String,
@@ -30,7 +30,7 @@ pub struct OntologySchema {
 /// Class definition extracted from owl:Class
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct OntClass {
-    /// Full URI of the class (e.g., http://example.org/schema#Product)
+    /// Full URI of the class (e.g., `http://example.org/schema#Product`)
     pub uri: String,
     /// Short name extracted from URI (e.g., "Product")
     pub name: String,
@@ -51,7 +51,7 @@ pub struct OntClass {
 /// Property definition extracted from owl:ObjectProperty or owl:DatatypeProperty
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct OntProperty {
-    /// Full URI of the property (e.g., http://example.org/schema#hasAuthor)
+    /// Full URI of the property (e.g., `http://example.org/schema#hasAuthor`)
     pub uri: String,
     /// Short name extracted from URI (e.g., "hasAuthor")
     pub name: String,

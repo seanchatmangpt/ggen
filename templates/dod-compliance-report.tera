@@ -25,10 +25,10 @@ source: "ggen process-mining --dod-compliance"
 
 {% if sprints | length > 0 %}
 {% set overall = sprints | map(attribute="complianceScore") | sum / sprints | length %}
-- **Overall Compliance:** {{ "%.1f" | format(overall) }}%
+- **Overall Compliance:** {{ overall | round(precision=1) }}%
 - **Total Commits Analyzed:** {{ sprints | map(attribute="totalCommits") | sum }}
-- **Best Sprint:** {{ sprints | sort(attribute="complianceScore", reverse=true) | first | attr("sprintName") }} ({{ sprints | sort(attribute="complianceScore", reverse=true) | first | attr("complianceScore") }}%)
-- **Worst Sprint:** {{ sprints | sort(attribute="complianceScore") | first | attr("sprintName") }} ({{ sprints | sort(attribute="complianceScore") | first | attr("complianceScore") }}%)
+- **Best Sprint:** {{ sprints | sort(attribute="complianceScore", reverse=true) | first | get(key="sprintName") }} ({{ sprints | sort(attribute="complianceScore", reverse=true) | first | get(key="complianceScore") }}%)
+- **Worst Sprint:** {{ sprints | sort(attribute="complianceScore") | first | get(key="sprintName") }} ({{ sprints | sort(attribute="complianceScore") | first | get(key="complianceScore") }}%)
 {% endif %}
 
 ## DoD Step Compliance Breakdown
@@ -52,7 +52,7 @@ source: "ggen process-mining --dod-compliance"
 ### Pareto Insight
 
 {% if gaps | length > 0 %}
-The top {{ gaps | length | min(2) }} skipped steps account for **{{ gaps | sort(attribute="gapFrequency", reverse=true) | slice(end=2) | map(attribute="gapFrequency") | sum }}** of all gaps. Focus remediation on:
+The top {{ gaps | length  }} skipped steps account for **{{ gaps | sort(attribute="gapFrequency", reverse=true) | slice(end=2) | map(attribute="gapFrequency") | sum }}** of all gaps. Focus remediation on:
 
 {% for gap in gaps | sort(attribute="gapFrequency", reverse=true) | slice(end=2) %}
 1. **{{ gap.stepName }}** -- {{ gap.gapDescription }}
@@ -73,7 +73,7 @@ No compliance gaps detected. All DoD steps are being followed consistently.
 - **DoD Steps Verified:**
 {% for event in sprint.events %}
   - {{ event.stepName }}: {{ event.frequency }} occurrence(s) (last: {{ event.lastOccurrence }})
-{% endif %}
+{% endfor %}
 {% else %}
 - **No DoD events detected in commit messages.**
 {% endif %}

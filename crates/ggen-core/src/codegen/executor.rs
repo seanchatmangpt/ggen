@@ -131,7 +131,7 @@ pub struct SyncOptions {
 
     /// Optional LLM service for auto-generating skill implementations
     /// If None, uses default TemplateFallback generator
-    /// Note: Box<dyn LlmService> avoids cyclic dependency with ggen-ai
+    /// Note: `Box<dyn LlmService>` avoids cyclic dependency with ggen-ai
     pub llm_service: Option<Box<dyn LlmService>>,
 
     /// Timeout for sync operations in milliseconds (None = no timeout)
@@ -936,8 +936,8 @@ impl SyncExecutor {
         use crate::codegen::watch::{collect_watch_paths, FileWatcher};
         use std::time::Duration;
 
-        // Parse manifest to get watch paths
-        let manifest_data = ManifestParser::parse(manifest_path).map_err(|e| {
+        // Parse and validate manifest to get watch paths
+        let manifest_data = ManifestParser::parse_and_validate(manifest_path).map_err(|e| {
             Error::new(&format!(
                 "error[E0001]: Manifest parse error\n  --> {}\n  |\n  = error: {}\n  = help: Check ggen.toml syntax",
                 manifest_path.display(),

@@ -93,6 +93,7 @@ pub struct InstallOutput {
 /// Add (install) a pack by name
 #[verb]
 pub fn add(pack_name: String, force: Option<bool>) -> Result<AddOutput> {
+    validate_pack_name(&pack_name)?;
     // Verify the pack exists before attempting installation
     if let Err(e) = load_pack_metadata(&pack_name) {
         return Ok(AddOutput {

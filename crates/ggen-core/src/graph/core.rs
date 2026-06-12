@@ -481,28 +481,28 @@ impl Graph {
         let cache_key = (query_hash, epoch);
 
         // Check result cache
-        if let Some(cached) = self
-            .result_cache
-            .lock()
-            .map_err(|_| Error::new("Cache lock poisoned"))?
-            .get(&cache_key)
-            .cloned()
         {
-            return Ok(cached);
+            let mut cache_guard = self
+                .result_cache
+                .lock()
+                .map_err(|_| Error::new("Cache lock poisoned"))?;
+            if let Some(cached) = cache_guard.get(&cache_key).cloned() {
+                return Ok(cached);
+            }
         }
 
         // Re-check epoch after cache miss
         let final_epoch = self.current_epoch();
         let final_cache_key = if final_epoch != epoch {
             let new_cache_key = (query_hash, final_epoch);
-            if let Some(cached) = self
-                .result_cache
-                .lock()
-                .map_err(|_| Error::new("Cache lock poisoned"))?
-                .get(&new_cache_key)
-                .cloned()
             {
-                return Ok(cached);
+                let mut cache_guard2 = self
+                    .result_cache
+                    .lock()
+                    .map_err(|_| Error::new("Cache lock poisoned"))?;
+                if let Some(cached) = cache_guard2.get(&new_cache_key).cloned() {
+                    return Ok(cached);
+                }
             }
             new_cache_key
         } else {

@@ -1,0 +1,19 @@
+// Tree-sitter grammar codegen is optional.
+// Uncomment and configure if your server uses auto-lsp AST generation.
+//
+// fn main() {
+//     let source = {{ tree_sitter_crate }}::NODE_TYPES;
+//     let tokens = std::collections::HashMap::new();
+//     let token_stream = lsp_max_ast_codegen::generate(
+//         source,
+//         &{{ tree_sitter_crate }}::LANGUAGE.into(),
+//         Some(tokens),
+//     );
+//     let out_dir = std::env::var_os("OUT_DIR").unwrap();
+//     let dest_path = std::path::Path::new(&out_dir).join("generated_ast.rs");
+//     std::fs::write(&dest_path, token_stream.to_string())
+//         .expect("Failed to write AST generation");
+//     println!("cargo:rerun-if-changed=build.rs");
+// }
+
+fn main() {}

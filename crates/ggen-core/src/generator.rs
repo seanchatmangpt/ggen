@@ -346,7 +346,7 @@ impl Generator {
         )?;
 
         // Render body
-        let rendered = tmpl.render(&mut self.pipeline.tera, &tctx)?;
+        let rendered = tmpl.render(&mut self.pipeline.tera, &tctx, &self.ctx.template_path)?;
 
         // Determine output path
         let output_path = if let Some(to_path) = &tmpl.front.to {
@@ -422,9 +422,26 @@ impl Generator {
     }
 }
 
+/// Whitelist of safe environment variables that can be injected into templates.
+/// This prevents sensitive secrets (like API keys) from leaking into generated code.
+const ENV_WHITELIST: &[&str] = &[
+    "PATH",
+    "USER",
+    "LANG",
+    "LC_ALL",
+    "PWD",
+    "HOME",
+    "GGEN_LOG",
+    "GGEN_CONFIG",
+    "GGEN_PROJECT_ROOT",
+];
+
 fn insert_env(ctx: &mut Context) {
     for (k, v) in env::vars() {
-        ctx.insert(&k, &v);
+        // Only insert variables that are in the whitelist or start with GGEN_ or TEST_GGEN_ (for tests)
+        if ENV_WHITELIST.contains(&k.as_str()) || k.starts_with("GGEN_") || k.starts_with("TEST_GGEN_") {
+            ctx.insert(&k, &v);
+        }
     }
 }
 
@@ -525,7 +542,7 @@ mod tests {
 
     #[test]
     fn test_generate_simple_template() {
-        let (_temp_dir, template_path) = create_test_template(
+        let (temp_dir, template_path) = create_test_template(
             r#"---
 to: "output/{{ name | lower }}.rs"
 ---
@@ -535,7 +552,7 @@ to: "output/{{ name | lower }}.rs"
 "#,
         );
 
-        let output_dir = _temp_dir.path();
+        let output_dir = temp_dir.path();
         let pipeline = create_test_pipeline();
         let mut vars = BTreeMap::new();
         vars.insert("name".to_string(), "MyApp".to_string());
@@ -562,7 +579,7 @@ to: "output/{{ name | lower }}.rs"
 
     #[test]
     fn test_generate_dry_run() {
-        let (_temp_dir, template_path) = create_test_template(
+        let (temp_dir, template_path) = create_test_template(
             r#"---
 to: "output/{{ name | lower }}.rs"
 ---
@@ -570,7 +587,7 @@ to: "output/{{ name | lower }}.rs"
 "#,
         );
 
-        let output_dir = _temp_dir.path();
+        let output_dir = temp_dir.path();
         let pipeline = create_test_pipeline();
         let mut vars = BTreeMap::new();
         vars.insert("name".to_string(), "MyApp".to_string());
@@ -592,7 +609,7 @@ to: "output/{{ name | lower }}.rs"
 
     #[test]
     fn test_generate_with_default_output() {
-        let (_temp_dir, template_path) = create_test_template(
+        let (temp_dir, template_path) = create_test_template(
             r#"---
 {}
 ---
@@ -600,7 +617,7 @@ to: "output/{{ name | lower }}.rs"
 "#,
         );
 
-        let output_dir = _temp_dir.path();
+        let output_dir = temp_dir.path();
         let pipeline = create_test_pipeline();
         let ctx = GenContext::new(template_path, output_dir.to_path_buf());
 
@@ -621,7 +638,7 @@ to: "output/{{ name | lower }}.rs"
 
     #[test]
     fn test_generate_with_nested_output_path() {
-        let (_temp_dir, template_path) = create_test_template(
+        let (temp_dir, template_path) = create_test_template(
             r#"---
 to: "src/{{ module }}/{{ name | lower }}.rs"
 ---
@@ -629,7 +646,7 @@ to: "src/{{ module }}/{{ name | lower }}.rs"
 "#,
         );
 
-        let output_dir = _temp_dir.path();
+        let output_dir = temp_dir.path();
         let pipeline = create_test_pipeline();
         let mut vars = BTreeMap::new();
         vars.insert("name".to_string(), "MyModule".to_string());
@@ -652,7 +669,7 @@ to: "src/{{ module }}/{{ name | lower }}.rs"
 
     #[test]
     fn test_generate_invalid_template() {
-        let (_temp_dir, template_path) = create_test_template(
+        let (temp_dir, template_path) = create_test_template(
             r#"---
 invalid_yaml: [unclosed
 ---
@@ -660,7 +677,7 @@ invalid_yaml: [unclosed
 "#,
         );
 
-        let output_dir = _temp_dir.path();
+        let output_dir = temp_dir.path();
         let pipeline = create_test_pipeline();
         let ctx = GenContext::new(template_path, output_dir.to_path_buf());
 

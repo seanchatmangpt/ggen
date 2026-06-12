@@ -102,7 +102,7 @@ impl PackageBuilder {
     ///
     /// # Errors
     ///
-    /// * [`Error::Other`] - When required fields (id, name, description, license) are missing
+    /// * `Error::Other` - When required fields (id, name, description, license) are missing
     pub fn build(self) -> Result<PackageMetadata> {
         let id = self.id.ok_or_else(|| {
             crate::marketplace::error::Error::Other("Package ID is required".to_string())

@@ -311,6 +311,7 @@ impl LeanSixSigmaGate {
                                 }
                                 crate::manifest::TemplateSource::Git { .. } => {}
                                 crate::manifest::TemplateSource::Package { .. } => {}
+                                crate::manifest::TemplateSource::Pack { .. } => {}
                             }
                         }
                         Ok(())
@@ -579,12 +580,14 @@ mod tests {
                 name: "test-project".to_string(),
                 version: "1.0.0".to_string(),
                 description: Some("Test project for DMAIC validation".to_string()),
+                ..Default::default()
             },
             ontology: crate::manifest::OntologyConfig {
                 source: PathBuf::from("ontology.ttl"),
                 imports: vec![],
                 base_iri: None,
                 prefixes: Default::default(),
+                ..Default::default()
             },
             generation: crate::manifest::GenerationConfig {
                 output_dir: PathBuf::from("output"),
@@ -614,6 +617,8 @@ mod tests {
                 max_reasoning_timeout_ms: 5000,
             },
             validation: Default::default(),
+            packs: vec![],
+            ..Default::default()
         }
     }
 

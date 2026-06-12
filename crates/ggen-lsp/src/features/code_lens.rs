@@ -16,8 +16,8 @@
 //! contract, so the interactive server and any headless caller see identical
 //! lenses.
 
+use lsp_max::lsp_types::{CodeLens, Command, Position, Range};
 use serde_json::Value;
-use tower_lsp::lsp_types::{CodeLens, Command, Position, Range};
 
 use crate::state::FileType;
 

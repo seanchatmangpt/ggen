@@ -60,7 +60,7 @@ pub struct BuildReceipt {
     /// Passes that were executed
     pub passes: Vec<PassExecution>,
 
-    /// Output files with hashes (Vec<FileInfo>)
+    /// Output files with hashes (`Vec<FileInfo>`)
     pub outputs: Vec<OutputFile>,
 
     /// SHA-256 of all output hashes (for quick verification)

@@ -141,7 +141,7 @@ mod tests {
         RouteBindings, RouteId, StepId,
     };
     use crate::route::{edit::route_plan, plan::DiagnosticRef};
-    use tower_lsp::lsp_types::{Position, Range};
+    use lsp_max::lsp_types::{Position, Range};
 
     fn sample_plan() -> RoutePlan {
         let route = RepairRoute {

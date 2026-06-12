@@ -15,7 +15,7 @@ cd ~/ggen && cargo build -p ggen-core -p ggen-cli-lib
 # 2. Observability Check
 echo "2. Verifying OTel integration..."
 # Check that the core now compiles with tracing-opentelemetry
-grep -r "tracing_opentelemetry" crates/ggen-core/src/tracing.rs
+grep -r "tracing_opentelemetry" crates/ggen-core/src/telemetry.rs
 
 # 3. Manufacturing Operator Verification
 echo "3. Verifying manufacturing operator definitions..."

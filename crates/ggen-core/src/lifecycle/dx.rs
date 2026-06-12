@@ -11,6 +11,7 @@ use colored::*;
 use std::time::{Duration, Instant};
 
 /// Boolean display flags for execution mode
+#[allow(clippy::struct_excessive_bools)] // Four bools are semantically distinct display control flags
 #[derive(Debug, Clone, Copy)]
 pub struct DisplayFlags {
     /// Enable verbose output (shows all commands before execution)

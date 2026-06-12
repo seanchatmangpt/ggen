@@ -14,34 +14,3 @@ packages = [
     "ai-microservice",
 ]
 
-[[pack.templates]]
-name = "ml-pipeline"
-path = "templates/ml-pipeline"
-description = "End-to-end ML pipeline template"
-variables = ["model_type", "dataset", "metrics"]
-
-[[pack.templates]]
-name = "jupyter-notebook"
-path = "templates/jupyter-notebook"
-description = "Jupyter notebook template for experiments"
-variables = ["experiment_name", "data_source"]
-
-[pack.metadata]
-test_coverage = "90%"
-code_examples = 12
-documentation_files = 8
-
-tags = ["ml", "ai", "data-science", "machine-learning", "data-pipeline"]
-keywords = ["machine-learning", "data-science", "ml-pipeline", "jupyter", "visualization"]
-
-[pack.sparql_queries]
-list_models = """
-PREFIX ggen: <http://ggen.io/ontology#>
-SELECT ?model ?name ?type ?accuracy
-WHERE {
-    ?model a ggen:MLModel ;
-           ggen:modelName ?name ;
-           ggen:modelType ?type ;
-           ggen:accuracy ?accuracy .
-}
-"""

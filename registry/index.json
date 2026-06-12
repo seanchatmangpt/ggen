@@ -1,0 +1,39 @@
+{
+  "updated": "2026-04-02T00:00:00Z",
+  "packs": {
+    "io.ggen.rust.cli-subcommand": {
+      "id": "io.ggen.rust.cli-subcommand",
+      "name": "Rust CLI Subcommand Generator",
+      "description": "Generate clap subcommands for Rust CLI applications with full argument parsing",
+      "latest_version": "0.1.0",
+      "category": "rust",
+      "author": "ggen-team",
+      "tags": ["rust", "cli", "clap", "subcommand"],
+      "keywords": ["command-line", "argument-parsing", "interactive"],
+      "versions": {
+        "0.1.0": {
+          "git_url": "https://github.com/seanchatmangpt/ggen.git",
+          "git_rev": "11ea0739a579165c33fde5fb4d5a347bed6f5c58",
+          "sha256": "58db67ac8440401e6a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f"
+        }
+      }
+    },
+    "io.ggen.python.web-api": {
+      "id": "io.ggen.python.web-api",
+      "name": "Python Web API Generator",
+      "description": "Generate FastAPI web API endpoints from OpenAPI specifications",
+      "latest_version": "0.1.0",
+      "category": "python",
+      "author": "ggen-team",
+      "tags": ["python", "api", "fastapi", "openapi"],
+      "keywords": ["web-api", "rest", "http"],
+      "versions": {
+        "0.1.0": {
+          "git_url": "https://github.com/seanchatmangpt/ggen.git",
+          "git_rev": "22fb1840b690516d4b3c4e5f6a7b8c9d0e1f2a3b",
+          "sha256": "69ec78bd9551512f7b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a"
+        }
+      }
+    }
+  }
+}

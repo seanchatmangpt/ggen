@@ -7,13 +7,13 @@
 //!
 //! Plus keyword/variable completion and a variable outline.
 
-use std::collections::BTreeSet;
-use tower_lsp::lsp_types::{
+use lsp_max::lsp_types::{
     CompletionItem, CompletionItemKind, CompletionResponse, Diagnostic, DiagnosticSeverity, Hover,
     Location, Position, Range, SymbolKind, TextEdit, WorkspaceEdit,
 };
+use std::collections::BTreeSet;
 
-use ggen_core::manifest::validation::query_contains_values;
+use ggen_core::manifest::validation::{query_contains_values, query_has_order_by};
 use ggen_graph::{check_sparql_syntax, sparql_kind, SparqlKind};
 
 use crate::analyzers::diag;
@@ -55,42 +55,72 @@ impl SparqlAnalyzer {
 
     /// The SPARQL laws, surfaced as diagnostics carrying ggen's real E00XX codes.
     #[must_use]
-    pub fn diagnostics(&self) -> Vec<Diagnostic> {
+    pub fn diagnostics(&self) -> Vec<lsp_max_protocol::MaxDiagnostic> {
         let mut diags = Vec::new();
 
         // Syntax (oxigraph parser). spargebra does not expose a position, so we
         // anchor the message to the first line.
         if let Err(message) = check_sparql_syntax(&self.source) {
-            diags.push(diag::whole_line(
+            diags.push(diag::max_whole_line(
                 0,
                 DiagnosticSeverity::ERROR,
                 None,
                 format!("SPARQL syntax error: {message}"),
+                lsp_max_protocol::LawAxis::Autopoiesis,
             ));
         }
 
         // E0010 — VALUES forbidden in external .rq files.
         if query_contains_values(&self.source) {
             if let Some(line) = find_line(&self.source, "VALUES") {
-                diags.push(diag::whole_line(
+                diags.push(diag::max_whole_line(
                     line,
                     DiagnosticSeverity::ERROR,
                     Some("E0010"),
                     "VALUES data must be inline in ggen.toml — External .rq files are for \
                      queries against real RDF triples only",
+                    lsp_max_protocol::LawAxis::Domain,
                 ));
             }
         }
 
         // E0011 — CONSTRUCT should carry ORDER BY (required under strict_mode).
         if sparql_kind(&self.source) == SparqlKind::Construct
-            && !self.source.to_ascii_uppercase().contains("ORDER BY")
+            && !query_has_order_by(&self.source)
         {
-            diags.push(diag::whole_line(
+            diags.push(diag::max_whole_line(
                 0,
                 DiagnosticSeverity::WARNING,
                 Some("E0011"),
                 "CONSTRUCT query lacks ORDER BY — required when strict_mode is enabled",
+                lsp_max_protocol::LawAxis::Domain,
+            ));
+        }
+
+        // E0013 — SELECT should carry ORDER BY (required under strict_mode).
+        if sparql_kind(&self.source) == SparqlKind::Select
+            && !query_has_order_by(&self.source)
+        {
+            diags.push(diag::max_whole_line(
+                0,
+                DiagnosticSeverity::WARNING,
+                Some("E0013"),
+                "SELECT query lacks ORDER BY — required when strict_mode is enabled",
+                lsp_max_protocol::LawAxis::Domain,
+            ));
+        }
+
+        // E0015 — Identity CONSTRUCT (no-op mapping).
+        if sparql_kind(&self.source) == SparqlKind::Construct
+            && is_identity_construct(&self.source)
+        {
+            diags.push(diag::max_whole_line(
+                0,
+                DiagnosticSeverity::WARNING,
+                Some("E0015"),
+                "Identity CONSTRUCT query detected — this is a no-op mapping that just \
+                 copies triples. Ensure this is intended.",
+                lsp_max_protocol::LawAxis::Domain,
             ));
         }
 
@@ -128,28 +158,24 @@ impl SparqlAnalyzer {
         None
     }
 
-    pub fn semantic_tokens(&self) -> Option<tower_lsp::lsp_types::SemanticTokens> {
+    pub fn semantic_tokens(&self) -> Option<lsp_max::lsp_types::SemanticTokens> {
         None
     }
 
-    pub fn document_symbols(&self) -> Option<Vec<tower_lsp::lsp_types::DocumentSymbol>> {
-        let symbols: Vec<_> = self
-            .variables()
+    pub fn document_symbols(
+        &self, _range: Option<Range>,
+    ) -> Vec<lsp_max::lsp_types::DocumentSymbol> {
+        self.variables()
             .into_iter()
             .map(|var| make_symbol(&var))
-            .collect();
-        if symbols.is_empty() {
-            None
-        } else {
-            Some(symbols)
-        }
+            .collect()
     }
 
-    pub fn code_lenses(&self) -> Option<Vec<tower_lsp::lsp_types::CodeLens>> {
+    pub fn code_lenses(&self) -> Option<Vec<lsp_max::lsp_types::CodeLens>> {
         None
     }
 
-    pub fn folding_ranges(&self) -> Option<Vec<tower_lsp::lsp_types::FoldingRange>> {
+    pub fn folding_ranges(&self) -> Option<Vec<lsp_max::lsp_types::FoldingRange>> {
         None
     }
 
@@ -157,8 +183,8 @@ impl SparqlAnalyzer {
         None
     }
 
-    pub fn inlay_hints(&self) -> Option<Vec<tower_lsp::lsp_types::InlayHint>> {
-        None
+    pub fn inlay_hints(&self, _range: Option<Range>) -> Vec<lsp_max::lsp_types::InlayHint> {
+        Vec::new()
     }
 
     pub fn rename_symbol(&self, _position: Position, _new_name: &str) -> Option<WorkspaceEdit> {
@@ -167,7 +193,7 @@ impl SparqlAnalyzer {
 
     pub fn call_hierarchy_items(
         &self, _position: Position,
-    ) -> Option<Vec<tower_lsp::lsp_types::CallHierarchyItem>> {
+    ) -> Option<Vec<lsp_max::lsp_types::CallHierarchyItem>> {
         None
     }
 
@@ -199,7 +225,7 @@ fn find_line(source: &str, needle: &str) -> Option<u32> {
     })
 }
 
-fn make_symbol(name: &str) -> tower_lsp::lsp_types::DocumentSymbol {
+fn make_symbol(name: &str) -> lsp_max::lsp_types::DocumentSymbol {
     let range = Range {
         start: Position {
             line: 0,
@@ -211,7 +237,7 @@ fn make_symbol(name: &str) -> tower_lsp::lsp_types::DocumentSymbol {
         },
     };
     #[allow(deprecated)]
-    tower_lsp::lsp_types::DocumentSymbol {
+    lsp_max::lsp_types::DocumentSymbol {
         name: name.to_string(),
         detail: None,
         kind: SymbolKind::VARIABLE,
@@ -221,6 +247,44 @@ fn make_symbol(name: &str) -> tower_lsp::lsp_types::DocumentSymbol {
         selection_range: range,
         children: None,
     }
+}
+
+/// Returns true if `query` is an identity CONSTRUCT (no-op mapping).
+fn is_identity_construct(query: &str) -> bool {
+    let stripped: String = query
+        .lines()
+        .filter(|l| !l.trim_start().starts_with('#'))
+        .collect::<Vec<_>>()
+        .join(" ");
+    let upper = stripped.to_uppercase();
+
+    if !upper.contains("CONSTRUCT") {
+        return false;
+    }
+
+    // 1) CONSTRUCT WHERE { ... }
+    if let Some(pos) = upper.find("CONSTRUCT") {
+        let after = upper[pos + 9..].trim();
+        if after.starts_with("WHERE") {
+            return true;
+        }
+    }
+
+    // 2) CONSTRUCT { PATTERN } WHERE { PATTERN }
+    if let (Some(s1), Some(e1)) = (upper.find('{'), upper.find('}')) {
+        let block1 = upper[s1 + 1..e1].trim();
+        if let Some(after_block1) = upper[e1 + 1..].find("WHERE") {
+            let remainder = &upper[e1 + 1 + after_block1 + 5..];
+            if let (Some(s2), Some(e2)) = (remainder.find('{'), remainder.find('}')) {
+                let block2 = remainder[s2 + 1..e2].trim();
+                if !block1.is_empty() && block1 == block2 {
+                    return true;
+                }
+            }
+        }
+    }
+
+    false
 }
 
 #[cfg(test)]
@@ -234,7 +298,7 @@ mod tests {
         let diags = analyzer.diagnostics();
         assert!(diags
             .iter()
-            .any(|d| d.code == Some(tower_lsp::lsp_types::NumberOrString::String("E0010".into()))));
+            .any(|d| d.lsp.code == Some(lsp_max::lsp_types::NumberOrString::String("E0010".into()))));
     }
 
     #[test]
@@ -244,12 +308,39 @@ mod tests {
         let diags = analyzer.diagnostics();
         assert!(diags
             .iter()
-            .any(|d| d.code == Some(tower_lsp::lsp_types::NumberOrString::String("E0011".into()))));
+            .any(|d| d.lsp.code == Some(lsp_max::lsp_types::NumberOrString::String("E0011".into()))));
+    }
+
+    #[test]
+    fn select_without_order_by_triggers_e0013() {
+        let q = "SELECT ?s WHERE { ?s ?p ?o }";
+        let analyzer = SparqlAnalyzer::new_from_content(q).expect("analyzer");
+        let diags = analyzer.diagnostics();
+        assert!(diags
+            .iter()
+            .any(|d| d.lsp.code == Some(lsp_max::lsp_types::NumberOrString::String("E0013".into()))));
+    }
+
+    #[test]
+    fn identity_construct_triggers_e0015() {
+        let q = "CONSTRUCT WHERE { ?s ?p ?o }";
+        let analyzer = SparqlAnalyzer::new_from_content(q).expect("analyzer");
+        let diags = analyzer.diagnostics();
+        assert!(diags
+            .iter()
+            .any(|d| d.lsp.code == Some(lsp_max::lsp_types::NumberOrString::String("E0015".into()))));
+
+        let q2 = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }";
+        let analyzer2 = SparqlAnalyzer::new_from_content(q2).expect("analyzer");
+        let diags2 = analyzer2.diagnostics();
+        assert!(diags2
+            .iter()
+            .any(|d| d.lsp.code == Some(lsp_max::lsp_types::NumberOrString::String("E0015".into()))));
     }
 
     #[test]
     fn clean_select_has_no_law_violations() {
-        let q = "SELECT ?s WHERE { ?s ?p ?o }";
+        let q = "SELECT ?s WHERE { ?s ?p ?o } ORDER BY ?s";
         let analyzer = SparqlAnalyzer::new_from_content(q).expect("analyzer");
         assert!(analyzer.diagnostics().is_empty());
     }

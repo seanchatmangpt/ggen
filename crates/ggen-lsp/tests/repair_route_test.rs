@@ -1,3 +1,26 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
 //! Chicago TDD: end-to-end repair-route projection over real analyzer output.
 //!
 //! Proves the POWL-native loop without an LSP client: a real ggen config
@@ -17,19 +40,19 @@ fn invalid_enum_value_yields_an_advisory_route_not_a_destructive_edit() {
     let diags = analyzer.diagnostics();
     let enum_diag = diags
         .iter()
-        .find(|d| d.message.contains("invalid value"))
+        .find(|d| d.lsp.message.contains("invalid value"))
         .expect("invalid-enum diagnostic present");
 
     // Family mapping (E0023 → ConfigValue).
     assert_eq!(
-        family_of_diagnostic(enum_diag),
+        family_of_diagnostic(&enum_diag.lsp),
         Some(RepairFamily::ConfigValue)
     );
 
     // Registry selects an advisory route; its steps carry NO concrete edit
     // (we must never guess/delete the value).
     let registry = RouteRegistry::seeded();
-    let plan = route_plan_for_diagnostic(&registry, enum_diag, "[logging]\nlevel = \"verbose\"\n")
+    let plan = route_plan_for_diagnostic(&registry, &enum_diag.lsp, "[logging]\nlevel = \"verbose\"\n")
         .expect("an advisory route exists");
     assert!(
         !plan.ordered_steps.is_empty(),

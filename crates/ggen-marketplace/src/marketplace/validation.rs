@@ -62,7 +62,7 @@ pub trait Validator: Send + Sync {
     /// # Errors
     ///
     /// Implementations may return:
-    /// * [`Error::ValidationFailed`] - When validation fails
+    /// * `Error::ValidationFailed` - When validation fails
     async fn validate(&self, package: &Package) -> Result<ValidationCheck>;
 
     /// Get validator name
@@ -105,7 +105,7 @@ impl PackageValidator {
     ///
     /// # Errors
     ///
-    /// * [`Error::ValidationFailed`] - When any validator fails with a critical error
+    /// * `Error::ValidationFailed` - When any validator fails with a critical error
     pub async fn validate_all(&self, package: &Package) -> Result<ValidationResult> {
         let mut checks = Vec::new();
         let mut total_weight = 0;

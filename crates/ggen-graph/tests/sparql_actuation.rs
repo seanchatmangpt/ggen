@@ -1,3 +1,26 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
 use ggen_graph::DeterministicGraph;
 use oxigraph::io::{RdfFormat, RdfParser};
 use oxigraph::sparql::QueryResults;
@@ -116,11 +139,11 @@ fn test_hook_pack_w0_construct_query_against_real_store() -> Result<(), Box<dyn 
 
     // Create a data store with SPDX file triples (simulating worktree evidence)
     let data_store = Store::new()?;
-    let spdx_data = r#"
+    let spdx_data = r"
         @prefix spdx: <http://spdx.org/rdf/terms#> .
         <http://example.org/file1> a spdx:File .
         <http://example.org/file2> a spdx:File .
-    "#;
+    ";
     data_store
         .load_from_reader(
             RdfParser::from_format(RdfFormat::Turtle),
@@ -265,7 +288,7 @@ fn test_all_hook_pack_queries_are_valid_sparql() -> Result<(), Box<dyn Error>> {
         )
         .map_err(|e| format!("Failed to parse hook pack: {}", e))?;
 
-    let fetch_all_queries = r#"
+    let fetch_all_queries = r"
         PREFIX prov: <http://www.w3.org/ns/prov#>
         PREFIX dcterms: <http://purl.org/dc/terms/>
         SELECT ?id ?query WHERE {
@@ -274,7 +297,7 @@ fn test_all_hook_pack_queries_are_valid_sparql() -> Result<(), Box<dyn Error>> {
                   prov:value ?query .
         }
         ORDER BY ?id
-    "#;
+    ";
 
     #[allow(deprecated)]
     let results = hook_store.query(fetch_all_queries)?;

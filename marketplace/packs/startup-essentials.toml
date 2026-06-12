@@ -14,18 +14,3 @@ packages = [
     "rest-api-template",
     "cli-application-template",
 ]
-
-[[pack.templates]]
-name = "quick-start"
-path = "templates/quick-start"
-description = "Quick start template for new projects"
-variables = ["project_name", "author", "license"]
-
-[pack.metadata]
-test_coverage = "85%"
-code_examples = 10
-documentation_files = 5
-
-tags = ["startup", "mvp", "essential", "cli", "api"]
-keywords = ["startup", "mvp", "templates", "cli", "rest-api"]
-sparql_queries = {}

@@ -30,10 +30,10 @@ pub enum LspError {
     Unknown(String),
 }
 
-impl From<LspError> for tower_lsp::jsonrpc::Error {
+impl From<LspError> for lsp_max::jsonrpc::Error {
     fn from(err: LspError) -> Self {
-        tower_lsp::jsonrpc::Error {
-            code: tower_lsp::jsonrpc::ErrorCode::InternalError,
+        lsp_max::jsonrpc::Error {
+            code: lsp_max::jsonrpc::ErrorCode::InternalError,
             message: err.to_string().into(),
             data: None,
         }

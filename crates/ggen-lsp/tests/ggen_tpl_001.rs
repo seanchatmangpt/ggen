@@ -1,3 +1,27 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
+
 //! Integration tests proving GGEN-TPL-001 ("unbound projection variable in
 //! template") from real project context.
 //!
@@ -14,13 +38,13 @@
 //!   field `rule_entries: Vec<RuleIndexEntry>`; each `RuleIndexEntry` carries a
 //!   public `issues: Vec<String>` for index/source-level problems.
 //! * Agent 2 — `ggen_lsp::analyzers::detect_tpl_001(&ProjectIndex)
-//!   -> Vec<(PathBuf, Vec<tower_lsp::lsp_types::Diagnostic>)>`. Each emitted
+//!   -> Vec<(PathBuf, Vec<lsp_max::lsp_types::Diagnostic>)>`. Each emitted
 //!   `Diagnostic` carries `code == "GGEN-TPL-001"` and
 //!   `severity == DiagnosticSeverity::ERROR`.
 
 use std::path::{Path, PathBuf};
 
-use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString};
+use lsp_max::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString};
 
 use ggen_lsp::analyzers::{detect_out_001, detect_tpl_001};
 use ggen_lsp::project_index::ProjectIndex;
@@ -40,6 +64,8 @@ fn load(root: &Path) -> ProjectIndex {
         .unwrap_or_else(|e| panic!("ProjectIndex::from_root({}) failed: {e:?}", root.display()))
 }
 
+use lsp_max_protocol::MaxDiagnostic;
+
 /// True if a `Diagnostic.code` renders as exactly `GGEN-TPL-001`.
 fn is_tpl_001(d: &Diagnostic) -> bool {
     matches!(
@@ -49,21 +75,21 @@ fn is_tpl_001(d: &Diagnostic) -> bool {
 }
 
 /// Count GGEN-TPL-001 diagnostics across the per-file grouping returned by
-/// `detect_tpl_001` (`Vec<(PathBuf, Vec<Diagnostic>)>`).
-fn count_tpl_001(grouped: &[(PathBuf, Vec<Diagnostic>)]) -> usize {
+/// `detect_tpl_001` (`Vec<(PathBuf, Vec<MaxDiagnostic>)>`).
+fn count_tpl_001(grouped: &[(PathBuf, Vec<MaxDiagnostic>)]) -> usize {
     grouped
         .iter()
         .flat_map(|(_, diags)| diags.iter())
-        .filter(|d| is_tpl_001(d))
+        .filter(|d| is_tpl_001(&d.lsp))
         .count()
 }
 
 /// True if any GGEN-TPL-001 diagnostic is at ERROR severity.
-fn has_tpl_001_error(grouped: &[(PathBuf, Vec<Diagnostic>)]) -> bool {
+fn has_tpl_001_error(grouped: &[(PathBuf, Vec<MaxDiagnostic>)]) -> bool {
     grouped
         .iter()
         .flat_map(|(_, diags)| diags.iter())
-        .any(|d| is_tpl_001(d) && d.severity == Some(DiagnosticSeverity::ERROR))
+        .any(|d| is_tpl_001(&d.lsp) && d.lsp.severity == Some(DiagnosticSeverity::ERROR))
 }
 
 /// 1. A rule whose template consumes only bound projection variables must NOT
@@ -193,7 +219,7 @@ fn output_path_unbound_emits_out_001() {
     let out_codes: Vec<String> = out
         .iter()
         .flat_map(|(_, diags)| diags.iter())
-        .filter_map(|d| match &d.code {
+        .filter_map(|d| match &d.lsp.code {
             Some(NumberOrString::String(s)) => Some(s.clone()),
             _ => None,
         })

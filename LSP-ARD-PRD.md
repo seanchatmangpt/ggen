@@ -10,20 +10,22 @@
 
 ## Executive Summary
 
-ggen v26.5.21 lacks IDE support for the three primary file types it operates on:
+ggen v26.6.9 lacks IDE support for the three primary file types it operates on:
 - **RDF Turtle** (`.ttl` — specification ontologies)
 - **Tera** (`.tera` — code generation templates)
 - **TOML** (`ggen.toml` — project configuration)
 
-This document specifies a **ggen-lsp crate** that implements LSP 3.17 (November 2022 spec) to provide:
+This document specifies a **ggen-lsp crate** that implements LSP 3.17 (November 2022 spec) and the **lsp-max 26.6.9** extensions to provide:
 - **Syntax validation** — catch RDF/Tera/TOML errors before `ggen sync`
 - **Completion** — suggest RDF predicates, Tera filters, ggen config keys
 - **Hover** — show SHACL shapes, template variable types, config documentation
 - **Diagnostics** — warn on undefined Tera variables, SPARQL syntax errors, orphan RDF triples
 - **Definition jumping** — navigate from template vars to ontology definitions
 - **References** — find all templates that use a given ontology class
+- **Max Protocol Extensions** — Support for snapshots, conformance vectors, and cryptographic receipts via `max/*` methods.
+- **Autonomic Mesh & Law Axis** — Integration with the `lsp-max` AutonomicMesh for decentralized state synchronization and LawAxis for semantic policy enforcement.
 
-**Success Criteria**: LSP server runs standalone, integrates with VSCode plugin, passes Chicago TDD test suite (80%+ coverage).
+**Success Criteria**: LSP server runs standalone, integrates with VSCode plugin, passes Chicago TDD test suite (80%+ coverage), and satisfies all `max/*` conformance vectors.
 
 ---
 
@@ -62,7 +64,9 @@ crates/ggen-lsp/
 
 **Required (new)**:
 ```toml
-tower-lsp = "0.20"              # LSP server framework
+lsp-max = "26.6.9"              # LSP server framework
+lsp-max-protocol = "26.6.9"     # Max protocol extensions (snapshots, receipts)
+lsp-max-macros = "26.6.9"       # AutonomicMesh/LawAxis derivation
 tokio = { version = "1", features = ["full"] }
 serde_json = "1"
 ```
@@ -88,7 +92,7 @@ ggen lsp --transport http --port 9999  # For debugging
 ```rust
 use ggen_lsp::{GgenLanguageServer, ServerState};
 let server = GgenLanguageServer::new(ServerState::default());
-// tower-lsp runs server
+// lsp-max runs server
 ```
 
 ---
@@ -227,14 +231,14 @@ Completion Items:
 **File**: `server.rs`
 
 ```rust
-use tower_lsp::{LanguageServer, LspService, Server};
+use lsp_max::{LanguageServer, LspService, Server};
 use lsp_types::*;
 
 pub struct GgenLanguageServer {
     state: Arc<Mutex<ServerState>>,
 }
 
-#[tower_lsp::async_trait]
+#[lsp_max::async_trait]
 impl LanguageServer for GgenLanguageServer {
     async fn initialize(&self, params: InitializeParams) -> Result<InitializeResult> {
         // Declare full capability set: completion, hover, definition, references,
@@ -539,6 +543,12 @@ pub struct ServerState {
     
     /// Configuration (from ggen.toml or LSP client settings)
     pub config: ServerConfig,
+
+    /// AutonomicMesh for decentralized state sync
+    pub mesh: AutonomicMesh,
+    
+    /// LawAxis for semantic policy enforcement
+    pub axis: LawAxis,
 }
 
 pub enum DocumentAnalyzer {
@@ -973,7 +983,7 @@ async fn test_lsp_initialize_and_completion() {
 ### Phase 1: Foundation (Week 1)
 
 - [ ] Create `ggen-lsp` crate with `Cargo.toml`
-- [ ] Wire up `tower-lsp` + `LanguageServer` trait skeleton
+- [ ] Wire up `lsp-max` + `LanguageServer` trait skeleton
 - [ ] Implement `ServerState` + document caching
 - [ ] Add `ggen lsp` CLI command (ggen-cli integration)
 - [ ] Test: LSP server initializes and accepts connections
@@ -1039,17 +1049,17 @@ pub enum LspError {
     TomlValidationError(String),
     
     // LSP protocol errors
-    LspProtocolError(tower_lsp::LspError),
+    LspProtocolError(lsp_max::LspError),
     
     // Generic
     IoError(std::io::Error),
     Unknown(String),
 }
 
-impl From<LspError> for tower_lsp::LspError {
+impl From<LspError> for lsp_max::LspError {
     fn from(err: LspError) -> Self {
-        tower_lsp::LspError {
-            code: tower_lsp::ErrorCode::InternalError as i32,
+        lsp_max::LspError {
+            code: lsp_max::ErrorCode::InternalError as i32,
             message: format!("{:?}", err),
             data: None,
         }
@@ -1118,7 +1128,7 @@ ggen lsp start --transport http --port 9999         # For debugging
 
 ```
 ggen-lsp
-├── tower-lsp (0.20)
+├── lsp-max (26.6.9)
 ├── tokio (1.x)
 ├── ggen-core (existing)
 │   ├── oxigraph (0.3)
@@ -1256,7 +1266,7 @@ echo '{"ggen-lsp": {"enabled": true, "transport": "stdio"}}' >> ~/.claude/settin
 
 ## Requirements
 
-- ggen v26.5.21 or later
+- ggen v26.6.9 or later
 - Claude Code (any version with Marketplace support)
 - 200MB free disk space
 
@@ -1273,7 +1283,7 @@ echo '{"ggen-lsp": {"enabled": true, "transport": "stdio"}}' >> ~/.claude/settin
 ```toml
 [package]
 name = "ggen-lsp"
-version = "26.5.21"
+version = "26.6.9"
 edition = "2021"
 
 [package.metadata.claude-code]
@@ -1461,11 +1471,11 @@ parallel_jobs = 4          # Hover shows: "Number of parallel generation jobs (0
 
 ---
 
-## 12. Advanced tower-lsp Features Summary
+## 12. Advanced lsp-max Features Summary
 
-This LSP implementation leverages **tower-lsp 0.20** advanced capabilities:
+This LSP implementation leverages **lsp-max 26.6.9** advanced capabilities:
 
-| Feature | tower-lsp Support | ggen Implementation | Value |
+| Feature | lsp-max Support | ggen Implementation | Value |
 |---------|-------------------|-------------------|-------|
 | **Semantic Tokens** | ✅ Full (SemanticTokensOptions) | Syntax highlighting with token types + modifiers | IDE syntax highlighting (TTL: namespaces, classes, properties; Tera: keywords, variables, filters; TOML: keys, values) |
 | **Code Lenses** | ✅ Full (CodeLensOptions + resolve) | "Show SHACL shape", "Go to include", "Show type" lenses | Inline commands + metadata without modal dialogs |

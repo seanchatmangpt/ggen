@@ -7,3 +7,4 @@ mod pack_e2e_workflows_test;
 mod user_workflow_multi_pack_test;
 mod user_workflow_single_pack_test;
 mod user_workflow_template_reuse_test;
+mod lsp_max_pack_test;

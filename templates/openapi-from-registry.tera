@@ -57,7 +57,7 @@
 {#             type: string #}
 {#             format: email #}
 {#         required: #}
-{#           - hasName
+{#           - hasName #}
 
 # ============================================================================
 # OpenAPI 3.0.3 Specification
@@ -78,7 +78,7 @@ info:
     Properties are typed from `tr:jsonSchema` annotations or inferred from
     `tr:rustType`, `tr:goType`, and `tr:tsType` language bindings.
 
-    Source ontologies: {% set seen_sources = [] %}{% for s in schemas %}{% if s.source_ontology not in seen_sources %}{{ s.source_ontology }}{% if not loop.last %}, {% endif %}{% set _ = seen_sources.append(s.source_ontology) %}{% endif %}{% endfor %}
+    Source ontologies: {% for s in schemas %}{{ s.source_ontology }}{% if not loop.last %}, {% endif %}{% endfor %}
 
     Generated: {{ generated_date | default(value=now() | date(format="%Y-%m-%d")) }}
   contact:
@@ -107,8 +107,8 @@ paths:
 {% for ep in endpoints %}
   {{ ep.path }}:
     {{ ep.method | lower }}:
-      operationId: "{{ ep.operationId | default(value=(ep.method | lower ~ '_' ~ ep.path | replace('/', '_') | trim_start_matches(pat='_'))) }}"
-      summary: "{{ ep.summary | default(value=(ep.method ~ ' ' ~ ep.path)) }}"
+      operationId: "{{ ep.operationId | default(value=ep.method | lower) }}"
+      summary: "{{ ep.summary | default(value=ep.path) }}"
 {% if ep.tags and ep.tags != "" %}
       tags:
 {% for tag in ep.tags | split(pat=",") %}
@@ -209,7 +209,7 @@ components:
             ts_type: "{{ prop.ts_type }}"
 {% endif %}
 {% endfor %}
-{% set required_props = schema.properties | selectattr("required", "equalto", "true") %}
+{% set required_props = schema.properties | filter(attribute="required", value="true") %}
 {% if required_props | length > 0 %}
       required:
 {% for req in required_props %}

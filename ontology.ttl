@@ -96,33 +96,33 @@ a2a:AcceptanceCriteria6 a ggen:AcceptanceCriterion ;
 a2a:TestScenario1 a ggen:TestScenario ;
   ggen:name "Domain Class Validation" ;
   ggen:description "Validate that all domain classes are properly defined with inheritance" ;
-  ggen:steps [
-    "Load A2A ontology file",
-    "Check existence of 7 domain module classes",
-    "Verify inheritance from abstract base classes",
+  ggen:steps (
+    "Load A2A ontology file"
+    "Check existence of 7 domain module classes"
+    "Verify inheritance from abstract base classes"
     "Validate property definitions for each class"
-  ] ;
+  ) ;
   ggen:expectedResult "All classes defined, no inheritance violations" .
 
 a2a:TestScenario2 a ggen:TestScenario ;
   ggen:name "Port Trait Property Mapping" ;
   ggen:description "Validate that port traits are correctly mapped to RDF properties" ;
-  ggen:steps [
-    "Check TaskManager properties (hasTaskScheduler, canScheduleTask, etc.)",
-    "Verify MessageHandler properties (canHandleMessage, canSendMessage, etc.)",
+  ggen:steps (
+    "Check TaskManager properties (hasTaskScheduler, canScheduleTask, etc.)"
+    "Verify MessageHandler properties (canHandleMessage, canSendMessage, etc.)"
     "Validate StreamingHandler properties (canStreamData, canSubscribeStream, etc.)"
-  ] ;
+  ) ;
   ggen:expectedResult "All port traits have appropriate property mappings" .
 
 a2a:TestScenario3 a ggen:TestScenario ;
   ggen:name "SHACL Validation Test" ;
   ggen:description "Test SHACL validation against sample data" ;
-  ggen:steps [
-    "Create sample task instance",
-    "Run SHACL validation",
-    "Verify validation passes for valid data",
+  ggen:steps (
+    "Create sample task instance"
+    "Run SHACL validation"
+    "Verify validation passes for valid data"
     "Verify validation fails for invalid data"
-  ] ;
+  ) ;
   ggen:expectedResult "SHACL rules correctly validate data integrity" .
 
 # Technical Requirements

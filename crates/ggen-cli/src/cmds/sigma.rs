@@ -24,7 +24,7 @@ pub fn sigma(phase: Option<String>) -> clap_noun_verb::Result<SigmaOutput> {
     let manifest_path = PathBuf::from("ggen.toml");
     let base_path = manifest_path.parent().unwrap_or(Path::new("."));
 
-    let manifest = ManifestParser::parse(&manifest_path).map_err(|e| {
+    let manifest = ManifestParser::parse_and_validate(&manifest_path).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(format!("Failed to parse manifest: {}", e))
     })?;
 

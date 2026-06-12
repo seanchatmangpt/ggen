@@ -1,0 +1,8 @@
+---
+to: "broken.md"
+---
+# Broken Template
+
+Hello {{ name
+
+This expression is not closed properly.

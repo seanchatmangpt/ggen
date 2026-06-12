@@ -1,0 +1,12 @@
+---
+to: "status.md"
+---
+# Status Report
+
+{% if is_active %}
+The system is **active** and running.
+{% else %}
+The system is **inactive**.
+{% endif %}
+
+Last updated: {{ timestamp }}

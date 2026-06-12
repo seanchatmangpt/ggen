@@ -1,3 +1,4 @@
+#![allow(clippy::match_wildcard_for_single_variants)]
 use crate::graph::DeterministicGraph;
 use crate::GraphError;
 use serde::{Deserialize, Serialize};

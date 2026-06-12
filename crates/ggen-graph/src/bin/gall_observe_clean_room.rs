@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::unnecessary_debug_formatting)]
 use chrono::Utc;
 use oxigraph::io::{RdfFormat, RdfParser};
 use oxigraph::model::Term;

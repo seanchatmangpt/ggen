@@ -43,13 +43,13 @@ pub fn check_lifecycle_order(
     }
 
     let q = format!(
-        r#"
+        r"
         PREFIX ocel: <http://www.ocel-standard.org/ns#>
         ASK {{
             {patterns}
             FILTER({filter})
         }}
-        "#,
+        ",
         patterns = patterns,
         filter = filters.join(" && ")
     );

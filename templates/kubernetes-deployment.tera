@@ -33,7 +33,7 @@ data:
             "max_retries": {{ adapter.retry_max }},
             "backoff_seconds": {{ adapter.retry_backoff }}
           }
-        }{{ "," if not loop.last else "" }}
+        }{% if not loop.last %},{% endif %}
         {% endfor %}
       ]
     }
@@ -287,7 +287,7 @@ metadata:
   name: ggen-adapters
   namespace: ggen-disney
 spec:
-  minAvailable: {{ (adapters | length / 2) | round(0, 'ceil') | int }}
+  minAvailable: {{ adapters | length / 2 | round | int }}
   selector:
     matchLabels:
       component: adapters

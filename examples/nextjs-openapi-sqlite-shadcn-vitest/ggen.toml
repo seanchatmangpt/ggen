@@ -10,7 +10,6 @@ description = "Task management app with Next.js, SQLite, shadcn/ui, Vitest"
 
 [ontology]
 source = "ontology/taskapp-api.ttl"
-schema = "ontology/api-schema.ttl"
 base_iri = "https://ggen.io/examples/taskapp/"
 
 [ontology.prefixes]

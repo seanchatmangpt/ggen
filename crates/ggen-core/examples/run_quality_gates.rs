@@ -1,3 +1,10 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::ignored_unit_patterns,
+    clippy::unnecessary_debug_formatting
+)]
 //! Direct quality gates runner - bypass MCP entirely
 //!
 //! Usage: cargo run --example run_quality_gates --manifest-path crates/ggen-core/Cargo.toml

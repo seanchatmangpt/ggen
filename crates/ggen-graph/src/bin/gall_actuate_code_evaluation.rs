@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::unnecessary_debug_formatting)]
 use chrono::Utc;
 use ggen_graph::graph::serialize::serialize_to_string;
 use oxigraph::io::{RdfFormat, RdfParser};

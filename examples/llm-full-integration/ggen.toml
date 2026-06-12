@@ -17,8 +17,6 @@ output_dir = "."
 enable_llm = true
 llm_provider = "groq"
 llm_model = "llama-3.3-70b-versatile"
-llm_temperature = 0.7
-llm_max_tokens = 2048
 
 # ── Rule 1: Generate Rust agent with LLM-implemented skills ─────────────────────
 [[generation.rules]]
@@ -45,5 +43,3 @@ output_file = "types.rs"
 mode = "Overwrite"
 
 [validation]
-require_shacl = false
-require_inference = false

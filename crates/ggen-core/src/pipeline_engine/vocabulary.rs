@@ -10,7 +10,7 @@ use std::collections::{BTreeMap, BTreeSet};
 /// An allowed vocabulary namespace
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AllowedVocabulary {
-    /// The IRI namespace (e.g., "http://www.w3.org/2000/01/rdf-schema#")
+    /// The IRI namespace (e.g., `"http://www.w3.org/2000/01/rdf-schema#"`)
     pub namespace: String,
 
     /// Standard prefix (e.g., "rdfs")

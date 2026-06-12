@@ -18,7 +18,7 @@ use std::path::{Path, PathBuf};
 /// CODEOWNERS generation configuration
 ///
 /// Local definition to avoid cyclic dependency with ggen-config.
-/// Mirrors [codeowners] from ggen.toml.
+/// Mirrors \[codeowners\] from ggen.toml.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct CodeownersConfig {
     /// Enable CODEOWNERS generation

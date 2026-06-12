@@ -71,12 +71,9 @@ impl MarketplaceValidator {
 
             // Infer package info from rule name
             let (package_name, version) = if parts.len() >= 2 {
-                (
-                    parts[0].to_string(),
-                    parts.get(1).unwrap_or(&"1.0.0").to_string(),
-                )
+                (parts[0].to_string(), parts[1].to_string())
             } else {
-                (rule.name.clone(), "1.0.0".to_string())
+                (rule.name.clone(), "unknown".to_string())
             };
 
             let passed = issues.is_empty();

@@ -182,8 +182,8 @@ pub fn hash_data(data: &[u8]) -> String {
 }
 
 #[cfg(test)]
-#[allow(clippy::unwrap_used)]
-/// Test module: unwrap() safe after checking is_some() in tests.
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+/// Test module: unwrap()/expect() safe after checking is_some() in tests.
 mod tests {
     use super::*;
 

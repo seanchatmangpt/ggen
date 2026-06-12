@@ -187,7 +187,7 @@ mod tests {
     fn test_poka_yoke_format_header_python() {
         let config = PokaYokeConfig::default();
         let header = config.format_header("py");
-        assert!(header.starts_with("#"));
+        assert!(header.starts_with('#'));
     }
 
     #[test]

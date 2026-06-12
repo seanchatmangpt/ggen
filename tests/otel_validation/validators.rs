@@ -104,6 +104,7 @@ mod tests {
     #[tokio::test]
     async fn test_validate_critical_path() {
         let ctx = ValidationContext::new();
+        ctx.init().unwrap();
         let results = validate_critical_path(&ctx).await.unwrap();
 
         // Should have at least 4 critical capabilities
@@ -113,6 +114,7 @@ mod tests {
     #[tokio::test]
     async fn test_generate_report() {
         let ctx = ValidationContext::new();
+        ctx.init().unwrap();
         let report = generate_validation_report(&ctx).await.unwrap();
 
         // Report should have results

@@ -1,5 +1,5 @@
 [workspace.package]
-version = "26.5.29"
+version = "26.6.11"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 repository = "https://github.com/seanchatmangpt/ggen"
@@ -61,6 +61,10 @@ resolver = "2" # Use new resolver for better dependency resolution
 
 # Workspace-wide dependencies for version consistency
 [workspace.dependencies]
+lsp-max = "26.6.9"
+lsp-max-protocol = "26.6.9"
+lsp-max-macros = "26.6.9"
+lsp-max-client = "26.6.9"
 tokio = { version = "1.47", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
@@ -98,6 +102,7 @@ rustc-hash = "2.0"
 itertools = "0.13"
 bcinr = "26.4.22"
 urlencoding = "2.1"
+wasm4pm-compat = { version = "26.6.9", path = "../wasm4pm-compat" }
 
 rayon = "1.11"
 regex = "1.12"
@@ -112,8 +117,8 @@ rig-core = "0.15.1"
 
 # Workspace-local crates (use workspace = true pattern in workspace members)
 # NOTE: v26.5.29 unified release
-ggen-core = { path = "crates/ggen-core", version = "26.5.29" }
-ggen-cli-lib = { path = "crates/ggen-cli", version = "26.5.29" }
+ggen-core = { path = "crates/ggen-core", version = "26.6.11" }
+ggen-cli-lib = { path = "crates/ggen-cli", version = "26.6.11" }
 
 # Genesis kernel crates (pure Rust, IO-free — A = μ(O) foundation)
 genesis-types = { path = "crates/genesis-types-v2" }
@@ -144,7 +149,7 @@ console = "0.16"
 
 # Testing libraries
 proptest = "1.8"
-chicago-tdd-tools = "1.4.0"
+chicago-tdd-tools = "26.6.11"
 fake = "2.9"
 tokio-test = "0.4"
 
@@ -208,6 +213,7 @@ unsafe_code = "warn"
 missing_docs = "allow"  # Allow missing docs during warn-first phase
 dead_code = "allow"
 unused_variables = "allow"
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(benchmark_mode)'] }
 
 [workspace.lints.clippy]
 # **Warn-first mode** (Phase B.1): Inventory violations before enforcing.
@@ -533,6 +539,7 @@ tracing-subscriber = "0.3"
 # Enable OTEL via: cargo build --features otel (which forwards to ggen-core/otel)
 # Example definitions removed - examples now discovered automatically by Cargo
 [dev-dependencies]
+ggen-a2a-mcp = { path = "crates/ggen-a2a-mcp", version = "26.6.11" }
 assert_cmd = "2.0.17"
 predicates = "3.1.3"
 serde_json = "1.0"
@@ -555,7 +562,7 @@ proptest.workspace = true
 # chicago-tdd-tools = { workspace = true, features = ["testcontainers"] }
 # Note: chicago-tdd-tools commented for cross-platform compatibility
 # Cleanroom integration for CLI testing
-clnrm = "0.1.0"
+clnrm = "1.3.0"
 testcontainers = "0.25"
 testcontainers-modules = "0.13"
 rand = "0.8"
@@ -564,7 +571,7 @@ fake = "2.9"
 futures.workspace = true
 tracing.workspace = true
 tracing-subscriber.workspace = true
-chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras", "testcontainers"] }
+chicago-tdd-tools = { version = "26.6.11", features = ["testing-extras", "testcontainers"] }
 # Performance benchmarking
 criterion = { version = "0.7", features = ["html_reports"] }
 once_cell = "1.20"

@@ -1,3 +1,26 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
 //! End-to-End LLM Integration Test (Chicago TDD)
 //!
 //! This test verifies the LLM integration works by:
@@ -41,19 +64,48 @@ name = "test-llm-project"
 version = "0.1.0"
 description = "Test project for LLM integration"
 
-[generation]
-language = "rust"
-enable_llm = true
+[ontology]
+source = ".ggen/test.ttl"
 
-[llm]
+[inference]
+rules = [
+    { name = "standard-normalization", construct = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }" }
+]
+
+[generation]
+enable_llm = true
+llm_provider = "groq"
+llm_model = "groq::openai/gpt-oss-20b"
+[[generation.rules]]
+name = "test-rule"
+query = { inline = """
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX a2a: <http://ggen.ai/a2a#>
+
+SELECT ?skill_name ?system_prompt ?implementation_hint ?language
+WHERE {
+  ?skill a a2a:Skill ;
+         rdfs:label ?skill_name ;
+         a2a:hasSystemPrompt ?system_prompt ;
+         a2a:hasImplementationHint ?implementation_hint .
+  BIND("rust" AS ?language)
+}
+""" }
+template = { inline = "{{generated_impl}}" }
+output_file = "src/skills/test_skill.rs"
+mode = "Overwrite"
+
+[ai]
 model = "groq::openai/gpt-oss-20b"
 temperature = 0.7
 max_tokens = 4096
 "#;
-        fs::write(ggen_dir.join("ggen.toml"), ggen_toml).expect("Failed to write ggen.toml");
+        fs::write(project_dir.join("ggen.toml"), ggen_toml).expect("Failed to write ggen.toml");
 
         // Create a simple ontology with behavior predicates
         let ontology = r#"
+@prefix : <http://example.org/test#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix a2a: <http://ggen.ai/a2a#> .
@@ -107,7 +159,7 @@ max_tokens = 4096
 }
 
 #[test]
-// #[ignore] // Only run with explicit permission (requires API key)
+#[ignore] // Only run with explicit permission (requires API key)
 fn test_llm_integration_e2e_with_real_api() {
     // Verify GROQ_API_KEY is set
     let api_key = std::env::var("GROQ_API_KEY");

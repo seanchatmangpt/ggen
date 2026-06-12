@@ -12,7 +12,6 @@ description = "Ontology-driven PhD thesis generation with ggen sync"
 [ontology]
 source = "ontology/thesis-content.ttl"
 base_iri = "https://ggen.io/thesis/content/"
-schema = "ontology/thesis-schema.ttl"
 
 [ontology.prefixes]
 thesis = "https://ggen.io/ontology/thesis#"

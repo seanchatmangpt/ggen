@@ -34,7 +34,6 @@ xsd = "http://www.w3.org/2001/XMLSchema#"
 
 [[inference.rules]]
 name = "derive-task-handlers"
-description = "Enrich graph with task handler metadata from task definitions"
 construct = """
 PREFIX yawl: <http://unrdf.org/yawl#>
 PREFIX yawl-gen: <http://unrdf.org/yawl/generation#>
@@ -56,7 +55,6 @@ WHERE {
 
 [[inference.rules]]
 name = "derive-flow-metadata"
-description = "Enrich flows with evaluation metadata"
 construct = """
 PREFIX yawl: <http://unrdf.org/yawl#>
 PREFIX yawl-gen: <http://unrdf.org/yawl/generation#>
@@ -75,7 +73,6 @@ WHERE {
 
 [[inference.rules]]
 name = "derive-servlet-routes"
-description = "Generate route metadata from servlet definitions"
 construct = """
 PREFIX yawl-servlet: <http://unrdf.org/yawl/servlet#>
 PREFIX yawl-gen: <http://unrdf.org/yawl/generation#>
@@ -106,7 +103,6 @@ output_dir = "."
 # -----------------------------------------------------------------------------
 [[generation.rules]]
 name = "yawl-xml-specs"
-description = "Generate YAWL XML specification files for each workflow"
 query = { inline = """
 PREFIX yawl: <http://unrdf.org/yawl#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -138,7 +134,6 @@ mode = "Overwrite"
 # -----------------------------------------------------------------------------
 [[generation.rules]]
 name = "task-definitions"
-description = "Generate ESM task definitions from ontology"
 query = { inline = """
 PREFIX yawl: <http://unrdf.org/yawl#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -171,7 +166,6 @@ mode = "Overwrite"
 # -----------------------------------------------------------------------------
 [[generation.rules]]
 name = "flow-definitions"
-description = "Generate flow definitions with conditions"
 query = { inline = """
 PREFIX yawl: <http://unrdf.org/yawl#>
 
@@ -199,7 +193,6 @@ mode = "Overwrite"
 # -----------------------------------------------------------------------------
 [[generation.rules]]
 name = "servlet-handlers"
-description = "Generate ESM servlet handlers from RDF definitions"
 query = { inline = """
 PREFIX yawl-servlet: <http://unrdf.org/yawl/servlet#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -230,7 +223,6 @@ mode = "Overwrite"
 # -----------------------------------------------------------------------------
 [[generation.rules]]
 name = "worklet-handlers"
-description = "Generate ESM worklet exception handlers"
 query = { inline = """
 PREFIX yawl-worklet: <http://unrdf.org/yawl/worklet#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -262,7 +254,6 @@ mode = "Overwrite"
 # -----------------------------------------------------------------------------
 [[generation.rules]]
 name = "workflow-engine"
-description = "Generate the main workflow engine with Van der Aalst patterns"
 query = { inline = """
 PREFIX yawl: <http://unrdf.org/yawl#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -290,7 +281,6 @@ mode = "Overwrite"
 # -----------------------------------------------------------------------------
 [[generation.rules]]
 name = "rest-api-routes"
-description = "Generate Express-style REST API routes"
 query = { inline = """
 PREFIX yawl-servlet: <http://unrdf.org/yawl/servlet#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -317,7 +307,6 @@ mode = "Overwrite"
 # -----------------------------------------------------------------------------
 [[generation.rules]]
 name = "vitest-tests"
-description = "Generate Vitest integration tests with MSW mocking"
 query = { inline = """
 PREFIX yawl: <http://unrdf.org/yawl#>
 PREFIX yawl-servlet: <http://unrdf.org/yawl/servlet#>
@@ -348,7 +337,6 @@ mode = "Overwrite"
 # -----------------------------------------------------------------------------
 [[generation.rules]]
 name = "workflow-index"
-description = "Generate index of all workflow specifications"
 query = { inline = """
 PREFIX yawl: <http://unrdf.org/yawl#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -377,7 +365,6 @@ mode = "Overwrite"
 # -----------------------------------------------------------------------------
 [[generation.rules]]
 name = "receipt-types"
-description = "Generate receipt and audit trail types"
 query = { inline = """
 PREFIX yawl: <http://unrdf.org/yawl#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -405,7 +392,6 @@ mode = "Overwrite"
 # -----------------------------------------------------------------------------
 [[generation.rules]]
 name = "case-types"
-description = "Generate case management ESM types"
 query = { inline = """
 PREFIX yawl: <http://unrdf.org/yawl#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -427,7 +413,6 @@ mode = "Overwrite"
 # -----------------------------------------------------------------------------
 [[generation.rules]]
 name = "workitem-types"
-description = "Generate work item ESM types"
 query = { inline = """
 PREFIX yawl: <http://unrdf.org/yawl#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -449,7 +434,6 @@ mode = "Overwrite"
 # -----------------------------------------------------------------------------
 [[generation.rules]]
 name = "package-json"
-description = "Generate package.json with unrdf dependencies"
 query = { inline = """
 PREFIX yawl: <http://unrdf.org/yawl#>
 
@@ -467,7 +451,6 @@ mode = "Overwrite"
 # -----------------------------------------------------------------------------
 [[generation.rules]]
 name = "worklet-index"
-description = "Generate worklet index module"
 query = { inline = """
 PREFIX yawl-worklet: <http://unrdf.org/yawl/worklet#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>

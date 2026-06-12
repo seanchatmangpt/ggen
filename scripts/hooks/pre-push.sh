@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# pre-push.sh - Full Tier Git Hook (80/20 Optimized)
+# pre-push.sh - Full Tier Git Hook
 # Target: <90 seconds | Value: 97% defect detection
 # Philosophy: Comprehensive validation before sharing code
 
@@ -21,11 +21,9 @@ fi
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
 BOLD='\033[1m'
 NC='\033[0m'
 
-# Counters
 PASSED=0
 FAILED=0
 
@@ -33,9 +31,9 @@ echo ""
 echo -e "${BOLD}Pre-Push Validation${NC} (Full Tier)"
 echo ""
 
-# Gate 1: Cargo Check (60% of defects - VITAL)
-echo -n "  [1/4] Cargo check... "
-if timeout 15s cargo check --quiet 2>/dev/null; then
+# Gate 1: Check (60% of defects - VITAL)
+echo -n "  [1/4] Check... "
+if just check >/dev/null 2>&1; then
     echo -e "${GREEN}PASS${NC}"
     PASSED=$((PASSED + 1))
 else
@@ -43,13 +41,13 @@ else
     FAILED=$((FAILED + 1))
     echo ""
     echo -e "${RED}${BOLD}STOP: Compilation errors${NC}"
-    cargo check 2>&1 | head -30
+    just check 2>&1 | head -30
     exit 1
 fi
 
-# Gate 2: Workspace-wide Clippy Lint (15% of defects)
-echo -n "  [2/4] Workspace-wide clippy... "
-if timeout 120s cargo clippy --workspace --quiet -- -D warnings 2>/dev/null; then
+# Gate 2: Lint (15% of defects)
+echo -n "  [2/4] Lint... "
+if just lint >/dev/null 2>&1; then
     echo -e "${GREEN}PASS${NC}"
     PASSED=$((PASSED + 1))
 else
@@ -57,26 +55,26 @@ else
     FAILED=$((FAILED + 1))
     echo ""
     echo -e "${RED}${BOLD}STOP: Clippy warnings${NC}"
-    cargo clippy -- -D warnings 2>&1 | head -40
+    just lint 2>&1 | head -40
     exit 1
 fi
 
-# Gate 3: Format Check (2% but ensures consistency)
+# Gate 3: Format check (2% but ensures consistency)
 echo -n "  [3/4] Format check... "
-if cargo fmt --all -- --check >/dev/null 2>&1; then
+if just fmt-check >/dev/null 2>&1; then
     echo -e "${GREEN}PASS${NC}"
     PASSED=$((PASSED + 1))
 else
     echo -e "${RED}FAIL${NC}"
     FAILED=$((FAILED + 1))
     echo ""
-    echo -e "${RED}${BOLD}STOP: Code not formatted${NC}"
+    echo -e "${RED}${BOLD}STOP: Code not formatted. Run 'just fmt'.${NC}"
     exit 1
 fi
 
-# Gate 4: Unit Tests (20% of defects - VITAL)
+# Gate 4: Lib tests (20% of defects - VITAL)
 echo -n "  [4/4] Unit tests... "
-if timeout 300s cargo test --workspace --lib --quiet 2>/dev/null; then
+if just test-lib >/dev/null 2>&1; then
     echo -e "${GREEN}PASS${NC}"
     PASSED=$((PASSED + 1))
 else
@@ -84,7 +82,7 @@ else
     FAILED=$((FAILED + 1))
     echo ""
     echo -e "${RED}${BOLD}STOP: Test failures${NC}"
-    cargo test --workspace --lib 2>&1 | grep -E "(FAILED|error\[)" | head -20
+    just test-lib 2>&1 | grep -E "(FAILED|error\[)" | head -20
     exit 1
 fi
 

@@ -1,0 +1,16 @@
+use lsp_max::lsp_types::{Diagnostic, DocumentUri};
+
+pub fn dispatch_semantic_rules(
+    uri: &DocumentUri,
+    content: &str,
+) -> Vec<Diagnostic> {
+    let mut diagnostics: Vec<Diagnostic> = Vec::new();
+
+    // Formally extracted from the RDF Ontology via SPARQL
+    {% if rules %}{% for rule in rules %}
+    // Validation: {{ rule.description }}
+    {{ rule.code }}
+    {% endfor %}{% endif %}
+
+    diagnostics
+}

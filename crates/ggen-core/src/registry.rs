@@ -867,13 +867,10 @@ mod tests {
 
                 match (v1, v2) {
                     (Ok(v1), Ok(v2)) => {
-                        // Test comparison properties
-                        if v1 < v2 {
-                            assert!(v2 > v1);
-                        } else if v1 > v2 {
-                            assert!(v2 < v1);
-                        } else {
-                            assert_eq!(v1, v2);
+                        match v1.cmp(&v2) {
+                            std::cmp::Ordering::Less => assert!(v2 > v1),
+                            std::cmp::Ordering::Greater => assert!(v2 < v1),
+                            std::cmp::Ordering::Equal => assert_eq!(v1, v2),
                         }
 
                         // Test equality
@@ -924,7 +921,7 @@ mod tests {
 
         // Create registry client with file:// URL
         let base_url = Url::from_file_path(temp_dir.path())
-            .map_err(|_| Error::new("Failed to create file URL"))?;
+            .map_err(|()| Error::new("Failed to create file URL"))?;
         let client = RegistryClient::with_base_url(base_url)?;
 
         // Test search
@@ -966,7 +963,7 @@ mod tests {
             .map_err(|e| Error::with_context("Failed to write mock index", &e.to_string()))?;
 
         let base_url = Url::from_file_path(temp_dir.path())
-            .map_err(|_| Error::new("Failed to create file URL"))?;
+            .map_err(|()| Error::new("Failed to create file URL"))?;
         let client = RegistryClient::with_base_url(base_url)?;
 
         // Test resolve

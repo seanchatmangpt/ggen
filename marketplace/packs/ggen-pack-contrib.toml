@@ -1,0 +1,37 @@
+[pack]
+id = "ggen-pack-contrib"
+name = "ggen Pack Contrib"
+version = "26.6.9"
+description = "Scaffold a new ggen marketplace pack: law-compliant manifest, template stubs, and 3-layer test coverage from day one."
+category = "infrastructure"
+author = "ggen"
+repository = "https://github.com/seanchatmangpt/ggen"
+license = "MIT OR Apache-2.0"
+production_ready = true
+
+packages = ["tera", "toml", "serde_json"]
+
+[[pack.templates]]
+name = "pack-manifest"
+path = "templates/ggen-pack-contrib/pack-manifest.toml.tera"
+description = "Generates marketplace/packs/<pack_id>.toml — the canonical pack manifest"
+variables = ["pack_id", "pack_name", "pack_description", "pack_category", "pack_version", "author", "repository"]
+
+[[pack.templates]]
+name = "pack-template-stub"
+path = "templates/ggen-pack-contrib/pack-template-stub.rs.tera"
+description = "Generates a law-compliant .rs.tera stub for a new pack template"
+variables = ["pack_id", "template_name", "diagnostic_source_id"]
+
+[[pack.templates]]
+name = "pack-test"
+path = "templates/ggen-pack-contrib/pack-test.rs.tera"
+description = "Generates a 3-layer test file for the new pack"
+variables = ["pack_id", "pack_version", "template_names"]
+
+[pack.conformance]
+unknown_preservation = true
+
+[pack.metadata]
+tags = ["ggen", "meta-pack", "scaffold", "contributor", "marketplace"]
+keywords = ["ggen", "pack", "scaffold", "contributor"]

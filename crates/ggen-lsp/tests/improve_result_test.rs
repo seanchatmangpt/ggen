@@ -1,3 +1,26 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
 //! IMPROVE-RESULT-1 — earn (or refuse) the `improving` verdict from REAL cycles.
 //!
 //! No fabricated events. Two real mining cycles are driven through the apparatus:
@@ -16,8 +39,16 @@ use std::path::{Path, PathBuf};
 use ggen_lsp::intel::MetricValue;
 use ggen_lsp::state::ServerState;
 use ggen_lsp::{check_content, check_files_in_root, compute_metrics, mine};
+use lsp_max::lsp_types::Url;
 use tempfile::TempDir;
-use tower_lsp::lsp_types::Url;
+
+fn url_from_path(path: impl AsRef<std::path::Path>) -> Url {
+    url::Url::from_file_path(path.as_ref())
+        .expect("absolute path")
+        .to_string()
+        .parse::<Url>()
+        .expect("valid uri")
+}
 
 fn write(dir: &Path, name: &str, content: &str) -> PathBuf {
     let p = dir.join(name);
@@ -33,13 +64,15 @@ fn headless_cycle(root: &Path, files: &[PathBuf]) {
 /// A real editor rework of a ConfigValue (E0023) file: broken → fixed, closing
 /// the episode via APPLY-1's RepairApplied → GatePassed chain.
 async fn editor_rework_config(state: &ServerState, root: &Path, name: &str) {
-    let uri = Url::from_file_path(root.join(name)).expect("file url");
-    let broken =
-        check_content(uri.path(), "[logging]\nlevel = \"verbose\"\n").expect("toml law surface");
-    state.observe_diagnostics(&uri, &broken.diagnostics).await;
-    let fixed =
-        check_content(uri.path(), "[logging]\nlevel = \"info\"\n").expect("toml law surface");
-    state.observe_diagnostics(&uri, &fixed.diagnostics).await;
+    let uri = url_from_path(root.join(name));
+    let broken_diags = ggen_lsp::analyzers::build_analyzer(uri.path().as_str(), "[logging]\nlevel = \"verbose\"\n")
+        .map(|a| a.diagnostics())
+        .unwrap_or_default();
+    state.observe_diagnostics(&uri, &broken_diags).await;
+    let fixed_diags = ggen_lsp::analyzers::build_analyzer(uri.path().as_str(), "[logging]\nlevel = \"info\"\n")
+        .map(|a| a.diagnostics())
+        .unwrap_or_default();
+    state.observe_diagnostics(&uri, &fixed_diags).await;
 }
 
 /// Cycle 1 (shared by both tests): a warning family that closes (E0011 ×3) and an

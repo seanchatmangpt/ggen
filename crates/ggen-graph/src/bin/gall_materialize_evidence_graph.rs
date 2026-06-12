@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::unnecessary_debug_formatting)]
 use chrono::Utc;
 use ggen_graph::dialect::{check_datalog, check_n3, check_shacl, check_shex, check_sparql};
 use ggen_graph::graph::parse::parse_turtle;
@@ -221,7 +222,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     all_quads.extend(quads);
                 }
                 Err(e) => {
-                    eprintln!("Warning: Failed to parse Turtle file {:?}: {}", ttl_path, e);
+                    eprintln!(
+                        "Warning: Failed to parse Turtle file {}: {}",
+                        ttl_path.display(),
+                        e
+                    );
                 }
             }
         }

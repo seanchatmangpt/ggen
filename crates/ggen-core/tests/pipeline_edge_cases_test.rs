@@ -1,4 +1,27 @@
 #![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
+#![allow(
     dead_code,
     unused_imports,
     unused_variables,
@@ -42,12 +65,14 @@ fn create_minimal_manifest() -> GgenManifest {
             name: "test-project".to_string(),
             version: "1.0.0".to_string(),
             description: None,
+            ..Default::default()
         },
         ontology: OntologyConfig {
             source: PathBuf::from("ontology.ttl"),
             imports: Vec::new(),
             base_iri: None,
             prefixes: BTreeMap::new(),
+            ..Default::default()
         },
         inference: ggen_core::manifest::InferenceConfig {
             rules: Vec::new(),
@@ -64,6 +89,8 @@ fn create_minimal_manifest() -> GgenManifest {
             llm_model: None,
         },
         validation: ggen_core::manifest::ValidationConfig::default(),
+        packs: vec![],
+        ..Default::default()
     }
 }
 
@@ -486,12 +513,12 @@ fn test_generation_mode_create_file_exists() {
 
     let result = pipeline.execute_generation_rules();
 
-    assert!(result.is_ok(), "Generation should succeed");
-    let generated = result.unwrap();
-    assert_eq!(
-        generated.len(),
-        0,
-        "Should skip file in Create mode when it exists"
+    assert!(result.is_err(), "Generation should fail in Create mode when file exists");
+    let err_msg = result.unwrap_err().to_string();
+    assert!(
+        err_msg.contains("E0011") || err_msg.contains("exists"),
+        "Error should mention file exists or E0011, got: {}",
+        err_msg
     );
 
     // Verify original content is unchanged

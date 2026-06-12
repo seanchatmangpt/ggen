@@ -10,7 +10,9 @@
 use crate::codegen::transaction::FileTransaction;
 use crate::graph::{ConstructExecutor, Graph};
 use crate::manifest::{GenerationRule, GgenManifest, InferenceRule};
+use crate::template_types::Template;
 use crate::utils::error::{Error, Result};
+use rayon::prelude::*;
 use serde::Serialize;
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
@@ -435,6 +437,29 @@ impl GenerationPipeline {
             .execute_and_materialize(&rule.construct)
             .map_err(|e| Error::new(&format!("Inference rule '{}' failed: {}", rule.name, e)))?;
 
+        // GGEN-INFER-001: warn when a CONSTRUCT rule adds zero new triples.
+        // Identity queries (CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }) or
+        // queries that match nothing produce zero output silently — this makes
+        // misconfigured inference rules very hard to diagnose.
+        if triples_added == 0 {
+            if self.manifest.validation.strict_mode {
+                return Err(Error::new(&format!(
+                    "error[GGEN-INFER-001]: Inference rule '{}' added 0 triples\n  \
+                     = strict_mode is enabled: identity/no-match CONSTRUCT rules are rejected\n  \
+                     = help: Verify the query pattern against the loaded ontology\n  \
+                     = help: If intentionally conditional, add a `when` clause",
+                    rule.name
+                )));
+            }
+            log::warn!(
+                "warning[GGEN-INFER-001]: Inference rule '{}' added 0 triples\n  \
+                 = CONSTRUCT query matched no triples in the current graph\n  \
+                 = help: Verify the query pattern against the loaded ontology\n  \
+                 = help: If intentionally conditional, add a `when` clause to suppress this warning",
+                rule.name
+            );
+        }
+
         let duration = start.elapsed();
         let query_hash = format!("{:x}", sha2::Sha256::digest(rule.construct.as_bytes()));
 
@@ -482,15 +507,18 @@ impl GenerationPipeline {
     }
 
     /// Evaluate a SPARQL ASK condition query
-    ///
-    /// Returns `true` if condition passes (ASK returns true), `false` otherwise.
     fn evaluate_condition(&self, ask_query: &str) -> Result<bool> {
-        use oxigraph::sparql::QueryResults;
-
         let graph = self
             .ontology_graph
             .as_ref()
             .ok_or_else(|| Error::new("Ontology graph not loaded"))?;
+
+        Self::evaluate_condition_static(graph, ask_query)
+    }
+
+    /// Static version of evaluate_condition for use in parallel contexts
+    fn evaluate_condition_static(graph: &Graph, ask_query: &str) -> Result<bool> {
+        use oxigraph::sparql::QueryResults;
 
         let ask_query = Self::with_well_known_prefixes(ask_query);
         let results = graph
@@ -515,6 +543,21 @@ impl GenerationPipeline {
     fn inject_generated_impl(
         &self, row: &BTreeMap<String, String>, rule: &crate::manifest::GenerationRule,
         context: &mut tera::Context,
+    ) {
+        Self::inject_generated_impl_static(
+            row,
+            rule,
+            context,
+            &self.manifest,
+            self.llm_service.as_ref().map(|s| s.as_ref()),
+        );
+    }
+
+    /// Static version of inject_generated_impl for use in parallel contexts
+    fn inject_generated_impl_static(
+        row: &BTreeMap<String, String>, rule: &crate::manifest::GenerationRule,
+        context: &mut tera::Context, manifest: &GgenManifest,
+        llm_service: Option<&dyn LlmService>,
     ) {
         // Look for skill-specific fields in SPARQL results
         let skill_name = row
@@ -557,8 +600,27 @@ impl GenerationPipeline {
 
         // Generate skill implementation using injected LLM service (or fallback stub)
         if !skill_name.is_empty() && !system_prompt.is_empty() {
-            match self.generate_skill_impl(skill_name, system_prompt, implementation_hint, language)
-            {
+            // Check if LLM is enabled in manifest
+            if !manifest.generation.enable_llm {
+                context.insert(
+                    "generated_impl",
+                    &format!(
+                        "// [ManualImplementation] Implement {} skill: {}\n// Hint: {}",
+                        skill_name, system_prompt, implementation_hint
+                    ),
+                );
+                return;
+            }
+
+            // Use injected LLM service if available, otherwise use default (TemplateFallback stubs)
+            let service = llm_service.unwrap_or(&TemplateFallbackService);
+
+            match service.generate_skill_impl(
+                skill_name,
+                system_prompt,
+                implementation_hint,
+                language,
+            ) {
                 Ok(generated_code) => {
                     context.insert("generated_impl", &generated_code);
                 }
@@ -579,12 +641,37 @@ impl GenerationPipeline {
         }
     }
 
+    /// Resolve a pack `output` key to an absolute directory path using the pack's `package.toml`.
+    fn resolve_pack_output(&self, pack_name: &str, output_key: &str) -> std::path::PathBuf {
+        Self::resolve_pack_output_static(&self.manifest, &self.base_path, pack_name, output_key)
+    }
+
+    /// Static version of resolve_pack_output for use in parallel contexts
+    fn resolve_pack_output_static(
+        manifest: &GgenManifest, base_path: &Path, pack_name: &str, output_key: &str,
+    ) -> std::path::PathBuf {
+        if let Some(pack_root) = manifest
+            .packs
+            .iter()
+            .find(|p| p.name == pack_name)
+            .and_then(|p| p.path.as_ref())
+            .map(|p| base_path.join(p))
+        {
+            use crate::manifest::types::PackageToml;
+            let pkg = PackageToml::load(&pack_root);
+            let resolved = pkg.resolve_output_key(output_key);
+            pack_root.join(resolved)
+        } else {
+            // Pack not found in manifest — return output_key literally so the caller
+            // surfaces the missing-pack error from the surrounding lookup.
+            std::path::PathBuf::from(output_key)
+        }
+    }
+
     /// Execute all generation rules (SELECT → Template → Code)
     pub fn execute_generation_rules(&mut self) -> Result<Vec<GeneratedFile>> {
         use crate::manifest::{GenerationMode, QuerySource, TemplateSource};
         use oxigraph::sparql::QueryResults;
-
-        let mut generated = Vec::new();
 
         // Get the ontology graph (must be loaded)
         let graph = self
@@ -602,23 +689,38 @@ impl GenerationPipeline {
         };
 
         // Create transaction for atomic file operations
-        let mut transaction = FileTransaction::new()?;
+        let transaction = Arc::new(FileTransaction::new()?);
 
-        for rule in &rules {
+        // Cache Tera base instance (already thread-safe via clone or immutable shared state)
+        let mut tera_base = tera::Tera::default();
+        crate::register::register_all(&mut tera_base);
+        let tera_base = Arc::new(tera_base);
+
+        // Arc-ify components for parallel execution
+        let graph_arc = Arc::new(graph.clone());
+        let manifest_arc = Arc::new(self.manifest.clone());
+        let base_path_arc = Arc::new(self.base_path.clone());
+        let output_dir_arc = Arc::new(output_dir);
+        let llm_service_arc = self.llm_service.as_ref().map(|s| Arc::new(s.clone_box()));
+        let no_unsafe = self.manifest.validation.no_unsafe;
+
+        let results: Result<Vec<(Vec<GeneratedFile>, Vec<ExecutedRule>)>> = rules.par_iter().map(|rule| {
+            let mut generated = Vec::new();
+            let mut executed_rules = Vec::new();
             let start = Instant::now();
 
             // T019: Check WHEN condition if present (SPARQL ASK)
             if let Some(when_query) = &rule.when {
-                if !self.evaluate_condition(when_query)? {
+                if !Self::evaluate_condition_static(&graph_arc, when_query)? {
                     // Condition failed - skip this rule silently
-                    continue;
+                    return Ok((generated, executed_rules));
                 }
             }
 
             // 1. Load query from QuerySource
             let query = match &rule.query {
                 QuerySource::File { file } => {
-                    let query_path = self.base_path.join(file);
+                    let query_path = base_path_arc.join(file);
                     let content = std::fs::read_to_string(&query_path).map_err(|e| {
                         Error::new(&format!(
                             "Failed to read query file '{}': {}",
@@ -637,11 +739,39 @@ impl GenerationPipeline {
                     content
                 }
                 QuerySource::Inline { inline } => inline.clone(),
+                QuerySource::Pack { pack, output, file } => {
+                    let pack_ref = manifest_arc
+                        .packs
+                        .iter()
+                        .find(|p| p.name == *pack)
+                        .ok_or_else(|| {
+                            Error::new(&format!(
+                                "Generation rule '{}': pack '{}' not declared in [[packs]]",
+                                rule.name, pack
+                            ))
+                        })?;
+                    let pack_root = pack_ref.path.as_ref().ok_or_else(|| {
+                        Error::new(&format!(
+                            "Generation rule '{}': pack '{}' has no local path (registry = '{}')",
+                            rule.name, pack, pack_ref.registry
+                        ))
+                    })?;
+                    let _ = pack_root;
+                    let pack_dir = Self::resolve_pack_output_static(&manifest_arc, &base_path_arc, pack, output.as_str());
+                    let query_path = pack_dir.join(file);
+                    std::fs::read_to_string(&query_path).map_err(|e| {
+                        Error::new(&format!(
+                            "Failed to read pack query file '{}': {}",
+                            query_path.display(),
+                            e
+                        ))
+                    })?
+                }
             };
 
             // 2. Execute SELECT query (with well-known vocabulary prefixes available)
-            let query = Self::with_well_known_prefixes(&query);
-            let results = graph.query(&query).map_err(|e| {
+            let query_prefixed = Self::with_well_known_prefixes(&query);
+            let results = graph_arc.query(&query_prefixed).map_err(|e| {
                 Error::new(&format!(
                     "Generation rule '{}' query failed: {}",
                     rule.name, e
@@ -649,7 +779,6 @@ impl GenerationPipeline {
             })?;
 
             // Convert query results to rows for template rendering
-            // Values are cleaned to remove RDF serialization syntax (quotes, XSD types, etc.)
             let rows = match results {
                 QueryResults::Solutions(solutions) => {
                     let mut rows = Vec::new();
@@ -658,7 +787,6 @@ impl GenerationPipeline {
                             .map_err(|e| Error::new(&format!("SPARQL solution error: {}", e)))?;
                         let mut row = BTreeMap::new();
                         for (var, term) in solution.iter() {
-                            // Strip leading '?' so templates use {{ var }} not {{ ?var }}
                             let key = var.to_string();
                             let clean_key = key.strip_prefix('?').unwrap_or(&key).to_string();
                             row.insert(clean_key, clean_sparql_term(&term.to_string()));
@@ -677,13 +805,13 @@ impl GenerationPipeline {
 
             // 3. Skip if empty and skip_empty is set
             if rows.is_empty() && rule.skip_empty {
-                continue;
+                return Ok((generated, executed_rules));
             }
 
             // 4. Load template from TemplateSource
             let (template_content, template_source_info) = match &rule.template {
                 TemplateSource::File { file } => {
-                    let template_path = self.base_path.join(file);
+                    let template_path = base_path_arc.join(file);
                     let content = std::fs::read_to_string(&template_path).map_err(|e| {
                         Error::new(&format!(
                             "error[E0008]: Failed to read template file\n  --> path: '{}'\n  |\n  = error: {}\n  = help: Check if file exists and is readable\n  = help: Verify template path in ggen.toml is relative to project root",
@@ -751,17 +879,59 @@ impl GenerationPipeline {
 
                     (content, format!("package '{}'", package))
                 }
+                TemplateSource::Pack { pack, output, file } => {
+                    let pack_ref = manifest_arc
+                        .packs
+                        .iter()
+                        .find(|p| p.name == *pack)
+                        .ok_or_else(|| {
+                            Error::new(&format!(
+                                "Generation rule '{}': pack '{}' not declared in [[packs]]",
+                                rule.name, pack
+                            ))
+                        })?;
+                    let pack_root = pack_ref.path.as_ref().ok_or_else(|| {
+                        Error::new(&format!(
+                            "Generation rule '{}': pack '{}' has no local path (registry = '{}')",
+                            rule.name, pack, pack_ref.registry
+                        ))
+                    })?;
+                    let _ = pack_root;
+                    let pack_dir = Self::resolve_pack_output_static(&manifest_arc, &base_path_arc, pack, output.as_str());
+                    let template_path = pack_dir.join(file);
+                    let content = std::fs::read_to_string(&template_path).map_err(|e| {
+                        Error::new(&format!(
+                            "Failed to read template from pack '{}' output '{}' file '{}': {}",
+                            pack,
+                            output,
+                            file.display(),
+                            e
+                        ))
+                    })?;
+                    (
+                        content,
+                        format!(
+                            "pack '{}' output '{}' file '{}'",
+                            pack,
+                            output,
+                            file.display()
+                        ),
+                    )
+                }
             };
 
             // 5. Render template and generate file(s)
-            //
-            // Render mode is chosen automatically:
-            //   - Static output_file (no {{ }}) → render ONCE with all rows in `results`
-            //   - Dynamic output_file (contains {{ }}) → render once PER ROW so each row
-            //     can expand to a differently-named file
-            let mut tera = tera::Tera::default();
-            crate::register::register_all(&mut tera);
-            tera.add_raw_template("generation_rule", &template_content)
+            let mut tera = (*tera_base).clone();
+
+            // Parse template to strip frontmatter (if any)
+            let parsed_template = Template::parse(&template_content).map_err(|e| {
+                Error::new(&format!(
+                    "Frontmatter parse error in rule '{}': {}",
+                    rule.name, e
+                ))
+            })?;
+
+            tera.add_raw_template("generation_rule", &parsed_template.body)
                 .map_err(|e| {
                     Error::new(&format!(
                         "Template parse error in rule '{}': {}",
@@ -772,7 +942,6 @@ impl GenerationPipeline {
             let is_static_output = !rule.output_file.contains("{{");
 
             // For static output paths with data, build one aggregate context and render once.
-            // This avoids redundant writes (e.g. 12 labels writing the same file 12 times).
             if is_static_output && !rows.is_empty() {
                 let results_json = serde_json::json!(rows);
                 let mut context = tera::Context::new();
@@ -785,11 +954,22 @@ impl GenerationPipeline {
                     context.insert(clean_key, value.as_str());
                 }
 
-                // Inject `generated_impl` for static outputs too (mirrors the per-row
-                // dynamic-output branch below), using the first row. Always populated
-                // when skill fields are present so templates referencing it render even
-                // when LLM is disabled (generate_skill_impl returns a stub in that case).
-                self.inject_generated_impl(&rows[0], rule, &mut context);
+                Self::inject_generated_impl_static(
+                    &rows[0],
+                    rule,
+                    &mut context,
+                    &manifest_arc,
+                    llm_service_arc.as_ref().map(|s| s.as_ref().as_ref()),
+                );
+
+                // BUG-002: render frontmatter through Tera so {{ }} vars in front.to are resolved
+                let mut tpl_with_front = parsed_template.clone();
+                if let Err(e) = tpl_with_front.render_frontmatter(&mut tera, &context) {
+                    log::warn!("Frontmatter render error in rule '{}': {e}", rule.name);
+                }
+                let effective_output_file_static = tpl_with_front.front.to.as_deref()
+                    .filter(|s| !s.is_empty())
+                    .unwrap_or(&rule.output_file);
 
                 let rendered = tera.render("generation_rule", &context).map_err(|e| {
                     Error::new(&format!(
@@ -798,23 +978,16 @@ impl GenerationPipeline {
                     ))
                 })?;
 
-                let full_output_path = output_dir.join(&rule.output_file);
+                let full_output_path = output_dir_arc.join(effective_output_file_static);
 
                 let final_content = match rule.mode {
                     GenerationMode::Create => {
                         if full_output_path.exists() {
-                            // Skip — do not advance to the per-row loop
-                            let duration = start.elapsed();
-                            let query_hash =
-                                format!("{:x}", sha2::Sha256::digest(query.as_bytes()));
-                            self.executed_rules.push(ExecutedRule {
-                                name: rule.name.clone(),
-                                rule_type: RuleType::Generation,
-                                triples_added: 0,
-                                duration_ms: duration.as_millis() as u64,
-                                query_hash,
-                            });
-                            continue;
+                            return Err(Error::new(&format!(
+                                "error[E0011]: Output file already exists in 'Create' mode\n  --> rule: '{}', output: '{}'\n  |\n  = help: mode=Create requires that the file does not exist\n  = help: Use mode=Overwrite to replace the file, or mode=Merge to combine content",
+                                rule.name,
+                                full_output_path.display()
+                            )));
                         }
                         rendered
                     }
@@ -841,7 +1014,7 @@ impl GenerationPipeline {
                     full_output_path.as_path(),
                     &rule.name,
                 )?;
-                if self.manifest.validation.no_unsafe {
+                if no_unsafe {
                     Self::check_no_unsafe(&final_content, full_output_path.as_path(), &rule.name)?;
                 }
                 transaction.write_file(&full_output_path, &final_content)?;
@@ -856,162 +1029,191 @@ impl GenerationPipeline {
 
                 let duration = start.elapsed();
                 let query_hash = format!("{:x}", sha2::Sha256::digest(query.as_bytes()));
-                self.executed_rules.push(ExecutedRule {
+                executed_rules.push(ExecutedRule {
                     name: rule.name.clone(),
                     rule_type: RuleType::Generation,
                     triples_added: 0,
                     duration_ms: duration.as_millis() as u64,
                     query_hash,
                 });
-                continue; // skip the per-row loop below
-            }
+            } else {
+                // Dynamic output paths: render once per row so each row can produce a distinct file
+                for row in &rows {
+                    // Build context from row
+                    let mut context = tera::Context::new();
 
-            // Dynamic output paths: render once per row so each row can produce a distinct file
-            for row in &rows {
-                // Build context from row
-                let mut context = tera::Context::new();
-
-                for (key, value) in row {
-                    // Strip leading '?' from SPARQL variable names
-                    let clean_key = key.strip_prefix('?').unwrap_or(key);
-
-                    // Values already cleaned during SPARQL result collection (line 357)
-                    context.insert(clean_key, value.as_str());
-                }
-
-                // Also insert sparql_results and entities (full row list) for batch templates
-                let results_json = serde_json::json!(rows);
-                context.insert("results", &results_json);
-                context.insert("sparql_results", &results_json);
-                context.insert("entities", &results_json);
-
-                // Inject `generated_impl` (LLM result or stub) when skill fields exist.
-                self.inject_generated_impl(row, rule, &mut context);
-
-                // Render template
-                let rendered = tera.render("generation_rule", &context).map_err(|e| {
-                    // Build comprehensive error context for debugging
-                    let var_names: Vec<String> = row
-                        .keys()
-                        .map(|k| k.strip_prefix('?').unwrap_or(k).to_string())
-                        .collect();
-
-                    // Format row values for display (limit value length to prevent spam)
-                    let row_values: Vec<String> = row
-                        .iter()
-                        .map(|(k, v)| {
-                            let clean_key = k.strip_prefix('?').unwrap_or(k);
-                            let display_value = if v.len() > 100 {
-                                format!("{}...", &v[..100])
-                            } else {
-                                v.clone()
-                            };
-                            format!("{} = \"{}\"", clean_key, display_value)
-                        })
-                        .collect();
-
-                    // Build error chain for debugging
-                    let mut error_chain = format!("{}", e);
-                    let mut source = std::error::Error::source(&e);
-                    while let Some(cause) = source {
-                        error_chain.push_str(&format!("\n  Caused by: {}", cause));
-                        source = std::error::Error::source(cause);
+                    for (key, value) in row {
+                        // Strip leading '?' from SPARQL variable names
+                        let clean_key = key.strip_prefix('?').unwrap_or(key);
+                        context.insert(clean_key, value.as_str());
                     }
 
-                    Error::new(&format!(
-                        "Failed to render template for rule '{}': {}\n\
-                         Template source: {}\n\
-                         Available variables: {}\n\
-                         Row values:\n  {}",
-                        rule.name,
-                        error_chain,
-                        template_source_info,
-                        var_names.join(", "),
-                        row_values.join("\n  ")
-                    ))
-                })?;
+                    // Also insert sparql_results and entities (full row list) for batch templates
+                    let results_json = serde_json::json!(rows);
+                    context.insert("results", &results_json);
+                    context.insert("sparql_results", &results_json);
+                    context.insert("entities", &results_json);
 
-                // Expand output path with Tera (supports filters like {{ name | lower }})
-                let output_path_rendered =
-                    tera.render_str(&rule.output_file, &context).map_err(|e| {
+                    // Inject `generated_impl` (LLM result or stub) when skill fields exist.
+                    Self::inject_generated_impl_static(
+                        row,
+                        rule,
+                        &mut context,
+                        &manifest_arc,
+                        llm_service_arc.as_ref().map(|s| s.as_ref().as_ref()),
+                    );
+
+                    // BUG-002: render frontmatter per-row so {{ var }} in front.to resolves to row values
+                    let mut row_tpl = parsed_template.clone();
+                    if let Err(e) = row_tpl.render_frontmatter(&mut tera, &context) {
+                        log::warn!("Frontmatter render error in rule '{}': {e}", rule.name);
+                    }
+                    let effective_output = row_tpl.front.to.as_deref()
+                        .filter(|s| !s.is_empty())
+                        .map(str::to_owned);
+
+                    // Render template
+                    let rendered = tera.render("generation_rule", &context).map_err(|e| {
+                        // Build comprehensive error context for debugging
+                        let var_names: Vec<String> = row
+                            .keys()
+                            .map(|k| k.strip_prefix('?').unwrap_or(k).to_string())
+                            .collect();
+
+                        // Format row values for display (limit value length to prevent spam)
+                        let row_values: Vec<String> = row
+                            .iter()
+                            .map(|(k, v)| {
+                                let clean_key = k.strip_prefix('?').unwrap_or(k);
+                                let display_value = if v.len() > 100 {
+                                    format!("{}...", &v[..100])
+                                } else {
+                                    v.clone()
+                                };
+                                format!("{} = \"{}\"", clean_key, display_value)
+                            })
+                            .collect();
+
+                        // Build error chain for debugging
+                        let mut error_chain = format!("{}", e);
+                        let mut source = std::error::Error::source(&e);
+                        while let Some(cause) = source {
+                            error_chain.push_str(&format!("\n  Caused by: {}", cause));
+                            source = std::error::Error::source(cause);
+                        }
+
                         Error::new(&format!(
-                            "Output path template error in rule '{}': {}",
-                            rule.name, e
+                            "Failed to render template for rule '{}': {}\n\
+                             Template source: {}\n\
+                             Available variables: {}\n\
+                             Row values:\n  {}",
+                            rule.name,
+                            error_chain,
+                            template_source_info,
+                            var_names.join(", "),
+                            row_values.join("\n  ")
                         ))
                     })?;
-                let full_output_path = output_dir.join(&output_path_rendered);
 
-                // T015-T016: Check generation mode and apply merge logic
-                let final_content = match rule.mode {
-                    GenerationMode::Create => {
-                        if full_output_path.exists() {
-                            // Skip - file already exists
-                            continue;
-                        }
-                        rendered.clone()
-                    }
-                    GenerationMode::Overwrite => rendered.clone(),
-                    GenerationMode::Merge => {
-                        // Merge mode: preserve manual sections
-                        if full_output_path.exists() {
-                            let existing =
-                                std::fs::read_to_string(&full_output_path).map_err(|e| {
-                                    Error::new(&format!(
-                                        "Failed to read existing file for merge '{}': {}",
-                                        full_output_path.display(),
-                                        e
-                                    ))
-                                })?;
-                            crate::codegen::merge::merge_sections(&rendered, &existing)?
-                        } else {
-                            // First time - wrap in markers
-                            crate::codegen::merge::merge_sections(&rendered, "")?
-                        }
-                    }
-                };
+                    // Expand output path with Tera (supports filters like {{ name | lower }})
+                    let output_path_rendered = if let Some(ref eff) = effective_output {
+                        eff.clone()
+                    } else {
+                        tera.render_str(&rule.output_file, &context).map_err(|e| {
+                            Error::new(&format!(
+                                "Output path template error in rule '{}': {}",
+                                rule.name, e
+                            ))
+                        })?
+                    };
+                    let full_output_path = output_dir_arc.join(&output_path_rendered);
 
-                // Validate generated output before writing
-                Self::validate_generated_output(
-                    &final_content,
-                    full_output_path.as_path(),
-                    &rule.name,
-                )?;
-                if self.manifest.validation.no_unsafe {
-                    Self::check_no_unsafe(&final_content, full_output_path.as_path(), &rule.name)?;
+                    // T015-T016: Check generation mode and apply merge logic
+                    let final_content = match rule.mode {
+                        GenerationMode::Create => {
+                            if full_output_path.exists() {
+                                return Err(Error::new(&format!(
+                                    "error[E0011]: Output file already exists in 'Create' mode\n  --> rule: '{}', output: '{}'\n  |\n  = help: mode=Create requires that the file does not exist\n  = help: Use mode=Overwrite to replace the file, or mode=Merge to combine content",
+                                    rule.name,
+                                    full_output_path.display()
+                                )));
+                            }
+                            rendered.clone()
+                        }
+                        GenerationMode::Overwrite => rendered.clone(),
+                        GenerationMode::Merge => {
+                            // Merge mode: preserve manual sections
+                            if full_output_path.exists() {
+                                let existing =
+                                    std::fs::read_to_string(&full_output_path).map_err(|e| {
+                                        Error::new(&format!(
+                                            "Failed to read existing file for merge '{}': {}",
+                                            full_output_path.display(),
+                                            e
+                                        ))
+                                    })?;
+                                crate::codegen::merge::merge_sections(&rendered, &existing)?
+                            } else {
+                                // First time - wrap in markers
+                                crate::codegen::merge::merge_sections(&rendered, "")?
+                            }
+                        }
+                    };
+
+                    // Validate generated output before writing
+                    Self::validate_generated_output(
+                        &final_content,
+                        full_output_path.as_path(),
+                        &rule.name,
+                    )?;
+                    if no_unsafe {
+                        Self::check_no_unsafe(&final_content, full_output_path.as_path(), &rule.name)?;
+                    }
+
+                    // Write file atomically with automatic rollback on failure
+                    transaction.write_file(&full_output_path, &final_content)?;
+
+                    // Record generated file
+                    let content_hash = format!("{:x}", sha2::Sha256::digest(final_content.as_bytes()));
+                    generated.push(GeneratedFile {
+                        path: full_output_path,
+                        content_hash,
+                        size_bytes: final_content.len(),
+                        source_rule: rule.name.clone(),
+                    });
                 }
 
-                // Write file atomically with automatic rollback on failure
-                // FileTransaction handles parent directory creation internally
-                transaction.write_file(&full_output_path, &final_content)?;
-
-                // Record generated file
-                let content_hash = format!("{:x}", sha2::Sha256::digest(final_content.as_bytes()));
-                generated.push(GeneratedFile {
-                    path: full_output_path,
-                    content_hash,
-                    size_bytes: final_content.len(),
-                    source_rule: rule.name.clone(),
+                // Record rule execution
+                let duration = start.elapsed();
+                let query_hash = format!("{:x}", sha2::Sha256::digest(query.as_bytes()));
+                executed_rules.push(ExecutedRule {
+                    name: rule.name.clone(),
+                    rule_type: RuleType::Generation,
+                    triples_added: 0,
+                    duration_ms: duration.as_millis() as u64,
+                    query_hash,
                 });
             }
 
-            // Record rule execution
-            let duration = start.elapsed();
-            let query_hash = format!("{:x}", sha2::Sha256::digest(query.as_bytes()));
-            self.executed_rules.push(ExecutedRule {
-                name: rule.name.clone(),
-                rule_type: RuleType::Generation,
-                triples_added: 0, // Generation rules don't add triples
-                duration_ms: duration.as_millis() as u64,
-                query_hash,
-            });
+            Ok((generated, executed_rules))
+        }).collect();
+
+        let results = results?;
+        let mut all_generated = Vec::new();
+        for (gen, exec) in results {
+            all_generated.extend(gen);
+            self.executed_rules.extend(exec);
         }
 
         // Commit transaction - all files written successfully
-        // If any error occurred above, transaction will auto-rollback on drop
-        let _receipt = transaction.commit()?;
+        // We use Arc::try_unwrap to get the owned transaction back if possible, 
+        // or we just call commit on the Arc if we modify FileTransaction (but we didn't).
+        // Since rayon join finished, we should be able to unwrap.
+        let tx = Arc::try_unwrap(transaction).map_err(|_| Error::new("Transaction still has multiple owners"))?;
+        let _receipt = tx.commit()?;
 
-        self.generated_files.extend(generated.clone());
-        Ok(generated)
+        self.generated_files.extend(all_generated.clone());
+        Ok(all_generated)
     }
 
     /// Execute a single generation rule (for use with --rule filter)

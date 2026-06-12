@@ -105,14 +105,14 @@ ps aux | grep "{{ process_name | default(value=service_name) }}" | grep -v grep 
 ### 5.1 Graceful Restart
 ```bash
 # Stop gracefully (allow in-flight requests to complete)
-{{ stop_command | default(value="systemctl stop " + service_name | lower | replace(from=" ", to="-")) }}
+{{ stop_command | default(value="systemctl stop <service-name>") }}
 
 # Verify process stopped
 sleep 3
 pgrep -f "{{ process_name | default(value=service_name) }}" && echo "STILL RUNNING" || echo "STOPPED"
 
 # Start
-{{ start_command | default(value="systemctl start " + service_name | lower | replace(from=" ", to="-")) }}
+{{ start_command | default(value="systemctl start <service-name>") }}
 
 # Verify health
 sleep 5
@@ -129,7 +129,7 @@ pkill -9 -f "{{ process_name | default(value=service_name) }}"
 {{ cleanup_command | default(value="# Add cleanup steps for stale sockets/pid files") }}
 
 # Start fresh
-{{ start_command | default(value="systemctl start " + service_name | lower | replace(from=" ", to="-")) }}
+{{ start_command | default(value="systemctl start <service-name>") }}
 
 # Verify
 sleep 5

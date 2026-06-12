@@ -1,0 +1,61 @@
+// {{ template_name }}.rs.tera — generated stub by ggen-pack-contrib
+// Pack: {{ pack_id }}
+// Replace TODO markers with your implementation.
+// This stub is pre-wired to pass all lsp-max law invariants.
+
+use lsp_max::{Client, LanguageServer};
+use lsp_max::lsp_types::*;
+use std::sync::Mutex;
+
+pub struct {{ template_name | capitalize }}Backend {
+    pub client: Client,
+}
+
+#[lsp_max::async_trait]
+impl LanguageServer for {{ template_name | capitalize }}Backend {
+    async fn initialize(
+        &self,
+        _params: InitializeParams,
+    ) -> lsp_max::jsonrpc::Result<InitializeResult> {
+        lsp_max::REGISTRY.get_or_init(|| Mutex::new(lsp_max::ServerRegistry::default()));
+        lsp_max::MESH.get_or_init(|| Mutex::new(lsp_max::max_runtime::AutonomicMesh::default()));
+
+        Ok(InitializeResult {
+            server_info: Some(ServerInfo {
+                name: "{{ pack_id }}-lsp".to_string(),
+                version: Some(env!("CARGO_PKG_VERSION").to_string()),
+            }),
+            capabilities: ServerCapabilities {
+                // TODO: declare your capabilities
+                ..Default::default()
+            },
+            ..Default::default()
+        })
+    }
+
+    async fn shutdown(&self) -> lsp_max::jsonrpc::Result<()> {
+        Ok(())
+    }
+
+    async fn did_open(&self, params: DidOpenTextDocumentParams) {
+        let uri = params.text_document.uri.clone();
+        let content = params.text_document.text.clone();
+        self.diagnose(uri, content).await;
+    }
+}
+
+impl {{ template_name | capitalize }}Backend {
+    pub fn new(client: Client) -> Self {
+        Self { client }
+    }
+
+    async fn diagnose(&self, uri: Url, _content: String) {
+        use lsp_max::lsp_types::{Diagnostic, NumberOrString};
+        // TODO: populate diagnostics
+        // Every diagnostic MUST carry source_id for attribution:
+        //   code: Some(NumberOrString::String("YOUR-CODE".to_string()))
+        //   data: Some(serde_json::json!({"source_id": "{{ diagnostic_source_id }}"}))
+        let diags: Vec<Diagnostic> = Vec::new();
+        self.client.publish_diagnostics(uri, diags, None).await;
+    }
+}

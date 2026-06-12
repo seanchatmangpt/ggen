@@ -88,13 +88,13 @@ impl Default for TelemetryConfig {
 /// Guard that shuts down the tracer provider on drop.
 #[cfg(feature = "otel")]
 pub struct TelemetryGuard {
-    _provider: SdkTracerProvider,
+    provider: SdkTracerProvider,
 }
 
 #[cfg(feature = "otel")]
 impl Drop for TelemetryGuard {
     fn drop(&mut self) {
-        let _ = self._provider.shutdown();
+        let _ = self.provider.shutdown();
     }
 }
 
@@ -172,9 +172,7 @@ pub fn init_telemetry(config: TelemetryConfig) -> Result<TelemetryGuard> {
         "OpenTelemetry initialized"
     );
 
-    Ok(TelemetryGuard {
-        _provider: provider,
-    })
+    Ok(TelemetryGuard { provider })
 }
 
 /// No-op implementation when "otel" feature is disabled

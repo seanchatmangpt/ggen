@@ -1,4 +1,27 @@
 #![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
+#![allow(
     dead_code,
     unused_imports,
     unused_variables,
@@ -30,7 +53,12 @@ fn workspace_root() -> std::path::PathBuf {
 /// or fails to parse (some specify/ .ttl files have known syntax issues).
 /// Returns true if the file was loaded successfully.
 fn load_ttl(graph: &Graph, relative_path: &str) -> bool {
-    let path = workspace_root().join(relative_path);
+    let clean_path = if relative_path.starts_with(".specify/") {
+        relative_path.to_string()
+    } else {
+        relative_path.replace("specify/", ".specify/")
+    };
+    let path = workspace_root().join(clean_path);
     if !path.exists() {
         eprintln!("[SKIP] File not found: {}", path.display());
         return false;
@@ -46,7 +74,12 @@ fn load_ttl(graph: &Graph, relative_path: &str) -> bool {
 
 /// Helper: read a .rq file as a string. Panics if file does not exist.
 fn read_rq(relative_path: &str) -> String {
-    let path = workspace_root().join(relative_path);
+    let clean_path = if relative_path.starts_with(".specify/") {
+        relative_path.to_string()
+    } else {
+        relative_path.replace("specify/", ".specify/")
+    };
+    let path = workspace_root().join(clean_path);
     if !path.exists() {
         panic!("Query file not found: {}", path.display());
     }
@@ -360,8 +393,8 @@ const LENIENT_QUERIES: &[&str] = &[
 #[test]
 fn test_all_specify_queries_execute_without_error() {
     let root = workspace_root();
-    let queries_dir = root.join("specify/queries");
-    let specify_dir = root.join("specify");
+    let queries_dir = root.join(".specify/queries");
+    let specify_dir = root.join(".specify");
 
     let mut tested = 0usize;
     let mut errors: Vec<String> = Vec::new();
@@ -419,7 +452,7 @@ fn test_all_specify_queries_execute_without_error() {
         // Load all .ttl data files
         let mut any_loaded = false;
         for ttl_name in &data_ttls {
-            let ttl_relative = format!("specify/{}", ttl_name);
+            let ttl_relative = format!(".specify/{}", ttl_name);
             if load_ttl(&graph, &ttl_relative) {
                 any_loaded = true;
             }

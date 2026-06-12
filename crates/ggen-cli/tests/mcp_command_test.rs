@@ -1,4 +1,27 @@
 #![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all)]
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
 
 //! MCP Command Integration Tests
 //!
@@ -31,6 +54,36 @@ fn create_tera() -> Tera {
     let mut tera_instance = Tera::default();
     ggen_core::register::register_all(&mut tera_instance);
     tera_instance
+}
+
+/// Helper to read templates from the workspace root directory
+fn read_template(path: &str) -> String {
+    let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let full_path = manifest_dir.join("../../").join(path);
+    fs::read_to_string(&full_path).unwrap_or_else(|e| {
+        panic!("Failed to read template at {}: {}", full_path.display(), e)
+    })
+}
+
+/// Helper to create a Tera context with default variables
+fn create_context() -> Context {
+    let mut ctx = Context::new();
+    ctx.insert("ontology_path", "test.ttl");
+    ctx.insert("server_version", "0.1.0");
+    ctx.insert("handler_name", "TestMcpHandler");
+    ctx.insert("description", "Test server");
+    
+    let empty_tools: Vec<serde_json::Value> = vec![];
+    ctx.insert("tools", &empty_tools);
+    let empty_resources: Vec<serde_json::Value> = vec![];
+    ctx.insert("resources", &empty_resources);
+    let empty_prompts: Vec<serde_json::Value> = vec![];
+    ctx.insert("prompts", &empty_prompts);
+    
+    ctx.insert("use_zai", &false);
+    ctx.insert("use_a2a", &false);
+    ctx.insert("timestamp", "");
+    ctx
 }
 
 /// Create a temporary directory with test structure
@@ -96,11 +149,10 @@ fn test_mcp_server_template_is_valid() {
 
     // Arrange: Load template
     let mut tera = create_tera();
-    let template_content = fs::read_to_string("templates/mcp-server/stdio_server.rs.tera")
-        .expect("Failed to read stdio_server.rs.tera template");
+    let template_content = read_template("templates/mcp-server/stdio_server.rs.tera");
 
     // Arrange: Create minimal context
-    let mut ctx = Context::new();
+    let mut ctx = create_context();
     ctx.insert("server_name", "TestMcpServer");
     ctx.insert("server_struct", "TestMcpServer");
     ctx.insert("description", "Test server");
@@ -140,11 +192,10 @@ fn test_mcp_generate_output_structure() {
 
     // Arrange: Render template
     let mut tera = create_tera();
-    let mut ctx = Context::new();
+    let mut ctx = create_context();
     ctx.insert("server_name", "TestMcpServer");
 
-    let template_content = fs::read_to_string("templates/mcp-server/stdio_server.rs.tera")
-        .expect("Failed to read template");
+    let template_content = read_template("templates/mcp-server/stdio_server.rs.tera");
 
     let rendered = tera
         .render_str(&template_content, &ctx)
@@ -208,7 +259,7 @@ fn test_mcp_generate_error_missing_template() {
     let mut tera = create_tera();
 
     // Act: Try to render non-existent template
-    let result = tera.render_str("{{ non_existent_function() }}", &Context::new());
+    let result = tera.render_str("{{ non_existent_function() }}", &create_context());
 
     // Assert: Rendering fails
     assert!(result.is_err(), "Non-existent template should fail");
@@ -226,11 +277,10 @@ fn test_mcp_tool_handler_template_is_valid() {
 
     // Arrange: Load template
     let mut tera = create_tera();
-    let template_content = fs::read_to_string("templates/mcp-server/tool_handler.rs.tera")
-        .expect("Failed to read tool_handler.rs.tera template");
+    let template_content = read_template("templates/mcp-server/tool_handler.rs.tera");
 
     // Arrange: Create context
-    let mut ctx = Context::new();
+    let mut ctx = create_context();
     ctx.insert("error_type", "McpError");
     ctx.insert("handler_context_type", "HandlerContext");
     ctx.insert("stream_result_type", "Receiver<String>");
@@ -267,13 +317,12 @@ fn test_mcp_tool_handler_template_is_valid() {
 fn test_mcp_multiple_tools_template() {
     println!("🔍 CLI Test: Multiple tools in template");
 
-    // Arrange: Load template
+    // Act: Render template
     let mut tera = create_tera();
-    let template_content = fs::read_to_string("templates/mcp-server/tool_handler.rs.tera")
-        .expect("Failed to read template");
+    let template_content = read_template("templates/mcp-server/tool_handler.rs.tera");
 
     // Arrange: Create context with multiple tools
-    let mut ctx = Context::new();
+    let mut ctx = create_context();
     ctx.insert("error_type", "McpError");
     ctx.insert("handler_context_type", "HandlerContext");
     ctx.insert("stream_result_type", "Receiver<String>");
@@ -366,11 +415,10 @@ fn test_mcp_template_context_completeness() {
 
     // Arrange: Load template
     let mut tera = create_tera();
-    let template_content = fs::read_to_string("templates/mcp-server/stdio_server.rs.tera")
-        .expect("Failed to read template");
+    let template_content = read_template("templates/mcp-server/stdio_server.rs.tera");
 
     // Arrange: Create complete context
-    let mut ctx = Context::new();
+    let mut ctx = create_context();
     ctx.insert("server_name", "TestMcpServer");
     ctx.insert("server_struct", "TestMcpServer");
     ctx.insert("description", "Test server");
@@ -408,11 +456,10 @@ fn test_mcp_generated_file_permissions() {
 
     // Arrange: Render and write file
     let mut tera = create_tera();
-    let mut ctx = Context::new();
+    let mut ctx = create_context();
     ctx.insert("server_name", "TestMcpServer");
 
-    let template_content = fs::read_to_string("templates/mcp-server/stdio_server.rs.tera")
-        .expect("Failed to read template");
+    let template_content = read_template("templates/mcp-server/stdio_server.rs.tera");
 
     let rendered = tera
         .render_str(&template_content, &ctx)

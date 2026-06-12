@@ -472,10 +472,11 @@ ggen_compat = ">=0.1 <0.2"
                 assert!(!metadata.license.is_empty());
                 assert!(!metadata.ggen_compat.is_empty());
 
-                // Validate ID format (should be reverse domain notation)
                 if metadata.id.contains('.') {
-                    let parts: Vec<&str> = metadata.id.split('.').collect();
-                    assert!(parts.len() >= 2, "ID should have at least 2 parts separated by dots");
+                    assert!(
+                        metadata.id.split('.').count() >= 2,
+                        "ID should have at least 2 parts separated by dots"
+                    );
                 }
 
                 // Validate version format (should be semver)

@@ -1,4 +1,27 @@
 #![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
+#![allow(
     dead_code,
     unused_imports,
     unused_variables,
@@ -6,7 +29,6 @@
     clippy::all,
     unused_mut
 )]
-#![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all)]
 
 //! Integration Tests - CLI → Domain → Core Integration
 //!
@@ -30,7 +52,9 @@ use predicates::prelude::*;
 // CLI → Domain → Core Integration Tests
 // ============================================================================
 
-test!(test_template_generate_integration, {
+#[test]
+#[ignore = "ggen template subcommand removed; CLI consolidated to sync (v26_5_19+)"]
+fn test_template_generate_integration() {
     // Arrange
     let temp = TempDir::new().unwrap();
     let template_file = temp.child("template.yaml");
@@ -75,9 +99,11 @@ nodes:
     let main_file = output_dir.child("my-service/main.rs");
     main_file.assert(predicate::path::exists());
     main_file.assert(predicate::str::contains("my-service"));
-});
+}
 
-test!(test_marketplace_search_integration, {
+#[test]
+#[ignore = "ggen marketplace subcommand removed; CLI consolidated to sync (v26_5_19+)"]
+fn test_marketplace_search_integration() {
     // Arrange & Act: Test CLI → Market Domain → Core Registry
     // v2.0: "marketplace" command replaces "market"
     let mut cmd = Command::cargo_bin("ggen").unwrap();
@@ -88,9 +114,11 @@ test!(test_marketplace_search_integration, {
 
     // Assert: Should complete successfully (with or without results)
     assert!(output.status.success() || output.status.code() == Some(0));
-});
+}
 
-test!(test_project_gen_integration, {
+#[test]
+#[ignore = "ggen project subcommand removed; CLI consolidated to sync (v26_5_19+)"]
+fn test_project_gen_integration() {
     // Arrange
     let temp = TempDir::new().unwrap();
     let project_dir = temp.child("my-project");
@@ -113,9 +141,11 @@ test!(test_project_gen_integration, {
 
     // Assert
     assert!(output.status.success() || project_dir.path().exists());
-});
+}
 
-test!(test_lifecycle_execution_integration, {
+#[test]
+#[ignore = "ggen lifecycle subcommand removed; CLI consolidated to sync (v26_5_19+)"]
+fn test_lifecycle_execution_integration() {
     let temp = TempDir::new().unwrap();
     let make_file = temp.child("make.toml");
 
@@ -155,13 +185,15 @@ commands = ["echo 'Building...'"]
 
     // Assert
     assert!(output.status.success());
-});
+}
 
 // ============================================================================
 // Error Propagation Tests
 // ============================================================================
 
-test!(test_error_propagation_invalid_template, {
+#[test]
+#[ignore = "ggen template subcommand removed; CLI consolidated to sync (v26_5_19+)"]
+fn test_error_propagation_invalid_template() {
     // Arrange
     let temp = TempDir::new().unwrap();
     let invalid_template = temp.child("invalid.yaml");
@@ -179,9 +211,11 @@ test!(test_error_propagation_invalid_template, {
     ])
     .assert()
     .failure();
-});
+}
 
-test!(test_error_propagation_missing_file, {
+#[test]
+#[ignore = "ggen template subcommand removed; CLI consolidated to sync (v26_5_19+)"]
+fn test_error_propagation_missing_file() {
     // Arrange & Act & Assert
     let mut cmd = Command::cargo_bin("ggen").unwrap();
     cmd.args([
@@ -192,7 +226,7 @@ test!(test_error_propagation_missing_file, {
     ])
     .assert()
     .failure();
-});
+}
 
 test!(test_error_propagation_invalid_command, {
     // Arrange & Act & Assert
@@ -203,7 +237,9 @@ test!(test_error_propagation_invalid_command, {
         .stderr(predicate::str::contains("error").or(predicate::str::contains("unrecognized")));
 });
 
-test!(test_error_propagation_missing_required_var, {
+#[test]
+#[ignore = "ggen template subcommand removed; CLI consolidated to sync (v26_5_19+)"]
+fn test_error_propagation_missing_required_var() {
     // Arrange
     let temp = TempDir::new().unwrap();
     let template_file = temp.child("template.yaml");
@@ -233,13 +269,15 @@ nodes:
     ])
     .assert()
     .failure();
-});
+}
 
 // ============================================================================
 // JSON Output Formatting Tests
 // ============================================================================
 
-test!(test_json_output_marketplace_search, {
+#[test]
+#[ignore = "ggen marketplace subcommand removed; CLI consolidated to sync (v26_5_19+)"]
+fn test_json_output_marketplace_search() {
     // Arrange & Act
     let mut cmd = Command::cargo_bin("ggen").unwrap();
     let output = cmd
@@ -256,9 +294,11 @@ test!(test_json_output_marketplace_search, {
             }
         }
     }
-});
+}
 
-test!(test_json_output_project_info, {
+#[test]
+#[ignore = "ggen project subcommand removed; CLI consolidated to sync (v26_5_19+)"]
+fn test_json_output_project_info() {
     // Arrange
     let temp = TempDir::new().unwrap();
     let project_file = temp.child("project.toml");
@@ -294,13 +334,15 @@ version = "1.0.0"
             assert!(json.is_object());
         }
     }
-});
+}
 
 // ============================================================================
 // Multi-Command Workflow Tests
 // ============================================================================
 
-test!(test_workflow_template_to_lifecycle, {
+#[test]
+#[ignore = "ggen template and lifecycle subcommands removed; CLI consolidated to sync (v26_5_19+)"]
+fn test_workflow_template_to_lifecycle() {
     let temp = TempDir::new().unwrap();
     let template_file = temp.child("template.yaml");
     let output_dir = temp.child("project");
@@ -360,9 +402,11 @@ nodes:
                 .success();
         }
     }
-});
+}
 
-test!(test_workflow_marketplace_to_project, {
+#[test]
+#[ignore = "ggen marketplace and project subcommands removed; CLI consolidated to sync (v26_5_19+)"]
+fn test_workflow_marketplace_to_project() {
     // Arrange & Act
     let mut cmd = Command::cargo_bin("ggen").unwrap();
     cmd.args(["marketplace", "search", "cli-template", "--limit", "1"])
@@ -371,9 +415,11 @@ test!(test_workflow_marketplace_to_project, {
 
     // Assert: Test passes if search succeeds
     // Note: Install and generate steps would require network
-});
+}
 
-test!(test_workflow_graph_operations, {
+#[test]
+#[ignore = "ggen graph import verb removed; CLI consolidated to sync (v26_5_19+)"]
+fn test_workflow_graph_operations() {
     // Arrange
     let temp = TempDir::new().unwrap();
     let graph_file = temp.child("test.ttl");
@@ -404,7 +450,7 @@ ex:project1 a ex:Project ;
 
     // Assert
     assert!(output.status.success() || output.status.code().is_some());
-});
+}
 
 // ============================================================================
 // Command Chaining Tests
@@ -414,13 +460,15 @@ test!(test_doctor_before_operations, {
     // Arrange & Act & Assert
     Command::cargo_bin("ggen")
         .unwrap()
-        .args(["doctor"])
+        .args(["doctor", "check"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("Checking").or(predicate::str::is_empty()));
+        .stdout(predicate::str::contains("passed"));
 });
 
-test!(test_shell_completion_generation, {
+#[test]
+#[ignore = "ggen shell subcommand removed; CLI consolidated to sync (v26_5_19+)"]
+fn test_shell_completion_generation() {
     let temp = TempDir::new().unwrap();
     let completion_file = temp.child("ggen.bash");
 
@@ -439,13 +487,15 @@ test!(test_shell_completion_generation, {
 
     // Assert
     assert!(output.status.success() || completion_file.path().exists());
-});
+}
 
 // ============================================================================
 // Configuration Integration Tests
 // ============================================================================
 
-test!(test_config_file_loading, {
+#[test]
+#[ignore = "ggen config flag removed; CLI consolidated to sync (v26_5_19+)"]
+fn test_config_file_loading() {
     let temp = TempDir::new().unwrap();
     let config_file = temp.child("config.toml");
 
@@ -473,9 +523,11 @@ enabled = true
 
     // Assert
     assert!(output.status.success());
-});
+}
 
-test!(test_manifest_path_option, {
+#[test]
+#[ignore = "ggen manifest-path flag removed/renamed; CLI consolidated to sync (v26_5_19+)"]
+fn test_manifest_path_option() {
     // Arrange
     let temp = TempDir::new().unwrap();
     let manifest = temp.child("custom.toml");
@@ -503,7 +555,7 @@ version = "1.0.0"
 
     // Assert
     assert!(output.status.success() || output.status.code().is_some());
-});
+}
 
 // ============================================================================
 // Help and Documentation Tests
@@ -516,7 +568,7 @@ test!(test_help_command, {
         .args(["--help"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("Graph-aware code generator"));
+        .stdout(predicate::str::contains("sync"));
 });
 
 test!(test_version_command, {
@@ -526,21 +578,23 @@ test!(test_version_command, {
         .args(["--version"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("1.2.0"));
+        .stdout(predicate::str::contains(env!("CARGO_PKG_VERSION")));
 });
 
-test!(test_progressive_help, {
+#[test]
+#[ignore = "ggen help-me subcommand removed; CLI consolidated to sync (v26_5_19+)"]
+fn test_progressive_help() {
     // Arrange & Act & Assert
     Command::cargo_bin("ggen")
         .unwrap()
         .args(["help-me"])
         .assert()
         .success();
-});
+}
 
 test!(test_subcommand_help, {
     // Arrange & Act & Assert
-    for subcommand in &["template", "marketplace", "project", "lifecycle", "graph"] {
+    for subcommand in &["sync", "init", "doctor", "graph", "policy"] {
         Command::cargo_bin("ggen")
             .unwrap()
             .args([*subcommand, "--help"])
@@ -554,7 +608,9 @@ test!(test_subcommand_help, {
 // v2.0 Pattern Tests - Auto-Discovery, Sync Wrappers, Frozen Sections
 // ============================================================================
 
-test!(test_v2_auto_discovery, {
+#[test]
+#[ignore = "ggen obsolete subcommands removed; CLI consolidated to sync (v26_5_19+)"]
+fn test_v2_auto_discovery() {
     // Arrange & Act
     let output = Command::cargo_bin("ggen")
         .unwrap()
@@ -569,13 +625,13 @@ test!(test_v2_auto_discovery, {
     assert!(stdout.contains("template"));
     assert!(stdout.contains("graph") || stdout.contains("lifecycle"));
     assert!(output.status.success());
-});
+}
 
 test!(test_v2_sync_wrapper_execution, {
     // Arrange & Act
     let output = Command::cargo_bin("ggen")
         .unwrap()
-        .args(["doctor"])
+        .args(["doctor", "check"])
         .output()
         .unwrap();
 
@@ -583,7 +639,9 @@ test!(test_v2_sync_wrapper_execution, {
     assert!(output.status.success());
 });
 
-test!(test_v2_help_me_command, {
+#[test]
+#[ignore = "ggen help-me subcommand removed; CLI consolidated to sync (v26_5_19+)"]
+fn test_v2_help_me_command() {
     // Arrange & Act
     let output = Command::cargo_bin("ggen")
         .unwrap()
@@ -593,9 +651,11 @@ test!(test_v2_help_me_command, {
 
     // Assert
     assert!(output.status.success());
-});
+}
 
-test!(test_v2_frozen_section_preservation, {
+#[test]
+#[ignore = "ggen template subcommand removed; CLI consolidated to sync (v26_5_19+)"]
+fn test_v2_frozen_section_preservation() {
     let temp = TempDir::new().unwrap();
     let output_file = temp.child("service.rs");
 
@@ -664,9 +724,11 @@ nodes:
         assert!(content.contains("my_business_logic"));
         assert!(content.contains("Custom logic"));
     }
-});
+}
 
-test!(test_v2_business_logic_not_overwritten, {
+#[test]
+#[ignore = "ggen template subcommand removed; CLI consolidated to sync (v26_5_19+)"]
+fn test_v2_business_logic_not_overwritten() {
     let temp = TempDir::new().unwrap();
     let business_file = temp.child("business_logic.rs");
 
@@ -714,9 +776,11 @@ nodes:
         let current_content = std::fs::read_to_string(business_file.path()).unwrap();
         assert!(current_content.contains(original_content));
     }
-});
+}
 
-test!(test_v2_marketplace_search_with_rdf, {
+#[test]
+#[ignore = "ggen marketplace subcommand removed; CLI consolidated to sync (v26_5_19+)"]
+fn test_v2_marketplace_search_with_rdf() {
     // Arrange & Act
     let output = Command::cargo_bin("ggen")
         .unwrap()
@@ -726,9 +790,11 @@ test!(test_v2_marketplace_search_with_rdf, {
 
     // Assert
     assert!(output.status.success() || output.status.code() == Some(0));
-});
+}
 
-test!(test_v2_rdf_based_template_generation, {
+#[test]
+#[ignore = "ggen template subcommand removed; CLI consolidated to sync (v26_5_19+)"]
+fn test_v2_rdf_based_template_generation() {
     let temp = TempDir::new().unwrap();
     let rdf_file = temp.child("data.ttl");
     let template_file = temp.child("template.hbs");
@@ -782,4 +848,4 @@ impl {{name}} {
     if result.status.success() {
         assert!(output_dir.path().exists());
     }
-});
+}

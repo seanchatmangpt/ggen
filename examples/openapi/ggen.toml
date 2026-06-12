@@ -12,7 +12,6 @@ description = "Ontology-driven API contract generation with ggen sync"
 [ontology]
 source = "ontology/blog-api.ttl"
 base_iri = "https://ggen.io/examples/blog/"
-schema = "ontology/api-schema.ttl"
 
 [ontology.prefixes]
 blog = "https://ggen.io/examples/blog#"

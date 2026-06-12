@@ -377,8 +377,8 @@ impl MigrationCoordinator {
     ///
     /// # Errors
     ///
-    /// * [`Error::RdfStoreError`] - When batch insertion fails for any package batch
-    /// * [`Error::RegistryError`] - When the target registry is unavailable
+    /// * `Error::RdfStoreError` - When batch insertion fails for any package batch
+    /// * `Error::RegistryError` - When the target registry is unavailable
     pub fn migrate_packages(&self, v1_packages: &[Package]) -> Result<MigrationReport> {
         info!(
             "Starting migration of {} packages from v1 to RDF",
@@ -416,8 +416,8 @@ impl MigrationCoordinator {
     ///
     /// # Errors
     ///
-    /// * [`Error::PackageNotFound`] - When a v1 package does not exist in the v2 registry
-    /// * [`Error::RdfStoreError`] - When querying the RDF store fails
+    /// * `Error::PackageNotFound` - When a v1 package does not exist in the v2 registry
+    /// * `Error::RdfStoreError` - When querying the RDF store fails
     pub async fn verify_migration(&self, v1_packages: &[Package]) -> Result<VerificationReport> {
         info!("Verifying migration of {} packages", v1_packages.len());
 
@@ -453,8 +453,8 @@ impl MigrationCoordinator {
     ///
     /// # Errors
     ///
-    /// * [`Error::PackageNotFound`] - When the package does not exist in the v2 registry
-    /// * [`Error::RdfStoreError`] - When querying the RDF store fails
+    /// * `Error::PackageNotFound` - When the package does not exist in the v2 registry
+    /// * `Error::RdfStoreError` - When querying the RDF store fails
     async fn verify_package(&self, v1_package: &Package) -> Result<bool> {
         // Retrieve from RDF
         let v2_package = self.target.get_package(&v1_package.metadata.id).await?;
@@ -481,8 +481,8 @@ impl MigrationCoordinator {
     ///
     /// # Errors
     ///
-    /// * [`Error::RdfStoreError`] - When inserting a package into the RDF store fails
-    /// * [`Error::RegistryError`] - When checking package existence fails
+    /// * `Error::RdfStoreError` - When inserting a package into the RDF store fails
+    /// * `Error::RegistryError` - When checking package existence fails
     pub async fn incremental_migrate(&self, v1_packages: &[Package]) -> Result<MigrationReport> {
         info!("Starting incremental migration");
 
@@ -646,8 +646,8 @@ impl ConsistencyChecker {
     ///
     /// # Errors
     ///
-    /// * [`Error::PackageNotFound`] - When the package does not exist in the v2 registry
-    /// * [`Error::RdfStoreError`] - When querying the RDF store fails
+    /// * `Error::PackageNotFound` - When the package does not exist in the v2 registry
+    /// * `Error::RdfStoreError` - When querying the RDF store fails
     pub async fn check_package_consistency(
         &self, package_id: &PackageId, v1_package: &Package,
     ) -> Result<ConsistencyResult> {
@@ -689,8 +689,8 @@ impl ConsistencyChecker {
     ///
     /// # Errors
     ///
-    /// * [`Error::PackageNotFound`] - When a package does not exist in the v2 registry
-    /// * [`Error::RdfStoreError`] - When querying the RDF store fails
+    /// * `Error::PackageNotFound` - When a package does not exist in the v2 registry
+    /// * `Error::RdfStoreError` - When querying the RDF store fails
     pub async fn periodic_check(&self, v1_packages: &[Package]) -> Result<ConsistencyReport> {
         let mut report = ConsistencyReport::new();
         report.total_packages = v1_packages.len();

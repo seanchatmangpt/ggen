@@ -1,7 +1,7 @@
 //! FIELD-STATUS-1 — a read-only process-mining cockpit over the accumulated field log.
 //!
 //! "Let the event log speak; refuse what it cannot prove." This folds the OCEL log +
-//! promotion history + the existing [`compute_metrics`](super::metrics::compute_metrics)
+//! promotion history + the existing [`compute_metrics`]
 //! verdict into one legible view: how much real evidence exists, which transports/
 //! agents/sessions produced it, how many distinct variants, the conformance rate, the
 //! mining cycles, and the EARNED-or-REFUSED verdict. It computes no new success

@@ -163,6 +163,55 @@ impl<'a> ManifestValidator<'a> {
                 }
             }
 
+            // E0014: Check that any pack referenced in a QuerySource::Pack or
+            // TemplateSource::Pack rule is declared in [[packs]].
+            let rule_pack_name: Option<&str> = match &rule.query {
+                QuerySource::Pack { pack, .. } => Some(pack.as_str()),
+                _ => match &rule.template {
+                    crate::manifest::TemplateSource::Pack { pack, .. } => Some(pack.as_str()),
+                    _ => None,
+                },
+            };
+            if let Some(pack_name) = rule_pack_name {
+                if !self
+                    .manifest
+                    .packs
+                    .iter()
+                    .any(|p| p.name == pack_name)
+                {
+                    return Err(Error::new(&format!(
+                        "error[E0014]: Pack '{}' used in rule '{}' is not declared in [[packs]]",
+                        pack_name, rule.name
+                    )));
+                }
+            }
+
+            // E0013: Check for ORDER BY in SELECT queries (determinism guard).
+            // Mirrors E0011 for CONSTRUCT. Pack queries are resolved at runtime
+            // and not available here — skip them.
+            let query_text_opt: Option<String> = match &rule.query {
+                QuerySource::Inline { inline } => Some(inline.clone()),
+                QuerySource::File { file } => {
+                    let qpath = self.base_path.join(file);
+                    std::fs::read_to_string(&qpath).ok()
+                }
+                QuerySource::Pack { .. } => None, // resolved at sync time; skip
+            };
+            if let Some(ref query_text) = query_text_opt {
+                if !query_has_order_by(query_text) {
+                    if self.manifest.validation.strict_mode {
+                        return Err(Error::new(&format!(
+                            "error[E0013]: Generation rule '{}' SELECT query lacks ORDER BY\n  |\n  = strict_mode is enabled: non-deterministic row ordering is rejected\n  = help: Add ORDER BY to your SELECT query to guarantee deterministic template rendering\n  = help: Or set `strict_mode = false` in [validation] to downgrade to a warning",
+                            rule.name
+                        )));
+                    }
+                    log::warn!(
+                        "Generation rule '{}' SELECT query lacks ORDER BY — row order may vary across runs",
+                        rule.name
+                    );
+                }
+            }
+
             // Validate output path pattern
             if rule.output_file.is_empty() {
                 return Err(Error::new(&format!(
@@ -188,6 +237,16 @@ impl<'a> ManifestValidator<'a> {
         }
         Ok(())
     }
+}
+
+/// Returns true if the SPARQL string contains an ORDER BY clause.
+///
+/// Detection is case-insensitive and covers multiline queries. This is a
+/// textual heuristic (oxigraph does not expose an AST); "ORDER BY" in a
+/// SPARQL comment or string literal would be a false-positive, but that
+/// edge case is acceptable — it only suppresses a warning, not correctness.
+pub fn query_has_order_by(sparql: &str) -> bool {
+    sparql.to_uppercase().contains("ORDER BY")
 }
 
 /// Returns true if the SPARQL query string contains a VALUES clause.

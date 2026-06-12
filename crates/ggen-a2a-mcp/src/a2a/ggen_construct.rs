@@ -114,7 +114,7 @@ pub struct GgenConstructResult {
     /// BLAKE3 hash of artifact.
     pub artifact_hash: String,
 
-    /// Path to signed receipt file (.ggen/receipts/rcpt-<id>-<ts>.json).
+    /// Path to signed receipt file (`.ggen/receipts/rcpt-<id>-<ts>.json`).
     pub receipt_path: String,
 
     /// Proof gate results.
@@ -269,8 +269,8 @@ pub fn execute(input: GgenConstructInput) -> GgenConstructOutput {
 }
 
 #[cfg(test)]
-#[allow(clippy::unwrap_used)]
-/// Test module: unwrap() acceptable after validating JSON structure in tests.
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+/// Test module: unwrap()/expect() acceptable after validating JSON structure in tests.
 mod tests {
     use super::*;
 

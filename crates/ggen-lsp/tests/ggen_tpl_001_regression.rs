@@ -1,3 +1,26 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
 //! GALL-CHECKPOINT-001B — regression / no-scope-creep boundary tests for
 //! GGEN-TPL-001 (Agent 4 of 001B).
 //!
@@ -42,7 +65,7 @@
 
 use std::path::{Path, PathBuf};
 
-use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Position, Range};
+use lsp_max::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Position, Range};
 
 use ggen_lsp::analyzers::{detect_out_001, detect_tpl_001};
 use ggen_lsp::project_index::ProjectIndex;
@@ -65,17 +88,19 @@ fn load(root: &Path) -> ProjectIndex {
         .unwrap_or_else(|e| panic!("ProjectIndex::from_root({}) failed: {e:?}", root.display()))
 }
 
+use lsp_max_protocol::MaxDiagnostic;
+
 /// The exact diagnostic code string (`GGEN-TPL-001`, `GGEN-OUT-001`, …) or `None`.
-fn code_str(d: &Diagnostic) -> Option<&str> {
-    match &d.code {
+fn code_str(d: &MaxDiagnostic) -> Option<&str> {
+    match &d.lsp.code {
         Some(NumberOrString::String(s)) => Some(s.as_str()),
         _ => None,
     }
 }
 
 /// All diagnostic code strings across the per-file grouping returned by
-/// `detect_tpl_001` (`Vec<(PathBuf, Vec<Diagnostic>)>`).
-fn all_codes(grouped: &[(PathBuf, Vec<Diagnostic>)]) -> Vec<String> {
+/// `detect_tpl_001` (`Vec<(PathBuf, Vec<MaxDiagnostic>)>`).
+fn all_codes(grouped: &[(PathBuf, Vec<MaxDiagnostic>)]) -> Vec<String> {
     grouped
         .iter()
         .flat_map(|(_, diags)| diags.iter())
@@ -261,7 +286,7 @@ fn invalid_fixture_emits_only_tpl_001() {
     // Severity: at least one GGEN-TPL-001 at ERROR.
     assert!(
         grouped.iter().flat_map(|(_, d)| d.iter()).any(|d| {
-            code_str(d) == Some("GGEN-TPL-001") && d.severity == Some(DiagnosticSeverity::ERROR)
+            code_str(d) == Some("GGEN-TPL-001") && d.lsp.severity == Some(DiagnosticSeverity::ERROR)
         }),
         "GGEN-TPL-001 must be reported at ERROR severity. Got: {grouped:?}"
     );

@@ -28,7 +28,7 @@
 //! section/key shapes, RDF prefix/literal shapes) is reused from the per-grammar
 //! analyzers in `crate::analyzers`.
 
-use tower_lsp::lsp_types::{SemanticToken, SemanticTokens};
+use lsp_max::lsp_types::{SemanticToken, SemanticTokens};
 
 use crate::state::FileType;
 

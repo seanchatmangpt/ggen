@@ -1,3 +1,26 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
 //! MARKETPLACE-PACK-1 — one command installs the LSP/MCP/A2A route surface, and
 //! the full loop (install → route → apply → receipt) works against it.
 
@@ -5,8 +28,16 @@ use ggen_lsp::intel::events::activity;
 use ggen_lsp::route::default_pack_routes_path;
 use ggen_lsp::state::ServerState;
 use ggen_lsp::{check_content, envelope_for_diagnostic, init_project, IntelLog, RouteRegistry};
+use lsp_max::lsp_types::Url;
 use tempfile::TempDir;
-use tower_lsp::lsp_types::Url;
+
+fn url_from_path(path: impl AsRef<std::path::Path>) -> Url {
+    url::Url::from_file_path(path.as_ref())
+        .expect("absolute path")
+        .to_string()
+        .parse::<Url>()
+        .expect("valid uri")
+}
 
 #[tokio::test]
 async fn install_then_route_apply_receipt_end_to_end() {
@@ -45,10 +76,16 @@ async fn install_then_route_apply_receipt_end_to_end() {
 
     // --- Apply: the editor applies the fix → rework closure → receipt. ---
     let state = ServerState::with_root(root);
-    let uri = Url::from_file_path(root.join("ggen.toml")).expect("file url");
-    state.observe_diagnostics(&uri, &broken.diagnostics).await;
+    let uri = url_from_path(root.join("ggen.toml"));
+    let broken_diags = ggen_lsp::analyzers::build_analyzer("ggen.toml", src)
+        .map(|a| a.diagnostics())
+        .unwrap_or_default();
+    state.observe_diagnostics(&uri, &broken_diags).await;
     let fixed = check_content("ggen.toml", "[logging]\nlevel = \"info\"\n").expect("toml");
-    state.observe_diagnostics(&uri, &fixed.diagnostics).await;
+    let fixed_diags = ggen_lsp::analyzers::build_analyzer("ggen.toml", "[logging]\nlevel = \"info\"\n")
+        .map(|a| a.diagnostics())
+        .unwrap_or_default();
+    state.observe_diagnostics(&uri, &fixed_diags).await;
 
     // --- Receipt: the OCEL log under the installed root records the closed episode. ---
     let log = IntelLog::at_root(root).read();

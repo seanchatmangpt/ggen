@@ -8,8 +8,9 @@
 
 use std::path::{Path, PathBuf};
 
+use lsp_max::lsp_types::{Diagnostic, DiagnosticSeverity};
+use lsp_max_protocol::MaxDiagnostic;
 use serde::Serialize;
-use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity};
 use walkdir::WalkDir;
 
 use crate::analyzers::build_analyzer;
@@ -216,8 +217,8 @@ impl CheckReport {
 
 pub(crate) fn diag_code(d: &Diagnostic) -> String {
     match &d.code {
-        Some(tower_lsp::lsp_types::NumberOrString::String(s)) => s.clone(),
-        Some(tower_lsp::lsp_types::NumberOrString::Number(n)) => n.to_string(),
+        Some(lsp_max::lsp_types::NumberOrString::String(s)) => s.clone(),
+        Some(lsp_max::lsp_types::NumberOrString::Number(n)) => n.to_string(),
         None => "RDF".to_string(),
     }
 }
@@ -230,7 +231,7 @@ pub(crate) fn severity_str(sev: Option<DiagnosticSeverity>) -> &'static str {
     }
 }
 
-pub(crate) fn span_str(range: tower_lsp::lsp_types::Range) -> String {
+pub(crate) fn span_str(range: lsp_max::lsp_types::Range) -> String {
     format!(
         "{}:{}-{}:{}",
         range.start.line, range.start.character, range.end.line, range.end.character
@@ -284,7 +285,7 @@ pub fn check_content(path: &str, content: &str) -> Option<FileReport> {
     let analyzer = build_analyzer(path, content)?;
     Some(FileReport {
         path: path.to_string(),
-        diagnostics: analyzer.diagnostics(),
+        diagnostics: analyzer.diagnostics().into_iter().map(|d| d.lsp).collect(),
         routes: Vec::new(),
     })
 }
@@ -394,6 +395,32 @@ pub fn check_files_in_root(root: &Path, paths: &[PathBuf], with_routes: bool) ->
     // TPL→HARNESS→OUT fold order is unchanged.
     error_count += fold_rule_001(root, &mut files, registry.as_ref());
 
+    // Cross-surface law: GGEN-YIELD-001 (output_file escapes project root).
+    // A rule whose output_file pattern resolves outside the project root is a
+    // path-injection risk. This cannot be caught by single-file analyzers.
+    error_count += fold_yield_001(root, &mut files, registry.as_ref());
+
+    // Cross-surface laws: GGEN-YIELD-003/004/005 (orphaned output, competing
+    // authority, remote fetch). All are ERROR severity.
+    error_count += fold_yield_003(root, &mut files, registry.as_ref());
+    error_count += fold_yield_004(root, &mut files, registry.as_ref());
+    error_count += fold_yield_005(root, &mut files, registry.as_ref());
+
+    // Cross-surface advisory: GGEN-QUERY-002 (SELECT * disables TPL-001/OUT-001).
+    // WARNING only — does not increment error_count.
+    let warn_added = fold_query_002(root, &mut files, registry.as_ref());
+    warning_count += warn_added;
+
+    // Cross-surface advisory: GGEN-PACK-001 (pack source disables author-time checks).
+    // WARNING only — does not increment error_count.
+    let pack_warn_added = fold_pack_001(root, &mut files, registry.as_ref());
+    warning_count += pack_warn_added;
+
+    // Cross-surface laws: GGEN-SRC-001/002/003 (source-caste path, DO NOT EDIT banners,
+    // source-caste comments). All are ERROR severity.
+    error_count += fold_src_001(root, &mut files, registry.as_ref());
+    error_count += fold_src_002_003(root, &mut files, registry.as_ref());
+
     let route_summary = with_routes.then(|| summarize_routes(&files));
 
     CheckReport {
@@ -441,28 +468,30 @@ fn fold_tpl_001(
 /// per-species folds, which each read their own anchor before this consolidation.
 fn fold_species(
     files: &mut Vec<FileReport>, registry: Option<&crate::route::RouteRegistry>,
-    groups: Vec<(PathBuf, Vec<Diagnostic>)>,
+    groups: Vec<(PathBuf, Vec<MaxDiagnostic>)>,
 ) -> usize {
     let mut added_errors = 0usize;
-    for (anchor_path, diags) in groups {
-        if diags.is_empty() {
+    for (anchor_path, max_diags) in groups {
+        if max_diags.is_empty() {
             continue;
         }
         let anchor_str = anchor_path.to_string_lossy().to_string();
         let anchor_content = std::fs::read_to_string(&anchor_path).unwrap_or_default();
 
-        added_errors += diags
+        added_errors += max_diags
             .iter()
-            .filter(|d| d.severity == Some(DiagnosticSeverity::ERROR))
+            .filter(|d| d.lsp.severity == Some(DiagnosticSeverity::ERROR))
             .count();
 
         let routes: Vec<crate::route::RoutePlan> = match registry {
-            Some(reg) => diags
+            Some(reg) => max_diags
                 .iter()
-                .filter_map(|d| crate::route::route_plan_for_diagnostic(reg, d, &anchor_content))
+                .filter_map(|d| crate::route::route_plan_for_diagnostic(reg, &d.lsp, &anchor_content))
                 .collect(),
             None => Vec::new(),
         };
+
+        let diags: Vec<Diagnostic> = max_diags.into_iter().map(|d| d.lsp).collect();
 
         if let Some(existing) = files.iter_mut().find(|f| paths_match(&f.path, &anchor_str)) {
             existing.diagnostics.extend(diags);
@@ -553,10 +582,135 @@ fn fold_rule_001(
     fold_species(files, registry, crate::analyzers::detect_rule_001(&project))
 }
 
+/// Fold GGEN-YIELD-001 (output-path-escape) diagnostics from the project index
+/// at `root` into `files`, returning the number of newly added ERROR diagnostics.
+///
+/// For each `(manifest_path, diags)` the detector returns, the diagnostics are
+/// appended to the matching [`FileReport`] (or a new one is created). Best-effort:
+/// a missing/unparseable `ggen.toml` yields no extra diagnostics.
+fn fold_yield_001(
+    root: &Path, files: &mut Vec<FileReport>, registry: Option<&crate::route::RouteRegistry>,
+) -> usize {
+    let Ok(project) = crate::project_index::ProjectIndex::from_root(root) else {
+        return 0;
+    };
+    fold_species(files, registry, crate::analyzers::detect_yield_001(&project))
+}
+
+fn fold_yield_003(
+    root: &Path, files: &mut Vec<FileReport>, registry: Option<&crate::route::RouteRegistry>,
+) -> usize {
+    let Ok(project) = crate::project_index::ProjectIndex::from_root(root) else {
+        return 0;
+    };
+    fold_species(files, registry, crate::analyzers::detect_yield_003(&project))
+}
+
+fn fold_yield_004(
+    root: &Path, files: &mut Vec<FileReport>, registry: Option<&crate::route::RouteRegistry>,
+) -> usize {
+    let Ok(project) = crate::project_index::ProjectIndex::from_root(root) else {
+        return 0;
+    };
+    fold_species(files, registry, crate::analyzers::detect_yield_004(&project))
+}
+
+fn fold_yield_005(
+    root: &Path, files: &mut Vec<FileReport>, registry: Option<&crate::route::RouteRegistry>,
+) -> usize {
+    let Ok(project) = crate::project_index::ProjectIndex::from_root(root) else {
+        return 0;
+    };
+    fold_species(files, registry, crate::analyzers::detect_yield_005(&project))
+}
+
+/// Fold GGEN-QUERY-002 (SELECT * blindspot) advisories from the project index
+/// at `root` into `files`, returning the number of newly added WARNING diagnostics
+/// (does NOT count toward `error_count` — the caller adds to `warning_count`).
+fn fold_query_002(
+    root: &Path, files: &mut Vec<FileReport>, registry: Option<&crate::route::RouteRegistry>,
+) -> usize {
+    let Ok(project) = crate::project_index::ProjectIndex::from_root(root) else {
+        return 0;
+    };
+    // fold_species counts ERRORs; QUERY-002 is WARNING so we count manually.
+    let groups = crate::analyzers::detect_query_002(&project);
+    let warn_count: usize = groups
+        .iter()
+        .flat_map(|(_, diags)| diags)
+        .filter(|d| {
+            d.lsp.severity
+                == Some(lsp_max::lsp_types::DiagnosticSeverity::WARNING)
+        })
+        .count();
+    // Still call fold_species so the diagnostics appear in the file reports.
+    fold_species(files, registry, groups);
+    warn_count
+}
+
 /// Compare two filesystem path strings for "same file" identity. Tries exact
 /// string equality first (the common case), then falls back to canonicalized
 /// comparison so a relative path supplied to the gate matches the absolute
 /// `template_path` the index resolved (e.g. `templates/row.tera` vs
+/// Fold GGEN-PACK-001 (pack-source disables author-time checks) advisories from
+/// the project index at `root` into `files`, returning the number of newly added
+/// WARNING diagnostics (does NOT increment `error_count`).
+fn fold_pack_001(
+    root: &Path, files: &mut Vec<FileReport>, registry: Option<&crate::route::RouteRegistry>,
+) -> usize {
+    let Ok(project) = crate::project_index::ProjectIndex::from_root(root) else {
+        return 0;
+    };
+    let groups = crate::analyzers::detect_pack_001(&project);
+    let warn_count: usize = groups
+        .iter()
+        .flat_map(|(_, diags)| diags)
+        .filter(|d| {
+            d.lsp.severity == Some(lsp_max::lsp_types::DiagnosticSeverity::WARNING)
+        })
+        .count();
+    fold_species(files, registry, groups);
+    warn_count
+}
+
+
+fn fold_src_001(
+    root: &Path, files: &mut Vec<FileReport>, registry: Option<&crate::route::RouteRegistry>,
+) -> usize {
+    let Ok(project) = crate::project_index::ProjectIndex::from_root(root) else {
+        return 0;
+    };
+    fold_species(files, registry, crate::analyzers::detect_src_001(&project))
+}
+
+fn fold_src_002_003(
+    root: &Path, files: &mut Vec<FileReport>, registry: Option<&crate::route::RouteRegistry>,
+) -> usize {
+    let Ok(project) = crate::project_index::ProjectIndex::from_root(root) else {
+        return 0;
+    };
+    // Collect unique parent directories of each rule's output file.
+    let mut dirs: Vec<std::path::PathBuf> = project.rule_entries.iter()
+        .map(|e| {
+            let p = std::path::Path::new(&e.output_file);
+            if p.is_absolute() {
+                p.parent().map(|x| x.to_path_buf()).unwrap_or_else(|| root.to_path_buf())
+            } else {
+                root.join(p).parent().map(|x| x.to_path_buf()).unwrap_or_else(|| root.to_path_buf())
+            }
+        })
+        .collect();
+    // Always include project root itself.
+    dirs.push(root.to_path_buf());
+    dirs.sort();
+    dirs.dedup();
+    let mut groups = Vec::new();
+    for dir in &dirs {
+        groups.extend(crate::analyzers::detect_src_002_003_in_dir(dir));
+    }
+    fold_species(files, registry, groups)
+}
+
 /// `/abs/proj/templates/row.tera`). Canonicalization is best-effort: if either
 /// path cannot be canonicalized, only the exact-string result stands.
 fn paths_match(a: &str, b: &str) -> bool {
@@ -582,8 +736,8 @@ fn summarize_routes(files: &[FileReport]) -> RouteSummary {
                     && d.code
                         .as_ref()
                         .map_or(r.target.code.is_empty(), |c| match c {
-                            tower_lsp::lsp_types::NumberOrString::String(s) => s == &r.target.code,
-                            tower_lsp::lsp_types::NumberOrString::Number(n) => {
+                            lsp_max::lsp_types::NumberOrString::String(s) => s == &r.target.code,
+                            lsp_max::lsp_types::NumberOrString::Number(n) => {
                                 n.to_string() == r.target.code
                             }
                         })
@@ -617,7 +771,7 @@ fn summarize_routes(files: &[FileReport]) -> RouteSummary {
 /// Results are sorted for deterministic output.
 ///
 /// Note: dotdirs are NOT skipped wholesale — ggen specs live under `.specify/`,
-/// which is the source-of-truth law surface; only [`SKIP_DIRS`] are pruned.
+/// which is the source-of-truth law surface; only `SKIP_DIRS` are pruned.
 #[must_use]
 pub fn discover_law_surfaces(root: &Path) -> Vec<PathBuf> {
     let mut found: Vec<PathBuf> = WalkDir::new(root)
@@ -744,7 +898,7 @@ template = { file = "row.tera" }
         assert!(
             tera_report.diagnostics.iter().any(|d| matches!(
                 &d.code,
-                Some(tower_lsp::lsp_types::NumberOrString::String(s)) if s == "GGEN-TPL-001"
+                Some(lsp_max::lsp_types::NumberOrString::String(s)) if s == "GGEN-TPL-001"
             )),
             "the template report must carry a GGEN-TPL-001 diagnostic"
         );
@@ -785,7 +939,7 @@ template = { file = "row.tera" }
                 .iter()
                 .any(|f| f.diagnostics.iter().any(|d| matches!(
                     &d.code,
-                    Some(tower_lsp::lsp_types::NumberOrString::String(s)) if s == "GGEN-TPL-001"
+                    Some(lsp_max::lsp_types::NumberOrString::String(s)) if s == "GGEN-TPL-001"
                 ))),
             "no GGEN-TPL-001 diagnostic must remain after repair"
         );
@@ -826,7 +980,7 @@ template = { file = "nope.tera" }
                 .iter()
                 .any(|f| f.diagnostics.iter().any(|d| matches!(
                     &d.code,
-                    Some(tower_lsp::lsp_types::NumberOrString::String(s)) if s == "GGEN-TPL-001"
+                    Some(lsp_max::lsp_types::NumberOrString::String(s)) if s == "GGEN-TPL-001"
                 ))),
             "a missing template must stay an index issue, not GGEN-TPL-001"
         );

@@ -1,4 +1,27 @@
 #![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
+#![allow(
     dead_code,
     unused_imports,
     unused_variables,
@@ -172,15 +195,11 @@ fn load_aws_cloud_ontology_extracts_service_topology() {
         .expect("Should extract AWS Cloud ontology");
 
     // Assert: Observable state - cloud topology extracted
-    let service_classes: Vec<_> = schema
-        .classes
-        .iter()
-        .filter(|c| c.name.ends_with("Service") || c.name.contains("EC2"))
-        .map(|c| c.name.as_str())
-        .collect();
-
     assert!(
-        !service_classes.is_empty(),
+        schema
+            .classes
+            .iter()
+            .any(|c| c.name.ends_with("Service") || c.name.contains("EC2")),
         "Should have cloud service classes"
     );
 
@@ -272,19 +291,15 @@ fn load_multiple_ontologies_in_same_graph() {
     assert!(it_schema.classes.len() > 0, "IT SLA should have classes");
 
     // Verify no cross-contamination
-    let hipaa_class_names: Vec<_> = hipaa_schema
-        .classes
-        .iter()
-        .map(|c| c.name.as_str())
-        .collect();
-    let it_class_names: Vec<_> = it_schema.classes.iter().map(|c| c.name.as_str()).collect();
-
     assert!(
-        hipaa_class_names.contains(&"HIPAACompliance"),
+        hipaa_schema
+            .classes
+            .iter()
+            .any(|c| c.name == "HIPAACompliance"),
         "HIPAA classes should be present"
     );
     assert!(
-        it_class_names.contains(&"Service"),
+        it_schema.classes.iter().any(|c| c.name == "Service"),
         "IT classes should be present"
     );
 }
@@ -432,7 +447,7 @@ fn invalid_ttl_file_returns_error() {
                 "Error should contain diagnostic information"
             );
         }
-        Ok(_) => {
+        Ok(()) => {
             // If it succeeded, try to extract (may fail at SPARQL stage)
             // This is acceptable - the important thing is the file is invalid
         }

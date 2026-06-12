@@ -1,3 +1,26 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
 //! CONSOLIDATE-002 — multi-species OCEL SEQUENCE-EQUIVALENCE proof.
 //!
 //! CONSOLIDATE-002 merges the three order-sensitive Phase-A publish branches in
@@ -31,7 +54,15 @@
 use std::path::{Path, PathBuf};
 
 use ggen_lsp::ServerState;
-use tower_lsp::lsp_types::Url;
+use lsp_max::lsp_types::Url;
+
+fn url_from_path(path: impl AsRef<std::path::Path>) -> Url {
+    url::Url::from_file_path(path.as_ref())
+        .expect("absolute path")
+        .to_string()
+        .parse::<Url>()
+        .expect("valid uri")
+}
 
 /// Absolute path to the committed multi-species fixture project root.
 fn fixture_root() -> PathBuf {
@@ -175,7 +206,7 @@ async fn capture_multispecies_sequence(tmp_root: &Path) -> Vec<NormEvent> {
     let state = ServerState::with_root(&dst);
 
     let manifest_path = dst.join("ggen.toml");
-    let manifest_uri = Url::from_file_path(&manifest_path).expect("manifest url");
+    let manifest_uri = url_from_path(&manifest_path);
     let manifest_src = std::fs::read_to_string(&manifest_path).expect("read ggen.toml");
 
     // ONE pass: ggen.toml is a tpl_is_trigger surface → TPL (.tera) + OUT (ggen.toml).

@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::needless_raw_string_hashes, clippy::duration_suboptimal_units, clippy::branches_sharing_code, clippy::used_underscore_binding, clippy::single_char_pattern, clippy::ignore_without_reason, clippy::cloned_ref_to_slice_refs, clippy::doc_overindented_list_items, clippy::match_wildcard_for_single_variants, clippy::ignored_unit_patterns, clippy::needless_collect, clippy::unnecessary_map_or, clippy::manual_flatten, clippy::manual_strip, clippy::future_not_send, clippy::unnested_or_patterns, clippy::no_effect_underscore_binding, clippy::literal_string_with_formatting_args)]
 //! Backward compatibility tests for marketplace v1
 //!
 //! Ensures that with marketplace-v1 feature flag, all commands work
@@ -11,9 +12,8 @@ mod backward_compat_tests {
 
     /// Helper: Run ggen marketplace command
     fn run_marketplace_cmd(args: &[&str]) -> Result<String, String> {
-        let output = Command::new("cargo")
-            .args(&["run", "--features", "marketplace-v1", "--"])
-            .args(&["marketplace"])
+        let output = Command::new(env!("CARGO_BIN_EXE_ggen"))
+            .arg("marketplace")
             .args(args)
             .output()
             .map_err(|e| format!("Failed to execute command: {}", e))?;
@@ -197,8 +197,8 @@ mod backward_compat_tests {
 
     #[test]
     fn test_v1_version_flag_works() {
-        let output = Command::new("cargo")
-            .args(&["run", "--features", "marketplace-v1", "--", "--version"])
+        let output = Command::new(env!("CARGO_BIN_EXE_ggen"))
+            .arg("--version")
             .output()
             .expect("Failed to execute version command");
 

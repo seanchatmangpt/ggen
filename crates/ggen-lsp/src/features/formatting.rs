@@ -23,9 +23,9 @@
 //! [`Sparql`]: crate::state::FileType::Sparql
 //! [`Tera`]: crate::state::FileType::Tera
 
+use lsp_max::lsp_types::{Position, Range, TextEdit};
 use oxigraph::io::{RdfFormat, RdfParser, RdfSerializer};
 use oxigraph::model::Quad;
-use tower_lsp::lsp_types::{Position, Range, TextEdit};
 
 use crate::state::FileType;
 

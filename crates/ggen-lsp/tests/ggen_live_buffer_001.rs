@@ -1,3 +1,26 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
 //! LIVE-BUFFER-001 — the cross-surface living loop LIVE ON THE OPEN BUFFER.
 //!
 //! The existing GGEN-TPL-001 living-loop proof
@@ -20,14 +43,24 @@
 
 use std::path::Path;
 
-use tower_lsp::lsp_types::{Diagnostic, NumberOrString, Url};
+use lsp_max::lsp_types::{Diagnostic, NumberOrString, Url};
+
+fn url_from_path(path: impl AsRef<std::path::Path>) -> Url {
+    url::Url::from_file_path(path.as_ref())
+        .expect("absolute path")
+        .to_string()
+        .parse::<Url>()
+        .expect("valid uri")
+}
 
 use ggen_lsp::ServerState;
 
+use lsp_max_protocol::MaxDiagnostic;
+
 /// True if a `Diagnostic.code` renders as exactly `GGEN-TPL-001`.
-fn is_tpl_001(d: &Diagnostic) -> bool {
+fn is_tpl_001(d: &MaxDiagnostic) -> bool {
     matches!(
-        &d.code,
+        &d.lsp.code,
         Some(NumberOrString::String(s)) if s == "GGEN-TPL-001"
     )
 }
@@ -109,9 +142,9 @@ async fn buffer_only_query_repair_clears_template_tpl_001_with_disk_still_broken
     let state = ServerState::with_root(root);
 
     let tera_path = root.join("templates/item.tera");
-    let tera_uri = Url::from_file_path(&tera_path).expect("tera url");
+    let tera_uri = url_from_path(&tera_path);
     let rq_path = root.join("queries/items.rq");
-    let rq_uri = Url::from_file_path(&rq_path).expect("rq url");
+    let rq_uri = url_from_path(&rq_path);
 
     // ── Act 1 — RAISE: analyze the template through the real orchestration.
     // The query is still broken (both on disk AND in any buffer), so the template
@@ -140,7 +173,7 @@ async fn buffer_only_query_repair_clears_template_tpl_001_with_disk_still_broken
          the orchestration. published: {cleared:?}"
     );
     // The re-published template set must carry NO GGEN-TPL-001 (it cleared).
-    let tera_after: Vec<&Diagnostic> = cleared
+    let tera_after: Vec<&MaxDiagnostic> = cleared
         .iter()
         .filter(|(u, _)| u == &tera_uri)
         .flat_map(|(_, d)| d.iter())

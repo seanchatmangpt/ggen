@@ -203,8 +203,8 @@ impl Default for ReceiptChain {
 }
 
 #[cfg(test)]
-#[allow(clippy::unwrap_used)]
-/// Test module: unwrap() safe after checking chain non-emptiness in setup.
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+/// Test module: unwrap()/expect() safe after checking chain non-emptiness in setup.
 mod tests {
     use super::*;
     use crate::generate_keypair;

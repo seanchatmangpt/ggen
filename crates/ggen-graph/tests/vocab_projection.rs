@@ -1,3 +1,26 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
 use ggen_graph::{vocab, DeterministicGraph};
 use oxigraph::io::{RdfFormat, RdfParser};
 use oxigraph::model::{NamedNode, Quad};
@@ -85,7 +108,7 @@ fn test_hook_pack_ttl_contains_no_gall_namespace_terms() -> Result<(), Box<dyn E
 
     // SPARQL: find any triple where subject, predicate, or IRI object
     // contains 'gall' in the IRI string.
-    let gall_scan_query = r#"
+    let gall_scan_query = r"
         SELECT ?s ?p ?o WHERE {
             ?s ?p ?o .
             FILTER(
@@ -94,7 +117,7 @@ fn test_hook_pack_ttl_contains_no_gall_namespace_terms() -> Result<(), Box<dyn E
                 (isIRI(?o) && CONTAINS(STR(?o), 'gall'))
             )
         }
-    "#;
+    ";
 
     let results = oxigraph::sparql::SparqlEvaluator::new()
         .parse_query(gall_scan_query)?
@@ -150,7 +173,7 @@ fn test_audit_doctest_results_ttl_vocab_is_clean() -> Result<(), Box<dyn Error>>
         .map_err(|e| format!("Failed to parse doctest_results.ttl: {}", e))?;
 
     // 1. No 'gall:' terms anywhere
-    let gall_query = r#"
+    let gall_query = r"
         SELECT ?s ?p ?o WHERE {
             ?s ?p ?o .
             FILTER(
@@ -159,7 +182,7 @@ fn test_audit_doctest_results_ttl_vocab_is_clean() -> Result<(), Box<dyn Error>>
                 (isIRI(?o) && CONTAINS(STR(?o), 'gall'))
             )
         }
-    "#;
+    ";
 
     let results = oxigraph::sparql::SparqlEvaluator::new()
         .parse_query(gall_query)?
@@ -255,7 +278,7 @@ fn test_all_ttl_files_have_no_gall_terms() -> Result<(), Box<dyn Error>> {
                     continue;
                 }
 
-                let query = r#"
+                let query = r"
                     SELECT ?s ?p ?o WHERE {
                         ?s ?p ?o .
                         FILTER(
@@ -264,7 +287,7 @@ fn test_all_ttl_files_have_no_gall_terms() -> Result<(), Box<dyn Error>> {
                             (isIRI(?o) && CONTAINS(STR(?o), 'gall'))
                         )
                     }
-                "#;
+                ";
 
                 let results = oxigraph::sparql::SparqlEvaluator::new()
                     .parse_query(query)?

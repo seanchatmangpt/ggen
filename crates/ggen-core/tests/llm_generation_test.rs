@@ -1,4 +1,27 @@
 #![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
+#![allow(
     dead_code,
     unused_imports,
     unused_variables,
@@ -25,12 +48,14 @@ fn create_test_manifest(base_dir: &PathBuf) -> GgenManifest {
             name: "test-a2a-agent".to_string(),
             version: "0.1.0".to_string(),
             description: Some("Test A2A agent with LLM generation".to_string()),
+            ..Default::default()
         },
         ontology: OntologyConfig {
             source: PathBuf::from("test.ttl"),
             imports: vec![],
             base_iri: None,
             prefixes: Default::default(),
+            ..Default::default()
         },
         inference: InferenceConfig::default(),
         generation: GenerationConfig {
@@ -44,6 +69,8 @@ fn create_test_manifest(base_dir: &PathBuf) -> GgenManifest {
             llm_provider: None,
         },
         validation: ValidationConfig::default(),
+        packs: vec![],
+        ..Default::default()
     }
 }
 

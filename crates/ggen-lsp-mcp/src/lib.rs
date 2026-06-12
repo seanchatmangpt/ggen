@@ -1,3 +1,4 @@
+#![allow(clippy::expect_used, clippy::unwrap_used, clippy::panic)]
 //! MCP server exposing the ggen-lsp repair-route engine as a tool.
 //!
 //! This is the third delivery channel (after editor CodeActions and the headless
@@ -128,6 +129,7 @@ fn make_tool(name: &'static str, description: &'static str, schema: serde_json::
 }
 
 /// Validate arguments and produce the route result, or a structured refusal.
+///
 /// Extracted from `call_tool` so the validation is unit-testable without an rmcp
 /// `RequestContext`. Oversized/missing/garbled input → `McpError::invalid_params`
 /// (never a panic, never string soup).
@@ -167,8 +169,9 @@ fn parse_repair_params(
     Ok(params)
 }
 
-/// Like [`repair_route_result`], but ALSO leaves attributed field evidence
-/// (transport=mcp) when a real `root` is supplied — the field-evidence gauge so
+/// Like [`repair_route_result`], but ALSO leaves attributed field evidence.
+///
+/// Sets `transport=mcp` when a real `root` is supplied — the field-evidence gauge so
 /// MCP route requests during daily work accumulate into the OCEL log. Pure
 /// projection (no `root`) stays side-effect-free. This is what the live server's
 /// `call_tool` invokes.
@@ -277,9 +280,10 @@ pub fn metrics_result(
         .map_err(|e| McpError::internal_error(format!("serialization failed: {e}"), None))
 }
 
-/// Build the repair-route result for a file. Emits the canonical
-/// [`ggen_lsp::RouteEnvelope`] per routed diagnostic (byte-equivalent to the LSP
-/// CodeAction `data`, the headless gate, and the A2A bridge) plus the shared
+/// Build the repair-route result for a file.
+///
+/// Emits the canonical [`ggen_lsp::RouteEnvelope`] per routed diagnostic (byte-equivalent
+/// to the LSP CodeAction `data`, the headless gate, and the A2A bridge) plus the shared
 /// [`ggen_lsp::RouteRefusal`] shape for uncovered diagnostics — so an agent never
 /// reads an empty list as "all clear", and the route object is identical across
 /// every channel.
@@ -288,8 +292,9 @@ pub fn build_repair_routes(file_path: &str, file_content: &str) -> serde_json::V
     build_repair_routes_in(None, file_path, file_content)
 }
 
-/// Like [`build_repair_routes`], but loads the promoted-route pack from an explicit
-/// project `root` (default: cwd). Root-aware discovery keeps route authority from
+/// Like [`build_repair_routes`], but loads the promoted-route pack from an explicit root.
+///
+/// Uses `root` (default: cwd) for discovery; keeps route authority from
 /// silently depending on the server's working directory.
 #[must_use]
 pub fn build_repair_routes_in(
@@ -311,10 +316,10 @@ pub fn build_repair_routes_in(
     let mut envelopes = Vec::new();
     let mut refusals = Vec::new();
     for d in &diagnostics {
-        match ggen_lsp::envelope_for_diagnostic(&registry, d, file_content, file_path) {
+        match ggen_lsp::envelope_for_diagnostic(&registry, &d.lsp, file_content, file_path) {
             Some(env) => envelopes.push(env),
             None => refusals.push(ggen_lsp::RouteRefusal::from_target(
-                &ggen_lsp::route::DiagnosticRef::from_diagnostic(d),
+                &ggen_lsp::route::DiagnosticRef::from_diagnostic(&d.lsp),
             )),
         }
     }
@@ -334,7 +339,7 @@ impl ServerHandler for RepairRouteServer {
     fn get_info(&self) -> ServerInfo {
         ServerInfo::new(ServerCapabilities::builder().enable_tools().build())
             .with_protocol_version(ProtocolVersion::V_2024_11_05)
-            .with_server_info(Implementation::new("ggen-lsp-mcp", "26.5.28"))
+            .with_server_info(Implementation::new("ggen-lsp-mcp", env!("CARGO_PKG_VERSION")))
             .with_instructions("ggen-lsp repair-route MCP server")
     }
 

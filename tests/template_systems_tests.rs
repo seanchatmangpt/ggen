@@ -231,7 +231,7 @@ to: "output.rs"
     let mut pipeline = Pipeline::new()?;
     let ctx = Context::new();
 
-    let result = tmpl.render(pipeline.tera_mut(), &ctx)?;
+    let result = tmpl.render(pipeline.tera_mut(), &ctx, std::path::Path::new("."))?;
     assert!(result.contains("// Hello World"));
 
     Ok(())
@@ -250,7 +250,7 @@ to: "output.rs"
     let mut ctx = Context::new();
     ctx.insert("name", "TestApp");
 
-    let result = tmpl.render(pipeline.tera_mut(), &ctx)?;
+    let result = tmpl.render(pipeline.tera_mut(), &ctx, std::path::Path::new("."))?;
     assert!(result.contains("// Name: TestApp"));
 
     Ok(())
@@ -268,7 +268,7 @@ to: "output.rs"
     let mut pipeline = Pipeline::new().unwrap();
     let ctx = Context::new();
 
-    let result = tmpl.render(pipeline.tera_mut(), &ctx);
+    let result = tmpl.render(pipeline.tera_mut(), &ctx, std::path::Path::new("."));
     assert!(result.is_err());
 }
 
@@ -286,7 +286,7 @@ to: "output.rs"
     let mut ctx = Context::new();
     ctx.insert("name", "TestApp");
 
-    let result = tmpl.render(pipeline.tera_mut(), &ctx)?;
+    let result = tmpl.render(pipeline.tera_mut(), &ctx, std::path::Path::new("."))?;
     assert!(result.contains("// Upper: TESTAPP"));
     assert!(result.contains("// Lower: testapp"));
 
@@ -310,7 +310,7 @@ to: "output.rs"
     let mut ctx = Context::new();
     ctx.insert("debug", &true);
 
-    let result = tmpl.render(pipeline.tera_mut(), &ctx)?;
+    let result = tmpl.render(pipeline.tera_mut(), &ctx, std::path::Path::new("."))?;
     assert!(result.contains("// Debug mode"));
 
     Ok(())
@@ -330,7 +330,7 @@ to: "output.rs"
     let mut pipeline = Pipeline::new()?;
     let ctx = Context::new();
 
-    let result = tmpl.render(pipeline.tera_mut(), &ctx)?;
+    let result = tmpl.render(pipeline.tera_mut(), &ctx, std::path::Path::new("."))?;
     assert!(result.contains("// Line 0"));
     assert!(result.contains("// Line 2"));
 
@@ -354,7 +354,7 @@ to: "output.rs"
     ctx.insert("version", "1.0.0");
     ctx.insert("author", "Test");
 
-    let result = tmpl.render(pipeline.tera_mut(), &ctx)?;
+    let result = tmpl.render(pipeline.tera_mut(), &ctx, std::path::Path::new("."))?;
     assert!(result.contains("// Name: App"));
     assert!(result.contains("// Version: 1.0.0"));
     assert!(result.contains("// Author: Test"));
@@ -373,7 +373,7 @@ to: "output.rs"
     let mut pipeline = Pipeline::new()?;
     let ctx = Context::new();
 
-    let result = tmpl.render(pipeline.tera_mut(), &ctx)?;
+    let result = tmpl.render(pipeline.tera_mut(), &ctx, std::path::Path::new("."))?;
     assert_eq!(result, "");
 
     Ok(())
@@ -393,7 +393,7 @@ to: "output.rs"
     let mut ctx = Context::new();
     ctx.insert("name", "test");
 
-    let result = tmpl.render(pipeline.tera_mut(), &ctx)?;
+    let result = tmpl.render(pipeline.tera_mut(), &ctx, std::path::Path::new("."))?;
     assert!(result.contains("// Length: 4"));
 
     Ok(())
@@ -417,7 +417,7 @@ to: "output.rs"
     ctx.insert("outer", &true);
     ctx.insert("inner", &true);
 
-    let result = tmpl.render(pipeline.tera_mut(), &ctx)?;
+    let result = tmpl.render(pipeline.tera_mut(), &ctx, std::path::Path::new("."))?;
     assert!(result.contains("// Both true"));
 
     Ok(())
@@ -436,7 +436,7 @@ to: "output.rs"
     let mut pipeline = Pipeline::new()?;
     let ctx = Context::new();
 
-    let result = tmpl.render(pipeline.tera_mut(), &ctx)?;
+    let result = tmpl.render(pipeline.tera_mut(), &ctx, std::path::Path::new("."))?;
     assert!(!result.contains("This is a comment"));
     assert!(result.contains("// Actual code"));
 
@@ -457,7 +457,7 @@ to: "output.rs"
     let mut pipeline = Pipeline::new()?;
     let ctx = Context::new();
 
-    let result = tmpl.render(pipeline.tera_mut(), &ctx)?;
+    let result = tmpl.render(pipeline.tera_mut(), &ctx, std::path::Path::new("."))?;
     assert!(result.contains("0"));
     assert!(result.contains("2"));
 
@@ -479,7 +479,7 @@ to: "output.rs"
     let mut ctx = Context::new();
     ctx.insert("items", &vec!["a", "b", "c"]);
 
-    let result = tmpl.render(pipeline.tera_mut(), &ctx)?;
+    let result = tmpl.render(pipeline.tera_mut(), &ctx, std::path::Path::new("."))?;
     assert!(result.contains("// Item: a"));
     assert!(result.contains("// Item: c"));
 
@@ -502,7 +502,7 @@ Default content
     let mut pipeline = Pipeline::new()?;
     let ctx = Context::new();
 
-    let result = tmpl.render(pipeline.tera_mut(), &ctx)?;
+    let result = tmpl.render(pipeline.tera_mut(), &ctx, std::path::Path::new("."))?;
     assert!(result.contains("Default content"));
 
     Ok(())

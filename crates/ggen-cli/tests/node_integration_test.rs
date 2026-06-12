@@ -4,9 +4,11 @@
     unused_variables,
     deprecated,
     clippy::all,
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
     unused_mut
 )]
-#![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all)]
 
 // Node integration tests for run_for_node function
 // Following London TDD approach with comprehensive test coverage

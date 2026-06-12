@@ -1,12 +1,13 @@
+use lsp_max::lsp_types_max::*;
+use lsp_max::{jsonrpc::Result, Client, LanguageServer};
 use std::sync::Arc;
-use tower_lsp::lsp_types::*;
-use tower_lsp::{jsonrpc::Result, Client, LanguageServer};
 
+use crate::handlers;
 use crate::state::ServerState;
 
 pub struct GgenLanguageServer {
-    state: Arc<ServerState>,
-    client: Client,
+    pub(crate) state: Arc<ServerState>,
+    pub(crate) client: Client,
 }
 
 impl GgenLanguageServer {
@@ -19,30 +20,37 @@ impl GgenLanguageServer {
 
     /// Build (or rebuild) the analyzer for a document, store it, and publish its
     /// diagnostics — the live "refusal before execution" signal.
-    ///
-    /// The Client-free orchestration (single-file analysis + cross-surface
-    /// GGEN-TPL-001 detection + merge-once + stale-clear reconciliation, all flowing
-    /// through `observe_diagnostics` so the living OCEL loop records them) lives in
-    /// [`ServerState::analyze_and_observe`](crate::state::ServerState::analyze_and_observe).
-    /// This wrapper adds only the editor transport: it pushes each returned
-    /// `(uri, diagnostics)` pair to the client, in order. Keeping the orchestration
-    /// in `ServerState` is what lets a hermetic test drive the SAME path (and assert
-    /// the full receipt chain from the on-disk OCEL log) without a `tower_lsp::Client`.
-    ///
-    /// Strictly read-only: builds an index (which only reads files) and never
-    /// writes any artifact.
     async fn refresh_analyzer(&self, uri: &Url, content: &str) {
         for (target_uri, diagnostics) in self.state.analyze_and_observe(uri, content).await {
+            // Task C — mirror diagnostics into lsp-max REGISTRY for the autonomic mesh.
+            push_diagnostics_to_registry(&diagnostics);
+            let lsp_diagnostics = diagnostics.into_iter().map(|d| d.lsp).collect();
             self.client
-                .publish_diagnostics(target_uri, diagnostics, None)
+                .publish_diagnostics(target_uri, lsp_diagnostics, None)
                 .await;
         }
     }
 }
 
-#[tower_lsp::async_trait]
+#[lsp_max::async_trait]
 impl LanguageServer for GgenLanguageServer {
-    async fn initialize(&self, _: InitializeParams) -> Result<InitializeResult> {
+    async fn initialize(&self, params: InitializeParams) -> Result<InitializeResult> {
+        // Task A — prime REGISTRY (set root_path) and MESH via lsp-max surfaces.
+        #[allow(deprecated)]
+        let root = params
+            .root_uri
+            .as_ref()
+            .and_then(|u| url::Url::parse(u.as_str()).ok()?.to_file_path().ok())
+            .unwrap_or_default();
+
+        if let Ok(mut reg) = lsp_max::get_registry().lock() {
+            reg.root_path = root;
+        }
+        
+        lsp_max::MESH.get_or_init(|| {
+            std::sync::Mutex::new(lsp_max::max_runtime::AutonomicMesh::new())
+        });
+
         Ok(InitializeResult {
             capabilities: ServerCapabilities {
                 text_document_sync: Some(TextDocumentSyncCapability::Kind(
@@ -80,9 +88,6 @@ impl LanguageServer for GgenLanguageServer {
                     },
                 )),
                 folding_range_provider: Some(FoldingRangeProviderCapability::Simple(true)),
-                // Re-declared because the features/ modules now genuinely deliver
-                // these (advertised == delivered). semantic_tokens advertises only
-                // `full` (no `range`) since only full tokenization is implemented.
                 semantic_tokens_provider: Some(
                     SemanticTokensServerCapabilities::SemanticTokensOptions(
                         SemanticTokensOptions {
@@ -117,8 +122,9 @@ impl LanguageServer for GgenLanguageServer {
             },
             server_info: Some(ServerInfo {
                 name: "ggen-lsp".to_string(),
-                version: Some("26.5.28".to_string()),
+                version: Some(env!("CARGO_PKG_VERSION").to_string()),
             }),
+            ..Default::default()
         })
     }
 
@@ -135,7 +141,6 @@ impl LanguageServer for GgenLanguageServer {
 
     async fn did_change(&self, params: DidChangeTextDocumentParams) {
         let uri = params.text_document.uri;
-        // FULL sync: the last change carries the entire document text.
         if let Some(change) = params.content_changes.into_iter().last() {
             self.state
                 .set_document(uri.clone(), change.text.clone())
@@ -146,299 +151,124 @@ impl LanguageServer for GgenLanguageServer {
 
     async fn did_close(&self, params: DidCloseTextDocumentParams) {
         let uri = params.text_document.uri;
-        // Proactive living-clear. Closing a rule surface produces no flags, so the
-        // Client-free core ([`ServerState::close_document`]) drops the closed doc's
-        // state and re-runs cross-surface reconciliation: any peer it sustained
-        // (GGEN-TPL-001 / GGEN-HARNESS-001) is cleared THROUGH `observe_diagnostics`
-        // (a clear is an OCEL event, not an absence), with residual preservation; a
-        // peer still flagged by a surviving surface is left untouched. The closed
-        // URI's own empty clear is the last pair returned. This wrapper adds only
-        // the editor transport — pushing each `(uri, diagnostics)` pair in order —
-        // exactly like `refresh_analyzer`, keeping the receipt chain testable
-        // without a `tower_lsp::Client`.
         for (target_uri, diagnostics) in self.state.close_document(&uri).await {
+            push_diagnostics_to_registry(&diagnostics);
+            let lsp_diagnostics = diagnostics.into_iter().map(|d| d.lsp).collect();
             self.client
-                .publish_diagnostics(target_uri, diagnostics, None)
+                .publish_diagnostics(target_uri, lsp_diagnostics, None)
                 .await;
         }
     }
 
     async fn completion(&self, params: CompletionParams) -> Result<Option<CompletionResponse>> {
-        let uri = &params.text_document_position.text_document.uri;
-        let position = params.text_document_position.position;
-        Ok(self
-            .state
-            .get_analyzer(uri)
-            .await
-            .and_then(|a| a.completion_at(position.line, position.character)))
+        handlers::completion::handle(self, params).await
     }
 
     async fn hover(&self, params: HoverParams) -> Result<Option<Hover>> {
-        let uri = &params.text_document_position_params.text_document.uri;
-        let position = params.text_document_position_params.position;
-        let analyzer = self.state.get_analyzer(uri).await;
-        // Semantic hover (e.g. SHACL shape, term kind) takes priority.
-        if let Some(h) = analyzer
-            .as_ref()
-            .and_then(|a| a.hover_at(position.line, position.character))
-        {
-            return Ok(Some(h));
-        }
-        // Otherwise, if a diagnostic covers the cursor, show its OCEL-TON card:
-        // the active episode + route + next transition — the author-time receipt
-        // preview. Diagnostics are recomputed here (cheap, off the publish path).
-        let (Some(analyzer), Some(content)) = (analyzer, self.state.get_document(uri).await) else {
-            return Ok(None);
-        };
-        let registry = self.state.routes.clone();
-        for d in analyzer.diagnostics() {
-            if range_contains(&d.range, position) {
-                if let Some(plan) = crate::route::route_plan_for_diagnostic(&registry, &d, &content)
-                {
-                    let view = crate::route::CompactTraceView::from_route_plan(&plan, uri.path());
-                    return Ok(Some(Hover {
-                        contents: HoverContents::Markup(MarkupContent {
-                            kind: MarkupKind::Markdown,
-                            value: view.to_hover_markdown(),
-                        }),
-                        range: Some(d.range),
-                    }));
-                }
-            }
-        }
-        Ok(None)
+        handlers::hover::handle(self, params).await
     }
 
     async fn goto_definition(
         &self, params: GotoDefinitionParams,
     ) -> Result<Option<GotoDefinitionResponse>> {
-        let uri = &params.text_document_position_params.text_document.uri;
-        let position = params.text_document_position_params.position;
-        Ok(self
-            .state
-            .get_analyzer(uri)
-            .await
-            .and_then(|a| a.definition_at(position.line, position.character))
-            .map(GotoDefinitionResponse::Scalar))
+        handlers::definition::handle(self, params).await
     }
 
     async fn references(&self, params: ReferenceParams) -> Result<Option<Vec<Location>>> {
-        let uri = &params.text_document_position.text_document.uri;
-        let position = params.text_document_position.position;
-        Ok(self
-            .state
-            .get_analyzer(uri)
-            .await
-            .and_then(|a| a.references_at(position.line, position.character)))
+        handlers::references::handle(self, params).await
     }
 
     async fn document_symbol(
         &self, params: DocumentSymbolParams,
     ) -> Result<Option<DocumentSymbolResponse>> {
-        let uri = &params.text_document.uri;
-        Ok(self
-            .state
-            .get_analyzer(uri)
-            .await
-            .and_then(|a| a.document_symbols())
-            .map(DocumentSymbolResponse::Nested))
+        handlers::document_symbol::handle(self, params).await
     }
 
     async fn semantic_tokens_full(
         &self, params: SemanticTokensParams,
     ) -> Result<Option<SemanticTokensResult>> {
-        let uri = &params.text_document.uri;
-        let file_type = crate::state::FileType::from_uri(uri);
-        Ok(self
-            .state
-            .get_document(uri)
-            .await
-            .and_then(|content| {
-                crate::features::semantic_tokens::semantic_tokens(file_type, &content)
-            })
-            .map(SemanticTokensResult::Tokens))
+        handlers::semantic_tokens::handle_full(self, params).await
     }
 
     async fn folding_range(&self, params: FoldingRangeParams) -> Result<Option<Vec<FoldingRange>>> {
-        let uri = &params.text_document.uri;
-        Ok(self
-            .state
-            .get_analyzer(uri)
-            .await
-            .and_then(|a| a.folding_ranges()))
+        handlers::folding_range::handle(self, params).await
     }
 
     async fn formatting(&self, params: DocumentFormattingParams) -> Result<Option<Vec<TextEdit>>> {
-        let uri = &params.text_document.uri;
-        let Some(content) = self.state.get_document(uri).await else {
-            return Ok(None);
-        };
-        let file_type = crate::state::FileType::from_uri(uri);
-        Ok(crate::features::formatting::format_document(
-            file_type, &content,
-        ))
+        handlers::formatting::handle_formatting(self, params).await
     }
 
     async fn range_formatting(
         &self, params: DocumentRangeFormattingParams,
     ) -> Result<Option<Vec<TextEdit>>> {
-        let uri = &params.text_document.uri;
-        let Some(content) = self.state.get_document(uri).await else {
-            return Ok(None);
-        };
-        let file_type = crate::state::FileType::from_uri(uri);
-        Ok(crate::features::formatting::format_range(
-            file_type,
-            &content,
-            params.range,
-        ))
+        handlers::formatting::handle_range_formatting(self, params).await
     }
 
     async fn inlay_hint(&self, params: InlayHintParams) -> Result<Option<Vec<InlayHint>>> {
-        let uri = &params.text_document.uri;
-        let Some(content) = self.state.get_document(uri).await else {
-            return Ok(None);
-        };
-        let file_type = crate::state::FileType::from_uri(uri);
-        Ok(crate::features::inlay_hint::inlay_hints(
-            file_type,
-            &content,
-            params.range,
-        ))
+        handlers::inlay_hint::handle(self, params).await
     }
 
     async fn code_lens(&self, params: CodeLensParams) -> Result<Option<Vec<CodeLens>>> {
-        let uri = &params.text_document.uri;
-        let file_type = crate::state::FileType::from_uri(uri);
-        let Some(content) = self.state.get_document(uri).await else {
-            return Ok(None);
-        };
-        Ok(crate::features::code_lens::code_lenses(file_type, &content))
+        handlers::code_lens::handle(self, params).await
     }
 
-    /// Project repair routes as QUICKFIX code actions. A CodeAction here IS the
-    /// process transition that repairs the failed transition (the diagnostic):
-    /// for each in-context diagnostic, select its precomputed route and offer the
-    /// concrete `WorkspaceEdit`. Only routes with a computable edit (no unfilled
-    /// `{placeholder}`) are offered; advisory/NoOp routes are silent.
     async fn code_action(&self, params: CodeActionParams) -> Result<Option<CodeActionResponse>> {
-        let uri = &params.text_document.uri;
-        let doc = self.state.get_document(uri).await.unwrap_or_default();
-        let registry = self.state.routes.clone();
-
-        let mut actions: Vec<CodeActionOrCommand> = Vec::new();
-        for d in &params.context.diagnostics {
-            let Some(route) = crate::route::action_route_for(&registry, d) else {
-                continue;
-            };
-            // Bindings computable from the diagnostic alone: its range is the site.
-            let bindings = crate::route::RouteBindings {
-                site: Some(d.range),
-                ..Default::default()
-            };
-            let edit = crate::route::workspace_edit_from_route(route, &bindings, uri, &doc);
-            let has_real_edit = edit
-                .changes
-                .as_ref()
-                .is_some_and(|c| c.values().flatten().any(|e| !e.new_text.contains('{')));
-            if !has_real_edit {
-                continue; // unfilled template or advisory-only route
-            }
-            // Route-native title: a CodeAction IS the next admissible transition,
-            // not a generic "quick fix".
-            let title = route
-                .steps
-                .nodes
-                .first()
-                .map(|s| format!("Apply transition: {}", s.title))
-                .unwrap_or_else(|| route.description.clone());
-            // Carry the canonical RouteEnvelope in `data` — the SAME shape the
-            // headless gate, MCP tool, and A2A bridge project for this diagnostic.
-            let data = crate::route::envelope_for_diagnostic(&registry, d, &doc, uri.path())
-                .and_then(|env| serde_json::to_value(env).ok());
-            actions.push(CodeActionOrCommand::CodeAction(CodeAction {
-                title,
-                kind: Some(CodeActionKind::QUICKFIX),
-                diagnostics: Some(vec![d.clone()]),
-                edit: Some(edit),
-                command: None,
-                is_preferred: Some(true),
-                disabled: None,
-                data,
-            }));
-        }
-        Ok(if actions.is_empty() {
-            None
-        } else {
-            Some(actions)
-        })
+        handlers::diagnostics::handle_code_action(self, params).await
     }
 
     async fn prepare_rename(
         &self, params: TextDocumentPositionParams,
     ) -> Result<Option<PrepareRenameResponse>> {
-        let uri = &params.text_document.uri;
-        let position = params.position;
-        if self.state.get_analyzer(uri).await.is_some() {
-            Ok(Some(PrepareRenameResponse::Range(Range {
-                start: position,
-                end: position,
-            })))
-        } else {
-            Ok(None)
-        }
+        handlers::rename::handle_prepare(self, params).await
     }
 
     async fn rename(&self, params: RenameParams) -> Result<Option<WorkspaceEdit>> {
-        let uri = &params.text_document_position.text_document.uri;
-        let position = params.text_document_position.position;
-        let new_name = params.new_name;
-        Ok(self
-            .state
-            .get_analyzer(uri)
-            .await
-            .and_then(|a| a.rename_symbol(position, &new_name)))
+        handlers::rename::handle(self, params).await
     }
 
     async fn prepare_call_hierarchy(
         &self, params: CallHierarchyPrepareParams,
     ) -> Result<Option<Vec<CallHierarchyItem>>> {
-        let uri = &params.text_document_position_params.text_document.uri;
-        let position = params.text_document_position_params.position;
-        Ok(self
-            .state
-            .get_analyzer(uri)
-            .await
-            .and_then(|a| a.call_hierarchy_items(position)))
+        handlers::call_hierarchy::handle_prepare(self, params).await
     }
 
     async fn prepare_type_hierarchy(
         &self, params: TypeHierarchyPrepareParams,
     ) -> Result<Option<Vec<TypeHierarchyItem>>> {
-        let uri = &params.text_document_position_params.text_document.uri;
-        let position = params.text_document_position_params.position;
-        Ok(self
-            .state
-            .get_analyzer(uri)
-            .await
-            .and_then(|a| a.type_hierarchy_items(position)))
+        handlers::type_hierarchy::handle_prepare(self, params).await
     }
 
     async fn symbol(
         &self, params: WorkspaceSymbolParams,
     ) -> Result<Option<Vec<SymbolInformation>>> {
-        let root = self.state.root.clone();
-        Ok(Some(crate::features::workspace_symbol::workspace_symbols(
-            &root,
-            &params.query,
-        )))
+        handlers::workspace_symbol::handle(self, params).await
     }
 }
 
-/// True if `position` falls within `range` (inclusive of start, exclusive of end
-/// line/char in the usual LSP sense; whole-line ranges with `u32::MAX` end cover
-/// the line).
-fn range_contains(range: &Range, position: Position) -> bool {
+/// Task C helper — push GGEN-* diagnostics into the lsp-max REGISTRY so the
+/// autonomic mesh can observe them. Best-effort: lock failures are silently ignored.
+fn push_diagnostics_to_registry(diagnostics: &[lsp_max_protocol::MaxDiagnostic]) {
+    use lsp_max_protocol::{LawAxis, MaxDiagnostic};
+    if let Ok(mut reg) = lsp_max::get_registry().lock() {
+        for diag in diagnostics {
+            if let Some(NumberOrString::String(ref code)) = diag.lsp.code {
+                let id = {
+                    let mut h = blake3::Hasher::new();
+                    h.update(diag.lsp.message.as_bytes());
+                    format!("{}-{:.8}", code, h.finalize().to_hex())
+                };
+                let mut max_diag = diag.clone();
+                max_diag.diagnostic_id = id.clone();
+                max_diag.law_id = code.clone();
+                max_diag.law_axis = LawAxis::Domain;
+                max_diag.violated_invariant = diag.lsp.message.clone();
+                reg.diagnostics.insert(id, max_diag);
+            }
+        }
+    }
+}
+
+pub fn range_contains(range: &Range, position: Position) -> bool {
     let after_start = position.line > range.start.line
         || (position.line == range.start.line && position.character >= range.start.character);
     let before_end = position.line < range.end.line

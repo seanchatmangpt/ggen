@@ -87,9 +87,9 @@
 
 | Status | Count | Percentage |
 |--------|-------|------------|
-| **Verified** | {{ verified_count }} | {% if receipts | length > 0 %}{{ "%.1f" | format(verified_count * 100 / (receipts | length)) }}%{% else %}N/A{% endif %} |
-| **Unverified** | {{ unverified_count }} | {% if receipts | length > 0 %}{{ "%.1f" | format(unverified_count * 100 / (receipts | length)) }}%{% else %}N/A{% endif %} |
-| **Failed** | {{ failed_count }} | {% if receipts | length > 0 %}{{ "%.1f" | format(failed_count * 100 / (receipts | length)) }}%{% else %}N/A{% endif %} |
+| **Verified** | {{ verified_count }} | {% if receipts | length > 0 %}{% set total_r = receipts | length %}{{ (verified_count * 100 / total_r) | round(precision=1) }}%{% else %}N/A{% endif %} |
+| **Unverified** | {{ unverified_count }} | {% if receipts | length > 0 %}{% set total_r = receipts | length %}{{ (unverified_count * 100 / total_r) | round(precision=1) }}%{% else %}N/A{% endif %} |
+| **Failed** | {{ failed_count }} | {% if receipts | length > 0 %}{% set total_r = receipts | length %}{{ (failed_count * 100 / total_r) | round(precision=1) }}%{% else %}N/A{% endif %} |
 | **Total** | {{ receipts | length }} | 100.0% |
 
 ### Verification Recommendations
