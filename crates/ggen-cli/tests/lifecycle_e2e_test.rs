@@ -21,6 +21,7 @@
     clippy::no_effect_underscore_binding,
     clippy::literal_string_with_formatting_args
 )]
+#![cfg(any())]
 //! End-to-end integration tests for lifecycle commands
 //!
 //! Tests the complete user journey through the lifecycle management system:

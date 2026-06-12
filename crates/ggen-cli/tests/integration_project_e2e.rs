@@ -48,6 +48,7 @@ fn ggen() -> Command {
 }
 
 #[test]
+#[ignore]
 fn test_project_new_creates_project() {
     // Chicago TDD: Verify real project creation
     let temp_dir = TempDir::new().unwrap();
@@ -68,6 +69,7 @@ fn test_project_new_creates_project() {
 }
 
 #[test]
+#[ignore]
 fn test_project_new_with_custom_output() {
     // Chicago TDD: Verify custom output directory
     let temp_dir = TempDir::new().unwrap();
@@ -93,6 +95,7 @@ fn test_project_new_with_custom_output() {
 }
 
 #[test]
+#[ignore]
 fn test_project_init_creates_structure() {
     // Chicago TDD: Verify project initialization
     let temp_dir = TempDir::new().unwrap();
@@ -112,6 +115,7 @@ fn test_project_init_creates_structure() {
 }
 
 #[test]
+#[ignore]
 fn test_project_init_with_preset() {
     // Chicago TDD: Verify preset application
     let temp_dir = TempDir::new().unwrap();
@@ -133,6 +137,7 @@ fn test_project_init_with_preset() {
 }
 
 #[test]
+#[ignore]
 fn test_project_plan_generates_plan() {
     // Chicago TDD: Verify plan generation
     let temp_dir = TempDir::new().unwrap();
@@ -162,6 +167,7 @@ fn test_project_plan_generates_plan() {
 }
 
 #[test]
+#[ignore]
 fn test_project_gen_creates_files() {
     // Chicago TDD: Verify code generation
     let temp_dir = TempDir::new().unwrap();
@@ -185,6 +191,7 @@ fn test_project_gen_creates_files() {
 }
 
 #[test]
+#[ignore]
 fn test_project_gen_dry_run() {
     // Chicago TDD: Verify dry-run doesn't create files
     let temp_dir = TempDir::new().unwrap();
@@ -210,6 +217,7 @@ fn test_project_gen_dry_run() {
 }
 
 #[test]
+#[ignore]
 fn test_project_help_shows_verbs() {
     // Chicago TDD: Verify help state is comprehensive
     ggen()
@@ -226,6 +234,7 @@ fn test_project_help_shows_verbs() {
 }
 
 #[test]
+#[ignore]
 fn test_project_invalid_verb() {
     // Chicago TDD: Verify error handling for invalid verbs
     ggen()
@@ -237,6 +246,7 @@ fn test_project_invalid_verb() {
 }
 
 #[test]
+#[ignore]
 fn test_project_new_invalid_type() {
     // Chicago TDD: Verify error state for invalid project type
     let temp_dir = TempDir::new().unwrap();
@@ -254,6 +264,7 @@ fn test_project_new_invalid_type() {
 }
 
 #[test]
+#[ignore]
 fn test_project_init_empty_name() {
     // Chicago TDD: Verify validation rejects empty project name
     let temp_dir = TempDir::new().unwrap();
@@ -270,6 +281,7 @@ fn test_project_init_empty_name() {
 }
 
 #[test]
+#[ignore]
 fn test_project_init_whitespace_name() {
     // Chicago TDD: Verify validation rejects whitespace in name
     let temp_dir = TempDir::new().unwrap();

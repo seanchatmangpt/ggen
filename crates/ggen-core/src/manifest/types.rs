@@ -50,6 +50,18 @@ fn default_registry() -> String {
 /// Missing or unparseable file is treated as empty outputs (fail-open, falls back to literal key).
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct PackageToml {
+    /// The [pack] section of package.toml
+    #[serde(default)]
+    pub pack: Option<PackSection>,
+
+    /// Named output directories: key → relative directory path within the pack.
+    #[serde(default)]
+    pub outputs: std::collections::HashMap<String, String>,
+}
+
+/// The [pack] section of package.toml
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct PackSection {
     /// Named output directories: key → relative directory path within the pack.
     #[serde(default)]
     pub outputs: std::collections::HashMap<String, String>,
@@ -67,7 +79,15 @@ impl PackageToml {
 
     /// Resolve an output key to its directory path, or return the key itself as fallback.
     pub fn resolve_output_key<'a>(&'a self, key: &'a str) -> &'a str {
-        self.outputs.get(key).map(|s| s.as_str()).unwrap_or(key)
+        // Check top-level [outputs] first, then fall back to [pack.outputs].
+        if let Some(val) = self.outputs.get(key) {
+            return val.as_str();
+        }
+        self.pack
+            .as_ref()
+            .and_then(|p| p.outputs.get(key))
+            .map(|s| s.as_str())
+            .unwrap_or(key)
     }
 }
 
@@ -358,12 +378,13 @@ pub enum TemplateSource {
 /// File generation mode
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
 pub enum GenerationMode {
-    /// Create file on first pass; skip (no-op) if the file already exists.
+    /// Create file on first pass; fail if the file already exists.
     ///
-    /// This is the default mode for scaffolding: the first `ggen sync` writes
-    /// the file, subsequent syncs leave it untouched so manual edits are
-    /// preserved. Use `Overwrite` to replace the file on every sync, or
-    /// `Merge` to combine generated sections with hand-written sections.
+    /// This mode ensures strict generation for scaffolding: the first `ggen sync`
+    /// writes the file, subsequent syncs will fail if the file exists to prevent
+    /// accidental overwrites or misconfigurations. Use `Overwrite` to replace
+    /// the file on every sync, or `Merge` to combine generated sections with
+    /// hand-written sections.
     #[default]
     Create,
     /// Overwrite existing
@@ -512,5 +533,33 @@ mod tests {
     fn test_validation_severity_default() {
         let severity: ValidationSeverity = Default::default();
         assert_eq!(severity, ValidationSeverity::Error);
+    }
+
+    #[test]
+    fn test_package_toml_resolve_output_key() {
+        let mut pack_outputs = std::collections::HashMap::new();
+        pack_outputs.insert("queries".to_string(), "legacy/sparql".to_string());
+        pack_outputs.insert("shared".to_string(), "shared/dir".to_string());
+        
+        let mut top_outputs = std::collections::HashMap::new();
+        top_outputs.insert("queries".to_string(), "src/sparql".to_string());
+        
+        let pkg = PackageToml {
+            pack: Some(PackSection { outputs: pack_outputs }),
+            outputs: top_outputs,
+        };
+        
+        // Preferred top-level key
+        assert_eq!(pkg.resolve_output_key("queries"), "src/sparql");
+        
+        // Fallback to legacy pack key
+        assert_eq!(pkg.resolve_output_key("shared"), "shared/dir");
+        
+        // Fallback to literal key
+        assert_eq!(pkg.resolve_output_key("missing"), "missing");
+        
+        // Empty package.toml
+        let empty_pkg = PackageToml::default();
+        assert_eq!(empty_pkg.resolve_output_key("queries"), "queries");
     }
 }

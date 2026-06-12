@@ -29,8 +29,7 @@ name = "pack-query-fixture"
 version = "0.1.0"
 
 [ontology]
-base = "urn:test:"
-imports = ["onto.ttl"]
+source = "onto.ttl"
 
 [[generation.rules]]
 name = "pack-rule"
@@ -50,8 +49,7 @@ name = "pack-template-fixture"
 version = "0.1.0"
 
 [ontology]
-base = "urn:test:"
-imports = ["onto.ttl"]
+source = "onto.ttl"
 
 [[generation.rules]]
 name = "pack-tpl-rule"
@@ -77,8 +75,7 @@ name = "inline-query-fixture"
 version = "0.1.0"
 
 [ontology]
-base = "urn:test:"
-imports = ["onto.ttl"]
+source = "onto.ttl"
 
 [[generation.rules]]
 name = "inline-rule"

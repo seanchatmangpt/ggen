@@ -74,21 +74,19 @@ impl TomlAnalyzer {
 
     /// TOML syntax + enum-law diagnostics (E0001 for parse, E0023 for enum law).
     #[must_use]
-    pub fn diagnostics(&self) -> Vec<Diagnostic> {
+    pub fn diagnostics(&self) -> Vec<lsp_max_protocol::MaxDiagnostic> {
         // Syntax first: a parse failure means nothing else can be trusted.
         if let Err(err) = toml::from_str::<toml::Value>(&self.source) {
             let (line, col) = err
                 .span()
                 .map(|s| byte_to_line_col(&self.source, s.start))
                 .unwrap_or((0, 0));
-            return vec![diag::at(
+            return vec![diag::max_whole_line(
                 line,
-                col,
-                line,
-                u32::MAX,
                 DiagnosticSeverity::ERROR,
                 Some("E0001"),
                 format!("ggen.toml parse error: {}", err.message()),
+                lsp_max_protocol::LawAxis::Autopoiesis,
             )];
         }
 
@@ -104,17 +102,15 @@ impl TomlAnalyzer {
             let value = raw_val.trim().trim_matches('"').trim();
             for (enum_key, allowed) in ENUMS {
                 if key == *enum_key && !value.is_empty() && !allowed.contains(&value) {
-                    diags.push(diag::at(
+                    diags.push(diag::max_whole_line(
                         line,
-                        0,
-                        line,
-                        u32::MAX,
                         DiagnosticSeverity::ERROR,
                         Some("E0023"),
                         format!(
                             "invalid value \"{value}\" for `{key}` — expected one of: {}",
                             allowed.join(", ")
                         ),
+                        lsp_max_protocol::LawAxis::Domain,
                     ));
                 }
             }
@@ -123,11 +119,8 @@ impl TomlAnalyzer {
             // RenderedSource is source — generated/, output/, outputs/, gen/ are forbidden.
             if key == "output_file" && !value.is_empty() {
                 if let Some(violated) = source_caste_path_violation(value) {
-                    diags.push(diag::at(
+                    diags.push(diag::max_whole_line(
                         line,
-                        0,
-                        line,
-                        u32::MAX,
                         DiagnosticSeverity::ERROR,
                         Some(GGEN_SRC_001),
                         format!(
@@ -135,6 +128,7 @@ impl TomlAnalyzer {
                              a source-caste directory (`{violated}/`). \
                              RenderedSource is source — move to a first-class path (e.g. `src/witnesses.rs`)."
                         ),
+                        lsp_max_protocol::LawAxis::Domain,
                     ));
                 }
             }
@@ -197,7 +191,7 @@ impl TomlAnalyzer {
         None
     }
 
-    pub fn document_symbols(&self) -> Option<Vec<DocumentSymbol>> {
+    pub fn document_symbols(&self, _range: Option<Range>) -> Vec<DocumentSymbol> {
         let mut symbols = Vec::new();
         for (idx, text) in self.source.lines().enumerate() {
             let trimmed = text.trim();
@@ -206,11 +200,7 @@ impl TomlAnalyzer {
                 symbols.push(make_symbol(name, u32::try_from(idx).unwrap_or(0)));
             }
         }
-        if symbols.is_empty() {
-            None
-        } else {
-            Some(symbols)
-        }
+        symbols
     }
 
     pub fn code_lenses(&self) -> Option<Vec<CodeLens>> {
@@ -250,8 +240,8 @@ impl TomlAnalyzer {
         None
     }
 
-    pub fn inlay_hints(&self) -> Option<Vec<InlayHint>> {
-        None
+    pub fn inlay_hints(&self, _range: Option<Range>) -> Vec<InlayHint> {
+        Vec::new()
     }
 
     pub fn rename_symbol(&self, _position: Position, _new_name: &str) -> Option<WorkspaceEdit> {
@@ -319,7 +309,7 @@ mod tests {
         let diags = analyzer.diagnostics();
         assert!(diags
             .iter()
-            .any(|d| d.code == Some(lsp_max::lsp_types::NumberOrString::String("E0023".into()))));
+            .any(|d| d.lsp.code == Some(lsp_max::lsp_types::NumberOrString::String("E0023".into()))));
     }
 
     #[test]
@@ -348,7 +338,7 @@ mod tests {
         let analyzer = TomlAnalyzer::new_from_content(toml).expect("analyzer");
         let diags = analyzer.diagnostics();
         assert_eq!(
-            diags[0].code,
+            diags[0].lsp.code,
             Some(lsp_max::lsp_types::NumberOrString::String("E0001".into()))
         );
     }

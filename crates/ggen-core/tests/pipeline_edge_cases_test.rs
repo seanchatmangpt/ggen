@@ -65,12 +65,14 @@ fn create_minimal_manifest() -> GgenManifest {
             name: "test-project".to_string(),
             version: "1.0.0".to_string(),
             description: None,
+            ..Default::default()
         },
         ontology: OntologyConfig {
             source: PathBuf::from("ontology.ttl"),
             imports: Vec::new(),
             base_iri: None,
             prefixes: BTreeMap::new(),
+            ..Default::default()
         },
         inference: ggen_core::manifest::InferenceConfig {
             rules: Vec::new(),
@@ -87,6 +89,8 @@ fn create_minimal_manifest() -> GgenManifest {
             llm_model: None,
         },
         validation: ggen_core::manifest::ValidationConfig::default(),
+        packs: vec![],
+        ..Default::default()
     }
 }
 
@@ -509,12 +513,12 @@ fn test_generation_mode_create_file_exists() {
 
     let result = pipeline.execute_generation_rules();
 
-    assert!(result.is_ok(), "Generation should succeed");
-    let generated = result.unwrap();
-    assert_eq!(
-        generated.len(),
-        0,
-        "Should skip file in Create mode when it exists"
+    assert!(result.is_err(), "Generation should fail in Create mode when file exists");
+    let err_msg = result.unwrap_err().to_string();
+    assert!(
+        err_msg.contains("E0011") || err_msg.contains("exists"),
+        "Error should mention file exists or E0011, got: {}",
+        err_msg
     );
 
     // Verify original content is unchanged

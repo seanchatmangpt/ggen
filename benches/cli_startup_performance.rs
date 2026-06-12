@@ -188,16 +188,17 @@ fn bench_cold_vs_warm_start(c: &mut Criterion) {
 // ============================================================================
 
 fn bench_startup_components(c: &mut Criterion) {
+    let binary_path = std::env::current_dir().unwrap().join("target/release/ggen");
+
+    if !binary_path.exists() {
+        eprintln!("Warning: ggen binary not found. Skipping startup components benchmarks.");
+        return;
+    }
+
     let mut group = c.benchmark_group("startup_components");
 
     // Benchmark: Binary loading time (minimal execution)
     group.bench_function("binary_load", |b| {
-        let binary_path = std::env::current_dir().unwrap().join("target/release/ggen");
-
-        if !binary_path.exists() {
-            return;
-        }
-
         b.iter(|| {
             let start = Instant::now();
             let _ = Command::new(black_box(&binary_path))

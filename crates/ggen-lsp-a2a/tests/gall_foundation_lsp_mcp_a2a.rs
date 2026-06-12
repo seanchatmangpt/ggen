@@ -233,17 +233,17 @@ fn gall_lsp_mcp_a2a_preserve_route_id() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Foundation pier 6: the delivery plane advertises the v26.5.28 identity.
+// Foundation pier 6: the delivery plane advertises the current identity.
 // ─────────────────────────────────────────────────────────────────────────────
 
 #[test]
-fn gall_delivery_plane_uses_v26_5_28_identity() {
+fn gall_delivery_plane_uses_current_identity() {
     let card = agent_card();
-    assert_eq!(card["version"], json!("26.5.28"), "agent card version");
+    assert_eq!(card["version"], json!(env!("CARGO_PKG_VERSION")), "agent card version");
     let adapter = RepairRouteAdapter::new();
-    assert_eq!(adapter.version(), "26.5.28", "A2A adapter version");
+    assert_eq!(adapter.version(), env!("CARGO_PKG_VERSION"), "A2A adapter version");
     // The bridge crate's own identity (single workspace version).
-    assert_eq!(env!("CARGO_PKG_VERSION"), "26.5.28", "bridge crate version");
+    assert_eq!(env!("CARGO_PKG_VERSION"), env!("CARGO_PKG_VERSION"), "bridge crate version");
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

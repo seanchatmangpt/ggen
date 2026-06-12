@@ -325,12 +325,14 @@ mod tests {
                 name: "test".to_string(),
                 version: "1.0.0".to_string(),
                 description: None,
+                ..Default::default()
             },
             ontology: OntologyConfig {
                 source: PathBuf::from("ontology.ttl"),
                 imports: vec![],
                 base_iri: None,
                 prefixes: BTreeMap::new(),
+                ..Default::default()
             },
             inference: InferenceConfig {
                 rules: vec![],
@@ -347,6 +349,8 @@ mod tests {
                 llm_provider: None,
             },
             validation: ValidationConfig::default(),
+            packs: vec![],
+            ..Default::default()
         };
 
         let manifest_path = Path::new("ggen.toml");

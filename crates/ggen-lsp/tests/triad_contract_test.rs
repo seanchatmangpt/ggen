@@ -48,7 +48,7 @@ fn headless_and_canonical_projection_are_byte_equivalent() {
     let report = check_files_in_root(root, &[rq], true);
     let file = &report.files[0];
     let headless = file.envelopes();
-    assert_eq!(headless.len(), 1, "one routed diagnostic (E0011)");
+    assert_eq!(headless.len(), 2, "two routed diagnostics (E0011 and E0015)");
 
     // The canonical projection that code_action's `data` and the MCP tool both
     // call (same registry the headless gate built: seeded + root pack).

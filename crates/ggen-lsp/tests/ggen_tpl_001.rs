@@ -64,6 +64,8 @@ fn load(root: &Path) -> ProjectIndex {
         .unwrap_or_else(|e| panic!("ProjectIndex::from_root({}) failed: {e:?}", root.display()))
 }
 
+use lsp_max_protocol::MaxDiagnostic;
+
 /// True if a `Diagnostic.code` renders as exactly `GGEN-TPL-001`.
 fn is_tpl_001(d: &Diagnostic) -> bool {
     matches!(
@@ -73,21 +75,21 @@ fn is_tpl_001(d: &Diagnostic) -> bool {
 }
 
 /// Count GGEN-TPL-001 diagnostics across the per-file grouping returned by
-/// `detect_tpl_001` (`Vec<(PathBuf, Vec<Diagnostic>)>`).
-fn count_tpl_001(grouped: &[(PathBuf, Vec<Diagnostic>)]) -> usize {
+/// `detect_tpl_001` (`Vec<(PathBuf, Vec<MaxDiagnostic>)>`).
+fn count_tpl_001(grouped: &[(PathBuf, Vec<MaxDiagnostic>)]) -> usize {
     grouped
         .iter()
         .flat_map(|(_, diags)| diags.iter())
-        .filter(|d| is_tpl_001(d))
+        .filter(|d| is_tpl_001(&d.lsp))
         .count()
 }
 
 /// True if any GGEN-TPL-001 diagnostic is at ERROR severity.
-fn has_tpl_001_error(grouped: &[(PathBuf, Vec<Diagnostic>)]) -> bool {
+fn has_tpl_001_error(grouped: &[(PathBuf, Vec<MaxDiagnostic>)]) -> bool {
     grouped
         .iter()
         .flat_map(|(_, diags)| diags.iter())
-        .any(|d| is_tpl_001(d) && d.severity == Some(DiagnosticSeverity::ERROR))
+        .any(|d| is_tpl_001(&d.lsp) && d.lsp.severity == Some(DiagnosticSeverity::ERROR))
 }
 
 /// 1. A rule whose template consumes only bound projection variables must NOT
@@ -217,7 +219,7 @@ fn output_path_unbound_emits_out_001() {
     let out_codes: Vec<String> = out
         .iter()
         .flat_map(|(_, diags)| diags.iter())
-        .filter_map(|d| match &d.code {
+        .filter_map(|d| match &d.lsp.code {
             Some(NumberOrString::String(s)) => Some(s.clone()),
             _ => None,
         })

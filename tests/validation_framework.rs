@@ -602,7 +602,7 @@ mod tests {
 
     #[test]
     fn test_structure_validation() {
-        let (score, issues) = validate_structure("# Test\n\nContent here");
+        let (score, issues) = validate_structure("# Test Title\n\nThis is a sufficiently long content block that has more than 50 characters to satisfy the validator checks.");
         assert!(score > 5.0);
         assert!(issues.is_empty());
     }

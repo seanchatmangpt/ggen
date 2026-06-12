@@ -77,9 +77,15 @@ async fn install_then_route_apply_receipt_end_to_end() {
     // --- Apply: the editor applies the fix → rework closure → receipt. ---
     let state = ServerState::with_root(root);
     let uri = url_from_path(root.join("ggen.toml"));
-    state.observe_diagnostics(&uri, &broken.diagnostics).await;
+    let broken_diags = ggen_lsp::analyzers::build_analyzer("ggen.toml", src)
+        .map(|a| a.diagnostics())
+        .unwrap_or_default();
+    state.observe_diagnostics(&uri, &broken_diags).await;
     let fixed = check_content("ggen.toml", "[logging]\nlevel = \"info\"\n").expect("toml");
-    state.observe_diagnostics(&uri, &fixed.diagnostics).await;
+    let fixed_diags = ggen_lsp::analyzers::build_analyzer("ggen.toml", "[logging]\nlevel = \"info\"\n")
+        .map(|a| a.diagnostics())
+        .unwrap_or_default();
+    state.observe_diagnostics(&uri, &fixed_diags).await;
 
     // --- Receipt: the OCEL log under the installed root records the closed episode. ---
     let log = IntelLog::at_root(root).read();

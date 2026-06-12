@@ -100,13 +100,12 @@ fn build_manifest(output_dir: &str, mode: GenerationMode, output_file: &str) -> 
 }
 
 // ---------------------------------------------------------------------------
-// BUG-004: Create mode must not overwrite existing file
+// BUG-004: Create mode must fail when output file exists
 // ---------------------------------------------------------------------------
 
-/// BUG-004: When output file exists and mode = Create, pipeline must leave file
-/// content unchanged.  The returned generated-files list must be empty (file skipped).
+/// BUG-004: When output file exists and mode = Create, pipeline must return an error.
 #[test]
-fn test_create_mode_does_not_overwrite_existing() {
+fn test_create_mode_fails_when_existing() {
     let dir = TempDir::new().expect("TempDir");
 
     // Write the ontology so the pipeline can load it.
@@ -123,17 +122,18 @@ fn test_create_mode_does_not_overwrite_existing() {
     let mut pipeline = GenerationPipeline::new(manifest, dir.path().to_path_buf());
 
     pipeline.load_ontology().expect("load ontology");
-    let generated = pipeline
-        .execute_generation_rules()
-        .expect("pipeline must not error in Create mode");
+    let result = pipeline.execute_generation_rules();
 
-    // Create mode: no files should have been (re-)generated.
-    assert_eq!(
-        generated.len(),
-        0,
-        "Create mode must skip existing file; expected 0 generated files, got {}: {:?}",
-        generated.len(),
-        generated
+    // Create mode: must return error E0011 when file exists.
+    assert!(
+        result.is_err(),
+        "Create mode must return error when file exists"
+    );
+    let err_msg = result.unwrap_err().to_string();
+    assert!(
+        err_msg.contains("E0011"),
+        "Error message should contain E0011, got: {}",
+        err_msg
     );
 
     // Real filesystem state: sentinel must be intact.

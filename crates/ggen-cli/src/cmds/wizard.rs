@@ -144,6 +144,7 @@ impl Default for ProjectMetadata {
 
 /// Wizard configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[allow(clippy::struct_excessive_bools)]
 pub struct WizardConfig {
     pub profile: WizardProfile,
     pub metadata: ProjectMetadata,
@@ -936,7 +937,7 @@ fn generate_ln_ctrl_sparql(
     })?;
 
     // Generate receipt_trace.sparql
-    let receipt_trace_sparql = r#"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    let receipt_trace_sparql = r"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX ln_ctrl: <https://ggen.io/ontology/ln_ctrl#>
 
@@ -966,7 +967,7 @@ WHERE {
           ln_ctrl:budget_memory ?budget_memory .
 }
 ORDER BY ?workflow_id ?step_index
-"#;
+";
     let receipt_trace_path = ln_ctrl_sparql_dir.join("receipt_trace.sparql");
     tx.write_file(&receipt_trace_path, receipt_trace_sparql)
         .map_err(|e| {
@@ -981,7 +982,7 @@ ORDER BY ?workflow_id ?step_index
     ));
 
     // Generate golden_tests.sparql
-    let golden_tests_sparql = r#"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    let golden_tests_sparql = r"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX ln_ctrl: <https://ggen.io/ontology/ln_ctrl#>
 
@@ -1004,7 +1005,7 @@ WHERE {
   ?frontier ln_ctrl:frontier_hash ?final_frontier_hash .
 }
 ORDER BY ?workflow_id
-"#;
+";
     let golden_tests_path = ln_ctrl_sparql_dir.join("golden_tests.sparql");
     tx.write_file(&golden_tests_path, golden_tests_sparql)
         .map_err(|e| {
@@ -1180,7 +1181,7 @@ fn generate_ln_ctrl_templates(
     ));
 
     // Generate docs template
-    let docs_tera = r#"# ln_ctrl Ontology Documentation
+    let docs_tera = r"# ln_ctrl Ontology Documentation
 
 Generated: {{ now() | date(format='%Y-%m-%d %H:%M:%S UTC') }}
 
@@ -1213,7 +1214,7 @@ Generated: {{ now() | date(format='%Y-%m-%d %H:%M:%S UTC') }}
 ---
 
 *This documentation is generated from the ln_ctrl RDF ontology.*
-"#;
+";
     let docs_path = ln_ctrl_docs_dir.join("ln_ctrl.md.tera");
     tx.write_file(&docs_path, docs_tera).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(format!(
@@ -1381,7 +1382,7 @@ description = "{}"
 
 fn generate_readme(config: &WizardConfig) -> String {
     format!(
-        r#"# {}
+        r"# {}
 
 {}
 
@@ -1467,7 +1468,7 @@ This project is configured for deterministic output:
 ---
 
 *Profile: {} | Version: {}*
-"#,
+",
         config.metadata.name,
         config.metadata.description,
         config.profile.as_str(),

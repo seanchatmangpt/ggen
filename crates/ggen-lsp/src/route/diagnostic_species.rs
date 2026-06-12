@@ -107,6 +107,90 @@ static SPECIES: &[DiagnosticSpecies] = &[
         // is the FOUNDATIONAL binding-integrity check TPL-001/OUT-001 presuppose.
         detector_active: true,
     },
+    // ── GGEN-YIELD-001: output-path-escape (ACTIVE) ─────────────────────────
+    DiagnosticSpecies {
+        code: "GGEN-YIELD-001",
+        failure_class: "layer_violation",
+        surfaces: &["ggen.toml", "OS"],
+        severity_policy: "error",
+        route: "security_repair",
+        origin: "ark-covenant / living-lsp YIELD-001",
+        actuation_boundary: "inspect_only",
+        receipt_requirement: "diagnostic_receipt",
+        detector_active: true,
+    },
+    // ── GGEN-QUERY-002: SELECT * blindspot (ACTIVE) ─────────────────────────
+    DiagnosticSpecies {
+        code: "GGEN-QUERY-002",
+        failure_class: "blindspot",
+        surfaces: &["SPARQL"],
+        severity_policy: "warning",
+        route: "advisory",
+        origin: "ark-covenant / living-lsp QUERY-002",
+        actuation_boundary: "inspect_only",
+        receipt_requirement: "diagnostic_receipt",
+        detector_active: true,
+    },
+    // ── GGEN-PACK-001: pack-source indirection (ACTIVE) ──────────────────────
+    DiagnosticSpecies {
+        code: "GGEN-PACK-001",
+        failure_class: "pack_indirection",
+        surfaces: &["ggen.toml"],
+        severity_policy: "warning",
+        route: "advisory",
+        origin: "ark-covenant / living-lsp PACK-001",
+        actuation_boundary: "inspect_only",
+        receipt_requirement: "diagnostic_receipt",
+        detector_active: true,
+    },
+    // ── GGEN-SRC-001: source-caste path violation (ACTIVE) ───────────────────
+    DiagnosticSpecies {
+        code: "GGEN-SRC-001",
+        failure_class: "source_caste",
+        surfaces: &["ggen.toml"],
+        severity_policy: "error",
+        route: "source_law_repair",
+        origin: "ark-covenant / living-lsp SRC-001",
+        actuation_boundary: "inspect_only",
+        receipt_requirement: "diagnostic_receipt",
+        detector_active: true,
+    },
+    // ── GGEN-YIELD-003: orphaned output (ACTIVE) ─────────────────────────────
+    DiagnosticSpecies {
+        code: "GGEN-YIELD-003",
+        failure_class: "orphaned_output",
+        surfaces: &["ggen.toml"],
+        severity_policy: "error",
+        route: "source_law_repair",
+        origin: "ark-covenant / GGEN-YIELD-003 (orphans)",
+        actuation_boundary: "inspect_only",
+        receipt_requirement: "diagnostic_receipt",
+        detector_active: true,
+    },
+    // ── GGEN-YIELD-004: competing authority (ACTIVE) ─────────────────────────
+    DiagnosticSpecies {
+        code: "GGEN-YIELD-004",
+        failure_class: "competing_authority",
+        surfaces: &["ggen.toml"],
+        severity_policy: "error",
+        route: "source_law_repair",
+        origin: "ark-covenant / GGEN-YIELD-004 (competing authority)",
+        actuation_boundary: "inspect_only",
+        receipt_requirement: "diagnostic_receipt",
+        detector_active: true,
+    },
+    // ── GGEN-YIELD-005: remote fetch (ACTIVE) ────────────────────────────────
+    DiagnosticSpecies {
+        code: "GGEN-YIELD-005",
+        failure_class: "remote_fetch",
+        surfaces: &["ggen.toml"],
+        severity_policy: "error",
+        route: "source_law_repair",
+        origin: "ark-covenant / GGEN-YIELD-005 (remote fetch)",
+        actuation_boundary: "inspect_only",
+        receipt_requirement: "diagnostic_receipt",
+        detector_active: true,
+    },
 ];
 
 /// Borrow the full species registry.
@@ -197,8 +281,8 @@ mod tests {
     }
 
     #[test]
-    fn registry_contains_exactly_four_species() {
-        assert_eq!(species_registry().len(), 4);
+    fn registry_contains_exactly_eleven_species() {
+        assert_eq!(species_registry().len(), 11);
     }
 
     #[test]

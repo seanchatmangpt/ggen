@@ -56,12 +56,14 @@ fn write(dir: &Path, name: &str, content: &str) -> PathBuf {
 
 async fn editor_rework_config(state: &ServerState, root: &Path, name: &str) {
     let uri = url_from_path(root.join(name));
-    let broken = check_content(uri.path().as_str(), "[logging]\nlevel = \"verbose\"\n")
-        .expect("toml law surface");
-    state.observe_diagnostics(&uri, &broken.diagnostics).await;
-    let fixed = check_content(uri.path().as_str(), "[logging]\nlevel = \"info\"\n")
-        .expect("toml law surface");
-    state.observe_diagnostics(&uri, &fixed.diagnostics).await;
+    let broken_diags = ggen_lsp::analyzers::build_analyzer(uri.path().as_str(), "[logging]\nlevel = \"verbose\"\n")
+        .map(|a| a.diagnostics())
+        .unwrap_or_default();
+    state.observe_diagnostics(&uri, &broken_diags).await;
+    let fixed_diags = ggen_lsp::analyzers::build_analyzer(uri.path().as_str(), "[logging]\nlevel = \"info\"\n")
+        .map(|a| a.diagnostics())
+        .unwrap_or_default();
+    state.observe_diagnostics(&uri, &fixed_diags).await;
 }
 
 #[tokio::test]

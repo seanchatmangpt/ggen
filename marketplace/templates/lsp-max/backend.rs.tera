@@ -12,7 +12,7 @@ impl LanguageServer for {{ server_name | capitalize }}Backend {
         &self,
         _params: InitializeParams,
     ) -> lsp_max::jsonrpc::Result<InitializeResult> {
-        let _ = lsp_max::get_registry();
+        let _ = lsp_max::get_registry(); // REGISTRY
         lsp_max::MESH.get_or_init(|| Mutex::new(lsp_max::max_runtime::AutonomicMesh::default()));
 
         Ok(InitializeResult {

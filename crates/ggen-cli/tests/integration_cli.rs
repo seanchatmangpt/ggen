@@ -30,7 +30,7 @@ use assert_cmd::Command;
 
 #[test]
 fn test_cli_help() {
-    Command::cargo_bin("ggen-cli-lib")
+    Command::cargo_bin("ggen")
         .unwrap()
         .arg("--help")
         .assert()

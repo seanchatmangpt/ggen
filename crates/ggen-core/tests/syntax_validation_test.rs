@@ -156,7 +156,7 @@ fn test_all_rq_files_parse_without_error() {
     let root = workspace_root();
     let rq_dirs = [
         root.join("crates/ggen-core/queries"),
-        root.join("specify/queries"),
+        root.join(".specify/queries"),
     ];
 
     let mut count = 0u32;
@@ -233,8 +233,8 @@ fn test_all_rq_files_parse_without_error() {
 
 /// MCP/A2A Turtle files that MUST parse (loaded by ggen.toml pipeline).
 const CRITICAL_TTL_FILES: &[&str] = &[
-    "specify/mcp-a2a-protocol.ttl",
-    "specify/mcp-a2a-protocol-example.ttl",
+    ".specify/mcp-a2a-protocol.ttl",
+    ".specify/mcp-a2a-protocol-example.ttl",
 ];
 
 #[test]
@@ -269,7 +269,7 @@ fn test_critical_ttl_files_parse() {
 #[test]
 fn test_all_ttl_files_parse_without_error() {
     let root = workspace_root();
-    let ttl_dirs = [root.join("specify")];
+    let ttl_dirs = [root.join(".specify")];
 
     let mut count = 0u32;
     let mut errors = Vec::new();
@@ -318,7 +318,7 @@ fn test_all_ttl_files_parse_without_error() {
         }
     }
 
-    assert!(count > 0, "Should find .ttl files in specify/");
+    assert!(count > 0, "Should find .ttl files in .specify/");
 
     // Non-critical errors are reported but don't fail the test
     // (pre-existing issues in older ontology files, e.g. RDF 1.2 triple terms)
@@ -342,12 +342,12 @@ fn test_all_ttl_files_parse_without_error() {
 
 /// Files that deliberately don't use RDF 1.2 triple terms.
 const NON_TRIPLE_TERM_FILES: &[&str] = &[
-    "specify/dod-ontology.ttl",
-    "specify/dod-example.ttl",
-    "specify/dod-compliance-mining.ttl",
-    "specify/onboarding-conventions.ttl",
-    "specify/merge-gate-workflow.ttl",
-    "specify/queries/dod-extract.rq",
+    ".specify/dod-ontology.ttl",
+    ".specify/dod-example.ttl",
+    ".specify/dod-compliance-mining.ttl",
+    ".specify/onboarding-conventions.ttl",
+    ".specify/merge-gate-workflow.ttl",
+    ".specify/queries/dod-extract.rq",
 ];
 
 #[test]
@@ -369,6 +369,42 @@ fn test_non_triple_term_files_are_clean() {
     }
 }
 
+/// Files that MUST use RDF 1.2 triple terms (<<...>>).
+const TRIPLE_TERM_FILES: &[&str] = &[
+    ".specify/codegen-annotations-example.ttl",
+    ".specify/codegen-annotations.ttl",
+    ".specify/conflict-detection-example.ttl",
+    ".specify/conflict-detection.ttl",
+    ".specify/mcp-a2a-protocol-example.ttl",
+    ".specify/mcp-a2a-protocol.ttl",
+    ".specify/ontology-diff-example.ttl",
+    ".specify/ontology-diff.ttl",
+    ".specify/ontology-explorer-example.ttl",
+    ".specify/ontology-explorer.ttl",
+    ".specify/provenance-chain-example.ttl",
+    ".specify/provenance-chain.ttl",
+    ".specify/review-rules.ttl",
+    ".specify/tdd-axiom-links.ttl",
+    ".specify/type-registry-example.ttl",
+    ".specify/type-registry.ttl",
+    ".specify/queries/axiom-linked-tdd-extract.rq",
+    ".specify/queries/codegen-annotations-extract.rq",
+    ".specify/queries/conflict-detect-extract.rq",
+    ".specify/queries/mcp-a2a-extract.rq",
+    ".specify/queries/ontology-diff-extract.rq",
+    ".specify/queries/ontology-explorer-extract.rq",
+    ".specify/queries/openapi-typegen-extract.rq",
+    ".specify/queries/provenance-chain-extract.rq",
+    ".specify/queries/review-rules-extract.rq",
+    ".specify/queries/type-registry-extract.rq",
+    ".specify/folk-calculus-definitions.ttl",
+    ".specify/folk-calculus-dictionary.ttl",
+    ".specify/ggen-cli-integration-kgc.ttl",
+    ".specify/holographic-orchestration-kgc.ttl",
+    ".specify/specs/013-ga-production-release/feature.ttl",
+    ".specify/specs/013-ga-production-release/plan.ttl",
+];
+
 #[test]
 fn test_triple_term_files_do_use_triple_terms() {
     let root = workspace_root();
@@ -376,24 +412,17 @@ fn test_triple_term_files_do_use_triple_terms() {
     let mut checked = 0u32;
     let mut missing = Vec::new();
 
-    for entry in WalkDir::new(root.join("specify"))
-        .into_iter()
-        .filter_map(|e| e.ok())
-        .filter(|e| {
-            let ext = e.path().extension().and_then(|s| s.to_str()).unwrap_or("");
-            ext == "ttl" || ext == "rq"
-        })
-    {
-        let path_str = entry.path().to_str().unwrap_or("");
-        if NON_TRIPLE_TERM_FILES.iter().any(|f| path_str.ends_with(f)) {
+    for file in TRIPLE_TERM_FILES {
+        let path = root.join(file);
+        if !path.exists() {
             continue;
         }
 
-        let content = std::fs::read_to_string(entry.path())
-            .unwrap_or_else(|e| panic!("Cannot read {}: {}", entry.path().display(), e));
+        let content = std::fs::read_to_string(&path)
+            .unwrap_or_else(|e| panic!("Cannot read {}: {}", path.display(), e));
 
         if !content.contains("<<") {
-            missing.push(entry.path().display().to_string());
+            missing.push(path.display().to_string());
         }
         checked += 1;
     }

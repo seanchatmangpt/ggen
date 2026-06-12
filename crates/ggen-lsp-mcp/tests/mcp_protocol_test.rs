@@ -145,13 +145,13 @@ impl Drop for McpClient {
 }
 
 #[test]
-fn mcp_handshake_lists_three_tools_with_v26_5_28_identity() {
+fn mcp_handshake_lists_three_tools_with_current_identity() {
     let mut c = McpClient::spawn();
     let init = c.initialize();
     assert_eq!(init["result"]["serverInfo"]["name"], "ggen-lsp-mcp");
     assert_eq!(
-        init["result"]["serverInfo"]["version"], "26.5.28",
-        "MCP server advertises the v26.5.28 identity"
+        init["result"]["serverInfo"]["version"], env!("CARGO_PKG_VERSION"),
+        "MCP server advertises the workspace version identity"
     );
 
     let tools = c.request("tools/list", Value::Null);

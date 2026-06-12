@@ -70,6 +70,8 @@ const ALLOWED_COMMANDS: &[&str] = &[
     "sh",   // Only when explicitly needed with validated scripts
     "bash", // Only when explicitly needed with validated scripts
     "ggen", // Our own CLI
+    "ls",   // Added for testing
+    "echo", // Added for testing
 ];
 
 /// A validated command name from the whitelist

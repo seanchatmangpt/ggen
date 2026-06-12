@@ -1,0 +1,158 @@
+# axiom-linked-tdd-extract.rq — SPARQL-star CONSTRUCT query for axiom-linked TDD extraction
+# A=mu(O): AxiomTestLink projections = mu(ontology axioms annotated with test metadata)
+#
+# Extracts test-axiom links from RDF 1.2 triple terms and projects them as flat
+# triples for Tera template consumption and coverage analysis.
+#
+# Usage:
+#   sparql --query axiom-linked-tdd-extract.rq \
+#          --data tdd-axiom-links.ttl \
+#          --data codegen-annotations-example.ttl
+#
+# CONSTRUCT output is flat (no triple terms) because oxigraph materializes
+# triple terms as strings like "<<s p o>>" which cannot be destructured by
+# Tera templates consuming Vec<BTreeMap<String, String>>.
+#
+# Example usage in ontology:
+# << ex:Person ex:hasName xsd:string >> tdd:testedBy "test_person_name_required" ;
+#                                            tdd:assertionType "positive" ;
+#                                            tdd:arrangePrecondition "Person with valid name" ;
+#                                            tdd:actBehavior "create Person with empty name" ;
+#                                            tdd:assertExpected "error: name required" ;
+#                                            tdd:coversAxiom "Person.hasName is required" ;
+#                                            tdd:confidence "0.95" ;
+#                                            tdd:isRegression false .
+
+PREFIX tdd: <https://ggen.dev/ontology/tdd#>
+PREFIX ex: <https://ggen.dev/examples/codegen#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+CONSTRUCT {
+  ?link a tdd:AxiomTestLink ;
+    tdd:testCaseId ?testCaseId ;
+    tdd:testName ?testName ;
+    tdd:entityName ?entityName ;
+    tdd:propertyName ?propertyName ;
+    tdd:rangeName ?rangeName ;
+    tdd:assertionTypeName ?assertionTypeName ;
+    tdd:arrangePrecondition ?arrange ;
+    tdd:actBehavior ?act ;
+    tdd:assertExpected ?expected ;
+    tdd:coversAxiomDesc ?axiomDesc ;
+    tdd:confidenceScore ?confidence ;
+    tdd:isRegressionFlag ?isRegression ;
+    tdd:executionBudget ?execTime ;
+    tdd:dependsOnTest ?dependsOn ;
+    tdd:flakyRisk ?flakyRisk .
+
+  # Summary statistics per entity
+  ?entitySummary a tdd:AxiomCoverage ;
+    tdd:entityName ?entityName ;
+    tdd:totalTests ?testCount ;
+    tdd:coveredAxioms ?coveredCount ;
+    tdd:uncoveredAxioms ?uncoveredCount ;
+    tdd:regressionTests ?regressionCount ;
+    tdd:flakyTests ?flakyCount .
+
+  # Summary statistics per assertion type
+  ?assertionSummary a tdd:AxiomCoverage ;
+    tdd:assertionTypeName ?assertionTypeName ;
+    tdd:totalTests ?assertionTypeCount .
+}
+WHERE {
+  # Match RDF 1.2 triple terms: <<entity prop range>> annotated with tdd:testedBy
+  << ?entity ?prop ?range >> tdd:testedBy ?testCaseId .
+
+  # Required test-axiom annotations
+  << ?entity ?prop ?range >> tdd:assertionType ?assertionTypeName .
+
+  # Optional test-axiom annotations
+  OPTIONAL { << ?entity ?prop ?range >> tdd:arrangePrecondition ?arrange . }
+  OPTIONAL { << ?entity ?prop ?range >> tdd:actBehavior ?act . }
+  OPTIONAL { << ?entity ?prop ?range >> tdd:assertExpected ?expected . }
+  OPTIONAL { << ?entity ?prop ?range >> tdd:coversAxiom ?axiomDesc . }
+  OPTIONAL { << ?entity ?prop ?range >> tdd:confidence ?confidence . }
+  OPTIONAL { << ?entity ?prop ?range >> tdd:isRegression ?isRegression . }
+  OPTIONAL { << ?entity ?prop ?range >> tdd:executionTime_ms ?execTime . }
+  OPTIONAL { << ?entity ?prop ?range >> tdd:dependsOnTest ?dependsOn . }
+  OPTIONAL { << ?entity ?prop ?range >> tdd:flakyRisk ?flakyRisk . }
+
+  # Generate human-readable test name from testCaseId
+  BIND(REPLACE(?testCaseId, "^(test_)", "") AS ?testName)
+
+  # Extract local names from IRIs for template-friendly variable names
+  BIND(STRAFTER(STR(?entity), "#") AS ?entityName)
+  BIND(STRAFTER(STR(?prop), "#") AS ?propertyName)
+  BIND(STRAFTER(STR(?range), "#") AS ?rangeName)
+
+  # Generate stable URI for the axiom-test link node
+  BIND(IRI(CONCAT("https://ggen.dev/tdd/link/", ?entityName, "/", ?propertyName, "/", ?testCaseId)) AS ?link)
+
+  # --- Subquery: count tests per entity for summary statistics ---
+  {
+    SELECT ?entity (COUNT(DISTINCT ?tcId) AS ?testCount)
+    WHERE {
+      << ?entity ?p ?r >> tdd:testedBy ?tcId .
+    }
+    GROUP BY ?entity
+  }
+
+  # --- Subquery: count covered axioms per entity (axioms with at least one test) ---
+  {
+    SELECT ?entity (COUNT(DISTINCT ?testedProp) AS ?coveredCount)
+    WHERE {
+      << ?entity ?testedProp ?testedRange >> tdd:testedBy ?anyTest .
+    }
+    GROUP BY ?entity
+  }
+
+  # --- Subquery: count uncovered axioms per entity (axioms with cg:rustType but no test) ---
+  {
+    SELECT ?entity (COUNT(DISTINCT ?untestedProp) AS ?uncoveredCount)
+    WHERE {
+      << ?entity ?untestedProp ?untestedRange >> <https://ggen.dev/ontology/codegen#rustType> ?anyRustType .
+      FILTER NOT EXISTS {
+        << ?entity ?untestedProp ?untestedRange >> tdd:testedBy ?anyTest .
+      }
+    }
+    GROUP BY ?entity
+  }
+
+  # --- Subquery: count regression tests per entity ---
+  {
+    SELECT ?entity (COUNT(DISTINCT ?regTestId) AS ?regressionCount)
+    WHERE {
+      << ?entity ?regProp ?regRange >> tdd:testedBy ?regTestId ;
+                                            tdd:isRegression true .
+    }
+    GROUP BY ?entity
+  }
+
+  # --- Subquery: count flaky tests per entity ---
+  {
+    SELECT ?entity (COUNT(DISTINCT ?flakyTestId) AS ?flakyCount)
+    WHERE {
+      << ?entity ?flakyProp ?flakyRange >> tdd:testedBy ?flakyTestId ;
+                                             tdd:flakyRisk ?flakyLevel .
+      FILTER(?flakyLevel != "none")
+    }
+    GROUP BY ?entity
+  }
+
+  # --- Subquery: count tests per assertion type ---
+  {
+    SELECT ?assertionTypeName (COUNT(DISTINCT ?atTestId) AS ?assertionTypeCount)
+    WHERE {
+      << ?atEntity ?atProp ?atRange >> tdd:testedBy ?atTestId ;
+                                         tdd:assertionType ?assertionTypeName .
+    }
+    GROUP BY ?assertionTypeName
+  }
+
+  # Generate stable URIs for summary nodes
+  BIND(IRI(CONCAT("https://ggen.dev/tdd/coverage/", ?entityName)) AS ?entitySummary)
+  BIND(IRI(CONCAT("https://ggen.dev/tdd/coverage/assertion/", ?assertionTypeName)) AS ?assertionSummary)
+}
+ORDER BY ?entityName ?propertyName ?testCaseId

@@ -1,0 +1,55 @@
+```mermaid
+stateDiagram-v2
+    [*] --> Unknown: Agent Registered
+
+    Unknown --> Healthy: Ping Success (2xx/3xx)
+    Unknown --> Degraded: 4xx Response
+    Unknown --> Unhealthy: 5xx / Error / Timeout
+
+    Healthy --> Healthy: Ping Success
+    Healthy --> Degraded: 4xx Response
+    Healthy --> Unhealthy: 5xx / Error / Timeout
+
+    Degraded --> Healthy: Ping Success
+    Degraded --> Unhealthy: 5xx / Error / Timeout
+
+    Unhealthy --> Healthy: Ping Success (resets counter)
+    Unhealthy --> Offline: Failures ≥ threshold (default: 3)
+
+    Offline --> Healthy: Single Ping Success
+    Offline --> Offline: Continued Failures
+
+    note right of Unknown
+        Initial state on registration
+        No health check performed yet
+    end note
+
+    note right of Unhealthy
+        Consecutive failure counter
+        increments with each failure
+    end note
+
+    note right of Offline
+        Hysteresis prevents state flapping
+        Requires 3 consecutive failures
+        Single success recovers
+    end note
+```
+
+## States
+- **Unknown**: Initial state, no health check performed
+- **Healthy**: Last ping succeeded (2xx/3xx response)
+- **Degraded**: 4xx responses received (service degraded but functional)
+- **Unhealthy**: 5xx/connection error/timeout (failures counted)
+- **Offline**: Consecutive failures exceeded threshold (default: 3)
+
+## Transitions
+- **Ping Success (2xx/3xx)**: Any Healthy or Degraded state maintained, Offline recovers
+- **4xx Response**: Healthy → Degraded (service degraded)
+- **5xx/Error/Timeout**: Healthy/Degraded → Unhealthy, Unhealthy counter increments
+- **Failures ≥ threshold**: Unhealthy → Offline (hysteresis triggered)
+
+## Guards
+- **Failure counter resets**: On any Healthy/Degraded result
+- **Offline promotion**: Only when consecutive failures reach threshold
+- **Recovery from Offline**: Single successful ping (no waiting period)

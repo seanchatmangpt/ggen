@@ -41,9 +41,11 @@ impl GgenMcpServer {
     async fn construct(
         &self, Parameters(params): Parameters<ConstructParams>,
     ) -> Result<CallToolResult, rmcp::model::ErrorData> {
-        // Log the boundary crossing. This OCEL event is real evidence that the
-        // tool was invoked, so it must be preserved even though construction is
-        // not yet implemented.
+        use ggen_core::codegen::pipeline::GenerationPipeline;
+        use ggen_core::manifest::ManifestParser;
+        use std::path::PathBuf;
+
+        // Log the boundary crossing.
         tracing::info!(
             "OCEL: {}",
             serde_json::json!({
@@ -52,36 +54,58 @@ impl GgenMcpServer {
             })
         );
 
-        // WHY FAIL LOUD: This handler does NOT yet invoke the real μ₁–μ₅
-        // pipeline. Previously it returned a hardcoded {"status":"success",
-        // "message":"Artifact constructed successfully."} without constructing
-        // anything — an Oracle Gap where advertised != delivered. Reporting
-        // success for work that did not happen is worse than failing, because
-        // callers (and provenance/receipts) would record a fabricated outcome.
-        //
-        // Until the pipeline is wired, the only honest response is an explicit
-        // failure that directs the caller to the real construction path.
-        //
-        // TODO(pipeline): Wire this to `ggen_core::Pipeline` (the μ₁–μ₅ stages
-        // exposed via `ggen sync`) so that construction actually loads the
-        // ontology, generates, validates, and emits artifacts — then return
-        // success only after artifacts are emitted and a receipt is produced.
-        let diagnostic = serde_json::json!({
-            "status": "unimplemented",
+        // 1. Locate and load the manifest from CWD
+        let base_path = std::env::current_dir().map_err(|e| {
+            rmcp::model::ErrorData::internal_error(format!("Failed to get current directory: {}", e), None)
+        })?;
+
+        let manifest_path = base_path.join("ggen.toml");
+        if !manifest_path.exists() {
+            return Err(rmcp::model::ErrorData::internal_error(
+                "ggen.toml not found in current directory. `ggen.construct` requires a ggen project context.",
+                Some(serde_json::json!({ "path": base_path })),
+            ));
+        }
+
+        let manifest = ManifestParser::parse_and_validate(&manifest_path).map_err(|e| {
+            rmcp::model::ErrorData::internal_error(format!("Failed to load manifest: {}", e), None)
+        })?;
+
+        // 2. Initialize and run the GenerationPipeline
+        let mut pipeline = GenerationPipeline::new(manifest, base_path);
+        
+        // Connect LLM service if available in global slot (e.g. from ggen-cli)
+        if let Some(svc) = ggen_core::codegen::pipeline::get_llm_service() {
+            pipeline.set_llm_service(Some(svc));
+        }
+
+        let state = pipeline.run().map_err(|e| {
+            rmcp::model::ErrorData::internal_error(format!("Generation pipeline failed: {}", e), None)
+        })?;
+
+        // 3. Formulate success response with artifact details
+        let mut text = format!("Successfully constructed artifact for task {}.\n", params.task_id);
+        text.push_str(&format!("JTBD: {}\n", params.jtbd));
+        text.push_str(&format!("Generated {} files:\n", state.generated_files.len()));
+        
+        for file in &state.generated_files {
+            text.push_str(&format!("- {} ({} bytes, hash: {})\n", 
+                file.path.display(), 
+                file.size_bytes, 
+                &file.content_hash[..8]));
+        }
+
+        let result_data = serde_json::json!({
+            "status": "success",
             "task_id": params.task_id,
-            "jtbd": params.jtbd,
-            "avatar": params.avatar,
-            "tool": "ggen.construct",
-            "hint": "Run `ggen sync` for the real μ₁–μ₅ construction pipeline."
+            "files_count": state.generated_files.len(),
+            "duration_ms": state.started_at.elapsed().as_millis()
         });
 
-        Err(rmcp::model::ErrorData::internal_error(
-            "ggen.construct is not implemented: this tool does not run the \
-             μ₁–μ₅ pipeline and therefore cannot construct an artifact. Use \
-             `ggen sync` for the real construction path. No artifact was \
-             produced.",
-            Some(diagnostic),
-        ))
+        let mut meta = rmcp::model::Meta::default();
+        meta.insert("ggen_result".to_string(), result_data);
+
+        Ok(CallToolResult::success(vec![Content::text(text)]).with_meta(Some(meta)))
     }
 }
 

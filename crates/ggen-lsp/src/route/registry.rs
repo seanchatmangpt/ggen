@@ -119,7 +119,7 @@ pub fn family_of_diagnostic(diag: &Diagnostic) -> Option<RepairFamily> {
 #[must_use]
 pub fn family_of_code(code: &str) -> Option<RepairFamily> {
     match code {
-        "E0010" | "E0011" | "E0024" => Some(RepairFamily::TemplateFailure),
+        "E0010" | "E0011" | "E0013" | "E0015" | "E0024" => Some(RepairFamily::TemplateFailure),
         // GGEN-TPL-001 (unbound projection): a template references a variable the
         // SPARQL SELECT never binds — i.e. a dangling reference across source-law
         // surfaces. Mapped to DanglingReference (an otherwise unseeded family) so

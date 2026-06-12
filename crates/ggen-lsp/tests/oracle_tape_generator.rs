@@ -81,9 +81,11 @@ fn oracle_tapes_dir() -> PathBuf {
         .join("oracle-tapes")
 }
 
+use lsp_max_protocol::MaxDiagnostic;
+
 /// True if a `Diagnostic.code` renders as exactly `GGEN-TPL-001`.
-fn is_tpl_001(d: &Diagnostic) -> bool {
-    matches!(&d.code, Some(NumberOrString::String(s)) if s == "GGEN-TPL-001")
+fn is_tpl_001(d: &MaxDiagnostic) -> bool {
+    matches!(&d.lsp.code, Some(NumberOrString::String(s)) if s == "GGEN-TPL-001")
 }
 
 /// Write a minimal valid ggen project whose query binds only `?name` while its

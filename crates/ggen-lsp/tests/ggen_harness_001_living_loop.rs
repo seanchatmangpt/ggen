@@ -422,7 +422,7 @@ async fn analyze_and_observe_records_live_harness_receipt_chain() {
     assert!(
         raised
             .iter()
-            .any(|(u, diags)| u == &cargo_uri && diags.iter().any(is_harness_001)),
+            .any(|(u, diags)| u == &cargo_uri && diags.iter().any(|d| is_harness_001(&d.lsp))),
         "analyze_and_observe must raise GGEN-HARNESS-001 on the manifest. published: {raised:?}"
     );
 
@@ -436,7 +436,7 @@ async fn analyze_and_observe_records_live_harness_receipt_chain() {
     assert!(
         cleared
             .iter()
-            .any(|(u, diags)| u == &cargo_uri && !diags.iter().any(is_harness_001)),
+            .any(|(u, diags)| u == &cargo_uri && !diags.iter().any(|d| is_harness_001(&d.lsp))),
         "the proof-file repair must re-publish the manifest URI without GGEN-HARNESS-001. \
          published: {cleared:?}"
     );
@@ -481,8 +481,8 @@ async fn harness_seam_raises_zero_tpl_001() {
     let raised_harness = published
         .iter()
         .flat_map(|(_, d)| d.iter())
-        .any(is_harness_001);
-    let raised_tpl = published.iter().flat_map(|(_, d)| d.iter()).any(is_tpl_001);
+        .any(|d| is_harness_001(&d.lsp));
+    let raised_tpl = published.iter().flat_map(|(_, d)| d.iter()).any(|d| is_tpl_001(&d.lsp));
 
     assert!(
         raised_harness,

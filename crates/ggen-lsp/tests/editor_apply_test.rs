@@ -65,13 +65,19 @@ async fn editor_applied_repair_emits_repair_applied_and_closes_episode() {
         )),
         "broken config raises E0023"
     );
-    state.observe_diagnostics(&uri, &broken.diagnostics).await;
+    let broken_diags = ggen_lsp::analyzers::build_analyzer(uri.path().as_str(), "[logging]\nlevel = \"verbose\"\n")
+        .map(|a| a.diagnostics())
+        .unwrap_or_default();
+    state.observe_diagnostics(&uri, &broken_diags).await;
 
     // 2) The agent applies the fix: `level = "info"` → E0023 disappears.
     let fixed = check_content(uri.path().as_str(), "[logging]\nlevel = \"info\"\n")
         .expect("toml law surface");
     assert!(fixed.diagnostics.is_empty(), "fixed config is clean");
-    state.observe_diagnostics(&uri, &fixed.diagnostics).await;
+    let fixed_diags = ggen_lsp::analyzers::build_analyzer(uri.path().as_str(), "[logging]\nlevel = \"info\"\n")
+        .map(|a| a.diagnostics())
+        .unwrap_or_default();
+    state.observe_diagnostics(&uri, &fixed_diags).await;
 
     // The OCEL log records the APPLIED repair, not merely the proposal.
     let log = IntelLog::at_root(root).read();
@@ -125,9 +131,12 @@ async fn unrepaired_diagnostic_emits_no_repair_applied() {
 
     let broken = check_content(uri.path().as_str(), "[logging]\nlevel = \"verbose\"\n")
         .expect("toml law surface");
-    state.observe_diagnostics(&uri, &broken.diagnostics).await;
+    let broken_diags = ggen_lsp::analyzers::build_analyzer(uri.path().as_str(), "[logging]\nlevel = \"verbose\"\n")
+        .map(|a| a.diagnostics())
+        .unwrap_or_default();
+    state.observe_diagnostics(&uri, &broken_diags).await;
     // Re-publish the SAME broken diagnostics (no fix applied).
-    state.observe_diagnostics(&uri, &broken.diagnostics).await;
+    state.observe_diagnostics(&uri, &broken_diags).await;
 
     let log = IntelLog::at_root(root).read();
     assert_eq!(

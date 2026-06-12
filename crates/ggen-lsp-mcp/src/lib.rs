@@ -316,10 +316,10 @@ pub fn build_repair_routes_in(
     let mut envelopes = Vec::new();
     let mut refusals = Vec::new();
     for d in &diagnostics {
-        match ggen_lsp::envelope_for_diagnostic(&registry, d, file_content, file_path) {
+        match ggen_lsp::envelope_for_diagnostic(&registry, &d.lsp, file_content, file_path) {
             Some(env) => envelopes.push(env),
             None => refusals.push(ggen_lsp::RouteRefusal::from_target(
-                &ggen_lsp::route::DiagnosticRef::from_diagnostic(d),
+                &ggen_lsp::route::DiagnosticRef::from_diagnostic(&d.lsp),
             )),
         }
     }
@@ -339,7 +339,7 @@ impl ServerHandler for RepairRouteServer {
     fn get_info(&self) -> ServerInfo {
         ServerInfo::new(ServerCapabilities::builder().enable_tools().build())
             .with_protocol_version(ProtocolVersion::V_2024_11_05)
-            .with_server_info(Implementation::new("ggen-lsp-mcp", "26.5.28"))
+            .with_server_info(Implementation::new("ggen-lsp-mcp", env!("CARGO_PKG_VERSION")))
             .with_instructions("ggen-lsp repair-route MCP server")
     }
 

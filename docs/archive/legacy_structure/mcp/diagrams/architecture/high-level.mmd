@@ -1,0 +1,70 @@
+```mermaid
+graph TB
+    subgraph "LLM Client Layer"
+        LLM[LLM Application<br/>Claude, ChatGPT, etc.]
+    end
+
+    subgraph "MCP Protocol Layer"
+        STDIO[Stdio Transport]
+        HTTP[HTTP Transport]
+        SERVER[GgenMcpServer<br/>16 Tools + Resources + Prompts]
+    end
+
+    subgraph "Bridge Layer"
+        A2A1[AgentToToolAdapter<br/>A2A → LLM Format]
+        A2A2[ToolToAgentAdapter<br/>LLM → A2A Format]
+    end
+
+    subgraph "A2A Protocol Layer"
+        MSG[MessageRouter<br/>5 Handlers]
+        TRANSPORT[A2aTransport<br/>SessionManager]
+    end
+
+    subgraph "YAWL Bridge"
+        MAPPER[TaskMapper]
+        STATE[YawlStateMapper]
+        EVENTS[YawlEventPublisher]
+    end
+
+    subgraph "Core Services"
+        GEN[Code Generation<br/>μ₁-μ₅ Pipeline]
+        VAL[Validation<br/>Quality Gates]
+        SYNC[Sync Pipeline]
+    end
+
+    LLM -->|JSON-RPC 2.0| STDIO
+    LLM -->|JSON-RPC 2.0| HTTP
+    STDIO --> SERVER
+    HTTP --> SERVER
+
+    SERVER --> A2A1
+    A2A1 --> MSG
+    MSG --> A2A2
+    A2A2 --> SERVER
+
+    MSG --> TRANSPORT
+    TRANSPORT --> MAPPER
+    MAPPER --> STATE
+    STATE --> EVENTS
+
+    GEN --> SERVER
+    VAL --> SERVER
+    SYNC --> SERVER
+
+    style LLM fill:#e1f5ff
+    style SERVER fill:#fff4e6
+    style MSG fill:#f0f0f0
+    style GEN fill:#e8f5e9
+    style VAL fill:#fce4ec
+```
+
+## Purpose
+Shows the complete system architecture from LLM client through MCP protocol to core ggen services, illustrating the three-layer bridge pattern and all major components.
+
+## Key Components
+- **LLM Client Layer**: External AI applications connecting via MCP
+- **MCP Protocol Layer**: Standard JSON-RPC 2.0 communication with stdio/http transports
+- **Bridge Layer**: Bidirectional adapters between A2A and LLM formats
+- **A2A Protocol Layer**: Message routing with specialized handlers and transport
+- **YAWL Bridge**: Task mapping and state synchronization for workflow integration
+- **Core Services**: Code generation, validation, and sync pipelines

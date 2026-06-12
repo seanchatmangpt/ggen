@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-06-09T15:32:49.778226+00:00",
+  "ggen_version": "26.6.9",
+  "inputs": {
+    "manifest_hash": "",
+    "ontology_hashes": {},
+    "template_hashes": {},
+    "query_hashes": {}
+  },
+  "pipeline": [],
+  "outputs": [
+    {
+      "path": "./ontology-summary.txt",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-./ontology-summary.txt"
+    }
+  ],
+  "validation_passed": true,
+  "total_duration_ms": 0
+}

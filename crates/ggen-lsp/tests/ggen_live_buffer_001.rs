@@ -55,10 +55,12 @@ fn url_from_path(path: impl AsRef<std::path::Path>) -> Url {
 
 use ggen_lsp::ServerState;
 
+use lsp_max_protocol::MaxDiagnostic;
+
 /// True if a `Diagnostic.code` renders as exactly `GGEN-TPL-001`.
-fn is_tpl_001(d: &Diagnostic) -> bool {
+fn is_tpl_001(d: &MaxDiagnostic) -> bool {
     matches!(
-        &d.code,
+        &d.lsp.code,
         Some(NumberOrString::String(s)) if s == "GGEN-TPL-001"
     )
 }
@@ -171,7 +173,7 @@ async fn buffer_only_query_repair_clears_template_tpl_001_with_disk_still_broken
          the orchestration. published: {cleared:?}"
     );
     // The re-published template set must carry NO GGEN-TPL-001 (it cleared).
-    let tera_after: Vec<&Diagnostic> = cleared
+    let tera_after: Vec<&MaxDiagnostic> = cleared
         .iter()
         .filter(|(u, _)| u == &tera_uri)
         .flat_map(|(_, d)| d.iter())

@@ -33,6 +33,7 @@ use predicates::prelude::*;
 use serde_json::Value;
 
 #[test]
+#[ignore = "ggen construct subcommand removed; CLI consolidated to ggen sync (v26_5_19+)"]
 fn test_construct_create_with_nonexistent_file() {
     // Arrange: Use a path that doesn't exist
     let mut cmd = Command::cargo_bin("ggen").unwrap();
@@ -50,6 +51,7 @@ fn test_construct_create_with_nonexistent_file() {
 }
 
 #[test]
+#[ignore = "ggen construct subcommand removed; CLI consolidated to ggen sync (v26_5_19+)"]
 fn test_construct_create_with_non_ttl_file() {
     // Arrange: Create a temporary file with wrong extension
     let temp_dir = assert_fs::TempDir::new().unwrap();
@@ -73,6 +75,7 @@ fn test_construct_create_with_non_ttl_file() {
 }
 
 #[test]
+#[ignore = "ggen construct subcommand removed; CLI consolidated to ggen sync (v26_5_19+)"]
 fn test_construct_create_with_valid_ttl_file_returns_not_implemented() {
     // Arrange: Create a temporary TTL file
     let temp_dir = assert_fs::TempDir::new().unwrap();
@@ -106,6 +109,7 @@ fibo:Bond a owl:Class ;
 }
 
 #[test]
+#[ignore = "ggen construct subcommand removed; CLI consolidated to ggen sync (v26_5_19+)"]
 fn test_construct_create_json_output_structure() {
     // Arrange: Create a temporary TTL file
     let temp_dir = assert_fs::TempDir::new().unwrap();
@@ -141,6 +145,7 @@ fn test_construct_create_json_output_structure() {
 }
 
 #[test]
+#[ignore = "ggen construct subcommand removed; CLI consolidated to ggen sync (v26_5_19+)"]
 fn test_construct_validate_returns_not_implemented() {
     // Arrange: Prepare command
     let mut cmd = Command::cargo_bin("ggen").unwrap();
@@ -155,6 +160,7 @@ fn test_construct_validate_returns_not_implemented() {
 }
 
 #[test]
+#[ignore = "ggen construct subcommand removed; CLI consolidated to ggen sync (v26_5_19+)"]
 fn test_construct_validate_json_output_structure() {
     // Arrange: Prepare command
     let mut cmd = Command::cargo_bin("ggen").unwrap();
@@ -177,6 +183,7 @@ fn test_construct_validate_json_output_structure() {
 }
 
 #[test]
+#[ignore = "ggen construct subcommand removed; CLI consolidated to ggen sync (v26_5_19+)"]
 fn test_construct_create_with_custom_output_dir() {
     // Arrange: Create a temporary TTL file
     let temp_dir = assert_fs::TempDir::new().unwrap();
@@ -207,6 +214,7 @@ fn test_construct_create_with_custom_output_dir() {
 }
 
 #[test]
+#[ignore = "ggen construct subcommand removed; CLI consolidated to ggen sync (v26_5_19+)"]
 fn test_to_snake_case_conversion() {
     // This test verifies the utility function behavior
     // Note: Direct unit tests are in construct.rs module tests

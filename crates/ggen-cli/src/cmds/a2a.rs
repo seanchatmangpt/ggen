@@ -335,8 +335,7 @@ fn do_verify(run: Option<String>, out: Option<String>) -> Result<VerifyOutput> {
                             qualifier: Some("tool-server".to_string()),
                         },
                     ],
-                    attributes: [("state".to_string(), "CreatedOnly".to_string())]
-                        .into_iter()
+                    attributes: std::iter::once(("state".to_string(), "CreatedOnly".to_string()))
                         .collect(),
                 });
 
@@ -364,7 +363,7 @@ fn do_verify(run: Option<String>, out: Option<String>) -> Result<VerifyOutput> {
                                 qualifier: Some("tool-server".to_string()),
                             },
                         ],
-                        attributes: [("tool".to_string(), tool)].into_iter().collect(),
+                        attributes: std::iter::once(("tool".to_string(), tool)).collect(),
                     });
                 } else {
                     missing_events.push("a2a.mcp.tool.invoked".to_string());
@@ -414,8 +413,7 @@ fn do_verify(run: Option<String>, out: Option<String>) -> Result<VerifyOutput> {
                             r#type: "A2ATask".to_string(),
                             qualifier: Some("task".to_string()),
                         }],
-                        attributes: [("state".to_string(), "Closed".to_string())]
-                            .into_iter()
+                        attributes: std::iter::once(("state".to_string(), "Closed".to_string()))
                             .collect(),
                     });
                 } else {

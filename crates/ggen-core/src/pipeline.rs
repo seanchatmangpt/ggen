@@ -605,34 +605,29 @@ impl Plan {
 
     /// Execute a shell hook command
     ///
-    /// SECURITY WARNING: This executes arbitrary shell commands from templates.
-    /// Only use with trusted templates. Consider disabling in production environments.
-    fn execute_shell_hook(&self, command: &str, _timing: &str) -> Result<()> {
-        use std::process::Command;
+    /// SECURITY: Uses SafeCommand to prevent command injection. Only whitelisted
+    /// programs are allowed to execute. Shell features (pipes, redirects) are blocked.
+    fn execute_shell_hook(&self, command_str: &str, _timing: &str) -> Result<()> {
+        use crate::security::SafeCommand;
 
-        // Security validation: block dangerous commands
-        if self.is_dangerous_command(command) {
-            return Err(Error::new(&format!(
-                "SECURITY: Blocked potentially dangerous shell command: '{}'. \
-                Shell hooks are disabled for security. Use trusted templates only.",
-                command
-            )));
+        // Split the command string into program and args
+        let parts: Vec<&str> = command_str.split_whitespace().collect();
+        if parts.is_empty() {
+            return Ok(());
         }
 
-        // PipelineTracer::shell_hook_start(command, timing); // Temporarily disabled
+        let mut cmd = SafeCommand::new(parts[0])?;
+        for arg in &parts[1..] {
+            cmd = cmd.arg(arg)?;
+        }
 
-        // Execute the command in the current directory
-        let output = Command::new("sh")
-            .arg("-c")
-            .arg(command)
-            .current_dir(std::env::current_dir()?)
-            .output()?;
+        // PipelineTracer::shell_hook_start(command_str, timing); // Temporarily disabled
 
-        let _exit_code = output.status.code().unwrap_or(-1);
+        // Execute the command safely in the current directory
+        let output = cmd.current_dir(&std::env::current_dir()?)?.execute()?;
 
         if !output.status.success() {
             let stderr = String::from_utf8_lossy(&output.stderr);
-            // PipelineTracer::shell_hook_complete(command, timing, exit_code); // Temporarily disabled
             return Err(Error::new(&format!("Shell hook failed: {}", stderr)));
         }
 
@@ -642,76 +637,8 @@ impl Plan {
             print!("{}", stdout);
         }
 
-        // PipelineTracer::shell_hook_complete(command, timing, exit_code); // Temporarily disabled
+        // PipelineTracer::shell_hook_complete(command_str, timing, exit_code); // Temporarily disabled
         Ok(())
-    }
-
-    /// Check if a shell command is potentially dangerous
-    ///
-    /// Blocks commands that could:
-    /// - Delete files (rm, del)
-    /// - Modify system files (sudo, su)
-    /// - Execute arbitrary code (eval, exec)
-    /// - Access sensitive data (cat /etc/passwd, etc.)
-    fn is_dangerous_command(&self, command: &str) -> bool {
-        let dangerous_patterns = [
-            "rm ",
-            "rm -",
-            "del ",
-            "delete",
-            "sudo ",
-            "su ",
-            "su-",
-            "eval ",
-            "exec ",
-            "source ",
-            "cat /etc/",
-            "cat /proc/",
-            "cat /sys/",
-            "curl ",
-            "wget ",
-            "nc ",
-            "netcat",
-            "dd ",
-            "format",
-            "mkfs",
-            "chmod ",
-            "chown ",
-            "passwd",
-            "kill ",
-            "killall",
-            "pkill",
-            "shutdown",
-            "reboot",
-            "halt",
-            "mount ",
-            "umount",
-            "fdisk",
-            "iptables",
-            "firewall",
-            "crontab",
-            "at ",
-            "batch",
-            "ssh ",
-            "scp ",
-            "rsync",
-            "git clone",
-            "git pull",
-            "git push",
-            "npm install",
-            "pip install",
-            "cargo install",
-            "docker ",
-            "kubectl ",
-            "helm ",
-            "systemctl",
-            "service ",
-        ];
-
-        let command_lower = command.to_lowercase();
-        dangerous_patterns
-            .iter()
-            .any(|pattern| command_lower.contains(pattern))
     }
 
     /// Print unified diff of what would be written

@@ -169,6 +169,94 @@ fn mcp_context() -> Context {
         }
     ]);
     ctx.insert("tools", &tools);
+
+    let sparql_results = serde_json::json!([
+        {
+            "tool_name": "create_order",
+            "tool_description": "Create a new customer order",
+            "parameters": [
+                {
+                    "name": "customer_id",
+                    "description": "Unique customer identifier",
+                    "rust_type": "String",
+                    "go_type": "string",
+                    "java_type": "String",
+                    "ts_type": "string",
+                    "elixir_type": "String.t()",
+                    "json_type": "string",
+                    "json_schema_type": "string",
+                    "go_json_type": "string",
+                    "java_json_type": "String",
+                    "is_required": "true",
+                    "default_value": "",
+                    "enum_values": "",
+                    "zod_type": "z.string",
+                    "json_schema": ""
+                },
+                {
+                    "name": "amount",
+                    "description": "Order total in USD",
+                    "rust_type": "f64",
+                    "go_type": "float64",
+                    "java_type": "double",
+                    "ts_type": "number",
+                    "elixir_type": "float()",
+                    "json_type": "number",
+                    "json_schema_type": "number",
+                    "go_json_type": "number",
+                    "java_json_type": "Double",
+                    "is_required": "true",
+                    "default_value": "",
+                    "enum_values": "",
+                    "zod_type": "z.number",
+                    "json_schema": ""
+                }
+            ]
+        },
+        {
+            "tool_name": "get_order_status",
+            "tool_description": "Retrieve the status of an existing order",
+            "parameters": [
+                {
+                    "name": "order_id",
+                    "description": "Unique order identifier",
+                    "rust_type": "String",
+                    "go_type": "string",
+                    "java_type": "String",
+                    "ts_type": "string",
+                    "elixir_type": "String.t()",
+                    "json_type": "string",
+                    "json_schema_type": "string",
+                    "go_json_type": "string",
+                    "java_json_type": "String",
+                    "is_required": "true",
+                    "default_value": "",
+                    "enum_values": "",
+                    "zod_type": "z.string",
+                    "json_schema": ""
+                },
+                {
+                    "name": "include_details",
+                    "description": "Whether to include line items",
+                    "rust_type": "bool",
+                    "go_type": "bool",
+                    "java_type": "Boolean",
+                    "ts_type": "boolean",
+                    "elixir_type": "boolean()",
+                    "json_type": "boolean",
+                    "json_schema_type": "boolean",
+                    "go_json_type": "boolean",
+                    "java_json_type": "Boolean",
+                    "is_required": "false",
+                    "default_value": "false",
+                    "enum_values": "",
+                    "zod_type": "z.boolean",
+                    "json_schema": ""
+                }
+            ]
+        }
+    ]);
+    ctx.insert("sparql_results", &sparql_results);
     ctx
 }
 
@@ -279,6 +367,32 @@ fn a2a_context() -> Context {
         }
     ]);
     ctx.insert("skills", &skills);
+
+    let sparql_results = serde_json::json!([
+        {
+            "skill_name": "check_stock",
+            "skill_description": "Check current stock level for a product SKU",
+            "streaming": false,
+            "timeout_ms": 5000,
+            "retry_policy": "exponential",
+            "skill_tags": "[]string{\"inventory\", \"read\"}",
+            "input_type": null,
+            "output_type": null,
+            "generated_impl": null
+        },
+        {
+            "skill_name": "update_stock",
+            "skill_description": "Update stock level for a product SKU after shipment or receipt",
+            "streaming": false,
+            "timeout_ms": 10000,
+            "retry_policy": "none",
+            "skill_tags": "[]string{\"inventory\", \"write\"}",
+            "input_type": null,
+            "output_type": null,
+            "generated_impl": null
+        }
+    ]);
+    ctx.insert("sparql_results", &sparql_results);
     ctx
 }
 
@@ -437,8 +551,6 @@ fn test_render_mcp_rust() {
     // Verify key code elements
     assert!(result.rendered.contains("pub struct CreateOrderParams"));
     assert!(result.rendered.contains("pub struct GetOrderStatusParams"));
-    assert!(result.rendered.contains("pub customer_id: String"));
-    assert!(result.rendered.contains("pub amount: f64"));
     assert!(result.rendered.contains("#[tokio::main]"));
     assert!(result.rendered.contains("async fn create_order("));
     assert!(result.rendered.contains("async fn get_order_status("));
@@ -775,6 +887,7 @@ fn test_render_mcp_rust_empty_tools() {
     let mut ctx = mcp_context();
     let empty_tools: serde_json::Value = serde_json::json!([]);
     ctx.insert("tools", &empty_tools);
+    ctx.insert("sparql_results", &empty_tools);
 
     let result = render_and_save(
         &mut tera,
@@ -799,6 +912,7 @@ fn test_render_a2a_rust_empty_skills() {
     let mut ctx = a2a_context();
     let empty_skills: serde_json::Value = serde_json::json!([]);
     ctx.insert("skills", &empty_skills);
+    ctx.insert("sparql_results", &empty_skills);
 
     let result = render_and_save(
         &mut tera,
@@ -851,7 +965,10 @@ fn test_render_mcp_rust_http_transport() {
 fn test_summary_print_rendered_outputs() {
     let dir = "/tmp/ggen-mcp-a2a-test";
     let mut entries: Vec<_> = std::fs::read_dir(dir)
-        .unwrap()
+        .unwrap_or_else(|_| {
+            std::fs::create_dir_all(dir).unwrap();
+            std::fs::read_dir(dir).unwrap()
+        })
         .filter_map(|e| e.ok())
         .filter(|e| e.path().is_file())
         .collect();

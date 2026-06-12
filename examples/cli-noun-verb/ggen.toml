@@ -12,7 +12,6 @@ description = "Ontology-driven API contract generation with ggen sync"
 [ontology]
 source = "ontology/blog-api.ttl"
 base_iri = "https://ggen.io/examples/blog/"
-schema = "ontology/api-schema.ttl"
 
 [ontology.prefixes]
 blog = "https://ggen.io/examples/blog#"
@@ -22,7 +21,17 @@ rdfs = "http://www.w3.org/2000/01/rdf-schema#"
 xsd = "http://www.w3.org/2001/XMLSchema#"
 
 [inference]
-rules = []
+[[inference.rules]]
+name = "link-user-posts"
+construct = """
+PREFIX blog: <https://ggen.io/examples/blog#>
+CONSTRUCT {
+  ?user blog:hasPost ?post .
+} WHERE {
+  ?post blog:Post_authorId ?userId .
+  ?user blog:User_id ?userId .
+}
+"""
 
 [generation]
 output_dir = "output"

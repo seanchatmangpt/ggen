@@ -518,7 +518,7 @@ async fn analyze_and_observe_records_live_receipt_chain() {
     assert!(
         raised
             .iter()
-            .any(|(u, diags)| u == &tera_uri && diags.iter().any(is_tpl_001)),
+            .any(|(u, diags)| u == &tera_uri && diags.iter().any(|d| is_tpl_001(&d.lsp))),
         "analyze_and_observe must raise GGEN-TPL-001 on the template. published: {raised:?}"
     );
 

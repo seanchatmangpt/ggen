@@ -178,12 +178,14 @@ fn test_condition_logging() {
             name: "condition_test".to_string(),
             version: "1.0.0".to_string(),
             description: Some("Testing conditional execution logging".to_string()),
+            ..Default::default()
         },
         ontology: OntologyConfig {
             source: PathBuf::from("ontology.ttl"),
             imports: vec![],
             base_iri: None,
             prefixes: BTreeMap::new(),
+            ..Default::default()
         },
         inference: InferenceConfig {
             rules: vec![],
@@ -227,6 +229,8 @@ fn test_condition_logging() {
             output_dir: PathBuf::from("generated"),
         },
         validation: ValidationConfig::default(),
+        packs: vec![],
+        ..Default::default()
     };
 
     // Assert: Manifest has mixed skip_empty rules
@@ -253,12 +257,14 @@ fn test_multiple_conditions_in_manifest() {
             name: "multi_condition_test".to_string(),
             version: "1.0.0".to_string(),
             description: None,
+            ..Default::default()
         },
         ontology: OntologyConfig {
             source: PathBuf::from("ontology.ttl"),
             imports: vec![],
             base_iri: None,
             prefixes: BTreeMap::new(),
+            ..Default::default()
         },
         inference: InferenceConfig {
             rules: vec![],
@@ -315,6 +321,8 @@ fn test_multiple_conditions_in_manifest() {
             output_dir: PathBuf::from("generated"),
         },
         validation: ValidationConfig::default(),
+        packs: vec![],
+        ..Default::default()
     };
 
     // Assert: Rules have different skip_empty settings
@@ -440,12 +448,14 @@ fn test_integration_rule_executed_when_ask_true() {
             name: "conditional_test".to_string(),
             version: "1.0.0".to_string(),
             description: None,
+            ..Default::default()
         },
         ontology: OntologyConfig {
             source: ontology_path.clone(),
             imports: vec![],
             base_iri: None,
             prefixes: BTreeMap::new(),
+            ..Default::default()
         },
         inference: InferenceConfig {
             rules: vec![],
@@ -475,6 +485,8 @@ fn test_integration_rule_executed_when_ask_true() {
             output_dir: temp_dir.path().to_path_buf(),
         },
         validation: ValidationConfig::default(),
+        packs: vec![],
+        ..Default::default()
     };
 
     // Act: Execute pipeline
@@ -515,12 +527,14 @@ fn test_integration_rule_skipped_when_ask_false() {
             name: "skip_test".to_string(),
             version: "1.0.0".to_string(),
             description: None,
+            ..Default::default()
         },
         ontology: OntologyConfig {
             source: ontology_path.clone(),
             imports: vec![],
             base_iri: None,
             prefixes: BTreeMap::new(),
+            ..Default::default()
         },
         inference: InferenceConfig {
             rules: vec![],
@@ -553,6 +567,8 @@ fn test_integration_rule_skipped_when_ask_false() {
             output_dir: temp_dir.path().to_path_buf(),
         },
         validation: ValidationConfig::default(),
+        packs: vec![],
+        ..Default::default()
     };
 
     // Act: Execute pipeline
@@ -589,12 +605,14 @@ fn test_integration_malformed_ask_query_error() {
             name: "malformed_test".to_string(),
             version: "1.0.0".to_string(),
             description: None,
+            ..Default::default()
         },
         ontology: OntologyConfig {
             source: ontology_path.clone(),
             imports: vec![],
             base_iri: None,
             prefixes: BTreeMap::new(),
+            ..Default::default()
         },
         inference: InferenceConfig {
             rules: vec![],
@@ -624,6 +642,8 @@ fn test_integration_malformed_ask_query_error() {
             output_dir: temp_dir.path().to_path_buf(),
         },
         validation: ValidationConfig::default(),
+        packs: vec![],
+        ..Default::default()
     };
 
     // Act: Execute pipeline
@@ -661,12 +681,14 @@ fn test_integration_multiple_conditions() {
             name: "multi_condition_test".to_string(),
             version: "1.0.0".to_string(),
             description: None,
+            ..Default::default()
         },
         ontology: OntologyConfig {
             source: ontology_path.clone(),
             imports: vec![],
             base_iri: None,
             prefixes: BTreeMap::new(),
+            ..Default::default()
         },
         inference: InferenceConfig {
             rules: vec![],
@@ -734,6 +756,8 @@ fn test_integration_multiple_conditions() {
             output_dir: temp_dir.path().to_path_buf(),
         },
         validation: ValidationConfig::default(),
+        packs: vec![],
+        ..Default::default()
     };
 
     // Act: Execute pipeline

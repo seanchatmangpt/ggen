@@ -4,9 +4,11 @@
 //! Constitutional Rule: No partial state - either all changes succeed or all are rolled back.
 
 use crate::utils::error::{Error, Result};
+use parking_lot::Mutex;
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicBool, Ordering};
 use tempfile::NamedTempFile;
 
 /// File operation tracking for rollback
@@ -19,20 +21,23 @@ enum FileOperation {
 }
 
 /// Transaction manager for atomic file operations
+///
+/// Thread-safe: allows multiple threads to perform atomic writes concurrently.
+/// Atomic: either all writes succeed and are committed, or all are rolled back.
 #[derive(Debug)]
 pub struct FileTransaction {
-    operations: Vec<FileOperation>,
+    operations: Mutex<Vec<FileOperation>>,
     backup_dir: Option<PathBuf>,
-    committed: bool,
+    committed: AtomicBool,
 }
 
 impl FileTransaction {
     /// Create a new transaction
     pub fn new() -> Result<Self> {
         Ok(Self {
-            operations: Vec::new(),
+            operations: Mutex::new(Vec::new()),
             backup_dir: None,
-            committed: false,
+            committed: AtomicBool::new(false),
         })
     }
 
@@ -48,9 +53,9 @@ impl FileTransaction {
         })?;
 
         Ok(Self {
-            operations: Vec::new(),
+            operations: Mutex::new(Vec::new()),
             backup_dir: Some(backup_path),
-            committed: false,
+            committed: AtomicBool::new(false),
         })
     }
 
@@ -60,7 +65,7 @@ impl FileTransaction {
     /// 1. Write to temporary file
     /// 2. Atomically rename to target (OS-level atomic operation)
     /// 3. Track operation for potential rollback
-    pub fn write_file(&mut self, path: impl AsRef<Path>, content: &str) -> Result<()> {
+    pub fn write_file(&self, path: impl AsRef<Path>, content: &str) -> Result<()> {
         let path = path.as_ref();
 
         // Check if file exists (for rollback tracking)
@@ -120,7 +125,7 @@ impl FileTransaction {
                 path: path.to_path_buf(),
             }
         };
-        self.operations.push(operation);
+        self.operations.lock().push(operation);
 
         Ok(())
     }
@@ -160,28 +165,26 @@ impl FileTransaction {
     /// Commit transaction - mark as successful
     ///
     /// After commit, backups are kept but rollback is disabled
-    pub fn commit(mut self) -> Result<TransactionReceipt> {
-        self.committed = true;
+    pub fn commit(self) -> Result<TransactionReceipt> {
+        self.committed.store(true, Ordering::SeqCst);
 
+        let operations = self.operations.lock();
         let receipt = TransactionReceipt {
-            files_created: self
-                .operations
+            files_created: operations
                 .iter()
                 .filter_map(|op| match op {
                     FileOperation::Created { path } => Some(path.clone()),
                     FileOperation::Modified { .. } => None,
                 })
                 .collect(),
-            files_modified: self
-                .operations
+            files_modified: operations
                 .iter()
                 .filter_map(|op| match op {
                     FileOperation::Modified { path, .. } => Some(path.clone()),
                     FileOperation::Created { .. } => None,
                 })
                 .collect(),
-            backups: self
-                .operations
+            backups: operations
                 .iter()
                 .filter_map(|op| match op {
                     FileOperation::Modified { path, backup } => {
@@ -197,12 +200,13 @@ impl FileTransaction {
 
     /// Rollback all operations on drop (if not committed)
     fn rollback(&self) {
-        if self.committed {
+        if self.committed.load(Ordering::SeqCst) {
             return;
         }
 
+        let operations = self.operations.lock();
         // Rollback in reverse order
-        for operation in self.operations.iter().rev() {
+        for operation in operations.iter().rev() {
             match operation {
                 FileOperation::Created { path } => {
                     // Remove created file
@@ -233,7 +237,7 @@ impl FileTransaction {
 
 impl Drop for FileTransaction {
     fn drop(&mut self) {
-        if !self.committed {
+        if !self.committed.load(Ordering::SeqCst) {
             self.rollback();
         }
     }
@@ -279,7 +283,7 @@ mod tests {
         let dir = tempdir().unwrap();
         let file_path = dir.path().join("test.txt");
 
-        let mut tx = FileTransaction::new().unwrap();
+        let tx = FileTransaction::new().unwrap();
         tx.write_file(&file_path, "test content").unwrap();
 
         assert!(file_path.exists());
@@ -298,7 +302,7 @@ mod tests {
         // Create initial file
         fs::write(&file_path, "original").unwrap();
 
-        let mut tx = FileTransaction::new().unwrap();
+        let tx = FileTransaction::new().unwrap();
         tx.write_file(&file_path, "modified").unwrap();
 
         assert_eq!(fs::read_to_string(&file_path).unwrap(), "modified");
@@ -315,7 +319,7 @@ mod tests {
         let file_path = dir.path().join("test.txt");
 
         {
-            let mut tx = FileTransaction::new().unwrap();
+            let tx = FileTransaction::new().unwrap();
             tx.write_file(&file_path, "test content").unwrap();
             assert!(file_path.exists());
             // Drop without commit triggers rollback
@@ -334,7 +338,7 @@ mod tests {
         fs::write(&file_path, "original").unwrap();
 
         {
-            let mut tx = FileTransaction::new().unwrap();
+            let tx = FileTransaction::new().unwrap();
             tx.write_file(&file_path, "modified").unwrap();
             assert_eq!(fs::read_to_string(&file_path).unwrap(), "modified");
             // Drop without commit triggers rollback
@@ -351,7 +355,7 @@ mod tests {
         let file2 = dir.path().join("file2.txt");
 
         {
-            let mut tx = FileTransaction::new().unwrap();
+            let tx = FileTransaction::new().unwrap();
             tx.write_file(&file1, "content1").unwrap();
             tx.write_file(&file2, "content2").unwrap();
             assert!(file1.exists());

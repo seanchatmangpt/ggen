@@ -36,6 +36,7 @@ use tera::{Context, Tera};
 
 use crate::graph::Graph;
 use crate::preprocessor::{FreezePolicy, FreezeStage, PrepCtx, Preprocessor};
+use crate::security::validation::PathValidator;
 
 /// Boolean control flags for frontmatter template directives
 #[allow(clippy::struct_excessive_bools)] // Seven bools are semantically distinct frontmatter directive flags
@@ -294,14 +295,19 @@ impl Template {
             let rendered_path = tera.render_str(rdf_file, vars)?;
 
             // Resolve path relative to template directory
-            let rdf_path = if rendered_path.starts_with('/') {
+            let template_dir = template_path
+                .parent()
+                .unwrap_or_else(|| std::path::Path::new("."));
+
+            let rdf_path_raw = if rendered_path.starts_with('/') {
                 std::path::PathBuf::from(&rendered_path)
             } else {
-                template_path
-                    .parent()
-                    .unwrap_or_else(|| std::path::Path::new("."))
-                    .join(&rendered_path)
+                template_dir.join(&rendered_path)
             };
+
+            // SECURITY: Prevent path traversal by ensuring the RDF file is within
+            // the template directory or its descendants.
+            let rdf_path = PathValidator::validate_within(&rdf_path_raw, template_dir)?;
 
             let ttl_content = std::fs::read_to_string(&rdf_path).map_err(|e| {
                 Error::with_source(
@@ -418,18 +424,36 @@ impl Template {
         self.process_graph(graph, tera, vars, template_path)?;
 
         // Render body
-        self.render(tera, vars)
+        self.render(tera, vars, template_path)
     }
 
     /// Render template body with Tera.
     /// If `from:` is specified in frontmatter, read that file and use as body source.
-    pub fn render(&self, tera: &mut Tera, vars: &Context) -> Result<String> {
+    pub fn render(
+        &self, tera: &mut Tera, vars: &Context, template_path: &std::path::Path,
+    ) -> Result<String> {
         let body_source = if let Some(from_path) = &self.front.from {
             // Render the from path as a template to resolve variables
             let rendered_from = tera.render_str(from_path, vars)?;
-            std::fs::read_to_string(&rendered_from).map_err(|e| {
+
+            // Resolve path relative to template directory
+            let template_dir = template_path
+                .parent()
+                .unwrap_or_else(|| std::path::Path::new("."));
+
+            let from_path_raw = if rendered_from.starts_with('/') {
+                std::path::PathBuf::from(&rendered_from)
+            } else {
+                template_dir.join(&rendered_from)
+            };
+
+            // SECURITY: Prevent path traversal by ensuring the source file is within
+            // the template directory or its descendants.
+            let safe_from_path = PathValidator::validate_within(&from_path_raw, template_dir)?;
+
+            std::fs::read_to_string(&safe_from_path).map_err(|e| {
                 Error::with_source(
-                    &format!("Failed to read from file '{}'", rendered_from),
+                    &format!("Failed to read from file '{}'", safe_from_path.display()),
                     Box::new(e),
                 )
             })?
@@ -570,15 +594,16 @@ mod tests {
     fn render_only(input: &str, vars: &Context) -> Result<String> {
         let tmpl = Template::parse(input)?;
         let mut tera = mk_tera();
-        tmpl.render(&mut tera, vars)
+        tmpl.render(&mut tera, vars, Path::new("test.tmpl"))
     }
 
     fn process_then_render(input: &str, vars: &Context) -> Result<String> {
         let mut tmpl = Template::parse(input)?;
         let mut graph = Graph::new()?;
         let mut tera = mk_tera();
-        tmpl.process_graph(&mut graph, &mut tera, vars, Path::new("test.tmpl"))?;
-        tmpl.render(&mut tera, vars)
+        let template_path = Path::new("test.tmpl");
+        tmpl.process_graph(&mut graph, &mut tera, vars, template_path)?;
+        tmpl.render(&mut tera, vars, template_path)
     }
 
     macro_rules! assert_contains {
@@ -731,8 +756,9 @@ ignored"#,
         let mut tmpl = Template::parse(&from_tmpl).unwrap();
         let mut tera = mk_tera();
         let vars = ctx(&[("name", "Bob")]);
+        let template_path = Path::new("test.tmpl");
         tmpl.render_frontmatter(&mut tera, &vars).unwrap();
-        let got2 = tmpl.render(&mut tera, &vars).unwrap();
+        let got2 = tmpl.render(&mut tera, &vars, template_path).unwrap();
         assert_contains!(got2, "Hello, Bob!");
     }
 

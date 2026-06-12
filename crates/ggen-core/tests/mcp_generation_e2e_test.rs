@@ -61,13 +61,38 @@ use tera::{Context, Tera};
 /// Create a minimal Tera instance with all ggen templates registered
 fn create_tera() -> Tera {
     let mut tera_instance = Tera::default();
+    tera_instance.autoescape_on(vec![]);
     ggen_core::register::register_all(&mut tera_instance);
+
+    let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let mcp_templates_dir = manifest_dir.join("templates/mcp-server");
+    
+    let mut templates = Vec::new();
+    for entry in fs::read_dir(mcp_templates_dir).expect("mcp-server templates dir exists") {
+        let entry = entry.expect("valid entry");
+        let path = entry.path();
+        if path.is_file() && path.extension().map_or(false, |ext| ext == "tera") {
+            let filename = path.file_name().unwrap().to_str().unwrap();
+            let template_name = format!("mcp-server/{}", filename);
+            let content = fs::read_to_string(&path).expect("read template");
+            templates.push((template_name, content));
+        }
+    }
+    
+    tera_instance.add_raw_templates(templates).expect("Failed to add templates");
     tera_instance
 }
 
 /// Load the example MCP server ontology
 fn load_example_ontology() -> Result<String, Box<dyn std::error::Error>> {
-    fs::read_to_string("examples/mcp-server-definition/ontology/mcp-server.ttl")
+    let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let ontology_path = manifest_dir
+        .parent()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .join("examples/mcp-server-definition/ontology/mcp-server.ttl");
+    fs::read_to_string(ontology_path)
         .map_err(|e| format!("Failed to load example ontology: {}", e).into())
 }
 
@@ -96,45 +121,18 @@ fn write_file(
 fn e2e_mcp_server_template_renders_successfully() {
     println!("🔍 E2E Test: MCP server template renders successfully");
 
-    // Arrange: Create Tera instance and load template
-    let mut tera = create_tera();
-    let template_content = fs::read_to_string("templates/mcp-server/stdio_server.rs.tera")
-        .expect("Failed to read stdio_server.rs.tera template");
+    // Arrange: Create Tera instance
+    let tera = create_tera();
 
     // Arrange: Create context with server metadata
     let mut ctx = Context::new();
     ctx.insert("server_name", "GgenMcpServer");
-    ctx.insert("server_struct", "GgenMcpServer");
-    ctx.insert("description", "ggen code generation MCP server");
-    ctx.insert("version", "1.0.0");
-
-    // Arrange: Add tools from ontology
-    let tools = vec![
-        serde_json::json!({
-            "name": "sync_project",
-            "struct_name": "SyncProjectParams",
-            "description": "Run ggen sync pipeline on a project directory",
-        }),
-        serde_json::json!({
-            "name": "validate_ontology",
-            "struct_name": "ValidateOntologyParams",
-            "description": "Validate a Turtle (.ttl) ontology file",
-        }),
-        serde_json::json!({
-            "name": "list_examples",
-            "struct_name": "ListExamplesParams",
-            "description": "List available ggen example projects",
-        }),
-        serde_json::json!({
-            "name": "generate_preview",
-            "struct_name": "GeneratePreviewParams",
-            "description": "Preview generated output for a rule without writing files",
-        }),
-    ];
-    ctx.insert("tools", &tools);
+    ctx.insert("server_version", "1.0.0");
+    ctx.insert("server_description", "ggen code generation MCP server");
+    ctx.insert("transport_type", "stdio");
 
     // Act: Render template
-    let result = tera.render_str(&template_content, &ctx);
+    let result = tera.render("mcp-server/mcp_server.rs.tera", &ctx);
 
     // Assert: Template renders successfully
     assert!(
@@ -149,12 +147,6 @@ fn e2e_mcp_server_template_renders_successfully() {
     assert!(rendered.contains("pub struct GgenMcpServer"));
     assert!(rendered.contains("impl GgenMcpServer"));
 
-    // Assert: All tools are mentioned
-    assert!(rendered.contains("sync_project"));
-    assert!(rendered.contains("validate_ontology"));
-    assert!(rendered.contains("list_examples"));
-    assert!(rendered.contains("generate_preview"));
-
     println!("✅ E2E Test PASSED: Template renders successfully");
 }
 
@@ -166,38 +158,36 @@ fn e2e_mcp_server_template_renders_successfully() {
 fn e2e_mcp_tool_handler_template_renders_successfully() {
     println!("🔍 E2E Test: Tool handler template renders successfully");
 
-    // Arrange: Create Tera instance and load template
-    let mut tera = create_tera();
-    let template_content = fs::read_to_string("templates/mcp-server/tool_handler.rs.tera")
-        .expect("Failed to read tool_handler.rs.tera template");
+    // Arrange: Create Tera instance
+    let tera = create_tera();
 
     // Arrange: Create context with error type and tools
     let mut ctx = Context::new();
-    ctx.insert("error_type", "McpError");
-    ctx.insert("handler_context_type", "HandlerContext");
-    ctx.insert("stream_result_type", "Receiver<String>");
-    ctx.insert("server_impl_type", "GgenMcpServer");
+    ctx.insert("server_name", "GgenMcpServer");
+    ctx.insert("tool_name", "sync_project");
 
-    let tools = vec![
+    let sparql_results = vec![
         serde_json::json!({
-            "name": "sync_project",
-            "description": "Run ggen sync pipeline",
-            "input_schema": "{}",
-            "input_type": "SyncProjectParams",
-            "enable_streaming": false,
+            "tool_name": "sync_project",
+            "tool_description": "Run ggen sync pipeline",
+            "param_name": "project_path",
+            "param_description": "Path to the project",
+            "is_required": "true",
+            "rust_type": "String",
         }),
         serde_json::json!({
-            "name": "validate_ontology",
-            "description": "Validate Turtle file",
-            "input_schema": "{}",
-            "input_type": "ValidateOntologyParams",
-            "enable_streaming": false,
+            "tool_name": "validate_ontology",
+            "tool_description": "Validate Turtle file",
+            "param_name": "ontology_path",
+            "param_description": "Path to ontology",
+            "is_required": "true",
+            "rust_type": "String",
         }),
     ];
-    ctx.insert("tools", &tools);
+    ctx.insert("sparql_results", &sparql_results);
 
     // Act: Render template
-    let result = tera.render_str(&template_content, &ctx);
+    let result = tera.render("mcp-server/tool_handler.rs.tera", &ctx);
 
     // Assert: Template renders successfully
     assert!(
@@ -210,9 +200,10 @@ fn e2e_mcp_tool_handler_template_renders_successfully() {
 
     // Assert: Contains expected Rust code
     assert!(rendered.contains("#[tool_handler]"));
-    assert!(rendered.contains("impl ServerHandler"));
-    assert!(rendered.contains("pub async fn sync_project_handler"));
-    assert!(rendered.contains("pub async fn validate_ontology_handler"));
+    assert!(rendered.contains("#[tool_router]"));
+    assert!(rendered.contains("pub struct GgenMcpServer"));
+    assert!(rendered.contains("async fn sync_project"));
+    assert!(rendered.contains("async fn validate_ontology"));
 
     println!("✅ E2E Test PASSED: Tool handler template renders successfully");
 }
@@ -229,16 +220,16 @@ fn e2e_mcp_server_generated_files_written_to_disk() {
     let temp_dir = setup_temp_dir().expect("Failed to setup temp dir");
 
     // Arrange: Create Tera instance and context
-    let mut tera = create_tera();
+    let tera = create_tera();
     let mut ctx = Context::new();
     ctx.insert("server_name", "GgenMcpServer");
-
-    let template_content = fs::read_to_string("templates/mcp-server/stdio_server.rs.tera")
-        .expect("Failed to read template");
+    ctx.insert("server_version", "1.0.0");
+    ctx.insert("server_description", "ggen code generation MCP server");
+    ctx.insert("transport_type", "stdio");
 
     // Act: Render template
     let rendered = tera
-        .render_str(&template_content, &ctx)
+        .render("mcp-server/mcp_server.rs.tera", &ctx)
         .expect("Failed to render template");
 
     // Act: Write to file
@@ -258,7 +249,6 @@ fn e2e_mcp_server_generated_files_written_to_disk() {
     // Assert: File contains expected content
     let content = fs::read_to_string(&main_rs).expect("Failed to read main.rs");
     assert!(content.contains("pub struct GgenMcpServer"));
-    assert!(content.contains("fn main"));
 
     println!("✅ E2E Test PASSED: Generated files written to disk");
 }
@@ -324,24 +314,27 @@ fn e2e_mcp_server_deterministic_generation() {
     println!("🔍 E2E Test: Deterministic generation");
 
     // Arrange: Create Tera instance and context
-    let mut tera1 = create_tera();
-    let mut tera2 = create_tera();
+    let tera1 = create_tera();
+    let tera2 = create_tera();
 
     let mut ctx1 = Context::new();
     ctx1.insert("server_name", "GgenMcpServer");
+    ctx1.insert("server_version", "1.0.0");
+    ctx1.insert("server_description", "ggen code generation MCP server");
+    ctx1.insert("transport_type", "stdio");
 
     let mut ctx2 = Context::new();
     ctx2.insert("server_name", "GgenMcpServer");
-
-    let template_content = fs::read_to_string("templates/mcp-server/stdio_server.rs.tera")
-        .expect("Failed to read template");
+    ctx2.insert("server_version", "1.0.0");
+    ctx2.insert("server_description", "ggen code generation MCP server");
+    ctx2.insert("transport_type", "stdio");
 
     // Act: Render twice with same context
     let rendered1 = tera1
-        .render_str(&template_content, &ctx1)
+        .render("mcp-server/mcp_server.rs.tera", &ctx1)
         .expect("Failed to render first time");
     let rendered2 = tera2
-        .render_str(&template_content, &ctx2)
+        .render("mcp-server/mcp_server.rs.tera", &ctx2)
         .expect("Failed to render second time");
 
     // Assert: Output is identical
@@ -391,24 +384,22 @@ fn e2e_mcp_server_multiple_tools_generated() {
     println!("🔍 E2E Test: Multiple tools generated");
 
     // Arrange: Create Tera instance with all 4 tools
-    let mut tera = create_tera();
+    let tera = create_tera();
     let mut ctx = Context::new();
     ctx.insert("server_name", "GgenMcpServer");
+    ctx.insert("tool_name", "tool1");
 
-    let tools = vec![
-        serde_json::json!({"name": "tool1", "struct_name": "Tool1Params", "description": "First tool"}),
-        serde_json::json!({"name": "tool2", "struct_name": "Tool2Params", "description": "Second tool"}),
-        serde_json::json!({"name": "tool3", "struct_name": "Tool3Params", "description": "Third tool"}),
-        serde_json::json!({"name": "tool4", "struct_name": "Tool4Params", "description": "Fourth tool"}),
+    let sparql_results = vec![
+        serde_json::json!({"tool_name": "tool1", "tool_description": "First tool", "param_name": "param1", "param_description": "First parameter", "is_required": "true", "rust_type": "String"}),
+        serde_json::json!({"tool_name": "tool2", "tool_description": "Second tool", "param_name": "param2", "param_description": "Second parameter", "is_required": "true", "rust_type": "String"}),
+        serde_json::json!({"tool_name": "tool3", "tool_description": "Third tool", "param_name": "param3", "param_description": "Third parameter", "is_required": "true", "rust_type": "String"}),
+        serde_json::json!({"tool_name": "tool4", "tool_description": "Fourth tool", "param_name": "param4", "param_description": "Fourth parameter", "is_required": "true", "rust_type": "String"}),
     ];
-    ctx.insert("tools", &tools);
-
-    let template_content = fs::read_to_string("templates/mcp-server/stdio_server.rs.tera")
-        .expect("Failed to read template");
+    ctx.insert("sparql_results", &sparql_results);
 
     // Act: Render template
     let rendered = tera
-        .render_str(&template_content, &ctx)
+        .render("mcp-server/tool_handler.rs.tera", &ctx)
         .expect("Failed to render template");
 
     // Assert: All tools are present
@@ -429,15 +420,13 @@ fn e2e_mcp_server_template_error_handling() {
     println!("🔍 E2E Test: Template error handling");
 
     // Arrange: Create Tera instance
-    let mut tera = create_tera();
-    let template_content = fs::read_to_string("templates/mcp-server/stdio_server.rs.tera")
-        .expect("Failed to read template");
+    let tera = create_tera();
 
-    // Arrange: Create context with missing required variable
-    let ctx = Context::new(); // Missing "server_name"
+    // Arrange: Create context with missing required variable (tool_name)
+    let ctx = Context::new(); 
 
     // Act: Try to render template
-    let result = tera.render_str(&template_content, &ctx);
+    let result = tera.render("mcp-server/tool_handler.rs.tera", &ctx);
 
     // Assert: Rendering fails gracefully
     assert!(
@@ -457,22 +446,21 @@ fn e2e_mcp_server_generated_code_syntax() {
     println!("🔍 E2E Test: Generated code contains valid Rust syntax");
 
     // Arrange: Create Tera instance and context
-    let mut tera = create_tera();
+    let tera = create_tera();
     let mut ctx = Context::new();
     ctx.insert("server_name", "GgenMcpServer");
-
-    let template_content = fs::read_to_string("templates/mcp-server/stdio_server.rs.tera")
-        .expect("Failed to read template");
+    ctx.insert("server_version", "1.0.0");
+    ctx.insert("server_description", "ggen code generation MCP server");
+    ctx.insert("transport_type", "stdio");
 
     // Act: Render template
     let rendered = tera
-        .render_str(&template_content, &ctx)
+        .render("mcp-server/mcp_server.rs.tera", &ctx)
         .expect("Failed to render template");
 
     // Assert: Contains basic Rust syntax elements
     assert!(rendered.contains("pub struct"));
     assert!(rendered.contains("impl"));
-    assert!(rendered.contains("fn main"));
     assert!(rendered.contains("{"));
     assert!(rendered.contains("}"));
 

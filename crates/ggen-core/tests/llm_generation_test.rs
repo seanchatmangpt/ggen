@@ -48,12 +48,14 @@ fn create_test_manifest(base_dir: &PathBuf) -> GgenManifest {
             name: "test-a2a-agent".to_string(),
             version: "0.1.0".to_string(),
             description: Some("Test A2A agent with LLM generation".to_string()),
+            ..Default::default()
         },
         ontology: OntologyConfig {
             source: PathBuf::from("test.ttl"),
             imports: vec![],
             base_iri: None,
             prefixes: Default::default(),
+            ..Default::default()
         },
         inference: InferenceConfig::default(),
         generation: GenerationConfig {
@@ -67,6 +69,8 @@ fn create_test_manifest(base_dir: &PathBuf) -> GgenManifest {
             llm_provider: None,
         },
         validation: ValidationConfig::default(),
+        packs: vec![],
+        ..Default::default()
     }
 }
 

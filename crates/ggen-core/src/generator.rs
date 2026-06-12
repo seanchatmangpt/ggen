@@ -346,7 +346,7 @@ impl Generator {
         )?;
 
         // Render body
-        let rendered = tmpl.render(&mut self.pipeline.tera, &tctx)?;
+        let rendered = tmpl.render(&mut self.pipeline.tera, &tctx, &self.ctx.template_path)?;
 
         // Determine output path
         let output_path = if let Some(to_path) = &tmpl.front.to {
@@ -422,9 +422,26 @@ impl Generator {
     }
 }
 
+/// Whitelist of safe environment variables that can be injected into templates.
+/// This prevents sensitive secrets (like API keys) from leaking into generated code.
+const ENV_WHITELIST: &[&str] = &[
+    "PATH",
+    "USER",
+    "LANG",
+    "LC_ALL",
+    "PWD",
+    "HOME",
+    "GGEN_LOG",
+    "GGEN_CONFIG",
+    "GGEN_PROJECT_ROOT",
+];
+
 fn insert_env(ctx: &mut Context) {
     for (k, v) in env::vars() {
-        ctx.insert(&k, &v);
+        // Only insert variables that are in the whitelist or start with GGEN_ or TEST_GGEN_ (for tests)
+        if ENV_WHITELIST.contains(&k.as_str()) || k.starts_with("GGEN_") || k.starts_with("TEST_GGEN_") {
+            ctx.insert(&k, &v);
+        }
     }
 }
 

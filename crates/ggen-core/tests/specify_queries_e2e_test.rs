@@ -53,7 +53,12 @@ fn workspace_root() -> std::path::PathBuf {
 /// or fails to parse (some specify/ .ttl files have known syntax issues).
 /// Returns true if the file was loaded successfully.
 fn load_ttl(graph: &Graph, relative_path: &str) -> bool {
-    let path = workspace_root().join(relative_path);
+    let clean_path = if relative_path.starts_with(".specify/") {
+        relative_path.to_string()
+    } else {
+        relative_path.replace("specify/", ".specify/")
+    };
+    let path = workspace_root().join(clean_path);
     if !path.exists() {
         eprintln!("[SKIP] File not found: {}", path.display());
         return false;
@@ -69,7 +74,12 @@ fn load_ttl(graph: &Graph, relative_path: &str) -> bool {
 
 /// Helper: read a .rq file as a string. Panics if file does not exist.
 fn read_rq(relative_path: &str) -> String {
-    let path = workspace_root().join(relative_path);
+    let clean_path = if relative_path.starts_with(".specify/") {
+        relative_path.to_string()
+    } else {
+        relative_path.replace("specify/", ".specify/")
+    };
+    let path = workspace_root().join(clean_path);
     if !path.exists() {
         panic!("Query file not found: {}", path.display());
     }
@@ -383,8 +393,8 @@ const LENIENT_QUERIES: &[&str] = &[
 #[test]
 fn test_all_specify_queries_execute_without_error() {
     let root = workspace_root();
-    let queries_dir = root.join("specify/queries");
-    let specify_dir = root.join("specify");
+    let queries_dir = root.join(".specify/queries");
+    let specify_dir = root.join(".specify");
 
     let mut tested = 0usize;
     let mut errors: Vec<String> = Vec::new();
@@ -442,7 +452,7 @@ fn test_all_specify_queries_execute_without_error() {
         // Load all .ttl data files
         let mut any_loaded = false;
         for ttl_name in &data_ttls {
-            let ttl_relative = format!("specify/{}", ttl_name);
+            let ttl_relative = format!(".specify/{}", ttl_name);
             if load_ttl(&graph, &ttl_relative) {
                 any_loaded = true;
             }

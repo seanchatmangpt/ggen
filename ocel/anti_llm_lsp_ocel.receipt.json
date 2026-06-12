@@ -1,0 +1,6 @@
+{
+  "boundary": "examples/anti-llm-lsp/ocel",
+  "checkpoint": "OCEL-COMPAT-001",
+  "digest": "1995ece54586c66849fb55f70ef7fb11045d52b93772ce084c4cc017b19c6474",
+  "digest_algorithm": "BLAKE3"
+}

@@ -88,17 +88,19 @@ fn load(root: &Path) -> ProjectIndex {
         .unwrap_or_else(|e| panic!("ProjectIndex::from_root({}) failed: {e:?}", root.display()))
 }
 
+use lsp_max_protocol::MaxDiagnostic;
+
 /// The exact diagnostic code string (`GGEN-TPL-001`, `GGEN-OUT-001`, …) or `None`.
-fn code_str(d: &Diagnostic) -> Option<&str> {
-    match &d.code {
+fn code_str(d: &MaxDiagnostic) -> Option<&str> {
+    match &d.lsp.code {
         Some(NumberOrString::String(s)) => Some(s.as_str()),
         _ => None,
     }
 }
 
 /// All diagnostic code strings across the per-file grouping returned by
-/// `detect_tpl_001` (`Vec<(PathBuf, Vec<Diagnostic>)>`).
-fn all_codes(grouped: &[(PathBuf, Vec<Diagnostic>)]) -> Vec<String> {
+/// `detect_tpl_001` (`Vec<(PathBuf, Vec<MaxDiagnostic>)>`).
+fn all_codes(grouped: &[(PathBuf, Vec<MaxDiagnostic>)]) -> Vec<String> {
     grouped
         .iter()
         .flat_map(|(_, diags)| diags.iter())
@@ -284,7 +286,7 @@ fn invalid_fixture_emits_only_tpl_001() {
     // Severity: at least one GGEN-TPL-001 at ERROR.
     assert!(
         grouped.iter().flat_map(|(_, d)| d.iter()).any(|d| {
-            code_str(d) == Some("GGEN-TPL-001") && d.severity == Some(DiagnosticSeverity::ERROR)
+            code_str(d) == Some("GGEN-TPL-001") && d.lsp.severity == Some(DiagnosticSeverity::ERROR)
         }),
         "GGEN-TPL-001 must be reported at ERROR severity. Got: {grouped:?}"
     );

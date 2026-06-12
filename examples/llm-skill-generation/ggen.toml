@@ -22,5 +22,3 @@ rules = [
 ]
 
 [validation]
-require_shacl = false
-require_inference = false

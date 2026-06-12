@@ -58,12 +58,14 @@ fn minimal_manifest(ontology_path: PathBuf, rules: Vec<GenerationRule>) -> GgenM
             name: "test".to_string(),
             version: "0.1.0".to_string(),
             description: None,
+            ..Default::default()
         },
         ontology: OntologyConfig {
             source: ontology_path,
             imports: vec![],
             base_iri: None,
             prefixes: Default::default(),
+            ..Default::default()
         },
         inference: InferenceConfig::default(),
         generation: GenerationConfig {
@@ -77,6 +79,8 @@ fn minimal_manifest(ontology_path: PathBuf, rules: Vec<GenerationRule>) -> GgenM
             llm_model: None,
         },
         validation: ValidationConfig::default(),
+        packs: vec![],
+        ..Default::default()
     }
 }
 

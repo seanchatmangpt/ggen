@@ -284,7 +284,7 @@ async fn clear_preserves_unrelated_diagnostic_on_same_template() {
     .map(|a| a.diagnostics())
     .unwrap_or_default();
     assert!(
-        own.iter().any(|d| matches!(&d.code, Some(lsp_max::lsp_types::NumberOrString::String(s)) if s == "E0024")),
+        own.iter().any(|d| matches!(&d.lsp.code, Some(lsp_max::lsp_types::NumberOrString::String(s)) if s == "E0024")),
         "precondition: template must have an E0024 syntax error"
     );
     let mut raised = own.clone();
@@ -327,11 +327,11 @@ async fn clear_preserves_unrelated_diagnostic_on_same_template() {
     .map(|a| a.diagnostics())
     .unwrap_or_default();
     assert!(
-        residual.iter().any(|d| matches!(&d.code, Some(lsp_max::lsp_types::NumberOrString::String(s)) if s == "E0024")),
+        residual.iter().any(|d| matches!(&d.lsp.code, Some(lsp_max::lsp_types::NumberOrString::String(s)) if s == "E0024")),
         "residual must still carry the E0024 (it was never repaired)"
     );
     assert!(
-        !residual.iter().any(|d| matches!(&d.code, Some(lsp_max::lsp_types::NumberOrString::String(s)) if s == "GGEN-TPL-001")),
+        !residual.iter().any(|d| matches!(&d.lsp.code, Some(lsp_max::lsp_types::NumberOrString::String(s)) if s == "GGEN-TPL-001")),
         "residual must NOT carry GGEN-TPL-001 (single-file path has empty bindings)"
     );
     state.observe_diagnostics(&template_uri, &residual).await;
@@ -347,7 +347,7 @@ async fn clear_preserves_unrelated_diagnostic_on_same_template() {
     assert!(
         residual
             .iter()
-            .any(|d| matches!(&d.code, Some(lsp_max::lsp_types::NumberOrString::String(s)) if s == "E0024")),
+            .any(|d| matches!(&d.lsp.code, Some(lsp_max::lsp_types::NumberOrString::String(s)) if s == "E0024")),
         "unrelated E0024 preserved through the clear"
     );
 }

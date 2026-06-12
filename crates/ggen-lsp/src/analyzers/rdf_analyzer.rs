@@ -81,12 +81,12 @@ impl RdfAnalyzer {
 
     /// Located syntax diagnostics — the core "refusal before execution" output.
     #[must_use]
-    pub fn diagnostics(&self) -> Vec<lsp_max::lsp_types::Diagnostic> {
+    pub fn diagnostics(&self) -> Vec<lsp_max_protocol::MaxDiagnostic> {
         self.located
             .diagnostics
             .iter()
             .map(|d| {
-                diag::from_oxrdfio(
+                diag::max_from_oxrdfio(
                     d.line,
                     d.column,
                     d.end_line,
@@ -94,6 +94,7 @@ impl RdfAnalyzer {
                     DiagnosticSeverity::ERROR,
                     None,
                     format!("RDF syntax error: {}", d.message),
+                    lsp_max_protocol::LawAxis::Domain,
                 )
             })
             .collect()
@@ -208,27 +209,61 @@ impl RdfAnalyzer {
         None
     }
 
-    pub fn document_symbols(&self) -> Option<Vec<lsp_max::lsp_types::DocumentSymbol>> {
+    pub fn document_symbols(&self, _range: Option<Range>) -> Vec<lsp_max::lsp_types::DocumentSymbol> {
         let mut symbols = Vec::new();
-        for class in &self.terms.classes {
-            symbols.push(make_symbol(
-                &compact(class, &self.prefixes),
+
+        // 1. Prefixes
+        if !self.prefixes.is_empty() {
+            let mut prefix_symbols = Vec::new();
+            for (prefix, iri) in &self.prefixes {
+                let line = find_prefix_line(&self.source, prefix);
+                prefix_symbols.push(make_symbol(prefix, SymbolKind::NAMESPACE, line));
+            }
+            symbols.push(make_parent_symbol(
+                "Prefixes",
+                SymbolKind::NAMESPACE,
+                0,
+                prefix_symbols,
+            ));
+        }
+
+        // 2. Classes
+        if !self.terms.classes.is_empty() {
+            let mut class_symbols = Vec::new();
+            for class in &self.terms.classes {
+                class_symbols.push(make_symbol(
+                    &compact(class, &self.prefixes),
+                    SymbolKind::CLASS,
+                    find_decl_line(&self.source, class, &self.prefixes),
+                ));
+            }
+            symbols.push(make_parent_symbol(
+                "Classes",
                 SymbolKind::CLASS,
-                find_decl_line(&self.source, class, &self.prefixes),
+                0,
+                class_symbols,
             ));
         }
-        for prop in &self.terms.properties {
-            symbols.push(make_symbol(
-                &compact(prop, &self.prefixes),
+
+        // 3. Properties
+        if !self.terms.properties.is_empty() {
+            let mut prop_symbols = Vec::new();
+            for prop in &self.terms.properties {
+                prop_symbols.push(make_symbol(
+                    &compact(prop, &self.prefixes),
+                    SymbolKind::PROPERTY,
+                    find_decl_line(&self.source, prop, &self.prefixes),
+                ));
+            }
+            symbols.push(make_parent_symbol(
+                "Properties",
                 SymbolKind::PROPERTY,
-                find_decl_line(&self.source, prop, &self.prefixes),
+                0,
+                prop_symbols,
             ));
         }
-        if symbols.is_empty() {
-            None
-        } else {
-            Some(symbols)
-        }
+
+        symbols
     }
 
     pub fn code_lenses(&self) -> Option<Vec<lsp_max::lsp_types::CodeLens>> {
@@ -268,8 +303,12 @@ impl RdfAnalyzer {
         None
     }
 
-    pub fn inlay_hints(&self) -> Option<Vec<lsp_max::lsp_types::InlayHint>> {
-        None
+    pub fn inlay_hints(&self, _range: Option<Range>) -> Vec<lsp_max::lsp_types::InlayHint> {
+        Vec::new()
+    }
+
+    pub fn prepare_rename(&self, position: Position) -> Option<Range> {
+        range_at(&self.source, position.line, position.character)
     }
 
     pub fn rename_symbol(&self, position: Position, new_name: &str) -> Option<WorkspaceEdit> {
@@ -376,6 +415,55 @@ fn find_decl_line(source: &str, iri: &str, prefixes: &[(String, String)]) -> u32
     0
 }
 
+fn find_prefix_line(source: &str, prefix: &str) -> u32 {
+    let search = format!("@prefix {prefix}");
+    for (idx, text) in source.lines().enumerate() {
+        if text.contains(&search) {
+            return u32::try_from(idx).unwrap_or(0);
+        }
+    }
+    0
+}
+
+fn make_parent_symbol(
+    name: &str, kind: SymbolKind, line: u32, children: Vec<lsp_max::lsp_types::DocumentSymbol>,
+) -> lsp_max::lsp_types::DocumentSymbol {
+    let mut sym = make_symbol(name, kind, line);
+    sym.children = Some(children);
+    sym
+}
+
+fn range_at(source: &str, line: u32, character: u32) -> Option<Range> {
+    let text = source.lines().nth(line as usize)?;
+    let chars: Vec<char> = text.chars().collect();
+    let is_word = |c: char| c.is_alphanumeric() || matches!(c, ':' | '_' | '-' | '#' | '/' | '.');
+    let idx = character as usize;
+    if idx > chars.len() {
+        return None;
+    }
+    let mut start = idx.min(chars.len());
+    while start > 0 && is_word(chars[start - 1]) {
+        start -= 1;
+    }
+    let mut end = idx.min(chars.len());
+    while end < chars.len() && is_word(chars[end]) {
+        end += 1;
+    }
+    if start == end {
+        return None;
+    }
+    Some(Range {
+        start: Position {
+            line,
+            character: u32::try_from(start).unwrap_or(0),
+        },
+        end: Position {
+            line,
+            character: u32::try_from(end).unwrap_or(0),
+        },
+    })
+}
+
 fn make_symbol(name: &str, kind: SymbolKind, line: u32) -> lsp_max::lsp_types::DocumentSymbol {
     let range = Range {
         start: Position { line, character: 0 },
@@ -451,7 +539,7 @@ mod tests {
         let analyzer = RdfAnalyzer::with_flavor(ttl, RdfFlavor::Turtle);
         let diags = analyzer.diagnostics();
         assert!(!diags.is_empty());
-        assert_eq!(diags[0].severity, Some(DiagnosticSeverity::ERROR));
+        assert_eq!(diags[0].lsp.severity, Some(DiagnosticSeverity::ERROR));
     }
 
     #[test]

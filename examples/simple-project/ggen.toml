@@ -20,7 +20,6 @@ output_dir = "."
 
 [[generation.rules]]
 name = "cargo-toml"
-description = "Generate Cargo.toml manifest from project spec"
 query = { inline = """
 PREFIX proj: <https://ggen.io/ontology/projects#>
 SELECT ?project_name ?version ?description
@@ -38,7 +37,6 @@ mode = "Overwrite"
 
 [[generation.rules]]
 name = "main-rs"
-description = "Generate src/main.rs entry point"
 query = { inline = """
 PREFIX proj: <https://ggen.io/ontology/projects#>
 SELECT ?project_name
@@ -54,7 +52,6 @@ mode = "Overwrite"
 
 [[generation.rules]]
 name = "lib-rs"
-description = "Generate src/lib.rs with documentation"
 query = { inline = """
 PREFIX proj: <https://ggen.io/ontology/projects#>
 SELECT ?project_name ?documentation
@@ -71,7 +68,6 @@ mode = "Overwrite"
 
 [[generation.rules]]
 name = "project-guide"
-description = "Generate PROJECT_GUIDE.md"
 query = { inline = """
 PREFIX proj: <https://ggen.io/ontology/projects#>
 SELECT ?project_name ?description
@@ -88,7 +84,6 @@ mode = "Overwrite"
 
 [[generation.rules]]
 name = "gitignore"
-description = "Generate .gitignore"
 query = { inline = """
 PREFIX proj: <https://ggen.io/ontology/projects#>
 SELECT ?project_name
@@ -104,7 +99,6 @@ mode = "Overwrite"
 
 [[generation.rules]]
 name = "ci-yaml"
-description = "Generate GitHub Actions CI workflow"
 query = { inline = """
 PREFIX proj: <https://ggen.io/ontology/projects#>
 SELECT ?project_name
@@ -120,7 +114,6 @@ mode = "Overwrite"
 
 [[generation.rules]]
 name = "dependencies"
-description = "Generate DEPENDENCIES.md"
 query = { inline = """
 PREFIX proj: <https://ggen.io/ontology/projects#>
 SELECT ?project_name
@@ -136,7 +129,6 @@ mode = "Overwrite"
 
 [[generation.rules]]
 name = "getting-started"
-description = "Generate GETTING_STARTED.md"
 query = { inline = """
 PREFIX proj: <https://ggen.io/ontology/projects#>
 SELECT ?project_name
@@ -152,7 +144,6 @@ mode = "Overwrite"
 
 [[generation.rules]]
 name = "structure"
-description = "Generate STRUCTURE.md"
 query = { inline = """
 PREFIX proj: <https://ggen.io/ontology/projects#>
 SELECT ?project_name
@@ -168,7 +159,6 @@ mode = "Overwrite"
 
 [[generation.rules]]
 name = "testing"
-description = "Generate TESTING.md"
 query = { inline = """
 PREFIX proj: <https://ggen.io/ontology/projects#>
 SELECT ?project_name

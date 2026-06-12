@@ -12,9 +12,8 @@ mod backward_compat_tests {
 
     /// Helper: Run ggen marketplace command
     fn run_marketplace_cmd(args: &[&str]) -> Result<String, String> {
-        let output = Command::new("cargo")
-            .args(&["run", "--features", "marketplace-v1", "--"])
-            .args(&["marketplace"])
+        let output = Command::new(env!("CARGO_BIN_EXE_ggen"))
+            .arg("marketplace")
             .args(args)
             .output()
             .map_err(|e| format!("Failed to execute command: {}", e))?;
@@ -198,8 +197,8 @@ mod backward_compat_tests {
 
     #[test]
     fn test_v1_version_flag_works() {
-        let output = Command::new("cargo")
-            .args(&["run", "--features", "marketplace-v1", "--", "--version"])
+        let output = Command::new(env!("CARGO_BIN_EXE_ggen"))
+            .arg("--version")
             .output()
             .expect("Failed to execute version command");
 

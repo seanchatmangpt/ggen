@@ -416,6 +416,11 @@ pub fn check_files_in_root(root: &Path, paths: &[PathBuf], with_routes: bool) ->
     let pack_warn_added = fold_pack_001(root, &mut files, registry.as_ref());
     warning_count += pack_warn_added;
 
+    // Cross-surface laws: GGEN-SRC-001/002/003 (source-caste path, DO NOT EDIT banners,
+    // source-caste comments). All are ERROR severity.
+    error_count += fold_src_001(root, &mut files, registry.as_ref());
+    error_count += fold_src_002_003(root, &mut files, registry.as_ref());
+
     let route_summary = with_routes.then(|| summarize_routes(&files));
 
     CheckReport {
@@ -666,6 +671,44 @@ fn fold_pack_001(
         .count();
     fold_species(files, registry, groups);
     warn_count
+}
+
+
+fn fold_src_001(
+    root: &Path, files: &mut Vec<FileReport>, registry: Option<&crate::route::RouteRegistry>,
+) -> usize {
+    let Ok(project) = crate::project_index::ProjectIndex::from_root(root) else {
+        return 0;
+    };
+    fold_species(files, registry, crate::analyzers::detect_src_001(&project))
+}
+
+fn fold_src_002_003(
+    root: &Path, files: &mut Vec<FileReport>, registry: Option<&crate::route::RouteRegistry>,
+) -> usize {
+    let Ok(project) = crate::project_index::ProjectIndex::from_root(root) else {
+        return 0;
+    };
+    // Collect unique parent directories of each rule's output file.
+    let mut dirs: Vec<std::path::PathBuf> = project.rule_entries.iter()
+        .map(|e| {
+            let p = std::path::Path::new(&e.output_file);
+            if p.is_absolute() {
+                p.parent().map(|x| x.to_path_buf()).unwrap_or_else(|| root.to_path_buf())
+            } else {
+                root.join(p).parent().map(|x| x.to_path_buf()).unwrap_or_else(|| root.to_path_buf())
+            }
+        })
+        .collect();
+    // Always include project root itself.
+    dirs.push(root.to_path_buf());
+    dirs.sort();
+    dirs.dedup();
+    let mut groups = Vec::new();
+    for dir in &dirs {
+        groups.extend(crate::analyzers::detect_src_002_003_in_dir(dir));
+    }
+    fold_species(files, registry, groups)
 }
 
 /// `/abs/proj/templates/row.tera`). Canonicalization is best-effort: if either

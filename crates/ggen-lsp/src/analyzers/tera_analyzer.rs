@@ -249,7 +249,7 @@ impl TeraAnalyzer {
         None
     }
 
-    pub fn document_symbols(&self) -> Option<Vec<DocumentSymbol>> {
+    pub fn document_symbols(&self, _range: Option<Range>) -> Vec<DocumentSymbol> {
         let mut symbols = Vec::new();
         for (idx, text) in self.source.lines().enumerate() {
             let line = u32::try_from(idx).unwrap_or(0);
@@ -271,11 +271,7 @@ impl TeraAnalyzer {
                 }
             }
         }
-        if symbols.is_empty() {
-            None
-        } else {
-            Some(symbols)
-        }
+        symbols
     }
 
     pub fn code_lenses(&self) -> Option<Vec<CodeLens>> {
@@ -322,8 +318,8 @@ impl TeraAnalyzer {
         None
     }
 
-    pub fn inlay_hints(&self) -> Option<Vec<InlayHint>> {
-        None
+    pub fn inlay_hints(&self, _range: Option<Range>) -> Vec<InlayHint> {
+        Vec::new()
     }
 
     pub fn rename_symbol(&self, _position: Position, _new_name: &str) -> Option<WorkspaceEdit> {

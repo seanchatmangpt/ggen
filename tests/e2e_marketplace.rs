@@ -108,7 +108,6 @@ fn simulate_search(query: &str) -> Result<Vec<String>> {
     // Load registry index
     let manifest_dir = env::var("CARGO_MANIFEST_DIR")?;
     let registry_path = PathBuf::from(manifest_dir)
-        .join("docs")
         .join("registry")
         .join("index.json");
     let registry_content = fs::read_to_string(&registry_path)?;
@@ -201,7 +200,6 @@ fn resolve_template(template_ref: &str, project_dir: &std::path::Path) -> Result
 fn test_registry_validation() -> Result<()> {
     let manifest_dir = env::var("CARGO_MANIFEST_DIR")?;
     let registry_path = PathBuf::from(manifest_dir)
-        .join("docs")
         .join("registry")
         .join("index.json");
 

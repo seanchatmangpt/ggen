@@ -19,3 +19,8 @@ pub mod paas;
 /// Generate constraint-aware DSPy modules from OWL ontologies.
 /// Implements the LLM-Construct transformation pipeline: OWL → SHACL → DSPy.
 pub mod construct;
+
+/// Verification Commands
+///
+/// Implements cryptographic verification of receipts and receipt chains.
+pub mod verify;

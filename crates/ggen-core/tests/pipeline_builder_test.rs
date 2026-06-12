@@ -289,9 +289,7 @@ fn test_dangerous_command_rm_rf_blocked() {
     assert!(result.is_err(), "rm -rf / should be blocked");
     let err_msg = result.unwrap_err().to_string();
     assert!(
-        err_msg.contains("SECURITY")
-            || err_msg.contains("dangerous")
-            || err_msg.contains("Blocked"),
+        err_msg.contains("not in whitelist") || err_msg.contains("not allowed"),
         "Error should mention security block, got: {}",
         err_msg
     );

@@ -380,7 +380,9 @@ mod tests {
 }
 
 // Benchmark suite
-#[cfg(feature = "all-adapters")]
+#[allow(unexpected_cfgs)]
+#[cfg(all(feature = "all-adapters", benchmark_mode))]
+#[allow(clippy::unwrap_used, unused_must_use)]
 pub mod benchmarks {
     use super::*;
     use criterion::{black_box, criterion_group, criterion_main, Criterion};
@@ -476,16 +478,14 @@ pub mod benchmarks {
 
         group.finish();
     }
-}
 
-#[cfg(feature = "all-adapters")]
-criterion_group!(
-    benches,
-    benchmark_agent_operations,
-    benchmark_task_operations,
-    benchmark_message_operations,
-    benchmark_port_operations,
-    benchmark_adapter_operations
-);
-#[cfg(feature = "all-adapters")]
-criterion_main!(benches);
+    criterion_group!(
+        benches,
+        benchmark_agent_operations,
+        benchmark_task_operations,
+        benchmark_message_operations,
+        benchmark_port_operations,
+        benchmark_adapter_operations
+    );
+    criterion_main!(benches);
+}

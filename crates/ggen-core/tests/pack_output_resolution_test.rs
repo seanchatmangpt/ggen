@@ -95,7 +95,7 @@ fn missing_package_toml_returns_empty_struct() {
         "missing package.toml must produce empty PackageToml with literal fallback"
     );
     assert!(
-        pkg.outputs.is_empty(),
+        pkg.pack.as_ref().map_or(true, |p| p.outputs.is_empty()),
         "outputs map must be empty when package.toml is absent"
     );
 }

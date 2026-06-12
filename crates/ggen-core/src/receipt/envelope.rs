@@ -293,6 +293,15 @@ impl EnvelopeChain {
             let curr = &self.envelopes[i];
             let prev = &self.envelopes[i - 1];
             curr.verify(verifying_key)?;
+
+            // GGEN-RECEIPT-002: Ensure timestamp monotonicity.
+            if curr.timestamp < prev.timestamp {
+                return Err(ReceiptError::InvalidChain(format!(
+                    "envelope at index {} has timestamp ({}) earlier than previous ({})",
+                    i, curr.timestamp, prev.timestamp
+                )));
+            }
+
             match &curr.chain.previous_envelope_hash {
                 Some(p) if p == &prev.chain.own_hash => {}
                 Some(p) => {

@@ -376,6 +376,24 @@ pub fn build_analyzer(path: &str, content: &str) -> Option<DocumentAnalyzer> {
     }
 }
 
+pub trait Analyzer {
+    fn diagnostics(&self) -> Vec<MaxDiagnostic>;
+    fn completion_at(&self, line: u32, character: u32) -> Option<CompletionResponse>;
+    fn hover_at(&self, line: u32, character: u32) -> Option<Hover>;
+    fn definition_at(&self, line: u32, character: u32) -> Option<Location>;
+    fn references_at(&self, line: u32, character: u32) -> Option<Vec<Location>>;
+    fn semantic_tokens(&self) -> Option<SemanticTokens>;
+    fn document_symbols(&self, range: Option<Range>) -> Vec<DocumentSymbol>;
+    fn code_lenses(&self) -> Option<Vec<CodeLens>>;
+    fn folding_ranges(&self) -> Option<Vec<FoldingRange>>;
+    fn format_document(&self) -> Option<Vec<TextEdit>>;
+    fn inlay_hints(&self, range: Option<Range>) -> Vec<InlayHint>;
+    fn prepare_rename(&self, position: Position) -> Option<Range>;
+    fn rename_symbol(&self, position: Position, new_name: &str) -> Option<WorkspaceEdit>;
+    fn call_hierarchy_items(&self, position: Position) -> Option<Vec<CallHierarchyItem>>;
+    fn type_hierarchy_items(&self, position: Position) -> Option<Vec<TypeHierarchyItem>>;
+}
+
 #[derive(Clone)]
 pub enum DocumentAnalyzer {
     Rdf(RdfAnalyzer),
@@ -451,19 +469,27 @@ impl DocumentAnalyzer {
         }
     }
 
-    pub fn document_symbols(&self) -> Option<Vec<DocumentSymbol>> {
+    pub fn document_symbols(&self, range: Option<Range>) -> Vec<DocumentSymbol> {
         match self {
-            Self::Rdf(a) => a.document_symbols(),
-            Self::Sparql(a) => a.document_symbols(),
-            Self::Tera(a) => a.document_symbols(),
-            Self::Toml(a) => a.document_symbols(),
+            Self::Rdf(a) => a.document_symbols(range).into_iter().map(|s| {
+                serde_json::from_value(serde_json::to_value(s).unwrap()).unwrap()
+            }).collect(),
+            Self::Sparql(a) => a.document_symbols(range).into_iter().map(|s| {
+                serde_json::from_value(serde_json::to_value(s).unwrap()).unwrap()
+            }).collect(),
+            Self::Tera(a) => a.document_symbols(range),
+            Self::Toml(a) => a.document_symbols(range),
         }
     }
 
     pub fn code_lenses(&self) -> Option<Vec<CodeLens>> {
         match self {
-            Self::Rdf(a) => a.code_lenses(),
-            Self::Sparql(a) => a.code_lenses(),
+            Self::Rdf(a) => a.code_lenses().map(|v| v.into_iter().map(|l| {
+                serde_json::from_value(serde_json::to_value(l).unwrap()).unwrap()
+            }).collect()),
+            Self::Sparql(a) => a.code_lenses().map(|v| v.into_iter().map(|l| {
+                serde_json::from_value(serde_json::to_value(l).unwrap()).unwrap()
+            }).collect()),
             Self::Tera(a) => a.code_lenses(),
             Self::Toml(a) => a.code_lenses(),
         }
@@ -471,8 +497,12 @@ impl DocumentAnalyzer {
 
     pub fn folding_ranges(&self) -> Option<Vec<FoldingRange>> {
         match self {
-            Self::Rdf(a) => a.folding_ranges(),
-            Self::Sparql(a) => a.folding_ranges(),
+            Self::Rdf(a) => a.folding_ranges().map(|v| v.into_iter().map(|r| {
+                serde_json::from_value(serde_json::to_value(r).unwrap()).unwrap()
+            }).collect()),
+            Self::Sparql(a) => a.folding_ranges().map(|v| v.into_iter().map(|r| {
+                serde_json::from_value(serde_json::to_value(r).unwrap()).unwrap()
+            }).collect()),
             Self::Tera(a) => a.folding_ranges(),
             Self::Toml(a) => a.folding_ranges(),
         }
@@ -480,35 +510,27 @@ impl DocumentAnalyzer {
 
     pub fn format_document(&self) -> Option<Vec<TextEdit>> {
         match self {
-            Self::Rdf(a) => a.format_document(),
-            Self::Sparql(a) => a.format_document(),
+            Self::Rdf(a) => a.format_document().map(|v| v.into_iter().map(|e| {
+                serde_json::from_value(serde_json::to_value(e).unwrap()).unwrap()
+            }).collect()),
+            Self::Sparql(a) => a.format_document().map(|v| v.into_iter().map(|e| {
+                serde_json::from_value(serde_json::to_value(e).unwrap()).unwrap()
+            }).collect()),
             Self::Tera(a) => a.format_document(),
             Self::Toml(a) => a.format_document(),
         }
     }
 
-    pub fn inlay_hints(&self, _range: Range) -> Option<Vec<InlayHint>> {
+    pub fn inlay_hints(&self, range: Option<Range>) -> Vec<InlayHint> {
         match self {
-            Self::Rdf(a) => a.inlay_hints().map(|v| v.into_iter().map(|h| {
-                // Convert lsp_types::InlayHint to lsp_types_max::InlayHint if they differ,
-                // otherwise serde roundtrip/transmute or direct cast. Let's do a direct json roundtrip if they differ,
-                // or let Serde handle it. Wait, let's see if they are the same type.
-                // If they are not the same type, we can serialize/deserialize.
-                // Let's do a serialize/deserialize using serde_json to be extremely safe,
-                // or just map it if they are identical.
-                // Actually, let's see if they are the same. In rust, if two structs have the same path/module they are the same.
-                // Let's just serialize/deserialize via json:
+            Self::Rdf(a) => a.inlay_hints(range).into_iter().map(|h| {
                 serde_json::from_value(serde_json::to_value(h).unwrap()).unwrap()
-            }).collect()),
-            Self::Sparql(a) => a.inlay_hints().map(|v| v.into_iter().map(|h| {
+            }).collect(),
+            Self::Sparql(a) => a.inlay_hints(range).into_iter().map(|h| {
                 serde_json::from_value(serde_json::to_value(h).unwrap()).unwrap()
-            }).collect()),
-            Self::Tera(a) => a.inlay_hints().map(|v| v.into_iter().map(|h| {
-                serde_json::from_value(serde_json::to_value(h).unwrap()).unwrap()
-            }).collect()),
-            Self::Toml(a) => a.inlay_hints().map(|v| v.into_iter().map(|h| {
-                serde_json::from_value(serde_json::to_value(h).unwrap()).unwrap()
-            }).collect()),
+            }).collect(),
+            Self::Tera(a) => a.inlay_hints(range),
+            Self::Toml(a) => a.inlay_hints(range),
         }
     }
 

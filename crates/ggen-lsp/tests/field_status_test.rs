@@ -34,7 +34,7 @@ use ggen_lsp::{
 };
 use tempfile::TempDir;
 
-const E0011_SRC: &str = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }\n";
+const E0011_SRC: &str = "CONSTRUCT { ?s <http://ex.org/p> ?o } WHERE { ?s ?p ?o }\n";
 
 #[test]
 fn empty_project_reports_no_evidence() {

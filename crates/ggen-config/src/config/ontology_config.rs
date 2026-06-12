@@ -13,6 +13,7 @@ use std::path::PathBuf;
 
 /// Ontology configuration section in ggen.toml
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct OntologyConfig {
     /// Installed ontology pack references
     pub packs: Vec<OntologyPackRef>,
@@ -32,6 +33,7 @@ pub struct OntologyConfig {
 
 /// Reference to an installed ontology pack
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct OntologyPackRef {
     /// Pack name (e.g., "schema-org", "dublin-core")
     pub name: String,
@@ -91,6 +93,7 @@ pub enum ConflictResolution {
 
 /// Code generation target configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct TargetConfig {
     /// Target language (typescript, rust, python, go)
     pub language: String,
@@ -110,6 +113,7 @@ pub struct TargetConfig {
 
 /// Hooks to run during/after code generation
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct GenerationHooks {
     /// Command to run before generation
     pub pre_generate: Option<String>,
@@ -123,6 +127,7 @@ pub struct GenerationHooks {
 
 /// Lock file configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct LockConfig {
     /// Path to lock file
     pub file: PathBuf,

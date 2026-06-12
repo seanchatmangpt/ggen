@@ -243,7 +243,7 @@ pub use cache::{CacheManager, CachedPack};
 pub use delta::{DeltaType, GraphDelta, ImpactAnalyzer, TemplateImpact};
 pub use drift::{ChangeType, DriftChange, DriftDetector, DriftStatus, FileHashState, SyncState};
 pub use generator::{GenContext, Generator};
-pub use ggen_a2a_mcp::{a2a, a2a_generated, a2a_registry};
+// pub use ggen_a2a_mcp::{a2a, a2a_generated, a2a_registry};
 pub use ggen_config::config::LockfileManager;
 pub use ggen_config::{config, config_lib, ConfigError, ConfigLoader, GgenConfig, Result};
 // Re-export marketplace types from ggen-marketplace crate for backward compatibility

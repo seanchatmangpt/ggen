@@ -13,7 +13,7 @@ members = [
 ]
 
 [workspace.package]
-version = "26.5.4"
+version = "26.6.9"
 edition.workspace = true
 rust-version = "1.75"
 authors = ["ggen-core contributors"]

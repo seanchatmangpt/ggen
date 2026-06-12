@@ -36,14 +36,14 @@ use std::path::Path;
 /// Discovered by: grep -rn "error\[E00" crates/ggen-core/src/ --include='*.rs'
 const ACTIVE_ERROR_CODES: &[&str] = &[
     "E0001", "E0002", "E0003", "E0004", "E0005", "E0006", "E0007", "E0008", "E0009", "E0010",
-    "E0011", "E0012", "E0020", "E0021", "E0022", "E0023", "E0024", "E0025", "E0027", "E0028",
-    "E0029",
+    "E0011", "E0012", "E0013", "E0014", "E0020", "E0021", "E0022", "E0023", "E0024", "E0025",
+    "E0027", "E0028", "E0029",
 ];
 
 /// Reserved codes (gaps in the E00XX sequence)
 /// These should not appear in error messages, only in documentation
 const RESERVED_ERROR_CODES: &[&str] = &[
-    "E0013", "E0014", "E0015", "E0016", "E0017", "E0018", "E0019", "E0026",
+    "E0015", "E0016", "E0017", "E0018", "E0019", "E0026",
 ];
 
 #[test]
@@ -259,13 +259,13 @@ fn test_error_code_sequence_consistency() {
     let mut expected_active = HashSet::new();
     let mut expected_reserved = HashSet::new();
 
-    // E0001-E0012: CODEGEN errors
-    for i in 1..=12 {
+    // E0001-E0014: CODEGEN errors
+    for i in 1..=14 {
         expected_active.insert(format!("E{:04}", i));
     }
 
-    // E0013-E0019: Reserved
-    for i in 13..=19 {
+    // E0015-E0019: Reserved
+    for i in 15..=19 {
         expected_reserved.insert(format!("E{:04}", i));
     }
 

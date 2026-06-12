@@ -3,10 +3,11 @@
 //! This module defines the message abstractions for agent-to-agent
 //! communication patterns.
 
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// Message represents a communication between agents
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Message {
     /// Unique identifier for the message
     pub id: String,
@@ -29,7 +30,7 @@ pub struct Message {
 }
 
 /// Message types supported by the A2A system
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum MessageType {
     /// Task request message
     TaskRequest,
@@ -50,7 +51,7 @@ pub enum MessageType {
 }
 
 /// Message payload structure
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct MessagePayload {
     /// Message content
     pub content: serde_json::Value,
@@ -61,7 +62,7 @@ pub struct MessagePayload {
 }
 
 /// Message priority levels
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum MessagePriority {
     Low,
     Normal,
@@ -70,7 +71,7 @@ pub enum MessagePriority {
 }
 
 /// Message status during processing
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum MessageStatus {
     /// Message created and ready to send
     Created,
@@ -105,7 +106,7 @@ pub trait MessageHandler: Send + Sync {
 }
 
 /// Response to a message
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct MessageResponse {
     /// Response status
     pub status: ResponseStatus,
@@ -118,7 +119,7 @@ pub struct MessageResponse {
 }
 
 /// Response status types
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum ResponseStatus {
     /// Success response
     Success,
@@ -131,7 +132,7 @@ pub enum ResponseStatus {
 }
 
 /// Message handling error
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct MessageError {
     /// Error message
     pub message: String,
@@ -142,7 +143,7 @@ pub struct MessageError {
 }
 
 /// Types of message errors
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum MessageErrorType {
     /// Unsupported message type
     UnsupportedMessageType,
@@ -175,7 +176,7 @@ impl std::fmt::Display for MessageErrorType {
 }
 
 /// Message handler capabilities
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct MessageCapabilities {
     /// Message types this handler can process
     pub supported_types: Vec<MessageType>,

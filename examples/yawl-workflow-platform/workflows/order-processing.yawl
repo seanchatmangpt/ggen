@@ -1,0 +1,690 @@
+
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.yawlfoundation.org/yawlschema"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  version="4.0"
+                  xsi:schemaLocation="http://www.yawlfoundation.org/yawlschema YAWL_Schema4.0.xsd">
+
+  <!-- Workflow: CI/CD Pipeline Workflow -->
+  <specification uri="cicd-pipeline">
+    <documentation>Continuous integration pipeline with conditional testing</documentation>
+    <metaData>
+      <title>CI/CD Pipeline Workflow</title>
+      <version>1.0.0</version>
+      <persistent>false</persistent>
+      <identifier>cicd-pipeline</identifier>
+    </metaData>
+
+    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <!-- Case-level data variables -->
+      <xs:complexType name="CaseDataType">
+        <xs:sequence>
+          <xs:element name="caseId" type="xs:string"/>
+          <xs:element name="startTime" type="xs:dateTime"/>
+          <xs:element name="status" type="xs:string"/>
+          <xs:element name="customData" type="xs:anyType" minOccurs="0"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:schema>
+
+    <decomposition id="cicd-pipeline_Net" isRootNet="true" xsi:type="NetFactsType">
+      <name>CI/CD Pipeline Workflow</name>
+
+      <!-- Local Variables -->
+      <localVariable>
+        <index>0</index>
+        <name>caseData</name>
+        <type>CaseDataType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>{"caseId": "", "startTime": "", "status": "active"}</initialValue>
+      </localVariable>
+
+      <!-- Process Control Flow -->
+      <processControlElements>
+
+        <!-- Input Condition -->
+        <inputCondition id="InputCondition_cicd-pipeline">
+          <name>Code Pushed</name>
+          <documentation>Start of CI/CD Pipeline Workflow</documentation>
+        </inputCondition>
+
+        
+        <!-- Task: deploy -->
+        <task id="deploy">
+          <name>Deploy</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition_cicd-pipeline"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="and"/>
+          <decomposesTo id="deploy_Decomposition"/>
+        </task>
+        <!-- Task: merge-results -->
+        <task id="merge-results">
+          <name>Merge Results</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition_cicd-pipeline"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="and"/>
+          <decomposesTo id="merge-results_Decomposition"/>
+        </task>
+        <!-- Task: run-e2e-tests -->
+        <task id="run-e2e-tests">
+          <name>Run E2 E Tests</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition_cicd-pipeline"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="and"/>
+          <decomposesTo id="run-e2e-tests_Decomposition"/>
+        </task>
+        <!-- Task: run-integration-tests -->
+        <task id="run-integration-tests">
+          <name>Run Integration Tests</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition_cicd-pipeline"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="and"/>
+          <decomposesTo id="run-integration-tests_Decomposition"/>
+        </task>
+        <!-- Task: run-unit-tests -->
+        <task id="run-unit-tests">
+          <name>Run Unit Tests</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition_cicd-pipeline"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="and"/>
+          <decomposesTo id="run-unit-tests_Decomposition"/>
+        </task>
+        <!-- Task: build-project -->
+        <task id="build-project">
+          <name>Build Project</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition_cicd-pipeline"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="and"/>
+          <decomposesTo id="build-project_Decomposition"/>
+        </task>
+        <!-- Task: checkout-code -->
+        <task id="checkout-code">
+          <name>Checkout Code</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition_cicd-pipeline"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="and"/>
+          <decomposesTo id="checkout-code_Decomposition"/>
+        </task>
+
+        <!-- Output Condition -->
+        <outputCondition id="OutputCondition_cicd-pipeline">
+          <name>Deployed</name>
+          <documentation>End of CI/CD Pipeline Workflow</documentation>
+        </outputCondition>
+
+      </processControlElements>
+    </decomposition>
+
+    
+    <decomposition id="deploy_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Deploy Service</name>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+    <decomposition id="merge-results_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Merge Results Service</name>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+    <decomposition id="run-e2e-tests_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Run E2 E Tests Service</name>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+    <decomposition id="run-integration-tests_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Run Integration Tests Service</name>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+    <decomposition id="run-unit-tests_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Run Unit Tests Service</name>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+    <decomposition id="build-project_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Build Project Service</name>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+    <decomposition id="checkout-code_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Checkout Code Service</name>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+
+  </specification>
+
+  <!-- Workflow: Document Approval Workflow -->
+  <specification uri="document-approval">
+    <documentation>Standard document approval with review and decision branching</documentation>
+    <metaData>
+      <title>Document Approval Workflow</title>
+      <version>1.0.0</version>
+      <persistent>false</persistent>
+      <identifier>document-approval</identifier>
+    </metaData>
+
+    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <!-- Case-level data variables -->
+      <xs:complexType name="CaseDataType">
+        <xs:sequence>
+          <xs:element name="caseId" type="xs:string"/>
+          <xs:element name="startTime" type="xs:dateTime"/>
+          <xs:element name="status" type="xs:string"/>
+          <xs:element name="customData" type="xs:anyType" minOccurs="0"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:schema>
+
+    <decomposition id="document-approval_Net" isRootNet="true" xsi:type="NetFactsType">
+      <name>Document Approval Workflow</name>
+
+      <!-- Local Variables -->
+      <localVariable>
+        <index>0</index>
+        <name>caseData</name>
+        <type>CaseDataType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>{"caseId": "", "startTime": "", "status": "active"}</initialValue>
+      </localVariable>
+
+      <!-- Process Control Flow -->
+      <processControlElements>
+
+        <!-- Input Condition -->
+        <inputCondition id="InputCondition_document-approval">
+          <name>Start</name>
+          <documentation>Start of Document Approval Workflow</documentation>
+        </inputCondition>
+
+        
+        <!-- Task: notify-submitter -->
+        <task id="notify-submitter">
+          <name>Notify Submitter</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition_document-approval"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="and"/>
+          <decomposesTo id="notify-submitter_Decomposition"/>
+        </task>
+        <!-- Task: reject-document -->
+        <task id="reject-document">
+          <name>Reject Document</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition_document-approval"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="and"/>
+          <decomposesTo id="reject-document_Decomposition"/>
+        </task>
+        <!-- Task: approve-document -->
+        <task id="approve-document">
+          <name>Approve Document</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition_document-approval"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="and"/>
+          <decomposesTo id="approve-document_Decomposition"/>
+        </task>
+        <!-- Task: review-document -->
+        <task id="review-document">
+          <name>Review Document</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition_document-approval"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="and"/>
+          <decomposesTo id="review-document_Decomposition"/>
+        </task>
+        <!-- Task: submit-document -->
+        <task id="submit-document">
+          <name>Submit Document</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition_document-approval"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="and"/>
+          <decomposesTo id="submit-document_Decomposition"/>
+        </task>
+
+        <!-- Output Condition -->
+        <outputCondition id="OutputCondition_document-approval">
+          <name>End</name>
+          <documentation>End of Document Approval Workflow</documentation>
+        </outputCondition>
+
+      </processControlElements>
+    </decomposition>
+
+    
+    <decomposition id="notify-submitter_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Notify Submitter Service</name>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+    <decomposition id="reject-document_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Reject Document Service</name>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+    <decomposition id="approve-document_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Approve Document Service</name>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+    <decomposition id="review-document_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Review Document Service</name>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+    <decomposition id="submit-document_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Submit Document Service</name>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+
+  </specification>
+
+  <!-- Workflow: HR Onboarding Workflow -->
+  <specification uri="hr-onboarding">
+    <documentation>Employee onboarding with multiple training modules</documentation>
+    <metaData>
+      <title>HR Onboarding Workflow</title>
+      <version>1.0.0</version>
+      <persistent>false</persistent>
+      <identifier>hr-onboarding</identifier>
+    </metaData>
+
+    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <!-- Case-level data variables -->
+      <xs:complexType name="CaseDataType">
+        <xs:sequence>
+          <xs:element name="caseId" type="xs:string"/>
+          <xs:element name="startTime" type="xs:dateTime"/>
+          <xs:element name="status" type="xs:string"/>
+          <xs:element name="customData" type="xs:anyType" minOccurs="0"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:schema>
+
+    <decomposition id="hr-onboarding_Net" isRootNet="true" xsi:type="NetFactsType">
+      <name>HR Onboarding Workflow</name>
+
+      <!-- Local Variables -->
+      <localVariable>
+        <index>0</index>
+        <name>caseData</name>
+        <type>CaseDataType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>{"caseId": "", "startTime": "", "status": "active"}</initialValue>
+      </localVariable>
+
+      <!-- Process Control Flow -->
+      <processControlElements>
+
+        <!-- Input Condition -->
+        <inputCondition id="InputCondition_hr-onboarding">
+          <name>New Hire Start</name>
+          <documentation>Start of HR Onboarding Workflow</documentation>
+        </inputCondition>
+
+        
+        <!-- Task: finalize-onboarding -->
+        <task id="finalize-onboarding">
+          <name>Finalize Onboarding</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition_hr-onboarding"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="and"/>
+          <decomposesTo id="finalize-onboarding_Decomposition"/>
+        </task>
+        <!-- Task: setup-workstation -->
+        <task id="setup-workstation">
+          <name>Setup Workstation</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition_hr-onboarding"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="and"/>
+          <decomposesTo id="setup-workstation_Decomposition"/>
+        </task>
+        <!-- Task: complete-training-module -->
+        <task id="complete-training-module">
+          <name>Complete Training Module</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition_hr-onboarding"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="and"/>
+          <decomposesTo id="complete-training-module_Decomposition"/>
+        </task>
+        <!-- Task: assign-training -->
+        <task id="assign-training">
+          <name>Assign Training</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition_hr-onboarding"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="and"/>
+          <decomposesTo id="assign-training_Decomposition"/>
+        </task>
+        <!-- Task: create-employee-record -->
+        <task id="create-employee-record">
+          <name>Create Employee Record</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition_hr-onboarding"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="and"/>
+          <decomposesTo id="create-employee-record_Decomposition"/>
+        </task>
+
+        <!-- Output Condition -->
+        <outputCondition id="OutputCondition_hr-onboarding">
+          <name>Onboarding Complete</name>
+          <documentation>End of HR Onboarding Workflow</documentation>
+        </outputCondition>
+
+      </processControlElements>
+    </decomposition>
+
+    
+    <decomposition id="finalize-onboarding_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Finalize Onboarding Service</name>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+    <decomposition id="setup-workstation_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Setup Workstation Service</name>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+    <decomposition id="complete-training-module_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Complete Training Module Service</name>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+    <decomposition id="assign-training_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Assign Training Service</name>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+    <decomposition id="create-employee-record_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Create Employee Record Service</name>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+
+  </specification>
+
+  <!-- Workflow: Incident Management Workflow -->
+  <specification uri="incident-management">
+    <documentation>IT incident management with worklet exception handlers</documentation>
+    <metaData>
+      <title>Incident Management Workflow</title>
+      <version>1.0.0</version>
+      <persistent>false</persistent>
+      <identifier>incident-management</identifier>
+    </metaData>
+
+    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <!-- Case-level data variables -->
+      <xs:complexType name="CaseDataType">
+        <xs:sequence>
+          <xs:element name="caseId" type="xs:string"/>
+          <xs:element name="startTime" type="xs:dateTime"/>
+          <xs:element name="status" type="xs:string"/>
+          <xs:element name="customData" type="xs:anyType" minOccurs="0"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:schema>
+
+    <decomposition id="incident-management_Net" isRootNet="true" xsi:type="NetFactsType">
+      <name>Incident Management Workflow</name>
+
+      <!-- Local Variables -->
+      <localVariable>
+        <index>0</index>
+        <name>caseData</name>
+        <type>CaseDataType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>{"caseId": "", "startTime": "", "status": "active"}</initialValue>
+      </localVariable>
+
+      <!-- Process Control Flow -->
+      <processControlElements>
+
+        <!-- Input Condition -->
+        <inputCondition id="InputCondition_incident-management">
+          <name>Incident Reported</name>
+          <documentation>Start of Incident Management Workflow</documentation>
+        </inputCondition>
+
+        
+        <!-- Task: close-incident -->
+        <task id="close-incident">
+          <name>Close Incident</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition_incident-management"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="and"/>
+          <decomposesTo id="close-incident_Decomposition"/>
+        </task>
+        <!-- Task: verify-resolution -->
+        <task id="verify-resolution">
+          <name>Verify Resolution</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition_incident-management"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="and"/>
+          <decomposesTo id="verify-resolution_Decomposition"/>
+        </task>
+        <!-- Task: resolve-incident -->
+        <task id="resolve-incident">
+          <name>Resolve Incident</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition_incident-management"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="and"/>
+          <decomposesTo id="resolve-incident_Decomposition"/>
+        </task>
+        <!-- Task: assign-technician -->
+        <task id="assign-technician">
+          <name>Assign Technician</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition_incident-management"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="and"/>
+          <decomposesTo id="assign-technician_Decomposition"/>
+        </task>
+        <!-- Task: classify-incident -->
+        <task id="classify-incident">
+          <name>Classify Incident</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition_incident-management"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="and"/>
+          <decomposesTo id="classify-incident_Decomposition"/>
+        </task>
+        <!-- Task: log-incident -->
+        <task id="log-incident">
+          <name>Log Incident</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition_incident-management"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="and"/>
+          <decomposesTo id="log-incident_Decomposition"/>
+        </task>
+
+        <!-- Output Condition -->
+        <outputCondition id="OutputCondition_incident-management">
+          <name>Incident Closed</name>
+          <documentation>End of Incident Management Workflow</documentation>
+        </outputCondition>
+
+      </processControlElements>
+    </decomposition>
+
+    
+    <decomposition id="close-incident_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Close Incident Service</name>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+    <decomposition id="verify-resolution_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Verify Resolution Service</name>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+    <decomposition id="resolve-incident_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Resolve Incident Service</name>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+    <decomposition id="assign-technician_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Assign Technician Service</name>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+    <decomposition id="classify-incident_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Classify Incident Service</name>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+    <decomposition id="log-incident_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Log Incident Service</name>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+
+  </specification>
+
+  <!-- Workflow: Order Processing Workflow -->
+  <specification uri="order-processing">
+    <documentation>Order processing with parallel payment and inventory checks</documentation>
+    <metaData>
+      <title>Order Processing Workflow</title>
+      <version>1.0.0</version>
+      <persistent>false</persistent>
+      <identifier>order-processing</identifier>
+    </metaData>
+
+    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <!-- Case-level data variables -->
+      <xs:complexType name="CaseDataType">
+        <xs:sequence>
+          <xs:element name="caseId" type="xs:string"/>
+          <xs:element name="startTime" type="xs:dateTime"/>
+          <xs:element name="status" type="xs:string"/>
+          <xs:element name="customData" type="xs:anyType" minOccurs="0"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:schema>
+
+    <decomposition id="order-processing_Net" isRootNet="true" xsi:type="NetFactsType">
+      <name>Order Processing Workflow</name>
+
+      <!-- Local Variables -->
+      <localVariable>
+        <index>0</index>
+        <name>caseData</name>
+        <type>CaseDataType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>{"caseId": "", "startTime": "", "status": "active"}</initialValue>
+      </localVariable>
+
+      <!-- Process Control Flow -->
+      <processControlElements>
+
+        <!-- Input Condition -->
+        <inputCondition id="InputCondition_order-processing">
+          <name>Order Received</name>
+          <documentation>Start of Order Processing Workflow</documentation>
+        </inputCondition>
+
+        
+        <!-- Task: ship-order -->
+        <task id="ship-order">
+          <name>Ship Order</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition_order-processing"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="and"/>
+          <decomposesTo id="ship-order_Decomposition"/>
+        </task>
+        <!-- Task: fulfill-order -->
+        <task id="fulfill-order">
+          <name>Fulfill Order</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition_order-processing"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="and"/>
+          <decomposesTo id="fulfill-order_Decomposition"/>
+        </task>
+        <!-- Task: check-inventory -->
+        <task id="check-inventory">
+          <name>Check Inventory</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition_order-processing"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="and"/>
+          <decomposesTo id="check-inventory_Decomposition"/>
+        </task>
+        <!-- Task: verify-payment -->
+        <task id="verify-payment">
+          <name>Verify Payment</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition_order-processing"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="and"/>
+          <decomposesTo id="verify-payment_Decomposition"/>
+        </task>
+        <!-- Task: receive-order -->
+        <task id="receive-order">
+          <name>Receive Order</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition_order-processing"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="and"/>
+          <decomposesTo id="receive-order_Decomposition"/>
+        </task>
+
+        <!-- Output Condition -->
+        <outputCondition id="OutputCondition_order-processing">
+          <name>Order Shipped</name>
+          <documentation>End of Order Processing Workflow</documentation>
+        </outputCondition>
+
+      </processControlElements>
+    </decomposition>
+
+    
+    <decomposition id="ship-order_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Ship Order Service</name>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+    <decomposition id="fulfill-order_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Fulfill Order Service</name>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+    <decomposition id="check-inventory_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Check Inventory Service</name>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+    <decomposition id="verify-payment_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Verify Payment Service</name>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+    <decomposition id="receive-order_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Receive Order Service</name>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+
+  </specification>
+
+</specificationSet>
