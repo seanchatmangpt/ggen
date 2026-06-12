@@ -20,7 +20,7 @@
   "permissions": {
     "mode": "acceptEdits"
   },
-  "model": "claude-haiku-4-5",
+  "model": "claude-sonnet-4-6",
   "extraKnownMarketplaces": {
     "claude-plugins-official": {
       "source": {
