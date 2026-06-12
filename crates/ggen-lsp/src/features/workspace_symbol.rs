@@ -54,9 +54,10 @@ pub fn workspace_symbols(root: &Path, query: &str) -> Vec<SymbolInformation> {
         let Some(analyzer) = crate::analyzers::build_analyzer(&path_str, &content) else {
             continue;
         };
-        let Some(doc_symbols) = analyzer.document_symbols() else {
+        let doc_symbols = analyzer.document_symbols(None);
+        if doc_symbols.is_empty() {
             continue;
-        };
+        }
         // A file:// URL is required for the editor to resolve the location. If the
         // path can't be turned into one (e.g. not absolute on some platforms), the
         // symbols are unaddressable — skip the file rather than emit a broken jump.

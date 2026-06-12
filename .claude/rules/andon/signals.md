@@ -34,11 +34,11 @@ This is not a suggestion. This is the production discipline.
 ## Definition of Done
 
 ```bash
-cargo make timeout-check  # Verify timeout exists
-cargo make check          # No compiler errors
-cargo make test           # All tests pass
-cargo make lint           # No warnings
-cargo make slo-check      # SLOs met
+just timeout-check  # Verify timeout exists
+just check          # No compiler errors
+just test           # All tests pass
+just lint           # No warnings
+just slo-check      # SLOs met
 ```
 
 All five gates must be green. A partial pass is a failure.
@@ -59,7 +59,7 @@ TodoWrite { todos: [10+ related todos for all failures] }
 # Read error -> Root cause -> Fix -> Verify -> Update todo -> Remove when fixed
 
 # 3. Re-run validation
-cargo make check && cargo make test && cargo make lint
+just check && just test && just lint
 
 # 4. Repeat until all signals cleared
 ```

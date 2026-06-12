@@ -581,7 +581,7 @@ fn perform_init(
     }
 
     // Create FileTransaction for atomic file operations
-    let mut tx = FileTransaction::new().map_err(|e| {
+    let tx = FileTransaction::new().map_err(|e| {
         GgenError::CommandError(format!("Failed to initialize file transaction: {}", e))
     })?;
 
