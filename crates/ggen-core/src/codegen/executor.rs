@@ -834,6 +834,26 @@ impl SyncExecutor {
                 );
             }
 
+            // Record μ₁–μ₅ pipeline steps from executed rules so audit.pipeline is populated.
+            for rule in &state.executed_rules {
+                let step_type = match rule.rule_type {
+                    RuleType::Inference => "inference",
+                    RuleType::Generation => "render",
+                };
+                let triples = if rule.triples_added > 0 {
+                    Some(rule.triples_added)
+                } else {
+                    None
+                };
+                builder.record_step(
+                    step_type,
+                    &rule.name,
+                    std::time::Duration::from_millis(rule.duration_ms),
+                    triples,
+                    "success",
+                );
+            }
+
             // validation_passed is true iff we reached this point: every validation
             // gate above returns Err and short-circuits before this block executes.
             let audit_trail = builder.build(true);
