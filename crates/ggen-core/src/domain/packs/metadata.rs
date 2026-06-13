@@ -159,4 +159,39 @@ mod tests {
             );
         }
     }
+
+    // ── Sabotage tests (coding-agent-mistakes.md §5) ─────────────────────────
+
+    /// Sabotage §5 row 5: with GGEN_PACKS_DIR pointing at an EMPTY directory,
+    /// `load_pack_metadata("acme/base")` must return Err referencing "not found".
+    ///
+    /// This proves Fail-Open (Mistake Class 1.3) is absent: a missing pack does
+    /// not silently succeed or warn — it hard-fails with a clear error message.
+    #[test]
+    fn sabotage_empty_packs_dir_load_metadata_returns_not_found_err() {
+        // Arrange — empty temp dir as the packs directory
+        let empty_dir = tempfile::TempDir::new().unwrap();
+        std::env::set_var("GGEN_PACKS_DIR", empty_dir.path().to_str().unwrap());
+
+        // Act
+        let result = load_pack_metadata("acme/base");
+
+        // Restore env so other tests are not affected
+        std::env::remove_var("GGEN_PACKS_DIR");
+
+        // Assert — must be Err, and the message must say "not found"
+        match result {
+            Ok(_) => panic!(
+                "load_pack_metadata must return Err when pack does not exist in the packs dir, \
+                 got Ok instead — this is Fail-Open (coding-agent-mistakes.md §1.3)"
+            ),
+            Err(e) => {
+                let msg = e.to_string();
+                assert!(
+                    msg.contains("not found") || msg.contains("acme/base"),
+                    "error message must reference 'not found' or the pack id; got: {msg}"
+                );
+            }
+        }
+    }
 }

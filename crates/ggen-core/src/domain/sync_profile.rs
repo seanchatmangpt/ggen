@@ -227,4 +227,58 @@ mod tests {
         let err = validate_sync_preconditions(Some("nonexistent"), false, dir.path()).unwrap_err();
         assert!(err.contains("Unknown profile"), "error was: {err}");
     }
+
+    // ── Sabotage tests (coding-agent-mistakes.md §5) ─────────────────────────
+
+    /// Sabotage §5 row 2: writing garbage to packs.lock then calling --locked
+    /// must hard-fail.  The lockfile EXISTS (so the file-presence check passes)
+    /// but the content is invalid.  validate_sync_preconditions only checks
+    /// presence; the corrupt-content rejection is the responsibility of the
+    /// sync command's lockfile parser.  This test therefore exercises the
+    /// precondition layer: with a *present* but garbage lockfile the precondition
+    /// returns Ok (presence satisfied) — proving the precondition check is not
+    /// the layer that catches corruption, and that the sync command must also
+    /// validate content before trusting it.
+    ///
+    /// Separately, the CLI-level sabotage (binary exits non-zero on corrupt JSON)
+    /// is covered by `crates/ggen-cli/tests/sabotage_tests.rs`.
+    #[test]
+    fn sabotage_corrupt_lockfile_content_presence_check_still_passes() {
+        // Arrange — write garbage to packs.lock
+        let dir = TempDir::new().unwrap();
+        let ggen_dir = dir.path().join(".ggen");
+        fs::create_dir_all(&ggen_dir).unwrap();
+        fs::write(ggen_dir.join("packs.lock"), "this is not JSON {{{{{").unwrap();
+
+        // Act — validate_sync_preconditions only checks presence, not content
+        // A present-but-corrupt lockfile satisfies the precondition check.
+        // The content validation (and hard failure) happens later in the sync
+        // pipeline — that path is exercised by the CLI sabotage tests.
+        let result = validate_sync_preconditions(None, true, dir.path());
+
+        // Assert — precondition passes (file exists); pipeline will catch content
+        assert!(
+            result.is_ok(),
+            "precondition layer checks presence only; corrupt content is caught \
+             by the sync pipeline. result was: {result:?}"
+        );
+    }
+
+    /// Sabotage §5 row 1 / invariant 4.3.3: absent lockfile with --locked must
+    /// always hard-fail regardless of profile.  This is the unit-level proof that
+    /// the precondition layer is the last defence before a blind sync.
+    #[test]
+    fn sabotage_missing_lockfile_with_locked_flag_hard_fails() {
+        // Arrange — no lockfile at all (no .ggen/ directory)
+        let dir = TempDir::new().unwrap();
+
+        // Act
+        let err = validate_sync_preconditions(None, true, dir.path()).unwrap_err();
+
+        // Assert — error must reference --locked and packs.lock
+        assert!(
+            err.contains("--locked") || err.contains("packs.lock"),
+            "error must reference --locked or packs.lock; got: {err}"
+        );
+    }
 }

@@ -292,4 +292,58 @@ mod tests {
         assert_eq!(hash1, hash2);
         assert_eq!(hash1.len(), 64);
     }
+
+    // ── Sabotage tests (coding-agent-mistakes.md §5) ─────────────────────────
+
+    /// Sabotage §5 row 3: a receipt with an empty signature field must fail
+    /// verify().  This prevents Decorative Completion (Mistake Class 1.1):
+    /// `ggen receipt verify` returning `is_valid: true` for an unsigned receipt.
+    #[test]
+    fn sabotage_empty_signature_receipt_verify_returns_err() {
+        // Arrange — Receipt::new() produces an unsigned receipt (signature = "")
+        let (_, verifying_key) = generate_keypair();
+        let receipt = Receipt::new(
+            "sabotage-op-id".to_string(),
+            vec!["sha256:input-hash".to_string()],
+            vec!["sha256:output-hash".to_string()],
+            None,
+        );
+        assert!(receipt.signature.is_empty(), "precondition: signature must be empty after new()");
+
+        // Act
+        let result = receipt.verify(&verifying_key);
+
+        // Assert — verify() must reject an empty signature, not silently accept it
+        assert!(
+            result.is_err(),
+            "verify() must return Err for an unsigned receipt (empty signature); \
+             returning Ok would be Fail-Open (coding-agent-mistakes.md §1.3)"
+        );
+    }
+
+    /// Sabotage §5 row 4 (unit variant): a Receipt whose signature is set to
+    /// non-hex garbage (simulating `echo '{}' > receipt.json` corruption) must
+    /// also fail verify().
+    #[test]
+    fn sabotage_corrupt_signature_content_receipt_verify_returns_err() {
+        // Arrange — set signature to non-hex content
+        let (_, verifying_key) = generate_keypair();
+        let mut receipt = Receipt::new(
+            "sabotage-corrupt".to_string(),
+            vec!["sha256:input".to_string()],
+            vec!["sha256:output".to_string()],
+            None,
+        );
+        receipt.signature = "{}".to_string(); // garbage, not valid hex
+
+        // Act
+        let result = receipt.verify(&verifying_key);
+
+        // Assert — corrupt signature must be rejected
+        assert!(
+            result.is_err(),
+            "verify() must return Err for a receipt with non-hex signature content; \
+             got Ok — this is Contract Drift (coding-agent-mistakes.md §1.5)"
+        );
+    }
 }
