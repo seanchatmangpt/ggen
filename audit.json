@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-13T17:35:26.921013+00:00",
+  "generated_at": "2026-06-13T18:37:31.768954+00:00",
   "ggen_version": "26.6.11",
   "inputs": {
     "manifest_hash": "060d89517a42d199033692319d8f76bcb2852f4f6a2ca6cec53852378003c484",
@@ -18,7 +18,80 @@
     },
     "query_hashes": {}
   },
-  "pipeline": [],
+  "pipeline": [
+    {
+      "step_type": "inference",
+      "name": "normalize",
+      "duration_ms": 8,
+      "triples_added": 293,
+      "status": "success",
+      "error": null
+    },
+    {
+      "step_type": "render",
+      "name": "lsp-max-backend",
+      "duration_ms": 6,
+      "triples_added": null,
+      "status": "success",
+      "error": null
+    },
+    {
+      "step_type": "render",
+      "name": "lsp-max-cli",
+      "duration_ms": 8,
+      "triples_added": null,
+      "status": "success",
+      "error": null
+    },
+    {
+      "step_type": "render",
+      "name": "lsp-max-build",
+      "duration_ms": 6,
+      "triples_added": null,
+      "status": "success",
+      "error": null
+    },
+    {
+      "step_type": "render",
+      "name": "lsp-max-cargo",
+      "duration_ms": 6,
+      "triples_added": null,
+      "status": "success",
+      "error": null
+    },
+    {
+      "step_type": "render",
+      "name": "lsp-max-rule-toml",
+      "duration_ms": 34,
+      "triples_added": null,
+      "status": "success",
+      "error": null
+    },
+    {
+      "step_type": "render",
+      "name": "lsp-max-workspace",
+      "duration_ms": 6,
+      "triples_added": null,
+      "status": "success",
+      "error": null
+    },
+    {
+      "step_type": "render",
+      "name": "lsp-max-pack-rules",
+      "duration_ms": 17,
+      "triples_added": null,
+      "status": "success",
+      "error": null
+    },
+    {
+      "step_type": "render",
+      "name": "lsp-max-packs-mod",
+      "duration_ms": 8,
+      "triples_added": null,
+      "status": "success",
+      "error": null
+    }
+  ],
   "outputs": [
     {
       "path": ".specify/specs/lsp-max/./examples/lsp-max-scaffold/anti-llm-cheat-lsp/src/server.rs",
