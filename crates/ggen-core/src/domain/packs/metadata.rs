@@ -77,27 +77,27 @@ pub fn list_packs(category: Option<&str>) -> Result<Vec<Pack>> {
         let path = entry.path();
 
         if path.extension().and_then(|s| s.to_str()) == Some("toml") {
-            match fs::read_to_string(&path) {
-                Ok(content) => match toml::from_str::<PackFile>(&content) {
-                    Ok(pack_file) => {
-                        let pack = pack_file.pack;
-
-                        // Filter by category if specified
-                        if let Some(cat) = category {
-                            if pack.category == cat {
-                                packs.push(pack);
-                            }
-                        } else {
-                            packs.push(pack);
-                        }
-                    }
-                    Err(e) => {
-                        tracing::warn!("Failed to parse pack {}: {}", path.display(), e);
-                    }
-                },
-                Err(e) => {
-                    tracing::warn!("Failed to read pack {}: {}", path.display(), e);
+            let content = fs::read_to_string(&path).map_err(|e| {
+                crate::utils::error::Error::new(&format!(
+                    "Failed to read pack {}: {}",
+                    path.display(),
+                    e
+                ))
+            })?;
+            let pack_file = toml::from_str::<PackFile>(&content).map_err(|e| {
+                crate::utils::error::Error::new(&format!(
+                    "Failed to parse pack {}: {}",
+                    path.display(),
+                    e
+                ))
+            })?;
+            let pack = pack_file.pack;
+            if let Some(cat) = category {
+                if pack.category == cat {
+                    packs.push(pack);
                 }
+            } else {
+                packs.push(pack);
             }
         }
     }

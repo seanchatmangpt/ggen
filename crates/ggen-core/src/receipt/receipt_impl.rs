@@ -91,6 +91,9 @@ impl Receipt {
     /// Returns `ReceiptError::InvalidSignature` if the signature is invalid or malformed.
     /// Returns `ReceiptError::Serialization` if the receipt cannot be serialized.
     pub fn verify(&self, verifying_key: &VerifyingKey) -> Result<()> {
+        if self.signature.is_empty() {
+            return Err(ReceiptError::InvalidSignature);
+        }
         let message = self.signing_message()?;
 
         let signature_bytes =
@@ -277,6 +280,21 @@ mod tests {
         assert_eq!(
             receipt2.previous_receipt_hash.as_ref().unwrap(),
             &receipt1.hash().expect("hashing failed")
+        );
+    }
+
+    #[test]
+    fn test_unsigned_receipt_verify_returns_invalid_signature() {
+        let (_, verifying_key) = generate_keypair();
+        let unsigned = Receipt::new(
+            "test-op".to_string(),
+            vec!["input1".to_string()],
+            vec!["output1".to_string()],
+            None,
+        );
+        assert!(
+            unsigned.verify(&verifying_key).is_err(),
+            "unsigned receipt with empty signature must fail verify"
         );
     }
 

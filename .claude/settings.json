@@ -30,7 +30,7 @@
     },
     "ggen": {
       "source": {
-        "source": "local",
+        "source": "directory",
         "path": "plugins"
       }
     }
