@@ -1,0 +1,11 @@
+PREFIX lsp: <http://ggen.io/ontology/lsp#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?server_name ?diagnostic_source_id ?grammar_crate
+WHERE {
+    ?server a lsp:Server ;
+            lsp:serverName ?server_name ;
+            lsp:diagnosticSourceId ?diagnostic_source_id ;
+            lsp:grammarCrate ?grammar_crate .
+}
+ORDER BY ?server_name

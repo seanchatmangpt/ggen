@@ -1,0 +1,143 @@
+use clap::{Parser, Subcommand};
+
+mod server;
+use server::{{ server_name | title | replace(from=" ", to="") }}Backend;
+
+#[derive(Parser)]
+#[command(name = "{{ server_name }}", about = "Rule-pack LSP server")]
+struct Cli {
+    #[command(subcommand)]
+    command: Option<Commands>,
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    /// Start the LSP server (default: stdio transport)
+    Lsp {
+        /// Use TCP transport instead of stdio
+        #[arg(long, default_value = "false")]
+        tcp: bool,
+        /// TCP port (only used with --tcp)
+        #[arg(long, default_value_t = 9257)]
+        port: u16,
+    },
+    /// List the active rule packs
+    Packs,
+    /// Validate a file against all rule packs
+    Check {
+        #[arg(value_name = "FILE")]
+        path: std::path::PathBuf,
+    },
+}
+
+#[tokio::main]
+async fn main() {
+    tracing_subscriber::fmt().with_env_filter("info").init();
+
+    let cli = Cli::parse();
+
+    match cli.command.unwrap_or(Commands::Lsp { tcp: false, port: 9257 }) {
+        Commands::Lsp { tcp: false, .. } => run_stdio().await,
+        Commands::Lsp { port, .. } => run_tcp(port).await,
+        Commands::Packs => list_packs(),
+        Commands::Check { path } => check_file(&path),
+    }
+}
+
+async fn run_stdio() {
+    let (service, socket) = lsp_max::LspService::build({{ server_name | title | replace(from=" ", to="") }}Backend::new)
+        .finish();
+    lsp_max::Server::new(
+        tokio::io::stdin(),
+        tokio::io::stdout(),
+        socket,
+    )
+    .serve(service)
+    .await;
+}
+
+async fn run_tcp(port: u16) {
+    use tokio::net::TcpListener;
+    let addr = format!("127.0.0.1:{port}");
+    let listener = TcpListener::bind(&addr).await.expect("TCP bind");
+    tracing::info!("{{ server_name }} listening on {addr}");
+    loop {
+        let (stream, _) = listener.accept().await.expect("TCP accept");
+        let (read, write) = tokio::io::split(stream);
+        let (service, socket) = lsp_max::LspService::build({{ server_name | title | replace(from=" ", to="") }}Backend::new)
+            .finish();
+        tokio::spawn(lsp_max::Server::new(read, write, socket).serve(service));
+    }
+}
+
+fn list_packs() {
+    use lsp_max::rule_pack_server::RulePack;
+    use std::path::Path;
+
+    let rules_dir = Path::new(".").join("rules");
+    let Ok(dir) = std::fs::read_dir(&rules_dir) else {
+        eprintln!("No rules/ directory found.");
+        return;
+    };
+    for entry in dir.flatten() {
+        if entry.path().extension().and_then(|e| e.to_str()) != Some("toml") {
+            continue;
+        }
+        if let Ok(content) = std::fs::read_to_string(entry.path()) {
+            if let Ok(pack) = toml::from_str::<RulePack>(&content) {
+                println!(
+                    "{} v{} ({} rules)",
+                    pack.id,
+                    pack.version,
+                    pack.rules.len()
+                );
+            }
+        }
+    }
+}
+
+fn check_file(path: &std::path::Path) {
+    let content = match std::fs::read_to_string(path) {
+        Ok(c) => c,
+        Err(e) => {
+            eprintln!("Error reading {}: {e}", path.display());
+            std::process::exit(1);
+        }
+    };
+
+    use lsp_max::rule_pack_server::{RulePack, Rule};
+    use std::path::Path as SPath;
+
+    let rules_dir = SPath::new(".").join("rules");
+    let mut total_findings = 0usize;
+    if let Ok(dir) = std::fs::read_dir(&rules_dir) {
+        for entry in dir.flatten() {
+            if entry.path().extension().and_then(|e| e.to_str()) != Some("toml") {
+                continue;
+            }
+            if let Ok(text) = std::fs::read_to_string(entry.path()) {
+                if let Ok(pack) = toml::from_str::<RulePack>(&text) {
+                    for rule in &pack.rules {
+                        let Ok(re) = regex::Regex::new(&rule.pattern) else { continue };
+                        for m in re.find_iter(&content) {
+                            let line = content[..m.start()].chars().filter(|c| *c == '\n').count() + 1;
+                            eprintln!(
+                                "{}:{line} [{}] {} ({})",
+                                path.display(),
+                                rule.severity,
+                                rule.message,
+                                rule.id
+                            );
+                            total_findings += 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if total_findings == 0 {
+        println!("{}: ok", path.display());
+    } else {
+        std::process::exit(1);
+    }
+}

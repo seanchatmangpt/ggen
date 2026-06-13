@@ -1,0 +1,31 @@
+//! Rule-type definitions for `{{ server_name }}`.
+//! This module re-exports the canonical lsp-max rule types and provides
+//! convenience constructors for the rules defined in this server's ontology.
+
+pub use lsp_max::rule_pack_server::{
+    CrossFileRule, EvalBudget, Rule, RulePack, RulePackSnapshot, WorkspaceIndex,
+};
+
+/// Build the statically-declared rule pack for `{{ pack_id }}`.
+///
+/// At runtime packs are also loaded from `rules/*.toml`; this function
+/// is used for testing without a filesystem.
+pub fn static_pack() -> RulePack {
+    RulePack {
+        id: "{{ pack_id }}".to_string(),
+        version: "{{ pack_version }}".to_string(),
+        rules: vec![
+            Rule {
+                id: "{{ rule_id }}".to_string(),
+                name: "{{ rule_name }}".to_string(),
+                pattern: "{{ pattern }}".to_string(),
+                message: "{{ message }}".to_string(),
+                severity: "{{ severity }}".to_string(),
+                rationale: "{{ rationale }}".to_string(),
+                path_globs: vec![],
+                exclude_globs: vec![],
+                eval_budget: EvalBudget::{% if eval_budget == "background" %}Background{% else %}Sync{% endif %},
+            },
+        ],
+    }
+}
