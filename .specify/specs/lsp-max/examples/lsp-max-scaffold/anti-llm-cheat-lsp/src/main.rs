@@ -1,34 +1,128 @@
-use clap::{Parser, Subcommand};
+use clap::{Args, Parser, Subcommand};
 
+mod packs;
 mod server;
+mod workspace;
 use server::AntiLlmCheatLspBackend;
 
+// ── Clap noun-verb CLI ────────────────────────────────────────────────────────
+
 #[derive(Parser)]
-#[command(name = "anti-llm-cheat-lsp", about = "Rule-pack LSP server")]
+#[command(
+    name    = "anti-llm-cheat-lsp",
+    about   = "Rule-pack language server — generated from lsp.ttl via ggen",
+    version,
+    propagate_version = true,
+)]
 struct Cli {
     #[command(subcommand)]
-    command: Option<Commands>,
+    noun: Option<Noun>,
 }
 
 #[derive(Subcommand)]
-enum Commands {
-    /// Start the LSP server (default: stdio transport)
-    Lsp {
-        /// Use TCP transport instead of stdio
-        #[arg(long, default_value = "false")]
+enum Noun {
+    /// Language server protocol commands
+    Lsp(LspArgs),
+    /// Rule pack management
+    Packs(PacksArgs),
+    /// Static analysis — scan files without starting the server
+    Check(CheckArgs),
+    /// Workspace-level operations
+    Workspace(WorkspaceArgs),
+    /// Rule inspection
+    Rules(RulesArgs),
+}
+
+// ── lsp ───────────────────────────────────────────────────────────────────────
+
+#[derive(Args)]
+struct LspArgs {
+    #[command(subcommand)]
+    verb: LspVerb,
+}
+
+#[derive(Subcommand)]
+enum LspVerb {
+    /// Start server on stdio (default)
+    Start {
+        /// Use TCP instead of stdio
+        #[arg(long)]
         tcp: bool,
-        /// TCP port (only used with --tcp)
-        #[arg(long, default_value_t = 9257)]
-        port: u16,
-    },
-    /// List the active rule packs
-    Packs,
-    /// Validate a file against all rule packs
-    Check {
-        #[arg(value_name = "FILE")]
-        path: std::path::PathBuf,
+        /// TCP address to bind (only with --tcp)
+        #[arg(long, default_value = "127.0.0.1:9257")]
+        addr: String,
     },
 }
+
+// ── packs ─────────────────────────────────────────────────────────────────────
+
+#[derive(Args)]
+struct PacksArgs {
+    #[command(subcommand)]
+    verb: PacksVerb,
+}
+
+#[derive(Subcommand)]
+enum PacksVerb {
+    /// List all compiled-in rule packs
+    List,
+    /// Validate all rule packs (check patterns compile)
+    Validate,
+}
+
+// ── check ─────────────────────────────────────────────────────────────────────
+
+#[derive(Args)]
+struct CheckArgs {
+    /// File or directory to scan
+    #[arg(value_name = "PATH")]
+    path: std::path::PathBuf,
+}
+
+// ── workspace ─────────────────────────────────────────────────────────────────
+
+#[derive(Args)]
+struct WorkspaceArgs {
+    #[command(subcommand)]
+    verb: WorkspaceVerb,
+}
+
+#[derive(Subcommand)]
+enum WorkspaceVerb {
+    /// Walk workspace and report all violations
+    Scan {
+        #[arg(value_name = "ROOT")]
+        path: std::path::PathBuf,
+    },
+    /// Print conformance summary for a workspace
+    Report {
+        #[arg(value_name = "ROOT")]
+        path: std::path::PathBuf,
+    },
+    /// List file types this server scans (compiled-in globs)
+    Globs,
+}
+
+// ── rules ─────────────────────────────────────────────────────────────────────
+
+#[derive(Args)]
+struct RulesArgs {
+    #[command(subcommand)]
+    verb: RulesVerb,
+}
+
+#[derive(Subcommand)]
+enum RulesVerb {
+    /// List all rules across all packs
+    List,
+    /// Show details for a specific rule
+    Show {
+        #[arg(value_name = "RULE_ID")]
+        id: String,
+    },
+}
+
+// ── main ──────────────────────────────────────────────────────────────────────
 
 #[tokio::main]
 async fn main() {
@@ -36,108 +130,160 @@ async fn main() {
 
     let cli = Cli::parse();
 
-    match cli.command.unwrap_or(Commands::Lsp { tcp: false, port: 9257 }) {
-        Commands::Lsp { tcp: false, .. } => run_stdio().await,
-        Commands::Lsp { port, .. } => run_tcp(port).await,
-        Commands::Packs => list_packs(),
-        Commands::Check { path } => check_file(&path),
+    match cli.noun.unwrap_or(Noun::Lsp(LspArgs { verb: LspVerb::Start { tcp: false, addr: "127.0.0.1:9257".into() } })) {
+        Noun::Lsp(a) => match a.verb {
+            LspVerb::Start { tcp: false, .. }     => run_stdio().await,
+            LspVerb::Start { addr, .. }            => run_tcp(&addr).await,
+        },
+        Noun::Packs(a) => match a.verb {
+            PacksVerb::List     => cmd_packs_list(),
+            PacksVerb::Validate => cmd_packs_validate(),
+        },
+        Noun::Check(a)     => cmd_check(&a.path),
+        Noun::Workspace(a) => match a.verb {
+            WorkspaceVerb::Scan   { path } => cmd_workspace_scan(&path),
+            WorkspaceVerb::Report { path } => cmd_workspace_report(&path),
+            WorkspaceVerb::Globs           => cmd_workspace_globs(),
+        },
+        Noun::Rules(a) => match a.verb {
+            RulesVerb::List       => cmd_rules_list(),
+            RulesVerb::Show { id } => cmd_rules_show(&id),
+        },
     }
 }
 
+// ── LSP transport ─────────────────────────────────────────────────────────────
+
 async fn run_stdio() {
-    let (service, socket) = lsp_max::LspService::build(AntiLlmCheatLspBackend::new)
-        .finish();
-    lsp_max::Server::new(
-        tokio::io::stdin(),
-        tokio::io::stdout(),
-        socket,
-    )
-    .serve(service)
-    .await;
+    let (service, socket) = lsp_max::LspService::build(AntiLlmCheatLspBackend::new).finish();
+    lsp_max::Server::new(tokio::io::stdin(), tokio::io::stdout(), socket)
+        .serve(service)
+        .await;
 }
 
-async fn run_tcp(port: u16) {
+async fn run_tcp(addr: &str) {
     use tokio::net::TcpListener;
-    let addr = format!("127.0.0.1:{port}");
-    let listener = TcpListener::bind(&addr).await.expect("TCP bind");
+    let listener = TcpListener::bind(addr).await.expect("TCP bind");
     tracing::info!("anti-llm-cheat-lsp listening on {addr}");
     loop {
         let (stream, _) = listener.accept().await.expect("TCP accept");
-        let (read, write) = tokio::io::split(stream);
-        let (service, socket) = lsp_max::LspService::build(AntiLlmCheatLspBackend::new)
-            .finish();
-        tokio::spawn(lsp_max::Server::new(read, write, socket).serve(service));
+        let (r, w) = tokio::io::split(stream);
+        let (service, socket) = lsp_max::LspService::build(AntiLlmCheatLspBackend::new).finish();
+        tokio::spawn(lsp_max::Server::new(r, w, socket).serve(service));
     }
 }
 
-fn list_packs() {
-    use lsp_max::rule_pack_server::RulePack;
-    use std::path::Path;
+// ── packs commands ────────────────────────────────────────────────────────────
 
-    let rules_dir = Path::new(".").join("rules");
-    let Ok(dir) = std::fs::read_dir(&rules_dir) else {
-        eprintln!("No rules/ directory found.");
-        return;
-    };
-    for entry in dir.flatten() {
-        if entry.path().extension().and_then(|e| e.to_str()) != Some("toml") {
-            continue;
-        }
-        if let Ok(content) = std::fs::read_to_string(entry.path()) {
-            if let Ok(pack) = toml::from_str::<RulePack>(&content) {
-                println!(
-                    "{} v{} ({} rules)",
-                    pack.id,
-                    pack.version,
-                    pack.rules.len()
-                );
-            }
-        }
+fn cmd_packs_list() {
+    for pack in packs::all_packs() {
+        println!("{} v{} ({} rules)", pack.id, pack.version, pack.rules.len());
     }
 }
 
-fn check_file(path: &std::path::Path) {
-    let content = match std::fs::read_to_string(path) {
-        Ok(c) => c,
-        Err(e) => {
-            eprintln!("Error reading {}: {e}", path.display());
-            std::process::exit(1);
-        }
-    };
-
-    use lsp_max::rule_pack_server::{RulePack, Rule};
-    use std::path::Path as SPath;
-
-    let rules_dir = SPath::new(".").join("rules");
-    let mut total_findings = 0usize;
-    if let Ok(dir) = std::fs::read_dir(&rules_dir) {
-        for entry in dir.flatten() {
-            if entry.path().extension().and_then(|e| e.to_str()) != Some("toml") {
-                continue;
-            }
-            if let Ok(text) = std::fs::read_to_string(entry.path()) {
-                if let Ok(pack) = toml::from_str::<RulePack>(&text) {
-                    for rule in &pack.rules {
-                        let Ok(re) = regex::Regex::new(&rule.pattern) else { continue };
-                        for m in re.find_iter(&content) {
-                            let line = content[..m.start()].chars().filter(|c| *c == '\n').count() + 1;
-                            eprintln!(
-                                "{}:{line} [{}] {} ({})",
-                                path.display(),
-                                rule.severity,
-                                rule.message,
-                                rule.id
-                            );
-                            total_findings += 1;
-                        }
-                    }
-                }
+fn cmd_packs_validate() {
+    let mut errors = 0usize;
+    for pack in packs::all_packs() {
+        for rule in &pack.rules {
+            match regex::Regex::new(&rule.pattern) {
+                Ok(_)  => {}
+                Err(e) => { eprintln!("[{}] {}: invalid pattern — {e}", pack.id, rule.id); errors += 1; }
             }
         }
     }
-    if total_findings == 0 {
-        println!("{}: ok", path.display());
+    if errors == 0 {
+        println!("all packs valid");
     } else {
+        eprintln!("{errors} pattern error(s)");
         std::process::exit(1);
     }
+}
+
+// ── check command ─────────────────────────────────────────────────────────────
+
+fn cmd_check(path: &std::path::Path) {
+    let content = match std::fs::read_to_string(path) {
+        Ok(c) => c,
+        Err(e) => { eprintln!("error reading {}: {e}", path.display()); std::process::exit(1); }
+    };
+    let findings = scan_content(path.to_str().unwrap_or(""), &content);
+    if findings == 0 { println!("{}: ok", path.display()); } else { std::process::exit(1); }
+}
+
+// ── workspace commands ────────────────────────────────────────────────────────
+
+fn cmd_workspace_scan(root: &std::path::Path) {
+    let files = workspace::workspace_files(root);
+    let mut total = 0usize;
+    for path in &files {
+        let Ok(content) = std::fs::read_to_string(path) else { continue };
+        total += scan_content(path.to_str().unwrap_or(""), &content);
+    }
+    println!("scanned {} files — {} violation(s)", files.len(), total);
+    if total > 0 { std::process::exit(1); }
+}
+
+fn cmd_workspace_report(root: &std::path::Path) {
+    let files = workspace::workspace_files(root);
+    println!("anti-llm-cheat-lsp workspace report");
+    println!("root:   {}", root.display());
+    println!("globs:  {:?}", workspace::FILE_GLOBS);
+    println!("files:  {}", files.len());
+    let all_packs = packs::all_packs();
+    println!("packs:  {}", all_packs.len());
+    let rule_count: usize = all_packs.iter().map(|p| p.rules.len()).sum();
+    println!("rules:  {rule_count}");
+}
+
+fn cmd_workspace_globs() {
+    for g in workspace::FILE_GLOBS {
+        println!("{g}");
+    }
+}
+
+// ── rules commands ────────────────────────────────────────────────────────────
+
+fn cmd_rules_list() {
+    for pack in packs::all_packs() {
+        println!("\n[{}] v{}", pack.id, pack.version);
+        for rule in &pack.rules {
+            println!("  {} [{}] {}", rule.id, rule.severity, rule.name);
+        }
+    }
+}
+
+fn cmd_rules_show(id: &str) {
+    for pack in packs::all_packs() {
+        for rule in &pack.rules {
+            if rule.id == id {
+                println!("id:        {}", rule.id);
+                println!("name:      {}", rule.name);
+                println!("severity:  {}", rule.severity);
+                println!("pattern:   {}", rule.pattern);
+                println!("message:   {}", rule.message);
+                println!("rationale: {}", rule.rationale);
+                println!("pack:      {} v{}", pack.id, pack.version);
+                return;
+            }
+        }
+    }
+    eprintln!("rule '{id}' not found");
+    std::process::exit(1);
+}
+
+// ── shared scan helper ────────────────────────────────────────────────────────
+
+fn scan_content(label: &str, content: &str) -> usize {
+    let mut count = 0usize;
+    for pack in packs::all_packs() {
+        for rule in &pack.rules {
+            let Ok(re) = regex::Regex::new(&rule.pattern) else { continue };
+            for m in re.find_iter(content) {
+                let line = content[..m.start()].chars().filter(|c| *c == '\n').count() + 1;
+                eprintln!("{label}:{line} [{}] {} ({})", rule.severity, rule.message, rule.id);
+                count += 1;
+            }
+        }
+    }
+    count
 }

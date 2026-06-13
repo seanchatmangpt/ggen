@@ -1,0 +1,23 @@
+use std::path::{Path, PathBuf};
+
+// File globs compiled from lsp.ttl — exhausts every file type this server governs.
+pub static FILE_GLOBS: &[&str] = &[
+    "**/*.rs",
+];
+
+/// Walk `root` and return all paths matching this server's file globs.
+/// `.git/`, `target/`, and `.cargo/` are skipped automatically.
+pub fn workspace_files(root: &Path) -> Vec<PathBuf> {
+    walkdir::WalkDir::new(root)
+        .follow_links(false)
+        .into_iter()
+        .filter_map(|e| e.ok())
+        .filter(|e| e.file_type().is_file())
+        .filter(|e| {
+            let s = e.path().to_string_lossy();
+            !s.contains("/.git/") && !s.contains("/target/") && !s.contains("/.cargo/")
+                && FILE_GLOBS.iter().any(|g| lsp_max::rule_pack_server::glob_matches(g, &s))
+        })
+        .map(|e| e.path().to_path_buf())
+        .collect()
+}

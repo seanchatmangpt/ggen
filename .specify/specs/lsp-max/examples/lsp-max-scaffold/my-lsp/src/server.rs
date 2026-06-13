@@ -2,66 +2,63 @@ use lsp_max::ast::AutoLspAdapter;
 use lsp_max::rule_pack_server::{RulePack, RulePackServer, WorkspaceIndex};
 use lsp_max::{Client, LanguageServer, LspService, Server};
 use lsp_max::lsp_types_max::*;
-use std::path::Path;
+use std::sync::Arc;
+use tokio::sync::RwLock;
 
-// ── Load rule packs from `rules/` directory ───────────────────────────────────
-
-fn load_packs() -> Vec<RulePack> {
-    let rules_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("rules");
-    let mut packs = Vec::new();
-    let Ok(dir) = std::fs::read_dir(&rules_dir) else {
-        return packs;
-    };
-    for entry in dir.flatten() {
-        if entry.path().extension().and_then(|e| e.to_str()) != Some("toml") {
-            continue;
-        }
-        let content = match std::fs::read_to_string(entry.path()) {
-            Ok(c) => c,
-            Err(_) => continue,
-        };
-        match toml::from_str::<RulePack>(&content) {
-            Ok(pack) => packs.push(pack),
-            Err(e) => tracing::warn!(path = ?entry.path(), error = %e, "skipping malformed rule pack"),
-        }
-    }
-    packs
-}
-
-// ── Backend struct ────────────────────────────────────────────────────────────
+use crate::packs;
+use crate::workspace;
 
 pub struct MyLspBackend {
-    client: Client,
-    adapter: AutoLspAdapter,
-    packs: Vec<RulePack>,
-    index: WorkspaceIndex,
+    client:         Client,
+    adapter:        lsp_max::ast::AutoLspAdapter,
+    packs:          Vec<RulePack>,
+    index:          WorkspaceIndex,
+    workspace_root: Arc<RwLock<Option<std::path::PathBuf>>>,
 }
 
 impl MyLspBackend {
     pub fn new(client: Client) -> Self {
         Self {
             client,
-            adapter: AutoLspAdapter::new_default(),
-            packs: load_packs(),
-            index: WorkspaceIndex::new(),
+            adapter:        AutoLspAdapter::new_default(),
+            packs:          packs::all_packs(),
+            index:          WorkspaceIndex::new(),
+            workspace_root: Arc::new(RwLock::new(None)),
         }
     }
 }
 
 impl RulePackServer for MyLspBackend {
-    fn rule_packs(&self) -> &[RulePack] { &self.packs }
-    fn grammar(&self) -> tree_sitter::Language { tree_sitter_rust::LANGUAGE.into() }
-    fn server_name(&self) -> &'static str { "my-lsp" }
-    fn client(&self) -> &Client { &self.client }
-    fn adapter(&self) -> &AutoLspAdapter { &self.adapter }
+    fn rule_packs(&self)  -> &[RulePack]     { &self.packs }
+    fn grammar(&self)     -> tree_sitter::Language { tree_sitter_rust::LANGUAGE.into() }
+    fn server_name(&self) -> &'static str    { "my-lsp" }
+    fn client(&self)      -> &Client         { &self.client }
+    fn adapter(&self)     -> &AutoLspAdapter { &self.adapter }
     fn workspace_index(&self) -> Option<&WorkspaceIndex> { Some(&self.index) }
+    fn file_globs(&self)  -> &[&'static str] { workspace::FILE_GLOBS }
 }
 
 #[lsp_max::async_trait]
 impl LanguageServer for MyLspBackend {
-    async fn initialize(&self, _: InitializeParams) -> lsp_max::jsonrpc::Result<InitializeResult> {
+    async fn initialize(&self, params: InitializeParams) -> lsp_max::jsonrpc::Result<InitializeResult> {
+        let root = params.root_uri
+            .and_then(|u| u.to_file_path().ok())
+            .or_else(|| params.root_path.map(std::path::PathBuf::from));
+        if let Some(r) = root {
+            *self.workspace_root.write().await = Some(r);
+        }
         Ok(self.build_initialize_result())
     }
+
+    async fn initialized(&self, _: InitializedParams) {
+        self.client().log_message(MessageType::INFO,
+            concat!("my-lsp initialized — scanning workspace")).await;
+        let root = self.workspace_root.read().await.clone();
+        if let Some(root) = root {
+            self.scan_workspace(&root).await;
+        }
+    }
+
     async fn shutdown(&self) -> lsp_max::jsonrpc::Result<()> { Ok(()) }
 
     async fn did_open(&self, params: DidOpenTextDocumentParams) {

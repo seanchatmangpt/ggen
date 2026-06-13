@@ -2,7 +2,7 @@
 id         = "ANTI-LLM-VERSION-001"
 name       = "no-default-version"
 severity   = "warning"
-pattern    = 'version = \\\'
+pattern    = 'version = [\\x22]1\\.0\\.0[\\x22]'
 message    = "Default template version '1.0.0' found in project configuration"
 rationale  = "Default versions indicate a project was never properly versioned"
 eval_budget = "sync"

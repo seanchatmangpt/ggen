@@ -301,7 +301,7 @@ lsp:CheatReceipt002
     lsp:ruleId     "ANTI-LLM-RECEIPT-002"^^xsd:string ;
     lsp:ruleName   "no-bypassed-compat"^^xsd:string ;
     lsp:severity   "error"^^xsd:string ;
-    lsp:pattern    "\\\"bypassed_compat\\\": true"^^xsd:string ;
+    lsp:pattern    "[\\x22]bypassed_compat[\\x22]: true"^^xsd:string ;
     lsp:message    "Compatibility bypass flag found in receipt or config"^^xsd:string ;
     lsp:rationale  "bypassed_compat:true invalidates the receipt chain"^^xsd:string ;
     lsp:evalBudget "sync"^^xsd:string .
@@ -340,7 +340,7 @@ lsp:CheatTest002
     lsp:ruleId     "ANTI-LLM-VERSION-001"^^xsd:string ;
     lsp:ruleName   "no-default-version"^^xsd:string ;
     lsp:severity   "warning"^^xsd:string ;
-    lsp:pattern    "version = \\\"1\\.0\\.0\\\""^^xsd:string ;
+    lsp:pattern    "version = [\\x22]1\\.0\\.0[\\x22]"^^xsd:string ;
     lsp:message    "Default template version '1.0.0' found in project configuration"^^xsd:string ;
     lsp:rationale  "Default versions indicate a project was never properly versioned"^^xsd:string ;
     lsp:evalBudget "sync"^^xsd:string .
@@ -398,3 +398,24 @@ lsp:ExampleRule001
     lsp:message   "Replace unwrap()/expect() with ? or map_err"^^xsd:string ;
     lsp:rationale "Panics abort async tasks; use Result propagation"^^xsd:string ;
     lsp:evalBudget "sync"^^xsd:string .
+
+# ── File glob property ───────────────────────────────────────────────────────
+
+lsp:fileGlob
+    a owl:DatatypeProperty ;
+    rdfs:domain lsp:Server ;
+    rdfs:range xsd:string ;
+    rdfs:label "fileGlob" ;
+    rdfs:comment "Glob pattern for files this server proactively scans on workspace open." .
+
+# ── File globs per server ────────────────────────────────────────────────────
+
+lsp:AntiLlmCheatServer
+    lsp:fileGlob "**/*.rs"^^xsd:string ;
+    lsp:fileGlob "**/*.md"^^xsd:string ;
+    lsp:fileGlob "**/*.toml"^^xsd:string ;
+    lsp:fileGlob "**/*.json"^^xsd:string ;
+    lsp:fileGlob "**/*.jsonl"^^xsd:string .
+
+lsp:MyRulePackServer
+    lsp:fileGlob "**/*.rs"^^xsd:string .

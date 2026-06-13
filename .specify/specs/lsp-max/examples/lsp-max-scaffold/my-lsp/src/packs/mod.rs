@@ -1,0 +1,12 @@
+// Pack modules compiled from lsp.ttl — one submodule per rule pack.
+pub mod example;
+
+use lsp_max::RulePack;
+
+/// All rule packs for this server, compiled from the ontology.
+/// Used by the CLI (`packs list`, `rules list`) and the workspace scanner.
+pub fn all_packs() -> Vec<RulePack> {
+    vec![
+        example::pack(),
+    ]
+}

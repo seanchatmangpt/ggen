@@ -1,0 +1,15 @@
+use lsp_max::{EvalBudget, Rule, RulePack};
+
+/// Rule pack `{{ pack_id }}` v{{ pack_version }} — compiled from lsp.ttl.
+/// Rules baked into the binary; no runtime TOML loading.
+pub fn pack() -> RulePack {
+    RulePack {
+        id:         "{{ pack_id }}".to_string(),
+        version:    "{{ pack_version }}".to_string(),
+        depends_on: vec![],
+        rules: vec![
+{{ rules_code | replace(from="|NL|", to="
+") | replace(from="|Q|", to='"') | safe }}
+        ],
+    }
+}
