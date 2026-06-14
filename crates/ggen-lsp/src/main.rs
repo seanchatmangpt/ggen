@@ -1,3 +1,7 @@
+// stdout is the LSP frame channel — forbid print!/println! by construction so
+// log text can never interleave ahead of the Content-Length header again.
+#![deny(clippy::print_stdout)]
+
 use ggen_lsp::run_stdio;
 use std::env;
 
