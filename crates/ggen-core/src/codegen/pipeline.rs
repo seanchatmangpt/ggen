@@ -1230,6 +1230,98 @@ impl GenerationPipeline {
         result
     }
 
+    /// Execute custom validation rules (`[[validation.rules]]`) against the
+    /// inferred graph.
+    ///
+    /// Each manifest rule (`name`/`description`/`ask`/`severity`) is mapped onto
+    /// the [`RuleExecutor`] in `crate::validation::sparql_rules` and evaluated
+    /// against the current (post-inference) `ontology_graph`.
+    ///
+    /// ## ASK polarity (executor convention — honored, NOT inverted)
+    /// The executor treats **ASK = true ⇒ VALID (pass)** and **ASK = false ⇒
+    /// VIOLATION**. This matches the manifest field doc ("SPARQL ASK query
+    /// (true = valid)"). Authors who want "a collision EXISTS is a failure" must
+    /// therefore write the ASK as a well-formedness assertion, e.g.
+    /// `ASK { FILTER NOT EXISTS { <collision pattern> } }` (true when no
+    /// collision exists).
+    ///
+    /// An `Error`-severity violation returns `Err` (blocks generation, before any
+    /// files are written). A `Warning`-severity violation is logged and recorded
+    /// but does not block.
+    pub fn execute_validation_rules(&mut self) -> Result<()> {
+        use crate::manifest::types::ValidationSeverity as MSeverity;
+        use crate::validation::sparql_rules::{
+            RuleExecutor, RuleSeverity, ValidationRule as SparqlRule,
+        };
+        use crate::validation::violation::Severity as VSeverity;
+
+        let manifest_rules = self.manifest.validation.rules.clone();
+        if manifest_rules.is_empty() {
+            return Ok(());
+        }
+
+        let graph = self
+            .ontology_graph
+            .as_ref()
+            .ok_or_else(|| Error::new("Ontology graph not loaded. Call load_ontology() first."))?;
+
+        // Adapter: manifest::types::ValidationRule -> sparql_rules::ValidationRule
+        let sparql_rules: Vec<SparqlRule> = manifest_rules
+            .iter()
+            .map(|r| {
+                let severity = match r.severity {
+                    MSeverity::Error => RuleSeverity::Error,
+                    MSeverity::Warning => RuleSeverity::Warning,
+                };
+                SparqlRule::new(
+                    r.name.clone(),
+                    r.ask.clone(),
+                    severity,
+                    r.description.clone(),
+                )
+            })
+            .collect();
+
+        let executor = RuleExecutor::new();
+        let result = executor
+            .execute(graph, &sparql_rules)
+            .map_err(|e| Error::new(&format!("Validation rule execution failed: {}", e)))?;
+
+        // Record per-rule outcomes and surface messages.
+        let mut error_messages: Vec<String> = Vec::new();
+        for v in &result.violations {
+            let (sev, is_error) = match v.severity {
+                VSeverity::Violation => (ValidationSeverity::Error, true),
+                _ => (ValidationSeverity::Warning, false),
+            };
+            self.validation_results.push(ValidationResult {
+                rule_name: v.focus_node.clone(),
+                passed: false,
+                message: Some(v.message.clone()),
+                severity: sev,
+            });
+            if is_error {
+                error_messages.push(format!("{}: {}", v.focus_node, v.message));
+            } else {
+                log::warn!(
+                    "warning[GGEN-VALIDATION]: rule '{}' failed: {}",
+                    v.focus_node,
+                    v.message
+                );
+            }
+        }
+
+        if !error_messages.is_empty() {
+            return Err(Error::new(&format!(
+                "error[GGEN-VALIDATION]: {} custom validation rule(s) failed (Error severity):\n  - {}\n  = generation aborted before writing files",
+                error_messages.len(),
+                error_messages.join("\n  - ")
+            )));
+        }
+
+        Ok(())
+    }
+
     /// Run the complete pipeline
     ///
     /// # Returns
@@ -1241,6 +1333,11 @@ impl GenerationPipeline {
 
         // 2. Execute inference rules
         self.execute_inference_rules()?;
+
+        // 2b. Execute custom validation rules (SPARQL ASK/SELECT) against the
+        // inferred graph. An Error-severity violation aborts BEFORE any files
+        // are written; a Warning is recorded but does not block.
+        self.execute_validation_rules()?;
 
         // 3. Execute generation rules
         self.execute_generation_rules()?;

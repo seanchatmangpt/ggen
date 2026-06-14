@@ -80,6 +80,7 @@ experimental = []
 default = []
 
 [dev-dependencies]
+serial_test = { workspace = true }
 libc = "0.2"
 assert_cmd = "2"
 assert_fs = "1"

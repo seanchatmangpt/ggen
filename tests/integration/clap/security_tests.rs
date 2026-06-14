@@ -3,9 +3,34 @@
 //! Tests path traversal prevention, symlink attacks,
 //! environment variable injection, and other security concerns.
 
+use serial_test::serial;
 use std::fs;
 use std::path::PathBuf;
 use tempfile::TempDir;
+
+/// Saves the prior value of an env var and restores it (or removes it) on Drop.
+/// Defined locally; do not share across crates.
+struct EnvVarGuard {
+    key: &'static str,
+    previous: Option<std::ffi::OsString>,
+}
+
+impl EnvVarGuard {
+    fn set(key: &'static str, value: &str) -> Self {
+        let previous = std::env::var_os(key);
+        std::env::set_var(key, value);
+        Self { key, previous }
+    }
+}
+
+impl Drop for EnvVarGuard {
+    fn drop(&mut self) {
+        match &self.previous {
+            None => std::env::remove_var(self.key),
+            Some(v) => std::env::set_var(self.key, v),
+        }
+    }
+}
 
 /// Test path traversal with various patterns
 #[test]
@@ -83,18 +108,19 @@ fn test_absolute_path_escaping() {
 
 /// Test environment variable injection prevention
 #[test]
+#[serial(GGEN_OUTPUT_DIR, GGEN_TEMPLATE_PATH, GGEN_CONFIG)]
 fn test_env_var_injection_prevention() {
     use std::env;
 
     // Malicious env vars that might cause issues
-    let malicious_vars = vec![
+    let malicious_vars: Vec<(&'static str, &str)> = vec![
         ("GGEN_OUTPUT_DIR", "../../../etc"),
         ("GGEN_TEMPLATE_PATH", "/etc/passwd"),
         ("GGEN_CONFIG", "../../secret.toml"),
     ];
 
     for (key, value) in malicious_vars {
-        env::set_var(key, value);
+        let _guard = EnvVarGuard::set(key, value);
 
         let env_value = env::var(key).unwrap();
         let path = PathBuf::from(&env_value);
@@ -111,8 +137,7 @@ fn test_env_var_injection_prevention() {
                 env_value
             );
         }
-
-        env::remove_var(key);
+        // _guard drops here, restoring the prior value.
     }
 }
 

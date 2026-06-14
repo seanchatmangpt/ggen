@@ -61,6 +61,7 @@ resolver = "2" # Use new resolver for better dependency resolution
 
 # Workspace-wide dependencies for version consistency
 [workspace.dependencies]
+serial_test = "3.2"
 lsp-max = "26.6.9"
 lsp-max-protocol = "26.6.9"
 lsp-max-macros = "26.6.9"

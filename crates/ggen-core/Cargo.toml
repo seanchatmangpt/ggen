@@ -257,6 +257,9 @@ features = [ "testing-extras", "testcontainers"]
 [dev-dependencies.testcontainers]
 version = "0.25"
 
+[dev-dependencies.serial_test]
+workspace = true
+
 [target."cfg(unix)".dependencies.nix]
 version = "0.29"
 features = [ "fs"]

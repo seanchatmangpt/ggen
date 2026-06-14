@@ -3,6 +3,31 @@ use assert_cmd::Command;
 use cucumber::{given, then, when};
 use std::fs;
 
+/// Saves the prior value of an env var and restores it (or removes it) on Drop.
+/// Defined locally; do not share across crates. In BDD steps the guard scope is
+/// the step fn, so it records and restores the prior environment value.
+struct EnvVarGuard {
+    key: &'static str,
+    previous: Option<std::ffi::OsString>,
+}
+
+impl EnvVarGuard {
+    fn set(key: &'static str, value: &str) -> Self {
+        let previous = std::env::var_os(key);
+        std::env::set_var(key, value);
+        Self { key, previous }
+    }
+}
+
+impl Drop for EnvVarGuard {
+    fn drop(&mut self) {
+        match &self.previous {
+            None => std::env::remove_var(self.key),
+            Some(v) => std::env::set_var(self.key, v),
+        }
+    }
+}
+
 /// Step definitions for `ggen ci` noun-verb commands
 ///
 /// Covers CI/CD operations:
@@ -16,9 +41,10 @@ use std::fs;
 
 #[given(regex = r"^I have a GitHub repository$")]
 fn have_github_repository(world: &mut GgenWorld) {
-    // Set up mock GitHub repository environment
-    std::env::set_var("GITHUB_REPOSITORY", "test-org/test-repo");
-    std::env::set_var("GITHUB_TOKEN", "mock-token");
+    // Set up mock GitHub repository environment.
+    // Guards record the prior values and restore them when this step returns.
+    let _repo_guard = EnvVarGuard::set("GITHUB_REPOSITORY", "test-org/test-repo");
+    let _token_guard = EnvVarGuard::set("GITHUB_TOKEN", "mock-token");
 
     // Create mock .git directory
     let git_dir = world.project_dir.join(".git");
