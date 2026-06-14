@@ -520,6 +520,33 @@ impl SyncExecutor {
             details: Some(format!("{} templates validated", query_count)),
         });
 
+        // Check custom validation rules ([[validation.rules]] SPARQL ASK/SELECT).
+        // These run against the inferred graph, alongside the structural checks
+        // above. ASK polarity follows the executor convention: ASK=true => valid,
+        // ASK=false => violation (matches the manifest field doc "true = valid").
+        if !manifest_data.validation.rules.is_empty() {
+            let mut rules_passed = true;
+            let mut rules_detail = format!("{} rules", manifest_data.validation.rules.len());
+            let mut pipeline =
+                GenerationPipeline::new(manifest_data.clone(), base_path.to_path_buf());
+            match pipeline
+                .load_ontology()
+                .and_then(|_| pipeline.execute_inference_rules().map(|_| ()))
+                .and_then(|_| pipeline.execute_validation_rules())
+            {
+                Ok(()) => {}
+                Err(e) => {
+                    rules_passed = false;
+                    rules_detail = e.to_string();
+                }
+            }
+            validations.push(ValidationCheck {
+                check: "Custom validation rules".to_string(),
+                passed: rules_passed,
+                details: Some(rules_detail),
+            });
+        }
+
         let all_passed = validations.iter().all(|v| v.passed);
 
         // Output validation results

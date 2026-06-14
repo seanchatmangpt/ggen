@@ -1,0 +1,111 @@
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix togaf: <https://ggen.dev/ontology/togaf#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# TOGAF ADM Compliance — SHACL Shapes
+# =============================================================================
+# These shapes are the mechanical equivalent of TOGAF Architecture Compliance
+# Review. They run as proof gates inside ggen sync — violations block artifact
+# generation with a GGEN-RULE or SHACL diagnostic.
+#
+# ANDON rule: any sh:Violation = stop. Do not run ggen sync until resolved.
+# =============================================================================
+
+# ─── ApplicationComponent must declare a capability ──────────────────────────
+togaf:AppComponentCapabilityShape
+    a sh:NodeShape ;
+    sh:targetClass togaf:ApplicationComponent ;
+    sh:message "ApplicationComponent must implement at least one BusinessCapability (TOGAF Phase C-App traceability)" ;
+    sh:property [
+        sh:path togaf:implementsCapability ;
+        sh:minCount 1 ;
+        sh:class togaf:BusinessCapability ;
+    ] .
+
+# ─── ApplicationComponent handling PCI/HIPAA data must declare conformance ───
+togaf:PaymentDataComplianceShape
+    a sh:NodeShape ;
+    sh:targetClass togaf:ApplicationComponent ;
+    sh:message "Component handling restricted data must conform to a ComplianceStandard (PCI DSS or HIPAA)" ;
+    sh:sparql [
+        sh:message "Component handles restricted data but declares no compliance standard" ;
+        sh:select """
+            PREFIX togaf: <https://ggen.dev/ontology/togaf#>
+            SELECT $this
+            WHERE {
+                $this togaf:handlesDataObject ?obj .
+                ?obj togaf:dataClassification "restricted" .
+                FILTER NOT EXISTS { $this togaf:conformsTo ?std . }
+            }
+        """ ;
+    ] .
+
+# ─── DataObject must have a classification ───────────────────────────────────
+togaf:DataObjectClassificationShape
+    a sh:NodeShape ;
+    sh:targetClass togaf:DataObject ;
+    sh:message "DataObject must declare togaf:dataClassification (public | internal | confidential | restricted)" ;
+    sh:property [
+        sh:path togaf:dataClassification ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "public" "internal" "confidential" "restricted" ) ;
+    ] .
+
+# ─── DataObject must have an owner ───────────────────────────────────────────
+togaf:DataObjectOwnerShape
+    a sh:NodeShape ;
+    sh:targetClass togaf:DataObject ;
+    sh:message "DataObject must declare togaf:owner (data steward email) for Phase C-Data governance" ;
+    sh:property [
+        sh:path togaf:owner ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+    ] .
+
+# ─── ApplicationComponent must declare owner ─────────────────────────────────
+togaf:ComponentOwnerShape
+    a sh:NodeShape ;
+    sh:targetClass togaf:ApplicationComponent ;
+    sh:message "ApplicationComponent must declare togaf:owner (team email) for Phase G governance" ;
+    sh:property [
+        sh:path togaf:owner ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+    ] .
+
+# ─── ApplicationComponent must declare a status ──────────────────────────────
+togaf:ComponentStatusShape
+    a sh:NodeShape ;
+    sh:targetClass togaf:ApplicationComponent ;
+    sh:message "ApplicationComponent must declare togaf:status (draft | approved | deprecated | retired)" ;
+    sh:property [
+        sh:path togaf:status ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "draft" "approved" "deprecated" "retired" ) ;
+    ] .
+
+# ─── ApplicationComponent must be realized by a Node ─────────────────────────
+togaf:ComponentNodeShape
+    a sh:NodeShape ;
+    sh:targetClass togaf:ApplicationComponent ;
+    sh:message "ApplicationComponent must declare togaf:realizedBy a technology Node (Phase D traceability)" ;
+    sh:property [
+        sh:path togaf:realizedBy ;
+        sh:minCount 1 ;
+        sh:class togaf:Node ;
+    ] .
+
+# ─── BusinessCapability must have an owner ───────────────────────────────────
+togaf:CapabilityOwnerShape
+    a sh:NodeShape ;
+    sh:targetClass togaf:BusinessCapability ;
+    sh:message "BusinessCapability must declare togaf:owner for Phase B governance" ;
+    sh:property [
+        sh:path togaf:owner ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+    ] .

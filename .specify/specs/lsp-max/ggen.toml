@@ -93,6 +93,34 @@ template    = { file = "../../../templates/lsp-max/rule.toml.tera" }
 output_file = "examples/lsp-max-scaffold/{{ server_name }}/rules/{{ pack_id }}.toml"
 mode        = "Overwrite"
 
+# ── Rule 6: workspace scanner — file globs compiled into binary ───────────────
+
+[[generation.rules]]
+name        = "lsp-max-workspace"
+query       = { file = "../../../queries/lsp-max/list_server_globs_agg.rq" }
+template    = { file = "../../../templates/lsp-max/workspace.rs.tera" }
+output_file = "examples/lsp-max-scaffold/{{ server_name }}/src/workspace.rs"
+mode        = "Overwrite"
+
+# ── Rule 7: per-pack Rust module — rules compiled into binary ─────────────────
+# One file per (server, pack); pack_id_safe is the Rust module name.
+
+[[generation.rules]]
+name        = "lsp-max-pack-rules"
+query       = { file = "../../../queries/lsp-max/list_server_pack_rules.rq" }
+template    = { file = "../../../templates/lsp-max/pack_rules.rs.tera" }
+output_file = "examples/lsp-max-scaffold/{{ server_name }}/src/packs/{{ pack_id_safe }}.rs"
+mode        = "Overwrite"
+
+# ── Rule 8: packs/mod.rs — aggregates all pack modules per server ─────────────
+
+[[generation.rules]]
+name        = "lsp-max-packs-mod"
+query       = { file = "../../../queries/lsp-max/list_server_packs_mod.rq" }
+template    = { file = "../../../templates/lsp-max/packs_mod.rs.tera" }
+output_file = "examples/lsp-max-scaffold/{{ server_name }}/src/packs/mod.rs"
+mode        = "Overwrite"
+
 [inference]
 rules = [
     { name = "normalize", construct = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }" }

@@ -308,7 +308,10 @@ mod tests {
             vec!["sha256:output-hash".to_string()],
             None,
         );
-        assert!(receipt.signature.is_empty(), "precondition: signature must be empty after new()");
+        assert!(
+            receipt.signature.is_empty(),
+            "precondition: signature must be empty after new()"
+        );
 
         // Act
         let result = receipt.verify(&verifying_key);

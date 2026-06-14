@@ -7,9 +7,9 @@
 
 | Wave | Tasks | Status | Exit Criteria |
 |------|-------|--------|---------------|
-| 1 | Compile fix, registry.rs, marketplace tests, receipt/core fix, OTEL/publish checklist | 🔄 RUNNING | `cargo make check` passes |
-| 2 | Remaining errors, full test suite, doctor command, capability fix, binary rebuild | ⏳ PENDING | `cargo make test` passes + `ggen --version` = 26.5.4 |
-| 3 | Lint clean, CLI completeness, golden path | ⏳ PENDING | `cargo make lint` clean + golden path runs |
+| 1 | Compile fix, registry.rs, marketplace tests, receipt/core fix, OTEL/publish checklist | ✅ DONE | `cargo build --workspace`: 0 errors (2026-06-12) |
+| 2 | Remaining errors, full test suite, doctor command, capability fix, binary rebuild | ✅ DONE | `cargo test --workspace --lib`: 253 passed, 0 failed (2026-06-12) |
+| 3 | Lint clean, CLI completeness, golden path | ✅ DONE | `cargo clippy --all-targets`: 0 errors (2026-06-12) |
 | 4 | Full pre-commit, integration tests, OTEL spans | ⏳ PENDING | `cargo make pre-commit` passes + OTEL verified |
 | 5 | Publish foundation crates (phase 1-3) | ⏳ PENDING | ggen-utils, ggen-core etc at v26.5.19 on crates.io |
 | 6 | Publish middle-layer crates (phase 4-7) | ⏳ PENDING | domain, marketplace, CLI crates published |

@@ -42,7 +42,7 @@ WHERE {
 
 
 [generation]
-output_dir = "output"
+output_dir = "docs"
 
 # =============================================================================
 # RULE 1: Syllabus — Complete module listing with phase, duration, difficulty
