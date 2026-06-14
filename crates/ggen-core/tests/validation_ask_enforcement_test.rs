@@ -322,6 +322,77 @@ fn no_orphan_argument_passes_when_all_referenced() {
         .expect("fully-referenced arguments must pass the rule");
 }
 
+// ---------------------------------------------------------------------------
+// Fourth invariant: "every argument is named". An arg referenced via hasArguments
+// but lacking cnv:hasArgumentName renders a nameless parameter (`: String,`) — a
+// hard compile error in the generated wrapper. A real render-breaker, admitted
+// with its own blocks/passes witness.
+// ---------------------------------------------------------------------------
+
+/// `named=false` gives the verb a second referenced arg with no hasArgumentName.
+fn unnamed_arg_ontology(named: bool) -> String {
+    let a2 = if named {
+        r#"ex:a2 cnv:hasArgumentName "second" ."#
+    } else {
+        "ex:a2 a cnv:Argument ." // referenced but unnamed
+    };
+    format!(
+        r#"@prefix cnv: <{CNV}> .
+@prefix ex: <http://ex#> .
+
+ex:v a cnv:Verb ; cnv:hasVerbName "go" ; cnv:hasArguments ex:a1, ex:a2 .
+ex:a1 cnv:hasArgumentName "first" .
+{a2}
+"#
+    )
+}
+
+/// "Every argument is named": every node referenced via hasArguments must carry a
+/// hasArgumentName. NOT-EXISTS polarity (true = all named = valid).
+fn every_arg_named_rule() -> ValidationRule {
+    ValidationRule {
+        name: "every-argument-named".to_string(),
+        description: "Every argument referenced by a verb must declare a cnv:hasArgumentName."
+            .to_string(),
+        ask: format!(
+            r#"ASK {{ FILTER NOT EXISTS {{ ?v <{CNV}hasArguments> ?a . FILTER NOT EXISTS {{ ?a <{CNV}hasArgumentName> ?n }} }} }}"#
+        ),
+        severity: ValidationSeverity::Error,
+    }
+}
+
+/// An unnamed referenced argument fails the invariant.
+#[test]
+fn unnamed_argument_blocks() {
+    let dir = TempDir::new().expect("TempDir");
+    std::fs::write(dir.path().join("ontology.ttl"), unnamed_arg_ontology(false))
+        .expect("write ontology");
+
+    let mut pipeline =
+        GenerationPipeline::new(manifest(vec![every_arg_named_rule()]), dir.path().to_path_buf());
+    pipeline.load_ontology().expect("load ontology");
+
+    let result = pipeline.execute_validation_rules();
+    assert!(result.is_err(), "an unnamed argument must fail the every-argument-named rule");
+    assert!(result.unwrap_err().to_string().contains("GGEN-VALIDATION"));
+}
+
+/// Teeth control: passes when every argument is named.
+#[test]
+fn every_argument_named_passes_when_all_named() {
+    let dir = TempDir::new().expect("TempDir");
+    std::fs::write(dir.path().join("ontology.ttl"), unnamed_arg_ontology(true))
+        .expect("write ontology");
+
+    let mut pipeline =
+        GenerationPipeline::new(manifest(vec![every_arg_named_rule()]), dir.path().to_path_buf());
+    pipeline.load_ontology().expect("load ontology");
+
+    pipeline
+        .execute_validation_rules()
+        .expect("fully-named arguments must pass the rule");
+}
+
 /// Regression guard: `run()` must invoke validation BEFORE generation, so a colliding
 /// ontology aborts with no files written. This is the test that turns red if a future
 /// refactor un-wires `execute_validation_rules` from the pipeline (the original bug).
