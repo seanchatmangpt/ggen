@@ -1,0 +1,127 @@
+# lsp-max code-generation manifest
+# Wires: .specify/specs/lsp-max/lsp.ttl → queries/ → templates/ → lsp-max/examples/
+#
+# Run:  ggen sync --manifest .specify/specs/lsp-max/ggen.toml
+# Dry:  ggen sync --manifest .specify/specs/lsp-max/ggen.toml --dry-run
+#
+# Output goes directly into lsp-max/examples/<server_name>/ — rendered source IS source.
+# GGEN-SRC-001: output_file must never contain generated/, output/, gen/.
+# GGEN-YIELD-002: rendered source must not carry DO NOT EDIT banners.
+
+[project]
+name    = "lsp-max"
+version = "0.1.0"
+description = "Specification-driven rule-pack LSP server generated from lsp.ttl via the ggen mu-pipeline"
+
+[ontology]
+source = "lsp.ttl"
+standard_only = false
+base_iri = "http://ggen.io/ontology/lsp#"
+
+[ontology.prefixes]
+lsp = "http://ggen.io/ontology/lsp#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+xsd = "http://www.w3.org/2001/XMLSchema#"
+owl = "http://www.w3.org/2002/07/owl#"
+
+[generation]
+output_dir = "."
+
+[sync]
+enabled        = true
+on_change      = "manual"
+validate_after = true
+conflict_mode  = "fail"
+
+[rdf]
+formats        = ["turtle"]
+default_format = "turtle"
+
+[templates]
+enable_caching = false
+auto_reload    = true
+
+[output]
+formatting  = "default"
+line_length = 100
+indent      = 4
+
+# ── Rule 1: backend server struct ─────────────────────────────────────────────
+
+[[generation.rules]]
+name        = "lsp-max-backend"
+query       = { file = "../../../queries/lsp-max/list_servers.rq" }
+template    = { file = "../../../templates/lsp-max/backend.rs.tera" }
+output_file = "examples/lsp-max-scaffold/{{ server_name }}/src/server.rs"
+mode        = "Overwrite"
+
+# ── Rule 2: CLI entry point ───────────────────────────────────────────────────
+
+[[generation.rules]]
+name        = "lsp-max-cli"
+query       = { file = "../../../queries/lsp-max/list_servers.rq" }
+template    = { file = "../../../templates/lsp-max/cli.rs.tera" }
+output_file = "examples/lsp-max-scaffold/{{ server_name }}/src/main.rs"
+mode        = "Overwrite"
+
+# ── Rule 3: build.rs ──────────────────────────────────────────────────────────
+
+[[generation.rules]]
+name        = "lsp-max-build"
+query       = { file = "../../../queries/lsp-max/list_servers.rq" }
+template    = { file = "../../../templates/lsp-max/build.rs.tera" }
+output_file = "examples/lsp-max-scaffold/{{ server_name }}/build.rs"
+mode        = "Overwrite"
+
+# ── Rule 4: Cargo.toml ────────────────────────────────────────────────────────
+
+[[generation.rules]]
+name        = "lsp-max-cargo"
+query       = { file = "../../../queries/lsp-max/list_servers.rq" }
+template    = { file = "../../../templates/lsp-max/Cargo.toml.tera" }
+output_file = "examples/lsp-max-scaffold/{{ server_name }}/Cargo.toml"
+mode        = "Overwrite"
+
+# ── Rule 5: generate one rules/RULE_ID.toml per ontology rule ─────────────────
+# Each row from list_rules.rq becomes a TOML file load_packs() reads at runtime.
+
+[[generation.rules]]
+name        = "lsp-max-rule-toml"
+query       = { file = "../../../queries/lsp-max/list_rules.rq" }
+template    = { file = "../../../templates/lsp-max/rule.toml.tera" }
+output_file = "examples/lsp-max-scaffold/{{ server_name }}/rules/{{ pack_id }}.toml"
+mode        = "Overwrite"
+
+# ── Rule 6: workspace scanner — file globs compiled into binary ───────────────
+
+[[generation.rules]]
+name        = "lsp-max-workspace"
+query       = { file = "../../../queries/lsp-max/list_server_globs_agg.rq" }
+template    = { file = "../../../templates/lsp-max/workspace.rs.tera" }
+output_file = "examples/lsp-max-scaffold/{{ server_name }}/src/workspace.rs"
+mode        = "Overwrite"
+
+# ── Rule 7: per-pack Rust module — rules compiled into binary ─────────────────
+# One file per (server, pack); pack_id_safe is the Rust module name.
+
+[[generation.rules]]
+name        = "lsp-max-pack-rules"
+query       = { file = "../../../queries/lsp-max/list_server_pack_rules.rq" }
+template    = { file = "../../../templates/lsp-max/pack_rules.rs.tera" }
+output_file = "examples/lsp-max-scaffold/{{ server_name }}/src/packs/{{ pack_id_safe }}.rs"
+mode        = "Overwrite"
+
+# ── Rule 8: packs/mod.rs — aggregates all pack modules per server ─────────────
+
+[[generation.rules]]
+name        = "lsp-max-packs-mod"
+query       = { file = "../../../queries/lsp-max/list_server_packs_mod.rq" }
+template    = { file = "../../../templates/lsp-max/packs_mod.rs.tera" }
+output_file = "examples/lsp-max-scaffold/{{ server_name }}/src/packs/mod.rs"
+mode        = "Overwrite"
+
+[inference]
+rules = [
+    { name = "normalize", construct = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }" }
+]

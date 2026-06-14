@@ -47,9 +47,9 @@ struct EnvSetOutput {
 // ============================================================================
 
 /// Run system diagnostics
-#[allow(clippy::used_underscore_binding)] // _fix is a CLI flag name required by #[verb] macro; unused in body
 #[verb]
-fn doctor(all: bool, _fix: bool, format: Option<String>) -> Result<DoctorOutput> {
+fn doctor(all: bool, fix: bool, format: Option<String>) -> Result<DoctorOutput> {
+    let _ = fix; // reserved CLI flag; auto-fix not yet implemented
     let format = format.unwrap_or_else(|| "table".to_string());
     use ggen_core::domain::utils::{execute_doctor, DoctorInput};
 
@@ -101,9 +101,9 @@ fn doctor(all: bool, _fix: bool, format: Option<String>) -> Result<DoctorOutput>
 }
 
 /// Manage environment variables
-#[allow(clippy::used_underscore_binding)] // _system is a CLI flag name required by #[verb] macro; unused in body
 #[verb]
-fn env(list: bool, get: Option<String>, set: Option<String>, _system: bool) -> Result<EnvOutput> {
+fn env(list: bool, get: Option<String>, set: Option<String>, system: bool) -> Result<EnvOutput> {
+    let _ = system; // reserved CLI flag; system-wide env scope not yet implemented
     let variables = run_env(list, get.as_deref(), set.as_deref());
     let total = variables.len();
     Ok(EnvOutput { variables, total })

@@ -92,3 +92,6 @@ use_cases = "PhD dissertations, master's theses, research monographs, technical 
 # Validation
 [validation]
 requires = ["thesis.rdf", "chapters/", "references.bib"]
+
+[marketplace]
+production_ready = false

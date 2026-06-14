@@ -58,15 +58,19 @@ impl TrustTier {
             Self::EnterpriseApproved => 2,
             Self::CommunityReviewed => 3,
             Self::ProductionReady => 4,
-            Self::Quarantined => 5,
-            Self::Experimental => 6,
+            Self::Experimental => 5,
+            Self::Quarantined => 6,
             Self::Blocked => 7,
         }
     }
 
-    /// Check if this tier meets or exceeds the required minimum
+    /// Check if this tier meets or exceeds the required minimum.
+    /// `Blocked` packages NEVER meet any requirement — even `Blocked` itself.
     #[must_use]
     pub fn meets_requirement(self, required: Self) -> bool {
+        if self == Self::Blocked {
+            return false;
+        }
         self.priority() <= required.priority()
     }
 }

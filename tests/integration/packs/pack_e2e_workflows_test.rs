@@ -81,7 +81,7 @@ fn test_workflow_validate_pack_before_use() {
     }
 
     // Pack is valid and ready to use
-    assert!(true);
+    assert!(!templates.is_empty() || !rdf_files.is_empty() || !queries.is_empty());
 }
 
 // ============================================================================

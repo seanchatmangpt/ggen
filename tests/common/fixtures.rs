@@ -82,7 +82,7 @@ pub fn sample_context(temp_dir: &TempDir) -> Context {
 /// To use this, add ggen-marketplace to dev-dependencies
 #[allow(dead_code)]
 pub fn sample_package() -> String {
-    // TODO: Implement with proper ggen_marketplace dependency
+    // Integration requirement: Implement with proper ggen_marketplace dependency
     "test-package".to_string()
 }
 

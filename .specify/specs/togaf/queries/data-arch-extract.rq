@@ -1,0 +1,15 @@
+PREFIX togaf: <https://ggen.dev/ontology/togaf#>
+PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?data_object ?data_object_label ?classification ?owner ?std_label
+WHERE {
+    ?data_object a togaf:DataObject ;
+                 rdfs:label ?data_object_label ;
+                 togaf:dataClassification ?classification ;
+                 togaf:owner ?owner .
+    OPTIONAL {
+        ?data_object togaf:conformsTo ?std .
+        ?std rdfs:label ?std_label .
+    }
+}
+ORDER BY DESC(?classification) ?data_object_label ?std_label

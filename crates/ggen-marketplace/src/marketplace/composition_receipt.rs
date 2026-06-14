@@ -13,7 +13,7 @@ use crate::marketplace::error::Result;
 use crate::marketplace::trust::TrustTier;
 use ggen_config::{Receipt, ReceiptChain};
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, HashSet};
 
 /// Reference to an atomic pack in the composition.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -175,8 +175,8 @@ pub struct CompositionReceipt {
     /// Bundle aliases expanded
     pub bundle_aliases: Vec<BundleExpansion>,
 
-    /// Exact versions and digests
-    pub versions: HashMap<String, String>,
+    /// Exact versions and digests — BTreeMap for deterministic JSON serialization
+    pub versions: BTreeMap<String, String>,
 
     /// Signatures and trust status
     pub signatures: Vec<SignatureRecord>,
@@ -199,8 +199,8 @@ pub struct CompositionReceipt {
     /// Conflicts encountered and resolutions
     pub conflicts: Vec<ConflictResolution>,
 
-    /// Final ownership map
-    pub ownership_map: HashMap<String, OwnershipRecord>,
+    /// Final ownership map — BTreeMap for deterministic JSON serialization
+    pub ownership_map: BTreeMap<String, OwnershipRecord>,
 
     /// Emitted artifact hashes
     pub artifact_hashes: Vec<OutputPath>,
@@ -265,7 +265,7 @@ impl CompositionReceipt {
             parent_receipt_id: None,
             atomic_packs: Vec::new(),
             bundle_aliases: Vec::new(),
-            versions: HashMap::new(),
+            versions: BTreeMap::new(),
             signatures: Vec::new(),
             ontology_fragments: Vec::new(),
             queries_executed: Vec::new(),
@@ -273,7 +273,7 @@ impl CompositionReceipt {
             validators_applied: Vec::new(),
             policies_enforced: Vec::new(),
             conflicts: Vec::new(),
-            ownership_map: HashMap::new(),
+            ownership_map: BTreeMap::new(),
             artifact_hashes: Vec::new(),
             runtime_context,
             receipt_chain: ReceiptChain::new(),

@@ -1,0 +1,10 @@
+[[rules]]
+id         = "{{ rule_id }}"
+name       = "{{ rule_name }}"
+severity   = "{{ severity }}"
+pattern    = '{{ pattern }}'
+message    = "{{ message }}"
+rationale  = "{{ rationale }}"
+eval_budget = "{{ eval_budget | default(value="sync") }}"
+path_globs   = []
+exclude_globs = []

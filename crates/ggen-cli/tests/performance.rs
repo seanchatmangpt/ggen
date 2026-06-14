@@ -133,16 +133,28 @@ output_file = "src/api.rs"
 
     let queries_dir = temp.child("queries");
     std::fs::create_dir_all(queries_dir.path()).unwrap();
-    queries_dir.child("api.rq").write_str("SELECT ?s WHERE { ?s ?p ?o }").unwrap();
+    queries_dir
+        .child("api.rq")
+        .write_str("SELECT ?s WHERE { ?s ?p ?o }")
+        .unwrap();
 
     let templates_dir = temp.child("templates");
     std::fs::create_dir_all(templates_dir.path()).unwrap();
-    templates_dir.child("api.rs.tera").write_str("hello").unwrap();
+    templates_dir
+        .child("api.rs.tera")
+        .write_str("hello")
+        .unwrap();
 
     let start = Instant::now();
 
     Command::new(env!("CARGO_BIN_EXE_ggen"))
-        .args(["sync", "--manifest", manifest_file.path().to_str().unwrap(), "--dry_run", "true"])
+        .args([
+            "sync",
+            "--manifest",
+            manifest_file.path().to_str().unwrap(),
+            "--dry_run",
+            "true",
+        ])
         .current_dir(temp.path())
         .assert()
         .success();
@@ -615,10 +627,7 @@ fn perf_no_resource_leaks_failed_commands() {
     // Verify failed commands don't leak resources
     for _ in 0..5 {
         let _ = Command::new(env!("CARGO_BIN_EXE_ggen"))
-            .args([
-                "sync",
-                "--invalid-flag-that-does-not-exist",
-            ])
+            .args(["sync", "--invalid-flag-that-does-not-exist"])
             .assert()
             .failure();
     }

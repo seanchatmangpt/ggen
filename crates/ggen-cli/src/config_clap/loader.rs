@@ -88,20 +88,46 @@ pub fn expand_env_vars(input: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serial_test::serial;
     use std::env;
 
-    #[test]
-    fn test_expand_env_vars_dollar_brace() {
-        env::set_var("TEST_VAR", "test_value");
-        let input = "Path: ${TEST_VAR}/output";
-        let result = expand_env_vars(input);
-        assert_eq!(result, "Path: test_value/output");
-        env::remove_var("TEST_VAR");
+    /// Saves the prior value of an env var on construction and restores it
+    /// (or removes it if previously unset) on Drop.
+    struct EnvVarGuard {
+        key: &'static str,
+        previous: Option<std::ffi::OsString>,
+    }
+
+    impl EnvVarGuard {
+        fn set(key: &'static str, value: &str) -> Self {
+            let previous = env::var_os(key);
+            env::set_var(key, value);
+            Self { key, previous }
+        }
+    }
+
+    impl Drop for EnvVarGuard {
+        fn drop(&mut self) {
+            match &self.previous {
+                None => env::remove_var(self.key),
+                Some(v) => env::set_var(self.key, v),
+            }
+        }
     }
 
     #[test]
+    #[serial(TEST_VAR)]
+    fn test_expand_env_vars_dollar_brace() {
+        let _guard = EnvVarGuard::set("TEST_VAR", "test_value");
+        let input = "Path: ${TEST_VAR}/output";
+        let result = expand_env_vars(input);
+        assert_eq!(result, "Path: test_value/output");
+    }
+
+    #[test]
+    #[serial(USER)]
     fn test_expand_env_vars_dollar() {
-        env::set_var("USER", "testuser");
+        let _guard = EnvVarGuard::set("USER", "testuser");
         let input = "Home: /home/$USER";
         let result = expand_env_vars(input);
         assert_eq!(result, "Home: /home/testuser");

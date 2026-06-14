@@ -1,0 +1,16 @@
+PREFIX togaf: <https://ggen.dev/ontology/togaf#>
+PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?capability ?capability_label ?owner ?status ?phase_label
+WHERE {
+    ?capability a togaf:BusinessCapability ;
+                rdfs:label ?capability_label ;
+                togaf:owner ?owner ;
+                togaf:status ?status .
+    OPTIONAL {
+        ?capability togaf:associatedPhase ?phase .
+        ?phase rdfs:label ?raw_phase_label .
+    }
+    BIND(COALESCE(?raw_phase_label, "Unassigned") AS ?phase_label)
+}
+ORDER BY ?capability_label

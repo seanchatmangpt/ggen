@@ -482,7 +482,10 @@ async fn harness_seam_raises_zero_tpl_001() {
         .iter()
         .flat_map(|(_, d)| d.iter())
         .any(|d| is_harness_001(&d.lsp));
-    let raised_tpl = published.iter().flat_map(|(_, d)| d.iter()).any(|d| is_tpl_001(&d.lsp));
+    let raised_tpl = published
+        .iter()
+        .flat_map(|(_, d)| d.iter())
+        .any(|d| is_tpl_001(&d.lsp));
 
     assert!(
         raised_harness,

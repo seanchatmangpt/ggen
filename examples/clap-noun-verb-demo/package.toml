@@ -1,0 +1,23 @@
+[package]
+name = "clap-noun-verb"
+version = "3.2.0"
+description = "CLI noun-verb generator"
+authors = ["ggen-team"]
+license = "MIT OR Apache-2.0"
+
+[marketplace]
+category = "examples"
+subcategory = "cli"
+tags = ["cli", "clap", "noun-verb"]
+production_ready = false
+
+[ontology]
+file = "sample-cli.ttl"
+namespace = "https://ggen.io/examples/cli-noun-verb#"
+
+[templates]
+specification = "cli-template.yaml"
+root = "templates/"
+
+[documentation]
+# readme = "README.md" # Optional if not present

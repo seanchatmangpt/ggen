@@ -129,3 +129,6 @@ path = "examples/data_enrichment.rs"
 [[bench]]
 name = "pipeline_benchmark"
 harness = false
+
+[marketplace]
+production_ready = false

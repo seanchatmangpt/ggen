@@ -66,7 +66,7 @@ fn create_tera() -> Tera {
 
     let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
     let mcp_templates_dir = manifest_dir.join("templates/mcp-server");
-    
+
     let mut templates = Vec::new();
     for entry in fs::read_dir(mcp_templates_dir).expect("mcp-server templates dir exists") {
         let entry = entry.expect("valid entry");
@@ -78,8 +78,10 @@ fn create_tera() -> Tera {
             templates.push((template_name, content));
         }
     }
-    
-    tera_instance.add_raw_templates(templates).expect("Failed to add templates");
+
+    tera_instance
+        .add_raw_templates(templates)
+        .expect("Failed to add templates");
     tera_instance
 }
 
@@ -423,7 +425,7 @@ fn e2e_mcp_server_template_error_handling() {
     let tera = create_tera();
 
     // Arrange: Create context with missing required variable (tool_name)
-    let ctx = Context::new(); 
+    let ctx = Context::new();
 
     // Act: Try to render template
     let result = tera.render("mcp-server/tool_handler.rs.tera", &ctx);

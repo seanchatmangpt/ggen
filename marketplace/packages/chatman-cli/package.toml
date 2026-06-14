@@ -55,3 +55,6 @@ ai_providers = ["openai", "anthropic", "local-llm", "custom"]
 semantic_features = ["knowledge-hooks", "rdf-ontology", "sparql-queries", "context-tracking"]
 output_formats = ["json", "yaml", "markdown", "text", "colored-terminal"]
 integration_modes = ["standalone", "library", "plugin", "embedded"]
+
+[marketplace]
+production_ready = false

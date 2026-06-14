@@ -70,9 +70,9 @@ def parse_package_toml(package_dir: Path) -> dict:
         return None
     
     package = data.get("package", {})
-    package_tags = data.get("package.tags", {})
-    package_keywords = data.get("package.keywords", {})
-    package_metadata = data.get("package.metadata", {})
+    package_tags = package.get("tags", {})
+    package_keywords = package.get("keywords", {})
+    package_metadata = package.get("metadata", {})
     
     # Extract tags - handle both array format and dict format
     tags = []

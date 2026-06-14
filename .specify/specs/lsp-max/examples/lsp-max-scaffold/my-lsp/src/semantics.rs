@@ -1,0 +1,31 @@
+//! Rule-type definitions for `my-lsp`.
+//! This module re-exports the canonical lsp-max rule types and provides
+//! convenience constructors for the rules defined in this server's ontology.
+
+pub use lsp_max::rule_pack_server::{
+    CrossFileRule, EvalBudget, Rule, RulePack, RulePackSnapshot, WorkspaceIndex,
+};
+
+/// Build the statically-declared rule pack for `example@1.0.0`.
+///
+/// At runtime packs are also loaded from `rules/*.toml`; this function
+/// is used for testing without a filesystem.
+pub fn static_pack() -> RulePack {
+    RulePack {
+        id: "example@1.0.0".to_string(),
+        version: "1.0.0".to_string(),
+        rules: vec![
+            Rule {
+                id: "EXAMPLE-001".to_string(),
+                name: "no-unwrap".to_string(),
+                pattern: "\\.(unwrap|expect)\\(\\)".to_string(),
+                message: "Replace unwrap()/expect() with ? or map_err".to_string(),
+                severity: "error".to_string(),
+                rationale: "Panics abort async tasks; use Result propagation".to_string(),
+                path_globs: vec![],
+                exclude_globs: vec![],
+                eval_budget: EvalBudget::Sync,
+            },
+        ],
+    }
+}

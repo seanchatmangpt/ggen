@@ -19,7 +19,7 @@ timeout-check:
 
 # Check all 15 crates without building (fast feedback)
 check:
-    timeout 60s cargo check --workspace
+    timeout 300s cargo check --workspace
 
 # Build the ggen CLI binary in debug mode
 build:
@@ -126,3 +126,31 @@ sync:
 # Preview sync without writing any files
 sync-dry:
     ggen sync --dry_run true
+
+# ── lsp-max scaffold ──────────────────────────────────────────────────────────
+
+LSP_MAX_MANIFEST := ".specify/specs/lsp-max/ggen.toml"
+LSP_MAX_SCAFFOLD := ".specify/specs/lsp-max/examples/lsp-max-scaffold"
+
+# Generate a new rule-pack LSP server from lsp.ttl (sync + compile check)
+lsp-max-new: lsp-max-sync lsp-max-check
+
+# Run the ggen μ-pipeline for lsp-max (30ms)
+lsp-max-sync:
+    ggen sync --manifest {{LSP_MAX_MANIFEST}}
+
+# Cargo check every generated scaffold crate
+lsp-max-check:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    for toml in {{LSP_MAX_SCAFFOLD}}/*/Cargo.toml; do
+        name=$(basename "$(dirname "$toml")")
+        echo "checking $name..."
+        cargo check --manifest-path "$toml"
+    done
+    echo "all scaffold crates OK"
+
+# Edit lsp.ttl then regenerate and check in one command
+lsp-max-edit:
+    $EDITOR .specify/specs/lsp-max/lsp.ttl
+    just lsp-max-new

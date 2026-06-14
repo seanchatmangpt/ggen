@@ -520,6 +520,33 @@ impl SyncExecutor {
             details: Some(format!("{} templates validated", query_count)),
         });
 
+        // Check custom validation rules ([[validation.rules]] SPARQL ASK/SELECT).
+        // These run against the inferred graph, alongside the structural checks
+        // above. ASK polarity follows the executor convention: ASK=true => valid,
+        // ASK=false => violation (matches the manifest field doc "true = valid").
+        if !manifest_data.validation.rules.is_empty() {
+            let mut rules_passed = true;
+            let mut rules_detail = format!("{} rules", manifest_data.validation.rules.len());
+            let mut pipeline =
+                GenerationPipeline::new(manifest_data.clone(), base_path.to_path_buf());
+            match pipeline
+                .load_ontology()
+                .and_then(|_| pipeline.execute_inference_rules().map(|_| ()))
+                .and_then(|_| pipeline.execute_validation_rules())
+            {
+                Ok(()) => {}
+                Err(e) => {
+                    rules_passed = false;
+                    rules_detail = e.to_string();
+                }
+            }
+            validations.push(ValidationCheck {
+                check: "Custom validation rules".to_string(),
+                passed: rules_passed,
+                details: Some(rules_detail),
+            });
+        }
+
         let all_passed = validations.iter().all(|v| v.passed);
 
         // Output validation results
@@ -788,32 +815,84 @@ impl SyncExecutor {
         let files_synced = synced_files.len();
 
         // Determine audit trail path and write if enabled
-        let audit_path =
-            if self.options.flags.behavior.audit || manifest_data.generation.require_audit_trail {
-                let audit_file_path = base_path.join(&output_directory).join("audit.json");
+        let audit_path = if self.options.flags.behavior.audit
+            || manifest_data.generation.require_audit_trail
+        {
+            let audit_file_path = base_path.join(&output_directory).join("audit.json");
 
-                // Create audit trail from pipeline state using AuditTrailBuilder
-                let mut builder = crate::codegen::audit::AuditTrailBuilder::new();
+            // Create audit trail from pipeline state using AuditTrailBuilder
+            let mut builder = crate::codegen::audit::AuditTrailBuilder::new();
 
-                // Record inputs (simplified - would need actual file paths in production)
-                // builder.record_inputs(&self.options.manifest_path, &[], &[])?;
+            // Record real input hashes: manifest + ontology source + all template files.
+            {
+                let ontology_path = base_path.join(&manifest_data.ontology.source);
+                let template_paths: Vec<PathBuf> = manifest_data
+                    .generation
+                    .rules
+                    .iter()
+                    .filter_map(|r| {
+                        if let crate::manifest::TemplateSource::File { file } = &r.template {
+                            Some(base_path.join(file))
+                        } else {
+                            None
+                        }
+                    })
+                    .collect();
+                let template_refs: Vec<&std::path::Path> =
+                    template_paths.iter().map(|p| p.as_path()).collect();
+                // Failure to hash an input is a hard error: an audit with missing
+                // input hashes is contract drift, not a degraded audit.
+                builder
+                    .record_inputs(
+                        &self.options.manifest_path,
+                        &[ontology_path.as_path()],
+                        &template_refs,
+                    )
+                    .map_err(|e| Error::new(&format!("Failed to record audit inputs: {}", e)))?;
+            }
 
-                // Record outputs
-                for file in &state.generated_files {
-                    builder.record_output(&file.path, "", &format!("rule-{}", file.path.display()));
-                }
+            // Record real output hashes by reading each generated file from disk.
+            for file in &state.generated_files {
+                let content = std::fs::read_to_string(&file.path).unwrap_or_default();
+                builder.record_output(
+                    &file.path,
+                    &content,
+                    &format!("rule-{}", file.path.display()),
+                );
+            }
 
-                // Build the final audit trail
-                let audit_trail = builder.build(true); // validation_passed = true for now
+            // Record μ₁–μ₅ pipeline steps from executed rules so audit.pipeline is populated.
+            for rule in &state.executed_rules {
+                let step_type = match rule.rule_type {
+                    RuleType::Inference => "inference",
+                    RuleType::Generation => "render",
+                };
+                let triples = if rule.triples_added > 0 {
+                    Some(rule.triples_added)
+                } else {
+                    None
+                };
+                builder.record_step(
+                    step_type,
+                    &rule.name,
+                    std::time::Duration::from_millis(rule.duration_ms),
+                    triples,
+                    "success",
+                );
+            }
 
-                // Write audit trail to disk using AuditTrailBuilder::write_to
-                crate::codegen::audit::AuditTrailBuilder::write_to(&audit_trail, &audit_file_path)
-                    .map_err(|e| Error::new(&format!("Failed to write audit trail: {}", e)))?;
+            // validation_passed is true iff we reached this point: every validation
+            // gate above returns Err and short-circuits before this block executes.
+            let audit_trail = builder.build(true);
 
-                Some(audit_file_path.display().to_string())
-            } else {
-                None
-            };
+            // Write audit trail to disk using AuditTrailBuilder::write_to
+            crate::codegen::audit::AuditTrailBuilder::write_to(&audit_trail, &audit_file_path)
+                .map_err(|e| Error::new(&format!("Failed to write audit trail: {}", e)))?;
+
+            Some(audit_file_path.display().to_string())
+        } else {
+            None
+        };
 
         // Save cache if enabled
         if let Some(cache) = cache {

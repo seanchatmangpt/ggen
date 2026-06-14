@@ -68,11 +68,7 @@ fn write_project(dir: &Path, output_file: &str) {
     )
     .expect("write rq");
 
-    std::fs::write(
-        dir.join("templates/item.tera"),
-        "Item: {{ name }}\n",
-    )
-    .expect("write tera");
+    std::fs::write(dir.join("templates/item.tera"), "Item: {{ name }}\n").expect("write tera");
 
     let toml = format!(
         r#"[project]

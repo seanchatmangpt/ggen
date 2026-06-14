@@ -22,10 +22,14 @@ name = "doctor_adversarial_tests"
 path = "tests/doctor_adversarial_tests.rs"
 required-features = [ "integration",]
 
+[[test]]
+name = "packs"
+path = "tests/packs/mod.rs"
+
+
 [package]
 name = "ggen-cli-lib"
 description = "CLI interface for ggen"
-readme = "README.md"
 keywords = [ "cli", "code-generation", "rdf", "templates",]
 categories = [ "development-tools", "command-line-utilities",]
 
@@ -76,8 +80,11 @@ experimental = []
 default = []
 
 [dev-dependencies]
+serial_test = { workspace = true }
+libc = "0.2"
 assert_cmd = "2"
 assert_fs = "1"
+
 predicates = "3"
 mockall = "0.13"
 tempfile = "3.23"
@@ -199,6 +206,11 @@ features = [ "rdf-12",]
 
 [dev-dependencies.tracing-subscriber]
 workspace = true
+
+
+
+
+
 
 [lints]
 workspace = true

@@ -94,7 +94,9 @@ impl WatchMode {
                 sleep(Duration::from_millis(self.config.debounce_ms)).await;
 
                 // Reload and validate manifest to detect new files
-                if let Ok(new_manifest) = ManifestParser::parse_and_validate(&self.options.manifest_path) {
+                if let Ok(new_manifest) =
+                    ManifestParser::parse_and_validate(&self.options.manifest_path)
+                {
                     manifest_data = new_manifest;
 
                     // Update watched paths

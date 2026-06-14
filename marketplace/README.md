@@ -20,12 +20,9 @@ ggen marketplace search "advanced-rust-api-8020"
 
 ## 📖 Documentation
 
-- **[Packages Directory](PACKAGES.md)** - Complete guide to all 66+ marketplace packages
-- **[User Guide](USER_GUIDE.md)** - Browse, install, and use packages
-- **[Publishing Guide](PUBLISHING_GUIDE.md)** - Create and publish your packages
-- **[API Reference](API.md)** - Registry API and package format
-- **[Documentation Index](DOCUMENTATION_INDEX.md)** - Navigation and overview
 - **[Validation Guide](#validation)** - Package production readiness validation
+- **[Package Registry Index](index.json)** - Local database of all 76+ marketplace packages
+- **[Ontology Definition](ontology.ttl)** - RDF ontology definition for packages
 
 ## ✅ Validation
 
@@ -151,7 +148,6 @@ Every package includes:
 ## 🤝 Contributing
 
 We welcome package contributions! See:
-- **[Publishing Guide](PUBLISHING_GUIDE.md)** for creating packages
 - **[CONTRIBUTING.md](../CONTRIBUTING.md)** for code standards
 - **[CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md)** for community guidelines
 
@@ -163,9 +159,9 @@ We welcome package contributions! See:
 
 ## 🎓 Learning Resources
 
-1. **Start**: [User Guide](USER_GUIDE.md) - Learn to use the marketplace
-2. **Create**: [Publishing Guide](PUBLISHING_GUIDE.md) - Publish your first package
-3. **Master**: [API Reference](API.md) - Deep dive into package format
+1. **Start**: Explore the [Registry Index](index.json) to see available packages
+2. **Standard**: Adhere to the quality checklist in the [Validation Guide](#validation)
+3. **Master**: Dive into the core [Ontology TTL](ontology.ttl) schema
 
 ---
 

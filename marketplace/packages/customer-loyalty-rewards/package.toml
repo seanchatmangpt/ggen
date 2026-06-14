@@ -56,17 +56,18 @@ guides = [
 required = []
 optional = ["order-management-system"]
 
-[features]
-- "4-tier loyalty program (Bronze, Silver, Gold, Platinum)"
-- "Points earning from purchases, referrals, reviews"
-- "Tier multipliers (1.0x to 2.0x)"
-- "Rewards catalog with discounts and products"
-- "Points expiration and rollover"
-- "Gamification (badges, achievements, streaks)"
-- "Referral program"
-- "Member segmentation"
-- "Leaderboards"
-- "Coalition loyalty programs"
+features = [
+    "4-tier loyalty program (Bronze, Silver, Gold, Platinum)",
+    "Points earning from purchases, referrals, reviews",
+    "Tier multipliers (1.0x to 2.0x)",
+    "Rewards catalog with discounts and products",
+    "Points expiration and rollover",
+    "Gamification (badges, achievements, streaks)",
+    "Referral program",
+    "Member segmentation",
+    "Leaderboards",
+    "Coalition loyalty programs"
+]
 
 [tiers]
 bronze = { min_points = 0, multiplier = 1.0 }
@@ -83,3 +84,6 @@ complements = [
     "recommendation-engine",
     "order-management-system"
 ]
+
+[marketplace]
+production_ready = false

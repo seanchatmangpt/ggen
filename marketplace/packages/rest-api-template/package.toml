@@ -153,3 +153,6 @@ memory_usage_mb = 50
 documentation_url = "https://ggen.ai/docs/templates/rest-api"
 examples_url = "https://github.com/ggen/examples/rest-api"
 community_discord = "https://discord.gg/ggen"
+
+[marketplace]
+production_ready = false

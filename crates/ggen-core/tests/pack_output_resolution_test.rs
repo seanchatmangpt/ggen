@@ -215,9 +215,7 @@ path = "{pack}"
         Err(e) => {
             // If the pipeline does not yet support pack output key resolution,
             // the test fails with a descriptive message that drives the fix.
-            panic!(
-                "Pipeline failed — pack output key resolution (BUG-008) is not yet wired: {e}"
-            );
+            panic!("Pipeline failed — pack output key resolution (BUG-008) is not yet wired: {e}");
         }
     }
 }

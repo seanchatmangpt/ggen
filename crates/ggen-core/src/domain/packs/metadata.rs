@@ -77,27 +77,27 @@ pub fn list_packs(category: Option<&str>) -> Result<Vec<Pack>> {
         let path = entry.path();
 
         if path.extension().and_then(|s| s.to_str()) == Some("toml") {
-            match fs::read_to_string(&path) {
-                Ok(content) => match toml::from_str::<PackFile>(&content) {
-                    Ok(pack_file) => {
-                        let pack = pack_file.pack;
-
-                        // Filter by category if specified
-                        if let Some(cat) = category {
-                            if pack.category == cat {
-                                packs.push(pack);
-                            }
-                        } else {
-                            packs.push(pack);
-                        }
-                    }
-                    Err(e) => {
-                        tracing::warn!("Failed to parse pack {}: {}", path.display(), e);
-                    }
-                },
-                Err(e) => {
-                    tracing::warn!("Failed to read pack {}: {}", path.display(), e);
+            let content = fs::read_to_string(&path).map_err(|e| {
+                crate::utils::error::Error::new(&format!(
+                    "Failed to read pack {}: {}",
+                    path.display(),
+                    e
+                ))
+            })?;
+            let pack_file = toml::from_str::<PackFile>(&content).map_err(|e| {
+                crate::utils::error::Error::new(&format!(
+                    "Failed to parse pack {}: {}",
+                    path.display(),
+                    e
+                ))
+            })?;
+            let pack = pack_file.pack;
+            if let Some(cat) = category {
+                if pack.category == cat {
+                    packs.push(pack);
                 }
+            } else {
+                packs.push(pack);
             }
         }
     }
@@ -113,13 +113,45 @@ pub fn show_pack(pack_id: &str) -> Result<Pack> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serial_test::serial;
+
+    /// Saves the prior value of an env var on construction and restores it
+    /// (or removes it if previously unset) on Drop, so env mutation in one
+    /// test cannot leak into another.
+    struct EnvVarGuard {
+        key: &'static str,
+        previous: Option<std::ffi::OsString>,
+    }
+
+    impl EnvVarGuard {
+        fn set(key: &'static str, value: &str) -> Self {
+            let previous = std::env::var_os(key);
+            std::env::set_var(key, value);
+            Self { key, previous }
+        }
+
+        fn unset(key: &'static str) -> Self {
+            let previous = std::env::var_os(key);
+            std::env::remove_var(key);
+            Self { key, previous }
+        }
+    }
+
+    impl Drop for EnvVarGuard {
+        fn drop(&mut self) {
+            match &self.previous {
+                None => std::env::remove_var(self.key),
+                Some(v) => std::env::set_var(self.key, v),
+            }
+        }
+    }
 
     #[test]
+    #[serial(GGEN_PACKS_DIR)]
     fn test_ggen_packs_dir_env_var() {
         let temp = tempfile::TempDir::new().unwrap();
-        std::env::set_var("GGEN_PACKS_DIR", temp.path().to_str().unwrap());
+        let _guard = EnvVarGuard::set("GGEN_PACKS_DIR", temp.path().to_str().unwrap());
         let result = get_packs_dir();
-        std::env::remove_var("GGEN_PACKS_DIR");
         assert!(
             result.is_ok(),
             "expected Ok when GGEN_PACKS_DIR points to a valid dir"
@@ -128,22 +160,23 @@ mod tests {
     }
 
     #[test]
+    #[serial(GGEN_PACKS_DIR)]
     fn test_ggen_packs_dir_env_var_missing_dir_skipped() {
         // Points to a path that does not exist — should NOT succeed via env var,
         // must fall through to other lookups (which also fail in CI) → Err
-        std::env::set_var("GGEN_PACKS_DIR", "/nonexistent/path/that/cannot/exist");
+        let _guard = EnvVarGuard::set("GGEN_PACKS_DIR", "/nonexistent/path/that/cannot/exist");
         let result = get_packs_dir();
-        std::env::remove_var("GGEN_PACKS_DIR");
         // We cannot assert Ok here because relative + home paths also absent in CI,
         // but we confirm the function does not panic and returns a Result.
         let _ = result;
     }
 
     #[test]
+    #[serial(GGEN_PACKS_DIR)]
     fn test_get_packs_dir_no_env_var_returns_err_when_absent() {
         // Ensure no GGEN_PACKS_DIR is set; relative paths and home path absent in
         // the test sandbox → function must return Err, not Ok(empty).
-        std::env::remove_var("GGEN_PACKS_DIR");
+        let _guard = EnvVarGuard::unset("GGEN_PACKS_DIR");
         // Only assert Err if none of the fallback paths happen to exist.
         let relative_exists = PathBuf::from("marketplace/packs").exists()
             || PathBuf::from("../marketplace/packs").exists()
@@ -157,6 +190,39 @@ mod tests {
                 result.is_err(),
                 "expected Err when no packs dir is reachable"
             );
+        }
+    }
+
+    // ── Sabotage tests (coding-agent-mistakes.md §5) ─────────────────────────
+
+    /// Sabotage §5 row 5: with GGEN_PACKS_DIR pointing at an EMPTY directory,
+    /// `load_pack_metadata("acme/base")` must return Err referencing "not found".
+    ///
+    /// This proves Fail-Open (Mistake Class 1.3) is absent: a missing pack does
+    /// not silently succeed or warn — it hard-fails with a clear error message.
+    #[test]
+    #[serial(GGEN_PACKS_DIR)]
+    fn sabotage_empty_packs_dir_load_metadata_returns_not_found_err() {
+        // Arrange — empty temp dir as the packs directory
+        let empty_dir = tempfile::TempDir::new().unwrap();
+        let _guard = EnvVarGuard::set("GGEN_PACKS_DIR", empty_dir.path().to_str().unwrap());
+
+        // Act
+        let result = load_pack_metadata("acme/base");
+
+        // Assert — must be Err, and the message must say "not found"
+        match result {
+            Ok(_) => panic!(
+                "load_pack_metadata must return Err when pack does not exist in the packs dir, \
+                 got Ok instead — this is Fail-Open (coding-agent-mistakes.md §1.3)"
+            ),
+            Err(e) => {
+                let msg = e.to_string();
+                assert!(
+                    msg.contains("not found") || msg.contains("acme/base"),
+                    "error message must reference 'not found' or the pack id; got: {msg}"
+                );
+            }
         }
     }
 }

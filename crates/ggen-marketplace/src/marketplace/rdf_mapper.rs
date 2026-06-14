@@ -226,6 +226,25 @@ impl RdfMapper {
                 &release.download_url,
             )?;
 
+            // Registry class — serialized as JSON for round-trip fidelity
+            let registry_class_json =
+                serde_json::to_string(&release.registry_class).map_err(|e| {
+                    Error::RegistryError(format!("Failed to serialize registry_class: {}", e))
+                })?;
+            self.insert_literal_triple(
+                &version_uri,
+                &format!("{}registryClass", Namespaces::GGEN),
+                &registry_class_json,
+            )?;
+
+            // Trust tier
+            if let Ok(pred) = Self::named_node(&Properties::trust_tier()) {
+                let lit = Literal::new_simple_literal(format!("{:?}", release.trust_tier));
+                let quad = QuadRef::new(&version_uri, &pred, &lit, GraphNameRef::DefaultGraph);
+                self.store
+                    .insert(quad)
+                    .map_err(|e| Error::RegistryError(e.to_string()))?;
+            }
             // Dependencies
             for (dep_idx, dep) in release.dependencies.iter().enumerate() {
                 let dep_uri = Self::named_node(&format!(
@@ -545,13 +564,14 @@ impl RdfMapper {
 
         let query = format!(
             r"
-            SELECT ?releasedAt ?changelog ?checksum ?downloadUrl ?signature ?trustTier WHERE {{
+            SELECT ?releasedAt ?changelog ?checksum ?downloadUrl ?signature ?trustTier ?registryClass WHERE {{
                 <{}> <{}releasedAt> ?releasedAt .
                 <{}> <{}changelog> ?changelog .
                 <{}> <{}> ?checksum .
                 <{}> <{}downloadUrl> ?downloadUrl .
                 OPTIONAL {{ <{}> <{}> ?signature }}
                 OPTIONAL {{ <{}> <{}> ?trustTier }}
+                OPTIONAL {{ <{}> <{}registryClass> ?registryClass }}
             }}
             ",
             version_uri.as_str(),
@@ -566,57 +586,75 @@ impl RdfMapper {
             Properties::signature(),
             version_uri.as_str(),
             Properties::trust_tier(),
+            version_uri.as_str(),
+            Namespaces::GGEN,
         );
 
         // Extract all data from the iterator before await to ensure Send
         // Use a block scope to ensure results is dropped before await
-        let (released_at, changelog, checksum, download_url, signature, trust_tier) = {
-            let results = self
-                .store
-                .query(&query)
-                .map_err(|e| Error::SearchError(format!("Release info query failed: {}", e)))?;
+        let (released_at, changelog, checksum, download_url, signature, trust_tier, registry_class) =
+            {
+                let results = self
+                    .store
+                    .query(&query)
+                    .map_err(|e| Error::SearchError(format!("Release info query failed: {}", e)))?;
 
-            match results {
-                oxigraph::sparql::QueryResults::Solutions(mut solutions) => {
-                    if let Some(Ok(solution)) = solutions.next() {
-                        let released_at = Self::extract_optional_literal(&solution, "releasedAt")
-                            .and_then(|s| DateTime::parse_from_rfc3339(&s).ok())
-                            .map_or_else(Utc::now, |dt| dt.with_timezone(&Utc));
+                match results {
+                    oxigraph::sparql::QueryResults::Solutions(mut solutions) => {
+                        if let Some(Ok(solution)) = solutions.next() {
+                            let released_at =
+                                Self::extract_optional_literal(&solution, "releasedAt")
+                                    .and_then(|s| DateTime::parse_from_rfc3339(&s).ok())
+                                    .map_or_else(Utc::now, |dt| dt.with_timezone(&Utc));
 
-                        let changelog = Self::extract_literal(&solution, "changelog")?;
-                        let checksum = Self::extract_literal(&solution, "checksum")?;
-                        let download_url = Self::extract_literal(&solution, "downloadUrl")?;
+                            let changelog = Self::extract_literal(&solution, "changelog")?;
+                            let checksum = Self::extract_literal(&solution, "checksum")?;
+                            let download_url = Self::extract_literal(&solution, "downloadUrl")?;
 
-                        // Load signature from RDF store
-                        let signature = Self::extract_optional_literal(&solution, "signature");
+                            // Load signature from RDF store
+                            let signature = Self::extract_optional_literal(&solution, "signature");
 
-                        // Load trust tier from RDF store
-                        let trust_tier = Self::extract_optional_literal(&solution, "trustTier")
-                            .and_then(|s| crate::marketplace::metadata::parse_trust_tier(&s))
-                            .unwrap_or(crate::marketplace::trust::TrustTier::Experimental);
+                            // Load trust tier from RDF store
+                            let trust_tier = Self::extract_optional_literal(&solution, "trustTier")
+                                .and_then(|s| crate::marketplace::metadata::parse_trust_tier(&s))
+                                .unwrap_or(crate::marketplace::trust::TrustTier::Experimental);
 
-                        // Iterator and results are dropped here when block exits
-                        Ok((
-                            released_at,
-                            changelog,
-                            checksum,
-                            download_url,
-                            signature,
-                            trust_tier,
-                        ))
-                    } else {
-                        Err(Error::RegistryError(format!(
-                            "Release info not found for version {}",
-                            version
-                        )))
+                            // Load registry class from RDF store (JSON-encoded)
+                            let registry_class =
+                                Self::extract_optional_literal(&solution, "registryClass")
+                                    .and_then(|s| {
+                                        serde_json::from_str::<
+                                            crate::marketplace::trust::RegistryClass,
+                                        >(&s)
+                                        .ok()
+                                    })
+                                    .unwrap_or_else(
+                                        crate::marketplace::models::default_registry_class,
+                                    );
+
+                            // Iterator and results are dropped here when block exits
+                            Ok((
+                                released_at,
+                                changelog,
+                                checksum,
+                                download_url,
+                                signature,
+                                trust_tier,
+                                registry_class,
+                            ))
+                        } else {
+                            Err(Error::RegistryError(format!(
+                                "Release info not found for version {}",
+                                version
+                            )))
+                        }
                     }
+                    _ => Err(Error::RegistryError(format!(
+                        "Release info not found for version {}",
+                        version
+                    ))),
                 }
-                _ => Err(Error::RegistryError(format!(
-                    "Release info not found for version {}",
-                    version
-                ))),
-            }
-        }?;
+            }?;
 
         // Now we can await safely - results and iterator are dropped
         let dependencies = self.query_dependencies(&version_uri)?;
@@ -630,7 +668,7 @@ impl RdfMapper {
             download_url,
             dependencies,
             trust_tier,
-            registry_class: crate::marketplace::models::default_registry_class(),
+            registry_class,
         })
     }
 

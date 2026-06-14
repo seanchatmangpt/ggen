@@ -47,3 +47,6 @@ languages = ["rust", "typescript", "python"]
 isolation_strategies = ["schema", "database", "row-level", "hybrid"]
 subscription_tiers = ["free", "basic", "pro", "enterprise"]
 security_features = ["data-residency", "encryption", "compliance", "audit-logs"]
+
+[marketplace]
+production_ready = false

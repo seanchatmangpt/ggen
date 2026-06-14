@@ -45,7 +45,7 @@ fn render_template(name: &str, ctx: &Context) -> String {
 
     let manifest_dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
     let mcp_templates_dir = manifest_dir.join("templates/mcp-server");
-    
+
     let mut templates = Vec::new();
     for entry in std::fs::read_dir(mcp_templates_dir).expect("mcp-server templates dir exists") {
         let entry = entry.expect("valid entry");
@@ -57,9 +57,11 @@ fn render_template(name: &str, ctx: &Context) -> String {
             templates.push((template_name, content));
         }
     }
-    
-    tera_instance.add_raw_templates(templates).expect("Failed to add templates");
-    
+
+    tera_instance
+        .add_raw_templates(templates)
+        .expect("Failed to add templates");
+
     let mut final_ctx = ctx.clone();
     if name == "tool_handler.rs.tera" {
         if final_ctx.get("tool_name").is_none() {
@@ -81,7 +83,8 @@ fn render_template(name: &str, ctx: &Context) -> String {
     }
 
     let registered_name = format!("mcp-server/{name}");
-    tera_instance.render(&registered_name, &final_ctx)
+    tera_instance
+        .render(&registered_name, &final_ctx)
         .unwrap_or_else(|e| panic!("Template should render: {:?}", e))
 }
 

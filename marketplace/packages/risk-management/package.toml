@@ -30,3 +30,6 @@ reporting = ["regulatory-reporting", "board-reporting", "limit-monitoring"]
 entities = ["RiskFactor", "Portfolio", "Position", "Scenario", "LimitStructure", "RiskMetric"]
 relations = ["exposes_to", "hedges", "correlates_with", "breaches", "monitors"]
 complexity = "very_high"
+
+[marketplace]
+production_ready = false

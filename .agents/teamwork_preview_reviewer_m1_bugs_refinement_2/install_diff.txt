@@ -1,0 +1,645 @@
+diff --git a/crates/ggen-marketplace/src/marketplace/install.rs b/crates/ggen-marketplace/src/marketplace/install.rs
+index fbb0169b..843daaf6 100644
+--- a/crates/ggen-marketplace/src/marketplace/install.rs
++++ b/crates/ggen-marketplace/src/marketplace/install.rs
+@@ -45,6 +45,12 @@ struct TransactionSnapshot {
+     installed_packages: Vec<(PackageId, PackageVersion)>,
+ }
+ 
++#[derive(Debug, Clone)]
++enum DfsState {
++    Enter(PackageId, PackageVersion),
++    Exit(PackageId, PackageVersion),
++}
++
+ impl<R: AsyncRepository> Installer<R> {
+     /// Create a new installer with a cache
+     #[must_use]
+@@ -110,6 +116,24 @@ impl<R: AsyncRepository> Installer<R> {
+         self.profile.as_ref()
+     }
+ 
++    /// Resolve a version requirement to a concrete version using the repository
++    async fn resolve_version_req(&self, id: &PackageId, version_req: &str) -> Result<PackageVersion> {
++        if let Ok(package) = self.repository.get_package(id).await {
++            if let Ok(req) = semver::VersionReq::parse(version_req) {
++                for v in &package.versions {
++                    if let Ok(semver_version) = semver::Version::parse(v.as_str()) {
++                        if req.matches(&semver_version) {
++                            return Ok(v.clone());
++                        }
++                    }
++                }
++            }
++        }
++
++        // Fallback: parse directly as PackageVersion
++        version_req.parse::<PackageVersion>()
++    }
++
+     /// Resolve a dependency tree (iterative approach for Send compatibility)
+     ///
+     /// # Errors
+@@ -135,32 +159,44 @@ impl<R: AsyncRepository> Installer<R> {
+         let start = std::time::Instant::now();
+         let mut resolved = Vec::new();
+         let mut visited = HashSet::new();
+-        let mut to_process = vec![(root_id.clone(), root_version.clone())];
+-
+-        while let Some((id, version)) = to_process.pop() {
+-            if visited.contains(&id) {
+-                continue;
+-            }
++        let mut path = HashSet::new();
++        let mut to_process = vec![DfsState::Enter(root_id.clone(), root_version.clone())];
++
++        while let Some(state) = to_process.pop() {
++            match state {
++                DfsState::Enter(id, version) => {
++                    if path.contains(&id) {
++                        return Err(Error::DependencyCycle(format!(
++                            "Circular dependency detected involving package: {}",
++                            id
++                        )));
++                    }
++                    if visited.contains(&id) {
++                        continue;
++                    }
++                    path.insert(id.clone());
++                    to_process.push(DfsState::Exit(id.clone(), version.clone()));
+ 
+-            // Get package and process its dependencies
+-            let package = self.repository.get_package_version(&id, &version).await?;
++                    // Get package and process its dependencies
++                    let package = self.repository.get_package_version(&id, &version).await?;
+ 
+-            for release in package.releases.values() {
+-                for dep in &release.dependencies {
+-                    if !visited.contains(&dep.id) {
+-                        let parsed_version = dep.version_req.parse::<PackageVersion>()?;
+-                        to_process.push((dep.id.clone(), parsed_version));
++                    for release in package.releases.values() {
++                        for dep in &release.dependencies {
++                            let parsed_version = self.resolve_version_req(&dep.id, &dep.version_req).await?;
++                            to_process.push(DfsState::Enter(dep.id.clone(), parsed_version));
++                        }
++                    }
++                }
++                DfsState::Exit(id, version) => {
++                    path.remove(&id);
++                    if !visited.contains(&id) {
++                        visited.insert(id.clone());
++                        resolved.push((id, version));
+                     }
+                 }
+             }
+-
+-            visited.insert(id.clone());
+-            resolved.push((id, version));
+         }
+ 
+-        // Sort by dependency order (dependencies first)
+-        resolved.reverse();
+-
+         let duration = start.elapsed();
+         debug!(
+             "Resolved {} dependencies for {}@{}",
+@@ -771,24 +807,51 @@ impl<R: AsyncRepository> Installer<R> {
+ 
+         // Create cache directory for this pack
+         let cache_path = self.persistent_cache_path(package_id, version);
++        let parent_dir = cache_path.parent().ok_or_else(|| Error::InstallationFailed {
++            reason: "Cache path has no parent directory".to_string(),
++        })?;
+ 
+-        fs::create_dir_all(&cache_path).map_err(|e| Error::InstallationFailed {
+-            reason: format!("Failed to create cache directory: {}", e),
++        fs::create_dir_all(parent_dir).map_err(|e| Error::InstallationFailed {
++            reason: format!("Failed to create parent cache directory: {}", e),
++        })?;
++
++        // Create a temporary directory in the same parent directory to ensure atomic rename capability
++        let temp_dir = tempfile::Builder::new()
++            .prefix("ggen-install-")
++            .tempdir_in(parent_dir)
++            .map_err(|e| Error::InstallationFailed {
++                reason: format!("Failed to create temporary directory: {}", e),
++            })?;
++        let temp_path = temp_dir.path();
++
++        // Always save the compressed archive to pack.dat for cache verification
++        let archive_path = temp_path.join("pack.dat");
++        fs::write(&archive_path, data).map_err(|e| Error::InstallationFailed {
++            reason: format!("Failed to write pack archive file: {}", e),
+         })?;
+ 
+         // Detect format and extract
+         if is_tar_gz(data) {
+-            self.extract_tar_gz(data, &cache_path)?;
++            self.extract_tar_gz(data, temp_path)?;
+         } else if is_zip(data) {
+-            self.extract_zip(data, &cache_path)?;
+-        } else {
+-            // Unknown format, just write as-is
+-            let output_path = cache_path.join("pack.dat");
+-            fs::write(&output_path, data).map_err(|e| Error::InstallationFailed {
+-                reason: format!("Failed to write pack data: {}", e),
++            self.extract_zip(data, temp_path)?;
++        }
++
++        // Atomic promotion: rename temp_path to cache_path on successful extraction
++        let temp_dir_path = temp_dir.into_path(); // Consume TempDir to prevent cleanup
++        if cache_path.exists() {
++            fs::remove_dir_all(&cache_path).map_err(|e| Error::InstallationFailed {
++                reason: format!("Failed to remove existing cache directory: {}", e),
+             })?;
+         }
+ 
++        if let Err(e) = fs::rename(&temp_dir_path, &cache_path) {
++            let _ = fs::remove_dir_all(&temp_dir_path); // Cleanup temp files
++            return Err(Error::InstallationFailed {
++                reason: format!("Failed to atomically rename cache directory: {}", e),
++            });
++        }
++
+         let duration = start.elapsed();
+         span::Span::current().record("duration_ms", duration.as_millis());
+ 
+@@ -808,11 +871,46 @@ impl<R: AsyncRepository> Installer<R> {
+         let decoder = GzDecoder::new(data);
+         let mut archive = Archive::new(decoder);
+ 
+-        archive
+-            .unpack(dest)
+-            .map_err(|e| Error::InstallationFailed {
+-                reason: format!("Failed to extract tar.gz: {}", e),
++        let entries = archive.entries().map_err(|e| Error::InstallationFailed {
++            reason: format!("Failed to read tar entries: {}", e),
++        })?;
++
++        for entry_result in entries {
++            let mut entry = entry_result.map_err(|e| Error::InstallationFailed {
++                reason: format!("Failed to read tar entry: {}", e),
++            })?;
++
++            let path = entry.path().map_err(|e| Error::InstallationFailed {
++                reason: format!("Failed to get tar entry path: {}", e),
++            })?.to_path_buf();
++
++            // Check if the entry type is a symlink or hardlink
++            let entry_type = entry.header().entry_type();
++            if matches!(entry_type, tar::EntryType::Symlink | tar::EntryType::Link) {
++                return Err(Error::InstallationFailed {
++                    reason: format!("Path traversal error: symlinks and hardlinks are not allowed: {:?}", path),
++                });
++            }
++
++            // Ensure no parent directories are traversed
++            if path.components().any(|c| matches!(c, std::path::Component::ParentDir)) {
++                return Err(Error::InstallationFailed {
++                    reason: format!("Path traversal detected in tar entry: {:?}", path),
++                });
++            }
++
++            let dest_file_path = dest.join(&path);
++            // Ensure path resolves inside the target base directory
++            if !dest_file_path.starts_with(dest) {
++                return Err(Error::InstallationFailed {
++                    reason: format!("Path traversal resolved outside target: {:?}", path),
++                });
++            }
++
++            entry.unpack(&dest_file_path).map_err(|e| Error::InstallationFailed {
++                reason: format!("Failed to unpack tar entry: {}", e),
+             })?;
++        }
+ 
+         Ok(())
+     }
+@@ -830,12 +928,67 @@ impl<R: AsyncRepository> Installer<R> {
+             reason: format!("Failed to open ZIP archive: {}", e),
+         })?;
+ 
+-        archive
+-            .extract(dest)
+-            .map_err(|e| Error::InstallationFailed {
+-                reason: format!("Failed to extract ZIP: {}", e),
++        for i in 0..archive.len() {
++            let mut file = archive.by_index(i).map_err(|e| Error::InstallationFailed {
++                reason: format!("Failed to read zip entry: {}", e),
+             })?;
+ 
++            let outpath = match file.enclosed_name() {
++                Some(path) => path.to_owned(),
++                None => {
++                    return Err(Error::InstallationFailed {
++                        reason: format!(
++                            "Invalid zip entry name (possible Zip Slip attack): {}",
++                            file.name()
++                        ),
++                    });
++                }
++            };
++
++            // Ensure no parent directories are traversed
++            if outpath.components().any(|c| matches!(c, std::path::Component::ParentDir)) {
++                return Err(Error::InstallationFailed {
++                    reason: format!("Path traversal detected in zip entry: {:?}", outpath),
++                });
++            }
++
++            let dest_file_path = dest.join(&outpath);
++            // Ensure path resolves inside the target base directory
++            if !dest_file_path.starts_with(dest) {
++                return Err(Error::InstallationFailed {
++                    reason: format!("Path traversal resolved outside target: {:?}", outpath),
++                });
++            }
++
++            if file.name().ends_with('/') {
++                fs::create_dir_all(&dest_file_path).map_err(|e| Error::InstallationFailed {
++                    reason: format!("Failed to create directory: {}", e),
++                })?;
++            } else {
++                if let Some(parent) = dest_file_path.parent() {
++                    if !parent.exists() {
++                        fs::create_dir_all(parent).map_err(|e| Error::InstallationFailed {
++                            reason: format!("Failed to create parent directory: {}", e),
++                        })?;
++                    }
++                }
++                let mut outfile = fs::File::create(&dest_file_path).map_err(|e| Error::InstallationFailed {
++                    reason: format!("Failed to create file: {}", e),
++                })?;
++                std::io::copy(&mut file, &mut outfile).map_err(|e| Error::InstallationFailed {
++                    reason: format!("Failed to copy file contents: {}", e),
++                })?;
++            }
++
++            #[cfg(unix)]
++            {
++                use std::os::unix::fs::PermissionsExt;
++                if let Some(mode) = file.unix_mode() {
++                    let _ = fs::set_permissions(&dest_file_path, fs::Permissions::from_mode(mode));
++                }
++            }
++        }
++
+         Ok(())
+     }
+ 
+@@ -888,39 +1041,52 @@ impl<R: AsyncRepository> Installer<R> {
+         let start = std::time::Instant::now();
+         let mut resolved = indexmap::IndexMap::new();
+         let mut visited = HashSet::new();
++        let mut path = HashSet::new();
+         let mut to_process = Vec::new();
+ 
+         // Add all root packages to process queue
+         for pkg_id in &package_ids {
+             let package = self.repository.get_package(pkg_id).await?;
+             let version = package.latest_version.clone();
+-            to_process.push((pkg_id.clone(), version));
++            to_process.push(DfsState::Enter(pkg_id.clone(), version));
+         }
+ 
+-        // Process all packages iteratively (BFS for dependency resolution)
+-        while let Some((id, version)) = to_process.pop() {
+-            if visited.contains(&id) {
+-                // Already resolved, add to result if not present
+-                if !resolved.contains_key(&id) {
+-                    resolved.insert(id, version);
+-                }
+-                continue;
+-            }
++        while let Some(state) = to_process.pop() {
++            match state {
++                DfsState::Enter(id, version) => {
++                    if path.contains(&id) {
++                        return Err(Error::DependencyCycle(format!(
++                            "Circular dependency detected involving package: {}",
++                            id
++                        )));
++                    }
++                    if visited.contains(&id) {
++                        if !resolved.contains_key(&id) {
++                            resolved.insert(id, version);
++                        }
++                        continue;
++                    }
++                    path.insert(id.clone());
++                    to_process.push(DfsState::Exit(id.clone(), version.clone()));
+ 
+-            // Get package and process its dependencies
+-            let package = self.repository.get_package_version(&id, &version).await?;
++                    // Get package and process its dependencies
++                    let package = self.repository.get_package_version(&id, &version).await?;
+ 
+-            for release in package.releases.values() {
+-                for dep in &release.dependencies {
+-                    if !visited.contains(&dep.id) {
+-                        let parsed_version = dep.version_req.parse::<PackageVersion>()?;
+-                        to_process.push((dep.id.clone(), parsed_version));
++                    for release in package.releases.values() {
++                        for dep in &release.dependencies {
++                            let parsed_version = self.resolve_version_req(&dep.id, &dep.version_req).await?;
++                            to_process.push(DfsState::Enter(dep.id.clone(), parsed_version));
++                        }
++                    }
++                }
++                DfsState::Exit(id, version) => {
++                    path.remove(&id);
++                    if !visited.contains(&id) {
++                        visited.insert(id.clone());
++                        resolved.insert(id, version);
+                     }
+                 }
+             }
+-
+-            visited.insert(id.clone());
+-            resolved.insert(id, version);
+         }
+ 
+         let duration = start.elapsed();
+@@ -1738,4 +1904,281 @@ mod tests {
+         // This test verifies the callback signature is correct and compiles
+         // Callback type is ProgressCallback = Box<dyn Fn(usize, usize, &str) + Send + Sync>
+     }
++
++    #[tokio::test]
++    async fn test_zip_slip_prevention_zip() {
++        use std::io::Write;
++        let registry = Registry::new(100);
++        let temp_dir = TempDir::new().unwrap();
++        let cache_config = CacheConfig {
++            cache_dir: temp_dir.path().join("cache"),
++            ..Default::default()
++        };
++        let cache = PackCache::new(cache_config).unwrap();
++        let installer = Installer::new(registry, cache);
++
++        // Create a ZIP archive in memory containing a path traversal entry
++        let mut buf = Vec::new();
++        {
++            let mut zip = zip::ZipWriter::new(std::io::Cursor::new(&mut buf));
++            let options = zip::write::SimpleFileOptions::default();
++            zip.start_file("../escaped.txt", options).unwrap();
++            zip.write_all(b"malicious content").unwrap();
++            zip.finish().unwrap();
++        }
++
++        let extract_dest = temp_dir.path().join("extract");
++        fs::create_dir_all(&extract_dest).unwrap();
++
++        let result = installer.extract_zip(&buf, &extract_dest);
++        assert!(result.is_err());
++        let err_msg = result.unwrap_err().to_string();
++        assert!(err_msg.contains("Path traversal detected") || err_msg.contains("Invalid zip entry name"));
++    }
++
++    #[tokio::test]
++    async fn test_zip_slip_prevention_tar() {
++        use std::io::Write;
++        let registry = Registry::new(100);
++        let temp_dir = TempDir::new().unwrap();
++        let cache_config = CacheConfig {
++            cache_dir: temp_dir.path().join("cache"),
++            ..Default::default()
++        };
++        let cache = PackCache::new(cache_config).unwrap();
++        let installer = Installer::new(registry, cache);
++
++        // Create a tar archive in memory containing a path traversal entry
++        use flate2::write::GzEncoder;
++        use flate2::Compression;
++
++        let mut buf = Vec::new();
++        {
++            let enc = GzEncoder::new(&mut buf, Compression::default());
++            let mut tar = tar::Builder::new(enc);
++            let mut header = tar::Header::new_gnu();
++            header.set_size(17);
++            header.set_mode(0o644);
++            // Write "../escaped.txt" directly to the name field of the header to bypass set_path safety checks
++            let name_bytes = b"../escaped.txt";
++            let header_bytes = header.as_mut_bytes();
++            header_bytes[..name_bytes.len()].copy_from_slice(name_bytes);
++            header.set_cksum();
++            tar.append(&header, &b"malicious content"[..]).unwrap();
++            tar.finish().unwrap();
++        }
++
++        let extract_dest = temp_dir.path().join("extract");
++        fs::create_dir_all(&extract_dest).unwrap();
++
++        let result = installer.extract_tar_gz(&buf, &extract_dest);
++        assert!(result.is_err());
++        let err_msg = result.unwrap_err().to_string();
++        assert!(err_msg.contains("Path traversal detected") || err_msg.contains("outside target"));
++    }
++
++    #[tokio::test]
++    async fn test_cache_verification_with_pack_dat() {
++        let registry = Registry::new(100);
++        let temp_dir = TempDir::new().unwrap();
++        let cache_config = CacheConfig {
++            cache_dir: temp_dir.path().join("cache"),
++            ..Default::default()
++        };
++        let cache = PackCache::new(cache_config).unwrap();
++
++        let package_id = PackageId::new("test-pkg").unwrap();
++        let version = PackageVersion::new("1.0.0").unwrap();
++        let cache_path = temp_dir.path().join("test-pack");
++        fs::create_dir_all(&cache_path).unwrap();
++
++        // Build a valid empty ZIP archive in memory
++        let mut zip_buf = Vec::new();
++        {
++            let mut zip = zip::ZipWriter::new(std::io::Cursor::new(&mut zip_buf));
++            zip.finish().unwrap();
++        }
++        let archive_data = zip_buf;
++
++        // Calculate expected digest of the archive data
++        let expected_digest = ggen_config::hash_data(&archive_data);
++
++        let pack = CachedPack::new(
++            package_id.clone(),
++            version.clone(),
++            expected_digest.clone(),
++            archive_data.len() as u64,
++            cache_path.clone(),
++        );
++
++        // Write pack.dat with matching bytes
++        fs::write(cache_path.join("pack.dat"), &archive_data).unwrap();
++
++        // Verify digest should succeed
++        assert!(cache.verify_digest(&pack).unwrap());
++
++        // Modify pack.dat content
++        fs::write(cache_path.join("pack.dat"), b"tampered bytes").unwrap();
++
++        // Verify digest should fail
++        assert!(!cache.verify_digest(&pack).unwrap());
++    }
++
++    #[tokio::test]
++    async fn test_cache_verification_fallback() {
++        let registry = Registry::new(100);
++        let temp_dir = TempDir::new().unwrap();
++        let cache_config = CacheConfig {
++            cache_dir: temp_dir.path().join("cache"),
++            ..Default::default()
++        };
++        let cache = PackCache::new(cache_config).unwrap();
++
++        let package_id = PackageId::new("test-pkg").unwrap();
++        let version = PackageVersion::new("1.0.0").unwrap();
++        let cache_path = temp_dir.path().join("test-pack");
++        fs::create_dir_all(&cache_path).unwrap();
++
++        // Write some files in the directory (but no pack.dat)
++        let file1_path = cache_path.join("file1.txt");
++        let file2_path = cache_path.join("file2.txt");
++        fs::write(&file1_path, b"file 1 content").unwrap();
++        fs::write(&file2_path, b"file 2 content").unwrap();
++
++        // The fallback hashes files in sorted path order
++        use sha2::{Digest, Sha256};
++        let mut hasher = Sha256::new();
++        let mut paths = vec![file1_path.clone(), file2_path.clone()];
++        paths.sort();
++        for p in paths {
++            hasher.update(fs::read(p).unwrap());
++        }
++        let expected_digest = hex::encode(hasher.finalize());
++
++        let pack = CachedPack::new(
++            package_id.clone(),
++            version.clone(),
++            expected_digest,
++            100,
++            cache_path.clone(),
++        );
++
++        // Verify digest should succeed using fallback walk
++        assert!(cache.verify_digest(&pack).unwrap());
++    }
++
++    #[tokio::test]
++    async fn test_zip_slip_symlink_traversal_tar() {
++        let registry = Registry::new(100);
++        let temp_dir = TempDir::new().unwrap();
++        let cache_config = CacheConfig {
++            cache_dir: temp_dir.path().join("cache"),
++            ..Default::default()
++        };
++        let cache = PackCache::new(cache_config).unwrap();
++        let installer = Installer::new(registry, cache);
++
++        let extract_dest = temp_dir.path().join("extract");
++        let parent_outside = temp_dir.path().join("outside");
++        fs::create_dir_all(&extract_dest).unwrap();
++        fs::create_dir_all(&parent_outside).unwrap();
++
++        // Target file outside the extraction directory
++        let target_outside_file = parent_outside.join("target.txt");
++        if target_outside_file.exists() {
++            fs::remove_file(&target_outside_file).ok();
++        }
++
++        // Create a tar archive in memory containing:
++        // 1. A symlink pointing to the parent_outside directory
++        // 2. A file entry inside the symlink path
++        use flate2::write::GzEncoder;
++        use flate2::Compression;
++
++        let mut buf = Vec::new();
++        {
++            let enc = GzEncoder::new(&mut buf, Compression::default());
++            let mut tar = tar::Builder::new(enc);
++
++            // 1. Symlink entry named "symlink_dir" pointing to parent_outside
++            let mut header_link = tar::Header::new_gnu();
++            header_link.set_entry_type(tar::EntryType::Symlink);
++            header_link.set_size(0);
++            tar.append_link(&mut header_link, "symlink_dir", &parent_outside).unwrap();
++
++            // 2. File entry named "symlink_dir/target.txt"
++            let mut header_file = tar::Header::new_gnu();
++            header_file.set_size(17);
++            header_file.set_mode(0o644);
++            tar.append_data(&mut header_file, "symlink_dir/target.txt", &b"malicious content"[..]).unwrap();
++
++            tar.finish().unwrap();
++        }
++
++        let result = installer.extract_tar_gz(&buf, &extract_dest);
++        
++        // Assert that the installation failed due to path traversal, OR
++        // if it succeeded, verify if the outside file was written to.
++        if result.is_ok() {
++            let was_written = target_outside_file.exists();
++            assert!(!was_written, "VULNERABILITY: Zip Slip symlink traversal allowed writing outside extraction directory!");
++        }
++    }
++
++    #[tokio::test]
++    async fn test_cache_verification_tamper_extracted_files() {
++        let registry = Registry::new(100);
++        let temp_dir = TempDir::new().unwrap();
++        let cache_config = CacheConfig {
++            cache_dir: temp_dir.path().join("cache"),
++            ..Default::default()
++        };
++        let cache = PackCache::new(cache_config).unwrap();
++
++        let package_id = PackageId::new("test-pkg").unwrap();
++        let version = PackageVersion::new("1.0.0").unwrap();
++        let cache_path = temp_dir.path().join("test-pack");
++        fs::create_dir_all(&cache_path).unwrap();
++
++        // Build a valid ZIP archive in memory
++        let mut zip_buf = Vec::new();
++        {
++            use std::io::Write;
++            let mut zip = zip::ZipWriter::new(std::io::Cursor::new(&mut zip_buf));
++            let options = zip::write::SimpleFileOptions::default();
++            zip.start_file("extracted_file.txt", options).unwrap();
++            zip.write_all(b"original content").unwrap();
++            zip.finish().unwrap();
++        }
++        let archive_data = zip_buf;
++
++        // Calculate expected digest of the archive data
++        let expected_digest = ggen_config::hash_data(&archive_data);
++
++        let pack = CachedPack::new(
++            package_id.clone(),
++            version.clone(),
++            expected_digest.clone(),
++            archive_data.len() as u64,
++            cache_path.clone(),
++        );
++
++        // Write pack.dat with matching bytes (so the pack.dat verification will succeed)
++        fs::write(cache_path.join("pack.dat"), &archive_data).unwrap();
++
++        // Also write some extracted file
++        let extracted_file = cache_path.join("extracted_file.txt");
++        fs::write(&extracted_file, b"original content").unwrap();
++
++        // Verify digest should succeed initially
++        assert!(cache.verify_digest(&pack).unwrap());
++
++        // Now, tamper with the extracted file (representing modification of the actual pack files)
++        fs::write(&extracted_file, b"tampered content").unwrap();
++
++        // Let's check if verify_digest detects this tampering!
++        let verification_result = cache.verify_digest(&pack).unwrap();
++        assert!(!verification_result, "VULNERABILITY: Cache verification succeeded even though extracted files were tampered with!");
++    }
+ }
++

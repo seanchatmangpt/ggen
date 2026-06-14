@@ -360,7 +360,9 @@ fn test_packs_install_error_recovery_suggestions() {
 
     // Should provide actionable error messages
     assert!(
-        stderr.contains("Pack name must not be empty") || stderr.contains("not found") || stderr.contains("invalid characters"),
+        stderr.contains("Pack name must not be empty")
+            || stderr.contains("not found")
+            || stderr.contains("invalid characters"),
         "Should show clear error message"
     );
     assert!(!stderr.contains("thread panicked"), "Should not panic");

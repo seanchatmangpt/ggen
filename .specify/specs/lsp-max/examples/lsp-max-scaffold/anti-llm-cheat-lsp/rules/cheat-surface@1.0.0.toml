@@ -1,0 +1,10 @@
+[[rules]]
+id         = "ANTI-LLM-SURFACE-002"
+name       = "no-wasm4pm-direct"
+severity   = "warning"
+pattern    = 'use wasm4pm::'
+message    = "Direct wasm4pm import — use the abstraction layer instead"
+rationale  = "Direct wasm4pm imports bypass the admission layer"
+eval_budget = "sync"
+path_globs   = []
+exclude_globs = []

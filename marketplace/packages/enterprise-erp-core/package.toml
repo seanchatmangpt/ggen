@@ -69,3 +69,6 @@ domain = "finance"
 multi_language = true
 rdf_classes = 35
 sparql_queries = 15
+
+[marketplace]
+production_ready = false

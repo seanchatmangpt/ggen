@@ -22,3 +22,6 @@ ccda_support = true
 hipaa = true
 gdpr = true
 fda = false
+
+[marketplace]
+production_ready = false

@@ -181,3 +181,6 @@ fmea_reference = "See docs/enterprise/CLAP_NOUN_VERB_ENTERPRISE_ARCHITECTURE.md"
 [validation]
 requires = ["project_name", "domain_rdf"]
 formats_supported = ["ttl", "rdf", "turtle"]
+
+[marketplace]
+production_ready = false

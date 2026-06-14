@@ -1,14 +1,12 @@
 // Pipeline stage contract tests
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn pipeline_contract_placeholder() {
-        // Verify μ₁–μ₅ pipeline stage contracts
-        // - Load (μ₁)
-        // - Extract (μ₂)
-        // - Generate (μ₃)
-        // - Validate (μ₄)
-        // - Emit (μ₅)
-        assert!(true);
-    }
+use ggen_core::pipeline_engine::pipeline::{PipelineConfig, StagedPipeline};
+
+#[test]
+fn test_pipeline_orchestration_contract() {
+    // Construct a config for a mock project
+    let config = PipelineConfig::new("test-project", "1.0.0");
+
+    // Instantiate staged pipeline
+    let pipeline = StagedPipeline::new(config);
+    assert!(pipeline.is_ok(), "Pipeline should initialize successfully");
 }

@@ -7,7 +7,7 @@
 //! from `.ggen/profiles.toml`.
 
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
 use crate::marketplace::error::{Error, Result};
@@ -57,9 +57,9 @@ pub struct RuntimeConstraint {
     pub forbid_defaults: bool,
     /// Require explicit runtime declaration.
     pub require_explicit: bool,
-    /// Additional metadata.
-    #[serde(skip_serializing_if = "HashMap::is_empty")]
-    pub metadata: HashMap<String, String>,
+    /// Additional metadata — BTreeMap for deterministic JSON serialization.
+    #[serde(skip_serializing_if = "BTreeMap::is_empty")]
+    pub metadata: BTreeMap<String, String>,
 }
 
 impl RuntimeConstraint {
@@ -70,7 +70,7 @@ impl RuntimeConstraint {
             allowed_runtimes: Vec::new(),
             forbid_defaults: false,
             require_explicit: false,
-            metadata: HashMap::new(),
+            metadata: BTreeMap::new(),
         }
     }
 
@@ -104,9 +104,9 @@ pub struct Profile {
     pub trust_requirements: TrustTier,
     /// Receipt requirements.
     pub receipt_requirements: ReceiptSpec,
-    /// Additional metadata.
-    #[serde(skip_serializing_if = "HashMap::is_empty")]
-    pub metadata: HashMap<String, String>,
+    /// Additional metadata — BTreeMap for deterministic JSON serialization.
+    #[serde(skip_serializing_if = "BTreeMap::is_empty")]
+    pub metadata: BTreeMap<String, String>,
 }
 
 impl Profile {
@@ -124,7 +124,7 @@ impl Profile {
             runtime_constraints: Vec::new(),
             trust_requirements,
             receipt_requirements,
-            metadata: HashMap::new(),
+            metadata: BTreeMap::new(),
         }
     }
 
@@ -193,7 +193,7 @@ pub fn enterprise_strict_profile() -> Profile {
         allowed_runtimes: vec!["axum".to_string(), "stdio".to_string()],
         forbid_defaults: true,
         require_explicit: true,
-        metadata: HashMap::new(),
+        metadata: BTreeMap::new(),
     })
     .with_metadata("category".to_string(), "enterprise".to_string())
     .with_metadata("strictness".to_string(), "high".to_string())
@@ -223,7 +223,7 @@ pub fn regulated_finance_profile() -> Profile {
         allowed_runtimes: vec!["axum".to_string()],
         forbid_defaults: true,
         require_explicit: true,
-        metadata: HashMap::new(),
+        metadata: BTreeMap::new(),
     })
     .with_metadata("category".to_string(), "regulated".to_string())
     .with_metadata("industry".to_string(), "finance".to_string())
@@ -245,7 +245,7 @@ pub fn development_profile() -> Profile {
         allowed_runtimes: Vec::new(),
         forbid_defaults: false,
         require_explicit: false,
-        metadata: HashMap::new(),
+        metadata: BTreeMap::new(),
     })
     .with_metadata("category".to_string(), "development".to_string())
     .with_metadata("strictness".to_string(), "low".to_string())
@@ -294,7 +294,7 @@ impl From<CustomRuntimeConstraint> for RuntimeConstraint {
             allowed_runtimes: c.allowed_runtimes,
             forbid_defaults: c.forbid_defaults,
             require_explicit: c.require_explicit,
-            metadata: HashMap::new(),
+            metadata: BTreeMap::new(),
         }
     }
 }
@@ -352,8 +352,8 @@ pub struct CustomProfileEntry {
     pub policies: Vec<CustomPolicyRef>,
     #[serde(default)]
     pub runtime_constraints: Vec<CustomRuntimeConstraint>,
-    #[serde(default, skip_serializing_if = "HashMap::is_empty")]
-    pub metadata: HashMap<String, String>,
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub metadata: BTreeMap<String, String>,
 }
 
 impl CustomProfileEntry {
@@ -398,8 +398,8 @@ impl CustomProfileEntry {
 /// Root structure for `.ggen/profiles.toml`.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct ProfileConfig {
-    #[serde(default, skip_serializing_if = "HashMap::is_empty")]
-    pub profiles: HashMap<String, CustomProfileEntry>,
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub profiles: BTreeMap<String, CustomProfileEntry>,
 }
 
 /// Loads user-configurable profiles from `.ggen/profiles.toml`.
@@ -543,7 +543,7 @@ mod tests {
             allowed_runtimes: vec!["axum".to_string()],
             forbid_defaults: true,
             require_explicit: true,
-            metadata: HashMap::new(),
+            metadata: BTreeMap::new(),
         };
         assert!(constraint.allows_runtime("axum"));
         assert!(!constraint.allows_runtime("stdio"));
@@ -612,7 +612,7 @@ policies = ["require_signed_receipts", "forbid_template_defaults"]
                 forbid_defaults: false,
                 require_explicit: false,
             }],
-            metadata: HashMap::new(),
+            metadata: BTreeMap::new(),
         };
         let profile = entry.into_profile("sandbox");
         assert_eq!(profile.id.as_str(), "sandbox");
