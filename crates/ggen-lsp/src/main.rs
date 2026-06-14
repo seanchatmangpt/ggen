@@ -3,7 +3,12 @@ use std::env;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    tracing_subscriber::fmt().init();
+    // STDOUT carries the LSP JSON-RPC protocol (see run_stdio: Server::new uses
+    // tokio stdout). Logs MUST go to STDERR or they corrupt message framing and
+    // break Content-Length header parsing on the client.
+    tracing_subscriber::fmt()
+        .with_writer(std::io::stderr)
+        .init();
 
     let args: Vec<String> = env::args().collect();
 

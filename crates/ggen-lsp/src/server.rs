@@ -1,4 +1,5 @@
 use lsp_max::lsp_types_max::*;
+use lsp_max::primitives::DiagnosticSink;
 use lsp_max::{jsonrpc::Result, Client, LanguageServer};
 use std::sync::Arc;
 
@@ -8,13 +9,16 @@ use crate::state::ServerState;
 pub struct GgenLanguageServer {
     pub(crate) state: Arc<ServerState>,
     pub(crate) client: Client,
+    sink: DiagnosticSink,
 }
 
 impl GgenLanguageServer {
     pub fn new(client: Client) -> Self {
+        let sink = DiagnosticSink::new(client.clone());
         Self {
             state: Arc::new(ServerState::default()),
             client,
+            sink,
         }
     }
 
@@ -22,12 +26,9 @@ impl GgenLanguageServer {
     /// diagnostics — the live "refusal before execution" signal.
     async fn refresh_analyzer(&self, uri: &Url, content: &str) {
         for (target_uri, diagnostics) in self.state.analyze_and_observe(uri, content).await {
-            // Task C — mirror diagnostics into lsp-max REGISTRY for the autonomic mesh.
+            // Task C — mirror diagnostics into lsp-max REGISTRY and write the Λ_CD gate.
             push_diagnostics_to_registry(&diagnostics);
-            let lsp_diagnostics = diagnostics.into_iter().map(|d| d.lsp).collect();
-            self.client
-                .publish_diagnostics(target_uri, lsp_diagnostics, None)
-                .await;
+            self.sink.publish_max(target_uri, diagnostics).await;
         }
     }
 }
@@ -128,6 +129,8 @@ impl LanguageServer for GgenLanguageServer {
     }
 
     async fn shutdown(&self) -> Result<()> {
+        // Clear the Λ_CD gate on orderly shutdown so the next session starts OPEN.
+        let _ = std::fs::write(gate_file_path(), b"0");
         Ok(())
     }
 
@@ -152,11 +155,14 @@ impl LanguageServer for GgenLanguageServer {
         let uri = params.text_document.uri;
         for (target_uri, diagnostics) in self.state.close_document(&uri).await {
             push_diagnostics_to_registry(&diagnostics);
-            let lsp_diagnostics = diagnostics.into_iter().map(|d| d.lsp).collect();
-            self.client
-                .publish_diagnostics(target_uri, lsp_diagnostics, None)
-                .await;
+            self.sink.publish_max(target_uri, diagnostics).await;
         }
+    }
+
+    async fn did_save(&self, _params: DidSaveTextDocumentParams) {
+        // No-op: the authoritative document text is tracked via did_open /
+        // did_change. Implementing this silences lsp-max's "not implemented"
+        // warning. Diagnostics already refresh on change.
     }
 
     async fn completion(&self, params: CompletionParams) -> Result<Option<CompletionResponse>> {
@@ -244,10 +250,27 @@ impl LanguageServer for GgenLanguageServer {
     }
 }
 
+/// Λ_CD gate file path: `$XDG_RUNTIME_DIR/lsp-max-gate-{fnv1a(cwd)}`.
+/// Must match the formula in `lsp-max-compositor::gate_file::GateFile::for_workspace()`.
+fn gate_file_path() -> std::path::PathBuf {
+    let cwd = std::env::current_dir().unwrap_or_default();
+    let mut hash: u64 = 0xcbf29ce484222325;
+    for b in cwd.to_string_lossy().bytes() {
+        hash ^= b as u64;
+        hash = hash.wrapping_mul(0x100000001b3);
+    }
+    let dir = std::env::var("XDG_RUNTIME_DIR").unwrap_or_else(|_| "/tmp".to_string());
+    std::path::PathBuf::from(format!("{dir}/lsp-max-gate-{hash:016x}"))
+}
+
 /// Task C helper — push GGEN-* diagnostics into the lsp-max REGISTRY so the
-/// autonomic mesh can observe them. Best-effort: lock failures are silently ignored.
+/// autonomic mesh can observe them, then write the Λ_CD gate file accordingly.
+/// Best-effort: lock failures are silently ignored; gate write failures are non-fatal.
 fn push_diagnostics_to_registry(diagnostics: &[lsp_max_protocol::MaxDiagnostic]) {
     use lsp_max_protocol::{LawAxis, MaxDiagnostic};
+
+    let mut has_violations = false;
+
     if let Ok(mut reg) = lsp_max::get_registry().lock() {
         for diag in diagnostics {
             if let Some(NumberOrString::String(ref code)) = diag.lsp.code {
@@ -262,9 +285,16 @@ fn push_diagnostics_to_registry(diagnostics: &[lsp_max_protocol::MaxDiagnostic])
                 max_diag.law_axis = LawAxis::Domain;
                 max_diag.violated_invariant = diag.lsp.message.clone();
                 reg.diagnostics.insert(id, max_diag);
+
+                if code.starts_with("GGEN-") {
+                    has_violations = true;
+                }
             }
         }
     }
+
+    // ANDON = "1" when GGEN-* violations are present; OPEN = "0" when clean.
+    let _ = std::fs::write(gate_file_path(), if has_violations { b"1" } else { b"0" });
 }
 
 pub fn range_contains(range: &Range, position: Position) -> bool {

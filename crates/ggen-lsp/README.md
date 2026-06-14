@@ -98,7 +98,7 @@ ggen-lsp/
 └── Cargo.toml              # Package metadata + marketplace registration
 ```
 
-## LSP Capabilities (tower-lsp 0.20)
+## LSP Capabilities (lsp-max 26.6.13)
 
 | Feature | Status | Use Case |
 |---------|--------|----------|
@@ -171,7 +171,7 @@ See [LSP-ARD-PRD.md](../../LSP-ARD-PRD.md) for test strategy.
 ## References
 
 - **Architecture**: [LSP-ARD-PRD.md](../../LSP-ARD-PRD.md) — full spec
-- **tower-lsp**: [https://docs.rs/tower-lsp/](https://docs.rs/tower-lsp/)
+- **lsp-max**: [https://github.com/seanchatmangpt/lsp-max](https://github.com/seanchatmangpt/lsp-max) — law-state LSP runtime
 - **LSP Spec**: [https://microsoft.github.io/language-server-protocol/](https://microsoft.github.io/language-server-protocol/)
 
 ## License
