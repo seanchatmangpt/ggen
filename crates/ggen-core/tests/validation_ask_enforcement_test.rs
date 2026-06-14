@@ -254,6 +254,74 @@ fn no_orphan_verb_passes_when_all_linked() {
         .expect("a fully-linked ontology must pass the no-orphan-verb rule");
 }
 
+// ---------------------------------------------------------------------------
+// Third authoritative invariant: "no orphan argument". A `cnv:Argument` that no
+// verb's `hasArguments` references is well-formed but unreachable — a dangling
+// declaration that would never surface in a rendered CLI. Same maximalist move:
+// a new ontology-shape invariant, admitted with its own blocks/passes witness.
+// ---------------------------------------------------------------------------
+
+/// Ontology: a verb with one referenced arg. `orphan=true` adds a second arg that
+/// no `hasArguments` references; `orphan=false` references both.
+fn orphan_arg_ontology(orphan: bool) -> String {
+    let args = if orphan { "ex:a1" } else { "ex:a1, ex:a2" };
+    format!(
+        r#"@prefix cnv: <{CNV}> .
+@prefix ex: <http://ex#> .
+
+ex:v a cnv:Verb ; cnv:hasVerbName "go" ; cnv:hasArguments {args} .
+ex:a1 cnv:hasArgumentName "first" .
+ex:a2 cnv:hasArgumentName "second" .
+"#
+    )
+}
+
+/// "No orphan argument": every node with `cnv:hasArgumentName` must be the object of
+/// some `cnv:hasArguments`. NOT-EXISTS polarity (true = no orphan = valid).
+fn no_orphan_arg_rule() -> ValidationRule {
+    ValidationRule {
+        name: "no-orphan-argument".to_string(),
+        description: "Every cnv:Argument must be referenced by a verb via cnv:hasArguments."
+            .to_string(),
+        ask: format!(
+            r#"ASK {{ FILTER NOT EXISTS {{ ?a <{CNV}hasArgumentName> ?n . FILTER NOT EXISTS {{ ?v <{CNV}hasArguments> ?a }} }} }}"#
+        ),
+        severity: ValidationSeverity::Error,
+    }
+}
+
+/// An unreferenced argument fails the invariant.
+#[test]
+fn orphan_argument_blocks() {
+    let dir = TempDir::new().expect("TempDir");
+    std::fs::write(dir.path().join("ontology.ttl"), orphan_arg_ontology(true))
+        .expect("write ontology");
+
+    let mut pipeline =
+        GenerationPipeline::new(manifest(vec![no_orphan_arg_rule()]), dir.path().to_path_buf());
+    pipeline.load_ontology().expect("load ontology");
+
+    let result = pipeline.execute_validation_rules();
+    assert!(result.is_err(), "an unreferenced cnv:Argument must fail the rule");
+    assert!(result.unwrap_err().to_string().contains("GGEN-VALIDATION"));
+}
+
+/// Teeth control: passes when every argument is referenced.
+#[test]
+fn no_orphan_argument_passes_when_all_referenced() {
+    let dir = TempDir::new().expect("TempDir");
+    std::fs::write(dir.path().join("ontology.ttl"), orphan_arg_ontology(false))
+        .expect("write ontology");
+
+    let mut pipeline =
+        GenerationPipeline::new(manifest(vec![no_orphan_arg_rule()]), dir.path().to_path_buf());
+    pipeline.load_ontology().expect("load ontology");
+
+    pipeline
+        .execute_validation_rules()
+        .expect("fully-referenced arguments must pass the rule");
+}
+
 /// Regression guard: `run()` must invoke validation BEFORE generation, so a colliding
 /// ontology aborts with no files written. This is the test that turns red if a future
 /// refactor un-wires `execute_validation_rules` from the pipeline (the original bug).
