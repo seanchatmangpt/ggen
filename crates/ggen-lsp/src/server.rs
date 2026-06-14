@@ -130,7 +130,7 @@ impl LanguageServer for GgenLanguageServer {
 
     async fn shutdown(&self) -> Result<()> {
         // Clear the Λ_CD gate on orderly shutdown so the next session starts OPEN.
-        let _ = std::fs::write(gate_file_path(), b"0");
+        let _ = std::fs::write(lsp_max::primitives::gate_file_path(), b"0");
         Ok(())
     }
 
@@ -250,19 +250,6 @@ impl LanguageServer for GgenLanguageServer {
     }
 }
 
-/// Λ_CD gate file path: `$XDG_RUNTIME_DIR/lsp-max-gate-{fnv1a(cwd)}`.
-/// Must match the formula in `lsp-max-compositor::gate_file::GateFile::for_workspace()`.
-fn gate_file_path() -> std::path::PathBuf {
-    let cwd = std::env::current_dir().unwrap_or_default();
-    let mut hash: u64 = 0xcbf29ce484222325;
-    for b in cwd.to_string_lossy().bytes() {
-        hash ^= b as u64;
-        hash = hash.wrapping_mul(0x100000001b3);
-    }
-    let dir = std::env::var("XDG_RUNTIME_DIR").unwrap_or_else(|_| "/tmp".to_string());
-    std::path::PathBuf::from(format!("{dir}/lsp-max-gate-{hash:016x}"))
-}
-
 /// Task C helper — push GGEN-* diagnostics into the lsp-max REGISTRY so the
 /// autonomic mesh can observe them, then write the Λ_CD gate file accordingly.
 /// Best-effort: lock failures are silently ignored; gate write failures are non-fatal.
@@ -294,7 +281,10 @@ fn push_diagnostics_to_registry(diagnostics: &[lsp_max_protocol::MaxDiagnostic])
     }
 
     // ANDON = "1" when GGEN-* violations are present; OPEN = "0" when clean.
-    let _ = std::fs::write(gate_file_path(), if has_violations { b"1" } else { b"0" });
+    let _ = std::fs::write(
+        lsp_max::primitives::gate_file_path(),
+        if has_violations { b"1" } else { b"0" },
+    );
 }
 
 pub fn range_contains(range: &Range, position: Position) -> bool {
