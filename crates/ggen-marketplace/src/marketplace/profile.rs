@@ -7,7 +7,7 @@
 //! from `.ggen/profiles.toml`.
 
 use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, HashMap};
+use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
 use crate::marketplace::error::{Error, Result};

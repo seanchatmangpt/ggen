@@ -43,7 +43,6 @@ impl GgenMcpServer {
     ) -> Result<CallToolResult, rmcp::model::ErrorData> {
         use ggen_core::codegen::pipeline::GenerationPipeline;
         use ggen_core::manifest::ManifestParser;
-        use std::path::PathBuf;
 
         // Log the boundary crossing.
         tracing::info!(

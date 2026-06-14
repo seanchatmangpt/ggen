@@ -13,7 +13,7 @@ use crate::marketplace::error::Result;
 use crate::marketplace::trust::TrustTier;
 use ggen_config::{Receipt, ReceiptChain};
 use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, HashMap, HashSet};
+use std::collections::{BTreeMap, HashSet};
 
 /// Reference to an atomic pack in the composition.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
