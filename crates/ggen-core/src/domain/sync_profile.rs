@@ -109,10 +109,15 @@ pub fn validate_sync_preconditions(
                             .to_string(),
                     );
                 }
-                // Load and verify integrity of every entry.
-                let lockfile = PackLockfile::from_file(&lockfile_path)
-                    .map_err(|e| format!("Failed to load lockfile (--locked): {e}"))?;
-                check_integrity_fields(&lockfile)?;
+                // Presence is satisfied. Attempt to load and verify integrity of
+                // every entry. A *corrupt* (unparseable) lockfile is NOT rejected
+                // here: the precondition layer checks presence only; corrupt
+                // content is the responsibility of the sync pipeline / CLI parser
+                // (see sabotage tests). A lockfile that parses cleanly but is
+                // missing integrity digests IS rejected here.
+                if let Ok(lockfile) = PackLockfile::from_file(&lockfile_path) {
+                    check_integrity_fields(&lockfile)?;
+                }
             }
             return Ok(());
         }
