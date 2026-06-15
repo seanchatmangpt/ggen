@@ -1,0 +1,818 @@
+{
+  "version": "26.5.28",
+  "title": "ggen Performance Definition of Done",
+  "last_updated": "2026-06-14",
+  "executive_summary": "Specification-driven code generation from RDF ontologies requires strict performance SLOs across eight dimensions: build time, test execution, runtime performance, memory, benchmarks, profiling, regression detection, and resource limits. This document defines what performance completeness means for ggen.",
+  "performance_dimensions": [
+    {
+      "id": 1,
+      "name": "Build Time SLOs",
+      "description": "Compilation time for workspace (all 15 crates), validation that Rust compiler performance remains fast across incremental development.",
+      "why_it_matters": "Fast feedback loop is essential for Chicago TDD (RED → GREEN → REFACTOR). Slow builds break developer flow and slow CI/CD.",
+      "targets": {
+        "first_build": {
+          "threshold": "≤15s",
+          "description": "Cold build of entire workspace (15 crates)",
+          "includes": ["Clean checkout", "All dependencies compiled", "All crates checked"],
+          "excludes": ["Code generation time", "ggen sync overhead"]
+        },
+        "incremental_build": {
+          "threshold": "≤2s",
+          "description": "Incremental build after single file change",
+          "includes": ["One-line code edit", "Workspace rebuild", "Type checking"],
+          "excludes": ["First build after cargo clean", "Full workspace rebuild from scratch"]
+        },
+        "check_only": {
+          "threshold": "≤5s",
+          "description": "cargo check without compilation",
+          "includes": ["Type checking all crates", "No artifact generation"],
+          "excludes": ["Full compilation"]
+        }
+      },
+      "measurement_method": "Command execution timing with timeout",
+      "validation_command": "just slo-check && cargo bench --bench cli_startup_performance -- --test",
+      "detailed_commands": [
+        {
+          "command": "time cargo check --workspace",
+          "captures": "Total check time",
+          "acceptable_variance": "±10% variance acceptable"
+        },
+        {
+          "command": "touch crates/ggen-core/src/lib.rs && time cargo check --workspace",
+          "captures": "Incremental check time",
+          "acceptable_variance": "±10% variance acceptable"
+        }
+      ],
+      "failure_recovery": {
+        "if_builds_are_slow": [
+          "Run: cargo clean && cargo build --workspace (measure cold build baseline)",
+          "Run: cargo build -p ggen-core --lib (measure per-crate build)",
+          "Check: cargo tree -d (look for duplicate dependencies)",
+          "Analyze: cargo build -v 2>&1 | grep Compiling | wc -l (count crate compilations)",
+          "Profile: time cargo build --release 2>&1 | tee build.log (capture full trace)"
+        ],
+        "tools_to_use": [
+          "cargo-make (not cargo directly)",
+          "cargo-tree (dependency analysis)",
+          "time command (measure execution)",
+          "perf record (Linux kernel profiling)"
+        ],
+        "investigation_questions": [
+          "Did a new dependency add bloat? (check Cargo.lock changes)",
+          "Are there circular re-exports? (cargo tree -d)",
+          "Is code generation slow? (separate ggen sync from build time)",
+          "Are macro expansion times high? (measure per-crate)"
+        ]
+      },
+      "acceptable_variance": "±10% variance acceptable across 3 consecutive runs",
+      "pass_criteria": [
+        "First build: ≤15s",
+        "Incremental build: ≤2s",
+        "Check: ≤5s",
+        "No variance >±10% across runs"
+      ],
+      "reporting_format": "[Receipt] Build Performance:\n  First build: ACTUAL ms\n  Incremental: ACTUAL ms\n  Status: ✓ PASS or ✗ FAIL",
+      "acceptance_gate": "REQUIRED for all commits"
+    },
+    {
+      "id": 2,
+      "name": "Test Execution SLOs",
+      "description": "Time required to run unit tests, integration tests, and full test suite. Tests must complete fast to maintain developer productivity.",
+      "why_it_matters": "Chicago TDD requires rapid test feedback. If tests take >30s, developers skip running them locally, leading to CI failures and broken main.",
+      "targets": {
+        "unit_tests": {
+          "threshold": "≤10s",
+          "description": "Fast unit test pass (lib tests only, no integration)",
+          "command": "just test-unit",
+          "scope": ["Unit tests inside each crate", "No external service calls", "No I/O beyond tempfile"],
+          "crates_included": ["All 15 workspace crates"]
+        },
+        "full_test_suite": {
+          "threshold": "≤30s",
+          "description": "Complete test pass including integration tests",
+          "command": "just test",
+          "scope": ["Unit + integration tests", "External collaborators (SQLite, HTTP via real clients)", "Real file I/O"],
+          "note": "May escalate to ≤120s on first compile (cold cache)"
+        },
+        "mutation_testing": {
+          "threshold": "≤5min (300s)",
+          "description": "Mutation score validation (≥60% required)",
+          "command": "just test-mutation",
+          "scope": ["All mutations tested", "Minimum 60% score"],
+          "note": "Longer but not required on every commit (pre-merge gate)"
+        },
+        "doc_tests": {
+          "threshold": "≤60s",
+          "description": "Validates all /// Examples blocks compile and run",
+          "command": "just test-doc",
+          "scope": ["All 14 public crates (excluding ggen-core for length)", "All /// Examples blocks"],
+          "escalation": "May escalate to ≤180s on first compile"
+        }
+      },
+      "measurement_method": "Cargo test runner with timeout wrapper",
+      "validation_command": "just test-unit && just test && just test-mutation",
+      "detailed_commands": [
+        {
+          "command": "time just test-unit 2>&1 | grep -E 'test result|running'",
+          "captures": "Unit test count and execution time",
+          "threshold": "≤10s"
+        },
+        {
+          "command": "time just test 2>&1 | grep -E 'test result|running'",
+          "captures": "Full test count and execution time",
+          "threshold": "≤30s (or ≤120s first compile)"
+        },
+        {
+          "command": "time just test-mutation 2>&1 | tail -20",
+          "captures": "Mutation score and execution time",
+          "threshold": "≤300s, score ≥60%"
+        }
+      ],
+      "failure_recovery": {
+        "if_tests_are_slow": [
+          "Identify slowest test: cargo test --lib -- --test-threads=1 --nocapture 2>&1 | sort -k3 -nr",
+          "Profile test: time cargo test --lib test_name -- --nocapture 2>&1",
+          "Check for mocks: grep -r 'mockall\\|Mock' tests/ (London TDD forbidden)",
+          "Check for real I/O: grep -r 'TempDir\\|SqlitePool\\|reqwest' tests/ (should be present)",
+          "Analyze test structure: cargo test --lib -- --list (count tests per crate)"
+        ],
+        "tools_to_use": [
+          "cargo test --test-threads=1 (single-threaded execution for profiling)",
+          "time command (measure individual test duration)",
+          "cargo profiling tools (perf, flamegraph on Linux)",
+          "test categorization (unit vs. integration vs. e2e)"
+        ],
+        "investigation_questions": [
+          "Is there a test with unbounded loop or sleep? (grep -r 'sleep\\|loop')",
+          "Are mocks slowing compilation? (grep for mockall, should not exist)",
+          "Is there real I/O that should be cached? (check test setup)",
+          "Are there tests that run serially when they could run parallel? (--test-threads=2)"
+        ]
+      },
+      "acceptable_variance": "±5% variance acceptable across runs (tight SLO)",
+      "pass_criteria": [
+        "Unit tests: ≤10s",
+        "Full suite: ≤30s (or first compile ≤120s)",
+        "Mutation: ≤300s with ≥60% score",
+        "Doc tests: ≤60s (escalates to ≤180s)",
+        "All tests pass (0 failures, 0 ignored)"
+      ],
+      "reporting_format": "[Receipt] Test Execution:\n  Unit tests: ACTUAL / 10s - ✓ PASS\n  Full suite: ACTUAL / 30s - ✓ PASS\n  Mutation: ACTUAL / 300s, score PERCENT% - ✓ PASS\n  Total tests: COUNT passed",
+      "acceptance_gate": "REQUIRED for all commits (unit tests pre-commit, full suite pre-merge)"
+    },
+    {
+      "id": 3,
+      "name": "Runtime Performance",
+      "description": "Performance of ggen during actual execution: RDF processing, code generation pipeline (μ₁-μ₅), CLI scaffolding, and template rendering.",
+      "why_it_matters": "ggen is a code generator. Users run it hundreds of times per day. 3-5 second overhead per run accumulates to hours of lost productivity per developer per week.",
+      "targets": {
+        "rdf_processing": {
+          "threshold": "≤5s per 1k+ RDF triples",
+          "description": "Time to load, parse, and process RDF ontology via Oxigraph",
+          "scope": ["RDF load (μ₁)", "SPARQL execution (μ₂)", "Graph traversal", "1,000-100,000 triple range"],
+          "measurement": "Track during ggen sync --audit",
+          "example": "1,000 triples: ≤500ms, 10,000 triples: ≤5s, 100,000 triples: ≤50s"
+        },
+        "code_generation_pipeline": {
+          "threshold": "≤3s end-to-end (μ₁-μ₅)",
+          "description": "Full five-stage code generation pipeline",
+          "stages": [
+            "μ₁ (load): Read RDF ontology",
+            "μ₂ (extract): Execute SPARQL queries",
+            "μ₃ (generate): Template rendering via Tera",
+            "μ₄ (validate): SHACL gate checks, profile enforcement",
+            "μ₅ (emit): Write artifacts to disk"
+          ],
+          "measurement": "Track with ggen sync --audit --trace",
+          "baseline_fixture": "Medium ontology (5k-10k triples)"
+        },
+        "cli_scaffolding": {
+          "threshold": "≤3s end-to-end (ggen init)",
+          "description": "New project scaffolding: CLI startup + initialization + writing files",
+          "scope": ["CLI argument parsing", "Config file generation", "Directory structure creation", "Template copy"],
+          "measurement": "time ggen init my-project"
+        },
+        "template_rendering": {
+          "threshold": "≤500ms per template (median 100 templates)",
+          "description": "Tera template rendering time per output file",
+          "scope": ["Tera parsing", "Variable substitution", "Conditional blocks", "Loop expansion"],
+          "baseline_fixture": "Realistic 100-template project"
+        }
+      },
+      "measurement_method": "Instrumented benchmark with OTEL tracing",
+      "validation_command": "ggen sync --audit true && ggen sync --dry_run true",
+      "detailed_commands": [
+        {
+          "command": "ggen sync --audit true 2>&1 | grep -E 'μ₁|μ₂|μ₃|μ₄|μ₅|Total'",
+          "captures": "Per-stage timing breakdown",
+          "threshold": "All stages combined ≤3s"
+        },
+        {
+          "command": "time ggen init test-project 2>&1",
+          "captures": "CLI startup + initialization time",
+          "threshold": "≤3s"
+        },
+        {
+          "command": "cargo run --release -p ggen-cli --bin ggen -- sync --audit true 2>&1 | grep duration",
+          "captures": "Pipeline stage durations from OTEL",
+          "threshold": "Sum of durations ≤3s"
+        }
+      ],
+      "failure_recovery": {
+        "if_runtime_is_slow": [
+          "Enable OTEL tracing: RUST_LOG=trace ggen sync --audit true 2>&1 | tee runtime.log",
+          "Identify slow stage: grep 'duration_ms' runtime.log | sort -k2 -rn",
+          "Profile slow stage: cargo flamegraph --bin ggen -- sync --audit true (Linux only)",
+          "Measure per-operation: ggen sync --audit true --profile detailed 2>&1 (if available)",
+          "Check SPARQL query performance: time ggen route list 2>&1"
+        ],
+        "tools_to_use": [
+          "OTEL tracing (RUST_LOG=trace) for span timing",
+          "flamegraph (Linux): cargo install flamegraph && cargo flamegraph --bin ggen",
+          "perf (Linux): perf record --bin ggen && perf report",
+          "time command (measure wall-clock time)",
+          "SPARQL profiling (time individual queries)"
+        ],
+        "investigation_questions": [
+          "Which pipeline stage is slowest? (check OTEL spans)",
+          "Is RDF parsing the bottleneck? (Oxigraph performance)",
+          "Are SPARQL queries inefficient? (check query plans)",
+          "Is template rendering slow? (Tera performance)",
+          "Is I/O the bottleneck? (disk write performance)"
+        ]
+      },
+      "acceptable_variance": "±15% variance acceptable (runtime has OS jitter)",
+      "pass_criteria": [
+        "RDF processing: ≤5s per 1k triples",
+        "Pipeline (μ₁-μ₅): ≤3s end-to-end",
+        "CLI scaffolding: ≤3s",
+        "Template rendering: ≤500ms median per template",
+        "OTEL spans captured for all stages"
+      ],
+      "reporting_format": "[Receipt] Runtime Performance:\n  RDF processing: ACTUAL / 5s - ✓ PASS\n  Pipeline (μ₁-μ₅): ACTUAL / 3s - ✓ PASS\n  CLI init: ACTUAL / 3s - ✓ PASS\n  Stages: μ₁=X μ₂=Y μ₃=Z μ₄=W μ₅=V",
+      "acceptance_gate": "REQUIRED for features touching μ₁-μ₅ pipeline"
+    },
+    {
+      "id": 4,
+      "name": "Memory SLOs",
+      "description": "Memory usage during code generation and runtime. ggen must handle large ontologies without unbounded heap growth.",
+      "why_it_matters": "Memory leaks or unbounded allocations cause CI/CD to OOM on large projects. Deterministic memory usage is essential for reproducible builds.",
+      "targets": {
+        "generation_memory": {
+          "threshold": "≤100MB peak during sync",
+          "description": "Maximum heap usage during ggen sync execution",
+          "scope": ["RDF graph loading", "SPARQL query execution", "Template rendering", "Artifact collection"],
+          "baseline_fixture": "Medium ontology (5k-10k triples)"
+        },
+        "cli_startup_memory": {
+          "threshold": "≤50MB peak (CLI only)",
+          "description": "Heap usage on ggen --help or ggen --version",
+          "scope": ["Binary load", "Argument parsing", "Config loading (minimal)"]
+        },
+        "no_unbounded_allocations": {
+          "threshold": "Zero unbounded Vec/HashMap growth",
+          "description": "No loops that allocate without bounds",
+          "scope": ["Vec::push in loops must be pre-sized", "HashMap::insert must have bounds", "No recursive depth without limit"],
+          "validation": "Code review + static analysis"
+        }
+      },
+      "measurement_method": "Runtime memory profiling via /proc/self/status (Linux) or Instruments (macOS)",
+      "validation_command": "cargo run --release -p ggen-cli --bin ggen -- sync --audit true && watch -n 0.1 'ps aux | grep ggen'",
+      "detailed_commands": [
+        {
+          "command": "/usr/bin/time -v ggen sync --audit true 2>&1 | grep -E 'Maximum resident|Elapsed'",
+          "captures": "Peak RSS memory and wall-clock time",
+          "threshold": "≤100MB",
+          "platforms": ["Linux with /usr/bin/time"]
+        },
+        {
+          "command": "echo 'sample proc_mem' && for i in {1..5}; do ps aux | grep ggen | grep -v grep | awk '{print $6}'; sleep 1; done",
+          "captures": "Memory usage samples during execution",
+          "threshold": "All samples ≤100MB"
+        },
+        {
+          "command": "valgrind --tool=massif ggen sync --audit true 2>&1 && cat massif.out | grep 'Peak'",
+          "captures": "Peak memory from Valgrind",
+          "threshold": "≤100MB",
+          "platforms": ["Linux only"]
+        }
+      ],
+      "failure_recovery": {
+        "if_memory_is_high": [
+          "Profile with Valgrind: valgrind --tool=massif ggen sync 2>&1 && massif-visualizer massif.out",
+          "Check for leaks: valgrind --leak-check=full ggen sync 2>&1 | grep -A 10 'leaked'",
+          "Analyze allocations: cargo build --release && perf record --call-graph=dwarf ggen sync && perf report",
+          "Check RDF graph size: ggen route list 2>&1 | grep 'triples' (triple count)",
+          "Review Vec/HashMap: grep -r 'Vec::new().*loop\\|HashMap::new().*loop' crates/*/src/"
+        ],
+        "tools_to_use": [
+          "valgrind (Linux) - heap profiling",
+          "massif-visualizer - memory visualization",
+          "perf record --call-graph=dwarf - CPU + memory profiling",
+          "/usr/bin/time -v - simple RSS measurement",
+          "ps aux | grep - monitor running process"
+        ],
+        "investigation_questions": [
+          "Is RDF graph loaded all-at-once? (should stream if possible)",
+          "Are SPARQL results cached unnecessarily? (free after use)",
+          "Is template rendering keeping all templates in memory? (render incrementally)",
+          "Are artifacts stored before writing? (stream to disk instead)"
+        ]
+      },
+      "acceptable_variance": "±20% variance acceptable (memory is system-dependent)",
+      "pass_criteria": [
+        "Generation memory: ≤100MB peak",
+        "CLI startup: ≤50MB peak",
+        "No unbounded allocations in code review",
+        "Valgrind reports: 0 definite leaks"
+      ],
+      "reporting_format": "[Receipt] Memory Performance:\n  Peak RSS: ACTUAL MB / 100 MB - ✓ PASS\n  CLI startup: ACTUAL MB / 50 MB - ✓ PASS\n  Valgrind: LEAKS leaks found - ✓ PASS",
+      "acceptance_gate": "REQUIRED for features with large data structures or loops"
+    },
+    {
+      "id": 5,
+      "name": "Benchmarks",
+      "description": "Criterion.rs benchmarks exist for hot paths (20% of code that uses 80% of runtime). Benchmarks are the source of truth for performance regression detection.",
+      "why_it_matters": "Benchmarks prevent performance regressions. Without benchmarks, slow commits sneak into main. With benchmarks, regression detection is automated.",
+      "targets": {
+        "hot_path_coverage": {
+          "threshold": "≥80% of runtime in benchmark suite",
+          "description": "Criterion benchmarks measure the 20% of code that uses 80% of CPU time",
+          "hot_paths": [
+            "RDF parsing (Oxigraph)",
+            "SPARQL query execution",
+            "Template rendering (Tera)",
+            "Graph traversal",
+            "Artifact writing to disk",
+            "CLI startup"
+          ],
+          "measurement": "Profiling output + code review"
+        },
+        "benchmark_suite": {
+          "threshold": "Minimum 6 Criterion benchmark files",
+          "description": "Benchmarks for all critical operations",
+          "existing_benchmarks": [
+            "cli_startup_performance.rs - CLI startup, help, version",
+            "schema_layer_slo.rs - Schema validation pipeline",
+            "marketplace_performance.rs - Pack resolution",
+            "receipt_bench.rs - Receipt generation",
+            "a2a_bench.rs - Agent-to-agent communication",
+            "async_runtime_benchmarks.rs - Async runtime overhead"
+          ]
+        },
+        "benchmark_execution": {
+          "threshold": "all benchmarks pass SLO targets",
+          "command": "just bench",
+          "report": "Criterion HTML reports in target/criterion/"
+        }
+      },
+      "measurement_method": "Criterion.rs benchmark runner with SLO thresholds",
+      "validation_command": "just bench 2>&1 | tee bench_results.txt && grep -i 'failed\\|regress' bench_results.txt",
+      "detailed_commands": [
+        {
+          "command": "cargo bench --bench cli_startup_performance -- --test",
+          "captures": "CLI startup benchmark results",
+          "expected_output": "help_command: XX ms/iter, version_command: YY ms/iter"
+        },
+        {
+          "command": "cargo bench --bench schema_layer_slo -- --test",
+          "captures": "Schema validation SLO results",
+          "expected_output": "[Receipt] Transpile Performance: PASS, [Receipt] Schema Generation: PASS"
+        },
+        {
+          "command": "ls -la target/criterion/ && find target/criterion -name 'index.html' | head -5",
+          "captures": "Criterion HTML reports generated",
+          "expected_output": "At least 6 benchmark groups with HTML reports"
+        }
+      ],
+      "failure_recovery": {
+        "if_benchmarks_fail": [
+          "Re-run single benchmark: cargo bench --bench BENCHMARK_NAME -- --test",
+          "Check for system load: top -bn1 | head -20 (check CPU, memory)",
+          "Compare against baseline: cargo bench --bench BENCHMARK_NAME -- --compare baseline_branch",
+          "Review recent commits: git log --oneline -20 (look for recent changes)",
+          "Profile hot path: cargo flamegraph --bench BENCHMARK_NAME"
+        ],
+        "tools_to_use": [
+          "Criterion.rs - benchmark runner with statistical analysis",
+          "cargo bench - Criterion invocation",
+          "flamegraph - flame graph generation",
+          "git bisect - identify regression commit",
+          "perf record/report - CPU profiling"
+        ],
+        "investigation_questions": [
+          "Did this commit change the hot path? (check git diff)",
+          "Is system load high? (top, vmstat, iostat)",
+          "Are benchmarks run with --release? (benchmarks must use release mode)",
+          "Is there variance in timing? (re-run 3 times to check)",
+          "Is the baseline stale? (regenerate baseline after optimization)"
+        ]
+      },
+      "acceptable_variance": "±10% variance acceptable (Criterion uses statistical analysis)",
+      "pass_criteria": [
+        "≥80% of runtime covered by benchmarks",
+        "All benchmarks pass SLO targets",
+        "No performance regressions vs. baseline",
+        "Criterion HTML reports generated",
+        "Benchmark execution completes without timeout"
+      ],
+      "reporting_format": "[Receipt] Benchmarks:\n  cli_startup: PASS (XX ms/iter)\n  schema_layer: PASS (all SLOs met)\n  marketplace: PASS (YY μs/iter)\n  Status: ✓ ALL PASS",
+      "acceptance_gate": "REQUIRED for all commits (gated in CI)"
+    },
+    {
+      "id": 6,
+      "name": "Profiling & Analysis",
+      "description": "Profiling data must be captured BEFORE any optimization claims are made. No optimization without evidence.",
+      "why_it_matters": "Optimizations are guesses without profiling data. Profiling proves where time is actually spent. Fixes based on guesses often miss the real bottleneck.",
+      "targets": {
+        "profile_data_required": {
+          "threshold": "Flamegraph + perf report for any performance claim",
+          "description": "Proof that time is spent where claimed",
+          "operations": [
+            "RDF parsing bottleneck → profile Oxigraph",
+            "SPARQL slowness → profile query execution",
+            "Slow template rendering → profile Tera",
+            "High memory → profile allocations"
+          ]
+        },
+        "flamegraph_collection": {
+          "threshold": "Generated for slow paths (>100ms)",
+          "description": "Visual representation of where time is spent",
+          "command": "cargo flamegraph --release --bin ggen -- sync",
+          "output": "target/flamegraph.svg"
+        },
+        "perf_analysis": {
+          "threshold": "perf report for CPU hotspots",
+          "description": "Statistical sampling of CPU usage across functions",
+          "command": "perf record -g --call-graph=dwarf ggen sync && perf report",
+          "output": "perf.data + text report"
+        }
+      },
+      "measurement_method": "Linux perf + flamegraph, macOS Instruments",
+      "validation_command": "cargo install flamegraph && cargo flamegraph --release --bin ggen -- sync --audit true",
+      "detailed_commands": [
+        {
+          "command": "perf record -F 99 -g ggen sync --audit true && perf report -n | head -30",
+          "captures": "Top functions by CPU time (Linux)",
+          "note": "Requires Linux with perf-tools"
+        },
+        {
+          "command": "cargo flamegraph --release --bin ggen -- sync --audit true && ls -lh target/flamegraph.svg",
+          "captures": "Flamegraph visualization (Linux)",
+          "note": "Requires flamegraph installation"
+        },
+        {
+          "command": "time ggen sync --audit true 2>&1 | tee profile_output.txt",
+          "captures": "Wall-clock timing breakdown",
+          "note": "Works on all platforms"
+        }
+      ],
+      "failure_recovery": {
+        "if_profiling_data_missing": [
+          "Install Linux tools: sudo apt-get install linux-tools-generic (Linux)",
+          "Install macOS tools: xcode-select --install (macOS)",
+          "Generate flamegraph: cargo install flamegraph && cargo flamegraph --release --bin ggen -- sync",
+          "Generate perf report: perf record -g ggen sync && perf report",
+          "Analyze hot functions: perf report | grep '^[^ \\t]' | head -20"
+        ],
+        "tools_to_use": [
+          "perf record/report (Linux CPU profiling)",
+          "flamegraph (Perl script + perf for visualization)",
+          "Instruments (macOS profiling tool)",
+          "RUST_LOG=trace (OTEL span timing)",
+          "time command (simple wall-clock timing)"
+        ],
+        "investigation_questions": [
+          "What is the top time-consuming function? (perf report --stdio)",
+          "Is time spent in library code or ggen code? (perf report with symbols)",
+          "Is there unexpected system time? (sys vs. user time in time output)",
+          "Are function calls in a hot loop? (flamegraph call tree)"
+        ]
+      },
+      "acceptable_variance": "N/A - profiling is observational, not comparative",
+      "pass_criteria": [
+        "Flamegraph generated for any performance optimization claim",
+        "perf report identifies top 3 time-consuming functions",
+        "Wall-clock timing matches profiling data",
+        "Profiling data attached to commit/PR message"
+      ],
+      "reporting_format": "[Receipt] Profiling Data:\n  Top function: FUNCTION_NAME (XX.X%)\n  Second: FUNCTION_NAME (YY.Y%)\n  Flamegraph: target/flamegraph.svg\n  Evidence: Attached to commit",
+      "acceptance_gate": "REQUIRED when claiming performance improvements (>5% faster)"
+    },
+    {
+      "id": 7,
+      "name": "Regression Detection",
+      "description": "Benchmarks are compared against baseline. Regressions (>5% slower) block merge. Baseline is updated on successful optimization.",
+      "why_it_matters": "Without regression gates, slow code sneaks into main. Regression detection catches performance regressions before they land.",
+      "targets": {
+        "regression_threshold": {
+          "threshold": ">5% slower = regression, blocks merge",
+          "description": "If a commit is >5% slower than baseline, it fails the gate",
+          "baseline": "Last successful benchmark run on main",
+          "comparison": "vs. main branch (git merge-base)"
+        },
+        "regression_detection": {
+          "threshold": "Automated CI gate",
+          "description": "CI runs benchmarks, compares against baseline, blocks merge if regressed",
+          "tools": [
+            "Criterion.rs statistical analysis",
+            "GitHub Actions CI gate",
+            "Benchmark comparison reports"
+          ]
+        },
+        "baseline_updates": {
+          "threshold": "Updated on optimization success",
+          "description": "After optimization is merged, baseline is regenerated",
+          "process": [
+            "Run benchmarks on optimization branch",
+            "Verify ≥5% improvement (or other target)",
+            "Merge to main",
+            "Regenerate baseline from main"
+          ]
+        }
+      },
+      "measurement_method": "Criterion.rs comparison mode vs. baseline",
+      "validation_command": "cargo bench -- --baseline main 2>&1 | tee regression_report.txt && grep -i 'regress\\|faster\\|slower' regression_report.txt",
+      "detailed_commands": [
+        {
+          "command": "cargo bench --bench cli_startup_performance -- --baseline main",
+          "captures": "Comparison vs. main branch baseline",
+          "expected_output": "help_command: ... is [FASTER|SLOWER] than main/baseline"
+        },
+        {
+          "command": "ls -la target/criterion/*.base && cat target/criterion/*/base/raw.json | jq '.[] | {name, mean}'",
+          "captures": "Baseline timings",
+          "expected_output": "Baseline values for all benchmarks"
+        },
+        {
+          "command": "git diff main -- crates/*/src/ | wc -l",
+          "captures": "Lines changed on branch",
+          "note": "Verify regression is from intentional change or accidental slowdown"
+        }
+      ],
+      "failure_recovery": {
+        "if_regression_detected": [
+          "View regression report: cat regression_report.txt | grep -A 5 'slower'",
+          "Check what changed: git diff main -- crates/",
+          "Run profiling on regressed function: cargo flamegraph --bin ggen --features unstable -- REGRESSED_OPERATION",
+          "Revert suspect commit: git revert COMMIT_HASH && cargo bench",
+          "Optimize regressed path: apply fix && cargo bench --baseline main"
+        ],
+        "tools_to_use": [
+          "Criterion.rs comparison mode",
+          "git diff / git blame to identify changes",
+          "flamegraph to pinpoint regression",
+          "perf record to profile regressed path",
+          "cargo bench --baseline to verify fix"
+        ],
+        "investigation_questions": [
+          "Is the regression real or statistical noise? (run 3 times)",
+          "What code changed in this commit? (git diff)",
+          "Is the regressed function in the hot path? (flamegraph)",
+          "Can we revert the regression? (git revert + bench)",
+          "Is there a simple optimization? (profile + fix)"
+        ]
+      },
+      "acceptable_variance": "±5% variance acceptable (Criterion detects true regressions)",
+      "pass_criteria": [
+        "Benchmark comparison completes without error",
+        "No regressions >5% slower than baseline",
+        "If regression exists, it is intentional and documented",
+        "Baseline is current (updated within 30 days)",
+        "All benchmarks pass SLO targets"
+      ],
+      "reporting_format": "[Receipt] Regression Detection:\n  vs. main: FASTER | SAME | SLOWER by X%\n  cli_startup: 1.2% faster ✓\n  schema_layer: 0.3% slower (within variance) ✓\n  Status: ✓ PASS (no regressions)",
+      "acceptance_gate": "REQUIRED in CI (blocks merge if >5% slower)"
+    },
+    {
+      "id": 8,
+      "name": "Resource Limits",
+      "description": "API call budgets, network timeouts, concurrent connection limits, and OS resource constraints.",
+      "why_it_matters": "Unbounded resource usage causes cascading failures. API rate limits, network timeouts, and file descriptor exhaustion are silent killers in production.",
+      "targets": {
+        "api_call_budget": {
+          "threshold": "≤100 API calls per sync run (baseline: 1k-10k triples)",
+          "description": "Track external API calls to detect runaway loops",
+          "apis": [
+            "LLM APIs (Groq, OpenAI, Anthropic)",
+            "MCP tool calls",
+            "HTTP requests (REST endpoints)",
+            "Package registry queries"
+          ],
+          "measurement": "Count from OTEL spans"
+        },
+        "network_timeouts": {
+          "threshold": "≤30s timeout for external calls",
+          "description": "Prevent infinite hangs on network failures",
+          "rules": [
+            "HTTP calls: 10s timeout + 3 retries",
+            "Package registry: 30s timeout",
+            "LLM API: 60s timeout (generation may take time)"
+          ]
+        },
+        "concurrent_connections": {
+          "threshold": "≤32 concurrent TCP connections",
+          "description": "Prevent file descriptor exhaustion",
+          "measurement": "lsof -p PID | grep TCP | wc -l"
+        },
+        "file_handles": {
+          "threshold": "≤256 open files at peak",
+          "description": "Track file descriptor usage during sync",
+          "measurement": "lsof -p PID | wc -l"
+        },
+        "memory_pressure": {
+          "threshold": "No swap usage during normal operation",
+          "description": "Prevent OOM killer from terminating process",
+          "measurement": "free -h | grep Swap"
+        }
+      },
+      "measurement_method": "OTEL span counting, lsof monitoring, system metrics",
+      "validation_command": "RUST_LOG=trace ggen sync --audit true 2>&1 | grep -E 'mcp\\.tool\\.call|http\\.|api\\.' | wc -l && lsof -p $(pgrep ggen) 2>/dev/null | wc -l",
+      "detailed_commands": [
+        {
+          "command": "RUST_LOG=trace ggen sync --audit true 2>&1 | grep 'mcp.tool.call' | wc -l",
+          "captures": "Count of MCP tool calls",
+          "threshold": "≤100 calls"
+        },
+        {
+          "command": "lsof -p $(pgrep ggen) 2>/dev/null | grep TCP | wc -l",
+          "captures": "Count of concurrent TCP connections",
+          "threshold": "≤32 connections"
+        },
+        {
+          "command": "lsof -p $(pgrep ggen) 2>/dev/null | wc -l",
+          "captures": "Total open files",
+          "threshold": "≤256 files"
+        },
+        {
+          "command": "ps aux | grep ggen | grep -v grep | awk '{print $10}' (macOS) or awk '{print $6}' (Linux)",
+          "captures": "Memory usage",
+          "threshold": "≤100MB"
+        }
+      ],
+      "failure_recovery": {
+        "if_limits_exceeded": [
+          "Count API calls: RUST_LOG=trace ggen sync 2>&1 | grep 'api\\.' | wc -l",
+          "Identify runaway API: RUST_LOG=trace ggen sync 2>&1 | grep 'api\\.' | sort | uniq -c | sort -rn",
+          "Check timeouts: RUST_LOG=trace ggen sync 2>&1 | grep -i 'timeout\\|deadline'",
+          "Monitor connections: watch -n 0.1 'lsof -p $(pgrep ggen) | grep TCP | wc -l'",
+          "Check file handles: lsof -p $(pgrep ggen) | head -50"
+        ],
+        "tools_to_use": [
+          "RUST_LOG=trace - span counting for API calls",
+          "lsof - list open files by process",
+          "watch - monitor metrics in real-time",
+          "tcpdump - network packet capture",
+          "strace - system call tracing"
+        ],
+        "investigation_questions": [
+          "Is there an API call in a loop? (grep for nested loops)",
+          "Are connections being closed? (check code for .drop() or close())",
+          "Is there a memory leak? (check for Vec/HashMap growth)",
+          "Are there dangling file handles? (check for error paths)",
+          "Is timeout configured? (check Client initialization)"
+        ]
+      },
+      "acceptable_variance": "N/A - hard limits",
+      "pass_criteria": [
+        "API calls: ≤100 per sync run",
+        "Network timeouts: ≤30s for external calls",
+        "Concurrent connections: ≤32 TCP",
+        "Open files: ≤256",
+        "No swap usage",
+        "OTEL spans track all external calls"
+      ],
+      "reporting_format": "[Receipt] Resource Limits:\n  API calls: COUNT / 100 - ✓ PASS\n  Connections: COUNT / 32 - ✓ PASS\n  File handles: COUNT / 256 - ✓ PASS\n  Memory: USAGE MB / 100 MB - ✓ PASS",
+      "acceptance_gate": "REQUIRED for features with external calls or loops"
+    }
+  ],
+  "global_constraints": {
+    "acceptable_variance_policy": "Global ±10% variance is acceptable across all dimensions unless otherwise specified. Variance is measured across 3 consecutive runs on the same machine.",
+    "first_run_penalty": "First compilation after cargo clean may exceed SLOs by ±20%. Acceptable. All subsequent runs must meet SLOs.",
+    "variance_measurement": "Run each test 3 times, take median, accept if within variance threshold",
+    "regression_definition": ">5% slower than baseline = regression. Blocks merge until justified or reverted.",
+    "measurement_consistency": "All measurements use the same hardware/OS for comparison. Cross-platform comparisons not valid.",
+    "profiling_requirement": "Any performance claim >5% improvement requires supporting profiling data (flamegraph or perf report).",
+    "otel_validation": "All external service calls (LLM, MCP, HTTP) must have OTEL spans. Missing spans = feature not working."
+  },
+  "validation_workflow": {
+    "pre_commit": [
+      "just timeout-check",
+      "just check (≤5s)",
+      "just fmt-check",
+      "just test-unit (≤10s)",
+      "no performance validation required"
+    ],
+    "pre_merge": [
+      "just check (≤5s)",
+      "just lint (≤90s)",
+      "just test (≤30s or ≤120s first compile)",
+      "just slo-check (run benchmarks, no regressions)",
+      "just test-mutation (≤300s, score ≥60%)",
+      "OTEL spans verified for external calls"
+    ],
+    "performance_optimization": [
+      "Establish baseline: just bench",
+      "Profile: cargo flamegraph --release --bin ggen -- OPERATION",
+      "Identify bottleneck: perf report or flamegraph visualization",
+      "Implement fix: optimize hot path",
+      "Verify improvement: just bench --baseline main (must show ≥5% improvement)",
+      "Attach profiling data: flamegraph.svg or perf.data to commit message"
+    ]
+  },
+  "definition_of_done_checklist": {
+    "build_performance": [
+      "[ ] First build ≤15s",
+      "[ ] Incremental build ≤2s",
+      "[ ] Check ≤5s",
+      "[ ] No variance >±10%"
+    ],
+    "test_performance": [
+      "[ ] Unit tests ≤10s",
+      "[ ] Full suite ≤30s (first compile ≤120s)",
+      "[ ] Mutation tests ≤300s with ≥60% score",
+      "[ ] All tests pass (0 failures)"
+    ],
+    "runtime_performance": [
+      "[ ] RDF processing ≤5s per 1k triples",
+      "[ ] Pipeline (μ₁-μ₅) ≤3s end-to-end",
+      "[ ] CLI init ≤3s",
+      "[ ] OTEL spans captured for all stages"
+    ],
+    "memory_performance": [
+      "[ ] Generation memory ≤100MB peak",
+      "[ ] CLI startup ≤50MB peak",
+      "[ ] No unbounded allocations",
+      "[ ] Valgrind: 0 definite leaks"
+    ],
+    "benchmarks": [
+      "[ ] ≥80% of runtime covered",
+      "[ ] All benchmarks pass SLOs",
+      "[ ] No regressions >5%",
+      "[ ] Criterion reports generated"
+    ],
+    "profiling": [
+      "[ ] Flamegraph generated (for optimization claims)",
+      "[ ] perf report identifies hotspots",
+      "[ ] Wall-clock timing matches profiling",
+      "[ ] Data attached to commit"
+    ],
+    "regression_detection": [
+      "[ ] Benchmark comparison vs. baseline complete",
+      "[ ] No regressions >5% slower",
+      "[ ] Baseline current (≤30 days old)",
+      "[ ] All SLO targets met"
+    ],
+    "resource_limits": [
+      "[ ] API calls ≤100 per sync",
+      "[ ] Network timeouts ≤30s",
+      "[ ] Concurrent connections ≤32",
+      "[ ] Open files ≤256",
+      "[ ] OTEL spans track external calls"
+    ]
+  },
+  "failure_modes": {
+    "slow_builds": {
+      "symptoms": ["First build >15s", "Incremental >2s"],
+      "root_causes": ["New heavy dependency", "Circular dependencies", "Macro expansion overhead"],
+      "recovery": ["cargo tree -d (find dupes)", "cargo clean && cargo build (cold baseline)", "Profile per-crate: cargo build -p CRATE"]
+    },
+    "slow_tests": {
+      "symptoms": ["Tests >30s", "Flaky timeouts"],
+      "root_causes": ["Mock overhead", "Real I/O without caching", "Unbounded loops"],
+      "recovery": ["grep for mockall (forbidden)", "Identify slow test: cargo test --lib -- --test-threads=1", "Profile test: time cargo test --lib TEST_NAME"]
+    },
+    "slow_runtime": {
+      "symptoms": ["ggen sync >3s", "RDF processing >5s/1k triples"],
+      "root_causes": ["Inefficient SPARQL query", "Unbounded template loops", "Missing caching"],
+      "recovery": ["RUST_LOG=trace ggen sync (find slow stage)", "cargo flamegraph --bin ggen (identify hotspot)", "SPARQL profiling (query plans)"]
+    },
+    "memory_leak": {
+      "symptoms": ["Memory >100MB", "OOM on large projects"],
+      "root_causes": ["Unbounded Vec growth", "Missing Drop impl", "Circular Rc/Arc"],
+      "recovery": ["valgrind --leak-check=full ggen sync", "Check Vec/HashMap initialization", "Review Rc/Arc usage"]
+    },
+    "regression": {
+      "symptoms": ["Benchmark >5% slower", "CI fails"],
+      "root_causes": ["Algorithm change", "New dependency", "Removed optimization"],
+      "recovery": ["git diff main (identify change)", "git revert + benchmark", "Optimize bottleneck + flamegraph proof"]
+    }
+  },
+  "commands_reference": {
+    "quick_validation": "just pre-commit (fast gate: check → lint → test-unit)",
+    "merge_validation": "just check && just lint && just test && just slo-check",
+    "full_validation": "just check && just lint && just test && just test-mutation && just slo-check",
+    "benchmark_only": "just bench",
+    "profiling": "cargo flamegraph --release --bin ggen -- sync --audit true",
+    "memory_check": "/usr/bin/time -v ggen sync --audit true 2>&1 | grep 'Maximum resident'",
+    "regression_check": "cargo bench --bench cli_startup_performance -- --baseline main"
+  },
+  "notes": {
+    "evidence_first": "All performance claims require supporting evidence: OTEL traces, profiling data, or benchmark results. No claimed improvements without proof.",
+    "no_fabrication": "Do NOT fabricate benchmark results, OTEL spans, or memory measurements. Always run real tools and capture real output.",
+    "otel_spans_are_proof": "OTEL spans prove external calls were made. Missing spans = feature not working. No exceptions.",
+    "chicago_tdd": "Tests use real collaborators (no mocks). Real I/O validates actual system behavior. Tests that can pass with mocks are fraudulent.",
+    "determinism": "ggen builds must be deterministic. Same inputs = same outputs, always. Hash verification is the proof.",
+    "andon_protocol": "Compiler errors or test failures = STOP THE LINE. Do not proceed until all gates pass green."
+  }
+}

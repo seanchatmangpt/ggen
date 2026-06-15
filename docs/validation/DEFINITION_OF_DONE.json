@@ -1,0 +1,819 @@
+{
+  "version": "v26.5.28",
+  "title": "ggen Validation Gates — Definition of Done",
+  "updated": "2026-06-14",
+  "description": "Seven validation gates that must pass before artifacts are emitted. These gates enforce the five-stage pipeline (μ₁–μ₅) constraints and prevent defective code generation.",
+
+  "gates": [
+    {
+      "id": "gate-1-shacl-validation",
+      "name": "SHACL Validation",
+      "ordinal": 1,
+      "description": "RDF ontology shapes validation using SHACL constraints. Validates that input TTL ontologies conform to declared shapes before entering the pipeline.",
+      "law_surface": "RDF Ontology → SHACL Shape Contract",
+      "activation_trigger": "ggen sync (μ₁ load stage)",
+      "command": "ggen validate <path-to-ttl>",
+      "tool": "ggen-core::validation::SparqlValidator",
+      "timeout_ms": 30000,
+
+      "severity": "ERROR",
+      "fail_mode": "fail-closed",
+      "recovery": "Fix TTL ontology to conform to shapes; re-run validation",
+
+      "diagnostic_codes": [
+        {
+          "code": "SHACL-SHAPE-VIOLATION",
+          "meaning": "RDF triple violates a sh:NodeShape constraint",
+          "example": "Subject lacks required sh:minCount property",
+          "recovery": "Add missing required properties to RDF triples"
+        },
+        {
+          "code": "SHACL-DATATYPE-MISMATCH",
+          "meaning": "Property value has wrong datatype (sh:datatype)",
+          "example": "sh:maxLength constraint violated on xsd:string",
+          "recovery": "Cast value to correct datatype or adjust shape constraint"
+        },
+        {
+          "code": "SHACL-PATTERN-MISMATCH",
+          "meaning": "String value does not match sh:pattern regex",
+          "example": "IRI does not match expected namespace pattern",
+          "recovery": "Correct the value or update the pattern constraint"
+        },
+        {
+          "code": "SHACL-CARDINALITY-VIOLATION",
+          "meaning": "Property count violates sh:minCount or sh:maxCount",
+          "example": "Required property appears 0 times (sh:minCount=1)",
+          "recovery": "Add or remove instances to match cardinality constraint"
+        }
+      ],
+
+      "strictness_levels": {
+        "basic": {
+          "enabled": true,
+          "description": "SHACL shapes on core ontology triples only",
+          "passes_required": true,
+          "action_on_fail": "halt"
+        },
+        "strict": {
+          "enabled_by": "[validation] strict_mode = true in ggen.toml",
+          "description": "SHACL shapes on all RDF including imports and inferences",
+          "passes_required": true,
+          "action_on_fail": "halt"
+        }
+      },
+
+      "automation": {
+        "pre_commit": false,
+        "sync_entry": "yes (μ₁ load stage)",
+        "ci": "yes",
+        "receipt_recorded": true,
+        "otel_span": "pipeline.validate_shacl"
+      },
+
+      "invariants": [
+        "All SHACL shapes must load without parse error",
+        "Input TTL must parse as valid Turtle syntax",
+        "Shape focus nodes must exist in RDF graph",
+        "Constraint violations must enumerate affected subjects and violations"
+      ],
+
+      "examples": {
+        "pass": {
+          "ttl": "ex:MyClass rdf:type rdfs:Class .\nex:MyClass rdfs:label \"My Class\" .",
+          "shape": ":ClassShape a sh:NodeShape ; sh:targetClass rdfs:Class ; sh:property [ sh:path rdfs:label ; sh:minCount 1 ] .",
+          "result": "✓ SHACL validation passed; TTL conforms to shape"
+        },
+        "fail_missing_property": {
+          "ttl": "ex:MyClass rdf:type rdfs:Class .",
+          "shape": ":ClassShape a sh:NodeShape ; sh:targetClass rdfs:Class ; sh:property [ sh:path rdfs:label ; sh:minCount 1 ] .",
+          "result": "✗ SHACL-CARDINALITY-VIOLATION: ex:MyClass lacks required rdfs:label (sh:minCount=1)"
+        }
+      }
+    },
+
+    {
+      "id": "gate-2-profile-enforcement",
+      "name": "Profile Enforcement (Strict Mode)",
+      "ordinal": 2,
+      "description": "Validates that generated artifacts and manifest conform to declared marketplace profile constraints. Enforces immutability and consistency rules for pack configuration.",
+      "law_surface": "ggen.toml Profile ↔ Artifact Manifest",
+      "activation_trigger": "ggen sync (post-render, pre-emit)",
+      "command": "just test -- profile_enforcement_test",
+      "tool": "ggen-marketplace::ProfileEnforcer",
+      "timeout_ms": 5000,
+
+      "severity": "ERROR",
+      "fail_mode": "fail-open-with-warning-in-basic-mode",
+      "recovery": "Update ggen.toml profile constraints or suppress via config",
+
+      "diagnostic_codes": [
+        {
+          "code": "GGEN-PROFILE-001",
+          "meaning": "Output artifacts violate declared profile constraints",
+          "example": "Published profile forbids any write access to generated files",
+          "recovery": "Change profile to Draft or remove read-only constraint"
+        },
+        {
+          "code": "GGEN-PROFILE-002",
+          "meaning": "Pack immutability constraint violated (published pack modified)",
+          "example": "Version unchanged but content hash changed",
+          "recovery": "Bump semantic version or revert changes"
+        },
+        {
+          "code": "GGEN-PROFILE-003",
+          "meaning": "Manifest schema version mismatch (declared vs actual)",
+          "example": "ggen.toml declares manifest_version=v2 but emits v1",
+          "recovery": "Regenerate manifest or update ggen.toml version declaration"
+        }
+      ],
+
+      "strictness_levels": {
+        "basic": {
+          "enabled": true,
+          "description": "Profile checks disabled; violations emit warnings only",
+          "passes_required": false,
+          "action_on_fail": "continue_with_warning"
+        },
+        "strict": {
+          "enabled_by": "[validation] strict_mode = true in ggen.toml",
+          "description": "All profile constraints enforced; violations halt emission",
+          "passes_required": true,
+          "action_on_fail": "halt"
+        }
+      },
+
+      "automation": {
+        "pre_commit": false,
+        "sync_entry": "yes (post-render stage)",
+        "ci": "yes (strict mode)",
+        "receipt_recorded": true,
+        "otel_span": "pipeline.profile_check"
+      },
+
+      "invariants": [
+        "Published packs are immutable (version + content hash combination is unique)",
+        "Profile constraints must be declared in [validation] section of ggen.toml",
+        "Manifest version in ggen.toml must match actual emitted manifest",
+        "Profile state transitions must follow typestate rules (Draft → Published is one-way)"
+      ],
+
+      "examples": {
+        "pass_draft": {
+          "ggen_toml": "[validation]\nprofile = \"Draft\"\nstrict_mode = false",
+          "result": "✓ Profile enforcement passed; Draft profile allows modifications"
+        },
+        "pass_published_unchanged": {
+          "ggen_toml": "[validation]\nprofile = \"Published\"\nstrict_mode = true",
+          "manifest": "{ version: \"1.0.0\", content_hash: \"abc123\", profile: \"Published\" }",
+          "result": "✓ Published pack unchanged; content_hash matches previous run"
+        },
+        "fail_strict_violation": {
+          "ggen_toml": "[validation]\nprofile = \"Published\"\nstrict_mode = true",
+          "manifest": "{ version: \"1.0.0\", content_hash: \"def456\", profile: \"Published\" }",
+          "prev_hash": "abc123",
+          "result": "✗ GGEN-PROFILE-002: Published pack version unchanged but content_hash changed (def456 ≠ abc123)"
+        }
+      }
+    },
+
+    {
+      "id": "gate-3-sparql-conformance",
+      "name": "SPARQL Conformance Checks",
+      "ordinal": 3,
+      "description": "Validates SPARQL queries (SELECT, CONSTRUCT) against provision rules and template binding contracts. Ensures all variables consumed by templates are produced by queries.",
+      "law_surface": "SPARQL Query ↔ Tera Template ↔ ggen.toml Output Pattern",
+      "activation_trigger": "ggen sync (μ₂–μ₃ extract/generate stages)",
+      "command": "ggen lsp check <file.rq>",
+      "tool": "ggen-lsp::analyzer",
+      "timeout_ms": 10000,
+
+      "severity": "ERROR",
+      "fail_mode": "fail-closed",
+      "recovery": "Fix SPARQL query, Tera template, or ggen.toml pattern to resolve unbound variables",
+
+      "diagnostic_codes": [
+        {
+          "code": "GGEN-TPL-001",
+          "law_surface": "SPARQL SELECT ↔ Tera Template",
+          "meaning": "Template consumes {{ var }} that SELECT does not project",
+          "example": "Template: {{ person_name }}, but SELECT only projects ?personId",
+          "recovery": "Add ?person_name to SPARQL SELECT, or remove {{ person_name }} from template"
+        },
+        {
+          "code": "GGEN-OUT-001",
+          "law_surface": "SPARQL SELECT ↔ ggen.toml Output Pattern",
+          "meaning": "output_file pattern consumes unbound variable",
+          "example": "output_file = \"src/{{module}}/mod.rs\", but SELECT never binds ?module",
+          "recovery": "Add ?module binding to SPARQL, or replace {{ module }} with constant in ggen.toml"
+        },
+        {
+          "code": "E0011",
+          "law_surface": "SPARQL CONSTRUCT Syntax",
+          "meaning": "CONSTRUCT without ORDER BY (non-deterministic iteration)",
+          "example": "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o } (no ORDER BY clause)",
+          "recovery": "Add ORDER BY to CONSTRUCT to ensure deterministic ordering; in Strict Mode this is ERROR"
+        },
+        {
+          "code": "E0013",
+          "law_surface": "SPARQL SELECT Syntax",
+          "meaning": "SELECT without ORDER BY (non-deterministic result order)",
+          "example": "SELECT ?x ?y WHERE { ?x rdf:type ?y } (no ORDER BY)",
+          "recovery": "Add ORDER BY to SELECT; in Strict Mode this is ERROR"
+        },
+        {
+          "code": "E0015",
+          "law_surface": "SPARQL CONSTRUCT Logic",
+          "meaning": "Identity CONSTRUCT detected (template ≡ pattern, no-op mapping)",
+          "example": "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o } (no transformation)",
+          "recovery": "Modify CONSTRUCT template to perform meaningful transformation, or use COPY instead"
+        },
+        {
+          "code": "GGEN-QUERY-002",
+          "law_surface": "SPARQL SELECT Provision",
+          "meaning": "SELECT * used (disables provision checks for individual variables)",
+          "example": "SELECT * WHERE { ?s ?p ?o } (cannot verify which vars are bound)",
+          "recovery": "Replace SELECT * with explicit SELECT ?s ?p ?o"
+        }
+      ],
+
+      "strictness_levels": {
+        "basic": {
+          "enabled": true,
+          "description": "E0011/E0013 are warnings; GGEN-* codes halt",
+          "passes_required": true,
+          "action_on_fail": "halt for GGEN-*, warn for E-codes"
+        },
+        "strict": {
+          "enabled_by": "[validation] strict_mode = true in ggen.toml",
+          "description": "E0011/E0013 promoted to errors; all codes halt",
+          "passes_required": true,
+          "action_on_fail": "halt"
+        }
+      },
+
+      "automation": {
+        "pre_commit": true,
+        "sync_entry": "yes (μ₂ extract, μ₃ generate stages)",
+        "ci": "yes",
+        "receipt_recorded": true,
+        "otel_span": "pipeline.sparql_conformance_check"
+      },
+
+      "invariants": [
+        "All {{ var }} in templates must exist as ?var in SPARQL SELECT",
+        "All {{var}} in output_file patterns must exist as ?var in SPARQL SELECT",
+        "CONSTRUCT and SELECT must have ORDER BY (determinism)",
+        "CONSTRUCT template must not be identical to WHERE clause (no-op detection)",
+        "SELECT * forbidden; must use explicit variable list"
+      ],
+
+      "examples": {
+        "pass_bound_variables": {
+          "sparql": "SELECT ?person_name ?person_id WHERE { ?p rdf:label ?person_name ; rdfs:id ?person_id }",
+          "template": "Person: {{ person_name }} (ID: {{ person_id }})",
+          "result": "✓ GGEN-TPL-001 check passed; all template vars are in SELECT projection"
+        },
+        "fail_unbound_template_var": {
+          "sparql": "SELECT ?person_id WHERE { ?p rdfs:id ?person_id }",
+          "template": "Person: {{ person_name }} (ID: {{ person_id }})",
+          "result": "✗ GGEN-TPL-001: Template consumes {{ person_name }} not in SELECT projection"
+        },
+        "fail_unbound_output_var": {
+          "sparql": "SELECT ?filename WHERE { ?doc dc:filename ?filename }",
+          "ggen_toml": "output_file = \"out/{{module}}/{{ filename }}\"",
+          "result": "✗ GGEN-OUT-001: output_file pattern consumes {{module}} not in SELECT projection"
+        },
+        "pass_construct_with_order": {
+          "sparql": "CONSTRUCT { ?s rdf:type ?type } WHERE { ?s rdf:type ?type } ORDER BY ?s",
+          "result": "✓ E0011 check passed; CONSTRUCT has ORDER BY"
+        },
+        "warn_construct_no_order": {
+          "sparql": "CONSTRUCT { ?s rdf:type ?type } WHERE { ?s rdf:type ?type }",
+          "result": "⚠ E0011: CONSTRUCT lacks ORDER BY (determinism); in Strict Mode: ERROR"
+        }
+      }
+    },
+
+    {
+      "id": "gate-4-type-level-validation",
+      "name": "Type-Level Validation (Rust Compiler)",
+      "ordinal": 4,
+      "description": "Enforces Rust type safety and lifetime constraints. Prevents unsafe code, unwrap/panic in production, and enforces Result<T,E> error handling everywhere.",
+      "law_surface": "Rust Type System ↔ Compile-Time Safety",
+      "activation_trigger": "cargo build (compile stage)",
+      "command": "just check",
+      "tool": "rustc + clippy",
+      "timeout_ms": 5000,
+
+      "severity": "ERROR",
+      "fail_mode": "fail-closed",
+      "recovery": "Fix type errors, remove unsafe blocks, replace unwrap/expect with Result handling",
+
+      "diagnostic_codes": [
+        {
+          "code": "E0425",
+          "meaning": "Cannot find value in scope (undefined variable/function)",
+          "example": "use of undeclared variable `result`",
+          "recovery": "Define the variable or import the function"
+        },
+        {
+          "code": "E0599",
+          "meaning": "No method with that name (type mismatch or missing trait)",
+          "example": "&String does not have method `chars()` when String is expected",
+          "recovery": "Dereference the value or implement the required trait"
+        },
+        {
+          "code": "E0382",
+          "meaning": "Value used after move (ownership violation)",
+          "example": "use of moved value `data` after calling `consume(data)`",
+          "recovery": "Clone the value before passing, or use reference instead of move"
+        },
+        {
+          "code": "unsafe_code",
+          "meaning": "Production code contains unsafe blocks outside of audit boundary",
+          "example": "unsafe { ... } in crates/ggen-core/src/ (non-audit)",
+          "recovery": "Remove unsafe block or move to dedicated unsafe_audit module with // SAFETY docs"
+        },
+        {
+          "code": "unwrap_expect_panic",
+          "meaning": "unwrap()/expect()/panic!() in production code",
+          "example": "let x = option.unwrap();",
+          "recovery": "Replace with ? operator, match, or if let"
+        },
+        {
+          "code": "missing_error_handling",
+          "meaning": "Fallible operation not wrapped in Result<T,E>",
+          "example": "fn load_file() -> String { std::fs::read_to_string(path) }",
+          "recovery": "Return Result: fn load_file() -> Result<String>"
+        },
+        {
+          "code": "clippy::todo",
+          "meaning": "todo!() left in production code",
+          "example": "fn process() { todo!(\"implement later\") }",
+          "recovery": "Remove todo!() or replace with actual implementation"
+        }
+      ],
+
+      "strictness_levels": {
+        "basic": {
+          "enabled": true,
+          "description": "Compiler errors halt; clippy warnings allowed in dev",
+          "passes_required": true,
+          "action_on_fail": "halt on error, warn on clippy"
+        },
+        "strict": {
+          "enabled_by": "CI pipeline (release builds)",
+          "description": "All clippy warnings treated as errors; no unsafe allowed",
+          "passes_required": true,
+          "action_on_fail": "halt"
+        }
+      },
+
+      "automation": {
+        "pre_commit": true,
+        "sync_entry": "no (cargo build happens before sync)",
+        "ci": "yes",
+        "receipt_recorded": false,
+        "otel_span": "N/A (compile-time only)"
+      },
+
+      "invariants": [
+        "Zero compiler errors (E0xxx codes)",
+        "Zero unwrap/expect in production code (crates/*/src/)",
+        "Zero unsafe blocks outside audit boundaries",
+        "All fallible operations return Result<T, CrateError>",
+        "No todo!() in committed code",
+        "Clippy warnings must be addressed (no #[allow(...)] suppression without justification)"
+      ],
+
+      "examples": {
+        "pass_error_handling": {
+          "code": "fn load() -> Result<String> { std::fs::read_to_string(path).map_err(Error::Io) }",
+          "result": "✓ Type-level validation passed; error is Result"
+        },
+        "fail_unwrap": {
+          "code": "fn process() { let data = Some(42).unwrap(); }",
+          "result": "✗ Production unwrap() detected; replace with ? or match"
+        },
+        "fail_missing_result": {
+          "code": "fn load() -> String { std::fs::read_to_string(path) }",
+          "result": "✗ Fallible operation not wrapped in Result<T,E>"
+        }
+      }
+    },
+
+    {
+      "id": "gate-5-diagnostic-codes-resolved",
+      "name": "Diagnostic Codes Resolution",
+      "ordinal": 5,
+      "description": "Verifies that all GGEN-* diagnostic codes raised by ggen-lsp have been resolved before artifact emission. Prevents diagnostic drift and ensures LSP analysis completeness.",
+      "law_surface": "ggen-lsp Diagnostics ↔ Artifact Readiness",
+      "activation_trigger": "ggen sync pre-emission check",
+      "command": "ggen lsp check --all",
+      "tool": "ggen-lsp::diagnostic_collector",
+      "timeout_ms": 5000,
+
+      "severity": "ERROR",
+      "fail_mode": "fail-closed",
+      "recovery": "Fix all reported diagnostics; re-run ggen lsp check to verify clear",
+
+      "diagnostic_codes": [
+        {
+          "code": "GGEN-*",
+          "meaning": "Any GGEN-prefixed diagnostic code (GGEN-TPL-001, GGEN-OUT-001, etc.)",
+          "note": "See gates 1-3 for specific GGEN diagnostic codes",
+          "recovery": "Address the specific GGEN-* code according to its recovery procedure"
+        }
+      ],
+
+      "strictness_levels": {
+        "basic": {
+          "enabled": true,
+          "description": "Active GGEN-* diagnostics collected but do not block sync",
+          "passes_required": false,
+          "action_on_fail": "warn"
+        },
+        "strict": {
+          "enabled_by": "[validation] strict_mode = true in ggen.toml",
+          "description": "Any active GGEN-* diagnostic blocks artifact emission",
+          "passes_required": true,
+          "action_on_fail": "halt"
+        }
+      },
+
+      "automation": {
+        "pre_commit": false,
+        "sync_entry": "yes (pre-emission check, μ₄–μ₅)",
+        "ci": "yes (strict mode)",
+        "receipt_recorded": true,
+        "otel_span": "pipeline.diagnostic_resolution_check"
+      },
+
+      "invariants": [
+        "ggen-lsp analysis must complete without crashing or timeout",
+        "All GGEN-* codes must map to specific law surfaces (see gate-3 table)",
+        "Diagnostics must be path-addressable (file + line + column)",
+        "Diagnostic severity (ERROR/WARNING) must match declared severity in gate definitions",
+        "No GGEN-* diagnostic can be suppressed with #[allow(...)] (must be fixed)"
+      ],
+
+      "examples": {
+        "pass_no_diagnostics": {
+          "lsp_output": "{ diagnostics: [] }",
+          "result": "✓ Diagnostic resolution passed; no GGEN-* codes active"
+        },
+        "pass_warnings_strict_off": {
+          "strict_mode": false,
+          "lsp_output": "{ diagnostics: [{ code: 'E0011', severity: 'WARN' }] }",
+          "result": "✓ Non-strict mode; E0011 warning does not block emission"
+        },
+        "fail_strict_mode_active": {
+          "strict_mode": true,
+          "lsp_output": "{ diagnostics: [{ code: 'GGEN-TPL-001', file: 'spec.rq', line: 5 }] }",
+          "result": "✗ Strict mode active; GGEN-TPL-001 diagnostic blocks emission"
+        }
+      }
+    },
+
+    {
+      "id": "gate-6-output-layer-validation",
+      "name": "Output Layer Validation (Layer Violation Prevention)",
+      "ordinal": 6,
+      "description": "Validates that generated artifacts do not escape project boundaries. Prevents directory traversal attacks and enforces output file constraints.",
+      "law_surface": "ggen.toml Output Pattern ↔ Filesystem Boundary",
+      "activation_trigger": "ggen sync pre-emit stage (μ₅)",
+      "command": "ggen sync --validate-only",
+      "tool": "ggen-core::validation::YieldGate",
+      "timeout_ms": 1000,
+
+      "severity": "ERROR",
+      "fail_mode": "fail-closed",
+      "recovery": "Remove or fix output_file patterns to stay within project root",
+
+      "diagnostic_codes": [
+        {
+          "code": "GGEN-YIELD-001",
+          "meaning": "output_file pattern would produce path outside project root",
+          "example": "output_file = \"../../etc/passwd\" or output_file = \"/etc/shadow\"",
+          "recovery": "Use relative paths that remain within project root; remove ../ sequences"
+        },
+        {
+          "code": "GGEN-YIELD-002",
+          "meaning": "output_file pattern attempts to overwrite protected system directory",
+          "example": "output_file = \"/usr/bin/malware\"",
+          "recovery": "Restrict output to paths under project root"
+        },
+        {
+          "code": "GGEN-YIELD-003",
+          "meaning": "output_file variable substitution produces unsafe path",
+          "example": "output_file = \"out/{{user_input}}/mod.rs\" where user_input = \"../../etc\"",
+          "recovery": "Sanitize variable values or restrict pattern to safe directories"
+        }
+      ],
+
+      "strictness_levels": {
+        "basic": {
+          "enabled": true,
+          "description": "Paths must remain within project root; absolute paths forbidden",
+          "passes_required": true,
+          "action_on_fail": "halt"
+        },
+        "strict": {
+          "enabled_by": "[validation] strict_mode = true in ggen.toml",
+          "description": "Same as basic (no relaxation in strict mode)",
+          "passes_required": true,
+          "action_on_fail": "halt"
+        }
+      },
+
+      "automation": {
+        "pre_commit": false,
+        "sync_entry": "yes (μ₅ emit stage, before any file write)",
+        "ci": "yes",
+        "receipt_recorded": true,
+        "otel_span": "pipeline.yield_gate_check"
+      },
+
+      "invariants": [
+        "output_file patterns must use only relative paths (no leading /)",
+        "output_file must resolve to a canonical path within project root",
+        "No ../ path traversal sequences allowed (symlink traversal blocked)",
+        "Project root must be determined from ggen.toml location or CLI flag",
+        "All variable substitutions must be validated against allowed character sets (no shell metacharacters)"
+      ],
+
+      "examples": {
+        "pass_relative_path": {
+          "output_file": "src/generated/{{ module }}.rs",
+          "project_root": "/home/user/project",
+          "resolved": "/home/user/project/src/generated/mymodule.rs",
+          "result": "✓ GGEN-YIELD-001 passed; path within project root"
+        },
+        "fail_absolute_path": {
+          "output_file": "/etc/passwd",
+          "project_root": "/home/user/project",
+          "result": "✗ GGEN-YIELD-001: Absolute path /etc/passwd escapes project root"
+        },
+        "fail_traversal": {
+          "output_file": "../../etc/shadow",
+          "project_root": "/home/user/project",
+          "resolved": "/home/etc/shadow",
+          "result": "✗ GGEN-YIELD-001: Path traversal (../../) escapes project root"
+        },
+        "fail_unsafe_substitution": {
+          "output_file": "src/{{ untrusted_var }}.rs",
+          "untrusted_var": "../../../../etc/passwd",
+          "result": "✗ GGEN-YIELD-003: Variable substitution produces unsafe path"
+        }
+      }
+    },
+
+    {
+      "id": "gate-7-determinism-validation",
+      "name": "Determinism Validation (Reproducible Builds)",
+      "ordinal": 7,
+      "description": "Validates that ggen sync is deterministic: same inputs produce identical artifact hashes across runs. Enforces hash verification of input TTL, queries, and templates.",
+      "law_surface": "Input Hashes ↔ Output Hashes (Cryptographic Chain)",
+      "activation_trigger": "ggen sync post-emit stage (μ₅ completion)",
+      "command": "ggen sync --audit true",
+      "tool": "ggen-core::validation::DeterminismGate",
+      "timeout_ms": 5000,
+
+      "severity": "ERROR",
+      "fail_mode": "fail-closed",
+      "recovery": "Investigate non-deterministic sources (timestamps, UUIDs, random number generators, file system order)",
+
+      "diagnostic_codes": [
+        {
+          "code": "GGEN-DETERM-001",
+          "meaning": "Output artifact hash changed despite identical input hashes",
+          "example": "input_hash(spec.ttl) = abc123, but output file hash changed from def456 to ghi789",
+          "recovery": "Audit code for non-deterministic behavior (uuid::Uuid::new_v4(), SystemTime::now(), random(), unordered sets)"
+        },
+        {
+          "code": "GGEN-DETERM-002",
+          "meaning": "Input hash missing or empty (not computed at pack install time)",
+          "example": ".ggen/packs.lock entry has digest=\"\"",
+          "recovery": "Re-run pack install to compute pack TOML digest; use --locked mode"
+        },
+        {
+          "code": "GGEN-DETERM-003",
+          "meaning": "Receipt signature empty (not signed with Ed25519 key)",
+          "example": ".ggen/receipts/latest.json has signature=\"\"",
+          "recovery": "Verify signing key exists and is valid; re-run ggen sync"
+        },
+        {
+          "code": "GGEN-DETERM-004",
+          "meaning": "Output file ordering non-deterministic (CONSTRUCT/SELECT lacks ORDER BY)",
+          "example": "Iteration order of SPARQL results varies across runs",
+          "recovery": "Add ORDER BY to SPARQL query to enforce deterministic result ordering"
+        }
+      ],
+
+      "strictness_levels": {
+        "basic": {
+          "enabled": true,
+          "description": "Determinism audit runs; violations logged but do not block emission",
+          "passes_required": false,
+          "action_on_fail": "warn"
+        },
+        "strict": {
+          "enabled_by": "[validation] strict_mode = true in ggen.toml",
+          "description": "Non-deterministic outputs halt emission; must have identical hash",
+          "passes_required": true,
+          "action_on_fail": "halt"
+        }
+      },
+
+      "automation": {
+        "pre_commit": false,
+        "sync_entry": "yes (μ₅ post-emit, via --audit true)",
+        "ci": "yes (strict mode)",
+        "receipt_recorded": true,
+        "otel_span": "pipeline.determinism_audit"
+      },
+
+      "invariants": [
+        "Same input_hashes must produce identical output_hashes",
+        "BLAKE3 / SHA-256 hashes must be computed at file write time",
+        "Cryptographic receipt must bind input→output hash chain",
+        "No UUID, timestamp, or RNG calls in code generation logic",
+        "All SPARQL results must be ordered (ORDER BY mandatory for determinism)",
+        "File iteration (walk directory tree) must be sorted"
+      ],
+
+      "examples": {
+        "pass_deterministic": {
+          "run_1": {
+            "inputs": "{ spec_ttl: \"abc123\", query_rq: \"def456\", template_tera: \"ghi789\" }",
+            "outputs": "{ generated_rs: \"jkl012\", generated_toml: \"mno345\" }"
+          },
+          "run_2": {
+            "inputs": "{ spec_ttl: \"abc123\", query_rq: \"def456\", template_tera: \"ghi789\" }",
+            "outputs": "{ generated_rs: \"jkl012\", generated_toml: \"mno345\" }"
+          },
+          "result": "✓ GGEN-DETERM-001 passed; identical inputs → identical outputs"
+        },
+        "fail_non_deterministic": {
+          "run_1": {
+            "inputs": "{ spec_ttl: \"abc123\", query_rq: \"def456\", template_tera: \"ghi789\" }",
+            "outputs": "{ generated_rs: \"jkl012\" }"
+          },
+          "run_2": {
+            "inputs": "{ spec_ttl: \"abc123\", query_rq: \"def456\", template_tera: \"ghi789\" }",
+            "outputs": "{ generated_rs: \"pqr678\" }"
+          },
+          "result": "✗ GGEN-DETERM-001: Same inputs but output hash changed (jkl012 → pqr678)"
+        },
+        "fail_missing_digest": {
+          "packs_lock": "{ packages: [{ id: \"acme/base\", digest: \"\" }] }",
+          "result": "✗ GGEN-DETERM-002: Pack digest empty; lockfile invalid"
+        },
+        "fail_empty_signature": {
+          "receipt": "{ input_hashes: {...}, output_hashes: {...}, signature: \"\" }",
+          "result": "✗ GGEN-DETERM-003: Receipt signature empty; cryptographic chain broken"
+        }
+      }
+    }
+  ],
+
+  "definition_of_done": {
+    "all_gates_required": true,
+    "gating_order": [
+      "gate-1-shacl-validation",
+      "gate-2-profile-enforcement",
+      "gate-3-sparql-conformance",
+      "gate-4-type-level-validation",
+      "gate-5-diagnostic-codes-resolved",
+      "gate-6-output-layer-validation",
+      "gate-7-determinism-validation"
+    ],
+    "required_status": "ALL GATES GREEN",
+    "halt_on_first_failure": true,
+
+    "command_sequence": [
+      "just check                         # Gate 4: Type-level validation",
+      "ggen validate spec.ttl             # Gate 1: SHACL validation",
+      "ggen lsp check --all               # Gate 3, 5: SPARQL conformance + diagnostics",
+      "ggen sync --validate-only          # Gate 2, 6, 7: Profile, yield, determinism pre-check",
+      "ggen sync --audit true             # Gate 2, 6, 7: Full validation + receipt generation"
+    ],
+
+    "receipt_proof": {
+      "location": ".ggen/receipts/latest.json",
+      "required_fields": [
+        "operation_id (UUID v4, non-zero)",
+        "timestamp (RFC-3339)",
+        "input_hashes (all consumed files)",
+        "output_hashes (all emitted files)",
+        "signature (Ed25519, non-empty)",
+        "diagnostics_snapshot (GGEN-* codes if any)"
+      ],
+      "verification": "ggen receipt verify .ggen/receipts/latest.json"
+    },
+
+    "otel_traces_required": {
+      "enabled_by": "RUST_LOG=trace,ggen_core=trace",
+      "required_spans": [
+        "pipeline.load",
+        "pipeline.validate_shacl",
+        "pipeline.sparql_conformance_check",
+        "pipeline.profile_check",
+        "pipeline.diagnostic_resolution_check",
+        "pipeline.yield_gate_check",
+        "pipeline.determinism_audit",
+        "pipeline.generate",
+        "pipeline.emit"
+      ],
+      "command": "RUST_LOG=trace,ggen_core=trace ggen sync --audit true 2>&1 | grep -E '(pipeline\\.|gate|validation)'"
+    }
+  },
+
+  "strictness_matrix": {
+    "basic_mode": {
+      "[validation] strict_mode = false": {
+        "gate_1_shacl": "ERROR (always halt)",
+        "gate_2_profile": "WARN (continue)",
+        "gate_3_sparql": "ERROR (GGEN-*), WARN (E-codes)",
+        "gate_4_type": "ERROR (always halt)",
+        "gate_5_diagnostic": "WARN (continue)",
+        "gate_6_yield": "ERROR (always halt)",
+        "gate_7_determinism": "WARN (continue)"
+      }
+    },
+    "strict_mode": {
+      "[validation] strict_mode = true": {
+        "gate_1_shacl": "ERROR (always halt)",
+        "gate_2_profile": "ERROR (halt)",
+        "gate_3_sparql": "ERROR (all codes halt)",
+        "gate_4_type": "ERROR (always halt)",
+        "gate_5_diagnostic": "ERROR (halt)",
+        "gate_6_yield": "ERROR (always halt)",
+        "gate_7_determinism": "ERROR (halt)"
+      }
+    }
+  },
+
+  "troubleshooting": {
+    "gate_1_fails": [
+      "1. Check TTL syntax: ggen validate spec.ttl (shows parse errors)",
+      "2. Check SHACL shapes: ensure shapes.ttl exists and loads",
+      "3. Verify shape constraints match data: read violation messages carefully",
+      "4. Add required properties to RDF triples or adjust constraints"
+    ],
+    "gate_2_fails": [
+      "1. Check profile in ggen.toml: [validation] profile = ...",
+      "2. If Published: verify version and content_hash match previous release",
+      "3. Bump version if content changed: [package] version = \"1.0.1\"",
+      "4. Regenerate manifest: rm -rf .ggen/receipts/ && ggen sync"
+    ],
+    "gate_3_fails": [
+      "1. Run: ggen lsp check --all (lists all SPARQL/template violations)",
+      "2. For GGEN-TPL-001: ensure all {{ vars }} are in SELECT projection",
+      "3. For GGEN-OUT-001: ensure all {{vars}} in output_file are in SELECT",
+      "4. For E0011/E0013: add ORDER BY to CONSTRUCT/SELECT queries"
+    ],
+    "gate_4_fails": [
+      "1. Run: just check (shows all compiler errors)",
+      "2. Fix type errors (E04xx codes) first",
+      "3. Remove unwrap/expect: use ? operator or match",
+      "4. Ensure all functions return Result<T,E>"
+    ],
+    "gate_5_fails": [
+      "1. Run: ggen lsp check --all (collects all active diagnostics)",
+      "2. For each GGEN-* code: follow recovery procedure in gate-3 table",
+      "3. Disable strict_mode to allow non-strict diagnostics through: strict_mode = false",
+      "4. Re-run: ggen lsp check --all to verify clear"
+    ],
+    "gate_6_fails": [
+      "1. Check output_file patterns: ensure no leading / (absolute paths)",
+      "2. Remove ../ sequences (no path traversal allowed)",
+      "3. Verify all {{vars}} in output_file resolve to safe values",
+      "4. Run: ggen sync --validate-only (shows yield gate violations)"
+    ],
+    "gate_7_fails": [
+      "1. Run ggen sync twice with identical inputs: compare output hashes",
+      "2. If hashes differ: search code for non-deterministic sources",
+      "3. Remove: Uuid::new_v4(), SystemTime::now(), random(), unordered collections",
+      "4. Add ORDER BY to all SPARQL queries",
+      "5. Verify lockfile digest populated: .ggen/packs.lock has non-empty digest fields"
+    ]
+  },
+
+  "compliance_checklist": {
+    "before_sync": [
+      "[ ] ggen validate spec.ttl (Gate 1)",
+      "[ ] ggen lsp check --all (Gates 3, 5)",
+      "[ ] just check (Gate 4)",
+      "[ ] Verify ggen.toml [validation] section configured",
+      "[ ] Check .ggen/packs.lock exists and has non-empty digests"
+    ],
+    "after_sync": [
+      "[ ] ggen receipt verify .ggen/receipts/latest.json",
+      "[ ] Inspect .ggen/receipts/latest.json for non-empty signature",
+      "[ ] Check input_hashes and output_hashes in receipt",
+      "[ ] Run ggen sync again: verify identical output hashes (determinism)",
+      "[ ] Review OTEL traces: pipeline.* spans present"
+    ]
+  }
+}

@@ -1,0 +1,597 @@
+{
+  "version": "26.5.29",
+  "title": "ggen Testing Definition of Done",
+  "subtitle": "Comprehensive testing specification combining Chicago TDD, 80%+ coverage, mutation testing, and process mining validation",
+  "effective_date": "2026-06-14",
+  "testing_mandate": "Chicago TDD ONLY (zero mocks, real collaborators) with multi-surface corroboration (execution + observability + state + process + causality)",
+  "dimensions": [
+    {
+      "id": 1,
+      "name": "Coverage Gates",
+      "priority": "CRITICAL",
+      "description": "Minimum coverage thresholds for line coverage and mutation testing",
+      "why_it_matters": "Coverage metrics detect untested code paths, verify error handling, and ensure no silent failures. Mutation testing proves tests are detecting real bugs, not just passing vacuously.",
+      "success_criteria": [
+        "Line coverage ≥80% across all workspace crates",
+        "Branch coverage ≥75% for critical paths (pipeline stages, error handlers)",
+        "Mutation score ≥60% (killed mutants / total mutants)",
+        "No crate with coverage drop from prior release",
+        "Error paths covered ≥85% (all Result branches tested)",
+        "Dead code identified and removed or flagged for future work"
+      ],
+      "forbidden_patterns": [
+        "Mocking code to artificially inflate coverage metrics",
+        "Test doubles that simulate real behavior instead of real I/O",
+        "Using `#[cfg(test)]` to hide unreachable code from coverage",
+        "Ignoring or skipping error paths to inflate pass rate",
+        "Fabricated test fixtures that don't cross system boundaries",
+        "Counting untested branches as 'exercised' without real failure cases"
+      ],
+      "required_patterns": [
+        "Real I/O boundaries (filesystem, HTTP, database) in test collaborators",
+        "Error case testing with actual error conditions (missing files, network failure)",
+        "Mutation testing with cargo-mutants to verify test sensitivity",
+        "Coverage reports from `cargo tarpaulin` or similar real instrumentation",
+        "Explicit test cases for each error type in Result enums",
+        "Saturation testing: tests fail when mutation deletes critical logic"
+      ],
+      "commands": [
+        "cargo tarpaulin --workspace --exclude-files tests/ --timeout 300 --out Html",
+        "cargo mutants --workspace --timeout 60 --baseline 60",
+        "cargo test --workspace --doc --lib --tests",
+        "cargo make test -- --test-threads=1 (for race condition detection)"
+      ],
+      "validation_checklist": [
+        "[ ] Line coverage report generated and ≥80% per crate",
+        "[ ] Mutation score ≥60% confirmed via cargo mutants",
+        "[ ] All error enum variants covered by at least one test case",
+        "[ ] No dead code reported (or dead code justified + documented)",
+        "[ ] Coverage trend: no regression from prior release",
+        "[ ] Mutation killing rate > 60% (real test sensitivity)"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Chicago TDD Enforcement",
+      "priority": "CRITICAL",
+      "description": "Zero mocks, zero test doubles. All tests use real collaborators and verify observable state changes.",
+      "why_it_matters": "Mocks hide integration bugs and create a false sense of correctness. Chicago TDD forces tests to cross system boundaries, proving the code actually works with real dependencies.",
+      "success_criteria": [
+        "Zero imports of mockall, mockito, or similar mock libraries",
+        "Zero Mock* structs defined in test code",
+        "Zero .expect_*() / .times() / behavior verification chains",
+        "All external collaborators (HTTP, DB, filesystem) are real",
+        "All tests verify observable state (files exist, DB rows written, HTTP responses)",
+        "No test doubles for 'isolation' or 'testability'"
+      ],
+      "forbidden_patterns": [
+        "use mockall::mock! or #[mockall::automock]",
+        "let mock_client = MockHttpClient::new()",
+        "mock_client.expect_get().times(1).returning(...)",
+        "struct FakeDatabase { ... } (test double avoiding real DB)",
+        "struct InMemoryStorage { ... } (fake simulating real storage)",
+        "Traits defined for DI (dependency injection) just for testability",
+        "assert_eq!(mock.call_count(...), 1) (behavior verification)",
+        "Mocking observability: @patch('get_tracer') in tests",
+        "Fabricating OCEL events or span dicts by hand"
+      ],
+      "required_patterns": [
+        "Real reqwest::Client for HTTP tests",
+        "Real SqlitePool or PostgreSQL for database tests",
+        "Real std::fs operations or tempfile::TempDir for filesystem",
+        "Real environment variables (std::env)",
+        "Real process execution (std::process::Command)",
+        "Real TempDir from tempfile crate (not isolation, real I/O)",
+        "Real OTel spans captured via Tempo/Jaeger clients",
+        "State assertions: assert!(file.exists()), assert_eq!(db_row.count(), 1)",
+        "Timeout-based concurrency tests (not mock-based timing)"
+      ],
+      "commands": [
+        "grep -r 'mockall' crates/ --include='*.rs' | grep -v 'tests-archive'",
+        "grep -r 'struct Mock' crates/*/tests/ --include='*.rs'",
+        "grep -r 'expect_' crates/*/tests/ --include='*.rs' (should be empty)",
+        "cargo clippy --all-targets -- -D warnings (catches obvious patterns)"
+      ],
+      "validation_checklist": [
+        "[ ] grep mockall returns zero results (except archived tests)",
+        "[ ] No Mock* structs in crates/*/tests/ directories",
+        "[ ] No .expect_*() or .times() chains in test code",
+        "[ ] All test collaborators use real I/O (verified by code inspection)",
+        "[ ] Tests fail when real boundary is broken (e.g., delete pack file → test fails)",
+        "[ ] Integration tests cross ≥1 system boundary (DB/HTTP/FS)"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Test Categorization",
+      "priority": "HIGH",
+      "description": "Classify tests by type and ensure each category is comprehensive and purposeful",
+      "why_it_matters": "Different test types exercise different failure modes. Unit tests catch logic bugs. Integration tests catch wiring bugs. Property tests catch edge cases. Absence of a category signals incomplete coverage.",
+      "success_criteria": [
+        "Unit tests: all public functions tested in isolation (real collaborators mocked at module boundary only)",
+        "Integration tests: cross-crate workflows with real I/O",
+        "Property tests: edge cases, fuzz testing, invariant checking",
+        "Snapshot tests: deterministic output (generated code, receipts)",
+        "Security tests: tamper detection, privilege escalation, injection",
+        "Determinism tests: RNG_SEED=42 reproducibility",
+        "Performance tests: SLO validation via criterion benchmarks",
+        "Sabotage tests: negative paths proving system fails loudly"
+      ],
+      "forbidden_patterns": [
+        "Tests with names like 'test_thing' without describing what they verify",
+        "Tests that only assert happy path (no error cases)",
+        "Tests that assume sequential execution without synchronization",
+        "Tests that depend on execution order (not isolated)",
+        "Tests that use global state without cleanup",
+        "Mock-based unit tests (defeats purpose of isolation verification)",
+        "Parameterized tests without clear invariant under test"
+      ],
+      "required_patterns": [
+        "Unit tests: test one public function per test, assert on return value + state",
+        "Integration tests: #[tokio::test] for async, real DB/HTTP/FS, clear arrange/act/assert",
+        "Property tests: #[cfg(test)] fn prop_* using proptest!, generates 1000s of cases",
+        "Snapshot tests: insta::assert_snapshot!(generated_code) for reproducibility",
+        "Security tests: tamper lockfile/receipt, verify hard failure",
+        "Determinism tests: set RNG_SEED=42, run 10x, verify identical output",
+        "Performance tests: criterion::black_box(), measure latency/throughput, fail if SLO violated",
+        "Sabotage tests: delete files, corrupt state, verify error (not silent failure)"
+      ],
+      "commands": [
+        "cargo test --lib --workspace (unit tests only)",
+        "cargo test --test '*' --workspace (integration tests)",
+        "cargo test --doc --workspace (doc tests, examples)",
+        "RNG_SEED=42 cargo test --workspace (determinism: run same seed 3x, diff output)",
+        "cargo bench --bench '*' -- --baseline (performance, criterion)",
+        "cargo test --workspace -- --nocapture (capture output for inspection)"
+      ],
+      "test_type_definitions": {
+        "unit": {
+          "scope": "Single function, pure logic, minimal external calls",
+          "collaborators": "None (or real at crate boundary only)",
+          "execution": "Synchronous, <150ms per test",
+          "assertion": "Return value + local state",
+          "examples": ["test_parse_config_valid_toml", "test_pipeline_stage_error_propagates"]
+        },
+        "integration": {
+          "scope": "Cross-crate workflows, real I/O, async operations",
+          "collaborators": "Real filesystem, real database, real HTTP",
+          "execution": "Async with real I/O, <30s per test",
+          "assertion": "Observable state (files, DB rows, HTTP responses)",
+          "examples": ["test_sync_with_lockfile_missing", "test_pack_install_corrupted_archive"]
+        },
+        "property": {
+          "scope": "Invariants that hold for all inputs, edge case discovery",
+          "collaborators": "Generated inputs via proptest::strategy::*",
+          "execution": "Generates 1000s of test cases, <5min total",
+          "assertion": "Invariant holds for all generated inputs",
+          "examples": ["prop_receipt_hash_idempotent", "prop_sparql_query_always_valid_rdf"]
+        },
+        "snapshot": {
+          "scope": "Deterministic output (code generation, JSON receipts)",
+          "collaborators": "Real ontology input, real Tera renderer",
+          "execution": "Synchronous, produce output once per schema change",
+          "assertion": "Output matches golden snapshot via insta",
+          "examples": ["test_code_generation_snapshot", "test_receipt_format_snapshot"]
+        },
+        "security": {
+          "scope": "Tamper detection, privilege escalation, injection attacks",
+          "collaborators": "Real files, real signatures, real validation logic",
+          "execution": "<30s per test",
+          "assertion": "Invalid state detected and rejected",
+          "examples": ["test_corrupted_receipt_verification_fails", "test_path_traversal_attack_blocked"]
+        },
+        "determinism": {
+          "scope": "Reproducibility across runs with fixed seed",
+          "collaborators": "Same as unit/integration but with RNG_SEED=42",
+          "execution": "Run 3x with same seed, verify identical output",
+          "assertion": "Output hash matches across all runs",
+          "examples": ["test_code_generation_deterministic", "test_graph_ordering_stable"]
+        },
+        "performance": {
+          "scope": "SLO validation, latency bounds, throughput targets",
+          "collaborators": "Real operations (not synthetic timing)",
+          "execution": "Criterion benchmarks, <5min total",
+          "assertion": "Throughput/latency within SLO, fail if exceeded",
+          "examples": ["bench_sync_1k_ontology_triples", "bench_cli_startup_time"]
+        },
+        "sabotage": {
+          "scope": "Negative paths, error handling, fail-fast verification",
+          "collaborators": "Real files/state, intentionally corrupted",
+          "execution": "<30s per test",
+          "assertion": "Error returned or exit code non-zero",
+          "examples": ["test_sync_missing_pack_fails_hard", "test_lockfile_corruption_detected"]
+        }
+      },
+      "validation_checklist": [
+        "[ ] ≥1 unit test per public function",
+        "[ ] ≥1 integration test per crate crossing ≥1 boundary",
+        "[ ] ≥1 property test for data structures (no edge cases missed)",
+        "[ ] ≥1 snapshot test for deterministic code generation",
+        "[ ] ≥1 security test for each security boundary (tamper detection, authorization)",
+        "[ ] ≥1 determinism test per crate with RNG_SEED=42",
+        "[ ] ≥1 performance test per critical path (SLO validation)",
+        "[ ] ≥2 sabotage tests per error type (missing resource, corrupt state)"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Error Path Testing",
+      "priority": "HIGH",
+      "description": "All error types exercised, all edge cases covered, all Result branches tested",
+      "why_it_matters": "Untested error paths are silent failures. Tests must verify each error type is returned correctly and handled loudly (no swallowing errors).",
+      "success_criteria": [
+        "Every error enum variant tested (at least once)",
+        "Every Result::Err branch executes and asserts correct error type",
+        "Every error message is non-generic (specific to failure mode)",
+        "Resource cleanup verified on error (files deleted, DB rolled back)",
+        "Cascading errors traced (root cause → intermediate → surface)",
+        "Timeout paths tested (deadlocks, infinite loops detected)",
+        "Panic paths eliminated from production code"
+      ],
+      "forbidden_patterns": [
+        "unwrap() or expect() in production code (only tests allowed)",
+        "Errors logged but not returned (fail-open pattern)",
+        "Generic error messages ('Error: operation failed')",
+        "Swallowing errors with || None patterns",
+        "Error paths not tested (Err arm is unreachable in tests)",
+        "Panics in production code (must return Result)",
+        "Timeout not set (infinite loops possible)"
+      ],
+      "required_patterns": [
+        "Every error::* variant tested with explicit error creation",
+        "Test asserts error type via pattern matching or .is_err() + message check",
+        "Error messages include context (what failed + why + suggested fix)",
+        "Resource cleanup tested (temp files deleted, DB transactions rolled back)",
+        "Cascading error tests (error propagates correctly through call stack)",
+        "Timeout tests for potential deadlocks or infinite loops",
+        "No panics in library code (only Result<T, E>)",
+        "Error variants use descriptive names (PackNotFound not PackError)"
+      ],
+      "commands": [
+        "cargo test --lib --workspace -- --nocapture (see error messages)",
+        "grep -r 'unwrap\\|expect\\|panic!' crates/*/src/ --include='*.rs' (find forbidden patterns)",
+        "grep -r '.is_err()' crates/*/tests/ --include='*.rs' (verify error testing)",
+        "cargo clippy --all-targets -- -D warnings (catches panics, unwraps)"
+      ],
+      "validation_checklist": [
+        "[ ] All error enum variants appear in at least one test",
+        "[ ] All Result::Err assertions use pattern matching (not generic .is_err())",
+        "[ ] All error messages are specific and actionable",
+        "[ ] All resource cleanup verified on error (temp files deleted, etc.)",
+        "[ ] All cascading errors traced through call stack",
+        "[ ] No unwrap() in production src/ (only tests/)",
+        "[ ] No panics in production code",
+        "[ ] Timeout set for all potentially blocking operations"
+      ],
+      "error_testing_patterns": {
+        "single_error": "Test one error condition, assert correct error type and message",
+        "cascading_errors": "Call stack A→B→C, error at C propagates through B to A, verify at surface",
+        "resource_cleanup": "Error during operation, verify resources freed (temp files, DB transactions)",
+        "timeout_detection": "Set timeout shorter than operation, verify timeout error not hang",
+        "error_recovery": "Error occurs, operation restarts cleanly, no state corruption"
+      }
+    },
+    {
+      "id": 5,
+      "name": "Concurrency Testing",
+      "priority": "HIGH",
+      "description": "Race conditions, deadlocks, and concurrent state mutation validated",
+      "why_it_matters": "Concurrency bugs manifest intermittently and are hard to debug. Tests must be deterministic and detect races, deadlocks, and data corruption under concurrent load.",
+      "success_criteria": [
+        "All shared state protected by Arc<Mutex<T>> or channels",
+        "No raw pointers or unsafe { } without explicit safety justification",
+        "Deterministic concurrency tests with RNG_SEED=42",
+        "Race condition detection via ThreadSanitizer (TSAN) or similar",
+        "Deadlock detection via timeout + panic on hang",
+        "Load tests with ≥10x expected concurrent operations",
+        "Async tests properly synchronized (await all tasks)"
+      ],
+      "forbidden_patterns": [
+        "Data races: shared mutable state without synchronization",
+        "Deadlocks: circular lock acquisition without timeout",
+        "Lost updates: concurrent writes without locking",
+        "Use-after-free: returning references to stack-allocated data",
+        "Unsafe code without safety comments + examples",
+        "Non-deterministic concurrency (order of tasks undefined)",
+        "Async tests that don't await all tasks before asserting"
+      ],
+      "required_patterns": [
+        "All shared state in Arc<Mutex<T>> or Arc<RwLock<T>>",
+        "Timeouts on all lock acquisitions (detect deadlocks)",
+        "Deterministic task ordering via tokio::spawn + join_all",
+        "Race condition tests: spawn N concurrent tasks, verify consistent result",
+        "Deadlock tests: acquire locks in different orders, verify no hang",
+        "Load tests: ≥10 concurrent operations, verify no data corruption",
+        "Sync primitives: channels for async communication, not shared mutable state",
+        "Async tests: #[tokio::test] with proper .await and task joining"
+      ],
+      "commands": [
+        "RUSTFLAGS='-Zsanitizer=thread' cargo test --target x86_64-unknown-linux-gnu (TSAN)",
+        "cargo test --workspace -- --test-threads=1 (sequential, detects races)",
+        "RNG_SEED=42 cargo test --workspace (deterministic concurrency)",
+        "cargo test --workspace --release (race conditions less likely but not guaranteed)",
+        "grep -r 'Arc<Mutex' crates/ --include='*.rs' (verify shared state is locked)"
+      ],
+      "validation_checklist": [
+        "[ ] TSAN passes (no data races reported)",
+        "[ ] Deadlock timeout tests pass (no hangs)",
+        "[ ] Load tests pass with ≥10x concurrent operations",
+        "[ ] Deterministic concurrency tests pass with RNG_SEED=42",
+        "[ ] No unsafe code except where explicitly justified",
+        "[ ] All async tests properly await all tasks",
+        "[ ] All shared state protected by Arc<Mutex<T>>",
+        "[ ] Race condition tests demonstrate consistent results under load"
+      ],
+      "concurrency_test_scenarios": {
+        "read_under_load": "Multiple readers, one writer, verify reads see consistent state",
+        "write_ordering": "Multiple writers to same resource, verify no lost updates",
+        "task_cancellation": "Cancel task mid-operation, verify cleanup + no leak",
+        "channel_capacity": "Send N messages through bounded channel, verify backpressure",
+        "lock_timeout": "Acquire lock with timeout, verify timeout not deadlock"
+      }
+    },
+    {
+      "id": 6,
+      "name": "Sabotage Tests",
+      "priority": "HIGH",
+      "description": "Negative path tests proving system fails loudly on invalid state (not silently)",
+      "why_it_matters": "Systems must detect and reject invalid state immediately. Sabotage tests verify fail-fast behavior: corrupted lockfiles, missing packs, tampered receipts all cause hard errors (exit 1), not silent failures or warnings.",
+      "success_criteria": [
+        "Missing pack file → ggen sync --locked exits non-zero",
+        "Corrupted lockfile → ggen sync exits non-zero with error message",
+        "Corrupted receipt signature → ggen receipt verify returns is_valid: false",
+        "Missing verification key → ggen receipt verify fails (not silent success)",
+        "Tampered artifact hash → receipt verification fails",
+        "Impossible state injection detected → validation rejects",
+        "All negative tests cause hard exit (1), never silent failure"
+      ],
+      "forbidden_patterns": [
+        "Errors logged with warn! but operation continues (fail-open)",
+        "Silent return of None instead of error",
+        "Corruption detected but ignored (|| default handling)",
+        "Error cases not tested at all",
+        "Mocking the validator to test 'failure handling'",
+        "Using || true to suppress error signals",
+        "Skipping validation gates to avoid negative test setup"
+      ],
+      "required_patterns": [
+        "Each sabotage test corrupts one aspect of system state",
+        "Corruption detected before any artifacts are written",
+        "Error message is specific (not generic)",
+        "Exit code is non-zero for all failure cases",
+        "Cleanup happens even on error (temp files removed, DB rolled back)",
+        "Sabotage cannot be undone silently (must restart from clean state)",
+        "Tests fail if sabotage does NOT trigger error (proves validation works)"
+      ],
+      "commands": [
+        "cargo test --test '*sabotage*' --workspace",
+        "grep -r 'warn!' crates/*/src/ --include='*.rs' (verify no fail-open errors)",
+        "rm .ggen/packs.lock && ggen sync --locked && echo 'FAIL: should not succeed'",
+        "echo '{}' > .ggen/packs.lock && ggen sync && echo 'FAIL: should not succeed'",
+        "echo '{}' > .ggen/receipts/latest.json && ggen receipt verify"
+      ],
+      "validation_checklist": [
+        "[ ] Missing pack → exit non-zero",
+        "[ ] Corrupted lockfile → exit non-zero",
+        "[ ] Tampered receipt → is_valid: false",
+        "[ ] Missing key → error (not silent success)",
+        "[ ] Hash mismatch → verification fails",
+        "[ ] All negative tests use real state corruption (not mocks)",
+        "[ ] Error messages are specific and actionable",
+        "[ ] No silent failures (all errors surface as exit codes)"
+      ],
+      "sabotage_test_scenarios": {
+        "missing_resource": "Pack file deleted after install, ggen sync --locked fails",
+        "corrupt_manifest": "Lockfile contains invalid JSON, ggen sync fails",
+        "tamper_receipt": "Receipt signature modified, verification fails",
+        "hash_mismatch": "Pack file changed, digest doesn't match, sync fails",
+        "impossible_state": "Receipt before digest, wrong state order, validation fails",
+        "missing_key": "Verification key deleted, receipt verify fails"
+      }
+    },
+    {
+      "id": 7,
+      "name": "AAA Pattern Enforcement",
+      "priority": "HIGH",
+      "description": "Every test follows Arrange → Act → Assert with real state changes",
+      "why_it_matters": "AAA pattern makes tests readable, maintainable, and forces clear separation between setup, action, and verification. Violating AAA leads to unclear tests that conflate setup with assertion.",
+      "success_criteria": [
+        "Every test has 3 sections: Arrange (setup), Act (action), Assert (verify)",
+        "Arrange creates real objects, real data (not mocks)",
+        "Act calls one public function under test",
+        "Assert verifies observable state (not internal state)",
+        "No setup in Act (all initialization in Arrange)",
+        "No assertions in Arrange (all verification in Assert)",
+        "Each test is independent (no dependency on other tests' state)"
+      ],
+      "forbidden_patterns": [
+        "Assertions in Arrange section",
+        "Setup/initialization in Act section",
+        "Tests that depend on execution order",
+        "Global state mutations (e.g., static mut)",
+        "Multiple unrelated assertions per test (one concern per test)",
+        "Comments like 'TODO: add assert' (incomplete tests)",
+        "Mocking in Arrange (defeats the purpose of isolation)"
+      ],
+      "required_patterns": [
+        "Arrange: create real objects (TempDir, SqlitePool, reqwest::Client)",
+        "Act: call one public function, capture result",
+        "Assert: verify observable state (files exist, DB rows, return value)",
+        "Comments separating sections: // Arrange // Act // Assert",
+        "One concern per test (one reason to fail)",
+        "Independent tests (setUp/tearDown for cleanup)",
+        "Descriptive test names indicating what is being verified"
+      ],
+      "commands": [
+        "cargo test --lib --workspace -- --nocapture (see test output structure)",
+        "grep -c '//' crates/*/tests/*.rs (rough gauge of comment density)"
+      ],
+      "validation_checklist": [
+        "[ ] All tests have clear Arrange/Act/Assert sections",
+        "[ ] No assertions in Arrange",
+        "[ ] No setup in Act",
+        "[ ] Arrange creates real objects (not mocks)",
+        "[ ] Act calls exactly one public function",
+        "[ ] Assert verifies observable state (external proof)",
+        "[ ] Tests are independent (no cross-test state)",
+        "[ ] Test names describe what is verified (test_sync_with_missing_pack_fails)"
+      ],
+      "aaa_pattern_template": "```rust\n#[test]\nfn test_operation_fails_on_invalid_input() {\n    // ARRANGE: Set up real objects and state\n    let temp_dir = TempDir::new().unwrap();\n    let pack_path = temp_dir.path().join(\"test.toml\");\n    // Don't write the file (this is the invalid state)\n    \n    // ACT: Call the function under test\n    let result = sync_with_locked_packs(&pack_path);\n    \n    // ASSERT: Verify observable state changed\n    assert!(result.is_err());\n    assert_eq!(result.unwrap_err().to_string(), \"pack not found\");\n}\n```"
+    },
+    {
+      "id": 8,
+      "name": "Cross-Crate Testing",
+      "priority": "HIGH",
+      "description": "Integration across workspace members validated, cyclic dependencies prevented",
+      "why_it_matters": "15 crates in the workspace; each crate-to-crate boundary is a potential integration bug. Tests must validate workflows spanning multiple crates and verify no cyclic dependencies.",
+      "success_criteria": [
+        "Integration tests for each crate boundary crossing",
+        "No cyclic crate dependencies (verified by cargo tree)",
+        "Public API tested from dependent crates (not just unit tests within crate)",
+        "Error propagation tested across crate boundaries",
+        "Type re-exports are public and tested",
+        "All feature flags tested in combination",
+        "Workspace members compile independently (single crate at a time)"
+      ],
+      "forbidden_patterns": [
+        "Cyclic dependencies (A depends on B, B depends on A)",
+        "Private functions exposed for testing (pub(crate) workarounds)",
+        "Integration tests inside crate (should be in separate test crate or integration tests/)",
+        "Feature flags not tested in CI (silent breaks when feature disabled)",
+        "Missing or incomplete Cargo.toml dependencies (using private paths)"
+      ],
+      "required_patterns": [
+        "Integration tests for each crate boundary (ggen-core → ggen-cli → ggen-lsp)",
+        "Cross-crate workflows tested end-to-end (pack resolution → sync → receipt verification)",
+        "Public API of each crate tested from dependent crate",
+        "Error types and messages consistent across crates",
+        "Type re-exports in lib.rs are tested (pub use path::Type)",
+        "Feature combinations tested in CI (e.g., --features feature1,feature2)",
+        "Workspace members compile independently: cargo build -p ggen-core"
+      ],
+      "commands": [
+        "cargo tree --workspace (verify no cycles, visualize dependencies)",
+        "cargo check --workspace (all crates compile together)",
+        "cargo build -p ggen-core && cargo build -p ggen-cli (single crate builds)",
+        "cargo test --test '*integration*' --workspace (cross-crate tests)",
+        "cargo test --all-features --workspace (all features tested)"
+      ],
+      "validation_checklist": [
+        "[ ] cargo tree shows no cycles",
+        "[ ] Each crate compiles independently (cargo build -p <crate>)",
+        "[ ] Integration tests for each crate boundary exist",
+        "[ ] Public API of each crate tested from dependent",
+        "[ ] Error types consistent across crate boundaries",
+        "[ ] Type re-exports are tested (lib.rs pub use statements)",
+        "[ ] Feature flags tested in CI",
+        "[ ] Workspace compiles with all features enabled"
+      ],
+      "cross_crate_test_scenarios": {
+        "pack_resolution": "ggen-marketplace resolves pack, ggen-core consumes it, ggen-cli renders output",
+        "receipt_chain": "ggen-core emits receipt, ggen-graph validates chain, ggen-cli verifies signature",
+        "error_propagation": "Error from ggen-core propagates through ggen-cli to user (error message preserved)",
+        "configuration": "ggen-config parses TOML, ggen-core consumes config, ggen-cli displays results",
+        "sync_workflow": "Full sync: ggen-config → ggen-marketplace → ggen-core → ggen-graph → receipt emission"
+      }
+    }
+  ],
+  "definition_of_done_checklist": {
+    "before_commit": [
+      "[ ] Coverage gates: ≥80% line, ≥60% mutation score",
+      "[ ] Chicago TDD: zero mockall imports, all tests use real collaborators",
+      "[ ] Test categorization: unit + integration + property + snapshot + security + determinism + performance + sabotage",
+      "[ ] Error paths: all error enum variants tested, all Result branches covered",
+      "[ ] Concurrency: no data races (TSAN), no deadlocks (timeout tests), deterministic (RNG_SEED=42)",
+      "[ ] Sabotage tests: missing pack fails, corrupt lockfile fails, tampered receipt detected",
+      "[ ] AAA pattern: every test has Arrange/Act/Assert, no assertions in Arrange",
+      "[ ] Cross-crate: integration tests for crate boundaries, no cycles, independent builds"
+    ],
+    "validation_commands": [
+      "cargo make timeout-check    # Verify timeout command exists",
+      "cargo make check            # No compiler errors",
+      "cargo make test             # All tests pass",
+      "cargo make lint             # No clippy warnings",
+      "cargo make slo-check        # Performance SLOs met",
+      "cargo make test-mutation    # Mutation score ≥60%",
+      "cargo test --lib --workspace                          # Unit tests",
+      "cargo test --test '*' --workspace                     # Integration tests",
+      "RNG_SEED=42 cargo test --workspace                    # Determinism check",
+      "RUSTFLAGS='-Zsanitizer=thread' cargo test             # TSAN race detection",
+      "cargo tree --workspace                                # Verify no cycles",
+      "grep -r 'mockall' crates/ --include='*.rs'            # Zero mocks",
+      "grep -r 'struct Mock' crates/*/tests/ --include='*.rs' # Zero mocks",
+      "grep -r 'unwrap\\|expect' crates/*/src/ --include='*.rs' # No panics in production"
+    ]
+  },
+  "multi_surface_corroboration": {
+    "doctrine": "A claim is proven only if it appears in at least 3 of these 5 surfaces: execution + observability + state + process + causality",
+    "surfaces": {
+      "execution": "Code actually runs, function returns normally",
+      "observability": "OTel spans emitted with correct attributes (requires RUST_LOG=trace)",
+      "state": "Observable state changed (files, DB rows, return values)",
+      "process": "OCEL event log records the transition (process mining validation)",
+      "causality": "Preceding events linked to this event via receipt chain"
+    },
+    "example_multiface_test": "Testing that an operator ran successfully requires proof across 4+ surfaces: (1) operator executes (2) OTel span exists (3) artifact state changed (4) receipt links prior to new artifact"
+  },
+  "otel_validation": {
+    "mandate": "For any feature touching external services (LLM, MCP, HTTP, database), OTEL spans are required proof. Tests passing is insufficient.",
+    "required_spans_by_feature": {
+      "llm_integration": {
+        "spans": ["llm.complete", "llm.complete_stream"],
+        "attributes": ["llm.model", "llm.prompt_tokens", "llm.completion_tokens", "llm.total_tokens"]
+      },
+      "mcp_tools": {
+        "spans": ["mcp.tool.call", "mcp.tool.response"],
+        "attributes": ["mcp.tool.name", "mcp.tool.duration_ms", "mcp.tool.result"]
+      },
+      "pipeline_stages": {
+        "spans": ["pipeline.load", "pipeline.extract", "pipeline.generate", "pipeline.validate", "pipeline.emit"],
+        "attributes": ["pipeline.stage", "pipeline.duration_ms", "pipeline.files_generated"]
+      },
+      "quality_gates": {
+        "spans": ["quality_gate.validate", "quality_gate.pass_fail"],
+        "attributes": ["gate.name", "gate.result"]
+      }
+    },
+    "verification_procedure": "export RUST_LOG=trace,ggen_ai=trace; cargo test -p <crate> --test <test> -- --nocapture 2>&1 | grep -E '(llm\\.|mcp\\.|pipeline\\.|quality_gate)'; verify all required spans and attributes present"
+  },
+  "anti_cheating_enforcement": {
+    "principle": "The easiest path to passing tests must be real execution. Faking must be harder than the real thing.",
+    "no_mocking_observability": "Cannot @patch get_tracer(); must use real Tempo/Jaeger client",
+    "no_fabricated_fixtures": "Cannot fabricate OCEL events or span dicts; must extract from real traces",
+    "evidence_must_be_externalizable": "Assertion must be verifiable outside the test (files, DB, OTel)",
+    "causality_not_assertions": "Cannot just assert state == BRED; must prove causality via traces and receipts",
+    "no_test_naming_loopholes": "Cannot create tests/chicago_tdd/ tier or @mark.chicago_tdd; enforce via behavior",
+    "impossible_state_injection": "Tests that fabricate impossible state (wrong receipt chain) must be rejected by validator",
+    "resilience_to_agent_laziness": "Lazy agent cannot pass test with minimal code; must cross real boundary"
+  },
+  "forbidden_anti_patterns": [
+    "London TDD: mockall, Mock structs, behavior verification (.times(), .expect_)",
+    "Fail-open errors: warn!() instead of Err()",
+    "Unforgeable assertions: assert!(my_function_called) with no external evidence",
+    "Fabricated observability: @patch('get_tracer') or hand-constructed span dicts",
+    "Dead code: unreachable branches, #[cfg(test)] hiding code from coverage",
+    "Test doubles: FakeDatabase, InMemoryStorage, struct Fake*",
+    "Panics in production: unwrap(), expect(), panic!() outside tests",
+    "Silent failures: || None, || default, swallowing errors",
+    "Cyclic dependencies: crate A depends on B, B depends on A",
+    "Mocking the validator to hide cheating: mocking SHACL gate, mocking receipt verification"
+  ],
+  "references": [
+    ".claude/rules/rust/testing.md — Chicago TDD mandate and test types",
+    ".claude/rules/rust/testing-forbidden.md — Forbidden patterns and London TDD",
+    ".claude/rules/testing-anti-cheating.md — Multi-surface corroboration, proof requirements",
+    ".claude/rules/otel-validation.md — OTEL span verification for external services",
+    ".claude/rules/coding-agent-mistakes.md — 6-question patch contract, invariant definitions, sabotage tests",
+    "justfile — just check, just test, just lint, just slo-check",
+    "Cargo.toml — workspace members, dependencies, features"
+  ],
+  "version_history": [
+    {
+      "version": "26.5.29",
+      "date": "2026-06-14",
+      "changes": "Initial Definition of Done: 8 dimensions, multi-surface corroboration, Chicago TDD + coverage + mutation + OTEL validation"
+    }
+  ]
+}

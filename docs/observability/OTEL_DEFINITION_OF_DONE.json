@@ -1,0 +1,965 @@
+{
+  "version": "v26.5.28",
+  "title": "OpenTelemetry Observability Definition of Done",
+  "description": "Specification of observability completeness for ggen. OTEL spans must prove real execution across 8 dimensions. No fabrication, no mocked observability, no assertions alone.",
+  "doctrine": "If the code says it worked but OTEL traces cannot prove it happened, then it did not work.",
+  "timestamp": "2026-06-14",
+  "observability_dimensions": [
+    {
+      "dimension_id": 1,
+      "dimension_name": "Required Spans by Feature",
+      "description": "What spans MUST exist for each feature type. Absence = feature did not run.",
+      "applies_to": [
+        "llm_integration",
+        "mcp_tools",
+        "pipeline_stages",
+        "quality_gates",
+        "external_api_calls",
+        "database_operations"
+      ],
+      "specification": {
+        "llm_integration": {
+          "required_spans": [
+            {
+              "span_name": "llm.complete",
+              "purpose": "Synchronous LLM completion request-response",
+              "when": "Blocking LLM call to generate or analyze code",
+              "evidence_of": "Real LLM API call was made (not mocked, not stubbed)"
+            },
+            {
+              "span_name": "llm.complete_stream",
+              "purpose": "Streaming LLM completion (token-by-token)",
+              "when": "Streaming LLM response for interactive features",
+              "evidence_of": "Real streaming LLM connection established and consumed"
+            }
+          ],
+          "required_attributes": {
+            "llm.model": {
+              "type": "string",
+              "pattern": "groq::openai/.*|gpt-4.*|claude-3.*",
+              "example": "groq::openai/gpt-oss-20b",
+              "validation": "Must match provider::model format or semver model ID"
+            },
+            "llm.prompt_tokens": {
+              "type": "integer",
+              "constraint": ">0",
+              "example": 450,
+              "validation": "Non-zero; proves prompt was sent"
+            },
+            "llm.completion_tokens": {
+              "type": "integer",
+              "constraint": ">0",
+              "example": 320,
+              "validation": "Non-zero; proves LLM returned content"
+            },
+            "llm.total_tokens": {
+              "type": "integer",
+              "constraint": "prompt_tokens + completion_tokens",
+              "example": 770,
+              "validation": "Must equal sum of prompt and completion tokens"
+            },
+            "llm.request_timestamp": {
+              "type": "string (RFC-3339)",
+              "example": "2026-06-14T14:30:00Z",
+              "validation": "Proves when request was made"
+            },
+            "llm.response_latency_ms": {
+              "type": "integer",
+              "constraint": ">=100",
+              "example": 2341,
+              "validation": "Network latency; <100ms indicates mock or cached"
+            },
+            "operation.name": {
+              "type": "string",
+              "example": "breed_ontology_with_llm",
+              "validation": "Semantic operation name"
+            },
+            "operation.type": {
+              "type": "string (enum)",
+              "values": ["llm.completion", "llm.analysis", "llm.generation"],
+              "validation": "Categorical operation type"
+            }
+          },
+          "success_example": {
+            "raw_output": "INFO ggen_ai::client: llm.complete request\n  llm.model=groq::openai/gpt-oss-20b\n  operation.name=breed_ontology_with_llm\n  llm.complete response\n  llm.prompt_tokens=450\n  llm.completion_tokens=320\n  llm.total_tokens=770\n  llm.response_latency_ms=2341\n  llm.request_timestamp=2026-06-14T14:30:00Z",
+            "proof": "All required attributes present, tokens non-zero, sum correct, latency real"
+          }
+        },
+        "mcp_tools": {
+          "required_spans": [
+            {
+              "span_name": "mcp.tool.call",
+              "purpose": "MCP tool invocation initiated",
+              "when": "Agent calls an MCP tool",
+              "evidence_of": "Real tool was invoked (not mocked, not dry-run)"
+            },
+            {
+              "span_name": "mcp.tool.response",
+              "purpose": "MCP tool response received",
+              "when": "Tool returned result to caller",
+              "evidence_of": "Tool execution completed and result was consumed"
+            },
+            {
+              "span_name": "mcp.tool.error",
+              "purpose": "Tool invocation failed",
+              "when": "Tool raised exception or returned error",
+              "evidence_of": "Error was observed and traced"
+            }
+          ],
+          "required_attributes": {
+            "mcp.tool.name": {
+              "type": "string",
+              "example": "ggen_sync",
+              "validation": "Name of the MCP tool invoked"
+            },
+            "mcp.tool.call_id": {
+              "type": "string (UUID)",
+              "example": "550e8400-e29b-41d4-a716-446655440000",
+              "validation": "Unique call identifier for correlation"
+            },
+            "mcp.tool.duration_ms": {
+              "type": "integer",
+              "constraint": ">0",
+              "example": 4521,
+              "validation": "Actual execution time"
+            },
+            "mcp.tool.arguments": {
+              "type": "JSON string",
+              "example": "{\"--locked\": true, \"--audit\": true}",
+              "validation": "Tool arguments passed; proves specific invocation"
+            },
+            "mcp.tool.result_bytes": {
+              "type": "integer",
+              "constraint": ">0",
+              "example": 2048,
+              "validation": "Response size; proves result was returned"
+            },
+            "mcp.tool.result_hash": {
+              "type": "string (SHA-256 hex)",
+              "example": "a1b2c3d4e5f6...",
+              "validation": "Deterministic hash of tool output"
+            }
+          },
+          "success_example": {
+            "raw_output": "INFO mcp::server: mcp.tool.call\n  mcp.tool.name=ggen_sync\n  mcp.tool.call_id=550e8400-e29b-41d4-a716-446655440000\n  mcp.tool.arguments={\"--locked\": true}\n  mcp.tool response\n  mcp.tool.duration_ms=4521\n  mcp.tool.result_bytes=2048\n  mcp.tool.result_hash=a1b2c3d4e5f6",
+            "proof": "Tool was invoked with specific args, executed for real duration, returned real result"
+          }
+        },
+        "pipeline_stages": {
+          "required_spans": [
+            {
+              "span_name": "pipeline.load",
+              "purpose": "Load RDF ontology (μ₁)",
+              "when": "Pipeline μ₁ stage executes",
+              "evidence_of": "Ontology was read and parsed from source"
+            },
+            {
+              "span_name": "pipeline.extract",
+              "purpose": "Extract skill definitions (μ₂)",
+              "when": "Pipeline μ₂ stage executes",
+              "evidence_of": "Skills were extracted via SPARQL query"
+            },
+            {
+              "span_name": "pipeline.generate",
+              "purpose": "Generate code (μ₃)",
+              "when": "Pipeline μ₃ stage executes",
+              "evidence_of": "Code generation via Tera template rendering"
+            },
+            {
+              "span_name": "pipeline.validate",
+              "purpose": "Validate generated code (μ₄)",
+              "when": "Pipeline μ₄ stage executes",
+              "evidence_of": "SHACL/quality gates checked"
+            },
+            {
+              "span_name": "pipeline.emit",
+              "purpose": "Write artifacts to filesystem (μ₅)",
+              "when": "Pipeline μ₅ stage executes",
+              "evidence_of": "Files were written to disk"
+            }
+          ],
+          "required_attributes": {
+            "pipeline.stage": {
+              "type": "string (enum)",
+              "values": ["load", "extract", "generate", "validate", "emit"],
+              "example": "generate",
+              "validation": "Identifies which pipeline stage"
+            },
+            "pipeline.duration_ms": {
+              "type": "integer",
+              "constraint": ">0",
+              "example": 1523,
+              "validation": "Actual stage execution time"
+            },
+            "pipeline.files_input": {
+              "type": "integer",
+              "constraint": ">=0",
+              "example": 12,
+              "validation": "Number of input files for this stage"
+            },
+            "pipeline.files_output": {
+              "type": "integer",
+              "constraint": ">=0",
+              "example": 8,
+              "validation": "Number of output files for this stage"
+            },
+            "pipeline.bytes_processed": {
+              "type": "integer",
+              "constraint": ">0",
+              "example": 102400,
+              "validation": "Total bytes processed"
+            },
+            "pipeline.error_count": {
+              "type": "integer",
+              "constraint": ">=0",
+              "example": 0,
+              "validation": "Number of validation errors (0 if passed)"
+            },
+            "pipeline.triples_count": {
+              "type": "integer",
+              "constraint": ">=0 (if RDF-related)",
+              "example": 1250,
+              "validation": "RDF triples count (for load/extract stages)"
+            }
+          },
+          "success_example": {
+            "raw_output": "INFO ggen_core::pipeline: pipeline.generate\n  pipeline.stage=generate\n  pipeline.duration_ms=1523\n  pipeline.files_input=12\n  pipeline.files_output=8\n  pipeline.bytes_processed=102400\n  pipeline.error_count=0",
+            "proof": "All pipeline stages appear sequentially with real durations and file counts"
+          }
+        },
+        "quality_gates": {
+          "required_spans": [
+            {
+              "span_name": "quality_gate.validate",
+              "purpose": "Gate validation check executed",
+              "when": "Quality gate logic runs",
+              "evidence_of": "Gate was evaluated (not skipped, not cached)"
+            },
+            {
+              "span_name": "quality_gate.pass_fail",
+              "purpose": "Gate result (pass or fail)",
+              "when": "Gate evaluation completed",
+              "evidence_of": "Gate outcome determined and recorded"
+            }
+          ],
+          "required_attributes": {
+            "gate.name": {
+              "type": "string",
+              "example": "shacl_validation",
+              "validation": "Name of quality gate"
+            },
+            "gate.result": {
+              "type": "string (enum)",
+              "values": ["pass", "fail", "error"],
+              "example": "pass",
+              "validation": "Gate pass/fail/error outcome"
+            },
+            "gate.duration_ms": {
+              "type": "integer",
+              "constraint": ">0",
+              "example": 456,
+              "validation": "Time to execute gate"
+            },
+            "gate.violation_count": {
+              "type": "integer",
+              "constraint": ">=0",
+              "example": 0,
+              "validation": "Number of violations found (0 if passed)"
+            },
+            "gate.violation_details": {
+              "type": "JSON string (if violations)",
+              "example": "[]",
+              "validation": "Detailed violations (empty if passed)"
+            }
+          },
+          "success_example": {
+            "raw_output": "INFO ggen_core::validation: quality_gate.pass_fail\n  gate.name=shacl_validation\n  gate.result=pass\n  gate.duration_ms=456\n  gate.violation_count=0",
+            "proof": "Gate was evaluated, passed, with zero violations"
+          }
+        },
+        "external_api_calls": {
+          "required_spans": [
+            {
+              "span_name": "http.client.request",
+              "purpose": "HTTP request initiated",
+              "when": "External REST/GraphQL API called",
+              "evidence_of": "Real HTTP request made (not mocked)"
+            },
+            {
+              "span_name": "http.client.response",
+              "purpose": "HTTP response received",
+              "when": "API response arrived",
+              "evidence_of": "Real response was parsed and consumed"
+            }
+          ],
+          "required_attributes": {
+            "http.method": {
+              "type": "string (enum)",
+              "values": ["GET", "POST", "PUT", "DELETE", "PATCH"],
+              "example": "POST",
+              "validation": "HTTP method used"
+            },
+            "http.url": {
+              "type": "string (URL)",
+              "example": "https://api.github.com/repos/user/repo",
+              "validation": "Target URL"
+            },
+            "http.status_code": {
+              "type": "integer",
+              "constraint": "200-599",
+              "example": 200,
+              "validation": "HTTP response status"
+            },
+            "http.response_content_length": {
+              "type": "integer",
+              "constraint": ">0",
+              "example": 4096,
+              "validation": "Response body size"
+            },
+            "http.duration_ms": {
+              "type": "integer",
+              "constraint": ">=100",
+              "example": 523,
+              "validation": "Network latency; <100ms indicates mock"
+            }
+          },
+          "success_example": {
+            "raw_output": "INFO http::client: http.client.request\n  http.method=GET\n  http.url=https://api.example.com/resource\n  http.client.response\n  http.status_code=200\n  http.response_content_length=4096\n  http.duration_ms=523",
+            "proof": "Real HTTP call with real latency and response size"
+          }
+        },
+        "database_operations": {
+          "required_spans": [
+            {
+              "span_name": "db.statement.execute",
+              "purpose": "Database query executed",
+              "when": "SQL/RDF query runs",
+              "evidence_of": "Real database operation occurred"
+            }
+          ],
+          "required_attributes": {
+            "db.system": {
+              "type": "string (enum)",
+              "values": ["sqlite", "postgresql", "rdf_oxigraph"],
+              "example": "sqlite",
+              "validation": "Database type"
+            },
+            "db.statement": {
+              "type": "string (SQL or SPARQL)",
+              "example": "SELECT ?x WHERE { ?x rdf:type :Class }",
+              "validation": "Query executed"
+            },
+            "db.rows_affected": {
+              "type": "integer",
+              "constraint": ">=0",
+              "example": 42,
+              "validation": "Rows modified or returned"
+            },
+            "db.duration_ms": {
+              "type": "integer",
+              "constraint": ">0",
+              "example": 123,
+              "validation": "Query execution time"
+            }
+          }
+        }
+      },
+      "validation_command": "export RUST_LOG=trace,ggen_ai=trace,ggen_core=trace && cargo test --nocapture 2>&1 | tee otel_output.txt && grep -E '(llm\\.|mcp\\.|pipeline\\.|quality_gate\\.|http\\.|db\\.)' otel_output.txt",
+      "forbidden_patterns": [
+        "Mocking observability layer (patching tracer)",
+        "Fabricated span dicts with hardcoded trace_id",
+        "Spans with zero or placeholder attribute values",
+        "No span output but test passes",
+        "Synthetic latency (<100ms for network calls)"
+      ]
+    },
+    {
+      "dimension_id": 2,
+      "dimension_name": "Span Attributes Validation",
+      "description": "Attributes must be populated with real values, not defaults or placeholders.",
+      "applies_to": [
+        "all_span_types"
+      ],
+      "specification": {
+        "attribute_population_rules": [
+          {
+            "rule": "No zero token counts",
+            "applies_to": "llm.prompt_tokens, llm.completion_tokens, llm.total_tokens",
+            "why": "Zero tokens = no real LLM response",
+            "validation": "grep 'llm\\..*_tokens=[1-9]' otel_output.txt"
+          },
+          {
+            "rule": "No hardcoded UUIDs",
+            "applies_to": "mcp.tool.call_id, trace_id, span_id",
+            "why": "Hardcoded IDs indicate fabrication",
+            "validation": "IDs must not match 00000000-0000-0000-0000-000000000000"
+          },
+          {
+            "rule": "Timestamps must be RFC-3339",
+            "applies_to": "llm.request_timestamp, db.timestamp",
+            "why": "Proves timing was actually recorded",
+            "validation": "grep -E '[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z'"
+          },
+          {
+            "rule": "Latency must be real",
+            "applies_to": "http.duration_ms, mcp.tool.duration_ms, pipeline.duration_ms",
+            "why": "<100ms for network = mock or cache",
+            "validation": ">100 for network, >10 for local"
+          },
+          {
+            "rule": "No placeholder values",
+            "applies_to": "all attributes",
+            "why": "\"TBD\", \"pending\", empty strings = incomplete",
+            "validation": "Reject anything matching /^(TBD|pending|TODO|FIXME|N\\/A)$/"
+          }
+        ],
+        "validation_matrix": {
+          "attribute": "llm.model",
+          "success_patterns": ["groq::openai/.*", "gpt-4.*", "claude-3.*", "open-llama.*"],
+          "failure_patterns": ["model", "TODO", "unknown", ""]
+        }
+      },
+      "validation_command": "cat otel_output.txt | jq -s '.[] | select(.llm) | select(.llm.total_tokens == 0)' | wc -l && echo '^ should be 0'",
+      "forbidden_patterns": [
+        "Empty string attributes",
+        "Default/zero values passed through",
+        "Placeholder text (TODO, TBD, pending)",
+        "UUIDs matching 00000000-0000-0000-0000-000000000000"
+      ]
+    },
+    {
+      "dimension_id": 3,
+      "dimension_name": "Span Validation (Real vs. Synthetic)",
+      "description": "Prove spans are real by checking latency, token sums, and network timing.",
+      "applies_to": [
+        "llm_integration",
+        "external_api_calls",
+        "database_operations"
+      ],
+      "specification": {
+        "latency_validation": {
+          "network_call_minimum": "100ms",
+          "why": "Real network calls have inherent latency",
+          "mock_indicators": [
+            "<50ms for remote API call",
+            "Exactly 0ms for any external service",
+            "Sub-millisecond response"
+          ]
+        },
+        "token_validation": {
+          "rule": "prompt_tokens + completion_tokens == total_tokens",
+          "why": "Proves real LLM response with token accounting",
+          "validation_regex": "llm\\.prompt_tokens=([0-9]+).*llm\\.completion_tokens=([0-9]+).*llm\\.total_tokens=([0-9]+)"
+        },
+        "response_size_validation": {
+          "rule": "http.response_content_length > 0",
+          "why": "Zero-byte response indicates no real data returned",
+          "validation": "Reject if content_length == 0"
+        },
+        "database_row_count_validation": {
+          "rule": "db.rows_affected >= 0 (for non-mutating queries, may be 0)",
+          "why": "Proves query executed against real database",
+          "validation": "Span must exist; absence = query not executed"
+        }
+      },
+      "validation_procedure": [
+        "Extract all spans with timing attributes",
+        "For each network span: assert duration_ms >= 100",
+        "For each LLM span: assert prompt + completion == total",
+        "For each HTTP span: assert response_content_length > 0",
+        "For each DB span: assert statement is real SQL/SPARQL, not placeholder"
+      ],
+      "forbidden_patterns": [
+        "Synthetic latency (<100ms for network)",
+        "Token math: 0 + 0 = 0",
+        "Empty responses (content_length=0)",
+        "Placeholder SQL/SPARQL (SELECT *, generic templates)"
+      ]
+    },
+    {
+      "dimension_id": 4,
+      "dimension_name": "Multi-Surface Corroboration",
+      "description": "A claim is proven only if it appears in at least 3 of these 5 surfaces: execution, observability, state, process, causality.",
+      "applies_to": [
+        "all_major_operations"
+      ],
+      "specification": {
+        "five_surfaces": [
+          {
+            "surface_id": 1,
+            "surface_name": "Execution Path",
+            "description": "Code actually runs; state changes in memory/return values",
+            "proof_example": "Function returns Ok(artifact_bred), no errors",
+            "how_to_verify": "Assert on function return value or object field changes"
+          },
+          {
+            "surface_id": 2,
+            "surface_name": "Observability (OTEL)",
+            "description": "OTel spans emitted with correct attributes",
+            "proof_example": "pipeline.generate span with files_output=8",
+            "how_to_verify": "grep OTEL logs for span, verify attributes"
+          },
+          {
+            "surface_id": 3,
+            "surface_name": "State",
+            "description": "Artifact, receipt, DB records show change",
+            "proof_example": "Artifact persisted to disk with new hash",
+            "how_to_verify": "Read files, check DB, verify hashes match receipt"
+          },
+          {
+            "surface_id": 4,
+            "surface_name": "Process (OCEL)",
+            "description": "OCEL event log records the transition",
+            "proof_example": "Event log has breed-ontology activity with state_before=SEEDED, state_after=BRED",
+            "how_to_verify": "Query OCEL log via pm4py or SPARQL"
+          },
+          {
+            "surface_id": 5,
+            "surface_name": "Causality",
+            "description": "Preceding events linked to this event (receipt chain, parent span)",
+            "proof_example": "Receipt.previous_hash == artifact_before.hash, receipt.signature valid",
+            "how_to_verify": "Verify BLAKE3 chain, check span parent_id"
+          }
+        ],
+        "proof_requirement": {
+          "minimum_surfaces": 3,
+          "example_combinations": [
+            "Execution + Observability + State (most common)",
+            "Execution + Observability + Causality (with tracing)",
+            "State + Process + Causality (for offline validation)"
+          ],
+          "insufficient_combinations": [
+            "Execution alone (code could just set fields)",
+            "Observability alone (spans could be mocked)",
+            "Execution + Observability alone (no state proof)",
+            "Test assertion alone (no external evidence)"
+          ]
+        },
+        "example_operator_run": {
+          "scenario": "Proving BreedOntologyOperator executed successfully",
+          "surface_1_execution": "result = await operator.execute(artifact); assert result.state == BRED",
+          "surface_2_observability": "span = tempo.get_span_by_name('breed-ontology'); assert span.attributes['output_triples'] > 0",
+          "surface_3_state": "assert artifact_file.exists() && artifact_file.size > artifact_before.size",
+          "surface_4_process": "ocel = tempo.traces_to_ocel(); events = [e for e in ocel if e['activity'] == 'breed-ontology']; assert events[-1]['artifact_state'] == 'bred'",
+          "surface_5_causality": "receipt = Receipt.from_span(span); assert receipt.previous_hash == artifact_before.hash() && result.receipts[-1].hash == receipt.hash",
+          "verdict": "All 5 surfaces aligned = PROVEN"
+        }
+      },
+      "validation_command": "python scripts/validate_multi_surface.py --execution_log test.log --otel_log otel.txt --state_dir artifacts/ --ocel_file events.ocel.jsonl --receipt_file .ggen/receipts/latest.json",
+      "forbidden_patterns": [
+        "Execution only: 'code returns success'",
+        "Observability only: mocked or fabricated spans",
+        "Test assertion only: 'assert result == expected'",
+        "State only: 'file exists'",
+        "Any single surface without corroboration"
+      ]
+    },
+    {
+      "dimension_id": 5,
+      "dimension_name": "Trace Extraction (Real vs. Mocked)",
+      "description": "How to get real traces from Tempo/Jaeger (or real equivalents in test environments).",
+      "applies_to": [
+        "integration_tests",
+        "e2e_tests",
+        "production_validation"
+      ],
+      "specification": {
+        "real_trace_sources": [
+          {
+            "source": "Tempo (cloud-native tracing backend)",
+            "connection": "tempo.example.com:3200",
+            "sdk": "opentelemetry-otlp",
+            "command": "curl http://localhost:3200/api/traces?limit=100 | jq",
+            "proof": "Real traces from actual instrumentation"
+          },
+          {
+            "source": "Jaeger (open-source distributed tracing)",
+            "connection": "localhost:16686 (UI), localhost:6831/udp (collector)",
+            "sdk": "opentelemetry-jaeger",
+            "command": "curl http://localhost:16686/api/traces?service=ggen | jq",
+            "proof": "Real traces with full trace context"
+          },
+          {
+            "source": "OpenTelemetry Collector (local OTEL processing)",
+            "connection": "localhost:4317 (gRPC), localhost:4318 (HTTP)",
+            "sdk": "opentelemetry-otlp",
+            "command": "Run tests with OTEL_EXPORTER_OTLP_ENDPOINT=localhost:4317",
+            "proof": "Real traces exported to collector"
+          },
+          {
+            "source": "Rust logs with trace filter (for unit/integration tests)",
+            "connection": "stderr/stdout in test output",
+            "sdk": "tracing crate + tracing-subscriber",
+            "command": "RUST_LOG=trace,ggen_ai=trace cargo test -- --nocapture 2>&1 | tee test_output.txt",
+            "proof": "Real spans printed to logs (no mock layer)"
+          }
+        ],
+        "forbidden_mock_sources": [
+          {
+            "pattern": "@patch('observability.get_tracer')",
+            "why": "Patched tracer has no connection to real instrumentation",
+            "consequence": "Test passes without real execution"
+          },
+          {
+            "pattern": "def _make_spans(n): return [{...}] * n",
+            "why": "Fabricated span dicts have no causal relationship to code",
+            "consequence": "Test is decoupled from reality"
+          },
+          {
+            "pattern": "MockTracer.expect_call()",
+            "why": "Mock expectation verification is behavior testing, not state",
+            "consequence": "Tests behavior of mock, not code"
+          },
+          {
+            "pattern": "monkeypatch.setattr('otel.emit_span', lambda: None)",
+            "why": "Disabling tracing hides problems",
+            "consequence": "Missing spans go undetected"
+          }
+        ],
+        "test_environment_setup": {
+          "docker_compose": {
+            "description": "Spin up real Tempo + Jaeger for integration tests",
+            "services": ["tempo", "jaeger", "otel-collector"],
+            "ports": ["3200:3200 (tempo)", "16686:16686 (jaeger ui)", "4317:4317 (otel grpc)"]
+          },
+          "rust_log_setup": "export RUST_LOG=trace,ggen_core=trace,ggen_ai=trace,otel=trace",
+          "span_capture": "Run test with --nocapture; pipe to file; validate via grep/jq"
+        }
+      },
+      "validation_command": "# Real traces from Tempo\ncurl -s http://localhost:3200/api/traces?service=ggen | jq '.traces[] | {traceID, spans}' | head -20\n\n# Real traces from logs\nRUST_LOG=trace cargo test --nocapture 2>&1 | grep -E '(span|trace_id|llm\\.)' | head -50",
+      "forbidden_patterns": [
+        "Mocked tracer layer (patch/mock)",
+        "Fabricated span dicts",
+        "Mock expectation verification",
+        "Disabling tracing (monkeypatch span emission)",
+        "Traces with synthetic latency"
+      ]
+    },
+    {
+      "dimension_id": 6,
+      "dimension_name": "OCEL Derivation (Object-Centric Event Logs)",
+      "description": "Converting OTel traces to OCEL object-centric event logs for process mining validation.",
+      "applies_to": [
+        "process_mining_validation",
+        "conformance_checking",
+        "variant_analysis"
+      ],
+      "specification": {
+        "ocel_requirements": {
+          "ocel_version": "2.0",
+          "standard": "https://www.ocel-standard.org/",
+          "why": "Object-centric logs capture interactions between multiple object types"
+        },
+        "conversion_pipeline": [
+          {
+            "step": 1,
+            "name": "Extract OTel traces from Tempo/Jaeger",
+            "input": "HTTP response from /api/traces",
+            "output": "List of Span objects with trace_id, span_id, parent_span_id, attributes, events",
+            "command": "curl http://localhost:3200/api/traces | jq '.traces[]'"
+          },
+          {
+            "step": 2,
+            "name": "Convert spans to OCEL events",
+            "input": "Span objects",
+            "output": "OCEL event format: {ocel:activity, ocel:timestamp, ocel:object-id, ocel:object-type}",
+            "code_example": "for span in spans:\n  event = {\n    'ocel:activity': span.name,\n    'ocel:timestamp': span.start_time,\n    'ocel:object-id': span.attributes.get('artifact.id'),\n    'ocel:object-type': 'artifact',\n    'ocel:attributes': span.attributes\n  }"
+          },
+          {
+            "step": 3,
+            "name": "Validate OCEL attributes",
+            "input": "OCEL events",
+            "output": "Validated event log with no missing required fields",
+            "validation_rules": [
+              "ocel:activity must not be empty",
+              "ocel:timestamp must be RFC-3339 or Unix timestamp",
+              "ocel:object-id must not be empty",
+              "ocel:object-type must be one of: artifact, receipt, proof_gate, benchmark, release",
+              "Temporal ordering: event.timestamp >= prev_event.timestamp"
+            ]
+          },
+          {
+            "step": 4,
+            "name": "Enrich OCEL with causality links",
+            "input": "Validated OCEL events",
+            "output": "Events with parent_event_id (span parent linking)",
+            "code_example": "for event in events:\n  parent_span_id = trace_map[event.span_id].parent_span_id\n  event['parent_event_id'] = span_to_event_map.get(parent_span_id)"
+          },
+          {
+            "step": 5,
+            "name": "Export to OCEL JSON-L or CSV",
+            "input": "Enriched OCEL events",
+            "output": "File: events.ocel.jsonl (one JSON object per line)",
+            "format": "{\"ocel:activity\": \"...\", \"ocel:timestamp\": \"...\", \"ocel:object-id\": \"...\", \"ocel:object-type\": \"...\", ...}"
+          }
+        ],
+        "required_object_types": [
+          {
+            "object_type": "artifact",
+            "lifecycle": "CREATE → SEEDED → BRED → VALIDATED → EMITTED → RELEASED",
+            "example_event": "{\"ocel:activity\": \"seed_ontology\", \"ocel:object-id\": \"art-001\", \"ocel:object-type\": \"artifact\", \"state\": \"SEEDED\"}"
+          },
+          {
+            "object_type": "receipt",
+            "lifecycle": "CREATE → SIGNED → VERIFIED",
+            "example_event": "{\"ocel:activity\": \"emit_receipt\", \"ocel:object-id\": \"rcpt-001\", \"ocel:object-type\": \"receipt\", \"signature\": \"sha256:...\", \"previous_hash\": \"sha256:...\"}"
+          },
+          {
+            "object_type": "proof_gate",
+            "lifecycle": "CREATE → EVALUATED → PASS/FAIL",
+            "example_event": "{\"ocel:activity\": \"quality_gate.validate\", \"ocel:object-id\": \"gate-001\", \"ocel:object-type\": \"proof_gate\", \"result\": \"pass\"}"
+          },
+          {
+            "object_type": "benchmark",
+            "lifecycle": "CREATE → MEASURED",
+            "example_event": "{\"ocel:activity\": \"slo_check\", \"ocel:object-id\": \"bench-001\", \"ocel:object-type\": \"benchmark\", \"duration_ms\": 1523}"
+          },
+          {
+            "object_type": "release",
+            "lifecycle": "CREATE → PREPARED → PUBLISHED",
+            "example_event": "{\"ocel:activity\": \"publish_release\", \"ocel:object-id\": \"rel-001\", \"ocel:object-type\": \"release\", \"version\": \"26.5.28\"}"
+          }
+        ],
+        "python_conversion_script": {
+          "module": "src/ostar/process/ocel_conversion.py",
+          "function": "traces_to_ocel(traces: List[Trace], output_file: str) -> EventLog",
+          "usage": "event_log = traces_to_ocel(tempo_traces, 'events.ocel.jsonl')"
+        }
+      },
+      "validation_command": "python -c \"from pm4py.ocel import importer; log = importer.apply('events.ocel.jsonl'); print(f'Events: {len(log.events)}, Objects: {log.objects_unique_count}')\"",
+      "forbidden_patterns": [
+        "Fabricating OCEL events by hand",
+        "Missing required OCEL attributes (activity, timestamp, object-id, object-type)",
+        "Timestamp violations (later event with earlier timestamp)",
+        "Orphan events (object-id with no object creation event)",
+        "Duplicate activity names without clear causality"
+      ]
+    },
+    {
+      "dimension_id": 7,
+      "dimension_name": "Process Mining Validation (pm4py)",
+      "description": "Verifying discovered process matches declared model using process mining algorithms.",
+      "applies_to": [
+        "pipeline_conformance",
+        "variant_explosion_detection",
+        "conformance_fitness_measurement"
+      ],
+      "specification": {
+        "process_mining_framework": {
+          "library": "pm4py (https://pm4py.fit.fau.de/)",
+          "python_version": "3.9+",
+          "key_functions": [
+            "pm4py.discover.discover_dfg_inductive() - Inductive Miner",
+            "pm4py.discover.discover_dfg_heuristics() - Heuristics Miner",
+            "pm4py.discover.discover_dfg_alpha() - Alpha Miner",
+            "pm4py.conformance.conformance_diagnostics_token_based_replay() - Conformance checking",
+            "pm4py.conformance.fitness_token_based_replay() - Fitness metric"
+          ]
+        },
+        "discovery_algorithms": [
+          {
+            "algorithm": "Inductive Miner",
+            "strengths": "Discovers structured processes, handles noise",
+            "output": "Petri Net or BPMN",
+            "use_when": "Expecting well-structured pipeline"
+          },
+          {
+            "algorithm": "Heuristics Miner",
+            "strengths": "Handles loops, more flexible",
+            "output": "Causal net or Petri Net",
+            "use_when": "Expecting loops or rework"
+          },
+          {
+            "algorithm": "Alpha Miner",
+            "strengths": "Simple, foundational",
+            "output": "Petri Net",
+            "use_when": "Simple acyclic processes"
+          }
+        ],
+        "conformance_checking": {
+          "declared_model": "Declared μ₁-μ₅ pipeline (load → extract → generate → validate → emit)",
+          "check_type": "Token-based replay",
+          "metrics": {
+            "fitness": {
+              "definition": "% of log traces explained by model",
+              "range": "0.0 - 1.0",
+              "acceptable": ">=0.9",
+              "failure": "Model does not explain observed execution"
+            },
+            "precision": {
+              "definition": "% of model traces in log (no spurious traces)",
+              "range": "0.0 - 1.0",
+              "acceptable": ">=0.85",
+              "failure": "Model allows traces not observed in logs"
+            },
+            "generalization": {
+              "definition": "Balance between overfitting and underfitting",
+              "range": "0.0 - 1.0",
+              "acceptable": ">=0.8",
+              "failure": "Model is either too specific or too generic"
+            },
+            "simplicity": {
+              "definition": "Model size (fewer nodes = simpler)",
+              "metric": "Number of nodes in Petri Net",
+              "acceptable": "<50 nodes for μ₁-μ₅",
+              "failure": "Overly complex model discovered"
+            }
+          }
+        },
+        "variant_analysis": {
+          "definition": "Count distinct execution variants in OCEL",
+          "why_matters": "ggen μ₁-μ₅ should be deterministic; excessive variants = instability",
+          "validation": {
+            "max_expected_variants": 5,
+            "why": "Minor branching (error paths, optional gates), but core deterministic",
+            "metric": "Compute Levenshtein distance between variant traces"
+          }
+        },
+        "deviation_detection": {
+          "definition": "Identify cases where actual execution deviates from declared model",
+          "common_deviations": [
+            "Skipped stage (stage not executed when expected)",
+            "Repeated stage (stage executed multiple times)",
+            "Out-of-order execution (stages run in wrong order)",
+            "Hidden rework (repair loop not in declared model)"
+          ],
+          "response": "Treat deviation as first-class defect in process, not test artifact"
+        },
+        "python_entry_point": {
+          "module": "scripts/process_mining_validator.py",
+          "main_function": "validate_pipeline_conformance(ocel_file: str, declared_model: str) -> ConformanceReport",
+          "usage": "python scripts/process_mining_validator.py --ocel events.ocel.jsonl --model .specify/models/declared_pipeline.bpmn"
+        }
+      },
+      "validation_command": "python scripts/process_mining_validator.py \\\n  --ocel .ggen/ocel/agent-edit-events.ocel.jsonl \\\n  --model .specify/models/pipeline.bpmn \\\n  --output conformance_report.json",
+      "expected_output": {
+        "fitness": 0.95,
+        "precision": 0.92,
+        "generalization": 0.88,
+        "discovered_variants": 3,
+        "deviations": [],
+        "verdict": "PASS"
+      },
+      "forbidden_patterns": [
+        "Trusting a single discovery algorithm",
+        "Ignoring conformance fitness <0.9",
+        "Model with >50 nodes for 5-stage pipeline",
+        "Unexamined deviations",
+        "Variant explosion (>10 variants for deterministic process)"
+      ]
+    },
+    {
+      "dimension_id": 8,
+      "dimension_name": "Negative Proof (Absence = Non-Execution)",
+      "description": "Absence of spans proves feature did not run. Tests passing without spans are invalid.",
+      "applies_to": [
+        "all_features_with_external_dependencies"
+      ],
+      "specification": {
+        "doctrine": "If OTEL spans are missing, the feature did not execute, even if test assertions pass.",
+        "failure_mode": "NARRATION",
+        "definition": "Claiming completion without producing proof. 'Test passed, therefore feature works' is narration, not evidence.",
+        "negative_proof_examples": [
+          {
+            "scenario": "LLM integration test passes but no llm.complete span",
+            "evidence": "Test returned Ok, mocked client was called (verified in code)",
+            "verdict": "INVALID - No OTEL span = LLM never called. Test is mocking the boundary.",
+            "how_to_fix": "Replace mock with real LLM call; capture real OTEL span"
+          },
+          {
+            "scenario": "MCP tool test passes but no mcp.tool.call span",
+            "evidence": "Tool returned expected result, no network errors",
+            "verdict": "INVALID - No OTEL span = Tool never invoked. Result was stubbed.",
+            "how_to_fix": "Use real MCP tool; verify span exists in OTEL logs"
+          },
+          {
+            "scenario": "Pipeline test passes but no pipeline.load span",
+            "evidence": "All assertions green; ontology was read from mock Graph",
+            "verdict": "INVALID - No OTEL span = Ontology was not loaded from source.",
+            "how_to_fix": "Emit span when ontology is loaded; verify in test output"
+          },
+          {
+            "scenario": "Quality gate test passes but no quality_gate.validate span",
+            "evidence": "Gate returned pass, no violations",
+            "verdict": "INVALID - No OTEL span = Gate was not evaluated. Result was hardcoded.",
+            "how_to_fix": "Emit span during gate evaluation; verify attributes"
+          }
+        ],
+        "absence_validation": {
+          "check_1": "Run test with RUST_LOG=trace",
+          "check_2": "Pipe output to file: 2>&1 | tee output.txt",
+          "check_3": "Search for required span: grep -E 'span_name_here' output.txt",
+          "check_4": "If grep returns nothing, span is absent => Feature invalid",
+          "command": "RUST_LOG=trace cargo test --nocapture 2>&1 | tee test_output.txt\ngrep 'llm\\.complete' test_output.txt || echo '⚠️ SPAN MISSING - TEST INVALID'"
+        },
+        "acceptable_absences": [
+          "OTEL spans absent in unit tests using in-memory collaborators (e.g., mock Graph)",
+          "Spans absent when feature is intentionally disabled (gated behind flag)",
+          "Spans absent in tests marked @ignore or skipped"
+        ],
+        "unacceptable_absences": [
+          "Spans absent in integration tests that claim to test real boundary",
+          "Spans absent in e2e tests that claim to test feature end-to-end",
+          "Test passes + assertions green + spans missing = test is invalid"
+        ]
+      },
+      "validation_procedure": [
+        "1. Run test with trace logging: RUST_LOG=trace cargo test",
+        "2. Capture output: ... 2>&1 | tee output.txt",
+        "3. Search for span: grep -E 'llm\\.complete|mcp\\.tool\\.call|pipeline\\.load' output.txt",
+        "4. Count matches: ... | wc -l",
+        "5. If count == 0: HALT. Feature is invalid. Do not claim completion.",
+        "6. If count > 0: Proceed to validate span attributes"
+      ],
+      "validation_command": "RUST_LOG=trace cargo test my_feature_test -- --nocapture 2>&1 | tee test_output.txt && \\\necho '=== SPAN VALIDATION ===' && \\\necho 'LLM spans:' && grep -c 'llm\\.' test_output.txt || echo '⚠️ MISSING' && \\\necho 'MCP spans:' && grep -c 'mcp\\.' test_output.txt || echo '⚠️ MISSING' && \\\necho 'Pipeline spans:' && grep -c 'pipeline\\.' test_output.txt || echo '⚠️ MISSING'",
+      "forbidden_patterns": [
+        "Test passes + spans missing, claiming feature works",
+        "Mocking observability layer (patches to tracer)",
+        "Disabling spans (RUST_LOG without trace-level modules)",
+        "Ignoring span absence (grep returns nothing)",
+        "Test in tests/smoke or tests/archive but not marked @ignore"
+      ],
+      "success_criteria": {
+        "all_spans_present": "All required spans found in OTEL logs",
+        "all_attributes_populated": "No missing or default-value attributes",
+        "latency_real": "Network calls >= 100ms",
+        "causality_present": "Spans linked via parent_span_id or trace_id",
+        "no_fabrication": "Spans come from real execution, not mocked tracer",
+        "verdict": "Feature PROVEN - OTEL evidence complete"
+      }
+    }
+  ],
+  "integration_checklist": {
+    "before_claiming_completion": [
+      "☐ All tests pass (cargo test)",
+      "☐ OTEL spans exist for the feature (RUST_LOG=trace | grep spans)",
+      "☐ All required attributes populated (no zeros, no placeholders)",
+      "☐ Token counts sum correctly (prompt + completion = total)",
+      "☐ Latency is real (network calls >= 100ms)",
+      "☐ Multi-surface corroboration: 3+ of (execution, observability, state, process, causality)",
+      "☐ OCEL event log derived from real traces (no fabrication)",
+      "☐ Process mining: fitness >= 0.9, precision >= 0.85, variants <= expected",
+      "☐ No deviations from declared model (or deviations documented as defects)",
+      "☐ Negative proof: absence of spans = feature did not run"
+    ]
+  },
+  "commands_by_dimension": {
+    "dimension_1_required_spans": "export RUST_LOG=trace,ggen_ai=trace,ggen_core=trace && cargo test --nocapture 2>&1 | tee otel.txt && grep -E '(llm\\.|mcp\\.|pipeline\\.|quality_gate\\.)' otel.txt | head -50",
+    "dimension_2_attribute_validation": "cat otel.txt | jq -s '.[] | select(.llm) | {model: .llm.model, tokens: .llm.total_tokens, latency: .llm.response_latency_ms}'",
+    "dimension_3_span_validation": "grep 'llm\\.response_latency_ms=[1-9]' otel.txt && echo 'Latency is real' || echo '⚠️ Synthetic latency'",
+    "dimension_4_multi_surface": "python scripts/validate_multi_surface.py --execution test.log --otel otel.txt --state artifacts/ --ocel events.ocel.jsonl --receipt .ggen/receipts/latest.json",
+    "dimension_5_trace_extraction": "RUST_LOG=trace cargo test --nocapture 2>&1 | grep -E '(trace_id|span_id|parent_span_id)' | head -20",
+    "dimension_6_ocel_derivation": "python -c \"from pm4py.ocel import importer; log = importer.apply('events.ocel.jsonl'); print(f'Events: {len(log.events)}, Object types: {list(log.objects_unique_count.keys())}')",
+    "dimension_7_process_mining": "python scripts/process_mining_validator.py --ocel events.ocel.jsonl --model .specify/models/pipeline.bpmn --output conformance_report.json && cat conformance_report.json | jq '.metrics'",
+    "dimension_8_negative_proof": "RUST_LOG=trace cargo test my_test -- --nocapture 2>&1 | grep -c 'llm\\.complete' || echo '⚠️ SPAN MISSING - FEATURE INVALID'"
+  },
+  "references": {
+    "otel_validation_rule": "./.claude/rules/otel-validation.md",
+    "testing_anti_cheating": "./.claude/rules/testing-anti-cheating.md",
+    "process_mining_chicago_tdd": "./.claude/rules/process-mining-chicago-tdd.md",
+    "claude_md_otel_section": "./CLAUDE.md (lines 173-227)",
+    "pm4py_documentation": "https://pm4py.fit.fau.de/",
+    "ocel_standard": "https://www.ocel-standard.org/",
+    "van_der_aalst_2016": "Process Mining: Data Science in Action"
+  }
+}
