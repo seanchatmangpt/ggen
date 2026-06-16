@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GGEN-OUT-001 — Pre-Implementation Inventory](#ggen-out-001--pre-implementation-inventory)
+  - [0. THE AMBIGUITY — RESOLVED BY EVIDENCE](#0-the-ambiguity--resolved-by-evidence)
+  - [1. THE RELATION (unbound_output_path) — exact detection predicate](#1-the-relation-unbound_output_path--exact-detection-predicate)
+    - [Why this is the dual of TPL-001, not a duplicate](#why-this-is-the-dual-of-tpl-001-not-a-duplicate)
+  - [2. THE SURFACE / FILETYPE DECISION (load-bearing)](#2-the-surface--filetype-decision-load-bearing)
+  - [3. FILE-BY-FILE DIFF PLAN (implementer follows verbatim)](#3-file-by-file-diff-plan-implementer-follows-verbatim)
+    - [EDIT `crates/ggen-lsp/src/analyzers/tera_analyzer.rs`](#edit-cratesggen-lspsrcanalyzerstera_analyzerrs)
+    - [EDIT `crates/ggen-lsp/src/analyzers/mod.rs`](#edit-cratesggen-lspsrcanalyzersmodrs)
+    - [EDIT `crates/ggen-lsp/src/route/diagnostic_species.rs`](#edit-cratesggen-lspsrcroutediagnostic_speciesrs)
+    - [EDIT `crates/ggen-lsp/src/route/registry.rs`](#edit-cratesggen-lspsrcrouteregistryrs)
+    - [EDIT `crates/ggen-lsp/src/state.rs` (the live seam)](#edit-cratesggen-lspsrcstaters-the-live-seam)
+    - [EDIT `crates/ggen-lsp/src/check.rs` (headless gate fold)](#edit-cratesggen-lspsrccheckrs-headless-gate-fold)
+    - [EDIT `crates/ggen-lsp/src/lib.rs`](#edit-cratesggen-lspsrclibrs)
+  - [4. SINGLE-WRITER OWNERSHIP](#4-single-writer-ownership)
+  - [5. RED PROOF DESIGN](#5-red-proof-design)
+    - [Fixtures (under `crates/ggen-lsp/tests/fixtures/ggen_out_001_living_loop/`)](#fixtures-under-cratesggen-lsptestsfixturesggen_out_001_living_loop)
+    - [Headless gate test (`ggen_out_001_living_loop.rs`)](#headless-gate-test-ggen_out_001_living_looprs)
+    - [Living-loop 6-link test (via `analyze_and_observe`)](#living-loop-6-link-test-via-analyze_and_observe)
+    - [Barriers / regression](#barriers--regression)
+  - [6. ALIVE / FAKE-LIVE / BLOCKED GATES (concrete)](#6-alive--fake-live--blocked-gates-concrete)
+  - [7. IMPLEMENTATION RECEIPT (GALL-OUT-001, 2026-05-30)](#7-implementation-receipt-gall-out-001-2026-05-30)
+    - [6-question patch contract](#6-question-patch-contract)
+    - [Gate status (HARD HONESTY)](#gate-status-hard-honesty)
+  - [Evidence Index (read 2026-05-30 @ HEAD 1353d6fe)](#evidence-index-read-2026-05-30--head-1353d6fe)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GGEN-OUT-001 — Pre-Implementation Inventory
 
 **Mission:** Resolve the BLOCKED-on-ambiguity status of the GGEN-OUT-001

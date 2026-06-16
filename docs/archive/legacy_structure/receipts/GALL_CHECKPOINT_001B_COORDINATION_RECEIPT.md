@@ -1,3 +1,21 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GALL-CHECKPOINT-001B — Coordination Receipt](#gall-checkpoint-001b--coordination-receipt)
+  - [What was wired](#what-was-wired)
+  - [The two bugs the gate caught (successful failures)](#the-two-bugs-the-gate-caught-successful-failures)
+  - [Tests added (orchestrator) — tests/ggen_tpl_001_stale_clear.rs](#tests-added-orchestrator--testsggen_tpl_001_stale_clearrs)
+  - [changed_files_by_agent](#changed_files_by_agent)
+  - [test_results (whole-graph, stable source state)](#test_results-whole-graph-stable-source-state)
+  - [non_overlap_audit](#non_overlap_audit)
+  - [artifact_write_audit](#artifact_write_audit)
+  - [scope_creep_audit](#scope_creep_audit)
+  - [known_gaps](#known_gaps)
+  - [next_lawful_action](#next_lawful_action)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GALL-CHECKPOINT-001B — Coordination Receipt
 
 **mission:** GALL-CHECKPOINT-001B — live/headless wiring for the existing GGEN-TPL-001 nerve

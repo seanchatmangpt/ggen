@@ -1,3 +1,23 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GGEN-TPL-001 — Agent 3 Handoff: Diagnostic Species + Route Registry](#ggen-tpl-001--agent-3-handoff-diagnostic-species--route-registry)
+  - [Files Changed (only my owned files)](#files-changed-only-my-owned-files)
+  - [Species API (as implemented — matches the shared contract verbatim)](#species-api-as-implemented--matches-the-shared-contract-verbatim)
+    - [Registered species (canonical values, verbatim from inventory §"Canonical values")](#registered-species-canonical-values-verbatim-from-inventory-%C2%A7canonical-values)
+  - [How GGEN-TPL-001 routes — and proof it is source-law-only](#how-ggen-tpl-001-routes--and-proof-it-is-source-law-only)
+    - [IMPORTANT: how the real route model selects (not what the contract sketch implied)](#important-how-the-real-route-model-selects-not-what-the-contract-sketch-implied)
+    - [Registration (in `seed_routes()`)](#registration-in-seed_routes)
+    - [Proof: targets only source law, never emitted output](#proof-targets-only-source-law-never-emitted-output)
+  - [RepairFamily / model.rs change requested but NOT made (orchestrator request)](#repairfamily--modelrs-change-requested-but-not-made-orchestrator-request)
+  - [Tests added + results (ALL PASS)](#tests-added--results-all-pass)
+    - [In `diagnostic_species.rs`](#in-diagnostic_speciesrs)
+    - [In `registry.rs`](#in-registryrs)
+  - [Blockers / notes](#blockers--notes)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GGEN-TPL-001 — Agent 3 Handoff: Diagnostic Species + Route Registry
 
 **Branch:** `feat/ggen-tpl-001-living-lsp`

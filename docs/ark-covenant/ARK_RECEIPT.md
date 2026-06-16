@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ARK-COVENANT: ProofPack Receipt](#ark-covenant-proofpack-receipt)
+  - [Problem](#problem)
+  - [ARK Invariants (ARK-01 through ARK-06)](#ark-invariants-ark-01-through-ark-06)
+  - [Receipt Structure (Validated)](#receipt-structure-validated)
+    - [Field Semantics](#field-semantics)
+  - [Test Implementation](#test-implementation)
+    - [Test 1: receipt_has_all_required_fields](#test-1-receipt_has_all_required_fields)
+    - [Test 2: receipt_signature_is_nonempty_and_sufficient_length](#test-2-receipt_signature_is_nonempty_and_sufficient_length)
+    - [Test 3: sha256_hash_of_receipt_json_is_deterministic](#test-3-sha256_hash_of_receipt_json_is_deterministic)
+    - [Test 4: operation_id_is_valid_uuid](#test-4-operation_id_is_valid_uuid)
+    - [Test 5: timestamp_is_valid_rfc3339_format](#test-5-timestamp_is_valid_rfc3339_format)
+    - [Test 6: hash_fields_contain_valid_sha256_hex_strings](#test-6-hash_fields_contain_valid_sha256_hex_strings)
+    - [Test 7: receipt_roundtrip_preserves_deterministic_hash](#test-7-receipt_roundtrip_preserves_deterministic_hash)
+  - [Artifact Manifest](#artifact-manifest)
+  - [Admission Decision](#admission-decision)
+    - [Promised vs. Actual](#promised-vs-actual)
+    - [PRE-ADMISSION (Placeholder Status)](#pre-admission-placeholder-status)
+  - [Doctrine](#doctrine)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ARK-COVENANT: ProofPack Receipt
 
 **Admission Type:** Receipt & Proof Chain Integrity  

@@ -1,3 +1,27 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [feat/ark-covenant-1 Boundary Crossing — Execution Summary](#featark-covenant-1-boundary-crossing--execution-summary)
+  - [Phase-by-Phase Execution Report](#phase-by-phase-execution-report)
+    - [Phase 1: Branch Creation & Staging](#phase-1-branch-creation--staging)
+    - [Phase 2: Verify Staged Content](#phase-2-verify-staged-content)
+    - [Phase 3: Commit with Receipt-Style Message](#phase-3-commit-with-receipt-style-message)
+    - [Phase 4: Push to Origin](#phase-4-push-to-origin)
+    - [Phase 5: Pre-Merge Verification](#phase-5-pre-merge-verification)
+    - [Phase 6: Merge to Main](#phase-6-merge-to-main)
+    - [Phase 7: Post-Merge Verification](#phase-7-post-merge-verification)
+    - [Phase 8: Write Boundary Receipt](#phase-8-write-boundary-receipt)
+    - [Phase 9: Push Main](#phase-9-push-main)
+  - [Execution Outcomes](#execution-outcomes)
+    - [Success Metrics](#success-metrics)
+    - [Commits Created/Merged](#commits-createdmerged)
+  - [Repository Constraint Resolution](#repository-constraint-resolution)
+  - [ARK Invariants Final Validation](#ark-invariants-final-validation)
+  - [Completion Checklist](#completion-checklist)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # feat/ark-covenant-1 Boundary Crossing — Execution Summary
 
 **Protocol:** 9-Phase Boundary Crossing Protocol  

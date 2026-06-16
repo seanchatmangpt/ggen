@@ -1,3 +1,30 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GALL-CHECKPOINT-002 — Pre-Implementation Inventory](#gall-checkpoint-002--pre-implementation-inventory)
+  - [1. THE RELATION (harness_mismatch) — exact detection predicate](#1-the-relation-harness_mismatch--exact-detection-predicate)
+    - [Scoping decision (resolves the one discovery ambiguity — NOT blocking)](#scoping-decision-resolves-the-one-discovery-ambiguity--not-blocking)
+  - [2. THE FILETYPE DECISION (load-bearing)](#2-the-filetype-decision-load-bearing)
+  - [3. FILE-BY-FILE DIFF PLAN (implementer follows verbatim)](#3-file-by-file-diff-plan-implementer-follows-verbatim)
+    - [NEW `crates/ggen-lsp/src/analyzers/harness_analyzer.rs` (pure detector — mirror tera_analyzer pure-fn)](#new-cratesggen-lspsrcanalyzersharness_analyzerrs-pure-detector--mirror-tera_analyzer-pure-fn)
+    - [NEW `crates/ggen-lsp/src/harness_index.rs` (I/O boundary — mirror project_index.rs)](#new-cratesggen-lspsrcharness_indexrs-io-boundary--mirror-project_indexrs)
+    - [EDIT `crates/ggen-lsp/src/analyzers/mod.rs`](#edit-cratesggen-lspsrcanalyzersmodrs)
+    - [EDIT `crates/ggen-lsp/src/lib.rs`](#edit-cratesggen-lspsrclibrs)
+    - [EDIT `crates/ggen-lsp/src/route/registry.rs`](#edit-cratesggen-lspsrcrouteregistryrs)
+    - [EDIT `crates/ggen-lsp/src/route/diagnostic_species.rs`](#edit-cratesggen-lspsrcroutediagnostic_speciesrs)
+    - [EDIT `crates/ggen-lsp/src/state.rs` (the live seam)](#edit-cratesggen-lspsrcstaters-the-live-seam)
+    - [EDIT `crates/ggen-lsp/src/check.rs` (headless gate fold)](#edit-cratesggen-lspsrccheckrs-headless-gate-fold)
+  - [4. SINGLE-WRITER OWNERSHIP](#4-single-writer-ownership)
+  - [5. RED PROOF DESIGN](#5-red-proof-design)
+    - [Fixtures (under `crates/ggen-lsp/tests/fixtures/ggen_harness_001_living_loop/`)](#fixtures-under-cratesggen-lsptestsfixturesggen_harness_001_living_loop)
+    - [Headless gate test (`ggen_harness_001_living_loop.rs`)](#headless-gate-test-ggen_harness_001_living_looprs)
+    - [Living-loop 6-link test (via `analyze_and_observe`)](#living-loop-6-link-test-via-analyze_and_observe)
+    - [Regression / barrier flips](#regression--barrier-flips)
+  - [6. ALIVE / FAKE-LIVE / BLOCKED GATES (concrete)](#6-alive--fake-live--blocked-gates-concrete)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GALL-CHECKPOINT-002 — Pre-Implementation Inventory
 
 **Mission:** Activate the GGEN-HARNESS-001 diagnostic species from Phase-2 metadata-only to a LIVING diagnostic, mirroring the proven GGEN-TPL-001 living loop. ggen LOCAL law (diagnostic species + route + living loop). NOT process mining.

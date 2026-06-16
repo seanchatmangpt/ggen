@@ -1,3 +1,19 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Documentation Definition of Done — Quick Reference](#documentation-definition-of-done--quick-reference)
+  - [The 8 Surfaces Checklist](#the-8-surfaces-checklist)
+  - [Before You Write/Edit Docs](#before-you-writeedit-docs)
+  - [Forbidden Patterns](#forbidden-patterns)
+  - [Master Validation (All Must Pass)](#master-validation-all-must-pass)
+  - [When Adding a New Documentation File](#when-adding-a-new-documentation-file)
+  - [Common Mistakes (Avoid These)](#common-mistakes-avoid-these)
+  - [One-Minute Health Check](#one-minute-health-check)
+  - [Reference Files](#reference-files)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Documentation Definition of Done — Quick Reference
 
 **One-pager for documentation validation.** Reference when adding/updating docs.

@@ -1,3 +1,17 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GALL-CHECKPOINT-001B — Agent 4 (Regression / No-Scope-Creep) Handoff](#gall-checkpoint-001b--agent-4-regression--no-scope-creep-handoff)
+  - [Files changed (only files in this agent's ownership)](#files-changed-only-files-in-this-agents-ownership)
+  - [Each boundary assertion + what it locks](#each-boundary-assertion--what-it-locks)
+  - [Tests run + results](#tests-run--results)
+    - [One self-inflicted RED, fixed (test &#035;7)](#one-self-inflicted-red-fixed-test-7)
+  - [API surface verified against landed source](#api-surface-verified-against-landed-source)
+  - [Known gaps](#known-gaps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GALL-CHECKPOINT-001B — Agent 4 (Regression / No-Scope-Creep) Handoff
 
 **Mission:** GALL-CHECKPOINT-001B — LIVE WIRING FOR GGEN-TPL-001

@@ -1,3 +1,19 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GALL-CHECKPOINT-002 — Implementation Receipt](#gall-checkpoint-002--implementation-receipt)
+  - [Real state changed](#real-state-changed)
+  - [Authoritative path touched](#authoritative-path-touched)
+  - [Negative path that now fails correctly](#negative-path-that-now-fails-correctly)
+  - [Invariants protecting against drift](#invariants-protecting-against-drift)
+  - [Legacy path removed/blocked](#legacy-path-removedblocked)
+  - [Proof object](#proof-object)
+  - [Changed files (all inside crates/ggen-lsp/ except this receipt)](#changed-files-all-inside-cratesggen-lsp-except-this-receipt)
+  - [Proof tails](#proof-tails)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GALL-CHECKPOINT-002 — Implementation Receipt
 
 **Mission:** Activate GGEN-HARNESS-001 from Phase-2 metadata-only to a LIVING diagnostic, mirroring the proven GGEN-TPL-001 living loop. ggen LOCAL law. Single-writer integration.

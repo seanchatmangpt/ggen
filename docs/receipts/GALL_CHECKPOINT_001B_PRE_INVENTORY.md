@@ -1,3 +1,16 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GALL-CHECKPOINT-001B — Pre-Inventory (Phase 0)](#gall-checkpoint-001b--pre-inventory-phase-0)
+  - [Phase 0 gate — PASS](#phase-0-gate--pass)
+  - [The 10 confirmations](#the-10-confirmations)
+  - [Wiring seams (for agents)](#wiring-seams-for-agents)
+  - [Project-root resolution note](#project-root-resolution-note)
+  - [Scope lock (this checkpoint)](#scope-lock-this-checkpoint)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GALL-CHECKPOINT-001B — Pre-Inventory (Phase 0)
 
 **Mission:** GALL-CHECKPOINT-001B — LIVE WIRING FOR GGEN-TPL-001

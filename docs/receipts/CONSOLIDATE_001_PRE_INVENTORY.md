@@ -1,3 +1,23 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [CONSOLIDATE-001 — Pre-Inventory & Lawful-Extent Decision](#consolidate-001--pre-inventory--lawful-extent-decision)
+  - [1. The duplication (confirmed by reading the code, not by claim)](#1-the-duplication-confirmed-by-reading-the-code-not-by-claim)
+    - [1.1 `state.rs` — three parallel flagged-sets + three clears_for + three detect_*_for + three branches](#11-staters--three-parallel-flagged-sets--three-clears_for--three-detect__for--three-branches)
+    - [1.2 `check.rs` — three folds](#12-checkrs--three-folds)
+    - [1.3 `route/diagnostic_species.rs` — the registry (metadata)](#13-routediagnostic_speciesrs--the-registry-metadata)
+  - [2. Per-species variation (bounds what is unifiable)](#2-per-species-variation-bounds-what-is-unifiable)
+  - [3. HARD CONSTRAINT discovered: `tpl_clears_for` is a public test contract](#3-hard-constraint-discovered-tpl_clears_for-is-a-public-test-contract)
+  - [4. LAWFUL EXTENT decision (what is safe to unify, what is scoped out)](#4-lawful-extent-decision-what-is-safe-to-unify-what-is-scoped-out)
+    - [SAFE — unify (this checkpoint)](#safe--unify-this-checkpoint)
+    - [SCOPED OUT — documented follow-on (NOT forced here)](#scoped-out--documented-follow-on-not-forced-here)
+  - [5. ALIVE / FAKE-LIVE / BLOCKED — concrete](#5-alive--fake-live--blocked--concrete)
+  - [6. Exact file-change manifest](#6-exact-file-change-manifest)
+  - [7. Authority/drift justification (coding-agent-mistakes gate)](#7-authoritydrift-justification-coding-agent-mistakes-gate)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # CONSOLIDATE-001 — Pre-Inventory & Lawful-Extent Decision
 
 **Checkpoint kind:** REFACTOR (deepen authority + reduce drift). NOT a new diagnostic.

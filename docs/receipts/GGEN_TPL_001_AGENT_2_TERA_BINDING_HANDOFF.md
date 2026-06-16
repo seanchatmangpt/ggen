@@ -1,3 +1,22 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GGEN-TPL-001 — Agent 2 Handoff: Tera Binding Detector](#ggen-tpl-001--agent-2-handoff-tera-binding-detector)
+  - [Files changed (the only two I own/wrote)](#files-changed-the-only-two-i-ownwrote)
+  - [What changed](#what-changed)
+    - [`tera_analyzer.rs`](#tera_analyzerrs)
+    - [`analyzers/mod.rs`](#analyzersmodrs)
+  - [Detector API (exact signatures)](#detector-api-exact-signatures)
+  - [Exact diagnostic fields emitted](#exact-diagnostic-fields-emitted)
+  - [Tests added (inline `#[cfg(test)] mod tests` in tera_analyzer.rs)](#tests-added-inline-cfgtest-mod-tests-in-tera_analyzerrs)
+    - [Test results — GREEN](#test-results--green)
+  - [Known dialect gaps (extractor may mis-handle)](#known-dialect-gaps-extractor-may-mis-handle)
+  - [ORCHESTRATOR WIRING NOTE (server.rs / check.rs — I could not edit these)](#orchestrator-wiring-note-serverrs--checkrs--i-could-not-edit-these)
+  - [Blockers](#blockers)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GGEN-TPL-001 — Agent 2 Handoff: Tera Binding Detector
 
 **Mission:** GGEN-TPL-001-FIVE-AGENT-WORKSPLIT

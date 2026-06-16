@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Release Readiness — 10-Dimension Definition of Done](#ggen-release-readiness--10-dimension-definition-of-done)
+  - [Quick Reference Checklist](#quick-reference-checklist)
+  - [The 10 Dimensions (In Order)](#the-10-dimensions-in-order)
+    - [1️⃣ **Gate Validation** — All 5 Core Quality Gates Pass](#-gate-validation--all-5-core-quality-gates-pass)
+    - [2️⃣ **Artifact Emission** — Code Generation Pipeline Produces Output](#-artifact-emission--code-generation-pipeline-produces-output)
+    - [3️⃣ **Checksum Validation** — SHA-256 Hashes Verified](#-checksum-validation--sha-256-hashes-verified)
+    - [4️⃣ **Signature Verification** — Receipt Cryptographically Signed](#-signature-verification--receipt-cryptographically-signed)
+    - [5️⃣ **Lockfile Finality** — Package Lock Frozen & Verified](#-lockfile-finality--package-lock-frozen--verified)
+    - [6️⃣ **Version Tagging** — Semantic Versioning Tagged in Git](#-version-tagging--semantic-versioning-tagged-in-git)
+    - [7️⃣ **Changelog Recording** — Changes Documented](#-changelog-recording--changes-documented)
+    - [8️⃣ **Smoke Testing** — End-to-End Validation](#-smoke-testing--end-to-end-validation)
+    - [9️⃣ **Deployment Checklist** — Pre-Deployment Safety Gate](#-deployment-checklist--pre-deployment-safety-gate)
+    - [🔟 **Rollback Plan** — Recovery Documented & Tested](#-rollback-plan--recovery-documented--tested)
+  - [Validation Sequence](#validation-sequence)
+  - [Andon Protocol (Stop the Line)](#andon-protocol-stop-the-line)
+  - [Failure Modes to Avoid](#failure-modes-to-avoid)
+    - [Decorative Completion](#decorative-completion)
+    - [Contract Drift](#contract-drift)
+    - [Fail-Open Behavior](#fail-open-behavior)
+    - [Legacy Path Contamination](#legacy-path-contamination)
+    - [Epistemic Bypass](#epistemic-bypass)
+  - [Evidence Required (What Must Be Captured)](#evidence-required-what-must-be-captured)
+  - [False Positives (Not Ready to Ship)](#false-positives-not-ready-to-ship)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Release Readiness — 10-Dimension Definition of Done
 
 **Version:** 26.6.11 | **Last Updated:** 2026-06-14 | **Status:** NORMATIVE

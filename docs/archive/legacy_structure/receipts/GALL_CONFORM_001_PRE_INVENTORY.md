@@ -1,3 +1,25 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GALL_CONFORM_001 — PM-Retirement Pre-Inventory](#gall_conform_001--pm-retirement-pre-inventory)
+  - [0. Headline finding — BLOCKED status has changed](#0-headline-finding--blocked-status-has-changed)
+  - [1. RETIRE / KEEP INVENTORY (the deliverable)](#1-retire--keep-inventory-the-deliverable)
+    - [1A. `crates/ggen-graph/src/ocel/` — the duplicated PM stack](#1a-cratesggen-graphsrcocel--the-duplicated-pm-stack)
+    - [1B. `crates/ggen-lsp/src/intel/` — the living-LSP nerve (mostly KEEP)](#1b-cratesggen-lspsrcintel--the-living-lsp-nerve-mostly-keep)
+    - [1C. Other consumers found (blast radius outside the two target dirs)](#1c-other-consumers-found-blast-radius-outside-the-two-target-dirs)
+    - [1D. Test surface that will move with the migration](#1d-test-surface-that-will-move-with-the-migration)
+  - [2. ggen KEEPS vs SHEDS — one-line summary](#2-ggen-keeps-vs-sheds--one-line-summary)
+  - [3. ocel-core type migration + the serialized-name constraint (load-bearing)](#3-ocel-core-type-migration--the-serialized-name-constraint-load-bearing)
+    - [3.1 Type mapping (ggen `ocel_types.rs` → `ocel-core` lib.rs, both read)](#31-type-mapping-ggen-ocel_typesrs-%E2%86%92-ocel-core-librs-both-read)
+    - [3.2 CRITICAL serialized-name constraint (NEED §3.1) — verified against the proof tests](#32-critical-serialized-name-constraint-need-%C2%A731--verified-against-the-proof-tests)
+  - [4. NDJSON intake fit (NEED §4a) — present, one gap](#4-ndjson-intake-fit-need-%C2%A74a--present-one-gap)
+  - [5. Dependency-on-wasm4pm gating](#5-dependency-on-wasm4pm-gating)
+  - [6. Staged migration (dependency-ordered, single-writer per stage)](#6-staged-migration-dependency-ordered-single-writer-per-stage)
+  - [7. Evidence ledger](#7-evidence-ledger)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GALL_CONFORM_001 — PM-Retirement Pre-Inventory
 
 **Role:** OCEL-Core / PM-Retirement Planner (read-only; no cargo run)

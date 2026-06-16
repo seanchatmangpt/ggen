@@ -1,3 +1,21 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GGEN-RULE-001 Pre-Implementation Inventory](#ggen-rule-001-pre-implementation-inventory)
+  - [1. Discovery Gate Verdict: READY (real gap)](#1-discovery-gate-verdict-ready-real-gap)
+    - [Evidence (mechanically verified)](#evidence-mechanically-verified)
+  - [2. Canonical Values (fixed by this inventory; MUST NOT vary)](#2-canonical-values-fixed-by-this-inventory-must-not-vary)
+    - [Why a NEW `RepairFamily` variant (`RuleFileMissing`)](#why-a-new-repairfamily-variant-rulefilemissing)
+  - [3. The Defect (precise)](#3-the-defect-precise)
+  - [4. Living-Loop Wiring (the consolidated loop; cite CONSOLIDATE-002)](#4-living-loop-wiring-the-consolidated-loop-cite-consolidate-002)
+  - [5. The Route (source-law; never emitted output)](#5-the-route-source-law-never-emitted-output)
+  - [6. RED Living-Loop Proof (Chicago TDD; real fixtures, real log)](#6-red-living-loop-proof-chicago-tdd-real-fixtures-real-log)
+  - [7. ALIVE / FAKE-LIVE / BLOCKED definitions](#7-alive--fake-live--blocked-definitions)
+  - [8. Self-Check (coding-agent-mistakes.md §6)](#8-self-check-coding-agent-mistakesmd-%C2%A76)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GGEN-RULE-001 Pre-Implementation Inventory
 
 **Species:** GGEN-RULE-001 — `unbound_rule_file` (dangling rule binding)

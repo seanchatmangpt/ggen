@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [LIVE-BUFFER-001 — Pre-Inventory (Live-Buffer Architect)](#live-buffer-001--pre-inventory-live-buffer-architect)
+  - [1. The gap (confirmed against real files)](#1-the-gap-confirmed-against-real-files)
+  - [2. The relation / invariant](#2-the-relation--invariant)
+  - [3. The async/sync boundary (the one real design constraint)](#3-the-asyncsync-boundary-the-one-real-design-constraint)
+  - [4. The buffer-overlay design (signatures)](#4-the-buffer-overlay-design-signatures)
+    - [4.1 `ProjectIndex` (project_index.rs)](#41-projectindex-project_indexrs)
+    - [4.2 `RuleIndexEntry` (rule_index.rs)](#42-ruleindexentry-rule_indexrs)
+    - [4.3 `HarnessIndex` (harness_index.rs)](#43-harnessindex-harness_indexrs)
+    - [4.4 Manifest-from-string note (only if `ggen.toml` itself is to be overlay-aware)](#44-manifest-from-string-note-only-if-ggentoml-itself-is-to-be-overlay-aware)
+    - [4.5 Detector wiring (state.rs)](#45-detector-wiring-staters)
+  - [5. ALIVE / FAKE-LIVE / BLOCKED (concrete)](#5-alive--fake-live--blocked-concrete)
+    - [ALIVE (acceptance)](#alive-acceptance)
+    - [FAKE-LIVE (rejection)](#fake-live-rejection)
+    - [BLOCKED (only if the mapper finds it invasive — it does NOT here)](#blocked-only-if-the-mapper-finds-it-invasive--it-does-not-here)
+  - [6. Verbatim implementation diff plan (recommended scope: §4.4 — `.rq`/`.tera`/`Cargo.toml` overlay, `ggen.toml` disk-read)](#6-verbatim-implementation-diff-plan-recommended-scope-%C2%A744--rqteracargotoml-overlay-ggentoml-disk-read)
+    - [6.1 `crates/ggen-lsp/src/project_index.rs`](#61-cratesggen-lspsrcproject_indexrs)
+    - [6.2 `crates/ggen-lsp/src/rule_index.rs`](#62-cratesggen-lspsrcrule_indexrs)
+    - [6.3 `crates/ggen-lsp/src/harness_index.rs`](#63-cratesggen-lspsrcharness_indexrs)
+    - [6.4 `crates/ggen-lsp/src/state.rs`](#64-cratesggen-lspsrcstaters)
+    - [6.5 `crates/ggen-lsp/tests/live_buffer_001_living_loop.rs` (NEW)](#65-cratesggen-lsptestslive_buffer_001_living_looprs-new)
+  - [7. Patch contract self-check (coding-agent-mistakes §3)](#7-patch-contract-self-check-coding-agent-mistakes-%C2%A73)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # LIVE-BUFFER-001 — Pre-Inventory (Live-Buffer Architect)
 
 **Checkpoint:** LIVE-BUFFER-001 — make the cross-surface living loop LIVE ON THE OPEN BUFFER, not just disk.

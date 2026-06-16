@@ -1,3 +1,21 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GGEN FINISH-GAPS — COORDINATION RECEIPT](#ggen-finish-gaps--coordination-receipt)
+  - [VERDICT: PARTIAL](#verdict-partial)
+  - [Per-gap verdict](#per-gap-verdict)
+  - [Gate tails (independently re-run by this workcell)](#gate-tails-independently-re-run-by-this-workcell)
+  - [Fixes applied by this workcell (in-scope, zero functional risk)](#fixes-applied-by-this-workcell-in-scope-zero-functional-risk)
+  - [Full changed-file inventory (`git status --short`)](#full-changed-file-inventory-git-status---short)
+  - [Non-overlap (single-writer) audit](#non-overlap-single-writer-audit)
+  - [Scope-creep audit](#scope-creep-audit)
+  - [Existing-ALIVE-checkpoint regression check](#existing-alive-checkpoint-regression-check)
+  - [Live ANDON (must be resolved by conductor / CONFORM-001 author — NOT this workcell)](#live-andon-must-be-resolved-by-conductor--conform-001-author--not-this-workcell)
+  - [Next lawful frontier](#next-lawful-frontier)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GGEN FINISH-GAPS — COORDINATION RECEIPT
 
 **Workcell:** Coordination Receipt Workcell (independent re-verification — prior agents NOT trusted)

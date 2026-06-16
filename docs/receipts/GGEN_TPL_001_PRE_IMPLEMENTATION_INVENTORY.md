@@ -1,3 +1,21 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GGEN-TPL-001 — Pre-Implementation Inventory (Phase 0)](#ggen-tpl-001--pre-implementation-inventory-phase-0)
+  - [The 7 facts to verify — RESULTS](#the-7-facts-to-verify--results)
+  - [Path corrections (mission assumed flat `src/`)](#path-corrections-mission-assumed-flat-src)
+  - [Module wiring facts](#module-wiring-facts)
+  - [Manifest types (reuse, do not re-parse) — `ggen_core::manifest::types`](#manifest-types-reuse-do-not-re-parse--ggen_coremanifesttypes)
+  - [`ggen.toml` rule shape (root, ggen.toml:45-66)](#ggentoml-rule-shape-root-ggentoml45-66)
+  - [Example projects available as real fixtures](#example-projects-available-as-real-fixtures)
+  - [SHARED API CONTRACT (all agents code to this — prevents integration drift)](#shared-api-contract-all-agents-code-to-this--prevents-integration-drift)
+    - [Canonical values for the two species](#canonical-values-for-the-two-species)
+    - [Ownership-collision resolutions (decided now)](#ownership-collision-resolutions-decided-now)
+  - [Next](#next)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GGEN-TPL-001 — Pre-Implementation Inventory (Phase 0)
 
 **Mission:** GGEN-TPL-001-FIVE-AGENT-WORKSPLIT

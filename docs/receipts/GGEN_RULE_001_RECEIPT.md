@@ -1,3 +1,17 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GGEN-RULE-001 Verifier Receipt — `unbound_rule_file`](#ggen-rule-001-verifier-receipt--unbound_rule_file)
+  - [1. Discovery Gate Verdict (decided FIRST): READY (real gap)](#1-discovery-gate-verdict-decided-first-ready-real-gap)
+  - [2. The Consolidated Loop carries it (cite CONSOLIDATE-002) — no bespoke branch](#2-the-consolidated-loop-carries-it-cite-consolidate-002--no-bespoke-branch)
+  - [3. FAKE-LIVE guard — REAL (external on-disk OCEL 6-link chain)](#3-fake-live-guard--real-external-on-disk-ocel-6-link-chain)
+  - [4. Cross-species: NO leakage (both directions)](#4-cross-species-no-leakage-both-directions)
+  - [5. Evidence (re-run independently)](#5-evidence-re-run-independently)
+  - [6. ALIVE acceptance — all satisfied](#6-alive-acceptance--all-satisfied)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GGEN-RULE-001 Verifier Receipt — `unbound_rule_file`
 
 **Species:** GGEN-RULE-001 — `unbound_rule_file` (dangling rule binding: a `ggen.toml`

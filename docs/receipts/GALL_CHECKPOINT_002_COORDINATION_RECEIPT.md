@@ -1,3 +1,18 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GALL-CHECKPOINT-002 — Coordination Receipt (Verifier Workcell)](#gall-checkpoint-002--coordination-receipt-verifier-workcell)
+  - [1. What was wired (independently confirmed by reading the tree)](#1-what-was-wired-independently-confirmed-by-reading-the-tree)
+  - [2. Bugs / gates / disambiguation (the load-bearing decisions, verified)](#2-bugs--gates--disambiguation-the-load-bearing-decisions-verified)
+  - [3. Adversarial FAKE-LIVE probe (falsifiability — the decisive test)](#3-adversarial-fake-live-probe-falsifiability--the-decisive-test)
+  - [4. Four proof tails (re-run on the working tree, mine, not the implementer's)](#4-four-proof-tails-re-run-on-the-working-tree-mine-not-the-implementers)
+  - [5. Non-overlap / scope-creep audit](#5-non-overlap--scope-creep-audit)
+  - [6. Changed files (final, verified)](#6-changed-files-final-verified)
+  - [7. Verdict](#7-verdict)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GALL-CHECKPOINT-002 — Coordination Receipt (Verifier Workcell)
 
 **Date:** 2026-05-30

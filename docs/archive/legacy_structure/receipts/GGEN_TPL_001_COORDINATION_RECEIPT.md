@@ -1,3 +1,17 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GGEN-TPL-001 Coordination Receipt](#ggen-tpl-001-coordination-receipt)
+  - [BLOCKERS (exact file:line — for orchestrator dispatch; NOT fixed by Agent 5)](#blockers-exact-fileline--for-orchestrator-dispatch-not-fixed-by-agent-5)
+    - [Blocker 1 — `cargo fmt --check -p ggen-lsp` FAILS (7 diffs, all in test code)](#blocker-1--cargo-fmt---check--p-ggen-lsp-fails-7-diffs-all-in-test-code)
+    - [Blocker 2 — `cargo clippy -p ggen-lsp --all-targets` FAILS (PRE-EXISTING, ggen-core, orthogonal)](#blocker-2--cargo-clippy--p-ggen-lsp---all-targets-fails-pre-existing-ggen-core-orthogonal)
+  - [ORCHESTRATOR FINALIZATION (post Agent-5)](#orchestrator-finalization-post-agent-5)
+    - [Out-of-scope pre-existing defect (NOT fixed — documented)](#out-of-scope-pre-existing-defect-not-fixed--documented)
+    - [Final changed-file set (GGEN-TPL-001)](#final-changed-file-set-ggen-tpl-001)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GGEN-TPL-001 Coordination Receipt
 
 **Agent:** 5 of 5 (coordinator / receipt / auditor)

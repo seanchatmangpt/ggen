@@ -1,3 +1,22 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GALL-CONFORM-001 Migration Receipt](#gall-conform-001-migration-receipt)
+  - [Purpose](#purpose)
+  - [Stage 0 — Pin the Dependency (COMPLETE)](#stage-0--pin-the-dependency-complete)
+  - [wpm CLI Oracle Contract — VERIFIED](#wpm-cli-oracle-contract--verified)
+  - [NDJSON Truncated-Line Tolerance Gap — DOCUMENTED](#ndjson-truncated-line-tolerance-gap--documented)
+  - [Stage 1 — Type Swap (PENDING)](#stage-1--type-swap-pending)
+  - [Stage 2 — Swap the Reader (PENDING)](#stage-2--swap-the-reader-pending)
+  - [Stage 3 — Externalize Discovery and Conformance (PENDING)](#stage-3--externalize-discovery-and-conformance-pending)
+  - [Stage 4 — Retire ocel_types.rs (PENDING)](#stage-4--retire-ocel_typesrs-pending)
+  - [Evidence Ledger](#evidence-ledger)
+  - [4-Gate Proof — 2026-06-03 (GAP_FIRMAMENT_002_GGEN closure)](#4-gate-proof--2026-06-03-gap_firmament_002_ggen-closure)
+  - [Relationship to ALIVE Receipt](#relationship-to-alive-receipt)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 ---
 receipt: GALL_CONFORM_001_RECEIPT
 date: 2026-06-02

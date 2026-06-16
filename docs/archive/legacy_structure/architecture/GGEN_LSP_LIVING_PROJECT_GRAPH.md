@@ -1,3 +1,21 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GGEN-LSP Living Project Graph](#ggen-lsp-living-project-graph)
+  - [1. What changed conceptually](#1-what-changed-conceptually)
+  - [2. The project-graph components (real files)](#2-the-project-graph-components-real-files)
+    - [2.1 RuleIndex — `crates/ggen-lsp/src/rule_index.rs`](#21-ruleindex--cratesggen-lspsrcrule_indexrs)
+    - [2.2 ProjectIndex — `crates/ggen-lsp/src/project_index.rs`](#22-projectindex--cratesggen-lspsrcproject_indexrs)
+    - [2.3 The detector — `crates/ggen-lsp/src/analyzers/tera_analyzer.rs` + `analyzers/mod.rs`](#23-the-detector--cratesggen-lspsrcanalyzerstera_analyzerrs--analyzersmodrs)
+    - [2.4 DiagnosticSpecies registry — `crates/ggen-lsp/src/route/diagnostic_species.rs`](#24-diagnosticspecies-registry--cratesggen-lspsrcroutediagnostic_speciesrs)
+  - [3. How GGEN-TPL-001 enters the existing observe→route→receipt loop](#3-how-ggen-tpl-001-enters-the-existing-observe%E2%86%92route%E2%86%92receipt-loop)
+  - [4. Native-first / child-LSP-deferred decision](#4-native-first--child-lsp-deferred-decision)
+  - [5. The deferred live-wiring seam (next lawful action)](#5-the-deferred-live-wiring-seam-next-lawful-action)
+  - [6. Species roadmap](#6-species-roadmap)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GGEN-LSP Living Project Graph
 
 **Mission:** GGEN-TPL-001-FIVE-AGENT-WORKSPLIT

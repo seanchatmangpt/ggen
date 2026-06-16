@@ -1,3 +1,19 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [CONSOLIDATE-002 — Verifier Receipt](#consolidate-002--verifier-receipt)
+  - [1. What changed (real state, not stdout)](#1-what-changed-real-state-not-stdout)
+  - [2. Authoritative path touched](#2-authoritative-path-touched)
+  - [3. The proof is REAL sequence-equivalence (NOT pass-count)](#3-the-proof-is-real-sequence-equivalence-not-pass-count)
+  - [4. Behavior-preservation invariant (no drift)](#4-behavior-preservation-invariant-no-drift)
+  - [5. Negative path / sabotage confirmed](#5-negative-path--sabotage-confirmed)
+  - [6. Gate evidence (re-run independently)](#6-gate-evidence-re-run-independently)
+    - [Existing ALIVE-checkpoint tests — all UNCHANGED counts, all pass](#existing-alive-checkpoint-tests--all-unchanged-counts-all-pass)
+  - [7. Verdict](#7-verdict)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # CONSOLIDATE-002 — Verifier Receipt
 
 **Role:** VERIFIER + RECEIPT (independent re-verification; trust evidence, not narration).

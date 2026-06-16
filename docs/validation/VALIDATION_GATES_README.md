@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Validation Gates — Definition of Done](#ggen-validation-gates--definition-of-done)
+  - [Quick Reference: The 7 Validation Gates](#quick-reference-the-7-validation-gates)
+  - [Gate-by-Gate Specification](#gate-by-gate-specification)
+    - [Gate 1: SHACL Validation](#gate-1-shacl-validation)
+    - [Gate 2: Profile Enforcement (Strict Mode)](#gate-2-profile-enforcement-strict-mode)
+    - [Gate 3: SPARQL Conformance (Law Surfaces)](#gate-3-sparql-conformance-law-surfaces)
+    - [Gate 4: Type-Level Validation (Rust Compiler)](#gate-4-type-level-validation-rust-compiler)
+    - [Gate 5: Diagnostic Codes Resolution (LSP Diagnostics)](#gate-5-diagnostic-codes-resolution-lsp-diagnostics)
+    - [Gate 6: Output Layer Validation (Yield Gate)](#gate-6-output-layer-validation-yield-gate)
+    - [Gate 7: Determinism Validation (Hash Verification)](#gate-7-determinism-validation-hash-verification)
+  - [Validation Command Sequences](#validation-command-sequences)
+    - [Development Loop (Fast Feedback)](#development-loop-fast-feedback)
+    - [Pre-Commit Hook](#pre-commit-hook)
+    - [Full Validation (Before Sync)](#full-validation-before-sync)
+    - [Sync and Emit (Production)](#sync-and-emit-production)
+  - [Receipt Proof Requirements](#receipt-proof-requirements)
+  - [Strictness Matrix](#strictness-matrix)
+  - [Definition of Done Checklist](#definition-of-done-checklist)
+  - [OTEL Validation Checklist](#otel-validation-checklist)
+  - [Automation Triggers](#automation-triggers)
+  - [File References](#file-references)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Validation Gates — Definition of Done
 
 **Version**: 26.5.28 | **Last Updated**: 2026-06-14

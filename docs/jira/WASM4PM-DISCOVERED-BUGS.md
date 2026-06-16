@@ -1,3 +1,21 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [BUG-001 — OntologyConfig silently ignores unknown fields (SILENT-DATA-LOSS)](#bug-001--ontologyconfig-silently-ignores-unknown-fields-silent-data-loss)
+- [BUG-002 — Frontmatter machinery unreachable from `ggen sync` (SPEC-IMPL-DRIFT)](#bug-002--frontmatter-machinery-unreachable-from-ggen-sync-spec-impl-drift)
+- [BUG-003 — GGEN-YIELD-001..005 codes have no detector in ggen-lsp (SPEC-IMPL-DRIFT)](#bug-003--ggen-yield-001005-codes-have-no-detector-in-ggen-lsp-spec-impl-drift)
+- [BUG-004 — mode="Create" doc says "fail if exists" but implementation skips (FOOTGUN)](#bug-004--modecreate-doc-says-fail-if-exists-but-implementation-skips-footgun)
+- [BUG-005 — No `ggen verify` CLI despite verify library code existing (UX-GAP)](#bug-005--no-ggen-verify-cli-despite-verify-library-code-existing-ux-gap)
+- [BUG-006 — SELECT row order nondeterministic without ORDER BY; no warning emitted (FOOTGUN)](#bug-006--select-row-order-nondeterministic-without-order-by-no-warning-emitted-footgun)
+- [BUG-007 — `SELECT *` silently disables GGEN-TPL-001/OUT-001 provision checks (FOOTGUN)](#bug-007--select--silently-disables-ggen-tpl-001out-001-provision-checks-footgun)
+- [BUG-008 — Pack `[pack.outputs]` indirection not resolved in pipeline (FOOTGUN)](#bug-008--pack-packoutputs-indirection-not-resolved-in-pipeline-footgun)
+- [BUG-009 — Identity CONSTRUCT `alive-gate` accepted silently; no no-op detection (UX-GAP)](#bug-009--identity-construct-alive-gate-accepted-silently-no-no-op-detection-ux-gap)
+- [BUG-010 — LSP completion/hover docs say `row.VAR` but pipeline uses direct `{{ VAR }}` (SPEC-IMPL-DRIFT)](#bug-010--lsp-completionhover-docs-say-rowvar-but-pipeline-uses-direct--var--spec-impl-drift)
+- [BUG-011 — `{ pack=, output=, file= }` query/template source silently produces no output (SILENT-DATA-LOSS)](#bug-011---pack-output-file--querytemplate-source-silently-produces-no-output-silent-data-loss)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 ---
 # WASM4PM-DISCOVERED-BUGS: ggen Defects Found During Breed Scaffold Research
 

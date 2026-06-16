@@ -1,3 +1,20 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GALL-CHECKPOINT-001B — Agent 3 Handoff: GGEN-TPL-001 LIVING LOOP](#gall-checkpoint-001b--agent-3-handoff-ggen-tpl-001-living-loop)
+  - [Files changed (only files this agent owns)](#files-changed-only-files-this-agent-owns)
+  - [Tests added (5)](#tests-added-5)
+  - [PROVEN vs UNOBSERVABLE (lifecycle transitions)](#proven-vs-unobservable-lifecycle-transitions)
+    - [PROVEN now (GREEN, today)](#proven-now-green-today)
+    - [UNOBSERVABLE via public test API (test #5, pending an `src/` seam)](#unobservable-via-public-test-api-test-5-pending-an-src-seam)
+  - [Exact API gap for ReceiptEmitted observation (orchestrator request)](#exact-api-gap-for-receiptemitted-observation-orchestrator-request)
+  - [Dependencies (the exact symbol/contract this agent waited on)](#dependencies-the-exact-symbolcontract-this-agent-waited-on)
+  - [Test results (real output)](#test-results-real-output)
+  - [Self-check (coding-agent-mistakes gate)](#self-check-coding-agent-mistakes-gate)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GALL-CHECKPOINT-001B — Agent 3 Handoff: GGEN-TPL-001 LIVING LOOP
 
 **Mission:** Prove GGEN-TPL-001 enters the LIVING LSP loop (live publish + clear via

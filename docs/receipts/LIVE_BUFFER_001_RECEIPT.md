@@ -1,3 +1,22 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [LIVE-BUFFER-001 — Verification Receipt](#live-buffer-001--verification-receipt)
+  - [VERDICT: ALIVE](#verdict-alive)
+  - [The gap closed (real files)](#the-gap-closed-real-files)
+  - [Implementation (as verified in the tree)](#implementation-as-verified-in-the-tree)
+  - [Behavior-extending guarantee (the disk path is preserved)](#behavior-extending-guarantee-the-disk-path-is-preserved)
+  - [The buffer-liveness proof (ggen_live_buffer_001.rs)](#the-buffer-liveness-proof-ggen_live_buffer_001rs)
+  - [Independent verification (re-run by the verifier)](#independent-verification-re-run-by-the-verifier)
+  - [Guard checks](#guard-checks)
+  - [No ALIVE checkpoint regressed](#no-alive-checkpoint-regressed)
+  - [Patch contract (coding-agent-mistakes §3)](#patch-contract-coding-agent-mistakes-%C2%A73)
+  - [Changed-file list](#changed-file-list)
+  - [Next frontier](#next-frontier)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # LIVE-BUFFER-001 — Verification Receipt
 
 **Checkpoint:** LIVE-BUFFER-001 — make the cross-surface living loop LIVE ON THE OPEN BUFFER, not just disk.

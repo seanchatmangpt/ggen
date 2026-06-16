@@ -1,3 +1,17 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GALL-CHECKPOINT-001B — Hard Gate: Stale-Clear Evidence](#gall-checkpoint-001b--hard-gate-stale-clear-evidence)
+  - [The invariant](#the-invariant)
+  - [stale_clear_evidence — required scenario](#stale_clear_evidence--required-scenario)
+  - [Agent 5 must inspect server.rs (Agent 1) for THREE things](#agent-5-must-inspect-serverrs-agent-1-for-three-things)
+  - [Two valid motions the living LSP must have](#two-valid-motions-the-living-lsp-must-have)
+  - [If Agent 1 omitted the empty-publish-clear](#if-agent-1-omitted-the-empty-publish-clear)
+  - [Checkpoint acceptance (unchanged standard)](#checkpoint-acceptance-unchanged-standard)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GALL-CHECKPOINT-001B — Hard Gate: Stale-Clear Evidence
 
 **This is a blocking reconciliation gate, not optional.** Promoted into the checkpoint

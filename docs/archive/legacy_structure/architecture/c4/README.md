@@ -1,3 +1,15 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Living LSP — C4 model (single source of truth)](#ggen-living-lsp--c4-model-single-source-of-truth)
+  - [Render](#render)
+  - [Views (derived from the one model)](#views-derived-from-the-one-model)
+  - [Accuracy corrections vs the authored C4 (verified against `main @ 1525c1a7`)](#accuracy-corrections-vs-the-authored-c4-verified-against-main--1525c1a7)
+  - [The doctrine the model encodes](#the-doctrine-the-model-encodes)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Living LSP — C4 model (single source of truth)
 
 `workspace.dsl` is a [Structurizr DSL](https://docs.structurizr.com/dsl) model. **One model → all views.** New diagnostic species / checkpoints update the one model; every view stays consistent. This is the deliberate defense against the architecture-docs drift this repo has had (docs once described ~68 crates against 15 real).

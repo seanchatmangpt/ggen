@@ -1,3 +1,21 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GALL-CHECKPOINT-001B — Agent 1 Handoff: server.rs live wiring](#gall-checkpoint-001b--agent-1-handoff-serverrs-live-wiring)
+  - [Files changed](#files-changed)
+  - [Doctrine compliance](#doctrine-compliance)
+  - [Exact live trigger points touched](#exact-live-trigger-points-touched)
+  - [How the project root is found](#how-the-project-root-is-found)
+  - [How diagnostics are published (merge-once-per-URI detail)](#how-diagnostics-are-published-merge-once-per-uri-detail)
+  - [How observe_diagnostics stays in the path](#how-observe_diagnostics-stays-in-the-path)
+  - [Cross-file template URIs: routed through observe_diagnostics (NOT best-effort)](#cross-file-template-uris-routed-through-observe_diagnostics-not-best-effort)
+  - [Tests run + results](#tests-run--results)
+  - [Known gaps / notes](#known-gaps--notes)
+  - [Acceptance mapping](#acceptance-mapping)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GALL-CHECKPOINT-001B — Agent 1 Handoff: server.rs live wiring
 
 **Mission:** GALL-CHECKPOINT-001B — live wiring for the already-landed GGEN-TPL-001 nerve.

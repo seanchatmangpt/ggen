@@ -1,3 +1,20 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GGEN-TPL-001 — Agent 4 (Integration Tests) Handoff](#ggen-tpl-001--agent-4-integration-tests-handoff)
+  - [1. Files created (Agent 4 ownership only)](#1-files-created-agent-4-ownership-only)
+  - [2. Tests created and what each proves](#2-tests-created-and-what-each-proves)
+    - [Assertion design notes (typed against the real landed API)](#assertion-design-notes-typed-against-the-real-landed-api)
+  - [3. Key fixture file contents](#3-key-fixture-file-contents)
+  - [4. Exact API symbols depended on (from Agents 1 & 2)](#4-exact-api-symbols-depended-on-from-agents-1--2)
+  - [5. Command results](#5-command-results)
+    - [A. The Agent-4 integration test — GREEN](#a-the-agent-4-integration-test--green)
+    - [B. Full crate `cargo test -p ggen-lsp` — RED, but NOT in any Agent-4 file](#b-full-crate-cargo-test--p-ggen-lsp--red-but-not-in-any-agent-4-file)
+  - [6. Guardrails honored](#6-guardrails-honored)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GGEN-TPL-001 — Agent 4 (Integration Tests) Handoff
 
 **Branch:** `feat/ggen-tpl-001-living-lsp`

@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Developer Experience (DX) Definition of Done — ggen v26.5.28](#developer-experience-dx-definition-of-done--ggen-v26528)
+  - [Overview](#overview)
+  - [Quick Summary](#quick-summary)
+  - [The 7 Dimensions (Detailed)](#the-7-dimensions-detailed)
+    - [1. Command Ergonomics](#1-command-ergonomics)
+    - [2. Error Messages](#2-error-messages)
+    - [3. Workflow Efficiency](#3-workflow-efficiency)
+    - [4. IDE Integration](#4-ide-integration)
+    - [5. Documentation Surface](#5-documentation-surface)
+    - [6. Hot Reload / Iteration](#6-hot-reload--iteration)
+    - [7. Defaults](#7-defaults)
+  - [Definition of Done Verification](#definition-of-done-verification)
+    - [Gate 1: Command Ergonomics](#gate-1-command-ergonomics)
+    - [Gate 2: Error Messages](#gate-2-error-messages)
+    - [Gate 3: Workflow Efficiency](#gate-3-workflow-efficiency)
+    - [Gate 4: IDE Integration](#gate-4-ide-integration)
+    - [Gate 5: Documentation](#gate-5-documentation)
+    - [Gate 6: Hot Reload](#gate-6-hot-reload)
+    - [Gate 7: Defaults](#gate-7-defaults)
+  - [How to Use This Document](#how-to-use-this-document)
+  - [See Also](#see-also)
+  - [Questions?](#questions)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Developer Experience (DX) Definition of Done — ggen v26.5.28
 
 ## Overview

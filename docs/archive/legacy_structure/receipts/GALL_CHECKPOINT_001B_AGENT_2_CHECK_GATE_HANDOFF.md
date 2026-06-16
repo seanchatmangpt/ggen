@@ -1,3 +1,21 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GALL-CHECKPOINT-001B — Agent 2 (Check Gate) Handoff](#gall-checkpoint-001b--agent-2-check-gate-handoff)
+  - [Files changed](#files-changed)
+  - [Entry points touched](#entry-points-touched)
+  - [New private helpers added to check.rs](#new-private-helpers-added-to-checkrs)
+  - [Exact error-count behavior (how GGEN-TPL-001 increments it)](#exact-error-count-behavior-how-ggen-tpl-001-increments-it)
+  - [Acceptance behavior wired (vs. task spec)](#acceptance-behavior-wired-vs-task-spec)
+  - [Dedup verification (CONFIRMED — no double-counting)](#dedup-verification-confirmed--no-double-counting)
+  - [Inline tests added (match existing check.rs `#[cfg(test)]` patterns)](#inline-tests-added-match-existing-checkrs-cfgtest-patterns)
+  - [Tests run + results](#tests-run--results)
+  - [Known gaps](#known-gaps)
+  - [Guardrails honored](#guardrails-honored)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GALL-CHECKPOINT-001B — Agent 2 (Check Gate) Handoff
 
 **Mission:** Live wiring of GGEN-TPL-001 into the headless `ggen lsp check` gate.

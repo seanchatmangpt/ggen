@@ -1,3 +1,19 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GGEN-TPL-001 — Agent 1 Handoff: Rule / Project Index Layer](#ggen-tpl-001--agent-1-handoff-rule--project-index-layer)
+  - [Files Changed (only my owned files)](#files-changed-only-my-owned-files)
+  - [Public API Exposed (exact signatures — honors the shared contract)](#public-api-exposed-exact-signatures--honors-the-shared-contract)
+  - [CORRECTIONS to the inventory (verified against real ggen-core source — read these)](#corrections-to-the-inventory-verified-against-real-ggen-core-source--read-these)
+  - [Behavior Summary](#behavior-summary)
+  - [Known Gaps](#known-gaps)
+  - [Tests Added (Chicago TDD — real `TempDir`, real files, no mocks)](#tests-added-chicago-tdd--real-tempdir-real-files-no-mocks)
+  - [Test Results (real output)](#test-results-real-output)
+  - [Integration Notes for Agent 2](#integration-notes-for-agent-2)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GGEN-TPL-001 — Agent 1 Handoff: Rule / Project Index Layer
 
 **Branch:** `feat/ggen-tpl-001-living-lsp`

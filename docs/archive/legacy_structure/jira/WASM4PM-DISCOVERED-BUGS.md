@@ -1,3 +1,23 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [WASM4PM-DISCOVERED-BUGS: ggen Defects Fixed & Gaps Addressed](#wasm4pm-discovered-bugs-ggen-defects-fixed--gaps-addressed)
+  - [BUG-001: Manifest silently ignores unknown fields](#bug-001-manifest-silently-ignores-unknown-fields)
+  - [BUG-002: Frontmatter machinery unreachable from `ggen sync`](#bug-002-frontmatter-machinery-unreachable-from-ggen-sync)
+  - [BUG-003: GGEN-YIELD-001 detector missing in ggen-lsp](#bug-003-ggen-yield-001-detector-missing-in-ggen-lsp)
+  - [BUG-004: mode="Create" implementation silently skips](#bug-004-modecreate-implementation-silently-skips)
+  - [BUG-005: No `ggen verify` CLI subcommand](#bug-005-no-ggen-verify-cli-subcommand)
+  - [BUG-006: SELECT row order nondeterministic (No ORDER BY)](#bug-006-select-row-order-nondeterministic-no-order-by)
+  - [BUG-007: SELECT * disables provision checks](#bug-007-select--disables-provision-checks)
+  - [BUG-008: Pack &#91;pack.outputs&#93; indirection not resolved](#bug-008-pack-packoutputs-indirection-not-resolved)
+  - [BUG-009: Identity CONSTRUCT accepted silently](#bug-009-identity-construct-accepted-silently)
+  - [Additional Fixes (2026-06-11)](#additional-fixes-2026-06-11)
+    - [BUG-010: LSP completion/hover docs vs Bare Context](#bug-010-lsp-completionhover-docs-vs-bare-context)
+    - [BUG-011: Pack query/template source resolution](#bug-011-pack-querytemplate-source-resolution)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # WASM4PM-DISCOVERED-BUGS: ggen Defects Fixed & Gaps Addressed
 
 **Status:** ALL ADDRESSED / FIXED (2026-06-11)

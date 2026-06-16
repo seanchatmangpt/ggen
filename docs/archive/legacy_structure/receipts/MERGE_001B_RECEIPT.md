@@ -1,3 +1,16 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [MERGE 001B → main — Receipt](#merge-001b-%E2%86%92-main--receipt)
+  - [What this merge contains (honest disclosure)](#what-this-merge-contains-honest-disclosure)
+  - [Scratch artifacts removed (fix-forward, no history rewrite)](#scratch-artifacts-removed-fix-forward-no-history-rewrite)
+  - [Verification](#verification)
+  - [Guardrails honored](#guardrails-honored)
+  - [Next](#next)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # MERGE 001B → main — Receipt
 
 **Date:** 2026-05-30

@@ -1,3 +1,27 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Documentation Definition of Done (ggen v26.5.28)](#documentation-definition-of-done-ggen-v26528)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+  - [8 Documentation Surfaces](#8-documentation-surfaces)
+    - [1. Architecture Documentation](#1-architecture-documentation)
+    - [2. Rules & Policy Documentation](#2-rules--policy-documentation)
+    - [3. API Documentation (Generated via `cargo doc`)](#3-api-documentation-generated-via-cargo-doc)
+    - [4. Examples & Validation (Real Executable Code)](#4-examples--validation-real-executable-code)
+    - [5. Specification Documentation (RDF-Driven Source)](#5-specification-documentation-rdf-driven-source)
+    - [6. Process & Workflow Documentation](#6-process--workflow-documentation)
+    - [7. Evidence-First Principle (MANDATORY)](#7-evidence-first-principle-mandatory)
+    - [8. Searchability & Navigation (Cross-Linked Index)](#8-searchability--navigation-cross-linked-index)
+  - [Master Validation Checklist](#master-validation-checklist)
+  - [Implementation Example](#implementation-example)
+    - [Scenario: Adding a New Crate to ggen](#scenario-adding-a-new-crate-to-ggen)
+  - [Governance](#governance)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Documentation Definition of Done (ggen v26.5.28)
 
 > **Core Principle:** All documentation must reference REAL code paths, REAL OTEL output, and ACTUAL execution evidence. No fabricated examples, no generic placeholders, no theoretical claims without proof.

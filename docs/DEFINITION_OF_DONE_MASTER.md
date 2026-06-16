@@ -1,3 +1,48 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Definition of Done (Master Specification)](#ggen-definition-of-done-master-specification)
+  - [Overview: 10 Dimensions of Completeness](#overview-10-dimensions-of-completeness)
+  - [1️⃣ Core Quality Gates (5 Mandatory Gates)](#-core-quality-gates-5-mandatory-gates)
+    - [Success Criteria](#success-criteria)
+  - [2️⃣ Testing Completeness (Chicago TDD + 80%+ Coverage)](#-testing-completeness-chicago-tdd--80-coverage)
+    - [8 Testing Dimensions](#8-testing-dimensions)
+    - [Commands](#commands)
+    - [Forbidden Patterns](#forbidden-patterns)
+    - [Required Patterns](#required-patterns)
+  - [3️⃣ OTEL/Observability Validation (For LLM + External Services)](#-otelobservability-validation-for-llm--external-services)
+    - [8 Observability Dimensions](#8-observability-dimensions)
+    - [Verification Commands](#verification-commands)
+    - [Success Criteria](#success-criteria-1)
+  - [4️⃣ Performance SLOs (Build, Test, Runtime, Memory)](#-performance-slos-build-test-runtime-memory)
+    - [8 Performance Dimensions](#8-performance-dimensions)
+    - [Commands](#commands-1)
+  - [5️⃣ Validation Gates (RDF, SPARQL, Profiles, Determinism)](#-validation-gates-rdf-sparql-profiles-determinism)
+    - [7 Validation Dimensions](#7-validation-dimensions)
+    - [Commands](#commands-2)
+  - [6️⃣ Documentation (8 Surfaces)](#-documentation-8-surfaces)
+    - [8 Documentation Surfaces](#8-documentation-surfaces)
+    - [Commands](#commands-3)
+  - [7️⃣ Process Automation (10 Dimensions)](#-process-automation-10-dimensions)
+    - [10 Automation Dimensions](#10-automation-dimensions)
+    - [Key Files](#key-files)
+  - [8️⃣ Security & Signing (8 Dimensions)](#-security--signing-8-dimensions)
+    - [8 Security Dimensions](#8-security-dimensions)
+    - [Commands](#commands-4)
+    - [Sabotage Tests (Must Fail Loudly)](#sabotage-tests-must-fail-loudly)
+  - [9️⃣ Developer Experience (7 Dimensions)](#-developer-experience-7-dimensions)
+    - [7 DX Dimensions](#7-dx-dimensions)
+    - [Commands](#commands-5)
+  - [🔟 Release Readiness (10 Dimensions)](#-release-readiness-10-dimensions)
+    - [10 Release Dimensions](#10-release-dimensions)
+    - [Pre-Release Checklist](#pre-release-checklist)
+  - [Master Definition of Done Validation](#master-definition-of-done-validation)
+  - [The Golden Rule](#the-golden-rule)
+  - [Files Reference](#files-reference)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Definition of Done (Master Specification)
 
 **Version:** 26.5.29 | **Date:** 2026-06-15 | **Status:** Production-Ready

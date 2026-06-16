@@ -1,3 +1,22 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ProofPack Boundary Receipt — feat/ark-covenant-1](#proofpack-boundary-receipt--featark-covenant-1)
+  - [Summary](#summary)
+  - [Test Evidence](#test-evidence)
+    - [Real Tests by Module](#real-tests-by-module)
+    - [Test Categories](#test-categories)
+  - [Boundary Crossing Verification](#boundary-crossing-verification)
+  - [ARK Invariants Satisfied](#ark-invariants-satisfied)
+  - [Implementation Details](#implementation-details)
+    - [Test Execution Profile](#test-execution-profile)
+    - [Receipt Structure Validation](#receipt-structure-validation)
+    - [Cross-Crate Integration](#cross-crate-integration)
+  - [Compliance Status](#compliance-status)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ProofPack Boundary Receipt — feat/ark-covenant-1
 
 **Boundary Crossing Date:** 2026-05-29  

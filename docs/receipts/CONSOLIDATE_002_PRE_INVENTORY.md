@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [CONSOLIDATE-002 — Pre-Inventory: merge the three order-sensitive publish branches](#consolidate-002--pre-inventory-merge-the-three-order-sensitive-publish-branches)
+  - [1. Ground truth (verified against the code, not docs)](#1-ground-truth-verified-against-the-code-not-docs)
+    - [1.1 The three publish branches (the last triplication)](#11-the-three-publish-branches-the-last-triplication)
+    - [1.2 Trigger gates are MUTUALLY EXCLUSIVE by edited-file basename](#12-trigger-gates-are-mutually-exclusive-by-edited-file-basename)
+    - [1.3 The `own_diags` / `published_self` GLOBAL merge-once invariant](#13-the-own_diags--published_self-global-merge-once-invariant)
+    - [1.4 Normalizable (nondeterministic) serialized fields](#14-normalizable-nondeterministic-serialized-fields)
+  - [2. Order map (the exact emit sequence the merge must reproduce)](#2-order-map-the-exact-emit-sequence-the-merge-must-reproduce)
+  - [3. Is a natural unified loop achievable? → YES (READY)](#3-is-a-natural-unified-loop-achievable-%E2%86%92-yes-ready)
+  - [4. Verbatim diff plan (for the implementer — NOT applied here)](#4-verbatim-diff-plan-for-the-implementer--not-applied-here)
+    - [4.1 Introduce a local species descriptor (function-local, no public API change)](#41-introduce-a-local-species-descriptor-function-local-no-public-api-change)
+    - [4.2 Replace the three Phase-A branches (state.rs:529–594) with ONE loop](#42-replace-the-three-phase-a-branches-staters529594-with-one-loop)
+    - [4.3 Phase B (self fallback) — UNCHANGED (state.rs:598–601)](#43-phase-b-self-fallback--unchanged-staters598601)
+    - [4.4 Replace the three Phase-C branches (state.rs:608–652) with ONE loop](#44-replace-the-three-phase-c-branches-staters608652-with-one-loop)
+    - [4.5 Anti-FAKE-LIVE checklist for the implementer](#45-anti-fake-live-checklist-for-the-implementer)
+  - [5. The sequence-equivalence proof (golden fixture + new test)](#5-the-sequence-equivalence-proof-golden-fixture--new-test)
+    - [5.1 Multi-species scenario (TPL + OUT in ONE pass)](#51-multi-species-scenario-tpl--out-in-one-pass)
+    - [5.2 Golden capture (committed fixture)](#52-golden-capture-committed-fixture)
+    - [5.3 New assertion test (runs in CI, pre- and post-merge)](#53-new-assertion-test-runs-in-ci-pre--and-post-merge)
+    - [5.4 Normalizer (shared, test-only helper)](#54-normalizer-shared-test-only-helper)
+  - [6. ALIVE / FAKE-LIVE / BLOCKED definitions for CONSOLIDATE-002](#6-alive--fake-live--blocked-definitions-for-consolidate-002)
+  - [7. Return](#7-return)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # CONSOLIDATE-002 — Pre-Inventory: merge the three order-sensitive publish branches
 
 **Role:** Merge Architect (read-only; only this file written).

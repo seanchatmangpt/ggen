@@ -1,3 +1,20 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [CONSOLIDATE-001 — Receipt](#consolidate-001--receipt)
+  - [Files changed (only these; + this receipt)](#files-changed-only-these--this-receipt)
+  - [Keys](#keys)
+  - [What was unified vs left branched](#what-was-unified-vs-left-branched)
+  - [Net result](#net-result)
+  - [Proof tails](#proof-tails)
+    - [cargo make check](#cargo-make-check)
+    - [cargo clippy -p ggen-lsp --no-deps -- -D warnings  (0 warnings)](#cargo-clippy--p-ggen-lsp---no-deps-----d-warnings--0-warnings)
+    - [cargo fmt -p ggen-lsp -- --check  (clean)](#cargo-fmt--p-ggen-lsp------check--clean)
+    - [cargo test -p ggen-lsp  (all green; lib 163 passed; no test file modified)](#cargo-test--p-ggen-lsp--all-green-lib-163-passed-no-test-file-modified)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # CONSOLIDATE-001 — Receipt
 
 **Kind:** REFACTOR (deepen authority + reduce drift). Behavior byte-equivalent. No test edited. No commit.

@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen v26.5.28 — Process Automation Definition of Done](#ggen-v26528--process-automation-definition-of-done)
+  - [Overview](#overview)
+  - [10 Automation Dimensions](#10-automation-dimensions)
+    - [Dimension 1: Git Hooks (Pre-Commit & Pre-Push Enforcement)](#dimension-1-git-hooks-pre-commit--pre-push-enforcement)
+    - [Dimension 2: CI/CD Gates (GitHub Actions Quality-Gate Pipeline)](#dimension-2-cicd-gates-github-actions-quality-gate-pipeline)
+    - [Dimension 3: Just Recipes (Cargo Make Task Coordination)](#dimension-3-just-recipes-cargo-make-task-coordination)
+    - [Dimension 4: MCP Servers (ggen-lsp-mcp & ggen-a2a-mcp Health)](#dimension-4-mcp-servers-ggen-lsp-mcp--ggen-a2a-mcp-health)
+    - [Dimension 5: Andon Signals (Stop-the-Line Protocol)](#dimension-5-andon-signals-stop-the-line-protocol)
+    - [Dimension 6: LSP Diagnostics (GGEN-* Codes Block Sync)](#dimension-6-lsp-diagnostics-ggen--codes-block-sync)
+    - [Dimension 7: Sync Validation Gates (Lockfile, Digests, Profiles)](#dimension-7-sync-validation-gates-lockfile-digests-profiles)
+    - [Dimension 8: Receipt Signing (Cryptographic Ed25519 Signatures)](#dimension-8-receipt-signing-cryptographic-ed25519-signatures)
+    - [Dimension 9: Determinism Checks (Build Reproducibility)](#dimension-9-determinism-checks-build-reproducibility)
+    - [Dimension 10: Auto-Merge Gates (Conditions Enabling Merge)](#dimension-10-auto-merge-gates-conditions-enabling-merge)
+  - [Cross-Dimensional Flow](#cross-dimensional-flow)
+  - [Gate Summary](#gate-summary)
+  - [Definition of Done Checklist](#definition-of-done-checklist)
+    - [Before every commit](#before-every-commit)
+    - [Before every push](#before-every-push)
+    - [Before every merge](#before-every-merge)
+    - [Before every release](#before-every-release)
+  - [Failure Scenarios & Responses](#failure-scenarios--responses)
+    - [Scenario 1: Compilation error in pre-commit](#scenario-1-compilation-error-in-pre-commit)
+    - [Scenario 2: Test failure in pre-push](#scenario-2-test-failure-in-pre-push)
+    - [Scenario 3: Clippy warning in CI](#scenario-3-clippy-warning-in-ci)
+    - [Scenario 4: GGEN-TPL-001 diagnostic blocks sync](#scenario-4-ggen-tpl-001-diagnostic-blocks-sync)
+    - [Scenario 5: Non-deterministic output detected](#scenario-5-non-deterministic-output-detected)
+  - [What Makes Bypass Impossible](#what-makes-bypass-impossible)
+  - [Related Documents](#related-documents)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen v26.5.28 — Process Automation Definition of Done
 
 **Version**: 26.5.28 | **Last Updated**: 2026-06-14 | **Authority**: `.claude/rules/coding-agent-mistakes.md`, `andon/signals.md`, git hooks, CI/CD workflows
