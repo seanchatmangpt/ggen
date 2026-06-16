@@ -1,0 +1,1067 @@
+{
+  "version": "1.0",
+  "title": "ggen Security Definition of Done",
+  "description": "Comprehensive specification of 8 cryptographic security dimensions for ggen v26.5.28. Every security-critical feature must validate against ALL 8 dimensions before claiming completion.",
+  "last_updated": "2026-06-14",
+  "security_dimensions": [
+    {
+      "dimension_id": 1,
+      "name": "Receipt Generation",
+      "short_description": "Every sync emits .ggen/receipts/latest.json with cryptographic signature",
+      "what_it_is": "Receipt generation is the process of creating a cryptographically signed JSON proof that a ggen sync operation completed with specific inputs and outputs. Each receipt captures the operation's identity, timestamp, input/output hashes, and an Ed25519 digital signature. Receipts are the primary mechanism for proving what happened during a generation run.",
+      "implementation": {
+        "crate": "ggen-config",
+        "module": "crate::receipt",
+        "key_types": [
+          "Receipt { operation_id: String, timestamp: DateTime<Utc>, input_hashes: Vec<String>, output_hashes: Vec<String>, signature: String, previous_receipt_hash: Option<String> }"
+        ],
+        "key_functions": [
+          "Receipt::new(operation_id, input_hashes, output_hashes, previous_receipt_hash) -> Self",
+          "Receipt::sign(&mut self, signing_key: &SigningKey) -> Result<Self>",
+          "Receipt::hash(&self) -> Result<String>"
+        ],
+        "entry_points": [
+          "ggen-cli/src/cmds/sync.rs::emit_receipt() — emits .ggen/receipts/sync-{timestamp}.json and .ggen/receipts/latest.json"
+        ],
+        "file_locations": [
+          ".ggen/receipts/sync-YYYYMMDD-HHMMSS.json — timestamped archive copy (immutable)",
+          ".ggen/receipts/latest.json — symlink or copy pointing to most recent receipt"
+        ]
+      },
+      "validation_command": {
+        "cli": "ggen receipt info <receipt-path>",
+        "description": "Print human-readable fields from a receipt file without signature verification",
+        "example": "ggen receipt info .ggen/receipts/latest.json",
+        "expected_output": {
+          "receipt_file": ".ggen/receipts/latest.json",
+          "operation_id": "550e8400-e29b-41d4-a716-446655440000",
+          "timestamp": "2026-06-14T12:34:56+00:00",
+          "input_hashes": 5,
+          "output_hashes": 12,
+          "has_previous": true,
+          "signature_present": true
+        }
+      },
+      "failure_modes": [
+        {
+          "mode": "Decorative completion — receipt not written",
+          "symptom": "ggen sync exits 0 but .ggen/receipts/latest.json does not exist or is unchanged",
+          "detection": "stat -c '%Y' .ggen/receipts/latest.json before/after sync; compare mtimes",
+          "root_cause": "emit_receipt() was skipped or failed silently",
+          "impact": "CRITICAL — no proof of what ran"
+        },
+        {
+          "mode": "Contract drift — signature field empty",
+          "symptom": "ggen receipt info shows signature_present: false OR ggen receipt verify returns is_valid: false",
+          "detection": "jq -e '.signature | length > 0' .ggen/receipts/latest.json",
+          "root_cause": "Receipt::sign() was never called or signing key was not loaded",
+          "impact": "CRITICAL — receipt is unsigned, unverifiable"
+        },
+        {
+          "mode": "Epistemic bypass — hardcoded operation_id",
+          "symptom": "All receipts have the same operation_id (e.g., 'dummy-op' or UUID all zeros)",
+          "detection": "jq '.operation_id' .ggen/receipts/*.json | sort | uniq | wc -l",
+          "root_cause": "operation_id is hardcoded instead of generated per-run",
+          "impact": "HIGH — cannot distinguish between different runs"
+        },
+        {
+          "mode": "Fail-open — non-empty hashes not enforced",
+          "symptom": "ggen receipt info shows input_hashes: 0 and output_hashes: 0",
+          "detection": "jq '.input_hashes | length' .ggen/receipts/latest.json; jq '.output_hashes | length' .ggen/receipts/latest.json",
+          "root_cause": "Hashes are optional or default to empty Vec; should be populated from pipeline",
+          "impact": "HIGH — receipt does not capture what was generated"
+        }
+      ],
+      "recovery": [
+        "If receipt is missing: Re-run ggen sync with --audit true to force receipt emission",
+        "If signature is empty: Regenerate keys with 'ggen init --force-keys' and re-run sync",
+        "If hashes are empty: Verify pipeline is populating input_hashes and output_hashes before emit_receipt()",
+        "If operation_id is hardcoded: Ensure Uuid::new_v4() is called, not a constant string"
+      ],
+      "sabotage_tests": [
+        {
+          "sabotage": "Delete .ggen/receipts/ directory before sync",
+          "command": "rm -rf .ggen/receipts && ggen sync",
+          "required_outcome": "Exit 0; new .ggen/receipts/latest.json created with valid signature and non-empty hashes",
+          "test_location": "crates/ggen-cli/tests/sabotage_tests.rs::test_receipt_generation_creates_directory"
+        },
+        {
+          "sabotage": "Delete .ggen/keys/ to force key regeneration",
+          "command": "rm -rf .ggen/keys && ggen sync",
+          "required_outcome": "Exit 0; new keypair generated, receipt signed with new key",
+          "test_location": "crates/ggen-cli/tests/sabotage_tests.rs::test_receipt_key_regeneration"
+        },
+        {
+          "sabotage": "Manually edit .ggen/receipts/latest.json to add zeros",
+          "command": "jq '.input_hashes |= []' .ggen/receipts/latest.json > /tmp/empty.json && mv /tmp/empty.json .ggen/receipts/latest.json",
+          "required_outcome": "ggen receipt verify returns is_valid: false (tampering detected)",
+          "test_location": "crates/ggen-cli/tests/sabotage_tests.rs::test_receipt_tampering_detection"
+        }
+      ]
+    },
+    {
+      "dimension_id": 2,
+      "name": "Signature Validation (Ed25519)",
+      "short_description": "Ed25519 signing with .ggen/keys/signing.key, verification with .ggen/keys/verifying.key",
+      "what_it_is": "Every receipt is signed with an Ed25519 private key (signing.key) and can be verified with the corresponding public key (verifying.key). Ed25519 provides cryptographic proof that a receipt has not been tampered with. Signature validation is mandatory before accepting any receipt as proof.",
+      "implementation": {
+        "crate": "ggen-config",
+        "module": "crate::receipt::receipt_impl",
+        "key_types": [
+          "Receipt { signature: String (hex-encoded Ed25519 signature bytes) }",
+          "ed25519_dalek::SigningKey",
+          "ed25519_dalek::VerifyingKey"
+        ],
+        "key_functions": [
+          "Receipt::sign(&mut self, signing_key: &SigningKey) -> Result<Self>",
+          "Receipt::verify(&self, verifying_key: &VerifyingKey) -> Result<()>",
+          "Receipt::signing_message(&self) -> Result<Vec<u8>> (computes message to sign)",
+          "generate_keypair() -> (SigningKey, VerifyingKey) — in ggen-config/src/receipt/receipt_impl.rs"
+        ],
+        "key_modules": [
+          "ggen-config/src/receipt/receipt_impl.rs::Receipt::sign/verify",
+          "ggen-marketplace/src/marketplace/security.rs::MarketplaceSignature/MarketplaceVerifier",
+          "ggen-cli/src/cmds/receipt.rs::do_verify() — CLI handler"
+        ],
+        "file_locations": [
+          ".ggen/keys/signing.key — private key, hex-encoded, MUST NOT be committed to version control",
+          ".ggen/keys/verifying.key — public key, hex-encoded, SAFE to commit (or store separately)",
+          ".ggen/keys/public.pem — alternative name for verifying key (checked by ggen receipt verify)"
+        ]
+      },
+      "validation_command": {
+        "cli": "ggen receipt verify <receipt-path> [--public-key <key-path>]",
+        "description": "Verify Ed25519 signature on a receipt using the public key",
+        "example": "ggen receipt verify .ggen/receipts/latest.json --public-key .ggen/keys/public.pem",
+        "expected_output_valid": {
+          "receipt_file": ".ggen/receipts/latest.json",
+          "is_valid": true,
+          "message": "Receipt signature verified successfully",
+          "operation_id": "550e8400-e29b-41d4-a716-446655440000",
+          "timestamp": "2026-06-14T12:34:56+00:00",
+          "input_hashes": 5,
+          "output_hashes": 12,
+          "chain_position": "chained"
+        },
+        "expected_output_invalid": {
+          "receipt_file": ".ggen/receipts/latest.json",
+          "is_valid": false,
+          "message": "Signature verification failed",
+          "operation_id": null,
+          "timestamp": null,
+          "input_hashes": null,
+          "output_hashes": null,
+          "chain_position": null
+        }
+      },
+      "failure_modes": [
+        {
+          "mode": "Bypass — signature not verified",
+          "symptom": "ggen receipt verify always returns is_valid: true without actually calling Ed25519::verify()",
+          "detection": "Read ggen-cli/src/cmds/receipt.rs::do_verify(); verify it calls receipt.verify(&verifying_key)",
+          "root_cause": "Verification step was skipped or mocked",
+          "impact": "CRITICAL — tampering is never detected"
+        },
+        {
+          "mode": "Contract drift — signature computed on wrong message",
+          "symptom": "Valid receipt becomes invalid after innocent field change; or tampered receipt still verifies",
+          "detection": "Edit receipt JSON to change timestamp, re-run verify — should fail",
+          "root_cause": "Receipt::signing_message() does not canonicalize or uses wrong fields",
+          "impact": "CRITICAL — signature does not cover all data"
+        },
+        {
+          "mode": "Key management failure — private key exposed",
+          "symptom": ".ggen/keys/signing.key appears in git history or is world-readable",
+          "detection": "git log -p -- '.ggen/keys/signing.key' | head; stat -c '%A' .ggen/keys/signing.key",
+          "root_cause": "Private key was written to repo or file permissions not enforced",
+          "impact": "CRITICAL — attacker can forge receipts"
+        },
+        {
+          "mode": "Fail-open — missing public key is not an error",
+          "symptom": "ggen receipt verify returns is_valid: true when .ggen/keys/verifying.key does not exist",
+          "detection": "rm .ggen/keys/verifying.key; ggen receipt verify .ggen/receipts/latest.json — should fail",
+          "root_cause": "do_verify() has a fallback that returns is_valid: true on missing key",
+          "impact": "HIGH — verification can be bypassed by deleting the key"
+        },
+        {
+          "mode": "Legacy path contamination — old unsigned receipts still accepted",
+          "symptom": "Receipts with empty signature field still return is_valid: true",
+          "detection": "jq '.signature = \"\"' .ggen/receipts/latest.json > /tmp/unsigned.json; ggen receipt verify /tmp/unsigned.json",
+          "root_cause": "do_verify() checks signature_present but still returns true",
+          "impact": "HIGH — unsigned receipts are accepted"
+        }
+      ],
+      "recovery": [
+        "If key is compromised: Delete .ggen/keys/signing.key and regenerate with ggen init --force-keys",
+        "If signature verification fails: Check that verifying.key matches the private key that signed the receipt",
+        "If key file is missing: Regenerate with ggen init; all future receipts will use the new key",
+        "If verification returns false for a legitimate receipt: Check file permissions and key format (must be hex-encoded)"
+      ],
+      "sabotage_tests": [
+        {
+          "sabotage": "Tamper with receipt JSON after signing",
+          "command": "jq '.timestamp = \"2020-01-01T00:00:00Z\"' .ggen/receipts/latest.json > /tmp/tampered.json && ggen receipt verify /tmp/tampered.json",
+          "required_outcome": "is_valid: false (tampering detected by signature mismatch)",
+          "test_location": "crates/ggen-cli/tests/sabotage_tests.rs::test_signature_detects_tampering"
+        },
+        {
+          "sabotage": "Corrupt signature hex string",
+          "command": "jq '.signature = \"00000000\"' .ggen/receipts/latest.json > /tmp/corrupt.json && ggen receipt verify /tmp/corrupt.json",
+          "required_outcome": "is_valid: false (invalid signature bytes)",
+          "test_location": "crates/ggen-cli/tests/sabotage_tests.rs::test_invalid_signature_format"
+        },
+        {
+          "sabotage": "Delete public key before verification",
+          "command": "rm .ggen/keys/verifying.key && ggen receipt verify .ggen/receipts/latest.json",
+          "required_outcome": "is_valid: false; error message says 'Public key required'",
+          "test_location": "crates/ggen-cli/tests/sabotage_tests.rs::test_missing_public_key_fails"
+        },
+        {
+          "sabotage": "Use wrong public key to verify",
+          "command": "ggen init --force-keys --output /tmp/keys2 && ggen receipt verify .ggen/receipts/latest.json --public-key /tmp/keys2/verifying.key",
+          "required_outcome": "is_valid: false (signature from different key pair)",
+          "test_location": "crates/ggen-cli/tests/sabotage_tests.rs::test_wrong_key_verification_fails"
+        }
+      ]
+    },
+    {
+      "dimension_id": 3,
+      "name": "Lockfile Digests",
+      "short_description": "Every pack entry in .ggen/packs.lock has SHA-256 digest, verified at sync time",
+      "what_it_is": "The lockfile (.ggen/packs.lock) records the set of packages installed and the exact hash (SHA-256) of each pack's TOML at install time. During ggen sync --locked, these digests are re-verified to detect if a pack has been modified or deleted. Digest verification ensures that the code generation input has not changed unexpectedly.",
+      "implementation": {
+        "crate": "ggen-marketplace",
+        "module": "crate::marketplace::install",
+        "key_types": [
+          "Lockfile { version: u32, manifest_id: Uuid, packages: IndexMap<PackageId, PackageVersion>, created_at: DateTime<Utc> }",
+          "InstallationManifest { packages: Vec<(PackageId, PackageVersion, String)> } — third field is digest"
+        ],
+        "key_functions": [
+          "Installer::install() — writes lockfile with digests",
+          "PackageInstaller::verify_integrity() — re-verify digests at sync time",
+          "ggen_config::hash_data(data: &[u8]) -> String — SHA-256 computation"
+        ],
+        "key_modules": [
+          "ggen-marketplace/src/marketplace/install.rs::Lockfile/InstallationManifest",
+          "ggen-marketplace/src/marketplace/security.rs::ChecksumCalculator",
+          "ggen-cli/src/cmds/sync.rs — reads lockfile before pipeline"
+        ],
+        "file_locations": [
+          ".ggen/packs.lock — lockfile with all packages and their digests",
+          "$GGEN_PACKS_DIR/$PACKAGE_ID/$VERSION/package.toml — actual pack being verified"
+        ]
+      },
+      "validation_command": {
+        "cli": "ggen packs verify [--check-updates] [--fail-on-conflicts]",
+        "description": "Validate pack integrity by re-computing and comparing digests against .ggen/packs.lock",
+        "example": "ggen packs verify --check-updates",
+        "expected_output_valid": {
+          "lockfile": ".ggen/packs.lock",
+          "packages_verified": 5,
+          "all_valid": true,
+          "mismatches": [],
+          "missing": [],
+          "status": "All packages verified successfully"
+        },
+        "expected_output_invalid": {
+          "lockfile": ".ggen/packs.lock",
+          "packages_verified": 5,
+          "all_valid": false,
+          "mismatches": [
+            {
+              "package_id": "acme/base",
+              "version": "1.2.3",
+              "expected_digest": "abc123...",
+              "actual_digest": "def456..."
+            }
+          ],
+          "missing": [
+            {
+              "package_id": "acme/utils",
+              "version": "2.0.0"
+            }
+          ],
+          "status": "Digest mismatch for acme/base; digest mismatch for acme/utils"
+        }
+      },
+      "lockfile_invariants": {
+        "structure": {
+          "version": "must be integer > 0",
+          "manifest_id": "must be valid UUID v4",
+          "packages": "IndexMap<PackageId, PackageVersion> — one entry per installed pack",
+          "created_at": "RFC-3339 timestamp, non-zero"
+        },
+        "per_package_invariant": {
+          "id": "non-empty string, format vendor/name",
+          "version": "semver string (e.g., 1.2.3)",
+          "digest": "64-char hex string (SHA-256), non-empty",
+          "installed_at": "RFC-3339 timestamp, non-zero",
+          "source": "optional string (e.g., 'registry://acme/base')"
+        },
+        "enforcement": [
+          "digest.len() must equal 64 (SHA-256 hex)",
+          "digest must be computed from actual pack TOML at install time, never default to empty string",
+          "digest must be re-verified before allowing sync --locked to proceed",
+          "A missing package or digest mismatch must hard-fail sync --locked with exit code 1"
+        ]
+      },
+      "failure_modes": [
+        {
+          "mode": "Decorative completion — digest not computed",
+          "symptom": ".ggen/packs.lock written but digest field is empty or not present",
+          "detection": "jq '.packages[] | .digest' .ggen/packs.lock | grep -E '^$|^0{64}$'",
+          "root_cause": "install.rs never called hash_data() on the pack TOML",
+          "impact": "CRITICAL — tampering is not detected"
+        },
+        {
+          "mode": "Fail-open — digest mismatch is logged but not enforced",
+          "symptom": "ggen sync --locked logs 'digest mismatch for acme/base' but continues execution",
+          "detection": "ggen sync --locked; grep 'digest mismatch' output; check exit code (must be non-zero)",
+          "root_cause": "verify_integrity() returns a warning instead of Err",
+          "impact": "CRITICAL — sync proceeds with tampered inputs"
+        },
+        {
+          "mode": "Legacy path contamination — old lockfile format still supported",
+          "symptom": ".ggen/packs.lock without digest field is still accepted",
+          "detection": "Create lockfile missing digest field; run ggen sync --locked",
+          "root_cause": "Parsing has a fallback that defaults digest to empty string",
+          "impact": "HIGH — old (unverified) lockfiles are still trusted"
+        },
+        {
+          "mode": "Contract drift — timestamp not recorded",
+          "symptom": ".ggen/packs.lock lacks installed_at or installed_at is zero value",
+          "detection": "jq '.packages[] | .installed_at' .ggen/packs.lock | grep -E '^$|T00:00:00'",
+          "root_cause": "Lockfile writer does not capture Utc::now() at install time",
+          "impact": "MEDIUM — cannot distinguish between installations from different times"
+        }
+      ],
+      "recovery": [
+        "If digest is missing: Delete .ggen/packs.lock and re-run ggen packs add for each package",
+        "If digest mismatches: Check if pack TOML was modified (intended or not); if intended, reinstall pack; if unintended, replace pack with known-good version",
+        "If package is missing: Add it with ggen packs add; re-run ggen packs verify",
+        "If lockfile is corrupted: Delete and regenerate by re-running all ggen packs add commands in order"
+      ],
+      "sabotage_tests": [
+        {
+          "sabotage": "Modify pack TOML after installation",
+          "command": "echo 'extra-field = true' >> $GGEN_PACKS_DIR/acme/base/1.2.3/package.toml && ggen sync --locked",
+          "required_outcome": "Exit 1; error message: 'Digest mismatch for acme/base'",
+          "test_location": "crates/ggen-marketplace/tests/lockfile_integrity_test.rs::test_modified_pack_detected"
+        },
+        {
+          "sabotage": "Delete pack file after installation",
+          "command": "rm $GGEN_PACKS_DIR/acme/base/1.2.3/package.toml && ggen sync --locked",
+          "required_outcome": "Exit 1; error message: 'Package acme/base missing'",
+          "test_location": "crates/ggen-marketplace/tests/lockfile_integrity_test.rs::test_missing_pack_detected"
+        },
+        {
+          "sabotage": "Corrupt lockfile digest",
+          "command": "jq '.packages[\"acme/base\"].digest = \"0000000000000000000000000000000000000000000000000000000000000000\"' .ggen/packs.lock > /tmp/corrupt.lock && mv /tmp/corrupt.lock .ggen/packs.lock && ggen sync --locked",
+          "required_outcome": "Exit 1; error message references digest mismatch",
+          "test_location": "crates/ggen-marketplace/tests/lockfile_integrity_test.rs::test_corrupted_digest_detected"
+        },
+        {
+          "sabotage": "Create empty digest field in lockfile",
+          "command": "jq '.packages[\"acme/base\"].digest = \"\"' .ggen/packs.lock > /tmp/empty.lock && mv /tmp/empty.lock .ggen/packs.lock && ggen sync --locked",
+          "required_outcome": "Exit 1; error message references empty or invalid digest",
+          "test_location": "crates/ggen-marketplace/tests/lockfile_integrity_test.rs::test_empty_digest_validation"
+        }
+      ]
+    },
+    {
+      "dimension_id": 4,
+      "name": "Input/Output Hashing (BLAKE3)",
+      "short_description": "Receipts record all input hashes and output hashes (BLAKE3 or SHA-256)",
+      "what_it_is": "Every receipt captures BLAKE3 hashes of all inputs consumed during the pipeline (RDF ontology, packs, configs) and all outputs generated (source files, artifacts). These hashes form a complete record of what was input and what was produced, enabling reproducibility and tamper detection across the entire pipeline.",
+      "implementation": {
+        "crate": "ggen-config",
+        "module": "crate::receipt::receipt_impl",
+        "algorithm": "SHA-256 (hex-encoded), BLAKE3 (planned for future versions)",
+        "key_types": [
+          "Receipt { input_hashes: Vec<String>, output_hashes: Vec<String> }",
+          "Each hash is a hex-encoded digest"
+        ],
+        "key_functions": [
+          "ggen_config::hash_data(data: &[u8]) -> String — SHA-256",
+          "Pipeline stages (μ₁–μ₅) compute input/output hashes and pass to receipt"
+        ],
+        "key_modules": [
+          "ggen-core/src/codegen/pipeline.rs::GenerationPipeline::run() — stage outputs",
+          "ggen-cli/src/cmds/sync.rs::emit_receipt() — aggregates all hashes",
+          "ggen-graph/src/receipt/mod.rs — transition receipts with hashes"
+        ],
+        "file_locations": [
+          ".ggen/receipts/latest.json — input_hashes and output_hashes fields"
+        ]
+      },
+      "validation_command": {
+        "cli": "ggen receipt info <receipt-path> (shows counts) or inspect .ggen/receipts/latest.json",
+        "description": "Verify that input_hashes and output_hashes are populated and non-empty",
+        "example": "jq '.input_hashes | length' .ggen/receipts/latest.json && jq '.output_hashes | length' .ggen/receipts/latest.json",
+        "expected_output": "Both commands return positive integers > 0",
+        "reproduction_validation": {
+          "procedure": "Re-run ggen sync with identical inputs and compare output_hashes",
+          "expected": "output_hashes must be identical (deterministic generation)",
+          "if_different": "Non-determinism detected; investigate pipeline randomness"
+        }
+      },
+      "hash_structure": {
+        "input_hashes_example": {
+          "ontology.ttl": "a3f2e1b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0",
+          "acme/base@1.2.3": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0",
+          "ggen.toml": "c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1"
+        },
+        "output_hashes_example": {
+          "src/main.rs": "d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2",
+          "Cargo.toml": "e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3",
+          "target/doc/index.html": "f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4"
+        },
+        "invariants": [
+          "Every input file consumed must appear in input_hashes with a non-empty SHA-256",
+          "Every output file written must appear in output_hashes with a non-empty SHA-256",
+          "Hash values must be 64-char hex strings (SHA-256) or 64-char hex (BLAKE3)",
+          "No hash value may be all zeros (0x0000...0000)",
+          "Hash ordering does not matter but duplicates are not allowed"
+        ]
+      },
+      "failure_modes": [
+        {
+          "mode": "Fail-open — empty input_hashes",
+          "symptom": "Receipt has input_hashes: [] (empty list)",
+          "detection": "jq '.input_hashes | length' .ggen/receipts/latest.json returns 0",
+          "root_cause": "Pipeline did not compute input hashes or emit_receipt() does not populate them",
+          "impact": "CRITICAL — no record of what inputs were used"
+        },
+        {
+          "mode": "Fail-open — empty output_hashes",
+          "symptom": "Receipt has output_hashes: [] (empty list)",
+          "detection": "jq '.output_hashes | length' .ggen/receipts/latest.json returns 0",
+          "root_cause": "Pipeline did not emit output hashes or render stage failed silently",
+          "impact": "CRITICAL — no record of what was generated"
+        },
+        {
+          "mode": "Contract drift — hashes are defaults (all zeros)",
+          "symptom": "input_hashes or output_hashes contain all-zero SHA-256 values",
+          "detection": "jq '.input_hashes[] | select(. == \"0000000000000000000000000000000000000000000000000000000000000000\")' .ggen/receipts/latest.json",
+          "root_cause": "Hashes computed from empty data or not computed at all",
+          "impact": "HIGH — hashes do not reflect actual inputs/outputs"
+        },
+        {
+          "mode": "Legacy path contamination — old format with dict instead of vec",
+          "symptom": "input_hashes is an object { key: hash } instead of array [hash, hash, ...]",
+          "detection": "jq '.input_hashes | type' .ggen/receipts/latest.json returns 'object' instead of 'array'",
+          "root_cause": "Old receipt format is still accepted; parser has fallback",
+          "impact": "MEDIUM — inconsistent hash format makes validation harder"
+        }
+      ],
+      "recovery": [
+        "If input_hashes is empty: Verify that all pipeline stages (μ₁–μ₅) are computing and logging input hashes",
+        "If output_hashes is empty: Verify that the render stage writes files and computes hashes before emitting receipt",
+        "If hashes are zeros: Check that hash computation is not being called on empty data; verify file paths are correct",
+        "If format inconsistent: Migrate old receipt format to new array format or re-run sync"
+      ],
+      "sabotage_tests": [
+        {
+          "sabotage": "Delete input files before sync but after parsing",
+          "command": "ggen sync (capture input_hashes); delete one input file; verify hash is still in receipt",
+          "required_outcome": "input_hashes captured at parse time, not affected by later deletion",
+          "test_location": "crates/ggen-core/tests/hashing_tests.rs::test_input_hashes_immutable"
+        },
+        {
+          "sabotage": "Modify output file after generation",
+          "command": "ggen sync; capture output_hashes; edit generated file; re-hash; compare",
+          "required_outcome": "output_hashes no longer match (tampering detected)",
+          "test_location": "crates/ggen-core/tests/hashing_tests.rs::test_output_hash_mismatch_detected"
+        },
+        {
+          "sabotage": "Omit a generated file from output_hashes",
+          "command": "ggen sync; manually delete entry from receipt.output_hashes; verify signature fails",
+          "required_outcome": "ggen receipt verify returns is_valid: false (signature covers all hashes)",
+          "test_location": "crates/ggen-config/tests/receipt_signature_tests.rs::test_hash_omission_detected"
+        },
+        {
+          "sabotage": "Inject an extra file into output_hashes",
+          "command": "ggen sync; manually add non-existent file to receipt.output_hashes; verify signature fails",
+          "required_outcome": "ggen receipt verify returns is_valid: false",
+          "test_location": "crates/ggen-config/tests/receipt_signature_tests.rs::test_fake_hash_injection_detected"
+        }
+      ]
+    },
+    {
+      "dimension_id": 5,
+      "name": "Chain Validation",
+      "short_description": "Receipt previous_hash links to prior receipt, unbroken chain from genesis",
+      "what_it_is": "Receipts form a cryptographic chain: each receipt (except the genesis receipt) contains the SHA-256 hash of the previous receipt in the field previous_receipt_hash. This chain provides a tamper-evident history of all sync operations, with each receipt cryptographically linked to its predecessor. Validating the chain ensures no receipts have been inserted, deleted, or reordered.",
+      "implementation": {
+        "crate": "ggen-config",
+        "module": "crate::receipt::chain",
+        "key_types": [
+          "ReceiptChain { receipts: Vec<Receipt> }",
+          "Receipt { previous_receipt_hash: Option<String> }"
+        ],
+        "key_functions": [
+          "ReceiptChain::from_genesis(genesis: Receipt) -> Result<Self>",
+          "ReceiptChain::append(&mut self, receipt: Receipt) -> Result<()>",
+          "ReceiptChain::verify(&self, verifying_key: &VerifyingKey) -> Result<()>",
+          "Receipt::chain(&mut self, previous_receipt: &Receipt) -> Result<Self>",
+          "Receipt::hash(&self) -> Result<String>"
+        ],
+        "key_modules": [
+          "ggen-config/src/receipt/chain.rs::ReceiptChain",
+          "ggen-cli/src/cmds/sync.rs::emit_receipt() — chains new receipt to latest"
+        ],
+        "file_locations": [
+          ".ggen/receipts/sync-*.json — each receipt linked via previous_receipt_hash",
+          ".ggen/receipts/latest.json — points to most recent receipt in the chain"
+        ]
+      },
+      "validation_command": {
+        "cli": "ggen receipt verify <receipt-path> (checks if previous_hash exists) or build ReceiptChain and call verify()",
+        "description": "Load all receipts from .ggen/receipts/ and verify the entire chain is unbroken",
+        "example": "for f in .ggen/receipts/sync-*.json; do jq '.previous_receipt_hash' $f; done | sort -u",
+        "expected_output": "Each receipt's previous_receipt_hash matches the hash of the chronologically prior receipt",
+        "chain_validation_procedure": {
+          "step1": "Load genesis receipt (first receipt, previous_receipt_hash: null)",
+          "step2": "For each subsequent receipt, verify previous_receipt_hash == hash(prior_receipt)",
+          "step3": "Verify all signatures in the chain",
+          "step4": "Return Ok if all links are valid, Err if any link is broken"
+        }
+      },
+      "chain_invariants": {
+        "genesis_receipt": {
+          "constraint": "Must have previous_receipt_hash: null",
+          "created_at": "First sync operation",
+          "signature_required": true
+        },
+        "non_genesis_receipt": {
+          "constraint": "Must have previous_receipt_hash = hash(prior_receipt)",
+          "constraint_enforcement": "ReceiptChain::append() enforces this; mismatch returns Err(HashMismatch)",
+          "signature_required": true
+        },
+        "chain_properties": [
+          "Chain is ordered chronologically by receipt creation",
+          "No receipt can appear twice in the chain",
+          "No gaps in the chain (no deleted receipts)",
+          "All previous_receipt_hash values must be SHA-256 hashes (64-char hex)",
+          "Hashes must form a valid linked list: R₁ → R₂ → R₃ ... Rₙ"
+        ]
+      },
+      "failure_modes": [
+        {
+          "mode": "Fail-open — broken chain is not detected",
+          "symptom": "ReceiptChain::verify() returns Ok even when a link is broken",
+          "detection": "Manually edit a receipt's previous_receipt_hash to a wrong value; call verify()",
+          "root_cause": "verify() was not implemented or does not check previous_receipt_hash links",
+          "impact": "CRITICAL — chain integrity is not validated"
+        },
+        {
+          "mode": "Contract drift — previous_receipt_hash not populated",
+          "symptom": "Receipt 2 has previous_receipt_hash: null even though it's not genesis",
+          "detection": "jq '.previous_receipt_hash' .ggen/receipts/sync-*.json | grep null",
+          "root_cause": "Receipt::chain() was never called before signing",
+          "impact": "HIGH — receipts are orphaned, no chain formed"
+        },
+        {
+          "mode": "Legacy path contamination — old receipt format without chaining",
+          "symptom": "Old receipts lack previous_receipt_hash field entirely; new chain breaks",
+          "detection": "Create receipt without previous_receipt_hash field; try to append next receipt",
+          "root_cause": "Parser has optional previous_receipt_hash; should reject missing field for non-genesis",
+          "impact": "MEDIUM — old receipts cannot be chained with new ones"
+        },
+        {
+          "mode": "Epistemic bypass — hard-coded previous_receipt_hash",
+          "symptom": "All receipts have the same previous_receipt_hash value (not linked)",
+          "detection": "jq '.previous_receipt_hash' .ggen/receipts/sync-*.json | sort | uniq | wc -l",
+          "root_cause": "previous_receipt_hash is hardcoded instead of computed from prior receipt",
+          "impact": "HIGH — fake chain, not linked to prior operations"
+        }
+      ],
+      "recovery": [
+        "If chain is broken: Identify the corrupted receipt and delete it; later receipts may need re-emission",
+        "If previous_receipt_hash is missing: Delete all receipts after the first and re-run ggen sync",
+        "If chain is disconnected: Start a new chain from current state; archive old chain",
+        "If receipt is orphaned: Verify it was actually emitted (check filesystem mtime); if stale, delete"
+      ],
+      "sabotage_tests": [
+        {
+          "sabotage": "Delete a receipt in the middle of the chain",
+          "command": "ggen sync (creates R1); ggen sync (creates R2); rm .ggen/receipts/sync-*-first.json; ggen sync (creates R3)",
+          "required_outcome": "R3.previous_receipt_hash does not match any existing receipt; chain validation fails",
+          "test_location": "crates/ggen-config/tests/chain_validation_tests.rs::test_deleted_receipt_breaks_chain"
+        },
+        {
+          "sabotage": "Corrupt previous_receipt_hash in a receipt",
+          "command": "jq '.previous_receipt_hash = \"0000000000000000000000000000000000000000000000000000000000000000\"' .ggen/receipts/latest.json > /tmp/corrupt.json && ggen receipt verify /tmp/corrupt.json",
+          "required_outcome": "Chain validation should fail; ggen receipt verify returns is_valid: false due to signature mismatch",
+          "test_location": "crates/ggen-config/tests/chain_validation_tests.rs::test_broken_chain_link_detected"
+        },
+        {
+          "sabotage": "Reorder receipts chronologically",
+          "command": "Manually swap timestamps/hashes in two receipts; attempt to load ReceiptChain",
+          "required_outcome": "ReceiptChain::append() detects previous_receipt_hash mismatch; returns Err(HashMismatch)",
+          "test_location": "crates/ggen-config/tests/chain_validation_tests.rs::test_reordered_receipts_rejected"
+        },
+        {
+          "sabotage": "Create a gap in the chain (orphaned receipt)",
+          "command": "Delete latest.json, creating a gap; ggen sync creates new receipt with wrong parent hash",
+          "required_outcome": "New receipt is rejected or forms a separate chain; original chain is inaccessible",
+          "test_location": "crates/ggen-config/tests/chain_validation_tests.rs::test_orphaned_receipt_creation"
+        }
+      ]
+    },
+    {
+      "dimension_id": 6,
+      "name": "Tampering Detection",
+      "short_description": "Signature verification fails if receipt or lockfile is modified after creation",
+      "what_it_is": "Any modification to a receipt's content (timestamp, hashes, operation_id, etc.) or to a lockfile (digest, version, packages) will cause signature or hash verification to fail. This is the core mechanism that prevents silent data corruption. Tampering can be detected by re-verifying the cryptographic signatures and comparing digests.",
+      "implementation": {
+        "crate": "ggen-config, ggen-marketplace",
+        "modules": [
+          "ggen-config/src/receipt/receipt_impl.rs::Receipt::verify()",
+          "ggen-marketplace/src/marketplace/security.rs::MarketplaceVerifier::verify()",
+          "ggen-marketplace/src/marketplace/install.rs::PackageInstaller::verify_integrity()"
+        ],
+        "key_detection_mechanisms": [
+          "Receipt signature verification: Ed25519 signature covers the exact receipt JSON; any change breaks signature",
+          "Lockfile digest verification: SHA-256 of pack TOML must match digest in lockfile",
+          "Hash chain validation: previous_receipt_hash must match the computed hash of the prior receipt"
+        ],
+        "file_locations": [
+          "Receipt: .ggen/receipts/*.json — tampered if signature verification fails",
+          "Lockfile: .ggen/packs.lock — tampered if any package digest is invalid"
+        ]
+      },
+      "validation_command": {
+        "cli": "ggen receipt verify <receipt-path> && ggen packs verify",
+        "description": "Verify both receipt signatures and lockfile digests in one command",
+        "example": "ggen receipt verify .ggen/receipts/latest.json && ggen packs verify",
+        "expected_output": "Both commands return exit 0 and all_valid: true",
+        "if_tampering_detected": {
+          "receipt_tampered": {
+            "command": "ggen receipt verify <receipt-path>",
+            "expected": "is_valid: false",
+            "message": "Signature verification failed"
+          },
+          "lockfile_tampered": {
+            "command": "ggen packs verify",
+            "expected": "exit 1",
+            "message": "Digest mismatch for [package]"
+          }
+        }
+      },
+      "tampering_scenarios": [
+        {
+          "scenario": "Receipt timestamp modified",
+          "modification": "jq '.timestamp = \"2020-01-01T00:00:00Z\"' .ggen/receipts/latest.json > /tmp/tampered.json",
+          "detection": "ggen receipt verify /tmp/tampered.json",
+          "expected_result": "is_valid: false (signature covers timestamp field)",
+          "mechanism": "Receipt::signing_message() includes all fields except signature; changing timestamp breaks signature"
+        },
+        {
+          "scenario": "Input hash modified",
+          "modification": "jq '.input_hashes[0] = \"0000000000000000000000000000000000000000000000000000000000000000\"' .ggen/receipts/latest.json > /tmp/tampered.json",
+          "detection": "ggen receipt verify /tmp/tampered.json",
+          "expected_result": "is_valid: false",
+          "mechanism": "Signature covers input_hashes array; modification breaks signature"
+        },
+        {
+          "scenario": "Output hash modified",
+          "modification": "jq '.output_hashes[0] = \"deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef\"' .ggen/receipts/latest.json > /tmp/tampered.json",
+          "detection": "ggen receipt verify /tmp/tampered.json",
+          "expected_result": "is_valid: false",
+          "mechanism": "Signature covers output_hashes array; modification breaks signature"
+        },
+        {
+          "scenario": "Lockfile package digest modified",
+          "modification": "jq '.packages[\"acme/base\"].digest = \"0000000000000000000000000000000000000000000000000000000000000000\"' .ggen/packs.lock > /tmp/tampered.lock && mv /tmp/tampered.lock .ggen/packs.lock",
+          "detection": "ggen sync --locked",
+          "expected_result": "exit 1; 'Digest mismatch for acme/base'",
+          "mechanism": "PackageInstaller::verify_integrity() recomputes digest and compares with lockfile entry"
+        },
+        {
+          "scenario": "Lockfile package version modified",
+          "modification": "jq '.packages[\"acme/base\"] = \"1.9.9\"' .ggen/packs.lock > /tmp/tampered.lock && mv /tmp/tampered.lock .ggen/packs.lock",
+          "detection": "ggen sync --locked",
+          "expected_result": "exit 1; 'Package not found acme/base@1.9.9'",
+          "mechanism": "PackageInstaller attempts to resolve the modified version and fails"
+        }
+      ],
+      "failure_modes": [
+        {
+          "mode": "Bypass — tampering is not detected",
+          "symptom": "Modify a receipt and ggen receipt verify still returns is_valid: true",
+          "detection": "Edit receipt JSON; run ggen receipt verify",
+          "root_cause": "Receipt::verify() was not called, or signature verification was bypassed",
+          "impact": "CRITICAL — tampering is invisible"
+        },
+        {
+          "mode": "Fail-open — tampering is detected but execution continues",
+          "symptom": "ggen sync --locked detects digest mismatch but continues with exit 0",
+          "detection": "Modify lockfile digest; run ggen sync --locked; check exit code",
+          "root_cause": "verify_integrity() returns a warning instead of Err; pipeline does not enforce it",
+          "impact": "CRITICAL — corrupted data is silently used"
+        },
+        {
+          "mode": "Legacy path — old non-signed receipts are accepted",
+          "symptom": "Modify an old receipt (without signature field) and it is still accepted",
+          "detection": "Create receipt with signature: ''; modify it; ggen receipt verify accepts it",
+          "root_cause": "Verification was not enforced for old receipt format",
+          "impact": "MEDIUM — unsigned receipts bypass verification"
+        }
+      ],
+      "recovery": [
+        "If receipt is tampered: Delete and re-run ggen sync to regenerate",
+        "If lockfile is tampered: Delete and reinstall packs with ggen packs add",
+        "If both are tampered: Start fresh with ggen init and reinstall everything",
+        "If unsure if tampering occurred: Compare files with version control history or backups"
+      ],
+      "sabotage_tests": [
+        {
+          "sabotage": "Modify receipt in 5 different ways and verify tampering is detected",
+          "test_name": "test_receipt_tampering_scenarios",
+          "modifications": [
+            "jq '.timestamp |= . + \"Z\"' (double-suffix timestamp)",
+            "jq '.operation_id = \"00000000-0000-0000-0000-000000000000\"' (zero UUID)",
+            "jq '.input_hashes |= reverse' (reorder hashes)",
+            "jq '.signature = \"00000000\"' (corrupt signature)",
+            "jq '.previous_receipt_hash = \"0\" * 64' (invalid parent)"
+          ],
+          "expected": "All 5 modifications detected as tampering (is_valid: false)",
+          "location": "crates/ggen-config/tests/tampering_detection_tests.rs::test_receipt_tampering_scenarios"
+        },
+        {
+          "sabotage": "Modify lockfile digests and verify detection",
+          "test_name": "test_lockfile_tampering_scenarios",
+          "modifications": [
+            "Change one package digest to all zeros",
+            "Truncate a digest to 32 chars",
+            "Remove digest field entirely",
+            "Add an extra character to a digest",
+            "Swap digests between two packages"
+          ],
+          "expected": "All 5 modifications detected (ggen packs verify returns non-zero)",
+          "location": "crates/ggen-marketplace/tests/tampering_detection_tests.rs::test_lockfile_tampering_scenarios"
+        }
+      ]
+    },
+    {
+      "dimension_id": 7,
+      "name": "Key Management",
+      "short_description": "Private keys never in repo, public keys verified, key rotation supported",
+      "what_it_is": "The signing key (private) and verifying key (public) are the cryptographic foundation of the entire security system. The private key must be kept secret and never committed to version control. The public key can be shared and verified. Key rotation must be supported so that compromised keys can be replaced without invalidating old receipts.",
+      "implementation": {
+        "crate": "ggen-config",
+        "module": "crate::receipt::receipt_impl",
+        "key_types": [
+          "ed25519_dalek::SigningKey — private key, 32 bytes, hex-encoded",
+          "ed25519_dalek::VerifyingKey — public key, 32 bytes, hex-encoded"
+        ],
+        "key_functions": [
+          "generate_keypair() -> (SigningKey, VerifyingKey)",
+          "KeyPersistence::save_signing_key(key: &SigningKey, path: &Path) -> Result<()>",
+          "KeyPersistence::load_signing_key(path: &Path) -> Result<SigningKey>",
+          "KeyPersistence::save_verifying_key(key: &VerifyingKey, path: &Path) -> Result<()>"
+        ],
+        "key_modules": [
+          "ggen-cli/src/cmds/sync.rs::emit_receipt() — loads signing key, generates new keypair if missing",
+          "ggen-cli/src/cmds/receipt.rs::do_verify() — loads verifying key"
+        ],
+        "file_locations": [
+          ".ggen/keys/signing.key — PRIVATE, hex-encoded ed25519 private key, MUST NOT be in git",
+          ".ggen/keys/verifying.key — PUBLIC, hex-encoded ed25519 public key, SAFE to commit",
+          ".ggen/keys/public.pem — alternative name for verifying.key"
+        ]
+      },
+      "validation_command": {
+        "cli": "ggen init --show-public-key",
+        "description": "Display the public key without exposing the private key",
+        "example": "ggen init --show-public-key",
+        "expected_output": {
+          "public_key": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0"
+        },
+        "file_permissions_check": {
+          "command": "stat -c '%A' .ggen/keys/signing.key",
+          "expected": "-rw------- (600) or -rw-r----- (640)",
+          "must_not_be": "-rw-rw-rw- (666) or world-readable"
+        }
+      },
+      "key_invariants": [
+        {
+          "invariant": "Private key file permissions",
+          "requirement": "File mode must be 0600 (readable/writable by owner only)",
+          "enforcement": "ggen init enforces chmod 0600 when writing signing.key",
+          "failure": "File mode is 0644 or world-readable → CRITICAL EXPOSURE"
+        },
+        {
+          "invariant": "Private key never committed to git",
+          "requirement": ".gitignore must include .ggen/keys/signing.key",
+          "enforcement": "ggen init creates .gitignore entry; git pre-commit hook checks",
+          "failure": "signing.key appears in git history → CRITICAL COMPROMISE"
+        },
+        {
+          "invariant": "Public key is hex-encoded and 64 chars",
+          "requirement": "verifying.key is exactly 64 hex characters (32 bytes × 2)",
+          "enforcement": "VerifyingKey::to_bytes() always produces 32 bytes",
+          "failure": "verifying.key is not exactly 64 chars → malformed key"
+        },
+        {
+          "invariant": "Private key is hex-encoded and 64 chars",
+          "requirement": "signing.key is exactly 64 hex characters (32 bytes × 2)",
+          "enforcement": "SigningKey::to_bytes() always produces 32 bytes",
+          "failure": "signing.key is not exactly 64 chars → malformed key"
+        },
+        {
+          "invariant": "Key pair consistency",
+          "requirement": "verifying.key must be the public key corresponding to signing.key",
+          "enforcement": "SigningKey::verifying_key() always derives the correct public key",
+          "failure": "Mismatched key pair → verification will fail"
+        }
+      ],
+      "failure_modes": [
+        {
+          "mode": "Key exposure — private key is world-readable",
+          "symptom": "stat -c '%A' .ggen/keys/signing.key returns -rw-rw-rw-",
+          "detection": "File permissions audit; git diff --check for exposed keys",
+          "root_cause": "ggen init did not enforce 0600 permissions",
+          "impact": "CRITICAL — any user can read private key"
+        },
+        {
+          "mode": "Key exposure — private key committed to git",
+          "symptom": "git log -p -- '.ggen/keys/signing.key' shows contents",
+          "detection": "git log -p -- '.ggen/keys/signing.key' | head",
+          "root_cause": ".gitignore does not include .ggen/keys/signing.key or .gitignore was not created",
+          "impact": "CRITICAL — key is in version history forever"
+        },
+        {
+          "mode": "Key mismatch — verifying.key does not match signing.key",
+          "symptom": "ggen receipt verify fails even with a freshly signed receipt",
+          "detection": "Generate new keypair, sign receipt, verify with mismatched key",
+          "root_cause": "verifying.key was replaced without re-signing receipts, or signing.key was replaced",
+          "impact": "HIGH — old receipts cannot be verified"
+        },
+        {
+          "mode": "Key loss — signing.key is deleted or corrupted",
+          "symptom": "ggen sync fails with 'Could not load signing key'",
+          "detection": "ls -la .ggen/keys/signing.key; file not found or corrupted",
+          "root_cause": "File was deleted, disk corruption, or permission issue",
+          "impact": "HIGH — cannot sign new receipts until key is recovered or regenerated"
+        },
+        {
+          "mode": "Fail-open — missing key does not fail hard",
+          "symptom": "ggen sync continues without signing receipt when key is missing",
+          "detection": "rm .ggen/keys/signing.key; ggen sync; check if receipt is unsigned",
+          "root_cause": "emit_receipt() has a fallback that writes unsigned receipt on key load failure",
+          "impact": "CRITICAL — unsigned receipt is silently accepted"
+        }
+      ],
+      "recovery": [
+        "If private key is exposed: Revoke old key, generate new keypair with ggen init --force-keys, re-sign all future receipts with new key",
+        "If key is lost: Regenerate with ggen init --force-keys (old receipts cannot be re-signed but remain in chain)",
+        "If key is corrupted: Restore from backup or regenerate if no backup exists",
+        "If key pair is mismatched: Identify which key is correct (signing or verifying) and restore or regenerate the other"
+      ],
+      "sabotage_tests": [
+        {
+          "sabotage": "Change file permissions to world-readable",
+          "command": "chmod 666 .ggen/keys/signing.key && ggen sync",
+          "required_outcome": "Exit 1; error message: 'Private key file has insecure permissions' OR Warning issued before signing",
+          "test_location": "crates/ggen-cli/tests/key_security_tests.rs::test_world_readable_key_rejected"
+        },
+        {
+          "sabotage": "Delete signing key before sync",
+          "command": "rm .ggen/keys/signing.key && ggen sync",
+          "required_outcome": "Exit 0 and regenerate new keypair, OR exit 1 if regeneration disabled",
+          "test_location": "crates/ggen-cli/tests/key_security_tests.rs::test_missing_key_handling"
+        },
+        {
+          "sabotage": "Replace verifying key with a different one",
+          "command": "ggen init --output /tmp/other_keys --force-keys; cp /tmp/other_keys/verifying.key .ggen/keys/verifying.key; ggen receipt verify .ggen/receipts/latest.json",
+          "required_outcome": "is_valid: false (signature verification fails with wrong key)",
+          "test_location": "crates/ggen-cli/tests/key_security_tests.rs::test_mismatched_verifying_key"
+        },
+        {
+          "sabotage": "Corrupt signing key hex encoding",
+          "command": "echo 'not_valid_hex!!!!' > .ggen/keys/signing.key && ggen sync",
+          "required_outcome": "Exit 1; error message: 'Invalid hex in signing key' OR 'Failed to load signing key'",
+          "test_location": "crates/ggen-cli/tests/key_security_tests.rs::test_corrupted_signing_key_rejected"
+        }
+      ]
+    },
+    {
+      "dimension_id": 8,
+      "name": "Audit Trail",
+      "short_description": "All .ggen/receipts/*.json files are immutable proof of operations performed",
+      "what_it_is": "The receipts directory (.ggen/receipts/) serves as an immutable audit log of all ggen sync operations. Each receipt is a timestamped, cryptographically signed proof of what happened during that operation. The receipts cannot be deleted or modified without breaking their signatures. This audit trail is the evidence layer that enables retrospective verification of everything the system has done.",
+      "implementation": {
+        "crate": "ggen-cli",
+        "module": "ggen-cli/src/cmds/sync.rs::emit_receipt()",
+        "key_invariants": [
+          "Each receipt is written to a uniquely named file (.ggen/receipts/sync-YYYYMMDD-HHMMSS.json)",
+          "Receipts are never overwritten; new receipts are always appended",
+          ".ggen/receipts/latest.json points to the most recent receipt (symlink or copy)",
+          "All receipts in the directory form a single cryptographic chain"
+        ],
+        "file_locations": [
+          ".ggen/receipts/sync-YYYYMMDD-HHMMSS.json — timestamped receipt (immutable archive)",
+          ".ggen/receipts/latest.json — pointer to most recent receipt (updated each sync)"
+        ],
+        "key_functions": [
+          "emit_receipt() writes timestamped receipt file and updates latest.json",
+          "ReceiptChain::from_files() loads all receipts from directory and validates chain"
+        ]
+      },
+      "validation_command": {
+        "cli": "ls -la .ggen/receipts/ && jq '.timestamp' .ggen/receipts/sync-*.json | sort",
+        "description": "List all receipts in chronological order and verify they form a valid chain",
+        "example": "for f in $(ls -1t .ggen/receipts/sync-*.json); do echo $f: $(jq '.timestamp' $f); done",
+        "expected_output": "Receipts listed in reverse chronological order (newest first), all timestamps unique and increasing",
+        "audit_trail_validation": {
+          "procedure": "Load all receipts, verify each signature, validate previous_receipt_hash chain",
+          "expected": "All signatures valid, all chain links valid, all timestamps unique and monotonic",
+          "if_invalid": "Broken chain or forged receipt detected"
+        }
+      },
+      "audit_trail_invariants": [
+        {
+          "invariant": "Receipt immutability",
+          "requirement": "Receipts are never modified after creation; only new receipts are added",
+          "enforcement": "Receipt files are written once and never modified by ggen; signature covers entire receipt",
+          "failure": "Modifying a receipt breaks its signature"
+        },
+        {
+          "invariant": "Unique timestamps",
+          "requirement": "Each receipt has a unique timestamp (no two receipts with identical timestamp)",
+          "enforcement": "chrono::Utc::now() is called at receipt creation time, granular to nanoseconds",
+          "failure": "Duplicate timestamp implies duplicate or forged receipt"
+        },
+        {
+          "invariant": "Chronological ordering",
+          "requirement": "Receipts are ordered chronologically; each receipt's timestamp > prior receipt's timestamp",
+          "enforcement": "Files are named with YYYYMMDD-HHMMSS prefix, and previous_receipt_hash enforces chain ordering",
+          "failure": "Out-of-order receipts suggest tampering or clock skew"
+        },
+        {
+          "invariant": "Complete chain",
+          "requirement": "No gaps in the receipt chain; no receipts are missing or deleted",
+          "enforcement": "ReceiptChain::verify() checks that each previous_receipt_hash matches a known receipt",
+          "failure": "Orphaned receipt or deleted receipt breaks the chain"
+        },
+        {
+          "invariant": "Archive integrity",
+          "requirement": "All historical receipts (.ggen/receipts/sync-*.json) remain in the directory",
+          "enforcement": "Receipts are append-only; ggen never deletes receipts",
+          "failure": "Missing receipt file indicates tampering or data loss"
+        }
+      ],
+      "failure_modes": [
+        {
+          "mode": "Decorative completion — receipt not persisted",
+          "symptom": "ggen sync exits 0 but .ggen/receipts/sync-*.json is not created",
+          "detection": "ls -la .ggen/receipts/ before and after sync; compare file counts",
+          "root_cause": "emit_receipt() was not called or failed silently",
+          "impact": "CRITICAL — no audit trail of what ran"
+        },
+        {
+          "mode": "Legacy path contamination — old receipts still exist and chain is broken",
+          "symptom": "Old .ggen/receipts/sync-old.json exists but is not linked in the chain",
+          "detection": "Check if all old receipts have valid previous_receipt_hash links",
+          "root_cause": "Old receipt format was not updated to include chaining",
+          "impact": "MEDIUM — audit trail has gaps"
+        },
+        {
+          "mode": "Fail-open — deleted receipt is not detected",
+          "symptom": "Missing receipt file does not cause chain validation to fail",
+          "detection": "Delete a receipt file and run ReceiptChain::verify()",
+          "root_cause": "verify() does not check that all expected receipts exist",
+          "impact": "HIGH — tampering (deletion) is not detected"
+        },
+        {
+          "mode": "Contract drift — timestamps are not unique",
+          "symptom": "Two receipts have identical timestamps or reversed timestamps",
+          "detection": "jq '.timestamp' .ggen/receipts/sync-*.json | sort | uniq -d",
+          "root_cause": "Clock went backward, or timestamps were hardcoded",
+          "impact": "MEDIUM — cannot determine ordering"
+        }
+      ],
+      "recovery": [
+        "If receipt is missing: Check filesystem backups or version control history (receipts should not be in git, but may be in backup)",
+        "If receipts are out of order: Check filesystem timestamps and previous_receipt_hash links; may need to re-emit receipts",
+        "If chain is broken: Identify the break point and restore missing receipt from backup or start a new chain",
+        "If audit trail is corrupted: Do not continue; investigate how corruption occurred before proceeding"
+      ],
+      "sabotage_tests": [
+        {
+          "sabotage": "Delete a receipt file from the middle of the chain",
+          "command": "ls .ggen/receipts/sync-*.json | sort | sed -n '2p' | xargs rm && ggen receipt verify <later-receipt>",
+          "required_outcome": "Chain validation fails; error message: 'Cannot find receipt for hash [hash]'",
+          "test_location": "crates/ggen-config/tests/audit_trail_tests.rs::test_deleted_receipt_breaks_chain"
+        },
+        {
+          "sabotage": "Modify a historical receipt (not latest.json)",
+          "command": "jq '.timestamp = \"2000-01-01T00:00:00Z\"' .ggen/receipts/sync-*.json | head -1 | jq '.timestamp' > /tmp/old.json; ggen receipt verify <that-receipt>",
+          "required_outcome": "Signature verification fails; is_valid: false",
+          "test_location": "crates/ggen-config/tests/audit_trail_tests.rs::test_historical_receipt_tampering"
+        },
+        {
+          "sabotage": "Load all receipts and verify entire chain integrity",
+          "command": "Test code: load all .ggen/receipts/sync-*.json, verify all signatures, validate all chain links",
+          "required_outcome": "All signatures valid AND all previous_receipt_hash links valid",
+          "test_location": "crates/ggen-config/tests/audit_trail_tests.rs::test_full_chain_integrity"
+        },
+        {
+          "sabotage": "Verify that receipt timestamps are monotonically increasing",
+          "command": "jq -r '.timestamp' .ggen/receipts/sync-*.json | sort -c (verify sorted)",
+          "required_outcome": "No unsorted output; all timestamps in increasing order",
+          "test_location": "crates/ggen-config/tests/audit_trail_tests.rs::test_monotonic_timestamps"
+        }
+      ]
+    }
+  ],
+  "integration_validation": {
+    "description": "All 8 dimensions must be validated together in end-to-end tests",
+    "test_location": "crates/ggen-cli/tests/security_e2e_tests.rs",
+    "comprehensive_test_scenarios": [
+      {
+        "name": "Full sync with complete security validation",
+        "steps": [
+          "1. Run ggen sync with clean state",
+          "2. Verify receipt was generated and signed (dimension 1, 2)",
+          "3. Verify lockfile has valid digests (dimension 3)",
+          "4. Verify input/output hashes are populated (dimension 4)",
+          "5. Verify receipt is chained to prior (or genesis) (dimension 5)",
+          "6. Attempt to tamper with receipt and verify detection (dimension 6)",
+          "7. Verify keys are in place with correct permissions (dimension 7)",
+          "8. Verify audit trail contains the new receipt (dimension 8)"
+        ],
+        "test_name": "test_full_security_e2e"
+      },
+      {
+        "name": "Tampering in each dimension triggers failure",
+        "steps": [
+          "Run scenario: Modify receipt signature → ggen receipt verify fails",
+          "Run scenario: Modify lockfile digest → ggen sync --locked fails",
+          "Run scenario: Delete receipt → audit trail validation fails",
+          "Run scenario: Corrupt key file → ggen sync fails",
+          "Verify ALL scenarios fail hard (not fail-open)"
+        ],
+        "test_name": "test_all_tampering_scenarios"
+      }
+    ]
+  },
+  "definition_of_done_checklist": {
+    "before_claiming_security_complete": [
+      "[ ] Dimension 1: Receipt is generated with .ggen/receipts/latest.json containing all required fields",
+      "[ ] Dimension 2: Receipt signature is verified with Ed25519 public key; tampering breaks signature",
+      "[ ] Dimension 3: Lockfile has SHA-256 digest for every package; digests are re-verified at sync --locked",
+      "[ ] Dimension 4: input_hashes and output_hashes are non-empty and match actual pipeline inputs/outputs",
+      "[ ] Dimension 5: Receipt chain is unbroken; each receipt links to previous via previous_receipt_hash",
+      "[ ] Dimension 6: All tampering scenarios (5+ per dimension) are caught and cause hard failures",
+      "[ ] Dimension 7: Private key has 0600 permissions and is .gitignored; public key is verified",
+      "[ ] Dimension 8: Audit trail contains all historical receipts; no gaps in chain",
+      "[ ] All 8 dimensions pass sabotage tests (5+ tests per dimension)",
+      "[ ] Integration test validates all 8 dimensions together (e2e test passes)",
+      "[ ] No fail-open paths: any security violation causes hard failure (exit 1)",
+      "[ ] No legacy paths: old receipt/key formats are not accepted unless explicitly handled"
+    ]
+  }
+}

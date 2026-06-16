@@ -1,0 +1,923 @@
+{
+  "version": "26.6.11",
+  "title": "ggen Developer Experience (DX) Definition of Done",
+  "description": "Specification of seven DX dimensions that define what makes ggen development frictionless and productive. All dimensions must be satisfied for DX to be complete.",
+  "lastUpdated": "2026-06-14",
+
+  "dimensions": [
+    {
+      "id": 1,
+      "name": "Command Ergonomics",
+      "description": "What `just` commands must exist? All critical commands must be available as single-word recipes with predictable behavior and clear semantics.",
+      "whyItMatters": "Developers spend 30% of time running build/test commands. Each missing recipe or unclear command name creates context-switching overhead and mental load. Ergonomic commands reduce friction from dev loop startup to test failures to performance debugging.",
+      "successCriteria": [
+        "All critical workflows have a corresponding `just <task>` recipe",
+        "Commands are discoverable via `just --list`",
+        "All recipes include descriptive comments explaining purpose",
+        "Recipes timeout gracefully (no infinite hangs)",
+        "Exit codes are meaningful (0 = success, non-zero = failure)",
+        "All recipes are idempotent (safe to run multiple times)",
+        "First-time execution provides helpful guidance if prerequisites missing"
+      ],
+      "currentState": {
+        "implemented": [
+          "check — cargo check --workspace",
+          "build — cargo build --workspace",
+          "build-release — cargo build --release -p ggen-cli",
+          "clean — cargo clean",
+          "fmt — cargo fmt --all",
+          "fmt-check — cargo fmt --all -- --check",
+          "lint — cargo clippy --all-targets -- -D warnings",
+          "test — cargo test --workspace --tests",
+          "test-lib — cargo test --lib --workspace",
+          "test-doc — cargo test --doc --workspace",
+          "test-bdd — cargo test --test bdd --workspace",
+          "test-marketplace — cargo test -p ggen-core --test lsp_max_pack_test",
+          "test-mutation — cargo mutants --workspace",
+          "pre-commit — fmt-check → check → lint → test-lib (sequential, fail-fast)",
+          "slo-check — cargo bench --bench cli_startup_performance -- --test",
+          "audit — cargo audit",
+          "doc — cargo doc --workspace --no-deps",
+          "bench — cargo bench",
+          "sync — ggen sync --audit true",
+          "sync-dry — ggen sync --dry_run true",
+          "timeout-check — verify timeout command exists"
+        ],
+        "gaps": [
+          "test-unit alias (faster than test for dev loop)",
+          "watch/continuous test runner (for hot-reload iteration)",
+          "perf profiling recipe (flamegraph, criterion)",
+          "speckit-validate — RDF specification validation",
+          "speckit-render — Generate markdown from TTL specs",
+          "otel-verify — Run tests with OTEL tracing enabled",
+          "ci — Full CI validation (check + test + lint + slo-check + audit)",
+          "docs-serve — Local docs browsing",
+          "release — Semantic versioning bump + changelog + tag"
+        ]
+      },
+      "requiredRecipes": {
+        "core-loop": {
+          "test-unit": "Unit/lib tests only (<10s hot cache) — fastest feedback loop",
+          "pre-commit": "fmt-check → check → lint → test-lib (<2min) — gate before commit",
+          "check": "Compilation check only (<5s) — instant feedback",
+          "lint": "Clippy -D warnings (<60s) — catch idiom/safety issues"
+        },
+        "validation": {
+          "test": "Full test suite (<30s hot, <120s first) — integration + unit",
+          "test-doc": "Doctest validation — ensure all /// Examples compile/run",
+          "test-marketplace": "Pack layer validation — fast gate without network",
+          "slo-check": "Performance SLO validation — ensure latency targets met",
+          "audit": "Security vulnerability scan",
+          "ci": "Full pipeline (check + lint + test + slo-check + audit)"
+        },
+        "rdf-pipeline": {
+          "sync": "Full μ₁-μ₅ sync with cryptographic receipt",
+          "sync-dry": "Preview sync (no file writes)",
+          "speckit-validate": "SHACL validation of .specify/*.ttl files",
+          "speckit-render": "Generate markdown from RDF specs"
+        },
+        "developer-experience": {
+          "watch": "Continuous test runner (auto-run on file change)",
+          "docs": "Build + serve API docs locally",
+          "perf": "Profile code with flamegraph/criterion",
+          "otel-verify": "Run tests with RUST_LOG=trace for OTEL verification"
+        },
+        "release": {
+          "release": "Version bump + changelog + tag + push",
+          "release-dry": "Preview release without changes"
+        }
+      },
+      "examples": [
+        {
+          "task": "Fast dev loop",
+          "command": "just test-unit",
+          "output": "✅ 347 tests pass (<10s)"
+        },
+        {
+          "task": "Pre-commit gate",
+          "command": "just pre-commit",
+          "output": "✅ fmt-check ✅ check ✅ lint ✅ test-lib (<2min)"
+        },
+        {
+          "task": "Full validation",
+          "command": "just ci",
+          "output": "✅ check ✅ lint ✅ test ✅ slo-check ✅ audit (clean)"
+        },
+        {
+          "task": "RDF pipeline",
+          "command": "just sync",
+          "output": "✅ Receipt emitted: .ggen/receipts/latest.json (cryptographically signed)"
+        },
+        {
+          "task": "OTEL tracing",
+          "command": "just otel-verify -- --test llm_e2e_test",
+          "output": "✅ llm.complete span found with llm.model, llm.total_tokens attributes"
+        }
+      ]
+    },
+
+    {
+      "id": 2,
+      "name": "Error Messages",
+      "description": "What makes error messages helpful? Clear, actionable, traceable errors that guide developers to root cause and recovery path.",
+      "whyItMatters": "Developers spend 40% of time debugging. A cryptic error message costs 15-30 minutes of investigation. A clear, actionable error costs 2 minutes. Error message quality directly impacts dev speed and frustration.",
+      "successCriteria": [
+        "All errors use `thiserror` crate for structured error types",
+        "Error messages follow pattern: [ERROR CODE] What happened — Why it happened — How to fix it",
+        "Error codes are canonical (e.g., GGEN-TPL-001, E0011) and documented",
+        "Errors include context (file path, line number, failing value)",
+        "Errors suggest recovery actions when available",
+        "Stack traces are meaningful (not truncated or swallowed)",
+        "Validation errors include which constraint violated and why",
+        "Compiler errors preserved (not wrapped in way that hides detail)",
+        "CLI errors include `--help` suggestion when applicable",
+        "JSON diagnostics emitted for tooling (LSP, IDE integration)"
+      ],
+      "errorHierarchy": {
+        "compilationErrors": {
+          "pattern": "error[E####]",
+          "example": "error[E0308]: mismatched types",
+          "requirement": "Preserve full rustc output; never suppress"
+        },
+        "validationErrors": {
+          "pattern": "GGEN-[SYSTEM]-[NUMBER]",
+          "examples": {
+            "GGEN-TPL-001": "Template consumes {{ var }} that SELECT does not produce",
+            "GGEN-OUT-001": "output_file pattern consumes unbound variable",
+            "GGEN-YIELD-001": "output_file escapes project root (Layer Violation)",
+            "GGEN-RULE-001": "{file = ...} binding points at missing file",
+            "GGEN-QUERY-002": "SELECT * used (disables provision checks)",
+            "E0011": "CONSTRUCT lacks ORDER BY (Strict Mode: ERROR)",
+            "E0015": "Identity CONSTRUCT detected (no-op mapping)"
+          }
+        },
+        "runtimeErrors": {
+          "pattern": "[ERROR] Operation failed — reason — recovery",
+          "template": "[ERROR] ggen sync failed\n  Cause: pack 'acme/base' not found in .ggen/packs.lock\n  Fix: ggen packs add acme/base && ggen sync --locked"
+        },
+        "andonSignals": {
+          "CRITICAL": ["error[E", "test ... FAILED"],
+          "HIGH": ["warning:", "clippy::"],
+          "action": "STOP_THE_LINE — read error, fix cause, re-run check"
+        }
+      },
+      "currentState": {
+        "implemented": [
+          "ValidationError enum with thiserror (file not found, permission denied, path traversal, etc.)",
+          "Diagnostic codes (GGEN-*) defined in validation layer",
+          "ggen-lsp emits LSP Diagnostic messages with codes",
+          "Andon signals defined for compiler errors, test failures, warnings"
+        ],
+        "gaps": [
+          "Not all error types document recovery actions",
+          "Error messages don't always include file:line context",
+          "CLI help for each command not cross-linked in errors",
+          "No centralized error catalogue (all codes documented in one place)",
+          "Validation errors sometimes vague about constraint violated"
+        ]
+      },
+      "requiredDocumentation": {
+        "errorCatalogue": {
+          "file": "docs/ERROR_CATALOGUE.md",
+          "contents": [
+            "All GGEN-* codes with description, example, recovery path",
+            "Common rustc error codes (E0308, etc.) with ggen context",
+            "How to read LSP diagnostics",
+            "How to read Andon signals and what to do"
+          ]
+        },
+        "cliHelpIntegration": {
+          "pattern": "When error occurs, suggest: ggen <command> --help",
+          "example": "[ERROR] Invalid --output pattern — Use: ggen sync --help"
+        }
+      },
+      "examples": [
+        {
+          "scenario": "Missing pack at sync time",
+          "badError": "thread panicked",
+          "goodError": "[ERROR] GGEN-RULE-001: Pack 'acme/base' not found\n  Expected: .ggen/packs/acme/base/pack.toml\n  Fix: ggen packs add acme/base\n  Or: Check .ggen/packs.lock — pack may have been deleted"
+        },
+        {
+          "scenario": "SPARQL binds unmatched variable",
+          "badError": "Template rendering failed",
+          "goodError": "[ERROR] GGEN-TPL-001: Template uses {{ package_version }} but SELECT binds only {{ package_id }}\n  Query: crates/ggen-core/queries/packages.rq (line 12)\n  Template: templates/package.tera (line 5)\n  Fix: Either (a) add ?package_version to SELECT, or (b) remove {{ package_version }} from template"
+        },
+        {
+          "scenario": "Test failure during pre-commit",
+          "badError": "test_foo::test_bar: assertion failed",
+          "goodError": "[ERROR] test_foo::test_bar FAILED\n  Expected: 100 items\n  Got: 99 items\n  Likely cause: Off-by-one in loop (line 45)\n  Fix: Check .specify/test_foo/feature.ttl — may need to adjust expected cardinality"
+        }
+      ]
+    },
+
+    {
+      "id": 3,
+      "name": "Workflow Efficiency",
+      "description": "What keyboard shortcuts, aliases, and automation must work? Reduce typing, reduce context-switching, reduce manual steps.",
+      "whyItMatters": "Developers type ~500 commands per day. A 10-character alias saves 50 keystrokes = 30 seconds per session. Over a year, that's 40+ hours. Workflow efficiency is compounding: every saved keystroke multiplies across the entire team.",
+      "successCriteria": [
+        "Shell aliases exist for common commands (jt=just test-unit, etc.)",
+        "`.just.local` file supports per-developer aliases without cluttering repo",
+        ".claude/hooks auto-run on key events (SessionStart, PreToolUse, Stop)",
+        "Git hooks run pre-commit and pre-push gates automatically",
+        "RUST_LOG environment variables pre-configured for common scenarios",
+        "Cargo aliases configured (e.g., `cargo t` for test, `cargo c` for check)",
+        "IDE keybindings configured for run, debug, test",
+        "File watchers auto-trigger test suite on save",
+        "Tab completion for `just` commands in shell",
+        "Quick access to docs (Cmd/Ctrl+Shift+D opens local docs)"
+      ],
+      "requiredAliases": {
+        "shellAliases": {
+          "jt": "just test-unit",
+          "ju": "just test",
+          "jc": "just check",
+          "jl": "just lint",
+          "jp": "just pre-commit",
+          "js": "just sync",
+          "jsd": "just sync-dry",
+          "jd": "just doc",
+          "jw": "just watch",
+          "jb": "just bench"
+        },
+        "cargoAliases": {
+          "c": "check",
+          "t": "test",
+          "l": "lint",
+          "f": "fmt",
+          "b": "build"
+        },
+        "gitAliases": {
+          "s": "status",
+          "d": "diff",
+          "dc": "diff --cached",
+          "ca": "commit --amend --no-edit",
+          "pf": "push --force-with-lease"
+        }
+      },
+      "currentState": {
+        "implemented": [
+          "justfile with all core recipes",
+          ".cargo/config.toml with workspace settings",
+          ".claude/settings.json with env vars (RUST_LOG, RNG_SEED, etc.)",
+          ".claude/hooks for SessionStart, UserPromptSubmit, Stop, PreToolUse, PostToolUse"
+        ],
+        "gaps": [
+          "No shell alias definitions (user must create .justrc or .zshrc)",
+          "No cargo aliases in config (user must add [alias] to .cargo/config.toml)",
+          "No git hooks for pre-commit/pre-push gates (would require .git/hooks/)",
+          "No file watcher recipe (just watch not implemented)",
+          "No IDE keybindings configured (.vscode/keybindings.json not committed)",
+          "No tab completion for `just` (would require shell-specific setup)",
+          "No quick-docs keybinding documented"
+        ]
+      },
+      "requiredSetup": {
+        "shellAliases": {
+          "location": "~/.zshrc or ~/.bashrc",
+          "content": "# Add to your shell profile\nalias jt='just test-unit'\nalias ju='just test'\nalias jc='just check'\nalias jl='just lint'\nalias jp='just pre-commit'\nalias js='just sync'\nalias jsd='just sync-dry'\nalias jd='just doc'"
+        },
+        "cargoAliases": {
+          "location": ".cargo/config.toml",
+          "content": "[alias]\nc = \"check\"\nt = \"test\"\nl = \"lint\"\nf = \"fmt\"\nb = \"build\"\ntr = \"tree\""
+        },
+        "gitHooks": {
+          "location": ".git/hooks/pre-commit",
+          "content": "#!/bin/bash\njust pre-commit || exit 1"
+        }
+      },
+      "examples": [
+        {
+          "workflow": "Fast dev loop",
+          "before": "cargo test --lib --workspace && cargo check --workspace && cargo clippy --all-targets",
+          "after": "jc && jl && jt",
+          "saved": "70 keystrokes"
+        },
+        {
+          "workflow": "Check and commit",
+          "before": "cargo fmt --all && cargo check --workspace && cargo clippy --all-targets -- -D warnings && git add . && git commit -m '...'",
+          "after": "jp && git add . && git commit -m '...'",
+          "saved": "120 keystrokes"
+        },
+        {
+          "workflow": "Run with OTEL tracing",
+          "before": "RUST_LOG=trace,ggen_ai=trace cargo test --test llm_e2e_test -- --nocapture",
+          "after": "just otel-verify -- llm_e2e_test",
+          "saved": "50 keystrokes"
+        }
+      ]
+    },
+
+    {
+      "id": 4,
+      "name": "IDE Integration",
+      "description": "What LSP, debugging, and editor support must exist? Semantic navigation, real-time diagnostics, debugging without printf.",
+      "whyItMatters": "IDE integration bridges code and understanding. Without LSP, developers grep blindly. Without diagnostics, they wait for CI. Without debugging, they print!() and guess. Full IDE support cuts debugging time by 70%.",
+      "successCriteria": [
+        "LSP (rust-analyzer) fully enabled and configured",
+        "Real-time diagnostics show errors as-you-type",
+        "Go-to-definition works across crate boundaries (including re-exports)",
+        "Find-references finds all usages in workspace",
+        "Hover shows type signatures, trait bounds, visibility",
+        "Inline type hints for variables and return types",
+        "Code completion suggests from workspace symbols",
+        "Quick-fix suggestions for common errors (add import, derive, etc.)",
+        "Debugger configured (lldb for Mac, gdb for Linux)",
+        "Breakpoints work in tests and binaries",
+        "REPL/watch expressions during debugging",
+        "Ggen-lsp diagnostics (GGEN-* codes) appear in editor",
+        "RDF validation diagnostics appear in-editor for .ttl files",
+        "Markdown preview for generated .md files"
+      ],
+      "currentState": {
+        "implemented": [
+          "LSP enabled: rust-analyzer-lsp@claude-plugins-official in settings.json",
+          ".claude/rules/rust/lsp.md documents LSP-first navigation",
+          "ggen-lsp exposes check/init/intel/repair APIs",
+          "ggen-lsp-mcp exposes repair routes as MCP tool"
+        ],
+        "gaps": [
+          "No .vscode/settings.json committed (users must set up manually)",
+          "No .vscode/keybindings.json for debugging shortcuts",
+          "No .vscode/launch.json for debug configurations",
+          "No .lldbinit or .gdbinit for debugger setup",
+          "No VSCode extension for ggen-specific diagnostics",
+          "No markdown preview template for generated .md files",
+          "No Vim/Neovim configuration documented"
+        ]
+      },
+      "requiredConfiguration": {
+        "vscodeSettings": {
+          "file": ".vscode/settings.json",
+          "contents": {
+            "[rust]": {
+              "editor.defaultFormatter": "rust-lang.rust-analyzer",
+              "editor.formatOnSave": true,
+              "editor.codeActionsOnSave": {
+                "source.fixAll.clippy": "explicit"
+              }
+            },
+            "rust-analyzer.checkOnSave.command": "clippy",
+            "rust-analyzer.checkOnSave.extraArgs": ["--", "-D", "warnings"],
+            "rust-analyzer.inlayHints.enable": true,
+            "rust-analyzer.inlayHints.typeHints.enable": true,
+            "rust-analyzer.hover.documentation.enable": true,
+            "editor.semanticHighlighting.enabled": true,
+            "[ttl]": {
+              "editor.defaultFormatter": "turtle-formatter"
+            }
+          }
+        },
+        "vscodeKeybindings": {
+          "file": ".vscode/keybindings.json",
+          "contents": [
+            { "key": "Cmd+Shift+T", "command": "workbench.action.debug.restart", "when": "inDebugMode" },
+            { "key": "Cmd+Shift+U", "command": "rust-analyzer.updateGithubEnv" },
+            { "key": "Cmd+K Cmd+D", "command": "workbench.action.openActiveFileInTypeScriptDefinitionFile" }
+          ]
+        },
+        "launchConfiguration": {
+          "file": ".vscode/launch.json",
+          "contents": [
+            {
+              "name": "Test (debug)",
+              "type": "lldb",
+              "request": "launch",
+              "cargo": {
+                "args": ["test", "--lib", "--no-run"],
+                "filter": {
+                  "name": "test_name",
+                  "kind": "test"
+                }
+              },
+              "args": [],
+              "cwd": "${workspaceFolder}"
+            },
+            {
+              "name": "ggen CLI",
+              "type": "lldb",
+              "request": "launch",
+              "cargo": {
+                "args": ["build", "--bin", "ggen", "--release"],
+                "filter": {
+                  "kind": "bin",
+                  "name": "ggen"
+                }
+              }
+            }
+          ]
+        },
+        "debuggerSetup": {
+          "mac": {
+            "debugger": "lldb",
+            "config": "~/.lldbinit contains:\nsettings set target.process.follow-fork-mode child\nsettings set target.process.stop-on-exec true"
+          },
+          "linux": {
+            "debugger": "gdb",
+            "config": "~/.gdbinit contains:\nhandle SIGPIPE nostop noprint pass"
+          }
+        }
+      },
+      "examples": [
+        {
+          "feature": "Go-to-definition",
+          "before": "Search for where PackRegistry is defined across 15 crates",
+          "after": "Ctrl+Click on PackRegistry → jumps to definition in ggen-marketplace"
+        },
+        {
+          "feature": "Find all usages",
+          "before": "grep -r 'fn sync' crates/*/src/ | manually check each",
+          "after": "Cmd+Shift+H on 'sync' → lists all 47 call sites across workspace"
+        },
+        {
+          "feature": "Inline type hints",
+          "before": "Hover over variable to see type, then reason about generics",
+          "after": "Type hints inline: let graph: OxigraphWrapper<T> = ..."
+        },
+        {
+          "feature": "GGEN diagnostics in editor",
+          "before": "Run ggen validate, read terminal output, find file/line",
+          "after": "GGEN-TPL-001 warning appears red-squiggly in editor at template file:line"
+        },
+        {
+          "feature": "Debug test without printf",
+          "before": "println!(\"value={:?}\", x); cargo test; search logs",
+          "after": "Set breakpoint, Cmd+Shift+D, step through, watch x in REPL"
+        }
+      ]
+    },
+
+    {
+      "id": 5,
+      "name": "Documentation Surface",
+      "description": "What quick references must be available in-editor? Instant answers without context-switching to browser.",
+      "whyItMatters": "Context-switching costs 15 minutes per switch (time to re-focus, time to find answer, time to navigate back). Embedding docs in the editor cuts this to 30 seconds. Developers look up: error meanings (20%), command syntax (30%), API signatures (40%), architectural patterns (10%).",
+      "successCriteria": [
+        "Quick-access help available via `just --help` or `ggen --help`",
+        "`ggen <cmd> --help` shows command signature + examples + recovery paths",
+        "Error codes link to docs (e.g., 'Run: ggen docs GGEN-TPL-001')",
+        "Quick reference card available in .claude/",
+        "LSP hover shows docstring for every public symbol",
+        "Doctest /// Examples for all public APIs",
+        "Architecture reference in .claude/rules/architecture.md (live inventory)",
+        "CLAUDE.md embedded with rules and principles (checked into repo)",
+        "Diagnostic codes documented in centralized catalogue",
+        "Keyboard shortcuts documented in .claude/ with IDE integration guide"
+      ],
+      "currentState": {
+        "implemented": [
+          "CLAUDE.md (10,000+ lines) documents full architecture, rules, commands",
+          ".claude/rules/ directory with modular documentation",
+          ".claude/settings.json with env vars and hook configuration",
+          "justfile with comments on each recipe",
+          "Cargo.toml with project description and keywords",
+          "README.md with quickstart and project overview",
+          "docs/ directory with architecture and design docs"
+        ],
+        "gaps": [
+          "No quick-reference cheatsheet (2-page one-pager) for common commands",
+          "No in-editor help command (would require CLI integration)",
+          "Error codes not centralized (scattered across validation layer)",
+          "LSP hover docstrings incomplete (many functions lack /// comments)",
+          "No quick-access keyboard shortcut guide",
+          "No 'first 5 minutes' walkthrough for new developers",
+          "No troubleshooting guide (what to do when things break)"
+        ]
+      },
+      "requiredDocumentation": {
+        "quickReference": {
+          "file": ".claude/QUICK_REFERENCE.md",
+          "length": "2 pages max",
+          "sections": [
+            "Command Quick Reference (just check, just test, etc.)",
+            "Error Codes Quick Reference (GGEN-*, E*)",
+            "Environment Variables (RUST_LOG, RNG_SEED, etc.)",
+            "Keyboard Shortcuts",
+            "Getting Help (where to find what)"
+          ]
+        },
+        "errorCatalogue": {
+          "file": "docs/ERROR_CATALOGUE.md",
+          "contents": [
+            "Every GGEN-* code",
+            "Every diagnostic code",
+            "Why it happened + recovery path",
+            "Link to relevant documentation"
+          ]
+        },
+        "firstTime": {
+          "file": ".claude/FIRST_TIME_HERE.md",
+          "contents": [
+            "Clone and setup (< 5 min)",
+            "Your first commit (< 10 min)",
+            "Common workflows",
+            "Where to find things",
+            "When stuck: troubleshooting"
+          ]
+        },
+        "commandHelp": {
+          "requirement": "`ggen <cmd> --help` must include:",
+          "items": [
+            "Command purpose (1 sentence)",
+            "Flags and options with descriptions",
+            "Examples (2-3 real-world cases)",
+            "Common errors and how to fix",
+            "Link to full docs (ggen docs <cmd>)"
+          ]
+        }
+      },
+      "examples": [
+        {
+          "scenario": "New developer arrives, clones repo",
+          "required": "cat .claude/FIRST_TIME_HERE.md leads through setup in 5 min",
+          "proof": "Developer runs `just test-unit` and sees 347 tests pass"
+        },
+        {
+          "scenario": "Sees error GGEN-TPL-001 in editor",
+          "required": "Hover over error code → shows definition + recovery path",
+          "proof": "Developer knows exactly what to fix without googling"
+        },
+        {
+          "scenario": "Wants to use `just sync` but doesn't know flags",
+          "required": "just sync --help shows purpose, flags, examples, common errors",
+          "proof": "Developer runs `just sync --dry-run` and sees preview without fear"
+        },
+        {
+          "scenario": "Debugging a test failure",
+          "required": ".claude/QUICK_REFERENCE.md has troubleshooting section",
+          "proof": "Developer finds answer in < 1 minute without context-switching"
+        }
+      ]
+    },
+
+    {
+      "id": 6,
+      "name": "Hot Reload & Iteration",
+      "description": "What fast-feedback loops must exist? cargo watch, test-unit, incremental builds, instant error feedback.",
+      "whyItMatters": "Developer psychology: feedback loop > 5 seconds breaks flow state. < 2 seconds maintains focus. Each code change → wait for feedback takes 1-3 seconds (focus) + 10-60 seconds (compile/test). Faster loops = more iterations = better code = less frustration.",
+      "successCriteria": [
+        "test-unit runs in < 10 seconds (hot cache)",
+        "check runs in < 5 seconds",
+        "Incremental builds < 2 seconds for single-file changes",
+        "`just watch` recipe runs tests on file change (cargo watch integration)",
+        "LSP diagnostics appear as-you-type (< 500ms latency)",
+        "Compiler errors shown instantly (not after full compile)",
+        "First build < 15 seconds (SLO)",
+        "Cargo incremental build cache always enabled",
+        "sccache configured for distributed caching (optional but recommended)",
+        "REPL/WASM hot reload for non-CLI features (future)",
+        "Test output streaming (not buffered)",
+        "Flamegraph/perf profiling integration"
+      ],
+      "currentState": {
+        "implemented": [
+          "test-unit (<30s hot cache, <120s first) with graceful timeout escalation",
+          "check (<60s timeout)",
+          "lint (<90s timeout)",
+          "pre-commit gates fast feedback (sequential, fail-fast)",
+          "Cargo.toml jobs=16 + pipelining=true for parallelism",
+          ".cargo/config.toml with build optimization",
+          "SCCACHE_DIR configured (read-only filesystem disables actual caching)",
+          "incremental compilation enabled by default in Cargo",
+          "rust-analyzer for instant LSP feedback"
+        ],
+        "gaps": [
+          "just watch recipe not implemented (cargo watch not invoked)",
+          "No profiling recipe (flamegraph, criterion setup)",
+          "No REPL integration documented",
+          "No live-reload for documentation changes",
+          "LSP cold-start > 3 seconds (rust-analyzer initial analysis)",
+          "No incremental test runner (runs full suite, not changed tests only)"
+        ]
+      },
+      "requiredRecipes": {
+        "watch": {
+          "recipe": "watch",
+          "command": "cargo watch -x 'test --lib --workspace' -x 'clippy --all-targets -- -D warnings'",
+          "purpose": "Run tests + lint automatically on file change",
+          "speedTarget": "< 2 seconds from save to feedback"
+        },
+        "testUnit": {
+          "recipe": "test-unit",
+          "command": "cargo test --lib --workspace",
+          "purpose": "Unit tests only (fastest feedback)",
+          "speedTarget": "< 10 seconds hot, < 30 seconds first"
+        },
+        "perf": {
+          "recipe": "perf",
+          "command": "cargo flamegraph --bin ggen -- <args>",
+          "purpose": "Generate flamegraph of CLI execution",
+          "speedTarget": "< 30 seconds to flamegraph.svg"
+        },
+        "otelVerify": {
+          "recipe": "otel-verify",
+          "command": "RUST_LOG=trace,ggen_ai=trace cargo test <args> -- --nocapture",
+          "purpose": "Run tests with OTEL tracing enabled",
+          "speedTarget": "< 30 seconds to trace output"
+        }
+      },
+      "examples": [
+        {
+          "iteration": "Write test (RED)",
+          "time": "5 min",
+          "feedback": "Run `jt` → test fails immediately (< 10s)"
+        },
+        {
+          "iteration": "Write code (GREEN)",
+          "time": "10 min",
+          "feedback": "Run `jt` → test passes (< 10s)"
+        },
+        {
+          "iteration": "Refactor (REFACTOR)",
+          "time": "5 min",
+          "feedback": "Run `jc && jl && jt` → all gates pass (< 2 min)"
+        },
+        {
+          "iteration": "Profile hot path",
+          "time": "10 min",
+          "feedback": "Run `just perf` → flamegraph.svg shows bottlenecks (< 30s)"
+        },
+        {
+          "workflow": "Continuous iteration with cargo watch",
+          "setup": "Split terminal: `just watch` in one pane, edit code in editor",
+          "feedback": "On every save, tests re-run instantly (< 2s)"
+        }
+      ]
+    },
+
+    {
+      "id": 7,
+      "name": "Sensible Defaults",
+      "description": "What sensible defaults reduce cognitive load? Env vars pre-set, config pre-populated, conventions established.",
+      "whyItMatters": "Cognitive load = decision fatigue. Developers should not decide: What RUST_LOG to use? Which test profile? How to handle errors? Sensible defaults reduce 100 decisions to 10. Conventions eliminate 'how should I structure this?'",
+      "successCriteria": [
+        "RUST_LOG set to sensible default (info for prod, debug for tests)",
+        "RNG_SEED=42 for deterministic testing",
+        "RUST_BACKTRACE=1 for better error traces",
+        "CARGO_TERM_COLOR=always for readable output",
+        "Test isolation default (TempDir, tmpfs)",
+        "Error handling pattern established (Result<T,E>, not panics)",
+        "Naming conventions documented (snake_case funcs, CamelCase types)",
+        "Module structure conventions (lib.rs exports, tests/ layout)",
+        "Git commit message convention documented",
+        "RDF specification layout (.specify/specs/NNN-feature/)",
+        "Performance SLO defaults documented",
+        "Code style enforced via rustfmt + clippy",
+        "VSCode settings auto-applied on repo open (settings.json committed)",
+        "Dockerfile/devcontainer for reproducible dev environment"
+      ],
+      "currentState": {
+        "implemented": [
+          "RUST_LOG, RNG_SEED, RUST_BACKTRACE, CARGO_TERM_COLOR set in .claude/settings.json",
+          "Conventions documented in CLAUDE.md + .claude/rules/",
+          "rustfmt.toml defines formatting defaults",
+          ".gitignore excludes build artifacts",
+          ".git/hooks pre-commit/pre-push gates (if set up)",
+          "Chicago TDD established as mandatory testing pattern",
+          "Type-first design documented as elite mindset",
+          "RDF/SPARQL as source of truth convention established"
+        ],
+        "gaps": [
+          "No .editorconfig for cross-editor consistency",
+          "No .env.example documenting all env vars",
+          "No Dockerfile/devcontainer for reproducible environment",
+          ".vscode/settings.json not committed (each user sets up manually)",
+          "No git commit message template (.gitmessage)",
+          "No conventional commits enforcement (commitlint)",
+          "Module structure conventions not enforced",
+          "No architecture decision records (ADRs) template",
+          "No changelog convention documented",
+          "No semantic versioning automation"
+        ]
+      },
+      "requiredDefaults": {
+        "environmentVariables": {
+          "file": ".claude/settings.json env block",
+          "required": {
+            "RUST_VERSION": "1.91.1",
+            "RUST_LOG": "info (or debug for dev)",
+            "RUST_BACKTRACE": "1",
+            "CARGO_TERM_COLOR": "always",
+            "RNG_SEED": "42",
+            "CARGO_MAKE_REQUIRED": "true",
+            "CHICAGO_TDD": "true",
+            "RDF_SOURCE_OF_TRUTH": ".specify"
+          }
+        },
+        "editorConfig": {
+          "file": ".editorconfig",
+          "contents": [
+            "[*]",
+            "indent_style = space",
+            "indent_size = 4",
+            "end_of_line = lf",
+            "charset = utf-8",
+            "trim_trailing_whitespace = true",
+            "insert_final_newline = true",
+            "[*.md]",
+            "trim_trailing_whitespace = false"
+          ]
+        },
+        "commitMessageTemplate": {
+          "file": ".gitmessage",
+          "contents": "feat|fix|docs|style|refactor|test|chore(scope): description\n\n[Motivation and context]\n\n[Testing performed]\n\n[Receipt]\ngit log --oneline -1 && cargo make pre-commit"
+        },
+        "envExample": {
+          "file": ".env.example",
+          "contents": [
+            "# Development environment\nRUST_LOG=debug",
+            "# Testing environment",
+            "RNG_SEED=42",
+            "# CI environment",
+            "CARGO_TERM_COLOR=always"
+          ]
+        }
+      },
+      "conventions": {
+        "codingStyle": {
+          "enforcement": "rustfmt + clippy -D warnings",
+          "indentation": "4 spaces",
+          "naming": {
+            "functions": "snake_case",
+            "types": "CamelCase",
+            "constants": "SCREAMING_SNAKE_CASE",
+            "modules": "snake_case"
+          }
+        },
+        "errorHandling": {
+          "pattern": "Result<T, E> always, never unwrap()/expect() in production",
+          "custom_errors": "thiserror crate for structured errors"
+        },
+        "testing": {
+          "pattern": "Chicago TDD (real collaborators, AAA pattern, state-based)",
+          "layout": "tests/ and <crate>/tests/ for integration tests",
+          "naming": "test_<scenario>_<expected_outcome>"
+        },
+        "rdfStructure": {
+          "pattern": ".specify/specs/NNN-<feature-name>/",
+          "files": [
+            "feature.ttl (source spec)",
+            "feature.md (auto-generated from TTL)"
+          ]
+        }
+      },
+      "examples": [
+        {
+          "developer": "Alice clones repo",
+          "without": "Must set RUST_LOG, RNG_SEED, configure editor, learn conventions",
+          "with": "Runs `just test-unit` and RUST_LOG already set to debug in .claude/settings.json"
+        },
+        {
+          "developer": "Bob writes first function",
+          "without": "Decides: snake_case or camelCase? Result or panic? How to structure module?",
+          "with": "rustfmt enforces snake_case, clippy enforces Result, .claude/rules/architecture.md shows module structure"
+        },
+        {
+          "developer": "Carol writes test",
+          "without": "Decides: mock or real? How to assert? Where to put test file?",
+          "with": ".claude/rules/rust/testing.md shows Chicago TDD pattern, tests/ layout established, real collaborators expected"
+        },
+        {
+          "developer": "Dave creates new spec",
+          "without": "Decides: where to put file? How to name it? What structure?",
+          "with": ".specify/specs/NNN-<feature>/ convention established, feature.ttl template available"
+        }
+      ]
+    }
+  ],
+
+  "integrationAndDependencies": {
+    "allDimensionsDepend": [
+      "dim1_commandErgonomics",
+      "dim2_errorMessages",
+      "dim3_workflowEfficiency",
+      "dim4_ideIntegration",
+      "dim5_documentation",
+      "dim6_hotReload",
+      "dim7_defaults"
+    ],
+    "criticalInterdependencies": {
+      "commands → errors": "Every command that fails must emit clear, actionable error (dim1 + dim2)",
+      "errors → documentation": "Every error code must link to docs (dim2 + dim5)",
+      "workflows → aliases": "Every workflow must have aliases to reduce typing (dim3 + dim1)",
+      "ide → documentation": "Hover must show docstrings for every symbol (dim4 + dim5)",
+      "iteration → commands": "Watch must re-run quick commands (dim6 + dim1)",
+      "defaults → testing": "Chicago TDD pattern must be default, not optional (dim7 + dim6)"
+    }
+  },
+
+  "definitionOfDone": {
+    "allSevenDimensionsMustPass": [
+      {
+        "dimension": "Command Ergonomics",
+        "checks": [
+          "[ ] All critical recipes in justfile with clear comments",
+          "[ ] `just --list` shows all available commands",
+          "[ ] All commands timeout gracefully",
+          "[ ] Exit codes are meaningful (0 = success)",
+          "[ ] First run provides helpful guidance if prerequisites missing"
+        ]
+      },
+      {
+        "dimension": "Error Messages",
+        "checks": [
+          "[ ] All errors use thiserror for structured types",
+          "[ ] Error codes documented in docs/ERROR_CATALOGUE.md",
+          "[ ] Every error includes recovery path",
+          "[ ] Compiler errors are never suppressed",
+          "[ ] Andon signals clearly defined with action items"
+        ]
+      },
+      {
+        "dimension": "Workflow Efficiency",
+        "checks": [
+          "[ ] Shell aliases documented (.zshrc, .bashrc examples)",
+          "[ ] Cargo aliases configured in .cargo/config.toml",
+          "[ ] Git hooks auto-run pre-commit gates",
+          "[ ] File watcher recipe (just watch) implemented",
+          "[ ] Keybindings configured for common tasks"
+        ]
+      },
+      {
+        "dimension": "IDE Integration",
+        "checks": [
+          "[ ] LSP enabled and configured (rust-analyzer)",
+          "[ ] Real-time diagnostics show errors as-you-type",
+          "[ ] Go-to-definition works across crates",
+          "[ ] Debugger configured (lldb/gdb)",
+          "[ ] GGEN diagnostics appear in editor"
+        ]
+      },
+      {
+        "dimension": "Documentation Surface",
+        "checks": [
+          "[ ] Quick reference card (.claude/QUICK_REFERENCE.md)",
+          "[ ] Error codes centralized in docs/ERROR_CATALOGUE.md",
+          "[ ] `ggen <cmd> --help` includes examples + recovery paths",
+          "[ ] First-time guide (.claude/FIRST_TIME_HERE.md)",
+          "[ ] All public APIs have docstring with /// comments"
+        ]
+      },
+      {
+        "dimension": "Hot Reload & Iteration",
+        "checks": [
+          "[ ] test-unit < 10 seconds (hot cache)",
+          "[ ] check < 5 seconds",
+          "[ ] cargo watch integrated (just watch)",
+          "[ ] LSP diagnostics < 500ms latency",
+          "[ ] Profiling recipe (just perf) implemented"
+        ]
+      },
+      {
+        "dimension": "Sensible Defaults",
+        "checks": [
+          "[ ] Environment variables pre-set in .claude/settings.json",
+          "[ ] .editorconfig committed for cross-editor consistency",
+          "[ ] Git commit message template (.gitmessage)",
+          "[ ] Code style enforced via rustfmt + clippy",
+          "[ ] Conventions documented (naming, testing, RDF structure)"
+        ]
+      }
+    ]
+  },
+
+  "priorityForImplementation": [
+    {
+      "priority": "P0_BLOCKING",
+      "items": [
+        "dim1: test-unit recipe (< 10s feedback loop)",
+        "dim2: Error catalogue docs (GGEN-* codes defined)",
+        "dim5: Quick reference card (.claude/QUICK_REFERENCE.md)",
+        "dim7: .editorconfig for cross-editor consistency"
+      ]
+    },
+    {
+      "priority": "P1_CRITICAL",
+      "items": [
+        "dim1: ci recipe (full validation pipeline)",
+        "dim3: Shell aliases documented + tested",
+        "dim4: Debugger configured (.vscode/launch.json)",
+        "dim6: just watch recipe (cargo watch integration)",
+        "dim7: Git commit message template (.gitmessage)"
+      ]
+    },
+    {
+      "priority": "P2_IMPORTANT",
+      "items": [
+        "dim4: .vscode/settings.json + keybindings (committed)",
+        "dim5: First-time guide (.claude/FIRST_TIME_HERE.md)",
+        "dim6: Profiling recipe (just perf + flamegraph)",
+        "dim7: Semantic versioning automation"
+      ]
+    },
+    {
+      "priority": "P3_NICE_TO_HAVE",
+      "items": [
+        "dim3: Vim/Neovim configuration documented",
+        "dim4: Devcontainer / Dockerfile for reproducible env",
+        "dim5: Markdown preview for generated .md",
+        "dim6: Incremental test runner (only changed tests)"
+      ]
+    }
+  ]
+}

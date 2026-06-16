@@ -1,0 +1,584 @@
+{
+  "release_definition_of_done": {
+    "version": "26.6.11",
+    "last_updated": "2026-06-14",
+    "project": "ggen",
+    "repository": "https://github.com/seanchatmangpt/ggen",
+    "golden_rule": "All 10 release dimensions must pass before deploying. No partial success. No exceptions.",
+    "dimensions": {
+      "1_gate_validation": {
+        "title": "Gate Validation (Core Quality Gates)",
+        "description": "All five core quality gates must pass in sequence without any failures or suppressions.",
+        "why_it_matters": "Ensures code compiles, tests pass, is well-formatted, meets performance targets, and ready for production. A gate failure indicates the codebase is in an invalid state.",
+        "success_criteria": [
+          "just timeout-check: Exit code 0 (timeout command available)",
+          "just check: Exit code 0 (no compiler errors, all 15 crates compile)",
+          "just lint: Exit code 0 (zero clippy warnings, code properly formatted)",
+          "just test: Exit code 0 (all 347+ tests pass with real collaborators, Chicago TDD)",
+          "just slo-check: Exit code 0 (all performance SLOs met: build ≤15s, test ≤30s, RDF ≤5s/1k triples, memory ≤100MB)"
+        ],
+        "failure_recovery": [
+          "Read compiler error (error[E...]) and identify root cause (not symptom)",
+          "Fix the code at the reported line; do NOT suppress with #[allow(...)]",
+          "Re-run the failed gate: just check / just lint / just test / just slo-check",
+          "Iterate until gate passes (may require multiple fixes per gate)",
+          "Do NOT proceed to next dimension until all five gates pass",
+          "If blocked >15 minutes on a single gate, stop and escalate (Andon signal)"
+        ],
+        "validation": {
+          "command": "just timeout-check && just check && just lint && just test && just slo-check",
+          "expected_exit_code": 0,
+          "expected_output": "Finished [unoptimized + debuginfo] / test result: ok / no warnings / benchmark metrics within SLOs",
+          "timeout_total_seconds": 300
+        },
+        "automation": [
+          ".git/hooks/pre-commit → scripts/hooks/pre-commit.sh (runs just pre-commit: fmt-check + check + lint + test-lib)",
+          ".git/hooks/pre-push → scripts/hooks/pre-push.sh (runs cargo test on main branch gates)",
+          "CI gate: All five gates must pass before allowing merge to main",
+          "All gates run on every commit; failure blocks merge automatically"
+        ],
+        "evidence": [
+          "Exit code 0 from each gate (captured in CI logs)",
+          "Test count from just test output: 'test result: ok. NNN passed; 0 failed'",
+          "Clippy output: zero warnings, all `-D warnings` errors resolved",
+          "Benchmark output from just slo-check: all metrics ≤ thresholds",
+          "No #[allow(...)] suppressions in production code (linting verifies)",
+          "No #[ignore] on tests (ensures all tests run)"
+        ],
+        "forbidden_behaviors": [
+          "❌ Silencing errors with #[allow(...)] — compiler warnings are real bugs",
+          "❌ Marking tests #[ignore] — tests must run, not be skipped",
+          "❌ Using || true on failing commands — failures must surface",
+          "❌ Leaving todo!() in production code — must be completed",
+          "❌ Proceeding despite gate failure — STOP THE LINE protocol enforced",
+          "❌ Bypassing pre-commit hook with --no-verify — gates must run"
+        ]
+      },
+      "2_artifact_emission": {
+        "title": "Artifact Emission (Output Files Generated)",
+        "description": "Code generation pipeline (μ₁–μ₅) produces all expected output files with correct content, timestamps, and file permissions.",
+        "why_it_matters": "Proves that the code generation engine actually ran and produced deliverables. Prevents decorative completion (command exits 0 but nothing was generated).",
+        "success_criteria": [
+          "ggen sync produces new files in output directories (per ggen.toml output_file patterns)",
+          "All output files have non-zero size (no empty placeholders)",
+          "File timestamps reflect current run (not stale from prior run)",
+          "File permissions are correct (executable for scripts, readable for code)",
+          "Content matches SPARQL-derived bindings (no hardcoded data)",
+          "No output files have empty or default-sentinel content (contract drift detection)"
+        ],
+        "failure_recovery": [
+          "Run ggen sync --dry_run true to preview expected artifacts",
+          "Compare preview output to actual ggen sync output",
+          "If files not created: check ggen.toml output_file patterns; verify SPARQL queries produce bindings",
+          "If files empty: check Tera templates for missing variables; verify SPARQL SELECT provides all columns",
+          "If files have stale content: verify μ₁ (load) stage reads current inputs; check if sync --incremental skipped hash step",
+          "Check .ggen/receipts/latest.json output_hashes for expected files"
+        ],
+        "validation": {
+          "command": "ggen sync --audit true && ls -la $(grep -r 'output_file' ggen.toml | cut -d '=' -f2 | tr -d '\"') && wc -l $(find . -name '*.rs' -newer .ggen/receipts/latest.json 2>/dev/null)",
+          "expected_exit_code": 0,
+          "expected_output": "All output_file paths exist, have timestamps >= sync start time, have non-zero byte counts",
+          "timeout_total_seconds": 60
+        },
+        "automation": [
+          "ggen sync validates μ₁–μ₅ pipeline completed and generated artifacts",
+          "ggen sync --audit true emits receipt with output_hashes for all generated files",
+          "ggen receipt verify checks output_hashes against actual files (detects tampering or deletion)",
+          "CI validates artifact existence and checksums match receipt"
+        ],
+        "evidence": [
+          "Output files exist on disk at paths specified in ggen.toml",
+          "File modification times >= ggen sync start time (from receipt timestamp)",
+          "output_hashes in .ggen/receipts/latest.json includes all generated files with SHA-256 checksums",
+          "Content spot-check: read generated files, verify they match expected schema/format",
+          "μ stage logs in receipt show pipeline progression: μ₁ (load) → μ₂ (extract) → μ₃ (generate) → μ₄ (validate) → μ₅ (emit)"
+        ],
+        "forbidden_behaviors": [
+          "❌ Exit 0 but no output files created (decorative completion)",
+          "❌ Empty output files (size 0 bytes) — indicates template or binding failure",
+          "❌ Output files with stale content from prior run — contract drift",
+          "❌ Hardcoded data in output instead of SPARQL-derived bindings — epistemic bypass",
+          "❌ Missing output_hashes in receipt — prevents verification"
+        ]
+      },
+      "3_checksum_validation": {
+        "title": "Checksum Validation (SHA-256 Integrity)",
+        "description": "All artifacts are hashed (SHA-256) at generation time, stored in receipt, and verified against actual files before deployment.",
+        "why_it_matters": "Detects artifacts that were corrupted, modified, or tampered with after generation. Enables rollback to known-good state (previous receipt hash).",
+        "success_criteria": [
+          "Each output file has a SHA-256 checksum computed immediately after μ₅ (emit) stage",
+          "Checksums stored in .ggen/receipts/latest.json → output_hashes",
+          "Checksums match actual file contents (byte-for-byte verification)",
+          "Input hashes (ontology, queries, templates, manifest) recorded in input_hashes",
+          "Input hashes match actual inputs at sync start time",
+          "Checksums are cryptographically strong (SHA-256 min; no MD5 or SHA1)",
+          "Checksum verification passes before signature check (order: integrity → signature → causality)"
+        ],
+        "failure_recovery": [
+          "Re-run ggen sync (regenerate all artifacts from ontology)",
+          "Compare new receipt checksums to previous receipt: if same, sync is idempotent (good)",
+          "If checksums differ: identify what changed in inputs (ontology, queries, templates, manifest)",
+          "Manual verification: sha256sum $(find . -name '*.rs' -newer .ggen/receipts/latest.json) and compare to output_hashes",
+          "If file corrupted: restore from version control or previous receipt's source state",
+          "Do NOT deploy if checksums cannot be verified (data integrity at risk)"
+        ],
+        "validation": {
+          "command": "ggen receipt verify .ggen/receipts/latest.json --check-hashes && sha256sum --check <(jq -r '.output_hashes | to_entries[] | .value + \"  \" + .key' .ggen/receipts/latest.json)",
+          "expected_exit_code": 0,
+          "expected_output": "All output hashes verified OK. All input hashes verified OK. Checksums match actual files.",
+          "timeout_total_seconds": 30
+        },
+        "automation": [
+          "ggen sync computes SHA-256 for all inputs (ontology, SPARQL queries, Tera templates, ggen.toml)",
+          "ggen sync stores input_hashes in receipt before pipeline runs",
+          "ggen sync computes SHA-256 for all outputs immediately after μ₅ stage",
+          "ggen sync stores output_hashes in receipt after μ₅ completion",
+          "CI gate: ggen receipt verify checks all hashes before allowing promotion to next environment",
+          "Pre-deployment: checksum verification prevents deploying corrupted artifacts"
+        ],
+        "evidence": [
+          ".ggen/receipts/latest.json → input_hashes: { 'ontology@version': 'sha256_hex', 'queries': '...', ... }",
+          ".ggen/receipts/latest.json → output_hashes: { 'path/to/file.rs': 'sha256_hex', ... }",
+          "sha256sum command output matches all entries in output_hashes (byte-for-byte)",
+          "Idempotence proof: run ggen sync twice, compare input_hashes and output_hashes (must be identical if inputs unchanged)"
+        ],
+        "forbidden_behaviors": [
+          "❌ Empty or null checksum values in receipt — contract drift",
+          "❌ Checksums computed AFTER deployment (must be computed at generation time)",
+          "❌ Checksums omitted for any output file — prevents integrity verification",
+          "❌ Trusting checksums without verification (must byte-match actual files)",
+          "❌ Using weak hashing (MD5, SHA1) — only SHA-256 or stronger",
+          "❌ Modifying artifacts after hashing — hashes will not match"
+        ]
+      },
+      "4_signature_verification": {
+        "title": "Signature Verification (Cryptographic Proof)",
+        "description": "Receipt is digitally signed with Ed25519 private key; signature verifies against public key before deployment.",
+        "why_it_matters": "Proves receipt was created by the authoritative build system (not forged or tampered). Enables audit trail and non-repudiation.",
+        "success_criteria": [
+          "Receipt signature computed over JSON content (deterministic serialization)",
+          "Signature field is non-empty base64-encoded Ed25519 signature",
+          "Public key available at .ggen/keys/verifying.key",
+          "ggen receipt verify succeeds with exit code 0",
+          "Signature verification fails if receipt content modified (even 1 byte)",
+          "Signature verification fails if verifying.key is deleted or corrupted",
+          "Signature timestamp matches receipt timestamp (no backdating)"
+        ],
+        "failure_recovery": [
+          "ggen receipt verify .ggen/receipts/latest.json --public-key .ggen/keys/verifying.key",
+          "If signature invalid: receipt was modified after creation (data integrity compromised)",
+          "If key missing: restore from secure key backup (do NOT regenerate key, it breaks signature verification)",
+          "If timestamp mismatch: receipt may be forged (contact build system administrator)",
+          "Do NOT deploy with invalid signature — prevents audit trail"
+        ],
+        "validation": {
+          "command": "ggen receipt verify .ggen/receipts/latest.json --public-key .ggen/keys/verifying.key",
+          "expected_exit_code": 0,
+          "expected_output": "Signature valid. Receipt verified. Timestamp: <RFC-3339>. Signer: <key-fingerprint>",
+          "timeout_total_seconds": 5
+        },
+        "automation": [
+          "ggen sync signs receipt with Ed25519 private key from .ggen/keys/signing.key",
+          "ggen sync computes signature over deterministic JSON (canonical form, no whitespace variation)",
+          "ggen sync stores signature in receipt → signature field (base64-encoded)",
+          "CI gate: ggen receipt verify checks signature before deploying to any environment",
+          "All archived receipts signed (enables historical verification: did this code come from our build system?)"
+        ],
+        "evidence": [
+          ".ggen/receipts/latest.json → signature: '<base64-encoded-signature>' (non-empty, valid base64)",
+          ".ggen/keys/verifying.key exists and is readable",
+          "ggen receipt verify exits 0 (proves signature is valid)",
+          "Audit log: which key signed this receipt (fingerprint in verify output)"
+        ],
+        "forbidden_behaviors": [
+          "❌ Empty signature field (contract drift — receipt is unsigned, unverifiable)",
+          "❌ Signature not verified before deployment (permits forged receipts)",
+          "❌ Trusting receipt without checking signature (bypasses audit trail)",
+          "❌ Regenerating signing key without rotating verifying key (breaks verification)",
+          "❌ Storing private key in version control or CI logs (security risk)",
+          "❌ Hardcoded test UUID in operation_id (contract drift — not a real operation)"
+        ]
+      },
+      "5_lockfile_finality": {
+        "title": "Lockfile Finality (.ggen/packs.lock)",
+        "description": "Package lockfile is frozen before deployment; no further pack additions/removals allowed during sync --locked. Enables reproducible deployments.",
+        "why_it_matters": "Prevents new dependencies sneaking into production. Ensures deployment uses exact same packs (versions, digests) as tested.",
+        "success_criteria": [
+          ".ggen/packs.lock exists and is readable",
+          ".ggen/packs.lock is valid JSON with correct structure",
+          "Each pack entry has: id (non-empty), version (semver), digest (SHA-256 hex, 64 chars), installed_at (RFC-3339 timestamp)",
+          "All digest fields are non-empty (not null, not '')",
+          "All installed_at timestamps are real (not zero-value, not test fixture '2000-01-01T00:00:00Z')",
+          "ggen sync --locked reads lockfile before executing any pipeline stage",
+          "ggen sync --locked fails hard (exit 1) if lockfile missing or digest mismatch",
+          "ggen sync --locked produces receipt with locked_packs list (proves which packs were used)"
+        ],
+        "failure_recovery": [
+          "Run ggen packs install <pack@version> to create/update lockfile",
+          "Verify .ggen/packs.lock was created with non-empty digest and current timestamp",
+          "If lockfile corrupted: delete and reinstall all packs: rm .ggen/packs.lock && ggen packs install <all-packs>",
+          "If digest empty: fix PackRegistry to compute SHA-256 at install time (not default to '')",
+          "If timestamp stale: verify installed_at was set to current time (not copy/pasted from fixture)",
+          "Before deployment, commit .ggen/packs.lock to version control (ensures reproducibility)"
+        ],
+        "validation": {
+          "command": "jq -e '.packages[] | select(.digest | length == 64 and test(\"^[0-9a-f]+$\")) and (.installed_at | startswith(\"20\"))' .ggen/packs.lock && ggen sync --locked --dry_run true",
+          "expected_exit_code": 0,
+          "expected_output": "All packs in lockfile verified. Sync would proceed with locked pack set.",
+          "timeout_total_seconds": 30
+        },
+        "automation": [
+          "ggen packs install updates .ggen/packs.lock atomically (all-or-nothing write)",
+          "ggen packs install computes SHA-256 digest at install time and stores in lockfile",
+          "ggen packs install sets installed_at to current RFC-3339 timestamp (not placeholder)",
+          "ggen sync --locked reads lockfile as first step (before any pipeline execution)",
+          "ggen sync --locked exits non-zero if lockfile missing (fail-open prevention)",
+          "ggen sync --locked exits non-zero if any pack digest mismatches installed file (tampering detection)",
+          "CI gate: .ggen/packs.lock must be committed before allowing deployment"
+        ],
+        "evidence": [
+          ".ggen/packs.lock file exists on disk with modification time >= last ggen packs install",
+          "All packages in lockfile have digest field with 64-char SHA-256 hex string",
+          "All packages have installed_at with valid RFC-3339 timestamp (recent, not test fixture)",
+          "Receipt includes locked_packs section showing which packs were locked and their digests",
+          ".ggen/packs.lock committed to git (git log --follow shows history of pack changes)"
+        ],
+        "forbidden_behaviors": [
+          "❌ Lockfile with empty digest field (contract drift — digest not recorded at install)",
+          "❌ Lockfile with null digest (same as empty; prevents verification)",
+          "❌ Lockfile missing installed_at (cannot verify when pack was installed)",
+          "❌ Running ggen sync without --locked flag in production (permits undeclared pack changes)",
+          "❌ Modifying .ggen/packs.lock manually (should only be written by ggen packs install)",
+          "❌ Deleting .ggen/packs.lock without re-installing packs (ggen sync --locked will fail, blocking all deployments)"
+        ]
+      },
+      "6_version_tagging": {
+        "title": "Version Tagging (Semantic Versioning)",
+        "description": "Release is tagged in git with semantic version (major.minor.patch) matching Cargo.toml version. Enables rollback and historical tracking.",
+        "why_it_matters": "Enables deployments to specific versions. Rollback to prior version by checking out prior git tag. Prevents accidental re-deployment of old code.",
+        "success_criteria": [
+          "Cargo.toml [workspace.package] version matches release version (e.g., 26.6.11)",
+          "All crates in workspace have matching version (enforced via workspace.version)",
+          "git tag v<version> exists and points to the release commit",
+          "git tag is annotated (not lightweight) with release notes in message",
+          "git tag is signed with GPG key (non-repudiation)",
+          "git tag message includes: version, release date, breaking changes (if any), migration guide (if any)",
+          "git tag is pushed to remote (origin) before deployment (enables team access)"
+        ],
+        "failure_recovery": [
+          "Update Cargo.toml [workspace.package] version to next semver (e.g., 26.6.11 → 26.6.12 for patch, 26.7.0 for minor)",
+          "Run cargo update (updates lock files to match new version)",
+          "Create git tag: git tag -a v<version> -m 'Release v<version> - <notes>' -s (requires GPG key)",
+          "If tag created with wrong version: delete and recreate: git tag -d v<wrong> && git push origin :refs/tags/v<wrong> && git tag -a v<correct> ...",
+          "Push tag: git push origin v<version>",
+          "Verify tag exists: git tag -l v<version> && git show v<version>"
+        ],
+        "validation": {
+          "command": "grep 'version =' Cargo.toml | head -1 | cut -d '=' -f2 && git tag -l v$(grep 'version =' Cargo.toml | head -1 | cut -d '=' -f2 | tr -d '\"' | xargs) && git show v$(grep 'version =' Cargo.toml | head -1 | cut -d '=' -f2 | tr -d '\"' | xargs) --format=full",
+          "expected_exit_code": 0,
+          "expected_output": "version = 26.6.11 (matches tag v26.6.11 on current commit, annotated, signed)",
+          "timeout_total_seconds": 10
+        },
+        "automation": [
+          "CI detects version change in Cargo.toml (diff HEAD~1 vs HEAD)",
+          "CI creates annotated, signed git tag v<version> pointing to release commit",
+          "CI pushes tag to origin before allowing deployment (prevents orphaned tags)",
+          "CD system verifies git tag exists and matches deployment version",
+          "Release notes automatically generated from git log between prior tag and current tag"
+        ],
+        "evidence": [
+          "Cargo.toml [workspace.package] version: 26.6.11",
+          "git tag -l output: v26.6.11",
+          "git show v26.6.11 output: annotated tag, signed with GPG, release notes in message",
+          "git log --decorate shows tag v26.6.11 on release commit",
+          "git push origin v26.6.11 succeeded (tag in remote)"
+        ],
+        "forbidden_behaviors": [
+          "❌ Version in Cargo.toml doesn't match git tag (causes deployment confusion)",
+          "❌ Lightweight tag instead of annotated tag (no release notes, no signature)",
+          "❌ Unsigned tag (enables tag forgery)",
+          "❌ Tag not pushed to remote (team cannot see or verify release)",
+          "❌ Hardcoded version as string in code instead of reading from Cargo.toml (contract drift)",
+          "❌ Bumping version without committing change (CI will detect version mismatch)"
+        ]
+      },
+      "7_changelog_recording": {
+        "title": "Changelog Recording (CHANGELOG.md / Receipt Log)",
+        "description": "All user-facing changes documented in CHANGELOG.md with version, date, and impact summary. Receipt logs all generated artifacts.",
+        "why_it_matters": "Users can see what changed between versions. Enables migration guides for breaking changes. Audit trail of feature additions and fixes.",
+        "success_criteria": [
+          "CHANGELOG.md exists in repository root",
+          "Latest entry is for current release version (matches Cargo.toml version)",
+          "Entry includes: version, release date (YYYY-MM-DD), section headers (Breaking Changes, Features, Fixes, etc.)",
+          "Breaking changes explicitly listed (if any) with migration guide",
+          "New features documented with examples",
+          "Bug fixes reference issue numbers (e.g., 'Fix #123')",
+          ".ggen/receipts/latest.json records all generated artifacts with version and timestamp"
+        ],
+        "failure_recovery": [
+          "Add CHANGELOG.md entry: version, date, sections (Breaking Changes, Features, Fixes, Notes)",
+          "Include migration guide for any breaking changes",
+          "Reference issue/PR numbers for traceability",
+          "Commit CHANGELOG.md before release tag",
+          "If receipt missing: re-run ggen sync to generate new receipt with artifact list"
+        ],
+        "validation": {
+          "command": "head -50 CHANGELOG.md | grep -E '^## \\[26\\.6\\.11\\]|^### Breaking Changes|^### Features|^### Fixes' && jq -e '.version and .timestamp and .output_hashes' .ggen/receipts/latest.json",
+          "expected_exit_code": 0,
+          "expected_output": "CHANGELOG.md has entry for v26.6.11 with sections. Receipt has version, timestamp, and output_hashes.",
+          "timeout_total_seconds": 10
+        },
+        "automation": [
+          "CI gate: CHANGELOG.md must be updated on any non-doc commit (prevents releases without notes)",
+          "CI validates CHANGELOG.md format (version headers, date format YYYY-MM-DD)",
+          "Release notes generated from CHANGELOG.md for git tag message",
+          "ggen sync records all artifacts in receipt (proof of what was generated)"
+        ],
+        "evidence": [
+          "CHANGELOG.md entry: '## [26.6.11] - 2026-06-14'",
+          "Sections present: Breaking Changes (if any), Features, Fixes, Notes",
+          ".ggen/receipts/latest.json → version: '26.6.11', timestamp: '2026-06-14T...'",
+          "Receipt → output_hashes: { 'path/to/generated/file': 'sha256_hash', ... }"
+        ],
+        "forbidden_behaviors": [
+          "❌ No CHANGELOG.md entry for release (users cannot see what changed)",
+          "❌ CHANGELOG entry with wrong version or date (misrepresents release)",
+          "❌ Breaking changes not documented (users blindsided by migrations)",
+          "❌ Issue/PR numbers not referenced (audit trail broken)",
+          "❌ Receipt missing version or timestamp (contract drift)",
+          "❌ Artifact-level changes not logged (cannot prove what was generated)"
+        ]
+      },
+      "8_smoke_testing": {
+        "title": "Smoke Testing (End-to-End Validation)",
+        "description": "Generated code compiles, tests pass, runs without errors on simple test cases. Detects integration failures not caught by unit tests.",
+        "why_it_matters": "Proves generated artifacts are functionally correct and can be deployed. Unit tests prove individual components; smoke tests prove the system works end-to-end.",
+        "success_criteria": [
+          "Generated code in output directories compiles without errors",
+          "Generated code lints without warnings",
+          "Generated tests run and pass (chicago TDD: real collaborators, no mocks)",
+          "Generated binaries execute successfully on simple test inputs",
+          "Output matches expected format (JSON schema, SQL schema, etc.)",
+          "No runtime panics or resource leaks (valgrind/asan for C/Rust)",
+          "Performance meets SLOs (generated code execution time, memory usage)"
+        ],
+        "failure_recovery": [
+          "Compile generated artifacts: cargo build (if Rust) or language-specific compiler",
+          "If compile fails: check Tera template bindings (missing variables? wrong type?)",
+          "If tests fail: verify SPARQL queries produce expected data (run queries manually against ontology)",
+          "If runtime fails: add debug logging, check for missing dependencies or incorrect file paths",
+          "If performance exceeds SLO: profile generated code, identify hot path, optimize template or ontology",
+          "Do NOT ship if smoke tests fail (indicates integration problem)"
+        ],
+        "validation": {
+          "command": "cd $(ls -d . | head -1) && cargo build --release && cargo test --release && cargo bench --bench cli_startup_performance -- --test",
+          "expected_exit_code": 0,
+          "expected_output": "Finished release. Test result: ok. Benchmark metrics within SLOs.",
+          "timeout_total_seconds": 300
+        },
+        "automation": [
+          "CI smoke tests: build generated code, run tests, benchmark generated binary",
+          "Smoke tests run in isolated environment (detects dependency issues early)",
+          "Smoke tests validate output format (schema validation for JSON, SQL, etc.)",
+          "Smoke tests measure runtime and memory (detect performance regressions)"
+        ],
+        "evidence": [
+          "CI log: cargo build succeeded (zero compiler errors)",
+          "CI log: cargo test succeeded (all tests pass, real collaborators used)",
+          "CI log: cargo bench output (metrics within SLO thresholds)",
+          "Generated binary runs on test input and produces expected output (manual verification for first release)"
+        ],
+        "forbidden_behaviors": [
+          "❌ Generated code doesn't compile (template/binding bug not caught earlier)",
+          "❌ Generated code has warnings (linting not enforced on generated code)",
+          "❌ Generated tests use mocks (violates Chicago TDD; not testing real behavior)",
+          "❌ Generated binary crashes on valid input (integration bug)",
+          "❌ Performance exceeds SLO (regression not caught)",
+          "❌ Smoke tests skipped due to time pressure (leads to deployment failures)"
+        ]
+      },
+      "9_deployment_checklist": {
+        "title": "Deployment Checklist (Pre-Deployment Verification)",
+        "description": "Final verification before deploying: no uncommitted changes, branch is clean, CI is green, all gates passed, rollback plan documented.",
+        "why_it_matters": "Prevents accidental deployment of broken code, uncommitted work, or from wrong branch. Ensures team can safely revert if something goes wrong.",
+        "success_criteria": [
+          "git status shows no uncommitted changes (working tree clean)",
+          "git log --oneline shows all commits are on main branch (no on-detached-head)",
+          "All CI checks pass (green checkmarks for all gates)",
+          "CHANGELOG.md is up to date (version matches release, release date is today)",
+          ".ggen/packs.lock is committed (enables reproducibility)",
+          "Prior release tag is documented (for rollback reference)",
+          "Release notes prepared (from CHANGELOG.md or git log)",
+          "Stakeholders notified of release plan (for emergency contact during rollback)"
+        ],
+        "failure_recovery": [
+          "git status: stash uncommitted changes if they're not part of release, or commit them",
+          "git log: ensure you're on main and all commits are pushed to origin",
+          "CI checks: re-run failed checks, identify root cause, fix and re-push",
+          "CHANGELOG.md: add missing entry with version and date",
+          ".ggen/packs.lock: commit if missing",
+          "If any check fails: DO NOT PROCEED. Go back and fix the issue.",
+          "Only deploy when all checklist items are verified green."
+        ],
+        "validation": {
+          "command": "git status --short && git branch -vv && git log --oneline -1 && echo '---' && cat CHANGELOG.md | head -5 && echo '---' && git diff origin/main || true",
+          "expected_exit_code": 0,
+          "expected_output": "Working tree clean. On main branch. Latest commit shown. CHANGELOG.md entry present. No diff from origin/main.",
+          "timeout_total_seconds": 10
+        },
+        "automation": [
+          "Pre-deployment script: verify all checklist items (fail fast if any missing)",
+          "CI gate: blocks deployment if working tree is dirty (prevents accidental commits during deployment)",
+          "CI gate: blocks deployment if on wrong branch (prevents main branch corruption)",
+          "CD system requires manual sign-off before proceeding (human gate: 'I've reviewed the checklist')"
+        ],
+        "evidence": [
+          "git status output: 'On branch main. Your branch is up to date with origin/main. Nothing to commit, working tree clean.'",
+          "CHANGELOG.md entry for current version with today's date",
+          ".ggen/packs.lock committed (git log shows commit with .ggen/packs.lock change)",
+          "All CI checks green (screenshot or CI log URL)"
+        ],
+        "forbidden_behaviors": [
+          "❌ Deploying with uncommitted changes (code not tracked in git)",
+          "❌ Deploying from non-main branch (wrong code shipped)",
+          "❌ Deploying when CI is red (broken code deployed)",
+          "❌ Skipping CHANGELOG.md update (users unaware of changes)",
+          "❌ Deploying without rollback plan (unable to revert if issues arise)",
+          "❌ Deploying without stakeholder notification (no emergency contact for rollback)"
+        ]
+      },
+      "10_rollback_plan": {
+        "title": "Rollback Plan (Reversibility & Recovery)",
+        "description": "Documented procedure to revert to prior version in case of deployment failure. Includes prior git tag, receipt hash, and data migration guide.",
+        "why_it_matters": "Enables rapid recovery from catastrophic failures. Proves deployment is reversible (not a one-way trip). Provides confidence to proceed with high-risk releases.",
+        "success_criteria": [
+          "Prior version git tag documented (e.g., v26.6.10 is current, rolling back to v26.6.9)",
+          "Prior receipt hash available (from .ggen/receipts/ archive)",
+          "Rollback command documented and tested (git checkout v<prior> && ggen sync)",
+          "Data rollback procedure documented (if release includes schema changes)",
+          "Monitoring alarms defined (what indicates rollback is needed: error rate >X%, latency >Y%, etc.)",
+          "Rollback decision criteria documented (when to rollback vs. when to fix forward)",
+          "Rollback communication plan (who to notify, escalation path)"
+        ],
+        "failure_recovery": [
+          "Detect issue (high error rate, latency spike, data corruption)",
+          "Verify issue is release-related (compare metrics pre/post-deployment)",
+          "Execute rollback: git checkout v<prior-tag> && ggen sync --locked",
+          "Verify rollback successful: smoke tests pass, metrics return to normal",
+          "Notify stakeholders (issue resolved, investigating root cause for next release)",
+          "Post-mortem: identify what went wrong, add validation to prevent recurrence"
+        ],
+        "validation": {
+          "command": "git tag -l | tail -2 && git show $(git tag -l | tail -2 | head -1) --format=fuller && echo '---' && ls -la .ggen/receipts/ | tail -5",
+          "expected_exit_code": 0,
+          "expected_output": "Prior two tags shown (current and previous). Current tag points to release commit. Receipts for both versions available.",
+          "timeout_total_seconds": 10
+        },
+        "automation": [
+          "Release notes include: current version, prior version (for rollback reference), breaking changes (if any)",
+          "Receipts archived (at least 3 prior releases kept in .ggen/receipts/ for rollback)",
+          "Monitoring automatically detects anomalies (error rate, latency) post-deployment",
+          "Runbook documented: 'If alerts fire during first hour post-deployment, execute rollback'",
+          "Rollback tested in staging before release (prove it works before production needs it)"
+        ],
+        "evidence": [
+          "ROLLBACK.md or RUNBOOK.md file documenting rollback procedure",
+          "Prior git tag(s) documented with dates and versions",
+          ".ggen/receipts/ contains receipts for multiple versions (enables jumping to any prior state)",
+          "Monitoring dashboard shows pre/post-deployment metrics (baseline for rollback trigger)",
+          "Staging runbook proves rollback works (before production deployment)"
+        ],
+        "forbidden_behaviors": [
+          "❌ No rollback plan documented (unable to recover from failure)",
+          "❌ Rollback command not tested (may fail when needed most)",
+          "❌ Old receipts deleted (unable to jump to prior state)",
+          "❌ No monitoring/alerting (don't detect issues until users complain)",
+          "❌ Rollback requires manual code changes (should be push-button, <5 min)",
+          "❌ Rollback path not tested in staging (discovers problems in production)"
+        ]
+      }
+    },
+    "validation_order": [
+      "1_gate_validation (must pass first; gates everything else)",
+      "2_artifact_emission (proves pipeline ran)",
+      "3_checksum_validation (proves integrity)",
+      "4_signature_verification (proves authenticity)",
+      "5_lockfile_finality (proves reproducibility)",
+      "6_version_tagging (enables rollback)",
+      "7_changelog_recording (enables communication)",
+      "8_smoke_testing (proves end-to-end correctness)",
+      "9_deployment_checklist (final safety check)",
+      "10_rollback_plan (enables recovery)"
+    ],
+    "combined_validation_command": "just timeout-check && just check && just lint && just test && just slo-check && ggen sync --audit true && ggen receipt verify .ggen/receipts/latest.json --public-key .ggen/keys/verifying.key && jq -e '.packages[] | .digest | length == 64' .ggen/packs.lock && git status --short && git log --oneline -1",
+    "enforcement": {
+      "automation": [
+        "All five gates (1_gate_validation) run on every git push (blocks merge if any fail)",
+        "Artifact emission (2_artifact_emission) validated in CI before allowing deployment",
+        "Checksum validation (3_checksum_validation) required before downloading artifacts",
+        "Signature verification (4_signature_verification) required before promoting to next environment",
+        "Lockfile finality (5_lockfile_finality) enforced by ggen sync --locked (fails if lockfile absent or corrupted)",
+        "Version tagging (6_version_tagging) automated by CI (creates tag on release commit)",
+        "Changelog recording (7_changelog_recording) gated by CI (rejects release without CHANGELOG update)",
+        "Smoke testing (8_smoke_testing) runs in CI (blocks deployment if generated code doesn't compile/test)",
+        "Deployment checklist (9_deployment_checklist) manual gate (requires human sign-off)",
+        "Rollback plan (10_rollback_plan) documented in RUNBOOK.md (required before first production deployment)"
+      ],
+      "human_gates": [
+        "Gate 6 (version_tagging): Human creates annotated, signed git tag (enforced by CI)",
+        "Gate 7 (changelog_recording): Human writes CHANGELOG.md entry (enforced by CI)",
+        "Gate 9 (deployment_checklist): Human verifies all checklist items (final approval gate)",
+        "Gate 10 (rollback_plan): Human reviews and documents rollback strategy (before production)"
+      ],
+      "andon_protocol": "If ANY dimension fails, STOP immediately. Do NOT proceed. Fix the failure and re-validate dimension before moving to next.",
+      "no_partial_success": "All 10 dimensions must pass. A partial pass (9/10) is a failure. A release is either READY or NOT READY. There is no middle ground."
+    },
+    "references": {
+      "rules": [
+        ".claude/rules/_core/absolute.md — Non-negotiable rules",
+        ".claude/rules/andon/signals.md — Stop-the-line protocol",
+        ".claude/rules/coding-agent-mistakes.md — 5 mistake classes, 6-question contract, invariants, sabotage tests",
+        ".claude/rules/otel-validation.md — OTEL span verification for LLM/external services",
+        ".claude/rules/rust/testing.md — Chicago TDD (no mocks, real collaborators)",
+        ".claude/rules/validation-persistence.md — Keep working until validation passes"
+      ],
+      "docs": [
+        "docs/DEFINITION_OF_DONE.md — 5-gate quality gates (check, lint, test, slo-check, pre-commit)",
+        "docs/architecture/COMPRESSED_REFERENCE.md — C4 diagram, production sync flow, stub registry",
+        "CHANGELOG.md — User-facing change log",
+        "ROLLBACK.md or RUNBOOK.md — Rollback procedure (to be created)"
+      ],
+      "implementation": [
+        "crates/ggen-receipt/src/lib.rs — Receipt signing and verification",
+        "crates/ggen-marketplace/src/rdf/control.rs — Profile enforcement",
+        "crates/ggen-cli/src/cmds/sync.rs — Sync command authoritative path",
+        "crates/ggen-core/src/validation/ — SHACL validation gates",
+        ".ggen/receipts/ — Archived receipts (proof of prior deployments)"
+      ]
+    },
+    "summary": {
+      "definition": "A release is READY TO SHIP when ALL 10 dimensions pass validation and gates are green.",
+      "false_positives": [
+        "❌ 'Code compiles' (dimension 1 only; missing dimensions 2-10)",
+        "❌ 'Tests pass' (dimension 1 + 8 only; missing dimensions 2-7, 9-10)",
+        "❌ 'CI is green' (dimensions 1-3 only; missing dimensions 4-10)",
+        "❌ 'Receipt is signed' (dimension 4 only; missing dimensions 5-10)",
+        "❌ 'Version is tagged' (dimension 6 only; missing dimensions 7-10)"
+      ],
+      "true_positive": [
+        "✅ All five gates pass (dimension 1)",
+        "✅ Artifacts generated with correct content (dimension 2)",
+        "✅ Checksums verified (dimension 3)",
+        "✅ Signature valid (dimension 4)",
+        "✅ Lockfile frozen and verified (dimension 5)",
+        "✅ Version tagged semantically (dimension 6)",
+        "✅ Changes recorded in CHANGELOG (dimension 7)",
+        "✅ End-to-end tests pass (dimension 8)",
+        "✅ Deployment checklist verified (dimension 9)",
+        "✅ Rollback plan documented and tested (dimension 10)",
+        "✅ NO red andon signals",
+        "✅ READY TO SHIP"
+      ]
+    }
+  }
+}

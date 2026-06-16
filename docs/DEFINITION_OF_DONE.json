@@ -1,0 +1,531 @@
+{
+  "metadata": {
+    "title": "ggen Definition of Done — 5 Core Quality Gates",
+    "version": "26.5.28",
+    "date": "2026-06-14",
+    "project": "ggen",
+    "description": "Authoritative specification for work completion. ALL five gates must pass before code is considered complete. This is non-negotiable.",
+    "repository": "https://github.com/seanchatmangpt/ggen",
+    "entry_point": "All gates invoked via `just` entry point (Cargo recipes in justfile)"
+  },
+  "golden_rule": {
+    "title": "Definition of Done",
+    "requirement": "ALL FIVE gates must pass. A partial pass is a failure.",
+    "violation_severity": "CRITICAL — blocks any merge, any deployment, any claim of completion"
+  },
+  "gates": [
+    {
+      "sequence": 1,
+      "gate_name": "timeout-check",
+      "category": "pre-flight",
+      "description": "Verify that the `timeout` command exists in the system. Required for all timed gates. This is a safety check preventing silent timeout failures.",
+      "command": "just timeout-check",
+      "timeout_seconds": 5,
+      "success_criteria": {
+        "exit_code": 0,
+        "output_pattern": "✅ timeout command verified",
+        "description": "Command exits cleanly and prints success message"
+      },
+      "failure_recovery": {
+        "root_cause_diagnosis": [
+          "Run `command -v timeout` to verify presence",
+          "If absent, install: `brew install coreutils` (macOS) or `sudo apt install coreutils` (Linux)",
+          "On Windows (WSL), ensure WSL tools are in PATH"
+        ],
+        "recovery_steps": [
+          "Install timeout tool for your platform",
+          "Re-run `just timeout-check`",
+          "Verify exit code 0"
+        ]
+      },
+      "andon_signal": {
+        "level": "HIGH",
+        "message": "STOP. Cannot proceed without timeout command. Install prerequisite.",
+        "blocks_release": true
+      },
+      "notes": [
+        "This gate must pass BEFORE any other timed gate (check, test, lint, slo-check)",
+        "It is a prerequisite check, not a compilation/test gate",
+        "Failure here indicates environment misconfiguration, not code issues"
+      ]
+    },
+    {
+      "sequence": 2,
+      "gate_name": "check",
+      "category": "compilation",
+      "description": "Compilation check across all 15 workspace crates. Verifies that the code compiles without errors. This gate runs fastest for rapid developer feedback.",
+      "command": "just check",
+      "actual_command_executed": "timeout 60s cargo check --workspace",
+      "timeout_seconds": 60,
+      "typical_duration_hot_cache": 5,
+      "typical_duration_cold_cache": 15,
+      "success_criteria": {
+        "exit_code": 0,
+        "compilation_status": "All workspace crates compile without errors",
+        "output_pattern": "Finished.*check",
+        "description": "Cargo check completes without ERROR messages"
+      },
+      "failure_recovery": {
+        "root_cause_diagnosis": [
+          "Read the compiler error output carefully (error[E...] codes)",
+          "Note the crate name and line number from the error",
+          "Identify the root cause: type mismatch, missing dependency, lifetime issue, etc.",
+          "Do NOT suppress with #[allow(...)] — understand the error first"
+        ],
+        "recovery_steps": [
+          "Open the source file at the reported line number",
+          "Read the full error message and suggestion",
+          "Apply the fix directly (not a workaround)",
+          "Re-run `just check`",
+          "Repeat until exit code 0"
+        ],
+        "common_causes": [
+          "Type mismatch: function expects T, but received U",
+          "Missing dependency: crate not added to Cargo.toml",
+          "Lifetime issue: borrowed value does not live long enough",
+          "Trait bound not satisfied: type does not implement required trait",
+          "Workspace-wide propagation: change in one crate breaks dependents"
+        ]
+      },
+      "andon_signal": {
+        "level": "CRITICAL",
+        "message": "STOP THE LINE. Compiler errors block all further work.",
+        "blocks_release": true,
+        "action": "Fix immediately. Do not proceed to lint/test/slo-check. Do not commit."
+      },
+      "verification_command": "just check && echo '✅ Gate passed: compilation clean'",
+      "notes": [
+        "This is the fastest feedback loop for developers",
+        "Runs across ALL targets (binary, tests, examples, docs)",
+        "Failure here indicates code that will not compile under CI",
+        "Build artifacts are cached, so subsequent checks are 1-5s",
+        "The workspace includes 15 crates: verify `cargo build --workspace` matches `just check` output"
+      ]
+    },
+    {
+      "sequence": 3,
+      "gate_name": "test",
+      "category": "functional_verification",
+      "description": "Full test suite — unit tests, integration tests, and property-based tests. Verifies correctness across all test categories. This gate proves the code works as intended.",
+      "command": "just test",
+      "actual_command_executed": "timeout 30s cargo test --workspace --tests (or 120s if first build)",
+      "timeout_seconds": 120,
+      "typical_duration_hot_cache": 25,
+      "typical_duration_cold_cache": 120,
+      "success_criteria": {
+        "exit_code": 0,
+        "test_status": "All tests pass",
+        "output_pattern": "test result: ok\\. [0-9]+ passed",
+        "test_count": "347+ tests across workspace",
+        "description": "No FAILED or panicked tests. All assertions pass."
+      },
+      "failure_recovery": {
+        "root_cause_diagnosis": [
+          "Read the FAILED test output carefully",
+          "Note the test name and assertion that failed",
+          "Understand: is this a test bug or a code bug?",
+          "Read the assertion message and the actual vs expected values",
+          "Trace backwards: which code path led to this failure?"
+        ],
+        "recovery_steps": [
+          "Read the failing test code in crates/*/tests/",
+          "Understand what the test is verifying",
+          "Locate the code being tested",
+          "Apply the fix to the code (not the test)",
+          "Re-run `just test`",
+          "Repeat until all tests pass"
+        ],
+        "common_causes": [
+          "Off-by-one error in loop or slice indexing",
+          "State not initialized correctly in test setup",
+          "Async function not awaited properly",
+          "Error handling code path not implemented",
+          "Thread safety issue exposed under concurrent load",
+          "Floating-point precision issue in numerical computation"
+        ],
+        "forbidden_responses": [
+          "Do NOT ignore failing tests",
+          "Do NOT mark test #[ignore]",
+          "Do NOT use #[should_panic] to hide failures",
+          "Do NOT mock the failing code — test real behavior"
+        ]
+      },
+      "andon_signal": {
+        "level": "CRITICAL",
+        "message": "STOP THE LINE. Failing tests mean the code is broken.",
+        "blocks_release": true,
+        "action": "Fix the code. Do not proceed. Do not commit failing tests."
+      },
+      "chicago_tdd_requirement": {
+        "rule": "Chicago TDD ONLY — no mocks, no test doubles",
+        "verification": "grep -r 'mockall::mock\\|#\\[automock\\]' tests/ should return nothing",
+        "explanation": "Tests must verify real behavior against real collaborators (databases, filesystems, APIs)"
+      },
+      "verification_command": "just test && echo '✅ Gate passed: all tests pass'",
+      "notes": [
+        "This is the primary correctness gate for the entire project",
+        "Tests include: unit (lib.rs tests), integration (tests/ directory), property (proptest), doc examples",
+        "First build may take up to 120s if dependencies need compilation",
+        "Subsequent runs with hot cache are typically <30s",
+        "The justfile has escalation logic: if test >30s, automatically escalates timeout to 120s",
+        "Test count: 347+ tests across ggen-core, ggen-cli-lib, ggen-config, ggen-marketplace, ggen-graph, ggen-lsp, genesis-*",
+        "Coverage requirement: 80%+ of public APIs tested",
+        "No test output suppression — read full logs if failure occurs"
+      ]
+    },
+    {
+      "sequence": 4,
+      "gate_name": "lint",
+      "category": "code_quality",
+      "description": "Clippy linter with -D warnings enforcement + rustfmt code formatting check. Verifies code quality, style consistency, and catches real bugs that the compiler misses.",
+      "command": "just lint",
+      "actual_command_executed": "timeout 90s cargo clippy --all-targets -- -D warnings",
+      "timeout_seconds": 90,
+      "typical_duration_hot_cache": 45,
+      "typical_duration_cold_cache": 90,
+      "sub_gates": [
+        {
+          "name": "fmt-check",
+          "description": "Rustfmt code formatting validation (no modifications, dry-run)",
+          "command": "cargo fmt --all -- --check",
+          "typical_duration": 3,
+          "success_pattern": "All files formatted correctly"
+        },
+        {
+          "name": "clippy",
+          "description": "Clippy lint analysis with -D warnings enforced",
+          "command": "cargo clippy --all-targets -- -D warnings",
+          "typical_duration": 45,
+          "success_pattern": "warning: `.*` (lint) generated 0 warnings"
+        }
+      ],
+      "success_criteria": {
+        "exit_code": 0,
+        "formatting": "All files formatted per rustfmt rules",
+        "clippy": "Zero clippy warnings (treated as errors with -D)",
+        "output_pattern": "Finished.*check|warning: `.*` \\(lint\\) generated 0 warnings",
+        "description": "Code is formatted consistently and contains no linting violations"
+      },
+      "failure_recovery": {
+        "root_cause_diagnosis": [
+          "Separate clippy violations from formatting issues",
+          "For clippy: Read the warning message and explanation",
+          "For formatting: Run `cargo fmt` to auto-fix (then re-check)",
+          "Do NOT use `#[allow(clippy::...)]` to suppress — understand the warning first"
+        ],
+        "recovery_steps_formatting": [
+          "Run `cargo fmt --all` to auto-fix formatting",
+          "Review changes with `git diff` to ensure readability",
+          "Re-run `just lint` to verify formatting check passes"
+        ],
+        "recovery_steps_clippy": [
+          "Read the clippy warning message carefully",
+          "Understand the suggestion (often includes code example)",
+          "Apply the fix (refactor the code to satisfy the lint rule)",
+          "Re-run `just lint`",
+          "Repeat until zero warnings"
+        ],
+        "common_causes": [
+          "Unused variable or import: clippy detects dead code",
+          "Manual type conversion: use `.into()` or `.from()` instead",
+          "Unnecessary clone: remove .clone() when not needed",
+          "Formatting mismatch: use `cargo fmt` to auto-fix",
+          "Inefficient pattern: clippy suggests more idiomatic Rust",
+          "Match arm simplification: collapse duplicate arms"
+        ],
+        "forbidden_responses": [
+          "Do NOT add `#[allow(...)]` to suppress warnings",
+          "Do NOT leave `#[allow(...)]` from previous debugging",
+          "Do NOT use `//! allow-warnings` in module headers",
+          "Do NOT commit code with clippy warnings"
+        ]
+      },
+      "andon_signal": {
+        "level": "HIGH",
+        "message": "STOP before release. Warnings are not acceptable in production code.",
+        "blocks_release": true,
+        "action": "Fix all clippy warnings. Do not commit with -D warnings violations."
+      },
+      "verification_command": "just lint && echo '✅ Gate passed: code clean and formatted'",
+      "notes": [
+        "Clippy enforces -D warnings (warnings treated as errors) — zero tolerance",
+        "Rustfmt enforces consistent indentation, line length (100 chars), and spacing",
+        "This gate catches real bugs: unused variables, inefficient patterns, etc.",
+        "Clippy often provides explicit suggestions — follow them",
+        "Do NOT use #[allow(...)] as a reflex — understand the warning first",
+        "Format check runs first (fast), clippy analysis second (slower)",
+        "All targets checked: binary, lib, tests, examples, benches"
+      ]
+    },
+    {
+      "sequence": 5,
+      "gate_name": "slo-check",
+      "category": "performance_validation",
+      "description": "Performance SLO (Service Level Objective) validation. Verifies that build times, runtime, and memory usage stay within acceptable bounds. Prevents performance regressions.",
+      "command": "just slo-check",
+      "actual_command_executed": "cargo bench --bench cli_startup_performance -- --test",
+      "timeout_seconds": 120,
+      "typical_duration": 60,
+      "success_criteria": {
+        "exit_code": 0,
+        "performance_metrics": "All SLOs met within defined thresholds",
+        "output_pattern": "test result: ok|benchmark.*time.*seconds",
+        "description": "Build times and runtime performance stay within SLO targets"
+      },
+      "slo_targets": {
+        "first_build_seconds": 15,
+        "incremental_build_seconds": 2,
+        "test_suite_seconds": 30,
+        "rdf_processing_per_1k_triples_seconds": 5,
+        "generation_memory_mb": 100,
+        "cli_scaffolding_e2e_seconds": 3,
+        "determinism_percentage": 100
+      },
+      "failure_recovery": {
+        "root_cause_diagnosis": [
+          "Identify which SLO target was exceeded",
+          "Measure current performance: `cargo bench --bench cli_startup_performance`",
+          "Compare to SLO threshold",
+          "Identify what changed: new dependencies? expensive algorithm? allocation?",
+          "Profile the bottleneck using flamegraph or perf"
+        ],
+        "recovery_steps": [
+          "Locate the hot code path (where time is spent)",
+          "Apply optimization: reduce allocations, cache results, parallelize, etc.",
+          "Benchmark before/after: `cargo bench`",
+          "Re-run `just slo-check` to verify SLO met",
+          "Repeat until all SLOs pass"
+        ],
+        "common_causes": [
+          "New dependency added: Cargo.lock or Cargo.toml causing rebuild",
+          "Algorithm complexity: O(n²) loop instead of O(n) or O(n log n)",
+          "Memory allocation in loop: move allocation outside loop",
+          "Unnecessary cloning: remove .clone() calls",
+          "Blocking I/O in async context: use async operations",
+          "Redundant recompilation: dep changed affecting workspace"
+        ]
+      },
+      "andon_signal": {
+        "level": "HIGH",
+        "message": "STOP before release. Performance regressions block deployment.",
+        "blocks_release": true,
+        "action": "Fix performance bottleneck. Do not ship with SLO violations."
+      },
+      "verification_command": "just slo-check && echo '✅ Gate passed: performance SLOs met'",
+      "notes": [
+        "SLO targets are defined in performance.md and Cargo.toml [bench] sections",
+        "Benchmarks are measured on the current hardware (results vary by machine)",
+        "This gate validates operational budget: do not exceed defined limits",
+        "Determinism is verified by running same input multiple times and checking output hash",
+        "First build SLO <15s ensures developer feedback loop remains fast",
+        "Incremental build SLO <2s ensures edit-compile-test cycle is responsive",
+        "RDF processing SLO <5s/1k triples ensures sync remains under 10s for typical projects"
+      ]
+    }
+  ],
+  "pre_commit_gate": {
+    "gate_name": "pre-commit",
+    "description": "Combined gate that runs all preceding checks in sequence: fmt-check → check → lint → test-lib. Used for pre-commit hook and local validation.",
+    "command": "just pre-commit",
+    "actual_command": "fmt-check && check && lint && test-lib",
+    "timeout_seconds": 120,
+    "typical_duration": 90,
+    "success_criteria": {
+      "exit_code": 0,
+      "all_checks_pass": true,
+      "description": "All four sub-gates pass without failure"
+    },
+    "sequence": [
+      {
+        "step": 1,
+        "gate": "fmt-check",
+        "timeout": 3,
+        "description": "Code formatting validation"
+      },
+      {
+        "step": 2,
+        "gate": "check",
+        "timeout": 60,
+        "description": "Compilation check"
+      },
+      {
+        "step": 3,
+        "gate": "lint",
+        "timeout": 90,
+        "description": "Clippy + rustfmt"
+      },
+      {
+        "step": 4,
+        "gate": "test-lib",
+        "timeout": 30,
+        "description": "Unit tests only (fast)"
+      }
+    ],
+    "failure_behavior": "Stops at first failure; does not proceed to subsequent gates",
+    "use_cases": [
+      "Local validation before committing",
+      "Pre-commit hook (blocks commit if gate fails)",
+      "CI gating (blocks merge if gate fails)",
+      "Quick developer feedback loop"
+    ]
+  },
+  "complete_gate_sequence": {
+    "description": "Full quality assurance pipeline for release-ready code",
+    "required_order": [
+      "timeout-check",
+      "check",
+      "lint",
+      "test",
+      "slo-check"
+    ],
+    "command_sequence": "just timeout-check && just check && just lint && just test && just slo-check",
+    "total_timeout": 360,
+    "typical_total_duration": 180,
+    "success_criteria": "All five gates pass (exit code 0)",
+    "definition_of_done_met_when": "All five gates pass without intervention",
+    "blockers": "Any single gate failure blocks release and all subsequent steps"
+  },
+  "andon_protocol": {
+    "description": "Stop-the-line discipline when quality gates fail",
+    "signal_levels": [
+      {
+        "level": "CRITICAL",
+        "gates": ["check", "test"],
+        "action": "HALT immediately. Do not proceed. Do not commit.",
+        "message": "Compiler errors or failing tests = code is broken"
+      },
+      {
+        "level": "HIGH",
+        "gates": ["lint", "slo-check"],
+        "action": "STOP before release. Fix before shipping.",
+        "message": "Code quality or performance violations cannot be merged"
+      }
+    ],
+    "required_behavior": [
+      "1. Detect signal (error/failure)",
+      "2. Stop all other work (not after next function, not after next file — NOW)",
+      "3. Read the error message carefully",
+      "4. Identify root cause (not symptom, cause)",
+      "5. Fix the cause",
+      "6. Re-run the gate",
+      "7. Repeat until gate passes",
+      "8. Only then proceed to next gate"
+    ],
+    "forbidden_behaviors": [
+      "Silencing with #[allow(...)]",
+      "Ignoring tests with #[ignore]",
+      "Using || true to hide failures",
+      "Leaving todo!() in production code",
+      "Suppressing warnings without understanding",
+      "Committing with known gate failures"
+    ]
+  },
+  "evidence_and_proof": {
+    "requirement": "Every claim of completion must include proof",
+    "proof_formats": [
+      {
+        "gate": "check",
+        "proof": "Exit code 0 from `cargo check --workspace`"
+      },
+      {
+        "gate": "test",
+        "proof": "Exit code 0 from `cargo test --workspace --tests` with test count and pass rate"
+      },
+      {
+        "gate": "lint",
+        "proof": "Exit code 0 from clippy and rustfmt with zero warnings"
+      },
+      {
+        "gate": "slo-check",
+        "proof": "Benchmark output showing all metrics within SLO thresholds"
+      }
+    ],
+    "otel_validation": {
+      "applies_to": "Any feature involving LLM calls, external APIs, or pipeline stages",
+      "requirement": "OTEL spans must exist with correct attributes",
+      "proof": "Captured traces from `RUST_LOG=trace cargo test`",
+      "example_span": {
+        "span_name": "llm.complete",
+        "required_attributes": [
+          "llm.model (e.g., groq::openai/gpt-oss-20b)",
+          "llm.prompt_tokens (non-zero)",
+          "llm.completion_tokens (non-zero)",
+          "llm.total_tokens (sum of above)"
+        ],
+        "proof_command": "grep 'llm\\.complete\\|llm\\.model\\|llm\\.total_tokens' otel_output.txt"
+      }
+    },
+    "no_fabrication_rule": [
+      "Never claim a feature works without running tests",
+      "Never show mock output as proof of external calls",
+      "Never fabricate OTEL spans or traces",
+      "Real evidence (code + test output + OTEL) only"
+    ]
+  },
+  "ci_gating": {
+    "pre_commit_hook": {
+      "file": ".git/hooks/pre-commit",
+      "delegates_to": "scripts/hooks/pre-commit.sh",
+      "runs": "Full workspace compilation + `just pre-commit`",
+      "blocks_commit_if": "Any gate fails",
+      "note": "Even doc-only commits must pass all gates (entire workspace compiles)"
+    },
+    "pre_push_hook": {
+      "file": ".git/hooks/pre-push",
+      "delegates_to": "scripts/hooks/pre-push.sh",
+      "runs": "`cargo test` across workspace (~300s)",
+      "blocks_push_if": "Any test fails",
+      "timeout": 300
+    },
+    "ci_pipeline": {
+      "stages": [
+        "timeout-check",
+        "check (60s timeout)",
+        "lint (90s timeout)",
+        "test (120s timeout, escalates on first build)",
+        "slo-check (120s timeout)"
+      ],
+      "required_for_merge": "All stages pass",
+      "failure_blocks": "PR cannot be merged until all gates pass"
+    }
+  },
+  "workspace_context": {
+    "crates_total": 15,
+    "crates_list": [
+      "ggen-a2a-mcp",
+      "ggen-config",
+      "ggen-marketplace",
+      "ggen-core",
+      "ggen-cli",
+      "ggen-graph",
+      "ggen-lsp",
+      "ggen-lsp-mcp",
+      "ggen-lsp-a2a",
+      "genesis-types-v2",
+      "genesis-schema-v2",
+      "genesis-core-v2",
+      "genesis-core",
+      "cpmp",
+      "stpnt"
+    ],
+    "dormant_crates": [
+      "genesis-construct8",
+      "genesis-lockchain",
+      "genesis-wasm-shell",
+      "ggen-membrane",
+      "ggen-projection"
+    ],
+    "testing_framework": "Chicago TDD ONLY (no mocks, real collaborators)",
+    "coverage_requirement": "80%+ of public APIs",
+    "mutation_score_target": "≥60%",
+    "rust_edition": "2021",
+    "rust_version": "stable 1.91.1+"
+  },
+  "quick_reference": {
+    "all_five_gates": "just timeout-check && just check && just lint && just test && just slo-check",
+    "pre_commit": "just pre-commit (fastest local validation: fmt-check + check + lint + test-lib)",
+    "full_validation": "just slo-check (includes all prior checks)",
+    "stop_the_line_protocol": "Any gate failure = HALT, fix, re-run until pass",
+    "no_partial_passes": "All five gates must pass. One failure = not done."
+  }
+}

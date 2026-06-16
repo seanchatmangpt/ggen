@@ -1,0 +1,724 @@
+{
+  "metadata": {
+    "version": "26.5.28",
+    "title": "ggen v26.5.28 — Process Automation Definition of Done",
+    "description": "Complete specification of all 10 automation dimensions preventing manual errors and enforcing gates",
+    "authority": ".claude/rules/coding-agent-mistakes.md, andon/signals.md, git hooks, CI/CD workflows",
+    "last_updated": "2026-06-14",
+    "next_review": "2026-07-14"
+  },
+  "automation_dimensions": [
+    {
+      "dimension": 1,
+      "title": "Git Hooks (Pre-Commit & Pre-Push Enforcement)",
+      "file_path": "scripts/hooks/pre-commit.sh, scripts/hooks/pre-push.sh",
+      "what_it_is": "Bash scripts that run locally before committing and pushing code to main branch. Pre-commit is a fast tier gate; pre-push is comprehensive.",
+      "why_it_matters": "Prevents broken code from entering the repository. Pre-commit catches 62% of defects in <10 seconds. Pre-push catches 97% of defects in <90 seconds. Without these gates, commits with compilation errors reach CI.",
+      "trigger_points": [
+        "Pre-commit: After `git commit` on main branch",
+        "Pre-push: Before `git push origin main`",
+        "Triggered on: Changes to any tracked file in the repository"
+      ],
+      "what_it_validates": [
+        "Pre-commit (Fast Tier):",
+        "  - Compilation check (Gate 1): `just check` — catches 60% of defects",
+        "  - Format check (Gate 2): `just fmt-check` — ensures code formatting consistency",
+        "",
+        "Pre-push (Full Tier):",
+        "  - Check (Gate 1): `just check` — compiler errors, 60% of defects",
+        "  - Lint (Gate 2): `just lint` — Clippy warnings, 15% of defects",
+        "  - Format check (Gate 3): `just fmt-check` — 2% of defects",
+        "  - Unit tests (Gate 4): `just test-lib` — 20% of defects"
+      ],
+      "recovery": [
+        "If pre-commit fails: Run `just check` locally, fix errors, retry commit",
+        "If pre-push fails: Run `just lint`, `just test-lib`, fix issues, retry push",
+        "Format errors: Run `just fmt` to auto-fix, then re-commit"
+      ],
+      "bypass_prevention": [
+        "FORBIDDEN: `git commit --no-verify` (will be rejected by CI if code is broken)",
+        "FORBIDDEN: `git push --no-verify` (CI quality gates are authoritative)",
+        "Enforcement: `.git/hooks/pre-commit` and `.git/hooks/pre-push` are symlinked to scripts/hooks/",
+        "Rationale: Commits to main bypass the local hook will still fail CI checks, so bypassing is pointless"
+      ]
+    },
+    {
+      "dimension": 2,
+      "title": "CI/CD Gates (GitHub Actions Quality-Gate Pipeline)",
+      "file_path": ".github/workflows/ci.yml, .github/workflows/quality-gates.yml",
+      "what_it_is": "Automated GitHub Actions workflows triggered on push to main and all PRs. Gates prevent merge until all checks pass.",
+      "why_it_matters": "CI gates are the final authoritative boundary before code reaches main. They run on GitHub infrastructure with exact Rust toolchain (stable + beta), catch platform-specific issues, detect flaky tests, and enforce code organization rules.",
+      "trigger_points": [
+        "On push to main branch (immediate execution)",
+        "On pull request open, synchronize, and ready_for_review (blocks merge)",
+        "Concurrency: Cancels older runs on the same branch"
+      ],
+      "what_it_validates": [
+        "File Organization Check (GATE 0):",
+        "  - No .rs files in root directory",
+        "  - No .ttl / .rdf files in root (must be in .specify/)",
+        "  - No .tmpl files in root (must be in crates/*/src/)",
+        "  - No temporary files (.tmp, .bak, etc.)",
+        "",
+        "Comprehensive Tests (GATE 1):",
+        "  - Runs on both stable and beta Rust toolchains (future-proofing)",
+        "  - `cargo test --workspace --tests` (integration tests)",
+        "  - `cargo test --lib` (unit tests)",
+        "  - `cargo test --doc` (doctest examples)",
+        "",
+        "Quality Gates / Poka-Yoke (GATE 2):",
+        "  - Panic Point Detection: Scans for .expect() / .unwrap() in production code",
+        "    * ALLOWED: .expect() / .unwrap() with `// SAFE:` comment",
+        "    * FORBIDDEN: Uncommented .expect(), .unwrap(), panic!() in src/",
+        "  - Code Organization: No files in root, proper crate layout",
+        "  - All gates required to pass for merge"
+      ],
+      "recovery": [
+        "If CI fails: Read the GitHub Actions run log (click the red X on the commit)",
+        "Panic points detected: Either add `// SAFE: reason` comment or remove the call",
+        "File organization error: Move file to correct subdirectory and re-commit",
+        "Flaky test: Investigate test logic, use real collaborators (not mocks), rerun",
+        "Re-trigger: Push a new commit to the branch (CI runs automatically)"
+      ],
+      "bypass_prevention": [
+        "FORBIDDEN: Merge PR without CI status check passing (GitHub enforces this)",
+        "FORBIDDEN: Push directly to main (GitHub branch protection requires CI + code review)",
+        "Enforcement: GitHub branch protection rules (seanchatmangpt/ggen settings)",
+        "Requirement: All workflows must report success before 'Merge' button is enabled"
+      ]
+    },
+    {
+      "dimension": 3,
+      "title": "Just Recipes (Cargo Make Task Coordination)",
+      "file_path": "justfile",
+      "what_it_is": "Single entry point for all development tasks. 'just' is the command runner; Cargo.toml members are the 15 workspace crates.",
+      "why_it_matters": "Just ensures consistent execution across all contributors. One recipe runs the right tool with the right timeout, avoiding skipped steps and incomplete workflows. Pre-commit, CI, and agent automation all delegate to just recipes.",
+      "trigger_points": [
+        "Manual: `just <task>` from any directory in the repository",
+        "Git hooks: Pre-commit.sh and pre-push.sh call `just check`, `just lint`, `just test-lib`",
+        "CI workflows: GitHub Actions call `just check`, `just test`, `just lint`",
+        "Agent automation: Agents call `just sync`, `just test-unit`, `just pre-commit`"
+      ],
+      "what_it_validates": [
+        "Compilation & Build:",
+        "  - `just check`: 60s timeout, `cargo check --workspace` (VITAL for pre-commit)",
+        "  - `just build`: Debug build of all crates",
+        "  - `just build-release`: Release binary for ggen-cli",
+        "",
+        "Code Quality:",
+        "  - `just fmt-check`: 2m check-only (used in pre-commit)",
+        "  - `just fmt`: Auto-format all code",
+        "  - `just lint`: 90s Clippy with -D warnings on all targets (VITAL for pre-push)",
+        "",
+        "Testing:",
+        "  - `just test`: Full suite with 30s hot cache, 120s escalation on first run",
+        "  - `just test-lib`: Unit tests only <30s (VITAL for pre-push)",
+        "  - `just test-doc`: Doctest examples <60s or 180s escalation",
+        "  - `just test-marketplace`: Pack layer validation tests",
+        "  - `just test-mutation`: Mutation score ≥60% (CI gate)",
+        "",
+        "Pre-Flight & Gates:",
+        "  - `just timeout-check`: Verifies 'timeout' command exists (required for timed recipes)",
+        "  - `just pre-commit`: Full pre-commit gate (fmt-check → check → lint → test-lib)",
+        "  - `just slo-check`: Performance SLOs validation (<15s first build, <2s incremental)",
+        "",
+        "Pipeline:",
+        "  - `just sync`: Full μ₁-μ₅ pipeline with audit (writes artifacts, receipts)",
+        "  - `just sync-dry`: Preview sync without writing"
+      ],
+      "recovery": [
+        "Recipe timeout: First run of large projects may exceed timeout; just escalates automatically",
+        "Compilation error: Fix the source, rerun `just check`",
+        "Lint failure: Run `just fmt` first, then rerun `just lint`",
+        "Test failure: Run `just test-unit` (fast), identify issue, fix, rerun",
+        "Pre-commit gate failed: Run each gate manually to isolate the issue"
+      ],
+      "bypass_prevention": [
+        "FORBIDDEN: Direct `cargo check` instead of `just check` (bypasses timeout, may hang)",
+        "FORBIDDEN: Direct `cargo test` instead of `just test` (loses escalation logic, timeout)",
+        "FORBIDDEN: Running just recipes in wrong order (must follow dependency DAG)",
+        "Enforcement: `.claude/rules/_core/absolute.md` Rule 4: 'ALWAYS just <task> — NEVER direct cargo'",
+        "Rationale: Just recipes encode timeouts, escalation logic, and dependency ordering"
+      ]
+    },
+    {
+      "dimension": 4,
+      "title": "MCP Servers (ggen-lsp-mcp & ggen-a2a-mcp Availability & Health)",
+      "file_path": "crates/ggen-lsp-mcp/src/, crates/ggen-a2a-mcp/src/a2a_registry/health.rs",
+      "what_it_is": "Two MCP (Model Context Protocol) servers that expose ggen-lsp repair routes and A2A agent coordination as tools. Servers run over stdio and must be healthy and responsive.",
+      "why_it_matters": "MCP servers are how agents execute repairs, check diagnostics, and coordinate multi-agent workflows. If a server is unavailable or stuck, agent automation cannot repair GGEN-* diagnostic failures, blocking ggen sync.",
+      "trigger_points": [
+        "ggen-lsp-mcp: Started by Claude Code when editing ggen.toml or .ttl files (tool invocations trigger repairs)",
+        "ggen-a2a-mcp: Started by agent orchestrators when multi-agent workflows need coordination",
+        "Health monitor: Background loop in ggen-a2a-mcp that pings agent endpoints every 5 seconds"
+      ],
+      "what_it_validates": [
+        "ggen-lsp-mcp Server:",
+        "  - Availability: Can start and listen on stdio without panicking",
+        "  - Tools: Exposes 4 repair routes as MCP tools (source_law_repair, security_repair, proof_topology_repair, etc.)",
+        "  - Diagnostics: Consumers can call `ggen check` to get GGEN-* codes as errors",
+        "  - Repairs: Each tool accepts a `RoutePlan` and returns a `RouteResult` with the repaired content",
+        "",
+        "ggen-a2a-mcp Server:",
+        "  - Availability: Can start and listen on stdio",
+        "  - Agent Registry: Can register agents with endpoint URL and health config",
+        "  - Health Monitoring: Background task pings each agent every 5 seconds",
+        "    * Updates HealthStatus::Healthy, ::Degraded, ::Unreachable",
+        "  - Consecutive Failure Tracking: Counts 3+ consecutive failures as :Unreachable",
+        "  - Timeout: Health check requests have 5s timeout"
+      ],
+      "recovery": [
+        "If ggen-lsp-mcp is stuck: Kill the process, restart Claude Code",
+        "If health check is failing: Check agent endpoint URL is reachable (curl -I <url>)",
+        "If MCP server won't start: Check for tracing_subscriber initialization conflicts, logs for panic details",
+        "If routes not available: Ensure ggen-lsp crate compiled successfully (`just check`)"
+      ],
+      "bypass_prevention": [
+        "FORBIDDEN: Running ggen sync while GGEN-* diagnostics are active (LSP server must fix them first)",
+        "FORBIDDEN: Ignoring health monitor alerts (agents marked :Unreachable must be restarted)",
+        "Enforcement: ggen-cli sync command checks for active GGEN-* diagnostics before pipeline execution",
+        "Rationale: MCP tools are the only way to repair SPARQL/Tera/manifest mismatches; they must be available"
+      ]
+    },
+    {
+      "dimension": 5,
+      "title": "Andon Signals (Stop-the-Line Compiler Errors, Test Failures, Clippy Warnings)",
+      "file_path": ".claude/rules/andon/signals.md",
+      "what_it_is": "Signal detection protocol that halts all work when critical failures appear. Signals are compiler errors (error[E...]), test failures (FAILED), warnings, and Clippy diagnostics.",
+      "why_it_matters": "Andon signals indicate the system is in an invalid state. Continuing work while signals are active results in cascading failures, lost context, and wasted effort. The protocol enforces immediate fix-and-retry.",
+      "trigger_points": [
+        "Compiler error: `cargo check` or `cargo build` returns non-zero exit code",
+        "Test failure: `cargo test` reports FAILED count > 0",
+        "Clippy warning: `cargo clippy` emits `warning:` (not just `error[...]`)",
+        "LSP diagnostics: ggen-lsp server reports GGEN-* codes with ERROR severity"
+      ],
+      "what_it_validates": [
+        "CRITICAL Level Signals:",
+        "  - error[E...]: Compiler errors (MUST fix immediately, nothing else exists)",
+        "  - test ... FAILED: Test failures (MUST read failure, identify root cause, fix)",
+        "",
+        "HIGH Level Signals:",
+        "  - warning: Any warning in produced code (unacceptable before release)",
+        "  - Clippy errors: Caught by `just lint` (real bugs, must fix)",
+        "",
+        "CLEAR Level:",
+        "  - All gates pass: `just timeout-check && just check && just test && just lint && just slo-check`",
+        "  - Only then: Proceed to next task"
+      ],
+      "recovery": [
+        "Step 1: Read the signal (compiler error, test failure line number, Clippy rule)",
+        "Step 2: Identify root cause (not the symptom, the actual cause)",
+        "Step 3: Fix the cause (modify source code)",
+        "Step 4: Re-run the check (recompile, retest)",
+        "Step 5: Repeat until all signals clear",
+        "",
+        "Tools for systematic fixing:",
+        "  - TodoWrite: Create 10+ todos covering every signal",
+        "  - For each todo: Read error → Fix → Verify → Update todo",
+        "  - Re-run validation gates until all green"
+      ],
+      "bypass_prevention": [
+        "FORBIDDEN: `#[allow(...)]` to silence warnings (masks the problem)",
+        "FORBIDDEN: `#[ignore]` on failing tests (breaks the test contract)",
+        "FORBIDDEN: `|| true` to mask command failures (failure becomes invisible)",
+        "FORBIDDEN: `unwrap()` to bypass error handling (panics in production)",
+        "FORBIDDEN: `todo!()` in committed code (incomplete implementation)",
+        "Enforcement: Clippy lints, pre-push hook, CI checks all reject these patterns",
+        "Rationale: Suppressing signals doesn't fix problems; it just makes them invisible and worse"
+      ]
+    },
+    {
+      "dimension": 6,
+      "title": "LSP Diagnostics (GGEN-* Codes Emitted by ggen-lsp, Block Sync)",
+      "file_path": "crates/ggen-lsp/src/route/diagnostic_species.rs, crates/ggen-lsp/src/check.rs",
+      "what_it_is": "Language server diagnostic codes (GGEN-TPL-001, GGEN-OUT-001, GGEN-RULE-001, GGEN-YIELD-001, etc.) that indicate law-surface violations in ggen.toml, SPARQL queries, and Tera templates.",
+      "why_it_matters": "GGEN-* codes are the interface between the ontology and the execution engine. An ERROR-severity diagnostic means the sync pipeline will fail; blocking sync prevents broken artifacts from being written.",
+      "trigger_points": [
+        "File save: User edits ggen.toml, *.sparql, *.tera files",
+        "LSP analysis: ggen-lsp analyzer runs against the file",
+        "On-demand: `ggen check --with-routes` headless check in CI"
+      ],
+      "what_it_validates": [
+        "GGEN-TPL-001 (Unbound Projection):",
+        "  - Severity: ERROR",
+        "  - Trigger: Tera template references {{ var }} that SPARQL SELECT does not produce",
+        "  - Detector: analyzers::detect_tpl_001 over ggen.toml + SPARQL",
+        "  - Repair: source_law_repair route (fix SELECT or Tera)",
+        "  - Example: {{ row.foo }} with SELECT ?bar, ?baz (foo is unbound)",
+        "",
+        "GGEN-OUT-001 (Unbound Output Path):",
+        "  - Severity: ERROR",
+        "  - Trigger: output_file pattern uses {{ var }} that SPARQL does not provide",
+        "  - Detector: analyzers::detect_out_001 over ggen.toml + SPARQL",
+        "  - Example: output_file = 'gen/{{ namespace }}/code.rs' but SELECT ?name, ?version",
+        "",
+        "GGEN-RULE-001 (Unbound Rule File):",
+        "  - Severity: ERROR",
+        "  - Trigger: {file = ...} references missing file on disk",
+        "  - Detector: analyzers::detect_rule_001 over ProjectIndex",
+        "  - Example: {file = 'queries/missing.sparql'} but file does not exist",
+        "",
+        "GGEN-YIELD-001 (Output Path Escape / Layer Violation):",
+        "  - Severity: ERROR",
+        "  - Trigger: output_file pattern escapes project root (e.g., ../../../etc/passwd)",
+        "  - Detector: analyzers::detect_yield_001 checks for path traversal",
+        "  - Repair: security_repair route (constrain output_file to safe directory)",
+        "",
+        "GGEN-HARNESS-001 (Harness Mismatch):",
+        "  - Severity: RELEASE_BLOCKING",
+        "  - Trigger: Cargo.toml [[test]] path does not match proof file on disk",
+        "  - Detector: analyze_harness_001 over harness_index::HarnessIndex",
+        "  - Repair: proof_topology_repair route",
+        "",
+        "E0011 / E0013 / E0015 (SPARQL-level diagnostics):",
+        "  - E0011: CONSTRUCT lacks ORDER BY (WARNING, STRICT_MODE: ERROR)",
+        "  - E0013: SELECT lacks ORDER BY (WARNING, STRICT_MODE: ERROR)",
+        "  - E0015: Identity CONSTRUCT (no-op mapping, ADVISORY)",
+        "",
+        "All Species Metadata:",
+        "  - code: Stable diagnostic code (e.g. 'GGEN-TPL-001')",
+        "  - severity_policy: 'error', 'warning', 'release_blocking', 'advisory'",
+        "  - surfaces: Which law surfaces are involved (ggen.toml, SPARQL, Tera, OS, Cargo.toml)",
+        "  - route: Repair route slug (source_law_repair, security_repair, etc.)",
+        "  - detector_active: Boolean (true = detector emits this diagnostic; false = metadata only)"
+      ],
+      "recovery": [
+        "If GGEN-* diagnostic appears:",
+        "  1. Read the diagnostic code (GGEN-TPL-001, GGEN-OUT-001, etc.)",
+        "  2. Open ggen-lsp repair route (CodeAction in editor or `ggen check --with-routes`)",
+        "  3. Accept the repair (editor applies the fix)",
+        "  4. Verify the diagnostic clears",
+        "  5. Save the file and re-run ggen sync",
+        "",
+        "If repair route is not available:",
+        "  1. Check detector_active == true in diagnostic_species.rs",
+        "  2. Manually fix the issue following the diagnostic guidance",
+        "  3. Re-save the file"
+      ],
+      "bypass_prevention": [
+        "FORBIDDEN: Running `ggen sync` with active GGEN-* ERROR diagnostics",
+        "Enforcement: ggen-cli sync command checks for active diagnostics before starting pipeline",
+        "Exit code: sync returns 1 if diagnostics block execution",
+        "Rationale: GGEN-* errors indicate invariant violations; sync would fail anyway, so the check is fail-fast"
+      ]
+    },
+    {
+      "dimension": 7,
+      "title": "Sync Validation Gates (Lockfile, Digests, Profiles Before Artifact Emission)",
+      "file_path": "crates/ggen-cli/src/cmds/sync.rs, crates/ggen-core/src/lockfile.rs, crates/ggen-marketplace/src/rdf/control.rs",
+      "what_it_is": "Validation checkpoints in ggen sync that must pass before any artifact is written: lockfile presence, digest verification, profile enforcement.",
+      "why_it_matters": "These gates prevent the pipeline from producing artifacts under invalid conditions (missing packs, profile violation, unverified digests). Without them, sync would silently write broken artifacts.",
+      "trigger_points": [
+        "User command: `ggen sync` is invoked",
+        "Pre-pipeline: Before μ₁ (load) stage executes"
+      ],
+      "what_it_validates": [
+        "Gate A: Lockfile Presence & Reading",
+        "  - Check: `.ggen/packs.lock` exists and is parseable JSON",
+        "  - Failure mode: Return Err(MissingLockfile) instead of continuing",
+        "  - Error code: exit 1",
+        "  - Why: Lockfile defines the pack set for this sync; missing = undefined behavior",
+        "",
+        "Gate B: Digest Verification",
+        "  - Check: Each pack's digest in lockfile matches pack TOML on disk",
+        "  - Failure mode: Return Err(DigestMismatch { pack_id, expected, actual })",
+        "  - Error code: exit 1",
+        "  - Why: Digest mismatch means pack was modified after install; cannot trust content",
+        "  - Invariant: lockfile.digests must be non-empty SHA-256",
+        "",
+        "Gate C: Profile Enforcement (Strict Mode)",
+        "  - Check: ProfileEnforcer evaluates lockfile.profile against runtime constraints",
+        "  - Failure mode: If violation, emit DiagnosticReceipt and return Err(ProfileViolation)",
+        "  - Error code: exit 1 (no artifact emission)",
+        "  - Why: Profile defines trust tier and runtime requirements; violation = cannot emit",
+        "  - Invariant: Artifact must not be written if profile constraint is violated",
+        "",
+        "Gate D: GGEN-* Diagnostics",
+        "  - Check: ggen check runs against ggen.toml, queries, templates",
+        "  - Failure mode: If any ERROR diagnostic, return Err(DiagnosticsBlocking) and halt",
+        "  - Error code: exit 1",
+        "  - Why: ERROR diagnostics indicate law-surface violations; sync would fail anyway"
+      ],
+      "recovery": [
+        "Lockfile missing: Run `ggen packs add <pack_id>` to install packs (creates lockfile)",
+        "Digest mismatch: Reinstall the pack or restore the pack TOML to its installed state",
+        "Profile violation: Update pack trust tier or relax profile constraints in ggen.toml",
+        "GGEN-* blocking: Use ggen-lsp repair route to fix the diagnostic, then retry sync"
+      ],
+      "bypass_prevention": [
+        "FORBIDDEN: Skipping digest verification with a flag (no --skip-digests option exists)",
+        "FORBIDDEN: Emitting artifacts when profile constraint is violated (ProfileEnforcer enforces)",
+        "FORBIDDEN: Continuing sync when GGEN-* ERROR diagnostics are active (sync checks before pipeline)",
+        "Enforcement: All gates are hard-coded, no environment variables to skip them",
+        "Rationale: Skipping these gates leads to decorative completion (sync reports success but artifact is invalid)"
+      ]
+    },
+    {
+      "dimension": 8,
+      "title": "Receipt Signing (Cryptographic Ed25519 Signatures on All Artifacts)",
+      "file_path": "crates/ggen-core/src/receipt.rs, crates/ggen-config/src/receipt/mod.rs",
+      "what_it_is": "Every ggen sync run produces a signed cryptographic receipt (.ggen/receipts/latest.json) that binds input hashes (ontology, packs, templates) to output hashes (generated files).",
+      "why_it_matters": "Receipts are the proof object that connects source-of-truth to generated artifacts. A receipt with a valid Ed25519 signature proves that: (1) this exact input was processed, (2) this exact output was generated, (3) the process was authorized.",
+      "trigger_points": [
+        "After μ₅ (emit): When all artifacts have been written to disk",
+        "Automatic: Every sync run generates a new receipt"
+      ],
+      "what_it_validates": [
+        "Receipt Structure (JSON):",
+        "  {",
+        "    'operation_id': '<UUID v4, non-zero>',",
+        "    'timestamp': '<RFC-3339>',",
+        "    'input_hashes': {",
+        "      '<pack_id@version>': '<SHA-256 hex>',",
+        "      'ontology': '<SHA-256 hex>',",
+        "      'ggen_toml': '<SHA-256 hex>'",
+        "    },",
+        "    'output_hashes': {",
+        "      'path/to/artifact.rs': '<SHA-256 hex>',",
+        "      'path/to/other.rs': '<SHA-256 hex>'",
+        "    },",
+        "    'signature': '<base64 Ed25519 signature (non-empty!)>'",
+        "  }",
+        "",
+        "Invariants:",
+        "  - operation_id: Must be a real Uuid::new_v4(), never hardcoded or zero",
+        "  - timestamp: Must be current RFC-3339, not stale",
+        "  - input_hashes: Must include every pack consumed at its locked version",
+        "  - output_hashes: Must include every file written during emit stage",
+        "  - signature: Must be non-empty base64, signed with private key in .ggen/keys/signing.key",
+        "",
+        "Verification:",
+        "  - Command: `ggen receipt verify <path/to/receipt.json> --public-key .ggen/keys/public.pem`",
+        "  - Success: is_valid: true iff signature is valid",
+        "  - Failure: is_valid: false if signature is empty, malformed, or does not match body"
+      ],
+      "recovery": [
+        "Empty signature field: Fix the receipt-generation code to call sign() method",
+        "Invalid signature: Regenerate the receipt by running sync again",
+        "Missing receipt: Check .ggen/receipts/ directory and run sync to create one",
+        "Receipt tampering: If receipt body and signature don't match, verify operation_id and input_hashes"
+      ],
+      "bypass_prevention": [
+        "FORBIDDEN: Emitting artifacts without a signed receipt (μ₅ always generates receipt)",
+        "FORBIDDEN: Hardcoding operation_id or timestamp in receipt (must be real values)",
+        "FORBIDDEN: Skipping signature generation with env var or flag (always sign)",
+        "Enforcement: sync.rs enforces that no artifact is emitted until receipt is signed",
+        "Invariant: Contract drift detection — `.ggen/receipts/latest.json` must have non-empty signature",
+        "Test: crates/ggen-config/tests/ includes sabotage tests for empty signature field"
+      ]
+    },
+    {
+      "dimension": 9,
+      "title": "Determinism Checks (Build Reproducibility & Hash Verification)",
+      "file_path": "crates/ggen-core/src/determinism/mod.rs (hypothetical), justfile slo-check",
+      "what_it_is": "Validation that ggen is deterministic: running sync twice with the same inputs produces bit-identical outputs and identical receipt hashes.",
+      "why_it_matters": "Non-determinism indicates hidden state, timing-dependent behavior, or uncontrolled randomness. Determinism is required for reproducible builds, audit trails, and receipt verification.",
+      "trigger_points": [
+        "Continuous: Every sync run must be deterministic",
+        "On-demand: `just slo-check` includes determinism validation"
+      ],
+      "what_it_validates": [
+        "Hash Reproducibility:",
+        "  - Input setup: Fixed ontology, fixed packs, fixed ggen.toml",
+        "  - Run 1: Execute ggen sync → receipt_1.json (with input_hashes, output_hashes)",
+        "  - Run 2: Execute ggen sync again → receipt_2.json",
+        "  - Check: receipt_1.input_hashes == receipt_2.input_hashes",
+        "  - Check: receipt_1.output_hashes == receipt_2.output_hashes",
+        "  - Check: All generated files are byte-identical",
+        "",
+        "Sources of Non-Determinism to Prevent:",
+        "  - HashMap iteration order (use BTreeMap or explicit sort)",
+        "  - UUID generation in output (use deterministic IDs)",
+        "  - Timestamps in generated code (should be derived from receipt, not current time)",
+        "  - Random numbers without seed (use RNG_SEED env var in tests)",
+        "  - File modification times (archive paths, use consistent mtime)",
+        "",
+        "Performance SLOs (part of slo-check):",
+        "  - First build: ≤15 seconds (including dependency fetch)",
+        "  - Incremental build: ≤2 seconds (cold cache, no changes)",
+        "  - Determinism validation: Must run without timeout escalation"
+      ],
+      "recovery": [
+        "Non-deterministic output: Identify which file differs between runs (diff receipt hashes)",
+        "Random behavior: Search for Uuid::new_v4() or rand:: calls outside tests",
+        "HashMap ordering: Replace HashMap with BTreeMap, add explicit sort()",
+        "Timing-dependent: Remove DateTime::now() from generated artifacts",
+        "File order: Sort file listing before iteration"
+      ],
+      "bypass_prevention": [
+        "FORBIDDEN: Using HashMap for iteration in μ₃-μ₅ stages (use BTreeMap)",
+        "FORBIDDEN: Calling Uuid::new_v4() in generated artifact content (breaks determinism)",
+        "FORBIDDEN: Using current time in generated code (should be in receipt only)",
+        "Enforcement: Code review checks for non-deterministic patterns",
+        "Test: `tests/determinism_test.rs` verifies two runs produce identical artifacts"
+      ]
+    },
+    {
+      "dimension": 10,
+      "title": "Auto-Merge Gates (Conditions Enabling Auto-Merge to Main)",
+      "file_path": ".github/workflows/ci.yml (branch protection rules), GitHub repository settings",
+      "what_it_is": "Conditions that must be satisfied before GitHub auto-merge is enabled for a PR. All gates are enforced by branch protection rules on main.",
+      "why_it_matters": "Auto-merge gates ensure that only code passing all quality checks reaches main. Manual merge could bypass critical gates (test failures, linting, security audit).",
+      "trigger_points": [
+        "PR creation: When a PR is opened or updated",
+        "CI runs: All checks must report success",
+        "Manual approval: Code review must approve (optional, based on settings)"
+      ],
+      "what_it_validates": [
+        "Required Status Checks (must ALL pass before merge):",
+        "  1. File Organization Check — passes",
+        "  2. Comprehensive Tests (stable) — passes",
+        "  3. Comprehensive Tests (beta) — passes (future-proofing)",
+        "  4. Quality Gates / Poka-Yoke — passes (panic detection, code organization)",
+        "",
+        "Branch Protection Rules (seanchatmangpt/ggen GitHub settings):",
+        "  - Required status checks: All above must be green",
+        "  - Require branches to be up to date: PR must be rebased on main before merge",
+        "  - Require code reviews: Minimum 1 approval required (can be set to 2 for stricter gates)",
+        "  - Dismiss stale PR reviews: Old approvals are invalidated if PR is updated",
+        "  - Allow auto-merge: Can be enabled per-PR by PR author, but only if all checks pass",
+        "",
+        "No Direct Push to Main:",
+        "  - Enforcement: GitHub rule prevents direct push to main (must use PR)",
+        "  - Exception: github-actions bot can push (for semantic versioning, releases)",
+        "",
+        "Merge Strategy:",
+        "  - Default: Squash and merge (one commit per PR, cleaner history)",
+        "  - Reason: Preserves PR title as commit message, all changes atomic"
+      ],
+      "recovery": [
+        "If CI fails and PR cannot merge:",
+        "  1. Read the GitHub Actions run log",
+        "  2. Fix the issue locally (compile error, test failure, etc.)",
+        "  3. Push a new commit (CI runs automatically)",
+        "  4. Once CI passes, merge is allowed",
+        "",
+        "If PR is behind main:",
+        "  1. GitHub will show 'Update branch' button",
+        "  2. Click it to rebase PR onto latest main",
+        "  3. CI re-runs on rebased PR",
+        "  4. Merge allowed once CI passes"
+      ],
+      "bypass_prevention": [
+        "FORBIDDEN: Direct push to main (branch protection prevents it)",
+        "FORBIDDEN: Merge PR if any required check is failing (GitHub enforces)",
+        "FORBIDDEN: Force-push to main to bypass checks (GitHub hook prevents it)",
+        "Enforcement: GitHub repository settings (seanchatmangpt/ggen Branch protection rules)",
+        "Rationale: All gates must pass; there is no 'quick merge' option that bypasses quality checks"
+      ]
+    }
+  ],
+  "cross_dimensional_dependencies": {
+    "description": "How the 10 dimensions work together to enforce complete automation",
+    "flow": [
+      "Developer edits code (git working tree)",
+      "  ↓",
+      "Pre-commit hook runs: just check, just fmt-check (Dimension 3)",
+      "  ↓ (fast tier validation)",
+      "If fails: Stop, fix, retry commit (Dimension 5 Andon protocol)",
+      "  ↓",
+      "Commit accepted locally",
+      "  ↓",
+      "Developer pushes to feature branch",
+      "  ↓",
+      "GitHub creates PR (opens CI gates)",
+      "  ↓",
+      "Pre-push hook runs: just check, just lint, just test-lib (Dimension 3)",
+      "  ↓ (full tier validation)",
+      "If fails: Stop, fix, retry push (Dimension 5 Andon protocol)",
+      "  ↓",
+      "Push accepted, PR updated",
+      "  ↓",
+      "CI/CD workflows trigger (Dimension 2: .github/workflows/*)",
+      "  - File Organization Check",
+      "  - Comprehensive Tests (stable + beta)",
+      "  - Quality Gates / Poka-Yoke",
+      "  ↓",
+      "If any CI check fails: PR is blocked (cannot merge)",
+      "  - Developer reads GitHub Actions log",
+      "  - Fixes issue locally",
+      "  - Pushes new commit",
+      "  - CI re-runs automatically",
+      "  - Repeat until CI passes (Dimension 5 Andon protocol)",
+      "  ↓",
+      "All CI checks pass: Merge button enabled (Dimension 10 gates satisfied)",
+      "  ↓",
+      "Code review approval (if required by branch protection)",
+      "  ↓",
+      "Merge to main (auto-merge enabled or manual click)",
+      "  ↓",
+      "Main branch CI runs (final verification)",
+      "  - All tests must pass on main after merge",
+      "  - If main build broken: Immediate rollback or hotfix (Andon signal: STOP)",
+      "  ↓",
+      "Release tags created (semantic versioning)",
+      "  ↓",
+      "Release workflow builds artifacts (Dimension 10)",
+      "  - SHA-256 checksums published",
+      "  - Homebrew formula updated (manual for now)",
+      "  ↓",
+      "Release published"
+    ]
+  },
+  "gate_summary": {
+    "pre_commit": {
+      "order": "Fast tier (10s)",
+      "gates": ["just check", "just fmt-check"],
+      "defect_coverage": "62%",
+      "purpose": "Catch compilation errors before creating commit"
+    },
+    "pre_push": {
+      "order": "Full tier (90s)",
+      "gates": ["just check", "just lint", "just fmt-check", "just test-lib"],
+      "defect_coverage": "97%",
+      "purpose": "Catch linting, tests, and compilation before sharing code"
+    },
+    "ci_file_org": {
+      "order": "GitHub Actions (5m)",
+      "gates": ["File organization check (no root files, proper crate layout)"],
+      "defect_coverage": "100% of file organization issues",
+      "purpose": "Enforce codebase structure rules"
+    },
+    "ci_tests": {
+      "order": "GitHub Actions (30m)",
+      "gates": ["cargo test --workspace --tests (stable)", "cargo test --workspace --tests (beta)"],
+      "defect_coverage": "Unknown (depends on test quality)",
+      "purpose": "Verify all tests pass on CI infrastructure"
+    },
+    "ci_quality": {
+      "order": "GitHub Actions (10m)",
+      "gates": ["Panic point detection", "Code organization"],
+      "defect_coverage": "~5% (catch uncommented .expect/.unwrap in src/)",
+      "purpose": "Prevent dangerous patterns from reaching main"
+    },
+    "branch_protection": {
+      "order": "GitHub (instant)",
+      "gates": ["All CI checks must pass", "Code review approval (optional)", "PR must be up to date with main"],
+      "defect_coverage": "100% (enforced by GitHub, no bypass)",
+      "purpose": "Prevent merge if any gate is failing"
+    }
+  },
+  "failure_scenarios_and_responses": {
+    "scenario_1": {
+      "name": "Compilation error in pre-commit",
+      "signal": "error[E0425]: cannot find value `foo` in this scope",
+      "response": {
+        "step1": "Pre-commit hook exits 1, commit is rejected",
+        "step2": "Developer reads error message (file:line where undefined)",
+        "step3": "Fix the code (define `foo` or use correct identifier)",
+        "step4": "Rerun `just check` locally to verify",
+        "step5": "Retry `git commit` (pre-commit runs again)"
+      }
+    },
+    "scenario_2": {
+      "name": "Test failure in pre-push",
+      "signal": "test foo::bar::test_baz ... FAILED",
+      "response": {
+        "step1": "Pre-push hook exits 1, push is rejected",
+        "step2": "Developer runs `just test-lib` locally",
+        "step3": "Reads test failure output (assertion that failed)",
+        "step4": "Identifies root cause (logic bug, missing setup, etc.)",
+        "step5": "Fixes the code or test",
+        "step6": "Reruns `just test-lib` to verify",
+        "step7": "Retries `git push` (pre-push runs again)"
+      }
+    },
+    "scenario_3": {
+      "name": "Clippy warning in CI",
+      "signal": "warning: unused variable: `x`",
+      "response": {
+        "step1": "CI check reports warning, merge is blocked",
+        "step2": "Developer reads GitHub Actions log",
+        "step3": "Fixes warning (remove variable or use it)",
+        "step4": "Verifies with `just lint` locally",
+        "step5": "Commits and pushes fix",
+        "step6": "CI re-runs and passes"
+      }
+    },
+    "scenario_4": {
+      "name": "GGEN-TPL-001 diagnostic blocks sync",
+      "signal": "GGEN-TPL-001: Template uses {{ var }} that SELECT does not produce",
+      "response": {
+        "step1": "ggen check reports ERROR diagnostic (blocking)",
+        "step2": "Developer opens ggen-lsp repair route (CodeAction in editor)",
+        "step3": "Accepts the repair (adds missing SELECT column or removes {{ var }})",
+        "step4": "Reruns ggen sync (diagnostic no longer blocks)"
+      }
+    },
+    "scenario_5": {
+      "name": "Non-deterministic output detected",
+      "signal": "Receipt hash differs on second sync run",
+      "response": {
+        "step1": "Determinism test fails (output_hashes don't match)",
+        "step2": "Diff receipts to find which file differs",
+        "step3": "Search for random sources (HashMap, Uuid::new_v4(), DateTime::now())",
+        "step4": "Replace non-deterministic code with deterministic version",
+        "step5": "Verify second sync produces identical artifacts"
+      }
+    }
+  },
+  "enforcement_summary": {
+    "what_prevents_bypass": [
+      "Git hooks are locally enforced (can be skipped with --no-verify, but CI gates catch broken code)",
+      "CI gates are enforced by GitHub branch protection (cannot merge if checks fail)",
+      "Just recipes encode timeouts and escalation logic (cannot be bypassed, running cargo directly loses safety)",
+      "MCP servers are required for LSP repair routes (agents cannot fix GGEN-* without them)",
+      "Andon signals are enforced by pre-commit/pre-push hooks and CI (must fix, cannot suppress)",
+      "Sync gates are hard-coded (no environment variables to skip lockfile, digest, or profile checks)",
+      "Receipt signatures are Ed25519 (cannot forge without private key)",
+      "Branch protection rules are GitHub-enforced (cannot push directly to main)"
+    ],
+    "what_makes_faking_impossible": [
+      "Tests must use real collaborators (Chicago TDD only, no mocks, no test doubles)",
+      "Receipts must have non-empty signature (codebase assertion checks this)",
+      "Artifacts must be written to disk (observable state, verifiable with `stat`)",
+      "Digest verification happens before sync (pack TOML hash must match lockfile)",
+      "GGEN-* diagnostics are checked before pipeline (cannot emit artifacts with active errors)",
+      "Determinism checks are automated (two runs must produce identical outputs)",
+      "Andon signals are non-suppressible (compiler errors cannot be ignored)"
+    ]
+  },
+  "definition_of_done_checklist": {
+    "before_every_commit": [
+      "✓ Run `just pre-commit` (fast tier: check + fmt-check)",
+      "✓ Read error output (do not ignore warnings or errors)",
+      "✓ Fix all issues locally",
+      "✓ Rerun `just pre-commit` until it passes"
+    ],
+    "before_every_push": [
+      "✓ Run `just pre-commit` (fast tier)",
+      "✓ Run `git push` (pre-push hook runs full tier: check + lint + test-lib)",
+      "✓ Read hook output (do not ignore any failures)",
+      "✓ Fix issues, rerun `just test-lib`, retry push"
+    ],
+    "before_every_merge": [
+      "✓ All CI checks pass (file organization, tests, quality gates)",
+      "✓ Code review approved (if required)",
+      "✓ PR is up to date with main",
+      "✓ No GGEN-* ERROR diagnostics blocking",
+      "✓ Click 'Merge' (or enable auto-merge)"
+    ],
+    "before_every_release": [
+      "✓ Main branch CI is green (all checks pass)",
+      "✓ Create release tag (git tag -a v<version>)",
+      "✓ GitHub Actions release workflow creates artifacts (sha256 checksums)",
+      "✓ Verify artifacts can be downloaded",
+      "✓ Update Homebrew formula (manual step for now)"
+    ]
+  },
+  "notes": {
+    "revision_history": [
+      "2026-06-14 v1.0: Initial Definition of Done (10 dimensions, 26.5.28)"
+    ],
+    "owner": "ggen automation team (seanchatmangpt/ggen)",
+    "next_review": "2026-07-14 (assess completeness of MCP health monitoring, auto-merge coverage)",
+    "related_documents": [
+      ".claude/rules/coding-agent-mistakes.md — 6-question patch contract, 5 mistake classes",
+      ".claude/rules/andon/signals.md — Stop-the-line protocol",
+      ".claude/rules/validation-persistence.md — Keep working until all checks pass",
+      "scripts/hooks/pre-commit.sh, pre-push.sh — Implementation",
+      ".github/workflows/ci.yml, quality-gates.yml — CI implementation",
+      "justfile — Just recipes"
+    ]
+  }
+}

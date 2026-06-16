@@ -1,0 +1,679 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-06-14",
+  "documentation_dod": {
+    "title": "ggen Documentation Definition of Done",
+    "description": "Comprehensive specification of documentation completeness, validation, and evidence-first principles. All documentation must reference REAL code paths, REAL ontology, and ACTUAL file locations. No generic placeholders, no fabricated examples, no stale cross-references.",
+    "core_principle": "Evidence-First Rule: If you did not read it from the codebase or capture it from execution, do not write it.",
+
+    "surfaces": {
+      "1_architecture_docs": {
+        "name": "Architecture Documentation",
+        "description": "High-level system design, container diagrams, dependency maps, and cross-cutting patterns.",
+        "required_files": [
+          "docs/architecture/COMPRESSED_REFERENCE.md",
+          "docs/architecture/C4_GGEN_PAAS_ARCHITECTURE.md",
+          "CLAUDE.md (root level, includes architecture reference section)"
+        ],
+        "source_of_truth": "Live codebase (Cargo.toml members, LSP workspace survey, actual trait definitions)",
+        "what_it_is": "Single authoritative document explaining the 15-crate workspace, actual dependencies verified by LSP, real trait patterns, genuine error maps, and production sync flow",
+        "location": {
+          "primary": "docs/architecture/COMPRESSED_REFERENCE.md",
+          "secondary": "docs/architecture/C4_GGEN_PAAS_ARCHITECTURE.md",
+          "reference": "CLAUDE.md (Architecture Reference section)"
+        },
+        "validation_checklist": [
+          {
+            "check": "Crate List Matches Cargo.toml",
+            "command": "grep -A 20 '\\[workspace\\]' Cargo.toml | grep 'members ='",
+            "expected": "All 15 crates listed match docs/architecture/COMPRESSED_REFERENCE.md",
+            "failure_means": "COMPRESSED_REFERENCE.md is stale; must re-run LSP survey"
+          },
+          {
+            "check": "C4 Container Diagram is Actual (Not Template)",
+            "command": "LSP workspaceSymbol to verify crate dependencies",
+            "expected": "Diagram shows real dependencies (GCORE→GMKT, CLI→GCORE→GRECEIPT, etc.)",
+            "failure_means": "Diagram is generic or fabricated; must trace actual crate boundaries via LSP"
+          },
+          {
+            "check": "Cross-Cutting Patterns Reference Real Code",
+            "command": "grep -rn 'pub type Result' crates/*/src/lib.rs | head -5",
+            "expected": "Each crate has actual Result<T> = std::result::Result<T, CrateError>; quoted with real file paths",
+            "failure_means": "Patterns are generic examples; must cite actual implementations"
+          },
+          {
+            "check": "Error Type Map is Complete",
+            "command": "find crates -name 'lib.rs' | xargs grep 'enum.*Error'",
+            "expected": "All crate error enums listed with actual derive macros (#[derive(thiserror)])",
+            "failure_means": "Map is incomplete or generic; must enumerate all error types"
+          },
+          {
+            "check": "Production Sync Flow is Traced",
+            "command": "cargo make check && grep -rn 'pub fn run' crates/ggen-core/src/",
+            "expected": "Flow diagram shows actual function calls (μ₁ load, μ₂ extract, μ₃ generate, μ₄ validate, μ₅ emit)",
+            "failure_means": "Flow is theoretical; must trace actual execution paths from CLI entry point"
+          }
+        ],
+        "forbidden": [
+          "Generic C4 templates",
+          "Crate descriptions without Cargo.toml verification",
+          "Pattern names without actual code examples",
+          "Dependency diagrams not verified by LSP workspace survey",
+          "Error map without real enum definitions quoted"
+        ],
+        "required": [
+          "Real crate names verified against Cargo.toml",
+          "Actual trait/function signatures from lib.rs files",
+          "Genuine dependencies with call sites",
+          "Verified production sync flow with real stage names (μ₁–μ₅)",
+          "Error types with actual derive macros and field names",
+          "Last verified date (must be recent, e.g., 2026-04-01)",
+          "LSP survey methodology documented (e.g., 'workspaceSymbol on 15 crates')"
+        ],
+        "update_trigger": [
+          "Cargo.toml members change (add/remove crate)",
+          "New public trait/type added to any lib.rs",
+          "Error enum refactored (fields, variants added)",
+          "Cross-crate dependency introduced (check Cargo.toml depends_on)",
+          "Sync pipeline stages renamed",
+          "More than 3 months since last verification"
+        ],
+        "verification_command": "just check && LSP workspaceSymbol <ggen-core> && diff Cargo.toml docs/architecture/COMPRESSED_REFERENCE.md | grep -i members"
+      },
+
+      "2_rules_documentation": {
+        "name": "Rules & Policy Documentation",
+        "description": "Modular, auto-loaded rules for development, testing, quality gates, and CI/CD discipline.",
+        "required_files": [
+          ".claude/rules/README.md",
+          ".claude/rules/_core/absolute.md",
+          ".claude/rules/_core/workflow.md",
+          ".claude/rules/rust/lsp.md",
+          ".claude/rules/rust/testing.md",
+          ".claude/rules/rust/testing-forbidden.md",
+          ".claude/rules/rust/elite-mindset.md",
+          ".claude/rules/rust/performance.md",
+          ".claude/rules/andon/signals.md",
+          ".claude/rules/otel-validation.md",
+          ".claude/rules/coding-agent-mistakes.md",
+          ".claude/rules/vision-2030-mandate.md",
+          ".claude/rules/process-mining-chicago-tdd.md",
+          ".claude/rules/validation-persistence.md",
+          ".claude/rules/testing-anti-cheating.md"
+        ],
+        "source_of_truth": "Live rules applied daily by agents and developers (not code artifacts)",
+        "what_it_is": "Policy and procedure manual enforced via hooks and validation gates. Covers: absolute rules (6 non-negotiable), workflow (4 steps: spec→test→ontology→commit), Rust practices (LSP, testing, performance), quality gates (Andon, OTEL validation), and failure modes (5 mistake classes, 6-question patch contract).",
+        "location": {
+          "primary": ".claude/rules/",
+          "entry_point": ".claude/rules/README.md",
+          "auto_loaded": ".claude/rules/_core/"
+        },
+        "validation_checklist": [
+          {
+            "check": "README Index is Complete",
+            "command": "find .claude/rules -name '*.md' | wc -l",
+            "expected": "All .md files listed in .claude/rules/README.md with brief description",
+            "failure_means": "README is stale; add missing rule docs to index"
+          },
+          {
+            "check": "Absolute Rules Are Enforced",
+            "command": "cat .claude/rules/_core/absolute.md | grep -E '^\\| Rule'",
+            "expected": "6 rows: Concurrent Operations, No Root Files, Task Tool, just Entry Point, TodoWrite Batch, Andon Protocol, ggen-lsp Diagnostics",
+            "failure_means": "Rules list incomplete; must enumerate all 6"
+          },
+          {
+            "check": "LSP Rule Is Actionable",
+            "command": "grep -n 'Forbidden' .claude/rules/rust/lsp.md | head -5",
+            "expected": "Clear table of Grep vs LSP with specific tasks (find struct, list symbols, navigate modules)",
+            "failure_means": "LSP rule is vague; must provide concrete examples"
+          },
+          {
+            "check": "Testing Rules Reference Chicago TDD",
+            "command": "grep -c 'mockall\\|#\\[automock\\]' .claude/rules/rust/testing-forbidden.md",
+            "expected": ">5 forbidden patterns explicitly listed with code blocks",
+            "failure_means": "Testing rules are generic; must show forbidden/allowed side-by-side"
+          },
+          {
+            "check": "Andon Signals Defined",
+            "command": "grep -E '^\\| CRITICAL|^\\| HIGH|^\\| CLEAR' .claude/rules/andon/signals.md",
+            "expected": "3+ signal levels with example patterns (error[E...], test FAILED, warning, Clippy)",
+            "failure_means": "Signals incomplete; must enumerate actionable patterns"
+          },
+          {
+            "check": "Coding-Agent Mistakes Rule Is Complete",
+            "command": "grep -c '^### ' .claude/rules/coding-agent-mistakes.md",
+            "expected": "≥5 mistake classes (Decorative Completion, Epistemic Bypass, Fail-Open, Legacy Contamination, Contract Drift)",
+            "failure_means": "Rule is incomplete; must cover all 5 classes with detection and forbidden examples"
+          }
+        ],
+        "forbidden": [
+          "Generic policy statements without enforcement mechanism",
+          "Rules that contradict each other (e.g., 'use LSP' but then 'Grep for symbols')",
+          "Examples without actual command output",
+          "Testing rules without forbidden/allowed code blocks",
+          "Absolute rules that are not enforced by hooks",
+          "Stale rule citations (e.g., referencing deleted files)"
+        ],
+        "required": [
+          "Each rule file has a version/last_updated date",
+          "README.md is complete index with brief descriptions",
+          "Absolute rules are numbered and cross-referenced in other docs",
+          "Every rule has at least one concrete example (not generic)",
+          "Testing rules show forbidden patterns with Rust code blocks",
+          "Andon signals have clear failure patterns and exit codes",
+          "OTEL validation has required spans table with attributes",
+          "Coding-agent mistakes have detection commands and forbidden examples"
+        ],
+        "update_trigger": [
+          "New development policy introduced (e.g., new gate, new testing requirement)",
+          "Absolute rule violated in production (add detection to prevent recurrence)",
+          "Agent failure mode discovered (add to coding-agent-mistakes.md)",
+          "Tooling changes (LSP update, new clippy rule, new cargo make recipe)",
+          "More than 2 months since last review"
+        ],
+        "verification_command": ".claude/rules/README.md lists all .md files && each rule has last_updated date && Andon signals reference actual error patterns"
+      },
+
+      "3_api_documentation": {
+        "name": "API Documentation (Generated via cargo doc)",
+        "description": "Rust doc comments on public types, traits, functions. Auto-generated HTML and searchable symbol index.",
+        "required_files": [
+          "target/doc/ (generated; not committed)",
+          "crates/*/src/lib.rs (doc comment headers)",
+          "crates/*/src/*.rs (/// doc comments on public items)"
+        ],
+        "source_of_truth": "Rust source code (/// comments are authoritative)",
+        "what_it_is": "Auto-generated API reference via `cargo doc` from doc comments in source. Includes type signatures, trait bounds, visibility, and examples blocks (validated by `cargo test --doc`).",
+        "location": {
+          "source": "crates/*/src/ (all .rs files)",
+          "generated": "target/doc/ggen_*/index.html",
+          "command": "cargo doc --no-deps --open"
+        },
+        "validation_checklist": [
+          {
+            "check": "All Public Types Have Doc Comments",
+            "command": "cargo doc 2>&1 | grep -c 'warning: missing doc comment for'",
+            "expected": "0 warnings for public items (must document all pub struct/enum/fn/trait)",
+            "failure_means": "Public API is undocumented; run `cargo doc` and add /// comments to missing items"
+          },
+          {
+            "check": "Example Blocks Compile and Run",
+            "command": "cargo test --doc --all --exclude ggen-core",
+            "expected": "All doctests pass (/// Examples blocks are executable Rust code)",
+            "failure_means": "Example is stale or broken; fix code block or mark with # ignore"
+          },
+          {
+            "check": "Doc Comments Reference Real Code",
+            "command": "grep -rn 'TODO\\|FIXME\\|placeholder' crates/*/src/*.rs | grep '//'",
+            "expected": "No placeholder examples or stub documentation",
+            "failure_means": "Doc comments are incomplete; fill in real examples or move to COMPRESSED_REFERENCE.md"
+          },
+          {
+            "check": "Trait Bounds Are Documented",
+            "command": "cargo doc && grep -A 5 'pub trait' crates/*/src/lib.rs | head -20",
+            "expected": "Each trait has /// doc explaining purpose, examples, and generic bounds",
+            "failure_means": "Trait documentation is generic; add concrete examples with actual types"
+          }
+        ],
+        "forbidden": [
+          "Placeholder text in doc comments (e.g., 'TODO: document this')",
+          "Example blocks that don't compile (will fail `cargo test --doc`)",
+          "Generic descriptions without concrete types",
+          "Doc comments for private items (/// should only be on pub items)",
+          "Broken links in doc comments (use valid `path::to::Type` syntax)"
+        ],
+        "required": [
+          "All pub struct/enum/fn/trait have /// doc comments (no warnings on `cargo doc`)",
+          "Examples in doc comments are valid Rust code that compiles",
+          "Examples demonstrate the most common use case",
+          "Trait bounds and lifetimes are documented in comments",
+          "Links to related types use proper syntax ([`Type`](path::to::Type))",
+          "Errors returned by functions are documented"
+        ],
+        "update_trigger": [
+          "Public API changes (new type, new trait, signature change)",
+          "New error variant added",
+          "Trait bound changed",
+          "`cargo doc` produces new warnings",
+          "Example code is invalidated by refactoring"
+        ],
+        "verification_command": "cargo test --doc --all --exclude ggen-core && cargo doc --no-deps 2>&1 | grep -c 'warning:' | xargs test 0 -eq"
+      },
+
+      "4_examples_and_doctests": {
+        "name": "Examples & Validation (Real Executable Code)",
+        "description": "Working examples in doc comments and standalone example files that are validated by CI.",
+        "required_files": [
+          "crates/*/src/ (/// Examples blocks)",
+          "examples/ (standalone Rust binaries)",
+          "docs/agent/ (feature-specific quick-start guides)",
+          "docs/examples/ (if created, must be tested)"
+        ],
+        "source_of_truth": "Live Rust code compiled by `cargo test --doc` and `cargo build --examples`",
+        "what_it_is": "Real, executable code examples that demonstrate APIs and workflows. All examples must compile and run as part of CI. No pseudocode, no YAML templates, no fabricated output.",
+        "location": {
+          "doc_examples": "crates/*/src/ (/// Examples blocks in doc comments)",
+          "standalone": "examples/ (executable binaries)",
+          "guides": "docs/agent/ (workflow guides with real commands)"
+        },
+        "validation_checklist": [
+          {
+            "check": "All Examples Compile",
+            "command": "cargo test --doc --all --exclude ggen-core",
+            "expected": "All /// Examples blocks pass doctest compilation",
+            "failure_means": "Example is broken; fix or mark with # ignore (explain why)"
+          },
+          {
+            "check": "Standalone Examples Build",
+            "command": "cargo build --examples 2>&1 | grep -i error",
+            "expected": "No compilation errors",
+            "failure_means": "Example binary is broken; fix or delete"
+          },
+          {
+            "check": "Examples Reference Real APIs",
+            "command": "grep -rn 'example\\|Example' examples/ | grep -i 'todo\\|stub\\|fake'",
+            "expected": "No placeholder implementations",
+            "failure_means": "Example is incomplete; either implement or delete"
+          },
+          {
+            "check": "Output Examples Show Real Results",
+            "command": "cargo run --example <name> 2>&1 | head -20",
+            "expected": "Output is actual program output, not fabricated",
+            "failure_means": "Example output is mocked; run real program and capture actual output"
+          }
+        ],
+        "forbidden": [
+          "Examples that use mock objects or test doubles",
+          "Pseudocode in example comments",
+          "Examples that don't compile (will fail `cargo test --doc`)",
+          "Fabricated example output (not from actual execution)",
+          "Examples that panic or exit with error (must handle Errors gracefully)",
+          "References to nonexistent functions or types"
+        ],
+        "required": [
+          "Every public function has at least one /// Examples block",
+          "Examples demonstrate the most common use case",
+          "Examples use real dependencies, not mocks",
+          "Examples handle Errors with Result<T, E>, not unwrap()",
+          "Output examples are captured from actual program run",
+          "Examples show input and output (not just code)",
+          "Standalone examples in examples/ are built and run by CI"
+        ],
+        "update_trigger": [
+          "Public API signature changes",
+          "New feature added",
+          "Example code breaks due to refactoring",
+          "`cargo test --doc` produces new failures"
+        ],
+        "verification_command": "cargo test --doc --all --exclude ggen-core && cargo build --examples"
+      },
+
+      "5_specification_docs": {
+        "name": "Specification Documentation (RDF-Driven Source)",
+        "description": "RDF/Turtle ontology files (.specify/specs/) are the source of truth. Markdown files are GENERATED and must not be edited directly.",
+        "required_files": [
+          ".specify/specs/NNN-*/*.ttl (feature.ttl, plan.ttl, tasks.ttl are PRIMARY)",
+          ".specify/specs/NNN-*/*.md (GENERATED from .ttl, must not be hand-edited)",
+          ".specify/*.ttl (domain ontologies, vocabularies, constraints)"
+        ],
+        "source_of_truth": "RDF/Turtle files (.specify/specs/*/feature.ttl) — EDIT THESE, NOT THE .md FILES",
+        "what_it_is": "Machine-readable specifications in RDF that drive code generation via μ₁–μ₅ pipeline. Markdown is auto-generated from RDF via `ggen sync`. NEVER hand-edit .md files; edit .ttl instead.",
+        "location": {
+          "primary": ".specify/specs/",
+          "ontology": ".specify/*.ttl",
+          "generated": ".specify/specs/*/*.md (READ-ONLY, auto-generated)"
+        },
+        "validation_checklist": [
+          {
+            "check": "Feature TTL Validates Against SHACL",
+            "command": "ggen validate .specify/specs/NNN-feature/feature.ttl",
+            "expected": "✅ All SHACL constraints pass (no errors)",
+            "failure_means": "Feature violates ontology constraints; fix .ttl file"
+          },
+          {
+            "check": "Generated Markdown Reflects TTL",
+            "command": "ggen sync --dry_run true && diff .specify/specs/NNN-feature/feature.md (generated .md)",
+            "expected": "No differences (markdown is accurate reflection of RDF)",
+            "failure_means": "Markdown is stale; run `ggen sync` to regenerate"
+          },
+          {
+            "check": "All Required Properties Present",
+            "command": "rdfquery -f turtle .specify/specs/NNN-feature/feature.ttl 'SELECT ?p ?o WHERE { ?s a spec:Feature . ?s ?p ?o }'",
+            "expected": "All required properties (label, comment, specification, philosophy) are present",
+            "failure_means": "Feature is incomplete; add missing RDF properties"
+          },
+          {
+            "check": "Cross-References Are Valid",
+            "command": "grep -r 'spec:specification' .specify/specs/ | sed 's/.*: *//' | xargs -I {} ggen validate .specify/specs/{}/feature.ttl",
+            "expected": "All referenced ontology files exist and validate",
+            "failure_means": "Broken references; fix URIs or create missing .ttl files"
+          },
+          {
+            "check": "Markdown Is Never Hand-Edited",
+            "command": "git log --oneline .specify/specs/*/*.md | head -5 | grep -v 'ggen sync\\|auto-generated'",
+            "expected": "No manual commits to .md files (only auto-generated by ggen sync)",
+            "failure_means": "Someone hand-edited .md; delete and regenerate via `ggen sync`"
+          }
+        ],
+        "forbidden": [
+          "Hand-editing .specify/specs/*/*.md (these are generated, not source)",
+          "RDF without SHACL validation (must pass `ggen validate`)",
+          "Specs without feature.ttl (RDF is required source)",
+          "Circular ontology references",
+          "Undefined namespace URIs (all prefixes must be declared)",
+          "Specs without corresponding code implementation (orphan specs)"
+        ],
+        "required": [
+          "Every spec has feature.ttl (RDF source, SHACL-valid)",
+          "RDF includes label, comment, specification, maturity, philosophy",
+          "All namespaces declared at top of .ttl file",
+          "Spec validates via `ggen validate` (0 errors)",
+          "Markdown generated from TTL via `ggen sync` (not hand-edited)",
+          "Cross-references to other specs use valid URIs",
+          "User stories, acceptance criteria, design constraints defined in RDF",
+          "Receipts generated for each `ggen sync` run"
+        ],
+        "update_trigger": [
+          "Feature requirements change (edit .ttl, run `ggen sync`)",
+          "New spec created (create .specify/specs/NNN-*/feature.ttl)",
+          "Ontology schema changes (update .specify/*.ttl)",
+          "Design decision recorded (add to RDF philosophy/notes)",
+          "`ggen validate` produces new errors or warnings"
+        ],
+        "verification_command": "ggen validate .specify/specs/*/feature.ttl && ggen sync --dry_run true"
+      },
+
+      "6_process_documentation": {
+        "name": "Process & Workflow Documentation",
+        "description": "How ggen is developed, tested, released, and maintained. Includes gates, hooks, and CI/CD discipline.",
+        "required_files": [
+          "CLAUDE.md (root project brief)",
+          ".claude/rules/_core/workflow.md (4-step dev cycle)",
+          ".claude/rules/andon/signals.md (stop-the-line protocol)",
+          "docs/ (various process guides)",
+          ".git/hooks/ (pre-commit, pre-push enforcement)"
+        ],
+        "source_of_truth": "Live hooks and CI enforcement (.git/hooks/, justfile, cargo make recipes)",
+        "what_it_is": "Developer workflow, quality gates, release gates, and failure modes. Covers: 4-step dev cycle (spec→test→ontology→commit), Andon signals (STOP on error), Definition of Done (check→lint→test→slo-check all pass).",
+        "location": {
+          "primary": "CLAUDE.md",
+          "workflow": ".claude/rules/_core/workflow.md",
+          "gates": ".claude/rules/andon/signals.md",
+          "enforcement": ".git/hooks/ (pre-commit, pre-push scripts)"
+        },
+        "validation_checklist": [
+          {
+            "check": "CLAUDE.md Reflects Current Architecture",
+            "command": "grep -c 'ggen-' CLAUDE.md | xargs test 15 -le",
+            "expected": "At least 15 crate names mentioned in CLAUDE.md",
+            "failure_means": "CLAUDE.md is stale; update crate list and architecture section"
+          },
+          {
+            "check": "4-Step Workflow Is Traceable",
+            "command": "cat .claude/rules/_core/workflow.md | grep -E '^## [1-4]\\.'",
+            "expected": "4 numbered steps: Create RDF Spec, Chicago TDD, Generate from Ontology, Commit with Evidence",
+            "failure_means": "Workflow is incomplete; document all 4 steps"
+          },
+          {
+            "check": "Definition of Done Commands Work",
+            "command": "just check && just lint && just test-unit && just slo-check",
+            "expected": "All 4 gates pass (0 compiler errors, 0 warnings, all tests pass, SLOs met)",
+            "failure_means": "DoD gate is broken; fix failing step or update gate definition"
+          },
+          {
+            "check": "Andon Signals Are Enforced",
+            "command": "cat .git/hooks/pre-commit | grep -i 'error\\|andon\\|stop'",
+            "expected": "Pre-commit hook enforces Andon protocol (fails on errors, not silently ignored)",
+            "failure_means": "Andon enforcement is missing; add error checks to pre-commit hook"
+          },
+          {
+            "check": "Release Gate Exists and Works",
+            "command": "ls -la scripts/ | grep -i release",
+            "expected": "Release gate script exists with validation checks",
+            "failure_means": "Release gate is missing; implement verification and rollout process"
+          }
+        ],
+        "forbidden": [
+          "Workflow steps that are not enforced by hooks",
+          "Gates that can be bypassed (no --no-verify, no skip options)",
+          "Stale process documentation (e.g., references deleted files or commands)",
+          "Definition of Done without all required checks",
+          "Andon signals without actionable failure messages",
+          "Release gates without evidence collection"
+        ],
+        "required": [
+          "CLAUDE.md is current (version, architecture section up-to-date)",
+          "4-step workflow is documented in .claude/rules/_core/workflow.md",
+          "Definition of Done checklist is in .claude/rules/README.md",
+          "All dev commands are in justfile (not bare cargo)",
+          "Pre-commit hook enforces checks (no --no-verify bypass)",
+          "Pre-push hook runs tests (gate blocks incomplete work)",
+          "Release gate validates before shipping (OTEL, receipts, tests)",
+          "Evidence is collected at each stage (receipts, test output, spans)"
+        ],
+        "update_trigger": [
+          "New development policy or gate introduced",
+          "Workflow step changes (e.g., new SHACL validation before commit)",
+          "Tool changes (new cargo make recipe, new linter, new test framework)",
+          "Gate becomes unreliable (false positives/negatives)",
+          "Release process needs validation update"
+        ],
+        "verification_command": "just check && just lint && just test && just slo-check && cat CLAUDE.md | grep 'ggen-core' | wc -l | xargs test 1 -le"
+      },
+
+      "7_evidence_first_principle": {
+        "name": "Evidence-First Principle (MANDATORY)",
+        "description": "All documentation must reference REAL code paths, REAL OTEL output, and ACTUAL execution evidence. No fabricated examples, no generic placeholders, no theoretical claims without proof.",
+        "what_it_is": "Constitutional rule that documentation is only valid if it can be corroborated by reading actual code or capturing real execution. Prevents NARRATION failures (claiming completion without proof).",
+        "scope": "APPLIES TO ALL 8 DOCUMENTATION SURFACES",
+        "validation_checklist": [
+          {
+            "check": "No Generic Examples",
+            "command": "grep -rn 'example\\|Example' docs/ | grep -v '/home/user/ggen/crates' | grep -i 'TODO\\|stub\\|placeholder\\|generic'",
+            "expected": "0 matches (no placeholder examples)",
+            "failure_means": "Documentation contains generic examples; replace with real code paths"
+          },
+          {
+            "check": "File Paths Are Absolute and Real",
+            "command": "grep -rn '/path/to/\\|example\\.rs\\|TODO' docs/ | wc -l",
+            "expected": "0 matches (all paths are actual absolute paths)",
+            "failure_means": "Docs contain placeholder paths; use real /home/user/ggen/crates/... paths"
+          },
+          {
+            "check": "Code Quotes Match Source",
+            "command": "for quote in $(grep -rn 'crate.*Error' docs/ | grep -o '\"[^\"]*\"' | head -3); do grep -q \"$quote\" crates/*/src/*.rs || echo \"Stale: $quote\"; done",
+            "expected": "All quoted code snippets exist in actual source files",
+            "failure_means": "Quoted code is stale or fabricated; update quotes from real source"
+          },
+          {
+            "check": "OTEL Examples Captured from Real Runs",
+            "command": "grep -rn 'llm\\.complete\\|llm\\.model' docs/ | grep -v 'required\\|example' | head -3",
+            "expected": "OTEL span examples are from actual RUST_LOG=trace runs (not synthetic)",
+            "failure_means": "OTEL output is fabricated; run real code and capture actual spans"
+          },
+          {
+            "check": "Claim Requires Proof",
+            "command": "grep -rn 'works\\|passes\\|valid\\|complete' docs/ --include='*.md' | grep -v 'test\\|verify\\|validate' | head -5",
+            "expected": "Claims are followed by evidence ('verified by', 'captured from', 'confirmed by')",
+            "failure_means": "Documentation asserts without proving; add evidence citation"
+          }
+        ],
+        "forbidden": [
+          "Fabricating JSON schemas, API responses, or OTEL traces",
+          "Generic 5 Whys analysis without real failure data",
+          "Template-filled documentation (copy-paste boilerplate)",
+          "Claiming features work without OTEL evidence",
+          "Pseudocode presented as real code",
+          "Example output not captured from actual execution",
+          "File paths with placeholders (e.g., `/path/to/file`)",
+          "Theoretical claims without empirical corroboration"
+        ],
+        "required": [
+          "Every code quote must be from actual source (not paraphrased)",
+          "Every OTEL example must be from RUST_LOG=trace execution",
+          "Every file path must be absolute and real (verified to exist)",
+          "Every claim must be corroborated by reading code or capturing output",
+          "Every example must be executable as-is (not pseudocode)",
+          "Every error message must be from actual error output (not made up)",
+          "Every design decision must reference the RDF spec that drove it",
+          "Every architecture claim must be verified by LSP workspace survey"
+        ],
+        "how_to_apply": "Before writing any documentation, follow this workflow: (1) Read the code (actual files); (2) Run the feature (capture real output); (3) Verify claims (OTEL spans, test passes); (4) Document with evidence (quote code, cite file paths, embed real output); (5) Cross-check (run commands to verify all paths and quotes exist). If you didn't read it or capture it, don't write it.",
+        "update_trigger": [
+          "Any documentation written without reading source",
+          "Any claim made without OTEL/test corroboration",
+          "Any file path that is generic or placeholder",
+          "Any code quote not from actual source",
+          "Any example output not from real execution"
+        ],
+        "verification_command": "grep -rn '/path/to\\|placeholder\\|TODO.*doc\\|example\\.rs' docs/ && git log --all --grep='evidence' --oneline | head -10"
+      },
+
+      "8_searchability_and_navigation": {
+        "name": "Searchability & Navigation (Cross-Linked Index)",
+        "description": "All documentation is indexed, discoverable, and cross-linked. Single entry point (CLAUDE.md or docs/INDEX.md) navigates to all surfaces.",
+        "required_files": [
+          "CLAUDE.md (root entry point)",
+          "docs/INDEX.md (comprehensive index)",
+          ".claude/rules/README.md (rules entry point)",
+          "All .md files have internal links [Rule Name](../rules/file.md)"
+        ],
+        "source_of_truth": "Live file structure and links (must point to actual files)",
+        "what_it_is": "Navigable documentation with single entry point and consistent cross-references. Users start at CLAUDE.md and can reach any surface via breadcrumbs and links.",
+        "location": {
+          "entry_point": "CLAUDE.md",
+          "index": "docs/INDEX.md",
+          "rules_entry": ".claude/rules/README.md",
+          "architecture_entry": "docs/architecture/COMPRESSED_REFERENCE.md"
+        },
+        "validation_checklist": [
+          {
+            "check": "CLAUDE.md Links Are Valid",
+            "command": "grep -o '\\[.*\\](.*\\.md)' CLAUDE.md | sed 's/.*(//' | sed 's/)//' | while read f; do test -f \"$f\" || echo \"BROKEN: $f\"; done",
+            "expected": "All links in CLAUDE.md point to existing files",
+            "failure_means": "CLAUDE.md has broken links; update paths to actual files"
+          },
+          {
+            "check": "docs/INDEX.md Is Complete",
+            "command": "ls -la docs/ | grep -E '\\.md$' | wc -l",
+            "expected": "All .md files in docs/ are listed in docs/INDEX.md",
+            "failure_means": "INDEX.md is incomplete; add missing doc files to index"
+          },
+          {
+            "check": "Rules Are Discoverable from .claude/rules/README.md",
+            "command": "grep -c '\\[.*\\](.*\\.md)' .claude/rules/README.md",
+            "expected": ">10 links to individual rule files",
+            "failure_means": "README.md is not a proper index; add links to all rule files"
+          },
+          {
+            "check": "No Broken Internal Links",
+            "command": "find docs .claude -name '*.md' -exec grep -l '\\[.*\\](.*\\.md)' {} \\; | xargs -I {} bash -c 'grep -o \"\\\\[.*\\\\](.*\\\\.md)\" {} | sed \"s/.*(/$(dirname {})/\" | sed \"s/).*/\\\\1/\" | while read f; do test -f \"\\$f\" || echo \"BROKEN in {}: \\$f\"; done'",
+            "expected": "0 broken links across all documentation",
+            "failure_means": "Some links are stale; find and fix broken file references"
+          },
+          {
+            "check": "Breadcrumb Navigation Present",
+            "command": "head -5 docs/architecture/COMPRESSED_REFERENCE.md | grep -E '^\\[←|Parent|Home'",
+            "expected": "Each doc has back-link or breadcrumb to parent/home",
+            "failure_means": "Navigation is incomplete; add breadcrumbs to long docs"
+          }
+        ],
+        "forbidden": [
+          "Broken internal links (doc exists but path is wrong)",
+          "Circular links (A→B→A without escape)",
+          "Links to placeholder files (links to `/path/to/file`)",
+          "Duplicated content (same info in multiple places without links)",
+          "Missing entry point (users can't find where to start)",
+          "Orphaned documents (files not reachable from CLAUDE.md)"
+        ],
+        "required": [
+          "CLAUDE.md is the single entry point for all documentation",
+          "All links in CLAUDE.md point to existing files (no broken links)",
+          "docs/INDEX.md lists all major documentation files",
+          ".claude/rules/README.md is a complete index of rule files",
+          "Each documentation file has a clear purpose statement",
+          "Cross-references use relative paths (e.g., ../rules/testing.md)",
+          "No circular dependencies in link graph",
+          "Every .md file is reachable from CLAUDE.md within 3 clicks"
+        ],
+        "update_trigger": [
+          "New documentation file created (add to INDEX.md and CLAUDE.md)",
+          "Documentation file renamed or moved (update all internal links)",
+          "Documentation file deleted (remove from indexes)",
+          "New rule added to .claude/rules/ (add to README.md)",
+          "Architecture documentation updated (verify all links still work)"
+        ],
+        "verification_command": "grep -o '\\[.*\\](.*\\.md)' CLAUDE.md docs/INDEX.md .claude/rules/README.md | sed 's/.*(//' | sed 's/)//' | sort | uniq | while read f; do test -f \"$f\" && echo \"✓ $f\" || echo \"✗ BROKEN: $f\"; done"
+      }
+    },
+
+    "validation_checklist_master": {
+      "description": "Master checklist to validate entire documentation system against Definition of Done",
+      "all_surfaces_pass": [
+        "just check && just lint && just test && just slo-check ✅",
+        "ggen validate .specify/specs/*/feature.ttl ✅",
+        "cargo doc --no-deps 2>&1 | grep -c 'warning:' | xargs test 0 -eq ✅",
+        "cargo test --doc --all --exclude ggen-core ✅",
+        "grep -rn 'TODO.*doc\\|placeholder' docs/ crates/*/src/ | wc -l | xargs test 0 -eq ✅",
+        "grep -o '\\[.*\\](.*\\.md)' CLAUDE.md | sed 's/.*(//' | sed 's/)//' | while read f; do test -f $f || exit 1; done ✅",
+        "LSP workspaceSymbol <ggen-core> returns 15+ crates ✅",
+        "docs/architecture/COMPRESSED_REFERENCE.md has 'Verified' date within 30 days ✅"
+      ],
+      "failure_response": "If ANY check fails: (1) Identify surface (2) Read failure (3) Fix root cause (4) Re-run check (5) Do NOT proceed until ALL checks pass"
+    },
+
+    "governance": {
+      "owner": "Senior Engineer (Sean Chatman <sean@chatmangpt.com>)",
+      "review_frequency": "Monthly (every last Friday)",
+      "update_authority": "Architecture decisions require CLAUDE.md update",
+      "version_scheme": "SemVer (CLAUDE.md version, docs/architecture/COMPRESSED_REFERENCE.md verified date)",
+      "enforcement": "Pre-commit hook verifies: no fabricated docs, no broken links, all CLAUDE.md references valid"
+    },
+
+    "implementation_example": {
+      "scenario": "Adding a new crate to ggen",
+      "steps": [
+        {
+          "step": 1,
+          "action": "Update Cargo.toml members list",
+          "docs_impact": "CLAUDE.md crate count increases"
+        },
+        {
+          "step": 2,
+          "action": "Create crates/new-crate/src/lib.rs with /// doc comments",
+          "docs_impact": "cargo doc auto-generates API reference"
+        },
+        {
+          "step": 3,
+          "action": "Run LSP workspaceSymbol to discover types/traits",
+          "docs_impact": "docs/architecture/COMPRESSED_REFERENCE.md lists new crate"
+        },
+        {
+          "step": 4,
+          "action": "Create .specify/specs/NNN-new-feature/feature.ttl",
+          "docs_impact": "ggen sync generates corresponding markdown"
+        },
+        {
+          "step": 5,
+          "action": "Add integration tests in crates/new-crate/tests/",
+          "docs_impact": "Real examples for doc comments, OTEL spans captured"
+        },
+        {
+          "step": 6,
+          "action": "Update docs/architecture/COMPRESSED_REFERENCE.md with new crate",
+          "docs_impact": "COMPRESSED_REFERENCE verified date updates"
+        },
+        {
+          "step": 7,
+          "action": "Update CLAUDE.md crate table",
+          "docs_impact": "Entry point reflects new architecture"
+        },
+        {
+          "step": 8,
+          "action": "Verify: just check && cargo doc && ggen validate && all links work",
+          "docs_impact": "All documentation surfaces are consistent"
+        }
+      ]
+    }
+  }
+}
