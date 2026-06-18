@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "registry_url": "https://github.com/seanchatmangpt/ggen",
-  "updated_at": "2026-06-12T07:42:50.332393Z",
+  "updated_at": "2026-06-18T06:37:36.215081Z",
   "package_count": 77,
   "categories": {
     "academic-tools": 1,
@@ -1111,7 +1111,7 @@
       "name": "java26-pattern-matched-controller",
       "version": "1.0.0",
       "category": "uncategorized",
-      "description": "PATTERN-MATCHED CONTROLLER — Generate @RestController using Java 26 switch expressions with type patterns for exhaustive dispatch",
+      "description": "PATTERN-MATCHED CONTROLLER \u2014 Generate @RestController using Java 26 switch expressions with type patterns for exhaustive dispatch",
       "tags": [],
       "keywords": [
         "java26",
@@ -1135,7 +1135,7 @@
       "name": "java26-record-value-object",
       "version": "1.0.0",
       "category": "uncategorized",
-      "description": "RECORD VALUE OBJECT — Generate immutable Java records as domain value objects",
+      "description": "RECORD VALUE OBJECT \u2014 Generate immutable Java records as domain value objects",
       "tags": [],
       "keywords": [
         "java26",
@@ -1158,7 +1158,7 @@
       "name": "java26-sealed-domain",
       "version": "1.0.0",
       "category": "uncategorized",
-      "description": "SEALED DOMAIN HIERARCHY — Generate sealed interface + record variants from RDF ontology",
+      "description": "SEALED DOMAIN HIERARCHY \u2014 Generate sealed interface + record variants from RDF ontology",
       "tags": [],
       "keywords": [
         "java26",
@@ -1181,7 +1181,7 @@
       "name": "java26-transactional-service",
       "version": "1.0.0",
       "category": "uncategorized",
-      "description": "TRANSACTIONAL SERVICE — Generate @Service classes with @Transactional, command records, and read/write separation",
+      "description": "TRANSACTIONAL SERVICE \u2014 Generate @Service classes with @Transactional, command records, and read/write separation",
       "tags": [],
       "keywords": [
         "java26",
@@ -1204,7 +1204,7 @@
       "name": "java26-virtual-thread-dao",
       "version": "1.0.0",
       "category": "uncategorized",
-      "description": "VIRTUAL THREAD DAO — Generate DAO classes using Project Loom virtual threads",
+      "description": "VIRTUAL THREAD DAO \u2014 Generate DAO classes using Project Loom virtual threads",
       "tags": [],
       "keywords": [
         "java26",
@@ -3642,5 +3642,504 @@
     "deadlock-freedom": [
       "wvda-soundness-dod"
     ]
-  }
+  },
+  "o_crates": [
+    {
+      "id": "kgn",
+      "version": "1.0.0",
+      "ontologyCount": 51,
+      "queryCount": 3,
+      "blake3Hash": "801e07f7fd96069d793062a0c79e5bbe81dd1a4fa8c1aa36c1f302e27a0c32cf",
+      "path": "ontology_catalogue/kgn"
+    },
+    {
+      "id": "mcpp",
+      "version": "1.0.0",
+      "ontologyCount": 37,
+      "queryCount": 0,
+      "blake3Hash": "d4e28067271532535b7278295b40a3b3772c9574700430904542f17171ba8430",
+      "path": "ontology_catalogue/mcpp"
+    },
+    {
+      "id": "bitactor",
+      "version": "1.0.0",
+      "ontologyCount": 52,
+      "queryCount": 0,
+      "blake3Hash": "04f4205fd2258af407719e54cec4feb4d9a72227854cc08766a1777e33039b3d",
+      "path": "ontology_catalogue/bitactor"
+    },
+    {
+      "id": "clnrm",
+      "version": "1.0.0",
+      "ontologyCount": 3,
+      "queryCount": 0,
+      "blake3Hash": "6d5112c80e49ac1a49b50bb4d946c05a1285110f0d08a402aa1775317592c960",
+      "path": "ontology_catalogue/clnrm"
+    },
+    {
+      "id": "gitvan",
+      "version": "1.0.0",
+      "ontologyCount": 125,
+      "queryCount": 0,
+      "blake3Hash": "6cb85cd67123ed07f9ef41db234db36fc2f6c0cacc7f306d550732892ecdd2d2",
+      "path": "ontology_catalogue/gitvan"
+    },
+    {
+      "id": "jotp",
+      "version": "1.0.0",
+      "ontologyCount": 12,
+      "queryCount": 11,
+      "blake3Hash": "51d96be4457a8adc8d3371cf135638a0520c8db7b8ae2dc805ef0c8ac2648eda",
+      "path": "ontology_catalogue/jotp"
+    },
+    {
+      "id": "truex",
+      "version": "1.0.0",
+      "ontologyCount": 1,
+      "queryCount": 0,
+      "blake3Hash": "86ffbe59637ce30b46a8bf43ea22ee81bd7394f87be04a97b86c10468922b4ee",
+      "path": "ontology_catalogue/truex"
+    },
+    {
+      "id": "wasm4pm-wt-p4",
+      "version": "1.0.0",
+      "ontologyCount": 27,
+      "queryCount": 7,
+      "blake3Hash": "97300f88641b927df85f7e6651484c9b362c7b36ebd6a14afdcdab4501b06c7e",
+      "path": "ontology_catalogue/wasm4pm-wt-p4"
+    },
+    {
+      "id": "wasm4pm-wt-p3",
+      "version": "1.0.0",
+      "ontologyCount": 27,
+      "queryCount": 7,
+      "blake3Hash": "0f0d1cfb70539c373b0024a4af296e74823c45860bb5e4fad3188ae5bb1c8e17",
+      "path": "ontology_catalogue/wasm4pm-wt-p3"
+    },
+    {
+      "id": "dteam",
+      "version": "1.0.0",
+      "ontologyCount": 4,
+      "queryCount": 4,
+      "blake3Hash": "7a87d84812c263a139fdadf20265951a26469c4ddb82f5679b55ab5d26ef52da",
+      "path": "ontology_catalogue/dteam"
+    },
+    {
+      "id": "wasm4pm",
+      "version": "1.0.0",
+      "ontologyCount": 33,
+      "queryCount": 9,
+      "blake3Hash": "c24f1d39be7813909922f28fba9f93f2a204cb956e0a5e15f6213ee15fd6ea5c",
+      "path": "ontology_catalogue/wasm4pm"
+    },
+    {
+      "id": "a2a-rs",
+      "version": "1.0.0",
+      "ontologyCount": 8,
+      "queryCount": 3,
+      "blake3Hash": "2294b1e558f335add67e234ad24140fa81a0cc1f8e9d1b161223e7f391376b48",
+      "path": "ontology_catalogue/a2a-rs"
+    },
+    {
+      "id": "rocket-craft",
+      "version": "1.0.0",
+      "ontologyCount": 1,
+      "queryCount": 0,
+      "blake3Hash": "e49dad73d9c381669339707b93f69cea0f08be149298f9c611172208d48bcc62",
+      "path": "ontology_catalogue/rocket-craft"
+    },
+    {
+      "id": "erlmcp",
+      "version": "1.0.0",
+      "ontologyCount": 26,
+      "queryCount": 19,
+      "blake3Hash": "c48836646264e0e3c00e29d026713c8ed6f52129fa3f54ac0fa9adcdd12f6598",
+      "path": "ontology_catalogue/erlmcp"
+    },
+    {
+      "id": "wasm4pm-wt-p2",
+      "version": "1.0.0",
+      "ontologyCount": 27,
+      "queryCount": 7,
+      "blake3Hash": "3a43e7306accbce2394321d738eae416f4870384d43a4fd5c9ef702cbb2ef1bc",
+      "path": "ontology_catalogue/wasm4pm-wt-p2"
+    },
+    {
+      "id": "unrdf",
+      "version": "1.0.0",
+      "ontologyCount": 133,
+      "queryCount": 10,
+      "blake3Hash": "8c1a0fc23b016e9afacdfee79a6e8818ed0c53840a3d0bd2ea666ed4cd655b0a",
+      "path": "ontology_catalogue/unrdf"
+    },
+    {
+      "id": "unibit",
+      "version": "1.0.0",
+      "ontologyCount": 104,
+      "queryCount": 1,
+      "blake3Hash": "1cfc2d1b5647afe61bc240aec77eb92f981939548422e30eafcaf034b7b563ac",
+      "path": "ontology_catalogue/unibit"
+    },
+    {
+      "id": "stpnt",
+      "version": "1.0.0",
+      "ontologyCount": 2,
+      "queryCount": 0,
+      "blake3Hash": "01ba18674039a251a0a839a0068b7e78ba567ee8dfeaf4a539662ae605b5aaa7",
+      "path": "ontology_catalogue/stpnt"
+    },
+    {
+      "id": "A2A",
+      "version": "1.0.0",
+      "ontologyCount": 19,
+      "queryCount": 0,
+      "blake3Hash": "37ca6195f7a295616d97fde93fe52c5c6559ca561e91cb0f4275be4fb063e3f3",
+      "path": "ontology_catalogue/A2A"
+    },
+    {
+      "id": "cre",
+      "version": "1.0.0",
+      "ontologyCount": 28,
+      "queryCount": 0,
+      "blake3Hash": "15ee9d405bf11163c196a426ea87e7a89fd2e75bdb73044818542f1c2da498c6",
+      "path": "ontology_catalogue/cre"
+    },
+    {
+      "id": "chatmangpt",
+      "version": "1.0.0",
+      "ontologyCount": 145,
+      "queryCount": 273,
+      "blake3Hash": "f0269c795e4bd303cd8bb41e96c270fe6fb479ee275923219e2eb9798ac1ea3b",
+      "path": "ontology_catalogue/chatmangpt"
+    },
+    {
+      "id": "knowd",
+      "version": "1.0.0",
+      "ontologyCount": 13,
+      "queryCount": 3,
+      "blake3Hash": "9c62f20eaa70cdbc61ad2fda3d5437a52929cdd0009ca5789e93260a0039f235",
+      "path": "ontology_catalogue/knowd"
+    },
+    {
+      "id": "zoeapp",
+      "version": "1.0.0",
+      "ontologyCount": 18,
+      "queryCount": 1,
+      "blake3Hash": "598af266df862e91e934a686e3a32aa07151eb27f69bbdb033fb7ed2f07156c8",
+      "path": "ontology_catalogue/zoeapp"
+    },
+    {
+      "id": "remo",
+      "version": "1.0.0",
+      "ontologyCount": 23,
+      "queryCount": 0,
+      "blake3Hash": "df7294e5f4203a0383c6d8dafdbd4071e57d85699f2747d59248b21424787387",
+      "path": "ontology_catalogue/remo"
+    },
+    {
+      "id": "affidavit",
+      "version": "1.0.0",
+      "ontologyCount": 2,
+      "queryCount": 0,
+      "blake3Hash": "6efe0bcd634e4c10e760f0dbbbc7ca71b869b9b5db941afe25ed5f5403da35b9",
+      "path": "ontology_catalogue/affidavit"
+    },
+    {
+      "id": "bytestar",
+      "version": "1.0.0",
+      "ontologyCount": 429,
+      "queryCount": 0,
+      "blake3Hash": "b85e03f06c98e1fc01482d8a26028449ad8ec0eab0a715d87bb0e4bacd050aa9",
+      "path": "ontology_catalogue/bytestar"
+    },
+    {
+      "id": "wasm4pm-compat",
+      "version": "1.0.0",
+      "ontologyCount": 21,
+      "queryCount": 52,
+      "blake3Hash": "f6701bb47e8bd66765afc5f0a669c2f00e3bc3a8b848dab9f9131d4a277bcd83",
+      "path": "ontology_catalogue/wasm4pm-compat"
+    },
+    {
+      "id": "lsp-max",
+      "version": "1.0.0",
+      "ontologyCount": 5,
+      "queryCount": 0,
+      "blake3Hash": "9ca112e787cdb9e0254dcaed5ba31ed4687eaab7dd4084aad0833c2bd59f2644",
+      "path": "ontology_catalogue/lsp-max"
+    },
+    {
+      "id": "chicago-tdd-tools",
+      "version": "1.0.0",
+      "ontologyCount": 3,
+      "queryCount": 0,
+      "blake3Hash": "96c497d69e87315e0d2c74a9639de65500f4a9cf24bab404808f4df26c1da564",
+      "path": "ontology_catalogue/chicago-tdd-tools"
+    },
+    {
+      "id": "teleport",
+      "version": "1.0.0",
+      "ontologyCount": 166,
+      "queryCount": 48,
+      "blake3Hash": "264a92497350ff919d19a9390f12b9a79edda005106606a5e1a35370c496c2b0",
+      "path": "ontology_catalogue/teleport"
+    },
+    {
+      "id": "yawl",
+      "version": "1.0.0",
+      "ontologyCount": 52,
+      "queryCount": 0,
+      "blake3Hash": "05ec950e6e2668a222301103bb457d2f839541527de325a8ccc07bfc5dcae883",
+      "path": "ontology_catalogue/yawl"
+    },
+    {
+      "id": "process-intelligence",
+      "version": "1.0.0",
+      "ontologyCount": 27,
+      "queryCount": 77,
+      "blake3Hash": "b797c56d6d63cd811549d50d9c3dad8051e21692cfb881df2fefdf6a8acd4457",
+      "path": "ontology_catalogue/process-intelligence"
+    },
+    {
+      "id": "clap-noun-verb",
+      "version": "1.0.0",
+      "ontologyCount": 20,
+      "queryCount": 11,
+      "blake3Hash": "bb28228e8d624986f9e8e6ec1767cebbb2a16f9c7420a8c22b91aac8c1385fd8",
+      "path": "ontology_catalogue/clap-noun-verb"
+    },
+    {
+      "id": "speckit-ralph",
+      "version": "1.0.0",
+      "ontologyCount": 5,
+      "queryCount": 0,
+      "blake3Hash": "c4f8b2b8fbb911c6b130b86b6a936d1cec3fd3c1e57f84f5669d7da985ece176",
+      "path": "ontology_catalogue/speckit-ralph"
+    },
+    {
+      "id": "pcp",
+      "version": "1.0.0",
+      "ontologyCount": 2,
+      "queryCount": 0,
+      "blake3Hash": "df99e6e7f642d9646d589a4c61570cff72db4a528d9b5ce3ba6f430da0be4e72",
+      "path": "ontology_catalogue/pcp"
+    },
+    {
+      "id": "cns",
+      "version": "1.0.0",
+      "ontologyCount": 421,
+      "queryCount": 6,
+      "blake3Hash": "f93c504c11d9882f54d284efe2a80db625fc03b7de846e62fd2e3af51bcd2943",
+      "path": "ontology_catalogue/cns"
+    },
+    {
+      "id": "wasm4pm-wt-abstractions",
+      "version": "1.0.0",
+      "ontologyCount": 27,
+      "queryCount": 7,
+      "blake3Hash": "c9776270a47d74f151b71fd89533c425058cd0b2df484526565f7c85ebbfd5e9",
+      "path": "ontology_catalogue/wasm4pm-wt-abstractions"
+    },
+    {
+      "id": "cargo-cicd",
+      "version": "1.0.0",
+      "ontologyCount": 14,
+      "queryCount": 9,
+      "blake3Hash": "ec9d9994ad2649d15574b5da74b2c1d817bf0ed76feae668b4d37212c90120a1",
+      "path": "ontology_catalogue/cargo-cicd"
+    },
+    {
+      "id": "autotel",
+      "version": "1.0.0",
+      "ontologyCount": 66,
+      "queryCount": 0,
+      "blake3Hash": "c875843a761c6bfba4b9906a297b2c3584c7e4e4e7692d376a189a1443f68a18",
+      "path": "ontology_catalogue/autotel"
+    },
+    {
+      "id": "ggen",
+      "version": "1.0.0",
+      "ontologyCount": 376,
+      "queryCount": 142,
+      "blake3Hash": "81da77f4fa43e23a21dc6060e3d7dcba00668f50a4c41dd79fab783ad265ae34",
+      "path": "ontology_catalogue/ggen"
+    },
+    {
+      "id": "storehouse-infrastructure",
+      "version": "1.0.0",
+      "ontologyCount": 1,
+      "queryCount": 0,
+      "blake3Hash": "b6803ba2ad616d0cc0a3614ffc05b6078f65017b8677d59f1e950029a64e4de1",
+      "path": "ontology_catalogue/storehouse-infrastructure"
+    },
+    {
+      "id": "open-ontologies",
+      "version": "1.0.0",
+      "ontologyCount": 164,
+      "queryCount": 6,
+      "blake3Hash": "a6dba0f737b91ad28051019e41fd2553dff47544d6b31474e0d4df1384afcf35",
+      "path": "ontology_catalogue/open-ontologies"
+    },
+    {
+      "id": "bitstar",
+      "version": "1.0.0",
+      "ontologyCount": 75,
+      "queryCount": 0,
+      "blake3Hash": "f1bba0bc4189c68c844efdde3ac40fe2755e1073153a6a1c4828e34c609a6797",
+      "path": "ontology_catalogue/bitstar"
+    },
+    {
+      "id": "obsr",
+      "version": "1.0.0",
+      "ontologyCount": 0,
+      "queryCount": 3,
+      "blake3Hash": "528c84e39b409f23cabbddfc8b6be7c036990ea0ae496de544e0b3d2e15961c6",
+      "path": "ontology_catalogue/obsr"
+    },
+    {
+      "id": "optimus",
+      "version": "1.0.0",
+      "ontologyCount": 3,
+      "queryCount": 0,
+      "blake3Hash": "17e5de239f5587e6ffe2bc9d136ea9d5a5479daaefb5523258673cbd335ea1b6",
+      "path": "ontology_catalogue/optimus"
+    },
+    {
+      "id": "knhk",
+      "version": "1.0.0",
+      "ontologyCount": 93,
+      "queryCount": 5,
+      "blake3Hash": "4abed72fa996f3a5c89b981fea573a3b4d00ea664d4beb0e308a87304baf4b1a",
+      "path": "ontology_catalogue/knhk"
+    },
+    {
+      "id": "seth",
+      "version": "1.0.0",
+      "ontologyCount": 29,
+      "queryCount": 0,
+      "blake3Hash": "93f97a8bc1cf6feafb6ab6daf31edeb8c58edaeeaa89db2c5bf3e8bd499ad97c",
+      "path": "ontology_catalogue/seth"
+    },
+    {
+      "id": "ggen-mcp",
+      "version": "1.0.0",
+      "ontologyCount": 333,
+      "queryCount": 68,
+      "blake3Hash": "7aa646fe8d141de469c293c87fd2225563769d608cfd2e125543b3e33dc7d3d1",
+      "path": "ontology_catalogue/ggen-mcp"
+    },
+    {
+      "id": "dis",
+      "version": "1.0.0",
+      "ontologyCount": 4,
+      "queryCount": 0,
+      "blake3Hash": "8b1b087eeea2a8e04987228be912c1ede891f38798d9c2cea724cf6a184b9319",
+      "path": "ontology_catalogue/dis"
+    },
+    {
+      "id": "semantic_bit",
+      "version": "1.0.0",
+      "ontologyCount": 2,
+      "queryCount": 0,
+      "blake3Hash": "33ded9c4a8db54d4f8cc0ec9b73e7b0cb045161cf13fa8012ea0ba6587087cd9",
+      "path": "ontology_catalogue/semantic_bit"
+    },
+    {
+      "id": "dogturk",
+      "version": "1.0.0",
+      "ontologyCount": 12,
+      "queryCount": 0,
+      "blake3Hash": "0759d5f2bad7e0273ee205bf3acbbf24bc645a1706c4b17c293cd26ce009f27d",
+      "path": "ontology_catalogue/dogturk"
+    },
+    {
+      "id": "wasm4pm-wt-p1",
+      "version": "1.0.0",
+      "ontologyCount": 27,
+      "queryCount": 7,
+      "blake3Hash": "2587ae3aa826b14a5505f080d1cbcb2db81ef3acc588139a2c5480450fc4eded",
+      "path": "ontology_catalogue/wasm4pm-wt-p1"
+    },
+    {
+      "id": "intvw",
+      "version": "1.0.0",
+      "ontologyCount": 1,
+      "queryCount": 0,
+      "blake3Hash": "97024590e12a97a0d527abc580caee1b20d09b233218dabf9d61e537e446551c",
+      "path": "ontology_catalogue/intvw"
+    },
+    {
+      "id": "hive-queen",
+      "version": "1.0.0",
+      "ontologyCount": 5,
+      "queryCount": 0,
+      "blake3Hash": "8750e451cc03b68f5f43c50fdbab263bf3a6ed57f8aad1b0951e8da9c39508cb",
+      "path": "ontology_catalogue/hive-queen"
+    },
+    {
+      "id": "powlv2lsp",
+      "version": "1.0.0",
+      "ontologyCount": 1,
+      "queryCount": 0,
+      "blake3Hash": "3b15311f726d3562a7c45cfc295de8ed97727e55a588623bd075ffde1b418469",
+      "path": "ontology_catalogue/powlv2lsp"
+    },
+    {
+      "id": "neako",
+      "version": "1.0.0",
+      "ontologyCount": 4,
+      "queryCount": 0,
+      "blake3Hash": "b60816339fb1436b554f4e290a6a49fb620edff6903ea42baaa88c6553de7790",
+      "path": "ontology_catalogue/neako"
+    },
+    {
+      "id": "wasm4pm-wt-integration",
+      "version": "1.0.0",
+      "ontologyCount": 27,
+      "queryCount": 7,
+      "blake3Hash": "840eee1c0e40aafdbe6ea29be324b7e6bd45ac83ba613aa3768c2346735bbe3e",
+      "path": "ontology_catalogue/wasm4pm-wt-integration"
+    },
+    {
+      "id": "sos",
+      "version": "1.0.0",
+      "ontologyCount": 3,
+      "queryCount": 3,
+      "blake3Hash": "7810a215c762da50e83352f1b21db5bdf9d54a9c0401cc91deee2c0b118a8076",
+      "path": "ontology_catalogue/sos"
+    },
+    {
+      "id": "unjucks",
+      "version": "1.0.0",
+      "ontologyCount": 175,
+      "queryCount": 0,
+      "blake3Hash": "52ff5169542909fd4cbe3cea1115fc9883e55dc8b7a4d2a095dd1c8ebe076ab8",
+      "path": "ontology_catalogue/unjucks"
+    },
+    {
+      "id": "unrdf-clean",
+      "version": "1.0.0",
+      "ontologyCount": 53,
+      "queryCount": 3,
+      "blake3Hash": "82a8fffec2af21878970ff41e5200e02be582458c32788bc4c3cf12772f428ad",
+      "path": "ontology_catalogue/unrdf-clean"
+    },
+    {
+      "id": "tower-lsp-composition",
+      "version": "1.0.0",
+      "ontologyCount": 1,
+      "queryCount": 0,
+      "blake3Hash": "f425676a6d1c712d11607536b17174bd82860b5c60730e220a61121e0fd45ee5",
+      "path": "ontology_catalogue/tower-lsp-composition"
+    },
+    {
+      "id": "ggen-spec-kit",
+      "version": "1.0.0",
+      "ontologyCount": 25,
+      "queryCount": 27,
+      "blake3Hash": "536e2d1d778cbb6e3c13ad63cb949cf3e1d9444dfc37862597fe35b85962d686",
+      "path": "ontology_catalogue/ggen-spec-kit"
+    }
+  ],
+  "o_crate_count": 62
 }

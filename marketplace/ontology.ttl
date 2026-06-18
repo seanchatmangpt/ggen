@@ -74,12 +74,12 @@ market:Dependency a owl:Class ;
 
 market:id a owl:DatatypeProperty ;
   rdfs:label "Package ID"@en ;
-  rdfs:domain market:Package ;
+  
   rdfs:range xsd:string .
 
 market:version a owl:DatatypeProperty ;
   rdfs:label "Version"@en ;
-  rdfs:domain market:Package ;
+  
   rdfs:range xsd:string .
 
 market:description a owl:DatatypeProperty ;
@@ -557,3 +557,26 @@ market:bonusMaximum a owl:DatatypeProperty ;
   market:bundleMinimumScore "90"^^xsd:decimal ;
   rdfs:label "FinTech Sector Bundle"@en ;
   rdfs:comment "Regulated financial system components" .
+
+# ==============================================================================
+# ONTOLOGY CRATE EXTENSION
+# ==============================================================================
+
+market:OntologyCrate a owl:Class ;
+  rdfs:label "Ontology Crate"@en ;
+  rdfs:comment "A cryptographically verifiable registry of enterprise Semantic Universe ontologies."@en .
+
+market:ontologyCount a owl:DatatypeProperty ;
+  rdfs:label "Ontology Count"@en ;
+  rdfs:domain market:OntologyCrate ;
+  rdfs:range xsd:integer .
+
+market:queryCount a owl:DatatypeProperty ;
+  rdfs:label "Query Count"@en ;
+  rdfs:domain market:OntologyCrate ;
+  rdfs:range xsd:integer .
+
+market:blake3Hash a owl:DatatypeProperty ;
+  rdfs:label "BLAKE3 Hash"@en ;
+  rdfs:domain market:OntologyCrate ;
+  rdfs:range xsd:string .

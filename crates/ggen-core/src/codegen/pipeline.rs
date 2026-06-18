@@ -355,15 +355,16 @@ impl GenerationPipeline {
         let graph = Graph::new()?;
 
         // Load primary ontology source
-        let source_path = self.base_path.join(&self.manifest.ontology.source);
-        let content = std::fs::read_to_string(&source_path).map_err(|e| {
-            Error::new(&format!(
-                "Failed to read ontology '{}': {}",
-                source_path.display(),
-                e
-            ))
-        })?;
-        graph.insert_turtle(&content)?;
+        for source_path in self.manifest.ontology.resolved_sources(&self.base_path) {
+            let content = std::fs::read_to_string(&source_path).map_err(|e| {
+                Error::new(&format!(
+                    "Failed to read ontology '{}': {}",
+                    source_path.display(),
+                    e
+                ))
+            })?;
+            graph.insert_turtle(&content)?;
+        }
 
         // Load imports
         for import in &self.manifest.ontology.imports {

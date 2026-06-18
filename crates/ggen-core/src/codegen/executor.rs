@@ -493,15 +493,15 @@ impl SyncExecutor {
         });
 
         // Check ontology syntax
-        let ontology_path = base_path.join(&manifest_data.ontology.source);
-        let ontology_exists = ontology_path.exists();
+        let ontology_paths = manifest_data.ontology.resolved_sources(&base_path);
+        let ontology_exists = !ontology_paths.is_empty() && ontology_paths.iter().all(|p| p.exists());
         validations.push(ValidationCheck {
             check: "Ontology syntax".to_string(),
             passed: ontology_exists,
             details: if ontology_exists {
-                Some(format!("{}", ontology_path.display()))
+                Some(format!("{}", ontology_paths.first().map(|p| p.display().to_string()).unwrap_or_default()))
             } else {
-                Some(format!("File not found: {}", ontology_path.display()))
+                Some(format!("File not found: {}", ontology_paths.first().map(|p| p.display().to_string()).unwrap_or_default()))
             },
         });
 
@@ -825,7 +825,7 @@ impl SyncExecutor {
 
             // Record real input hashes: manifest + ontology source + all template files.
             {
-                let ontology_path = base_path.join(&manifest_data.ontology.source);
+                let ontology_paths = manifest_data.ontology.resolved_sources(&base_path);
                 let template_paths: Vec<PathBuf> = manifest_data
                     .generation
                     .rules
@@ -840,12 +840,14 @@ impl SyncExecutor {
                     .collect();
                 let template_refs: Vec<&std::path::Path> =
                     template_paths.iter().map(|p| p.as_path()).collect();
+                let ontology_refs: Vec<&std::path::Path> = 
+                    ontology_paths.iter().map(|p| p.as_path()).collect();
                 // Failure to hash an input is a hard error: an audit with missing
                 // input hashes is contract drift, not a degraded audit.
                 builder
                     .record_inputs(
                         &self.options.manifest_path,
-                        &[ontology_path.as_path()],
+                        &ontology_refs,
                         &template_refs,
                     )
                     .map_err(|e| Error::new(&format!("Failed to record audit inputs: {}", e)))?;
@@ -913,15 +915,18 @@ impl SyncExecutor {
                     e
                 ))
             })?;
-        let ontology_content =
-            std::fs::read_to_string(base_path.join(&manifest_data.ontology.source))
-                .map_err(|e| {
-                    Error::new(&format!(
-                        "error[E0007]: Failed to read ontology for proof generation\n  --> {}\n  |\n  = error: {}",
-                        base_path.join(&manifest_data.ontology.source).display(),
-                        e
-                    ))
-                })?;
+        let mut ontology_content = String::new();
+        for path in manifest_data.ontology.resolved_sources(&base_path) {
+            let content = std::fs::read_to_string(&path).map_err(|e| {
+                Error::new(&format!(
+                    "error[E0007]: Failed to read ontology for proof generation\n  --> {}\n  |\n  = error: {}",
+                    path.display(),
+                    e
+                ))
+            })?;
+            ontology_content.push_str(&content);
+            ontology_content.push('\n');
+        }
 
         if let Ok(proof) = proof_carrier.generate_proof(
             &manifest_content,
@@ -1120,7 +1125,8 @@ impl SyncExecutor {
             Err(_) => return, // Silently skip if manifest parsing fails
         };
 
-        let ontology_path = base_path.join(&manifest_data.ontology.source);
+        // Note: Drift detector currently takes a single path, so we just use the first resolved path for now or skip if multiple.
+        let ontology_path = manifest_data.ontology.resolved_sources(&base_path).into_iter().next().unwrap_or_else(|| base_path.join(&manifest_data.ontology.source));
 
         // Check drift
         match detector.check_drift(&ontology_path, &self.options.manifest_path) {
@@ -1151,7 +1157,8 @@ impl SyncExecutor {
             }
         };
 
-        let ontology_path = base_path.join(&manifest_data.ontology.source);
+        // Note: Drift detector currently takes a single path, so we just use the first resolved path for now or skip if multiple.
+        let ontology_path = manifest_data.ontology.resolved_sources(&base_path).into_iter().next().unwrap_or_else(|| base_path.join(&manifest_data.ontology.source));
 
         // Collect imports (if any)
         let imports = manifest_data
