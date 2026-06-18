@@ -14,6 +14,37 @@ env:
   RUST_BACKTRACE: 1
 
 jobs:
+  cargo-cicd:
+    name: cargo-cicd workspace health
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust and cache
+        uses: ./.github/actions/setup-rust-cached
+        with:
+          toolchain: stable
+          cache-key-suffix: cicd-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Install cargo-cicd
+        uses: ./.github/actions/install-cargo-tools
+        with:
+          tools: cicd
+          cache-tools: 'true'
+
+      - name: Workspace doctor
+        run: cargo cicd workspace doctor
+
+      - name: Workspace status
+        run: cargo cicd status
+
+      - name: Target directory check
+        run: cargo cicd target show
+
+      - name: Git state check
+        run: cargo cicd git status
+
   file-organization:
     name: File Organization Check
     runs-on: ubuntu-latest
@@ -249,6 +280,7 @@ jobs:
     name: CI Status
     runs-on: ubuntu-latest
     needs:
+      - cargo-cicd
       - file-organization
       - comprehensive-test
       - plugin-harness
@@ -260,7 +292,8 @@ jobs:
     steps:
       - name: Check CI status
         run: |
-          if [ "${{ needs.file-organization.result }}" != "success" ] || \
+          if [ "${{ needs.cargo-cicd.result }}" != "success" ] || \
+             [ "${{ needs.file-organization.result }}" != "success" ] || \
              [ "${{ needs.comprehensive-test.result }}" != "success" ] || \
              [ "${{ needs.plugin-harness.result }}" != "success" ] || \
              [ "${{ needs.build-matrix.result }}" != "success" ] || \

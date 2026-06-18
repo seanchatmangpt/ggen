@@ -49,3 +49,8 @@ runs:
       if: contains(inputs.tools, 'nextest')
       uses: taiki-e/install-action@cargo-nextest
       shell: bash
+
+    - name: Install cargo-cicd
+      if: contains(inputs.tools, 'cicd')
+      run: cargo install --git https://github.com/seanchatmangpt/cargo-cicd --branch main --locked
+      shell: bash
