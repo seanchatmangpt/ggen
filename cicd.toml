@@ -27,8 +27,11 @@ require_clean_tree = true
 commit_after_phase = false
 
 [autonomic]
-enabled = false
+enabled = true
 mode = "suggest"
+
+[process_data]
+output_path = ".cicd/events.xes"
 
 [[events]]
 kind = "status"

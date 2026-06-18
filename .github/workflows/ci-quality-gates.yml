@@ -22,6 +22,34 @@ env:
   RUST_LOG: trace,ggen_ai=trace,ggen_core=trace
 
 jobs:
+  workspace-health:
+    name: Workspace Health (cargo-cicd)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust and cache
+        uses: ./.github/actions/setup-rust-cached
+        with:
+          toolchain: stable
+          cache-key-suffix: cicd-quality-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Install cargo-cicd
+        uses: ./.github/actions/install-cargo-tools
+        with:
+          tools: cicd
+          cache-tools: 'true'
+
+      - name: Workspace doctor
+        run: cargo cicd workspace doctor
+
+      - name: Workspace status
+        run: cargo cicd status
+
+      - name: Git state
+        run: cargo cicd git status
+
   # GATE 1: Compilation Check using cargo make check
   compilation:
     name: Gate 1 - Compilation Check
@@ -263,6 +291,7 @@ jobs:
     name: Quality Gates Summary
     runs-on: ubuntu-latest
     needs:
+      - workspace-health
       - compilation
       - linting
       - unit-tests
@@ -281,6 +310,14 @@ jobs:
           # Check each gate
           GATES_PASSED=0
           GATES_FAILED=0
+
+          if [ "${{ needs.workspace-health.result }}" = "success" ]; then
+            echo "Gate 0 - Workspace Health (cargo-cicd): PASSED"
+            GATES_PASSED=$((GATES_PASSED + 1))
+          else
+            echo "Gate 0 - Workspace Health (cargo-cicd): FAILED"
+            GATES_FAILED=$((GATES_FAILED + 1))
+          fi
 
           if [ "${{ needs.compilation.result }}" = "success" ]; then
             echo "Gate 1 - Compilation Check: PASSED"

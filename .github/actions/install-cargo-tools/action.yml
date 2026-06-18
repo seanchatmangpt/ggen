@@ -52,5 +52,5 @@ runs:
 
     - name: Install cargo-cicd
       if: contains(inputs.tools, 'cicd')
-      run: cargo install --git https://github.com/seanchatmangpt/cargo-cicd --branch main --locked
+      run: cargo install --git https://github.com/seanchatmangpt/cargo-cicd --branch main --features autonomic --locked
       shell: bash

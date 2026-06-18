@@ -126,3 +126,29 @@ sync:
 # Preview sync without writing any files
 sync-dry:
     ggen sync --dry_run true
+
+# ── cargo-cicd ────────────────────────────────────────────────────────────────
+
+# Full workspace health check
+doctor:
+    cargo cicd workspace doctor
+
+# Run only tests for crates changed since origin/main
+test-changed:
+    cargo cicd test changed
+
+# Check git working-tree state
+git-status:
+    cargo cicd git status
+
+# Check publish readiness
+publish-check:
+    cargo cicd publish run
+
+# Show target directory size
+target-show:
+    cargo cicd target show
+
+# Prune stale build artifacts
+target-prune:
+    cargo cicd target prune

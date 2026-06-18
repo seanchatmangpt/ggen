@@ -45,6 +45,12 @@ jobs:
       - name: Git state check
         run: cargo cicd git status
 
+      - name: Run changed tests
+        run: cargo cicd test changed
+
+      - name: Close branch (evidence)
+        run: cargo cicd git close
+
   file-organization:
     name: File Organization Check
     runs-on: ubuntu-latest
