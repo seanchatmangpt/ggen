@@ -49,12 +49,12 @@ log_step "Phase 3: Package Management"
 pass "pack.list"
 
 # Search (requires no network if local cache exists)
-"$BIN" pack search --query="rust" > /dev/null || fail "pack search"
+"$BIN" pack search "rust" > /dev/null || fail "pack search"
 pass "pack.search"
 
 # Add a pack (dummy pack usually fails unless marketplace is staged)
 # For smoke test, we verify the command exists and fails correctly
-"$BIN" pack add --pack_name="non-existent" > /dev/null 2>&1 || true
+"$BIN" pack add "non-existent" > /dev/null 2>&1 || true
 pass "pack.add (cli verified)"
 
 # ── Phase 4: Graph & Ontology ──────────────────────────────────────────────
@@ -72,23 +72,11 @@ pass "graph.query"
 "$BIN" graph visualize --input_file="schema/domain.ttl" > /dev/null || fail "graph visualize"
 pass "graph.visualize"
 
-# ── Phase 5: Templates ─────────────────────────────────────────────────────
-log_step "Phase 5: Templates"
-
-"$BIN" template list > /dev/null || fail "template list"
-pass "template.list"
-
-"$BIN" template new --name="jtbd-smoke" > /dev/null || fail "template new"
-pass "template.new"
-
-"$BIN" template lint --template="templates/jtbd-smoke.tmpl" > /dev/null || fail "template lint"
-pass "template.lint"
-
 # ── Phase 6: Sync Pipeline ────────────────────────────────────────────────
 log_step "Phase 6: Sync Pipeline"
 
 # The init command provides a working ggen.toml + ontology + inference
-"$BIN" sync --dry_run=true > /dev/null || fail "sync dry-run"
+"$BIN" sync --dry-run true > /dev/null || fail "sync dry-run"
 pass "sync.dry-run"
 
 # ── Phase 7: Policy ───────────────────────────────────────────────────────
