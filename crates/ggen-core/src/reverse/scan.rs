@@ -193,6 +193,12 @@ fn build_graph(discovered: &[(ServiceDef, String, String)]) -> TripleSet {
 
         ts.insert(&subject, "a", Object::Iri(vocab::code("Service")));
         ts.insert(&subject, "a", Object::Iri(vocab::disco("DiscoveredService")));
+        // The service name as a literal so ARM 3's inferred SELECT can bind `?name`.
+        ts.insert(
+            &subject,
+            &vocab::disco("serviceName"),
+            Object::Str(service.name.clone()),
+        );
         ts.insert(
             &subject,
             &vocab::code("language"),

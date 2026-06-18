@@ -21,6 +21,13 @@ disco:DiscoveredService
     rdfs:label "Discovered Service" ;
     rdfs:comment "A service/type structure recovered from source by `ggen reverse scan`." .
 
+disco:serviceName
+    a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain disco:DiscoveredService ;
+    rdfs:range xsd:string ;
+    rdfs:label "service name" ;
+    rdfs:comment "The recovered service/type name as a literal (so template-inference SELECTs can bind it)." .
+
 disco:sourceFile
     a rdf:Property, owl:DatatypeProperty ;
     rdfs:domain disco:DiscoveredService ;

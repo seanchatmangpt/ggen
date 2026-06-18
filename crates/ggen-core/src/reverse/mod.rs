@@ -18,6 +18,7 @@ pub mod cheats;
 pub mod events;
 pub mod receipt;
 pub mod scan;
+pub mod templates;
 pub mod turtle;
 pub mod vocab;
 
@@ -27,4 +28,7 @@ pub use cheats::{
 pub use events::ReverseEvent;
 pub use receipt::ReverseReceipt;
 pub use scan::{scan_to_authority, ReverseScanReport};
+pub use templates::{
+    check_bindings, infer_candidates, BindingContract, ReverseTemplatesReport, TemplateCandidate,
+};
 pub use turtle::{Object, TripleSet};
