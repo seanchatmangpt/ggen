@@ -1,0 +1,360 @@
+# TAI Cognitive Mesh - Recent Signals Layer
+# Current intentional bursts and signal transmission tracking
+# Supports bit* ecosystem and cognitive primitives
+
+@prefix tai: <http://tai.cognitive-mesh.org/ontology#> .
+@prefix bit: <http://bit-ecosystem.org/ontology#> .
+@prefix signal: <http://tai.cognitive-mesh.org/signal#> .
+@prefix actor: <http://tai.cognitive-mesh.org/actor#> .
+@prefix intent: <http://tai.cognitive-mesh.org/intent#> .
+@prefix comm: <http://tai.cognitive-mesh.org/communication#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Signal Ontology
+signal:Signal a owl:Class ;
+    rdfs:label "Cognitive Signal" ;
+    rdfs:comment "Discrete unit of intentional communication" .
+
+signal:IntentionalBurst a owl:Class ;
+    rdfs:subClassOf signal:Signal ;
+    rdfs:label "Intentional Burst" ;
+    rdfs:comment "High-intensity signal containing focused intent" .
+
+signal:SignalType a owl:Class ;
+    rdfs:label "Signal Type" ;
+    rdfs:comment "Classification of signal patterns" .
+
+signal:TransmissionLog a owl:Class ;
+    rdfs:label "Transmission Log" ;
+    rdfs:comment "Record of signal transmission events" .
+
+# Signal Properties
+signal:intensity a owl:DatatypeProperty ;
+    rdfs:domain signal:Signal ;
+    rdfs:range xsd:double ;
+    rdfs:label "Signal Intensity" .
+
+signal:duration a owl:DatatypeProperty ;
+    rdfs:domain signal:Signal ;
+    rdfs:range xsd:double ;
+    rdfs:label "Signal Duration" .
+
+signal:bandwidth a owl:DatatypeProperty ;
+    rdfs:domain signal:Signal ;
+    rdfs:range xsd:double ;
+    rdfs:label "Signal Bandwidth" .
+
+signal:encoding a owl:DatatypeProperty ;
+    rdfs:domain signal:Signal ;
+    rdfs:range xsd:string ;
+    rdfs:label "Signal Encoding" .
+
+signal:payload a owl:DatatypeProperty ;
+    rdfs:domain signal:Signal ;
+    rdfs:range xsd:string ;
+    rdfs:label "Signal Payload" .
+
+signal:priority a owl:DatatypeProperty ;
+    rdfs:domain signal:Signal ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Signal Priority" .
+
+# Signal Decay and Amplification
+signal:decayRate a owl:DatatypeProperty ;
+    rdfs:domain signal:Signal ;
+    rdfs:range xsd:double ;
+    rdfs:label "Signal Decay Rate" .
+
+signal:amplificationFactor a owl:DatatypeProperty ;
+    rdfs:domain signal:Signal ;
+    rdfs:range xsd:double ;
+    rdfs:label "Amplification Factor" .
+
+signal:halfLife a owl:DatatypeProperty ;
+    rdfs:domain signal:Signal ;
+    rdfs:range xsd:double ;
+    rdfs:label "Signal Half-Life" .
+
+# Signal Relationships
+signal:transmittedBy a owl:ObjectProperty ;
+    rdfs:domain signal:Signal ;
+    rdfs:range actor:CognitiveActor ;
+    rdfs:label "Transmitted By" .
+
+signal:receivedBy a owl:ObjectProperty ;
+    rdfs:domain signal:Signal ;
+    rdfs:range actor:CognitiveActor ;
+    rdfs:label "Received By" .
+
+signal:relayedThrough a owl:ObjectProperty ;
+    rdfs:domain signal:Signal ;
+    rdfs:range actor:CognitiveActor ;
+    rdfs:label "Relayed Through" .
+
+signal:amplifiedBy a owl:ObjectProperty ;
+    rdfs:domain signal:Signal ;
+    rdfs:range actor:CognitiveActor ;
+    rdfs:label "Amplified By" .
+
+signal:attenuatedBy a owl:ObjectProperty ;
+    rdfs:domain signal:Signal ;
+    rdfs:range actor:CognitiveActor ;
+    rdfs:label "Attenuated By" .
+
+# Recent Signal Instances
+signal:Intent_001 a signal:IntentionalBurst ;
+    rdfs:label "Intentional Burst 001 - Problem Solving" ;
+    signal:intensity 0.92 ;
+    signal:duration 45.0 ;  # seconds
+    signal:bandwidth 1.5 ;  # cognitive bandwidth units
+    signal:encoding "semantic-neural" ;
+    signal:payload "SOLVE: optimization_problem_L5_citadel" ;
+    signal:priority 9 ;
+    signal:decayRate 0.03 ;
+    signal:halfLife 23.1 ;
+    signal:transmittedBy actor:BitThink_Core ;
+    signal:receivedBy actor:BitAgent_Alpha, actor:BitAgent_Beta ;
+    signal:amplifiedBy actor:BitFlow_Amplifier ;
+    time:hasBeginning "2025-07-30T10:42:15Z"^^xsd:dateTime ;
+    time:hasEnd "2025-07-30T10:43:00Z"^^xsd:dateTime .
+
+signal:Intent_002 a signal:IntentionalBurst ;
+    rdfs:label "Intentional Burst 002 - Pattern Recognition" ;
+    signal:intensity 0.78 ;
+    signal:duration 32.0 ;
+    signal:bandwidth 1.2 ;
+    signal:encoding "pattern-vector" ;
+    signal:payload "RECOGNIZE: emergent_behavior_wave_alpha_beta" ;
+    signal:priority 7 ;
+    signal:decayRate 0.04 ;
+    signal:halfLife 17.3 ;
+    signal:transmittedBy actor:BitPattern_Detector ;
+    signal:receivedBy actor:BitCore_Prime, actor:BitMind_Collective ;
+    signal:relayedThrough actor:BitFlow_Network ;
+    time:hasBeginning "2025-07-30T10:43:30Z"^^xsd:dateTime ;
+    time:hasEnd "2025-07-30T10:44:02Z"^^xsd:dateTime .
+
+signal:Intent_003 a signal:IntentionalBurst ;
+    rdfs:label "Intentional Burst 003 - Coordination Request" ;
+    signal:intensity 0.85 ;
+    signal:duration 28.0 ;
+    signal:bandwidth 0.9 ;
+    signal:encoding "coordination-protocol" ;
+    signal:payload "COORDINATE: swarm_topology_optimization" ;
+    signal:priority 8 ;
+    signal:decayRate 0.025 ;
+    signal:halfLife 27.7 ;
+    signal:transmittedBy actor:BitSwarm_Coordinator ;
+    signal:receivedBy actor:BitAgent_Alpha, actor:BitAgent_Beta, actor:BitAgent_Gamma ;
+    signal:amplifiedBy actor:BitCore_Prime ;
+    time:hasBeginning "2025-07-30T10:44:15Z"^^xsd:dateTime ;
+    time:hasEnd "2025-07-30T10:44:43Z"^^xsd:dateTime .
+
+# Inter-Substrate Communication
+comm:InterSubstrateComm a owl:Class ;
+    rdfs:label "Inter-Substrate Communication" ;
+    rdfs:comment "Communication between different cognitive substrates" .
+
+comm:CrossDomainSignal a owl:Class ;
+    rdfs:subClassOf signal:Signal ;
+    rdfs:label "Cross-Domain Signal" ;
+    rdfs:comment "Signal that crosses cognitive domain boundaries" .
+
+comm:ProtocolAdapter a owl:Class ;
+    rdfs:label "Protocol Adapter" ;
+    rdfs:comment "Converts signals between substrate protocols" .
+
+signal:Cross_001 a comm:CrossDomainSignal ;
+    rdfs:label "Cross-Domain Signal 001 - Human-AI Bridge" ;
+    signal:intensity 0.68 ;
+    signal:duration 15.0 ;
+    signal:bandwidth 0.7 ;
+    signal:encoding "universal-semantic" ;
+    signal:payload "BRIDGE: human_intuition -> ai_processing" ;
+    signal:priority 6 ;
+    signal:decayRate 0.06 ;
+    signal:halfLife 11.5 ;
+    signal:transmittedBy actor:Human_Interface ;
+    signal:receivedBy actor:AI_Core ;
+    comm:sourceSubstrate "human-cognitive" ;
+    comm:targetSubstrate "ai-neural" ;
+    comm:adaptedBy actor:Protocol_Adapter_HumanAI ;
+    time:hasBeginning "2025-07-30T10:45:00Z"^^xsd:dateTime ;
+    time:hasEnd "2025-07-30T10:45:15Z"^^xsd:dateTime .
+
+signal:Cross_002 a comm:CrossDomainSignal ;
+    rdfs:label "Cross-Domain Signal 002 - AI-Hybrid Synthesis" ;
+    signal:intensity 0.74 ;
+    signal:duration 22.0 ;
+    signal:bandwidth 1.1 ;
+    signal:encoding "synthesis-protocol" ;
+    signal:payload "SYNTHESIZE: ai_analysis + hybrid_creativity" ;
+    signal:priority 7 ;
+    signal:decayRate 0.035 ;
+    signal:halfLife 19.8 ;
+    signal:transmittedBy actor:AI_Analyzer ;
+    signal:receivedBy actor:Hybrid_Synthesizer ;
+    comm:sourceSubstrate "ai-neural" ;
+    comm:targetSubstrate "hybrid-quantum" ;
+    comm:adaptedBy actor:Protocol_Adapter_AIHybrid ;
+    time:hasBeginning "2025-07-30T10:45:30Z"^^xsd:dateTime ;
+    time:hasEnd "2025-07-30T10:45:52Z"^^xsd:dateTime .
+
+# Signal Transmission Logs
+signal:TransLog_001 a signal:TransmissionLog ;
+    rdfs:label "Transmission Log 001" ;
+    signal:signalId "Intent_001" ;
+    signal:transmissionStatus "COMPLETED" ;
+    signal:routingPath "BitThink_Core -> BitFlow_Amplifier -> BitAgent_Alpha, BitAgent_Beta" ;
+    signal:latency 0.15 ;  # seconds
+    signal:packetLoss 0.0 ;
+    signal:errorRate 0.0 ;
+    signal:acknowledgment "RECEIVED_AND_PROCESSED" ;
+    time:hasBeginning "2025-07-30T10:42:15Z"^^xsd:dateTime ;
+    time:hasEnd "2025-07-30T10:43:00Z"^^xsd:dateTime .
+
+signal:TransLog_002 a signal:TransmissionLog ;
+    rdfs:label "Transmission Log 002" ;
+    signal:signalId "Intent_002" ;
+    signal:transmissionStatus "COMPLETED" ;
+    signal:routingPath "BitPattern_Detector -> BitFlow_Network -> BitCore_Prime, BitMind_Collective" ;
+    signal:latency 0.08 ;
+    signal:packetLoss 0.0 ;
+    signal:errorRate 0.0 ;
+    signal:acknowledgment "RECEIVED_AND_ANALYZED" ;
+    time:hasBeginning "2025-07-30T10:43:30Z"^^xsd:dateTime ;
+    time:hasEnd "2025-07-30T10:44:02Z"^^xsd:dateTime .
+
+signal:TransLog_003 a signal:TransmissionLog ;
+    rdfs:label "Transmission Log 003" ;
+    signal:signalId "Intent_003" ;
+    signal:transmissionStatus "IN_PROGRESS" ;
+    signal:routingPath "BitSwarm_Coordinator -> BitCore_Prime -> BitAgent_Alpha, BitAgent_Beta, BitAgent_Gamma" ;
+    signal:latency 0.12 ;
+    signal:packetLoss 0.0 ;
+    signal:errorRate 0.0 ;
+    signal:acknowledgment "PARTIAL_ACKNOWLEDGMENT" ;
+    time:hasBeginning "2025-07-30T10:44:15Z"^^xsd:dateTime .
+
+# Signal Quality Metrics
+signal:QualityMetrics a owl:Class ;
+    rdfs:label "Signal Quality Metrics" ;
+    rdfs:comment "Metrics for evaluating signal transmission quality" .
+
+signal:signalToNoiseRatio a owl:DatatypeProperty ;
+    rdfs:domain signal:Signal ;
+    rdfs:range xsd:double ;
+    rdfs:label "Signal-to-Noise Ratio" .
+
+signal:fidelity a owl:DatatypeProperty ;
+    rdfs:domain signal:Signal ;
+    rdfs:range xsd:double ;
+    rdfs:label "Signal Fidelity" .
+
+signal:coherence a owl:DatatypeProperty ;
+    rdfs:domain signal:Signal ;
+    rdfs:range xsd:double ;
+    rdfs:label "Signal Coherence" .
+
+# Current Signal Quality Status
+signal:Quality_001 a signal:QualityMetrics ;
+    rdfs:label "Quality Metrics for Intent_001" ;
+    signal:applies signal:Intent_001 ;
+    signal:signalToNoiseRatio 15.7 ;  # dB
+    signal:fidelity 0.94 ;
+    signal:coherence 0.88 ;
+    signal:measurementTime "2025-07-30T10:43:00Z"^^xsd:dateTime .
+
+signal:Quality_002 a signal:QualityMetrics ;
+    rdfs:label "Quality Metrics for Intent_002" ;
+    signal:applies signal:Intent_002 ;
+    signal:signalToNoiseRatio 12.3 ;
+    signal:fidelity 0.89 ;
+    signal:coherence 0.82 ;
+    signal:measurementTime "2025-07-30T10:44:02Z"^^xsd:dateTime .
+
+# Signal Pattern Recognition
+signal:PatternRecognition a owl:Class ;
+    rdfs:label "Signal Pattern Recognition" ;
+    rdfs:comment "Automated recognition of signal patterns" .
+
+signal:BurstPattern a signal:PatternRecognition ;
+    rdfs:label "Burst Pattern Detector" ;
+    signal:patternType "intentional-burst-sequence" ;
+    signal:detectedPattern "high-intensity-coordination-sequence" ;
+    signal:confidence 0.87 ;
+    signal:triggers "Intent_001, Intent_002, Intent_003" ;
+    signal:patternDuration 180.0 ;  # seconds
+    time:hasBeginning "2025-07-30T10:42:15Z"^^xsd:dateTime ;
+    time:hasEnd "2025-07-30T10:45:15Z"^^xsd:dateTime .
+
+# Real-time Signal Monitoring
+signal:SignalMonitor a owl:Class ;
+    rdfs:label "Signal Monitor" ;
+    rdfs:comment "Real-time monitoring of signal activity" .
+
+signal:Monitor_Recent a signal:SignalMonitor ;
+    rdfs:label "Recent Signals Monitor" ;
+    signal:monitoringWindow 300 ;  # 5 minutes in seconds
+    signal:activeSignals 7 ;
+    signal:averageIntensity 0.81 ;
+    signal:peakIntensity 0.92 ;
+    signal:totalBandwidth 5.3 ;
+    signal:lastUpdate "2025-07-30T10:45:30Z"^^xsd:dateTime ;
+    signal:status "ACTIVE" .
+
+# Signal Decay Tracking
+signal:DecayTracker a owl:Class ;
+    rdfs:label "Signal Decay Tracker" ;
+    rdfs:comment "Tracks signal decay over time" .
+
+signal:Decay_Intent001 a signal:DecayTracker ;
+    rdfs:label "Decay Tracker for Intent_001" ;
+    signal:trackedSignal signal:Intent_001 ;
+    signal:initialIntensity 0.92 ;
+    signal:currentIntensity 0.43 ;
+    signal:decayProgress 0.53 ;
+    signal:estimatedDepletion "2025-07-30T11:06:15Z"^^xsd:dateTime ;
+    signal:lastMeasurement "2025-07-30T10:45:30Z"^^xsd:dateTime .
+
+# Signal Amplification Events
+signal:AmplificationEvent a owl:Class ;
+    rdfs:label "Amplification Event" ;
+    rdfs:comment "Record of signal amplification" .
+
+signal:Amp_Event_001 a signal:AmplificationEvent ;
+    rdfs:label "Amplification Event 001" ;
+    signal:amplifiedSignal signal:Intent_001 ;
+    signal:amplifyingActor actor:BitFlow_Amplifier ;
+    signal:amplificationFactor 1.4 ;
+    signal:preAmplitudeIntensity 0.65 ;
+    signal:postAmplitudeIntensity 0.91 ;
+    signal:energyCost 0.23 ;
+    time:hasBeginning "2025-07-30T10:42:45Z"^^xsd:dateTime .
+
+# Signal Routing and Pathfinding
+signal:RoutingPath a owl:Class ;
+    rdfs:label "Routing Path" ;
+    rdfs:comment "Path taken by signal through the mesh" .
+
+signal:routingHops a owl:DatatypeProperty ;
+    rdfs:domain signal:RoutingPath ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Routing Hops" .
+
+signal:pathEfficiency a owl:DatatypeProperty ;
+    rdfs:domain signal:RoutingPath ;
+    rdfs:range xsd:double ;
+    rdfs:label "Path Efficiency" .
+
+signal:Route_001 a signal:RoutingPath ;
+    rdfs:label "Routing Path for Intent_001" ;
+    signal:routedSignal signal:Intent_001 ;
+    signal:routingHops 3 ;
+    signal:pathEfficiency 0.89 ;
+    signal:pathDescription "BitThink_Core -> BitFlow_Amplifier -> BitAgent_Alpha" ;
+    signal:totalLatency 0.15 .

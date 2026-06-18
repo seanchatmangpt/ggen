@@ -1,0 +1,50 @@
+@prefix bos: <https://open-ontologies.org/bible-o-star#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# East Gate = change management gate.
+# The East Gate faces the sunrise: the direction of incoming change, new light, new state.
+# Architecture change must be named, sourced, and receipted before it crosses this boundary.
+# Shemaiah son of Shecaniah repaired the East Gate.
+# Change without a named builder and a cited source is not a change — it is drift.
+
+bos:ShemaiahSonOfShecaniah a bos:Builder ;
+    rdfs:label "Shemaiah son of Shecaniah" ;
+    bos:hasCanonicalReference "Neh.3.29"^^xsd:string ;
+    bos:assignedToGate bos:EastGate ;
+    rdfs:comment "Keeper of the East Gate. Repaired the East Gate section. Named as the gatekeeper-builder — the person responsible for managing what crosses the change boundary." ;
+    bos:hasSource "Neh.3.29" ;
+    dcterms:created "2026-06-02"^^xsd:date .
+
+bos:EastGateSection a bos:WallSection ;
+    rdfs:label "East Gate Section" ;
+    bos:hasCanonicalReference "Neh.3.29"^^xsd:string ;
+    rdfs:comment "The wall section including the East Gate. Repaired by Shemaiah son of Shecaniah, the keeper of the East Gate. The builder is the gatekeeper — the change management boundary is held by the one who keeps it." ;
+    bos:assignedToGate bos:EastGate ;
+    bos:hasBuilder bos:ShemaiahSonOfShecaniah ;
+    bos:hasSource "Neh.3.29" ;
+    bos:hasReceipt bos:EastGateSectionReceipt .
+
+bos:EastGateArchitectureChangeRecord a bos:InspectionReceipt ;
+    rdfs:label "East Gate Architecture Change Record" ;
+    bos:hasCanonicalReference "Neh.3.29"^^xsd:string ;
+    rdfs:comment "Architecture change record: East Gate section repaired by Shemaiah son of Shecaniah, keeper of the East Gate (Neh.3.29). Change management law: the gatekeeper repairs their own gate. The reason for change is the gate's function — to admit what comes from the east. Source: Neh.3.29. Receipt issued on structural completion." ;
+    bos:hasBuilder bos:ShemaiahSonOfShecaniah ;
+    bos:hasSource "Neh.3.29" ;
+    bos:assignedToGate bos:EastGate ;
+    bos:hasVerdict bos:VerdictAlive ;
+    bos:hasReceipt bos:EastGateSectionReceipt .
+
+bos:EastGateSectionReceipt a bos:InspectionReceipt ;
+    rdfs:label "East Gate Section Receipt" ;
+    bos:hasCanonicalReference "Neh.3.29"^^xsd:string ;
+    bos:hasVerdict bos:VerdictAlive ;
+    bos:hasSource "Neh.3.29" ;
+    rdfs:comment "Section complete: East Gate repaired by Shemaiah son of Shecaniah, gate's own keeper. Change management boundary secured. Named builder, cited source, grounded receipt." .
+
+bos:VerdictAlive a bos:Verdict ;
+    rdfs:label "ALIVE" ;
+    rdfs:comment "Section validated: structure is sound, receipt is grounded, builder is named." .

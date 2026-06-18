@@ -1,0 +1,7 @@
+PREFIX core: <https://core.bitstar.dev/ontology/core#>
+SELECT ?module WHERE {
+  ?module a core:Module .
+  FILTER NOT EXISTS { ?module core:hasVersion ?v }
+}
+
+

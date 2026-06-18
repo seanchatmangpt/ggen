@@ -1,0 +1,35 @@
+@prefix ex: <http://example.org/schema#> .
+@prefix data: <http://example.org/data/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# People
+data:john a ex:Person ;
+    ex:name "John Doe" ;
+    ex:email "john.doe@example.com" ;
+    ex:worksFor data:acme-corp .
+
+data:jane a ex:Person ;
+    ex:name "Jane Smith" ;
+    ex:email "jane.smith@example.com" ;
+    ex:worksFor data:acme-corp .
+
+data:mike a ex:Person ;
+    ex:name "Mike Johnson" ;
+    ex:email "mike.johnson@example.com" ;
+    ex:worksFor data:tech-inc .
+
+# Organizations
+data:acme-corp a ex:Organization ;
+    ex:name "Acme Corporation" .
+
+data:tech-inc a ex:Organization ;
+    ex:name "Tech Inc" .
+
+# Documents
+data:doc1 a ex:Document ;
+    ex:name "Project Proposal" ;
+    ex:created data:john .
+
+data:doc2 a ex:Document ;
+    ex:name "Technical Specification" ;
+    ex:created data:jane .

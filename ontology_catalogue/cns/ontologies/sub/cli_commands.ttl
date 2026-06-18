@@ -1,0 +1,1104 @@
+@prefix cli: <http://cns.io/cli-commands#> .
+@prefix dflss: <http://bitbizeco.dev/ontology/v1/dflss#> .
+@prefix otel: <http://opentelemetry.io/ontology#> .
+@prefix weaver: <http://opentelemetry.io/weaver#> .
+@prefix uvmgr: <http://cns.io/uvmgr#> .
+@prefix typer: <http://cns.io/typer#> .
+@prefix cns: <http://cns.io/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# =============================================================================
+# CLI COMMAND SUB-ONTOLOGY
+# Comprehensive semantic model integrating DFLS concepts, unified CLI system,
+# OTEL Weaver integration, uvmgr three-tier architecture, and 80/20 optimization
+# =============================================================================
+
+cli: a owl:Ontology ;
+    rdfs:label "CLI Command Sub-Ontology" ;
+    rdfs:comment "Comprehensive CLI command semantic model with DFLS DMEDI integration, OTEL Weaver instrumentation, uvmgr architecture, and 80/20 optimization principles" ;
+    owl:versionInfo "3.0.0" ;
+    owl:imports dflss:, otel:, weaver:, uvmgr: .
+
+# =============================================================================
+# COMMAND ARCHITECTURE HIERARCHY (DFLS-INFORMED)
+# =============================================================================
+
+# Core Command Classes with DFLS Integration
+cli:Command a owl:Class ;
+    rdfs:label "CLI Command" ;
+    rdfs:comment "Base class for all CLI commands following DFLS DMEDI methodology" ;
+    rdfs:subClassOf dflss:Tool, otel:Instrumentable .
+
+cli:CommandSuite a owl:Class ;
+    rdfs:label "Command Suite" ;
+    rdfs:comment "Collection of commands implementing a DFLS phase or project" ;
+    rdfs:subClassOf dflss:Project .
+
+# 80/20 Pareto-Optimized Command Classes
+cli:CoreCommand a owl:Class ;
+    rdfs:label "Core Command (80% Value)" ;
+    rdfs:comment "High-impact commands providing 80% of user value (20% of commands)" ;
+    rdfs:subClassOf cli:Command ;
+    cli:paretoClass "core" ;
+    cli:valueContribution 80.0 ;
+    cli:implementationCost 20.0 .
+
+cli:ExtendedCommand a owl:Class ;
+    rdfs:label "Extended Command (20% Value)" ;
+    rdfs:comment "Specialized commands for edge cases and advanced features (80% of commands)" ;
+    rdfs:subClassOf cli:Command ;
+    cli:paretoClass "extended" ;
+    cli:valueContribution 20.0 ;
+    cli:implementationCost 80.0 .
+
+cli:HeuristicCommand a owl:Class ;
+    rdfs:label "Heuristic Command" ;
+    rdfs:comment "Commands implementing AI/ML heuristics for optimization" ;
+    rdfs:subClassOf cli:CoreCommand ;
+    cli:implementsHeuristics true .
+
+# DFLS DMEDI Phase-Aligned Commands
+cli:DefineCommand a owl:Class ;
+    rdfs:label "Define Command" ;
+    rdfs:comment "Commands for project definition and scope establishment" ;
+    rdfs:subClassOf cli:CoreCommand, dflss:Tool ;
+    dflss:allowedInPhaseType dflss:Define .
+
+cli:MeasureCommand a owl:Class ;
+    rdfs:label "Measure Command" ;
+    rdfs:comment "Commands for metrics collection and CTQ identification" ;
+    rdfs:subClassOf cli:CoreCommand, dflss:Tool ;
+    dflss:allowedInPhaseType dflss:Measure ;
+    dflss:identifies dflss:Metric .
+
+cli:ExploreCommand a owl:Class ;
+    rdfs:label "Explore Command" ;
+    rdfs:comment "Commands for analysis, discovery, and concept generation" ;
+    rdfs:subClassOf cli:CoreCommand, dflss:Tool ;
+    dflss:allowedInPhaseType dflss:Explore ;
+    dflss:generates dflss:Concept .
+
+cli:DevelopCommand a owl:Class ;
+    rdfs:label "Develop Command" ;
+    rdfs:comment "Commands for implementation, optimization, and design" ;
+    rdfs:subClassOf cli:CoreCommand, dflss:Tool ;
+    dflss:allowedInPhaseType dflss:Develop ;
+    dflss:optimizes dflss:Metric .
+
+cli:ImplementCommand a owl:Class ;
+    rdfs:label "Implement Command" ;
+    rdfs:comment "Commands for deployment, validation, and production" ;
+    rdfs:subClassOf cli:CoreCommand, dflss:Tool ;
+    dflss:allowedInPhaseType dflss:Implement .
+
+# Domain-Specific Command Groups
+cli:TurtleCommand a owl:Class ;
+    rdfs:label "Turtle Analysis Command" ;
+    rdfs:comment "Commands for Turtle file analysis with heuristics" ;
+    rdfs:subClassOf cli:ExploreCommand, cli:HeuristicCommand .
+
+cli:SemanticCommand a owl:Class ;
+    rdfs:label "Semantic Processing Command" ;
+    rdfs:comment "Commands for RDF/TTL/SPARQL processing and conversion" ;
+    rdfs:subClassOf cli:DevelopCommand .
+
+cli:BitActorCommand a owl:Class ;
+    rdfs:label "BitActor Generation Command" ;
+    rdfs:comment "Commands for BitActor code generation and optimization" ;
+    rdfs:subClassOf cli:DevelopCommand .
+
+cli:ValidationCommand a owl:Class ;
+    rdfs:label "Validation Command" ;
+    rdfs:comment "Commands for testing, verification, and quality assurance" ;
+    rdfs:subClassOf cli:MeasureCommand .
+
+cli:DeploymentCommand a owl:Class ;
+    rdfs:label "Deployment Command" ;
+    rdfs:comment "Commands for system deployment and infrastructure management" ;
+    rdfs:subClassOf cli:ImplementCommand .
+
+# uvmgr Three-Tier Architecture Integration
+cli:L1Command a owl:Class ;
+    rdfs:label "L1 Direct Command" ;
+    rdfs:comment "Level 1: Direct operations with immediate execution (no coordination)" ;
+    rdfs:subClassOf cli:Command, uvmgr:L1Operation ;
+    cli:coordinationRequired false ;
+    cli:executionModel "immediate" .
+
+cli:L2Command a owl:Class ;
+    rdfs:label "L2 Coordinated Command" ;
+    rdfs:comment "Level 2: State management and coordination between components" ;
+    rdfs:subClassOf cli:Command, uvmgr:L2Operation ;
+    cli:coordinationRequired true ;
+    cli:executionModel "coordinated" .
+
+cli:L3Command a owl:Class ;
+    rdfs:label "L3 Strategic Command" ;
+    rdfs:comment "Level 3: Strategic orchestration across multiple systems" ;
+    rdfs:subClassOf cli:Command, uvmgr:L3Operation ;
+    cli:coordinationRequired true ;
+    cli:executionModel "orchestrated" .
+
+# OTEL Weaver Integration Classes
+cli:WeaverInstrumentedCommand a owl:Class ;
+    rdfs:label "Weaver Instrumented Command" ;
+    rdfs:comment "Command with OTEL Weaver minimal wrapper generation" ;
+    rdfs:subClassOf cli:Command, weaver:InstrumentedComponent .
+
+cli:MetricGeneratingCommand a owl:Class ;
+    rdfs:label "Metric Generating Command" ;
+    rdfs:comment "Command that generates OTEL metrics for monitoring" ;
+    rdfs:subClassOf cli:WeaverInstrumentedCommand .
+
+cli:TracingCommand a owl:Class ;
+    rdfs:label "Tracing Command" ;
+    rdfs:comment "Command with distributed tracing capabilities" ;
+    rdfs:subClassOf cli:WeaverInstrumentedCommand .
+
+# Command Parameter Classes
+cli:Parameter a owl:Class ;
+    rdfs:label "Command Parameter" ;
+    rdfs:comment "Base class for command parameters and options" .
+
+cli:Argument a owl:Class ;
+    rdfs:label "Command Argument" ;
+    rdfs:comment "Positional argument for CLI commands" ;
+    rdfs:subClassOf cli:Parameter .
+
+cli:Option a owl:Class ;
+    rdfs:label "Command Option" ;
+    rdfs:comment "Named option/flag for CLI commands" ;
+    rdfs:subClassOf cli:Parameter .
+
+cli:TyperAnnotation a owl:Class ;
+    rdfs:label "Typer Annotation" ;
+    rdfs:comment "Typer-specific parameter annotations and constraints" ;
+    rdfs:subClassOf cli:Parameter .
+
+# =============================================================================
+# COMMAND IDENTIFICATION AND METADATA PROPERTIES
+# =============================================================================
+
+# Core Command Properties
+cli:commandName a owl:DatatypeProperty ;
+    rdfs:label "Command Name" ;
+    rdfs:comment "The CLI command name (e.g., 'turtle analyze')" ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+cli:commandGroup a owl:DatatypeProperty ;
+    rdfs:label "Command Group" ;
+    rdfs:comment "Command group/namespace (e.g., 'turtle', 'semantic')" ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+cli:subApplication a owl:DatatypeProperty ;
+    rdfs:label "Sub Application" ;
+    rdfs:comment "Typer sub-application containing this command" ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string .
+
+cli:helpText a owl:DatatypeProperty ;
+    rdfs:label "Help Text" ;
+    rdfs:comment "Command description for CLI help and documentation" ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string .
+
+cli:usage a owl:DatatypeProperty ;
+    rdfs:label "Usage Pattern" ;
+    rdfs:comment "Command usage syntax and examples" ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string .
+
+# 80/20 Optimization Properties
+cli:priority a owl:DatatypeProperty ;
+    rdfs:label "Priority Level" ;
+    rdfs:comment "Command priority level (critical/high/medium/low)" ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string .
+
+cli:coverage a owl:DatatypeProperty ;
+    rdfs:label "Use Case Coverage" ;
+    rdfs:comment "Percentage of use cases covered by this command (0-100)" ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:decimal .
+
+cli:usageFrequency a owl:DatatypeProperty ;
+    rdfs:label "Usage Frequency" ;
+    rdfs:comment "Expected usage frequency (daily/weekly/monthly/rare)" ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string .
+
+cli:paretoClass a owl:DatatypeProperty ;
+    rdfs:label "Pareto Classification" ;
+    rdfs:comment "80/20 classification (core/extended)" ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string .
+
+cli:valueContribution a owl:DatatypeProperty ;
+    rdfs:label "Value Contribution" ;
+    rdfs:comment "Percentage of total user value provided by this command" ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:decimal .
+
+cli:implementationCost a owl:DatatypeProperty ;
+    rdfs:label "Implementation Cost" ;
+    rdfs:comment "Relative implementation and maintenance cost" ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:decimal .
+
+# OTEL Weaver Integration Properties
+cli:spanName a owl:DatatypeProperty ;
+    rdfs:label "OTEL Span Name" ;
+    rdfs:comment "OpenTelemetry span name for command execution tracking" ;
+    rdfs:domain cli:WeaverInstrumentedCommand ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+cli:metricName a owl:DatatypeProperty ;
+    rdfs:label "OTEL Metric Name" ;
+    rdfs:comment "OpenTelemetry metric name for performance monitoring" ;
+    rdfs:domain cli:MetricGeneratingCommand ;
+    rdfs:range xsd:string .
+
+cli:traceName a owl:DatatypeProperty ;
+    rdfs:label "OTEL Trace Name" ;
+    rdfs:comment "OpenTelemetry trace name for distributed command execution" ;
+    rdfs:domain cli:TracingCommand ;
+    rdfs:range xsd:string .
+
+cli:weaverTemplate a owl:DatatypeProperty ;
+    rdfs:label "Weaver Template" ;
+    rdfs:comment "OTEL Weaver template for minimal wrapper generation" ;
+    rdfs:domain cli:WeaverInstrumentedCommand ;
+    rdfs:range xsd:string .
+
+# uvmgr Architecture Properties
+cli:architectureLevel a owl:DatatypeProperty ;
+    rdfs:label "Architecture Level" ;
+    rdfs:comment "uvmgr three-tier architecture level (L1/L2/L3)" ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string .
+
+cli:coordinationRequired a owl:DatatypeProperty ;
+    rdfs:label "Coordination Required" ;
+    rdfs:comment "Whether command requires cross-system coordination" ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:boolean .
+
+cli:executionModel a owl:DatatypeProperty ;
+    rdfs:label "Execution Model" ;
+    rdfs:comment "Command execution model (immediate/coordinated/orchestrated)" ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string .
+
+cli:stateManagement a owl:DatatypeProperty ;
+    rdfs:label "State Management" ;
+    rdfs:comment "State management requirements for command execution" ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string .
+
+# Implementation Properties
+cli:moduleFile a owl:DatatypeProperty ;
+    rdfs:label "Module File" ;
+    rdfs:comment "Python module file containing command implementation" ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+cli:functionName a owl:DatatypeProperty ;
+    rdfs:label "Function Name" ;
+    rdfs:comment "Python function implementing the command logic" ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+cli:typerDecorator a owl:DatatypeProperty ;
+    rdfs:label "Typer Decorator" ;
+    rdfs:comment "Typer decorator configuration for command registration" ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string .
+
+cli:asyncSupport a owl:DatatypeProperty ;
+    rdfs:label "Async Support" ;
+    rdfs:comment "Whether command supports asynchronous execution" ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:boolean .
+
+# Heuristic Properties
+cli:implementsHeuristics a owl:DatatypeProperty ;
+    rdfs:label "Implements Heuristics" ;
+    rdfs:comment "Whether command implements AI/ML heuristics" ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:boolean .
+
+cli:heuristicAlgorithm a owl:DatatypeProperty ;
+    rdfs:label "Heuristic Algorithm" ;
+    rdfs:comment "Specific heuristic algorithm implemented" ;
+    rdfs:domain cli:HeuristicCommand ;
+    rdfs:range xsd:string .
+
+cli:optimizationTarget a owl:DatatypeProperty ;
+    rdfs:label "Optimization Target" ;
+    rdfs:comment "What the heuristic optimizes (performance/accuracy/efficiency)" ;
+    rdfs:domain cli:HeuristicCommand ;
+    rdfs:range xsd:string .
+
+# Performance Properties
+cli:expectedDuration a owl:DatatypeProperty ;
+    rdfs:label "Expected Duration" ;
+    rdfs:comment "Expected command execution duration (ISO 8601)" ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:duration .
+
+cli:maxCpuCycles a owl:DatatypeProperty ;
+    rdfs:label "Maximum CPU Cycles" ;
+    rdfs:comment "Maximum CPU cycles for command execution (8-tick constraint)" ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:nonNegativeInteger .
+
+cli:memoryRequirement a owl:DatatypeProperty ;
+    rdfs:label "Memory Requirement" ;
+    rdfs:comment "Estimated memory requirement in MB" ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:decimal .
+
+cli:scalabilityClass a owl:DatatypeProperty ;
+    rdfs:label "Scalability Class" ;
+    rdfs:comment "Scalability classification (linear/logarithmic/exponential)" ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string .
+
+# =============================================================================
+# OBJECT PROPERTIES (RELATIONSHIPS)
+# =============================================================================
+
+# Command Relationships
+cli:hasParameter a owl:ObjectProperty ;
+    rdfs:label "Has Parameter" ;
+    rdfs:comment "Command has a parameter (argument or option)" ;
+    rdfs:domain cli:Command ;
+    rdfs:range cli:Parameter .
+
+cli:hasSubCommand a owl:ObjectProperty ;
+    rdfs:label "Has Sub-Command" ;
+    rdfs:comment "Command has sub-commands in hierarchical structure" ;
+    rdfs:domain cli:Command ;
+    rdfs:range cli:Command .
+
+cli:dependsOn a owl:ObjectProperty ;
+    rdfs:label "Depends On" ;
+    rdfs:comment "Command depends on another command for functionality" ;
+    rdfs:domain cli:Command ;
+    rdfs:range cli:Command ;
+    a owl:TransitiveProperty .
+
+cli:replaces a owl:ObjectProperty ;
+    rdfs:label "Replaces" ;
+    rdfs:comment "Command replaces another command in unified system" ;
+    rdfs:domain cli:Command ;
+    rdfs:range cli:Command .
+
+cli:consolidates a owl:ObjectProperty ;
+    rdfs:label "Consolidates" ;
+    rdfs:comment "Command consolidates multiple legacy commands" ;
+    rdfs:domain cli:Command ;
+    rdfs:range cli:Command .
+
+# DFLS Integration Relationships
+cli:implementsPhase a owl:ObjectProperty ;
+    rdfs:label "Implements DMEDI Phase" ;
+    rdfs:comment "Command implements a specific DMEDI phase" ;
+    rdfs:domain cli:Command ;
+    rdfs:range dflss:PhaseType .
+
+cli:supportsTool a owl:ObjectProperty ;
+    rdfs:label "Supports DFLS Tool" ;
+    rdfs:comment "Command supports a DFLS tool or methodology" ;
+    rdfs:domain cli:Command ;
+    rdfs:range dflss:Tool .
+
+cli:measuresMetric a owl:ObjectProperty ;
+    rdfs:label "Measures Metric" ;
+    rdfs:comment "Command measures or tracks a specific metric" ;
+    rdfs:domain cli:MeasureCommand ;
+    rdfs:range dflss:Metric .
+
+cli:generatesConcept a owl:ObjectProperty ;
+    rdfs:label "Generates Concept" ;
+    rdfs:comment "Command generates concepts during exploration" ;
+    rdfs:domain cli:ExploreCommand ;
+    rdfs:range dflss:Concept .
+
+# OTEL Weaver Relationships
+cli:instrumentedBy a owl:ObjectProperty ;
+    rdfs:label "Instrumented By" ;
+    rdfs:comment "Command is instrumented by OTEL Weaver wrapper" ;
+    rdfs:domain cli:Command ;
+    rdfs:range weaver:InstrumentedComponent ;
+    a owl:FunctionalProperty .
+
+cli:generatesSpan a owl:ObjectProperty ;
+    rdfs:label "Generates Span" ;
+    rdfs:comment "Command generates an OTEL span for tracing" ;
+    rdfs:domain cli:WeaverInstrumentedCommand ;
+    rdfs:range otel:Span .
+
+cli:generatesMetric a owl:ObjectProperty ;
+    rdfs:label "Generates Metric" ;
+    rdfs:comment "Command generates an OTEL metric for monitoring" ;
+    rdfs:domain cli:MetricGeneratingCommand ;
+    rdfs:range otel:Metric .
+
+cli:participatesInTrace a owl:ObjectProperty ;
+    rdfs:label "Participates In Trace" ;
+    rdfs:comment "Command participates in distributed trace" ;
+    rdfs:domain cli:TracingCommand ;
+    rdfs:range otel:Trace .
+
+# uvmgr Architecture Relationships
+cli:coordinatesWith a owl:ObjectProperty ;
+    rdfs:label "Coordinates With" ;
+    rdfs:comment "Command coordinates with other components in uvmgr architecture" ;
+    rdfs:domain cli:Command ;
+    rdfs:range cli:Command .
+
+cli:managesState a owl:ObjectProperty ;
+    rdfs:label "Manages State" ;
+    rdfs:comment "L2 command manages specific system state" ;
+    rdfs:domain cli:L2Command ;
+    rdfs:range uvmgr:StateComponent .
+
+cli:orchestrates a owl:ObjectProperty ;
+    rdfs:label "Orchestrates" ;
+    rdfs:comment "L3 command orchestrates other commands or systems" ;
+    rdfs:domain cli:L3Command ;
+    rdfs:range cli:Command .
+
+# Parameter Relationships
+cli:hasArgument a owl:ObjectProperty ;
+    rdfs:label "Has Argument" ;
+    rdfs:comment "Command has positional argument" ;
+    rdfs:domain cli:Command ;
+    rdfs:range cli:Argument ;
+    rdfs:subPropertyOf cli:hasParameter .
+
+cli:hasOption a owl:ObjectProperty ;
+    rdfs:label "Has Option" ;
+    rdfs:comment "Command has named option/flag" ;
+    rdfs:domain cli:Command ;
+    rdfs:range cli:Option ;
+    rdfs:subPropertyOf cli:hasParameter .
+
+# Heuristic Relationships
+cli:optimizesMetric a owl:ObjectProperty ;
+    rdfs:label "Optimizes Metric" ;
+    rdfs:comment "Heuristic command optimizes specific metric" ;
+    rdfs:domain cli:HeuristicCommand ;
+    rdfs:range dflss:Metric .
+
+cli:usesAlgorithm a owl:ObjectProperty ;
+    rdfs:label "Uses Algorithm" ;
+    rdfs:comment "Command uses specific algorithm or technique" ;
+    rdfs:domain cli:Command ;
+    rdfs:range cns:Algorithm .
+
+# =============================================================================
+# PARAMETER PROPERTIES
+# =============================================================================
+
+# Parameter Identification
+cli:parameterName a owl:DatatypeProperty ;
+    rdfs:label "Parameter Name" ;
+    rdfs:comment "Name of the command parameter" ;
+    rdfs:domain cli:Parameter ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+cli:parameterType a owl:DatatypeProperty ;
+    rdfs:label "Parameter Type" ;
+    rdfs:comment "Python type of the parameter (str, int, bool, Path, etc.)" ;
+    rdfs:domain cli:Parameter ;
+    rdfs:range xsd:string .
+
+cli:required a owl:DatatypeProperty ;
+    rdfs:label "Required" ;
+    rdfs:comment "Whether the parameter is required" ;
+    rdfs:domain cli:Parameter ;
+    rdfs:range xsd:boolean .
+
+cli:defaultValue a owl:DatatypeProperty ;
+    rdfs:label "Default Value" ;
+    rdfs:comment "Default value for optional parameters" ;
+    rdfs:domain cli:Parameter ;
+    rdfs:range xsd:string .
+
+# Option-Specific Properties
+cli:shortFlag a owl:DatatypeProperty ;
+    rdfs:label "Short Flag" ;
+    rdfs:comment "Short option flag (e.g., '-v')" ;
+    rdfs:domain cli:Option ;
+    rdfs:range xsd:string .
+
+cli:longFlag a owl:DatatypeProperty ;
+    rdfs:label "Long Flag" ;
+    rdfs:comment "Long option flag (e.g., '--verbose')" ;
+    rdfs:domain cli:Option ;
+    rdfs:range xsd:string .
+
+# Typer-Specific Properties
+cli:typerHelp a owl:DatatypeProperty ;
+    rdfs:label "Typer Help" ;
+    rdfs:comment "Typer-specific help text for parameter" ;
+    rdfs:domain cli:Parameter ;
+    rdfs:range xsd:string .
+
+cli:typerConstraint a owl:DatatypeProperty ;
+    rdfs:label "Typer Constraint" ;
+    rdfs:comment "Typer validation constraint" ;
+    rdfs:domain cli:Parameter ;
+    rdfs:range xsd:string .
+
+cli:typerCallback a owl:DatatypeProperty ;
+    rdfs:label "Typer Callback" ;
+    rdfs:comment "Typer callback function for parameter validation" ;
+    rdfs:domain cli:Parameter ;
+    rdfs:range xsd:string .
+
+# =============================================================================
+# CORE COMMAND INSTANCES (80/20 OPTIMIZED)
+# =============================================================================
+
+# Define Phase Commands
+cli:StatusCommand a cli:DefineCommand, cli:L1Command, cli:CoreCommand ;
+    cli:commandName "status" ;
+    cli:commandGroup "system" ;
+    cli:helpText "Show comprehensive system status and health metrics" ;
+    cli:priority "critical" ;
+    cli:coverage 95.0 ;
+    cli:usageFrequency "daily" ;
+    cli:paretoClass "core" ;
+    cli:valueContribution 15.0 ;
+    cli:implementationCost 3.0 ;
+    cli:architectureLevel "L1" ;
+    cli:coordinationRequired false ;
+    cli:executionModel "immediate" ;
+    cli:moduleFile "modules/system_commands.py" ;
+    cli:functionName "execute_status" ;
+    cli:expectedDuration "PT2S" ;
+    cli:maxCpuCycles 4 ;
+    cli:spanName "cli.system.status" ;
+    cli:metricName "cli.system.status.duration" ;
+    dflss:allowedInPhaseType dflss:Define .
+
+cli:InitCommand a cli:DefineCommand, cli:L2Command, cli:CoreCommand ;
+    cli:commandName "init" ;
+    cli:commandGroup "project" ;
+    cli:helpText "Initialize new project with DFLS DMEDI structure" ;
+    cli:priority "high" ;
+    cli:coverage 80.0 ;
+    cli:usageFrequency "weekly" ;
+    cli:paretoClass "core" ;
+    cli:valueContribution 12.0 ;
+    cli:implementationCost 5.0 ;
+    cli:architectureLevel "L2" ;
+    cli:coordinationRequired true ;
+    cli:executionModel "coordinated" ;
+    cli:moduleFile "modules/project_commands.py" ;
+    cli:functionName "execute_init" ;
+    cli:expectedDuration "PT10S" ;
+    cli:maxCpuCycles 6 ;
+    cli:spanName "cli.project.init" ;
+    cli:metricName "cli.project.init.duration" ;
+    dflss:allowedInPhaseType dflss:Define .
+
+# Measure Phase Commands
+cli:AnalyzeTurtleCommand a cli:MeasureCommand, cli:TurtleCommand, cli:L2Command, cli:CoreCommand ;
+    cli:commandName "analyze" ;
+    cli:commandGroup "turtle" ;
+    cli:helpText "Analyze turtle files with 80/20 heuristics and CTQ identification" ;
+    cli:priority "high" ;
+    cli:coverage 75.0 ;
+    cli:usageFrequency "daily" ;
+    cli:paretoClass "core" ;
+    cli:valueContribution 18.0 ;
+    cli:implementationCost 8.0 ;
+    cli:architectureLevel "L2" ;
+    cli:coordinationRequired true ;
+    cli:executionModel "coordinated" ;
+    cli:moduleFile "modules/turtle_commands.py" ;
+    cli:functionName "execute_turtle_analyze" ;
+    cli:implementsHeuristics true ;
+    cli:heuristicAlgorithm "80/20_pattern_analysis" ;
+    cli:optimizationTarget "accuracy" ;
+    cli:expectedDuration "PT5S" ;
+    cli:maxCpuCycles 6 ;
+    cli:spanName "cli.turtle.analyze" ;
+    cli:metricName "cli.turtle.analyze.duration" ;
+    dflss:allowedInPhaseType dflss:Measure ;
+    dflss:identifies dflss:Metric .
+
+cli:FindLiesCommand a cli:MeasureCommand, cli:ValidationCommand, cli:L3Command, cli:CoreCommand ;
+    cli:commandName "find-lies" ;
+    cli:commandGroup "validation" ;
+    cli:helpText "Find mock/fake implementations using ultrathink swarm intelligence" ;
+    cli:priority "critical" ;
+    cli:coverage 90.0 ;
+    cli:usageFrequency "daily" ;
+    cli:paretoClass "core" ;
+    cli:valueContribution 20.0 ;
+    cli:implementationCost 12.0 ;
+    cli:architectureLevel "L3" ;
+    cli:coordinationRequired true ;
+    cli:executionModel "orchestrated" ;
+    cli:moduleFile "modules/validation_commands.py" ;
+    cli:functionName "execute_find_lies" ;
+    cli:implementsHeuristics true ;
+    cli:heuristicAlgorithm "swarm_intelligence_validation" ;
+    cli:optimizationTarget "accuracy" ;
+    cli:expectedDuration "PT45S" ;
+    cli:maxCpuCycles 8 ;
+    cli:spanName "cli.validation.find_lies" ;
+    cli:metricName "cli.validation.lies.count" ;
+    dflss:allowedInPhaseType dflss:Measure ;
+    dflss:identifies dflss:Risk .
+
+# Explore Phase Commands
+cli:SearchCommand a cli:ExploreCommand, cli:HeuristicCommand, cli:L2Command, cli:CoreCommand ;
+    cli:commandName "search" ;
+    cli:commandGroup "semantic" ;
+    cli:helpText "Intelligent semantic search with concept generation" ;
+    cli:priority "high" ;
+    cli:coverage 70.0 ;
+    cli:usageFrequency "daily" ;
+    cli:paretoClass "core" ;
+    cli:valueContribution 14.0 ;
+    cli:implementationCost 6.0 ;
+    cli:architectureLevel "L2" ;
+    cli:coordinationRequired true ;
+    cli:executionModel "coordinated" ;
+    cli:moduleFile "modules/semantic_commands.py" ;
+    cli:functionName "execute_semantic_search" ;
+    cli:implementsHeuristics true ;
+    cli:heuristicAlgorithm "semantic_similarity" ;
+    cli:optimizationTarget "relevance" ;
+    cli:expectedDuration "PT8S" ;
+    cli:maxCpuCycles 6 ;
+    cli:spanName "cli.semantic.search" ;
+    cli:metricName "cli.semantic.search.results" ;
+    dflss:allowedInPhaseType dflss:Explore ;
+    dflss:generates dflss:Concept .
+
+# Develop Phase Commands
+cli:GenerateCommand a cli:DevelopCommand, cli:BitActorCommand, cli:L3Command, cli:CoreCommand ;
+    cli:commandName "generate" ;
+    cli:commandGroup "bitactor" ;
+    cli:helpText "Generate optimized BitActor code from TTL specifications" ;
+    cli:priority "high" ;
+    cli:coverage 85.0 ;
+    cli:usageFrequency "weekly" ;
+    cli:paretoClass "core" ;
+    cli:valueContribution 16.0 ;
+    cli:implementationCost 10.0 ;
+    cli:architectureLevel "L3" ;
+    cli:coordinationRequired true ;
+    cli:executionModel "orchestrated" ;
+    cli:moduleFile "modules/bitactor_commands.py" ;
+    cli:functionName "execute_bitactor_generate" ;
+    cli:implementsHeuristics true ;
+    cli:heuristicAlgorithm "code_optimization" ;
+    cli:optimizationTarget "performance" ;
+    cli:expectedDuration "PT30S" ;
+    cli:maxCpuCycles 8 ;
+    cli:spanName "cli.bitactor.generate" ;
+    cli:metricName "cli.bitactor.generate.duration" ;
+    dflss:allowedInPhaseType dflss:Develop ;
+    dflss:optimizes dflss:Metric .
+
+cli:OptimizeCommand a cli:DevelopCommand, cli:HeuristicCommand, cli:L3Command, cli:CoreCommand ;
+    cli:commandName "optimize" ;
+    cli:commandGroup "heuristics" ;
+    cli:helpText "Run 80/20 optimization algorithms with DOE methodology" ;
+    cli:priority "high" ;
+    cli:coverage 80.0 ;
+    cli:usageFrequency "weekly" ;
+    cli:paretoClass "core" ;
+    cli:valueContribution 15.0 ;
+    cli:implementationCost 8.0 ;
+    cli:architectureLevel "L3" ;
+    cli:coordinationRequired true ;
+    cli:executionModel "orchestrated" ;
+    cli:moduleFile "modules/optimization_commands.py" ;
+    cli:functionName "execute_heuristics_optimize" ;
+    cli:implementsHeuristics true ;
+    cli:heuristicAlgorithm "pareto_optimization" ;
+    cli:optimizationTarget "efficiency" ;
+    cli:expectedDuration "PT60S" ;
+    cli:maxCpuCycles 8 ;
+    cli:spanName "cli.heuristics.optimize" ;
+    cli:metricName "cli.heuristics.optimize.improvement" ;
+    dflss:allowedInPhaseType dflss:Develop ;
+    dflss:optimizes dflss:Metric .
+
+# Implement Phase Commands
+cli:DeployCommand a cli:ImplementCommand, cli:DeploymentCommand, cli:L3Command, cli:CoreCommand ;
+    cli:commandName "deploy" ;
+    cli:commandGroup "infrastructure" ;
+    cli:helpText "Deploy optimized system with validation and monitoring" ;
+    cli:priority "critical" ;
+    cli:coverage 95.0 ;
+    cli:usageFrequency "weekly" ;
+    cli:paretoClass "core" ;
+    cli:valueContribution 18.0 ;
+    cli:implementationCost 15.0 ;
+    cli:architectureLevel "L3" ;
+    cli:coordinationRequired true ;
+    cli:executionModel "orchestrated" ;
+    cli:moduleFile "modules/deployment_commands.py" ;
+    cli:functionName "execute_deploy" ;
+    cli:expectedDuration "PT300S" ;
+    cli:maxCpuCycles 8 ;
+    cli:spanName "cli.deployment.deploy" ;
+    cli:metricName "cli.deployment.deploy.duration" ;
+    dflss:allowedInPhaseType dflss:Implement .
+
+cli:ValidateCommand a cli:ImplementCommand, cli:ValidationCommand, cli:L2Command, cli:CoreCommand ;
+    cli:commandName "validate" ;
+    cli:commandGroup "testing" ;
+    cli:helpText "Comprehensive validation with permutation and adversarial testing" ;
+    cli:priority "critical" ;
+    cli:coverage 90.0 ;
+    cli:usageFrequency "daily" ;
+    cli:paretoClass "core" ;
+    cli:valueContribution 17.0 ;
+    cli:implementationCost 7.0 ;
+    cli:architectureLevel "L2" ;
+    cli:coordinationRequired true ;
+    cli:executionModel "coordinated" ;
+    cli:moduleFile "modules/testing_commands.py" ;
+    cli:functionName "execute_validate" ;
+    cli:implementsHeuristics true ;
+    cli:heuristicAlgorithm "adversarial_testing" ;
+    cli:optimizationTarget "reliability" ;
+    cli:expectedDuration "PT120S" ;
+    cli:maxCpuCycles 8 ;
+    cli:spanName "cli.testing.validate" ;
+    cli:metricName "cli.testing.validate.coverage" ;
+    dflss:allowedInPhaseType dflss:Implement .
+
+# =============================================================================
+# COMMAND PARAMETER INSTANCES
+# =============================================================================
+
+# Status Command Parameters
+cli:StatusVerboseOption a cli:Option, cli:TyperAnnotation ;
+    cli:parameterName "verbose" ;
+    cli:parameterType "bool" ;
+    cli:shortFlag "-v" ;
+    cli:longFlag "--verbose" ;
+    cli:defaultValue "false" ;
+    cli:required false ;
+    cli:typerHelp "Show detailed status information" ;
+    cli:typerConstraint "bool_flag" .
+
+cli:StatusCommand cli:hasOption cli:StatusVerboseOption .
+
+# Analyze Turtle Command Parameters
+cli:TurtleFileArgument a cli:Argument, cli:TyperAnnotation ;
+    cli:parameterName "file" ;
+    cli:parameterType "Path" ;
+    cli:required true ;
+    cli:typerHelp "Turtle file to analyze" ;
+    cli:typerConstraint "existing_file" .
+
+cli:TurtleDetailedOption a cli:Option, cli:TyperAnnotation ;
+    cli:parameterName "detailed" ;
+    cli:parameterType "bool" ;
+    cli:shortFlag "-d" ;
+    cli:longFlag "--detailed" ;
+    cli:defaultValue "false" ;
+    cli:required false ;
+    cli:typerHelp "Show detailed analysis with heuristics breakdown" ;
+    cli:typerConstraint "bool_flag" .
+
+cli:TurtleSwarmOption a cli:Option, cli:TyperAnnotation ;
+    cli:parameterName "swarm" ;
+    cli:parameterType "bool" ;
+    cli:shortFlag "-s" ;
+    cli:longFlag "--swarm" ;
+    cli:defaultValue "false" ;
+    cli:required false ;
+    cli:typerHelp "Deploy 12-agent swarm for comprehensive analysis" ;
+    cli:typerConstraint "bool_flag" .
+
+cli:AnalyzeTurtleCommand cli:hasArgument cli:TurtleFileArgument ;
+                         cli:hasOption cli:TurtleDetailedOption ;
+                         cli:hasOption cli:TurtleSwarmOption .
+
+# Generate BitActor Command Parameters
+cli:BitActorSpecArgument a cli:Argument, cli:TyperAnnotation ;
+    cli:parameterName "spec" ;
+    cli:parameterType "Path" ;
+    cli:required true ;
+    cli:typerHelp "TTL specification file for BitActor generation" ;
+    cli:typerConstraint "existing_file" .
+
+cli:BitActorOptimizationOption a cli:Option, cli:TyperAnnotation ;
+    cli:parameterName "optimization" ;
+    cli:parameterType "str" ;
+    cli:shortFlag "-O" ;
+    cli:longFlag "--optimization" ;
+    cli:defaultValue "O3" ;
+    cli:required false ;
+    cli:typerHelp "Optimization level (O0/O1/O2/O3)" ;
+    cli:typerConstraint "choice:O0,O1,O2,O3" .
+
+cli:BitActorTargetOption a cli:Option, cli:TyperAnnotation ;
+    cli:parameterName "target" ;
+    cli:parameterType "str" ;
+    cli:shortFlag "-t" ;
+    cli:longFlag "--target" ;
+    cli:defaultValue "c" ;
+    cli:required false ;
+    cli:typerHelp "Target language (c/rust/wasm)" ;
+    cli:typerConstraint "choice:c,rust,wasm" .
+
+cli:GenerateCommand cli:hasArgument cli:BitActorSpecArgument ;
+                    cli:hasOption cli:BitActorOptimizationOption ;
+                    cli:hasOption cli:BitActorTargetOption .
+
+# =============================================================================
+# EXTENDED COMMAND INSTANCES (20% VALUE)
+# =============================================================================
+
+# Utility and Maintenance Commands
+cli:CleanCommand a cli:ExtendedCommand, cli:L1Command ;
+    cli:commandName "clean" ;
+    cli:commandGroup "maintenance" ;
+    cli:helpText "Clean temporary files and caches" ;
+    cli:priority "low" ;
+    cli:coverage 20.0 ;
+    cli:usageFrequency "monthly" ;
+    cli:paretoClass "extended" ;
+    cli:valueContribution 3.0 ;
+    cli:implementationCost 15.0 ;
+    cli:architectureLevel "L1" ;
+    cli:coordinationRequired false ;
+    cli:executionModel "immediate" ;
+    cli:moduleFile "modules/maintenance_commands.py" ;
+    cli:functionName "execute_clean" ;
+    cli:expectedDuration "PT5S" ;
+    cli:maxCpuCycles 2 .
+
+cli:ConfigCommand a cli:ExtendedCommand, cli:L2Command ;
+    cli:commandName "config" ;
+    cli:commandGroup "system" ;
+    cli:helpText "Manage system configuration settings" ;
+    cli:priority "medium" ;
+    cli:coverage 30.0 ;
+    cli:usageFrequency "monthly" ;
+    cli:paretoClass "extended" ;
+    cli:valueContribution 5.0 ;
+    cli:implementationCost 20.0 ;
+    cli:architectureLevel "L2" ;
+    cli:coordinationRequired true ;
+    cli:executionModel "coordinated" ;
+    cli:moduleFile "modules/config_commands.py" ;
+    cli:functionName "execute_config" ;
+    cli:expectedDuration "PT10S" ;
+    cli:maxCpuCycles 4 .
+
+# Advanced Analysis Commands
+cli:ProfileCommand a cli:ExtendedCommand, cli:HeuristicCommand, cli:L3Command ;
+    cli:commandName "profile" ;
+    cli:commandGroup "analysis" ;
+    cli:helpText "Advanced performance profiling with ML insights" ;
+    cli:priority "medium" ;
+    cli:coverage 25.0 ;
+    cli:usageFrequency "monthly" ;
+    cli:paretoClass "extended" ;
+    cli:valueContribution 4.0 ;
+    cli:implementationCost 25.0 ;
+    cli:architectureLevel "L3" ;
+    cli:coordinationRequired true ;
+    cli:executionModel "orchestrated" ;
+    cli:moduleFile "modules/profiling_commands.py" ;
+    cli:functionName "execute_profile" ;
+    cli:implementsHeuristics true ;
+    cli:heuristicAlgorithm "performance_pattern_analysis" ;
+    cli:optimizationTarget "performance" ;
+    cli:expectedDuration "PT180S" ;
+    cli:maxCpuCycles 8 .
+
+# =============================================================================
+# COMMAND RELATIONSHIPS AND DEPENDENCIES
+# =============================================================================
+
+# Core Command Dependencies
+cli:AnalyzeTurtleCommand cli:dependsOn cli:StatusCommand .
+cli:GenerateCommand cli:dependsOn cli:AnalyzeTurtleCommand .
+cli:OptimizeCommand cli:dependsOn cli:GenerateCommand .
+cli:ValidateCommand cli:dependsOn cli:OptimizeCommand .
+cli:DeployCommand cli:dependsOn cli:ValidateCommand .
+
+# Consolidation Relationships (93 -> 8 core commands)
+cli:AnalyzeTurtleCommand cli:consolidates [
+    a cli:Command ;
+    cli:commandName "turtle-parse" ;
+    cli:commandGroup "legacy"
+] , [
+    a cli:Command ;
+    cli:commandName "turtle-validate" ;
+    cli:commandGroup "legacy"
+] , [
+    a cli:Command ;
+    cli:commandName "rdf-analyze" ;
+    cli:commandGroup "legacy"
+] .
+
+cli:GenerateCommand cli:consolidates [
+    a cli:Command ;
+    cli:commandName "bitactor-compile" ;
+    cli:commandGroup "legacy"
+] , [
+    a cli:Command ;
+    cli:commandName "code-generate" ;
+    cli:commandGroup "legacy"
+] , [
+    a cli:Command ;
+    cli:commandName "c-generate" ;
+    cli:commandGroup "legacy"
+] .
+
+# DFLS Phase Relationships
+cli:StatusCommand cli:implementsPhase dflss:Define .
+cli:InitCommand cli:implementsPhase dflss:Define .
+cli:AnalyzeTurtleCommand cli:implementsPhase dflss:Measure .
+cli:FindLiesCommand cli:implementsPhase dflss:Measure .
+cli:SearchCommand cli:implementsPhase dflss:Explore .
+cli:GenerateCommand cli:implementsPhase dflss:Develop .
+cli:OptimizeCommand cli:implementsPhase dflss:Develop .
+cli:ValidateCommand cli:implementsPhase dflss:Implement .
+cli:DeployCommand cli:implementsPhase dflss:Implement .
+
+# OTEL Weaver Instrumentation Relationships
+cli:StatusCommand cli:generatesSpan [
+    a otel:Span ;
+    otel:name "cli.system.status" ;
+    otel:kind "internal"
+] .
+
+cli:AnalyzeTurtleCommand cli:generatesSpan [
+    a otel:Span ;
+    otel:name "cli.turtle.analyze" ;
+    otel:kind "internal"
+] ;
+cli:generatesMetric [
+    a otel:Metric ;
+    otel:name "cli.turtle.analyze.file_size" ;
+    otel:type "histogram"
+] .
+
+cli:FindLiesCommand cli:generatesSpan [
+    a otel:Span ;
+    otel:name "cli.validation.find_lies" ;
+    otel:kind "internal"
+] ;
+cli:generatesMetric [
+    a otel:Metric ;
+    otel:name "cli.validation.lies.count" ;
+    otel:type "counter"
+] .
+
+# =============================================================================
+# WEAVER TEMPLATE DEFINITIONS
+# =============================================================================
+
+cli:StandardWeaverTemplate a cli:WeaverTemplate ;
+    rdfs:label "Standard OTEL Weaver Template" ;
+    cli:templateContent """
+@app.command("{command_name}")
+@weaver.instrument(
+    span_name="{span_name}",
+    metrics=["{metric_name}"]
+)
+def {command_name}_wrapper({parameters}):
+    ''''{help_text}''''
+    with weaver.start_span("{span_name}") as span:
+        span.set_attribute("cli.command", "{command_name}")
+        span.set_attribute("cli.group", "{command_group}")
+        span.set_attribute("cli.priority", "{priority}")
+        span.set_attribute("cli.architecture_level", "{architecture_level}")
+        
+        try:
+            start_time = time.time()
+            result = {module_name}.{function_name}({parameters})
+            duration = time.time() - start_time
+            
+            span.set_attribute("cli.success", True)
+            span.set_attribute("cli.duration", duration)
+            
+            # Record metric
+            {metric_name}.record(duration, {{"command": "{command_name}"}})
+            
+            return result
+        except Exception as e:
+            span.set_attribute("cli.success", False)
+            span.set_attribute("cli.error", str(e))
+            span.set_status(Status(StatusCode.ERROR, str(e)))
+            raise
+""" .
+
+cli:HeuristicWeaverTemplate a cli:WeaverTemplate ;
+    rdfs:label "Heuristic Command OTEL Weaver Template" ;
+    cli:templateContent """
+@app.command("{command_name}")
+@weaver.instrument(
+    span_name="{span_name}",
+    metrics=["{metric_name}", "cli.heuristics.optimization_score"]
+)
+def {command_name}_wrapper({parameters}):
+    ''''{help_text}''''
+    with weaver.start_span("{span_name}") as span:
+        span.set_attribute("cli.command", "{command_name}")
+        span.set_attribute("cli.group", "{command_group}")
+        span.set_attribute("cli.heuristic_algorithm", "{heuristic_algorithm}")
+        span.set_attribute("cli.optimization_target", "{optimization_target}")
+        
+        try:
+            start_time = time.time()
+            result = {module_name}.{function_name}({parameters})
+            duration = time.time() - start_time
+            
+            span.set_attribute("cli.success", True)
+            span.set_attribute("cli.duration", duration)
+            
+            # Heuristic-specific metrics
+            if hasattr(result, 'optimization_score'):
+                span.set_attribute("cli.optimization_score", result.optimization_score)
+                optimization_score_metric.record(result.optimization_score)
+            
+            {metric_name}.record(duration, {{"command": "{command_name}"}})
+            
+            return result
+        except Exception as e:
+            span.set_attribute("cli.success", False)
+            span.set_attribute("cli.error", str(e))
+            span.set_status(Status(StatusCode.ERROR, str(e)))
+            raise
+""" .
+
+# Template Assignments
+cli:StatusCommand cli:weaverTemplate cli:StandardWeaverTemplate .
+cli:AnalyzeTurtleCommand cli:weaverTemplate cli:HeuristicWeaverTemplate .
+cli:FindLiesCommand cli:weaverTemplate cli:HeuristicWeaverTemplate .
+cli:GenerateCommand cli:weaverTemplate cli:HeuristicWeaverTemplate .
+cli:OptimizeCommand cli:weaverTemplate cli:HeuristicWeaverTemplate .
+cli:ValidateCommand cli:weaverTemplate cli:HeuristicWeaverTemplate .
+cli:DeployCommand cli:weaverTemplate cli:StandardWeaverTemplate .

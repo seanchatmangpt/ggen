@@ -1,0 +1,29 @@
+@prefix : <https://bytestar.org/ontology/bytestar-execution#> .
+@prefix bytestar: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://bytestar.org/ontology/bytestar-execution>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core> ;
+  rdfs:label "ByteStar Execution Ontology" ;
+  rdfs:comment "Hot-path semantics, L1 residency, MPHF dispatch, let-it-crash." .
+
+:letItCrash a owl:DatatypeProperty ; rdfs:domain bytestar:ByteActor ; rdfs:range xsd:boolean .
+:pinnedCore a owl:DatatypeProperty ; rdfs:domain bytestar:Subsystem ; rdfs:range xsd:integer .
+
+# L1 residency: {K1..K64, MPHF, active envelope} must be resident
+bytestar:ByteActor rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty bytestar:l1Resident ; owl:hasValue "true"^^xsd:boolean ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ; owl:onProperty bytestar:l1Holds ;
+    owl:allValuesFrom [ a owl:Class ; owl:unionOf ( bytestar:KernelSet bytestar:MPHFTable bytestar:Envelope ) ] ] .
+
+# Queues/pulse bus
+:PulseBus a owl:Class .
+:fanoutTo a owl:ObjectProperty ; rdfs:domain :PulseBus ; rdfs:range bytestar:Observer .
+:noBackpressure a owl:DatatypeProperty ; rdfs:domain :PulseBus ; rdfs:range xsd:boolean .
+
+# Concrete invariants as annotations
+bytestar:ByteActor :letItCrash "true"^^xsd:boolean .

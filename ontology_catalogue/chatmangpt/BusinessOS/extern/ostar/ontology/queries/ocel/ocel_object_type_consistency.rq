@@ -1,0 +1,20 @@
+# OCEL Object Type Consistency Validation
+# Validates that object types match their definitions and are used consistently
+# Each object should have a consistent type across all events
+
+PREFIX ocel: <http://www.ocel-standard.org/ocel#>
+PREFIX ostar: <https://chatmangpt.com/ontologies/ostar#>
+
+ASK {
+  # Find objects with inconsistent types
+  {
+    SELECT ?object_id (COUNT(DISTINCT ?object_type) AS ?type_count)
+    WHERE {
+      ?event a ocel:Event .
+      ?event ocel:object-id ?object_id .
+      ?event ocel:object-type ?object_type .
+    }
+    GROUP BY ?object_id
+    HAVING (?type_count > 1)
+  }
+}

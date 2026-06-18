@@ -1,0 +1,137 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix bs: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix rt: <https://bytestar.org/ontology/bytestar-runtime#> .
+@prefix sec: <https://bytestar.org/ontology/bytestar-security#> .
+@prefix mkt: <https://bytestar.org/ontology/bytestar-market#> .
+@prefix ds: <https://bytestar.org/ontology/bytestar-datastruct#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Doctrine of 8: tick bounds
+bs:KernelTickShape a sh:NodeShape ;
+  sh:targetClass bs:Kernel ;
+  sh:property [
+    sh:path bs:tickBudget ;
+    sh:maxInclusive 8 ;
+    sh:minInclusive 0 ;
+    sh:datatype xsd:nonNegativeInteger ;
+    sh:message "Kernel tick budget must be ≤8 (Doctrine of 8)" ] .
+
+# Doctrine of 8: hop bounds  
+bs:WorkflowHopShape a sh:NodeShape ;
+  sh:targetClass bs:ExecutionGraph ;
+  sh:property [
+    sh:path bs:hopBudget ;
+    sh:maxInclusive 8 ;
+    sh:minInclusive 0 ;
+    sh:datatype xsd:nonNegativeInteger ;
+    sh:message "Workflow hop budget must be ≤8 (Doctrine of 8)" ] .
+
+# L1 residency for ByteActor
+rt:ActorL1Shape a sh:NodeShape ;
+  sh:targetClass bs:ByteActor ;
+  sh:property [
+    sh:path rt:hasL1Profile ;
+    sh:minCount 1 ;
+    sh:class rt:L1Residency ;
+    sh:message "ByteActor must have L1 residency profile" ] ,
+  [
+    sh:path [ sh:inversePath rt:hasL1Profile ; sh:path rt:l1HoldsKernels ] ;
+    sh:hasValue true ;
+    sh:message "ByteActor L1 must hold kernel set" ] ,
+  [
+    sh:path [ sh:inversePath rt:hasL1Profile ; sh:path rt:l1HoldsMPHF ] ;
+    sh:hasValue true ;
+    sh:message "ByteActor L1 must hold MPHF table" ] ,
+  [
+    sh:path [ sh:inversePath rt:hasL1Profile ; sh:path rt:l1HoldsEnvelope ] ;
+    sh:hasValue true ;
+    sh:message "ByteActor L1 must hold active envelope" ] .
+
+# Let-it-crash semantics
+rt:ActorSemanticsShape a sh:NodeShape ;
+  sh:targetClass bs:ByteActor ;
+  sh:property [
+    sh:path rt:hasSemantics ;
+    sh:minCount 1 ;
+    sh:class rt:LetItCrash ;
+    sh:message "ByteActor must have let-it-crash semantics" ] ,
+  [
+    sh:path [ sh:inversePath rt:hasSemantics ; sh:path rt:noRuntimeGuards ] ;
+    sh:hasValue true ;
+    sh:message "ByteActor must have no runtime guards" ] .
+
+# Zero-tick reject enforcement
+bs:AdmissionZeroTickShape a sh:NodeShape ;
+  sh:targetClass bs:Admission ;
+  sh:sparql [
+    sh:message "Rejected admissions must consume zero hot ticks" ;
+    sh:select """
+      SELECT $this WHERE {
+        $this bs:hasDecision false .
+        $this bs:consumesHotTicks ?ticks .
+        FILTER (?ticks != 0)
+      }
+    """ ] .
+
+# PQC placement constraints
+sec:PQCPlacementShape a sh:NodeShape ;
+  sh:targetClass sec:PQCOp ;
+  sh:property [
+    sh:path sec:placement ;
+    sh:in ( "hot" "warm" "cold" ) ;
+    sh:message "PQC operations must be placed in hot, warm, or cold tier" ] .
+
+# CXP admission gate
+mkt:CXPAdmissionShape a sh:NodeShape ;
+  sh:targetClass mkt:CXPHeader ;
+  sh:sparql [
+    sh:message "CXP headers admitted only if SHACL OK ∧ PQC OK ∧ congruence OK" ;
+    sh:select """
+      SELECT $this WHERE {
+        $this mkt:admitted true .
+        {
+          { $this mkt:shapeOk false } UNION
+          { $this mkt:pqcOk false } UNION  
+          { $this mkt:congruenceOk false }
+        }
+      }
+    """ ] .
+
+# Registry size constraints
+bs:KernelRegistryShape a sh:NodeShape ;
+  sh:targetClass bs:Kernel ;
+  sh:sparql [
+    sh:message "Kernel registry must contain exactly 64 kernels" ;
+    sh:select """
+      SELECT $this WHERE {
+        {
+          SELECT (COUNT(DISTINCT ?k) as ?count) WHERE {
+            ?k a bs:Kernel .
+          }
+        }
+        FILTER (?count != 64)
+      }
+    """ ] .
+
+bs:PatternRegistryShape a sh:NodeShape ;
+  sh:targetClass bs:Pattern ;
+  sh:sparql [
+    sh:message "Pattern registry must contain exactly 43 patterns" ;
+    sh:select """
+      SELECT $this WHERE {
+        {
+          SELECT (COUNT(DISTINCT ?p) as ?count) WHERE {
+            ?p a bs:Pattern .
+          }
+        }
+        FILTER (?count != 43)
+      }
+    """ ] .
+
+# Data structure ABI compliance
+ds:ABIComplianceShape a sh:NodeShape ;
+  sh:targetClass bs:Subsystem ;
+  sh:property [
+    sh:path ds:abiCompliant ;
+    sh:hasValue true ;
+    sh:message "All subsystems must be ABI compliant" ] .

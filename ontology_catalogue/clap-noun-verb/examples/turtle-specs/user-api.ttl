@@ -1,0 +1,343 @@
+# User API CLI - REST API Client
+# Demonstrates CRUD operations with complex types and validation
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix clap: <http://clap-noun-verb.io/ontology#> .
+@prefix api: <http://example.org/user-api#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# CLI Application Definition
+api:UserApiApp a clap:CliApplication ;
+    clap:name "api-client" ;
+    clap:version "3.0.0" ;
+    clap:author "API Team" ;
+    clap:about "REST API client for managing users, posts, and comments" ;
+    clap:nouns (api:UserNoun api:PostNoun api:CommentNoun) ;
+    clap:globalFlags (api:BaseUrlFlag api:ApiKeyFlag api:VerboseFlag) .
+
+# Noun: user
+api:UserNoun a clap:Noun ;
+    clap:name "user" ;
+    clap:about "User resource operations" ;
+    clap:verbs (api:CreateUserVerb api:ReadUserVerb api:UpdateUserVerb api:DeleteUserVerb api:ListUsersVerb) .
+
+# Noun: post
+api:PostNoun a clap:Noun ;
+    clap:name "post" ;
+    clap:about "Post resource operations" ;
+    clap:verbs (api:CreatePostVerb api:ReadPostVerb api:UpdatePostVerb api:DeletePostVerb api:ListPostsVerb) .
+
+# Noun: comment
+api:CommentNoun a clap:Noun ;
+    clap:name "comment" ;
+    clap:about "Comment resource operations" ;
+    clap:verbs (api:CreateCommentVerb api:ReadCommentVerb api:UpdateCommentVerb api:DeleteCommentVerb api:ListCommentsVerb) .
+
+# Verb: create (user)
+# Usage: api-client user create --name "John Doe" --email "john@example.com" --age 30
+api:CreateUserVerb a clap:Verb ;
+    clap:name "create" ;
+    clap:about "Create a new user" ;
+    clap:arguments (api:NameArg api:EmailArg api:AgeArg api:BioArg) ;
+    clap:returnType api:UserResponse ;
+    clap:example "api-client user create --name 'John Doe' --email 'john@example.com' --age 30" ;
+    clap:validation api:ValidEmail .
+
+# Verb: read (user)
+# Usage: api-client user read --id 123
+api:ReadUserVerb a clap:Verb ;
+    clap:name "read" ;
+    clap:about "Get user details by ID" ;
+    clap:arguments (api:IdArg) ;
+    clap:returnType api:UserResponse ;
+    clap:example "api-client user read --id 123" ;
+    clap:validation api:PositiveId .
+
+# Verb: update (user)
+# Usage: api-client user update --id 123 --name "Jane Doe" --email "jane@example.com"
+api:UpdateUserVerb a clap:Verb ;
+    clap:name "update" ;
+    clap:about "Update an existing user" ;
+    clap:arguments (api:IdArg api:NameArg api:EmailArg api:AgeArg api:BioArg) ;
+    clap:returnType api:UserResponse ;
+    clap:example "api-client user update --id 123 --name 'Jane Doe'" ;
+    clap:validation api:PositiveId ;
+    clap:validation api:ValidEmail .
+
+# Verb: delete (user)
+# Usage: api-client user delete --id 123
+api:DeleteUserVerb a clap:Verb ;
+    clap:name "delete" ;
+    clap:about "Delete a user by ID" ;
+    clap:arguments (api:IdArg) ;
+    clap:flags (api:ConfirmFlag) ;
+    clap:returnType xsd:boolean ;
+    clap:example "api-client user delete --id 123 --confirm" ;
+    clap:validation api:PositiveId .
+
+# Verb: list (user)
+# Usage: api-client user list --limit 10 --offset 0
+api:ListUsersVerb a clap:Verb ;
+    clap:name "list" ;
+    clap:about "List all users with pagination" ;
+    clap:arguments (api:LimitArg api:OffsetArg api:FilterArg) ;
+    clap:returnType api:UserListResponse ;
+    clap:example "api-client user list --limit 10 --offset 0" .
+
+# Verb: create (post)
+# Usage: api-client post create --user-id 123 --title "My Post" --content "Post content"
+api:CreatePostVerb a clap:Verb ;
+    clap:name "create" ;
+    clap:about "Create a new post" ;
+    clap:arguments (api:UserIdArg api:TitleArg api:ContentArg api:TagsArg) ;
+    clap:returnType api:PostResponse ;
+    clap:example "api-client post create --user-id 123 --title 'My Post' --content 'Content'" ;
+    clap:validation api:PositiveUserId .
+
+# Verb: read (post)
+# Usage: api-client post read --id 456
+api:ReadPostVerb a clap:Verb ;
+    clap:name "read" ;
+    clap:about "Get post details by ID" ;
+    clap:arguments (api:IdArg) ;
+    clap:returnType api:PostResponse ;
+    clap:example "api-client post read --id 456" ;
+    clap:validation api:PositiveId .
+
+# Verb: update (post)
+# Usage: api-client post update --id 456 --title "Updated Title"
+api:UpdatePostVerb a clap:Verb ;
+    clap:name "update" ;
+    clap:about "Update an existing post" ;
+    clap:arguments (api:IdArg api:TitleArg api:ContentArg api:TagsArg) ;
+    clap:returnType api:PostResponse ;
+    clap:example "api-client post update --id 456 --title 'Updated Title'" ;
+    clap:validation api:PositiveId .
+
+# Verb: delete (post)
+# Usage: api-client post delete --id 456
+api:DeletePostVerb a clap:Verb ;
+    clap:name "delete" ;
+    clap:about "Delete a post by ID" ;
+    clap:arguments (api:IdArg) ;
+    clap:flags (api:ConfirmFlag) ;
+    clap:returnType xsd:boolean ;
+    clap:example "api-client post delete --id 456 --confirm" ;
+    clap:validation api:PositiveId .
+
+# Verb: list (post)
+# Usage: api-client post list --user-id 123 --limit 20
+api:ListPostsVerb a clap:Verb ;
+    clap:name "list" ;
+    clap:about "List posts with filtering and pagination" ;
+    clap:arguments (api:UserIdArg api:LimitArg api:OffsetArg api:FilterArg) ;
+    clap:returnType api:PostListResponse ;
+    clap:example "api-client post list --user-id 123 --limit 20" .
+
+# Verb: create (comment)
+# Usage: api-client comment create --post-id 456 --user-id 123 --content "Great post!"
+api:CreateCommentVerb a clap:Verb ;
+    clap:name "create" ;
+    clap:about "Create a new comment on a post" ;
+    clap:arguments (api:PostIdArg api:UserIdArg api:ContentArg) ;
+    clap:returnType api:CommentResponse ;
+    clap:example "api-client comment create --post-id 456 --user-id 123 --content 'Great!'" ;
+    clap:validation api:PositivePostId ;
+    clap:validation api:PositiveUserId .
+
+# Verb: read (comment)
+# Usage: api-client comment read --id 789
+api:ReadCommentVerb a clap:Verb ;
+    clap:name "read" ;
+    clap:about "Get comment details by ID" ;
+    clap:arguments (api:IdArg) ;
+    clap:returnType api:CommentResponse ;
+    clap:example "api-client comment read --id 789" ;
+    clap:validation api:PositiveId .
+
+# Verb: update (comment)
+# Usage: api-client comment update --id 789 --content "Updated comment"
+api:UpdateCommentVerb a clap:Verb ;
+    clap:name "update" ;
+    clap:about "Update an existing comment" ;
+    clap:arguments (api:IdArg api:ContentArg) ;
+    clap:returnType api:CommentResponse ;
+    clap:example "api-client comment update --id 789 --content 'Updated'" ;
+    clap:validation api:PositiveId .
+
+# Verb: delete (comment)
+# Usage: api-client comment delete --id 789
+api:DeleteCommentVerb a clap:Verb ;
+    clap:name "delete" ;
+    clap:about "Delete a comment by ID" ;
+    clap:arguments (api:IdArg) ;
+    clap:flags (api:ConfirmFlag) ;
+    clap:returnType xsd:boolean ;
+    clap:example "api-client comment delete --id 789 --confirm" ;
+    clap:validation api:PositiveId .
+
+# Verb: list (comment)
+# Usage: api-client comment list --post-id 456 --limit 50
+api:ListCommentsVerb a clap:Verb ;
+    clap:name "list" ;
+    clap:about "List comments for a post" ;
+    clap:arguments (api:PostIdArg api:LimitArg api:OffsetArg) ;
+    clap:returnType api:CommentListResponse ;
+    clap:example "api-client comment list --post-id 456 --limit 50" .
+
+# Arguments
+api:IdArg a clap:Argument ;
+    clap:name "id" ;
+    clap:about "Resource ID" ;
+    clap:valueType xsd:integer ;
+    clap:required true ;
+    clap:position 1 .
+
+api:NameArg a clap:Argument ;
+    clap:name "name" ;
+    clap:shortName "n" ;
+    clap:about "User full name" ;
+    clap:valueType xsd:string ;
+    clap:required false .
+
+api:EmailArg a clap:Argument ;
+    clap:name "email" ;
+    clap:shortName "e" ;
+    clap:about "User email address" ;
+    clap:valueType xsd:string ;
+    clap:required false .
+
+api:AgeArg a clap:Argument ;
+    clap:name "age" ;
+    clap:about "User age" ;
+    clap:valueType xsd:integer ;
+    clap:required false .
+
+api:BioArg a clap:Argument ;
+    clap:name "bio" ;
+    clap:about "User biography" ;
+    clap:valueType xsd:string ;
+    clap:required false .
+
+api:UserIdArg a clap:Argument ;
+    clap:name "user-id" ;
+    clap:shortName "u" ;
+    clap:about "User ID" ;
+    clap:valueType xsd:integer ;
+    clap:required false .
+
+api:PostIdArg a clap:Argument ;
+    clap:name "post-id" ;
+    clap:about "Post ID" ;
+    clap:valueType xsd:integer ;
+    clap:required false .
+
+api:TitleArg a clap:Argument ;
+    clap:name "title" ;
+    clap:shortName "t" ;
+    clap:about "Post title" ;
+    clap:valueType xsd:string ;
+    clap:required false .
+
+api:ContentArg a clap:Argument ;
+    clap:name "content" ;
+    clap:shortName "c" ;
+    clap:about "Content text" ;
+    clap:valueType xsd:string ;
+    clap:required false .
+
+api:TagsArg a clap:Argument ;
+    clap:name "tags" ;
+    clap:about "Comma-separated tags" ;
+    clap:valueType xsd:string ;
+    clap:required false .
+
+api:LimitArg a clap:Argument ;
+    clap:name "limit" ;
+    clap:about "Maximum number of results" ;
+    clap:valueType xsd:integer ;
+    clap:required false ;
+    clap:defaultValue 10 .
+
+api:OffsetArg a clap:Argument ;
+    clap:name "offset" ;
+    clap:about "Number of results to skip" ;
+    clap:valueType xsd:integer ;
+    clap:required false ;
+    clap:defaultValue 0 .
+
+api:FilterArg a clap:Argument ;
+    clap:name "filter" ;
+    clap:about "Filter query string" ;
+    clap:valueType xsd:string ;
+    clap:required false .
+
+# Global Flags
+api:BaseUrlFlag a clap:Flag ;
+    clap:name "base-url" ;
+    clap:about "API base URL" ;
+    clap:valueType xsd:string ;
+    clap:defaultValue "https://api.example.com" ;
+    clap:global true .
+
+api:ApiKeyFlag a clap:Flag ;
+    clap:name "api-key" ;
+    clap:about "API authentication key" ;
+    clap:valueType xsd:string ;
+    clap:global true ;
+    clap:env "API_KEY" .
+
+api:VerboseFlag a clap:Flag ;
+    clap:name "verbose" ;
+    clap:shortName "v" ;
+    clap:about "Enable verbose output" ;
+    clap:valueType xsd:boolean ;
+    clap:defaultValue false ;
+    clap:global true .
+
+api:ConfirmFlag a clap:Flag ;
+    clap:name "confirm" ;
+    clap:about "Confirm destructive operation" ;
+    clap:valueType xsd:boolean ;
+    clap:defaultValue false .
+
+# Complex Types
+api:UserResponse a clap:ComplexType ;
+    clap:fields (api:UserIdField api:UserNameField api:UserEmailField api:UserAgeField) .
+
+api:PostResponse a clap:ComplexType ;
+    clap:fields (api:PostIdField api:PostUserIdField api:PostTitleField api:PostContentField) .
+
+api:CommentResponse a clap:ComplexType ;
+    clap:fields (api:CommentIdField api:CommentPostIdField api:CommentUserIdField api:CommentContentField) .
+
+api:UserListResponse a clap:ComplexType ;
+    clap:fields (api:UsersField api:TotalCountField) .
+
+api:PostListResponse a clap:ComplexType ;
+    clap:fields (api:PostsField api:TotalCountField) .
+
+api:CommentListResponse a clap:ComplexType ;
+    clap:fields (api:CommentsField api:TotalCountField) .
+
+# Validations
+api:ValidEmail a clap:Validation ;
+    clap:field "email" ;
+    clap:constraint "regex('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$')" ;
+    clap:errorMessage "Invalid email format" .
+
+api:PositiveId a clap:Validation ;
+    clap:field "id" ;
+    clap:constraint "value > 0" ;
+    clap:errorMessage "ID must be positive" .
+
+api:PositiveUserId a clap:Validation ;
+    clap:field "user-id" ;
+    clap:constraint "value > 0" ;
+    clap:errorMessage "User ID must be positive" .
+
+api:PositivePostId a clap:Validation ;
+    clap:field "post-id" ;
+    clap:constraint "value > 0" ;
+    clap:errorMessage "Post ID must be positive" .

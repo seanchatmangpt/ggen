@@ -1,0 +1,223 @@
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix bs:   <https://bytestar.org/ontology/bytestar-core.owl.ttl#> .
+@prefix bsrep:<https://bytestar.org/ontology/bytestar-report-2026-impact.owl.ttl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+############################
+# Bench run sanity
+############################
+
+bsrep:BenchmarkRunShape a sh:NodeShape ;
+  sh:targetClass bsrep:BenchmarkRun ;
+  sh:property [
+    sh:path bsrep:throughputSustained ; sh:minCount 0 ; sh:maxCount 1
+  ] ;
+  sh:sparql [
+    sh:message "Sustained throughput must be ≥ 0 ops/s." ;
+    sh:select """
+      SELECT ?this WHERE {
+        ?this a bsrep:BenchmarkRun .
+        OPTIONAL { ?this bsrep:throughputSustained ?q . ?q qudt:numericValue ?v . }
+        FILTER(bound(?v) && ?v < 0)
+      }""" ] ;
+  sh:sparql [
+    sh:message "Theoretical throughput must be ≥ sustained low/high when present." ;
+    sh:select """
+      SELECT ?this WHERE {
+        ?this a bsrep:BenchmarkRun ;
+              bsrep:throughputTheoretical ?t .
+        ?t qudt:numericValue ?tv .
+        OPTIONAL { ?this bsrep:throughputSustainedLow ?l . ?l qudt:numericValue ?lv . }
+        OPTIONAL { ?this bsrep:throughputSustainedHigh ?h . ?h qudt:numericValue ?hv . }
+        FILTER( (bound(?lv) && ?tv < ?lv) || (bound(?hv) && ?tv < ?hv) )
+      }""" ] .
+
+############################
+# Doctrine: tick ≤ 8
+############################
+
+bsrep:TickBudgetShape a sh:NodeShape ;
+  sh:targetClass bs:SoftwareComponent ;
+  sh:sparql [
+    sh:message "SoftwareComponent enforcing tick budget must be ≤ 8." ;
+    sh:select """
+      SELECT ?this WHERE {
+        ?this a bs:SoftwareComponent ; bsrep:enforcesTickBudget ?q .
+        ?q qudt:numericValue ?v .
+        FILTER(?v > 8)
+      }""" ] .
+
+############################
+# Use-case latency improvement: WITH ≤ NOW
+############################
+
+bsrep:UseCaseShape a sh:NodeShape ;
+  sh:targetClass bsrep:UseCase ;
+  sh:sparql [
+    sh:message "Use-case claimed latency with ByteStar must be ≤ current latency (upper bound)." ;
+    sh:select """
+      SELECT ?this WHERE {
+        ?this a bsrep:UseCase ;
+              bsrep:useCaseLatencyWithBS ?with .
+        ?with qudt:numericValue ?w ; qudt:unit ?wu .
+        OPTIONAL { ?this bsrep:useCaseLatencyNowHigh ?nowH . ?nowH qudt:numericValue ?nh ; qudt:unit ?nuh . }
+        OPTIONAL { ?this bsrep:useCaseLatencyNow ?nowL . ?nowL qudt:numericValue ?nl ; qudt:unit ?nul . }
+        # naive unit check: require same unit for this shape
+        FILTER( bound(?nh) && ?wu = ?nuh && ?w > ?nh
+             || bound(?nl) && ?wu = ?nul && ?w > ?nl )
+      }""" ] .
+
+############################
+# Hardware profile validation
+############################
+
+bsrep:HardwareProfileShape a sh:NodeShape ;
+  sh:targetClass bsrep:HardwareProfile ;
+  sh:property [
+    sh:path bsrep:clockGHz ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 0.1 ;
+    sh:maxInclusive 10.0 ;
+    sh:message "Clock frequency must be between 0.1 and 10.0 GHz"
+  ] ;
+  sh:property [
+    sh:path bsrep:l1DataKB ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 8 ;
+    sh:maxInclusive 1024 ;
+    sh:message "L1 data cache must be between 8 and 1024 KB"
+  ] ;
+  sh:property [
+    sh:path bsrep:l1InstrKB ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 8 ;
+    sh:maxInclusive 1024 ;
+    sh:message "L1 instruction cache must be between 8 and 1024 KB"
+  ] .
+
+############################
+# Market estimate validation
+############################
+
+bsrep:MarketEstimateShape a sh:NodeShape ;
+  sh:targetClass bsrep:MarketEstimate ;
+  sh:property [
+    sh:path bsrep:marketUSD ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 0 ;
+    sh:message "Market size must be non-negative"
+  ] .
+
+############################
+# Prediction validation
+############################
+
+bsrep:PredictionShape a sh:NodeShape ;
+  sh:targetClass bsrep:Prediction ;
+  sh:property [
+    sh:path bsrep:predictionForYear ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 2024 ;
+    sh:maxInclusive 2030 ;
+    sh:message "Prediction year must be between 2024 and 2030"
+  ] .
+
+############################
+# Component validation
+############################
+
+bsrep:SoftwareComponentShape a sh:NodeShape ;
+  sh:targetClass bs:SoftwareComponent ;
+  sh:property [
+    sh:path bsrep:tickBudgetMax ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 1 ;
+    sh:maxInclusive 8 ;
+    sh:message "Tick budget max must be between 1 and 8 (doctrine constraint)"
+  ] ;
+  sh:property [
+    sh:path bsrep:constantTime ;
+    sh:datatype xsd:boolean ;
+    sh:message "Constant time property must be boolean"
+  ] .
+
+############################
+# Impact report completeness
+############################
+
+bsrep:ImpactReportShape a sh:NodeShape ;
+  sh:targetClass bsrep:ImpactReport ;
+  sh:property [
+    sh:path bsrep:targetsYear ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "Impact report must specify target year"
+  ] ;
+  sh:property [
+    sh:path bsrep:coversComponent ;
+    sh:minCount 1 ;
+    sh:message "Impact report must cover at least one component"
+  ] ;
+  sh:sparql [
+    sh:message "Impact report must include at least one benchmark run." ;
+    sh:select """
+      SELECT ?this WHERE {
+        ?this a bsrep:ImpactReport .
+        FILTER NOT EXISTS { ?this bsrep:includesBenchmark ?run . }
+      }""" ] ;
+  sh:sparql [
+    sh:message "Impact report must include at least one use case." ;
+    sh:select """
+      SELECT ?this WHERE {
+        ?this a bsrep:ImpactReport .
+        FILTER NOT EXISTS { ?this bsrep:includesUseCase ?uc . }
+      }""" ] .
+
+############################
+# Cross-validation: use case speedup claims
+############################
+
+bsrep:SpeedupValidationShape a sh:NodeShape ;
+  sh:targetClass bsrep:UseCase ;
+  sh:sparql [
+    sh:message "Speedup factor must be consistent with latency measurements when both are present." ;
+    sh:select """
+      SELECT ?this WHERE {
+        ?this a bsrep:UseCase ;
+              bsrep:speedupFactor ?sf .
+        OPTIONAL { ?this bsrep:useCaseLatencyNow ?now . ?now qudt:numericValue ?nv ; qudt:unit ?nu . }
+        OPTIONAL { ?this bsrep:useCaseLatencyWithBS ?with . ?with qudt:numericValue ?wv ; qudt:unit ?wu . }
+        # Check if speedup factor roughly matches latency ratio (within 20% tolerance)
+        FILTER( bound(?nv) && bound(?wv) && ?nu = ?wu && 
+                abs(?sf - (?nv / ?wv)) > (0.2 * ?sf) )
+      }""" ] .
+
+############################
+# QUDT unit consistency
+############################
+
+bsrep:UnitConsistencyShape a sh:NodeShape ;
+  sh:targetClass bsrep:BenchmarkRun ;
+  sh:sparql [
+    sh:message "Throughput measurements must use consistent units (ops/sec)." ;
+    sh:select """
+      SELECT ?this WHERE {
+        ?this a bsrep:BenchmarkRun .
+        OPTIONAL { ?this bsrep:throughputTheoretical ?t . ?t qudt:unit ?tu . }
+        OPTIONAL { ?this bsrep:throughputSustained ?s . ?s qudt:unit ?su . }
+        OPTIONAL { ?this bsrep:throughputSustainedLow ?l . ?l qudt:unit ?lu . }
+        OPTIONAL { ?this bsrep:throughputSustainedHigh ?h . ?h qudt:unit ?hu . }
+        # All throughput units should be PER-SEC
+        FILTER( (bound(?tu) && ?tu != unit:PER-SEC) ||
+                (bound(?su) && ?su != unit:PER-SEC) ||
+                (bound(?lu) && ?lu != unit:PER-SEC) ||
+                (bound(?hu) && ?hu != unit:PER-SEC) )
+      }""" ] .
+
+
+
+
+

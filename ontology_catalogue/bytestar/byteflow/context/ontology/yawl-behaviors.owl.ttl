@@ -1,0 +1,90 @@
+@prefix : <http://yawl.org/ontology#> .
+@prefix yawl: <http://yawl.org/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://yawl.org/ontology/behaviors>
+  a owl:Ontology ;
+  rdfs:label "YAWL Behaviors Ontology" ;
+  rdfs:comment "Defines the specific types of split, join, removal, and multi-instance behaviors in YAWL." ;
+  owl:versionInfo "1.0.0" ;
+  owl:imports yawl: .
+
+#################################################################
+# Specific Split Behaviors
+#################################################################
+
+:ANDSplit a owl:Class ;
+  rdfs:subClassOf yawl:SplitBehavior ;
+  rdfs:label "AND-Split" ;
+  rdfs:comment "A split behavior where all outgoing branches are activated concurrently." .
+
+:XORSplit a owl:Class ;
+  rdfs:subClassOf yawl:SplitBehavior ;
+  rdfs:label "XOR-Split" ;
+  rdfs:comment "A split behavior where exactly one outgoing branch is activated based on a condition." .
+
+:ORSplit a owl:Class ;
+  rdfs:subClassOf yawl:SplitBehavior ;
+  rdfs:label "OR-Split" ;
+  rdfs:comment "A split behavior where one or more outgoing branches can be activated based on conditions." .
+
+#################################################################
+# Specific Join Behaviors
+#################################################################
+
+:ANDJoin a owl:Class ;
+  rdfs:subClassOf yawl:JoinBehavior ;
+  rdfs:label "AND-Join" ;
+  rdfs:comment "A join behavior that waits for all incoming branches to complete before proceeding." .
+
+:XORJoin a owl:Class ;
+  rdfs:subClassOf yawl:JoinBehavior ;
+  rdfs:label "XOR-Join" ;
+  rdfs:comment "A join behavior that proceeds as soon as one incoming branch completes." .
+
+:ORJoin a owl:Class ;
+  rdfs:subClassOf yawl:JoinBehavior ;
+  rdfs:label "OR-Join" ;
+  rdfs:comment "A join behavior that proceeds when a subset of incoming branches complete, potentially synchronizing." .
+
+#################################################################
+# Multi-Instance Behavior Properties
+#################################################################
+
+:minInstances a owl:DatatypeProperty ;
+  rdfs:label "minimum instances" ;
+  rdfs:domain yawl:MultiInstanceBehavior ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "The minimum number of instances for a multi-instance task." .
+
+:maxInstances a owl:DatatypeProperty ;
+  rdfs:label "maximum instances" ;
+  rdfs:domain yawl:MultiInstanceBehavior ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "The maximum number of instances for a multi-instance task. Use -1 for infinity." .
+
+:threshold a owl:DatatypeProperty ;
+  rdfs:label "threshold for continuation" ;
+  rdfs:domain yawl:MultiInstanceBehavior ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "The number of instances that must complete before the task can continue." .
+
+:instanceCreationType a owl:DatatypeProperty ;
+  rdfs:label "instance creation type" ;
+  rdfs:domain yawl:MultiInstanceBehavior ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Specifies if instances can be created statically (fixed at design time) or dynamically (added at runtime)." ;
+  owl:hasValue "static" , "dynamic" .
+
+#################################################################
+# Removal Behavior Properties
+#################################################################
+
+:removesTokensFrom a owl:ObjectProperty ;
+  rdfs:label "removes tokens from" ;
+  rdfs:domain yawl:RemovalBehavior ;
+  rdfs:range yawl:Node ;
+  rdfs:comment "Specifies the nodes from which tokens are removed during a cancellation or removal operation." .

@@ -1,0 +1,470 @@
+# SHACL shapes for ByteEthos governance smart contracts
+# Implements executable governance rules and compliance validation
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix be: <urn:byteethos:> .
+@prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix gov: <https://bytestar.org/ontology/byteethos/governance-specification#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Governance Canon Smart Contract Shape
+be:GovernanceCanonContractShape
+    a sh:NodeShape ;
+    rdfs:label "Governance Canon Smart Contract Shape" ;
+    rdfs:comment "Validates governance canon smart contracts for executable rule enforcement" ;
+    sh:targetClass gov:GovernanceCanon ;
+    
+    # Canon must have unique identifier
+    sh:property [
+        sh:path gov:canonId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 3 ;
+        sh:maxLength 50 ;
+        sh:pattern "^[A-Z][A-Z0-9_]*$" ;
+        sh:message "Canon ID must be unique uppercase identifier (3-50 chars)" ;
+    ] ;
+    
+    # Canon must have formal name
+    sh:property [
+        sh:path rdfs:label ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 5 ;
+        sh:maxLength 100 ;
+        sh:message "Canon must have formal name (5-100 characters)" ;
+    ] ;
+    
+    # Canon must define applicable risk tier
+    sh:property [
+        sh:path gov:appliesToAgentRiskTier ;
+        sh:class gov:RiskTier ;
+        sh:minCount 1 ;
+        sh:message "Canon must apply to at least one AI agent risk tier" ;
+    ] ;
+    
+    # Canon must have enforcement mechanism
+    sh:property [
+        sh:path gov:hasEnforcementMechanism ;
+        sh:datatype xsd:string ;
+        sh:in ("automatic" "manual" "hybrid" "advisory") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Canon must specify enforcement mechanism" ;
+    ] ;
+    
+    # Canon must have compliance level
+    sh:property [
+        sh:path gov:hasComplianceLevel ;
+        sh:datatype xsd:string ;
+        sh:in ("mandatory" "recommended" "optional") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Canon must specify compliance level" ;
+    ] .
+
+# Mission Authorization Smart Contract Shape
+be:MissionAuthorizationContractShape
+    a sh:NodeShape ;
+    rdfs:label "Mission Authorization Smart Contract Shape" ;
+    rdfs:comment "Validates mission authorization contracts for agent intent validation" ;
+    sh:targetClass bcore:MissionCrystal ;
+    
+    # Mission must have agent identifier
+    sh:property [
+        sh:path bcore:hasAgent ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^agent_[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" ;
+        sh:message "Mission must reference valid agent UUID" ;
+    ] ;
+    
+    # Mission must have intent description
+    sh:property [
+        sh:path bcore:hasIntent ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 10 ;
+        sh:maxLength 1000 ;
+        sh:message "Mission intent must be 10-1000 characters" ;
+    ] ;
+    
+    # Mission must have risk assessment
+    sh:property [
+        sh:path gov:hasRiskAssessment ;
+        sh:class gov:RiskTier ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Mission must have risk tier assessment" ;
+    ] ;
+    
+    # Mission must have authorization timestamp
+    sh:property [
+        sh:path bcore:authorizedAt ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Mission must have authorization timestamp" ;
+    ] ;
+    
+    # Mission must have expiration
+    sh:property [
+        sh:path bcore:expiresAt ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Mission must have expiration timestamp" ;
+    ] ;
+    
+    # Mission must be PQC signed
+    sh:property [
+        sh:path bcore:hasPQCSignature ;
+        sh:datatype xsd:hexBinary ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 128 ;  # Minimum signature length
+        sh:message "Mission must have valid PQC signature" ;
+    ] .
+
+# Identity Crystal Smart Contract Shape
+be:IdentityCrystalContractShape
+    a sh:NodeShape ;
+    rdfs:label "Identity Crystal Smart Contract Shape" ;
+    rdfs:comment "Validates identity crystal contracts for non-transferable identity management" ;
+    sh:targetClass bcore:IdentityCrystal ;
+    
+    # Identity must have unique DID
+    sh:property [
+        sh:path bcore:hasDID ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^did:byteethos:[a-z0-9]{32}$" ;
+        sh:message "Identity must have valid ByteEthos DID format" ;
+    ] ;
+    
+    # Identity must have public key
+    sh:property [
+        sh:path bcore:hasPublicKey ;
+        sh:datatype xsd:hexBinary ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 64 ;  # 32 bytes = 64 hex chars
+        sh:maxLength 64 ;
+        sh:message "Identity must have valid 32-byte public key" ;
+    ] ;
+    
+    # Identity must be non-transferable
+    sh:property [
+        sh:path bcore:isTransferable ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue false ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Identity crystal must be non-transferable" ;
+    ] ;
+    
+    # Identity must have creation timestamp
+    sh:property [
+        sh:path bcore:createdAt ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Identity must have creation timestamp" ;
+    ] ;
+    
+    # Identity must have capabilities list
+    sh:property [
+        sh:path bcore:hasCapability ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Identity must have at least one capability" ;
+    ] .
+
+# Ledger Segment Smart Contract Shape
+be:LedgerSegmentContractShape
+    a sh:NodeShape ;
+    rdfs:label "Ledger Segment Smart Contract Shape" ;
+    rdfs:comment "Validates ledger segment contracts for immutable record keeping" ;
+    sh:targetClass bcore:LedgerSegment ;
+    
+    # Segment must have unique hash
+    sh:property [
+        sh:path bcore:hasHash ;
+        sh:datatype xsd:hexBinary ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 64 ;  # BLAKE3 hash
+        sh:maxLength 64 ;
+        sh:pattern "^[0-9a-fA-F]{64}$" ;
+        sh:message "Segment must have valid BLAKE3 hash" ;
+    ] ;
+    
+    # Segment must have previous hash (except genesis)
+    sh:property [
+        sh:path bcore:hasPreviousHash ;
+        sh:datatype xsd:hexBinary ;
+        sh:minLength 64 ;
+        sh:maxLength 64 ;
+        sh:pattern "^[0-9a-fA-F]{64}$" ;
+        sh:message "Segment must reference valid previous hash" ;
+    ] ;
+    
+    # Segment must have timestamp
+    sh:property [
+        sh:path bcore:timestamp ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Segment must have timestamp" ;
+    ] ;
+    
+    # Segment must have consensus proof
+    sh:property [
+        sh:path bcore:hasConsensusProof ;
+        sh:datatype xsd:hexBinary ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Segment must have consensus proof" ;
+    ] ;
+    
+    # Segment must contain transactions
+    sh:property [
+        sh:path bcore:containsTransaction ;
+        sh:class bcore:Transaction ;
+        sh:minCount 1 ;
+        sh:message "Segment must contain at least one transaction" ;
+    ] ;
+    
+    # Segment must be sealed
+    sh:property [
+        sh:path bcore:isSealed ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Ledger segment must be sealed" ;
+    ] .
+
+# Consensus Validation Smart Contract Shape
+be:ConsensusValidationContractShape
+    a sh:NodeShape ;
+    rdfs:label "Consensus Validation Smart Contract Shape" ;
+    rdfs:comment "Validates consensus mechanisms for Byzantine fault tolerance" ;
+    sh:targetClass bcore:ConsensusRound ;
+    
+    # Consensus must have round number
+    sh:property [
+        sh:path bcore:hasRoundNumber ;
+        sh:datatype xsd:integer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0 ;
+        sh:message "Consensus round must have valid round number" ;
+    ] ;
+    
+    # Consensus must have validator set
+    sh:property [
+        sh:path bcore:hasValidator ;
+        sh:class bcore:Validator ;
+        sh:minCount 3 ;  # Minimum for BFT
+        sh:message "Consensus round must have at least 3 validators" ;
+    ] ;
+    
+    # Consensus must have 2/3+ agreement
+    sh:property [
+        sh:path bcore:hasAgreementRatio ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.67 ;  # 2/3 + 1
+        sh:maxInclusive 1.0 ;
+        sh:message "Consensus requires 2/3+ validator agreement" ;
+    ] ;
+    
+    # Consensus must have proof aggregation
+    sh:property [
+        sh:path bcore:hasAggregatedProof ;
+        sh:datatype xsd:hexBinary ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Consensus round must have aggregated proof" ;
+    ] .
+
+# Compliance Audit Smart Contract Shape
+be:ComplianceAuditContractShape
+    a sh:NodeShape ;
+    rdfs:label "Compliance Audit Smart Contract Shape" ;
+    rdfs:comment "Validates compliance audit trails for governance accountability" ;
+    sh:targetClass bcore:AuditEvent ;
+    
+    # Audit event must have unique ID
+    sh:property [
+        sh:path bcore:eventId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^audit_[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" ;
+        sh:message "Audit event must have valid UUID" ;
+    ] ;
+    
+    # Audit event must have actor
+    sh:property [
+        sh:path bcore:hasActor ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Audit event must identify actor" ;
+    ] ;
+    
+    # Audit event must have action
+    sh:property [
+        sh:path bcore:hasAction ;
+        sh:datatype xsd:string ;
+        sh:in ("create" "read" "update" "delete" "execute" "validate" "authorize" "seal") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Audit event must specify valid action" ;
+    ] ;
+    
+    # Audit event must have resource
+    sh:property [
+        sh:path bcore:hasResource ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Audit event must identify resource" ;
+    ] ;
+    
+    # Audit event must have timestamp
+    sh:property [
+        sh:path bcore:timestamp ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Audit event must have timestamp" ;
+    ] ;
+    
+    # Audit event must have integrity hash
+    sh:property [
+        sh:path bcore:hasIntegrityHash ;
+        sh:datatype xsd:hexBinary ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 64 ;
+        sh:maxLength 64 ;
+        sh:message "Audit event must have integrity hash" ;
+    ] .
+
+# Execution Context Validation Shape
+be:ExecutionContextValidationShape
+    a sh:NodeShape ;
+    rdfs:label "Execution Context Validation Shape" ;
+    rdfs:comment "Validates smart contract execution context for secure execution" ;
+    sh:targetClass bcore:ExecutionContext ;
+    
+    # Context must have gas limit
+    sh:property [
+        sh:path bcore:hasGasLimit ;
+        sh:datatype xsd:integer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 100 ;
+        sh:maxInclusive 1000000 ;
+        sh:message "Execution context must have gas limit (100-1000000)" ;
+    ] ;
+    
+    # Context must have caller identity
+    sh:property [
+        sh:path bcore:hasCaller ;
+        sh:class bcore:IdentityCrystal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Execution context must identify caller" ;
+    ] ;
+    
+    # Context must have permission scope
+    sh:property [
+        sh:path bcore:hasPermissionScope ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Execution context must define permission scope" ;
+    ] ;
+    
+    # Context must have execution environment
+    sh:property [
+        sh:path bcore:hasEnvironment ;
+        sh:datatype xsd:string ;
+        sh:in ("production" "staging" "testing" "development") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Execution context must specify environment" ;
+    ] .
+
+# Access Control Smart Contract Shape
+be:AccessControlContractShape
+    a sh:NodeShape ;
+    rdfs:label "Access Control Smart Contract Shape" ;
+    rdfs:comment "Validates access control policies for secure governance operations" ;
+    sh:targetClass bcore:AccessControlPolicy ;
+    
+    # Policy must have unique name
+    sh:property [
+        sh:path bcore:policyName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 3 ;
+        sh:maxLength 50 ;
+        sh:pattern "^[a-z][a-z0-9_]*$" ;
+        sh:message "Policy name must be lowercase with underscores (3-50 chars)" ;
+    ] ;
+    
+    # Policy must define subjects
+    sh:property [
+        sh:path bcore:hasSubject ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Policy must define at least one subject" ;
+    ] ;
+    
+    # Policy must define resources
+    sh:property [
+        sh:path bcore:hasResource ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Policy must define at least one resource" ;
+    ] ;
+    
+    # Policy must define actions
+    sh:property [
+        sh:path bcore:hasAction ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Policy must define at least one action" ;
+    ] ;
+    
+    # Policy must have effect
+    sh:property [
+        sh:path bcore:hasEffect ;
+        sh:datatype xsd:string ;
+        sh:in ("allow" "deny") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Policy must specify allow or deny effect" ;
+    ] ;
+    
+    # Policy must have priority
+    sh:property [
+        sh:path bcore:hasPriority ;
+        sh:datatype xsd:integer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 100 ;
+        sh:message "Policy priority must be 1-100" ;
+    ] .

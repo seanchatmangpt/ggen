@@ -1,0 +1,152 @@
+# YAWL Core Shapes
+# Defines basic SHACL constraints for YAWL elements
+
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix yawl:    <http://www.yawlfoundation.org/yawl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex:      <http://example.org/yawl-shapes#> .
+
+# Base shape for all YAWL elements
+ex:YAWLElementShape a sh:NodeShape ;
+    rdfs:comment "Base shape for all YAWL workflow elements" ;
+    sh:targetClass yawl:YAWLElement ;
+    sh:property [
+        sh:path yawl:hasName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "[A-Za-z][A-Za-z0-9_]*" ;
+        sh:message "Element names must be valid identifiers (letters, digits, underscores only)" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasDescription ;
+        sh:datatype xsd:string ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+    ] .
+
+# Shape for YAWL specifications
+ex:YAWLSpecShape a sh:NodeShape ;
+    rdfs:comment "YAWL specification root" ;
+    sh:targetClass yawl:YAWLSpecification ;
+    sh:property [
+        sh:path yawl:hasSpecificationVersion ;
+        sh:datatype xsd:string ;
+        sh:hasValue "2.0" ;
+        sh:message "YAWL specification version must be 2.0" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasYAWLNet ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "A YAWL specification must have exactly one YAWLNet" ;
+    ] .
+
+# Shape for YAWL nets
+ex:YAWLNetShape a sh:NodeShape ;
+    rdfs:comment "YAWL workflow net" ;
+    sh:targetClass yawl:YAWLNet ;
+    sh:property [
+        sh:path yawl:hasInputCondition ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "A YAWL net must have exactly one input condition" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasOutputCondition ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "A YAWL net must have exactly one output condition" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasYAWLTask ;
+        sh:minCount 1 ;
+        sh:message "A YAWL net must have at least one task" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasGateway ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:message "A YAWL net can have at most one gateway (for simplicity)" ;
+    ] .
+
+# Shape for YAWL tasks
+ex:YAWLTaskShape a sh:NodeShape ;
+    rdfs:comment "Base shape for all YAWL tasks" ;
+    sh:targetClass yawl:YAWLTask ;
+    sh:property [
+        sh:path yawl:hasFlows ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "A YAWL task must have exactly one flows container" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasInputFlow ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedValueShapes [
+            sh:node ex:InputFlowShape ;
+        ] ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "A YAWL task must have exactly one input flow" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasOutputFlow ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedValueShapes [
+            sh:node ex:OutputFlowShape ;
+        ] ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "A YAWL task must have exactly one output flow" ;
+    ] .
+
+# Shape for input flows
+ex:InputFlowShape a sh:NodeShape ;
+    rdfs:comment "Input flow to a task" ;
+    sh:targetClass yawl:InputFlow ;
+    sh:property [
+        sh:path yawl:hasSource ;
+        sh:minCount 1 ;
+        sh:message "Input flow must have a source" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasTarget ;
+        sh:minCount 1 ;
+        sh:message "Input flow must have a target" ;
+    ] .
+
+# Shape for output flows
+ex:OutputFlowShape a sh:NodeShape ;
+    rdfs:comment "Output flow from a task" ;
+    sh:targetClass yawl:OutputFlow ;
+    sh:property [
+        sh:path yawl:hasSource ;
+        sh:minCount 1 ;
+        sh:message "Output flow must have a source" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasTarget ;
+        sh:minCount 1 ;
+        sh:message "Output flow must have a target" ;
+    ] .
+
+# Shape for condition-based gateways
+ex:GatewayShape a sh:NodeShape ;
+    rdfs:comment "Condition-based gateway" ;
+    sh:targetClass yawl:Gateway ;
+    sh:property [
+        sh:path yawl:hasInputFlow ;
+        sh:minCount 2 ;
+        sh:message "Gateway must have at least two input flows" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasOutputFlow ;
+        sh:minCount 2 ;
+        sh:message "Gateway must have at least two output flows" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasCondition ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Gateway must have exactly one condition" ;
+    ] .

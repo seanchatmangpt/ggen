@@ -1,0 +1,798 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ga: <http://dogturk.io/ontology/ga#> .
+@prefix dogturk: <http://dogturk.io/ontology/core#> .
+
+# GA² (Meta-Generative Autonomics) Core Ontology Shapes
+# 
+# Defines SHACL shapes for the GA² system components including:
+# - MAPE-K Autonomic Loop structures
+# - Meta-Generator evolution patterns  
+# - Cryptographic Receipt structures
+# - Template evolution tracking
+# - Performance optimization patterns
+
+#################################################################
+# GA² System Core Shapes
+#################################################################
+
+ga:GASystemShape
+    a sh:NodeShape ;
+    sh:targetClass ga:GASystem ;
+    rdfs:label "GA² System Shape" ;
+    rdfs:comment "Defines the structure of a GA² Meta-Generative Autonomics system" ;
+    sh:property [
+        sh:path ga:hasAutonomicLoop ;
+        sh:class ga:AutonomicLoop ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "autonomic loop" ;
+        sh:description "The MAPE-K autonomic loop instance"
+    ] ;
+    sh:property [
+        sh:path ga:hasMetaGenerator ;
+        sh:class ga:MetaGenerator ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "meta generator" ;
+        sh:description "The template evolution meta-generator"
+    ] ;
+    sh:property [
+        sh:path ga:hasReceiptLedger ;
+        sh:class ga:ReceiptLedger ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "receipt ledger" ;
+        sh:description "The cryptographic receipt ledger"
+    ] ;
+    sh:property [
+        sh:path ga:gaScore ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:name "GA score" ;
+        sh:description "Current Generative Accuracy score"
+    ] ;
+    sh:property [
+        sh:path ga:targetImprovement ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:name "target improvement" ;
+        sh:description "Target GA improvement threshold (≥ 0.25)"
+    ] .
+
+#################################################################
+# MAPE-K Autonomic Loop Shapes
+#################################################################
+
+ga:AutonomicLoopShape
+    a sh:NodeShape ;
+    sh:targetClass ga:AutonomicLoop ;
+    rdfs:label "MAPE-K Autonomic Loop Shape" ;
+    rdfs:comment "Defines the structure of the Monitor-Analyze-Plan-Execute-Knowledge loop" ;
+    sh:property [
+        sh:path ga:hasMonitorPhase ;
+        sh:class ga:MonitorPhase ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "monitor phase" ;
+        sh:description "Metrics collection and system monitoring"
+    ] ;
+    sh:property [
+        sh:path ga:hasAnalyzePhase ;
+        sh:class ga:AnalyzePhase ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "analyze phase" ;
+        sh:description "Pattern detection and bottleneck analysis"
+    ] ;
+    sh:property [
+        sh:path ga:hasPlanPhase ;
+        sh:class ga:PlanPhase ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "plan phase" ;
+        sh:description "Optimization and evolution planning"
+    ] ;
+    sh:property [
+        sh:path ga:hasExecutePhase ;
+        sh:class ga:ExecutePhase ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "execute phase" ;
+        sh:description "Implementation of optimizations with receipts"
+    ] ;
+    sh:property [
+        sh:path ga:hasKnowledgeBase ;
+        sh:class ga:KnowledgeBase ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "knowledge base" ;
+        sh:description "Persistent learning and knowledge storage"
+    ] ;
+    sh:property [
+        sh:path ga:loopInterval ;
+        sh:datatype xsd:duration ;
+        sh:name "loop interval" ;
+        sh:description "Time between autonomic loop executions"
+    ] ;
+    sh:property [
+        sh:path ga:isRunning ;
+        sh:datatype xsd:boolean ;
+        sh:name "is running" ;
+        sh:description "Whether the autonomic loop is currently active"
+    ] .
+
+ga:MonitorPhaseShape
+    a sh:NodeShape ;
+    sh:targetClass ga:MonitorPhase ;
+    rdfs:label "Monitor Phase Shape" ;
+    rdfs:comment "Metrics collection and system monitoring phase" ;
+    sh:property [
+        sh:path ga:collectsMetric ;
+        sh:class ga:PerformanceMetric ;
+        sh:minCount 1 ;
+        sh:name "collects metric" ;
+        sh:description "Performance metrics collected during monitoring"
+    ] ;
+    sh:property [
+        sh:path ga:metricsWindow ;
+        sh:datatype xsd:duration ;
+        sh:name "metrics window" ;
+        sh:description "Rolling window for metrics collection"
+    ] ;
+    sh:property [
+        sh:path ga:lastMonitorTime ;
+        sh:datatype xsd:dateTime ;
+        sh:name "last monitor time" ;
+        sh:description "Timestamp of last monitoring execution"
+    ] .
+
+ga:AnalyzePhaseShape
+    a sh:NodeShape ;
+    sh:targetClass ga:AnalyzePhase ;
+    rdfs:label "Analyze Phase Shape" ;
+    rdfs:comment "Pattern detection and bottleneck analysis phase" ;
+    sh:property [
+        sh:path ga:identifiesPattern ;
+        sh:class ga:OptimizationPattern ;
+        sh:name "identifies pattern" ;
+        sh:description "Optimization patterns identified during analysis"
+    ] ;
+    sh:property [
+        sh:path ga:detectsBottleneck ;
+        sh:class ga:PerformanceBottleneck ;
+        sh:name "detects bottleneck" ;
+        sh:description "Performance bottlenecks detected"
+    ] ;
+    sh:property [
+        sh:path ga:gaPotential ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:name "GA potential" ;
+        sh:description "Potential GA improvement identified"
+    ] ;
+    sh:property [
+        sh:path ga:analysisThreshold ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:name "analysis threshold" ;
+        sh:description "Minimum GA potential to trigger planning"
+    ] .
+
+ga:PlanPhaseShape
+    a sh:NodeShape ;
+    sh:targetClass ga:PlanPhase ;
+    rdfs:label "Plan Phase Shape" ;
+    rdfs:comment "Optimization and evolution planning phase" ;
+    sh:property [
+        sh:path ga:generatesOptimizationPlan ;
+        sh:class ga:OptimizationPlan ;
+        sh:minCount 1 ;
+        sh:name "generates optimization plan" ;
+        sh:description "Optimization plans generated for execution"
+    ] ;
+    sh:property [
+        sh:path ga:plansPriority ;
+        sh:in ("high" "medium" "low") ;
+        sh:name "plans priority" ;
+        sh:description "Priority level for optimization plans"
+    ] ;
+    sh:property [
+        sh:path ga:expectedGAImprovement ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:name "expected GA improvement" ;
+        sh:description "Expected GA improvement from plan execution"
+    ] ;
+    sh:property [
+        sh:path ga:planFeasible ;
+        sh:datatype xsd:boolean ;
+        sh:name "plan feasible" ;
+        sh:description "Whether the optimization plan is feasible"
+    ] .
+
+ga:ExecutePhaseShape
+    a sh:NodeShape ;
+    sh:targetClass ga:ExecutePhase ;
+    rdfs:label "Execute Phase Shape" ;
+    rdfs:comment "Implementation of optimizations with receipt generation" ;
+    sh:property [
+        sh:path ga:executesOptimization ;
+        sh:class ga:OptimizationExecution ;
+        sh:name "executes optimization" ;
+        sh:description "Optimization executions performed"
+    ] ;
+    sh:property [
+        sh:path ga:generatesReceipt ;
+        sh:class ga:CryptographicReceipt ;
+        sh:minCount 1 ;
+        sh:name "generates receipt" ;
+        sh:description "Cryptographic receipts generated for each operation"
+    ] ;
+    sh:property [
+        sh:path ga:actualGAImprovement ;
+        sh:datatype xsd:decimal ;
+        sh:name "actual GA improvement" ;
+        sh:description "Actual GA improvement achieved"
+    ] ;
+    sh:property [
+        sh:path ga:executionStatus ;
+        sh:in ("pending" "running" "completed" "failed" "rolled_back") ;
+        sh:name "execution status" ;
+        sh:description "Current status of the execution phase"
+    ] .
+
+#################################################################
+# Meta-Generator Shapes
+#################################################################
+
+ga:MetaGeneratorShape
+    a sh:NodeShape ;
+    sh:targetClass ga:MetaGenerator ;
+    rdfs:label "Meta-Generator Shape" ;
+    rdfs:comment "Template evolution engine for meta-generative autonomics" ;
+    sh:property [
+        sh:path ga:evolvesTemplate ;
+        sh:class ga:Template ;
+        sh:name "evolves template" ;
+        sh:description "Templates being evolved by the meta-generator"
+    ] ;
+    sh:property [
+        sh:path ga:learnsFromApproval ;
+        sh:class ga:ApprovalPattern ;
+        sh:name "learns from approval" ;
+        sh:description "Human approval patterns used for learning"
+    ] ;
+    sh:property [
+        sh:path ga:mutationRate ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:name "mutation rate" ;
+        sh:description "Rate of template mutations during evolution"
+    ] ;
+    sh:property [
+        sh:path ga:generationSize ;
+        sh:datatype xsd:positiveInteger ;
+        sh:name "generation size" ;
+        sh:description "Number of templates in each evolution generation"
+    ] ;
+    sh:property [
+        sh:path ga:maxGenerations ;
+        sh:datatype xsd:positiveInteger ;
+        sh:name "max generations" ;
+        sh:description "Maximum number of evolution generations"
+    ] ;
+    sh:property [
+        sh:path ga:approvalThreshold ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:name "approval threshold" ;
+        sh:description "Minimum approval rate for template acceptance"
+    ] .
+
+ga:TemplateShape
+    a sh:NodeShape ;
+    sh:targetClass ga:Template ;
+    rdfs:label "Template Shape" ;
+    rdfs:comment "Evolutionary template structure" ;
+    sh:property [
+        sh:path ga:templateId ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:name "template ID" ;
+        sh:description "Unique identifier for the template"
+    ] ;
+    sh:property [
+        sh:path ga:templateContent ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:name "template content" ;
+        sh:description "Template content (Jinja/Weaver format)"
+    ] ;
+    sh:property [
+        sh:path ga:templateHash ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-f0-9]{64}$" ;
+        sh:name "template hash" ;
+        sh:description "SHA-256 hash of template content"
+    ] ;
+    sh:property [
+        sh:path ga:generation ;
+        sh:datatype xsd:nonNegativeInteger ;
+        sh:name "generation" ;
+        sh:description "Evolution generation number (0 for original)"
+    ] ;
+    sh:property [
+        sh:path ga:parentTemplate ;
+        sh:class ga:Template ;
+        sh:name "parent template" ;
+        sh:description "Parent template in evolution chain"
+    ] ;
+    sh:property [
+        sh:path ga:fitnessScore ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:name "fitness score" ;
+        sh:description "Template fitness score from evaluation"
+    ] ;
+    sh:property [
+        sh:path ga:approvalRate ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:name "approval rate" ;
+        sh:description "Human approval rate for template outputs"
+    ] ;
+    sh:property [
+        sh:path ga:usageCount ;
+        sh:datatype xsd:nonNegativeInteger ;
+        sh:name "usage count" ;
+        sh:description "Number of times template has been used"
+    ] .
+
+ga:ApprovalPatternShape
+    a sh:NodeShape ;
+    sh:targetClass ga:ApprovalPattern ;
+    rdfs:label "Approval Pattern Shape" ;
+    rdfs:comment "Human approval patterns for template evolution learning" ;
+    sh:property [
+        sh:path ga:patternType ;
+        sh:in ("high_approval" "low_approval" "structural" "content") ;
+        sh:name "pattern type" ;
+        sh:description "Type of approval pattern identified"
+    ] ;
+    sh:property [
+        sh:path ga:patternContent ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:name "pattern content" ;
+        sh:description "Content or structure of the pattern"
+    ] ;
+    sh:property [
+        sh:path ga:confidence ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:name "confidence" ;
+        sh:description "Confidence level of the pattern"
+    ] ;
+    sh:property [
+        sh:path ga:occurrences ;
+        sh:datatype xsd:positiveInteger ;
+        sh:name "occurrences" ;
+        sh:description "Number of times pattern was observed"
+    ] ;
+    sh:property [
+        sh:path ga:relatedToTemplate ;
+        sh:class ga:Template ;
+        sh:name "related to template" ;
+        sh:description "Templates where this pattern was observed"
+    ] .
+
+#################################################################
+# Cryptographic Receipt Shapes
+#################################################################
+
+ga:ReceiptLedgerShape
+    a sh:NodeShape ;
+    sh:targetClass ga:ReceiptLedger ;
+    rdfs:label "Receipt Ledger Shape" ;
+    rdfs:comment "Cryptographic receipt ledger for operation traceability" ;
+    sh:property [
+        sh:path ga:containsReceipt ;
+        sh:class ga:CryptographicReceipt ;
+        sh:name "contains receipt" ;
+        sh:description "Cryptographic receipts stored in the ledger"
+    ] ;
+    sh:property [
+        sh:path ga:hasReceiptChain ;
+        sh:class ga:ReceiptChain ;
+        sh:minCount 1 ;
+        sh:name "has receipt chain" ;
+        sh:description "Blockchain-like chains of related receipts"
+    ] ;
+    sh:property [
+        sh:path ga:ledgerIntegrity ;
+        sh:datatype xsd:boolean ;
+        sh:name "ledger integrity" ;
+        sh:description "Whether ledger integrity checks pass"
+    ] ;
+    sh:property [
+        sh:path ga:totalReceipts ;
+        sh:datatype xsd:nonNegativeInteger ;
+        sh:name "total receipts" ;
+        sh:description "Total number of receipts in ledger"
+    ] .
+
+ga:CryptographicReceiptShape
+    a sh:NodeShape ;
+    sh:targetClass ga:CryptographicReceipt ;
+    rdfs:label "Cryptographic Receipt Shape" ;
+    rdfs:comment "Individual cryptographic receipt for GA² operations" ;
+    sh:property [
+        sh:path ga:receiptId ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-f0-9]{32}$" ;
+        sh:name "receipt ID" ;
+        sh:description "Unique receipt identifier (32-char hex)"
+    ] ;
+    sh:property [
+        sh:path ga:operationType ;
+        sh:in ("template_evolution" "optimization" "analysis" "monitoring" "execution") ;
+        sh:name "operation type" ;
+        sh:description "Type of operation covered by receipt"
+    ] ;
+    sh:property [
+        sh:path ga:operationTarget ;
+        sh:datatype xsd:string ;
+        sh:name "operation target" ;
+        sh:description "Target of the operation (file, template, etc.)"
+    ] ;
+    sh:property [
+        sh:path ga:inputHash ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-f0-9]{64}$" ;
+        sh:name "input hash" ;
+        sh:description "SHA-256 hash of operation input"
+    ] ;
+    sh:property [
+        sh:path ga:outputHash ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-f0-9]{64}$" ;
+        sh:name "output hash" ;
+        sh:description "SHA-256 hash of operation output"
+    ] ;
+    sh:property [
+        sh:path ga:receiptHash ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-f0-9]{64}$" ;
+        sh:name "receipt hash" ;
+        sh:description "SHA-256 hash of receipt content"
+    ] ;
+    sh:property [
+        sh:path ga:digitalSignature ;
+        sh:datatype xsd:string ;
+        sh:name "digital signature" ;
+        sh:description "Cryptographic signature of receipt"
+    ] ;
+    sh:property [
+        sh:path ga:timestamp ;
+        sh:datatype xsd:dateTime ;
+        sh:name "timestamp" ;
+        sh:description "When the receipt was generated"
+    ] ;
+    sh:property [
+        sh:path ga:gaImprovement ;
+        sh:datatype xsd:decimal ;
+        sh:name "GA improvement" ;
+        sh:description "GA improvement achieved by this operation"
+    ] ;
+    sh:property [
+        sh:path ga:operationDuration ;
+        sh:datatype xsd:decimal ;
+        sh:name "operation duration" ;
+        sh:description "Duration of the operation in milliseconds"
+    ] .
+
+ga:ReceiptChainShape
+    a sh:NodeShape ;
+    sh:targetClass ga:ReceiptChain ;
+    rdfs:label "Receipt Chain Shape" ;
+    rdfs:comment "Blockchain-like chain of related cryptographic receipts" ;
+    sh:property [
+        sh:path ga:chainId ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:name "chain ID" ;
+        sh:description "Unique identifier for the receipt chain"
+    ] ;
+    sh:property [
+        sh:path ga:previousHash ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-f0-9]{64}$" ;
+        sh:name "previous hash" ;
+        sh:description "Hash of previous receipt in chain"
+    ] ;
+    sh:property [
+        sh:path ga:sequenceNumber ;
+        sh:datatype xsd:positiveInteger ;
+        sh:name "sequence number" ;
+        sh:description "Position in the chain sequence"
+    ] ;
+    sh:property [
+        sh:path ga:chainIntegrity ;
+        sh:datatype xsd:boolean ;
+        sh:name "chain integrity" ;
+        sh:description "Whether chain integrity is maintained"
+    ] .
+
+#################################################################
+# Performance and Optimization Shapes
+#################################################################
+
+ga:PerformanceMetricShape
+    a sh:NodeShape ;
+    sh:targetClass ga:PerformanceMetric ;
+    rdfs:label "Performance Metric Shape" ;
+    rdfs:comment "Performance metrics collected during monitoring" ;
+    sh:property [
+        sh:path ga:metricType ;
+        sh:in ("template_render_time" "approval_latency" "receipt_generation_time" "memory_usage" "cpu_usage" "ga_score") ;
+        sh:name "metric type" ;
+        sh:description "Type of performance metric"
+    ] ;
+    sh:property [
+        sh:path ga:metricValue ;
+        sh:datatype xsd:decimal ;
+        sh:name "metric value" ;
+        sh:description "Numerical value of the metric"
+    ] ;
+    sh:property [
+        sh:path ga:metricUnit ;
+        sh:datatype xsd:string ;
+        sh:name "metric unit" ;
+        sh:description "Unit of measurement for the metric"
+    ] ;
+    sh:property [
+        sh:path ga:timestamp ;
+        sh:datatype xsd:dateTime ;
+        sh:name "timestamp" ;
+        sh:description "When the metric was collected"
+    ] ;
+    sh:property [
+        sh:path ga:isHotPath ;
+        sh:datatype xsd:boolean ;
+        sh:name "is hot path" ;
+        sh:description "Whether this metric represents a hot path"
+    ] .
+
+ga:OptimizationPatternShape
+    a sh:NodeShape ;
+    sh:targetClass ga:OptimizationPattern ;
+    rdfs:label "Optimization Pattern Shape" ;
+    rdfs:comment "Patterns identified for system optimization" ;
+    sh:property [
+        sh:path ga:patternCategory ;
+        sh:in ("hot_path" "bottleneck" "resource_utilization" "template_evolution") ;
+        sh:name "pattern category" ;
+        sh:description "Category of optimization pattern"
+    ] ;
+    sh:property [
+        sh:path ga:patternDescription ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:name "pattern description" ;
+        sh:description "Description of the optimization pattern"
+    ] ;
+    sh:property [
+        sh:path ga:optimizationPotential ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:name "optimization potential" ;
+        sh:description "Potential improvement from this optimization"
+    ] ;
+    sh:property [
+        sh:path ga:relatedMetric ;
+        sh:class ga:PerformanceMetric ;
+        sh:name "related metric" ;
+        sh:description "Performance metrics related to this pattern"
+    ] .
+
+ga:OptimizationPlanShape
+    a sh:NodeShape ;
+    sh:targetClass ga:OptimizationPlan ;
+    rdfs:label "Optimization Plan Shape" ;
+    rdfs:comment "Plans for implementing system optimizations" ;
+    sh:property [
+        sh:path ga:planType ;
+        sh:in ("hot_path_optimization" "template_evolution" "system_optimization" "resource_optimization") ;
+        sh:name "plan type" ;
+        sh:description "Type of optimization plan"
+    ] ;
+    sh:property [
+        sh:path ga:targetPattern ;
+        sh:class ga:OptimizationPattern ;
+        sh:minCount 1 ;
+        sh:name "target pattern" ;
+        sh:description "Patterns targeted by this plan"
+    ] ;
+    sh:property [
+        sh:path ga:expectedImprovement ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:name "expected improvement" ;
+        sh:description "Expected GA improvement from plan execution"
+    ] ;
+    sh:property [
+        sh:path ga:planPriority ;
+        sh:in ("high" "medium" "low") ;
+        sh:name "plan priority" ;
+        sh:description "Priority level of the optimization plan"
+    ] ;
+    sh:property [
+        sh:path ga:estimatedDuration ;
+        sh:datatype xsd:decimal ;
+        sh:name "estimated duration" ;
+        sh:description "Estimated execution duration in milliseconds"
+    ] ;
+    sh:property [
+        sh:path ga:riskLevel ;
+        sh:in ("low" "medium" "high") ;
+        sh:name "risk level" ;
+        sh:description "Risk level associated with plan execution"
+    ] .
+
+#################################################################
+# Knowledge Base Shapes
+#################################################################
+
+ga:KnowledgeBaseShape
+    a sh:NodeShape ;
+    sh:targetClass ga:KnowledgeBase ;
+    rdfs:label "Knowledge Base Shape" ;
+    rdfs:comment "Persistent learning and knowledge storage for MAPE-K loop" ;
+    sh:property [
+        sh:path ga:containsKnowledge ;
+        sh:class ga:KnowledgeItem ;
+        sh:name "contains knowledge" ;
+        sh:description "Knowledge items stored in the knowledge base"
+    ] ;
+    sh:property [
+        sh:path ga:learningRate ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:name "learning rate" ;
+        sh:description "Rate at which new knowledge is incorporated"
+    ] ;
+    sh:property [
+        sh:path ga:knowledgeRetentionDays ;
+        sh:datatype xsd:positiveInteger ;
+        sh:name "knowledge retention days" ;
+        sh:description "Number of days to retain knowledge items"
+    ] .
+
+ga:KnowledgeItemShape
+    a sh:NodeShape ;
+    sh:targetClass ga:KnowledgeItem ;
+    rdfs:label "Knowledge Item Shape" ;
+    rdfs:comment "Individual knowledge item in the knowledge base" ;
+    sh:property [
+        sh:path ga:knowledgeType ;
+        sh:in ("pattern_accuracy" "optimization_effectiveness" "template_evolution_success" "prediction_model") ;
+        sh:name "knowledge type" ;
+        sh:description "Type of knowledge captured"
+    ] ;
+    sh:property [
+        sh:path ga:knowledgeContent ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:name "knowledge content" ;
+        sh:description "Content of the knowledge item"
+    ] ;
+    sh:property [
+        sh:path ga:confidence ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:name "confidence" ;
+        sh:description "Confidence level of the knowledge"
+    ] ;
+    sh:property [
+        sh:path ga:timestamp ;
+        sh:datatype xsd:dateTime ;
+        sh:name "timestamp" ;
+        sh:description "When the knowledge was learned"
+    ] ;
+    sh:property [
+        sh:path ga:relatedExecution ;
+        sh:class ga:OptimizationExecution ;
+        sh:name "related execution" ;
+        sh:description "Executions that contributed to this knowledge"
+    ] .
+
+#################################################################
+# Integration Shapes (DogTurk specific)
+#################################################################
+
+ga:DogTurkIntegrationShape
+    a sh:NodeShape ;
+    sh:targetClass ga:DogTurkIntegration ;
+    rdfs:label "DogTurk Integration Shape" ;
+    rdfs:comment "GA² integration with DogTurk Nuxt.js application" ;
+    sh:property [
+        sh:path ga:nuxtIntegration ;
+        sh:datatype xsd:boolean ;
+        sh:name "nuxt integration" ;
+        sh:description "Whether Nuxt.js integration is enabled"
+    ] ;
+    sh:property [
+        sh:path ga:aiSdkIntegration ;
+        sh:datatype xsd:boolean ;
+        sh:name "AI SDK integration" ;
+        sh:description "Whether AI SDK integration is enabled"
+    ] ;
+    sh:property [
+        sh:path ga:rdfOntologyIntegration ;
+        sh:datatype xsd:boolean ;
+        sh:name "RDF ontology integration" ;
+        sh:description "Whether RDF ontology integration is enabled"
+    ] ;
+    sh:property [
+        sh:path ga:slsaIntegration ;
+        sh:datatype xsd:boolean ;
+        sh:name "SLSA integration" ;
+        sh:description "Whether SLSA provenance integration is enabled"
+    ] ;
+    sh:property [
+        sh:path ga:apiEndpoint ;
+        sh:datatype xsd:anyURI ;
+        sh:name "API endpoint" ;
+        sh:description "API endpoints for GA² system integration"
+    ] .
+
+#################################################################
+# Utility Shapes
+#################################################################
+
+ga:DeterministicBuildShape
+    a sh:NodeShape ;
+    sh:targetClass ga:DeterministicBuild ;
+    rdfs:label "Deterministic Build Shape" ;
+    rdfs:comment "Validation of deterministic rebuild capability" ;
+    sh:property [
+        sh:path ga:regenDiff ;
+        sh:datatype xsd:nonNegativeInteger ;
+        sh:hasValue 0 ;
+        sh:name "regen diff" ;
+        sh:description "Regeneration difference (must be 0 for deterministic builds)"
+    ] ;
+    sh:property [
+        sh:path ga:originalHash ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-f0-9]{64}$" ;
+        sh:name "original hash" ;
+        sh:description "Hash of original build"
+    ] ;
+    sh:property [
+        sh:path ga:rebuiltHash ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-f0-9]{64}$" ;
+        sh:name "rebuilt hash" ;
+        sh:description "Hash of rebuilt version"
+    ] ;
+    sh:property [
+        sh:path ga:isDeterministic ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:name "is deterministic" ;
+        sh:description "Whether the build is deterministic"
+    ] .

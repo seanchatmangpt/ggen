@@ -1,0 +1,14 @@
+@prefix ghf:   <https://open-ontologies.org/profile/github-factory#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+
+ghf:SecurityPolicy a ghf:Policy ;
+    ghf:policyId "SECURITY-001" ;
+    ghf:supportedVersions "v26.5.21" ;
+    ghf:reportingMechanism "Contact maintainers directly. Do NOT open public issues." ;
+    ghf:responsibleDisclosure "90 days" ;
+    ghf:receiptGatedChanges true ;
+    ghf:outOfMembraneMutationPolicy "All Out-Of-Membrane mutations are blocked and require autonomic remediation or manual exception receipts." ;
+    ghf:verificationCommands "pnpm run ghf:verify --strict" ;
+    ghf:contactBoundary "sean@chatmangpt.com" .

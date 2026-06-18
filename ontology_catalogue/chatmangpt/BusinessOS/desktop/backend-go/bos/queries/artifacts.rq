@@ -1,0 +1,32 @@
+PREFIX bos: <http://businessos.dev/id/>
+PREFIX bpmn: <http://www.omg.org/spec/BPMN/20100524/MODEL#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX org: <http://www.w3.org/ns/org#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX schema: <http://schema.org/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+CONSTRUCT {
+  ?artifacts_uri a <http://www.w3.org/ns/prov#Entity> ;
+    <http://schema.org/identifier> ?id ;
+    <http://www.w3.org/ns/prov#hadDictionaryMember> ?title ;
+    <http://schema.org/fileFormat> ?type ;
+    <http://schema.org/programmingLanguage> ?language ;
+    <http://www.w3.org/ns/prov#value> ?content ;
+    <http://schema.org/description> ?summary ;
+    <http://www.w3.org/ns/prov#wasGeneratedBy> ?project_id_uri ;
+    <http://schema.org/dateCreated> ?created_at ;
+    <http://www.w3.org/ns/prov#wasGeneratedBy> ?activity_uri .
+}
+
+WHERE {
+  # Variables bound from data source
+  BIND(IRI(CONCAT("http://businessos.dev/id/artifacts/{id}", STR(?id))) AS ?artifacts_uri)
+  BIND(IF(BOUND(?project_id) && ?project_id != "",
+    IRI(CONCAT("http://businessos.dev/id/projects/", STR(?project_id))),
+    UNDEF) AS ?project_id_uri)
+  BIND(IRI(CONCAT("http://businessos.dev/activity/artifacts/", STR(?id))) AS ?activity_uri)
+}

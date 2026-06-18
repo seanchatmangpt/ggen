@@ -1,0 +1,218 @@
+@prefix zoe:     <https://zoela.org/ontology/> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# ============================================================================
+# ZOE LA Mobile — Data Sensitivity Classification Ontology
+# ============================================================================
+# Declares named sensitivity classification individuals associating ZOE LA
+# data classes with sensitivity levels, consent requirements, and access roles.
+#
+# Named individuals:
+#   PersonProfileSensitivity  — PersonProfile at PersonalLevel (consent required)
+#   ServiceHistorySensitivity — RouteInstance at ConfidentialLevel
+#   NeedRecordSensitivity     — NeedRecord at RestrictedLevel
+#   EventSensitivity          — Event at PublicLevel
+#   YouthProfileSensitivity   — under-18 PersonProfile at PersonalLevel (guardian consent)
+#
+# Properties:
+#   zoe:protectsClass               → owl:Class
+#   zoe:sensitivityLevel            → zoe:DataSensitivityLevel
+#   zoe:classificationRequiresConsent → xsd:boolean
+#   zoe:requiresGuardianConsent     → xsd:boolean
+#   zoe:classificationAccessRoles   → xsd:string (pipe-delimited)
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# § 1  Ontology declaration
+# ----------------------------------------------------------------------------
+
+<https://zoela.org/ontology/sensitivity>
+    a owl:Ontology ;
+    rdfs:label "ZOE LA Mobile — Data Sensitivity Classification Ontology"@en ;
+    rdfs:comment "Named sensitivity classification individuals mapping ZOE LA data classes to sensitivity levels, consent requirements, and role-based access restrictions."@en ;
+    dcterms:creator "Sean Chatman" ;
+    dcterms:created "2026-05-17"^^xsd:date ;
+    dcterms:license <https://opensource.org/licenses/MIT> ;
+    owl:versionInfo "1.0.0" ;
+    owl:imports <https://zoela.org/ontology/policy> .
+
+# ----------------------------------------------------------------------------
+# § 2  DataSensitivityLevel class and named level individuals
+# ----------------------------------------------------------------------------
+
+zoe:DataSensitivityLevel
+    a owl:Class ;
+    rdfs:subClassOf skos:Concept ;
+    rdfs:label "Data Sensitivity Level"@en ;
+    rdfs:comment "A sensitivity tier applied to a ZOE LA data class to govern access control, consent requirements, and audit obligations."@en ;
+    skos:notation "data_sensitivity_level" .
+
+zoe:DataSensitivityLevelScheme
+    a skos:ConceptScheme ;
+    rdfs:label "Data Sensitivity Level Scheme"@en ;
+    rdfs:comment "Controlled vocabulary of data sensitivity tiers for ZOE LA Mobile access control."@en ;
+    skos:prefLabel "ZOE LA Data Sensitivity Levels"@en .
+
+zoe:PublicLevel
+    a zoe:DataSensitivityLevel ;
+    skos:inScheme zoe:DataSensitivityLevelScheme ;
+    skos:prefLabel "Public"@en ;
+    rdfs:label "Public"@en ;
+    rdfs:comment "Data visible to all authenticated users. No consent required. Applicable to publicly published events and general announcements."@en ;
+    skos:notation "public" ;
+    skos:scopeNote "Lowest sensitivity tier. No special handling required."@en .
+
+zoe:RestrictedLevel
+    a zoe:DataSensitivityLevel ;
+    skos:inScheme zoe:DataSensitivityLevelScheme ;
+    skos:prefLabel "Restricted"@en ;
+    rdfs:label "Restricted"@en ;
+    rdfs:comment "Data visible to ministry staff with operational need-to-know. Includes need records and service assignment details."@en ;
+    skos:notation "restricted" ;
+    skos:scopeNote "Staff-only access. No external disclosure without admin approval."@en .
+
+zoe:ConfidentialLevel
+    a zoe:DataSensitivityLevel ;
+    skos:inScheme zoe:DataSensitivityLevelScheme ;
+    skos:prefLabel "Confidential"@en ;
+    rdfs:label "Confidential"@en ;
+    rdfs:comment "Sensitive operational data visible only to authorized care workers and coordinators. Includes service history and route instance details."@en ;
+    skos:notation "confidential" ;
+    skos:scopeNote "Access logged and audited. Disclosure requires coordinator approval."@en .
+
+zoe:PersonalLevel
+    a zoe:DataSensitivityLevel ;
+    skos:inScheme zoe:DataSensitivityLevelScheme ;
+    skos:prefLabel "Personal"@en ;
+    rdfs:label "Personal"@en ;
+    rdfs:comment "Personally identifiable and highly sensitive data. Consent required before processing. Applicable to person profiles and youth records."@en ;
+    skos:notation "personal" ;
+    skos:scopeNote "Highest sensitivity tier. Subject to privacy law obligations and safeguarding policies."@en .
+
+# ----------------------------------------------------------------------------
+# § 3  SensitivityClassification class
+# ----------------------------------------------------------------------------
+
+zoe:SensitivityClassification
+    a owl:Class ;
+    rdfs:label "Sensitivity Classification"@en ;
+    rdfs:comment "Associates a ZOE LA data class with a sensitivity level, consent requirements, and the roles permitted to access it."@en ;
+    skos:notation "sensitivity_classification" ;
+    rdfs:subClassOf skos:Concept .
+
+# ----------------------------------------------------------------------------
+# § 4  Properties
+# ----------------------------------------------------------------------------
+
+zoe:protectsClass
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:SensitivityClassification ;
+    rdfs:range owl:Class ;
+    rdfs:label "protects class"@en ;
+    rdfs:comment "The OWL class whose instances are governed by this sensitivity classification."@en ;
+    skos:notation "protects_class" .
+
+zoe:sensitivityLevel
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:SensitivityClassification ;
+    rdfs:range zoe:DataSensitivityLevel ;
+    rdfs:label "sensitivity level"@en ;
+    rdfs:comment "The data sensitivity tier assigned to this classification."@en ;
+    skos:notation "sensitivity_level" .
+
+zoe:classificationRequiresConsent
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:SensitivityClassification ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "classification requires consent"@en ;
+    rdfs:comment "Whether explicit informed consent must be obtained before processing data under this classification."@en ;
+    skos:notation "classification_requires_consent" .
+
+zoe:requiresGuardianConsent
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:SensitivityClassification ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "requires guardian consent"@en ;
+    rdfs:comment "Whether guardian (parent or legal guardian) consent is required in addition to or in place of individual consent — applicable to records for persons under 18."@en ;
+    skos:notation "requires_guardian_consent" .
+
+zoe:classificationAccessRoles
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:SensitivityClassification ;
+    rdfs:range xsd:string ;
+    rdfs:label "classification access roles"@en ;
+    rdfs:comment "Pipe-delimited list of role labels permitted to access data under this classification."@en ;
+    skos:notation "classification_access_roles" .
+
+# ----------------------------------------------------------------------------
+# § 5  Named SensitivityClassification individuals
+# ----------------------------------------------------------------------------
+
+# 5.1  PersonProfile — Personal level, consent required
+zoe:PersonProfileSensitivity
+    a zoe:SensitivityClassification ;
+    rdfs:label "Person Profile Sensitivity"@en ;
+    rdfs:comment "Governs access to PersonProfile instances. Highest sensitivity tier: personal data requiring explicit consent and restricted to Admin and CareWorker roles."@en ;
+    skos:notation "person_profile_sensitivity" ;
+    zoe:protectsClass zoe:PersonProfile ;
+    zoe:sensitivityLevel zoe:PersonalLevel ;
+    zoe:classificationRequiresConsent "true"^^xsd:boolean ;
+    zoe:requiresGuardianConsent "false"^^xsd:boolean ;
+    zoe:classificationAccessRoles "Admin|CareWorker" .
+
+# 5.2  RouteInstance (service history) — Confidential level
+zoe:ServiceHistorySensitivity
+    a zoe:SensitivityClassification ;
+    rdfs:label "Service History Sensitivity"@en ;
+    rdfs:comment "Governs access to RouteInstance records representing a person's service delivery history. Confidential tier: no standalone consent required, but access is limited to operational staff."@en ;
+    skos:notation "service_history_sensitivity" ;
+    zoe:protectsClass zoe:RouteInstance ;
+    zoe:sensitivityLevel zoe:ConfidentialLevel ;
+    zoe:classificationRequiresConsent "false"^^xsd:boolean ;
+    zoe:requiresGuardianConsent "false"^^xsd:boolean ;
+    zoe:classificationAccessRoles "Admin|CareWorker|Coordinator" .
+
+# 5.3  NeedRecord — Restricted level
+zoe:NeedRecordSensitivity
+    a zoe:SensitivityClassification ;
+    rdfs:label "Need Record Sensitivity"@en ;
+    rdfs:comment "Governs access to NeedRecord instances. Restricted tier: no consent required, but access is limited to care staff with operational need-to-know."@en ;
+    skos:notation "need_record_sensitivity" ;
+    zoe:protectsClass zoe:NeedRecord ;
+    zoe:sensitivityLevel zoe:RestrictedLevel ;
+    zoe:classificationRequiresConsent "false"^^xsd:boolean ;
+    zoe:requiresGuardianConsent "false"^^xsd:boolean ;
+    zoe:classificationAccessRoles "CareWorker|Admin" .
+
+# 5.4  Event — Public level
+zoe:EventSensitivity
+    a zoe:SensitivityClassification ;
+    rdfs:label "Event Sensitivity"@en ;
+    rdfs:comment "Governs access to Event instances. Public tier: no consent required, visible to all authenticated roles."@en ;
+    skos:notation "event_sensitivity" ;
+    zoe:protectsClass zoe:ZoeEvent ;
+    zoe:sensitivityLevel zoe:PublicLevel ;
+    zoe:classificationRequiresConsent "false"^^xsd:boolean ;
+    zoe:requiresGuardianConsent "false"^^xsd:boolean ;
+    zoe:classificationAccessRoles "Volunteer|Leader|CareWorker|Admin" .
+
+# 5.5  YouthProfile — Personal level, guardian consent required
+zoe:YouthProfileSensitivity
+    a zoe:SensitivityClassification ;
+    rdfs:label "Youth Profile Sensitivity"@en ;
+    rdfs:comment "Governs access to PersonProfile instances for individuals under 18. Personal tier with additional safeguarding requirement: guardian consent is mandatory before processing or disclosure."@en ;
+    skos:notation "youth_profile_sensitivity" ;
+    zoe:protectsClass zoe:PersonProfile ;
+    zoe:sensitivityLevel zoe:PersonalLevel ;
+    zoe:classificationRequiresConsent "true"^^xsd:boolean ;
+    zoe:requiresGuardianConsent "true"^^xsd:boolean ;
+    zoe:classificationAccessRoles "Admin|CareWorker" .
+
+# ============================================================================
+# End of ontology/zoela/sensitivity.ttl
+# ============================================================================

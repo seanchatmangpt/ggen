@@ -1,0 +1,111 @@
+# SOX (Sarbanes-Oxley) Compliance Schema
+# Defines semantic rules for financial audit trail and internal controls
+
+@prefix sox: <http://compliance.enterprise.org/sox/> .
+@prefix compliance: <http://unjucks.dev/compliance/> .
+@prefix template: <http://unjucks.dev/template/> .
+@prefix audit: <http://unjucks.dev/audit/> .
+@prefix financial: <http://unjucks.dev/financial/> .
+@prefix access: <http://unjucks.dev/access/> .
+@prefix data: <http://unjucks.dev/data/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# SOX Compliance Ontology
+sox:SoxCompliance a owl:Class ;
+    rdfs:label "SOX Compliance Framework"@en ;
+    rdfs:comment "Sarbanes-Oxley Act compliance requirements for financial systems"@en .
+
+# Financial Data Classes
+financial:FinancialData a owl:Class ;
+    rdfs:label "Financial Data"@en ;
+    rdfs:comment "Data elements related to financial reporting and transactions"@en .
+
+financial:FinancialReport a owl:Class ;
+    rdfs:subClassOf financial:FinancialData ;
+    rdfs:label "Financial Report"@en ;
+    rdfs:comment "Structured financial reporting documents"@en .
+
+financial:Transaction a owl:Class ;
+    rdfs:subClassOf financial:FinancialData ;
+    rdfs:label "Financial Transaction"@en ;
+    rdfs:comment "Individual financial transactions requiring audit trails"@en .
+
+# Audit Requirements
+audit:AuditTrail a owl:Class ;
+    rdfs:label "Audit Trail"@en ;
+    rdfs:comment "Complete record of system activities for compliance"@en .
+
+audit:AccessLog a owl:Class ;
+    rdfs:label "Access Log"@en ;
+    rdfs:comment "Record of user access to financial systems"@en .
+
+# SOX Properties
+sox:requiresAuditTrail a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Requires Audit Trail"@en ;
+    rdfs:comment "Indicates if template must implement audit trail capabilities"@en .
+
+sox:requiresAccessControl a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Requires Access Control"@en ;
+    rdfs:comment "Indicates if template must implement role-based access control"@en .
+
+sox:dataRetentionPeriod a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:duration ;
+    rdfs:label "Data Retention Period"@en ;
+    rdfs:comment "Required data retention period for compliance"@en .
+
+sox:requiresSegregationOfDuties a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Requires Segregation of Duties"@en ;
+    rdfs:comment "Indicates if template must enforce segregation of duties controls"@en .
+
+sox:requiresChangeManagement a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Requires Change Management"@en ;
+    rdfs:comment "Indicates if template must implement change management controls"@en .
+
+# Access Control Properties
+access:minimumAuthLevel a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:string ;
+    rdfs:label "Minimum Authentication Level"@en ;
+    rdfs:comment "Minimum required authentication level for accessing the system"@en .
+
+access:requiresMultiFactorAuth a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Requires Multi-Factor Authentication"@en ;
+    rdfs:comment "Indicates if multi-factor authentication is required"@en .
+
+# Compliance Validation Rules
+sox:ValidSoxTemplate a owl:Class ;
+    rdfs:label "Valid SOX Template"@en ;
+    rdfs:comment "Template that meets all SOX compliance requirements"@en .
+
+# Sample compliance instances for testing
+sox:ExampleFinancialTemplate a template:Template ;
+    template:name "Financial Reporting API" ;
+    template:hasFinancialData true ;
+    template:accessesFinancialReports true ;
+    sox:requiresAuditTrail true ;
+    sox:requiresAccessControl true ;
+    sox:dataRetentionPeriod "P7Y"^^xsd:duration ;
+    access:minimumAuthLevel "manager" ;
+    access:requiresMultiFactorAuth true .
+
+sox:ExampleTransactionTemplate a template:Template ;
+    template:name "Transaction Processing Service" ;
+    template:processesTransactions true ;
+    financial:transactionType "payment" ;
+    sox:requiresAuditTrail true ;
+    sox:requiresSegregationOfDuties true ;
+    sox:requiresChangeManagement true .

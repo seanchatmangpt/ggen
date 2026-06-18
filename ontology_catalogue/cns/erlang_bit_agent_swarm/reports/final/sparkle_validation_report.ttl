@@ -1,0 +1,10 @@
+@prefix val: <http://cns.litigation/validation#> .
+@prefix sparql: <http://cns.litigation/sparql#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<validation:sparkle_complete> a val:CompleteValidationReport ;
+    val:status val:passed ;
+    val:duration "45.7"^^xsd:decimal ;
+    val:totalTests "63"^^xsd:integer ;
+    val:successRate "1.000"^^xsd:decimal ;
+    val:generatedAt "2025-07-30T04:49:21Z"^^xsd:dateTime .

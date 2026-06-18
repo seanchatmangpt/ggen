@@ -1,0 +1,23 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX api: <http://process-intelligence.org/api/>
+
+# Select all rate limit tiers and their parameters
+# For rate limit configuration generation
+
+SELECT ?rateLimitTier ?label ?rps ?rpm ?rph ?burst
+       (GROUP_CONCAT(?endpoint; separator=",") AS ?endpoints)
+WHERE {
+  ?rateLimitTier a api:RateLimit .
+  ?rateLimitTier rdfs:label ?label .
+  ?rateLimitTier api:requestsPerSecond ?rps .
+  ?rateLimitTier api:requestsPerMinute ?rpm .
+  ?rateLimitTier api:requestsPerHour ?rph .
+  ?rateLimitTier api:burstCapacity ?burst .
+
+  # Find endpoints using this rate limit tier
+  ?endpoint api:rateLimitTier ?tierName .
+  FILTER(CONTAINS(STR(?rateLimitTier), SUBSTR(STR(?tierName), 34)))
+}
+GROUP BY ?rateLimitTier ?label ?rps ?rpm ?rph ?burst
+ORDER BY ?label

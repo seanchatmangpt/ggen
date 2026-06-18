@@ -1,0 +1,10 @@
+PREFIX ostar: <https://chatmangpt.com/ontologies/o-star/>
+PREFIX art: <https://chatmangpt.com/ontologies/o-star/artifact:>
+
+# Query: missing_backing_artifacts
+# Returns: Non-code surfaces without ontology backing (per O* Constitution Law 4)
+
+SELECT ?artifact WHERE {
+  ?artifact a art:NonCodeArtifact .
+  FILTER NOT EXISTS { ?artifact ostar:hasOntologyBacking ?backing }
+}

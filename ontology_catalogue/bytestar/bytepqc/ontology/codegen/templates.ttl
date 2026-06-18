@@ -1,0 +1,442 @@
+@prefix codegen: <http://bytestar.io/ontology/codegen#> .
+@prefix simd: <http://bytestar.io/ontology/simd#> .
+@prefix vec: <http://bytestar.io/ontology/vectorization#> .
+@prefix arch: <http://bytestar.io/ontology/architecture#> .
+@prefix perf: <http://bytestar.io/ontology/performance#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Code Generation Template Ontology
+# Links ontological knowledge to concrete SIMD code implementations
+
+# Base Classes
+codegen:CodeTemplate a owl:Class ;
+    rdfs:label "Code Generation Template" ;
+    rdfs:comment "Template for generating optimized SIMD code" .
+
+codegen:InstructionTemplate a owl:Class ;
+    rdfs:label "Instruction Template" ;
+    rdfs:comment "Template for generating specific SIMD instructions" .
+
+codegen:LoopTemplate a owl:Class ;
+    rdfs:label "Loop Template" ;
+    rdfs:comment "Template for generating optimized loops" .
+
+codegen:FunctionTemplate a owl:Class ;
+    rdfs:label "Function Template" ;
+    rdfs:comment "Template for generating complete functions" .
+
+codegen:MacroTemplate a owl:Class ;
+    rdfs:label "Macro Template" ;
+    rdfs:comment "Template for generating reusable macros" .
+
+# Properties
+codegen:targetsArchitecture a owl:ObjectProperty ;
+    rdfs:domain codegen:CodeTemplate ;
+    rdfs:range arch:Architecture .
+
+codegen:implementsPattern a owl:ObjectProperty ;
+    rdfs:domain codegen:CodeTemplate ;
+    rdfs:range vec:VectorizationPattern .
+
+codegen:usesInstruction a owl:ObjectProperty ;
+    rdfs:domain codegen:CodeTemplate ;
+    rdfs:range simd:Instruction .
+
+codegen:templateCode a owl:DatatypeProperty ;
+    rdfs:domain codegen:CodeTemplate ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The actual template code with placeholders" .
+
+codegen:language a owl:DatatypeProperty ;
+    rdfs:domain codegen:CodeTemplate ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Programming language (C, C++, assembly)" .
+
+codegen:optimizationLevel a owl:DatatypeProperty ;
+    rdfs:domain codegen:CodeTemplate ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Optimization level (0-3)" .
+
+# AVX2 Code Templates
+
+# Polynomial Multiplication Template for AVX2
+codegen:AVX2PolynomialMultTemplate a codegen:FunctionTemplate ;
+    rdfs:label "AVX2 Polynomial Multiplication Template" ;
+    codegen:targetsArchitecture arch:IntelSkylake ;
+    codegen:implementsPattern vec:PolynomialMultiplicationPattern ;
+    codegen:usesInstruction simd:VPMULLW_AVX2, simd:VPMULHW_AVX2 ;
+    codegen:language "C" ;
+    codegen:optimizationLevel "2"^^xsd:integer ;
+    codegen:templateCode """
+// AVX2 Polynomial Multiplication Template
+static inline void poly_mult_avx2(const int16_t *a, const int16_t *b, int16_t *r) {
+    __m256i va, vb, vlo, vhi;
+    
+    for(int i = 0; i < {{POLY_SIZE}}; i += 16) {
+        // Load 16 coefficients
+        va = _mm256_load_si256((__m256i*)&a[i]);
+        vb = _mm256_load_si256((__m256i*)&b[i]);
+        
+        // Multiply low and high parts
+        vlo = _mm256_mullo_epi16(va, vb);
+        vhi = _mm256_mulhi_epi16(va, vb);
+        
+        // Store results
+        _mm256_store_si256((__m256i*)&r[2*i], _mm256_unpacklo_epi16(vlo, vhi));
+        _mm256_store_si256((__m256i*)&r[2*i + 16], _mm256_unpackhi_epi16(vlo, vhi));
+    }
+}
+""" .
+
+# Barrett Reduction Template for AVX2
+codegen:AVX2BarrettReductionTemplate a codegen:FunctionTemplate ;
+    rdfs:label "AVX2 Barrett Reduction Template" ;
+    codegen:targetsArchitecture arch:IntelSkylake ;
+    codegen:implementsPattern vec:BarrettReductionPattern ;
+    codegen:usesInstruction simd:VPMULLW_AVX2, simd:VPMULHW_AVX2 ;
+    codegen:language "C" ;
+    codegen:optimizationLevel "2"^^xsd:integer ;
+    codegen:templateCode """
+// AVX2 Barrett Reduction Template
+static inline __m256i barrett_reduce_avx2(__m256i a) {
+    const __m256i v = _mm256_set1_epi16({{BARRETT_V}});
+    const __m256i q = _mm256_set1_epi16({{MODULUS}});
+    
+    __m256i t = _mm256_mulhi_epi16(a, v);
+    t = _mm256_mulhrs_epi16(t, q);
+    return _mm256_sub_epi16(a, t);
+}
+""" .
+
+# NTT Butterfly Template for AVX2
+codegen:AVX2NTTButterflyTemplate a codegen:FunctionTemplate ;
+    rdfs:label "AVX2 NTT Butterfly Template" ;
+    codegen:targetsArchitecture arch:IntelSkylake ;
+    codegen:implementsPattern vec:NTTPattern ;
+    codegen:usesInstruction simd:VPMULLW_AVX2, simd:VPADDW_AVX2, simd:VPSUBW_AVX2 ;
+    codegen:language "C" ;
+    codegen:optimizationLevel "2"^^xsd:integer ;
+    codegen:templateCode """
+// AVX2 NTT Butterfly Template
+static inline void ntt_butterfly_avx2(__m256i *a, __m256i *b, __m256i zeta) {
+    __m256i t = _mm256_mullo_epi16(*b, zeta);
+    t = barrett_reduce_avx2(t);
+    *b = _mm256_sub_epi16(*a, t);
+    *a = _mm256_add_epi16(*a, t);
+}
+""" .
+
+# AVX-512 Code Templates
+
+# AVX-512 Polynomial Multiplication Template
+codegen:AVX512PolynomialMultTemplate a codegen:FunctionTemplate ;
+    rdfs:label "AVX-512 Polynomial Multiplication Template" ;
+    codegen:targetsArchitecture arch:IntelIceLake ;
+    codegen:implementsPattern vec:PolynomialMultiplicationPattern ;
+    codegen:usesInstruction simd:VPMULLW_AVX512 ;
+    codegen:language "C" ;
+    codegen:optimizationLevel "3"^^xsd:integer ;
+    codegen:templateCode """
+// AVX-512 Polynomial Multiplication Template
+static inline void poly_mult_avx512(const int16_t *a, const int16_t *b, int16_t *r) {
+    __m512i va, vb, vlo, vhi;
+    __mmask32 k = 0xFFFFFFFF;
+    
+    for(int i = 0; i < {{POLY_SIZE}}; i += 32) {
+        // Load 32 coefficients
+        va = _mm512_mask_loadu_epi16(_mm512_setzero_si512(), k, &a[i]);
+        vb = _mm512_mask_loadu_epi16(_mm512_setzero_si512(), k, &b[i]);
+        
+        // Multiply with mask
+        vlo = _mm512_mask_mullo_epi16(_mm512_setzero_si512(), k, va, vb);
+        vhi = _mm512_mask_mulhi_epi16(_mm512_setzero_si512(), k, va, vb);
+        
+        // Interleave and store
+        _mm512_mask_storeu_epi16(&r[2*i], k, _mm512_unpacklo_epi16(vlo, vhi));
+        _mm512_mask_storeu_epi16(&r[2*i + 32], k, _mm512_unpackhi_epi16(vlo, vhi));
+    }
+}
+""" .
+
+# NEON Code Templates
+
+# ARM NEON Polynomial Multiplication Template
+codegen:NEONPolynomialMultTemplate a codegen:FunctionTemplate ;
+    rdfs:label "NEON Polynomial Multiplication Template" ;
+    codegen:targetsArchitecture arch:ARMCortexA78 ;
+    codegen:implementsPattern vec:PolynomialMultiplicationPattern ;
+    codegen:usesInstruction simd:VMUL_NEON ;
+    codegen:language "C" ;
+    codegen:optimizationLevel "2"^^xsd:integer ;
+    codegen:templateCode """
+// ARM NEON Polynomial Multiplication Template
+static inline void poly_mult_neon(const int16_t *a, const int16_t *b, int16_t *r) {
+    int16x8_t va, vb, vr;
+    
+    for(int i = 0; i < {{POLY_SIZE}}; i += 8) {
+        // Load 8 coefficients
+        va = vld1q_s16(&a[i]);
+        vb = vld1q_s16(&b[i]);
+        
+        // Multiply
+        vr = vmulq_s16(va, vb);
+        
+        // Store result
+        vst1q_s16(&r[i], vr);
+    }
+}
+""" .
+
+# ARM NEON Montgomery Reduction Template
+codegen:NEONMontgomeryReductionTemplate a codegen:FunctionTemplate ;
+    rdfs:label "NEON Montgomery Reduction Template" ;
+    codegen:targetsArchitecture arch:ARMCortexA78 ;
+    codegen:implementsPattern vec:MontgomeryReductionPattern ;
+    codegen:usesInstruction simd:VQRDMULH_NEON ;
+    codegen:language "C" ;
+    codegen:optimizationLevel "2"^^xsd:integer ;
+    codegen:templateCode """
+// ARM NEON Montgomery Reduction Template
+static inline int16x8_t montgomery_reduce_neon(int16x8_t a) {
+    const int16x8_t qinv = vdupq_n_s16({{QINV}});
+    const int16x8_t q = vdupq_n_s16({{MODULUS}});
+    
+    int16x8_t t = vqrdmulhq_s16(a, qinv);
+    t = vmulq_s16(t, q);
+    return vqsubq_s16(a, t);
+}
+""" .
+
+# Loop Templates
+
+# Unrolled Loop Template
+codegen:UnrolledLoopTemplate a codegen:LoopTemplate ;
+    rdfs:label "Unrolled Loop Template" ;
+    codegen:language "C" ;
+    codegen:templateCode """
+// Unrolled Loop Template (factor={{UNROLL_FACTOR}})
+for(int i = 0; i < {{LOOP_BOUND}}; i += {{UNROLL_FACTOR}}) {
+    {{#UNROLL_FACTOR}}
+    // Iteration {{.}}
+    {{LOOP_BODY}}
+    {{/UNROLL_FACTOR}}
+}
+""" .
+
+# Cache-Blocked Loop Template
+codegen:CacheBlockedLoopTemplate a codegen:LoopTemplate ;
+    rdfs:label "Cache-Blocked Loop Template" ;
+    codegen:language "C" ;
+    codegen:templateCode """
+// Cache-Blocked Loop Template
+for(int ii = 0; ii < {{OUTER_BOUND}}; ii += {{BLOCK_SIZE}}) {
+    for(int i = ii; i < MIN(ii + {{BLOCK_SIZE}}, {{OUTER_BOUND}}); i++) {
+        {{INNER_LOOP_BODY}}
+    }
+}
+""" .
+
+# Macro Templates
+
+# SIMD Load/Store Macro Template
+codegen:SIMDMacroTemplate a codegen:MacroTemplate ;
+    rdfs:label "SIMD Load/Store Macro Template" ;
+    codegen:language "C" ;
+    codegen:templateCode """
+// SIMD Load/Store Macros
+#if defined(__AVX512F__)
+    #define SIMD_LOAD(ptr) _mm512_loadu_si512((__m512i*)(ptr))
+    #define SIMD_STORE(ptr, vec) _mm512_storeu_si512((__m512i*)(ptr), vec)
+    #define SIMD_WIDTH 32
+    typedef __m512i simd_t;
+#elif defined(__AVX2__)
+    #define SIMD_LOAD(ptr) _mm256_loadu_si256((__m256i*)(ptr))
+    #define SIMD_STORE(ptr, vec) _mm256_storeu_si256((__m256i*)(ptr), vec)
+    #define SIMD_WIDTH 16
+    typedef __m256i simd_t;
+#elif defined(__ARM_NEON)
+    #define SIMD_LOAD(ptr) vld1q_s16(ptr)
+    #define SIMD_STORE(ptr, vec) vst1q_s16(ptr, vec)
+    #define SIMD_WIDTH 8
+    typedef int16x8_t simd_t;
+#else
+    #error "No SIMD support detected"
+#endif
+""" .
+
+# Cryptographic Algorithm Templates
+
+# Kyber Key Generation Template
+codegen:KyberKeygenTemplate a codegen:FunctionTemplate ;
+    rdfs:label "Kyber Key Generation Template" ;
+    codegen:language "C" ;
+    codegen:optimizationLevel "2"^^xsd:integer ;
+    codegen:templateCode """
+// Kyber Key Generation Template
+int crypto_kem_keypair_{{KYBER_K}}(uint8_t *pk, uint8_t *sk) {
+    polyvec a[{{KYBER_K}}], e, pkpv, skpv;
+    uint8_t buf[2*{{SYMBYTES}}];
+    const uint8_t *publicseed = buf;
+    const uint8_t *noiseseed = buf + {{SYMBYTES}};
+    
+    randombytes(buf, {{SYMBYTES}});
+    hash_g(buf, buf, {{SYMBYTES}});
+    
+    gen_matrix(a, publicseed, 0);
+    
+    #ifdef KYBER_90S
+    poly_getnoise_eta1_4x(skpv.vec+0, skpv.vec+1, skpv.vec+2, skpv.vec+3, 
+                          noiseseed, 0, 1, 2, 3);
+    #else
+    poly_getnoise_eta1(skpv.vec+0, noiseseed, 0);
+    poly_getnoise_eta1(skpv.vec+1, noiseseed, 1);
+    poly_getnoise_eta1(skpv.vec+2, noiseseed, 2);
+    #if KYBER_K > 3
+    poly_getnoise_eta1(skpv.vec+3, noiseseed, 3);
+    #endif
+    #endif
+    
+    polyvec_ntt(&skpv);
+    polyvec_matrix_vector_mul(&pkpv, a, &skpv);
+    polyvec_invntt_tomont(&pkpv);
+    polyvec_add(&pkpv, &pkpv, &e);
+    polyvec_reduce(&pkpv);
+    
+    pack_pk(pk, &pkpv, publicseed);
+    pack_sk(sk, &skpv);
+    return 0;
+}
+""" .
+
+# Performance Optimization Templates
+
+# Branch-Free Comparison Template
+codegen:BranchFreeComparisonTemplate a codegen:InstructionTemplate ;
+    rdfs:label "Branch-Free Comparison Template" ;
+    codegen:language "C" ;
+    codegen:templateCode """
+// Branch-free comparison template
+static inline {{TYPE}} cond_select_{{TYPE}}({{TYPE}} a, {{TYPE}} b, int condition) {
+    {{TYPE}} mask = -({{TYPE}})!!condition;
+    return (a & mask) | (b & ~mask);
+}
+""" .
+
+# Prefetch Template
+codegen:PrefetchTemplate a codegen:InstructionTemplate ;
+    rdfs:label "Data Prefetch Template" ;
+    codegen:language "C" ;
+    codegen:templateCode """
+// Data prefetch template
+#ifdef __builtin_prefetch
+    #define PREFETCH_READ(ptr, temporal) __builtin_prefetch(ptr, 0, temporal)
+    #define PREFETCH_WRITE(ptr, temporal) __builtin_prefetch(ptr, 1, temporal)
+#else
+    #define PREFETCH_READ(ptr, temporal) do {} while(0)
+    #define PREFETCH_WRITE(ptr, temporal) do {} while(0)
+#endif
+""" .
+
+# Template Parameters and Placeholders
+codegen:TemplateParameter a owl:Class ;
+    rdfs:label "Template Parameter" ;
+    rdfs:comment "Parameterizable element in code templates" .
+
+codegen:hasParameter a owl:ObjectProperty ;
+    rdfs:domain codegen:CodeTemplate ;
+    rdfs:range codegen:TemplateParameter .
+
+codegen:parameterName a owl:DatatypeProperty ;
+    rdfs:domain codegen:TemplateParameter ;
+    rdfs:range xsd:string .
+
+codegen:defaultValue a owl:DatatypeProperty ;
+    rdfs:domain codegen:TemplateParameter ;
+    rdfs:range xsd:string .
+
+# Common Template Parameters
+codegen:PolySizeParam a codegen:TemplateParameter ;
+    codegen:parameterName "POLY_SIZE" ;
+    codegen:defaultValue "256" .
+
+codegen:UnrollFactorParam a codegen:TemplateParameter ;
+    codegen:parameterName "UNROLL_FACTOR" ;
+    codegen:defaultValue "4" .
+
+codegen:BlockSizeParam a codegen:TemplateParameter ;
+    codegen:parameterName "BLOCK_SIZE" ;
+    codegen:defaultValue "64" .
+
+codegen:ModulusParam a codegen:TemplateParameter ;
+    codegen:parameterName "MODULUS" ;
+    codegen:defaultValue "3329" .
+
+# Associate parameters with templates
+codegen:AVX2PolynomialMultTemplate codegen:hasParameter codegen:PolySizeParam .
+codegen:UnrolledLoopTemplate codegen:hasParameter codegen:UnrollFactorParam .
+codegen:CacheBlockedLoopTemplate codegen:hasParameter codegen:BlockSizeParam .
+
+# Template Selection Rules
+codegen:SelectionRule a owl:Class ;
+    rdfs:label "Template Selection Rule" ;
+    rdfs:comment "Rule for selecting appropriate code templates" .
+
+codegen:ArchitectureRule a codegen:SelectionRule ;
+    rdfs:label "Architecture-Based Selection" ;
+    rdfs:comment "Select template based on target architecture" .
+
+codegen:AlgorithmRule a codegen:SelectionRule ;
+    rdfs:label "Algorithm-Based Selection" ;
+    rdfs:comment "Select template based on cryptographic algorithm" .
+
+codegen:PerformanceRule a codegen:SelectionRule ;
+    rdfs:label "Performance-Based Selection" ;
+    rdfs:comment "Select template based on performance requirements" .
+
+# Code Generation Metadata
+codegen:GenerationMetadata a owl:Class ;
+    rdfs:label "Code Generation Metadata" ;
+    rdfs:comment "Metadata about generated code" .
+
+codegen:hasMetadata a owl:ObjectProperty ;
+    rdfs:domain codegen:CodeTemplate ;
+    rdfs:range codegen:GenerationMetadata .
+
+codegen:estimatedCycles a owl:DatatypeProperty ;
+    rdfs:domain codegen:GenerationMetadata ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Estimated execution cycles" .
+
+codegen:codeSize a owl:DatatypeProperty ;
+    rdfs:domain codegen:GenerationMetadata ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Generated code size in bytes" .
+
+codegen:registerUsage a owl:DatatypeProperty ;
+    rdfs:domain codegen:GenerationMetadata ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Number of registers used" .
+
+# Template Validation
+codegen:ValidationRule a owl:Class ;
+    rdfs:label "Template Validation Rule" ;
+    rdfs:comment "Rule for validating generated code" .
+
+codegen:SyntaxValidation a codegen:ValidationRule ;
+    rdfs:label "Syntax Validation" ;
+    rdfs:comment "Validate code syntax correctness" .
+
+codegen:SemanticValidation a codegen:ValidationRule ;
+    rdfs:label "Semantic Validation" ;
+    rdfs:comment "Validate algorithmic correctness" .
+
+codegen:PerformanceValidation a codegen:ValidationRule ;
+    rdfs:label "Performance Validation" ;
+    rdfs:comment "Validate performance characteristics" .
+
+codegen:hasValidation a owl:ObjectProperty ;
+    rdfs:domain codegen:CodeTemplate ;
+    rdfs:range codegen:ValidationRule .

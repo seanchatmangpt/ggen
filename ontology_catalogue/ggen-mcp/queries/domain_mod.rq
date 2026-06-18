@@ -1,0 +1,19 @@
+PREFIX ddd: <https://ddd-patterns.dev/schema#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?type ?name
+WHERE {
+  { ?x a ddd:AggregateRoot . ?x rdfs:label ?name . BIND("Aggregate" as ?type) }
+  UNION
+  { ?x a ddd:ValueObject . ?x rdfs:label ?name . BIND("ValueObject" as ?type) }
+  UNION
+  { ?x a ddd:Repository . ?x rdfs:label ?name . BIND("Repository" as ?type) }
+  UNION
+  { ?x a ddd:Service . ?x rdfs:label ?name . BIND("Service" as ?type) }
+  UNION
+  { ?x a ddd:Handler . ?x rdfs:label ?name . BIND("Handler" as ?type) }
+  UNION
+  { ?x a ddd:Policy . ?x rdfs:label ?name . BIND("Policy" as ?type) }
+}
+ORDER BY ?type ?name
+LIMIT 10000

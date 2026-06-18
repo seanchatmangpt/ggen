@@ -1,0 +1,18 @@
+PREFIX pi: <https://process.intelligence/ontology/>
+PREFIX grun: <https://process.intelligence/ggen-unified-run/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX schema: <https://schema.org/>
+
+# SELECT: Unified Run Manufacturing Plan (4 phases)
+# Returns the complete manufacturing pipeline definition with phase ordering
+# Date: 2026-06-01
+
+SELECT ?phase ?title ?definition ?position
+WHERE {
+    ?phase a pi:ManufacturingPhase .
+    ?phase dcterms:title ?title .
+
+    OPTIONAL { ?phase skos:definition ?definition }
+    OPTIONAL { ?phase schema:position ?position }
+}
+ORDER BY ?position

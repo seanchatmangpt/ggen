@@ -1,0 +1,212 @@
+# @name: federation_quality_check
+# @category: federation
+# @description: SPARQL SELECT verifying federation quality for domain pairs
+# @input: domain1, domain2 (e.g., Finance, Operations)
+# @output_type: join key cardinality, null counts, overlap %, data freshness
+# @purpose: validate federation feasibility before merging domains
+# @timeout_ms: 20000
+# @version: 1.0
+# @stability: stable
+#
+# Purpose:
+#   Pre-federation validation query. Checks data quality metrics before
+#   merging two domains. Answers: "Is it safe to join Domain A + Domain B?"
+#
+# Quality Metrics Checked:
+#   1. Key overlap: % of keys in domain1 that have match in domain2
+#   2. Cardinality: how many rows in each domain
+#   3. Null counts: how many missing values in join keys
+#   4. Data freshness: age of most recent data in each domain
+#   5. Duplicate keys: duplicates in join column (should be ≤ 1 per key)
+#
+# Use Cases:
+#   1. "Can we safely join Finance + Operations? (Key overlap, completeness)"
+#   2. "What's the data quality of Sales + Finance federation?"
+#   3. "Identify stale or incomplete data before federation"
+#   4. "Plan federation: estimate query performance and result size"
+#
+# Input Parameters:
+#   ?domain1 - First domain label (e.g., "finance")
+#   ?domain2 - Second domain label (e.g., "operations")
+#
+# Output Columns:
+#   ?domain1 - First domain name
+#   ?domain2 - Second domain name
+#   ?domain1_row_count - Total rows in domain1
+#   ?domain2_row_count - Total rows in domain2
+#   ?domain1_key_count - Distinct keys in domain1
+#   ?domain2_key_count - Distinct keys in domain2
+#   ?overlapping_keys - Keys present in both domains
+#   ?overlap_percent - (overlapping_keys / min(domain1_keys, domain2_keys)) * 100
+#   ?domain1_null_keys - Rows with NULL join key in domain1
+#   ?domain2_null_keys - Rows with NULL join key in domain2
+#   ?domain1_duplicate_keys - Keys appearing >1 time in domain1 (cardinality violations)
+#   ?domain2_duplicate_keys - Keys appearing >1 time in domain2
+#   ?domain1_freshness_hours - Age in hours of most recent record
+#   ?domain2_freshness_hours - Age in hours of most recent record
+#   ?federation_ready - Boolean: safe to federate? (overlap >= 80%, nulls < 5%, duplicates == 0)
+#
+# Example:
+#   curl -H "Accept: application/sparql-results+json" \
+#     -G "http://localhost:7878/query" \
+#     --data-urlencode "query@-" < federation_quality_check.rq \
+#     --data-urlencode "domain1=finance" \
+#     --data-urlencode "domain2=operations"
+
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dqv: <http://www.w3.org/ns/dqv#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX schema: <http://schema.org/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX finance: <https://ontology.chatmangpt.com/finance#>
+PREFIX operations: <https://ontology.chatmangpt.com/operations#>
+PREFIX sales: <https://ontology.chatmangpt.com/sales#>
+PREFIX hr: <https://ontology.chatmangpt.com/hr#>
+
+SELECT
+  ?domain1
+  ?domain2
+  ?domain1_row_count
+  ?domain2_row_count
+  ?domain1_key_count
+  ?domain2_key_count
+  ?overlapping_keys
+  ?overlap_percent
+  ?domain1_null_keys
+  ?domain2_null_keys
+  ?domain1_duplicate_keys
+  ?domain2_duplicate_keys
+  ?domain1_freshness_hours
+  ?domain2_freshness_hours
+  ?federation_ready
+  ?quality_summary
+
+WHERE {
+  # ========================================================================
+  # SUBQUERY 1: DOMAIN1 STATISTICS
+  # ========================================================================
+
+  {
+    SELECT
+      "finance" AS ?domain1
+      (COUNT(*) AS ?domain1_row_count)
+      (COUNT(DISTINCT ?org_id) AS ?domain1_key_count)
+      (COUNT(FILTER(!BOUND(?org_id))) AS ?domain1_null_keys)
+      (COUNT(*) - COUNT(DISTINCT ?org_id) AS ?domain1_duplicate_keys)
+      (MIN(?hours_since_update) AS ?domain1_freshness_hours)
+
+    WHERE {
+      ?finance_record a finance:FinanceDataset .
+
+      # Join key: organization_id
+      OPTIONAL { ?finance_record finance:organization_id ?org_id . }
+
+      # Data freshness
+      OPTIONAL {
+        ?finance_record prov:generatedAtTime ?timestamp .
+        BIND(
+          ((xsd:dateTime(NOW()) - xsd:dateTime(?timestamp)) / xsd:dayTimeDuration("PT1H")) AS ?hours_since_update
+        )
+      }
+      BIND(COALESCE(?hours_since_update, 999999) AS ?hours_since_update)
+    }
+  }
+
+  # ========================================================================
+  # SUBQUERY 2: DOMAIN2 STATISTICS
+  # ========================================================================
+
+  {
+    SELECT
+      "operations" AS ?domain2
+      (COUNT(*) AS ?domain2_row_count)
+      (COUNT(DISTINCT ?org_id) AS ?domain2_key_count)
+      (COUNT(FILTER(!BOUND(?org_id))) AS ?domain2_null_keys)
+      (COUNT(*) - COUNT(DISTINCT ?org_id) AS ?domain2_duplicate_keys)
+      (MIN(?hours_since_update) AS ?domain2_freshness_hours)
+
+    WHERE {
+      ?ops_record a operations:OperationsDataset .
+
+      # Join key: organization_id (must match finance)
+      OPTIONAL { ?ops_record operations:organization_id ?org_id . }
+
+      # Data freshness
+      OPTIONAL {
+        ?ops_record prov:generatedAtTime ?timestamp .
+        BIND(
+          ((xsd:dateTime(NOW()) - xsd:dateTime(?timestamp)) / xsd:dayTimeDuration("PT1H")) AS ?hours_since_update
+        )
+      }
+      BIND(COALESCE(?hours_since_update, 999999) AS ?hours_since_update)
+    }
+  }
+
+  # ========================================================================
+  # SUBQUERY 3: KEY OVERLAP (how many keys in common)
+  # ========================================================================
+
+  {
+    SELECT
+      (COUNT(DISTINCT ?shared_org_id) AS ?overlapping_keys)
+
+    WHERE {
+      # Keys that exist in BOTH domains
+      ?finance_record a finance:FinanceDataset ;
+        finance:organization_id ?shared_org_id .
+
+      ?ops_record a operations:OperationsDataset ;
+        operations:organization_id ?shared_org_id .
+
+      # Only count non-NULL keys
+      FILTER(BOUND(?shared_org_id))
+    }
+  }
+
+  # ========================================================================
+  # QUALITY METRICS CALCULATION
+  # ========================================================================
+
+  # Calculate overlap percentage
+  BIND(
+    IF(
+      ?domain1_key_count > 0 && ?domain2_key_count > 0,
+      (xsd:double(?overlapping_keys) / xsd:double(MIN(?domain1_key_count, ?domain2_key_count))) * 100.0,
+      0.0
+    ) AS ?overlap_percent
+  )
+
+  # Federation readiness: check all quality gates
+  BIND(
+    IF(
+      ?overlap_percent >= 80 &&
+      (?domain1_null_keys / xsd:double(?domain1_row_count)) * 100 < 5 &&
+      (?domain2_null_keys / xsd:double(?domain2_row_count)) * 100 < 5 &&
+      ?domain1_duplicate_keys = 0 &&
+      ?domain2_duplicate_keys = 0,
+      true,
+      false
+    ) AS ?federation_ready
+  )
+
+  # Generate quality summary
+  BIND(
+    CONCAT(
+      "Overlap: ", STR(ROUND(?overlap_percent)), "% | ",
+      "Domain1 nulls: ", STR(ROUND((?domain1_null_keys / xsd:double(?domain1_row_count)) * 100, 1)), "% | ",
+      "Domain2 nulls: ", STR(ROUND((?domain2_null_keys / xsd:double(?domain2_row_count)) * 100, 1)), "% | ",
+      "Domain1 dups: ", STR(?domain1_duplicate_keys), " | ",
+      "Domain2 dups: ", STR(?domain2_duplicate_keys),
+      IF(?federation_ready, " | ✓ READY TO FEDERATE", " | ✗ NOT READY")
+    ) AS ?quality_summary
+  )
+}
+
+# ============================================================================
+# RESULT ORDERING & LIMITS
+# ============================================================================
+
+ORDER BY DESC(?overlap_percent)
+LIMIT 100

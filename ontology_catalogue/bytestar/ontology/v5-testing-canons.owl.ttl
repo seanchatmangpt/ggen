@@ -1,0 +1,97 @@
+@prefix : <https://bytestar.org/ontology/v5/testing-canons#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix core: <https://bytestar.org/ontology/v5/core#> .
+@prefix gov: <https://bytestar.org/ontology/v5/governance#> .
+
+<https://bytestar.org/ontology/v5/testing-canons>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/v5/governance> ;
+  rdfs:label "ByteStar v5 Testing Canons Ontology" ;
+  rdfs:comment "This ontology defines the types of tests, their purpose, and the criteria for success, ensuring the system's correctness and compliance with its axiomatic foundation." ;
+  owl:versionInfo "5.0.0" .
+
+# #################################################################
+# I. Test Types
+# #################################################################
+
+:TestType a owl:Class ;
+    rdfs:label "Test Type" .
+
+:UnitTest a :TestType ;
+    rdfs:label "Unit Test" .
+
+:IntegrationTest a :TestType ;
+    rdfs:label "Integration Test" .
+
+:PerformanceTest a :TestType ;
+    rdfs:label "Performance Test" .
+
+:SecurityTest a :TestType ;
+    rdfs:label "Security Test" .
+
+:ComplianceTest a :TestType ;
+    rdfs:label "Compliance Test" .
+
+:ChaosTest a :TestType ;
+    rdfs:label "Chaos Test" .
+
+# #################################################################
+# II. Test Properties
+# #################################################################
+
+:hasCoveragePercentage a owl:DatatypeProperty ;
+    rdfs:domain :TestType ;
+    rdfs:range xsd:float .
+
+:hasPassRate a owl:DatatypeProperty ;
+    rdfs:domain :TestType ;
+    rdfs:range xsd:float .
+
+:measuresMetric a owl:ObjectProperty ;
+    rdfs:domain :PerformanceTest ;
+    rdfs:range owl:Thing .
+
+:targetsAxiom a owl:ObjectProperty ;
+    rdfs:domain :TestType ;
+    rdfs:range core:GoverningDoctrine .
+
+# #################################################################
+# III. Test Suite Definition
+# #################################################################
+
+:TestSuite a owl:Class ;
+    rdfs:label "Test Suite" .
+
+:hasTest a owl:ObjectProperty ;
+    rdfs:domain :TestSuite ;
+    rdfs:range :TestType .
+
+# #################################################################
+# IV. Axiomatic Enforcement of Testing Canons
+# #################################################################
+
+# Axiom: All Unit Tests must have at least 95% code coverage.
+:UnitTest rdfs:subClassOf [ a owl:Restriction ;
+    owl:onProperty :hasCoveragePercentage ;
+    owl:allValuesFrom [ a rdfs:Datatype ; owl:withRestrictions ( [ xsd:minInclusive "95.0"^^xsd:float ] ) ]
+] .
+
+# Axiom: All tests must have a 100% pass rate for a successful build.
+:TestType rdfs:subClassOf [ a owl:Restriction ;
+    owl:onProperty :hasPassRate ;
+    owl:hasValue "100.0"^^xsd:float
+] .
+
+# Axiom: Performance Tests must validate the Doctrine of 8.
+:PerformanceTest rdfs:subClassOf [ a owl:Restriction ;
+    owl:onProperty :targetsAxiom ;
+    owl:hasValue core:DoctrineOf8
+] .
+
+# Axiom: Security Tests must target Quantum Resistance.
+:SecurityTest rdfs:subClassOf [ a owl:Restriction ;
+    owl:onProperty :targetsAxiom ;
+    owl:hasValue gov:QuantumResistance
+] .

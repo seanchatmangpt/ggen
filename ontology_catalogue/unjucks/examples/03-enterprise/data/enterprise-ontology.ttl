@@ -1,0 +1,773 @@
+@prefix : <http://enterprise.example.com/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix org: <http://www.w3.org/ns/org#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix sec: <http://enterprise.example.com/security#> .
+@prefix audit: <http://enterprise.example.com/audit#> .
+
+# =============================================================================
+# ENTERPRISE DOMAIN MODEL
+# =============================================================================
+
+# Business Domain Definition
+:EnterpriseDomain a :BusinessDomain ;
+    :name "Enterprise Management Platform" ;
+    :version "2.0.0" ;
+    :description "Comprehensive enterprise resource management system" ;
+    :compliance :GDPR, :SOX, :CCPA, :HIPAA ;
+    :architecture :Microservices, :EventDriven, :CQRS ;
+    :hasSubdomain :UserManagement, :ProductCatalog, :OrderProcessing, :FinancialReporting .
+
+# =============================================================================
+# MICROSERVICES ARCHITECTURE
+# =============================================================================
+
+# User Management Service
+:UserManagement a :Microservice ;
+    :serviceName "user-management-service" ;
+    :version "1.2.0" ;
+    :description "Handles user authentication, authorization, and profile management" ;
+    :port "8001" ;
+    :database :PostgreSQL ;
+    :cache :Redis ;
+    :messageQueue :Kafka ;
+    :exposesAPI :UserAPI ;
+    :implementsPatterns :CQRS, :EventSourcing ;
+    :hasEntity :User, :Role, :Permission ;
+    :dependsOn :AuditService, :NotificationService ;
+    :publishes :UserCreatedEvent, :UserUpdatedEvent, :UserDeletedEvent ;
+    :subscribes :OrganizationUpdatedEvent ;
+    :securityLevel :HIGH ;
+    :scalingPolicy :Horizontal ;
+    :healthCheck "/health" ;
+    :metricsEndpoint "/metrics" .
+
+# Product Catalog Service
+:ProductCatalog a :Microservice ;
+    :serviceName "product-catalog-service" ;
+    :version "1.1.0" ;
+    :description "Manages product information, categories, and pricing" ;
+    :port "8002" ;
+    :database :MongoDB ;
+    :cache :Redis ;
+    :searchEngine :Elasticsearch ;
+    :exposesAPI :ProductAPI ;
+    :hasEntity :Product, :Category, :Brand, :PriceList ;
+    :dependsOn :ImageService, :SearchService ;
+    :publishes :ProductCreatedEvent, :ProductUpdatedEvent, :PriceChangedEvent ;
+    :securityLevel :MEDIUM ;
+    :scalingPolicy :Horizontal .
+
+# Order Processing Service
+:OrderProcessing a :Microservice ;
+    :serviceName "order-processing-service" ;
+    :version "2.1.0" ;
+    :description "Handles order lifecycle, payments, and fulfillment" ;
+    :port "8003" ;
+    :database :PostgreSQL ;
+    :cache :Redis ;
+    :messageQueue :RabbitMQ ;
+    :exposesAPI :OrderAPI ;
+    :implementsPatterns :Saga, :CQRS ;
+    :hasEntity :Order, :OrderItem, :Payment, :Fulfillment ;
+    :dependsOn :PaymentService, :InventoryService, :ShippingService ;
+    :publishes :OrderCreatedEvent, :PaymentProcessedEvent, :OrderShippedEvent ;
+    :subscribes :ProductUpdatedEvent, :UserUpdatedEvent ;
+    :securityLevel :CRITICAL ;
+    :scalingPolicy :Auto ;
+    :circuitBreaker :Enabled .
+
+# =============================================================================
+# ENTERPRISE ENTITIES
+# =============================================================================
+
+# User Entity (Multi-tenant)
+:User a :Entity, :AuditableEntity ;
+    :tableName "users" ;
+    :description "Enterprise user with multi-tenant support" ;
+    :hasField :UserId, :TenantId, :Username, :Email, :FirstName, :LastName,
+              :HashedPassword, :Salt, :IsActive, :LastLoginAt, :CreatedAt, 
+              :UpdatedAt, :CreatedBy, :UpdatedBy, :Version ;
+    :hasRelation :UserRoles, :UserPermissions, :UserSessions ;
+    :encryptionRequired true ;
+    :piiFields :Email, :FirstName, :LastName ;
+    :auditLevel :FULL ;
+    :softDelete true ;
+    :multiTenant true ;
+    :cacheTTL "PT15M" .
+
+# Organization Entity
+:Organization a :Entity, :AuditableEntity ;
+    :tableName "organizations" ;
+    :description "Multi-tenant organization structure" ;
+    :hasField :OrgId, :TenantId, :Name, :Type, :Industry, :Size,
+              :Address, :City, :State, :Country, :PostalCode,
+              :Phone, :Website, :TaxId, :IsActive, :ParentOrgId,
+              :CreatedAt, :UpdatedAt, :Version ;
+    :hasRelation :Users, :Departments, :Subsidiaries ;
+    :hierarchical true ;
+    :auditLevel :FULL ;
+    :complianceRules :GDPR, :SOX .
+
+# Product Entity
+:Product a :Entity, :VersionedEntity ;
+    :tableName "products" ;
+    :description "Enterprise product catalog item" ;
+    :hasField :ProductId, :SKU, :Name, :Description, :Category, :Brand,
+              :BasePrice, :Currency, :CostPrice, :Weight, :Dimensions,
+              :IsActive, :IsDigital, :StockQuantity, :ReorderPoint,
+              :Tags, :Metadata, :CreatedAt, :UpdatedAt, :Version ;
+    :hasRelation :ProductImages, :ProductPrices, :ProductCategories ;
+    :searchable true ;
+    :indexFields :Name, :Description, :Tags, :SKU ;
+    :cacheTTL "PT1H" .
+
+# Order Entity
+:Order a :Entity, :AuditableEntity ;
+    :tableName "orders" ;
+    :description "Customer order with financial tracking" ;
+    :hasField :OrderId, :TenantId, :UserId, :OrderNumber, :Status,
+              :TotalAmount, :Currency, :TaxAmount, :ShippingAmount,
+              :DiscountAmount, :BillingAddress, :ShippingAddress,
+              :PaymentMethod, :OrderDate, :ShippedDate, :DeliveredDate,
+              :CreatedAt, :UpdatedAt, :Version ;
+    :hasRelation :OrderItems, :OrderPayments, :OrderEvents ;
+    :auditLevel :FULL ;
+    :financialRecord true ;
+    :complianceRules :SOX, :PCI_DSS .
+
+# =============================================================================
+# FIELD DEFINITIONS
+# =============================================================================
+
+# User Fields
+:UserId a :Field ;
+    :name "id" ;
+    :type "UUID" ;
+    :isPrimaryKey true ;
+    :isRequired true ;
+    :isUnique true ;
+    :defaultValue "uuid_generate_v4()" ;
+    :description "Unique user identifier" .
+
+:TenantId a :Field ;
+    :name "tenantId" ;
+    :type "UUID" ;
+    :isRequired true ;
+    :isForeignKey true ;
+    :references :Organization ;
+    :description "Tenant/organization identifier for multi-tenancy" .
+
+:Username a :Field ;
+    :name "username" ;
+    :type "VARCHAR(100)" ;
+    :isRequired true ;
+    :isUnique true ;
+    :isIndexed true ;
+    :validation "^[a-zA-Z0-9._-]{3,100}$" ;
+    :description "Unique username for authentication" .
+
+:Email a :Field ;
+    :name "email" ;
+    :type "VARCHAR(255)" ;
+    :isRequired true ;
+    :isUnique true ;
+    :isIndexed true ;
+    :validation "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+    :isPII true ;
+    :encryptionRequired true ;
+    :description "User email address" .
+
+:HashedPassword a :Field ;
+    :name "hashedPassword" ;
+    :type "VARCHAR(255)" ;
+    :isRequired true ;
+    :isSensitive true ;
+    :hashAlgorithm "bcrypt" ;
+    :saltRounds 12 ;
+    :description "Securely hashed password" .
+
+:IsActive a :Field ;
+    :name "isActive" ;
+    :type "BOOLEAN" ;
+    :isRequired true ;
+    :defaultValue true ;
+    :description "Whether the user account is active" .
+
+:CreatedAt a :Field ;
+    :name "createdAt" ;
+    :type "TIMESTAMP" ;
+    :isRequired true ;
+    :isAuditField true ;
+    :defaultValue "CURRENT_TIMESTAMP" ;
+    :description "Record creation timestamp" .
+
+:UpdatedAt a :Field ;
+    :name "updatedAt" ;
+    :type "TIMESTAMP" ;
+    :isRequired true ;
+    :isAuditField true ;
+    :updateOnModify true ;
+    :defaultValue "CURRENT_TIMESTAMP" ;
+    :description "Record last update timestamp" .
+
+:Version a :Field ;
+    :name "version" ;
+    :type "INTEGER" ;
+    :isRequired true ;
+    :defaultValue 1 ;
+    :isOptimisticLock true ;
+    :description "Version number for optimistic concurrency control" .
+
+# =============================================================================
+# API DEFINITIONS
+# =============================================================================
+
+# User Management API
+:UserAPI a :RestAPI ;
+    :name "User Management API" ;
+    :version "1.2.0" ;
+    :basePath "/api/v1/users" ;
+    :authentication :JWT ;
+    :authorization :RBAC ;
+    :rateLimit "1000/hour" ;
+    :hasEndpoint :GetUsers, :GetUser, :CreateUser, :UpdateUser, :DeleteUser,
+                 :ActivateUser, :DeactivateUser, :ChangePassword, :ResetPassword ;
+    :documentation "/docs/user-api" ;
+    :openAPISpec "/openapi/user-api.yaml" .
+
+# Enhanced Endpoints
+:GetUsers a :RestEndpoint ;
+    :method "GET" ;
+    :path "" ;
+    :description "Retrieve paginated list of users with filtering and sorting" ;
+    :returns :UserList ;
+    :hasParameter :PageParam, :LimitParam, :SortParam, :FilterParam ;
+    :requiresPermission "user:read" ;
+    :cacheStrategy :Redis ;
+    :cacheTTL "PT5M" ;
+    :monitoring :Enabled .
+
+:CreateUser a :RestEndpoint ;
+    :method "POST" ;
+    :path "" ;
+    :description "Create a new user with role assignment and audit trail" ;
+    :accepts :CreateUserRequest ;
+    :returns :UserResponse ;
+    :requiresPermission "user:create" ;
+    :validation :Required ;
+    :publishes :UserCreatedEvent ;
+    :auditAction "USER_CREATED" .
+
+:UpdateUser a :RestEndpoint ;
+    :method "PUT" ;
+    :path "/{id}" ;
+    :description "Update user information with conflict resolution" ;
+    :accepts :UpdateUserRequest ;
+    :returns :UserResponse ;
+    :hasPathParameter :UserIdParam ;
+    :requiresPermission "user:update" ;
+    :optimisticLocking true ;
+    :publishes :UserUpdatedEvent ;
+    :auditAction "USER_UPDATED" .
+
+# =============================================================================
+# SECURITY & COMPLIANCE
+# =============================================================================
+
+# Authentication Configuration
+:JWTAuth a sec:AuthenticationMethod ;
+    :algorithm "RS256" ;
+    :keyRotationPeriod "P30D" ;
+    :tokenExpiry "PT1H" ;
+    :refreshTokenExpiry "P7D" ;
+    :issuer "enterprise.example.com" ;
+    :audience "enterprise-api" .
+
+# Authorization Roles
+:AdminRole a sec:Role ;
+    :name "Administrator" ;
+    :description "Full system administration access" ;
+    :hasPermission sec:AllPermissions ;
+    :isSystemRole true .
+
+:UserManagerRole a sec:Role ;
+    :name "User Manager" ;
+    :description "User and role management capabilities" ;
+    :hasPermission "user:create", "user:read", "user:update", "user:delete",
+                   "role:read", "role:assign" .
+
+:StandardUserRole a sec:Role ;
+    :name "Standard User" ;
+    :description "Basic user access to own profile and resources" ;
+    :hasPermission "user:read:own", "user:update:own", "profile:manage" .
+
+# Compliance Rules
+:GDPR a :ComplianceRule ;
+    :name "General Data Protection Regulation" ;
+    :description "EU data protection and privacy regulation" ;
+    :requiresConsent true ;
+    :rightToForgotten true ;
+    :dataPortability true ;
+    :encryptionRequired true ;
+    :auditTrail :Required ;
+    :dataRetentionPeriod "P2555D" ;  # 7 years
+    :appliesTo :PII .
+
+:SOX a :ComplianceRule ;
+    :name "Sarbanes-Oxley Act" ;
+    :description "Financial reporting and audit requirements" ;
+    :auditTrail :Required ;
+    :dataIntegrity :Required ;
+    :accessControl :Strict ;
+    :changeTracking :Complete ;
+    :appliesTo :FinancialData .
+
+# =============================================================================
+# EVENT-DRIVEN ARCHITECTURE
+# =============================================================================
+
+# Domain Events
+:UserCreatedEvent a :DomainEvent ;
+    :eventType "user.created" ;
+    :version "1.0" ;
+    :schema :UserEventSchema ;
+    :publishers :UserManagement ;
+    :subscribers :AuditService, :NotificationService, :AnalyticsService ;
+    :retention "P30D" .
+
+:UserUpdatedEvent a :DomainEvent ;
+    :eventType "user.updated" ;
+    :version "1.1" ;
+    :schema :UserEventSchema ;
+    :publishers :UserManagement ;
+    :subscribers :AuditService, :CacheService ;
+    :conflictResolution :LatestWins .
+
+:OrderCreatedEvent a :DomainEvent ;
+    :eventType "order.created" ;
+    :version "2.0" ;
+    :schema :OrderEventSchema ;
+    :publishers :OrderProcessing ;
+    :subscribers :InventoryService, :PaymentService, :FulfillmentService ;
+    :guarantees :AtLeastOnce .
+
+# =============================================================================
+# OPERATIONAL CONCERNS
+# =============================================================================
+
+# Monitoring & Observability
+:SystemMonitoring a :MonitoringConfig ;
+    :metricsProvider :Prometheus ;
+    :tracingProvider :Jaeger ;
+    :loggingProvider :ELK ;
+    :alertingProvider :AlertManager ;
+    :healthCheckInterval "PT30S" ;
+    :metricRetention "P30D" ;
+    :traceRetention "P7D" .
+
+# Performance Requirements
+:PerformanceSLA a :ServiceLevelAgreement ;
+    :availability "99.9%" ;
+    :responseTime "P95<200ms" ;
+    :throughput "10000req/s" ;
+    :errorRate "<0.1%" ;
+    :mttr "PT15M" ;  # Mean Time To Recovery
+    :rto "PT1H" ;    # Recovery Time Objective
+    :rpo "PT5M" .    # Recovery Point Objective
+
+# Caching Strategy
+:CacheConfig a :CacheStrategy ;
+    :provider :Redis ;
+    :topology :Distributed ;
+    :evictionPolicy :LRU ;
+    :defaultTTL "PT1H" ;
+    :maxMemory "4GB" ;
+    :persistence true ;
+    :replication :MasterSlave .
+
+# =============================================================================
+# FORTUNE 500 ENTERPRISE EXTENSIONS
+# =============================================================================
+
+# Financial Services Domain
+:FinancialServices a :IndustryDomain ;
+    :name "Financial Services" ;
+    :regulatoryFrameworks :Basel3, :SOX, :GDPR, :PCI_DSS ;
+    :riskManagementRequired true ;
+    :realTimeProcessing true ;
+    :hasSubdomain :RiskManagement, :TradingPlatform, :ComplianceReporting, :FraudDetection .
+
+# Healthcare Domain  
+:Healthcare a :IndustryDomain ;
+    :name "Healthcare" ;
+    :regulatoryFrameworks :HIPAA, :FDA, :GDPR ;
+    :patientDataProtection true ;
+    :clinicalWorkflows true ;
+    :hasSubdomain :PatientManagement, :ClinicalTrials, :MedicalRecords, :BillingServices .
+
+# Manufacturing Domain
+:Manufacturing a :IndustryDomain ;
+    :name "Manufacturing" ;
+    :regulatoryFrameworks :ISO9001, :ISO14001, :OSHA ;
+    :supplyChainIntegration true ;
+    :iotDeviceManagement true ;
+    :hasSubdomain :SupplyChain, :QualityControl, :InventoryManagement, :ProductionPlanning .
+
+# Retail Domain
+:Retail a :IndustryDomain ;
+    :name "Retail" ;
+    :regulatoryFrameworks :PCI_DSS, :GDPR, :CCPA ;
+    :omniChannelSupport true ;
+    :customerAnalytics true ;
+    :hasSubdomain :ECommerce, :InventoryManagement, :CustomerAnalytics, :PointOfSale .
+
+# =============================================================================
+# ADVANCED MICROSERVICES
+# =============================================================================
+
+# Risk Management Service (Financial)
+:RiskManagement a :Microservice ;
+    :serviceName "risk-management-service" ;
+    :version "2.1.0" ;
+    :description "Real-time risk assessment and monitoring" ;
+    :port "8010" ;
+    :database :TimescaleDB ;
+    :cache :Redis ;
+    :messageQueue :Kafka ;
+    :streamProcessing :ApacheKafkaStreams ;
+    :exposesAPI :RiskAPI ;
+    :implementsPatterns :EventSourcing, :CQRS, :CircuitBreaker ;
+    :hasEntity :RiskProfile, :RiskAssessment, :RiskAlert, :ComplianceRule ;
+    :dependsOn :UserManagement, :AuditService, :NotificationService ;
+    :publishes :RiskAlertEvent, :ComplianceViolationEvent ;
+    :subscribes :TransactionEvent, :MarketDataEvent ;
+    :securityLevel :CRITICAL ;
+    :scalingPolicy :Auto ;
+    :realTimeProcessing true ;
+    :slaRequirements :SubSecondLatency .
+
+# Fraud Detection Service (Financial)
+:FraudDetection a :Microservice ;
+    :serviceName "fraud-detection-service" ;
+    :version "1.5.0" ;
+    :description "ML-powered fraud detection and prevention" ;
+    :port "8011" ;
+    :database :MongoDB ;
+    :cache :Redis ;
+    :messageQueue :Kafka ;
+    :mlFramework :TensorFlow ;
+    :exposesAPI :FraudAPI ;
+    :implementsPatterns :MachineLearning, :EventSourcing ;
+    :hasEntity :FraudRule, :TransactionAnalysis, :FraudAlert ;
+    :dependsOn :RiskManagement, :NotificationService ;
+    :publishes :FraudAlertEvent, :SuspiciousActivityEvent ;
+    :subscribes :TransactionEvent, :UserBehaviorEvent ;
+    :securityLevel :CRITICAL ;
+    :scalingPolicy :Horizontal ;
+    :realTimeScoring true .
+
+# Patient Management Service (Healthcare)
+:PatientManagement a :Microservice ;
+    :serviceName "patient-management-service" ;
+    :version "3.0.0" ;
+    :description "HIPAA-compliant patient data management" ;
+    :port "8012" ;
+    :database :PostgreSQL ;
+    :cache :Redis ;
+    :messageQueue :RabbitMQ ;
+    :exposesAPI :PatientAPI ;
+    :implementsPatterns :CQRS, :DataEncryption ;
+    :hasEntity :Patient, :MedicalRecord, :Appointment, :Treatment ;
+    :dependsOn :AuditService, :ConsentService ;
+    :publishes :PatientRegisteredEvent, :AppointmentScheduledEvent ;
+    :subscribes :ConsentUpdatedEvent ;
+    :securityLevel :CRITICAL ;
+    :encryptionRequired true ;
+    :complianceLevel :HIPAA ;
+    :dataRetentionYears 10 .
+
+# Supply Chain Service (Manufacturing)
+:SupplyChain a :Microservice ;
+    :serviceName "supply-chain-service" ;
+    :version "2.3.0" ;
+    :description "End-to-end supply chain visibility and optimization" ;
+    :port "8013" ;
+    :database :PostgreSQL ;
+    :cache :Redis ;
+    :messageQueue :Kafka ;
+    :exposesAPI :SupplyChainAPI ;
+    :implementsPatterns :EventSourcing, :Saga ;
+    :hasEntity :Supplier, :PurchaseOrder, :Shipment, :Inventory ;
+    :dependsOn :InventoryManagement, :NotificationService ;
+    :publishes :OrderCreatedEvent, :ShipmentStatusEvent ;
+    :subscribes :InventoryLowEvent, :ProductionDemandEvent ;
+    :securityLevel :HIGH ;
+    :scalingPolicy :Horizontal ;
+    :blockchainIntegration true .
+
+# =============================================================================
+# ENTERPRISE ENTITIES EXPANSION
+# =============================================================================
+
+# Risk Profile Entity (Financial)
+:RiskProfile a :Entity, :AuditableEntity ;
+    :tableName "risk_profiles" ;
+    :description "Customer or transaction risk assessment profile" ;
+    :hasField :RiskProfileId, :TenantId, :EntityType, :EntityId, :RiskScore, 
+              :RiskCategory, :AssessmentDate, :ExpiryDate, :AssessmentCriteria,
+              :RegulatoryFlags, :CreatedAt, :UpdatedAt, :Version ;
+    :hasRelation :RiskAssessments, :ComplianceChecks ;
+    :auditLevel :FULL ;
+    :complianceRules :Basel3, :SOX ;
+    :realTimeUpdates true .
+
+# Patient Entity (Healthcare)
+:Patient a :Entity, :AuditableEntity ;
+    :tableName "patients" ;
+    :description "HIPAA-compliant patient information" ;
+    :hasField :PatientId, :TenantId, :MRN, :FirstName, :LastName, :DateOfBirth,
+              :Gender, :SSN, :Address, :Phone, :Email, :EmergencyContact,
+              :InsuranceInfo, :ConsentStatus, :CreatedAt, :UpdatedAt, :Version ;
+    :hasRelation :MedicalRecords, :Appointments, :Treatments ;
+    :encryptionRequired true ;
+    :piiFields :SSN, :FirstName, :LastName, :DateOfBirth, :Address, :Phone, :Email ;
+    :auditLevel :FULL ;
+    :complianceRules :HIPAA ;
+    :dataRetentionYears 10 ;
+    :accessLoggingRequired true .
+
+# Medical Record Entity (Healthcare)
+:MedicalRecord a :Entity, :AuditableEntity ;
+    :tableName "medical_records" ;
+    :description "Patient medical history and clinical data" ;
+    :hasField :RecordId, :TenantId, :PatientId, :RecordType, :RecordDate,
+              :ProviderId, :Diagnosis, :Treatment, :Medications, :Allergies,
+              :VitalSigns, :LabResults, :Attachments, :CreatedAt, :UpdatedAt, :Version ;
+    :hasRelation :Patient, :Provider, :Appointments ;
+    :encryptionRequired true ;
+    :auditLevel :FULL ;
+    :complianceRules :HIPAA ;
+    :accessControlStrict true .
+
+# Supplier Entity (Manufacturing)
+:Supplier a :Entity, :AuditableEntity ;
+    :tableName "suppliers" ;
+    :description "Supply chain partner information" ;
+    :hasField :SupplierId, :TenantId, :CompanyName, :ContactName, :Address,
+              :Phone, :Email, :TaxId, :CertificationStatus, :QualityRating,
+              :PaymentTerms, :DeliveryTerms, :ContractStartDate, :ContractEndDate,
+              :IsActive, :CreatedAt, :UpdatedAt, :Version ;
+    :hasRelation :PurchaseOrders, :QualityAudits, :Contracts ;
+    :auditLevel :FULL ;
+    :complianceRules :ISO9001 ;
+    :blockchainTracking true .
+
+# =============================================================================
+# ADVANCED FIELD DEFINITIONS
+# =============================================================================
+
+# Risk Score Field
+:RiskScore a :Field ;
+    :name "riskScore" ;
+    :type "DECIMAL(5,2)" ;
+    :isRequired true ;
+    :minValue 0.00 ;
+    :maxValue 100.00 ;
+    :description "Calculated risk score from 0 (lowest) to 100 (highest)" .
+
+# Medical Record Number (MRN)
+:MRN a :Field ;
+    :name "mrn" ;
+    :type "VARCHAR(20)" ;
+    :isRequired true ;
+    :isUnique true ;
+    :isIndexed true ;
+    :validation "^MRN[0-9]{10}$" ;
+    :description "Unique medical record number" .
+
+# Social Security Number
+:SSN a :Field ;
+    :name "ssn" ;
+    :type "VARCHAR(11)" ;
+    :isRequired false ;
+    :isPII true ;
+    :isSensitive true ;
+    :encryptionRequired true ;
+    :validation "^[0-9]{3}-[0-9]{2}-[0-9]{4}$" ;
+    :maskingPattern "XXX-XX-XXXX" ;
+    :description "Social Security Number (encrypted)" .
+
+# =============================================================================
+# ADVANCED API DEFINITIONS
+# =============================================================================
+
+# Risk Management API
+:RiskAPI a :RestAPI ;
+    :name "Risk Management API" ;
+    :version "2.1.0" ;
+    :basePath "/api/v2/risk" ;
+    :authentication :JWT ;
+    :authorization :RBAC ;
+    :rateLimit "5000/hour" ;
+    :hasEndpoint :CalculateRisk, :GetRiskProfile, :UpdateRiskThresholds,
+                 :GetComplianceReport, :TriggerRiskAlert ;
+    :realTimeSupport true ;
+    :slaRequirements :SubSecondResponse .
+
+# Patient API (HIPAA Compliant)
+:PatientAPI a :RestAPI ;
+    :name "Patient Management API" ;
+    :version "3.0.0" ;
+    :basePath "/api/v3/patients" ;
+    :authentication :JWT ;
+    :authorization :ABAC ;
+    :rateLimit "1000/hour" ;
+    :hasEndpoint :GetPatient, :UpdatePatient, :CreateAppointment,
+                 :AccessMedicalRecord, :UpdateConsent ;
+    :complianceLevel :HIPAA ;
+    :auditAllAccess true ;
+    :encryptInTransit true .
+
+# =============================================================================
+# ENTERPRISE INTEGRATION PATTERNS
+# =============================================================================
+
+# Event-Driven Architecture Patterns
+:EnterpriseEventBus a :EventBus ;
+    :name "Enterprise Event Bus" ;
+    :provider :ApacheKafka ;
+    :topics :UserEvents, :TransactionEvents, :RiskEvents, :ComplianceEvents,
+            :PatientEvents, :SupplyChainEvents, :ManufacturingEvents ;
+    :partitioningStrategy :TenantBased ;
+    :retentionPolicy "P30D" ;
+    :replicationFactor 3 .
+
+# API Gateway Configuration
+:EnterpriseAPIGateway a :APIGateway ;
+    :name "Enterprise API Gateway" ;
+    :provider :Kong ;
+    :version "3.4.0" ;
+    :features :LoadBalancing, :RateLimiting, :Authentication, :Monitoring,
+              :CircuitBreaker, :RequestTransformation, :ResponseCaching ;
+    :securityPlugins :JWT, :OAuth2, :ACL, :IPRestriction ;
+    :monitoringPlugins :Prometheus, :Jaeger, :DataDog ;
+    :scalingPolicy :Auto .
+
+# Data Lake Configuration
+:EnterpriseDataLake a :DataLake ;
+    :name "Enterprise Data Lake" ;
+    :provider :AWS_S3 ;
+    :storageClasses :Standard, :InfrequentAccess, :Glacier ;
+    :encryptionAtRest true ;
+    :encryptionInTransit true ;
+    :accessLogging true ;
+    :versioning true ;
+    :lifecyclePolicies true .
+
+# =============================================================================
+# COMPLIANCE AND GOVERNANCE EXTENSIONS
+# =============================================================================
+
+# Basel III Compliance (Banking)
+:Basel3 a :ComplianceRule ;
+    :name "Basel III" ;
+    :description "International banking regulation framework" ;
+    :requiresRiskCalculation true ;
+    :capitalAdequacyRequired true ;
+    :liquidityRatioRequired true ;
+    :leverageRatioRequired true ;
+    :stressTestingRequired true ;
+    :reportingFrequency "monthly" ;
+    :appliesTo :FinancialTransactions, :RiskData .
+
+# HIPAA Compliance (Healthcare)
+:HIPAA a :ComplianceRule ;
+    :name "Health Insurance Portability and Accountability Act" ;
+    :description "US healthcare data protection regulation" ;
+    :requiresEncryption true ;
+    :requiresAccessControls true ;
+    :requiresAuditTrails true ;
+    :requiresPatientConsent true ;
+    :breachNotificationRequired true ;
+    :minimumNecessaryRule true ;
+    :businessAssociateAgreements true ;
+    :appliesTo :PatientData, :MedicalRecords .
+
+# ISO 9001 (Manufacturing)
+:ISO9001 a :ComplianceRule ;
+    :name "ISO 9001 Quality Management" ;
+    :description "International quality management standard" ;
+    :requiresDocumentControl true ;
+    :requiresProcessDocumentation true ;
+    :requiresContinuousImprovement true ;
+    :requiresCustomerSatisfaction true ;
+    :requiresManagementReview true ;
+    :auditFrequency "annual" ;
+    :appliesTo :ManufacturingProcesses, :QualityData .
+
+# =============================================================================
+# DEPLOYMENT & INFRASTRUCTURE
+# =============================================================================
+
+# Container Configuration
+:DockerConfig a :ContainerConfig ;
+    :baseImage "node:18-alpine" ;
+    :workDir "/app" ;
+    :exposedPorts "8080", "8443" ;
+    :healthCheck "/health" ;
+    :user "app" ;
+    :securityContext :NonRoot ;
+    :resourceLimits :CPULimit, :MemoryLimit .
+
+# Kubernetes Configuration
+:K8sConfig a :KubernetesConfig ;
+    :namespace "enterprise" ;
+    :replicas 3 ;
+    :strategy :RollingUpdate ;
+    :maxUnavailable "25%" ;
+    :maxSurge "25%" ;
+    :resources :ResourceRequests, :ResourceLimits ;
+    :autoscaling :HPA ;
+    :minReplicas 2 ;
+    :maxReplicas 10 ;
+    :targetCPUUtilization "70%" .
+
+# Cloud-Specific Configurations
+:AWSConfig a :CloudConfig ;
+    :provider "AWS" ;
+    :region "us-east-1" ;
+    :availabilityZones "us-east-1a", "us-east-1b", "us-east-1c" ;
+    :vpc :EnterpriseVPC ;
+    :loadBalancer :ApplicationLoadBalancer ;
+    :database :RDS_PostgreSQL ;
+    :cache :ElastiCache_Redis ;
+    :messageQueue :AmazonMQ_RabbitMQ ;
+    :monitoring :CloudWatch ;
+    :logging :CloudWatchLogs .
+
+:AzureConfig a :CloudConfig ;
+    :provider "Azure" ;
+    :region "East US" ;
+    :resourceGroup "enterprise-rg" ;
+    :virtualNetwork :EnterpriseVNet ;
+    :loadBalancer :AzureLoadBalancer ;
+    :database :AzurePostgreSQL ;
+    :cache :AzureRedis ;
+    :messageQueue :ServiceBus ;
+    :monitoring :AzureMonitor ;
+    :logging :LogAnalytics .
+
+# Resource Limits
+:CPULimit a :ResourceLimit ;
+    :resource "cpu" ;
+    :limit "1000m" ;
+    :request "500m" .
+
+:MemoryLimit a :ResourceLimit ;
+    :resource "memory" ;
+    :limit "2Gi" ;
+    :request "1Gi" .

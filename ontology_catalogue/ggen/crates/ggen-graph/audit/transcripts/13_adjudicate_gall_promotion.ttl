@@ -1,0 +1,30 @@
+@base <http://example.org/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix spdx: <http://spdx.org/rdf/terms#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<#activity_13_adjudicate_witnessed_promotion> a prov:Activity ;
+    dcterms:identifier "13_adjudicate_gall_promotion" ;
+    prov:startedAtTime "2026-05-27T04:22:01.847Z" ; 
+    prov:endedAtTime "2026-05-27T04:22:10.795Z" ;
+    prov:value 0 
+    ; prov:wasInformedBy _:aa6e93bf1365351a116e481f3a48e260 .
+
+<#stdout_13_adjudicate_witnessed_promotion> a prov:Entity ;
+    prov:wasGeneratedBy <#activity_13_adjudicate_witnessed_promotion> ;
+    dcterms:title "13_adjudicate_gall_promotion.stdout" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "82bc00ccfe03b7e239b863526574c0a7c839b21e3cec4638099d2e91fcfad204"
+    ] .
+
+<#stderr_13_adjudicate_witnessed_promotion> a prov:Entity ;
+    prov:wasGeneratedBy <#activity_13_adjudicate_witnessed_promotion> ;
+    dcterms:title "13_adjudicate_gall_promotion.stderr" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "f9d869512c2ddffb086f93995766896de0ade5d677d45f1104eec41e30c83feb"
+    ] .

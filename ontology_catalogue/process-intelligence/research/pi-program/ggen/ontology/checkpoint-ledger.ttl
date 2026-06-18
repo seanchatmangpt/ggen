@@ -1,0 +1,325 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix schema:  <https://schema.org/> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix pi:      <https://process.intelligence/ontology/> .
+@prefix chk:     <https://process.intelligence/checkpoint/> .
+@prefix proj:    <https://process.intelligence/project/> .
+
+# ============================================================
+# checkpoint-ledger.ttl — All ALIVE/PARTIAL Checkpoints
+# Authority: Process Intelligence Research Foundry
+# Date: 2026-06-01
+# Immutability: Checkpoint verdicts stand as issued.
+#   Only dated addendums permitted. Never revert.
+# ============================================================
+
+<https://process.intelligence/ontology/checkpoint-ledger>
+    a owl:Ontology ;
+    owl:imports <https://process.intelligence/ontology/pi-program> ;
+    dcterms:title "PI Program Checkpoint Ledger" ;
+    dcterms:description "Immutable ledger of all ALIVE and PARTIAL checkpoint verdicts issued by the PI research program. Each checkpoint is classified as ALIVE_CLAIM or PARTIAL_CLAIM with its gate criteria evidence." ;
+    dcterms:created "2026-06-01"^^xsd:date ;
+    dcterms:creator <https://process.intelligence/agent/research-foundry> ;
+    owl:versionInfo "1.0.0" .
+
+# ============================================================
+# SECTION 1: Checkpoint Property Definitions
+# ============================================================
+
+pi:verdictType
+    a owl:DatatypeProperty ;
+    rdfs:label "verdict type" ;
+    rdfs:range xsd:string ;
+    skos:definition "The verdict issued at a checkpoint: ALIVE, PARTIAL, or FAILED." .
+
+pi:gatesCriteriaMet
+    a owl:DatatypeProperty ;
+    rdfs:label "gates criteria met" ;
+    rdfs:range xsd:integer ;
+    skos:definition "Number of gate criteria simultaneously satisfied at checkpoint issuance." .
+
+pi:gatesCriteriaTotal
+    a owl:DatatypeProperty ;
+    rdfs:label "gates criteria total" ;
+    rdfs:range xsd:integer ;
+    skos:definition "Total number of gate criteria required for an ALIVE verdict." .
+
+pi:commitHash
+    a owl:DatatypeProperty ;
+    rdfs:label "commit hash" ;
+    rdfs:range xsd:string ;
+    skos:definition "The git commit hash anchoring the checkpoint verdict to the tamper-evident history." .
+
+pi:authoritySignature
+    a owl:DatatypeProperty ;
+    rdfs:label "authority signature" ;
+    rdfs:range xsd:string ;
+    skos:definition "BLAKE3 or Ed25519 signature from the issuing authority, cryptographically binding the verdict." .
+
+pi:authorizedDownstream
+    a owl:ObjectProperty ;
+    rdfs:label "authorized downstream" ;
+    rdfs:domain pi:ALIVE_CLAIM ;
+    rdfs:range prov:Entity ;
+    skos:definition "Names the downstream implementations authorized by this ALIVE verdict." .
+
+pi:blockingGap
+    a owl:ObjectProperty ;
+    rdfs:label "blocking gap" ;
+    rdfs:domain pi:PARTIAL_CLAIM ;
+    rdfs:range pi:FAILED_GATE ;
+    skos:definition "Links a PARTIAL checkpoint to the specific failed gate that blocks advancement to ALIVE." .
+
+# ============================================================
+# SECTION 2: Master Program Checkpoints
+# ============================================================
+
+chk:PROCESS_INTELLIGENCE_ALIVE_001
+    a prov:Entity, pi:ALIVE_CLAIM ;
+    rdfs:label "PROCESS_INTELLIGENCE_ALIVE_001" ;
+    dcterms:description "Final ALIVE verdict for the Process Intelligence research program. All 13 gate criteria simultaneously met. Authorizes all downstream implementations (wasm4pm refactor, compat gap close, ggen projection integration, M&A deck manufacturing, Blue River lifecycle governance)." ;
+    dcterms:created "2026-06-01"^^xsd:date ;
+    pi:verdictType "ALIVE" ;
+    pi:gatesCriteriaMet "13"^^xsd:integer ;
+    pi:gatesCriteriaTotal "13"^^xsd:integer ;
+    pi:commitHash "3845aec" ;
+    prov:wasGeneratedBy chk:PROCESS_INTELLIGENCE_ALIVE_001-activity ;
+    prov:wasAttributedTo <https://process.intelligence/agent/research-foundry> ;
+    schema:url <file:///Users/sac/process-intelligence/checkpoints/PROCESS_INTELLIGENCE_ALIVE_001.md> ;
+    pi:authorizedDownstream proj:wasm4pm,
+                             proj:wasm4pm-compat,
+                             proj:ggen-primary-cell,
+                             proj:blue-river-dam .
+
+chk:PROCESS_INTELLIGENCE_ALIVE_001-activity
+    a prov:Activity ;
+    rdfs:label "ALIVE_001 Verification Activity" ;
+    prov:startedAtTime "2026-05-31"^^xsd:date ;
+    prov:endedAtTime "2026-06-01"^^xsd:date ;
+    skos:note "13 gate criteria verified simultaneously: doctrine/=15, standards/=39, sources/papers/=9, sources/pm4py/=9, sources/wasm4pm/=15, sources/wasm4pm-compat/=11, lifecycle/=37, comparisons/=5, crosswalks/=4, ma/=32, adversarial/=3, gaps/=2, total_commits=570." .
+
+chk:PROCESS_INTELLIGENCE_ALIVE_001-gate-doctrine
+    a prov:Entity ;
+    rdfs:label "Gate: Doctrine Density" ;
+    dcterms:description "doctrine/ >= 15. ACTUAL: 15. PASS." ;
+    prov:wasUsedBy chk:PROCESS_INTELLIGENCE_ALIVE_001-activity .
+
+chk:PROCESS_INTELLIGENCE_ALIVE_001-gate-standards
+    a prov:Entity ;
+    rdfs:label "Gate: Standards Coverage" ;
+    dcterms:description "standards/ >= 10. ACTUAL: 39. PASS." ;
+    prov:wasUsedBy chk:PROCESS_INTELLIGENCE_ALIVE_001-activity .
+
+chk:PROCESS_INTELLIGENCE_ALIVE_001-gate-papers
+    a prov:Entity ;
+    rdfs:label "Gate: Paper Classifications" ;
+    dcterms:description "sources/papers/ >= 8. ACTUAL: 9. PASS." ;
+    prov:wasUsedBy chk:PROCESS_INTELLIGENCE_ALIVE_001-activity .
+
+chk:PROCESS_INTELLIGENCE_ALIVE_001-gate-pm4py
+    a prov:Entity ;
+    rdfs:label "Gate: PM4Py Capability Maps" ;
+    dcterms:description "sources/pm4py/ >= 5. ACTUAL: 9. PASS." ;
+    prov:wasUsedBy chk:PROCESS_INTELLIGENCE_ALIVE_001-activity .
+
+chk:PROCESS_INTELLIGENCE_ALIVE_001-gate-wasm4pm
+    a prov:Entity ;
+    rdfs:label "Gate: wasm4pm Authority Maps" ;
+    dcterms:description "sources/wasm4pm/ >= 3. ACTUAL: 15. PASS." ;
+    prov:wasUsedBy chk:PROCESS_INTELLIGENCE_ALIVE_001-activity .
+
+chk:PROCESS_INTELLIGENCE_ALIVE_001-gate-compat
+    a prov:Entity ;
+    rdfs:label "Gate: compat Type-Law Maps" ;
+    dcterms:description "sources/wasm4pm-compat/ >= 3. ACTUAL: 11. PASS." ;
+    prov:wasUsedBy chk:PROCESS_INTELLIGENCE_ALIVE_001-activity .
+
+chk:PROCESS_INTELLIGENCE_ALIVE_001-gate-lifecycle
+    a prov:Entity ;
+    rdfs:label "Gate: Lifecycle States" ;
+    dcterms:description "lifecycle/ >= 8. ACTUAL: 37. PASS." ;
+    prov:wasUsedBy chk:PROCESS_INTELLIGENCE_ALIVE_001-activity .
+
+chk:PROCESS_INTELLIGENCE_ALIVE_001-gate-comparisons
+    a prov:Entity ;
+    rdfs:label "Gate: Comparison Matrices" ;
+    dcterms:description "comparisons/ >= 5. ACTUAL: 5. PASS." ;
+    prov:wasUsedBy chk:PROCESS_INTELLIGENCE_ALIVE_001-activity .
+
+chk:PROCESS_INTELLIGENCE_ALIVE_001-gate-crosswalks
+    a prov:Entity ;
+    rdfs:label "Gate: Type-Law Crosswalks" ;
+    dcterms:description "crosswalks/ >= 4. ACTUAL: 4. PASS." ;
+    prov:wasUsedBy chk:PROCESS_INTELLIGENCE_ALIVE_001-activity .
+
+chk:PROCESS_INTELLIGENCE_ALIVE_001-gate-ma
+    a prov:Entity ;
+    rdfs:label "Gate: M&A Claim Taxonomy" ;
+    dcterms:description "ma/ >= 6. ACTUAL: 32. PASS." ;
+    prov:wasUsedBy chk:PROCESS_INTELLIGENCE_ALIVE_001-activity .
+
+chk:PROCESS_INTELLIGENCE_ALIVE_001-gate-adversarial
+    a prov:Entity ;
+    rdfs:label "Gate: Adversarial Cases" ;
+    dcterms:description "adversarial/ >= 3. ACTUAL: 3. PASS." ;
+    prov:wasUsedBy chk:PROCESS_INTELLIGENCE_ALIVE_001-activity .
+
+chk:PROCESS_INTELLIGENCE_ALIVE_001-gate-gaps
+    a prov:Entity ;
+    rdfs:label "Gate: Documented Gaps" ;
+    dcterms:description "gaps/ >= 2. ACTUAL: 2. PASS." ;
+    prov:wasUsedBy chk:PROCESS_INTELLIGENCE_ALIVE_001-activity .
+
+chk:PROCESS_INTELLIGENCE_ALIVE_001-gate-commits
+    a prov:Entity ;
+    rdfs:label "Gate: Total Commits" ;
+    dcterms:description "total_commits >= 80. ACTUAL: 570. PASS." ;
+    prov:wasUsedBy chk:PROCESS_INTELLIGENCE_ALIVE_001-activity .
+
+# ============================================================
+# SECTION 3: Adversarial Swarm Checkpoint
+# ============================================================
+
+chk:PROCESS_INTELLIGENCE_ADVERSARIAL_V30_1_1_OMEGA
+    a prov:Entity, pi:ALIVE_CLAIM ;
+    rdfs:label "PROCESS_INTELLIGENCE_ADVERSARIAL_V30.1.1_OMEGA" ;
+    dcterms:description "20-agent adversarial swarm verdict by Dr. Wil van der Aalst AGI Swarm Court. All critical surfaces fuzz-tested: execution boundaries (5 domains), lifecycle (MAPE-K loop + WF-net soundness), paper coverage (9 papers), type-law coverage (Evidence lattice bounds), board claim support (100% mapped to receipts), neuro-symbolic verification, alignment referee, drift sentry, ledger custodian, stream director, forensic audit." ;
+    dcterms:created "2026-06-01"^^xsd:date ;
+    pi:verdictType "ALIVE" ;
+    prov:wasAttributedTo <https://process.intelligence/agent/van-der-aalst-agi-swarm-court> ;
+    schema:url <file:///Users/sac/process-intelligence/checkpoints/PROCESS_INTELLIGENCE_ADVERSARIAL_V30.1.1_OMEGA.md> .
+
+# ============================================================
+# SECTION 4: Subsystem Checkpoints
+# ============================================================
+
+chk:GGEN_ECOSYSTEM_INTEL_ALIVE_001
+    a prov:Entity, pi:PARTIAL_CLAIM ;
+    rdfs:label "GGEN_ECOSYSTEM_INTEL_ALIVE_001" ;
+    dcterms:description "ggen manufacturing authority checkpoint. 4/5 audit gates passed. Blocking gap: Audit 1 FAIL — DTO flattening violation (to_json_string and receipt_json in wasm4pm-compat manufacturing module). Authorized: TypeScript projection, WASM boundary generation, WIT schema manufacturing." ;
+    dcterms:created "2026-06-01"^^xsd:date ;
+    pi:verdictType "PARTIAL" ;
+    pi:gatesCriteriaMet "4"^^xsd:integer ;
+    pi:gatesCriteriaTotal "5"^^xsd:integer ;
+    pi:blockingGap chk:failed-gate-dto-flattening ;
+    schema:url <file:///Users/sac/process-intelligence/checkpoints/GGEN_ECOSYSTEM_INTEL_ALIVE_001.md> .
+
+chk:GGEN_OTEL_WEAVER_PI_ALIVE_001
+    a prov:Entity, pi:ALIVE_CLAIM ;
+    rdfs:label "GGEN_OTEL_WEAVER_PI_ALIVE_001" ;
+    dcterms:description "OTel Weaver integration layer ALIVE verdict. All assets verified: feedstock doctrine (6 foundational laws ALIVE), schema URL registry, witness mapping, finding-to-refusal codex, live-check model, weaver policy model, CLI command map, telemetry lifecycle. BLAKE3 authority signature: e6bc59b8d210e309228d4bf09c0fa4db55fe310efc35ad1a89b3f021e85a67f1." ;
+    dcterms:created "2026-06-01"^^xsd:date ;
+    pi:verdictType "ALIVE" ;
+    pi:authoritySignature "e6bc59b8d210e309228d4bf09c0fa4db55fe310efc35ad1a89b3f021e85a67f1" ;
+    prov:wasAttributedTo <https://process.intelligence/agent/van-der-aalst-agi-swarm-court> ;
+    schema:url <file:///Users/sac/process-intelligence/checkpoints/GGEN_OTEL_WEAVER_PI_ALIVE_001.md> .
+
+chk:PAPERLAW_ALIVE
+    a prov:Entity, pi:ALIVE_CLAIM ;
+    rdfs:label "PAPERLAW_ALIVE (wasm4pm-compat)" ;
+    dcterms:description "wasm4pm-compat type-law certification. All 20 papers ledgered. Every claimed type law has type/fixture/witness/refusal/graduation support. 46 compile-fail/pass fixtures all verified. Fast loop < 1s warm. No engine logic in src/. cargo build/clippy/fmt all clean." ;
+    dcterms:created "2026-05-30"^^xsd:date ;
+    pi:verdictType "ALIVE" ;
+    schema:url <file:///Users/sac/wasm4pm-compat> .
+
+chk:ORCHESTRATOR_ALIVE
+    a prov:Entity, pi:ALIVE_CLAIM ;
+    rdfs:label "ORCHESTRATOR_ALIVE (Blue River Dam)" ;
+    dcterms:description "Blue River Dam v30.1.1 orchestrator certification. 629 lines zero-unsafe Rust. All 6 quality gates implemented. All 4 actuation protocols functional. All 5 tests passing. MAPE-K loop closure verified (5/5 criteria). Governance ledger cryptographically chained." ;
+    dcterms:created "2026-06-01"^^xsd:date ;
+    pi:verdictType "ALIVE" ;
+    schema:url <file:///Users/sac/process-intelligence/blue_river_dam/src/lib.rs> .
+
+chk:ZOEAPP_RESEARCH_PARTIAL_001
+    a prov:Entity, pi:PARTIAL_CLAIM ;
+    rdfs:label "ZOEAPP_RESEARCH_PROGRAM_PARTIAL_001" ;
+    dcterms:description "ZOEapp proof cell partial checkpoint. Fully implemented: Expo Router + protected routes, Supabase auth + RLS, BLAKE3 receipt verification, 516 OCEL 2.0 replay fixtures, RDF inference engine, telemetry pipeline, church workflows, Edge Functions, 268 Jest suites. Partial: Realtime sync testing incomplete, P2P sync not integrated, ZKP not active." ;
+    dcterms:created "2026-06-01"^^xsd:date ;
+    pi:verdictType "PARTIAL" ;
+    schema:url <file:///Users/sac/zoeapp/zoeapp-research-program/checkpoints/ZOEAPP_RESEARCH_PROGRAM_PARTIAL_001.md> .
+
+# ============================================================
+# SECTION 5: Failed Gates (Documented Defects)
+# ============================================================
+
+chk:failed-gate-dto-flattening
+    a prov:Entity, pi:FAILED_GATE ;
+    rdfs:label "Failed Gate: DTO Flattening Violation" ;
+    dcterms:description "Audit 1 FAIL in GGEN_ECOSYSTEM_INTEL_ALIVE_001. Violations: compat/src/manufacturing/mod.rs:735 — pub fn to_json_string(&self) -> String; compat/src/manufacturing/traits.rs:34 — fn receipt_json(&self) -> String. JSON serialization flattens Evidence<T> type structure, violating receipt proof carrier law." ;
+    pi:verdictType "FAILED" ;
+    prov:wasRevisionOf chk:GGEN_ECOSYSTEM_INTEL_ALIVE_001 .
+
+chk:failed-gate-gap001-compat-wasm-bridge
+    a prov:Entity, pi:FAILED_GATE ;
+    rdfs:label "Failed Gate: GAP_001 Compat-WASM Bridge Missing" ;
+    dcterms:description "CRITICAL OPEN GAP. Type-law bridging between wasm4pm-compat and wasm4pm engine is incomplete. Blocks import of Admitted types into downstream applications. Documented in gaps/GAP_001_COMPAT_WASM_BRIDGE.md." ;
+    pi:verdictType "OPEN" ;
+    schema:url <file:///Users/sac/process-intelligence/gaps/GAP_001_COMPAT_WASM_BRIDGE.md> .
+
+chk:failed-gate-gap002-or-join-resolved
+    a prov:Entity, pi:FAILED_GATE ;
+    rdfs:label "Failed Gate: GAP_002 OR-Join Ambiguity (RESOLVED)" ;
+    dcterms:description "RESOLVED. OR-Join gateway quorum policy was undefined. Solution: Smart-Completion policy enforces dynamic reachability matrices. Documented in gaps/GAP_002_OR_JOIN_AMBIGUITY.md." ;
+    pi:verdictType "RESOLVED" ;
+    schema:url <file:///Users/sac/process-intelligence/gaps/GAP_002_OR_JOIN_AMBIGUITY.md> .
+
+# ============================================================
+# SECTION 6: Remediation Candidates
+# ============================================================
+
+chk:remediation-dto-flattening
+    a prov:Entity, pi:REMEDIATION_CANDIDATE ;
+    rdfs:label "Remediation: Remove JSON Serialization from compat Public API" ;
+    dcterms:description "Phase 1 (CRITICAL): Move JSON serialization out of wasm4pm-compat public API (remove to_json_string and receipt_json). Phase 2: Re-run all 5 GGEN audits targeting 5/5 PASS. Phase 3: Manufacturing authorization upon ALIVE verdict. Phase 4: Release wasm4pm-compat v0.2.0 with projections." ;
+    prov:wasGeneratedBy chk:failed-gate-dto-flattening .
+
+chk:remediation-gap001-bridge
+    a prov:Entity, pi:REMEDIATION_CANDIDATE ;
+    rdfs:label "Remediation: GAP_001 Compat-WASM Bridge" ;
+    dcterms:description "Implement GraduateToWasm4pm bridge trait in wasm4pm-compat engine_bridge.rs module to enable Admitted type handoff to wasm4pm execution engine. Requires wasm4pm feature flag activation and bridge function implementation." ;
+    prov:wasGeneratedBy chk:failed-gate-gap001-compat-wasm-bridge .
+
+# ============================================================
+# SECTION 7: SHACL — Checkpoint Immutability Constraints
+# ============================================================
+
+pi:CheckpointImmutabilityShape
+    a sh:NodeShape ;
+    sh:targetClass pi:CHECKPOINT ;
+    sh:property [
+        sh:path pi:verdictType ;
+        sh:minCount 1 ;
+        sh:in ("ALIVE" "PARTIAL" "FAILED" "OPEN" "RESOLVED") ;
+        sh:message "Checkpoint verdict must be one of: ALIVE, PARTIAL, FAILED, OPEN, RESOLVED." ;
+    ] ;
+    sh:property [
+        sh:path dcterms:created ;
+        sh:minCount 1 ;
+        sh:datatype xsd:date ;
+        sh:message "Every checkpoint must have a creation date — checkpoints are immutable and dated." ;
+    ] .
+
+pi:ALIVEClaimShape
+    a sh:NodeShape ;
+    sh:targetClass pi:ALIVE_CLAIM ;
+    sh:property [
+        sh:path pi:gatesCriteriaMet ;
+        sh:minCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:message "ALIVE claims must document how many gate criteria were met." ;
+    ] .
+
+pi:PARTIALClaimShape
+    a sh:NodeShape ;
+    sh:targetClass pi:PARTIAL_CLAIM ;
+    sh:property [
+        sh:path pi:blockingGap ;
+        sh:minCount 1 ;
+        sh:message "PARTIAL claims must identify at least one blocking gap or failed gate." ;
+    ] .

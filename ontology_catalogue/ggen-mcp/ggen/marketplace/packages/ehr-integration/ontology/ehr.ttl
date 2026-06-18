@@ -1,0 +1,335 @@
+@prefix ehr: <http://example.org/ehr#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix fhir: <http://hl7.org/fhir/> .
+@prefix schema: <http://schema.org/> .
+
+# Ontology Definition
+ehr:EHRIntegrationOntology a owl:Ontology ;
+    rdfs:label "EHR Integration Ontology" ;
+    rdfs:comment "Ontology for EHR system integration including Epic, Cerner, and FHIR" ;
+    owl:versionInfo "1.0.0" .
+
+# EHR System Classes
+ehr:EHRSystem a owl:Class ;
+    rdfs:label "EHR System" ;
+    rdfs:comment "Electronic Health Record system" .
+
+ehr:EpicSystem a owl:Class ;
+    rdfs:subClassOf ehr:EHRSystem ;
+    rdfs:label "Epic System" ;
+    rdfs:comment "Epic EHR system" .
+
+ehr:CernerSystem a owl:Class ;
+    rdfs:subClassOf ehr:EHRSystem ;
+    rdfs:label "Cerner System" ;
+    rdfs:comment "Cerner (Oracle Health) EHR system" .
+
+ehr:AllergySystem a owl:Class ;
+    rdfs:subClassOf ehr:EHRSystem ;
+    rdfs:label "Allscripts System" ;
+    rdfs:comment "Allscripts EHR system" .
+
+# Integration Components
+ehr:Connector a owl:Class ;
+    rdfs:label "Connector" ;
+    rdfs:comment "Integration connector to EHR system" .
+
+ehr:APIEndpoint a owl:Class ;
+    rdfs:label "API Endpoint" ;
+    rdfs:comment "EHR system API endpoint" .
+
+ehr:DataMapping a owl:Class ;
+    rdfs:label "Data Mapping" ;
+    rdfs:comment "Data transformation mapping between systems" .
+
+ehr:SyncSession a owl:Class ;
+    rdfs:label "Sync Session" ;
+    rdfs:comment "Data synchronization session" .
+
+# FHIR Classes
+ehr:FHIRServer a owl:Class ;
+    rdfs:label "FHIR Server" ;
+    rdfs:comment "FHIR-compliant server" .
+
+ehr:FHIRResource a owl:Class ;
+    rdfs:label "FHIR Resource" ;
+    rdfs:comment "FHIR resource (Patient, Observation, etc.)" .
+
+ehr:SMARTApp a owl:Class ;
+    rdfs:label "SMART App" ;
+    rdfs:comment "SMART on FHIR application" .
+
+ehr:OAuthToken a owl:Class ;
+    rdfs:label "OAuth Token" ;
+    rdfs:comment "OAuth authentication token" .
+
+# Patient Portal
+ehr:PatientPortal a owl:Class ;
+    rdfs:label "Patient Portal" ;
+    rdfs:comment "Patient-facing web portal" .
+
+ehr:PortalUser a owl:Class ;
+    rdfs:label "Portal User" ;
+    rdfs:comment "Patient portal user account" .
+
+ehr:PortalSession a owl:Class ;
+    rdfs:label "Portal Session" ;
+    rdfs:comment "Active portal session" .
+
+ehr:HealthRecord a owl:Class ;
+    rdfs:label "Health Record" ;
+    rdfs:comment "Patient's health record in portal" .
+
+# Clinical Data
+ehr:ClinicalDocument a owl:Class ;
+    rdfs:label "Clinical Document" ;
+    rdfs:comment "Clinical document (CDA, C-CDA)" .
+
+ehr:LabResult a owl:Class ;
+    rdfs:label "Lab Result" ;
+    rdfs:comment "Laboratory test result" .
+
+ehr:ImagingStudy a owl:Class ;
+    rdfs:label "Imaging Study" ;
+    rdfs:comment "Medical imaging study (X-ray, MRI, CT)" .
+
+ehr:Immunization a owl:Class ;
+    rdfs:label "Immunization" ;
+    rdfs:comment "Vaccination record" .
+
+ehr:Allergy a owl:Class ;
+    rdfs:label "Allergy" ;
+    rdfs:comment "Patient allergy" .
+
+ehr:Medication a owl:Class ;
+    rdfs:label "Medication" ;
+    rdfs:comment "Current medication" .
+
+ehr:Problem a owl:Class ;
+    rdfs:label "Problem" ;
+    rdfs:comment "Active problem/diagnosis" .
+
+ehr:Procedure a owl:Class ;
+    rdfs:label "Procedure" ;
+    rdfs:comment "Medical procedure" .
+
+# HL7 Messaging
+ehr:HL7Message a owl:Class ;
+    rdfs:label "HL7 Message" ;
+    rdfs:comment "HL7 v2.x message" .
+
+ehr:ADTMessage a owl:Class ;
+    rdfs:subClassOf ehr:HL7Message ;
+    rdfs:label "ADT Message" ;
+    rdfs:comment "Admission/Discharge/Transfer message" .
+
+ehr:ORMMessage a owl:Class ;
+    rdfs:subClassOf ehr:HL7Message ;
+    rdfs:label "ORM Message" ;
+    rdfs:comment "Order message" .
+
+ehr:ORUMessage a owl:Class ;
+    rdfs:subClassOf ehr:HL7Message ;
+    rdfs:label "ORU Message" ;
+    rdfs:comment "Observation result message" .
+
+# Data Exchange
+ehr:DataExchange a owl:Class ;
+    rdfs:label "Data Exchange" ;
+    rdfs:comment "Healthcare data exchange" .
+
+ehr:HIE a owl:Class ;
+    rdfs:label "Health Information Exchange" ;
+    rdfs:comment "Regional health information exchange" .
+
+ehr:DirectMessaging a owl:Class ;
+    rdfs:label "Direct Messaging" ;
+    rdfs:comment "Direct Secure Messaging" .
+
+# Properties - System
+ehr:hasEHRSystem a owl:ObjectProperty ;
+    rdfs:domain ehr:Connector ;
+    rdfs:range ehr:EHRSystem ;
+    rdfs:label "has EHR system" .
+
+ehr:hasVersion a owl:DatatypeProperty ;
+    rdfs:domain ehr:EHRSystem ;
+    rdfs:range xsd:string ;
+    rdfs:label "has version" .
+
+ehr:hasAPIVersion a owl:DatatypeProperty ;
+    rdfs:domain ehr:APIEndpoint ;
+    rdfs:range xsd:string ;
+    rdfs:label "has API version" .
+
+ehr:hasBaseURL a owl:DatatypeProperty ;
+    rdfs:domain ehr:APIEndpoint ;
+    rdfs:range xsd:anyURI ;
+    rdfs:label "has base URL" .
+
+# Connector Properties
+ehr:hasConnector a owl:ObjectProperty ;
+    rdfs:domain ehr:EHRSystem ;
+    rdfs:range ehr:Connector ;
+    rdfs:label "has connector" .
+
+ehr:hasEndpoint a owl:ObjectProperty ;
+    rdfs:domain ehr:Connector ;
+    rdfs:range ehr:APIEndpoint ;
+    rdfs:label "has endpoint" .
+
+ehr:hasAuthMethod a owl:DatatypeProperty ;
+    rdfs:domain ehr:Connector ;
+    rdfs:range xsd:string ;
+    rdfs:label "has authentication method" ;
+    rdfs:comment "OAuth2, SAML, API key" .
+
+ehr:isConnected a owl:DatatypeProperty ;
+    rdfs:domain ehr:Connector ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "is connected" .
+
+# FHIR Properties
+ehr:hasFHIRServer a owl:ObjectProperty ;
+    rdfs:domain ehr:EHRSystem ;
+    rdfs:range ehr:FHIRServer ;
+    rdfs:label "has FHIR server" .
+
+ehr:hasFHIRVersion a owl:DatatypeProperty ;
+    rdfs:domain ehr:FHIRServer ;
+    rdfs:range xsd:string ;
+    rdfs:label "has FHIR version" ;
+    rdfs:comment "R4, STU3, DSTU2" .
+
+ehr:hasResource a owl:ObjectProperty ;
+    rdfs:domain ehr:FHIRServer ;
+    rdfs:range ehr:FHIRResource ;
+    rdfs:label "has resource" .
+
+ehr:hasSMARTApp a owl:ObjectProperty ;
+    rdfs:domain ehr:PatientPortal ;
+    rdfs:range ehr:SMARTApp ;
+    rdfs:label "has SMART app" .
+
+ehr:hasOAuthToken a owl:ObjectProperty ;
+    rdfs:domain ehr:SMARTApp ;
+    rdfs:range ehr:OAuthToken ;
+    rdfs:label "has OAuth token" .
+
+# Patient Portal Properties
+ehr:hasPatientPortal a owl:ObjectProperty ;
+    rdfs:domain ehr:EHRSystem ;
+    rdfs:range ehr:PatientPortal ;
+    rdfs:label "has patient portal" .
+
+ehr:hasPortalUser a owl:ObjectProperty ;
+    rdfs:domain ehr:PatientPortal ;
+    rdfs:range ehr:PortalUser ;
+    rdfs:label "has portal user" .
+
+ehr:hasHealthRecord a owl:ObjectProperty ;
+    rdfs:domain ehr:PortalUser ;
+    rdfs:range ehr:HealthRecord ;
+    rdfs:label "has health record" .
+
+ehr:canViewLabResults a owl:DatatypeProperty ;
+    rdfs:domain ehr:PortalUser ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "can view lab results" .
+
+# Clinical Data Properties
+ehr:hasLabResult a owl:ObjectProperty ;
+    rdfs:domain ehr:HealthRecord ;
+    rdfs:range ehr:LabResult ;
+    rdfs:label "has lab result" .
+
+ehr:hasImagingStudy a owl:ObjectProperty ;
+    rdfs:domain ehr:HealthRecord ;
+    rdfs:range ehr:ImagingStudy ;
+    rdfs:label "has imaging study" .
+
+ehr:hasImmunization a owl:ObjectProperty ;
+    rdfs:domain ehr:HealthRecord ;
+    rdfs:range ehr:Immunization ;
+    rdfs:label "has immunization" .
+
+ehr:hasAllergy a owl:ObjectProperty ;
+    rdfs:domain ehr:HealthRecord ;
+    rdfs:range ehr:Allergy ;
+    rdfs:label "has allergy" .
+
+ehr:hasMedication a owl:ObjectProperty ;
+    rdfs:domain ehr:HealthRecord ;
+    rdfs:range ehr:Medication ;
+    rdfs:label "has medication" .
+
+ehr:hasProblem a owl:ObjectProperty ;
+    rdfs:domain ehr:HealthRecord ;
+    rdfs:range ehr:Problem ;
+    rdfs:label "has problem" .
+
+# HL7 Properties
+ehr:hasHL7Message a owl:ObjectProperty ;
+    rdfs:domain ehr:Connector ;
+    rdfs:range ehr:HL7Message ;
+    rdfs:label "has HL7 message" .
+
+ehr:hasMessageType a owl:DatatypeProperty ;
+    rdfs:domain ehr:HL7Message ;
+    rdfs:range xsd:string ;
+    rdfs:label "has message type" .
+
+ehr:hasMessageID a owl:DatatypeProperty ;
+    rdfs:domain ehr:HL7Message ;
+    rdfs:range xsd:string ;
+    rdfs:label "has message ID" .
+
+ehr:sentAt a owl:DatatypeProperty ;
+    rdfs:domain ehr:HL7Message ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "sent at" .
+
+# Sync Properties
+ehr:hasSyncSession a owl:ObjectProperty ;
+    rdfs:domain ehr:Connector ;
+    rdfs:range ehr:SyncSession ;
+    rdfs:label "has sync session" .
+
+ehr:lastSyncTime a owl:DatatypeProperty ;
+    rdfs:domain ehr:SyncSession ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "last sync time" .
+
+ehr:recordsSynced a owl:DatatypeProperty ;
+    rdfs:domain ehr:SyncSession ;
+    rdfs:range xsd:integer ;
+    rdfs:label "records synced" .
+
+ehr:syncStatus a owl:DatatypeProperty ;
+    rdfs:domain ehr:SyncSession ;
+    rdfs:range xsd:string ;
+    rdfs:label "sync status" ;
+    rdfs:comment "success, failed, in-progress" .
+
+# Example Instances
+ehr:epic_main a ehr:EpicSystem ;
+    ehr:hasVersion "2023" ;
+    ehr:hasFHIRServer ehr:epic_fhir ;
+    ehr:hasPatientPortal ehr:mychart .
+
+ehr:epic_fhir a ehr:FHIRServer ;
+    ehr:hasFHIRVersion "R4" ;
+    ehr:hasBaseURL "https://fhir.epic.com/interconnect-fhir-oauth/api/FHIR/R4"^^xsd:anyURI .
+
+ehr:mychart a ehr:PatientPortal ;
+    schema:name "MyChart" ;
+    ehr:hasSMARTApp ehr:smart_app_001 .
+
+ehr:connector_001 a ehr:Connector ;
+    ehr:hasEHRSystem ehr:epic_main ;
+    ehr:hasEndpoint ehr:epic_api_endpoint ;
+    ehr:hasAuthMethod "OAuth2" ;
+    ehr:isConnected true .

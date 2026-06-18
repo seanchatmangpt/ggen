@@ -1,0 +1,1275 @@
+# UNRDF Documentation Ontology
+# Comprehensive RDF ontology for autonomic documentation enabling:
+# - Capability Discovery
+# - Protocol Navigation
+# - Type Understanding
+# - Reasoning Support
+# - SLO/Quality Metrics
+#
+# Base namespace: urn:unrdf:doc:
+# Compatible with: N3 reasoning, SPARQL querying, SHACL validation
+# Version: 1.0.0
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+# Base namespace for UNRDF Documentation Ontology
+@prefix doc: <urn:unrdf:doc:> .
+
+# Sub-namespaces for vocabulary organization
+@prefix cap: <urn:unrdf:doc:capability:> .
+@prefix proto: <urn:unrdf:doc:protocol:> .
+@prefix typ: <urn:unrdf:doc:type:> .
+@prefix rsn: <urn:unrdf:doc:reasoning:> .
+@prefix slo: <urn:unrdf:doc:slo:> .
+@prefix auth: <urn:unrdf:doc:auth:> .
+@prefix cost: <urn:unrdf:doc:cost:> .
+@prefix state: <urn:unrdf:doc:state:> .
+
+# =============================================================================
+# ONTOLOGY METADATA
+# =============================================================================
+
+doc:DocumentationOntology a owl:Ontology ;
+    rdfs:label "UNRDF Documentation Ontology"@en ;
+    rdfs:comment "Comprehensive RDF ontology for autonomic documentation enabling capability discovery, protocol navigation, type understanding, and reasoning support for autonomous agents."@en ;
+    owl:versionInfo "1.0.0" ;
+    dcterms:created "2024-01-01"^^xsd:date ;
+    dcterms:creator "UNRDF Project" ;
+    dcterms:license <https://opensource.org/licenses/MIT> .
+
+# =============================================================================
+# CAPABILITY VOCABULARY
+# Enables agents to discover and match capabilities by preconditions,
+# postconditions, performance requirements, cost constraints, and auth levels
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Core Capability Classes
+# -----------------------------------------------------------------------------
+
+cap:Capability a rdfs:Class, owl:Class ;
+    rdfs:label "Capability"@en ;
+    rdfs:comment "A discrete unit of functionality that an agent or system can perform. Capabilities are discoverable via preconditions/postconditions and constrained by performance, cost, and authorization requirements."@en ;
+    rdfs:subClassOf prov:Activity .
+
+cap:AtomicCapability a rdfs:Class, owl:Class ;
+    rdfs:label "Atomic Capability"@en ;
+    rdfs:comment "A capability that cannot be decomposed further - the smallest unit of executable functionality."@en ;
+    rdfs:subClassOf cap:Capability .
+
+cap:CompositeCapability a rdfs:Class, owl:Class ;
+    rdfs:label "Composite Capability"@en ;
+    rdfs:comment "A capability composed of multiple sub-capabilities executed in sequence or parallel."@en ;
+    rdfs:subClassOf cap:Capability .
+
+cap:Condition a rdfs:Class, owl:Class ;
+    rdfs:label "Condition"@en ;
+    rdfs:comment "A logical condition that must be satisfied. Used for preconditions, postconditions, and invariants."@en .
+
+cap:Precondition a rdfs:Class, owl:Class ;
+    rdfs:label "Precondition"@en ;
+    rdfs:comment "A condition that must be true before a capability can be executed."@en ;
+    rdfs:subClassOf cap:Condition .
+
+cap:Postcondition a rdfs:Class, owl:Class ;
+    rdfs:label "Postcondition"@en ;
+    rdfs:comment "A condition that will be true after successful capability execution."@en ;
+    rdfs:subClassOf cap:Condition .
+
+cap:Invariant a rdfs:Class, owl:Class ;
+    rdfs:label "Invariant"@en ;
+    rdfs:comment "A condition that must remain true throughout capability execution."@en ;
+    rdfs:subClassOf cap:Condition .
+
+cap:Effect a rdfs:Class, owl:Class ;
+    rdfs:label "Effect"@en ;
+    rdfs:comment "A side effect or state change resulting from capability execution."@en .
+
+cap:Resource a rdfs:Class, owl:Class ;
+    rdfs:label "Resource"@en ;
+    rdfs:comment "A resource consumed, produced, or modified by a capability."@en .
+
+# -----------------------------------------------------------------------------
+# Capability Properties
+# -----------------------------------------------------------------------------
+
+cap:hasPrecondition a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "has precondition"@en ;
+    rdfs:comment "Links a capability to a condition that must be satisfied before execution."@en ;
+    rdfs:domain cap:Capability ;
+    rdfs:range cap:Precondition .
+
+cap:hasPostcondition a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "has postcondition"@en ;
+    rdfs:comment "Links a capability to a condition guaranteed after successful execution."@en ;
+    rdfs:domain cap:Capability ;
+    rdfs:range cap:Postcondition .
+
+cap:hasInvariant a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "has invariant"@en ;
+    rdfs:comment "Links a capability to a condition that must hold throughout execution."@en ;
+    rdfs:domain cap:Capability ;
+    rdfs:range cap:Invariant .
+
+cap:hasEffect a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "has effect"@en ;
+    rdfs:comment "Links a capability to a side effect it produces."@en ;
+    rdfs:domain cap:Capability ;
+    rdfs:range cap:Effect .
+
+cap:requires a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "requires"@en ;
+    rdfs:comment "Links a capability to a resource it requires for execution."@en ;
+    rdfs:domain cap:Capability ;
+    rdfs:range cap:Resource .
+
+cap:produces a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "produces"@en ;
+    rdfs:comment "Links a capability to a resource it produces."@en ;
+    rdfs:domain cap:Capability ;
+    rdfs:range cap:Resource .
+
+cap:consumes a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "consumes"@en ;
+    rdfs:comment "Links a capability to a resource it consumes (depletes)."@en ;
+    rdfs:domain cap:Capability ;
+    rdfs:range cap:Resource .
+
+cap:modifies a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "modifies"@en ;
+    rdfs:comment "Links a capability to a resource it modifies in place."@en ;
+    rdfs:domain cap:Capability ;
+    rdfs:range cap:Resource .
+
+cap:composedOf a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "composed of"@en ;
+    rdfs:comment "Links a composite capability to its constituent sub-capabilities."@en ;
+    rdfs:domain cap:CompositeCapability ;
+    rdfs:range cap:Capability .
+
+cap:executionOrder a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "execution order"@en ;
+    rdfs:comment "Specifies the execution order of sub-capabilities: 'sequential', 'parallel', or 'conditional'."@en ;
+    rdfs:domain cap:CompositeCapability ;
+    rdfs:range xsd:string .
+
+cap:conditionExpression a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "condition expression"@en ;
+    rdfs:comment "A SPARQL ASK query or N3 formula expressing the condition logic."@en ;
+    rdfs:domain cap:Condition ;
+    rdfs:range xsd:string .
+
+cap:conditionSparql a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "condition SPARQL"@en ;
+    rdfs:comment "A SPARQL ASK query that evaluates the condition against the knowledge graph."@en ;
+    rdfs:domain cap:Condition ;
+    rdfs:range xsd:string .
+
+cap:conditionN3 a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "condition N3"@en ;
+    rdfs:comment "An N3 formula for logical reasoning about the condition."@en ;
+    rdfs:domain cap:Condition ;
+    rdfs:range xsd:string .
+
+cap:inputType a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "input type"@en ;
+    rdfs:comment "Links a capability to its expected input type."@en ;
+    rdfs:domain cap:Capability ;
+    rdfs:range rdfs:Class .
+
+cap:outputType a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "output type"@en ;
+    rdfs:comment "Links a capability to its output type."@en ;
+    rdfs:domain cap:Capability ;
+    rdfs:range rdfs:Class .
+
+cap:implementedBy a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "implemented by"@en ;
+    rdfs:comment "Links a capability to the agent or service that implements it."@en ;
+    rdfs:domain cap:Capability ;
+    rdfs:range prov:Agent .
+
+cap:version a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "version"@en ;
+    rdfs:comment "Semantic version of the capability."@en ;
+    rdfs:domain cap:Capability ;
+    rdfs:range xsd:string .
+
+cap:deprecated a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "deprecated"@en ;
+    rdfs:comment "Indicates if the capability is deprecated."@en ;
+    rdfs:domain cap:Capability ;
+    rdfs:range xsd:boolean .
+
+cap:supersededBy a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "superseded by"@en ;
+    rdfs:comment "Links a deprecated capability to its replacement."@en ;
+    rdfs:domain cap:Capability ;
+    rdfs:range cap:Capability .
+
+# =============================================================================
+# PROTOCOL VOCABULARY
+# Enables agents to understand valid state transitions, message formats,
+# error handling, consensus requirements, and timeout strategies
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Core Protocol Classes
+# -----------------------------------------------------------------------------
+
+proto:Protocol a rdfs:Class, owl:Class ;
+    rdfs:label "Protocol"@en ;
+    rdfs:comment "A formal specification of interaction patterns between agents or components, including state machines, message formats, and error handling."@en .
+
+proto:State a rdfs:Class, owl:Class ;
+    rdfs:label "State"@en ;
+    rdfs:comment "A discrete state within a protocol's state machine."@en .
+
+proto:InitialState a rdfs:Class, owl:Class ;
+    rdfs:label "Initial State"@en ;
+    rdfs:comment "The starting state of a protocol."@en ;
+    rdfs:subClassOf proto:State .
+
+proto:FinalState a rdfs:Class, owl:Class ;
+    rdfs:label "Final State"@en ;
+    rdfs:comment "A terminal state of a protocol (success or failure)."@en ;
+    rdfs:subClassOf proto:State .
+
+proto:ErrorState a rdfs:Class, owl:Class ;
+    rdfs:label "Error State"@en ;
+    rdfs:comment "A state representing an error condition."@en ;
+    rdfs:subClassOf proto:FinalState .
+
+proto:Transition a rdfs:Class, owl:Class ;
+    rdfs:label "Transition"@en ;
+    rdfs:comment "A valid state transition within a protocol, triggered by events or conditions."@en .
+
+proto:Message a rdfs:Class, owl:Class ;
+    rdfs:label "Message"@en ;
+    rdfs:comment "A message type used in protocol communication."@en .
+
+proto:Request a rdfs:Class, owl:Class ;
+    rdfs:label "Request"@en ;
+    rdfs:comment "A request message initiating an interaction."@en ;
+    rdfs:subClassOf proto:Message .
+
+proto:Response a rdfs:Class, owl:Class ;
+    rdfs:label "Response"@en ;
+    rdfs:comment "A response message replying to a request."@en ;
+    rdfs:subClassOf proto:Message .
+
+proto:Event a rdfs:Class, owl:Class ;
+    rdfs:label "Event"@en ;
+    rdfs:comment "An event that can trigger state transitions."@en ;
+    rdfs:subClassOf proto:Message .
+
+proto:ErrorHandler a rdfs:Class, owl:Class ;
+    rdfs:label "Error Handler"@en ;
+    rdfs:comment "A handler for protocol errors with recovery strategies."@en .
+
+proto:TimeoutStrategy a rdfs:Class, owl:Class ;
+    rdfs:label "Timeout Strategy"@en ;
+    rdfs:comment "A strategy for handling timeouts in protocol execution."@en .
+
+proto:ConsensusRequirement a rdfs:Class, owl:Class ;
+    rdfs:label "Consensus Requirement"@en ;
+    rdfs:comment "Requirements for achieving consensus in distributed protocols."@en .
+
+proto:RetryPolicy a rdfs:Class, owl:Class ;
+    rdfs:label "Retry Policy"@en ;
+    rdfs:comment "A policy defining retry behavior for failed operations."@en .
+
+# -----------------------------------------------------------------------------
+# Protocol Properties
+# -----------------------------------------------------------------------------
+
+proto:hasState a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "has state"@en ;
+    rdfs:comment "Links a protocol to one of its states."@en ;
+    rdfs:domain proto:Protocol ;
+    rdfs:range proto:State .
+
+proto:hasInitialState a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "has initial state"@en ;
+    rdfs:comment "Links a protocol to its initial state."@en ;
+    rdfs:domain proto:Protocol ;
+    rdfs:range proto:InitialState ;
+    rdfs:subPropertyOf proto:hasState .
+
+proto:hasFinalState a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "has final state"@en ;
+    rdfs:comment "Links a protocol to a final state."@en ;
+    rdfs:domain proto:Protocol ;
+    rdfs:range proto:FinalState ;
+    rdfs:subPropertyOf proto:hasState .
+
+proto:hasTransition a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "has transition"@en ;
+    rdfs:comment "Links a protocol to a state transition."@en ;
+    rdfs:domain proto:Protocol ;
+    rdfs:range proto:Transition .
+
+proto:fromState a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "from state"@en ;
+    rdfs:comment "The source state of a transition."@en ;
+    rdfs:domain proto:Transition ;
+    rdfs:range proto:State .
+
+proto:toState a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "to state"@en ;
+    rdfs:comment "The target state of a transition."@en ;
+    rdfs:domain proto:Transition ;
+    rdfs:range proto:State .
+
+proto:triggeredBy a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "triggered by"@en ;
+    rdfs:comment "The event or message that triggers a transition."@en ;
+    rdfs:domain proto:Transition ;
+    rdfs:range proto:Message .
+
+proto:guard a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "guard"@en ;
+    rdfs:comment "A SPARQL ASK condition that must be true for the transition to occur."@en ;
+    rdfs:domain proto:Transition ;
+    rdfs:range xsd:string .
+
+proto:action a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "action"@en ;
+    rdfs:comment "A capability to execute during the transition."@en ;
+    rdfs:domain proto:Transition ;
+    rdfs:range cap:Capability .
+
+proto:hasMessage a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "has message"@en ;
+    rdfs:comment "Links a protocol to a message type it uses."@en ;
+    rdfs:domain proto:Protocol ;
+    rdfs:range proto:Message .
+
+proto:messageSchema a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "message schema"@en ;
+    rdfs:comment "Links a message to its SHACL shape for validation."@en ;
+    rdfs:domain proto:Message ;
+    rdfs:range sh:NodeShape .
+
+proto:hasErrorHandler a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "has error handler"@en ;
+    rdfs:comment "Links a protocol to an error handler."@en ;
+    rdfs:domain proto:Protocol ;
+    rdfs:range proto:ErrorHandler .
+
+proto:handlesError a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "handles error"@en ;
+    rdfs:comment "The error type handled by this handler."@en ;
+    rdfs:domain proto:ErrorHandler ;
+    rdfs:range xsd:string .
+
+proto:recoveryAction a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "recovery action"@en ;
+    rdfs:comment "The capability to execute for error recovery."@en ;
+    rdfs:domain proto:ErrorHandler ;
+    rdfs:range cap:Capability .
+
+proto:fallbackState a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "fallback state"@en ;
+    rdfs:comment "The state to transition to on error."@en ;
+    rdfs:domain proto:ErrorHandler ;
+    rdfs:range proto:State .
+
+proto:hasTimeoutStrategy a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "has timeout strategy"@en ;
+    rdfs:comment "Links a protocol to its timeout strategy."@en ;
+    rdfs:domain proto:Protocol ;
+    rdfs:range proto:TimeoutStrategy .
+
+proto:timeoutMs a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "timeout milliseconds"@en ;
+    rdfs:comment "Timeout duration in milliseconds."@en ;
+    rdfs:domain proto:TimeoutStrategy ;
+    rdfs:range xsd:integer .
+
+proto:timeoutAction a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "timeout action"@en ;
+    rdfs:comment "Action to take on timeout: 'retry', 'abort', 'escalate'."@en ;
+    rdfs:domain proto:TimeoutStrategy ;
+    rdfs:range xsd:string .
+
+proto:hasRetryPolicy a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "has retry policy"@en ;
+    rdfs:comment "Links a protocol to its retry policy."@en ;
+    rdfs:domain proto:Protocol ;
+    rdfs:range proto:RetryPolicy .
+
+proto:maxRetries a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "max retries"@en ;
+    rdfs:comment "Maximum number of retry attempts."@en ;
+    rdfs:domain proto:RetryPolicy ;
+    rdfs:range xsd:integer .
+
+proto:retryBackoff a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "retry backoff"@en ;
+    rdfs:comment "Backoff strategy: 'linear', 'exponential', 'fibonacci'."@en ;
+    rdfs:domain proto:RetryPolicy ;
+    rdfs:range xsd:string .
+
+proto:retryDelayMs a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "retry delay milliseconds"@en ;
+    rdfs:comment "Base delay between retries in milliseconds."@en ;
+    rdfs:domain proto:RetryPolicy ;
+    rdfs:range xsd:integer .
+
+proto:hasConsensusRequirement a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "has consensus requirement"@en ;
+    rdfs:comment "Links a protocol to its consensus requirements."@en ;
+    rdfs:domain proto:Protocol ;
+    rdfs:range proto:ConsensusRequirement .
+
+proto:quorum a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "quorum"@en ;
+    rdfs:comment "Minimum fraction of participants required for consensus (0-1)."@en ;
+    rdfs:domain proto:ConsensusRequirement ;
+    rdfs:range xsd:decimal .
+
+proto:consensusAlgorithm a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "consensus algorithm"@en ;
+    rdfs:comment "The consensus algorithm: 'voting', 'raft', 'pbft', 'crdt'."@en ;
+    rdfs:domain proto:ConsensusRequirement ;
+    rdfs:range xsd:string .
+
+proto:byzantineTolerance a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "byzantine tolerance"@en ;
+    rdfs:comment "Maximum fraction of Byzantine (faulty) nodes tolerated."@en ;
+    rdfs:domain proto:ConsensusRequirement ;
+    rdfs:range xsd:decimal .
+
+# =============================================================================
+# TYPE VOCABULARY
+# Provides full semantic type system via RDF including class hierarchies,
+# property domains/ranges, constraints, invariants, and equivalence
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Core Type Classes
+# -----------------------------------------------------------------------------
+
+typ:Type a rdfs:Class, owl:Class ;
+    rdfs:label "Type"@en ;
+    rdfs:comment "A semantic type in the UNRDF type system."@en .
+
+typ:PrimitiveType a rdfs:Class, owl:Class ;
+    rdfs:label "Primitive Type"@en ;
+    rdfs:comment "A primitive/scalar type (string, integer, boolean, etc.)."@en ;
+    rdfs:subClassOf typ:Type .
+
+typ:ComplexType a rdfs:Class, owl:Class ;
+    rdfs:label "Complex Type"@en ;
+    rdfs:comment "A complex type with properties and structure."@en ;
+    rdfs:subClassOf typ:Type .
+
+typ:CollectionType a rdfs:Class, owl:Class ;
+    rdfs:label "Collection Type"@en ;
+    rdfs:comment "A type representing a collection (list, set, map)."@en ;
+    rdfs:subClassOf typ:Type .
+
+typ:UnionType a rdfs:Class, owl:Class ;
+    rdfs:label "Union Type"@en ;
+    rdfs:comment "A type that can be one of several types."@en ;
+    rdfs:subClassOf typ:Type .
+
+typ:IntersectionType a rdfs:Class, owl:Class ;
+    rdfs:label "Intersection Type"@en ;
+    rdfs:comment "A type combining multiple types."@en ;
+    rdfs:subClassOf typ:Type .
+
+typ:GenericType a rdfs:Class, owl:Class ;
+    rdfs:label "Generic Type"@en ;
+    rdfs:comment "A parameterized generic type."@en ;
+    rdfs:subClassOf typ:Type .
+
+typ:TypeConstraint a rdfs:Class, owl:Class ;
+    rdfs:label "Type Constraint"@en ;
+    rdfs:comment "A constraint on type values."@en .
+
+typ:TypeParameter a rdfs:Class, owl:Class ;
+    rdfs:label "Type Parameter"@en ;
+    rdfs:comment "A parameter for generic types."@en .
+
+typ:Property a rdfs:Class, owl:Class ;
+    rdfs:label "Property"@en ;
+    rdfs:comment "A property definition within a complex type."@en .
+
+# -----------------------------------------------------------------------------
+# Type Properties
+# -----------------------------------------------------------------------------
+
+typ:extendsType a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "extends type"@en ;
+    rdfs:comment "Links a type to its parent type in the hierarchy."@en ;
+    rdfs:domain typ:Type ;
+    rdfs:range typ:Type .
+
+typ:implementsType a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "implements type"@en ;
+    rdfs:comment "Links a type to an interface/trait it implements."@en ;
+    rdfs:domain typ:Type ;
+    rdfs:range typ:Type .
+
+typ:hasProperty a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "has property"@en ;
+    rdfs:comment "Links a complex type to its properties."@en ;
+    rdfs:domain typ:ComplexType ;
+    rdfs:range typ:Property .
+
+typ:propertyType a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "property type"@en ;
+    rdfs:comment "The type of a property."@en ;
+    rdfs:domain typ:Property ;
+    rdfs:range typ:Type .
+
+typ:propertyName a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "property name"@en ;
+    rdfs:comment "The name of a property."@en ;
+    rdfs:domain typ:Property ;
+    rdfs:range xsd:string .
+
+typ:required a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "required"@en ;
+    rdfs:comment "Whether a property is required."@en ;
+    rdfs:domain typ:Property ;
+    rdfs:range xsd:boolean .
+
+typ:defaultValue a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "default value"@en ;
+    rdfs:comment "The default value for a property."@en ;
+    rdfs:domain typ:Property ;
+    rdfs:range rdfs:Literal .
+
+typ:hasConstraint a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "has constraint"@en ;
+    rdfs:comment "Links a type or property to a constraint."@en ;
+    rdfs:domain [ owl:unionOf ( typ:Type typ:Property ) ] ;
+    rdfs:range typ:TypeConstraint .
+
+typ:constraintExpression a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "constraint expression"@en ;
+    rdfs:comment "A SHACL or N3 expression defining the constraint."@en ;
+    rdfs:domain typ:TypeConstraint ;
+    rdfs:range xsd:string .
+
+typ:minValue a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "minimum value"@en ;
+    rdfs:comment "Minimum allowed value."@en ;
+    rdfs:domain typ:TypeConstraint ;
+    rdfs:range rdfs:Literal .
+
+typ:maxValue a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "maximum value"@en ;
+    rdfs:comment "Maximum allowed value."@en ;
+    rdfs:domain typ:TypeConstraint ;
+    rdfs:range rdfs:Literal .
+
+typ:pattern a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "pattern"@en ;
+    rdfs:comment "Regex pattern for string validation."@en ;
+    rdfs:domain typ:TypeConstraint ;
+    rdfs:range xsd:string .
+
+typ:enumValues a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "enum values"@en ;
+    rdfs:comment "Allowed enumeration values (comma-separated)."@en ;
+    rdfs:domain typ:TypeConstraint ;
+    rdfs:range xsd:string .
+
+typ:unionOf a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "union of"@en ;
+    rdfs:comment "Links a union type to its constituent types."@en ;
+    rdfs:domain typ:UnionType ;
+    rdfs:range rdf:List .
+
+typ:intersectionOf a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "intersection of"@en ;
+    rdfs:comment "Links an intersection type to its constituent types."@en ;
+    rdfs:domain typ:IntersectionType ;
+    rdfs:range rdf:List .
+
+typ:elementType a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "element type"@en ;
+    rdfs:comment "The element type of a collection."@en ;
+    rdfs:domain typ:CollectionType ;
+    rdfs:range typ:Type .
+
+typ:collectionKind a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "collection kind"@en ;
+    rdfs:comment "The kind of collection: 'list', 'set', 'map', 'array'."@en ;
+    rdfs:domain typ:CollectionType ;
+    rdfs:range xsd:string .
+
+typ:keyType a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "key type"@en ;
+    rdfs:comment "The key type for map collections."@en ;
+    rdfs:domain typ:CollectionType ;
+    rdfs:range typ:Type .
+
+typ:hasParameter a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "has parameter"@en ;
+    rdfs:comment "Links a generic type to its type parameters."@en ;
+    rdfs:domain typ:GenericType ;
+    rdfs:range typ:TypeParameter .
+
+typ:parameterBound a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "parameter bound"@en ;
+    rdfs:comment "Upper bound constraint for a type parameter."@en ;
+    rdfs:domain typ:TypeParameter ;
+    rdfs:range typ:Type .
+
+typ:equivalentTo a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "equivalent to"@en ;
+    rdfs:comment "Declares type equivalence."@en ;
+    rdfs:domain typ:Type ;
+    rdfs:range typ:Type ;
+    a owl:SymmetricProperty, owl:TransitiveProperty .
+
+typ:subtypeOf a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "subtype of"@en ;
+    rdfs:comment "Declares subtype relationship."@en ;
+    rdfs:domain typ:Type ;
+    rdfs:range typ:Type ;
+    a owl:TransitiveProperty .
+
+typ:shaclShape a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "SHACL shape"@en ;
+    rdfs:comment "Links a type to its SHACL validation shape."@en ;
+    rdfs:domain typ:Type ;
+    rdfs:range sh:NodeShape .
+
+typ:zodSchema a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "Zod schema"@en ;
+    rdfs:comment "A Zod schema string for runtime validation."@en ;
+    rdfs:domain typ:Type ;
+    rdfs:range xsd:string .
+
+# =============================================================================
+# REASONING VOCABULARY
+# Enables inference via N3 including logical formulas, proof generation,
+# contradiction detection, and optimal path finding
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Core Reasoning Classes
+# -----------------------------------------------------------------------------
+
+rsn:Rule a rdfs:Class, owl:Class ;
+    rdfs:label "Rule"@en ;
+    rdfs:comment "An inference rule for deriving new knowledge."@en .
+
+rsn:Formula a rdfs:Class, owl:Class ;
+    rdfs:label "Formula"@en ;
+    rdfs:comment "A logical formula in N3 notation."@en .
+
+rsn:Proof a rdfs:Class, owl:Class ;
+    rdfs:label "Proof"@en ;
+    rdfs:comment "A proof of a conclusion derived from rules and facts."@en .
+
+rsn:ProofStep a rdfs:Class, owl:Class ;
+    rdfs:label "Proof Step"@en ;
+    rdfs:comment "A single step in a proof derivation."@en .
+
+rsn:Contradiction a rdfs:Class, owl:Class ;
+    rdfs:label "Contradiction"@en ;
+    rdfs:comment "A detected contradiction in the knowledge base."@en .
+
+rsn:OptimalPath a rdfs:Class, owl:Class ;
+    rdfs:label "Optimal Path"@en ;
+    rdfs:comment "An optimal path through a state space or graph."@en .
+
+rsn:Inference a rdfs:Class, owl:Class ;
+    rdfs:label "Inference"@en ;
+    rdfs:comment "An inference derived from rules."@en .
+
+rsn:Axiom a rdfs:Class, owl:Class ;
+    rdfs:label "Axiom"@en ;
+    rdfs:comment "A foundational axiom that requires no proof."@en .
+
+rsn:Hypothesis a rdfs:Class, owl:Class ;
+    rdfs:label "Hypothesis"@en ;
+    rdfs:comment "A hypothesis to be proven or refuted."@en .
+
+# -----------------------------------------------------------------------------
+# Reasoning Properties
+# -----------------------------------------------------------------------------
+
+rsn:hasAntecedent a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "has antecedent"@en ;
+    rdfs:comment "The premise/antecedent of a rule (the 'if' part)."@en ;
+    rdfs:domain rsn:Rule ;
+    rdfs:range rsn:Formula .
+
+rsn:hasConsequent a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "has consequent"@en ;
+    rdfs:comment "The conclusion/consequent of a rule (the 'then' part)."@en ;
+    rdfs:domain rsn:Rule ;
+    rdfs:range rsn:Formula .
+
+rsn:n3Formula a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "N3 formula"@en ;
+    rdfs:comment "The N3 notation of a formula."@en ;
+    rdfs:domain rsn:Formula ;
+    rdfs:range xsd:string .
+
+rsn:sparqlQuery a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "SPARQL query"@en ;
+    rdfs:comment "A SPARQL query equivalent to the formula."@en ;
+    rdfs:domain rsn:Formula ;
+    rdfs:range xsd:string .
+
+rsn:hasProofStep a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "has proof step"@en ;
+    rdfs:comment "Links a proof to its steps."@en ;
+    rdfs:domain rsn:Proof ;
+    rdfs:range rsn:ProofStep .
+
+rsn:stepOrder a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "step order"@en ;
+    rdfs:comment "The order of a step in a proof."@en ;
+    rdfs:domain rsn:ProofStep ;
+    rdfs:range xsd:integer .
+
+rsn:appliedRule a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "applied rule"@en ;
+    rdfs:comment "The rule applied in a proof step."@en ;
+    rdfs:domain rsn:ProofStep ;
+    rdfs:range rsn:Rule .
+
+rsn:inputFormula a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "input formula"@en ;
+    rdfs:comment "Input formulas used in a proof step."@en ;
+    rdfs:domain rsn:ProofStep ;
+    rdfs:range rsn:Formula .
+
+rsn:outputFormula a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "output formula"@en ;
+    rdfs:comment "Output formula derived in a proof step."@en ;
+    rdfs:domain rsn:ProofStep ;
+    rdfs:range rsn:Formula .
+
+rsn:proves a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "proves"@en ;
+    rdfs:comment "Links a proof to what it proves."@en ;
+    rdfs:domain rsn:Proof ;
+    rdfs:range rsn:Formula .
+
+rsn:contradicts a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "contradicts"@en ;
+    rdfs:comment "Links a contradiction to the conflicting formulas."@en ;
+    rdfs:domain rsn:Contradiction ;
+    rdfs:range rsn:Formula .
+
+rsn:contradictionExplanation a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "contradiction explanation"@en ;
+    rdfs:comment "Human-readable explanation of the contradiction."@en ;
+    rdfs:domain rsn:Contradiction ;
+    rdfs:range xsd:string .
+
+rsn:resolutionStrategy a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "resolution strategy"@en ;
+    rdfs:comment "Strategy to resolve the contradiction."@en ;
+    rdfs:domain rsn:Contradiction ;
+    rdfs:range xsd:string .
+
+rsn:pathFrom a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "path from"@en ;
+    rdfs:comment "Starting node of an optimal path."@en ;
+    rdfs:domain rsn:OptimalPath ;
+    rdfs:range rdfs:Resource .
+
+rsn:pathTo a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "path to"@en ;
+    rdfs:comment "Ending node of an optimal path."@en ;
+    rdfs:domain rsn:OptimalPath ;
+    rdfs:range rdfs:Resource .
+
+rsn:pathNodes a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "path nodes"@en ;
+    rdfs:comment "Ordered list of nodes in the path."@en ;
+    rdfs:domain rsn:OptimalPath ;
+    rdfs:range rdf:List .
+
+rsn:pathCost a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "path cost"@en ;
+    rdfs:comment "Total cost of the optimal path."@en ;
+    rdfs:domain rsn:OptimalPath ;
+    rdfs:range xsd:decimal .
+
+rsn:pathLength a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "path length"@en ;
+    rdfs:comment "Number of edges in the path."@en ;
+    rdfs:domain rsn:OptimalPath ;
+    rdfs:range xsd:integer .
+
+rsn:optimizationCriterion a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "optimization criterion"@en ;
+    rdfs:comment "Criterion used for optimization: 'cost', 'time', 'hops'."@en ;
+    rdfs:domain rsn:OptimalPath ;
+    rdfs:range xsd:string .
+
+rsn:derivedFrom a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "derived from"@en ;
+    rdfs:comment "Links an inference to its source facts/rules."@en ;
+    rdfs:domain rsn:Inference ;
+    rdfs:range rdfs:Resource .
+
+rsn:confidence a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "confidence"@en ;
+    rdfs:comment "Confidence level of an inference (0-1)."@en ;
+    rdfs:domain rsn:Inference ;
+    rdfs:range xsd:decimal .
+
+rsn:inferenceStrategy a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "inference strategy"@en ;
+    rdfs:comment "Strategy used: 'forward-chain', 'backward-chain', 'hybrid'."@en ;
+    rdfs:domain rsn:Inference ;
+    rdfs:range xsd:string .
+
+# =============================================================================
+# SLO / QUALITY VOCABULARY
+# Provides comprehensive Service Level Objectives and quality metrics
+# for capabilities, protocols, and system components
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Core SLO Classes
+# -----------------------------------------------------------------------------
+
+slo:ServiceLevelObjective a rdfs:Class, owl:Class ;
+    rdfs:label "Service Level Objective"@en ;
+    rdfs:comment "A measurable target for service quality."@en .
+
+slo:PerformanceSLO a rdfs:Class, owl:Class ;
+    rdfs:label "Performance SLO"@en ;
+    rdfs:comment "SLO related to performance metrics (latency, throughput)."@en ;
+    rdfs:subClassOf slo:ServiceLevelObjective .
+
+slo:AvailabilitySLO a rdfs:Class, owl:Class ;
+    rdfs:label "Availability SLO"@en ;
+    rdfs:comment "SLO related to system availability."@en ;
+    rdfs:subClassOf slo:ServiceLevelObjective .
+
+slo:QualitySLO a rdfs:Class, owl:Class ;
+    rdfs:label "Quality SLO"@en ;
+    rdfs:comment "SLO related to output quality metrics."@en ;
+    rdfs:subClassOf slo:ServiceLevelObjective .
+
+slo:CostSLO a rdfs:Class, owl:Class ;
+    rdfs:label "Cost SLO"@en ;
+    rdfs:comment "SLO related to resource costs."@en ;
+    rdfs:subClassOf slo:ServiceLevelObjective .
+
+slo:Metric a rdfs:Class, owl:Class ;
+    rdfs:label "Metric"@en ;
+    rdfs:comment "A measurable quantity."@en .
+
+slo:Threshold a rdfs:Class, owl:Class ;
+    rdfs:label "Threshold"@en ;
+    rdfs:comment "A threshold value for SLO evaluation."@en .
+
+slo:Measurement a rdfs:Class, owl:Class ;
+    rdfs:label "Measurement"@en ;
+    rdfs:comment "An actual measurement of a metric."@en .
+
+slo:Alert a rdfs:Class, owl:Class ;
+    rdfs:label "Alert"@en ;
+    rdfs:comment "An alert triggered by SLO violation."@en .
+
+slo:Budget a rdfs:Class, owl:Class ;
+    rdfs:label "Error Budget"@en ;
+    rdfs:comment "An error budget for SLO management."@en .
+
+# -----------------------------------------------------------------------------
+# SLO Properties
+# -----------------------------------------------------------------------------
+
+slo:hasSLO a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "has SLO"@en ;
+    rdfs:comment "Links a capability or protocol to its SLOs."@en ;
+    rdfs:domain [ owl:unionOf ( cap:Capability proto:Protocol ) ] ;
+    rdfs:range slo:ServiceLevelObjective .
+
+slo:metric a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "metric"@en ;
+    rdfs:comment "The metric being measured by this SLO."@en ;
+    rdfs:domain slo:ServiceLevelObjective ;
+    rdfs:range slo:Metric .
+
+slo:target a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "target"@en ;
+    rdfs:comment "The target threshold for this SLO."@en ;
+    rdfs:domain slo:ServiceLevelObjective ;
+    rdfs:range slo:Threshold .
+
+slo:thresholdValue a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "threshold value"@en ;
+    rdfs:comment "The numeric value of the threshold."@en ;
+    rdfs:domain slo:Threshold ;
+    rdfs:range xsd:decimal .
+
+slo:thresholdUnit a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "threshold unit"@en ;
+    rdfs:comment "The unit of measurement (ms, percent, requests/sec)."@en ;
+    rdfs:domain slo:Threshold ;
+    rdfs:range xsd:string .
+
+slo:comparisonOperator a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "comparison operator"@en ;
+    rdfs:comment "How to compare: 'lessThan', 'greaterThan', 'equals', 'between'."@en ;
+    rdfs:domain slo:Threshold ;
+    rdfs:range xsd:string .
+
+slo:percentile a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "percentile"@en ;
+    rdfs:comment "The percentile for latency SLOs (e.g., p50, p95, p99)."@en ;
+    rdfs:domain slo:PerformanceSLO ;
+    rdfs:range xsd:integer .
+
+slo:latencyMs a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "latency milliseconds"@en ;
+    rdfs:comment "Target latency in milliseconds."@en ;
+    rdfs:domain slo:PerformanceSLO ;
+    rdfs:range xsd:integer .
+
+slo:throughput a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "throughput"@en ;
+    rdfs:comment "Target throughput (operations per second)."@en ;
+    rdfs:domain slo:PerformanceSLO ;
+    rdfs:range xsd:decimal .
+
+slo:uptimePercent a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "uptime percent"@en ;
+    rdfs:comment "Target uptime percentage (e.g., 99.9)."@en ;
+    rdfs:domain slo:AvailabilitySLO ;
+    rdfs:range xsd:decimal .
+
+slo:mttr a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "mean time to recovery"@en ;
+    rdfs:comment "Target MTTR in minutes."@en ;
+    rdfs:domain slo:AvailabilitySLO ;
+    rdfs:range xsd:decimal .
+
+slo:mtbf a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "mean time between failures"@en ;
+    rdfs:comment "Target MTBF in hours."@en ;
+    rdfs:domain slo:AvailabilitySLO ;
+    rdfs:range xsd:decimal .
+
+slo:errorRate a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "error rate"@en ;
+    rdfs:comment "Maximum acceptable error rate (0-1)."@en ;
+    rdfs:domain slo:QualitySLO ;
+    rdfs:range xsd:decimal .
+
+slo:accuracy a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "accuracy"@en ;
+    rdfs:comment "Target accuracy (0-1)."@en ;
+    rdfs:domain slo:QualitySLO ;
+    rdfs:range xsd:decimal .
+
+slo:maxCost a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "maximum cost"@en ;
+    rdfs:comment "Maximum cost per operation."@en ;
+    rdfs:domain slo:CostSLO ;
+    rdfs:range xsd:decimal .
+
+slo:costUnit a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "cost unit"@en ;
+    rdfs:comment "Unit of cost measurement (tokens, credits, USD)."@en ;
+    rdfs:domain slo:CostSLO ;
+    rdfs:range xsd:string .
+
+slo:hasMeasurement a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "has measurement"@en ;
+    rdfs:comment "Links an SLO to actual measurements."@en ;
+    rdfs:domain slo:ServiceLevelObjective ;
+    rdfs:range slo:Measurement .
+
+slo:measurementValue a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "measurement value"@en ;
+    rdfs:comment "The actual measured value."@en ;
+    rdfs:domain slo:Measurement ;
+    rdfs:range xsd:decimal .
+
+slo:measurementTimestamp a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "measurement timestamp"@en ;
+    rdfs:comment "When the measurement was taken."@en ;
+    rdfs:domain slo:Measurement ;
+    rdfs:range xsd:dateTime .
+
+slo:meetsTarget a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "meets target"@en ;
+    rdfs:comment "Whether the measurement meets the SLO target."@en ;
+    rdfs:domain slo:Measurement ;
+    rdfs:range xsd:boolean .
+
+slo:hasAlert a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "has alert"@en ;
+    rdfs:comment "Links an SLO to its alert configuration."@en ;
+    rdfs:domain slo:ServiceLevelObjective ;
+    rdfs:range slo:Alert .
+
+slo:alertSeverity a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "alert severity"@en ;
+    rdfs:comment "Severity level: 'info', 'warning', 'critical'."@en ;
+    rdfs:domain slo:Alert ;
+    rdfs:range xsd:string .
+
+slo:alertThreshold a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "alert threshold"@en ;
+    rdfs:comment "Percentage of budget consumed to trigger alert."@en ;
+    rdfs:domain slo:Alert ;
+    rdfs:range xsd:decimal .
+
+slo:hasErrorBudget a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "has error budget"@en ;
+    rdfs:comment "Links an SLO to its error budget."@en ;
+    rdfs:domain slo:ServiceLevelObjective ;
+    rdfs:range slo:Budget .
+
+slo:budgetPeriod a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "budget period"@en ;
+    rdfs:comment "Time period for budget calculation (e.g., 'monthly')."@en ;
+    rdfs:domain slo:Budget ;
+    rdfs:range xsd:string .
+
+slo:budgetRemaining a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "budget remaining"@en ;
+    rdfs:comment "Remaining error budget (0-1)."@en ;
+    rdfs:domain slo:Budget ;
+    rdfs:range xsd:decimal .
+
+# =============================================================================
+# AUTHORIZATION VOCABULARY
+# Provides authorization levels and access control for capabilities
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Authorization Classes
+# -----------------------------------------------------------------------------
+
+auth:AuthorizationLevel a rdfs:Class, owl:Class ;
+    rdfs:label "Authorization Level"@en ;
+    rdfs:comment "A level of authorization required to access a capability."@en .
+
+auth:Permission a rdfs:Class, owl:Class ;
+    rdfs:label "Permission"@en ;
+    rdfs:comment "A specific permission that can be granted."@en .
+
+auth:Role a rdfs:Class, owl:Class ;
+    rdfs:label "Role"@en ;
+    rdfs:comment "A role that groups permissions."@en .
+
+auth:Principal a rdfs:Class, owl:Class ;
+    rdfs:label "Principal"@en ;
+    rdfs:comment "An authenticated entity (user, agent, service)."@en .
+
+# -----------------------------------------------------------------------------
+# Authorization Properties
+# -----------------------------------------------------------------------------
+
+auth:requiresAuth a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "requires authorization"@en ;
+    rdfs:comment "Links a capability to its required authorization level."@en ;
+    rdfs:domain cap:Capability ;
+    rdfs:range auth:AuthorizationLevel .
+
+auth:authLevel a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "authorization level"@en ;
+    rdfs:comment "Numeric level: 0=public, 1=authenticated, 2=authorized, 3=admin."@en ;
+    rdfs:domain auth:AuthorizationLevel ;
+    rdfs:range xsd:integer .
+
+auth:requiresPermission a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "requires permission"@en ;
+    rdfs:comment "Links a capability to required permissions."@en ;
+    rdfs:domain cap:Capability ;
+    rdfs:range auth:Permission .
+
+auth:hasPermission a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "has permission"@en ;
+    rdfs:comment "Links a role to its permissions."@en ;
+    rdfs:domain auth:Role ;
+    rdfs:range auth:Permission .
+
+auth:hasRole a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "has role"@en ;
+    rdfs:comment "Links a principal to their roles."@en ;
+    rdfs:domain auth:Principal ;
+    rdfs:range auth:Role .
+
+auth:permissionName a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "permission name"@en ;
+    rdfs:comment "Name of the permission (e.g., 'read:graphs', 'write:hooks')."@en ;
+    rdfs:domain auth:Permission ;
+    rdfs:range xsd:string .
+
+auth:scope a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "scope"@en ;
+    rdfs:comment "OAuth2-style scope string."@en ;
+    rdfs:domain auth:Permission ;
+    rdfs:range xsd:string .
+
+# =============================================================================
+# COST VOCABULARY
+# Provides cost constraints and resource accounting
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Cost Classes
+# -----------------------------------------------------------------------------
+
+cost:CostModel a rdfs:Class, owl:Class ;
+    rdfs:label "Cost Model"@en ;
+    rdfs:comment "A model for calculating capability costs."@en .
+
+cost:ResourceCost a rdfs:Class, owl:Class ;
+    rdfs:label "Resource Cost"@en ;
+    rdfs:comment "Cost of a specific resource type."@en .
+
+cost:CostEstimate a rdfs:Class, owl:Class ;
+    rdfs:label "Cost Estimate"@en ;
+    rdfs:comment "An estimated cost for capability execution."@en .
+
+# -----------------------------------------------------------------------------
+# Cost Properties
+# -----------------------------------------------------------------------------
+
+cost:hasCostModel a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "has cost model"@en ;
+    rdfs:comment "Links a capability to its cost model."@en ;
+    rdfs:domain cap:Capability ;
+    rdfs:range cost:CostModel .
+
+cost:hasResourceCost a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "has resource cost"@en ;
+    rdfs:comment "Links a cost model to resource costs."@en ;
+    rdfs:domain cost:CostModel ;
+    rdfs:range cost:ResourceCost .
+
+cost:resourceType a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "resource type"@en ;
+    rdfs:comment "Type of resource: 'cpu', 'memory', 'tokens', 'storage'."@en ;
+    rdfs:domain cost:ResourceCost ;
+    rdfs:range xsd:string .
+
+cost:unitCost a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "unit cost"@en ;
+    rdfs:comment "Cost per unit of resource."@en ;
+    rdfs:domain cost:ResourceCost ;
+    rdfs:range xsd:decimal .
+
+cost:estimatedUnits a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "estimated units"@en ;
+    rdfs:comment "Estimated units consumed."@en ;
+    rdfs:domain cost:CostEstimate ;
+    rdfs:range xsd:decimal .
+
+cost:totalCost a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "total cost"@en ;
+    rdfs:comment "Total estimated or actual cost."@en ;
+    rdfs:domain cost:CostEstimate ;
+    rdfs:range xsd:decimal .
+
+cost:maxBudget a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "maximum budget"@en ;
+    rdfs:comment "Maximum allowed budget for capability execution."@en ;
+    rdfs:domain cap:Capability ;
+    rdfs:range xsd:decimal .
+
+cost:currency a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "currency"@en ;
+    rdfs:comment "Currency or unit for cost values."@en ;
+    rdfs:domain cost:CostModel ;
+    rdfs:range xsd:string .
+
+# =============================================================================
+# STANDARD INSTANCES
+# Pre-defined instances for common use cases
+# =============================================================================
+
+# Standard Authorization Levels
+auth:Public a auth:AuthorizationLevel ;
+    rdfs:label "Public"@en ;
+    auth:authLevel 0 ;
+    rdfs:comment "No authentication required." .
+
+auth:Authenticated a auth:AuthorizationLevel ;
+    rdfs:label "Authenticated"@en ;
+    auth:authLevel 1 ;
+    rdfs:comment "Valid authentication required." .
+
+auth:Authorized a auth:AuthorizationLevel ;
+    rdfs:label "Authorized"@en ;
+    auth:authLevel 2 ;
+    rdfs:comment "Specific authorization required." .
+
+auth:Admin a auth:AuthorizationLevel ;
+    rdfs:label "Administrator"@en ;
+    auth:authLevel 3 ;
+    rdfs:comment "Administrative privileges required." .
+
+# Standard Metrics
+slo:LatencyMetric a slo:Metric ;
+    rdfs:label "Latency"@en ;
+    rdfs:comment "Response time latency metric." .
+
+slo:ThroughputMetric a slo:Metric ;
+    rdfs:label "Throughput"@en ;
+    rdfs:comment "Operations per second metric." .
+
+slo:ErrorRateMetric a slo:Metric ;
+    rdfs:label "Error Rate"@en ;
+    rdfs:comment "Percentage of failed operations." .
+
+slo:AvailabilityMetric a slo:Metric ;
+    rdfs:label "Availability"@en ;
+    rdfs:comment "System uptime percentage." .
+
+slo:CostMetric a slo:Metric ;
+    rdfs:label "Cost"@en ;
+    rdfs:comment "Resource cost metric." .
+
+# Standard Primitive Types
+typ:StringType a typ:PrimitiveType ;
+    rdfs:label "String"@en ;
+    rdfs:comment "UTF-8 string type." ;
+    owl:equivalentClass xsd:string .
+
+typ:IntegerType a typ:PrimitiveType ;
+    rdfs:label "Integer"@en ;
+    rdfs:comment "64-bit signed integer type." ;
+    owl:equivalentClass xsd:integer .
+
+typ:DecimalType a typ:PrimitiveType ;
+    rdfs:label "Decimal"@en ;
+    rdfs:comment "Arbitrary precision decimal type." ;
+    owl:equivalentClass xsd:decimal .
+
+typ:BooleanType a typ:PrimitiveType ;
+    rdfs:label "Boolean"@en ;
+    rdfs:comment "True/false boolean type." ;
+    owl:equivalentClass xsd:boolean .
+
+typ:DateTimeType a typ:PrimitiveType ;
+    rdfs:label "DateTime"@en ;
+    rdfs:comment "ISO 8601 date-time type." ;
+    owl:equivalentClass xsd:dateTime .
+
+typ:URIType a typ:PrimitiveType ;
+    rdfs:label "URI"@en ;
+    rdfs:comment "Uniform Resource Identifier type." ;
+    owl:equivalentClass xsd:anyURI .
+
+# End of Documentation Ontology

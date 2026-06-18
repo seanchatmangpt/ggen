@@ -1,0 +1,296 @@
+# Finance Domain Ontology — BusinessOS
+# Built on FIBO (Financial Industry Business Ontology)
+# URI: https://businessos.local/ontology/finance/
+# Version: 1.0.0
+# Date: 2026-03-25
+
+@prefix : <https://businessos.local/ontology/finance/> .
+@prefix fibo: <https://spec.edmcouncil.org/fibo/ontology/core/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dqv: <http://www.w3.org/ns/dqv#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix schema: <https://schema.org/> .
+
+# ============================================================================
+# DOMAIN DEFINITION
+# ============================================================================
+
+:FinanceDomain
+  a owl:Class ;
+  dcterms:title "Finance Domain"@en ;
+  dcterms:description "Complete financial accounting, planning, and analysis"@en ;
+  dcterms:created "2026-03-25"^^xsd:date ;
+  dcterms:isPartOf <https://businessos.local> ;
+  skos:broadMatch fibo: .
+
+# ============================================================================
+# CORE ENTITIES
+# ============================================================================
+
+# DepositAccount - Maps to FIBO's DepositAccount
+:DepositAccount
+  a owl:Class ;
+  rdfs:subClassOf fibo:Account ;
+  dcterms:title "Deposit Account"@en ;
+  dcterms:description "Bank account for receiving/holding deposits"@en ;
+  skos:definition "A financial account held at a bank to deposit cash or receive payments" ;
+  owl:sameAs fibo:DepositAccount .
+
+:DepositAccount
+  skos:hasProperty :accountNumber, :accountType, :balance, :currency, :ledger .
+
+:accountNumber
+  a owl:DatatypeProperty ;
+  dcterms:title "Account Number"@en ;
+  rdfs:range xsd:string ;
+  dcterms:description "Unique identifier for the account" .
+
+:balance
+  a owl:DatatypeProperty ;
+  dcterms:title "Current Balance"@en ;
+  rdfs:range xsd:decimal ;
+  dqv:dimension dqv:Accuracy ;
+  dcterms:description "Current account balance as of last update" .
+
+:currency
+  a owl:ObjectProperty ;
+  dcterms:title "Currency"@en ;
+  rdfs:range :Currency ;
+  dcterms:description "Currency denomination of account" .
+
+# Transaction - Core financial transaction
+:Transaction
+  a owl:Class ;
+  dcterms:title "Financial Transaction"@en ;
+  dcterms:description "Individual financial transaction (debit or credit)"@en ;
+  skos:broadMatch fibo:FinancialTransaction .
+
+:Transaction
+  skos:hasProperty :transactionId, :amount, :postingDate, :effectiveDate, :reference .
+
+:transactionId
+  a owl:DatatypeProperty ;
+  dcterms:title "Transaction ID"@en ;
+  rdfs:range xsd:string ;
+  owl:inverseOf prov:generated .
+
+:amount
+  a owl:DatatypeProperty ;
+  dcterms:title "Transaction Amount"@en ;
+  rdfs:range xsd:decimal ;
+  dqv:dimension dqv:Accuracy .
+
+:postingDate
+  a owl:DatatypeProperty ;
+  dcterms:title "Posting Date"@en ;
+  rdfs:range xsd:dateTime ;
+  dcterms:description "When transaction posted to ledger" .
+
+# Ledger - General Ledger
+:Ledger
+  a owl:Class ;
+  dcterms:title "General Ledger"@en ;
+  dcterms:description "Master record of all financial transactions"@en ;
+  skos:broadMatch fibo:GeneralLedger ;
+  owl:inverseOf prov:used .
+
+:Ledger
+  skos:hasProperty :ledgerName, :period, :balances, :entries .
+
+:period
+  a owl:DatatypeProperty ;
+  dcterms:title "Accounting Period"@en ;
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:onDatatype xsd:gYear ;
+    owl:withRestrictions (
+      [ xsd:pattern "^[0-9]{4}$" ]
+    )
+  ] ;
+  dcterms:description "Fiscal year or month (YYYY or YYYY-MM)" .
+
+# Budget - Financial budget
+:Budget
+  a owl:Class ;
+  dcterms:title "Financial Budget"@en ;
+  dcterms:description "Planned revenue and expenses for a period"@en ;
+  skos:broadMatch fibo:Budget .
+
+:Budget
+  skos:hasProperty :budgetId, :period, :amount, :owner, :status .
+
+:status
+  a owl:DatatypeProperty ;
+  dcterms:title "Status"@en ;
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:oneOf ( "DRAFT" "APPROVED" "ACTIVE" "CLOSED" )
+  ] ;
+  dqv:dimension dqv:Completeness .
+
+# Allocation - Cost allocation rule
+:Allocation
+  a owl:Class ;
+  dcterms:title "Cost Allocation"@en ;
+  dcterms:description "Rule for allocating costs to cost centers"@en ;
+  skos:definition "Systematic distribution of costs to departments/projects based on usage" .
+
+:Allocation
+  skos:hasProperty :allocationId, :sourceLedger, :targetCostCenter, :percentage, :formula .
+
+:allocationId
+  a owl:DatatypeProperty ;
+  rdfs:range xsd:string .
+
+:percentage
+  a owl:DatatypeProperty ;
+  dcterms:title "Allocation Percentage"@en ;
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:onDatatype xsd:decimal ;
+    owl:withRestrictions (
+      [ xsd:minInclusive "0.0"^^xsd:decimal ; xsd:maxInclusive "100.0"^^xsd:decimal ]
+    )
+  ] .
+
+# ============================================================================
+# DATA CONTRACTS (DCAT)
+# ============================================================================
+
+:GLAccountsDataset
+  a dcat:Dataset ;
+  dcterms:title "General Ledger Accounts"@en ;
+  dcterms:description "Complete GL chart of accounts with balances"@en ;
+  dcterms:issued "2026-01-01"^^xsd:date ;
+  dcterms:modified "2026-03-25"^^xsd:dateTime ;
+  dcterms:creator <https://businessos.local/agents/finance> ;
+  dcat:keyword "ledger", "accounting", "trial-balance" ;
+  dcat:landingPage <https://businessos.local/api/finance/gl-accounts> ;
+  dcat:accessURL <https://businessos.local/api/finance/gl-accounts> ;
+  dcat:downloadURL <https://businessos.local/exports/gl-accounts.parquet> ;
+  dcterms:temporal [
+    a dcat:PeriodOfTime ;
+    dcat:startDate "2025-01-01"^^xsd:date ;
+    dcat:endDate "2026-12-31"^^xsd:date
+  ] ;
+  dcterms:accrualPeriodicity <http://purl.org/ckan/accrual/monthly> ;
+  dqv:hasQualityMeasurement :GLAccuracyMetric .
+
+:GLAccuracyMetric
+  a dqv:QualityMeasurement ;
+  dcterms:title "GL Accuracy"@en ;
+  dqv:isMeasurementOf :GLAccountsDataset ;
+  dqv:value 0.985 ;  # 98.5% accuracy
+  dcterms:issued "2026-03-25T00:00:00Z"^^xsd:dateTime ;
+  dqv:computedOn "2026-03-25"^^xsd:date ;
+  dqv:dimension dqv:Accuracy ;
+  dcterms:description "98.5% of transactions reconcile within 2 hours" .
+
+:TransactionDataset
+  a dcat:Dataset ;
+  dcterms:title "Financial Transactions"@en ;
+  dcterms:description "Daily transaction feed (debits, credits, transfers)"@en ;
+  dcterms:issued "2026-01-01"^^xsd:date ;
+  dcat:landingPage <https://businessos.local/api/finance/transactions> ;
+  dcat:accessURL <https://businessos.local/api/finance/transactions> ;
+  dcterms:accrualPeriodicity <http://purl.org/ckan/accrual/daily> ;
+  dqv:hasQualityMeasurement :TransactionCompletenessMetric .
+
+:TransactionCompletenessMetric
+  a dqv:QualityMeasurement ;
+  dqv:isMeasurementOf :TransactionDataset ;
+  dqv:value 0.999 ;  # 99.9% completeness
+  dqv:dimension dqv:Completeness ;
+  dcterms:issued "2026-03-25T00:00:00Z"^^xsd:dateTime .
+
+# ============================================================================
+# QUALITY METRICS (DQV)
+# ============================================================================
+
+:FinanceQualityDimensions
+  a dqv:Dimension ;
+  dcterms:title "Finance Quality Dimensions"@en ;
+  dqv:inCategory dqv:Accuracy, dqv:Completeness, dqv:Freshness, dqv:Consistency .
+
+:FreshnessMetric
+  a dqv:QualityMetric ;
+  dcterms:title "Data Freshness"@en ;
+  skos:definition "Hours since last update (target: <4 hours)" ;
+  dqv:expectedValue "4"^^xsd:integer ;
+  dqv:unit "hours" .
+
+# ============================================================================
+# GOVERNANCE (ODRL)
+# ============================================================================
+
+:GLAccessPolicy
+  a odrl:Policy ;
+  dcterms:title "GL Access Policy"@en ;
+  odrl:permission
+    [ a odrl:Permission ;
+      odrl:action odrl:Read ;
+      odrl:target :GLAccountsDataset ;
+      odrl:assignee <https://businessos.local/teams/finance>,
+                    <https://businessos.local/teams/accounting> ;
+      odrl:constraint
+        [ a odrl:Constraint ;
+          odrl:operator odrl:eq ;
+          odrl:leftOperand odrl:purpose ;
+          odrl:rightOperand odrl:businessPurpose:Reporting
+        ] ;
+      dcterms:description "Finance and Accounting can READ GL for reporting"
+    ] ;
+  odrl:permission
+    [ a odrl:Permission ;
+      odrl:action odrl:Write ;
+      odrl:target :GLAccountsDataset ;
+      odrl:assignee <https://businessos.local/agents/finance> ;
+      dcterms:description "Finance agent can WRITE GL updates"
+    ] .
+
+# ============================================================================
+# PROVENANCE & AUDIT (PROV-O)
+# ============================================================================
+
+:MonthlyClosingProcess
+  a prov:Activity ;
+  dcterms:title "Monthly Closing Process"@en ;
+  prov:wasAssociatedWith <https://businessos.local/agents/finance> ;
+  prov:used :GLAccountsDataset, :TransactionDataset ;
+  prov:generated :ClosingFinancialStatements ;
+  prov:startedAtTime "2026-03-01T00:00:00Z"^^xsd:dateTime ;
+  prov:endedAtTime "2026-03-05T17:00:00Z"^^xsd:dateTime .
+
+:ClosingFinancialStatements
+  a prov:Entity ;
+  dcterms:title "Closed Financial Statements"@en ;
+  prov:wasDerivedFrom :GLAccountsDataset, :TransactionDataset ;
+  dcterms:issued "2026-03-05T17:00:00Z"^^xsd:dateTime .
+
+# ============================================================================
+# FEDERATION LINKS (Cross-domain Integration)
+# ============================================================================
+
+# Link to Sales domain (Deal -> Revenue)
+:PendingRevenue
+  a owl:Class ;
+  owl:sameAs <https://businessos.local/ontology/sales/Deal> ;
+  dcterms:description "Sales deal mapped to finance revenue" .
+
+# Link to Operations domain (Process -> Cost Allocation)
+:ProcessAllocation
+  a owl:Class ;
+  skos:relatedMatch <https://businessos.local/ontology/operations/ProcessExecution> ;
+  dcterms:description "Operations process costs allocated to finance GL" .
+
+# Link to HR domain (Employee -> Salary Expense)
+:SalaryExpense
+  a owl:Class ;
+  owl:sameAs <https://businessos.local/ontology/hr/Person> ;
+  dcterms:description "HR person mapped to payroll expense" .
+

@@ -1,0 +1,9 @@
+
+    @prefix security: <http://example.org/security#> .
+    @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+    
+    security:SecurityLevel a rdfs:Class .
+    security:Basic rdfs:subClassOf security:SecurityLevel .
+    security:High rdfs:subClassOf security:SecurityLevel .
+    security:Maximum rdfs:subClassOf security:SecurityLevel .
+  

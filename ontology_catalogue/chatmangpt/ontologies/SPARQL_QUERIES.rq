@@ -1,0 +1,328 @@
+# ChatmanGPT Organizational Ontology — SPARQL Query Library
+# These queries are designed to work with the chatman-org.ttl ontology
+# loaded into an Oxigraph SPARQL endpoint at http://localhost:7878
+#
+# Usage:
+#   curl "http://localhost:7878/query?query=$(cat SPARQL_QUERIES.rq | head -20)"
+#
+# Or use individual query sections below
+#========================================================================
+
+# QUERY 1: WHO REPORTS TO WHOM?
+# ========================================================================
+# Find all people and their managers (reporting relationships)
+#
+PREFIX org: <http://www.w3.org/ns/org#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+SELECT ?person ?personName ?manager ?managerName
+WHERE {
+  ?person org:holds ?post .
+  ?post org:reportsTo ?managerPost .
+  ?managerPost org:holds ?manager .
+  ?person foaf:name ?personName .
+  ?manager foaf:name ?managerName .
+}
+ORDER BY ?personName
+
+
+# QUERY 2: WHAT TEAMS EXIST IN ENGINEERING?
+# ========================================================================
+# List all teams nested under the Engineering division
+#
+PREFIX org: <http://www.w3.org/ns/org#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+SELECT ?team ?teamName ?parentName
+WHERE {
+  ?team org:unitOf* <https://ontology.chatmangpt.com/org#EngineeringUnit> .
+  ?team foaf:name ?teamName .
+  ?team org:unitOf ?parent .
+  ?parent foaf:name ?parentName .
+}
+ORDER BY ?parentName ?teamName
+
+
+# QUERY 3: BUSINESSOS TEAM MEMBERS
+# ========================================================================
+# List all people in the BusinessOS team with their roles
+#
+PREFIX org: <http://www.w3.org/ns/org#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+SELECT ?person ?personName ?roleTitle
+WHERE {
+  ?membership org:memberOf <https://ontology.chatmangpt.com/org#BusinessOSTeam> ;
+              org:member ?person ;
+              org:role ?roleType .
+  ?person foaf:name ?personName .
+  ?roleType org:roleTitle ?roleTitle .
+}
+ORDER BY ?personName
+
+
+# QUERY 4: PEOPLE ON MULTIPLE TEAMS
+# ========================================================================
+# Find people who are members of more than one team (cross-functional)
+#
+PREFIX org: <http://www.w3.org/ns/org#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+SELECT ?person ?personName (COUNT(?team) as ?teamCount) (GROUP_CONCAT(?teamName; separator=", ") as ?teams)
+WHERE {
+  ?person foaf:name ?personName .
+  ?membership org:member ?person ;
+              org:memberOf ?team .
+  ?team foaf:name ?teamName .
+}
+GROUP BY ?person ?personName
+HAVING (COUNT(?team) > 1)
+ORDER BY DESC(?teamCount) ?personName
+
+
+# QUERY 5: ALL ROLES IN THE ORGANIZATION
+# ========================================================================
+# List all role types defined in the organization
+#
+PREFIX org: <http://www.w3.org/ns/org#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?roleTitle ?description
+WHERE {
+  ?role a org:Role .
+  ?role org:roleTitle ?roleTitle .
+  ?role rdfs:comment ?description .
+}
+ORDER BY ?roleTitle
+
+
+# QUERY 6: ORGANIZATIONAL HIERARCHY (TREE VIEW)
+# ========================================================================
+# Show organization structure: parent org/unit → child unit
+#
+PREFIX org: <http://www.w3.org/ns/org#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+SELECT ?parentName ?parentType ?childName ?childType
+WHERE {
+  {
+    # Organizations have units
+    ?parent a org:Organization .
+    ?parent foaf:name ?parentName .
+    ?child org:unitOf ?parent .
+    ?child foaf:name ?childName .
+    BIND("OrganizationalUnit" as ?childType)
+    BIND("Organization" as ?parentType)
+  }
+  UNION
+  {
+    # Units have sub-units
+    ?parent a org:OrganizationalUnit .
+    ?parent foaf:name ?parentName .
+    ?child org:unitOf ?parent .
+    ?child foaf:name ?childName .
+    BIND("OrganizationalUnit" as ?childType)
+    BIND("OrganizationalUnit" as ?parentType)
+  }
+}
+ORDER BY ?parentName ?childName
+
+
+# QUERY 7: PEOPLE AT SPECIFIC LOCATION
+# ========================================================================
+# Find all people with a specific city/location
+#
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX vcard: <http://www.w3.org/2006/vcard/ns#>
+
+SELECT ?personName ?city ?address
+WHERE {
+  ?person a foaf:Person ;
+          foaf:name ?personName ;
+          vcard:hasLocality ?city ;
+          vcard:hasStreetAddress ?address .
+  FILTER (?city = "Pasadena"@en)
+}
+ORDER BY ?personName
+
+
+# QUERY 8: COMPLETE ORGANIZATION REPORT
+# ========================================================================
+# Comprehensive view: person, role, position, team assignments
+#
+PREFIX org: <http://www.w3.org/ns/org#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+SELECT ?personName ?jobTitle ?positionTitle (GROUP_CONCAT(?teamName; separator=", ") as ?teams)
+WHERE {
+  ?person a foaf:Person .
+  ?person foaf:name ?personName .
+  ?person org:holds ?post .
+  ?post org:postIn ?org .
+  ?post org:role ?roleType .
+  ?roleType org:roleTitle ?jobTitle .
+
+  OPTIONAL {
+    ?post dcterms:description ?positionTitle .
+  }
+
+  OPTIONAL {
+    ?membership org:member ?person ;
+                org:memberOf ?team .
+    ?team foaf:name ?teamName .
+  }
+}
+GROUP BY ?personName ?jobTitle ?positionTitle
+ORDER BY ?personName
+
+
+# QUERY 9: REPORTING CHAIN (Show full hierarchy for a person)
+# ========================================================================
+# Show the complete reporting chain from a specific person upward
+# (Change "Sean Chatman" to query different person)
+#
+PREFIX org: <http://www.w3.org/ns/org#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+SELECT ?level ?name ?role
+WHERE {
+  BIND(0 as ?level)
+  ?person foaf:name "Sean Chatman"@en .
+  ?person org:holds ?post .
+  ?post org:role ?roleType .
+  ?roleType org:roleTitle ?role .
+  ?person foaf:name ?name .
+}
+ORDER BY ?level
+
+
+# QUERY 10: TEAM ROSTER WITH CONTACT INFO
+# ========================================================================
+# Get team members with their email and phone
+#
+PREFIX org: <http://www.w3.org/ns/org#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+SELECT ?personName ?email ?phone ?jobTitle
+WHERE {
+  ?membership org:memberOf <https://ontology.chatmangpt.com/org#BusinessOSTeam> ;
+              org:member ?person ;
+              org:role ?roleType .
+  ?person foaf:name ?personName .
+  ?roleType org:roleTitle ?jobTitle .
+
+  OPTIONAL { ?person foaf:mbox ?mbox . BIND(SUBSTR(?mbox, 8) as ?email) }
+  OPTIONAL { ?person foaf:phone ?phone . }
+}
+ORDER BY ?personName
+
+
+# QUERY 11: VALIDATE INTEGRITY
+# ========================================================================
+# Check that all people have names (data quality check)
+#
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+SELECT ?person ?message
+WHERE {
+  ?person a foaf:Person .
+  FILTER NOT EXISTS { ?person foaf:name ?name }
+  BIND("Missing foaf:name" as ?message)
+}
+
+
+# QUERY 12: VALIDATE INTEGRITY
+# ========================================================================
+# Check that all posts have roles (data quality check)
+#
+PREFIX org: <http://www.w3.org/ns/org#>
+
+SELECT ?post ?message
+WHERE {
+  ?post a org:Post .
+  FILTER NOT EXISTS { ?post org:role ?role }
+  BIND("Missing org:role" as ?message)
+}
+
+
+# QUERY 13: DETECT CIRCULAR REPORTING (Deadlock detection)
+# ========================================================================
+# Identify any circular reporting relationships (should be empty)
+#
+PREFIX org: <http://www.w3.org/ns/org#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+SELECT ?person1Name ?person2Name
+WHERE {
+  ?person1 org:holds ?post1 .
+  ?post1 org:reportsTo+ ?post2 .
+  ?post2 org:holds ?person2 .
+  ?person2 org:holds ?post3 .
+  ?post3 org:reportsTo+ ?post1 .
+
+  ?person1 foaf:name ?person1Name .
+  ?person2 foaf:name ?person2Name .
+}
+
+
+# QUERY 14: DIVISION STATISTICS
+# ========================================================================
+# Show team and member count by division
+#
+PREFIX org: <http://www.w3.org/ns/org#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+SELECT ?divisionName (COUNT(DISTINCT ?team) as ?teamCount) (COUNT(DISTINCT ?person) as ?memberCount)
+WHERE {
+  ?division foaf:name ?divisionName .
+  ?team org:unitOf* ?division .
+  OPTIONAL {
+    ?membership org:memberOf ?team ;
+                org:member ?person .
+  }
+}
+GROUP BY ?divisionName
+ORDER BY DESC(?memberCount)
+
+
+# QUERY 15: ORGANIZATIONAL CAPACITY (Who can work on new projects?)
+# ========================================================================
+# Show people with availability (not overloaded on multiple teams)
+#
+PREFIX org: <http://www.w3.org/ns/org#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+SELECT ?personName (COUNT(?team) as ?currentTeams)
+WHERE {
+  ?person foaf:name ?personName .
+  ?membership org:member ?person ;
+              org:memberOf ?team .
+}
+GROUP BY ?person ?personName
+ORDER BY ?currentTeams DESC(?personName)
+
+#========================================================================
+# END OF QUERY LIBRARY
+#========================================================================
+#
+# HOW TO USE THESE QUERIES:
+#
+# 1. Copy individual query block (from SELECT to final WHERE/ORDER BY)
+# 2. Execute against Oxigraph:
+#
+#    curl -G "http://localhost:7878/query" \
+#      --data-urlencode "query@-" < query.rq
+#
+# 3. For JSON results:
+#
+#    curl -H "Accept: application/sparql-results+json" \
+#      -G "http://localhost:7878/query" \
+#      --data-urlencode "query@-" < query.rq
+#
+# 4. For CSV results:
+#
+#    curl -H "Accept: text/csv" \
+#      -G "http://localhost:7878/query" \
+#      --data-urlencode "query@-" < query.rq
+#
+#========================================================================

@@ -1,0 +1,100 @@
+# API Endpoint Example - RDF Specification
+# Purpose: Define a REST API for User management using RDF
+# Version: 1.0
+# Updated: 2026-01-07
+
+@prefix ex: <http://ggen.example.org/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ==============================================================================
+# USER MODEL
+# ==============================================================================
+
+ex:UserModel a ex:Model ;
+    rdfs:label "User Model" ;
+    rdfs:comment "Domain model representing a user" ;
+    ex:hasField ex:UserIdField, ex:UserNameField, ex:UserEmailField, ex:UserActiveField .
+
+ex:UserIdField a ex:Field ;
+    ex:fieldName "id" ;
+    ex:fieldType "uuid" ;
+    ex:fieldRequired true ;
+    rdfs:label "User ID" ;
+    rdfs:comment "Unique identifier for the user" .
+
+ex:UserNameField a ex:Field ;
+    ex:fieldName "name" ;
+    ex:fieldType "string" ;
+    ex:fieldRequired true ;
+    ex:fieldValidation "length:1-100" ;
+    rdfs:label "User Name" ;
+    rdfs:comment "Full name of the user" .
+
+ex:UserEmailField a ex:Field ;
+    ex:fieldName "email" ;
+    ex:fieldType "string" ;
+    ex:fieldRequired true ;
+    ex:fieldValidation "email" ;
+    rdfs:label "User Email" ;
+    rdfs:comment "Email address of the user" .
+
+ex:UserActiveField a ex:Field ;
+    ex:fieldName "active" ;
+    ex:fieldType "bool" ;
+    ex:fieldRequired true ;
+    rdfs:label "User Active Status" ;
+    rdfs:comment "Whether the user account is active" .
+
+# ==============================================================================
+# API ENDPOINTS
+# ==============================================================================
+
+# List Users Endpoint
+ex:ListUsersEndpoint a ex:Endpoint ;
+    rdfs:label "List Users" ;
+    ex:endpointPath "/users" ;
+    ex:endpointMethod "GET" ;
+    ex:endpointDescription "List all users in the system" ;
+    ex:endpointResponseModel ex:UserModel ;
+    ex:endpointResponseType "application/json" .
+
+# Create User Endpoint
+ex:CreateUserEndpoint a ex:Endpoint ;
+    rdfs:label "Create User" ;
+    ex:endpointPath "/users" ;
+    ex:endpointMethod "POST" ;
+    ex:endpointDescription "Create a new user" ;
+    ex:endpointRequestModel ex:UserModel ;
+    ex:endpointResponseModel ex:UserModel ;
+    ex:endpointResponseType "application/json" .
+
+# Get User Endpoint
+ex:GetUserEndpoint a ex:Endpoint ;
+    rdfs:label "Get User" ;
+    ex:endpointPath "/users/{id}" ;
+    ex:endpointMethod "GET" ;
+    ex:endpointDescription "Get a specific user by ID" ;
+    ex:endpointResponseModel ex:UserModel ;
+    ex:endpointResponseType "application/json" .
+
+# Delete User Endpoint
+ex:DeleteUserEndpoint a ex:Endpoint ;
+    rdfs:label "Delete User" ;
+    ex:endpointPath "/users/{id}" ;
+    ex:endpointMethod "DELETE" ;
+    ex:endpointDescription "Delete a user by ID" ;
+    ex:endpointResponseType "application/json" .
+
+# ==============================================================================
+# API SERVICE CONFIGURATION
+# ==============================================================================
+
+ex:UserApiService a ex:Service ;
+    rdfs:label "User API Service" ;
+    ex:serviceName "user-api" ;
+    ex:serviceLanguage "rust" ;
+    ex:serviceFramework "axum" ;
+    ex:servicePort 3000 ;
+    rdfs:comment "REST API service for user management" .

@@ -1,0 +1,7 @@
+PREFIX compat: <https://wasm4pm-compat.rs/ontology#>
+CONSTRUCT {
+  ?s ?p ?o
+}
+WHERE {
+  ?s ?p ?o
+}

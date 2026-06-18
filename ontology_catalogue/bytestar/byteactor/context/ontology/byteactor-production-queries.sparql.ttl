@@ -1,0 +1,117 @@
+@prefix : <https://bytestar.org/ontology/byteactor/production-queries#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix bapr: <https://bytestar.org/ontology/byteactor/production-readiness#> .
+
+<https://bytestar.org/ontology/byteactor/production-queries>
+  a owl:Ontology ;
+  rdfs:label "ByteActor Production Readiness SPARQL Queries" ;
+  rdfs:comment "SPARQL queries for auditing, reporting, and assessing the production readiness status of ByteActor instances." ;
+  owl:versionInfo "1.0.0" ;
+  owl:imports
+    bapr: .
+
+#################################################################
+# SPARQL Queries for Production Readiness Assessment
+#################################################################
+
+# Query 1: Get all ByteActor instances and their production readiness status
+# SELECT ?actorInstance ?status
+# WHERE {
+#   ?actorInstance a bcore:ByteActor ;
+#                  bapr:hasStatus ?statusInstance .
+#   ?statusInstance rdfs:label ?status .
+# }
+
+# Query 2: Get all performance metrics that are not meeting their target values
+# SELECT ?actorInstance ?metricName ?metricValue ?targetValue ?unit
+# WHERE {
+#   ?actorInstance a bcore:ByteActor ;
+#                  bapr:hasMetric ?metric .
+#   ?metric bapr:metricName ?metricName ;
+#           bapr:metricValue ?metricValue ;
+#           bapr:targetValue ?targetValue ;
+#           bapr:unit ?unit .
+#   FILTER (?metricValue > ?targetValue) # For metrics where lower is better (e.g., latency)
+#   # OR FILTER (?metricValue < ?targetValue) # For metrics where higher is better (e.g., throughput)
+# }
+
+# Query 3: Check if a specific ByteActor instance meets all required security controls
+# ASK
+# WHERE {
+#   ?actorInstance a bcore:ByteActor .
+#   FILTER NOT EXISTS {
+#     ?actorInstance bapr:implementsSecurityControl ?control .
+#     ?control bapr:isImplemented "false"^^xsd:boolean .
+#   }
+# }
+
+# Query 4: List all ByteActor instances that are currently in a 'Degraded' status
+SELECT ?actorInstance
+WHERE {
+  ?actorInstance a bcore:ByteActor ;
+                 bapr:hasStatus bapr:Degraded .
+}
+
+#################################################################
+# Enhanced Operational SPARQL Queries
+#################################################################
+
+# Query 5: Get all kernels violating 8-tick performance constraint
+SELECT ?kernel ?kernelName ?measuredTicks ?maxTicks
+WHERE {
+  ?kernel a bapr:Kernel ;
+          bapr:kernelName ?kernelName ;
+          bapr:measuredTicks ?measuredTicks ;
+          bapr:hasConstraint ?constraint .
+  ?constraint bapr:maxTicks ?maxTicks .
+  FILTER (?measuredTicks > ?maxTicks)
+}
+
+# Query 6: Check kernel registry completeness (64 slots filled)
+ASK WHERE {
+  ?registry a bapr:KernelRegistry .
+  {
+    SELECT (COUNT(?kernel) AS ?count) WHERE {
+      ?registry bapr:hasKernel ?kernel .
+      ?kernel bapr:isActive true .
+    }
+  }
+  FILTER(?count = 64)
+}
+
+# Query 7: Find kernels missing workflow pattern implementation
+SELECT ?slot ?patternByte WHERE {
+  ?slot a bapr:KernelSlot ;
+        bapr:patternByte ?patternByte .
+  FILTER NOT EXISTS {
+    ?kernel bapr:occupiesSlot ?slot ;
+            bapr:implementsPattern ?pattern .
+  }
+  FILTER (?patternByte >= 0 && ?patternByte <= 42)
+}
+
+# Query 8: Get performance statistics for all kernels
+SELECT ?kernel ?kernelName ?measuredTicks ?isValidated ?aotEnabled
+WHERE {
+  ?kernel a bapr:Kernel ;
+          bapr:kernelName ?kernelName ;
+          bapr:measuredTicks ?measuredTicks ;
+          bapr:isValidated ?isValidated .
+  OPTIONAL {
+    ?kernel bapr:hasOptimization ?opt .
+    ?opt bapr:aotEnabled ?aotEnabled .
+  }
+}
+
+# Query 9: Find kernels that are not branch-free or constant-time
+SELECT ?kernel ?kernelName ?isConstantTime ?isBranchFree
+WHERE {
+  ?kernel a bapr:Kernel ;
+          bapr:kernelName ?kernelName ;
+          bapr:isConstantTime ?isConstantTime ;
+          bapr:isBranchFree ?isBranchFree .
+  FILTER (?isConstantTime = false || ?isBranchFree = false)
+}

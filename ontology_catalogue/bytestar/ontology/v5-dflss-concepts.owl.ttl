@@ -1,0 +1,107 @@
+@prefix : <https://bytestar.org/ontology/v5/dflss-concepts#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix core: <https://bytestar.org/ontology/v5/core#> .
+@prefix gov: <https://bytestar.org/ontology/v5/governance#> .
+
+<https://bytestar.org/ontology/v5/dflss-concepts>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/v5/governance> ;
+  rdfs:label "ByteStar v5 DfLSS Concepts Ontology" ;
+  rdfs:comment "This ontology formalizes the Design for Lean Six Sigma (DfLSS) methodology, its phases, and key artifacts, which are central to ByteStar's quality-by-design approach." ;
+  owl:versionInfo "5.0.0" .
+
+# #################################################################
+# I. DfLSS Phases
+# #################################################################
+
+:DfLSS_Phase a owl:Class ;
+    rdfs:label "DfLSS Phase" .
+
+:DefinePhase a :DfLSS_Phase ;
+    rdfs:label "Define Phase" ;
+    rdfs:comment "The phase where the project problem, goals, and scope are clearly articulated." .
+
+:MeasurePhase a :DfLSS_Phase ;
+    rdfs:label "Measure Phase" ;
+    rdfs:comment "The phase where customer needs are translated into measurable Critical-to-Quality (CTQ) metrics." .
+
+:ExplorePhase a :DfLSS_Phase ;
+    rdfs:label "Explore Phase" ;
+    rdfs:comment "The phase for generating and evaluating potential solutions and architectural concepts." .
+
+:DevelopPhase a :DfLSS_Phase ;
+    rdfs:label "Develop Phase" ;
+    rdfs:comment "The phase for detailed design, optimization, and prototyping of the chosen solution." .
+
+:ImplementPhase a :DfLSS_Phase ;
+    rdfs:label "Implement Phase" ;
+    rdfs:comment "The phase for final implementation, deployment, and establishing process controls." .
+
+# #################################################################
+# II. DfLSS Artifacts
+# #################################################################
+
+:DfLSS_Artifact a owl:Class ;
+    rdfs:label "DfLSS Artifact" .
+
+:ProjectCharter a :DfLSS_Artifact ;
+    rdfs:label "Project Charter" ;
+    rdfs:comment "A document that formally authorizes a project and outlines its problem, goals, scope, and stakeholders." .
+
+:CTQ_Specification a :DfLSS_Artifact ;
+    rdfs:label "CTQ Specification" ;
+    rdfs:comment "A detailed definition of a Critical-to-Quality characteristic, including its measurement method and targets." .
+
+:VOC_Analysis a :DfLSS_Artifact ;
+    rdfs:label "Voice of Customer Analysis" ;
+    rdfs:comment "The process of gathering and understanding customer needs and expectations." .
+
+:QFD_Matrix a :DfLSS_Artifact ;
+    rdfs:label "Quality Function Deployment (QFD) Matrix" ;
+    rdfs:comment "A structured approach for translating customer requirements into technical specifications." .
+
+:DOE_Result a :DfLSS_Artifact ;
+    rdfs:label "Design of Experiments (DOE) Result" ;
+    rdfs:comment "The outcome of a systematic experimental approach to optimize process or product parameters." .
+
+:ControlPlan a :DfLSS_Artifact ;
+    rdfs:label "Control Plan" ;
+    rdfs:comment "A document that describes the methods used to control a process or product to ensure quality." .
+
+# #################################################################
+# III. Properties for DfLSS Methodology
+# #################################################################
+
+:hasPhase a owl:ObjectProperty ;
+    rdfs:domain gov:GovernanceCanon ;
+    rdfs:range :DfLSS_Phase ;
+    rdfs:comment "Links a governance canon (like DfLSS) to its constituent phases." .
+
+:producesArtifact a owl:ObjectProperty ;
+    rdfs:domain :DfLSS_Phase ;
+    rdfs:range :DfLSS_Artifact ;
+    rdfs:comment "Links a DfLSS phase to the artifacts it produces." .
+
+:hasCTQ a owl:ObjectProperty ;
+    rdfs:domain :ProjectCharter ;
+    rdfs:range :CTQ_Specification ;
+    rdfs:comment "Links a project charter to its defined Critical-to-Quality specifications." .
+
+# #################################################################
+# IV. Axiomatic Enforcement of DfLSS Principles
+# #################################################################
+
+# Axiom: The DfLSS canon must have all five phases.
+gov:DfLSS rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasPhase ; owl:hasValue :DefinePhase ] ,
+                        [ a owl:Restriction ; owl:onProperty :hasPhase ; owl:hasValue :MeasurePhase ] ,
+                        [ a owl:Restriction ; owl:onProperty :hasPhase ; owl:hasValue :ExplorePhase ] ,
+                        [ a owl:Restriction ; owl:onProperty :hasPhase ; owl:hasValue :DevelopPhase ] ,
+                        [ a owl:Restriction ; owl:onProperty :hasPhase ; owl:hasValue :ImplementPhase ] .
+
+# Axiom: The Define Phase must produce a Project Charter.
+:DefinePhase rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :producesArtifact ; owl:hasValue :ProjectCharter ] .
+
+# Axiom: All CTQ Specifications must be measurable (i.e., linked to a measurement method).
+:CTQ_Specification rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasMeasurementMethod ; owl:minCardinality "1"^^xsd:nonNegativeInteger ] .

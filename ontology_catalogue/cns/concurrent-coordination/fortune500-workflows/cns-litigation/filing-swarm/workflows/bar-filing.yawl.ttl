@@ -1,0 +1,367 @@
+@prefix bf: <http://cns-litigation.com/bar-filing#> .
+@prefix fs: <http://cns-litigation.com/filing-swarm#> .
+@prefix yawl: <http://www.yawlfoundation.org/yawlschema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ba: <http://cns-litigation.com/bitactor#> .
+@prefix vda: <http://van-der-aalst.com/patterns#> .
+@prefix legal: <http://cns-litigation.com/legal-templates#> .
+@prefix ethics: <http://cns-litigation.com/ethics#> .
+
+# Bar Complaint Filing Workflow DAG
+# Specialized for attorney disciplinary proceedings and professional responsibility
+
+bf:BarComplaintWorkflow a yawl:Specification ;
+    rdfs:label "Bar Complaint Filing Workflow" ;
+    yawl:version "2.0" ;
+    yawl:description "Attorney disciplinary complaint processing with ethics compliance" ;
+    vda:pattern vda:SequencePattern, vda:ConditionalPattern, vda:ParallelSplitPattern ;
+    ba:messagingMode ba:ZeroTick ;
+    bf:supportedBars bf:StateBar, bf:FederalBar, bf:SpecialtyBar ;
+    ethics:confidentiality ethics:Privileged .
+
+# Initial Complaint Assessment
+bf:ComplaintIntake a yawl:AtomicTask ;
+    rdfs:label "Bar Complaint Intake and Initial Assessment" ;
+    yawl:flowsInto bf:ComplaintClassification ;
+    ba:tickDelay 0 ;
+    bf:intake [
+        bf:complainantInfo bf:Name, bf:ContactInfo, bf:Relationship ;
+        bf:respondentAttorney bf:BarNumber, bf:Name, bf:FirmInfo ;
+        bf:incidentDetails bf:Date, bf:Location, bf:Circumstances ;
+        bf:allegedViolations bf:EthicsRules, bf:ProfessionalConduct
+    ] ;
+    ethics:confidentialityLevel ethics:Restricted .
+
+# Complaint Classification and Routing
+bf:ComplaintClassification a yawl:AtomicTask ;
+    rdfs:label "Classify Complaint by Severity and Type" ;
+    yawl:flowsInto bf:ComplaintRouter ;
+    ba:tickDelay 0 ;
+    bf:classifications [
+        bf:severityLevels bf:Minor, bf:Moderate, bf:Serious, bf:Severe ;
+        bf:violationTypes bf:TrustAccountViolation, bf:ClientConfidentiality, bf:ConflictOfInterest, bf:Competence, bf:CriminalConduct ;
+        bf:urgencyLevels bf:Emergency, bf:Expedited, bf:Standard, bf:Routine
+    ] ;
+    ethics:reviewRequired ethics:EthicsCommittee .
+
+# Complaint Type Router
+bf:ComplaintRouter a yawl:AtomicTask ;
+    rdfs:label "Route Complaint by Type and Severity" ;
+    vda:pattern vda:ExclusiveChoicePattern ;
+    ba:tickDelay 0 ;
+    yawl:flowsInto bf:MinorViolationProcess, bf:MajorViolationProcess, bf:CriminalMatterProcess, bf:EmergencyProcess ;
+    ba:routingLogic [
+        bf:condition "severity == 'MINOR' && !criminalConduct" ;
+        bf:target bf:MinorViolationProcess
+    ], [
+        bf:condition "severity IN ['MODERATE', 'SERIOUS'] && !criminalConduct" ;
+        bf:target bf:MajorViolationProcess
+    ], [
+        bf:condition "criminalConduct == true" ;
+        bf:target bf:CriminalMatterProcess
+    ], [
+        bf:condition "urgency == 'EMERGENCY'" ;
+        bf:target bf:EmergencyProcess
+    ] .
+
+# Minor Violation Process
+bf:MinorViolationProcess a yawl:CompositeTask ;
+    rdfs:label "Minor Violation Administrative Process" ;
+    yawl:flowsInto bf:EthicsReview ;
+    ba:tickDelay 0 ;
+    bf:process [
+        bf:adminReview bf:StaffReview ;
+        bf:documentation bf:BasicDocumentation ;
+        bf:resolution bf:InformalResolution, bf:CounselingLetter, bf:CLE ;
+        bf:timeframe "PT30D"^^xsd:duration
+    ] .
+
+# Major Violation Process
+bf:MajorViolationProcess a yawl:CompositeTask ;
+    rdfs:label "Major Violation Formal Process" ;
+    yawl:flowsInto bf:EthicsReview ;
+    ba:tickDelay 0 ;
+    bf:process [
+        bf:investigation bf:FormalInvestigation ;
+        bf:documentation bf:ComprehensiveDocumentation ;
+        bf:hearingRequired bf:HearingPanelRequired ;
+        bf:potentialSanctions bf:Suspension, bf:Censure, bf:Probation ;
+        bf:timeframe "PT90D"^^xsd:duration
+    ] .
+
+# Criminal Matter Process
+bf:CriminalMatterProcess a yawl:CompositeTask ;
+    rdfs:label "Criminal Conduct Investigation Process" ;
+    yawl:flowsInto bf:EthicsReview ;
+    ba:tickDelay 0 ;
+    ba:priority ba:Critical ;
+    bf:process [
+        bf:criminalCheck bf:BackgroundCheck, bf:CourtRecordsSearch ;
+        bf:lawEnforcementNotification bf:Required ;
+        bf:interimSuspension bf:Considered ;
+        bf:potentialSanctions bf:Disbarment, bf:ImmediateSuspension ;
+        bf:timeframe "PT60D"^^xsd:duration
+    ] ;
+    ethics:confidentiality ethics:LawEnforcementException .
+
+# Emergency Process
+bf:EmergencyProcess a yawl:CompositeTask ;
+    rdfs:label "Emergency Disciplinary Process" ;
+    yawl:flowsInto bf:EthicsReview ;
+    ba:tickDelay 0 ;
+    ba:priority ba:Critical ;
+    bf:emergencyIndicators [
+        bf:clientHarm bf:ImmediateHarm, bf:FinancialLoss ;
+        bf:publicSafety bf:PublicEndangerment ;
+        bf:ongoingViolations bf:ContinuingMisconduct
+    ] ;
+    bf:emergencyMeasures [
+        bf:interimSuspension bf:Automatic ;
+        bf:clientNotification bf:Immediate ;
+        bf:trustAccountFreeze bf:Considered
+    ] .
+
+# Ethics Review and Compliance Check
+bf:EthicsReview a yawl:AtomicTask ;
+    rdfs:label "Professional Ethics Compliance Review" ;
+    yawl:flowsInto bf:ConflictCheck ;
+    ba:tickDelay 0 ;
+    ethics:reviewCriteria [
+        ethics:modelRules ethics:Rule1_1, ethics:Rule1_3, ethics:Rule1_4, ethics:Rule1_7, ethics:Rule1_9 ;
+        ethics:stateRules ethics:StateSpecificRules ;
+        ethics:specialtyRules ethics:SpecializedPracticeRules
+    ] ;
+    ethics:reviewers ethics:EthicsCommittee, ethics:PeerReviewPanel .
+
+# Conflict of Interest Check
+bf:ConflictCheck a yawl:AtomicTask ;
+    rdfs:label "Check for Disciplinary Conflicts" ;
+    yawl:flowsInto bf:InvestigationAssignment ;
+    ba:tickDelay 0 ;
+    bf:conflicts [
+        bf:personalConflicts bf:PersonalRelationship, bf:BusinessRelationship ;
+        bf:professionalConflicts bf:PriorRepresentation, bf:CurrentRepresentation ;
+        bf:institutionalConflicts bf:BoardMembership, bf:EmploymentHistory
+    ] ;
+    bf:recusalRequired bf:ConditionalRecusal .
+
+# Investigation Assignment
+bf:InvestigationAssignment a yawl:AtomicTask ;
+    rdfs:label "Assign Investigation Team" ;
+    yawl:flowsInto bf:EvidenceCollection ;
+    ba:tickDelay 0 ;
+    bf:investigators [
+        bf:staffInvestigator bf:BarCounsel, bf:Investigator ;
+        bf:volunteerPanel bf:AttorneyVolunteers ;
+        bf:specialExperts bf:ForensicAccountant, bf:TechExpert
+    ] ;
+    bf:assignmentCriteria bf:ExpertiseMatch, bf:Availability, bf:ConflictFree .
+
+# Evidence Collection (Parallel Process)
+bf:EvidenceCollection a yawl:AtomicTask ;
+    rdfs:label "Collect and Preserve Evidence" ;
+    yawl:flowsInto bf:DocumentReview, bf:WitnessInterviews, bf:RecordSubpoenas ;
+    vda:pattern vda:ParallelSplitPattern ;
+    ba:tickDelay 0 ;
+    bf:evidenceTypes [
+        bf:documents bf:ClientFiles, bf:TrustRecords, bf:Communications ;
+        bf:testimonial bf:ClientInterviews, bf:WitnessStatements ;
+        bf:expert bf:HandwritingAnalysis, bf:AccountingReview
+    ] .
+
+bf:DocumentReview a yawl:AtomicTask ;
+    rdfs:label "Review Documentary Evidence" ;
+    yawl:flowsInto bf:EvidenceSync ;
+    ba:tickDelay 0 ;
+    bf:documents [
+        bf:clientFiles bf:RetainerAgreements, bf:CaseFiles, bf:Billing ;
+        bf:trustRecords bf:BankStatements, bf:Ledgers, bf:Reconciliations ;
+        bf:communications bf:EmailCorrespondence, bf:Letters, bf:PhoneLogs
+    ] ;
+    ethics:confidentiality ethics:AttorneyClientPrivilege .
+
+bf:WitnessInterviews a yawl:AtomicTask ;
+    rdfs:label "Conduct Witness Interviews" ;
+    yawl:flowsInto bf:EvidenceSync ;
+    ba:tickDelay 0 ;
+    bf:witnesses [
+        bf:clients bf:FormerClients, bf:CurrentClients ;
+        bf:colleagues bf:LawFirmStaff, bf:OpposingCounsel ;
+        bf:thirdParties bf:CourtPersonnel, bf:Vendors
+    ] ;
+    bf:interviewProtocol bf:StructuredInterview, bf:OathRequired .
+
+bf:RecordSubpoenas a yawl:AtomicTask ;
+    rdfs:label "Issue Subpoenas for Records" ;
+    yawl:flowsInto bf:EvidenceSync ;
+    ba:tickDelay 0 ;
+    bf:subpoenaTypes [
+        bf:bankRecords bf:TrustAccounts, bf:OperatingAccounts ;
+        bf:courtRecords bf:CaseFiles, bf:DocketEntries ;
+        bf:thirdPartyRecords bf:VendorRecords, bf:ExpertReports
+    ] ;
+    bf:subpoenaProcess bf:IssuanceProcess, bf:ServiceProcess, bf:ComplianceMonitoring .
+
+# Evidence Synchronization Point
+bf:EvidenceSync a yawl:AtomicTask ;
+    rdfs:label "Evidence Collection Synchronization" ;
+    yawl:flowsInto bf:AnalysisAndFindings ;
+    vda:pattern vda:SynchronizationPattern ;
+    ba:tickDelay 0 ;
+    ba:waitForAll bf:DocumentReview, bf:WitnessInterviews, bf:RecordSubpoenas .
+
+# Analysis and Findings
+bf:AnalysisAndFindings a yawl:AtomicTask ;
+    rdfs:label "Analyze Evidence and Draft Findings" ;
+    yawl:flowsInto bf:RecommendationDraft ;
+    ba:tickDelay 0 ;
+    bf:analysis [
+        bf:factualFindings bf:ChronologyOfEvents, bf:CredibilityAssessments ;
+        bf:legalAnalysis bf:RuleViolations, bf:EthicsBreaches ;
+        bf:mitigatingFactors bf:CooperationLevel, bf:PreviousRecord, bf:ClientHarm ;
+        bf:aggravatingFactors bf:Dishonesty, bf:PatternOfConduct, bf:RefusalToComply
+    ] .
+
+# Recommendation Drafting
+bf:RecommendationDraft a yawl:AtomicTask ;
+    rdfs:label "Draft Disciplinary Recommendations" ;
+    yawl:flowsInto bf:PeerReview ;
+    ba:tickDelay 0 ;
+    bf:recommendations [
+        bf:noViolation bf:DismissComplaint ;
+        bf:minorViolation bf:PrivateReprimand, bf:CounselingLetter, bf:CLERequirement ;
+        bf:moderateViolation bf:PublicCensure, bf:ProbationWithConditions ;
+        bf:seriousViolation bf:Suspension, bf:DisqualificationFromOffice ;
+        bf:severeViolation bf:Disbarment, bf:DisqualificationFromPractice
+    ] ;
+    legal:template legal:DisciplinaryRecommendation .
+
+# Peer Review Process
+bf:PeerReview a yawl:AtomicTask ;
+    rdfs:label "Peer Review of Investigation and Recommendations" ;
+    yawl:flowsInto bf:NoticePreparation ;
+    ba:tickDelay 0 ;
+    bf:reviewPanel [
+        bf:composition bf:AttorneyMembers, bf:PublicMembers ;
+        bf:qualifications bf:EthicsExperience, bf:DisciplinaryExperience ;
+        bf:reviewStandards bf:ClearAndConvincingEvidence, bf:ProportionalitySanctions
+    ] ;
+    bf:reviewOutcomes bf:ConcurWithRecommendation, bf:ModifyRecommendation, bf:RemandForAdditionalInvestigation .
+
+# Notice and Due Process
+bf:NoticePreparation a yawl:AtomicTask ;
+    rdfs:label "Prepare Formal Notice to Respondent" ;
+    yawl:flowsInto bf:ServiceOfNotice ;
+    ba:tickDelay 0 ;
+    bf:notice [
+        bf:chargesSpecification bf:DetailedCharges, bf:RuleCitations ;
+        bf:evidenceSummary bf:FactualAllegations, bf:SupportingEvidence ;
+        bf:responseDeadline bf:ResponsePeriod ;
+        bf:hearingRights bf:RightToCounsel, bf:RightToHearing, bf:RightToConfront
+    ] ;
+    legal:template legal:FormalCharges .
+
+bf:ServiceOfNotice a yawl:AtomicTask ;
+    rdfs:label "Serve Formal Notice on Respondent" ;
+    yawl:flowsInto bf:ResponsePeriod ;
+    ba:tickDelay 0 ;
+    bf:serviceMethod [
+        bf:primaryService bf:CertifiedMail, bf:PersonalService ;
+        bf:alternativeService bf:Email, bf:Publication ;
+        bf:proofOfService bf:CertificateOfService, bf:ReturnReceipt
+    ] ;
+    bf:serviceRequirements bf:ActualNotice, bf:ReasonableTime .
+
+# Response Period and Hearing Process
+bf:ResponsePeriod a yawl:AtomicTask ;
+    rdfs:label "Allow Response Period" ;
+    yawl:flowsInto bf:ResponseEvaluation ;
+    ba:tickDelay 0 ;
+    bf:responsePeriod "PT30D"^^xsd:duration ;
+    bf:responseOptions bf:AdmitCharges, bf:DenyCharges, bf:RequestHearing, bf:NegotiateResolution .
+
+bf:ResponseEvaluation a yawl:AtomicTask ;
+    rdfs:label "Evaluate Respondent's Response" ;
+    yawl:flowsInto bf:HearingScheduling, bf:NegotiatedResolution, bf:DefaultProceeding ;
+    vda:pattern vda:ExclusiveChoicePattern ;
+    ba:tickDelay 0 ;
+    ba:routingLogic [
+        bf:condition "response.requestsHearing == true" ;
+        bf:target bf:HearingScheduling
+    ], [
+        bf:condition "response.negotiationRequested == true" ;
+        bf:target bf:NegotiatedResolution
+    ], [
+        bf:condition "response == null" ;
+        bf:target bf:DefaultProceeding
+    ] .
+
+# Final Processing and Orders
+bf:FinalOrder a yawl:AtomicTask ;
+    rdfs:label "Issue Final Disciplinary Order" ;
+    yawl:flowsInto bf:OrderImplementation ;
+    ba:tickDelay 0 ;
+    bf:orderComponents [
+        bf:findings bf:FactualFindings, bf:LegalConclusions ;
+        bf:sanctions bf:DisciplinaryMeasures, bf:CostsAssessment ;
+        bf:implementation bf:EffectiveDate, bf:ComplianceRequirements ;
+        bf:appealRights bf:AppealPeriod, bf:AppealProcedure
+    ] ;
+    legal:template legal:DisciplinaryOrder .
+
+bf:OrderImplementation a yawl:AtomicTask ;
+    rdfs:label "Implement Disciplinary Order" ;
+    yawl:flowsInto bf:ComplianceMonitoring ;
+    ba:tickDelay 0 ;
+    bf:implementation [
+        bf:publicNotice bf:BarJournal, bf:Website, bf:LegalNewspapers ;
+        bf:courtNotification bf:AllCourts, bf:AdmissionJurisdictions ;
+        bf:recordUpdate bf:AttorneyRecord, bf:DisciplinaryHistory ;
+        bf:monitoringSetup bf:ProbationOfficer, bf:ComplianceChecks
+    ] .
+
+# Ongoing Compliance and Monitoring
+bf:ComplianceMonitoring a yawl:AtomicTask ;
+    rdfs:label "Monitor Ongoing Compliance" ;
+    ba:tickDelay 0 ;
+    bf:monitoring [
+        bf:probationSupervision bf:RegularReporting, bf:RandomAudits ;
+        bf:trustAccountMonitoring bf:MonthlyReconciliations, bf:BankNotifications ;
+        bf:practiceRestrictions bf:SupervisionRequirements, bf:ClientLimitations ;
+        bf:rehabilitationPrograms bf:CLERequirements, bf:CounselingPrograms
+    ] ;
+    bf:complianceReporting bf:QuarterlyReports, bf:AnnualReviews .
+
+# Bar Filing Data Model
+bf:BarComplaintData a yawl:DataVariable ;
+    bf:complaintId xsd:string ;
+    bf:complainantInfo bf:ComplainantInfo ;
+    bf:respondentInfo bf:RespondentInfo ;
+    bf:violationAllegations rdf:List ;
+    bf:evidenceInventory rdf:List ;
+    bf:investigationFindings bf:FindingsReport ;
+    bf:disciplinaryRecommendation bf:RecommendationReport ;
+    bf:finalOrder bf:DisciplinaryOrder ;
+    bf:complianceStatus bf:ComplianceReport .
+
+# Ethics Templates
+legal:DisciplinaryRecommendation a legal:DocumentTemplate ;
+    legal:sections [
+        legal:executiveSummary legal:CaseSummary ;
+        legal:factualFindings legal:ChronologyAndFindings ;
+        legal:legalAnalysis legal:RuleAnalysisAndApplication ;
+        legal:mitigatingFactors legal:FactorsInMitigation ;
+        legal:aggravatingFactors legal:FactorsInAggravation ;
+        legal:recommendedSanction legal:SanctionRecommendation ;
+        legal:implementationPlan legal:ComplianceRequirements
+    ] .
+
+# Performance Metrics for Bar Proceedings
+bf:BarFilingMetrics a bf:WorkflowMetrics ;
+    bf:averageProcessingTime "PT60D"^^xsd:duration ;
+    bf:investigationCompletionRate "0.92"^^xsd:decimal ;
+    bf:dueProcessCompliance "0.98"^^xsd:decimal ;
+    bf:appealRate "0.15"^^xsd:decimal ;
+    bf:complianceRate "0.87"^^xsd:decimal .

@@ -1,0 +1,1320 @@
+@prefix cm: <https://chatmangpt.com/docs/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# CHATMANGPT DOCUMENTATION ONTOLOGY
+#
+# Source of truth for all chatmangpt documentation.
+# Edit this file, then run: cd docs/ggen && ggen sync
+# ============================================================================
+
+# CLASSES
+cm:Document a rdfs:Class ;
+  rdfs:label "Document" ;
+  rdfs:comment "Base documentation entity" .
+
+cm:Tutorial a rdfs:Class ;
+  rdfs:subClassOf cm:Document ;
+  rdfs:label "Tutorial" ;
+  rdfs:comment "Step-by-step learning (hands-on)" .
+
+cm:HowTo a rdfs:Class ;
+  rdfs:subClassOf cm:Document ;
+  rdfs:label "How-To Guide" ;
+  rdfs:comment "Problem-oriented guide" .
+
+cm:Reference a rdfs:Class ;
+  rdfs:subClassOf cm:Document ;
+  rdfs:label "Reference" ;
+  rdfs:comment "Complete lookup documentation" .
+
+cm:Explanation a rdfs:Class ;
+  rdfs:subClassOf cm:Document ;
+  rdfs:label "Explanation" ;
+  rdfs:comment "Conceptual background and context" .
+
+cm:Spec a rdfs:Class ;
+  rdfs:subClassOf cm:Document ;
+  rdfs:label "Specification" ;
+  rdfs:comment "Design or implementation specification" .
+
+cm:Report a rdfs:Class ;
+  rdfs:subClassOf cm:Document ;
+  rdfs:label "Report" ;
+  rdfs:comment "Generated report or audit output" .
+
+cm:Gap a rdfs:Class ;
+  rdfs:label "Documentation Gap" ;
+  rdfs:comment "Missing or incomplete documentation" .
+
+cm:Marketing a rdfs:Class ;
+  rdfs:subClassOf cm:Document ;
+  rdfs:label "Marketing" ;
+  rdfs:comment "Go-to-market collateral" .
+
+# PROPERTIES
+cm:title a rdf:Property ;
+  rdfs:domain cm:Document ;
+  rdfs:range xsd:string .
+
+cm:description a rdf:Property ;
+  rdfs:domain cm:Document ;
+  rdfs:range xsd:string .
+
+cm:category a rdf:Property ;
+  rdfs:domain cm:Document ;
+  rdfs:range xsd:string .
+
+cm:project a rdf:Property ;
+  rdfs:domain cm:Document ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Which project this doc belongs to: BusinessOS, Canopy, OSA, pm4py-rust, knhk, root" .
+
+cm:outputFile a rdf:Property ;
+  rdfs:domain cm:Document ;
+  rdfs:range xsd:string .
+
+cm:estimatedMinutes a rdf:Property ;
+  rdfs:domain cm:Document ;
+  rdfs:range xsd:integer .
+
+cm:difficulty a rdf:Property ;
+  rdfs:domain cm:Document ;
+  rdfs:range xsd:string .
+
+cm:priority a rdf:Property ;
+  rdfs:domain cm:Gap ;
+  rdfs:range xsd:string .
+
+cm:status a rdf:Property ;
+  rdfs:domain cm:Document ;
+  rdfs:range xsd:string ;
+  rdfs:comment "complete, in-progress, draft, stale" .
+
+cm:dateCreated a rdf:Property ;
+  rdfs:domain cm:Document ;
+  rdfs:range xsd:date .
+
+cm:dateUpdated a rdf:Property ;
+  rdfs:domain cm:Document ;
+  rdfs:range xsd:date .
+
+cm:codeRefs a rdf:Property ;
+  rdfs:domain cm:Document ;
+  rdfs:range xsd:string .
+
+# ============================================================================
+# EXPLANATIONS (docs/diataxis/explanation/)
+# ============================================================================
+
+cm:expl-signal-theory a cm:Explanation ;
+  cm:title "Signal Theory S=(M,G,T,F,W)" ;
+  cm:description "Complete specification of the Signal encoding framework" ;
+  cm:category "Theory Foundation" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/explanation/signal-theory-complete.md" ;
+  cm:estimatedMinutes 20 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-20" ;
+  cm:dateUpdated "2026-03-27" ;
+  cm:status "complete" .
+
+cm:expl-chatman-equation a cm:Explanation ;
+  cm:title "The Chatman Equation A=μ(O)" ;
+  cm:description "Artifacts as projections of ontologies via transformations" ;
+  cm:category "Theory Foundation" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/explanation/chatman-equation.md" ;
+  cm:estimatedMinutes 15 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-20" ;
+  cm:dateUpdated "2026-03-27" ;
+  cm:status "complete" .
+
+cm:expl-seven-layer a cm:Explanation ;
+  cm:title "7-Layer Architecture" ;
+  cm:description "Universal Optimal Systems layer model" ;
+  cm:category "Architecture" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/explanation/seven-layer-architecture.md" ;
+  cm:estimatedMinutes 20 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-20" ;
+  cm:dateUpdated "2026-03-27" ;
+  cm:status "complete" .
+
+cm:expl-progressive-disclosure a cm:Explanation ;
+  cm:title "Progressive Disclosure (L0/L1/L2)" ;
+  cm:description "Token-efficient context loading with 60x-120x compression" ;
+  cm:category "Architecture" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/explanation/progressive-disclosure.md" ;
+  cm:estimatedMinutes 15 ;
+  cm:difficulty "Intermediate" ;
+  cm:dateCreated "2026-03-20" ;
+  cm:dateUpdated "2026-03-27" ;
+  cm:status "complete" .
+
+cm:expl-a2a-mcp a cm:Explanation ;
+  cm:title "A2A/MCP Implementation Architecture" ;
+  cm:description "Agent-to-Agent over JSON-RPC + MCP tool integration" ;
+  cm:category "Integration" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/explanation/a2a-mcp-implementation-architecture.md" ;
+  cm:estimatedMinutes 15 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:expl-wave7-8 a cm:Explanation ;
+  cm:title "Wave 7-8 Integration Summary" ;
+  cm:description "Cross-system integration and gap analysis results" ;
+  cm:category "Integration" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/explanation/wave-7-8-integration-summary.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Intermediate" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:expl-wave7-cross a cm:Explanation ;
+  cm:title "Wave 7 Cross-System Integration" ;
+  cm:description "10 agents with full 5-system integration" ;
+  cm:category "Integration" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/explanation/wave-7-cross-system-integration.md" ;
+  cm:estimatedMinutes 15 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:expl-wave8-gaps a cm:Explanation ;
+  cm:title "Wave 8 Gap Remediation" ;
+  cm:description "12 critical gaps found and remediated" ;
+  cm:category "Quality" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/explanation/wave-8-gap-remediation.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Intermediate" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:expl-yawl-integration a cm:Explanation ;
+  cm:title "YAWL v6 Integration Architecture" ;
+  cm:description "Java 25 workflow engine integration with OSA and pm4py-rust" ;
+  cm:category "Integration" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/explanation/yawl-v6-integration-architecture.md" ;
+  cm:estimatedMinutes 15 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:expl-yawl-summary a cm:Explanation ;
+  cm:title "YAWL Integration Summary" ;
+  cm:description "Complete YAWL integration sprint results" ;
+  cm:category "Integration" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/explanation/yawl-integration-summary.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Intermediate" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:expl-celonis a cm:Explanation ;
+  cm:title "Celonis Blue Ocean Analysis" ;
+  cm:description "Process mining competitive positioning" ;
+  cm:category "Strategy" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/explanation/celonis-blue-ocean-analysis.md" ;
+  cm:estimatedMinutes 15 ;
+  cm:difficulty "Intermediate" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:expl-celonis-parity a cm:Explanation ;
+  cm:title "Celonis Parity Sprint" ;
+  cm:description "23/23 items achieving feature parity" ;
+  cm:category "Strategy" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/explanation/celonis-parity-sprint.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Intermediate" ;
+  cm:dateCreated "2026-03-28" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:expl-soc2 a cm:Explanation ;
+  cm:title "SOC2 Compliance Rule Engine" ;
+  cm:description "Compliance rules YAML with hot-reload architecture" ;
+  cm:category "Compliance" ;
+  cm:project "BusinessOS" ;
+  cm:outputFile "docs/diataxis/explanation/soc2-compliance-rule-engine.md" ;
+  cm:estimatedMinutes 15 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-24" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:expl-process-mining a cm:Explanation ;
+  cm:title "Process Mining Dashboard System" ;
+  cm:description "pm4py-rust powered process intelligence" ;
+  cm:category "Product" ;
+  cm:project "pm4py-rust" ;
+  cm:outputFile "docs/diataxis/explanation/process-mining-dashboard-system.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Intermediate" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:expl-canopy-heartbeat a cm:Explanation ;
+  cm:title "Canopy Heartbeat Architecture" ;
+  cm:description "Agent coordination via heartbeat protocol" ;
+  cm:category "Architecture" ;
+  cm:project "Canopy" ;
+  cm:outputFile "docs/diataxis/explanation/canopy-heartbeat-architecture.md" ;
+  cm:estimatedMinutes 15 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-24" ;
+  cm:dateUpdated "2026-03-27" ;
+  cm:status "complete" .
+
+cm:expl-canopy-ontology a cm:Explanation ;
+  cm:title "Canopy Heartbeat Ontology" ;
+  cm:description "Formal ontology for agent heartbeat" ;
+  cm:category "Theory" ;
+  cm:project "Canopy" ;
+  cm:outputFile "docs/diataxis/explanation/canopy-heartbeat-ontology.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-24" ;
+  cm:dateUpdated "2026-03-27" ;
+  cm:status "complete" .
+
+cm:expl-vision2030 a cm:Explanation ;
+  cm:title "Vision 2030 Innovations" ;
+  cm:description "10/10 Blue Ocean innovations with 143 verifications" ;
+  cm:category "Strategy" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/explanation/vision-2030-innovations.md" ;
+  cm:estimatedMinutes 20 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-24" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:expl-verification a cm:Explanation ;
+  cm:title "Verification Evidence Dashboard" ;
+  cm:description "Three-layer proof: OTEL span + test assertion + schema conformance" ;
+  cm:category "Quality" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/explanation/verification-evidence-dashboard.md" ;
+  cm:estimatedMinutes 15 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:expl-miosa-stack a cm:Explanation ;
+  cm:title "MIOSA Stack" ;
+  cm:description "BusinessOS, Canopy, and OSA architecture overview" ;
+  cm:category "Architecture" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/explanation/miosa-stack.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Intermediate" ;
+  cm:dateCreated "2026-03-24" ;
+  cm:dateUpdated "2026-03-27" ;
+  cm:status "complete" .
+
+cm:expl-five-project a cm:Explanation ;
+  cm:title "Five-Project Integration Chain" ;
+  cm:description "pm4py-rust + YAWL + BusinessOS + Canopy + OSA" ;
+  cm:category "Architecture" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/explanation/five-project-integration-chain.md" ;
+  cm:estimatedMinutes 15 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-24" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:expl-five-project-diagram a cm:Explanation ;
+  cm:title "Five-Project Architecture Diagram" ;
+  cm:description "Visual architecture of the integration chain" ;
+  cm:category "Architecture" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/explanation/five-project-architecture-diagram.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Intermediate" ;
+  cm:dateCreated "2026-03-24" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:expl-ontology-closure a cm:Explanation ;
+  cm:title "Ontology Closure" ;
+  cm:description "Before closure = probabilistic, after = deterministic" ;
+  cm:category "Theory Foundation" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/explanation/ontology-closure.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-24" ;
+  cm:dateUpdated "2026-03-27" ;
+  cm:status "complete" .
+
+cm:expl-ontology-foundation a cm:Explanation ;
+  cm:title "Ontology Foundation" ;
+  cm:description "Formal domain specification as source of truth" ;
+  cm:category "Theory Foundation" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/explanation/ontology-foundation.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-24" ;
+  cm:dateUpdated "2026-03-27" ;
+  cm:status "complete" .
+
+cm:expl-ggen-platform a cm:Explanation ;
+  cm:title "ggen Platform Regeneration" ;
+  cm:description "Using ggen to regenerate ChatmanGPT from RDF" ;
+  cm:category "Tooling" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/explanation/ggen-platform-regeneration.md" ;
+  cm:estimatedMinutes 15 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-28" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:expl-chatman-deterministic a cm:Explanation ;
+  cm:title "Chatman Equation Deterministic Codegen" ;
+  cm:description "A=μ(O) applied to code generation" ;
+  cm:category "Theory Foundation" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/explanation/chatman-equation-deterministic-codegen.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-28" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+# ============================================================================
+# HOW-TO GUIDES (docs/diataxis/how-to/)
+# ============================================================================
+
+cm:howto-a2a-register a cm:HowTo ;
+  cm:title "Register an A2A Agent" ;
+  cm:description "Step-by-step agent registration via A2A protocol" ;
+  cm:category "A2A" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/how-to/register-a2a-agent.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Intermediate" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:howto-a2a-call a cm:HowTo ;
+  cm:title "Call an Agent via A2A" ;
+  cm:description "Make cross-project agent calls" ;
+  cm:category "A2A" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/how-to/call-agent-a2a.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Intermediate" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:howto-a2a-debug a cm:HowTo ;
+  cm:title "Debug A2A Communication" ;
+  cm:description "Troubleshoot agent-to-agent messaging" ;
+  cm:category "A2A" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/how-to/debug-a2a-communication.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:howto-yawl-build a cm:HowTo ;
+  cm:title "Build and Deploy YAWL Workflows" ;
+  cm:description "YAWL v6 workflow compilation and deployment" ;
+  cm:category "YAWL" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/how-to/build-and-deploy-yawl-workflows.md" ;
+  cm:estimatedMinutes 15 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:howto-board-encrypt a cm:HowTo ;
+  cm:title "Board Encryption Key Management" ;
+  cm:description "X25519+AES-256-GCM encrypted board briefings" ;
+  cm:category "Security" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/how-to/board-encryption-key-management.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-26" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:howto-wave8-remediate a cm:HowTo ;
+  cm:title "Remediate Wave 8 Gaps" ;
+  cm:description "Fix 12 critical gaps from Wave 8 analysis" ;
+  cm:category "Quality" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/how-to/remediate-wave-8-gaps.md" ;
+  cm:estimatedMinutes 15 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:howto-wave7-smoke a cm:HowTo ;
+  cm:title "Wave 7 Integration Smoke Test" ;
+  cm:description "Run cross-system integration verification" ;
+  cm:category "Testing" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/how-to/wave-7-integration-smoke-test.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Intermediate" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:howto-compliance-quickstart a cm:HowTo ;
+  cm:title "Compliance ODRL Quickstart" ;
+  cm:description "Get started with ODRL policy enforcement" ;
+  cm:category "Compliance" ;
+  cm:project "BusinessOS" ;
+  cm:outputFile "docs/diataxis/how-to/compliance-odrl-quickstart.md" ;
+  cm:estimatedMinutes 15 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-24" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:howto-sparql-construct a cm:HowTo ;
+  cm:title "SPARQL CONSTRUCT for Data Generation" ;
+  cm:description "Use CONSTRUCT queries with ggen templates" ;
+  cm:category "Tooling" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/how-to/sparql-construct-artifact-templates.md" ;
+  cm:estimatedMinutes 15 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-24" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:howto-ggen-regen a cm:HowTo ;
+  cm:title "Regenerate Platform with ggen Sync" ;
+  cm:description "Regenerate code from RDF ontology using ggen" ;
+  cm:category "Tooling" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/how-to/regenerate-platform-with-ggen-sync.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-28" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:howto-setup-dev a cm:HowTo ;
+  cm:title "Setup Local Development" ;
+  cm:description "Boot all 4 systems with make dev" ;
+  cm:category "Setup" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/how-to/setup-local-development.md" ;
+  cm:estimatedMinutes 15 ;
+  cm:difficulty "Beginner" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:howto-contribute a cm:HowTo ;
+  cm:title "Contribute Code via PR Workflow" ;
+  cm:description "Git workflow, branch strategy, commit conventions" ;
+  cm:category "Workflow" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/how-to/contribute-code-pr-workflow.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Beginner" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:howto-implement-feature a cm:HowTo ;
+  cm:title "Implement a Feature Across Multiple Projects" ;
+  cm:description "Cross-project implementation workflow" ;
+  cm:category "Workflow" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/how-to/implement-feature-multiproject.md" ;
+  cm:estimatedMinutes 15 ;
+  cm:difficulty "Intermediate" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:howto-deploy-canopy a cm:HowTo ;
+  cm:title "Deploy Canopy to Oxigraph" ;
+  cm:description "Canopy SPARQL endpoint setup" ;
+  cm:category "Deployment" ;
+  cm:project "Canopy" ;
+  cm:outputFile "docs/diataxis/how-to/deploy-canopy-oxigraph.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Intermediate" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:howto-query-oxigraph a cm:HowTo ;
+  cm:title "Query Oxigraph SPARQL Endpoint" ;
+  cm:description "Execute SPARQL queries against the triplestore" ;
+  cm:category "Data" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/how-to/query-oxigraph.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Intermediate" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:howto-enterprise-connectors a cm:HowTo ;
+  cm:title "Configure Enterprise Connectors" ;
+  cm:description "SAP, Salesforce, Oracle connector setup" ;
+  cm:category "Integration" ;
+  cm:project "pm4py-rust" ;
+  cm:outputFile "docs/diataxis/how-to/configure-enterprise-connectors.md" ;
+  cm:estimatedMinutes 15 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:howto-k8s-deploy a cm:HowTo ;
+  cm:title "Kubernetes Deployment Walkthrough" ;
+  cm:description "Deploy ChatmanGPT stack to k8s" ;
+  cm:category "Deployment" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/how-to/kubernetes-deployment-walkthrough.md" ;
+  cm:estimatedMinutes 20 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:howto-k8s-troubleshoot a cm:HowTo ;
+  cm:title "Kubernetes Troubleshooting" ;
+  cm:description "Debug k8s deployment issues" ;
+  cm:category "Deployment" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/how-to/k8s-troubleshooting.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:howto-docker-build a cm:HowTo ;
+  cm:title "Docker Image Building and Registry" ;
+  cm:description "Build and push Docker images" ;
+  cm:category "DevOps" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/how-to/docker-image-building-and-registry.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Intermediate" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:howto-debug-cross-project a cm:HowTo ;
+  cm:title "Debug Cross-Project Issues" ;
+  cm:description "Debug integration problems across systems" ;
+  cm:category "Debugging" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/how-to/debug-cross-project-issues.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:howto-enable-mcp-a2a a cm:HowTo ;
+  cm:title "Enable MCP/A2A Cross-Project" ;
+  cm:description "Set up A2A communication between projects" ;
+  cm:category "A2A" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/how-to/enable-mcp-a2a-cross-project.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Intermediate" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:howto-compliance-yaml a cm:HowTo ;
+  cm:title "SOC2 Compliance Rules" ;
+  cm:description "Configure compliance rules in YAML" ;
+  cm:category "Compliance" ;
+  cm:project "BusinessOS" ;
+  cm:outputFile "docs/diataxis/how-to/soc2-compliance-rules.md" ;
+  cm:estimatedMinutes 15 ;
+  cm:difficulty "Intermediate" ;
+  cm:dateCreated "2026-03-24" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:howto-compliance-impl a cm:HowTo ;
+  cm:title "SOC2 Compliance Rules Implementation" ;
+  cm:description "Implement compliance rule enforcement" ;
+  cm:category "Compliance" ;
+  cm:project "BusinessOS" ;
+  cm:outputFile "docs/diataxis/how-to/soc2-compliance-rules-implementation.md" ;
+  cm:estimatedMinutes 15 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-24" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:howto-vision2030 a cm:HowTo ;
+  cm:title "Implement Vision 2030" ;
+  cm:description "Vision 2030 integration workflow" ;
+  cm:category "Strategy" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/how-to/implement-vision-2030.md" ;
+  cm:estimatedMinutes 15 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+# ============================================================================
+# REFERENCE (docs/diataxis/reference/)
+# ============================================================================
+
+cm:ref-yawl-43 a cm:Reference ;
+  cm:title "YAWL 43 Workflow Patterns" ;
+  cm:description "Complete workflow pattern catalog" ;
+  cm:category "Workflow" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/reference/yawl-43-patterns.md" ;
+  cm:estimatedMinutes 30 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-20" ;
+  cm:dateUpdated "2026-03-27" ;
+  cm:status "complete" .
+
+cm:ref-api-endpoints a cm:Reference ;
+  cm:title "API Endpoints" ;
+  cm:description "All REST endpoints across 4 systems" ;
+  cm:category "API" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/reference/api-endpoints.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Intermediate" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:ref-port-map a cm:Reference ;
+  cm:title "Port Map and Service Locations" ;
+  cm:description "All services with ports and health endpoints" ;
+  cm:category "Infrastructure" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/reference/port-map-service-locations.md" ;
+  cm:estimatedMinutes 5 ;
+  cm:difficulty "Beginner" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:ref-make-targets a cm:Reference ;
+  cm:title "Make Targets" ;
+  cm:description "All make targets with descriptions" ;
+  cm:category "Build" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/reference/make-targets.md" ;
+  cm:estimatedMinutes 5 ;
+  cm:difficulty "Beginner" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:ref-cli-commands a cm:Reference ;
+  cm:title "CLI Commands" ;
+  cm:description "Command-line interface reference" ;
+  cm:category "Tooling" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/reference/cli-commands.md" ;
+  cm:estimatedMinutes 5 ;
+  cm:difficulty "Beginner" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:ref-config a cm:Reference ;
+  cm:title "Configuration" ;
+  cm:description "All configuration options" ;
+  cm:category "Setup" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/reference/configuration.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Intermediate" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:ref-signal-format a cm:Reference ;
+  cm:title "Signal Format Reference" ;
+  cm:description "S=(M,G,T,F,W) encoding specification" ;
+  cm:category "Theory" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/reference/signal-format.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:ref-a2a-api a cm:Reference ;
+  cm:title "A2A Protocol API Reference" ;
+  cm:description "Agent-to-Agent protocol specification" ;
+  cm:category "A2A" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/reference/a2a-protocol-api-reference.md" ;
+  cm:estimatedMinutes 15 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:ref-a2a-errors a cm:Reference ;
+  cm:title "A2A Message Formats and Errors" ;
+  cm:description "Error codes and message schemas" ;
+  cm:category "A2A" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/reference/a2a-message-formats-and-errors.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:ref-a2a-endpoints a cm:Reference ;
+  cm:title "A2A Endpoints" ;
+  cm:description "MCP and A2A HTTP endpoints" ;
+  cm:category "A2A" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/reference/mcp-a2a-endpoints.md" ;
+  cm:estimatedMinutes 5 ;
+  cm:difficulty "Intermediate" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:ref-wave7-agents a cm:Reference ;
+  cm:title "Wave 7 Agents 61-70" ;
+  cm:description "10 cross-system integration agents" ;
+  cm:category "Integration" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/reference/wave-7-agents-61-70.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Intermediate" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:ref-board-arch a cm:Reference ;
+  cm:title "Board Chair System Architecture" ;
+  cm:description "SPARQL inference and encrypted briefings" ;
+  cm:category "Architecture" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/reference/board-chair-system-architecture.md" ;
+  cm:estimatedMinutes 15 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-26" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:ref-board-sparql a cm:Reference ;
+  cm:title "Board SPARQL Queries" ;
+  cm:description "Oxigraph queries for board intelligence" ;
+  cm:category "Data" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/reference/board-sparql-queries.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-26" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:ref-decision-mining a cm:Reference ;
+  cm:title "Decision Mining Guide" ;
+  cm:description "pm4py-rust decision point discovery" ;
+  cm:category "Process Mining" ;
+  cm:project "pm4py-rust" ;
+  cm:outputFile "docs/diataxis/reference/decision-mining-guide.md" ;
+  cm:estimatedMinutes 15 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:ref-error-codes a cm:Reference ;
+  cm:title "Error Codes" ;
+  cm:description "All error codes and resolutions" ;
+  cm:category "Troubleshooting" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/reference/error-codes.md" ;
+  cm:estimatedMinutes 5 ;
+  cm:difficulty "Beginner" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:ref-glossary a cm:Reference ;
+  cm:title "Glossary of Acronyms" ;
+  cm:description "All acronyms used across the project" ;
+  cm:category "Reference" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/reference/glossary-acronyms.md" ;
+  cm:estimatedMinutes 5 ;
+  cm:difficulty "Beginner" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:ref-ggen-toolchain a cm:Reference ;
+  cm:title "ggen Toolchain Reference" ;
+  cm:description "ggen CLI commands and templates" ;
+  cm:category "Tooling" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/reference/ggen-toolchain-reference.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Intermediate" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:ref-ggen-generators a cm:Reference ;
+  cm:title "ggen Generators API" ;
+  cm:description "Code generation API reference" ;
+  cm:category "Tooling" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/reference/ggen-generators-api.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:ref-ggen-sparql a cm:Reference ;
+  cm:title "ggen SPARQL Query Suite" ;
+  cm:description "SPARQL queries used by ggen" ;
+  cm:category "Tooling" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/reference/ggen-sparql-query-suite.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:ref-ggen-sync a cm:Reference ;
+  cm:title "ggen Sync Command Reference" ;
+  cm:description "ggen sync flags and workflow" ;
+  cm:category "Tooling" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/reference/ggen-sync-command-reference.md" ;
+  cm:estimatedMinutes 5 ;
+  cm:difficulty "Intermediate" ;
+  cm:dateCreated "2026-03-28" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:ref-sparql-complete a cm:Reference ;
+  cm:title "SPARQL Queries Complete Reference" ;
+  cm:description "All SPARQL queries across the project" ;
+  cm:category "Data" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/reference/sparql-queries-complete-reference.md" ;
+  cm:estimatedMinutes 15 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:ref-sparql-templates a cm:Reference ;
+  cm:title "SPARQL CONSTRUCT Artifact Templates" ;
+  cm:description "Reusable SPARQL CONSTRUCT patterns" ;
+  cm:category "Data" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/reference/sparql-construct-artifact-templates.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:ref-sparql-output a cm:Reference ;
+  cm:title "SPARQL CONSTRUCT RDF Output Examples" ;
+  cm:description "Example RDF outputs from CONSTRUCT queries" ;
+  cm:category "Data" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/reference/sparql-construct-rdf-output-examples.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Advanced" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:ref-vision2030-api a cm:Reference ;
+  cm:title "Vision 2030 API Summary" ;
+  cm:description "All Vision 2030 API endpoints" ;
+  cm:category "Strategy" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/reference/vision-2030-api-summary.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Intermediate" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:ref-claude-rules a cm:Reference ;
+  cm:title "Claude Rules Quick Lookup" ;
+  cm:description "All .claude/rules/ files indexed" ;
+  cm:category "Tooling" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/reference/claude-rules-quick-lookup.md" ;
+  cm:estimatedMinutes 5 ;
+  cm:difficulty "Beginner" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:ref-file-structure a cm:Reference ;
+  cm:title "File Structure Navigation" ;
+  cm:description "Repository layout and key files" ;
+  cm:category "Setup" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/reference/file-structure-navigation.md" ;
+  cm:estimatedMinutes 5 ;
+  cm:difficulty "Beginner" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:ref-verification-scripts a cm:Reference ;
+  cm:title "Verification Scripts" ;
+  cm:description "All verification and validation scripts" ;
+  cm:category "Quality" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/reference/verification-scripts.md" ;
+  cm:estimatedMinutes 5 ;
+  cm:difficulty "Intermediate" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:ref-weaver a cm:Reference ;
+  cm:title "Weaver Container" ;
+  cm:description "OTEL semconv validation container" ;
+  cm:category "Infrastructure" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/reference/weaver-container.md" ;
+  cm:estimatedMinutes 5 ;
+  cm:difficulty "Intermediate" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:ref-verification-visual a cm:Reference ;
+  cm:title "Verification Dashboard Visual Guide" ;
+  cm:description "Visual guide to the verification dashboard" ;
+  cm:category "Quality" ;
+  cm:project "root" ;
+  cm:outputFile "docs/diataxis/reference/verification-dashboard-visual-guide.md" ;
+  cm:estimatedMinutes 10 ;
+  cm:difficulty "Intermediate" ;
+  cm:dateCreated "2026-03-27" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+# ============================================================================
+# SPECIFICATIONS (docs/superpowers/specs/, docs/superpowers/plans/)
+# ============================================================================
+
+cm:spec-cfo-dashboard a cm:Spec ;
+  cm:title "CFO Dashboard Specification" ;
+  cm:description "Month-end close acceleration product spec" ;
+  cm:category "Product" ;
+  cm:project "root" ;
+  cm:outputFile "docs/AGENT_16_CFO_DASHBOARD_SPECIFICATION.md" ;
+  cm:dateCreated "2026-03-29" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:spec-architect-tool a cm:Spec ;
+  cm:title "Architect Tool Implementation Plan" ;
+  cm:description "Dependency analysis and impact visualization" ;
+  cm:category "Product" ;
+  cm:project "root" ;
+  cm:outputFile "docs/superpowers/plans/2026-03-29-agent-17-architect-tool.md" ;
+  cm:dateCreated "2026-03-29" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "draft" .
+
+cm:spec-auditor-tool a cm:Spec ;
+  cm:title "Compliance Auditor Implementation Plan" ;
+  cm:description "Proof verification and control inventory" ;
+  cm:category "Product" ;
+  cm:project "root" ;
+  cm:outputFile "docs/superpowers/plans/2026-03-29-agent-18-compliance-auditor.md" ;
+  cm:dateCreated "2026-03-29" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "draft" .
+
+cm:spec-cfo-plan a cm:Spec ;
+  cm:title "CFO Dashboard Implementation Plan" ;
+  cm:description "3-phase implementation plan for CFO Dashboard" ;
+  cm:category "Product" ;
+  cm:project "root" ;
+  cm:outputFile "docs/superpowers/plans/2026-03-29-agent-16-cfo-dashboard.md" ;
+  cm:dateCreated "2026-03-29" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+# ============================================================================
+# REPORTS
+# ============================================================================
+
+cm:report-cfo-complete a cm:Report ;
+  cm:title "CFO Dashboard Implementation Complete" ;
+  cm:description "Complete implementation guide for CFO Dashboard" ;
+  cm:category "Product" ;
+  cm:project "root" ;
+  cm:outputFile "docs/CFO_DASHBOARD_IMPLEMENTATION_COMPLETE.md" ;
+  cm:dateCreated "2026-03-29" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:report-validation a cm:Report ;
+  cm:title "Runtime Validation Report" ;
+  cm:description "Documentation validation results" ;
+  cm:category "Quality" ;
+  cm:project "root" ;
+  cm:outputFile "docs/runtime-validation-report-2026-03-29.md" ;
+  cm:dateCreated "2026-03-29" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:report-celonis-parity a cm:Report ;
+  cm:title "Celonis Parity Sprint Complete" ;
+  cm:description "23/23 parity items achieved" ;
+  cm:category "Product" ;
+  cm:project "root" ;
+  cm:dateCreated "2026-03-28" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+# ============================================================================
+# MARKETING (docs/marketing/)
+# ============================================================================
+
+cm:mkt-one-pager a cm:Marketing ;
+  cm:title "One Pager" ;
+  cm:description "ChatmanGPT one-page product overview" ;
+  cm:category "Sales" ;
+  cm:project "root" ;
+  cm:outputFile "docs/marketing/one_pager.md" ;
+  cm:dateCreated "2026-03-29" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:mkt-demo a cm:Marketing ;
+  cm:title "Demo Script" ;
+  cm:description "Product demonstration script" ;
+  cm:category "Sales" ;
+  cm:project "root" ;
+  cm:outputFile "docs/marketing/demo_script.md" ;
+  cm:dateCreated "2026-03-29" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:mkt-battlecard a cm:Marketing ;
+  cm:title "Competitor Battlecard" ;
+  cm:description "Head-to-head vs Celonis, SAP, ServiceNow, Palantir" ;
+  cm:category "Strategy" ;
+  cm:project "root" ;
+  cm:outputFile "docs/marketing/battlecard_competitors.md" ;
+  cm:dateCreated "2026-03-29" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:mkt-linkedin a cm:Marketing ;
+  cm:title "LinkedIn Campaign" ;
+  cm:description "5 posts with engagement strategy" ;
+  cm:category "Social" ;
+  cm:project "root" ;
+  cm:outputFile "docs/marketing/linkedin_campaign.md" ;
+  cm:dateCreated "2026-03-29" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:mkt-email a cm:Marketing ;
+  cm:title "Email Sequences" ;
+  cm:description "6 emails across 3 campaigns" ;
+  cm:category "Email" ;
+  cm:project "root" ;
+  cm:outputFile "docs/marketing/email_sequences.md" ;
+  cm:dateCreated "2026-03-29" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:mkt-webinar a cm:Marketing ;
+  cm:title "Webinar Outline" ;
+  cm:description "Product webinar structure" ;
+  cm:category "Events" ;
+  cm:project "root" ;
+  cm:outputFile "docs/marketing/webinar_outline.md" ;
+  cm:dateCreated "2026-03-29" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:mkt-video a cm:Marketing ;
+  cm:title "Video Scripts" ;
+  cm:description "Product video production scripts" ;
+  cm:category "Content" ;
+  cm:project "root" ;
+  cm:outputFile "docs/marketing/video_scripts.md" ;
+  cm:dateCreated "2026-03-29" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:mkt-case-aml a cm:Marketing ;
+  cm:title "Case Study: Finance AML" ;
+  cm:description "Real-time AML compliance, $2M savings" ;
+  cm:category "Case Study" ;
+  cm:project "root" ;
+  cm:outputFile "docs/marketing/case_study_finance_aml.md" ;
+  cm:dateCreated "2026-03-29" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:mkt-case-health a cm:Marketing ;
+  cm:title "Case Study: Healthcare CDS" ;
+  cm:description "FDA-approved clinical decision support" ;
+  cm:category "Case Study" ;
+  cm:project "root" ;
+  cm:outputFile "docs/marketing/case_study_healthcare_cds.md" ;
+  cm:dateCreated "2026-03-29" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+cm:mkt-case-manufacturing a cm:Marketing ;
+  cm:title "Case Study: Manufacturing Supply Chain" ;
+  cm:description "Process optimization" ;
+  cm:category "Case Study" ;
+  cm:project "root" ;
+  cm:outputFile "docs/marketing/case_study_manufacturing_supply_chain.md" ;
+  cm:dateCreated "2026-03-29" ;
+  cm:dateUpdated "2026-03-29" ;
+  cm:status "complete" .
+
+# ============================================================================
+# GAPS (P0 = Critical, P1 = Important, P2 = Nice-to-have)
+# ============================================================================
+
+cm:gap-architect-impl a cm:Gap ;
+  cm:title "Architect Tool Implementation" ;
+  cm:description "Dependency analysis tool not yet built" ;
+  cm:priority "P1" ;
+  cm:category "Product" ;
+  cm:project "root" ;
+  cm:dateCreated "2026-03-29" ;
+  cm:dateUpdated "2026-03-29" .
+
+cm:gap-auditor-impl a cm:Gap ;
+  cm:title "Auditor Tool Implementation" ;
+  cm:description "Compliance auditor tool not yet built" ;
+  cm:priority "P1" ;
+  cm:category "Product" ;
+  cm:project "root" ;
+  cm:dateCreated "2026-03-29" ;
+  cm:dateUpdated "2026-03-29" .
+
+cm:gap-knhk-proof-integration a cm:Gap ;
+  cm:title "knhk Proof Generation Integration" ;
+  cm:description "Replace simplified SHA256 with full merkle tree via knhk hyperkernel" ;
+  cm:priority "P1" ;
+  cm:category "Integration" ;
+  cm:project "root" ;
+  cm:dateCreated "2026-03-29" ;
+  cm:dateUpdated "2026-03-29" .
+
+cm:gap-otel-jaeger-proof a cm:Gap ;
+  cm:title "OTEL Jaeger Span Proof" ;
+  cm:description "No OTEL spans in Jaeger UI for new features — need end-to-end tracing validation" ;
+  cm:priority "P1" ;
+  cm:category "Verification" ;
+  cm:project "root" ;
+  cm:dateCreated "2026-03-29" ;
+  cm:dateUpdated "2026-03-29" .
+
+cm:gap-a2a-live-stack a cm:Gap ;
+  cm:title "Live A2A Stack Test" ;
+  cm:description "End-to-end A2A test across all 4 running systems" ;
+  cm:priority "P1" ;
+  cm:category "Testing" ;
+  cm:project "root" ;
+  cm:dateCreated "2026-03-29" ;
+  cm:dateUpdated "2026-03-29" .
+
+cm:gap-canopy-wave2 a cm:Gap ;
+  cm:title "Canopy Wave 2 Stubs" ;
+  cm:description "Canopy desktop pages still have stub implementations" ;
+  cm:priority "P2" ;
+  cm:category "Frontend" ;
+  cm:project "Canopy" ;
+  cm:dateCreated "2026-03-29" ;
+  cm:dateUpdated "2026-03-29" .
+
+cm:gap-knhk-unwrap a cm:Gap ;
+  cm:title "knhk unwrap() Removal" ;
+  cm:description "441 unwrap() calls in knhk-workflow-engine need systematic removal" ;
+  cm:priority "P2" ;
+  cm:category "Quality" ;
+  cm:project "knhk" ;
+  cm:dateCreated "2026-03-29" ;
+  cm:dateUpdated "2026-03-29" .
+
+cm:gap-pr-documentation a cm:Gap ;
+  cm:title "PR Documentation Templates" ;
+  cm:description "No ggen-generated PR descriptions yet" ;
+  cm:priority "P2" ;
+  cm:category "Automation" ;
+  cm:project "root" ;
+  cm:dateCreated "2026-03-29" ;
+  cm:dateUpdated "2026-03-29" .
+
+cm:gap-canopy-desktop a cm:Gap ;
+  cm:title "Canopy Desktop New Page Pattern" ;
+  cm:description "Need consistent pattern for adding new SvelteKit pages to Canopy desktop" ;
+  cm:priority "P2" ;
+  cm:category "Frontend" ;
+  cm:project "Canopy" ;
+  cm:dateCreated "2026-03-29" ;
+  cm:dateUpdated "2026-03-29" .

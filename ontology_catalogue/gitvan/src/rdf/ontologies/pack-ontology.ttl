@@ -1,0 +1,622 @@
+@prefix pack: <https://gitvan.dev/pack#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix spdx: <http://spdx.org/rdf/terms#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+# ============================================================================
+# GitVan Pack System Ontology
+# ============================================================================
+# Comprehensive RDF schema for GitVan pack system enabling:
+# - Semantic version resolution
+# - License compatibility checking
+# - Federated pack discovery
+# - Dependency resolution
+# - Provenance tracking
+# Version: 1.0.0
+# Date: January 9, 2026
+# ============================================================================
+
+# Ontology Declaration
+# ============================================================================
+
+pack: a owl:Ontology ;
+  dct:title "GitVan Pack System Ontology" ;
+  dct:description "Semantic representation of GitVan packs, dependencies, and compatibility" ;
+  dct:version "1.0.0" ;
+  dct:created "2026-01-09"^^xsd:date ;
+  owl:imports prov:, dcat:, spdx: .
+
+# Core Classes
+# ============================================================================
+
+pack:Pack a owl:Class ;
+  rdfs:subClassOf dcat:Dataset, prov:Entity ;
+  rdfs:label "Pack" ;
+  rdfs:comment "A GitVan pack containing templates, jobs, workflows, and configurations" ;
+  rdfs:isDefinedBy pack: .
+
+pack:PackVersion a owl:Class ;
+  rdfs:subClassOf prov:Entity ;
+  rdfs:label "Pack Version" ;
+  rdfs:comment "Specific version of a pack with semantic versioning" ;
+  rdfs:isDefinedBy pack: .
+
+pack:Dependency a owl:Class ;
+  rdfs:label "Dependency" ;
+  rdfs:comment "A dependency relationship between packs with version constraints" ;
+  rdfs:isDefinedBy pack: .
+
+pack:License a owl:Class ;
+  rdfs:subClassOf spdx:License ;
+  rdfs:label "License" ;
+  rdfs:comment "Software license for a pack with compatibility rules" ;
+  rdfs:isDefinedBy pack: .
+
+pack:Feature a owl:Class ;
+  rdfs:label "Feature" ;
+  rdfs:comment "Capability or functionality provided by a pack" ;
+  rdfs:isDefinedBy pack: .
+
+pack:Template a owl:Class ;
+  rdfs:label "Template" ;
+  rdfs:comment "Nunjucks template file included in pack" ;
+  rdfs:isDefinedBy pack: .
+
+pack:Job a owl:Class ;
+  rdfs:label "Job" ;
+  rdfs:comment "Background job included in pack" ;
+  rdfs:isDefinedBy pack: .
+
+pack:Workflow a owl:Class ;
+  rdfs:label "Workflow" ;
+  rdfs:comment "DAG workflow definition included in pack" ;
+  rdfs:isDefinedBy pack: .
+
+pack:Category a owl:Class ;
+  rdfs:subClassOf skos:Concept ;
+  rdfs:label "Category" ;
+  rdfs:comment "Pack category for classification and discovery" ;
+  rdfs:isDefinedBy pack: .
+
+pack:Registry a owl:Class ;
+  rdfs:subClassOf dcat:Catalog ;
+  rdfs:label "Registry" ;
+  rdfs:comment "Pack registry hosting pack metadata" ;
+  rdfs:isDefinedBy pack: .
+
+pack:Author a owl:Class ;
+  rdfs:subClassOf prov:Agent ;
+  rdfs:label "Author" ;
+  rdfs:comment "Pack author or maintainer" ;
+  rdfs:isDefinedBy pack: .
+
+pack:Organization a owl:Class ;
+  rdfs:subClassOf prov:Organization ;
+  rdfs:label "Organization" ;
+  rdfs:comment "Organization publishing packs" ;
+  rdfs:isDefinedBy pack: .
+
+# Pack Properties - Basic Metadata
+# ============================================================================
+
+pack:name a owl:DatatypeProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range xsd:string ;
+  rdfs:label "name" ;
+  rdfs:comment "Unique name identifier for the pack" ;
+  owl:cardinality 1 .
+
+pack:version a owl:DatatypeProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range xsd:string ;
+  rdfs:label "version" ;
+  rdfs:comment "Semantic version string (e.g., '1.2.3')" ;
+  owl:cardinality 1 .
+
+pack:description a owl:DatatypeProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range xsd:string ;
+  rdfs:label "description" ;
+  rdfs:comment "Human-readable description of pack functionality" .
+
+pack:readme a owl:DatatypeProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range xsd:string ;
+  rdfs:label "readme" ;
+  rdfs:comment "Markdown README content" .
+
+pack:homepage a owl:DatatypeProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range xsd:anyURI ;
+  rdfs:label "homepage" ;
+  rdfs:comment "Pack homepage URL" .
+
+pack:repository a owl:DatatypeProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range xsd:anyURI ;
+  rdfs:label "repository" ;
+  rdfs:comment "Git repository URL" .
+
+pack:bugs a owl:DatatypeProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range xsd:anyURI ;
+  rdfs:label "bugs" ;
+  rdfs:comment "Issue tracker URL" .
+
+pack:documentation a owl:DatatypeProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range xsd:anyURI ;
+  rdfs:label "documentation" ;
+  rdfs:comment "Documentation URL" .
+
+# Pack Properties - Version Management
+# ============================================================================
+
+pack:hasVersion a owl:ObjectProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range pack:PackVersion ;
+  rdfs:label "has version" ;
+  rdfs:comment "Available versions of this pack" .
+
+pack:latestVersion a owl:DatatypeProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range xsd:string ;
+  rdfs:label "latest version" ;
+  rdfs:comment "Most recent stable version" ;
+  owl:cardinality 1 .
+
+pack:publishedAt a owl:DatatypeProperty ;
+  rdfs:domain pack:PackVersion ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "published at" ;
+  rdfs:comment "Timestamp when version was published" .
+
+pack:deprecatedAt a owl:DatatypeProperty ;
+  rdfs:domain pack:PackVersion ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "deprecated at" ;
+  rdfs:comment "Timestamp when version was deprecated" .
+
+pack:isDeprecated a owl:DatatypeProperty ;
+  rdfs:domain pack:PackVersion ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "is deprecated" ;
+  rdfs:comment "Whether this version is deprecated" .
+
+pack:isPrereleasepack:isPrerelease a owl:DatatypeProperty ;
+  rdfs:domain pack:PackVersion ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "is prerelease" ;
+  rdfs:comment "Whether this is a prerelease version (e.g., beta, rc)" .
+
+# Pack Properties - Dependencies
+# ============================================================================
+
+pack:dependsOn a owl:ObjectProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range pack:Dependency ;
+  rdfs:label "depends on" ;
+  rdfs:comment "Required dependencies for this pack" .
+
+pack:peerDependency a owl:ObjectProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range pack:Dependency ;
+  rdfs:label "peer dependency" ;
+  rdfs:comment "Peer dependency that must be provided by parent" .
+
+pack:optionalDependency a owl:ObjectProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range pack:Dependency ;
+  rdfs:label "optional dependency" ;
+  rdfs:comment "Optional dependency that enhances functionality" .
+
+pack:devDependency a owl:ObjectProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range pack:Dependency ;
+  rdfs:label "dev dependency" ;
+  rdfs:comment "Development-only dependency" .
+
+pack:targetPack a owl:ObjectProperty ;
+  rdfs:domain pack:Dependency ;
+  rdfs:range pack:Pack ;
+  rdfs:label "target pack" ;
+  rdfs:comment "Pack that is depended upon" ;
+  owl:cardinality 1 .
+
+pack:versionRange a owl:DatatypeProperty ;
+  rdfs:domain pack:Dependency ;
+  rdfs:range xsd:string ;
+  rdfs:label "version range" ;
+  rdfs:comment "Semantic version range constraint (e.g., '^1.2.0', '>=2.0.0 <3.0.0')" ;
+  owl:cardinality 1 .
+
+pack:isRequired a owl:DatatypeProperty ;
+  rdfs:domain pack:Dependency ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "is required" ;
+  rdfs:comment "Whether dependency is required for pack to function" .
+
+# Pack Properties - Compatibility
+# ============================================================================
+
+pack:gitvanCompatibility a owl:DatatypeProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range xsd:string ;
+  rdfs:label "GitVan compatibility" ;
+  rdfs:comment "GitVan version range this pack is compatible with (e.g., '3.x')" .
+
+pack:nodeCompatibility a owl:DatatypeProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range xsd:string ;
+  rdfs:label "Node.js compatibility" ;
+  rdfs:comment "Node.js version requirement (e.g., '>=18.0.0')" .
+
+pack:compatibleWith a owl:ObjectProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range pack:Pack ;
+  rdfs:label "compatible with" ;
+  rdfs:comment "Explicitly declared compatible pack" ;
+  owl:symmetric true .
+
+pack:incompatibleWith a owl:ObjectProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range pack:Pack ;
+  rdfs:label "incompatible with" ;
+  rdfs:comment "Explicitly declared incompatible pack" ;
+  owl:symmetric true .
+
+pack:supersedes a owl:ObjectProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range pack:Pack ;
+  rdfs:label "supersedes" ;
+  rdfs:comment "This pack replaces/supersedes another pack" .
+
+pack:supersededBy a owl:ObjectProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range pack:Pack ;
+  rdfs:label "superseded by" ;
+  rdfs:comment "This pack is superseded by another pack" ;
+  owl:inverseOf pack:supersedes .
+
+# Pack Properties - Licensing
+# ============================================================================
+
+pack:license a owl:ObjectProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range pack:License ;
+  rdfs:label "license" ;
+  rdfs:comment "Software license for this pack" ;
+  owl:cardinality 1 .
+
+pack:licenseSPDX a owl:DatatypeProperty ;
+  rdfs:domain pack:License ;
+  rdfs:range xsd:string ;
+  rdfs:label "SPDX identifier" ;
+  rdfs:comment "SPDX license identifier (e.g., 'MIT', 'Apache-2.0')" ;
+  owl:cardinality 1 .
+
+pack:licenseCompatibleWith a owl:ObjectProperty ;
+  rdfs:domain pack:License ;
+  rdfs:range pack:License ;
+  rdfs:label "license compatible with" ;
+  rdfs:comment "Licenses this license is compatible with" .
+
+pack:licenseText a owl:DatatypeProperty ;
+  rdfs:domain pack:License ;
+  rdfs:range xsd:string ;
+  rdfs:label "license text" ;
+  rdfs:comment "Full text of license" .
+
+# Pack Properties - Features
+# ============================================================================
+
+pack:providesFeature a owl:ObjectProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range pack:Feature ;
+  rdfs:label "provides feature" ;
+  rdfs:comment "Feature provided by this pack" .
+
+pack:requiresFeature a owl:ObjectProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range pack:Feature ;
+  rdfs:label "requires feature" ;
+  rdfs:comment "Feature required from environment or other packs" .
+
+pack:featureName a owl:DatatypeProperty ;
+  rdfs:domain pack:Feature ;
+  rdfs:range xsd:string ;
+  rdfs:label "feature name" ;
+  rdfs:comment "Unique feature identifier" ;
+  owl:cardinality 1 .
+
+pack:featureDescription a owl:DatatypeProperty ;
+  rdfs:domain pack:Feature ;
+  rdfs:range xsd:string ;
+  rdfs:label "feature description" ;
+  rdfs:comment "Human-readable feature description" .
+
+# Pack Properties - Contents
+# ============================================================================
+
+pack:hasTemplate a owl:ObjectProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range pack:Template ;
+  rdfs:label "has template" ;
+  rdfs:comment "Nunjucks template included in pack" .
+
+pack:hasJob a owl:ObjectProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range pack:Job ;
+  rdfs:label "has job" ;
+  rdfs:comment "Background job included in pack" .
+
+pack:hasWorkflow a owl:ObjectProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range pack:Workflow ;
+  rdfs:label "has workflow" ;
+  rdfs:comment "Workflow definition included in pack" .
+
+pack:templatePath a owl:DatatypeProperty ;
+  rdfs:domain pack:Template ;
+  rdfs:range xsd:string ;
+  rdfs:label "template path" ;
+  rdfs:comment "Relative path to template file" .
+
+pack:jobPath a owl:DatatypeProperty ;
+  rdfs:domain pack:Job ;
+  rdfs:range xsd:string ;
+  rdfs:label "job path" ;
+  rdfs:comment "Relative path to job file" .
+
+pack:workflowPath a owl:DatatypeProperty ;
+  rdfs:domain pack:Workflow ;
+  rdfs:range xsd:string ;
+  rdfs:label "workflow path" ;
+  rdfs:comment "Relative path to workflow file" .
+
+# Pack Properties - Classification
+# ============================================================================
+
+pack:category a owl:ObjectProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range pack:Category ;
+  rdfs:label "category" ;
+  rdfs:comment "Category this pack belongs to" .
+
+pack:keywords a owl:DatatypeProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range xsd:string ;
+  rdfs:label "keywords" ;
+  rdfs:comment "Search keywords (space-separated or array)" .
+
+pack:tags a owl:DatatypeProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range xsd:string ;
+  rdfs:label "tags" ;
+  rdfs:comment "Classification tags" .
+
+# Pack Properties - Statistics
+# ============================================================================
+
+pack:downloadCount a owl:DatatypeProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range xsd:integer ;
+  rdfs:label "download count" ;
+  rdfs:comment "Total number of downloads" .
+
+pack:weeklyDownloads a owl:DatatypeProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range xsd:integer ;
+  rdfs:label "weekly downloads" ;
+  rdfs:comment "Downloads in the last 7 days" .
+
+pack:rating a owl:DatatypeProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "rating" ;
+  rdfs:comment "Average user rating (0-5)" .
+
+pack:ratingCount a owl:DatatypeProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range xsd:integer ;
+  rdfs:label "rating count" ;
+  rdfs:comment "Number of ratings submitted" .
+
+pack:starCount a owl:DatatypeProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range xsd:integer ;
+  rdfs:label "star count" ;
+  rdfs:comment "GitHub stars or similar metric" .
+
+pack:forkCount a owl:DatatypeProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range xsd:integer ;
+  rdfs:label "fork count" ;
+  rdfs:comment "GitHub forks or similar metric" .
+
+# Pack Properties - Authorship
+# ============================================================================
+
+pack:author a owl:ObjectProperty ;
+  rdfs:subPropertyOf prov:wasAttributedTo ;
+  rdfs:domain pack:Pack ;
+  rdfs:range pack:Author ;
+  rdfs:label "author" ;
+  rdfs:comment "Primary author or maintainer" .
+
+pack:maintainer a owl:ObjectProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range pack:Author ;
+  rdfs:label "maintainer" ;
+  rdfs:comment "Current maintainer" .
+
+pack:contributor a owl:ObjectProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range pack:Author ;
+  rdfs:label "contributor" ;
+  rdfs:comment "Pack contributor" .
+
+pack:organization a owl:ObjectProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range pack:Organization ;
+  rdfs:label "organization" ;
+  rdfs:comment "Organization publishing the pack" .
+
+pack:authorName a owl:DatatypeProperty ;
+  rdfs:domain pack:Author ;
+  rdfs:range xsd:string ;
+  rdfs:label "author name" ;
+  rdfs:comment "Name of author" ;
+  owl:cardinality 1 .
+
+pack:authorEmail a owl:DatatypeProperty ;
+  rdfs:domain pack:Author ;
+  rdfs:range xsd:string ;
+  rdfs:label "author email" ;
+  rdfs:comment "Email address of author" .
+
+pack:authorUrl a owl:DatatypeProperty ;
+  rdfs:domain pack:Author ;
+  rdfs:range xsd:anyURI ;
+  rdfs:label "author URL" ;
+  rdfs:comment "Homepage or profile URL" .
+
+# Registry Properties
+# ============================================================================
+
+pack:registeredIn a owl:ObjectProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range pack:Registry ;
+  rdfs:label "registered in" ;
+  rdfs:comment "Registry where pack is registered" .
+
+pack:registryEndpoint a owl:DatatypeProperty ;
+  rdfs:domain pack:Registry ;
+  rdfs:range xsd:anyURI ;
+  rdfs:label "registry endpoint" ;
+  rdfs:comment "SPARQL endpoint URL for federated queries" ;
+  owl:cardinality 1 .
+
+pack:registryName a owl:DatatypeProperty ;
+  rdfs:domain pack:Registry ;
+  rdfs:range xsd:string ;
+  rdfs:label "registry name" ;
+  rdfs:comment "Human-readable registry name" ;
+  owl:cardinality 1 .
+
+pack:isOfficial a owl:DatatypeProperty ;
+  rdfs:domain pack:Registry ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "is official" ;
+  rdfs:comment "Whether this is an official GitVan registry" .
+
+# Provenance Properties (PROV-O Integration)
+# ============================================================================
+
+pack:createdAt a owl:DatatypeProperty ;
+  rdfs:subPropertyOf prov:generatedAtTime ;
+  rdfs:domain pack:Pack ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "created at" ;
+  rdfs:comment "Timestamp when pack was first created" .
+
+pack:updatedAt a owl:DatatypeProperty ;
+  rdfs:domain pack:Pack ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "updated at" ;
+  rdfs:comment "Timestamp of last update" .
+
+pack:derivedFrom a owl:ObjectProperty ;
+  rdfs:subPropertyOf prov:wasDerivedFrom ;
+  rdfs:domain pack:Pack ;
+  rdfs:range pack:Pack ;
+  rdfs:label "derived from" ;
+  rdfs:comment "Pack this was forked or derived from" .
+
+pack:wasRevisionOf a owl:ObjectProperty ;
+  rdfs:subPropertyOf prov:wasRevisionOf ;
+  rdfs:domain pack:PackVersion ;
+  rdfs:range pack:PackVersion ;
+  rdfs:label "was revision of" ;
+  rdfs:comment "Previous version this is a revision of" .
+
+# Category Taxonomy (Predefined Categories)
+# ============================================================================
+
+pack:AuthenticationCategory a pack:Category ;
+  rdfs:label "Authentication" ;
+  skos:prefLabel "Authentication" ;
+  skos:definition "Packs for user authentication and identity management" .
+
+pack:UIComponentsCategory a pack:Category ;
+  rdfs:label "UI Components" ;
+  skos:prefLabel "UI Components" ;
+  skos:definition "User interface components and templates" .
+
+pack:APIGatewayCategory a pack:Category ;
+  rdfs:label "API Gateway" ;
+  skos:prefLabel "API Gateway" ;
+  skos:definition "API management and gateway packs" .
+
+pack:DatabaseCategory a pack:Category ;
+  rdfs:label "Database" ;
+  skos:prefLabel "Database" ;
+  skos:definition "Database integration and ORM packs" .
+
+pack:TestingCategory a pack:Category ;
+  rdfs:label "Testing" ;
+  skos:prefLabel "Testing" ;
+  skos:definition "Testing frameworks and utilities" .
+
+pack:DeploymentCategory a pack:Category ;
+  rdfs:label "Deployment" ;
+  skos:prefLabel "Deployment" ;
+  skos:definition "Deployment automation and CI/CD" .
+
+pack:MonitoringCategory a pack:Category ;
+  rdfs:label "Monitoring" ;
+  skos:prefLabel "Monitoring" ;
+  skos:definition "Observability and monitoring packs" .
+
+pack:SecurityCategory a pack:Category ;
+  rdfs:label "Security" ;
+  skos:prefLabel "Security" ;
+  skos:definition "Security scanning and compliance" .
+
+# License Compatibility Matrix (Common Licenses)
+# ============================================================================
+
+pack:MITLicense a pack:License ;
+  pack:licenseSPDX "MIT" ;
+  rdfs:label "MIT License" ;
+  pack:licenseCompatibleWith pack:Apache2License, pack:BSDLicense, pack:GPLv3License .
+
+pack:Apache2License a pack:License ;
+  pack:licenseSPDX "Apache-2.0" ;
+  rdfs:label "Apache License 2.0" ;
+  pack:licenseCompatibleWith pack:MITLicense, pack:BSDLicense, pack:GPLv3License .
+
+pack:BSDLicense a pack:License ;
+  pack:licenseSPDX "BSD-3-Clause" ;
+  rdfs:label "BSD 3-Clause License" ;
+  pack:licenseCompatibleWith pack:MITLicense, pack:Apache2License .
+
+pack:GPLv3License a pack:License ;
+  pack:licenseSPDX "GPL-3.0" ;
+  rdfs:label "GNU General Public License v3.0" ;
+  pack:licenseCompatibleWith pack:MITLicense, pack:Apache2License .
+
+pack:ISCLicense a pack:License ;
+  pack:licenseSPDX "ISC" ;
+  rdfs:label "ISC License" ;
+  pack:licenseCompatibleWith pack:MITLicense, pack:Apache2License, pack:BSDLicense .
+
+# ============================================================================
+# End of Pack Ontology
+# ============================================================================

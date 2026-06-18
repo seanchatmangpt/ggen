@@ -1,0 +1,595 @@
+@prefix perf: <https://gitvan.dev/performance#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# ============================================================================
+# GitVan Performance Ontology
+# ============================================================================
+# Defines semantic representation of performance metrics in GitVan.
+# Enables anomaly detection, budget enforcement, correlation analysis.
+# Version: 1.0.0
+# Date: January 9, 2026
+# ============================================================================
+
+# Ontology Declaration
+# ============================================================================
+
+perf: a owl:Ontology ;
+  dct:title "GitVan Performance Ontology" ;
+  dct:description "Comprehensive ontology for performance monitoring and analysis" ;
+  dct:version "1.0.0" ;
+  dct:created "2026-01-09"^^xsd:date ;
+  owl:imports prov: .
+
+# Core Classes
+# ============================================================================
+
+perf:Measurement a owl:Class ;
+  rdfs:label "Performance Measurement" ;
+  rdfs:comment "A single performance measurement of an operation execution" ;
+  rdfs:subClassOf prov:Entity ;
+  rdfs:isDefinedBy perf: .
+
+perf:PerformanceBudget a owl:Class ;
+  rdfs:label "Performance Budget" ;
+  rdfs:comment "Maximum performance thresholds for an operation type" ;
+  rdfs:isDefinedBy perf: .
+
+perf:Anomaly a owl:Class ;
+  rdfs:label "Performance Anomaly" ;
+  rdfs:comment "Detected performance anomaly requiring attention" ;
+  rdfs:isDefinedBy perf: .
+
+perf:Operation a owl:Class ;
+  rdfs:label "Operation" ;
+  rdfs:comment "Type of operation being measured (query, render, workflow, etc.)" ;
+  rdfs:subClassOf prov:Activity ;
+  rdfs:isDefinedBy perf: .
+
+perf:OperationCategory a owl:Class ;
+  rdfs:label "Operation Category" ;
+  rdfs:comment "Category grouping similar operations" ;
+  rdfs:isDefinedBy perf: .
+
+perf:Threshold a owl:Class ;
+  rdfs:label "Threshold" ;
+  rdfs:comment "Performance threshold definition" ;
+  rdfs:isDefinedBy perf: .
+
+perf:Statistics a owl:Class ;
+  rdfs:label "Statistics" ;
+  rdfs:comment "Aggregated statistics for an operation type" ;
+  rdfs:isDefinedBy perf: .
+
+perf:Correlation a owl:Class ;
+  rdfs:label "Correlation" ;
+  rdfs:comment "Detected correlation between operations" ;
+  rdfs:isDefinedBy perf: .
+
+perf:Trend a owl:Class ;
+  rdfs:label "Trend" ;
+  rdfs:comment "Performance trend over time" ;
+  rdfs:isDefinedBy perf: .
+
+# Measurement Properties (Core Metrics)
+# ============================================================================
+
+perf:measurementId a owl:DatatypeProperty ;
+  rdfs:domain perf:Measurement ;
+  rdfs:range xsd:string ;
+  rdfs:label "Measurement ID" ;
+  rdfs:comment "Unique identifier for this measurement" ;
+  owl:cardinality 1 .
+
+perf:operation a owl:DatatypeProperty ;
+  rdfs:domain perf:Measurement ;
+  rdfs:range xsd:string ;
+  rdfs:label "Operation Name" ;
+  rdfs:comment "Name of the operation being measured (e.g., 'sparql-query', 'git-commit')" ;
+  owl:cardinality 1 .
+
+perf:duration a owl:DatatypeProperty ;
+  rdfs:domain perf:Measurement ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "Duration (ms)" ;
+  rdfs:comment "Operation duration in milliseconds" ;
+  owl:cardinality 1 .
+
+perf:memoryUsed a owl:DatatypeProperty ;
+  rdfs:domain perf:Measurement ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Memory Used (bytes)" ;
+  rdfs:comment "Memory consumption in bytes (heap memory delta)" ;
+  owl:cardinality 1 .
+
+perf:cpuPercent a owl:DatatypeProperty ;
+  rdfs:domain perf:Measurement ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "CPU Percent" ;
+  rdfs:comment "CPU usage percentage (0-100)" .
+
+perf:diskIO a owl:DatatypeProperty ;
+  rdfs:domain perf:Measurement ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Disk I/O (bytes)" ;
+  rdfs:comment "Disk I/O in bytes (read + write)" .
+
+perf:timestamp a owl:DatatypeProperty ;
+  rdfs:domain perf:Measurement ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "Timestamp" ;
+  rdfs:comment "ISO 8601 timestamp when measurement was recorded" ;
+  owl:cardinality 1 .
+
+perf:contextData a owl:DatatypeProperty ;
+  rdfs:domain perf:Measurement ;
+  rdfs:range xsd:string ;
+  rdfs:label "Context Data" ;
+  rdfs:comment "JSON string containing additional context (args, user, repo, etc.)" .
+
+perf:success a owl:DatatypeProperty ;
+  rdfs:domain perf:Measurement ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Success" ;
+  rdfs:comment "Whether the operation succeeded (true) or failed (false)" ;
+  owl:cardinality 1 .
+
+perf:errorMessage a owl:DatatypeProperty ;
+  rdfs:domain perf:Measurement ;
+  rdfs:range xsd:string ;
+  rdfs:label "Error Message" ;
+  rdfs:comment "Error message if operation failed" .
+
+# Budget Properties
+# ============================================================================
+
+perf:forOperation a owl:DatatypeProperty ;
+  rdfs:domain perf:PerformanceBudget ;
+  rdfs:range xsd:string ;
+  rdfs:label "For Operation" ;
+  rdfs:comment "Operation name this budget applies to" ;
+  owl:cardinality 1 .
+
+perf:maxDuration a owl:DatatypeProperty ;
+  rdfs:domain perf:PerformanceBudget ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "Max Duration (ms)" ;
+  rdfs:comment "Maximum allowed duration in milliseconds" .
+
+perf:maxMemory a owl:DatatypeProperty ;
+  rdfs:domain perf:PerformanceBudget ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Max Memory (bytes)" ;
+  rdfs:comment "Maximum allowed memory usage in bytes" .
+
+perf:maxCPU a owl:DatatypeProperty ;
+  rdfs:domain perf:PerformanceBudget ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "Max CPU (%)" ;
+  rdfs:comment "Maximum allowed CPU percentage" .
+
+perf:maxDiskIO a owl:DatatypeProperty ;
+  rdfs:domain perf:PerformanceBudget ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Max Disk I/O (bytes)" ;
+  rdfs:comment "Maximum allowed disk I/O in bytes" .
+
+perf:budgetEnabled a owl:DatatypeProperty ;
+  rdfs:domain perf:PerformanceBudget ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Budget Enabled" ;
+  rdfs:comment "Whether this budget is actively enforced" ;
+  owl:cardinality 1 .
+
+perf:alertOnViolation a owl:DatatypeProperty ;
+  rdfs:domain perf:PerformanceBudget ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Alert on Violation" ;
+  rdfs:comment "Whether to send alerts when budget is violated" .
+
+# Anomaly Properties
+# ============================================================================
+
+perf:anomalyId a owl:DatatypeProperty ;
+  rdfs:domain perf:Anomaly ;
+  rdfs:range xsd:string ;
+  rdfs:label "Anomaly ID" ;
+  rdfs:comment "Unique identifier for this anomaly" ;
+  owl:cardinality 1 .
+
+perf:measurement a owl:ObjectProperty ;
+  rdfs:domain perf:Anomaly ;
+  rdfs:range perf:Measurement ;
+  rdfs:label "Measurement" ;
+  rdfs:comment "The measurement that triggered this anomaly" ;
+  owl:cardinality 1 .
+
+perf:severity a owl:DatatypeProperty ;
+  rdfs:domain perf:Anomaly ;
+  rdfs:range xsd:string ;
+  rdfs:label "Severity" ;
+  rdfs:comment "Severity level: critical, high, medium, low" ;
+  owl:cardinality 1 .
+
+perf:detectedAt a owl:DatatypeProperty ;
+  rdfs:domain perf:Anomaly ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "Detected At" ;
+  rdfs:comment "When anomaly was detected" ;
+  owl:cardinality 1 .
+
+perf:description a owl:DatatypeProperty ;
+  rdfs:domain perf:Anomaly ;
+  rdfs:range xsd:string ;
+  rdfs:label "Description" ;
+  rdfs:comment "Human-readable description of the anomaly" .
+
+perf:anomalyType a owl:DatatypeProperty ;
+  rdfs:domain perf:Anomaly ;
+  rdfs:range xsd:string ;
+  rdfs:label "Anomaly Type" ;
+  rdfs:comment "Type: BudgetViolation, Outlier, TrendChange, HighVariance" ;
+  owl:cardinality 1 .
+
+perf:resolved a owl:DatatypeProperty ;
+  rdfs:domain perf:Anomaly ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Resolved" ;
+  rdfs:comment "Whether this anomaly has been resolved" .
+
+perf:resolvedAt a owl:DatatypeProperty ;
+  rdfs:domain perf:Anomaly ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "Resolved At" ;
+  rdfs:comment "When anomaly was marked as resolved" .
+
+# Statistics Properties
+# ============================================================================
+
+perf:count a owl:DatatypeProperty ;
+  rdfs:domain perf:Statistics ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Count" ;
+  rdfs:comment "Number of measurements" .
+
+perf:mean a owl:DatatypeProperty ;
+  rdfs:domain perf:Statistics ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "Mean" ;
+  rdfs:comment "Mean (average) value" .
+
+perf:median a owl:DatatypeProperty ;
+  rdfs:domain perf:Statistics ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "Median" ;
+  rdfs:comment "Median (50th percentile) value" .
+
+perf:stddev a owl:DatatypeProperty ;
+  rdfs:domain perf:Statistics ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "Standard Deviation" ;
+  rdfs:comment "Standard deviation of measurements" .
+
+perf:p50 a owl:DatatypeProperty ;
+  rdfs:domain perf:Statistics ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "P50" ;
+  rdfs:comment "50th percentile (median)" .
+
+perf:p95 a owl:DatatypeProperty ;
+  rdfs:domain perf:Statistics ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "P95" ;
+  rdfs:comment "95th percentile" .
+
+perf:p99 a owl:DatatypeProperty ;
+  rdfs:domain perf:Statistics ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "P99" ;
+  rdfs:comment "99th percentile" .
+
+perf:min a owl:DatatypeProperty ;
+  rdfs:domain perf:Statistics ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "Minimum" ;
+  rdfs:comment "Minimum value" .
+
+perf:max a owl:DatatypeProperty ;
+  rdfs:domain perf:Statistics ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "Maximum" ;
+  rdfs:comment "Maximum value" .
+
+# Correlation Properties
+# ============================================================================
+
+perf:operation1 a owl:DatatypeProperty ;
+  rdfs:domain perf:Correlation ;
+  rdfs:range xsd:string ;
+  rdfs:label "Operation 1" ;
+  rdfs:comment "First operation in correlation pair" .
+
+perf:operation2 a owl:DatatypeProperty ;
+  rdfs:domain perf:Correlation ;
+  rdfs:range xsd:string ;
+  rdfs:label "Operation 2" ;
+  rdfs:comment "Second operation in correlation pair" .
+
+perf:correlationCoefficient a owl:DatatypeProperty ;
+  rdfs:domain perf:Correlation ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "Correlation Coefficient" ;
+  rdfs:comment "Pearson correlation coefficient (-1 to 1)" .
+
+perf:metric a owl:DatatypeProperty ;
+  rdfs:domain perf:Correlation ;
+  rdfs:range xsd:string ;
+  rdfs:label "Metric" ;
+  rdfs:comment "Metric being correlated: duration, memory, cpu" .
+
+# Trend Properties
+# ============================================================================
+
+perf:trendId a owl:DatatypeProperty ;
+  rdfs:domain perf:Trend ;
+  rdfs:range xsd:string ;
+  rdfs:label "Trend ID" ;
+  rdfs:comment "Unique identifier for trend analysis" .
+
+perf:startDate a owl:DatatypeProperty ;
+  rdfs:domain perf:Trend ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "Start Date" ;
+  rdfs:comment "Start of trend window" .
+
+perf:endDate a owl:DatatypeProperty ;
+  rdfs:domain perf:Trend ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "End Date" ;
+  rdfs:comment "End of trend window" .
+
+perf:slope a owl:DatatypeProperty ;
+  rdfs:domain perf:Trend ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "Slope" ;
+  rdfs:comment "Linear regression slope (positive = getting slower)" .
+
+perf:direction a owl:DatatypeProperty ;
+  rdfs:domain perf:Trend ;
+  rdfs:range xsd:string ;
+  rdfs:label "Direction" ;
+  rdfs:comment "Trend direction: improving, degrading, stable" .
+
+# Anomaly State Individuals
+# ============================================================================
+
+perf:BudgetViolation a perf:Anomaly ;
+  rdfs:label "Budget Violation" ;
+  rdfs:comment "Operation exceeded performance budget" .
+
+perf:Outlier a perf:Anomaly ;
+  rdfs:label "Outlier" ;
+  rdfs:comment "Measurement is statistical outlier (>3 std dev from mean)" .
+
+perf:TrendChange a perf:Anomaly ;
+  rdfs:label "Trend Change" ;
+  rdfs:comment "Significant change in performance trend detected" .
+
+perf:HighVariance a perf:Anomaly ;
+  rdfs:label "High Variance" ;
+  rdfs:comment "High variance detected in operation performance" .
+
+perf:ConsistentlyHigh a perf:Anomaly ;
+  rdfs:label "Consistently High" ;
+  rdfs:comment "Operation consistently exceeds slow threshold" .
+
+perf:PotentialMemoryLeak a perf:Anomaly ;
+  rdfs:label "Potential Memory Leak" ;
+  rdfs:comment "Memory usage trending upward without bound" .
+
+perf:IoBoundOperation a perf:Anomaly ;
+  rdfs:label "I/O Bound Operation" ;
+  rdfs:comment "Operation is primarily limited by disk I/O" .
+
+perf:CpuBoundOperation a perf:Anomaly ;
+  rdfs:label "CPU Bound Operation" ;
+  rdfs:comment "Operation is primarily limited by CPU" .
+
+# Relationship Properties
+# ============================================================================
+
+perf:triggeredBy a owl:ObjectProperty ;
+  rdfs:domain perf:Anomaly ;
+  rdfs:range perf:Measurement ;
+  rdfs:label "Triggered By" ;
+  rdfs:comment "Measurement that triggered this anomaly" .
+
+perf:affectsOperation a owl:ObjectProperty ;
+  rdfs:domain perf:Anomaly ;
+  rdfs:range perf:Operation ;
+  rdfs:label "Affects Operation" ;
+  rdfs:comment "Operation affected by this anomaly" .
+
+perf:correlatesWith a owl:ObjectProperty ;
+  rdfs:domain perf:Operation ;
+  rdfs:range perf:Operation ;
+  rdfs:label "Correlates With" ;
+  rdfs:comment "Operations that correlate with each other" ;
+  owl:symmetricProperty owl:SymmetricProperty .
+
+perf:causedBy a owl:ObjectProperty ;
+  rdfs:domain perf:Measurement ;
+  rdfs:range prov:Activity ;
+  rdfs:label "Caused By" ;
+  rdfs:comment "Activity that caused this measurement" ;
+  rdfs:subPropertyOf prov:wasGeneratedBy .
+
+perf:partOfBatch a owl:ObjectProperty ;
+  rdfs:domain perf:Measurement ;
+  rdfs:range perf:Measurement ;
+  rdfs:label "Part of Batch" ;
+  rdfs:comment "Measurements that are part of the same batch operation" .
+
+# SHACL Constraints
+# ============================================================================
+
+perf:MeasurementShape a sh:NodeShape ;
+  sh:targetClass perf:Measurement ;
+  sh:property [
+    sh:path perf:measurementId ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+  ] ;
+  sh:property [
+    sh:path perf:operation ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+  ] ;
+  sh:property [
+    sh:path perf:duration ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 0.0 ;
+  ] ;
+  sh:property [
+    sh:path perf:timestamp ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:dateTime ;
+  ] ;
+  sh:property [
+    sh:path perf:success ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:boolean ;
+  ] .
+
+perf:BudgetShape a sh:NodeShape ;
+  sh:targetClass perf:PerformanceBudget ;
+  sh:property [
+    sh:path perf:forOperation ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+  ] ;
+  sh:property [
+    sh:path perf:budgetEnabled ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:boolean ;
+  ] .
+
+perf:AnomalyShape a sh:NodeShape ;
+  sh:targetClass perf:Anomaly ;
+  sh:property [
+    sh:path perf:anomalyId ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+  ] ;
+  sh:property [
+    sh:path perf:severity ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in ( "critical" "high" "medium" "low" ) ;
+  ] ;
+  sh:property [
+    sh:path perf:anomalyType ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] .
+
+# N3 Reasoning Rules (commented for reference)
+# ============================================================================
+
+# Rule 1: Budget Violation Detection
+# { ?m perf:operation ?op ; perf:duration ?d .
+#   ?budget perf:forOperation ?op ; perf:maxDuration ?max .
+#   FILTER(?d > ?max)
+# } => {
+#   ?m a perf:BudgetViolation .
+# } .
+
+# Rule 2: Outlier Detection (>3 standard deviations)
+# { ?m perf:operation ?op ; perf:duration ?d .
+#   ?stats perf:forOperation ?op ; perf:mean ?mean ; perf:stddev ?sd .
+#   FILTER(?d > ?mean + (3 * ?sd))
+# } => {
+#   ?m a perf:Outlier .
+# } .
+
+# Rule 3: I/O Bound Detection
+# { ?m perf:diskIO ?io ; perf:cpuPercent ?cpu .
+#   FILTER(?io > 1000000 && ?cpu < 50)
+# } => {
+#   ?m a perf:IoBoundOperation .
+# } .
+
+# Rule 4: CPU Bound Detection
+# { ?m perf:cpuPercent ?cpu ; perf:diskIO ?io .
+#   FILTER(?cpu > 80 && ?io < 100000)
+# } => {
+#   ?m a perf:CpuBoundOperation .
+# } .
+
+# Rule 5: Memory Leak Detection (90-day upward trend)
+# { ?trend perf:operation ?op ; perf:metric "memory" ; perf:slope ?s .
+#   FILTER(?s > 0.1)  # Positive slope = increasing memory
+# } => {
+#   ?op a perf:PotentialMemoryLeak .
+# } .
+
+# Example Instances (for documentation)
+# ============================================================================
+
+perf:example-measurement a perf:Measurement ;
+  perf:measurementId "meas-123" ;
+  perf:operation "sparql-query" ;
+  perf:duration 45.5 ;
+  perf:memoryUsed 2048000 ;
+  perf:cpuPercent 35.2 ;
+  perf:diskIO 512000 ;
+  perf:timestamp "2026-01-09T10:30:00Z"^^xsd:dateTime ;
+  perf:success true ;
+  perf:contextData "{\"query\":\"SELECT * WHERE {...}\"}" .
+
+perf:example-budget a perf:PerformanceBudget ;
+  perf:forOperation "sparql-query" ;
+  perf:maxDuration 100.0 ;
+  perf:maxMemory 10485760 ;
+  perf:maxCPU 80.0 ;
+  perf:budgetEnabled true ;
+  perf:alertOnViolation true .
+
+perf:example-anomaly a perf:Anomaly ;
+  perf:anomalyId "anom-456" ;
+  perf:measurement perf:example-measurement ;
+  perf:severity "high" ;
+  perf:detectedAt "2026-01-09T10:30:01Z"^^xsd:dateTime ;
+  perf:description "Query exceeded P95 threshold by 200%" ;
+  perf:anomalyType "Outlier" ;
+  perf:resolved false .
+
+perf:example-statistics a perf:Statistics ;
+  perf:operation "sparql-query" ;
+  perf:count 1000 ;
+  perf:mean 35.2 ;
+  perf:median 32.1 ;
+  perf:stddev 8.5 ;
+  perf:p50 32.1 ;
+  perf:p95 52.0 ;
+  perf:p99 68.5 ;
+  perf:min 12.0 ;
+  perf:max 125.0 .
+
+# ============================================================================
+# End of Performance Ontology
+# ============================================================================

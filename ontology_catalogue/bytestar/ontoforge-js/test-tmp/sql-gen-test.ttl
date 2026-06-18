@@ -1,0 +1,17 @@
+
+@prefix : <http://test.com/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+  
+:Special Class & Entity a owl:Class ;
+    rdfs:label "Special Class & Entity" .
+    
+:special_name a owl:DatatypeProperty ;
+    rdfs:domain :Special Class & Entity ;
+    rdfs:range http://www.w3.org/2001/XMLSchema#string .
+      
+:count_123 a owl:DatatypeProperty ;
+    rdfs:domain :Special Class & Entity ;
+    rdfs:range http://www.w3.org/2001/XMLSchema#integer .
+      

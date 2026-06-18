@@ -1,0 +1,59 @@
+@prefix bos: <https://open-ontologies.org/bible-o-star#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Dung Gate = purge/refuse gate.
+# The Dung Gate is the boundary at which rejected payloads exit the system.
+# Refuse that is named, classified, and expelled is refuse that cannot accumulate.
+# Malkijah son of Rechab repaired this gate — a ruler assigned to the purge boundary.
+# The Dung Gate is not shameful; it is necessary. An unrepaired purge gate means
+# refuse accumulates inside the wall.
+
+bos:MalkijahSonOfRechab a bos:Builder ;
+    rdfs:label "Malkijah son of Rechab" ;
+    bos:hasCanonicalReference "Neh.3.14"^^xsd:string ;
+    bos:assignedToGate bos:DungGate ;
+    rdfs:comment "Ruler of the district of Beth-haccherem. Repaired the Dung Gate section. A ruler assigned to the refuse boundary — the highest accountability for the lowest gate." ;
+    bos:hasSource "Neh.3.14" ;
+    dcterms:created "2026-06-02"^^xsd:date .
+
+bos:DungGateSection a bos:WallSection ;
+    rdfs:label "Dung Gate Section" ;
+    bos:hasCanonicalReference "Neh.3.14"^^xsd:string ;
+    rdfs:comment "The wall section including the Dung Gate. Repaired by Malkijah son of Rechab, ruler of the district of Beth-haccherem: doors built, bolts and bars set." ;
+    bos:assignedToGate bos:DungGate ;
+    bos:hasBuilder bos:MalkijahSonOfRechab ;
+    bos:hasSource "Neh.3.14" ;
+    bos:hasReceipt bos:DungGateSectionReceipt .
+
+bos:DungGateRejectedPayloadRecord a bos:InspectionReceipt ;
+    rdfs:label "Dung Gate Rejected Payload Record" ;
+    bos:hasCanonicalReference "Neh.3.14"^^xsd:string ;
+    rdfs:comment "Purge record: Dung Gate section repaired by Malkijah son of Rechab. The purge boundary is held. Rejected payloads have a lawful exit. A named ruler assigned to the refuse gate is the law: the builder of the purge boundary must be accountable." ;
+    bos:hasBuilder bos:MalkijahSonOfRechab ;
+    bos:hasSource "Neh.3.14" ;
+    bos:assignedToGate bos:DungGate ;
+    bos:hasVerdict bos:VerdictAlive ;
+    bos:hasReceipt bos:DungGateSectionReceipt .
+
+bos:RejectedRubblePayload a bos:FalseReport ;
+    rdfs:label "Rejected Rubble — Purge Payload" ;
+    bos:hasCanonicalReference "Neh.3.14"^^xsd:string ;
+    rdfs:comment "The accumulated rubble and refuse of the broken wall. Classified as purge payload at the Dung Gate. Expelled through the lawful exit boundary. Refuse must exit through a named, repaired gate — not be left inside the wall." ;
+    bos:assignedToGate bos:DungGate ;
+    bos:hasSource "Neh.3.14" ;
+    bos:refusesPoison true .
+
+bos:DungGateSectionReceipt a bos:InspectionReceipt ;
+    rdfs:label "Dung Gate Section Receipt" ;
+    bos:hasCanonicalReference "Neh.3.14"^^xsd:string ;
+    bos:hasVerdict bos:VerdictAlive ;
+    bos:hasSource "Neh.3.14" ;
+    rdfs:comment "Section complete: purge gate repaired, doors built, bolts and bars set. Named builder: Malkijah son of Rechab, ruler of Beth-haccherem." .
+
+bos:VerdictAlive a bos:Verdict ;
+    rdfs:label "ALIVE" ;
+    rdfs:comment "Section validated: structure is sound, receipt is grounded, builder is named." .

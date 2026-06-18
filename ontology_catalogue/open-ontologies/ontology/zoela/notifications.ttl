@@ -1,0 +1,356 @@
+@prefix zoe:     <https://zoela.org/ontology/> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix schema:  <https://schema.org/> .
+
+# ============================================================================
+# ZOE LA Mobile — Push Notifications Ontology
+# ============================================================================
+# Models push notification structures and push card templates used by the
+# ZOE LA Mobile Expo app. PushNotifications are triggered by RouteStage
+# transitions and sent to PersonProfiles. PushCardTemplates declare the
+# visual card payload rendered in the notification tray.
+#
+# Imports: routes.ttl (for zoe:RouteStage, zoe:ServiceRoute)
+#          person.ttl (for zoe:Person / zoe:PersonProfile)
+# ============================================================================
+
+<https://zoela.org/ontology/notifications>
+    a owl:Ontology ;
+    rdfs:label "ZOE LA Mobile — Push Notifications Ontology"@en ;
+    rdfs:comment "Push notification and push card template ontology for the ZOE LA Mobile Expo app. Notifications are triggered by RouteStage events and delivered to PersonProfiles."@en ;
+    dcterms:creator "Sean Chatman" ;
+    dcterms:created "2026-05-17"^^xsd:date ;
+    dcterms:license <https://opensource.org/licenses/MIT> ;
+    owl:versionInfo "1.0.0" ;
+    owl:imports <https://zoela.org/ontology/routes> ;
+    owl:imports <https://zoela.org/ontology/person> .
+
+# ============================================================================
+# § 1  Classes
+# ============================================================================
+
+zoe:PushNotification
+    a owl:Class ;
+    rdfs:subClassOf schema:Action ;
+    rdfs:label "Push Notification"@en ;
+    rdfs:comment "A push notification dispatched to a PersonProfile's device when a RouteStage transition occurs. Carries a title, body, category, and deep-link route back into the app."@en ;
+    skos:notation "push_notification" .
+
+zoe:PushCardTemplate
+    a owl:Class ;
+    rdfs:subClassOf schema:CreativeWork ;
+    rdfs:label "Push Card Template"@en ;
+    rdfs:comment "A reusable template describing the visual layout and content of a notification card rendered in the ZOE LA Mobile notification tray. Cards are associated with a ServiceRoute and declare a priority for ordering."@en ;
+    skos:notation "push_card_template" .
+
+# ============================================================================
+# § 2  PushNotification — Datatype Properties
+# ============================================================================
+
+zoe:notificationTitle
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:PushNotification ;
+    rdfs:range xsd:string ;
+    rdfs:label "notification title"@en ;
+    rdfs:comment "Short headline text of the push notification, displayed in the device notification shade."@en ;
+    skos:notation "notification_title" .
+
+zoe:notificationBody
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:PushNotification ;
+    rdfs:range xsd:string ;
+    rdfs:label "notification body"@en ;
+    rdfs:comment "Full body text of the push notification providing context and call-to-action."@en ;
+    skos:notation "notification_body" .
+
+zoe:notificationCategory
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:PushNotification ;
+    rdfs:range xsd:string ;
+    rdfs:label "notification category"@en ;
+    rdfs:comment "Category identifier from the NotificationCategoryScheme, used to route and filter notifications in the app."@en ;
+    skos:notation "notification_category" .
+
+zoe:deepLinkRoute
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:PushNotification ;
+    rdfs:range xsd:anyURI ;
+    rdfs:label "deep link route"@en ;
+    rdfs:comment "Expo deep-link URI that opens the relevant screen in ZOE LA Mobile when the notification is tapped."@en ;
+    skos:notation "deep_link_route" .
+
+# ============================================================================
+# § 3  PushNotification — Object Properties
+# ============================================================================
+
+zoe:triggeredBy
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:PushNotification ;
+    rdfs:range zoe:RouteStage ;
+    rdfs:label "triggered by"@en ;
+    rdfs:comment "Links a PushNotification to the RouteStage whose completion or activation triggered the notification dispatch."@en ;
+    skos:notation "triggered_by_stage" .
+
+zoe:sentTo
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:PushNotification ;
+    rdfs:range zoe:PersonProfile ;
+    rdfs:label "sent to"@en ;
+    rdfs:comment "Links a PushNotification to the PersonProfile whose device receives the notification."@en ;
+    skos:notation "sent_to_person" .
+
+# ============================================================================
+# § 4  PushCardTemplate — Datatype Properties
+# ============================================================================
+
+zoe:cardTitle
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:PushCardTemplate ;
+    rdfs:range xsd:string ;
+    rdfs:label "card title"@en ;
+    rdfs:comment "Primary headline text displayed on the push card in the notification tray."@en ;
+    skos:notation "card_title" .
+
+zoe:cardSubtitle
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:PushCardTemplate ;
+    rdfs:range xsd:string ;
+    rdfs:label "card subtitle"@en ;
+    rdfs:comment "Secondary line of text below the card title, providing route or ministry context."@en ;
+    skos:notation "card_subtitle" .
+
+zoe:cardBody
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:PushCardTemplate ;
+    rdfs:range xsd:string ;
+    rdfs:label "card body"@en ;
+    rdfs:comment "Main body text of the push card, describing the action or update in detail."@en ;
+    skos:notation "card_body" .
+
+zoe:cardAction
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:PushCardTemplate ;
+    rdfs:range xsd:string ;
+    rdfs:label "card action"@en ;
+    rdfs:comment "Label for the primary call-to-action button rendered on the push card (e.g. 'View Details', 'Accept Request')."@en ;
+    skos:notation "card_action" .
+
+zoe:cardDeepLink
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:PushCardTemplate ;
+    rdfs:range xsd:anyURI ;
+    rdfs:label "card deep link"@en ;
+    rdfs:comment "Expo deep-link URI the card action button navigates to when tapped."@en ;
+    skos:notation "card_deep_link" .
+
+zoe:cardPriority
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:PushCardTemplate ;
+    rdfs:range xsd:integer ;
+    rdfs:label "card priority"@en ;
+    rdfs:comment "Integer priority for ordering push cards in the notification tray; lower values appear first."@en ;
+    skos:notation "card_priority" .
+
+# ============================================================================
+# § 5  PushCardTemplate — Object Properties
+# ============================================================================
+
+zoe:cardForRoute
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:PushCardTemplate ;
+    rdfs:range zoe:ServiceRoute ;
+    rdfs:label "card for route"@en ;
+    rdfs:comment "Associates a PushCardTemplate with the ServiceRoute that triggers its rendering."@en ;
+    skos:notation "card_for_route" .
+
+# ============================================================================
+# § 6  NotificationCategoryScheme — SKOS Concept Scheme
+# ============================================================================
+
+zoe:NotificationCategoryScheme
+    a skos:ConceptScheme ;
+    rdfs:label "Notification Category Scheme"@en ;
+    rdfs:comment "Controlled vocabulary of push notification categories used to route and filter notifications in ZOE LA Mobile."@en ;
+    skos:prefLabel "Notification Category Scheme"@en .
+
+zoe:ServiceAlert
+    a skos:Concept ;
+    skos:inScheme zoe:NotificationCategoryScheme ;
+    skos:prefLabel "Service Alert"@en ;
+    skos:notation "service_alert" ;
+    rdfs:label "Service Alert"@en ;
+    rdfs:comment "Notification category for urgent service delivery alerts affecting a PersonProfile's active route."@en .
+
+zoe:VolunteerRequest
+    a skos:Concept ;
+    skos:inScheme zoe:NotificationCategoryScheme ;
+    skos:prefLabel "Volunteer Request"@en ;
+    skos:notation "volunteer_request" ;
+    rdfs:label "Volunteer Request"@en ;
+    rdfs:comment "Notification category for volunteer assignment requests requiring acceptance or declination."@en .
+
+zoe:FollowUpRequired
+    a skos:Concept ;
+    skos:inScheme zoe:NotificationCategoryScheme ;
+    skos:prefLabel "Follow-Up Required"@en ;
+    skos:notation "follow_up_required" ;
+    rdfs:label "Follow-Up Required"@en ;
+    rdfs:comment "Notification category indicating a pastoral or care follow-up task is outstanding."@en .
+
+zoe:CareUpdate
+    a skos:Concept ;
+    skos:inScheme zoe:NotificationCategoryScheme ;
+    skos:prefLabel "Care Update"@en ;
+    skos:notation "care_update" ;
+    rdfs:label "Care Update"@en ;
+    rdfs:comment "Notification category for updates to an active care or need support route."@en .
+
+zoe:ResourceAvailable
+    a skos:Concept ;
+    skos:inScheme zoe:NotificationCategoryScheme ;
+    skos:prefLabel "Resource Available"@en ;
+    skos:notation "resource_available" ;
+    rdfs:label "Resource Available"@en ;
+    rdfs:comment "Notification category signalling that a requested ministry resource is now available for collection."@en .
+
+zoe:EventReminder
+    a skos:Concept ;
+    skos:inScheme zoe:NotificationCategoryScheme ;
+    skos:prefLabel "Event Reminder"@en ;
+    skos:notation "event_reminder" ;
+    rdfs:label "Event Reminder"@en ;
+    rdfs:comment "Notification category for reminders about upcoming ZOE LA events a person is registered for."@en .
+
+zoe:StageComplete
+    a skos:Concept ;
+    skos:inScheme zoe:NotificationCategoryScheme ;
+    skos:prefLabel "Stage Complete"@en ;
+    skos:notation "stage_complete" ;
+    rdfs:label "Stage Complete"@en ;
+    rdfs:comment "Notification category confirming that a route stage has been marked complete and the next stage is unlocked."@en .
+
+zoe:UrgentEscalation
+    a skos:Concept ;
+    skos:inScheme zoe:NotificationCategoryScheme ;
+    skos:prefLabel "Urgent Escalation"@en ;
+    skos:notation "urgent_escalation" ;
+    rdfs:label "Urgent Escalation"@en ;
+    rdfs:comment "Notification category for high-priority escalations requiring immediate pastoral or leadership response."@en .
+
+# Bidirectional SKOS links
+zoe:NotificationCategoryScheme
+    skos:hasTopConcept zoe:ServiceAlert ;
+    skos:hasTopConcept zoe:VolunteerRequest ;
+    skos:hasTopConcept zoe:FollowUpRequired ;
+    skos:hasTopConcept zoe:CareUpdate ;
+    skos:hasTopConcept zoe:ResourceAvailable ;
+    skos:hasTopConcept zoe:EventReminder ;
+    skos:hasTopConcept zoe:StageComplete ;
+    skos:hasTopConcept zoe:UrgentEscalation .
+
+# ============================================================================
+# § 7  Named Individual Push Card Templates
+# ============================================================================
+# 5 concrete PushCardTemplate instances representing common ZOE LA Mobile
+# push notification scenarios. These provide data for extract-push-card-fields.rq.
+
+zoe:FoodServiceCard
+    a zoe:PushCardTemplate ;
+    rdfs:label "Food Service Card"@en ;
+    zoe:cardTitle "Food Service Ready" ;
+    zoe:cardSubtitle "ZOE LA Care Services" ;
+    zoe:cardBody "Your food assistance request has been approved. Please visit the resource room to collect your items." ;
+    zoe:cardAction "View Details" ;
+    zoe:cardDeepLink <zoela://routes/food-service> ;
+    zoe:cardPriority 1 .
+
+zoe:VolunteerRequestCard
+    a zoe:PushCardTemplate ;
+    rdfs:label "Volunteer Request Card"@en ;
+    zoe:cardTitle "Volunteer Request" ;
+    zoe:cardSubtitle "Ministry Services" ;
+    zoe:cardBody "You have been requested to serve as a volunteer for an upcoming ministry route stage. Please accept or decline." ;
+    zoe:cardAction "Respond Now" ;
+    zoe:cardDeepLink <zoela://volunteer/request> ;
+    zoe:cardPriority 2 .
+
+zoe:FollowUpCard
+    a zoe:PushCardTemplate ;
+    rdfs:label "Follow-Up Card"@en ;
+    zoe:cardTitle "Follow-Up Required" ;
+    zoe:cardSubtitle "Pastoral Care" ;
+    zoe:cardBody "A care follow-up task is outstanding for one of your assigned members. Please review and complete within 48 hours." ;
+    zoe:cardAction "Open Task" ;
+    zoe:cardDeepLink <zoela://care/follow-up> ;
+    zoe:cardPriority 2 .
+
+zoe:CareUpdateCard
+    a zoe:PushCardTemplate ;
+    rdfs:label "Care Update Card"@en ;
+    zoe:cardTitle "Care Route Update" ;
+    zoe:cardSubtitle "ZOE LA Care Team" ;
+    zoe:cardBody "There is a new update on your active care support route. Tap to see the latest progress and next steps." ;
+    zoe:cardAction "View Update" ;
+    zoe:cardDeepLink <zoela://care/update> ;
+    zoe:cardPriority 3 .
+
+zoe:UrgentEscalationCard
+    a zoe:PushCardTemplate ;
+    rdfs:label "Urgent Escalation Card"@en ;
+    zoe:cardTitle "Urgent: Action Required" ;
+    zoe:cardSubtitle "Leadership Escalation" ;
+    zoe:cardBody "A critical situation requires your immediate pastoral attention. Please review the escalation and respond now." ;
+    zoe:cardAction "Respond Immediately" ;
+    zoe:cardDeepLink <zoela://escalation/urgent> ;
+    zoe:cardPriority 0 .
+
+# ── Connect Groups push card templates (W30-16) ──────────────────────────────
+
+zoe:ConnectGroupInviteCard
+    a zoe:PushCardTemplate ;
+    rdfs:label "Connect Group Invite Card"@en ;
+    zoe:cardTitle "Connect Group Invitation" ;
+    zoe:cardSubtitle "ZOE LA Connect Groups" ;
+    zoe:cardBody "You have been invited to join a Connect Group. Tap to view the group details and accept or decline the invitation." ;
+    zoe:cardAction "View Invitation" ;
+    zoe:cardDeepLink <zoela://groups/invite> ;
+    zoe:cardPriority 1 .
+
+zoe:ConnectGroupMeetingReminderCard
+    a zoe:PushCardTemplate ;
+    rdfs:label "Connect Group Meeting Reminder Card"@en ;
+    zoe:cardTitle "Group Meeting Tonight" ;
+    zoe:cardSubtitle "ZOE LA Connect Groups" ;
+    zoe:cardBody "Your Connect Group meets tonight. Tap to view the meeting details, location, and any materials shared by your group leader." ;
+    zoe:cardAction "View Meeting" ;
+    zoe:cardDeepLink <zoela://groups/meeting> ;
+    zoe:cardPriority 1 .
+
+zoe:ConnectGroupJoinApprovedCard
+    a zoe:PushCardTemplate ;
+    rdfs:label "Connect Group Join Approved Card"@en ;
+    zoe:cardTitle "Welcome to the Group!" ;
+    zoe:cardSubtitle "ZOE LA Connect Groups" ;
+    zoe:cardBody "Your request to join the Connect Group has been approved by the group leader. Tap to see your group details and upcoming schedule." ;
+    zoe:cardAction "See My Group" ;
+    zoe:cardDeepLink <zoela://groups/my-groups> ;
+    zoe:cardPriority 2 .
+
+zoe:ConnectGroupInterestReceivedCard
+    a zoe:PushCardTemplate ;
+    rdfs:label "Connect Group Interest Received Card"@en ;
+    zoe:cardTitle "Interest Form Received" ;
+    zoe:cardSubtitle "ZOE LA Connect Groups" ;
+    zoe:cardBody "We received your Connect Group interest form. Our team will match you with a group that fits your schedule and interests." ;
+    zoe:cardAction "Check Status" ;
+    zoe:cardDeepLink <zoela://groups/interest-status> ;
+    zoe:cardPriority 3 .
+
+# ============================================================================
+# End of ontology/zoela/notifications.ttl
+# ============================================================================

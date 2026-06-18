@@ -1,0 +1,716 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix yawl: <http://bitflow.ai/ontology/yawl/v2#> .
+@prefix vdaalst: <http://bitflow.ai/ontology/vdaalst/patterns#> .
+
+# ============================================================================
+# Van der Aalst Workflow Patterns Ontology (All 43 Patterns)
+# ============================================================================
+# Based on: "Workflow Patterns: On the Expressive Power of (Petri) Nets"
+# by Wil van der Aalst, Arthur ter Hofstede, Bartek Kiepuszewski, Alistair Barros
+#
+# This ontology defines all 43 control flow patterns and their properties
+# ============================================================================
+
+# ============================================================================
+# CATEGORY 1: BASIC CONTROL FLOW PATTERNS (1-5)
+# ============================================================================
+
+vdaalst:Pattern1Sequence a owl:Class ;
+    rdfs:label "Pattern 1: Sequence" ;
+    rdfs:comment "Execute multiple activities in a sequential order" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 1 ;
+    vdaalst:category "Basic Control Flow" ;
+    vdaalst:complexity "Low" ;
+    vdaalst:description "All activities are executed one after another in a fixed order" ;
+    vdaalst:minBranches 2 ;
+    vdaalst:maxBranches 1000 ;
+    vdaalst:splitType "AND" ;
+    vdaalst:joinType "AND" .
+
+vdaalst:Pattern2ParallelSplit a owl:Class ;
+    rdfs:label "Pattern 2: Parallel Split" ;
+    rdfs:comment "Diverge into parallel branches" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 2 ;
+    vdaalst:category "Basic Control Flow" ;
+    vdaalst:complexity "Low" ;
+    vdaalst:description "A single incoming branch splits into multiple parallel branches" ;
+    vdaalst:minBranches 2 ;
+    vdaalst:maxBranches 1000 ;
+    vdaalst:splitType "AND" ;
+    vdaalst:joinType "NONE" .
+
+vdaalst:Pattern3Synchronization a owl:Class ;
+    rdfs:label "Pattern 3: Synchronization" ;
+    rdfs:comment "Synchronize parallel branches" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 3 ;
+    vdaalst:category "Basic Control Flow" ;
+    vdaalst:complexity "Low" ;
+    vdaalst:description "Multiple incoming branches join at a single point, waiting for all to arrive" ;
+    vdaalst:minBranches 2 ;
+    vdaalst:maxBranches 1000 ;
+    vdaalst:splitType "NONE" ;
+    vdaalst:joinType "AND" ;
+    vdaalst:requiresAllIncoming true .
+
+vdaalst:Pattern4ExclusiveChoice a owl:Class ;
+    rdfs:label "Pattern 4: Exclusive Choice" ;
+    rdfs:comment "Choose one branch based on condition" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 4 ;
+    vdaalst:category "Basic Control Flow" ;
+    vdaalst:complexity "Low" ;
+    vdaalst:description "A single incoming branch splits into one of multiple mutually exclusive branches based on conditions" ;
+    vdaalst:minBranches 2 ;
+    vdaalst:maxBranches 1000 ;
+    vdaalst:splitType "XOR" ;
+    vdaalst:joinType "NONE" ;
+    vdaalst:requiresExactlyOne true .
+
+vdaalst:Pattern5SimpleMerge a owl:Class ;
+    rdfs:label "Pattern 5: Simple Merge" ;
+    rdfs:comment "Merge exclusive branches" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 5 ;
+    vdaalst:category "Basic Control Flow" ;
+    vdaalst:complexity "Low" ;
+    vdaalst:description "Multiple incoming branches from exclusive choice rejoin into a single branch" ;
+    vdaalst:minBranches 2 ;
+    vdaalst:maxBranches 1000 ;
+    vdaalst:splitType "NONE" ;
+    vdaalst:joinType "XOR" ;
+    vdaalst:assumesExclusiveIncoming true .
+
+# ============================================================================
+# CATEGORY 2: ADVANCED BRANCHING & SYNCHRONIZATION (6-11)
+# ============================================================================
+
+vdaalst:Pattern6MultiChoice a owl:Class ;
+    rdfs:label "Pattern 6: Multi-Choice" ;
+    rdfs:comment "Choose multiple branches" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 6 ;
+    vdaalst:category "Advanced Branching" ;
+    vdaalst:complexity "Medium" ;
+    vdaalst:description "A single incoming branch splits into one or more branches determined at runtime" ;
+    vdaalst:minBranches 2 ;
+    vdaalst:maxBranches 1000 ;
+    vdaalst:splitType "OR" ;
+    vdaalst:joinType "NONE" ;
+    vdaalst:allowsMultipleOutgoing true .
+
+vdaalst:Pattern7StructuredSynchronizingMerge a owl:Class ;
+    rdfs:label "Pattern 7: Structured Synchronizing Merge" ;
+    rdfs:comment "Merge multiple branches with proper synchronization" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 7 ;
+    vdaalst:category "Advanced Branching" ;
+    vdaalst:complexity "Medium" ;
+    vdaalst:description "Multiple incoming branches rejoin at a single point, with proper synchronization of concurrent branches" ;
+    vdaalst:minBranches 2 ;
+    vdaalst:maxBranches 1000 ;
+    vdaalst:splitType "NONE" ;
+    vdaalst:joinType "AND" ;
+    vdaalst:requiresComplexSync true .
+
+vdaalst:Pattern8MultiMerge a owl:Class ;
+    rdfs:label "Pattern 8: Multi-Merge" ;
+    rdfs:comment "Merge without synchronization" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 8 ;
+    vdaalst:category "Advanced Branching" ;
+    vdaalst:complexity "Medium" ;
+    vdaalst:description "Multiple incoming branches rejoin at a single point without synchronization" ;
+    vdaalst:minBranches 2 ;
+    vdaalst:maxBranches 1000 ;
+    vdaalst:splitType "NONE" ;
+    vdaalst:joinType "OR" ;
+    vdaalst:allowsUnsynchronizedMerge true .
+
+vdaalst:Pattern9Discriminator a owl:Class ;
+    rdfs:label "Pattern 9: Discriminator" ;
+    rdfs:comment "Continue after first branch arrives" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 9 ;
+    vdaalst:category "Advanced Branching" ;
+    vdaalst:complexity "High" ;
+    vdaalst:description "Continues execution after the first of multiple incoming branches arrives" ;
+    vdaalst:minBranches 2 ;
+    vdaalst:maxBranches 1000 ;
+    vdaalst:joinType "DISCRIMINATOR" ;
+    vdaalst:continuesOnFirst true .
+
+vdaalst:Pattern10ArbitraryCycles a owl:Class ;
+    rdfs:label "Pattern 10: Arbitrary Cycles" ;
+    rdfs:comment "Allow repetition via backward edges" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 10 ;
+    vdaalst:category "Advanced Branching" ;
+    vdaalst:complexity "High" ;
+    vdaalst:description "Allows arbitrary repetition via backward edges (cycles)" ;
+    vdaalst:allowsCycles true ;
+    vdaalst:supportsArbitraryLoops true .
+
+vdaalst:Pattern11ImplicitTermination a owl:Class ;
+    rdfs:label "Pattern 11: Implicit Termination" ;
+    rdfs:comment "Terminate without explicit end condition" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 11 ;
+    vdaalst:category "Advanced Branching" ;
+    vdaalst:complexity "Medium" ;
+    vdaalst:description "Workflow terminates when no more activities are enabled" ;
+    vdaalst:implicitTermination true ;
+    vdaalst:requiresExplicitEnd false .
+
+# ============================================================================
+# CATEGORY 3: MULTIPLE INSTANCE PATTERNS (12-15)
+# ============================================================================
+
+vdaalst:Pattern12MIWithoutSync a owl:Class ;
+    rdfs:label "Pattern 12: MI Without Synchronization" ;
+    rdfs:comment "Multiple instances without synchronization" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 12 ;
+    vdaalst:category "Multiple Instance" ;
+    vdaalst:complexity "High" ;
+    vdaalst:description "Creates multiple instances of an activity without synchronization" ;
+    vdaalst:supportsMultipleInstances true ;
+    vdaalst:requiresSynchronization false .
+
+vdaalst:Pattern13MIWithDesignTimeKnowledge a owl:Class ;
+    rdfs:label "Pattern 13: MI With Design-Time Knowledge" ;
+    rdfs:comment "Multiple instances with number known at design time" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 13 ;
+    vdaalst:category "Multiple Instance" ;
+    vdaalst:complexity "High" ;
+    vdaalst:description "Creates multiple instances with number determined at design time" ;
+    vdaalst:supportsMultipleInstances true ;
+    vdaalst:knownInstanceCount "DESIGN_TIME" .
+
+vdaalst:Pattern14MIWithRuntimeKnowledge a owl:Class ;
+    rdfs:label "Pattern 14: MI With Runtime Knowledge" ;
+    rdfs:comment "Multiple instances with number known at workflow initialization" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 14 ;
+    vdaalst:category "Multiple Instance" ;
+    vdaalst:complexity "High" ;
+    vdaalst:description "Creates multiple instances with number determined at workflow initialization" ;
+    vdaalst:supportsMultipleInstances true ;
+    vdaalst:knownInstanceCount "INITIALIZATION_TIME" .
+
+vdaalst:Pattern15MIWithoutRuntimeKnowledge a owl:Class ;
+    rdfs:label "Pattern 15: MI Without Runtime Knowledge" ;
+    rdfs:comment "Multiple instances with number determined dynamically" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 15 ;
+    vdaalst:category "Multiple Instance" ;
+    vdaalst:complexity "Very High" ;
+    vdaalst:description "Creates multiple instances with number determined dynamically during execution" ;
+    vdaalst:supportsMultipleInstances true ;
+    vdaalst:knownInstanceCount "RUNTIME" .
+
+# ============================================================================
+# CATEGORY 4: STATE-BASED PATTERNS (16-18)
+# ============================================================================
+
+vdaalst:Pattern16DeferredChoice a owl:Class ;
+    rdfs:label "Pattern 16: Deferred Choice" ;
+    rdfs:comment "Choose branch based on external event" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 16 ;
+    vdaalst:category "State-Based" ;
+    vdaalst:complexity "High" ;
+    vdaalst:description "Multiple branches available but choice determined by external event" ;
+    vdaalst:eventDriven true ;
+    vdaalst:supportsExternalEvents true .
+
+vdaalst:Pattern17InterleavedParallelRouting a owl:Class ;
+    rdfs:label "Pattern 17: Interleaved Parallel Routing" ;
+    rdfs:comment "Execute parallel activities in non-predetermined order" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 17 ;
+    vdaalst:category "State-Based" ;
+    vdaalst:complexity "Very High" ;
+    vdaalst:description "Activities run in parallel but can be interleaved non-deterministically" ;
+    vdaalst:supportsInterleaving true ;
+    vdaalst:nonDeterministic true .
+
+vdaalst:Pattern18Milestone a owl:Class ;
+    rdfs:label "Pattern 18: Milestone" ;
+    rdfs:comment "Enable/disable activities based on milestone" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 18 ;
+    vdaalst:category "State-Based" ;
+    vdaalst:complexity "High" ;
+    vdaalst:description "Activity enabled only when a milestone is reached and not yet passed" ;
+    vdaalst:supportsMilestones true ;
+    vdaalst:allowsStateBasedEnabling true .
+
+# ============================================================================
+# CATEGORY 5: CANCELLATION PATTERNS (19-25)
+# ============================================================================
+
+vdaalst:Pattern19CancelActivity a owl:Class ;
+    rdfs:label "Pattern 19: Cancel Activity" ;
+    rdfs:comment "Cancel a single activity" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 19 ;
+    vdaalst:category "Cancellation" ;
+    vdaalst:complexity "Medium" ;
+    vdaalst:description "Can cancel execution of a single activity" ;
+    vdaalst:supportsCancellation true ;
+    vdaalst:cancellationScope "ACTIVITY" .
+
+vdaalst:Pattern20CancelCase a owl:Class ;
+    rdfs:label "Pattern 20: Cancel Case" ;
+    rdfs:comment "Cancel entire workflow case" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 20 ;
+    vdaalst:category "Cancellation" ;
+    vdaalst:complexity "Medium" ;
+    vdaalst:description "Can cancel entire workflow case" ;
+    vdaalst:supportsCancellation true ;
+    vdaalst:cancellationScope "CASE" .
+
+vdaalst:Pattern21CancelRegion a owl:Class ;
+    rdfs:label "Pattern 21: Cancel Region" ;
+    rdfs:comment "Cancel a region of activities" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 21 ;
+    vdaalst:category "Cancellation" ;
+    vdaalst:complexity "High" ;
+    vdaalst:description "Can cancel a region/subprocess of activities" ;
+    vdaalst:supportsCancellation true ;
+    vdaalst:cancellationScope "REGION" .
+
+vdaalst:Pattern22CancelMIActivity a owl:Class ;
+    rdfs:label "Pattern 22: Cancel MI Activity" ;
+    rdfs:comment "Cancel multiple instances of an activity" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 22 ;
+    vdaalst:category "Cancellation" ;
+    vdaalst:complexity "Very High" ;
+    vdaalst:description "Can cancel specific instances of multiple instance activities" ;
+    vdaalst:supportsCancellation true ;
+    vdaalst:supportsMultipleInstances true ;
+    vdaalst:cancellationScope "MI_ACTIVITY" .
+
+vdaalst:Pattern23CompleteMIActivity a owl:Class ;
+    rdfs:label "Pattern 23: Complete MI Activity" ;
+    rdfs:comment "Skip remaining MI instances and continue" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 23 ;
+    vdaalst:category "Cancellation" ;
+    vdaalst:complexity "High" ;
+    vdaalst:description "Can complete multiple instance activity and skip remaining instances" ;
+    vdaalst:supportsMultipleInstances true ;
+    vdaalst:allowsEarlyCompletion true .
+
+vdaalst:Pattern24BlockingDiscriminator a owl:Class ;
+    rdfs:label "Pattern 24: Blocking Discriminator" ;
+    rdfs:comment "Discriminator that blocks other branches" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 24 ;
+    vdaalst:category "Cancellation" ;
+    vdaalst:complexity "Very High" ;
+    vdaalst:description "Continues after first branch but remaining branches blocked (not cancelled)" ;
+    vdaalst:blocksBranches true ;
+    vdaalst:continuesOnFirst true .
+
+vdaalst:Pattern25CancellingDiscriminator a owl:Class ;
+    rdfs:label "Pattern 25: Cancelling Discriminator" ;
+    rdfs:comment "Discriminator that cancels other branches" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 25 ;
+    vdaalst:category "Cancellation" ;
+    vdaalst:complexity "Very High" ;
+    vdaalst:description "Continues after first branch and actively cancels remaining branches" ;
+    vdaalst:supportsCancellation true ;
+    vdaalst:continuesOnFirst true .
+
+# ============================================================================
+# CATEGORY 6: ADVANCED CONTROL FLOW (26-39)
+# ============================================================================
+
+vdaalst:Pattern26StructuralMultiChoice a owl:Class ;
+    rdfs:label "Pattern 26: Structural Multi-Choice" ;
+    rdfs:comment "Multi-choice with structured boundaries" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 26 ;
+    vdaalst:category "Advanced Control" ;
+    vdaalst:complexity "High" .
+
+vdaalst:Pattern27GeneralSynchronizingMerge a owl:Class ;
+    rdfs:label "Pattern 27: General Synchronizing Merge" ;
+    rdfs:comment "Synchronize with general conditions" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 27 ;
+    vdaalst:category "Advanced Control" ;
+    vdaalst:complexity "Very High" .
+
+vdaalst:Pattern28ThreadMerge a owl:Class ;
+    rdfs:label "Pattern 28: Thread Merge" ;
+    rdfs:comment "Merge thread-based parallelism" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 28 ;
+    vdaalst:category "Advanced Control" ;
+    vdaalst:complexity "Very High" .
+
+vdaalst:Pattern29ThreadSplit a owl:Class ;
+    rdfs:label "Pattern 29: Thread Split" ;
+    rdfs:comment "Split into thread-based parallelism" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 29 ;
+    vdaalst:category "Advanced Control" ;
+    vdaalst:complexity "Very High" .
+
+vdaalst:Pattern30PartialJoin a owl:Class ;
+    rdfs:label "Pattern 30: Partial Join" ;
+    rdfs:comment "Join on subset of incoming branches" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 30 ;
+    vdaalst:category "Advanced Control" ;
+    vdaalst:complexity "Very High" .
+
+vdaalst:Pattern31ExceptionHandler a owl:Class ;
+    rdfs:label "Pattern 31: Exception Handler" ;
+    rdfs:comment "Handle exceptions in workflow" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 31 ;
+    vdaalst:category "Advanced Control" ;
+    vdaalst:complexity "High" ;
+    vdaalst:supportsExceptionHandling true .
+
+vdaalst:Pattern32Suspend a owl:Class ;
+    rdfs:label "Pattern 32: Suspend/Resume" ;
+    rdfs:comment "Suspend and resume activity execution" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 32 ;
+    vdaalst:category "Advanced Control" ;
+    vdaalst:complexity "High" ;
+    vdaalst:supportsSuspend true .
+
+vdaalst:Pattern33RecursiveSubprocess a owl:Class ;
+    rdfs:label "Pattern 33: Recursive Subprocess" ;
+    rdfs:comment "Support recursive subprocess execution" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 33 ;
+    vdaalst:category "Advanced Control" ;
+    vdaalst:complexity "Very High" ;
+    vdaalst:supportsRecursion true .
+
+vdaalst:Pattern34TransactionSubprocess a owl:Class ;
+    rdfs:label "Pattern 34: Transaction Subprocess" ;
+    rdfs:comment "Subprocess with transaction semantics" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 34 ;
+    vdaalst:category "Advanced Control" ;
+    vdaalst:complexity "Very High" ;
+    vdaalst:supportsTransactions true .
+
+vdaalst:Pattern35EventBasedSplit a owl:Class ;
+    rdfs:label "Pattern 35: Event-Based Split" ;
+    rdfs:comment "Split based on events" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 35 ;
+    vdaalst:category "Advanced Control" ;
+    vdaalst:complexity "High" ;
+    vdaalst:eventDriven true .
+
+vdaalst:Pattern36ParallelWithSplit a owl:Class ;
+    rdfs:label "Pattern 36: Parallel Execute with Split" ;
+    rdfs:comment "Execute branches in parallel" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 36 ;
+    vdaalst:category "Advanced Control" ;
+    vdaalst:complexity "High" .
+
+vdaalst:Pattern37ExclusiveWithSplit a owl:Class ;
+    rdfs:label "Pattern 37: Exclusive Execute with Split" ;
+    rdfs:comment "Execute exclusive branches" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 37 ;
+    vdaalst:category "Advanced Control" ;
+    vdaalst:complexity "Medium" .
+
+vdaalst:Pattern38NestedActivity a owl:Class ;
+    rdfs:label "Pattern 38: Nested Activity" ;
+    rdfs:comment "Support nested activities/subprocesses" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 38 ;
+    vdaalst:category "Advanced Control" ;
+    vdaalst:complexity "Medium" ;
+    vdaalst:supportsNesting true .
+
+vdaalst:Pattern39DataBasedDecision a owl:Class ;
+    rdfs:label "Pattern 39: Data-Based Decision" ;
+    rdfs:comment "Decision based on data conditions" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 39 ;
+    vdaalst:category "Advanced Control" ;
+    vdaalst:complexity "Medium" ;
+    vdaalst:dataAware true .
+
+# ============================================================================
+# CATEGORY 7: TRIGGER/TERMINATION PATTERNS (40-43)
+# ============================================================================
+
+vdaalst:Pattern40EventTrigger a owl:Class ;
+    rdfs:label "Pattern 40: Event Trigger" ;
+    rdfs:comment "Activity triggered by event" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 40 ;
+    vdaalst:category "Trigger" ;
+    vdaalst:complexity "High" ;
+    vdaalst:eventDriven true ;
+    vdaalst:externallyTriggered true .
+
+vdaalst:Pattern41InterruptingTrigger a owl:Class ;
+    rdfs:label "Pattern 41: Interrupting Trigger" ;
+    rdfs:comment "Activity triggered and interrupts current flow" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 41 ;
+    vdaalst:category "Trigger" ;
+    vdaalst:complexity "Very High" ;
+    vdaalst:eventDriven true ;
+    vdaalst:canInterrupt true .
+
+vdaalst:Pattern42NonInterruptingTrigger a owl:Class ;
+    rdfs:label "Pattern 42: Non-Interrupting Trigger" ;
+    rdfs:comment "Activity triggered without interrupting current flow" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 42 ;
+    vdaalst:category "Trigger" ;
+    vdaalst:complexity "High" ;
+    vdaalst:eventDriven true ;
+    vdaalst:canInterrupt false .
+
+vdaalst:Pattern43Timeout a owl:Class ;
+    rdfs:label "Pattern 43: Timeout" ;
+    rdfs:comment "Activity triggered after timeout" ;
+    rdfs:subClassOf yawl:ControlFlowPattern ;
+    vdaalst:patternNumber 43 ;
+    vdaalst:category "Trigger" ;
+    vdaalst:complexity "Medium" ;
+    vdaalst:timeoutBased true ;
+    vdaalst:supportsTimeBasedEvents true .
+
+# ============================================================================
+# Property Definitions
+# ============================================================================
+
+vdaalst:patternNumber a rdf:Property ;
+    rdfs:label "Pattern Number" ;
+    rdfs:range xsd:integer ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:category a rdf:Property ;
+    rdfs:label "Pattern Category" ;
+    rdfs:range xsd:string ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:complexity a rdf:Property ;
+    rdfs:label "Complexity Level" ;
+    rdfs:range xsd:string ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:description a rdf:Property ;
+    rdfs:label "Pattern Description" ;
+    rdfs:range xsd:string ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:minBranches a rdf:Property ;
+    rdfs:label "Minimum Branches" ;
+    rdfs:range xsd:integer ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:maxBranches a rdf:Property ;
+    rdfs:label "Maximum Branches" ;
+    rdfs:range xsd:integer ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:splitType a rdf:Property ;
+    rdfs:label "Split Type" ;
+    rdfs:range xsd:string ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:joinType a rdf:Property ;
+    rdfs:label "Join Type" ;
+    rdfs:range xsd:string ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:supportsMultipleInstances a rdf:Property ;
+    rdfs:label "Supports Multiple Instances" ;
+    rdfs:range xsd:boolean ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:supportsCancellation a rdf:Property ;
+    rdfs:label "Supports Cancellation" ;
+    rdfs:range xsd:boolean ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:eventDriven a rdf:Property ;
+    rdfs:label "Event Driven" ;
+    rdfs:range xsd:boolean ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:allowsCycles a rdf:Property ;
+    rdfs:label "Allows Cycles" ;
+    rdfs:range xsd:boolean ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:dataAware a rdf:Property ;
+    rdfs:label "Data Aware" ;
+    rdfs:range xsd:boolean ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:supportsRecursion a rdf:Property ;
+    rdfs:label "Supports Recursion" ;
+    rdfs:range xsd:boolean ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:supportsTransactions a rdf:Property ;
+    rdfs:label "Supports Transactions" ;
+    rdfs:range xsd:boolean ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:supportsNesting a rdf:Property ;
+    rdfs:label "Supports Nesting" ;
+    rdfs:range xsd:boolean ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:supportsExceptionHandling a rdf:Property ;
+    rdfs:label "Supports Exception Handling" ;
+    rdfs:range xsd:boolean ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:supportsInterleaving a rdf:Property ;
+    rdfs:label "Supports Interleaving" ;
+    rdfs:range xsd:boolean ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:supportsMilestones a rdf:Property ;
+    rdfs:label "Supports Milestones" ;
+    rdfs:range xsd:boolean ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:supportsSuspend a rdf:Property ;
+    rdfs:label "Supports Suspend/Resume" ;
+    rdfs:range xsd:boolean ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:supportsExternalEvents a rdf:Property ;
+    rdfs:label "Supports External Events" ;
+    rdfs:range xsd:boolean ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:supportsTimeBasedEvents a rdf:Property ;
+    rdfs:label "Supports Time-Based Events" ;
+    rdfs:range xsd:boolean ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:externallyTriggered a rdf:Property ;
+    rdfs:label "Externally Triggered" ;
+    rdfs:range xsd:boolean ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:timeoutBased a rdf:Property ;
+    rdfs:label "Timeout Based" ;
+    rdfs:range xsd:boolean ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:canInterrupt a rdf:Property ;
+    rdfs:label "Can Interrupt" ;
+    rdfs:range xsd:boolean ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:blocksBranches a rdf:Property ;
+    rdfs:label "Blocks Branches" ;
+    rdfs:range xsd:boolean ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:cancellationScope a rdf:Property ;
+    rdfs:label "Cancellation Scope" ;
+    rdfs:range xsd:string ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:knownInstanceCount a rdf:Property ;
+    rdfs:label "Known Instance Count" ;
+    rdfs:range xsd:string ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:requiresAllIncoming a rdf:Property ;
+    rdfs:label "Requires All Incoming" ;
+    rdfs:range xsd:boolean ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:requiresExactlyOne a rdf:Property ;
+    rdfs:label "Requires Exactly One" ;
+    rdfs:range xsd:boolean ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:assumesExclusiveIncoming a rdf:Property ;
+    rdfs:label "Assumes Exclusive Incoming" ;
+    rdfs:range xsd:boolean ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:requiresComplexSync a rdf:Property ;
+    rdfs:label "Requires Complex Sync" ;
+    rdfs:range xsd:boolean ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:allowsUnsynchronizedMerge a rdf:Property ;
+    rdfs:label "Allows Unsynchronized Merge" ;
+    rdfs:range xsd:boolean ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:continuesOnFirst a rdf:Property ;
+    rdfs:label "Continues On First" ;
+    rdfs:range xsd:boolean ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:supportsArbitraryLoops a rdf:Property ;
+    rdfs:label "Supports Arbitrary Loops" ;
+    rdfs:range xsd:boolean ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:implicitTermination a rdf:Property ;
+    rdfs:label "Implicit Termination" ;
+    rdfs:range xsd:boolean ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:requiresExplicitEnd a rdf:Property ;
+    rdfs:label "Requires Explicit End" ;
+    rdfs:range xsd:boolean ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:allowsMultipleOutgoing a rdf:Property ;
+    rdfs:label "Allows Multiple Outgoing" ;
+    rdfs:range xsd:boolean ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:requiresSynchronization a rdf:Property ;
+    rdfs:label "Requires Synchronization" ;
+    rdfs:range xsd:boolean ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:nonDeterministic a rdf:Property ;
+    rdfs:label "Non-Deterministic" ;
+    rdfs:range xsd:boolean ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:allowsStateBasedEnabling a rdf:Property ;
+    rdfs:label "Allows State-Based Enabling" ;
+    rdfs:range xsd:boolean ;
+    rdfs:domain vdaalst:ControlFlowPattern .
+
+vdaalst:allowsEarlyCompletion a rdf:Property ;
+    rdfs:label "Allows Early Completion" ;
+    rdfs:range xsd:boolean ;
+    rdfs:domain vdaalst:ControlFlowPattern .

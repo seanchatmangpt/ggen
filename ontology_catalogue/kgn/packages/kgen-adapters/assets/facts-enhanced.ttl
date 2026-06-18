@@ -1,0 +1,194 @@
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix fin: <https://kgen.dev/ontologies/finance#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix org: <https://kgen.dev/ontologies/organization#> .
+
+# Q4 2025 Transactions (Oct 1 - Dec 31, 2025)
+
+# October 2025 - Start of Q4
+[] a fin:Transaction ;
+   fin:hasAccount fin:SalesRevenue ;
+   fin:hasAmount "150000"^^xsd:decimal ;
+   fin:hasCurrency "USD" ;
+   fin:isIntercompany "false"^^xsd:boolean ;
+   fin:hasDate "2025-10-15"^^xsd:date ;
+   fin:hasPeriod "Q4-2025" ;
+   fin:hasEntity org:ParentCo ;
+   fin:description "Product sales - October" .
+
+[] a fin:Transaction ;
+   fin:hasAccount fin:SalesRevenue ;
+   fin:hasAmount "50000"^^xsd:decimal ;
+   fin:hasCurrency "USD" ;
+   fin:isIntercompany "true"^^xsd:boolean ;
+   fin:hasDate "2025-10-20"^^xsd:date ;
+   fin:hasPeriod "Q4-2025" ;
+   fin:hasEntity org:ParentCo ;
+   fin:description "Intercompany service revenue" .
+
+# November 2025
+[] a fin:Transaction ;
+   fin:hasAccount fin:SalesRevenue ;
+   fin:hasAmount "350000"^^xsd:decimal ;
+   fin:hasCurrency "USD" ;
+   fin:isIntercompany "false"^^xsd:boolean ;
+   fin:hasDate "2025-11-15"^^xsd:date ;
+   fin:hasPeriod "Q4-2025" ;
+   fin:hasEntity org:ParentCo ;
+   fin:description "Product sales - November surge" .
+
+[] a fin:Transaction ;
+   fin:hasAccount fin:CostOfGoodsSold ;
+   fin:hasAmount "150000"^^xsd:decimal ;
+   fin:hasCurrency "USD" ;
+   fin:isIntercompany "false"^^xsd:boolean ;
+   fin:hasDate "2025-11-20"^^xsd:date ;
+   fin:hasPeriod "Q4-2025" ;
+   fin:hasEntity org:ParentCo ;
+   fin:description "Manufacturing costs - November" .
+
+[] a fin:Transaction ;
+   fin:hasAccount fin:IntercompanyCOGS ;
+   fin:hasAmount "30000"^^xsd:decimal ;
+   fin:hasCurrency "USD" ;
+   fin:isIntercompany "true"^^xsd:boolean ;
+   fin:hasDate "2025-11-30"^^xsd:date ;
+   fin:hasPeriod "Q4-2025" ;
+   fin:hasEntity org:SubsidiaryA ;
+   fin:description "Intercompany COGS elimination" .
+
+# December 2025 - Year-end
+[] a fin:Transaction ;
+   fin:hasAccount fin:SalesRevenue ;
+   fin:hasAmount "200000"^^xsd:decimal ;
+   fin:hasCurrency "EUR" ;
+   fin:isIntercompany "false"^^xsd:boolean ;
+   fin:hasDate "2025-12-01"^^xsd:date ;
+   fin:hasPeriod "Q4-2025" ;
+   fin:hasEntity org:SubsidiaryEU ;
+   fin:description "European sales - December" .
+
+[] a fin:Transaction ;
+   fin:hasAccount fin:CostOfGoodsSold ;
+   fin:hasAmount "50000"^^xsd:decimal ;
+   fin:hasCurrency "USD" ;
+   fin:isIntercompany "false"^^xsd:boolean ;
+   fin:hasDate "2025-12-10"^^xsd:date ;
+   fin:hasPeriod "Q4-2025" ;
+   fin:hasEntity org:ParentCo ;
+   fin:description "Manufacturing costs - December" .
+
+[] a fin:Transaction ;
+   fin:hasAccount fin:CostOfGoodsSold ;
+   fin:hasAmount "100000"^^xsd:decimal ;
+   fin:hasCurrency "EUR" ;
+   fin:isIntercompany "false"^^xsd:boolean ;
+   fin:hasDate "2025-12-10"^^xsd:date ;
+   fin:hasPeriod "Q4-2025" ;
+   fin:hasEntity org:SubsidiaryEU ;
+   fin:description "EU manufacturing costs" .
+
+# Operating Expenses throughout Q4
+[] a fin:Transaction ;
+   fin:hasAccount fin:OperatingExpenses ;
+   fin:hasAmount "40000"^^xsd:decimal ;
+   fin:hasCurrency "USD" ;
+   fin:isIntercompany "false"^^xsd:boolean ;
+   fin:hasDate "2025-10-31"^^xsd:date ;
+   fin:hasPeriod "Q4-2025" ;
+   fin:hasEntity org:ParentCo ;
+   fin:description "October operating expenses" .
+
+[] a fin:Transaction ;
+   fin:hasAccount fin:OperatingExpenses ;
+   fin:hasAmount "40000"^^xsd:decimal ;
+   fin:hasCurrency "USD" ;
+   fin:isIntercompany "false"^^xsd:boolean ;
+   fin:hasDate "2025-11-30"^^xsd:date ;
+   fin:hasPeriod "Q4-2025" ;
+   fin:hasEntity org:ParentCo ;
+   fin:description "November operating expenses" .
+
+[] a fin:Transaction ;
+   fin:hasAccount fin:OperatingExpenses ;
+   fin:hasAmount "40000"^^xsd:decimal ;
+   fin:hasCurrency "USD" ;
+   fin:isIntercompany "false"^^xsd:boolean ;
+   fin:hasDate "2025-12-20"^^xsd:date ;
+   fin:hasPeriod "Q4-2025" ;
+   fin:hasEntity org:ParentCo ;
+   fin:description "December operating expenses" .
+
+[] a fin:Transaction ;
+   fin:hasAccount fin:OperatingExpenses ;
+   fin:hasAmount "20000"^^xsd:decimal ;
+   fin:hasCurrency "EUR" ;
+   fin:isIntercompany "false"^^xsd:boolean ;
+   fin:hasDate "2025-12-21"^^xsd:date ;
+   fin:hasPeriod "Q4-2025" ;
+   fin:hasEntity org:SubsidiaryEU ;
+   fin:description "EU operating expenses" .
+
+# Interest and Tax - Quarterly payments
+[] a fin:Transaction ;
+   fin:hasAccount fin:InterestExpense ;
+   fin:hasAmount "10000"^^xsd:decimal ;
+   fin:hasCurrency "USD" ;
+   fin:isIntercompany "false"^^xsd:boolean ;
+   fin:hasDate "2025-12-05"^^xsd:date ;
+   fin:hasPeriod "Q4-2025" ;
+   fin:hasEntity org:ParentCo ;
+   fin:description "Q4 interest payment on debt" .
+
+[] a fin:Transaction ;
+   fin:hasAccount fin:TaxExpense ;
+   fin:hasAmount "38000"^^xsd:decimal ;
+   fin:hasCurrency "USD" ;
+   fin:isIntercompany "false"^^xsd:boolean ;
+   fin:hasDate "2025-12-28"^^xsd:date ;
+   fin:hasPeriod "Q4-2025" ;
+   fin:hasEntity org:ParentCo ;
+   fin:description "Q4 estimated tax payment" .
+
+# Depreciation and Amortization - Monthly recognition
+[] a fin:Transaction ;
+   fin:hasAccount fin:Depreciation ;
+   fin:hasAmount "5000"^^xsd:decimal ;
+   fin:hasCurrency "EUR" ;
+   fin:isIntercompany "false"^^xsd:boolean ;
+   fin:hasDate "2025-12-31"^^xsd:date ;
+   fin:hasPeriod "Q4-2025" ;
+   fin:hasEntity org:SubsidiaryEU ;
+   fin:description "Q4 depreciation - EU assets" .
+
+[] a fin:Transaction ;
+   fin:hasAccount fin:Amortization ;
+   fin:hasAmount "3000"^^xsd:decimal ;
+   fin:hasCurrency "EUR" ;
+   fin:isIntercompany "false"^^xsd:boolean ;
+   fin:hasDate "2025-12-31"^^xsd:date ;
+   fin:hasPeriod "Q4-2025" ;
+   fin:hasEntity org:SubsidiaryEU ;
+   fin:description "Q4 amortization - EU intangibles" .
+
+# Comparison data - Q3 2025 (for trending)
+[] a fin:Transaction ;
+   fin:hasAccount fin:SalesRevenue ;
+   fin:hasAmount "450000"^^xsd:decimal ;
+   fin:hasCurrency "USD" ;
+   fin:isIntercompany "false"^^xsd:boolean ;
+   fin:hasDate "2025-09-30"^^xsd:date ;
+   fin:hasPeriod "Q3-2025" ;
+   fin:hasEntity org:ParentCo ;
+   fin:description "Q3 total revenue for comparison" .
+
+# Prior year Q4 2024 (for YoY comparison)
+[] a fin:Transaction ;
+   fin:hasAccount fin:SalesRevenue ;
+   fin:hasAmount "480000"^^xsd:decimal ;
+   fin:hasCurrency "USD" ;
+   fin:isIntercompany "false"^^xsd:boolean ;
+   fin:hasDate "2024-12-31"^^xsd:date ;
+   fin:hasPeriod "Q4-2024" ;
+   fin:hasEntity org:ParentCo ;
+   fin:description "Prior year Q4 revenue" .

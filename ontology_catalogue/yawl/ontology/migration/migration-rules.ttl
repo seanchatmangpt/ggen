@@ -1,0 +1,344 @@
+@prefix rule: <http://yawl.io/java/migration/rule#> .
+@prefix j11:  <http://yawl.io/java/pattern/java11#> .
+@prefix j25:  <http://yawl.io/java/pattern/java25#> .
+@prefix java: <http://yawl.io/java#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+# =============================================================================
+# Migration Rules Ontology
+# Links Java 11 source patterns to Java 25 target patterns via migration rules.
+# Each rule has:
+#   - A source pattern class (from java11-patterns.ttl)
+#   - A target pattern class (from java25-patterns.ttl)
+#   - A SPARQL CONSTRUCT query that detects the source and produces the target
+#   - A Tera template for rendering the Java 25 code
+#   - Preconditions that must hold for the rule to apply
+# =============================================================================
+
+rule: a owl:Ontology ;
+    rdfs:label "Java Migration Rules" ;
+    rdfs:comment "CONSTRUCT-based migration rules mapping Java 11 patterns to Java 25 equivalents." ;
+    owl:imports <http://yawl.io/java/pattern/java11#> ;
+    owl:imports <http://yawl.io/java/pattern/java25#> ;
+    owl:versionInfo "1.0.0" .
+
+# ---------------------------------------------------------------------------
+# MigrationRule class
+# ---------------------------------------------------------------------------
+
+rule:MigrationRule a owl:Class ;
+    rdfs:label "Migration Rule" ;
+    rdfs:comment "A rule transforming a Java 11 source pattern into a Java 25 target pattern." .
+
+rule:sourcePattern a owl:ObjectProperty ;
+    rdfs:label "source pattern" ;
+    rdfs:comment "The Java 11 pattern class this rule detects." ;
+    rdfs:domain rule:MigrationRule ;
+    rdfs:range owl:Class .
+
+rule:targetPattern a owl:ObjectProperty ;
+    rdfs:label "target pattern" ;
+    rdfs:comment "The Java 25 pattern class this rule produces." ;
+    rdfs:domain rule:MigrationRule ;
+    rdfs:range owl:Class .
+
+rule:detectQuery a owl:DatatypeProperty ;
+    rdfs:label "detect query" ;
+    rdfs:comment "Path to the SPARQL SELECT query that identifies source pattern instances." ;
+    rdfs:domain rule:MigrationRule ;
+    rdfs:range xsd:string .
+
+rule:constructQuery a owl:DatatypeProperty ;
+    rdfs:label "construct query" ;
+    rdfs:comment "Path to the SPARQL CONSTRUCT query that produces target pattern RDF triples." ;
+    rdfs:domain rule:MigrationRule ;
+    rdfs:range xsd:string .
+
+rule:template a owl:DatatypeProperty ;
+    rdfs:label "template" ;
+    rdfs:comment "Path to the Tera template for rendering Java 25 replacement code." ;
+    rdfs:domain rule:MigrationRule ;
+    rdfs:range xsd:string .
+
+rule:priority a owl:DatatypeProperty ;
+    rdfs:label "priority" ;
+    rdfs:comment "Execution priority (1=first). Rules with lower numbers run first. Allows dependencies: record extraction before method body rewriting." ;
+    rdfs:domain rule:MigrationRule ;
+    rdfs:range xsd:integer .
+
+rule:complexity a owl:DatatypeProperty ;
+    rdfs:label "complexity" ;
+    rdfs:comment "Estimated migration complexity: LOW, MEDIUM, HIGH." ;
+    rdfs:domain rule:MigrationRule ;
+    rdfs:range xsd:string .
+
+rule:isAutomatic a owl:DatatypeProperty ;
+    rdfs:label "is automatic" ;
+    rdfs:comment "True if this rule can be applied automatically without human review." ;
+    rdfs:domain rule:MigrationRule ;
+    rdfs:range xsd:boolean .
+
+rule:requiresReview a owl:DatatypeProperty ;
+    rdfs:label "requires review" ;
+    rdfs:comment "True if the generated code requires human review before merging." ;
+    rdfs:domain rule:MigrationRule ;
+    rdfs:range xsd:boolean .
+
+rule:precondition a owl:DatatypeProperty ;
+    rdfs:label "precondition" ;
+    rdfs:comment "SPARQL ASK query that must return true for this rule to apply." ;
+    rdfs:domain rule:MigrationRule ;
+    rdfs:range xsd:string .
+
+rule:description a owl:DatatypeProperty ;
+    rdfs:label "description" ;
+    rdfs:domain rule:MigrationRule ;
+    rdfs:range xsd:string .
+
+# ---------------------------------------------------------------------------
+# Rule instances
+# ---------------------------------------------------------------------------
+
+rule:R01_ThreadToVirtualThread a rule:MigrationRule ;
+    rdfs:label "R01: Thread → Virtual Thread" ;
+    rule:sourcePattern j11:ThreadCreationPattern ;
+    rule:targetPattern j25:VirtualThreadPattern ;
+    rule:priority 1 ;
+    rule:complexity "LOW" ;
+    rule:isAutomatic true ;
+    rule:requiresReview false ;
+    rule:detectQuery "query/migration/detect-thread-creation.sparql" ;
+    rule:constructQuery "query/migration/construct-virtual-thread.sparql" ;
+    rule:template "templates/java25-migration/virtual-thread.tera" ;
+    rule:description """Replace new Thread(runnable).start() with Thread.ofVirtual().start(runnable).
+Virtual threads are JVM-managed, cheap to create, and block without consuming OS threads.
+Each YAWL work item execution can get its own virtual thread at negligible cost.""" .
+
+rule:R02_ExecutorToVirtualExecutor a rule:MigrationRule ;
+    rdfs:label "R02: ExecutorService Pool → Virtual Thread Executor" ;
+    rule:sourcePattern j11:ThreadPoolPattern ;
+    rule:targetPattern j25:VirtualThreadExecutorPattern ;
+    rule:priority 2 ;
+    rule:complexity "LOW" ;
+    rule:isAutomatic true ;
+    rule:requiresReview false ;
+    rule:detectQuery "query/migration/detect-thread-pool.sparql" ;
+    rule:constructQuery "query/migration/construct-virtual-thread.sparql" ;
+    rule:template "templates/java25-migration/virtual-thread.tera" ;
+    rule:description """Replace Executors.newFixedThreadPool(N) with Executors.newVirtualThreadPerTaskExecutor().
+For I/O-bound YAWL task execution, virtual threads eliminate the need for pool sizing.""" .
+
+rule:R03_ThreadLocalToScopedValue a rule:MigrationRule ;
+    rdfs:label "R03: ThreadLocal → ScopedValue" ;
+    rule:sourcePattern j11:ThreadLocalPattern ;
+    rule:targetPattern j25:ScopedValuePattern ;
+    rule:priority 3 ;
+    rule:complexity "HIGH" ;
+    rule:isAutomatic false ;
+    rule:requiresReview true ;
+    rule:detectQuery "query/migration/detect-thread-local.sparql" ;
+    rule:constructQuery "query/migration/construct-scoped-value.sparql" ;
+    rule:template "templates/java25-migration/scoped-value.tera" ;
+    rule:description """Replace ThreadLocal<T> with ScopedValue<T> for context propagation.
+ScopedValue is structured: values are bound for a specific scope via ScopedValue.runWhere().
+Requires careful analysis of call site — ThreadLocal.set() has no direct ScopedValue equivalent.
+Manual review required to ensure correctness of scope boundaries.""" .
+
+rule:R04_PojoToRecord a rule:MigrationRule ;
+    rdfs:label "R04: Getter/Setter POJO → Record" ;
+    rule:sourcePattern j11:GetterSetterPojoPattern ;
+    rule:targetPattern j25:RecordPattern ;
+    rule:priority 4 ;
+    rule:complexity "LOW" ;
+    rule:isAutomatic true ;
+    rule:requiresReview false ;
+    rule:precondition "ASK { ?class java:hasOnlyGettersSetters true ; java:hasNoMutableFields true }" ;
+    rule:detectQuery "query/migration/detect-pojo-record.sparql" ;
+    rule:constructQuery "query/migration/construct-record.sparql" ;
+    rule:template "templates/java25-migration/record.tera" ;
+    rule:description """Replace POJO class with only private final fields + getters (no setters needed) with a record.
+Records provide canonical constructor, equals, hashCode, toString, and accessor methods automatically.
+YAWL data carrier classes (YWorkItem data, decomposition params) are ideal candidates.""" .
+
+rule:R05_AnonymousClassToLambda a rule:MigrationRule ;
+    rdfs:label "R05: Anonymous Class → Lambda" ;
+    rule:sourcePattern j11:RunnableAnonymousClassPattern ;
+    rule:targetPattern j25:LambdaPattern ;
+    rule:priority 5 ;
+    rule:complexity "LOW" ;
+    rule:isAutomatic true ;
+    rule:requiresReview false ;
+    rule:detectQuery "query/migration/detect-anonymous-class.sparql" ;
+    rule:constructQuery "query/migration/construct-lambda.sparql" ;
+    rule:template "templates/java25-migration/lambda.tera" ;
+    rule:description """Replace single-method anonymous class (Runnable, Callable, Comparator, etc.) with lambda.
+Applies only to functional interfaces — one abstract method.
+new Runnable() { public void run() { ... } } → () -> { ... }""" .
+
+rule:R06_InstanceofCastToPatternMatching a rule:MigrationRule ;
+    rdfs:label "R06: instanceof + Cast → Pattern Matching instanceof" ;
+    rule:sourcePattern j11:InstanceofCastPattern ;
+    rule:targetPattern j25:PatternMatchingInstanceofPattern ;
+    rule:priority 6 ;
+    rule:complexity "LOW" ;
+    rule:isAutomatic true ;
+    rule:requiresReview false ;
+    rule:detectQuery "query/migration/detect-instanceof-cast.sparql" ;
+    rule:constructQuery "query/migration/construct-pattern-matching.sparql" ;
+    rule:template "templates/java25-migration/pattern-matching.tera" ;
+    rule:description """Replace if (x instanceof Foo) { Foo f = (Foo) x; ... } with if (x instanceof Foo f) { ... }.
+The binding variable f is automatically in scope in the true branch.
+Eliminates redundant cast. Common in YAWL element handling (YTask, YCondition, YFlow checks).""" .
+
+rule:R07_ChainedInstanceofToSwitchPattern a rule:MigrationRule ;
+    rdfs:label "R07: Chained instanceof → Switch Pattern Matching" ;
+    rule:sourcePattern j11:ChainedInstanceofPattern ;
+    rule:targetPattern j25:SwitchPatternMatchingPattern ;
+    rule:priority 7 ;
+    rule:complexity "MEDIUM" ;
+    rule:isAutomatic true ;
+    rule:requiresReview false ;
+    rule:detectQuery "query/migration/detect-chained-instanceof.sparql" ;
+    rule:constructQuery "query/migration/construct-pattern-matching.sparql" ;
+    rule:template "templates/java25-migration/pattern-matching.tera" ;
+    rule:description """Replace if/else if (x instanceof A) / (x instanceof B) chains with switch(x) { case A a -> ...; case B b -> ...; }.
+Compiler verifies exhaustiveness for sealed hierarchies.
+YAWL net elements (YTask/YCondition/YFlow/YMultipleInstanceTask) are ideal for sealed hierarchy + switch.""" .
+
+rule:R08_SwitchStatementToExpression a rule:MigrationRule ;
+    rdfs:label "R08: Switch Statement → Switch Expression" ;
+    rule:sourcePattern j11:SwitchStatementPattern ;
+    rule:targetPattern j25:SwitchExpressionPattern ;
+    rule:priority 8 ;
+    rule:complexity "LOW" ;
+    rule:isAutomatic true ;
+    rule:requiresReview false ;
+    rule:detectQuery "query/migration/detect-switch-statement.sparql" ;
+    rule:constructQuery "query/migration/construct-switch-expression.sparql" ;
+    rule:template "templates/java25-migration/switch-expression.tera" ;
+    rule:description """Replace switch statement with switch expression using arrow cases.
+Eliminates break statements. Can be used as an expression (assign result directly).
+Compiler enforces exhaustiveness. Does not apply to switches with intentional fallthrough (R08b).""" .
+
+rule:R09_StringFormatToTextBlock a rule:MigrationRule ;
+    rdfs:label "R09: String.format() Multi-line → Text Block" ;
+    rule:sourcePattern j11:MultiLineStringPattern ;
+    rule:targetPattern j25:FormattedTextBlockPattern ;
+    rule:priority 9 ;
+    rule:complexity "LOW" ;
+    rule:isAutomatic true ;
+    rule:requiresReview false ;
+    rule:precondition "ASK { ?call java:isMultiLine true }" ;
+    rule:detectQuery "query/migration/detect-string-format.sparql" ;
+    rule:constructQuery "query/migration/construct-text-block.sparql" ;
+    rule:template "templates/java25-migration/text-block.tera" ;
+    rule:description """Replace multi-line String.format() or concatenated strings with text block + .formatted().
+Applies only to strings that span multiple lines or contain \\n sequences.
+YAWL XML generation code is a prime candidate (spec XML, error messages, log formatting).""" .
+
+rule:R10_DateToInstant a rule:MigrationRule ;
+    rdfs:label "R10: Date/Calendar → java.time" ;
+    rule:sourcePattern j11:DateCalendarPattern ;
+    rule:targetPattern j25:InstantPattern ;
+    rule:priority 10 ;
+    rule:complexity "MEDIUM" ;
+    rule:isAutomatic true ;
+    rule:requiresReview false ;
+    rule:detectQuery "query/migration/detect-date-calendar.sparql" ;
+    rule:constructQuery "query/migration/construct-java-time.sparql" ;
+    rule:template "templates/java25-migration/java-time.tera" ;
+    rule:description """Replace java.util.Date and java.util.Calendar with java.time.Instant and java.time.LocalDateTime.
+Instant for timestamps (UTC), LocalDateTime for local time display.
+SimpleDateFormat → DateTimeFormatter (thread-safe static final).
+YAWL case timestamps and work item timing use Date — migrate to Instant.""" .
+
+rule:R11_LegacyCollectionToModern a rule:MigrationRule ;
+    rdfs:label "R11: Legacy Collection → Modern Alternative" ;
+    rule:sourcePattern j11:LegacyCollectionPattern ;
+    rule:targetPattern j25:ImmutableCollectionPattern ;
+    rule:priority 11 ;
+    rule:complexity "LOW" ;
+    rule:isAutomatic true ;
+    rule:requiresReview false ;
+    rule:detectQuery "query/migration/detect-legacy-collections.sparql" ;
+    rule:constructQuery "query/migration/construct-collections.sparql" ;
+    rule:template "templates/java25-migration/collections.tera" ;
+    rule:description """Replace Vector, Hashtable, Stack with modern alternatives.
+Vector → ArrayList or CopyOnWriteArrayList (if concurrent reads needed)
+Hashtable → HashMap or ConcurrentHashMap
+Stack → ArrayDeque (as Deque)
+For initialization-only cases: List.of(), Map.of(), Set.of() (immutable).""" .
+
+rule:R12_RawTypeToGeneric a rule:MigrationRule ;
+    rdfs:label "R12: Raw Type → Parameterized Generic" ;
+    rule:sourcePattern j11:RawTypePattern ;
+    rule:targetPattern j25:ImmutableCollectionPattern ;
+    rule:priority 12 ;
+    rule:complexity "LOW" ;
+    rule:isAutomatic true ;
+    rule:requiresReview false ;
+    rule:detectQuery "query/migration/detect-raw-types.sparql" ;
+    rule:constructQuery "query/migration/construct-collections.sparql" ;
+    rule:template "templates/java25-migration/collections.tera" ;
+    rule:description """Replace raw types (List, Map, Set) with parameterized generics.
+Where type is obvious from usage, infer type parameter.
+Where inference is ambiguous, emit wildcard <?> with TODO comment for human review.""" .
+
+rule:R13_SynchronizedToStructuredScope a rule:MigrationRule ;
+    rdfs:label "R13: Synchronized Engine Methods → StructuredTaskScope" ;
+    rule:sourcePattern j11:YawlSynchronizedEnginePattern ;
+    rule:targetPattern j25:YawlVirtualEnginePattern ;
+    rule:priority 13 ;
+    rule:complexity "HIGH" ;
+    rule:isAutomatic false ;
+    rule:requiresReview true ;
+    rule:detectQuery "query/migration/detect-synchronized.sparql" ;
+    rule:constructQuery "query/migration/construct-structured-concurrency.sparql" ;
+    rule:template "templates/java25-migration/structured-concurrency.tera" ;
+    rule:description """Replace synchronized YAWL engine methods with StructuredTaskScope-based coordination.
+This is a HIGH complexity migration requiring deep analysis of YAWL net firing semantics.
+The YAWL engine's advance() method coordinates multiple concurrent task firings —
+StructuredTaskScope.ShutdownOnFailure provides structured lifetime management.
+Human review mandatory: YAWL soundness properties must be preserved.""" .
+
+# ---------------------------------------------------------------------------
+# Migration Phase metadata
+# ---------------------------------------------------------------------------
+
+rule:MigrationPhase a owl:Class ;
+    rdfs:label "Migration Phase" ;
+    rdfs:comment "A phase in the sequential migration pipeline." .
+
+rule:Phase1_Analyze a rule:MigrationPhase ;
+    rdfs:label "Phase 1: Analyze" ;
+    rdfs:comment "Parse Java source into RDF codebase ontology. Run detect-* SELECT queries. Produce migration-report.json." .
+
+rule:Phase2_Plan a rule:MigrationPhase ;
+    rdfs:label "Phase 2: Plan" ;
+    rdfs:comment "Run CONSTRUCT queries to produce j25: pattern triples. Prioritize rules by complexity (LOW → HIGH). Identify dependencies between rules." .
+
+rule:Phase3_Generate a rule:MigrationPhase ;
+    rdfs:label "Phase 3: Generate" ;
+    rdfs:comment "For each j25: pattern instance, render Tera template with pattern data. Write generated files to emit/ directory." .
+
+rule:Phase4_Validate a rule:MigrationPhase ;
+    rdfs:label "Phase 4: Validate" ;
+    rdfs:comment "Compile generated code with javac. Run guard validation (H phase: no TODO/mock/stub). Run existing test suite." .
+
+rule:Phase5_Commit a rule:MigrationPhase ;
+    rdfs:label "Phase 5: Commit" ;
+    rdfs:comment "Review migration report. Apply validated LOW+MEDIUM complexity migrations atomically. Commit with semantic message. Flag HIGH complexity for manual review." .
+
+rule:nextPhase a owl:ObjectProperty ;
+    rdfs:label "next phase" ;
+    rdfs:domain rule:MigrationPhase ;
+    rdfs:range rule:MigrationPhase .
+
+rule:Phase1_Analyze rule:nextPhase rule:Phase2_Plan .
+rule:Phase2_Plan    rule:nextPhase rule:Phase3_Generate .
+rule:Phase3_Generate rule:nextPhase rule:Phase4_Validate .
+rule:Phase4_Validate rule:nextPhase rule:Phase5_Commit .

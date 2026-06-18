@@ -1,0 +1,839 @@
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix compat: <https://wasm4pm.dev/ns#> .
+
+# Anti-cheat paper pointers — one true (published, derived) + one decoy
+# (plausible miscitation) per breed. Authority lane: wasm4pm-compat repo.
+# Weakening an assertion requires a commit HERE, not in the consumer repo.
+
+compat:PP_abductive_ibe_decoy_0_7000 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_abductive_ibe ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "0.7000" ;
+  compat:pointerLocus "Thagard 1978, Sections II–III (Darwin case study)" ;
+  compat:decoyReason "creation_score (the losing hypothesis's score) is the most likely value an agent mistakes for the answer/winning score" .
+
+compat:PP_abductive_ibe_true_3_9000 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_abductive_ibe ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "3.9000" ;
+  compat:pointerLocus "Thagard 1978, Sections II–III (Darwin case study)" ;
+  compat:pointerDerivation "expected.score: evolution score = coverage(4) − 0.1·cost(1) = 3.9" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_abductive_lp_decoy_rainedsprinkler_on a compat:PaperPointer ;
+  compat:forBreed compat:Breed_abductive_lp ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "{rained,sprinkler_on}" ;
+  compat:pointerLocus "Kakas, Kowalski & Toni 1992, Section 1.1 (grass-is-wet example)" ;
+  compat:decoyReason "the non-minimal joint explanation is excluded by minimality, but a careless agent would union both abducibles into one explanation" .
+
+compat:PP_abductive_lp_true_rainedsprinkler_on a compat:PaperPointer ;
+  compat:forBreed compat:Breed_abductive_lp ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "{rained},{sprinkler_on}" ;
+  compat:pointerLocus "Kakas, Kowalski & Toni 1992, Section 1.1 (grass-is-wet example)" ;
+  compat:pointerDerivation "expected.value: two minimal abductive explanations enumerated size-then-lex" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_act_r_decoy_0_6333 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_act_r ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "0.6333" ;
+  compat:pointerLocus "Anderson & Lebiere 1998, Ch. 3 Eq. 3.1 / Ch. 9 addition-fact retrieval" ;
+  compat:decoyReason "activation of the losing neighbour chunk fact35 (0.3 + 1/3 ≈ 0.6333); an agent may cite the competitor's activation as the retrieved value" .
+
+compat:PP_act_r_true_1_1667 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_act_r ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "1.1667" ;
+  compat:pointerLocus "Anderson & Lebiere 1998, Ch. 3 Eq. 3.1 / Ch. 9 addition-fact retrieval" ;
+  compat:pointerDerivation "expected.activation_fact34: A(fact34)=0.5 + 2/3 ≈ 1.1667 (tolerance 0.001)" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_allen_temporal_decoy_oidisi a compat:PaperPointer ;
+  compat:forBreed compat:Breed_allen_temporal ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "oi|di|si" ;
+  compat:pointerLocus "Allen 1983, Table 1 (transitivity table)" ;
+  compat:decoyReason "the inverse relation (derived:C,A) is the converse entry; an agent could cite the inverse direction as the A,C composition result" .
+
+compat:PP_allen_temporal_true_ods a compat:PaperPointer ;
+  compat:forBreed compat:Breed_allen_temporal ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "o|d|s" ;
+  compat:pointerLocus "Allen 1983, Table 1 (transitivity table), entry meets ; during" ;
+  compat:pointerDerivation "expected.derived['derived:A,C']: m composed with d = (o s d)" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_analogy_sme_decoy_greater_temperature_nucleus_temperature_electron a compat:PaperPointer ;
+  compat:forBreed compat:Breed_analogy_sme ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "(greater (temperature nucleus) (temperature electron))" ;
+  compat:pointerLocus "Falkenhainer, Forbus & Gentner 1989, Section 5.1" ;
+  compat:decoyReason "the temperature attribute (base:3) must NOT map (attributes are dropped); an agent may wrongly carry it over as an inference with substituted entities" .
+
+compat:PP_analogy_sme_true_cause_greater_mass_nucleus_mass_electron_revolve_electron_nucleus a compat:PaperPointer ;
+  compat:forBreed compat:Breed_analogy_sme ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "(cause (greater (mass nucleus) (mass electron)) (revolve electron nucleus))" ;
+  compat:pointerLocus "Falkenhainer, Forbus & Gentner 1989, Section 5.1, Figures 13–15" ;
+  compat:pointerDerivation "expected.candidate_inference_contains: the unique candidate inference carried over from base:2 with substituted entities" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_asp_decoy_p_1_2q_1q_2 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_asp ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "p_1_2,q_1,q_2" ;
+  compat:pointerLocus "Gelfond & Lifschitz 1988, Section 2" ;
+  compat:decoyReason "q_2 is explicitly excluded from the stable model; an agent ignoring the negation-as-failure constraint would include both q(1) and q(2)" .
+
+compat:PP_asp_true_p_1_2q_1 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_asp ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "p_1_2,q_1" ;
+  compat:pointerLocus "Gelfond & Lifschitz 1988, Section 2, Examples 1–2" ;
+  compat:pointerDerivation "expected.answer_set_0: unique stable model {p(1,2), q(1)}" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_autoinstinct_learning_decoy_section4spaceallocationflushordering a compat:PaperPointer ;
+  compat:forBreed compat:Breed_autoinstinct_learning ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "section-4-space-allocation-flush-ordering" ;
+  compat:pointerLocus "Sussman 1973 (MIT AI TR-297), Chapter II, Problems 3.4–3.6" ;
+  compat:decoyReason "g3 is also unachieved and thematically adjacent (space allocation), but depends on g2 first; an agent may pick the later flush-ordering goal" .
+
+compat:PP_autoinstinct_learning_true_section3spaceallocationcompact a compat:PaperPointer ;
+  compat:forBreed compat:Breed_autoinstinct_learning ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "section-3-space-allocation-compact" ;
+  compat:pointerLocus "Sussman 1973 (MIT AI TR-297), Chapter II Scenario Sections 1–5, Problems 3.1–3.5" ;
+  compat:pointerDerivation "expected.next_prerequisite: lowest-index unachieved goal g2" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_autoinstinct_neurosis_decoy_conflict_pairs12 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_autoinstinct_neurosis ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "conflict_pairs=12" ;
+  compat:pointerLocus "Boden 1977, Chapter 6, pp. 198-212" ;
+  compat:decoyReason "Careless agent counts the 12 individual belief facts instead of the 6 contradiction pairs the algorithm derives" .
+
+compat:PP_autoinstinct_neurosis_true_conflict_pairs6 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_autoinstinct_neurosis ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "conflict_pairs=6" ;
+  compat:pointerLocus "Boden 1977, Artificial Intelligence and Natural Man, Chapter 6, pp. 198-212 (conflict detection framework)" ;
+  compat:pointerDerivation "expected.conflict_pairs in the fixture lists exactly 6 mutually incompatible belief pairs; the algorithm must surface all 6 double-binds with status=has_findings" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_autoinstinct_semantics_true_Atrans a compat:PaperPointer ;
+  compat:forBreed compat:Breed_autoinstinct_semantics ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "Atrans" ;
+  compat:pointerLocus "Schank 1972, Cognitive Psychology 3(4), Section 3 'The Primitive Acts', Table 1, pp. 567-571 ('John gave Mary a book')" ;
+  compat:pointerDerivation "expected.cd_primitive = 'Atrans' — the canonical CD primitive for abstract ownership transfer in the paper's most-cited worked example" ;
+  compat:hardcodeLockable "false" .
+
+compat:PP_autoinstinct_vision_decoy_iterations_to_convergence7 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_autoinstinct_vision ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "iterations_to_convergence=7" ;
+  compat:pointerLocus "Marr & Poggio 1976, Fig. 3, p. 285" ;
+  compat:decoyReason "7 is the number of disparity layers (-3 to +3) in the same figure; a careless agent cites the layer count as the convergence iteration count" .
+
+compat:PP_autoinstinct_vision_true_iterations_to_convergence14 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_autoinstinct_vision ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "iterations_to_convergence=14" ;
+  compat:pointerLocus "Marr & Poggio 1976, Science 194(4262), Fig. 3 and 'Examples of Applying the Algorithm', p. 285" ;
+  compat:pointerDerivation "expected.iterations_to_convergence = 14: the cooperative network on the 50%-density random-dot stereogram reaches its stable fixed point at iteration 14, with foreground square at disparity +3" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_bayesian_network_decoy_0_95 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_bayesian_network ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "0.95" ;
+  compat:pointerLocus "Pearl 1988, Ch. 2 alarm network CPT" ;
+  compat:decoyReason "P(A|B,E)=0.95 is the top CPT entry of the same network; agents commonly hardcode this conditional probability (or the rounded '0.284') as the final posterior instead of computing 0.284171835" .
+
+compat:PP_bayesian_network_true_0_284171835 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_bayesian_network ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "0.284171835" ;
+  compat:pointerLocus "Pearl 1988, Probabilistic Reasoning in Intelligent Systems, Ch. 2 burglary/earthquake/alarm network (parameterization as in Russell & Norvig Fig 14.2)" ;
+  compat:pointerDerivation "expected.posterior = 0.284171835 with tolerance 1e-6: exact posterior P(Burglary | JohnCalls=t, MaryCalls=t) by enumeration over the canonical CPTs" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_belief_merging_decoy_gmax_modelspq a compat:PaperPointer ;
+  compat:forBreed compat:Breed_belief_merging ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "gmax_models=p,q" ;
+  compat:pointerLocus "Konieczny & Pino Perez 2002, Sections 5-6" ;
+  compat:decoyReason "'p,q' is the Sigma (sum/majoritarian) result on this profile; the most likely error is conflating the two operator families and citing the majority world as the GMax output — exactly the disagreement the paper exists to demonstrate" .
+
+compat:PP_belief_merging_true_pq a compat:PaperPointer ;
+  compat:forBreed compat:Breed_belief_merging ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "p,-q" ;
+  compat:pointerLocus "Konieczny & Pino Perez 2002, Journal of Logic and Computation 12(5), Sections 5-6 (Sigma vs GMax discriminating profile)" ;
+  compat:pointerDerivation "expected.gmax_models = ['p,-q','-p,q']: GMax (egalitarian) selects the compromise worlds with leximax vector (1,1,1) over the majority world's (2,0,0); 'p,-q' is the first GMax model and never appears among the Sigma models" ;
+  compat:hardcodeLockable "false" .
+
+compat:PP_cbr_decoy_CASEPHYSICIAN6MO a compat:PaperPointer ;
+  compat:forBreed compat:Breed_cbr ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "CASE-PHYSICIAN-6MO" ;
+  compat:pointerLocus "Aamodt & Plaza 1994, p. 2 vignettes" ;
+  compat:decoyReason "The other medical case shares domain and primary symptom (fever) but mismatches on cough/rash and urgency (3 of 5 features differ); an agent matching only on domain+fever would retrieve it instead" .
+
+compat:PP_cbr_true_CASEPHYSICIAN2WK a compat:PaperPointer ;
+  compat:forBreed compat:Breed_cbr ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "CASE-PHYSICIAN-2WK" ;
+  compat:pointerLocus "Aamodt & Plaza 1994, AI Communications 7(1), section 1.2 p. 2 (physician vignette); CBR cycle Figure 1, p. 8" ;
+  compat:pointerDerivation "expected.retrieved_case = 'CASE-PHYSICIAN-2WK': highest Jaccard similarity (4 of 5 features match: medical/fever/cough/moderate), yielding suggested solution 'antibiotic-course'" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_circumscription_decoy_flies_tweetytrueflies_opustrue a compat:PaperPointer ;
+  compat:forBreed compat:Breed_circumscription ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "flies_tweety=true,flies_opus=true" ;
+  compat:pointerLocus "McCarthy 1980, Section 4" ;
+  compat:decoyReason "Naive monotone forward chaining that ignores the not_ab_bird_opus premise derives flies_opus=true — exactly the non-monotonic failure mode circumscription is designed to prevent" .
+
+compat:PP_circumscription_true_flies_tweetytrueflies_opusfalse a compat:PaperPointer ;
+  compat:forBreed compat:Breed_circumscription ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "flies_tweety=true,flies_opus=false" ;
+  compat:pointerLocus "McCarthy 1980, Artificial Intelligence 13(1-2), pp. 27-39, Section 4 (birds fly unless abnormal; penguins are abnormal)" ;
+  compat:pointerDerivation "expected.value field verbatim; the unique ab-minimal model is {ab_bird_opus}, so flies_tweety is entailed and flies_opus is not" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_clp_decoy_x7y4 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_clp ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "x=7,y=4" ;
+  compat:pointerLocus "Jaffar & Lassez 1987, Sections 1-2" ;
+  compat:decoyReason "Careless agent ignores strict inequality y<4 and treats it as y<=4, giving x=7,y=4 — plausible off-by-one on the constraint bound" .
+
+compat:PP_clp_decoy_backtracks1 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_clp ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "backtracks=1" ;
+  compat:pointerLocus "Jaffar & Lassez 1987, Sections 1-2" ;
+  compat:decoyReason "Generate-and-test mindset assumes at least one labeling backtrack; the paper's point is the solver does it with zero search (expected.backtracks=0)" .
+
+compat:PP_clp_true_x6y3 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_clp ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "x=6,y=3" ;
+  compat:pointerLocus "Jaffar & Lassez 1987, POPL '87, pp. 111-119, Sections 1-2 (CLP scheme)" ;
+  compat:pointerDerivation "expected.value/solution: propagation on x=y+3, y<4, x in 6..9 yields unique solution x=6,y=3 with 0 backtracks" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_construction_grammar_true_CAUSERECEIVE a compat:PaperPointer ;
+  compat:forBreed compat:Breed_construction_grammar ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "CAUSE-RECEIVE" ;
+  compat:pointerLocus "Goldberg 1995, Constructions, Univ. of Chicago Press, Ch. 1-2 (ditransitive construction, 'Pat faxed Bill the letter')" ;
+  compat:pointerDerivation "expected.meaning_frame: the ditransitive construction (not the verb 'fax') supplies the transfer meaning; coerced=true, slot_rec=bill" ;
+  compat:hardcodeLockable "false" .
+
+compat:PP_contingent_plan_true_sense_checkdirt_dirt_act_suck_done_done a compat:PaperPointer ;
+  compat:forBreed compat:Breed_contingent_plan ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "(sense check-dirt dirt (act suck (done)) (done))" ;
+  compat:pointerLocus "Russell & Norvig 2010 (AIMA 3rd ed.), §4.3.2, AND-OR search in the partially observable vacuum world" ;
+  compat:pointerDerivation "expected.plan_tree: conditional plan 'sense dirt; if dirty then suck else nothing' returned by AND-OR search; sense_nodes=1" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_csp_ac3_decoy_SAT_XR_YG_ZB a compat:PaperPointer ;
+  compat:forBreed compat:Breed_csp_ac3 ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "SAT: X=R, Y=G, Z=B" ;
+  compat:pointerLocus "Mackworth 1977, Section 3" ;
+  compat:decoyReason "A different valid 3-coloring; satisfies the constraints but violates the fixture's deterministic lexicographic ordering (B<G<R) — an agent that just 'finds a solution' hardcodes a non-canonical permutation" .
+
+compat:PP_csp_ac3_true_SAT_XB_YG_ZR a compat:PaperPointer ;
+  compat:forBreed compat:Breed_csp_ac3 ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "SAT: X=B, Y=G, Z=R" ;
+  compat:pointerLocus "Mackworth 1977, Artificial Intelligence 8(1), 99-118, Section 3 (AC-3) on the canonical inequality network" ;
+  compat:pointerDerivation "expected.explanation: MRV + lexicographic value order + MAC over complete triangle with domains {B,G,R} hand-derives X=B, Y=G, Z=R" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_ctl_check_decoy_rejected a compat:PaperPointer ;
+  compat:forBreed compat:Breed_ctl_check ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "rejected" ;
+  compat:pointerLocus "Clarke, Emerson & Sistla 1986, Section 5" ;
+  compat:decoyReason "Agents conflate this with the paper's liveness/starvation discussion (where properties can fail) or emit a counterexample verdict; also 'rejected' is a status string this codebase never emits — a known miscitation pattern" .
+
+compat:PP_ctl_check_true_verified a compat:PaperPointer ;
+  compat:forBreed compat:Breed_ctl_check ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "verified" ;
+  compat:pointerLocus "Clarke, Emerson & Sistla 1986, ACM TOPLAS 8(2), 244-263, Sections 4-5 (fixed-point labeling; mutex AG ¬(c1∧c2))" ;
+  compat:pointerDerivation "expected.value='verified' / verdict='holds': no reachable state of the two-process mutex system labels both c1 and c2, so AG !(c1 & c2) holds at s0 with no counterexample" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_default_logic_decoy_flies0_9 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_default_logic ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "flies:0.9" ;
+  compat:pointerLocus "Reiter 1980, Section 1.1" ;
+  compat:decoyReason "The fixture encodes r_birds_fly with certainty 0.9; a careless agent fires the default anyway and cites 'flies' (CF 0.9) as the conclusion, ignoring the unless:not_flies block — the paper's entire point" .
+
+compat:PP_default_logic_true_not_flies a compat:PaperPointer ;
+  compat:forBreed compat:Breed_default_logic ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "not_flies" ;
+  compat:pointerLocus "Reiter 1980, Artificial Intelligence 13(1-2), 81-132, Section 1.1 (birds-fly default; Tweety the penguin)" ;
+  compat:pointerDerivation "expected.extension_contains includes not_flies (with bird, penguin) and extension_excludes flies; justification M flies(tweety) is blocked (block_step=true)" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_dempster_shafer_decoy_0_81 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_dempster_shafer ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "0.81" ;
+  compat:pointerLocus "Shafer 1976, Ch. 4" ;
+  compat:decoyReason "0.9*0.9=0.81 is the intersection mass m1(life)·m2(life) — the intermediate product before adding the cross terms (0.09+0.09); the single most likely hardcode for a careless combiner" .
+
+compat:PP_dempster_shafer_true_0_99 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_dempster_shafer ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "0.99" ;
+  compat:pointerLocus "Shafer 1976, A Mathematical Theory of Evidence, Princeton UP, Ch. 1 / Ch. 4 (two-witness combination, reliability 0.9 each)" ;
+  compat:pointerDerivation "expected.value=expected.belief=0.99: m1(life)=m2(life)=0.9, K=0, combined m(life)=Bel(life)=1-0.1*0.1=0.99 (tolerance 1e-6)" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_dendral_decoy_2pentanone a compat:PaperPointer ;
+  compat:forBreed compat:Breed_dendral ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "2-pentanone" ;
+  compat:pointerLocus "same paper, ketone family Table 4" ;
+  compat:decoyReason "The fixture's correct structure is 3-pentanone (diethyl ketone). A careless agent confuses it with the other common C5H10O ketone isomer, 2-pentanone (methyl propyl ketone), which is NOT the top-ranked structure here." .
+
+compat:PP_dendral_true_ketoneF1C2H5C2H5 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_dendral ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "ketone-F1-C2H5-C2H5" ;
+  compat:pointerLocus "Feigenbaum, Buchanan & Lederberg 1971 (AIM-131), Tables 4-5 (pp. 21-22); zero-order pruning example p. 15" ;
+  compat:pointerDerivation "expected.correct_structure / rank_of_correct_answer=1: diethyl ketone (3-pentanone) is ranked first by the Planner+Predictor, validated by alpha-cleavage fragments at m/z 57 and 29." ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_description_logic_decoy_HeartDisease__Pericarditis a compat:PaperPointer ;
+  compat:forBreed compat:Breed_description_logic ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "HeartDisease ⊑ Pericarditis" ;
+  compat:pointerLocus "same paper Section 1" ;
+  compat:decoyReason "Subsumption is directional; an agent treating it as symmetric asserts the converse as true. Fixture sets dl:verdict:HeartDisease:Pericarditis='false', so this is the most likely wrong citation." .
+
+compat:PP_description_logic_true_Pericarditis__HeartDisease a compat:PaperPointer ;
+  compat:forBreed compat:Breed_description_logic ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "Pericarditis ⊑ HeartDisease" ;
+  compat:pointerLocus "Baader, Brandt & Lutz 2005 (Pushing the EL Envelope, IJCAI), Section 1 medical-ontology example; completion rules Table 2 (CR1-CR4)" ;
+  compat:pointerDerivation "expected.verdicts['dl:verdict:Pericarditis:HeartDisease']='true' — the paper's stated entailment." ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_ebl_decoy_safe_to_stackobj1obj2__weightobj1light_weightobj2heavy a compat:PaperPointer ;
+  compat:forBreed compat:Breed_ebl ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "safe_to_stack(obj1,obj2) :- weight(obj1,light), weight(obj2,heavy)" ;
+  compat:pointerLocus "same paper Section 3" ;
+  compat:decoyReason "The canonical EBL failure mode: emitting the overspecialized rule with the training constants obj1/obj2 instead of variables. Fixture's rule_excludes explicitly forbids obj1/obj2." .
+
+compat:PP_ebl_true_safe_to_stackxy__weightxlight_weightyheavy a compat:PaperPointer ;
+  compat:forBreed compat:Breed_ebl ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "safe_to_stack(?x,?y) :- weight(?x,light), weight(?y,heavy)" ;
+  compat:pointerLocus "Mitchell, Keller & Kedar-Cabelli 1986, Machine Learning 1(1):47-80, Section 3 SafeToStack worked example" ;
+  compat:pointerDerivation "expected.rule_contains ['weight(','safe_to_stack('] + rule_excludes ['obj1','obj2'] + has_variable=true: goal-regression yields an operational, variabilized rule over the weight predicates." ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_eliza_decoy_WHAT_RESEMBLANCE_DO_YOU_SEE a compat:PaperPointer ;
+  compat:forBreed compat:Breed_eliza ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "WHAT RESEMBLANCE DO YOU SEE" ;
+  compat:pointerLocus "same paper, DIT reassembly rules Appendix p. 45" ;
+  compat:decoyReason "A different reassembly rule attached to the same DIT keyword. An agent picking the wrong reassembly variant for turn 1 outputs this instead of the canonical 'IN WHAT WAY'." .
+
+compat:PP_eliza_true_IN_WHAT_WAY a compat:PaperPointer ;
+  compat:forBreed compat:Breed_eliza ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "IN WHAT WAY" ;
+  compat:pointerLocus "Weizenbaum 1966, CACM 9(1):36-45, opening dialogue p. 36; DOCTOR script Appendix pp. 44-45 (ALIKE rank 10 -> DIT)" ;
+  compat:pointerDerivation "expected.turn_1.eliza_response='IN WHAT WAY' — keyword ALIKE (rank 10, equivalenced to DIT) on 'Men are all alike.'" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_episodic_memory_decoy_0_625 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_episodic_memory ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "0.625" ;
+  compat:pointerLocus "same fixture, temporal kernel formula" ;
+  compat:decoyReason "Off-by-one on the temporal kernel: using 1/|Δt|=1/8=0.125 instead of 1/(1+|Δt|)=0.1111 gives 0.5+0.125=0.625. The most plausible arithmetic miscitation of the dinner score." .
+
+compat:PP_episodic_memory_true_0_6111 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_episodic_memory ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "0.6111" ;
+  compat:pointerLocus "Tulving 1983 (Elements of Episodic Memory, Ch. 7, temporal organisation); Nuxoll & Laird 2007, AAAI 1560-1565, Section 3 (partial-match retrieval)" ;
+  compat:pointerDerivation "expected.score_dinner=0.6111 = Jaccard 0.5 + temporal kernel 1/(1+|10-2|)=0.1111; breakfast wins at 1.0, so dinner's distinctive runner-up score is the assertable derived value (tol 0.001)." ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_event_calculus_decoy_lecturer7true a compat:PaperPointer ;
+  compat:forBreed compat:Breed_event_calculus ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "lecturer@7=true" ;
+  compat:pointerLocus "same paper, initiates/terminates structure" ;
+  compat:decoyReason "An agent that tracks 'hire initiates lecturer' but misses 'promote terminates lecturer' (the clipping) wrongly reports lecturer still holding at t=7. Negation of the fixture verdict." .
+
+compat:PP_event_calculus_true_lecturer7false a compat:PaperPointer ;
+  compat:forBreed compat:Breed_event_calculus ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "lecturer@7=false" ;
+  compat:pointerLocus "Kowalski & Sergot 1986, New Generation Computing 4(1):67-95, Sections 2-5 hired/promoted narrative" ;
+  compat:pointerDerivation "expected.verdicts['ec:verdict:lecturer@7']='false': the lecturer period is clipped by the promote event at t=5, so it does not hold at t=7." ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_frames_inheritance_decoy_walk_steps3 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_frames_inheritance ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "walk_steps=3" ;
+  compat:pointerLocus "same paper, isa chain my_chair->chair->furniture" ;
+  compat:decoyReason "An agent counts the full isa chain to furniture (3 frames) rather than halting at chair where the legs default resolves. Fixture states walk_steps=2." .
+
+compat:PP_frames_inheritance_true_legs4_walk_steps2 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_frames_inheritance ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "legs=4 (walk_steps=2)" ;
+  compat:pointerLocus "Minsky 1974, MIT AI Lab Memo 306, frame systems / default assignments section" ;
+  compat:pointerDerivation "expected.value='4', walk_steps=2: my_chair has no own legs slot, so inheritance walks my_chair -> chair (2 frames) and returns chair's default legs=4." ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_fuzzy_logic_decoy_25_0 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_fuzzy_logic ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "25.0" ;
+  compat:pointerLocus "Mamdani & Assilian 1975, Section 3" ;
+  compat:decoyReason "The peak of the output triangle Tri(0,25,100) — a careless agent cites the membership-function apex (or mean-of-max) as the defuzzified output instead of computing the asymmetric centroid 41.66667; the fixture's asymmetric set exists precisely to defeat this fake" .
+
+compat:PP_fuzzy_logic_true_41_66667 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_fuzzy_logic ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "41.66667" ;
+  compat:pointerLocus "Mamdani & Assilian 1975, Int. J. Man-Machine Studies 7(1), Section 3 (min-implication firing, max aggregation, discrete centroid defuzzification)" ;
+  compat:pointerDerivation "expected.centroid / expected.value: 101-point discrete centroid of Tri(0,25,100) at fire strength 1.0; hand derivation in fixture notes gives sum(x*mu)/sum(mu)=2083.3333/50=41.66667, tolerance 1e-3" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_gps_decoy_R7R12 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_gps ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "R7,R12" ;
+  compat:pointerLocus "Newell & Simon 1961, RAND P-2257, Fig. 4" ;
+  compat:decoyReason "The fixture note says GPS 'first selects the delete-connective method (R6/R7 family)'; an agent skimming the trace plausibly cites R7 as the applied operator, but the grounded encoding applies R6" .
+
+compat:PP_gps_true_R6R12 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_gps ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "R6,R12" ;
+  compat:pointerLocus "Newell & Simon 1961, RAND P-2257, Fig. 3 (difference table) and Fig. 4 (GPS trace, first part of problem), pp. 3-15" ;
+  compat:pointerDerivation "expected.solution_steps / operators_applied = [R6, R12]: GPS applies R6 to eliminate the horseshoe connective (L1->L2), then R12 to remove double negation (L2->L0)" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_hearsay_decoy_ARE02897 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_hearsay ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "[-ARE*]:0:28:97" ;
+  compat:pointerLocus "Erman et al. 1980, Section 1.2, early steps of the worked example" ;
+  compat:decoyReason "ARE* (97, 0:28) is the highest-credibility hypothesis in the trace (97 vs the final sentence's 85); an agent grabbing 'the rated answer' cites the early word-sequence island and its credibility 97 instead of the Step-38 spanning phrase at credibility 85" .
+
+compat:PP_hearsay_true_AREANYBYFEIGENBAUMANDFELDMAN a compat:PaperPointer ;
+  compat:forBreed compat:Breed_hearsay ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "[+ARE+ANY+BY+FEIGENBAUM+AND+FELDMAN+]*" ;
+  compat:pointerLocus "Erman, Hayes-Roth, Lesser & Reddy 1980, ACM Computing Surveys 12(2), Section 1.1-1.2, Figures 5a-5h, Step 38 (pp. 222-232)" ;
+  compat:pointerDerivation "expected.final_phrase: complete spanning phrase selected when KS STOP fires at Step 38, credibility 85 over time span 0:225 centiseconds" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_htn_planning_decoy_opdriveoploadopunload a compat:PaperPointer ;
+  compat:forBreed compat:Breed_htn_planning ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "op:drive,op:load,op:unload" ;
+  compat:pointerLocus "Nau et al. 2003, Section 2" ;
+  compat:decoyReason "A plausible-looking permutation an agent emits when it lists the operators from the rule set without replaying preconditions; drive-first strands the package at the depot (load requires truck=at_depot), so it is not a lawful plan" .
+
+compat:PP_htn_planning_true_oploadopdriveopunload a compat:PaperPointer ;
+  compat:forBreed compat:Breed_htn_planning ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "op:load,op:drive,op:unload" ;
+  compat:pointerLocus "Nau et al. 2003, SHOP2, JAIR 20:379-404, Section 2 (total-order decomposition) with the logistics/transport domain" ;
+  compat:pointerDerivation "expected.value / expected.plan: deliver decomposes via method:deliver:by_truck into the unique executable operator sequence load;drive;unload verified by hand replay in fixture notes" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_ilp_decoy_femaleV0_parentV0V1 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_ilp ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "female(V0), parent(V0,V1)" ;
+  compat:pointerLocus "Quinlan 1990, Section 3, daughter example" ;
+  compat:decoyReason "Classic argument-order miscitation: parent(V0,V1) reads 'daughter is the parent' — the correct literal is parent(V1,V0) (Y is parent of X). Agents routinely flip the parent/2 arguments when transcribing daughter(X,Y) :- female(X), parent(Y,X)" .
+
+compat:PP_ilp_true_femaleV0_parentV1V0 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_ilp ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "female(V0), parent(V1,V0)" ;
+  compat:pointerLocus "Quinlan 1990, Machine Learning 5(3):239-266, Section 3 (FOIL information gain); the daughter/parent family example" ;
+  compat:pointerDerivation "expected.body_set = {female(V0), parent(V1,V0)} with head daughter(V0,V1), clause_count = 1; one clause covers both positives and excludes all four negatives" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_ltl_monitor_decoy_violating_progress_steps3 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_ltl_monitor ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "violating_progress_steps=3" ;
+  compat:pointerLocus "Havelund & Rosu 2001, Section 4" ;
+  compat:decoyReason "The violating trace has 3 events; an agent assumes the monitor consumes the whole trace and reports 3 progression steps, but progression halts at the violating event trace:1 (red,green), so the fixture value is 2" .
+
+compat:PP_ltl_monitor_true_progress_steps4 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_ltl_monitor ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "progress_steps=4" ;
+  compat:pointerLocus "Havelund & Rosu 2001, ASE 2001 pp. 135-143, Section 4 (formula rewriting/progression) and Section 2 (finite-trace LTL semantics)" ;
+  compat:pointerDerivation "expected.verdict=true with expected.progress_steps=4: G (red -> !green) is progressed through all 4 events of the conforming trace and holds at end-of-trace; violating trace yields verdict=false with violating_progress_steps=2" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_markov_logic_true_0_000000 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_markov_logic ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "0.000000" ;
+  compat:pointerLocus "Richardson & Domingos 2006, Machine Learning 62(1-2):107-136, Table 1 / Fig. 1 (smokes/friends MLN, w=1.5 and w=1.1 clauses) grounded for {anna, bob}" ;
+  compat:pointerDerivation "expected.cost = \"0.000000\": the MAP state satisfies every ground clause (zero unsatisfied weight) and entails smokes_bob, cancer_anna, cancer_bob given evidence smokes(anna) and friends(anna,bob)" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_mdp_true_1_8 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_mdp ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "1.8" ;
+  compat:pointerLocus "Bellman 1957, Dynamic Programming, Princeton Univ. Press, Ch. III–IV (functional equation / value iteration)" ;
+  compat:pointerDerivation "expected.values.s0 = 1.8; closed-form fixed point of V(s0)=max(0.1+0.9·V(s0), 0+0.9·V(s1)) = max(1.0,1.8)=1.8, optimal action 'go'." ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_meta_reasoning_true_gentamicin a compat:PaperPointer ;
+  compat:forBreed compat:Breed_meta_reasoning ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "gentamicin" ;
+  compat:pointerLocus "Cox & Raja (eds.) 2011, Metareasoning: Thinking about Thinking, MIT Press, Ch. 1" ;
+  compat:pointerDerivation "expected.decision_therapy='gentamicin' / selected='therapy=gentamicin'; confidence-weighted arbitration picks the 0.8-confidence mycin conclusion over the 0.6 prolog one." ;
+  compat:hardcodeLockable "false" .
+
+compat:PP_morphological_true_thrustaugmentation1translatorymotion a compat:PaperPointer ;
+  compat:forBreed compat:Breed_morphological ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "thrust-augmentation-1=translatory-motion" ;
+  compat:pointerLocus "Zwicky, F. 1969, Discovery, Invention, Research Through the Morphological Approach, Macmillan — propulsive system morphology (1947 jet engine field)" ;
+  compat:pointerDerivation "expected.selected includes 'thrust-augmentation-1=translatory-motion'; the exclusion constraint forbids 'no-motion', so the first admissible value is translatory-motion." ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_mycin_true_0_7 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_mycin ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "0.7" ;
+  compat:pointerLocus "Shortliffe & Buchanan 1975, Math. Biosciences 23(3–4):351–379, §11.4 p.247 (MB[h,e]=0.7 for the streptococcus rule)" ;
+  compat:pointerDerivation "expected.organism_cf = 0.7; paper states MB[h,e]=0.7 ('7 out of 10' expert certainty, p.238 fn4) for gram-positive+coccus+chains→streptococcus." ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_naive_physics_decoy_floor a compat:PaperPointer ;
+  compat:forBreed compat:Breed_naive_physics ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "floor" ;
+  compat:pointerLocus "Hayes 1985, Ablex (support axioms)" ;
+  compat:decoyReason "'floor' falling is the over-derivation defect the fixture warns against; ground objects are immobile, so floor must be in not_falls — a careless agent over-propagates the support break." .
+
+compat:PP_naive_physics_true_cup a compat:PaperPointer ;
+  compat:forBreed compat:Breed_naive_physics ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "cup" ;
+  compat:pointerLocus "Hayes, P. J. 1985, Naive physics I: ontology for liquids, in Formal Theories of the Commonsense World pp.71–107, Ablex (§4–6, containment/support)" ;
+  compat:pointerDerivation "expected.falls=['cup']; removing the table breaks the cup's direct support, so exactly the cup falls (and water spills)." ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_ocpm_route_discoverer_true_CreatePay a compat:PaperPointer ;
+  compat:forBreed compat:Breed_ocpm_route_discoverer ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "Create->Pay" ;
+  compat:pointerLocus "van der Aalst, W.M.P. 2019, Object-Centric Process Mining: Dealing with Divergence and Convergence — Route Discovery" ;
+  compat:pointerDerivation "expected.routes['route:o1']='Create->Pay'; object o1 participates in events e1(Create) and e2(Pay) only." ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_partial_order_plan_decoy_put_c_from_a_on_tableput_a_on_bput_b_on_c a compat:PaperPointer ;
+  compat:forBreed compat:Breed_partial_order_plan ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "put_c_from_a_on_table;put_a_on_b;put_b_on_c" ;
+  compat:pointerLocus "McAllester & Rosenblitt 1991, AAAI-91" ;
+  compat:decoyReason "This linear goal-at-a-time order is exactly the Sussman anomaly's wrong solution: put_a_on_b deletes clear_b needed by put_b_on_c, an unresolved threat; agents emit the naive goal order." .
+
+compat:PP_partial_order_plan_true_put_c_from_a_on_tableput_b_on_cput_a_on_b a compat:PaperPointer ;
+  compat:forBreed compat:Breed_partial_order_plan ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "put_c_from_a_on_table;put_b_on_c;put_a_on_b" ;
+  compat:pointerLocus "McAllester & Rosenblitt 1991, Systematic Nonlinear Planning, AAAI-91 pp.634–639 — Sussman anomaly / SNLP causal-link threat resolution" ;
+  compat:pointerDerivation "expected.plan / expected.value = 'put_c_from_a_on_table;put_b_on_c;put_a_on_b'; the interleaved order resolving causal-link threats by promotion/demotion." ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_pomdp_decoy_0_425 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_pomdp ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "0.425" ;
+  compat:pointerLocus "Kaelbling, Littman & Cassandra 1998, §3 (tiger problem)" ;
+  compat:decoyReason "careless agent cites the unnormalized Bayes numerator (0.85*0.5 = 0.425) as the posterior instead of normalizing" .
+
+compat:PP_pomdp_true_0_850000 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_pomdp ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "0.850000" ;
+  compat:pointerLocus "Kaelbling, Littman & Cassandra 1998, Artificial Intelligence 101(1-2):99-134, §3 (tiger problem)" ;
+  compat:pointerDerivation "expected.belief_tiger_left: posterior P(tiger-left | listen, hear-left) = 0.85*0.5 / (0.85*0.5 + 0.15*0.5) = 0.85 exactly" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_problog_decoy_0_448 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_problog ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "0.448" ;
+  compat:pointerLocus "De Raedt, Kimmig & Toivonen 2007, Section 2" ;
+  compat:decoyReason "the complement (probability wet is false) is the last number computed before the final 1-x step; agents frequently hardcode it as the answer" .
+
+compat:PP_problog_true_0_552000 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_problog ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "0.552000" ;
+  compat:pointerLocus "De Raedt, Kimmig & Toivonen 2007, IJCAI 2007 pp. 2468-2473, Section 2 (distribution semantics)" ;
+  compat:pointerDerivation "expected.value/probability: P(wet) = 1 - (1-0.2)(1-0.2)(1-0.3) = 0.552, tolerance 1e-6; 2^3 = 8 worlds" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_prolog_decoy_tombob a compat:PaperPointer ;
+  compat:forBreed compat:Breed_prolog ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "tom-bob" ;
+  compat:pointerLocus "Kowalski 1974, Section 9 Figure 2" ;
+  compat:decoyReason "an agent that returns the first matching parent fact (or confuses ancestor chaining tom->bob->ann) cites tom-bob instead of the queried bob-ann binding" .
+
+compat:PP_prolog_true_bobann a compat:PaperPointer ;
+  compat:forBreed compat:Breed_prolog ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "bob-ann" ;
+  compat:pointerLocus "Kowalski 1974, IFIP Congress 74 pp. 569-574, Section 9 Figure 2 (parent/ancestor program)" ;
+  compat:pointerDerivation "goal parent(bob-ann) is a direct fact; kernel returns Allow with selected='bob-ann', resolved binding 'ann'" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_qualitative_reason_decoy_ a compat:PaperPointer ;
+  compat:forBreed compat:Breed_qualitative_reason ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "+,-" ;
+  compat:pointerLocus "de Kleer & Brown 1984, Sections 1-3" ;
+  compat:decoyReason "careless agents treat sign ambiguity as binary (increase vs decrease) and drop the dQ=0 steady branch, citing 2 states instead of the paper's 3" .
+
+compat:PP_qualitative_reason_true_0 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_qualitative_reason ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "+,0,-" ;
+  compat:pointerLocus "de Kleer & Brown 1984, Artificial Intelligence 24(1-3):7-83, Sections 1-3 (pressure-regulator valve confluence dQ = dP + dA)" ;
+  compat:pointerDerivation "expected.q_values: ambiguous sign sum + ⊕ - forces exactly three envisionment branches dQ ∈ {+, 0, -}; expected.state_count = 3" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_rl_symbolic_decoy_0_81 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_rl_symbolic ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "0.81" ;
+  compat:pointerLocus "Watkins & Dayan 1992, p. 281" ;
+  compat:decoyReason "agents miscount the discount horizon and apply γ twice (stay then go), citing 0.81 for Q*(s0,stay) instead of 0.9" .
+
+compat:PP_rl_symbolic_true_0_9 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_rl_symbolic ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "0.9" ;
+  compat:pointerLocus "Watkins & Dayan 1992, Machine Learning 8(3-4):279-292, Theorem p. 281 (Q-learning convergence; Q*(s,a) = r + γ max Q*)" ;
+  compat:pointerDerivation "expected.q_s0_stay = 0.9: Q*(s0,stay) = 0 + 0.9·Q*(s0,go) = 0.9 with Q*(s0,go)=1.0; greedy policy_s0 = 'go', tolerance 0.05" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_sat_cdcl_decoy_0_learned_clauses a compat:PaperPointer ;
+  compat:forBreed compat:Breed_sat_cdcl ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "0 learned clauses" ;
+  compat:pointerLocus "Marques-Silva & Sakallah 1999, Section 3" ;
+  compat:decoyReason "agents that fake CDCL with plain backtracking report UNSAT with zero learned clauses; the fixture's anti-cheat condition is min_learned_clauses >= 1, so 'UNSAT with 0 learned clauses' is the canonical fraudulent answer" .
+
+compat:PP_sat_cdcl_true_UNSAT a compat:PaperPointer ;
+  compat:forBreed compat:Breed_sat_cdcl ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "UNSAT" ;
+  compat:pointerLocus "Marques-Silva & Sakallah 1999, IEEE Trans. Computers 48(5):506-521, Section 3 (conflict analysis / non-chronological backtracking)" ;
+  compat:pointerDerivation "expected.value/verdict = UNSAT for pigeonhole PHP(3,2), with min_learned_clauses = 1 (at least one learned conflict clause must fire)" ;
+  compat:hardcodeLockable "false" .
+
+compat:PP_script_sam_decoy_lobster a compat:PaperPointer ;
+  compat:forBreed compat:Breed_script_sam ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "lobster" ;
+  compat:pointerLocus "Schank & Abelson 1977, Chapter 3" ;
+  compat:decoyReason "agents quote the book's narrative and bind 'lobster' as the inferred filler, but the fixture's role/inference filler is 'john' (customer role) and inferred_count is exactly 1 — no object inference" .
+
+compat:PP_script_sam_true_saminferredeat a compat:PaperPointer ;
+  compat:forBreed compat:Breed_script_sam ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "sam:inferred:eat" ;
+  compat:pointerLocus "Schank & Abelson 1977, Scripts, Plans, Goals and Understanding, Chapter 3 (the $RESTAURANT script; John/lobster story)" ;
+  compat:pointerDerivation "expected.inferred = {sam:inferred:eat: john}, script = 'restaurant', inferred_count = 1, role customer = john; the unstated eating scene is the inferred gap" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_situation_calculus_decoy_on_b_tablecolor_b_red a compat:PaperPointer ;
+  compat:forBreed compat:Breed_situation_calculus ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "on_b_table,color_b_red" ;
+  compat:pointerLocus "Reiter 1991, Sections 2-3" ;
+  compat:decoyReason "These are only the frame-persist fluents (expected.frame_persist_fluents) — a careless agent cites the inertia-persisting subset as the final state, omitting the effect fluents (on_a_table, clear_a, clear_b, handempty)" .
+
+compat:PP_situation_calculus_true_on_a_tableon_b_tableclear_aclear_bhandemptycolor_b_red a compat:PaperPointer ;
+  compat:forBreed compat:Breed_situation_calculus ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "on_a_table,on_b_table,clear_a,clear_b,handempty,color_b_red" ;
+  compat:pointerLocus "Reiter 1991, Sections 2-3 (successor-state axioms, blocks-world pickup/putdown example), in Lifschitz (Ed.), Papers in Honor of John McCarthy, pp. 359-380" ;
+  compat:pointerDerivation "expected.value — final holding fluents after do(putdown_a, do(pickup_a, S0)) via Reiter successor-state axioms" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_soar_decoy_opmoveblankdown a compat:PaperPointer ;
+  compat:forBreed compat:Breed_soar ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "op-move-blank-down" ;
+  compat:pointerLocus "Laird et al. 1987, Section 2.3" ;
+  compat:decoyReason "It is the last-operator in input.state and carries an explicit 'worse' preference — an agent pattern-matching the most-mentioned operator or misreading the preference polarity would hardcode it" .
+
+compat:PP_soar_true_opmoveblankup a compat:PaperPointer ;
+  compat:forBreed compat:Breed_soar ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "op-move-blank-up" ;
+  compat:pointerLocus "Laird, Newell & Rosenbloom 1987, Artificial Intelligence 33(1), Section 2.3 (pp. 14-20), p. 17: single 'best' preference operator is selected; eight-puzzle Figures 3-5" ;
+  compat:pointerDerivation "expected.selected_operator — 'best' preference dominates acceptables; 'worse' eliminates down; right inapplicable" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_strips_decoy_closedoor1turnonlight a compat:PaperPointer ;
+  compat:forBreed compat:Breed_strips ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "close-door1,turn-on-light" ;
+  compat:pointerLocus "Fikes & Nilsson 1971, Section 2 (p. 191)" ;
+  compat:decoyReason "Reversed operator order — both operators are independently applicable in the initial state, so an agent that ignores the goal ordering (g1=light before g2=door1) plausibly emits the swapped plan; same set, wrong sequence" .
+
+compat:PP_strips_true_turnonlightclosedoor1 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_strips ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "turn-on-light,close-door1" ;
+  compat:pointerLocus "Fikes & Nilsson 1971, Artificial Intelligence 2(3-4), Section 2 (p. 191) — world model, goal G, operators O1..On; room-navigation domain of Section 3" ;
+  compat:pointerDerivation "expected.plan joined with commas — 2-step forward-search plan; goals ordered light=on then door1=closed" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_tableaux_true_valid a compat:PaperPointer ;
+  compat:forBreed compat:Breed_tableaux ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "valid" ;
+  compat:pointerLocus "Smullyan 1968, First-Order Logic, Part I Ch. II — Analytic Tableaux; F(A -> (B -> A)) closes using only alpha rules (beta_expansions = 0)" ;
+  compat:pointerDerivation "expected.verdict / expected.selected — K axiom tableau closes with zero beta (branching) expansions" ;
+  compat:hardcodeLockable "false" .
+
+compat:PP_triz_decoy_184015 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_triz ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "1,8,40,15" ;
+  compat:pointerLocus "Altshuller 1984, Contradiction Matrix, classic cell row 1 (weight of moving object) x col 14 (strength)" ;
+  compat:decoyReason "The widely-reproduced standard contradiction matrix gives principles 1,8,40,15 for weight-vs-strength — an agent citing the real published matrix instead of the fixture's encoded rule would hardcode this; different literal, highly plausible" .
+
+compat:PP_triz_true_4026 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_triz ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "40,26" ;
+  compat:pointerLocus "Altshuller 1984, Creativity as an Exact Science, Contradiction Matrix (improving weight vs worsening strength, per fixture rule matrix_1_2)" ;
+  compat:pointerDerivation "expected.principles — matrix cell conclusion 'principles=40,26' for improving=weight, worsening=strength" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_version_space_true_SunnyWarmStrong a compat:PaperPointer ;
+  compat:forBreed compat:Breed_version_space ;
+  compat:pointerKind "true" ;
+  compat:pointerValue "Sunny,Warm,?,Strong,?,?" ;
+  compat:pointerLocus "Mitchell 1982, Artificial Intelligence 18(2), Sections 3-4 (candidate-elimination); EnjoySport worked instance in Mitchell 1997 ML, Ch. 2, Tables 2.1/2.5" ;
+  compat:pointerDerivation "expected.s — final specific boundary S4 after the four EnjoySport examples" ;
+  compat:hardcodeLockable "true" .
+
+compat:PP_autoinstinct_semantics_decoy2_pp_569 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_autoinstinct_semantics ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "pp. 569" ;
+  compat:pointerLocus "Schank 1972, Cognitive Psychology 3(4), Section 3 'The Primitive Acts', Table 1, 'John gave Mary a book'" ;
+  compat:decoyReason "A careless agent collapses the canonical example's true page span (pp. 567-571) to a single mid-span page 'pp. 569', a plausible off-by-citation miscitation of the same Schank 1972 ATRANS worked example. It is not a substring of the true pointer 'Atrans' (and vice versa), is >=3 chars, and grep returns 0 occurrences in autoinstinct_semantics.rs." .
+
+compat:PP_construction_grammar_decoy2_CAUSETRANSFER a compat:PaperPointer ;
+  compat:forBreed compat:Breed_construction_grammar ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "CAUSE-TRANSFER" ;
+  compat:pointerLocus "Goldberg 1995, Constructions, Univ. of Chicago Press, Ch. 1-2 (ditransitive construction, 'Pat faxed Bill the letter')" ;
+  compat:decoyReason "A careless agent reading Goldberg's prose about the ditransitive construction \"supplying the transfer meaning\" would hardcode the meaning frame as CAUSE-TRANSFER instead of the paper's actual frame label CAUSE-RECEIVE. It is a plausible paraphrase miscitation of the same expected.meaning_frame from the same Goldberg 1995 citation, shares no substring with the true value CAUSE-RECEIVE, and avoids the genuine sibling frame CAUSE-MOVE (caused-motion) which legitimately appears in the source." .
+
+compat:PP_contingent_plan_decoy2_sense_nodes2 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_contingent_plan ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "sense_nodes=2" ;
+  compat:pointerLocus "Russell & Norvig 2010 (AIMA 3rd ed.), §4.3.2, AND-OR search in the partially observable vacuum world" ;
+  compat:decoyReason "A careless agent miscounts the conditional plan's sense nodes as 2 — double-counting by treating each branch of the if-then-else as carrying its own sense, or counting the else (done) branch as a second sense test. The true AND-OR plan '(sense check-dirt dirt (act suck (done)) (done))' has exactly one sense node (sense_nodes=1). This same-paper misreading is a plausible off-by-one hardcode, is not a substring of the true pointer value (and vice versa), and is >=3 chars." .
+
+compat:PP_markov_logic_decoy2_2_600000 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_markov_logic ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "2.600000" ;
+  compat:pointerLocus "Richardson & Domingos 2006, Machine Learning 62(1-2):107-136, Table 1 / Fig. 1 (smokes/friends MLN, w=1.5 and w=1.1 clauses) grounded for {anna, bob}" ;
+  compat:decoyReason "A careless agent mis-sums the weights of one smoke-cancer clause (1.5) and one friends clause (1.1) as if those ground clauses were left unsatisfied, hardcoding cost 2.600000 instead of the true MAP cost of 0.000000 where every ground clause is satisfied." .
+
+compat:PP_mdp_decoy2_1_62 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_mdp ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "1.62" ;
+  compat:pointerLocus "Bellman 1957, Dynamic Programming, Princeton Univ. Press, Ch. III–IV (functional equation / value iteration)" ;
+  compat:decoyReason "A careless agent applies the discount factor γ one extra time to the converged optimal value: 0.9·V(s0)=0.9·1.8=1.62 (equivalently γ²·V(s1)=0.81·2.0=1.62), one over-discounted iteration short of the true fixed point V(s0)=1.8. Plausible mis-chained product, not a substring of \"1.8\", >=3 chars, absent from mdp.rs." .
+
+compat:PP_meta_reasoning_decoy2_0_48 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_meta_reasoning ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "0.48" ;
+  compat:pointerLocus "Cox & Raja (eds.) 2011, Metareasoning: Thinking about Thinking, MIT Press, Ch. 1" ;
+  compat:decoyReason "A careless agent might report the arbitration confidence as 0.48, the mis-chained product of the two reasoners' confidences (0.8 x 0.6), instead of the true outcome 'gentamicin'. Confidence-weighted arbitration does NOT multiply the competing confidences; it selects the higher-confidence (0.8 mycin) conclusion. 0.48 is a plausible wrong-number misreading and is absent from the source." .
+
+compat:PP_morphological_decoy2_18432 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_morphological ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "18432" ;
+  compat:pointerLocus "Zwicky, F. 1969, Discovery, Invention, Research Through the Morphological Approach, Macmillan — propulsive system morphology (1947 jet engine field)" ;
+  compat:decoyReason "Zwicky's famous propulsive-system morphological box yields 36,864 combinations; 18432 is that total halved — the value a careless agent gets by dropping one of the binary parameters (one iteration short of the full Cartesian product). It is a wrong number, not the breed's true pointer value (thrust-augmentation-1=translatory-motion), shares no substring with it, and references the same Zwicky 1969 citation." .
+
+compat:PP_mycin_decoy2_0_63 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_mycin ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "0.63" ;
+  compat:pointerLocus "Shortliffe & Buchanan 1975, Math. Biosciences 23(3–4):351–379, §11.4 p.247 (MB[h,e] for the streptococcus rule)" ;
+  compat:decoyReason "Mis-chained CF: a careless agent multiplies the two rule certainties (0.7 organism rule × 0.9 therapy rule = 0.63) and reports that as the final/organism CF, instead of the paper's stated MB[h,e]=0.7. Plausible wrong number, not a substring of the true value 0.7." .
+
+compat:PP_ocpm_route_discoverer_decoy2_PayShip a compat:PaperPointer ;
+  compat:forBreed compat:Breed_ocpm_route_discoverer ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "Pay->Ship" ;
+  compat:pointerLocus "van der Aalst, W.M.P. 2019, Object-Centric Process Mining: Dealing with Divergence and Convergence — Route Discovery" ;
+  compat:decoyReason "A careless agent flattens all events into a single global route ignoring object identity — the exact divergence/convergence error the paper warns against. Sequencing e2(Pay) before e3(Ship) yields the bogus \"Pay->Ship\" route, mixing the o1 (order) and i1 (item) lifecycles that should be kept separate. It is neither a substring of the true pointer \"Create->Pay\" nor contains it, and grep -c confirms 0 occurrences in src/breeds/ocpm_route_discoverer.rs." .
+
+compat:PP_tableaux_decoy2_2_0 a compat:PaperPointer ;
+  compat:forBreed compat:Breed_tableaux ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "2.0" ;
+  compat:pointerLocus "Smullyan 1968, First-Order Logic, Part I Ch. II — Analytic Tableaux; F(A -> (B -> A)) tableau, beta (branching) expansion count" ;
+  compat:decoyReason "A careless agent miscounts the two implication connectives in A -> (B -> A) as requiring two beta (branching) expansions, hardcoding beta_expansions = 2.0. In fact the K-axiom signed tableau closes using only alpha (non-branching) rules, so the true beta_expansions is 0 and the verdict value is \"valid\". The number 2.0 is a plausible branch-miscount, is not a substring of \"valid\" (nor vice versa), is >=3 chars, and is grep-confirmed absent (count 0) from tableaux.rs." .
+
+compat:PP_version_space_decoy2_SunnyWarmStrongWarmSame a compat:PaperPointer ;
+  compat:forBreed compat:Breed_version_space ;
+  compat:pointerKind "decoy" ;
+  compat:pointerValue "Sunny,Warm,?,Strong,Warm,Same" ;
+  compat:pointerLocus "Mitchell 1982, Artificial Intelligence 18(2), Sections 3-4 (candidate-elimination); EnjoySport worked instance in Mitchell 1997 ML, Ch. 2, Tables 2.1/2.5" ;
+  compat:decoyReason "This is the specific boundary S after example 2 (and unchanged by the negative example 3), i.e. S2/S3 = <Sunny,Warm,?,Strong,Warm,Same>. A careless agent stops one iteration short of processing the fourth positive EnjoySport example, which generalizes both water (Warm->?) and forecast (Same->?). The true converged S4 is \"Sunny,Warm,?,Strong,?,?\". This off-by-one-iteration hypothesis is a plausible misreading: it shares the prefix but is neither a substring of nor contains the true value." .

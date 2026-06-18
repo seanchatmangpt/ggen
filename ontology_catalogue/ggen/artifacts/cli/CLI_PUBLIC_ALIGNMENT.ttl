@@ -1,0 +1,145 @@
+@prefix schema: <https://schema.org/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix spdx: <http://spdx.org/rdf/terms#> .
+
+<https://ggen.dev/cli> a dcat:Dataset ;
+    dcterms:title "ggen CLI Command Topology" ;
+    dcterms:identifier "ggen-cli" .
+
+<https://ggen.dev/cli/command/ggen.wizard> a schema:Action ;
+    schema:name "ggen.wizard" ;
+    dcterms:identifier "ggen.wizard" ;
+    spdx:checksum [ a spdx:Checksum ; spdx:checksumValue "a5833305e0fb2641109adc0874ee0aed067a6d2e7d2aec7f643771a0bedfc099" ] .
+
+<https://ggen.dev/cli/command/ggen.sync> a schema:Action ;
+    schema:name "ggen.sync" ;
+    dcterms:identifier "ggen.sync" ;
+    spdx:checksum [ a spdx:Checksum ; spdx:checksumValue "8ffc01f3ae85bfdb197513d4a2a8798bf0d01482feda1a133bcc7c7ad998549b" ] .
+
+<https://ggen.dev/cli/command/ggen.init> a schema:Action ;
+    schema:name "ggen.init" ;
+    dcterms:identifier "ggen.init" ;
+    spdx:checksum [ a spdx:Checksum ; spdx:checksumValue "4b51267b203238c383f92500537f355f10b8fd61d8fe359760004554cb22d08b" ] .
+
+<https://ggen.dev/cli/command/ggen.framework.bridge_langchain> a schema:Action ;
+    schema:name "ggen.framework.bridge_langchain" ;
+    dcterms:identifier "ggen.framework.bridge_langchain" ;
+    spdx:checksum [ a spdx:Checksum ; spdx:checksumValue "3cf4d8bb6fcc1d11112bd35a019b943e05d24b45b92f3346ceff90e5f7a3e22c" ] .
+
+<https://ggen.dev/cli/command/ggen.graph.export> a schema:Action ;
+    schema:name "ggen.graph.export" ;
+    dcterms:identifier "ggen.graph.export" ;
+    spdx:checksum [ a spdx:Checksum ; spdx:checksumValue "a2c8d75890f9a713143822a1d2e1f327c28320831ae406e1978dda4103fc4129" ] .
+
+<https://ggen.dev/cli/command/ggen.graph.visualize> a schema:Action ;
+    schema:name "ggen.graph.visualize" ;
+    dcterms:identifier "ggen.graph.visualize" ;
+    spdx:checksum [ a spdx:Checksum ; spdx:checksumValue "d937eb2fa2dc3b77d5fd6d0d20913adda00f71f664ca5e8cb917c5b64967be78" ] .
+
+<https://ggen.dev/cli/command/ggen.graph.load> a schema:Action ;
+    schema:name "ggen.graph.load" ;
+    dcterms:identifier "ggen.graph.load" ;
+    spdx:checksum [ a spdx:Checksum ; spdx:checksumValue "090502a32c2f39bdfac4a7e86334d7020f1e5d50dfa1ea63b1d5931adc7e1f65" ] .
+
+<https://ggen.dev/cli/command/ggen.graph.validate> a schema:Action ;
+    schema:name "ggen.graph.validate" ;
+    dcterms:identifier "ggen.graph.validate" ;
+    spdx:checksum [ a spdx:Checksum ; spdx:checksumValue "d0a816e895214d77a06f336d9927fe7f575c86f67adf197d128525575ac32f75" ] .
+
+<https://ggen.dev/cli/command/ggen.graph.query> a schema:Action ;
+    schema:name "ggen.graph.query" ;
+    dcterms:identifier "ggen.graph.query" ;
+    spdx:checksum [ a spdx:Checksum ; spdx:checksumValue "9e64993b429980ed97839e8cc290d87354da9a0db0e127299510ca9dae724f02" ] .
+
+<https://ggen.dev/cli/command/ggen.doctor.run> a schema:Action ;
+    schema:name "ggen.doctor.run" ;
+    dcterms:identifier "ggen.doctor.run" ;
+    spdx:checksum [ a spdx:Checksum ; spdx:checksumValue "c95fcd13049018354bcefa6a879382c62fe72842b6af6b405ab0d37c1c8c70c7" ] .
+
+<https://ggen.dev/cli/command/ggen.doctor.check> a schema:Action ;
+    schema:name "ggen.doctor.check" ;
+    dcterms:identifier "ggen.doctor.check" ;
+    spdx:checksum [ a spdx:Checksum ; spdx:checksumValue "7c3825c6810afa3204da287e962d0fda8da33066509ab1556d421040ea46a28c" ] .
+
+<https://ggen.dev/cli/command/ggen.pack.remove> a schema:Action ;
+    schema:name "ggen.pack.remove" ;
+    dcterms:identifier "ggen.pack.remove" ;
+    spdx:checksum [ a spdx:Checksum ; spdx:checksumValue "7414323ebb067d6457856cbb40e16a5f9508d077cb1749ab5f2deac5a75e155b" ] .
+
+<https://ggen.dev/cli/command/ggen.pack.show> a schema:Action ;
+    schema:name "ggen.pack.show" ;
+    dcterms:identifier "ggen.pack.show" ;
+    spdx:checksum [ a spdx:Checksum ; spdx:checksumValue "bae8a1ad9a2b85ecec58bc3ae49c65375a91db4a1a447c5df031f196e077b0df" ] .
+
+<https://ggen.dev/cli/command/ggen.pack.doctor> a schema:Action ;
+    schema:name "ggen.pack.doctor" ;
+    dcterms:identifier "ggen.pack.doctor" ;
+    spdx:checksum [ a spdx:Checksum ; spdx:checksumValue "8efba1d6017fb7d0341ff1993ab90701c348ed78206fd2cead6253dc400df0b5" ] .
+
+<https://ggen.dev/cli/command/ggen.pack.search> a schema:Action ;
+    schema:name "ggen.pack.search" ;
+    dcterms:identifier "ggen.pack.search" ;
+    spdx:checksum [ a spdx:Checksum ; spdx:checksumValue "3081f4d236dd68f082db7521b22c396ca00763ed871d4e3afac890278453ba3a" ] .
+
+<https://ggen.dev/cli/command/ggen.pack.list> a schema:Action ;
+    schema:name "ggen.pack.list" ;
+    dcterms:identifier "ggen.pack.list" ;
+    spdx:checksum [ a spdx:Checksum ; spdx:checksumValue "518c0b9575701ff0e9f1e67220cc406f24a103482cd3ece889b1e2328d056314" ] .
+
+<https://ggen.dev/cli/command/ggen.pack.add> a schema:Action ;
+    schema:name "ggen.pack.add" ;
+    dcterms:identifier "ggen.pack.add" ;
+    spdx:checksum [ a spdx:Checksum ; spdx:checksumValue "339f33bb36fa9cbe4b6c7bb27f116b46becd71b45524606764e8211e545c75ea" ] .
+
+<https://ggen.dev/cli/command/ggen.utils.env> a schema:Action ;
+    schema:name "ggen.utils.env" ;
+    dcterms:identifier "ggen.utils.env" ;
+    spdx:checksum [ a spdx:Checksum ; spdx:checksumValue "21f8df0613ff80f2ce144cd91afae78fa7b5da2411484a9c0c4ba3b4a00a6a38" ] .
+
+<https://ggen.dev/cli/command/ggen.utils.doctor> a schema:Action ;
+    schema:name "ggen.utils.doctor" ;
+    dcterms:identifier "ggen.utils.doctor" ;
+    spdx:checksum [ a spdx:Checksum ; spdx:checksumValue "6da52fc31728e642121aecb854549d966caddb1b761d83ece3ffb0dfcf2e4ace" ] .
+
+<https://ggen.dev/cli/command/ggen.policy.show> a schema:Action ;
+    schema:name "ggen.policy.show" ;
+    dcterms:identifier "ggen.policy.show" ;
+    spdx:checksum [ a spdx:Checksum ; spdx:checksumValue "cc415c8867ef53f7472385d046cf14088fec91f8e3cdb67795c8f8cd3a71842d" ] .
+
+<https://ggen.dev/cli/command/ggen.policy.list> a schema:Action ;
+    schema:name "ggen.policy.list" ;
+    dcterms:identifier "ggen.policy.list" ;
+    spdx:checksum [ a spdx:Checksum ; spdx:checksumValue "053fdbf9d5fff3ddd9b4e59a5d4cbfbf764eabb4a26e9cbc5c23e034e3bf3d77" ] .
+
+<https://ggen.dev/cli/command/ggen.policy.validate> a schema:Action ;
+    schema:name "ggen.policy.validate" ;
+    dcterms:identifier "ggen.policy.validate" ;
+    spdx:checksum [ a spdx:Checksum ; spdx:checksumValue "a194325e7ffd74037186e64af9404c4fc5065ac0645eeb3490105719b01f82d4" ] .
+
+<https://ggen.dev/cli/command/ggen.policy.check> a schema:Action ;
+    schema:name "ggen.policy.check" ;
+    dcterms:identifier "ggen.policy.check" ;
+    spdx:checksum [ a spdx:Checksum ; spdx:checksumValue "2c45adc7c6c58982c7c43914ba563653e680f35039fd55791098922448aad2f7" ] .
+
+<https://ggen.dev/cli/command/ggen.template.show> a schema:Action ;
+    schema:name "ggen.template.show" ;
+    dcterms:identifier "ggen.template.show" ;
+    spdx:checksum [ a spdx:Checksum ; spdx:checksumValue "fba4078275410d587560b331b1687ee2cd0a532823ef432d84270585396c1cc9" ] .
+
+<https://ggen.dev/cli/command/ggen.template.list> a schema:Action ;
+    schema:name "ggen.template.list" ;
+    dcterms:identifier "ggen.template.list" ;
+    spdx:checksum [ a spdx:Checksum ; spdx:checksumValue "d716ae8ff40502a7af71e7c5aadf3194567e7cba5f5d22a7cc70de211c7e986f" ] .
+
+<https://ggen.dev/cli/command/ggen.template.new> a schema:Action ;
+    schema:name "ggen.template.new" ;
+    dcterms:identifier "ggen.template.new" ;
+    spdx:checksum [ a spdx:Checksum ; spdx:checksumValue "d900ce8b84f097b3f774d1dc94c0389856082e77b5881527a43236da07dc6f44" ] .
+
+<https://ggen.dev/cli/command/ggen.template.lint> a schema:Action ;
+    schema:name "ggen.template.lint" ;
+    dcterms:identifier "ggen.template.lint" ;
+    spdx:checksum [ a spdx:Checksum ; spdx:checksumValue "cd3a8eed38fe897fd95ce0be1dd051cb420a7837337c02a2ad30ce0a8b8adedd" ] .

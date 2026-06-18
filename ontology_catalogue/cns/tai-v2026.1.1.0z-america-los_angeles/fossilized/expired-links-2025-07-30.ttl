@@ -1,0 +1,21 @@
+# TAI Expired Links - Fossilized Layer
+# RDF representation of expired temporal associations
+# Date: 2025-07-30
+# Format: Turtle (TTL)
+
+@prefix tai: <http://tai.cognitive.mesh/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+
+# Fossilized Links Root Node
+tai:ExpiredLinks_20250730 rdf:type tai:FossilizedStructure ;
+    rdfs:label "TAI Expired Links - 2025-07-30" ;
+    tai:timezone "America/Los_Angeles" ;
+    tai:expirationDate "2025-07-30T23:59:59-07:00"^^xsd:dateTime ;
+    tai:fossilizationDate "2025-07-30T00:00:00-07:00"^^xsd:dateTime ;
+    tai:status "fossilized" .
+
+# Placeholder for expired link data
+# This file will contain links that have expired and been moved to fossilized storage

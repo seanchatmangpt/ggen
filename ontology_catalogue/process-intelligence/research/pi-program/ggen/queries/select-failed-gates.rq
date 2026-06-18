@@ -1,0 +1,24 @@
+PREFIX pi: <https://process.intelligence/ontology/>
+PREFIX chk: <https://process.intelligence/checkpoint/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+
+# SELECT: Failed Gates
+# Returns checkpoints with failed proof gates and remediation details
+# Date: 2026-06-01
+
+SELECT ?checkpoint ?title ?failingGate ?failureLocation ?failureIssue ?failureImpact ?remediationNote ?estimatedFixHours
+WHERE {
+    ?checkpoint a pi:Checkpoint .
+    ?checkpoint dcterms:title ?title .
+    ?checkpoint pi:gateFail ?gateFail .
+
+    FILTER (?gateFail > 0)
+
+    OPTIONAL { ?checkpoint pi:failingGate ?failingGate }
+    OPTIONAL { ?checkpoint pi:failureLocation ?failureLocation }
+    OPTIONAL { ?checkpoint pi:failureIssue ?failureIssue }
+    OPTIONAL { ?checkpoint pi:failureImpact ?failureImpact }
+    OPTIONAL { ?checkpoint pi:failureRemediationNote ?remediationNote }
+    OPTIONAL { ?checkpoint pi:estimatedFixHours ?estimatedFixHours }
+}
+ORDER BY ?checkpoint

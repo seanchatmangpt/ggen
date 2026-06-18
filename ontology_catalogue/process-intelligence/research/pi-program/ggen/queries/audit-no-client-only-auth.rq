@@ -1,0 +1,16 @@
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX pi: <https://process.intelligence/ontology/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+
+# AUDIT: FAIL if MOBILE_SUBSTRATE/PROOF_CELL route protection relies only on client-side state
+# Valid: Expo Router + Supabase RLS + Edge Functions (server-side). Invalid: Zustand/AsyncStorage alone.
+SELECT ?violation ?label
+WHERE {
+  ?proofCell a pi:PROOF_CELL ;
+             rdfs:label ?label ;
+             dcterms:description ?desc .
+  BIND ("ClientOnlyAuth" AS ?violation)
+  FILTER (REGEX(?desc, "client.*state|Zustand|AsyncStorage", "i") &&
+          !REGEX(?desc, "RLS|Edge Function|server|Supabase", "i"))
+}

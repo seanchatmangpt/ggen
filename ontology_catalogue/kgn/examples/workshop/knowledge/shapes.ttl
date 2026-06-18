@@ -1,0 +1,261 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix kgen: <http://kgen.ai/ontology#> .
+@prefix ex: <http://example.org/shapes#> .
+
+# SHACL Shapes for KGEN Workshop
+# These shapes validate the structure and constraints of KGEN templates and artifacts
+
+# Template Validation Shape
+ex:TemplateShape a sh:NodeShape ;
+    sh:targetClass kgen:Template ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 3 ;
+        sh:maxLength 100 ;
+        sh:message "Template must have exactly one label between 3-100 characters"
+    ] ;
+    sh:property [
+        sh:path kgen:templatePath ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^_templates/.*\\.njk$" ;
+        sh:message "Template path must start with '_templates/' and end with '.njk'"
+    ] ;
+    sh:property [
+        sh:path kgen:hasVariable ;
+        sh:minCount 1 ;
+        sh:class kgen:Variable ;
+        sh:message "Template must have at least one variable"
+    ] ;
+    sh:property [
+        sh:path rdf:type ;
+        sh:hasValue kgen:Template ;
+        sh:minCount 1
+    ] .
+
+# Variable Validation Shape
+ex:VariableShape a sh:NodeShape ;
+    sh:targetClass kgen:Variable ;
+    sh:property [
+        sh:path kgen:variableName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-zA-Z][a-zA-Z0-9_]*$" ;
+        sh:message "Variable name must be a valid identifier starting with a letter"
+    ] ;
+    sh:property [
+        sh:path kgen:variableType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "string" "number" "boolean" "array" "object" "date" ) ;
+        sh:message "Variable type must be one of: string, number, boolean, array, object, date"
+    ] ;
+    sh:property [
+        sh:path kgen:isRequired ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:message "Variable must specify if it is required"
+    ] ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Variable must have a human-readable label"
+    ] .
+
+# Artifact Validation Shape
+ex:ArtifactShape a sh:NodeShape ;
+    sh:targetClass kgen:Artifact ;
+    sh:property [
+        sh:path kgen:hasTemplate ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class kgen:Template ;
+        sh:message "Artifact must reference exactly one template"
+    ] ;
+    sh:property [
+        sh:path kgen:generatedAt ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Artifact must have a generation timestamp"
+    ] ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Artifact must have a descriptive label"
+    ] .
+
+# Next.js Template Specific Shape
+ex:NextjsTemplateShape a sh:NodeShape ;
+    sh:targetNode ex:nextjsPageTemplate ;
+    sh:property [
+        sh:path kgen:hasVariable ;
+        sh:qualifiedValueShape [
+            sh:path kgen:variableName ;
+            sh:hasValue "pageName"
+        ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "Next.js template must have exactly one 'pageName' variable"
+    ] ;
+    sh:property [
+        sh:path kgen:hasVariable ;
+        sh:qualifiedValueShape [
+            sh:path kgen:variableName ;
+            sh:hasValue "title"
+        ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "Next.js template must have exactly one 'title' variable"
+    ] .
+
+# API Template Specific Shape
+ex:ApiTemplateShape a sh:NodeShape ;
+    sh:targetNode ex:apiRouteTemplate ;
+    sh:property [
+        sh:path kgen:hasVariable ;
+        sh:qualifiedValueShape [
+            sh:path kgen:variableName ;
+            sh:hasValue "resourceName"
+        ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "API template must have exactly one 'resourceName' variable"
+    ] .
+
+# Office Report Template Shape
+ex:OfficeReportTemplateShape a sh:NodeShape ;
+    sh:targetNode ex:officeReportTemplate ;
+    sh:property [
+        sh:path kgen:hasVariable ;
+        sh:qualifiedValueShape [
+            sh:path kgen:variableName ;
+            sh:hasValue "reportType"
+        ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "Office report template must have exactly one 'reportType' variable"
+    ] ;
+    sh:property [
+        sh:path kgen:hasVariable ;
+        sh:qualifiedValueShape [
+            sh:path kgen:variableName ;
+            sh:hasValue "author"
+        ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "Office report template must have exactly one 'author' variable"
+    ] .
+
+# Required Variable Shape (for variables marked as required)
+ex:RequiredVariableShape a sh:NodeShape ;
+    sh:targetClass kgen:Variable ;
+    sh:condition [
+        sh:property [
+            sh:path kgen:isRequired ;
+            sh:hasValue true
+        ]
+    ] ;
+    sh:property [
+        sh:path rdfs:comment ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 10 ;
+        sh:message "Required variables must have detailed comments of at least 10 characters"
+    ] .
+
+# Generation Timestamp Validation
+ex:RecentArtifactShape a sh:NodeShape ;
+    sh:targetClass kgen:Artifact ;
+    sh:property [
+        sh:path kgen:generatedAt ;
+        sh:minInclusive "2025-01-01T00:00:00Z"^^xsd:dateTime ;
+        sh:maxInclusive "2030-12-31T23:59:59Z"^^xsd:dateTime ;
+        sh:message "Generation timestamp must be within reasonable range (2025-2030)"
+    ] .
+
+# Template Path Security Shape
+ex:SecureTemplatePathShape a sh:NodeShape ;
+    sh:targetClass kgen:Template ;
+    sh:property [
+        sh:path kgen:templatePath ;
+        sh:not [
+            sh:pattern "\\.\\./" ;
+            sh:message "Template paths cannot contain directory traversal sequences (../)"
+        ] ;
+        sh:not [
+            sh:pattern "^/" ;
+            sh:message "Template paths cannot be absolute paths"
+        ]
+    ] .
+
+# Variable Name Conventions Shape
+ex:VariableNamingShape a sh:NodeShape ;
+    sh:targetClass kgen:Variable ;
+    sh:property [
+        sh:path kgen:variableName ;
+        sh:not [
+            sh:pattern "^(class|function|var|let|const|import|export)$" ;
+            sh:message "Variable names cannot be JavaScript reserved words"
+        ] ;
+        sh:minLength 2 ;
+        sh:maxLength 50 ;
+        sh:message "Variable names must be 2-50 characters long"
+    ] .
+
+# Template Complexity Shape (limits number of variables)
+ex:TemplateComplexityShape a sh:NodeShape ;
+    sh:targetClass kgen:Template ;
+    sh:sparql [
+        sh:select """
+            SELECT $this (COUNT(?var) AS ?varCount) WHERE {
+                $this kgen:hasVariable ?var .
+            }
+            GROUP BY $this
+            HAVING (COUNT(?var) > 20)
+        """ ;
+        sh:message "Templates should not have more than 20 variables to maintain simplicity"
+    ] .
+
+# Artifact Template Consistency Shape
+ex:ArtifactConsistencyShape a sh:NodeShape ;
+    sh:targetClass kgen:Artifact ;
+    sh:sparql [
+        sh:select """
+            SELECT $this WHERE {
+                $this kgen:hasTemplate ?template .
+                ?template kgen:hasVariable ?var .
+                ?var kgen:isRequired true .
+                # This would ideally check if required variables were provided
+                # but would need additional artifact generation metadata
+            }
+        """ ;
+        sh:message "Artifacts must be generated with all required template variables"
+    ] .
+
+# Workshop Quality Assurance Shape
+ex:WorkshopQualityShape a sh:NodeShape ;
+    sh:targetClass kgen:Template ;
+    sh:property [
+        sh:path rdfs:comment ;
+        sh:or (
+            [ sh:datatype xsd:string ]
+            [ sh:path dc:description ; sh:datatype xsd:string ]
+        ) ;
+        sh:minCount 1 ;
+        sh:message "All workshop templates must have documentation"
+    ] .

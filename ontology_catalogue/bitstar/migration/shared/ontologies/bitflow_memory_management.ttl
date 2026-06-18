@@ -1,0 +1,788 @@
+@prefix : <http://bitflow.ai/ontology/memory#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix bitflow: <http://bitflow.ai/ontology/core#> .
+@prefix patterns: <http://bitflow.ai/ontology/patterns#> .
+@prefix perf: <http://bitflow.ai/ontology/performance#> .
+@prefix sparql: <http://bitflow.ai/sparql/memory#> .
+
+# ========================================
+# BitFlow Memory Management Ontology v2.0
+# Zero-heap allocation memory semantics
+# ========================================
+
+<http://bitflow.ai/ontology/memory> a owl:Ontology ;
+    rdfs:label "BitFlow Memory Management Ontology v2.0" ;
+    rdfs:comment "Complete semantic model for BitFlow's zero-heap allocation memory management system" ;
+    owl:versionInfo "2.0.0" ;
+    owl:imports <http://bitflow.ai/ontology/patterns> ;
+    owl:imports <http://bitflow.ai/ontology/performance> ;
+    rdfs:seeAlso <http://bitflow.ai/> .
+
+# ========================================
+# Core Memory Classes
+# ========================================
+
+:MemoryRegion a owl:Class ;
+    rdfs:label "Memory Region" ;
+    rdfs:comment "Contiguous block of memory with specific properties" .
+
+:ScratchSpace a owl:Class ;
+    rdfs:subClassOf :MemoryRegion ;
+    rdfs:label "Scratch Space" ;
+    rdfs:comment "128-byte aligned working memory for pattern execution" .
+
+:MemoryPool a owl:Class ;
+    rdfs:label "Memory Pool" ;
+    rdfs:comment "Pre-allocated pool of memory blocks" .
+
+:MemoryBlock a owl:Class ;
+    rdfs:label "Memory Block" ;
+    rdfs:comment "Individual allocatable unit within a memory pool" .
+
+:AllocationStrategy a owl:Class ;
+    rdfs:label "Allocation Strategy" ;
+    rdfs:comment "Strategy for memory allocation and deallocation" .
+
+:MemoryAllocator a owl:Class ;
+    rdfs:label "Memory Allocator" ;
+    rdfs:comment "Component responsible for memory allocation" .
+
+# ========================================
+# Memory Layout and Alignment
+# ========================================
+
+:MemoryLayout a owl:Class ;
+    rdfs:label "Memory Layout" ;
+    rdfs:comment "Specific arrangement of data in memory" .
+
+:AlignmentRequirement a owl:Class ;
+    rdfs:label "Alignment Requirement" ;
+    rdfs:comment "Memory alignment constraint for optimal performance" ;
+    owl:equivalentClass [ a owl:Class ;
+        owl:oneOf ( :Align1 :Align4 :Align8 :Align16 :Align32 :Align64 :Align128 ) ] .
+
+:Align1 a :AlignmentRequirement ;
+    rdfs:label "1-byte Alignment" ;
+    rdfs:comment "No alignment requirement" .
+
+:Align4 a :AlignmentRequirement ;
+    rdfs:label "4-byte Alignment" ;
+    rdfs:comment "32-bit word alignment" .
+
+:Align8 a :AlignmentRequirement ;
+    rdfs:label "8-byte Alignment" ;
+    rdfs:comment "64-bit word alignment" .
+
+:Align16 a :AlignmentRequirement ;
+    rdfs:label "16-byte Alignment" ;
+    rdfs:comment "128-bit SIMD alignment" .
+
+:Align32 a :AlignmentRequirement ;
+    rdfs:label "32-byte Alignment" ;
+    rdfs:comment "256-bit AVX alignment" .
+
+:Align64 a :AlignmentRequirement ;
+    rdfs:label "64-byte Alignment" ;
+    rdfs:comment "Cache line alignment" .
+
+:Align128 a :AlignmentRequirement ;
+    rdfs:label "128-byte Alignment" ;
+    rdfs:comment "BitFlow scratch space alignment" .
+
+# ========================================
+# Memory Properties
+# ========================================
+
+:baseAddress a owl:DatatypeProperty ;
+    rdfs:domain :MemoryRegion ;
+    rdfs:range xsd:long ;
+    rdfs:label "Base Address" ;
+    rdfs:comment "Starting memory address of the region" .
+
+:size a owl:DatatypeProperty ;
+    rdfs:domain :MemoryRegion ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Size" ;
+    rdfs:comment "Size of memory region in bytes" .
+
+:alignment a owl:ObjectProperty ;
+    rdfs:domain :MemoryRegion ;
+    rdfs:range :AlignmentRequirement ;
+    rdfs:label "Alignment" ;
+    rdfs:comment "Memory alignment requirement" .
+
+:isAllocated a owl:DatatypeProperty ;
+    rdfs:domain :MemoryBlock ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Is Allocated" ;
+    rdfs:comment "Whether the memory block is currently allocated" .
+
+:ownerTask a owl:DatatypeProperty ;
+    rdfs:domain :MemoryBlock ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Owner Task" ;
+    rdfs:comment "Task ID that owns this memory block" .
+
+:allocationTime a owl:DatatypeProperty ;
+    rdfs:domain :MemoryBlock ;
+    rdfs:range xsd:long ;
+    rdfs:label "Allocation Time" ;
+    rdfs:comment "Timestamp when block was allocated" .
+
+:accessCount a owl:DatatypeProperty ;
+    rdfs:domain :MemoryBlock ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Access Count" ;
+    rdfs:comment "Number of times block has been accessed" .
+
+:lastAccessTime a owl:DatatypeProperty ;
+    rdfs:domain :MemoryBlock ;
+    rdfs:range xsd:long ;
+    rdfs:label "Last Access Time" ;
+    rdfs:comment "Timestamp of last access" .
+
+# ========================================
+# BitFlow-specific Memory Management
+# ========================================
+
+:PatternScratchSpace a owl:Class ;
+    rdfs:subClassOf :ScratchSpace ;
+    rdfs:label "Pattern Scratch Space" ;
+    rdfs:comment "128-byte aligned scratch space for pattern execution" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :size ;
+        owl:hasValue 128
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :alignment ;
+        owl:hasValue :Align16
+    ] .
+
+:ExecutionContext a owl:Class ;
+    rdfs:label "Execution Context" ;
+    rdfs:comment "Memory context for pattern execution" .
+
+:ContextState a owl:Class ;
+    rdfs:label "Context State" ;
+    rdfs:comment "State information stored in execution context" .
+
+:instanceID a owl:DatatypeProperty ;
+    rdfs:domain :ExecutionContext ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Instance ID" ;
+    rdfs:comment "Workflow instance identifier" .
+
+:taskID a owl:DatatypeProperty ;
+    rdfs:domain :ExecutionContext ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Task ID" ;
+    rdfs:comment "Task identifier" .
+
+:patternID a owl:DatatypeProperty ;
+    rdfs:domain :ExecutionContext ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Pattern ID" ;
+    rdfs:comment "Pattern identifier (0-42)" .
+
+:hasScratchSpace a owl:ObjectProperty ;
+    rdfs:domain :ExecutionContext ;
+    rdfs:range :PatternScratchSpace ;
+    rdfs:label "Has Scratch Space" .
+
+:hasState a owl:ObjectProperty ;
+    rdfs:domain :ExecutionContext ;
+    rdfs:range :ContextState ;
+    rdfs:label "Has State" .
+
+# ========================================
+# Pattern-specific State Structures
+# ========================================
+
+:MultiInstanceState a owl:Class ;
+    rdfs:subClassOf :ContextState ;
+    rdfs:label "Multi-instance State" ;
+    rdfs:comment "State for multiple instance patterns" .
+
+:SynchronizationState a owl:Class ;
+    rdfs:subClassOf :ContextState ;
+    rdfs:label "Synchronization State" ;
+    rdfs:comment "State for synchronization patterns" .
+
+:ChoiceState a owl:Class ;
+    rdfs:subClassOf :ContextState ;
+    rdfs:label "Choice State" ;
+    rdfs:comment "State for choice patterns" .
+
+:CancellationState a owl:Class ;
+    rdfs:subClassOf :ContextState ;
+    rdfs:label "Cancellation State" ;
+    rdfs:comment "State for cancellation patterns" .
+
+# Multi-instance State Properties
+:instancesCreated a owl:DatatypeProperty ;
+    rdfs:domain :MultiInstanceState ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Instances Created" ;
+    rdfs:comment "Number of instances created" .
+
+:instancesCompleted a owl:DatatypeProperty ;
+    rdfs:domain :MultiInstanceState ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Instances Completed" ;
+    rdfs:comment "Number of instances completed" .
+
+:requiredCompletions a owl:DatatypeProperty ;
+    rdfs:domain :MultiInstanceState ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Required Completions" ;
+    rdfs:comment "Number of completions required" .
+
+# Synchronization State Properties
+:incomingBranches a owl:DatatypeProperty ;
+    rdfs:domain :SynchronizationState ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Incoming Branches" ;
+    rdfs:comment "Number of incoming branches" .
+
+:activatedBranches a owl:DatatypeProperty ;
+    rdfs:domain :SynchronizationState ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Activated Branches" ;
+    rdfs:comment "Number of activated branches" .
+
+:syncPointID a owl:DatatypeProperty ;
+    rdfs:domain :SynchronizationState ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Sync Point ID" ;
+    rdfs:comment "Synchronization point identifier" .
+
+# Choice State Properties
+:conditionMask a owl:DatatypeProperty ;
+    rdfs:domain :ChoiceState ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Condition Mask" ;
+    rdfs:comment "Bitmask of active conditions" .
+
+:selectedBranch a owl:DatatypeProperty ;
+    rdfs:domain :ChoiceState ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Selected Branch" ;
+    rdfs:comment "Selected branch identifier" .
+
+# Cancellation State Properties
+:cancelScope a owl:DatatypeProperty ;
+    rdfs:domain :CancellationState ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Cancel Scope" ;
+    rdfs:comment "Scope of cancellation operation" .
+
+:cancelledTasks a owl:DatatypeProperty ;
+    rdfs:domain :CancellationState ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Cancelled Tasks" ;
+    rdfs:comment "Number of tasks cancelled" .
+
+# ========================================
+# Memory Pool Management
+# ========================================
+
+:PoolType a owl:Class ;
+    rdfs:label "Pool Type" ;
+    rdfs:comment "Type of memory pool" ;
+    owl:equivalentClass [ a owl:Class ;
+        owl:oneOf ( :ScratchPool :ContextPool :StatePool :TelemetryPool ) ] .
+
+:ScratchPool a :PoolType ;
+    rdfs:label "Scratch Pool" ;
+    rdfs:comment "Pool for pattern scratch spaces" .
+
+:ContextPool a :PoolType ;
+    rdfs:label "Context Pool" ;
+    rdfs:comment "Pool for execution contexts" .
+
+:StatePool a :PoolType ;
+    rdfs:label "State Pool" ;
+    rdfs:comment "Pool for pattern state structures" .
+
+:TelemetryPool a :PoolType ;
+    rdfs:label "Telemetry Pool" ;
+    rdfs:comment "Pool for telemetry frames" .
+
+:poolType a owl:ObjectProperty ;
+    rdfs:domain :MemoryPool ;
+    rdfs:range :PoolType ;
+    rdfs:label "Pool Type" .
+
+:blockSize a owl:DatatypeProperty ;
+    rdfs:domain :MemoryPool ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Block Size" ;
+    rdfs:comment "Size of individual blocks in bytes" .
+
+:blockCount a owl:DatatypeProperty ;
+    rdfs:domain :MemoryPool ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Block Count" ;
+    rdfs:comment "Total number of blocks in pool" .
+
+:freeBlocks a owl:DatatypeProperty ;
+    rdfs:domain :MemoryPool ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Free Blocks" ;
+    rdfs:comment "Number of available blocks" .
+
+:allocatedBlocks a owl:DatatypeProperty ;
+    rdfs:domain :MemoryPool ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Allocated Blocks" ;
+    rdfs:comment "Number of allocated blocks" .
+
+:peakAllocation a owl:DatatypeProperty ;
+    rdfs:domain :MemoryPool ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Peak Allocation" ;
+    rdfs:comment "Maximum blocks allocated simultaneously" .
+
+:allocationFailures a owl:DatatypeProperty ;
+    rdfs:domain :MemoryPool ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Allocation Failures" ;
+    rdfs:comment "Number of failed allocations" .
+
+# ========================================
+# Allocation Strategies
+# ========================================
+
+:AllocationPolicy a owl:Class ;
+    rdfs:label "Allocation Policy" ;
+    rdfs:comment "Policy governing memory allocation behavior" ;
+    owl:equivalentClass [ a owl:Class ;
+        owl:oneOf ( :FirstFit :BestFit :WorstFit :NextFit :BuddySystem ) ] .
+
+:FirstFit a :AllocationPolicy ;
+    rdfs:label "First Fit" ;
+    rdfs:comment "Allocate first available block" .
+
+:BestFit a :AllocationPolicy ;
+    rdfs:label "Best Fit" ;
+    rdfs:comment "Allocate smallest sufficient block" .
+
+:WorstFit a :AllocationPolicy ;
+    rdfs:label "Worst Fit" ;
+    rdfs:comment "Allocate largest available block" .
+
+:NextFit a :AllocationPolicy ;
+    rdfs:label "Next Fit" ;
+    rdfs:comment "Continue from last allocation point" .
+
+:BuddySystem a :AllocationPolicy ;
+    rdfs:label "Buddy System" ;
+    rdfs:comment "Binary buddy allocation system" .
+
+:hasAllocationPolicy a owl:ObjectProperty ;
+    rdfs:domain :MemoryAllocator ;
+    rdfs:range :AllocationPolicy ;
+    rdfs:label "Has Allocation Policy" .
+
+:allocationTime a owl:DatatypeProperty ;
+    rdfs:domain :MemoryAllocator ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Allocation Time" ;
+    rdfs:comment "Average allocation time in nanoseconds" .
+
+:deallocationTime a owl:DatatypeProperty ;
+    rdfs:domain :MemoryAllocator ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Deallocation Time" ;
+    rdfs:comment "Average deallocation time in nanoseconds" .
+
+:fragmentationRatio a owl:DatatypeProperty ;
+    rdfs:domain :MemoryAllocator ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Fragmentation Ratio" ;
+    rdfs:comment "Memory fragmentation level (0.0-1.0)" .
+
+# ========================================
+# Cache and Memory Hierarchy
+# ========================================
+
+:CacheLevel a owl:Class ;
+    rdfs:label "Cache Level" ;
+    rdfs:comment "Level in memory hierarchy" ;
+    owl:equivalentClass [ a owl:Class ;
+        owl:oneOf ( :L1Cache :L2Cache :L3Cache :MainMemory ) ] .
+
+:L1Cache a :CacheLevel ;
+    rdfs:label "L1 Cache" ;
+    rdfs:comment "Level 1 processor cache" .
+
+:L2Cache a :CacheLevel ;
+    rdfs:label "L2 Cache" ;
+    rdfs:comment "Level 2 processor cache" .
+
+:L3Cache a :CacheLevel ;
+    rdfs:label "L3 Cache" ;
+    rdfs:comment "Level 3 processor cache" .
+
+:MainMemory a :CacheLevel ;
+    rdfs:label "Main Memory" ;
+    rdfs:comment "System main memory (RAM)" .
+
+:CacheLineSize a owl:Class ;
+    rdfs:label "Cache Line Size" ;
+    rdfs:comment "Size of cache line in bytes" ;
+    owl:equivalentClass [ a owl:Class ;
+        owl:oneOf ( :CacheLine32 :CacheLine64 :CacheLine128 ) ] .
+
+:CacheLine32 a :CacheLineSize ;
+    rdfs:label "32-byte Cache Line" .
+
+:CacheLine64 a :CacheLineSize ;
+    rdfs:label "64-byte Cache Line" .
+
+:CacheLine128 a :CacheLineSize ;
+    rdfs:label "128-byte Cache Line" .
+
+:cacheLineSize a owl:ObjectProperty ;
+    rdfs:domain :CacheLevel ;
+    rdfs:range :CacheLineSize ;
+    rdfs:label "Cache Line Size" .
+
+:cacheSize a owl:DatatypeProperty ;
+    rdfs:domain :CacheLevel ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Cache Size" ;
+    rdfs:comment "Total cache size in bytes" .
+
+:associativity a owl:DatatypeProperty ;
+    rdfs:domain :CacheLevel ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Associativity" ;
+    rdfs:comment "Cache associativity (1=direct-mapped)" .
+
+:hitRate a owl:DatatypeProperty ;
+    rdfs:domain :CacheLevel ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Hit Rate" ;
+    rdfs:comment "Cache hit rate (0.0-1.0)" .
+
+:missLatency a owl:DatatypeProperty ;
+    rdfs:domain :CacheLevel ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Miss Latency" ;
+    rdfs:comment "Cache miss latency in cycles" .
+
+# ========================================
+# NUMA and Memory Topology
+# ========================================
+
+:NUMANode a owl:Class ;
+    rdfs:label "NUMA Node" ;
+    rdfs:comment "Non-Uniform Memory Access node" .
+
+:MemoryController a owl:Class ;
+    rdfs:label "Memory Controller" ;
+    rdfs:comment "Hardware memory controller" .
+
+:numaNodeID a owl:DatatypeProperty ;
+    rdfs:domain :NUMANode ;
+    rdfs:range xsd:integer ;
+    rdfs:label "NUMA Node ID" ;
+    rdfs:comment "Unique identifier for NUMA node" .
+
+:localLatency a owl:DatatypeProperty ;
+    rdfs:domain :NUMANode ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Local Latency" ;
+    rdfs:comment "Local memory access latency in nanoseconds" .
+
+:remoteLatency a owl:DatatypeProperty ;
+    rdfs:domain :NUMANode ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Remote Latency" ;
+    rdfs:comment "Remote memory access latency in nanoseconds" .
+
+:bandwidth a owl:DatatypeProperty ;
+    rdfs:domain :NUMANode ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Bandwidth" ;
+    rdfs:comment "Memory bandwidth in GB/s" .
+
+:hasMemoryController a owl:ObjectProperty ;
+    rdfs:domain :NUMANode ;
+    rdfs:range :MemoryController ;
+    rdfs:label "Has Memory Controller" .
+
+# ========================================
+# Memory Safety and Validation
+# ========================================
+
+:MemorySafety a owl:Class ;
+    rdfs:label "Memory Safety" ;
+    rdfs:comment "Memory safety constraints and validation" .
+
+:BoundsCheck a owl:Class ;
+    rdfs:subClassOf :MemorySafety ;
+    rdfs:label "Bounds Check" ;
+    rdfs:comment "Memory bounds checking" .
+
+:UseAfterFree a owl:Class ;
+    rdfs:subClassOf :MemorySafety ;
+    rdfs:label "Use After Free" ;
+    rdfs:comment "Use-after-free detection" .
+
+:DoubleFree a owl:Class ;
+    rdfs:subClassOf :MemorySafety ;
+    rdfs:label "Double Free" ;
+    rdfs:comment "Double-free detection" .
+
+:MemoryLeak a owl:Class ;
+    rdfs:subClassOf :MemorySafety ;
+    rdfs:label "Memory Leak" ;
+    rdfs:comment "Memory leak detection" .
+
+:isMemorySafe a owl:DatatypeProperty ;
+    rdfs:domain :MemoryRegion ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Is Memory Safe" ;
+    rdfs:comment "Whether region has safety guarantees" .
+
+:hasValidation a owl:ObjectProperty ;
+    rdfs:domain :MemoryRegion ;
+    rdfs:range :MemorySafety ;
+    rdfs:label "Has Validation" .
+
+# ========================================
+# SHACL Validation Constraints
+# ========================================
+
+:PatternScratchSpaceShape a sh:NodeShape ;
+    sh:targetClass :PatternScratchSpace ;
+    sh:property [
+        sh:path :size ;
+        sh:hasValue 128 ;
+        sh:message "Pattern scratch space must be exactly 128 bytes"
+    ] ;
+    sh:property [
+        sh:path :alignment ;
+        sh:hasValue :Align16 ;
+        sh:message "Pattern scratch space must be 16-byte aligned for SIMD"
+    ] ;
+    sh:property [
+        sh:path :baseAddress ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:long ;
+        sh:message "Base address is required"
+    ] .
+
+:MemoryPoolShape a sh:NodeShape ;
+    sh:targetClass :MemoryPool ;
+    sh:property [
+        sh:path :blockSize ;
+        sh:minInclusive 1 ;
+        sh:message "Block size must be positive"
+    ] ;
+    sh:property [
+        sh:path :blockCount ;
+        sh:minInclusive 1 ;
+        sh:message "Block count must be positive"
+    ] ;
+    sh:property [
+        sh:path :freeBlocks ;
+        sh:minInclusive 0 ;
+        sh:message "Free blocks cannot be negative"
+    ] ;
+    sh:property [
+        sh:path :allocatedBlocks ;
+        sh:minInclusive 0 ;
+        sh:message "Allocated blocks cannot be negative"
+    ] .
+
+:ExecutionContextShape a sh:NodeShape ;
+    sh:targetClass :ExecutionContext ;
+    sh:property [
+        sh:path :instanceID ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:message "Instance ID is required"
+    ] ;
+    sh:property [
+        sh:path :taskID ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:message "Task ID is required"
+    ] ;
+    sh:property [
+        sh:path :patternID ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 42 ;
+        sh:message "Pattern ID must be between 0 and 42"
+    ] ;
+    sh:property [
+        sh:path :hasScratchSpace ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class :PatternScratchSpace ;
+        sh:message "Every execution context must have exactly one scratch space"
+    ] .
+
+# ========================================
+# SPARQL Query Templates
+# ========================================
+
+:MemoryUtilizationQuery a sparql:QueryTemplate ;
+    rdfs:label "Memory Utilization Query" ;
+    sparql:queryString """
+        PREFIX : <http://bitflow.ai/ontology/memory#>
+        
+        # Monitor memory pool utilization
+        SELECT ?poolType ?blockSize ?totalBlocks ?freeBlocks ?utilization
+        WHERE {
+            ?pool a :MemoryPool ;
+                  :poolType ?poolType ;
+                  :blockSize ?blockSize ;
+                  :blockCount ?totalBlocks ;
+                  :freeBlocks ?freeBlocks .
+            BIND((?totalBlocks - ?freeBlocks) / ?totalBlocks AS ?utilization)
+        }
+        ORDER BY DESC(?utilization)
+    """ .
+
+:FragmentationAnalysisQuery a sparql:QueryTemplate ;
+    rdfs:label "Fragmentation Analysis Query" ;
+    sparql:queryString """
+        PREFIX : <http://bitflow.ai/ontology/memory#>
+        
+        # Analyze memory fragmentation
+        SELECT ?allocator ?policy ?fragmentation ?avgAllocTime ?avgDeallocTime
+        WHERE {
+            ?allocator a :MemoryAllocator ;
+                       :hasAllocationPolicy ?policy ;
+                       :fragmentationRatio ?fragmentation ;
+                       :allocationTime ?avgAllocTime ;
+                       :deallocationTime ?avgDeallocTime .
+        }
+        ORDER BY DESC(?fragmentation)
+    """ .
+
+:CachePerformanceQuery a sparql:QueryTemplate ;
+    rdfs:label "Cache Performance Query" ;
+    sparql:queryString """
+        PREFIX : <http://bitflow.ai/ontology/memory#>
+        
+        # Analyze cache performance across hierarchy
+        SELECT ?cacheLevel ?size ?hitRate ?missLatency ?lineSize
+        WHERE {
+            ?cache a :CacheLevel ;
+                   :cacheSize ?size ;
+                   :hitRate ?hitRate ;
+                   :missLatency ?missLatency ;
+                   :cacheLineSize ?lineSize .
+            BIND(?cache AS ?cacheLevel)
+        }
+        ORDER BY ?missLatency
+    """ .
+
+:MemorySafetyQuery a sparql:QueryTemplate ;
+    rdfs:label "Memory Safety Query" ;
+    sparql:queryString """
+        PREFIX : <http://bitflow.ai/ontology/memory#>
+        
+        # Check memory safety compliance
+        SELECT ?region ?baseAddr ?size ?isSafe ?validationType
+        WHERE {
+            ?region a :MemoryRegion ;
+                    :baseAddress ?baseAddr ;
+                    :size ?size ;
+                    :isMemorySafe ?isSafe .
+            OPTIONAL {
+                ?region :hasValidation ?validation .
+                BIND(STRAFTER(STR(?validation), "#") AS ?validationType)
+            }
+        }
+        ORDER BY ?isSafe, ?size DESC
+    """ .
+
+# ========================================
+# BitFlow Memory Configuration Instances
+# ========================================
+
+:BitFlowScratchPool a :MemoryPool ;
+    rdfs:label "BitFlow Scratch Pool" ;
+    rdfs:comment "Main scratch space pool for pattern execution" ;
+    :poolType :ScratchPool ;
+    :blockSize 128 ;
+    :blockCount 1024 ;
+    :freeBlocks 1024 ;
+    :allocatedBlocks 0 ;
+    :peakAllocation 0 ;
+    :allocationFailures 0 .
+
+:BitFlowContextPool a :MemoryPool ;
+    rdfs:label "BitFlow Context Pool" ;
+    rdfs:comment "Pool for execution contexts" ;
+    :poolType :ContextPool ;
+    :blockSize 256 ;
+    :blockCount 512 ;
+    :freeBlocks 512 ;
+    :allocatedBlocks 0 .
+
+:BitFlowMainAllocator a :MemoryAllocator ;
+    rdfs:label "BitFlow Main Allocator" ;
+    rdfs:comment "Primary memory allocator for BitFlow engine" ;
+    :hasAllocationPolicy :FirstFit ;
+    :allocationTime 50.0 ;      # nanoseconds
+    :deallocationTime 25.0 ;    # nanoseconds
+    :fragmentationRatio 0.05 .  # 5% fragmentation
+
+:DefaultScratchSpace a :PatternScratchSpace ;
+    rdfs:label "Default Scratch Space" ;
+    rdfs:comment "Template for pattern scratch spaces" ;
+    :size 128 ;
+    :alignment :Align16 ;
+    :isMemorySafe true ;
+    :hasValidation :BoundsCheck .
+
+# ========================================
+# System Memory Topology
+# ========================================
+
+:SystemNUMANode0 a :NUMANode ;
+    rdfs:label "System NUMA Node 0" ;
+    :numaNodeID 0 ;
+    :localLatency 120 ;     # nanoseconds
+    :remoteLatency 180 ;    # nanoseconds
+    :bandwidth 25.6 .       # GB/s
+
+:SystemL1Cache a :L1Cache ;
+    rdfs:label "System L1 Cache" ;
+    :cacheSize 32768 ;      # 32KB
+    :cacheLineSize :CacheLine64 ;
+    :associativity 8 ;
+    :hitRate 0.95 ;
+    :missLatency 4 .        # cycles
+
+:SystemL2Cache a :L2Cache ;
+    rdfs:label "System L2 Cache" ;
+    :cacheSize 262144 ;     # 256KB
+    :cacheLineSize :CacheLine64 ;
+    :associativity 8 ;
+    :hitRate 0.85 ;
+    :missLatency 12 .       # cycles
+
+:SystemL3Cache a :L3Cache ;
+    rdfs:label "System L3 Cache" ;
+    :cacheSize 8388608 ;    # 8MB
+    :cacheLineSize :CacheLine64 ;
+    :associativity 16 ;
+    :hitRate 0.75 ;
+    :missLatency 40 .       # cycles

@@ -1,0 +1,17 @@
+
+@prefix cns: <http://cns.io/forge#> .
+@prefix sla: <http://cns.io/sla#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+cns:directive_1753414932 a sla:AvailabilityRequirement ;
+    sla:targetUptime "99.999"^^xsd:decimal ;
+    sla:maxDowntimePerMonth "0"^^xsd:integer ;
+    sla:measurementWindow "monthly" ;
+    sla:priority "critical" ;
+    cns:generatedFrom "achieve five-nines availability" ;
+    cns:requiresComponents (
+        cns:LoadBalancer
+        cns:HealthCheck
+        cns:FailoverMechanism
+        cns:MonitoringSystem
+    ) .

@@ -1,0 +1,248 @@
+@prefix : <https://bytestar.org/ontology/bytestar-byteactor#> .
+@prefix bytestar: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix execution: <https://bytestar.org/ontology/bytestar-execution#> .
+@prefix bytecore: <https://bytestar.org/ontology/bytestar-bytecore#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://bytestar.org/ontology/bytestar-byteactor>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core> ;
+  owl:imports <https://bytestar.org/ontology/bytestar-execution> ;
+  owl:imports <https://bytestar.org/ontology/bytestar-bytecore> ;
+  rdfs:label "ByteStar ByteActor Ontology" ;
+  rdfs:comment "Hot-path execution engine with L1 residency, let-it-crash discipline, and deterministic performance." .
+
+### ByteActor Core Classes
+:HotPathExecutor, :KernelDispatcher, :ReceiptGenerator, :PulseEmitter a owl:Class .
+:SPSCRingBuffer, :EnvelopePool, :MPHFTable, :KernelSet a owl:Class .
+:ExecutionState, :PatternContext, :KernelRegisters a owl:Class .
+
+### ByteActor Subsystem Definition
+bytestar:ByteActor rdfs:subClassOf [
+  a owl:Class ;
+  owl:intersectionOf (
+    bytestar:Subsystem
+    execution:letItCrash
+    :HotPathExecutor
+    :KernelDispatcher
+    :ReceiptGenerator
+    :PulseEmitter
+  )
+] .
+
+### Core Pinning & Isolation
+:corePinning a owl:DatatypeProperty ; rdfs:domain bytestar:ByteActor ; rdfs:range xsd:integer .
+:isolatedExecution a owl:DatatypeProperty ; rdfs:domain bytestar:ByteActor ; rdfs:range xsd:boolean .
+
+# ByteActor must be pinned to Core 0
+bytestar:ByteActor rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :corePinning ; owl:hasValue "0"^^xsd:integer
+] .
+
+# ByteActor must have isolated execution
+bytestar:ByteActor rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :isolatedExecution ; owl:hasValue "true"^^xsd:boolean
+] .
+
+### L1 Residency & Cache Behavior
+:l1HotSet a owl:Class .
+:cacheAligned a owl:DatatypeProperty ; rdfs:domain :l1HotSet ; rdfs:range xsd:boolean .
+:cacheLineSize a owl:DatatypeProperty ; rdfs:domain :l1HotSet ; rdfs:range xsd:integer .
+
+# L1 hot set must be cache-aligned to 64B
+:l1HotSet rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :cacheAligned ; owl:hasValue "true"^^xsd:boolean
+] .
+
+:l1HotSet rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :cacheLineSize ; owl:hasValue "64"^^xsd:integer
+] .
+
+### Kernel Execution System
+:Kernel a owl:Class .
+:kernelIndex a owl:DatatypeProperty ; rdfs:domain :Kernel ; rdfs:range xsd:integer .
+:tickCount a owl:DatatypeProperty ; rdfs:domain :Kernel ; rdfs:range xsd:integer .
+:branchFree a owl:DatatypeProperty ; rdfs:domain :Kernel ; rdfs:range xsd:boolean .
+:constantTime a owl:DatatypeProperty ; rdfs:domain :Kernel ; rdfs:range xsd:boolean .
+
+# Kernel indices must be 1-64
+:Kernel rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :kernelIndex ;
+  owl:allValuesFrom [ a rdfs:Datatype ;
+    owl:onDatatype xsd:integer ;
+    owl:withRestrictions ( [ xsd:minInclusive "1"^^xsd:integer ]
+                            [ xsd:maxInclusive "64"^^xsd:integer ] ) ] ] .
+
+# All kernels must be branch-free
+:Kernel rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :branchFree ; owl:hasValue "true"^^xsd:boolean
+] .
+
+# All kernels must be constant-time
+:Kernel rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :constantTime ; owl:hasValue "true"^^xsd:boolean
+] .
+
+### MPHF Dispatch System
+:MPHFTable a owl:Class .
+:perfectHash a owl:DatatypeProperty ; rdfs:domain :MPHFTable ; rdfs:range xsd:boolean .
+:lookupTime a owl:DatatypeProperty ; rdfs:domain :MPHFTable ; rdfs:range xsd:decimal .
+:tableSize a owl:DatatypeProperty ; rdfs:domain :MPHFTable ; rdfs:range xsd:integer .
+
+# MPHF table must be perfect hash
+:MPHFTable rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :perfectHash ; owl:hasValue "true"^^xsd:boolean
+] .
+
+# MPHF lookup must be O(1) constant time
+:MPHFTable rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :lookupTime ;
+  owl:allValuesFrom [ a rdfs:Datatype ;
+    owl:onDatatype xsd:decimal ;
+    owl:withRestrictions ( [ xsd:maxInclusive "1.0"^^xsd:decimal ] ) ] ] .
+
+### SPSC Ring Buffer System
+:SPSCRingBuffer a owl:Class .
+:ringSize a owl:DatatypeProperty ; rdfs:domain :SPSCRingBuffer ; rdfs:range xsd:integer .
+:lockFree a owl:DatatypeProperty ; rdfs:domain :SPSCRingBuffer ; rdfs:range xsd:boolean .
+:overflowHandling a owl:DatatypeProperty ; rdfs:domain :SPSCRingBuffer ; rdfs:range xsd:string .
+
+# SPSC rings must be lock-free
+:SPSCRingBuffer rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :lockFree ; owl:hasValue "true"^^xsd:boolean
+] .
+
+# SPSC rings must handle overflow gracefully
+:SPSCRingBuffer rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :overflowHandling ;
+  owl:hasValue "reject"^^xsd:string
+] .
+
+### Crystal Envelope Processing
+:CrystalEnvelope a owl:Class .
+:envelopeSize a owl:DatatypeProperty ; rdfs:domain :CrystalEnvelope ; rdfs:range xsd:integer .
+:patternByte a owl:DatatypeProperty ; rdfs:domain :CrystalEnvelope ; rdfs:range xsd:unsignedByte .
+:dataPointers a owl:DatatypeProperty ; rdfs:domain :CrystalEnvelope ; rdfs:range xsd:integer .
+
+# Envelope must be exactly 64 bytes
+:CrystalEnvelope rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :envelopeSize ; owl:hasValue "64"^^xsd:integer
+] .
+
+# Pattern byte must be 0-255
+:CrystalEnvelope rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :patternByte ;
+  owl:allValuesFrom [ a rdfs:Datatype ;
+    owl:onDatatype xsd:unsignedByte ;
+    owl:withRestrictions ( [ xsd:minInclusive "0"^^xsd:unsignedByte ]
+                            [ xsd:maxInclusive "255"^^xsd:unsignedByte ] ) ] ] .
+
+### Receipt Generation
+:Receipt a owl:Class .
+:receiptDigest a owl:DatatypeProperty ; rdfs:domain :Receipt ; rdfs:range xsd:hexBinary .
+:rollingChain a owl:DatatypeProperty ; rdfs:domain :Receipt ; rdfs:range xsd:boolean .
+:timestamp a owl:DatatypeProperty ; rdfs:domain :Receipt ; rdfs:range xsd:integer .
+
+# Receipt must be rolling chain
+:Receipt rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :rollingChain ; owl:hasValue "true"^^xsd:boolean
+] .
+
+# Receipt must have deterministic timestamp
+:Receipt rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :timestamp ;
+  owl:allValuesFrom xsd:integer
+] .
+
+### Pulse Emission System
+:PulseBus a owl:Class .
+:observerCount a owl:DatatypeProperty ; rdfs:domain :PulseBus ; rdfs:range xsd:integer .
+:noBackpressure a owl:DatatypeProperty ; rdfs:domain :PulseBus ; rdfs:range xsd:boolean .
+:offPath a owl:DatatypeProperty ; rdfs:domain :PulseBus ; rdfs:range xsd:boolean .
+
+# Pulse bus must have no backpressure
+:PulseBus rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :noBackpressure ; owl:hasValue "true"^^xsd:boolean
+] .
+
+# Pulse bus must be off-path
+:PulseBus rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :offPath ; owl:hasValue "true"^^xsd:boolean
+] .
+
+### Memory Management Constraints
+:noMalloc a owl:DatatypeProperty ; rdfs:domain bytestar:ByteActor ; rdfs:range xsd:boolean .
+:preAllocated a owl:DatatypeProperty ; rdfs:domain bytestar:ByteActor ; rdfs:range xsd:boolean .
+:fixedPools a owl:DatatypeProperty ; rdfs:domain bytestar:ByteActor ; rdfs:range xsd:boolean .
+
+# ByteActor must not use malloc
+bytestar:ByteActor rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :noMalloc ; owl:hasValue "true"^^xsd:boolean
+] .
+
+# ByteActor must use pre-allocated pools
+bytestar:ByteActor rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :preAllocated ; owl:hasValue "true"^^xsd:boolean
+] .
+
+# ByteActor must use fixed pools
+bytestar:ByteActor rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :fixedPools ; owl:hasValue "true"^^xsd:boolean
+] .
+
+### Performance Guarantees
+:maxLatency a owl:DatatypeProperty ; rdfs:domain bytestar:ByteActor ; rdfs:range xsd:decimal .
+:throughput a owl:DatatypeProperty ; rdfs:domain bytestar:ByteActor ; rdfs:range xsd:decimal .
+:scalingFactor a owl:DatatypeProperty ; rdfs:domain bytestar:ByteActor ; rdfs:range xsd:decimal .
+
+# ByteActor must have bounded latency
+bytestar:ByteActor rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :maxLatency ;
+  owl:allValuesFrom [ a rdfs:Datatype ;
+    owl:onDatatype xsd:decimal ;
+    owl:withRestrictions ( [ xsd:maxInclusive "8.0"^^xsd:decimal ] ) ] ] .
+
+# ByteActor must scale linearly
+bytestar:ByteActor rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :scalingFactor ;
+  owl:allValuesFrom [ a rdfs:Datatype ;
+    owl:onDatatype xsd:decimal ;
+    owl:withRestrictions ( [ xsd:minInclusive "0.9"^^xsd:decimal ]
+                            [ xsd:maxInclusive "1.1"^^xsd:decimal ] ) ] ] .
+
+### Integration Contracts
+:integratesWith a owl:ObjectProperty ; rdfs:domain bytestar:ByteActor ; rdfs:range [
+  a owl:Class ; owl:unionOf ( bytestar:ByteFlow bytestar:ByteEthos :Observer ) ] .
+
+:receivesFrom a owl:ObjectProperty ; rdfs:domain bytestar:ByteActor ; rdfs:range bytestar:ByteFlow .
+:sendsTo a owl:ObjectProperty ; rdfs:domain bytestar:ByteActor ; rdfs:range bytestar:ByteEthos .
+:emitsTo a owl:ObjectProperty ; rdfs:domain bytestar:ByteActor ; rdfs:range :Observer .
+
+### Error Handling & Recovery
+:letItCrash a owl:DatatypeProperty ; rdfs:domain bytestar:ByteActor ; rdfs:range xsd:boolean .
+:noRuntimeGuards a owl:DatatypeProperty ; rdfs:domain bytestar:ByteActor ; rdfs:range xsd:boolean .
+:statelessRecovery a owl:DatatypeProperty ; rdfs:domain bytestar:ByteActor ; rdfs:range xsd:boolean .
+
+# ByteActor must implement let-it-crash
+bytestar:ByteActor rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :letItCrash ; owl:hasValue "true"^^xsd:boolean
+] .
+
+# ByteActor must have no runtime guards
+bytestar:ByteActor rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :noRuntimeGuards ; owl:hasValue "true"^^xsd:boolean
+] .
+
+# ByteActor must support stateless recovery
+bytestar:ByteActor rdfs:subClassOf [
+  a owl:Restriction ; owl:onProperty :statelessRecovery ; owl:hasValue "true"^^xsd:boolean
+] .
+
+### Annotations for Implementation
+bytestar:ByteActor rdfs:comment "Core 0 hot-path executor with L1 residency, ≤8 ticks per kernel, let-it-crash discipline." .
+:HotPathExecutor rdfs:comment "Executes K1..K64 kernels with deterministic performance." .
+:SPSCRingBuffer rdfs:comment "Lock-free single producer single consumer ring buffer for crystal ingress." .
+:MPHFTable rdfs:comment "Perfect hash table for O(1) pattern byte to kernel index routing." .
+

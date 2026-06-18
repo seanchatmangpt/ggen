@@ -1,0 +1,34 @@
+# manufacture_powl64.rq — SPARQL CONSTRUCT query
+# Spec: 013-ostar-constitutional-layer / T003
+# Target deploy path: /Users/sac/chatmangpt/ostar/queries/manufacture_powl64.rq
+# Alt path (if spec-006 already wrote it): /Users/sac/unibit/crates/unibit-graph/queries/manufacture_powl64.rq
+#
+# Semantics: for all cgpt:Powl64Frame resources in G*, include them in the
+# CONSTRUCT output ONLY IF no cgpt:LawfulMotion is currently blocked
+# (has a cgpt:blockedBy relation). This acts as a safety gate: if any motion
+# in the portfolio is blocked, no POWL64 frames are manufactured.
+
+PREFIX cgpt: <https://cgpt.io/ns#>
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+CONSTRUCT {
+  ?frame rdf:type         cgpt:Powl64Frame .
+  ?frame cgpt:powl8Opcode ?opcode .
+  ?frame cgpt:modelId     ?modelId .
+  ?frame cgpt:operand     ?operand .
+  ?frame cgpt:controlMask ?mask .
+}
+WHERE {
+  ?frame rdf:type         cgpt:Powl64Frame .
+  ?frame cgpt:powl8Opcode ?opcode .
+  ?frame cgpt:modelId     ?modelId .
+  ?frame cgpt:operand     ?operand .
+  ?frame cgpt:controlMask ?mask .
+
+  # Safety gate: exclude all results if any LawfulMotion is blocked
+  FILTER NOT EXISTS {
+    ?motion rdf:type      cgpt:LawfulMotion .
+    ?motion cgpt:blockedBy ?blocker .
+  }
+}

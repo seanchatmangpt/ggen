@@ -1,0 +1,745 @@
+@prefix : <http://bytestar.org/ontology/validation-pipeline#> .
+@prefix ba: <http://bytestar.org/ontology/byteactor#> .
+@prefix doctrine: <http://bytestar.org/ontology/doctrine-of-8#> .
+@prefix perf: <http://bytestar.org/ontology/performance-measurement#> .
+@prefix benchmark: <http://bytestar.org/ontology/performance-benchmark#> .
+@prefix constant: <http://bytestar.org/ontology/constant-time-validation#> .
+@prefix bounds: <http://bytestar.org/ontology/resource-bounds#> .
+@prefix throughput: <http://bytestar.org/ontology/throughput-latency-benchmarks#> .
+@prefix regression: <http://bytestar.org/ontology/regression-detection#> .
+@prefix oracles: <http://bytestar.org/ontology/performance-oracles#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+
+<http://bytestar.org/ontology/validation-pipeline> rdf:type owl:Ontology ;
+    dct:title "Automated Performance Validation Pipeline"@en ;
+    dct:description """Comprehensive automated pipeline for performance validation
+    of all crystal operations under Doctrine of 8. Orchestrates constant-time
+    validation, resource bounds checking, throughput/latency testing, regression
+    detection, and oracle validation in an integrated workflow."""@en ;
+    dct:creator "ByteStar Validation Engineering Team"@en ;
+    dct:created "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    owl:versionInfo "5.0.0-validation-pipeline"@en ;
+    owl:imports <http://bytestar.org/ontology/doctrine-of-8> ,
+                <http://bytestar.org/ontology/performance-measurement> ,
+                <http://bytestar.org/ontology/performance-benchmark> ,
+                <http://bytestar.org/ontology/constant-time-validation> ,
+                <http://bytestar.org/ontology/resource-bounds> ,
+                <http://bytestar.org/ontology/throughput-latency-benchmarks> ,
+                <http://bytestar.org/ontology/regression-detection> ,
+                <http://bytestar.org/ontology/performance-oracles> .
+
+#################################################################
+#    Validation Pipeline Core Classes
+#################################################################
+
+###  http://bytestar.org/ontology/validation-pipeline#PerformanceValidationPipeline
+:PerformanceValidationPipeline rdf:type owl:Class ;
+                              rdfs:subClassOf ba:SystemComponent ;
+                              rdfs:label "Performance Validation Pipeline"@en ;
+                              rdfs:comment """Automated pipeline orchestrating
+                              comprehensive performance validation workflows."""@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#ValidationOrchestrator
+:ValidationOrchestrator rdf:type owl:Class ;
+                       rdfs:subClassOf :PerformanceValidationPipeline ;
+                       rdfs:label "Validation Orchestrator"@en ;
+                       rdfs:comment """Central orchestrator coordinating all
+                       validation stages and dependencies."""@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#ValidationStage
+:ValidationStage rdf:type owl:Class ;
+                rdfs:subClassOf ba:SystemProcess ;
+                rdfs:label "Validation Stage"@en ;
+                rdfs:comment """Individual stage in the validation pipeline
+                with specific validation responsibilities."""@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#ValidationWorkflow
+:ValidationWorkflow rdf:type owl:Class ;
+                   rdfs:subClassOf ba:SystemWorkflow ;
+                   rdfs:label "Validation Workflow"@en ;
+                   rdfs:comment """Complete workflow defining validation
+                   sequence and coordination logic."""@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#ValidationController
+:ValidationController rdf:type owl:Class ;
+                     rdfs:subClassOf ba:SystemController ;
+                     rdfs:label "Validation Controller"@en ;
+                     rdfs:comment """Controller managing validation pipeline
+                     execution and resource allocation."""@en .
+
+#################################################################
+#    Validation Stage Types
+#################################################################
+
+###  http://bytestar.org/ontology/validation-pipeline#ConstantTimeValidationStage
+:ConstantTimeValidationStage rdf:type owl:Class ;
+                            rdfs:subClassOf :ValidationStage ;
+                            rdfs:label "Constant-Time Validation Stage"@en ;
+                            rdfs:comment """Stage performing constant-time
+                            validation using statistical analysis."""@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#ResourceBoundsValidationStage
+:ResourceBoundsValidationStage rdf:type owl:Class ;
+                              rdfs:subClassOf :ValidationStage ;
+                              rdfs:label "Resource Bounds Validation Stage"@en ;
+                              rdfs:comment """Stage validating resource consumption
+                              against established bounds."""@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#ThroughputLatencyValidationStage
+:ThroughputLatencyValidationStage rdf:type owl:Class ;
+                                 rdfs:subClassOf :ValidationStage ;
+                                 rdfs:label "Throughput/Latency Validation Stage"@en ;
+                                 rdfs:comment """Stage performing comprehensive
+                                 throughput and latency validation."""@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#RegressionDetectionStage
+:RegressionDetectionStage rdf:type owl:Class ;
+                         rdfs:subClassOf :ValidationStage ;
+                         rdfs:label "Regression Detection Stage"@en ;
+                         rdfs:comment """Stage detecting performance regressions
+                         against historical baselines."""@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#OracleValidationStage
+:OracleValidationStage rdf:type owl:Class ;
+                      rdfs:subClassOf :ValidationStage ;
+                      rdfs:label "Oracle Validation Stage"@en ;
+                      rdfs:comment """Stage validating performance oracles
+                      and their prediction accuracy."""@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#IntegrationValidationStage
+:IntegrationValidationStage rdf:type owl:Class ;
+                           rdfs:subClassOf :ValidationStage ;
+                           rdfs:label "Integration Validation Stage"@en ;
+                           rdfs:comment """Stage performing end-to-end
+                           integration validation testing."""@en .
+
+#################################################################
+#    Pipeline Execution Models
+#################################################################
+
+###  http://bytestar.org/ontology/validation-pipeline#SequentialPipeline
+:SequentialPipeline rdf:type owl:Class ;
+                   rdfs:subClassOf :PerformanceValidationPipeline ;
+                   rdfs:label "Sequential Pipeline"@en ;
+                   rdfs:comment """Pipeline executing validation stages
+                   in sequential order with dependencies."""@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#ParallelPipeline
+:ParallelPipeline rdf:type owl:Class ;
+                 rdfs:subClassOf :PerformanceValidationPipeline ;
+                 rdfs:label "Parallel Pipeline"@en ;
+                 rdfs:comment """Pipeline executing validation stages
+                 in parallel where possible."""@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#HybridPipeline
+:HybridPipeline rdf:type owl:Class ;
+               rdfs:subClassOf :PerformanceValidationPipeline ;
+               rdfs:label "Hybrid Pipeline"@en ;
+               rdfs:comment """Pipeline combining sequential and parallel
+               execution based on stage dependencies."""@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#AdaptivePipeline
+:AdaptivePipeline rdf:type owl:Class ;
+                 rdfs:subClassOf :PerformanceValidationPipeline ;
+                 rdfs:label "Adaptive Pipeline"@en ;
+                 rdfs:comment """Pipeline adapting execution strategy
+                 based on system conditions and results."""@en .
+
+#################################################################
+#    Validation Results & Reporting
+#################################################################
+
+###  http://bytestar.org/ontology/validation-pipeline#ValidationResult
+:ValidationResult rdf:type owl:Class ;
+                 rdfs:subClassOf ba:SystemResult ;
+                 rdfs:label "Validation Result"@en ;
+                 rdfs:comment """Result from validation pipeline execution
+                 with comprehensive analysis and metrics."""@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#StageResult
+:StageResult rdf:type owl:Class ;
+            rdfs:subClassOf :ValidationResult ;
+            rdfs:label "Stage Result"@en ;
+            rdfs:comment """Result from individual validation stage
+            execution with stage-specific metrics."""@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#ValidationReport
+:ValidationReport rdf:type owl:Class ;
+                 rdfs:subClassOf ba:SystemReport ;
+                 rdfs:label "Validation Report"@en ;
+                 rdfs:comment """Comprehensive report on validation
+                 results with analysis and recommendations."""@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#ValidationDashboard
+:ValidationDashboard rdf:type owl:Class ;
+                    rdfs:subClassOf ba:SystemDashboard ;
+                    rdfs:label "Validation Dashboard"@en ;
+                    rdfs:comment """Real-time dashboard displaying
+                    validation metrics and status."""@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#ValidationAlert
+:ValidationAlert rdf:type owl:Class ;
+                rdfs:subClassOf perf:PerformanceAlert ;
+                rdfs:label "Validation Alert"@en ;
+                rdfs:comment """Alert triggered by validation failures
+                or performance issues."""@en .
+
+#################################################################
+#    Pipeline Configuration & Management
+#################################################################
+
+###  http://bytestar.org/ontology/validation-pipeline#PipelineConfiguration
+:PipelineConfiguration rdf:type owl:Class ;
+                      rdfs:subClassOf ba:SystemConfiguration ;
+                      rdfs:label "Pipeline Configuration"@en ;
+                      rdfs:comment """Configuration defining pipeline
+                      behavior, stages, and parameters."""@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#StageConfiguration
+:StageConfiguration rdf:type owl:Class ;
+                   rdfs:subClassOf :PipelineConfiguration ;
+                   rdfs:label "Stage Configuration"@en ;
+                   rdfs:comment """Configuration for individual
+                   validation stage parameters."""@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#ValidationPolicy
+:ValidationPolicy rdf:type owl:Class ;
+                 rdfs:subClassOf ba:SystemPolicy ;
+                 rdfs:label "Validation Policy"@en ;
+                 rdfs:comment """Policy governing validation pipeline
+                 behavior and decision making."""@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#PipelineScheduler
+:PipelineScheduler rdf:type owl:Class ;
+                  rdfs:subClassOf ba:SystemScheduler ;
+                  rdfs:label "Pipeline Scheduler"@en ;
+                  rdfs:comment """Scheduler managing validation pipeline
+                  execution timing and resource allocation."""@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#ValidationTrigger
+:ValidationTrigger rdf:type owl:Class ;
+                  rdfs:subClassOf ba:SystemTrigger ;
+                  rdfs:label "Validation Trigger"@en ;
+                  rdfs:comment """Trigger initiating validation pipeline
+                  execution based on events or schedules."""@en .
+
+#################################################################
+#    Quality Assurance & Continuous Improvement
+#################################################################
+
+###  http://bytestar.org/ontology/validation-pipeline#QualityAssurance
+:QualityAssurance rdf:type owl:Class ;
+                 rdfs:subClassOf ba:SystemComponent ;
+                 rdfs:label "Validation Quality Assurance"@en ;
+                 rdfs:comment """Quality assurance system ensuring
+                 validation pipeline effectiveness."""@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#ContinuousImprovement
+:ContinuousImprovement rdf:type owl:Class ;
+                      rdfs:subClassOf :QualityAssurance ;
+                      rdfs:label "Continuous Improvement"@en ;
+                      rdfs:comment """System for continuous improvement
+                      of validation processes and accuracy."""@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#ValidationMetrics
+:ValidationMetrics rdf:type owl:Class ;
+                  rdfs:subClassOf perf:PerformanceMetric ;
+                  rdfs:label "Validation Metrics"@en ;
+                  rdfs:comment """Metrics measuring validation pipeline
+                  effectiveness and accuracy."""@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#FeedbackLoop
+:FeedbackLoop rdf:type owl:Class ;
+             rdfs:subClassOf ba:SystemComponent ;
+             rdfs:label "Validation Feedback Loop"@en ;
+             rdfs:comment """Feedback loop improving validation
+             accuracy based on results and outcomes."""@en .
+
+#################################################################
+#    Integration Components
+#################################################################
+
+###  http://bytestar.org/ontology/validation-pipeline#ValidationAdapter
+:ValidationAdapter rdf:type owl:Class ;
+                  rdfs:subClassOf ba:SystemAdapter ;
+                  rdfs:label "Validation Adapter"@en ;
+                  rdfs:comment """Adapter integrating external validation
+                  tools and systems into the pipeline."""@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#DataCollector
+:DataCollector rdf:type owl:Class ;
+              rdfs:subClassOf ba:SystemComponent ;
+              rdfs:label "Validation Data Collector"@en ;
+              rdfs:comment """Collector gathering performance data
+              for validation analysis."""@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#ResultAggregator
+:ResultAggregator rdf:type owl:Class ;
+                 rdfs:subClassOf ba:SystemComponent ;
+                 rdfs:label "Result Aggregator"@en ;
+                 rdfs:comment """Aggregator combining validation results
+                 from multiple stages and sources."""@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#NotificationSystem
+:NotificationSystem rdf:type owl:Class ;
+                   rdfs:subClassOf ba:SystemComponent ;
+                   rdfs:label "Validation Notification System"@en ;
+                   rdfs:comment """System managing validation notifications
+                   and alert distribution."""@en .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://bytestar.org/ontology/validation-pipeline#executesStage
+:executesStage rdf:type owl:ObjectProperty ;
+              rdfs:domain :PerformanceValidationPipeline ;
+              rdfs:range :ValidationStage ;
+              rdfs:label "executes stage"@en ;
+              rdfs:comment "Relates pipeline to stages executed."@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#orchestratesWorkflow
+:orchestratesWorkflow rdf:type owl:ObjectProperty ;
+                     rdfs:domain :ValidationOrchestrator ;
+                     rdfs:range :ValidationWorkflow ;
+                     rdfs:label "orchestrates workflow"@en ;
+                     rdfs:comment "Relates orchestrator to workflows managed."@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#producesResult
+:producesResult rdf:type owl:ObjectProperty ;
+               rdfs:domain :ValidationStage ;
+               rdfs:range :StageResult ;
+               rdfs:label "produces result"@en ;
+               rdfs:comment "Relates stage to results produced."@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#generatesReport
+:generatesReport rdf:type owl:ObjectProperty ;
+                rdfs:domain :PerformanceValidationPipeline ;
+                rdfs:range :ValidationReport ;
+                rdfs:label "generates report"@en ;
+                rdfs:comment "Relates pipeline to reports generated."@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#triggersExecution
+:triggersExecution rdf:type owl:ObjectProperty ;
+                  rdfs:domain :ValidationTrigger ;
+                  rdfs:range :PerformanceValidationPipeline ;
+                  rdfs:label "triggers execution"@en ;
+                  rdfs:comment "Relates trigger to pipeline execution."@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#configuresStage
+:configuresStage rdf:type owl:ObjectProperty ;
+                rdfs:domain :StageConfiguration ;
+                rdfs:range :ValidationStage ;
+                rdfs:label "configures stage"@en ;
+                rdfs:comment "Relates configuration to stages configured."@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#appliesPolicy
+:appliesPolicy rdf:type owl:ObjectProperty ;
+              rdfs:domain :PerformanceValidationPipeline ;
+              rdfs:range :ValidationPolicy ;
+              rdfs:label "applies policy"@en ;
+              rdfs:comment "Relates pipeline to policies applied."@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#collectsData
+:collectsData rdf:type owl:ObjectProperty ;
+             rdfs:domain :DataCollector ;
+             rdfs:range benchmark:BenchmarkMeasurement ;
+             rdfs:label "collects data"@en ;
+             rdfs:comment "Relates collector to data collected."@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#aggregatesResults
+:aggregatesResults rdf:type owl:ObjectProperty ;
+                  rdfs:domain :ResultAggregator ;
+                  rdfs:range :ValidationResult ;
+                  rdfs:label "aggregates results"@en ;
+                  rdfs:comment "Relates aggregator to results aggregated."@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#sendsNotification
+:sendsNotification rdf:type owl:ObjectProperty ;
+                  rdfs:domain :NotificationSystem ;
+                  rdfs:range :ValidationAlert ;
+                  rdfs:label "sends notification"@en ;
+                  rdfs:comment "Relates system to notifications sent."@en .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+###  http://bytestar.org/ontology/validation-pipeline#stageOrder
+:stageOrder rdf:type owl:DatatypeProperty ,
+                     owl:FunctionalProperty ;
+           rdfs:domain :ValidationStage ;
+           rdfs:range xsd:positiveInteger ;
+           rdfs:label "stage order"@en ;
+           rdfs:comment "Execution order of validation stage."@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#executionTime
+:executionTime rdf:type owl:DatatypeProperty ,
+                        owl:FunctionalProperty ;
+              rdfs:domain :ValidationStage ;
+              rdfs:range xsd:duration ;
+              rdfs:label "execution time"@en ;
+              rdfs:comment "Time taken to execute validation stage."@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#successRate
+:successRate rdf:type owl:DatatypeProperty ,
+                      owl:FunctionalProperty ;
+            rdfs:domain :ValidationStage ;
+            rdfs:range xsd:double ;
+            rdfs:label "success rate"@en ;
+            rdfs:comment "Success rate of validation stage (0.0-1.0)."@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#validationScore
+:validationScore rdf:type owl:DatatypeProperty ,
+                          owl:FunctionalProperty ;
+                rdfs:domain :ValidationResult ;
+                rdfs:range xsd:double ;
+                rdfs:label "validation score"@en ;
+                rdfs:comment "Overall validation score (0.0-1.0)."@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#confidenceLevel
+:confidenceLevel rdf:type owl:DatatypeProperty ,
+                          owl:FunctionalProperty ;
+                rdfs:domain :ValidationResult ;
+                rdfs:range xsd:double ;
+                rdfs:label "confidence level"@en ;
+                rdfs:comment "Confidence level in validation result."@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#executionFrequency
+:executionFrequency rdf:type owl:DatatypeProperty ,
+                             owl:FunctionalProperty ;
+                   rdfs:domain :PerformanceValidationPipeline ;
+                   rdfs:range xsd:duration ;
+                   rdfs:label "execution frequency"@en ;
+                   rdfs:comment "Frequency of pipeline execution."@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#timeoutDuration
+:timeoutDuration rdf:type owl:DatatypeProperty ,
+                          owl:FunctionalProperty ;
+                rdfs:domain :ValidationStage ;
+                rdfs:range xsd:duration ;
+                rdfs:label "timeout duration"@en ;
+                rdfs:comment "Maximum allowed execution time for stage."@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#parallelism
+:parallelism rdf:type owl:DatatypeProperty ,
+                      owl:FunctionalProperty ;
+            rdfs:domain :ParallelPipeline ;
+            rdfs:range xsd:positiveInteger ;
+            rdfs:label "parallelism"@en ;
+            rdfs:comment "Degree of parallel execution."@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#adaptationThreshold
+:adaptationThreshold rdf:type owl:DatatypeProperty ,
+                              owl:FunctionalProperty ;
+                    rdfs:domain :AdaptivePipeline ;
+                    rdfs:range xsd:double ;
+                    rdfs:label "adaptation threshold"@en ;
+                    rdfs:comment "Threshold for pipeline adaptation."@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#alertSeverity
+:alertSeverity rdf:type owl:DatatypeProperty ,
+                        owl:FunctionalProperty ;
+              rdfs:domain :ValidationAlert ;
+              rdfs:range xsd:string ;
+              rdfs:label "alert severity"@en ;
+              rdfs:comment "Severity level of validation alert."@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#improvementRate
+:improvementRate rdf:type owl:DatatypeProperty ,
+                          owl:FunctionalProperty ;
+                rdfs:domain :ContinuousImprovement ;
+                rdfs:range xsd:double ;
+                rdfs:label "improvement rate"@en ;
+                rdfs:comment "Rate of validation improvement over time."@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#resourceUtilization
+:resourceUtilization rdf:type owl:DatatypeProperty ,
+                              owl:FunctionalProperty ;
+                    rdfs:domain :PerformanceValidationPipeline ;
+                    rdfs:range xsd:double ;
+                    rdfs:label "resource utilization"@en ;
+                    rdfs:comment "Resource utilization percentage."@en .
+
+#################################################################
+#    SHACL Validation Shapes
+#################################################################
+
+###  http://bytestar.org/ontology/validation-pipeline#ValidationStageShape
+:ValidationStageShape rdf:type sh:NodeShape ;
+                     sh:targetClass :ValidationStage ;
+                     rdfs:label "Validation Stage Shape"@en ;
+                     rdfs:comment "Validates validation stage configuration."@en ;
+                     sh:property [
+                         sh:path :stageOrder ;
+                         sh:datatype xsd:positiveInteger ;
+                         sh:minInclusive 1 ;
+                         sh:minCount 1 ;
+                         sh:maxCount 1 ;
+                         sh:message "Stage order must be a positive integer."@en
+                     ] ;
+                     sh:property [
+                         sh:path :successRate ;
+                         sh:datatype xsd:double ;
+                         sh:minInclusive 0.0 ;
+                         sh:maxInclusive 1.0 ;
+                         sh:message "Success rate must be between 0.0 and 1.0."@en
+                     ] .
+
+###  http://bytestar.org/ontology/validation-pipeline#ValidationResultShape
+:ValidationResultShape rdf:type sh:NodeShape ;
+                      sh:targetClass :ValidationResult ;
+                      rdfs:label "Validation Result Shape"@en ;
+                      rdfs:comment "Validates validation result properties."@en ;
+                      sh:property [
+                          sh:path :validationScore ;
+                          sh:datatype xsd:double ;
+                          sh:minInclusive 0.0 ;
+                          sh:maxInclusive 1.0 ;
+                          sh:minCount 1 ;
+                          sh:maxCount 1 ;
+                          sh:message "Validation score must be between 0.0 and 1.0."@en
+                      ] ;
+                      sh:property [
+                          sh:path :confidenceLevel ;
+                          sh:datatype xsd:double ;
+                          sh:minInclusive 0.0 ;
+                          sh:maxInclusive 1.0 ;
+                          sh:message "Confidence level must be between 0.0 and 1.0."@en
+                      ] .
+
+###  http://bytestar.org/ontology/validation-pipeline#ParallelPipelineShape
+:ParallelPipelineShape rdf:type sh:NodeShape ;
+                      sh:targetClass :ParallelPipeline ;
+                      rdfs:label "Parallel Pipeline Shape"@en ;
+                      rdfs:comment "Validates parallel pipeline configuration."@en ;
+                      sh:property [
+                          sh:path :parallelism ;
+                          sh:datatype xsd:positiveInteger ;
+                          sh:minInclusive 2 ; # At least 2 for parallelism
+                          sh:maxInclusive 16 ; # Reasonable upper limit
+                          sh:minCount 1 ;
+                          sh:maxCount 1 ;
+                          sh:message "Parallelism must be between 2 and 16."@en
+                      ] .
+
+###  http://bytestar.org/ontology/validation-pipeline#ValidationAlertShape
+:ValidationAlertShape rdf:type sh:NodeShape ;
+                     sh:targetClass :ValidationAlert ;
+                     rdfs:label "Validation Alert Shape"@en ;
+                     rdfs:comment "Validates validation alert properties."@en ;
+                     sh:property [
+                         sh:path :alertSeverity ;
+                         sh:datatype xsd:string ;
+                         sh:in ("LOW" "MEDIUM" "HIGH" "CRITICAL") ;
+                         sh:minCount 1 ;
+                         sh:maxCount 1 ;
+                         sh:message "Alert severity must be LOW, MEDIUM, HIGH, or CRITICAL."@en
+                     ] .
+
+###  http://bytestar.org/ontology/validation-pipeline#PipelineResourceUtilizationShape
+:PipelineResourceUtilizationShape rdf:type sh:NodeShape ;
+                                 sh:targetClass :PerformanceValidationPipeline ;
+                                 rdfs:label "Pipeline Resource Utilization Shape"@en ;
+                                 rdfs:comment "Validates pipeline resource usage."@en ;
+                                 sh:property [
+                                     sh:path :resourceUtilization ;
+                                     sh:datatype xsd:double ;
+                                     sh:minInclusive 0.0 ;
+                                     sh:maxInclusive 100.0 ;
+                                     sh:message "Resource utilization must be between 0.0% and 100.0%."@en
+                                 ] .
+
+#################################################################
+#    Pipeline Integration Axioms
+#################################################################
+
+# Axiom: All validation stages must produce results
+[] rdf:type owl:Class ;
+   owl:equivalentClass [
+       rdf:type owl:Class ;
+       owl:intersectionOf (
+           :ValidationStage
+           [
+               rdf:type owl:Restriction ;
+               owl:onProperty :producesResult ;
+               owl:someValuesFrom :StageResult
+           ]
+       )
+   ] .
+
+# Axiom: Pipeline execution must be triggered
+[] rdf:type owl:Class ;
+   owl:equivalentClass [
+       rdf:type owl:Class ;
+       owl:intersectionOf (
+           :PerformanceValidationPipeline
+           [
+               rdf:type owl:Restriction ;
+               owl:onProperty :triggersExecution ;
+               owl:someValuesFrom :ValidationTrigger
+           ]
+       )
+   ] .
+
+# Axiom: Critical alerts must be sent immediately
+[] rdf:type owl:Class ;
+   owl:equivalentClass [
+       rdf:type owl:Class ;
+       owl:intersectionOf (
+           :ValidationAlert
+           [
+               rdf:type owl:Restriction ;
+               owl:onProperty :alertSeverity ;
+               owl:hasValue "CRITICAL"
+           ]
+       )
+   ] ;
+   rdfs:subClassOf [
+       rdf:type owl:Restriction ;
+       owl:onProperty :sendsNotification ;
+       owl:someValuesFrom :NotificationSystem
+   ] .
+
+#################################################################
+#    Predefined Pipeline Components
+#################################################################
+
+###  http://bytestar.org/ontology/validation-pipeline#ComprehensiveValidationPipeline
+:ComprehensiveValidationPipeline rdf:type owl:NamedIndividual ,
+                                          :HybridPipeline ;
+                                rdfs:label "Comprehensive Validation Pipeline"@en ;
+                                rdfs:comment """Complete validation pipeline
+                                covering all crystal operation validation aspects."""@en ;
+                                :executionFrequency "PT1H"^^xsd:duration ; # Every hour
+                                :resourceUtilization "85.0"^^xsd:double . # 85% utilization
+
+###  http://bytestar.org/ontology/validation-pipeline#MasterValidationOrchestrator
+:MasterValidationOrchestrator rdf:type owl:NamedIndividual ,
+                                       :ValidationOrchestrator ;
+                             rdfs:label "Master Validation Orchestrator"@en ;
+                             rdfs:comment """Primary orchestrator managing
+                             all validation workflows and coordination."""@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#Stage1ConstantTimeValidation
+:Stage1ConstantTimeValidation rdf:type owl:NamedIndividual ,
+                                       :ConstantTimeValidationStage ;
+                             rdfs:label "Stage 1: Constant-Time Validation"@en ;
+                             rdfs:comment """First stage performing constant-time
+                             validation of crystal operations."""@en ;
+                             :stageOrder "1"^^xsd:positiveInteger ;
+                             :timeoutDuration "PT5M"^^xsd:duration ; # 5 minute timeout
+                             :successRate "0.98"^^xsd:double . # 98% success rate
+
+###  http://bytestar.org/ontology/validation-pipeline#Stage2ResourceBoundsValidation
+:Stage2ResourceBoundsValidation rdf:type owl:NamedIndividual ,
+                                         :ResourceBoundsValidationStage ;
+                               rdfs:label "Stage 2: Resource Bounds Validation"@en ;
+                               rdfs:comment """Second stage validating resource
+                               consumption bounds."""@en ;
+                               :stageOrder "2"^^xsd:positiveInteger ;
+                               :timeoutDuration "PT3M"^^xsd:duration ; # 3 minute timeout
+                               :successRate "0.96"^^xsd:double . # 96% success rate
+
+###  http://bytestar.org/ontology/validation-pipeline#Stage3ThroughputLatencyValidation
+:Stage3ThroughputLatencyValidation rdf:type owl:NamedIndividual ,
+                                            :ThroughputLatencyValidationStage ;
+                                  rdfs:label "Stage 3: Throughput/Latency Validation"@en ;
+                                  rdfs:comment """Third stage performing
+                                  throughput and latency validation."""@en ;
+                                  :stageOrder "3"^^xsd:positiveInteger ;
+                                  :timeoutDuration "PT10M"^^xsd:duration ; # 10 minute timeout
+                                  :successRate "0.94"^^xsd:double . # 94% success rate
+
+###  http://bytestar.org/ontology/validation-pipeline#Stage4RegressionDetection
+:Stage4RegressionDetection rdf:type owl:NamedIndividual ,
+                                    :RegressionDetectionStage ;
+                          rdfs:label "Stage 4: Regression Detection"@en ;
+                          rdfs:comment """Fourth stage detecting performance
+                          regressions and anomalies."""@en ;
+                          :stageOrder "4"^^xsd:positiveInteger ;
+                          :timeoutDuration "PT7M"^^xsd:duration ; # 7 minute timeout
+                          :successRate "0.92"^^xsd:double . # 92% success rate
+
+###  http://bytestar.org/ontology/validation-pipeline#Stage5OracleValidation
+:Stage5OracleValidation rdf:type owl:NamedIndividual ,
+                                 :OracleValidationStage ;
+                       rdfs:label "Stage 5: Oracle Validation"@en ;
+                       rdfs:comment """Fifth stage validating performance
+                       oracles and predictions."""@en ;
+                       :stageOrder "5"^^xsd:positiveInteger ;
+                       :timeoutDuration "PT4M"^^xsd:duration ; # 4 minute timeout
+                       :successRate "0.90"^^xsd:double . # 90% success rate
+
+###  http://bytestar.org/ontology/validation-pipeline#Stage6IntegrationValidation
+:Stage6IntegrationValidation rdf:type owl:NamedIndividual ,
+                                      :IntegrationValidationStage ;
+                            rdfs:label "Stage 6: Integration Validation"@en ;
+                            rdfs:comment """Final stage performing end-to-end
+                            integration validation."""@en ;
+                            :stageOrder "6"^^xsd:positiveInteger ;
+                            :timeoutDuration "PT15M"^^xsd:duration ; # 15 minute timeout
+                            :successRate "0.88"^^xsd:double . # 88% success rate
+
+###  http://bytestar.org/ontology/validation-pipeline#ContinuousValidationTrigger
+:ContinuousValidationTrigger rdf:type owl:NamedIndividual ,
+                                      :ValidationTrigger ;
+                            rdfs:label "Continuous Validation Trigger"@en ;
+                            rdfs:comment """Trigger for continuous validation
+                            pipeline execution."""@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#ComprehensiveDataCollector
+:ComprehensiveDataCollector rdf:type owl:NamedIndividual ,
+                                     :DataCollector ;
+                           rdfs:label "Comprehensive Data Collector"@en ;
+                           rdfs:comment """Collector gathering all performance
+                           data for validation analysis."""@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#IntelligentResultAggregator
+:IntelligentResultAggregator rdf:type owl:NamedIndividual ,
+                                      :ResultAggregator ;
+                            rdfs:label "Intelligent Result Aggregator"@en ;
+                            rdfs:comment """AI-powered aggregator combining
+                            validation results intelligently."""@en .
+
+###  http://bytestar.org/ontology/validation-pipeline#RealTimeNotificationSystem
+:RealTimeNotificationSystem rdf:type owl:NamedIndividual ,
+                                     :NotificationSystem ;
+                           rdfs:label "Real-Time Notification System"@en ;
+                           rdfs:comment """Real-time system for validation
+                           alerts and notifications."""@en .
+
+#################################################################
+#    Example Pipeline Execution
+#################################################################
+
+# Example validation result
+:ExampleValidationResult rdf:type owl:NamedIndividual ,
+                                  :ValidationResult ;
+                        rdfs:label "Example Comprehensive Validation Result"@en ;
+                        :validationScore "0.93"^^xsd:double ; # 93% validation score
+                        :confidenceLevel "0.95"^^xsd:double ; # 95% confidence
+                        dct:created "2025-08-23T12:00:00Z"^^xsd:dateTime .
+
+# Example validation alert
+:ExampleValidationAlert rdf:type owl:NamedIndividual ,
+                                 :ValidationAlert ;
+                       rdfs:label "Example Critical Validation Alert"@en ;
+                       :alertSeverity "CRITICAL" ;
+                       dct:description "Critical performance regression detected in crystal operations"@en ;
+                       dct:created "2025-08-23T12:00:01Z"^^xsd:dateTime .
+
+# Example stage result
+:ExampleStageResult rdf:type owl:NamedIndividual ,
+                             :StageResult ;
+                   rdfs:label "Example Constant-Time Validation Stage Result"@en ;
+                   :validationScore "0.98"^^xsd:double ; # 98% stage score
+                   :executionTime "PT4M30S"^^xsd:duration ; # 4.5 minute execution
+                   dct:created "2025-08-23T12:00:02Z"^^xsd:dateTime .

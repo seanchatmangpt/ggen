@@ -1,0 +1,43 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ddd: <http://example.org/ddd#> .
+@prefix ggen: <http://example.org/ggen#> .
+
+# Simple User Aggregate Example
+
+ggen:User a ddd:AggregateRoot ;
+    rdfs:label "User" ;
+    ddd:hasProperty ggen:User_id ;
+    ddd:hasProperty ggen:User_email ;
+    ddd:hasProperty ggen:User_name .
+
+ggen:User_id a ddd:Property ;
+    rdfs:label "id" ;
+    ddd:propertyType "Uuid" ;
+    ddd:required "true" .
+
+ggen:User_email a ddd:Property ;
+    rdfs:label "email" ;
+    ddd:propertyType "String" ;
+    ddd:required "true" .
+
+ggen:User_name a ddd:Property ;
+    rdfs:label "name" ;
+    ddd:propertyType "String" ;
+    ddd:required "true" .
+
+# Create User Command
+
+ggen:CreateUser a ddd:Command ;
+    rdfs:label "CreateUser" ;
+    ddd:targetsAggregate ggen:User ;
+    ddd:hasParameter ggen:CreateUser_email ;
+    ddd:hasParameter ggen:CreateUser_name .
+
+ggen:CreateUser_email a ddd:Parameter ;
+    rdfs:label "email" ;
+    ddd:parameterType "String" .
+
+ggen:CreateUser_name a ddd:Parameter ;
+    rdfs:label "name" ;
+    ddd:parameterType "String" .

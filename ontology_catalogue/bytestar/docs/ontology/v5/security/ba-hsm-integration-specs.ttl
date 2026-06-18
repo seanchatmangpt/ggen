@@ -1,0 +1,508 @@
+# ByteStar HSM Integration Specifications Ontology
+# Hardware Security Module and Trusted Execution Environment integration framework
+# Version: 5.0.0 - Security Domain  
+# Classification: FIPS 140-3 Level 4 Compliant
+# Dependencies: ba-hsm-tee-integration.ttl, ba-security-policy.ttl
+
+@prefix : <https://w3id.org/bytestar/ontology/security/hsm-specs#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# Import existing ByteStar ontologies (80% reuse)
+@prefix sp: <https://w3id.org/bytestar/ontology/security/policy#> .
+@prefix hti: <https://w3id.org/bytestar/ontology/security/hsm-tee-integration#> .
+@prefix doe: <https://w3id.org/bytestar/ontology/doctrine#> .
+@prefix ba: <https://w3id.org/bytestar/ontology/core#> .
+
+# Ontology Declaration
+<https://w3id.org/bytestar/ontology/security/hsm-specs> 
+    rdf:type owl:Ontology ;
+    dcterms:title "ByteStar HSM Integration Specifications"@en ;
+    dcterms:description "Comprehensive specifications and utilities for HSM and TEE integration with ByteStar crystals"@en ;
+    dcterms:version "5.0.0" ;
+    dcterms:created "2025-08-23"^^xsd:date ;
+    dcterms:creator "ByteStar Security Architecture Team" ;
+    owl:imports <https://w3id.org/bytestar/ontology/security/hsm-tee-integration>,
+                <https://w3id.org/bytestar/ontology/security/policy>,
+                <https://w3id.org/bytestar/ontology/doctrine> .
+
+# ===== HSM INTERFACE SPECIFICATIONS =====
+
+:HSMInterfaceSpecification rdf:type owl:Class ;
+                          rdfs:subClassOf hti:HSMInterface ;
+                          rdfs:label "HSM Interface Specification"@en ;
+                          rdfs:comment "Detailed specification for HSM integration interfaces"@en ;
+                          :supportsStandard :PKCS11 , :PKCS1 , :PKCS7 , :PKCS8 , :PKCS12 ;
+                          :implementsAPI :CryptoAPI , :JCE , :OpenSSL , :MSCAPI ;
+                          :hasInterfaceType :NetworkInterface , :PCIInterface , :USBInterface ;
+                          :operatesWithinConstraint doe:EightTickConstraint .
+
+:PKCS11Interface rdf:type owl:Class ;
+                 rdfs:subClassOf :HSMInterfaceSpecification ;
+                 rdfs:label "PKCS#11 Interface"@en ;
+                 rdfs:comment "PKCS#11 Cryptographic Token Interface Standard implementation"@en ;
+                 :implementsVersion "3.0"^^xsd:string ;
+                 :supportsMechanism :CKM_RSA_PKCS , :CKM_AES_CBC , :CKM_ECDSA , :CKM_SHA256 ;
+                 :hasSlotManagement :StaticSlot , :DynamicSlot , :VirtualSlot ;
+                 :providesFunction :C_Initialize , :C_Login , :C_GenerateKey , :C_Sign , :C_Verify .
+
+:CryptoAPIInterface rdf:type owl:Class ;
+                    rdfs:subClassOf :HSMInterfaceSpecification ;
+                    rdfs:label "Microsoft CryptoAPI Interface"@en ;
+                    rdfs:comment "Microsoft CryptoAPI integration for Windows environments"@en ;
+                    :supportsProvider :RSAProvider , :DSAProvider , :ECDSAProvider , :AESProvider ;
+                    :hasKeyStore :LocalMachine , :CurrentUser , :SmartCard ;
+                    :implementsCSP :MicrosoftProvider , :HSMProvider , :TPMProvider .
+
+:JCEInterface rdf:type owl:Class ;
+              rdfs:subClassOf :HSMInterfaceSpecification ;
+              rdfs:label "Java Cryptography Extension Interface"@en ;
+              rdfs:comment "JCE provider interface for Java applications"@en ;
+              :implementsProvider :SunRsaSign , :SunJSSE , :HSMProvider ;
+              :hasKeyStoreType :PKCS12 , :JKS , :PKCS11 ;
+              :supportsCipher :RSA , :AES , :DES , :Blowfish ;
+              :providesService :Cipher , :KeyGenerator , :Signature , :MessageDigest .
+
+# ===== HSM DEVICE SPECIFICATIONS =====
+
+:HSMDeviceSpecification rdf:type owl:Class ;
+                        rdfs:subClassOf hti:HardwareSecurityModule ;
+                        rdfs:label "HSM Device Specification"@en ;
+                        rdfs:comment "Detailed specifications for HSM hardware devices"@en ;
+                        :hasFormFactor :PCICard , :USBToken , :NetworkAppliance , :RackMount ;
+                        :hasSecurityLevel :FIPS140_3_Level1 , :FIPS140_3_Level2 , :FIPS140_3_Level3 , :FIPS140_3_Level4 ;
+                        :supportsTamperResistance :TamperEvident , :TamperResponsive , :TamperDetection ;
+                        :hasPerformanceRating :KeysPerSecond , :TransactionsPerSecond .
+
+:NetworkHSMSpecification rdf:type owl:Class ;
+                         rdfs:subClassOf :HSMDeviceSpecification ;
+                         rdfs:label "Network HSM Specification"@en ;
+                         rdfs:comment "Network-attached HSM device specifications"@en ;
+                         :hasNetworkInterface :Ethernet , :InfiniBand , :FibreChannel ;
+                         :supportsProtocol :TLS , :HTTPS , :IPSec , :SSH ;
+                         :hasHighAvailability :ClusterSupport , :LoadBalancing , :Failover ;
+                         :supportsConcurrentSessions "1000"^^xsd:positiveInteger .
+
+:PCIHSMSpecification rdf:type owl:Class ;
+                     rdfs:subClassOf :HSMDeviceSpecification ;
+                     rdfs:label "PCI HSM Specification"@en ;
+                     rdfs:comment "PCI card-based HSM device specifications"@en ;
+                     :hasFormFactor :FullHeight , :HalfHeight , :LowProfile ;
+                     :requiresPowerConsumption "75"^^xsd:positiveInteger ; # watts
+                     :hasKeyStorageCapacity "10000"^^xsd:positiveInteger ;
+                     :supportsBusInterface :PCIExpress_x16 , :PCIExpress_x8 , :PCIExpress_x4 .
+
+:USBTokenSpecification rdf:type owl:Class ;
+                       rdfs:subClassOf :HSMDeviceSpecification ;
+                       rdfs:label "USB Token Specification"@en ;
+                       rdfs:comment "USB-based cryptographic token specifications"@en ;
+                       :hasUSBVersion :USB20 , :USB30 , :USB31 ;
+                       :hasFormFactor :KeyFob , :SmartCard , :FlashDrive ;
+                       :supportsMobileDevices "true"^^xsd:boolean ;
+                       :hasAuthenticationMethod :PIN , :Biometric , :Gesture .
+
+# ===== TEE SPECIFICATIONS =====
+
+:TEESpecification rdf:type owl:Class ;
+                  rdfs:subClassOf hti:TrustedExecutionEnvironment ;
+                  rdfs:label "TEE Specification"@en ;
+                  rdfs:comment "Trusted Execution Environment implementation specifications"@en ;
+                  :implementsStandard :GlobalPlatform , :OPTEE , :TrustZone , :SGX ;
+                  :hasIsolationLevel :ProcessIsolation , :VMIsolation , :HardwareIsolation ;
+                  :supportsPlatform :ARM , :Intel , :AMD , :RISC_V ;
+                  :providesAttestation :LocalAttestation , :RemoteAttestation .
+
+:ARMTrustZoneSpecification rdf:type owl:Class ;
+                           rdfs:subClassOf :TEESpecification ;
+                           rdfs:label "ARM TrustZone Specification"@en ;
+                           rdfs:comment "ARM TrustZone security technology specifications"@en ;
+                           :hasSecureWorld :SecureOS , :SecureKernel , :TrustedApplications ;
+                           :hasNormalWorld :RichOS , :Applications ;
+                           :providesInterface :SecureMonitorCall , :TrustedApplicationAPI ;
+                           :supportsCPU :CortexA , :CortexM , :CortexR .
+
+:IntelSGXSpecification rdf:type owl:Class ;
+                       rdfs:subClassOf :TEESpecification ;
+                       rdfs:label "Intel SGX Specification"@en ;
+                       rdfs:comment "Intel Software Guard Extensions specifications"@en ;
+                       :hasEnclaveMemory :EPC , :EPCM , :SecureMemory ;
+                       :supportsCPU :Skylake , :KabyLake , :CoffeeLake , :IceLake ;
+                       :providesInstruction :ECREATE , :EENTER , :EEXIT , :ERESUME ;
+                       :hasAttestationService :IntelAttestationService .
+
+# ===== CRYPTOGRAPHIC ALGORITHM SUPPORT =====
+
+:CryptographicAlgorithmSupport rdf:type owl:Class ;
+                               rdfs:subClassOf sp:CryptographicPolicy ;
+                               rdfs:label "Cryptographic Algorithm Support"@en ;
+                               rdfs:comment "Specification of supported cryptographic algorithms"@en ;
+                               :supportsSymmetric :AES , :DES , :TripleDES , :ChaCha20 ;
+                               :supportsAsymmetric :RSA , :ECDSA , :ECDH , :DSA ;
+                               :supportsHash :SHA256 , :SHA384 , :SHA512 , :SHA3 , :BLAKE3 ;
+                               :supportsMAC :HMAC , :CMAC , :GMAC .
+
+:PostQuantumAlgorithmSupport rdf:type owl:Class ;
+                            rdfs:subClassOf :CryptographicAlgorithmSupport ;
+                            rdfs:label "Post-Quantum Algorithm Support"@en ;
+                            rdfs:comment "Post-quantum cryptographic algorithm support"@en ;
+                            :supportsKEM :Kyber512 , :Kyber768 , :Kyber1024 ;
+                            :supportsSignature :Dilithium2 , :Dilithium3 , :Dilithium5 ,
+                                               :Falcon512 , :Falcon1024 , :SPHINCS_Plus ;
+                            :hasQuantumSecurityLevel :Level1 , :Level3 , :Level5 ;
+                            :providesTransition :HybridMode , :LegacyCompatibility .
+
+:AESSupport rdf:type owl:Class ;
+            rdfs:subClassOf :CryptographicAlgorithmSupport ;
+            rdfs:label "AES Support"@en ;
+            rdfs:comment "Advanced Encryption Standard implementation support"@en ;
+            :supportsKeySize "128"^^xsd:positiveInteger , "192"^^xsd:positiveInteger , "256"^^xsd:positiveInteger ;
+            :supportsMode :CBC , :CFB , :OFB , :CTR , :GCM , :CCM ;
+            :hasHardwareAcceleration :AES_NI , :CryptoCell , :SecureCore ;
+            :hasPerformance "10000000"^^xsd:positiveInteger . # operations per second
+
+# ===== KEY MANAGEMENT SPECIFICATIONS =====
+
+:KeyManagementSpecification rdf:type owl:Class ;
+                            rdfs:subClassOf sp:KeyManagementPolicy ;
+                            rdfs:label "Key Management Specification"@en ;
+                            rdfs:comment "Comprehensive key management specifications for HSM/TEE"@en ;
+                            :supportsKeyLifecycle :Generation , :Distribution , :Storage , :Usage , :Archival , :Destruction ;
+                            :hasKeyStorage :VolatileStorage , :NonVolatileStorage , :DistributedStorage ;
+                            :supportsSplitKnowledge "true"^^xsd:boolean ;
+                            :supportsDualControl "true"^^xsd:boolean .
+
+:KeyGenerationSpecification rdf:type owl:Class ;
+                           rdfs:subClassOf :KeyManagementSpecification ;
+                           rdfs:label "Key Generation Specification"@en ;
+                           rdfs:comment "Cryptographic key generation specifications"@en ;
+                           :usesRandomSource :TRNG , :HRNG , :DRBG ;
+                           :hasEntropySource :ThermalNoise , :ShotNoise , :OSCNoise ;
+                           :supportsKeyType :SymmetricKey , :AsymmetricKeyPair , :KeyAgreementKey ;
+                           :hasGenerationRate "1000"^^xsd:positiveInteger . # keys per second
+
+:KeyStorageSpecification rdf:type owl:Class ;
+                        rdfs:subClassOf :KeyManagementSpecification ;
+                        rdfs:label "Key Storage Specification"@en ;
+                        rdfs:comment "Secure key storage specifications"@en ;
+                        :hasStorageType :PlaintextStorage , :EncryptedStorage , :SplitStorage ;
+                        :supportsKeyWrapping :PKCS1 , :PKCS8 , :RFC3394 , :RFC5649 ;
+                        :hasCapacity "100000"^^xsd:positiveInteger ; # number of keys
+                        :supportsDurability :Battery , :Flash , :EEPROM .
+
+# ===== AUTHENTICATION AND ACCESS CONTROL =====
+
+:AuthenticationSpecification rdf:type owl:Class ;
+                            rdfs:subClassOf sp:AccessControlPolicy ;
+                            rdfs:label "Authentication Specification"@en ;
+                            rdfs:comment "HSM/TEE authentication mechanism specifications"@en ;
+                            :supportsMethod :PasswordAuth , :SmartCardAuth , :BiometricAuth , :MFAAuth ;
+                            :hasStrengthRequirement :NIST_SP800_63 , :FIPS_196 ;
+                            :supportsSingleSignOn "true"^^xsd:boolean ;
+                            :hasSessionTimeout "3600"^^xsd:positiveInteger . # seconds
+
+:RoleBasedAccessControl rdf:type owl:Class ;
+                        rdfs:subClassOf :AuthenticationSpecification ;
+                        rdfs:label "Role-Based Access Control"@en ;
+                        rdfs:comment "RBAC implementation for HSM/TEE access"@en ;
+                        :hasRole :SecurityOfficer , :CryptographyOfficer , :User , :Operator ;
+                        :supportsPermission :KeyGeneration , :KeyDeletion , :Signing , :Verification ,
+                                          :Encryption , :Decryption , :Configuration ;
+                        :implementsSegregation :SeparationOfDuties , :DualControl .
+
+:MultiFactorAuthentication rdf:type owl:Class ;
+                           rdfs:subClassOf :AuthenticationSpecification ;
+                           rdfs:label "Multi-Factor Authentication"@en ;
+                           rdfs:comment "Multi-factor authentication implementation"@en ;
+                           :requiresFactor :SomethingYouKnow , :SomethingYouHave , :SomethingYouAre ;
+                           :supportsDevice :SmartCard , :TokenDevice , :BiometricDevice ;
+                           :hasFailureThreshold "3"^^xsd:positiveInteger ;
+                           :hasLockoutDuration "1800"^^xsd:positiveInteger . # seconds
+
+# ===== COMPLIANCE AND CERTIFICATION =====
+
+:ComplianceSpecification rdf:type owl:Class ;
+                        rdfs:subClassOf sp:ComplianceFramework ;
+                        rdfs:label "Compliance Specification"@en ;
+                        rdfs:comment "HSM/TEE compliance and certification specifications"@en ;
+                        :requiresCompliance :FIPS140_3 , :CommonCriteria , :NIAP , :NIST_SP800_57 ;
+                        :supportsCertification :CAVP , :CMVP , :CSA_STAR ;
+                        :hasValidationLevel :Level1 , :Level2 , :Level3 , :Level4 ;
+                        :requiresAuditTrail "true"^^xsd:boolean .
+
+:FIPS140_3Specification rdf:type owl:Class ;
+                        rdfs:subClassOf :ComplianceSpecification ;
+                        rdfs:label "FIPS 140-3 Specification"@en ;
+                        rdfs:comment "Federal Information Processing Standard 140-3 compliance"@en ;
+                        :hasSecurityLevel :Level1 , :Level2 , :Level3 , :Level4 ;
+                        :requiresRequirement :CryptographicModule , :KeyManagement , :Authentication ,
+                                           :PhysicalSecurity , :SoftwareSecurity , :OperatingEnvironment ;
+                        :hasValidationAuthority :NIST , :CSE , :BSI .
+
+:CommonCriteriaSpecification rdf:type owl:Class ;
+                            rdfs:subClassOf :ComplianceSpecification ;
+                            rdfs:label "Common Criteria Specification"@en ;
+                            rdfs:comment "ISO 15408 Common Criteria evaluation specifications"@en ;
+                            :hasEvaluationLevel :EAL1 , :EAL2 , :EAL3 , :EAL4 , :EAL5 , :EAL6 , :EAL7 ;
+                            :hasProtectionProfile :HSM_PP , :SmartCard_PP , :TrustedOS_PP ;
+                            :requiresSecurityTarget "true"^^xsd:boolean ;
+                            :hasValidationScheme :NIAP , :BSI_CC , :ANSSI .
+
+# ===== PERFORMANCE SPECIFICATIONS =====
+
+:PerformanceSpecification rdf:type owl:Class ;
+                         rdfs:subClassOf ba:PerformanceRequirement ;
+                         rdfs:label "Performance Specification"@en ;
+                         rdfs:comment "HSM/TEE performance requirements and specifications"@en ;
+                         :hasThroughputRequirement :SignatureOpsPerSecond , :EncryptionOpsPerSecond ,
+                                                  :KeyGenerationOpsPerSecond ;
+                         :hasLatencyRequirement :SignatureLatency , :EncryptionLatency , :AuthenticationLatency ;
+                         :operatesWithinConstraint doe:EightTickConstraint ;
+                         :supportsConcurrency "1000"^^xsd:positiveInteger .
+
+:ThroughputSpecification rdf:type owl:Class ;
+                         rdfs:subClassOf :PerformanceSpecification ;
+                         rdfs:label "Throughput Specification"@en ;
+                         rdfs:comment "Throughput performance specifications"@en ;
+                         :hasRSA2048Throughput "10000"^^xsd:positiveInteger ; # ops/sec
+                         :hasECCP256Throughput "15000"^^xsd:positiveInteger ; # ops/sec
+                         :hasAES256Throughput "1000000"^^xsd:positiveInteger ; # ops/sec
+                         :hasSHA256Throughput "500000"^^xsd:positiveInteger . # ops/sec
+
+:LatencySpecification rdf:type owl:Class ;
+                      rdfs:subClassOf :PerformanceSpecification ;
+                      rdfs:label "Latency Specification"@en ;
+                      rdfs:comment "Latency performance specifications"@en ;
+                      :hasRSA2048Latency "5000"^^xsd:positiveInteger ; # microseconds
+                      :hasECCP256Latency "3000"^^xsd:positiveInteger ; # microseconds
+                      :hasAES256Latency "10"^^xsd:positiveInteger ; # microseconds
+                      :hasAuthenticationLatency "100000"^^xsd:positiveInteger . # microseconds
+
+# ===== INTEGRATION UTILITIES =====
+
+:IntegrationUtility rdf:type owl:Class ;
+                    rdfs:subClassOf ba:Utility ;
+                    rdfs:label "Integration Utility"@en ;
+                    rdfs:comment "Utility tools for HSM/TEE integration with ByteStar crystals"@en ;
+                    :providesFunction :Configuration , :Testing , :Monitoring , :Troubleshooting ;
+                    :supportsEnvironment :Development , :Testing , :Staging , :Production ;
+                    :hasCompatibilityMatrix :HSMModels , :TEEImplementations , :OSPlatforms .
+
+:ConfigurationManager rdf:type owl:Class ;
+                      rdfs:subClassOf :IntegrationUtility ;
+                      rdfs:label "Configuration Manager"@en ;
+                      rdfs:comment "HSM/TEE configuration management utility"@en ;
+                      :managesConfiguration :DeviceConfig , :NetworkConfig , :SecurityConfig , :ApplicationConfig ;
+                      :supportsFormat :XML , :JSON , :YAML , :TOML ;
+                      :providesValidation :ConfigValidation , :CompatibilityCheck , :SecurityCheck ;
+                      :hasBackupCapability "true"^^xsd:boolean .
+
+:TestingFramework rdf:type owl:Class ;
+                  rdfs:subClassOf :IntegrationUtility ;
+                  rdfs:label "Testing Framework"@en ;
+                  rdfs:comment "Comprehensive testing framework for HSM/TEE integration"@en ;
+                  :providesTestType :UnitTest , :IntegrationTest , :PerformanceTest , :SecurityTest ;
+                  :hasTestCoverage "0.95"^^xsd:decimal ;
+                  :supportsAutomation "true"^^xsd:boolean ;
+                  :generatesReport :TestResults , :CoverageReport , :PerformanceReport .
+
+:MonitoringSystem rdf:type owl:Class ;
+                  rdfs:subClassOf :IntegrationUtility ;
+                  rdfs:label "Monitoring System"@en ;
+                  rdfs:comment "Real-time monitoring system for HSM/TEE operations"@en ;
+                  :monitorsMetric :Availability , :Performance , :Security , :Capacity ;
+                  :providesAlert :ThresholdAlert , :SecurityAlert , :FailureAlert ;
+                  :hasRefreshRate "1000"^^xsd:positiveInteger ; # milliseconds
+                  :supportsVisualization :Dashboard , :Charts , :Graphs , :Reports .
+
+# ===== CRYSTAL-SPECIFIC INTEGRATIONS =====
+
+:CrystalHSMIntegration rdf:type owl:Class ;
+                       rdfs:subClassOf :IntegrationUtility ;
+                       rdfs:label "Crystal HSM Integration"@en ;
+                       rdfs:comment "Specialized integration for ByteStar crystal types with HSM"@en ;
+                       :supportsCrystalType ba:TaskCrystal , ba:ResultCrystal , ba:GovernanceCrystal ,
+                                          ba:CapabilityCrystal , ba:InvariantCrystal ;
+                       :providesOperation :CrystalSigning , :CrystalVerification , :CrystalEncryption ,
+                                        :CrystalDecryption , :CrystalKeyGeneration ;
+                       :operatesWithinConstraint doe:EightTickConstraint .
+
+:TaskCrystalHSMBinding rdf:type owl:Class ;
+                       rdfs:subClassOf :CrystalHSMIntegration ;
+                       rdfs:label "Task Crystal HSM Binding"@en ;
+                       rdfs:comment "HSM binding for Task Crystal operations"@en ;
+                       :bindsToField :TaskSignature , :TaskEncryption , :TaskAuthentication ;
+                       :usesKeyType :SigningKey , :EncryptionKey , :AuthenticationKey ;
+                       :hasPerformanceTarget "8"^^xsd:positiveInteger . # ticks
+
+:ResultCrystalHSMBinding rdf:type owl:Class ;
+                         rdfs:subClassOf :CrystalHSMIntegration ;
+                         rdfs:label "Result Crystal HSM Binding"@en ;
+                         rdfs:comment "HSM binding for Result Crystal operations"@en ;
+                         :bindsToField :ResultSignature , :ResultIntegrity , :ResultAttestation ;
+                         :providesAttestation :LocalAttestation , :RemoteAttestation ;
+                         :hasPerformanceTarget "8"^^xsd:positiveInteger . # ticks
+
+# ===== API SPECIFICATIONS =====
+
+:APISpecification rdf:type owl:Class ;
+                  rdfs:subClassOf ba:InterfaceSpecification ;
+                  rdfs:label "API Specification"@en ;
+                  rdfs:comment "Application Programming Interface specifications for HSM/TEE"@en ;
+                  :definesInterface :RESTInterface , :RPCInterface , :NativeInterface ;
+                  :supportsProtocol :HTTPS , :gRPC , :JSON_RPC , :SOAP ;
+                  :hasDocumentation :OpenAPI , :AsyncAPI , :GraphQL ;
+                  :providesSDK :Java , :Python , :CSharp , :Go , :Rust .
+
+:RESTAPISpecification rdf:type owl:Class ;
+                      rdfs:subClassOf :APISpecification ;
+                      rdfs:label "REST API Specification"@en ;
+                      rdfs:comment "RESTful API specification for HSM/TEE operations"@en ;
+                      :hasEndpoint :KeyGeneration , :Signing , :Verification , :Encryption , :Decryption ;
+                      :supportsMethod :GET , :POST , :PUT , :DELETE , :PATCH ;
+                      :hasAuthentication :OAuth2 , :JWT , :APIKey , :mTLS ;
+                      :returnsFormat :JSON , :XML , :Binary .
+
+:NativeAPISpecification rdf:type owl:Class ;
+                        rdfs:subClassOf :APISpecification ;
+                        rdfs:label "Native API Specification"@en ;
+                        rdfs:comment "Native library API specification for HSM/TEE"@en ;
+                        :providesLibrary :SharedLibrary , :StaticLibrary , :DynamicLibrary ;
+                        :supportsLanguage :C , :CPlusPlus , :Rust , :Go ;
+                        :hasBindingGeneration :SWIG , :FFI , :JNI , :PInvoke ;
+                        :providesDocumentation :HeaderFiles , :Documentation , :Examples .
+
+# ===== DEPLOYMENT SPECIFICATIONS =====
+
+:DeploymentSpecification rdf:type owl:Class ;
+                        rdfs:subClassOf ba:DeploymentConfiguration ;
+                        rdfs:label "Deployment Specification"@en ;
+                        rdfs:comment "HSM/TEE deployment configuration specifications"@en ;
+                        :supportsDeployment :OnPremise , :Cloud , :Hybrid , :Edge ;
+                        :hasRedundancy :ActiveActive , :ActivePassive , :LoadBalanced ;
+                        :supportsPlatform :Linux , :Windows , :MacOS , :Kubernetes , :Docker ;
+                        :requiresResource :CPU , :Memory , :Storage , :Network .
+
+:CloudDeploymentSpecification rdf:type owl:Class ;
+                              rdfs:subClassOf :DeploymentSpecification ;
+                              rdfs:label "Cloud Deployment Specification"@en ;
+                              rdfs:comment "Cloud-based HSM/TEE deployment specifications"@en ;
+                              :supportsProvider :AWS , :Azure , :GCP , :IBM_Cloud , :Oracle_Cloud ;
+                              :usesService :CloudHSM , :KeyVault , :CloudKMS , :PayShield ;
+                              :hasScalability :AutoScaling , :LoadBalancing , :MultiRegion ;
+                              :providesCompliance :SOC2 , :ISO27001 , :FedRAMP .
+
+:KubernetesDeploymentSpec rdf:type owl:Class ;
+                          rdfs:subClassOf :DeploymentSpecification ;
+                          rdfs:label "Kubernetes Deployment Specification"@en ;
+                          rdfs:comment "Kubernetes-based HSM/TEE deployment specifications"@en ;
+                          :usesResource :Deployment , :Service , :ConfigMap , :Secret , :PersistentVolume ;
+                          :supportsOperator :HSMOperator , :CertManagerOperator ;
+                          :hasNetworking :ServiceMesh , :NetworkPolicies , :Ingress ;
+                          :providesMonitoring :Prometheus , :Grafana , :Jaeger .
+
+# ===== SHACL VALIDATION SHAPES =====
+
+:HSMInterfaceSpecificationShape rdf:type sh:NodeShape ;
+                               sh:targetClass :HSMInterfaceSpecification ;
+                               sh:property [
+                                   sh:path :supportsStandard ;
+                                   sh:minCount 1 ;
+                                   sh:maxCount 10 ;
+                               ] ;
+                               sh:property [
+                                   sh:path :operatesWithinConstraint ;
+                                   sh:hasValue doe:EightTickConstraint ;
+                                   sh:minCount 1 ;
+                                   sh:maxCount 1 ;
+                               ] .
+
+:PerformanceSpecificationShape rdf:type sh:NodeShape ;
+                               sh:targetClass :PerformanceSpecification ;
+                               sh:property [
+                                   sh:path :supportsConcurrency ;
+                                   sh:datatype xsd:positiveInteger ;
+                                   sh:minInclusive 1 ;
+                                   sh:maxInclusive 10000 ;
+                                   sh:minCount 1 ;
+                                   sh:maxCount 1 ;
+                               ] .
+
+# ===== PROPERTIES =====
+
+:supportsStandard rdf:type owl:ObjectProperty ;
+                  rdfs:domain :HSMInterfaceSpecification ;
+                  rdfs:range :Standard ;
+                  rdfs:label "supports standard"@en .
+
+:implementsAPI rdf:type owl:ObjectProperty ;
+               rdfs:domain :HSMInterfaceSpecification ;
+               rdfs:range :APIType ;
+               rdfs:label "implements API"@en .
+
+:hasFormFactor rdf:type owl:ObjectProperty ;
+               rdfs:domain :HSMDeviceSpecification ;
+               rdfs:range :FormFactor ;
+               rdfs:label "has form factor"@en .
+
+:supportsTamperResistance rdf:type owl:ObjectProperty ;
+                         rdfs:domain :HSMDeviceSpecification ;
+                         rdfs:range :TamperResistanceLevel ;
+                         rdfs:label "supports tamper resistance"@en .
+
+:hasPerformanceRating rdf:type owl:ObjectProperty ;
+                      rdfs:domain :HSMDeviceSpecification ;
+                      rdfs:range :PerformanceMetric ;
+                      rdfs:label "has performance rating"@en .
+
+:supportsConcurrency rdf:type owl:DatatypeProperty ;
+                     rdfs:domain :PerformanceSpecification ;
+                     rdfs:range xsd:positiveInteger ;
+                     rdfs:label "supports concurrency"@en .
+
+:hasCapacity rdf:type owl:DatatypeProperty ;
+             rdfs:domain :KeyStorageSpecification ;
+             rdfs:range xsd:positiveInteger ;
+             rdfs:label "has capacity"@en .
+
+# ===== INDIVIDUALS =====
+
+# Standards
+:PKCS11 rdf:type :Standard ;
+        rdfs:label "PKCS#11"@en .
+
+:PKCS1 rdf:type :Standard ;
+       rdfs:label "PKCS#1"@en .
+
+:GlobalPlatform rdf:type :Standard ;
+                rdfs:label "GlobalPlatform"@en .
+
+# API Types
+:CryptoAPI rdf:type :APIType ;
+           rdfs:label "Microsoft CryptoAPI"@en .
+
+:JCE rdf:type :APIType ;
+     rdfs:label "Java Cryptography Extension"@en .
+
+:OpenSSL rdf:type :APIType ;
+         rdfs:label "OpenSSL"@en .
+
+# Form Factors
+:PCICard rdf:type :FormFactor ;
+         rdfs:label "PCI Card"@en .
+
+:USBToken rdf:type :FormFactor ;
+          rdfs:label "USB Token"@en .
+
+:NetworkAppliance rdf:type :FormFactor ;
+                  rdfs:label "Network Appliance"@en .
+
+# Security Levels
+:FIPS140_3_Level4 rdf:type hti:SecurityLevel ;
+                  rdfs:label "FIPS 140-3 Level 4"@en ;
+                  :hasRequirement :PhysicalSecurity , :TamperResistance , :AuthenticationRequirement .
+
+# ===== END OF ONTOLOGY =====

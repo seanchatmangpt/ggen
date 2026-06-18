@@ -1,0 +1,708 @@
+@prefix ba: <http://bytestar.org/ontology/> .
+@prefix bac: <http://bytestar.org/ontology/compliance/> .
+@prefix baac: <http://bytestar.org/ontology/access-control/> .
+@prefix baa: <http://bytestar.org/ontology/audit/> .
+@prefix dsc: <http://bytestar.org/ontology/crystals/dataset/> .
+@prefix view: <http://bytestar.org/ontology/crystals/view/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+# =============================================================================
+# ByteStar View Crystal Ontology (.view)
+# Version: 5.0.0 - Data/Privacy Domain
+# =============================================================================
+
+<http://bytestar.org/ontology/crystals/view> a owl:Ontology ;
+    owl:versionIRI <http://bytestar.org/ontology/crystals/view/5.0.0> ;
+    dct:title "ByteStar View Crystal Ontology" ;
+    dct:description "View crystal with materialization, privacy constraints, access control integration, and privacy-preserving aggregations for secure data access in ByteStar ecosystem" ;
+    dct:creator "ByteStar Architecture Team" ;
+    dct:created "2025-01-23"^^xsd:date ;
+    dct:modified "2025-01-23"^^xsd:date ;
+    owl:imports <http://bytestar.org/ontology/crystals/dataset>,
+                <http://bytestar.org/ontology/compliance-framework>,
+                <http://bytestar.org/ontology/access-control>,
+                <http://bytestar.org/ontology/audit-system>,
+                <http://bytestar.org/ontology/core>,
+                <http://www.w3.org/ns/prov#> ;
+    ba:crystalType "View Crystal" ;
+    ba:privacyPreserving true ;
+    ba:performanceTarget "< 8ms view materialization" .
+
+# =============================================================================
+# CORE VIEW CRYSTAL CLASSES
+# =============================================================================
+
+view:ViewCrystal a owl:Class ;
+    rdfs:label "View Crystal"@en ;
+    rdfs:comment "Materialized view crystal with privacy constraints and access control integration"@en ;
+    rdfs:subClassOf ba:Crystal ;
+    ba:materialized true ;
+    ba:privacyConstrained true ;
+    ba:accessControlled true ;
+    ba:aggregationCapable true .
+
+view:MaterializedView a owl:Class ;
+    rdfs:label "Materialized View"@en ;
+    rdfs:comment "Pre-computed view with privacy-preserving aggregations and caching"@en ;
+    rdfs:subClassOf view:ViewCrystal ;
+    ba:cached true ;
+    ba:incrementalUpdate true ;
+    ba:stalenessThreshold xsd:duration .
+
+view:VirtualView a owl:Class ;
+    rdfs:label "Virtual View"@en ;
+    rdfs:comment "On-demand computed view with real-time privacy enforcement"@en ;
+    rdfs:subClassOf view:ViewCrystal ;
+    ba:realTimeComputation true ;
+    ba:privacyEnforced true ;
+    ba:queryOptimized true .
+
+view:PrivacyConstrainedView a owl:Class ;
+    rdfs:label "Privacy-Constrained View"@en ;
+    rdfs:comment "View with built-in privacy constraints and data minimization"@en ;
+    rdfs:subClassOf view:ViewCrystal ;
+    ba:dataMinimization true ;
+    ba:purposeLimitation true ;
+    ba:accessLogging true .
+
+view:AggregationView a owl:Class ;
+    rdfs:label "Aggregation View"@en ;
+    rdfs:comment "View providing privacy-preserving statistical aggregations"@en ;
+    rdfs:subClassOf view:MaterializedView ;
+    ba:statisticallyValid true ;
+    ba:privacyPreserving true ;
+    ba:noiseAdded true .
+
+# =============================================================================
+# VIEW DEFINITION AND SCHEMA
+# =============================================================================
+
+view:ViewDefinition a owl:Class ;
+    rdfs:label "View Definition"@en ;
+    rdfs:comment "Declarative definition of view logic with privacy annotations"@en ;
+    rdfs:subClassOf ba:Definition ;
+    ba:queryExpression xsd:string ;
+    ba:privacyPolicy xsd:string ;
+    ba:accessConstraints xsd:string .
+
+view:ViewSchema a owl:Class ;
+    rdfs:label "View Schema"@en ;
+    rdfs:comment "Schema definition for view with privacy sensitivity annotations"@en ;
+    rdfs:subClassOf dsc:DataSchema ;
+    ba:sensitivityInherited true ;
+    ba:purposeBound true ;
+    ba:accessControlled true .
+
+view:ViewColumn a owl:Class ;
+    rdfs:label "View Column"@en ;
+    rdfs:comment "Individual column in view with privacy and access controls"@en ;
+    rdfs:subClassOf ba:DataField ;
+    ba:derivedFrom xsd:string ;
+    ba:accessLevel xsd:string ;
+    ba:transformationApplied xsd:string .
+
+view:ComputedColumn a owl:Class ;
+    rdfs:label "Computed Column"@en ;
+    rdfs:comment "Column computed from aggregation or transformation functions"@en ;
+    rdfs:subClassOf view:ViewColumn ;
+    ba:computationFunction xsd:string ;
+    ba:privacyPreserving true ;
+    ba:sensitivityLevel xsd:string .
+
+# =============================================================================
+# PRIVACY-PRESERVING AGGREGATIONS
+# =============================================================================
+
+view:PrivacyPreservingAggregation a owl:Class ;
+    rdfs:label "Privacy-Preserving Aggregation"@en ;
+    rdfs:comment "Statistical aggregation with differential privacy guarantees"@en ;
+    rdfs:subClassOf ba:Aggregation ;
+    ba:differentiallyPrivate true ;
+    ba:utilityPreserved true ;
+    ba:noiseCalibrated true .
+
+view:CountAggregation a owl:Class ;
+    rdfs:label "Count Aggregation"@en ;
+    rdfs:comment "Privacy-preserving count with Laplace noise"@en ;
+    rdfs:subClassOf view:PrivacyPreservingAggregation ;
+    ba:aggregationType "COUNT" ;
+    ba:noiseMechanism "Laplace" ;
+    ba:sensitivity 1.0 .
+
+view:SumAggregation a owl:Class ;
+    rdfs:label "Sum Aggregation"@en ;
+    rdfs:comment "Privacy-preserving sum with calibrated noise"@en ;
+    rdfs:subClassOf view:PrivacyPreservingAggregation ;
+    ba:aggregationType "SUM" ;
+    ba:boundingRange xsd:string ;
+    ba:clippingThreshold xsd:double .
+
+view:MeanAggregation a owl:Class ;
+    rdfs:label "Mean Aggregation"@en ;
+    rdfs:comment "Privacy-preserving mean calculation"@en ;
+    rdfs:subClassOf view:PrivacyPreservingAggregation ;
+    ba:aggregationType "MEAN" ;
+    ba:composedAggregation true ;
+    ba:privacyBudgetSplit true .
+
+view:MedianAggregation a owl:Class ;
+    rdfs:label "Median Aggregation"@en ;
+    rdfs:comment "Privacy-preserving median using exponential mechanism"@en ;
+    rdfs:subClassOf view:PrivacyPreservingAggregation ;
+    ba:aggregationType "MEDIAN" ;
+    ba:noiseMechanism "Exponential" ;
+    ba:utilityFunction xsd:string .
+
+view:QuantileAggregation a owl:Class ;
+    rdfs:label "Quantile Aggregation"@en ;
+    rdfs:comment "Privacy-preserving quantile estimation"@en ;
+    rdfs:subClassOf view:PrivacyPreservingAggregation ;
+    ba:aggregationType "QUANTILE" ;
+    ba:quantileLevel xsd:double ;
+    ba:approximationError xsd:double .
+
+# =============================================================================
+# ACCESS CONTROL INTEGRATION
+# =============================================================================
+
+view:ViewAccessPolicy a owl:Class ;
+    rdfs:label "View Access Policy"@en ;
+    rdfs:comment "Access control policy specific to view operations"@en ;
+    rdfs:subClassOf baac:AccessPolicy ;
+    ba:viewSpecific true ;
+    ba:columnLevelControl true ;
+    ba:rowLevelSecurity true .
+
+view:ColumnAccessControl a owl:Class ;
+    rdfs:label "Column Access Control"@en ;
+    rdfs:comment "Fine-grained access control at column level"@en ;
+    rdfs:subClassOf baac:AccessControl ;
+    ba:granularity "COLUMN" ;
+    ba:maskingEnabled true ;
+    ba:redactionCapable true .
+
+view:RowLevelSecurity a owl:Class ;
+    rdfs:label "Row Level Security"@en ;
+    rdfs:comment "Dynamic row filtering based on access context"@en ;
+    rdfs:subClassOf baac:AccessControl ;
+    ba:granularity "ROW" ;
+    ba:contextAware true ;
+    ba:dynamicFiltering true .
+
+view:ViewPermission a owl:Class ;
+    rdfs:label "View Permission"@en ;
+    rdfs:comment "Specific permission for view operations (SELECT, AGGREGATE, etc.)"@en ;
+    rdfs:subClassOf baac:Permission ;
+    ba:viewOperation xsd:string ;
+    ba:columnScope xsd:string ;
+    ba:temporalConstraint xsd:string .
+
+view:DataMasking a owl:Class ;
+    rdfs:label "Data Masking"@en ;
+    rdfs:comment "Dynamic data masking based on access permissions"@en ;
+    rdfs:subClassOf ba:PrivacyMechanism ;
+    ba:maskingType xsd:string ;
+    ba:maskingPattern xsd:string ;
+    ba:preserveFormat true .
+
+# =============================================================================
+# VIEW MATERIALIZATION
+# =============================================================================
+
+view:MaterializationEngine a owl:Class ;
+    rdfs:label "Materialization Engine"@en ;
+    rdfs:comment "High-performance engine for view materialization with privacy preservation"@en ;
+    rdfs:subClassOf ba:ProcessingEngine ;
+    ba:batchProcessing true ;
+    ba:incrementalUpdate true ;
+    ba:privacyAware true .
+
+view:MaterializationSchedule a owl:Class ;
+    rdfs:label "Materialization Schedule"@en ;
+    rdfs:comment "Schedule for automated view materialization and refresh"@en ;
+    rdfs:subClassOf ba:Schedule ;
+    ba:refreshFrequency xsd:duration ;
+    ba:privacyBudgetConsidered true ;
+    ba:qualityThreshold xsd:double .
+
+view:IncrementalUpdate a owl:Class ;
+    rdfs:label "Incremental Update"@en ;
+    rdfs:comment "Incremental update mechanism preserving privacy guarantees"@en ;
+    rdfs:subClassOf ba:UpdateMechanism ;
+    ba:deltaProcessing true ;
+    ba:privacyComposable true ;
+    ba:consistencyGuaranteed true .
+
+view:ViewCache a owl:Class ;
+    rdfs:label "View Cache"@en ;
+    rdfs:comment "High-performance cache for materialized views with TTL"@en ;
+    rdfs:subClassOf ba:Cache ;
+    ba:hitRatio xsd:double ;
+    ba:ttl xsd:duration ;
+    ba:evictionPolicy xsd:string ;
+    ba:privacyPreserved true .
+
+# =============================================================================
+# QUERY OPTIMIZATION
+# =============================================================================
+
+view:QueryOptimizer a owl:Class ;
+    rdfs:label "Query Optimizer"@en ;
+    rdfs:comment "Privacy-aware query optimizer for view operations"@en ;
+    rdfs:subClassOf ba:Optimizer ;
+    ba:privacyAware true ;
+    ba:costBasedOptimization true ;
+    ba:indexUtilization true .
+
+view:QueryPlan a owl:Class ;
+    rdfs:label "Query Plan"@en ;
+    rdfs:comment "Optimized execution plan preserving privacy constraints"@en ;
+    rdfs:subClassOf ba:ExecutionPlan ;
+    ba:privacyConstraints xsd:string ;
+    ba:estimatedCost xsd:double ;
+    ba:executionTime xsd:duration .
+
+view:IndexStrategy a owl:Class ;
+    rdfs:label "Index Strategy"@en ;
+    rdfs:comment "Indexing strategy for privacy-preserving view queries"@en ;
+    rdfs:subClassOf ba:Strategy ;
+    ba:indexType xsd:string ;
+    ba:privacyPreserving true ;
+    ba:performanceGain xsd:double .
+
+view:PrivacyAwareOptimization a owl:Class ;
+    rdfs:label "Privacy-Aware Optimization"@en ;
+    rdfs:comment "Query optimization considering privacy budget and constraints"@en ;
+    rdfs:subClassOf ba:Optimization ;
+    ba:privacyBudgetOptimal true ;
+    ba:utilityMaximized true ;
+    ba:latencyMinimized true .
+
+# =============================================================================
+# TEMPORAL AND VERSIONING
+# =============================================================================
+
+view:TemporalView a owl:Class ;
+    rdfs:label "Temporal View"@en ;
+    rdfs:comment "Time-aware view with temporal privacy guarantees"@en ;
+    rdfs:subClassOf view:ViewCrystal ;
+    ba:temporalSupport true ;
+    ba:snapshotIsolation true ;
+    ba:timeTravel true .
+
+view:ViewVersion a owl:Class ;
+    rdfs:label "View Version"@en ;
+    rdfs:comment "Versioned snapshot of view with lineage tracking"@en ;
+    rdfs:subClassOf ba:Version ;
+    ba:versionNumber xsd:string ;
+    ba:lineagePreserved true ;
+    ba:privacyImpact xsd:string .
+
+view:ViewSnapshot a owl:Class ;
+    rdfs:label "View Snapshot"@en ;
+    rdfs:comment "Point-in-time snapshot of view state"@en ;
+    rdfs:subClassOf ba:Snapshot ;
+    ba:snapshotTimestamp xsd:dateTime ;
+    ba:consistencyLevel xsd:string ;
+    ba:privacyPreserved true .
+
+view:ViewEvolution a owl:Class ;
+    rdfs:label "View Evolution"@en ;
+    rdfs:comment "Tracking of view schema and privacy policy evolution"@en ;
+    rdfs:subClassOf ba:Evolution ;
+    ba:schemaChanges xsd:string ;
+    ba:privacyPolicyChanges xsd:string ;
+    ba:backwardCompatible true .
+
+# =============================================================================
+# PRIVACY BUDGET MANAGEMENT
+# =============================================================================
+
+view:ViewPrivacyBudget a owl:Class ;
+    rdfs:label "View Privacy Budget"@en ;
+    rdfs:comment "Privacy budget allocation and tracking for view operations"@en ;
+    rdfs:subClassOf ba:Budget ;
+    ba:allocatedBudget xsd:double ;
+    ba:consumedBudget xsd:double ;
+    ba:resetPeriod xsd:duration .
+
+view:BudgetAllocation a owl:Class ;
+    rdfs:label "Budget Allocation"@en ;
+    rdfs:comment "Strategic allocation of privacy budget across view operations"@en ;
+    rdfs:subClassOf ba:Allocation ;
+    ba:allocationStrategy xsd:string ;
+    ba:priorityBased true ;
+    ba:utilityOptimized true .
+
+view:BudgetTracking a owl:Class ;
+    rdfs:label "Budget Tracking"@en ;
+    rdfs:comment "Real-time tracking of privacy budget consumption"@en ;
+    rdfs:subClassOf ba:Tracking ;
+    ba:realTimeTracking true ;
+    ba:alertThreshold xsd:double ;
+    ba:budgetExhaustion true .
+
+# =============================================================================
+# DATA PROPERTIES
+# =============================================================================
+
+# View Properties
+view:viewType a owl:DatatypeProperty ;
+    rdfs:label "view type"@en ;
+    rdfs:domain view:ViewCrystal ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type of view: MATERIALIZED, VIRTUAL, AGGREGATION" .
+
+view:refreshInterval a owl:DatatypeProperty ;
+    rdfs:label "refresh interval"@en ;
+    rdfs:domain view:MaterializedView ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Interval between view materializations" .
+
+view:stalenessAllowed a owl:DatatypeProperty ;
+    rdfs:label "staleness allowed"@en ;
+    rdfs:domain view:MaterializedView ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Maximum acceptable data staleness" .
+
+# Privacy Properties  
+view:privacyBudgetRequired a owl:DatatypeProperty ;
+    rdfs:label "privacy budget required"@en ;
+    rdfs:domain view:PrivacyPreservingAggregation ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Privacy budget required for this aggregation" .
+
+view:noiseScale a owl:DatatypeProperty ;
+    rdfs:label "noise scale"@en ;
+    rdfs:domain view:PrivacyPreservingAggregation ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Scale parameter for noise addition" .
+
+view:utilityLoss a owl:DatatypeProperty ;
+    rdfs:label "utility loss"@en ;
+    rdfs:domain view:PrivacyPreservingAggregation ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Estimated utility loss from privacy mechanism" .
+
+# Access Control Properties
+view:accessLevel a owl:DatatypeProperty ;
+    rdfs:label "access level"@en ;
+    rdfs:domain view:ViewColumn ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Required access level: PUBLIC, INTERNAL, CONFIDENTIAL, RESTRICTED" .
+
+view:maskingRule a owl:DatatypeProperty ;
+    rdfs:label "masking rule"@en ;
+    rdfs:domain view:DataMasking ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Rule defining how data should be masked" .
+
+view:redactionPattern a owl:DatatypeProperty ;
+    rdfs:label "redaction pattern"@en ;
+    rdfs:domain view:ColumnAccessControl ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Pattern for data redaction" .
+
+# Performance Properties
+view:queryLatency a owl:DatatypeProperty ;
+    rdfs:label "query latency"@en ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Average query execution latency" .
+
+view:cacheHitRatio a owl:DatatypeProperty ;
+    rdfs:label "cache hit ratio"@en ;
+    rdfs:domain view:ViewCache ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Cache hit ratio (0-1)" .
+
+view:throughput a owl:DatatypeProperty ;
+    rdfs:label "throughput"@en ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Query throughput (queries/second)" .
+
+# Quality Properties
+view:accuracy a owl:DatatypeProperty ;
+    rdfs:label "accuracy"@en ;
+    rdfs:domain view:PrivacyPreservingAggregation ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Statistical accuracy of aggregation (0-1)" .
+
+view:confidence a owl:DatatypeProperty ;
+    rdfs:label "confidence"@en ;
+    rdfs:domain view:PrivacyPreservingAggregation ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Confidence level of result (0-1)" .
+
+# =============================================================================
+# OBJECT PROPERTIES
+# =============================================================================
+
+# View Relationships
+view:basedOnDataset a owl:ObjectProperty ;
+    rdfs:label "based on dataset"@en ;
+    rdfs:domain view:ViewCrystal ;
+    rdfs:range dsc:DatasetCrystal ;
+    rdfs:comment "Dataset this view is based on" .
+
+view:hasDefinition a owl:ObjectProperty ;
+    rdfs:label "has definition"@en ;
+    rdfs:domain view:ViewCrystal ;
+    rdfs:range view:ViewDefinition ;
+    rdfs:comment "Definition of view logic" .
+
+view:hasSchema a owl:ObjectProperty ;
+    rdfs:label "has schema"@en ;
+    rdfs:domain view:ViewCrystal ;
+    rdfs:range view:ViewSchema ;
+    rdfs:comment "Schema definition for view" .
+
+view:containsColumn a owl:ObjectProperty ;
+    rdfs:label "contains column"@en ;
+    rdfs:domain view:ViewSchema ;
+    rdfs:range view:ViewColumn ;
+    rdfs:comment "Columns contained in view" .
+
+# Privacy Relationships
+view:appliesAggregation a owl:ObjectProperty ;
+    rdfs:label "applies aggregation"@en ;
+    rdfs:domain view:ViewCrystal ;
+    rdfs:range view:PrivacyPreservingAggregation ;
+    rdfs:comment "Privacy-preserving aggregation applied" .
+
+view:consumesBudget a owl:ObjectProperty ;
+    rdfs:label "consumes budget"@en ;
+    rdfs:domain view:PrivacyPreservingAggregation ;
+    rdfs:range view:ViewPrivacyBudget ;
+    rdfs:comment "Privacy budget consumed by operation" .
+
+view:hasMasking a owl:ObjectProperty ;
+    rdfs:label "has masking"@en ;
+    rdfs:domain view:ViewColumn ;
+    rdfs:range view:DataMasking ;
+    rdfs:comment "Data masking applied to column" .
+
+# Access Control Relationships
+view:governedByPolicy a owl:ObjectProperty ;
+    rdfs:label "governed by policy"@en ;
+    rdfs:domain view:ViewCrystal ;
+    rdfs:range view:ViewAccessPolicy ;
+    rdfs:comment "Access policy governing view" .
+
+view:hasPermission a owl:ObjectProperty ;
+    rdfs:label "has permission"@en ;
+    rdfs:domain baac:Principal ;
+    rdfs:range view:ViewPermission ;
+    rdfs:comment "Permission for view operations" .
+
+view:appliesRowLevelSecurity a owl:ObjectProperty ;
+    rdfs:label "applies row level security"@en ;
+    rdfs:domain view:ViewCrystal ;
+    rdfs:range view:RowLevelSecurity ;
+    rdfs:comment "Row-level security applied" .
+
+# Materialization Relationships
+view:materializedBy a owl:ObjectProperty ;
+    rdfs:label "materialized by"@en ;
+    rdfs:domain view:MaterializedView ;
+    rdfs:range view:MaterializationEngine ;
+    rdfs:comment "Engine responsible for materialization" .
+
+view:hasSchedule a owl:ObjectProperty ;
+    rdfs:label "has schedule"@en ;
+    rdfs:domain view:MaterializedView ;
+    rdfs:range view:MaterializationSchedule ;
+    rdfs:comment "Materialization schedule" .
+
+view:cachedIn a owl:ObjectProperty ;
+    rdfs:label "cached in"@en ;
+    rdfs:domain view:MaterializedView ;
+    rdfs:range view:ViewCache ;
+    rdfs:comment "Cache storing materialized view" .
+
+# Optimization Relationships
+view:optimizedBy a owl:ObjectProperty ;
+    rdfs:label "optimized by"@en ;
+    rdfs:domain view:ViewCrystal ;
+    rdfs:range view:QueryOptimizer ;
+    rdfs:comment "Query optimizer used" .
+
+view:hasQueryPlan a owl:ObjectProperty ;
+    rdfs:label "has query plan"@en ;
+    rdfs:range view:QueryPlan ;
+    rdfs:comment "Execution plan for view query" .
+
+# Versioning Relationships
+view:hasVersion a owl:ObjectProperty ;
+    rdfs:label "has version"@en ;
+    rdfs:domain view:ViewCrystal ;
+    rdfs:range view:ViewVersion ;
+    rdfs:comment "Version of this view" .
+
+view:previousVersion a owl:ObjectProperty ;
+    rdfs:label "previous version"@en ;
+    rdfs:domain view:ViewVersion ;
+    rdfs:range view:ViewVersion ;
+    rdfs:comment "Previous version in evolution chain" .
+
+# Audit Integration
+view:auditedBy a owl:ObjectProperty ;
+    rdfs:label "audited by"@en ;
+    rdfs:domain view:ViewCrystal ;
+    rdfs:range baa:AuditSystem ;
+    rdfs:comment "Audit system monitoring view" .
+
+# =============================================================================
+# SHACL VALIDATION SHAPES
+# =============================================================================
+
+view:ViewCrystalShape a sh:NodeShape ;
+    sh:targetClass view:ViewCrystal ;
+    sh:property [
+        sh:path view:basedOnDataset ;
+        sh:minCount 1 ;
+        sh:message "View crystal must be based on at least one dataset" ;
+    ] ;
+    sh:property [
+        sh:path view:hasDefinition ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "View crystal must have exactly one definition" ;
+    ] ;
+    sh:property [
+        sh:path view:hasSchema ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "View crystal must have exactly one schema" ;
+    ] .
+
+view:MaterializedViewShape a sh:NodeShape ;
+    sh:targetClass view:MaterializedView ;
+    sh:property [
+        sh:path view:refreshInterval ;
+        sh:minInclusive "PT1M"^^xsd:duration ;
+        sh:message "Refresh interval must be at least 1 minute" ;
+    ] ;
+    sh:property [
+        sh:path view:materializedBy ;
+        sh:minCount 1 ;
+        sh:message "Materialized view must have materialization engine" ;
+    ] .
+
+view:PrivacyPreservingAggregationShape a sh:NodeShape ;
+    sh:targetClass view:PrivacyPreservingAggregation ;
+    sh:property [
+        sh:path view:privacyBudgetRequired ;
+        sh:minInclusive 0.0 ;
+        sh:message "Privacy budget must be non-negative" ;
+    ] ;
+    sh:property [
+        sh:path view:accuracy ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Accuracy must be between 0 and 1" ;
+    ] .
+
+view:ViewAccessPolicyShape a sh:NodeShape ;
+    sh:targetClass view:ViewAccessPolicy ;
+    sh:property [
+        sh:path baac:policyLanguage ;
+        sh:in ("XACML" "Cedar" "OPA" "SQL") ;
+        sh:message "Must use supported policy language" ;
+    ] .
+
+view:PerformanceComplianceShape a sh:NodeShape ;
+    sh:targetClass view:ViewCrystal ;
+    sh:property [
+        sh:path view:queryLatency ;
+        sh:maxInclusive "PT8MS"^^xsd:duration ;
+        sh:message "Query latency must comply with Doctrine of 8" ;
+    ] .
+
+# =============================================================================
+# PERFORMANCE REQUIREMENTS (DOCTRINE OF 8)
+# =============================================================================
+
+view:ViewCrystalPerformance a ba:PerformanceSpecification ;
+    rdfs:label "View Crystal Performance Requirements" ;
+    rdfs:comment "Performance requirements under Doctrine of 8" ;
+    ba:viewMaterializationLatency "< 8ms"^^xsd:duration ;
+    ba:queryExecutionLatency "< 5ms"^^xsd:duration ;
+    ba:cacheRetrievalTime "< 1ms"^^xsd:duration ;
+    ba:privacyCheckLatency "< 2ms"^^xsd:duration ;
+    ba:aggregationLatency "< 3ms"^^xsd:duration ;
+    ba:throughputTarget "50K queries/sec"^^xsd:string .
+
+# =============================================================================
+# INTEGRATION INSTANCES
+# =============================================================================
+
+# GDPR Compliant Views
+view:GDPRCompliantView a view:PrivacyConstrainedView ;
+    rdfs:label "GDPR Compliant View" ;
+    rdfs:comment "View with GDPR privacy constraints" ;
+    bac:requiresCompliance bac:GDPR ;
+    ba:dataMinimization true ;
+    ba:purposeLimitation true .
+
+view:HIPAACompliantView a view:PrivacyConstrainedView ;
+    rdfs:label "HIPAA Compliant View" ;
+    rdfs:comment "View with HIPAA privacy constraints" ;
+    bac:requiresCompliance bac:HIPAA ;
+    ba:phi true ;
+    ba:minimumNecessary true .
+
+# Standard Aggregations
+view:DifferentiallyPrivateCount a view:CountAggregation ;
+    rdfs:label "Differentially Private Count" ;
+    rdfs:comment "Count aggregation with Laplace noise" ;
+    ba:noiseMechanism "Laplace" ;
+    ba:sensitivity 1.0 ;
+    view:privacyBudgetRequired 0.1 .
+
+view:DifferentiallyPrivateSum a view:SumAggregation ;
+    rdfs:label "Differentially Private Sum" ;
+    rdfs:comment "Sum aggregation with calibrated noise" ;
+    ba:noiseMechanism "Gaussian" ;
+    ba:clippingThreshold 1000.0 ;
+    view:privacyBudgetRequired 0.2 .
+
+# Access Control Templates
+view:ColumnMaskingPolicy a view:ViewAccessPolicy ;
+    rdfs:label "Column Masking Policy" ;
+    rdfs:comment "Policy for column-level data masking" ;
+    ba:columnLevelControl true ;
+    ba:maskingEnabled true ;
+    baac:policyLanguage "SQL" .
+
+view:RowFilteringPolicy a view:ViewAccessPolicy ;
+    rdfs:label "Row Filtering Policy" ;
+    rdfs:comment "Policy for row-level security filtering" ;
+    ba:rowLevelSecurity true ;
+    ba:dynamicFiltering true ;
+    baac:policyLanguage "XACML" .
+
+# Audit Integration
+view:ViewAuditEvent a baa:DataAuditEvent ;
+    rdfs:label "View Crystal Audit Event" ;
+    baa:eventCategory "VIEW_OPERATION" ;
+    baa:eventSeverity "MEDIUM" ;
+    view:auditTarget view:ViewCrystal .
+
+view:ViewAccessAuditEvent a baa:SecurityAuditEvent ;
+    rdfs:label "View Access Audit Event" ;
+    baa:eventCategory "VIEW_ACCESS" ;
+    baa:eventSeverity "HIGH" ;
+    view:auditTarget view:ViewAccessPolicy .
+
+# =============================================================================
+# End of View Crystal Ontology
+# =============================================================================

@@ -1,0 +1,564 @@
+@prefix : <https://bytestar.org/ontology/supabase-canon#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+#################################################################
+#    Advanced SHACL Shapes for Supabase Canon
+#################################################################
+
+# Advanced User Validation Shape
+:AdvancedUserShape rdf:type sh:NodeShape ;
+    sh:targetClass :User ;
+    rdfs:label "Advanced User Validation" ;
+    rdfs:comment "Comprehensive validation rules for user entities including security constraints." ;
+    
+    # User ID validation with UUID format
+    sh:property [
+        sh:path :userId ;
+        sh:name "User ID" ;
+        sh:description "Must be a valid UUID v4 format" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$" ;
+        sh:message "User ID must be a valid UUID v4 format" ;
+    ] ;
+    
+    # Email validation with enhanced regex
+    sh:property [
+        sh:path :email ;
+        sh:name "Email Address" ;
+        sh:description "Must be a valid email address" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+        sh:message "Must be a valid email address format" ;
+    ] ;
+    
+    # Username validation with restrictions
+    sh:property [
+        sh:path :username ;
+        sh:name "Username" ;
+        sh:description "Username must be 3-30 characters, alphanumeric and underscores only" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 3 ;
+        sh:maxLength 30 ;
+        sh:pattern "^[a-zA-Z0-9_]+$" ;
+        sh:message "Username must be 3-30 characters, alphanumeric and underscores only" ;
+    ] ;
+    
+    # Created timestamp validation
+    sh:property [
+        sh:path :createdAt ;
+        sh:name "Created Timestamp" ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Created timestamp is required" ;
+    ] ;
+    
+    # User must have at least one authentication method
+    sh:property [
+        sh:path :authenticatedBy ;
+        sh:name "Authentication Method" ;
+        sh:class :AuthenticationMethod ;
+        sh:minCount 1 ;
+        sh:message "User must have at least one authentication method" ;
+    ] ;
+    
+    # User profile relationship
+    sh:property [
+        sh:path :hasProfile ;
+        sh:name "User Profile" ;
+        sh:class :UserProfile ;
+        sh:maxCount 1 ;
+        sh:message "User can have at most one profile" ;
+    ] .
+
+# Enhanced Document Validation Shape
+:EnhancedDocumentShape rdf:type sh:NodeShape ;
+    sh:targetClass :Document ;
+    rdfs:label "Enhanced Document Validation" ;
+    rdfs:comment "Comprehensive validation for document entities with security and integrity constraints." ;
+    
+    # Document ID with specific prefix format
+    sh:property [
+        sh:path :documentId ;
+        sh:name "Document ID" ;
+        sh:description "Must start with 'doc_' followed by 32 hex characters" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^doc_[0-9a-f]{32}$" ;
+        sh:message "Document ID must be in format 'doc_' + 32 hex characters" ;
+    ] ;
+    
+    # Filename validation
+    sh:property [
+        sh:path :fileName ;
+        sh:name "File Name" ;
+        sh:description "Original filename, max 255 characters" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:maxLength 255 ;
+        sh:message "Filename must be 1-255 characters" ;
+    ] ;
+    
+    # File size constraints
+    sh:property [
+        sh:path :fileSize ;
+        sh:name "File Size" ;
+        sh:description "File size in bytes, must be positive" ;
+        sh:datatype xsd:long ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 1073741824 ; # 1GB max
+        sh:message "File size must be between 1 byte and 1GB" ;
+    ] ;
+    
+    # MIME type validation
+    sh:property [
+        sh:path :mimeType ;
+        sh:name "MIME Type" ;
+        sh:description "Valid MIME type format" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-z]+/[a-z0-9][a-z0-9!#$&\\-\\^_]*$" ;
+        sh:message "Must be a valid MIME type format" ;
+    ] ;
+    
+    # SHA-256 hash validation
+    sh:property [
+        sh:path :hashValue ;
+        sh:name "Hash Value" ;
+        sh:description "SHA-256 hash of document content" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[0-9a-f]{64}$" ;
+        sh:message "Hash must be 64 character hexadecimal string (SHA-256)" ;
+    ] ;
+    
+    # Encryption requirement
+    sh:property [
+        sh:path :encryptedWith ;
+        sh:name "Encryption Key" ;
+        sh:description "Document must be encrypted with exactly one PQC key" ;
+        sh:class :EncryptionKey ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Document must be encrypted with exactly one encryption key" ;
+    ] ;
+    
+    # Metadata relationship
+    sh:property [
+        sh:path :hasMetadata ;
+        sh:name "Document Metadata" ;
+        sh:class :DocumentMetadata ;
+        sh:maxCount 1 ;
+        sh:message "Document can have at most one metadata record" ;
+    ] .
+
+# Mission Crystal Comprehensive Shape
+:ComprehensiveMissionCrystalShape rdf:type sh:NodeShape ;
+    sh:targetClass :MissionCrystal ;
+    rdfs:label "Comprehensive Mission Crystal Validation" ;
+    rdfs:comment "Complete validation rules for mission crystals including business logic constraints." ;
+    
+    # Crystal ID format validation
+    sh:property [
+        sh:path :crystalId ;
+        sh:name "Crystal ID" ;
+        sh:description "Must start with 'crystal_' followed by 32 hex characters" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^crystal_[0-9a-f]{32}$" ;
+        sh:message "Crystal ID must be in format 'crystal_' + 32 hex characters" ;
+    ] ;
+    
+    # Mission title validation
+    sh:property [
+        sh:path :missionTitle ;
+        sh:name "Mission Title" ;
+        sh:description "Descriptive title for the mission, 5-200 characters" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 5 ;
+        sh:maxLength 200 ;
+        sh:message "Mission title must be 5-200 characters" ;
+    ] ;
+    
+    # Priority level validation
+    sh:property [
+        sh:path :priority ;
+        sh:name "Priority Level" ;
+        sh:description "Priority from 1 (lowest) to 10 (highest)" ;
+        sh:datatype xsd:int ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 10 ;
+        sh:message "Priority must be between 1 and 10" ;
+    ] ;
+    
+    # Estimated duration validation
+    sh:property [
+        sh:path :estimatedDuration ;
+        sh:name "Estimated Duration" ;
+        sh:description "ISO 8601 duration format" ;
+        sh:datatype xsd:duration ;
+        sh:maxCount 1 ;
+        sh:message "Estimated duration must be in ISO 8601 format if provided" ;
+    ] ;
+    
+    # Mission must have objectives
+    sh:property [
+        sh:path :hasObjective ;
+        sh:name "Mission Objectives" ;
+        sh:description "Mission must have at least one objective" ;
+        sh:class :MissionObjective ;
+        sh:minCount 1 ;
+        sh:message "Mission crystal must have at least one objective" ;
+    ] ;
+    
+    # Mission status requirement
+    sh:property [
+        sh:path :hasStatus ;
+        sh:name "Mission Status" ;
+        sh:description "Current status of the mission" ;
+        sh:class :MissionStatus ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Mission crystal must have exactly one status" ;
+    ] ;
+    
+    # Fabricator relationship
+    sh:property [
+        sh:path :fabricatedBy ;
+        sh:name "Crystal Fabricator" ;
+        sh:description "System that created this crystal" ;
+        sh:class :CrystalFabricator ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Mission crystal must have exactly one fabricator" ;
+    ] .
+
+# Marketplace Asset Validation Shape
+:MarketplaceAssetShape rdf:type sh:NodeShape ;
+    sh:targetClass :TradableAsset ;
+    rdfs:label "Marketplace Asset Validation" ;
+    rdfs:comment "Validation rules for tradable assets in the N-dimensional marketplace." ;
+    
+    # Asset ID format
+    sh:property [
+        sh:path :assetId ;
+        sh:name "Asset ID" ;
+        sh:description "Must start with 'asset_' followed by 32 hex characters" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^asset_[0-9a-f]{32}$" ;
+        sh:message "Asset ID must be in format 'asset_' + 32 hex characters" ;
+    ] ;
+    
+    # Price validation
+    sh:property [
+        sh:path :assetPrice ;
+        sh:name "Asset Price" ;
+        sh:description "Price must be non-negative" ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:message "Asset price must be non-negative" ;
+    ] ;
+    
+    # Asset must be tradeable in at least one dimension
+    sh:property [
+        sh:path :tradedIn ;
+        sh:name "Marketplace Dimensions" ;
+        sh:description "Asset must be tradeable in at least one marketplace dimension" ;
+        sh:class :MarketplaceDimension ;
+        sh:minCount 1 ;
+        sh:message "Asset must be tradeable in at least one marketplace dimension" ;
+    ] ;
+    
+    # Created timestamp
+    sh:property [
+        sh:path :createdAt ;
+        sh:name "Created Timestamp" ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Asset creation timestamp is required" ;
+    ] .
+
+# Transaction Security Shape
+:SecureTransactionShape rdf:type sh:NodeShape ;
+    sh:targetClass :MarketTransaction ;
+    rdfs:label "Secure Transaction Validation" ;
+    rdfs:comment "Security-focused validation for marketplace transactions." ;
+    
+    # Transaction ID with cryptographic hash format
+    sh:property [
+        sh:path :transactionId ;
+        sh:name "Transaction ID" ;
+        sh:description "Must start with 'tx_' followed by 64 hex characters (cryptographic hash)" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^tx_[0-9a-f]{64}$" ;
+        sh:message "Transaction ID must be in format 'tx_' + 64 hex characters" ;
+    ] ;
+    
+    # Transaction amount must be positive
+    sh:property [
+        sh:path :transactionAmount ;
+        sh:name "Transaction Amount" ;
+        sh:description "Amount must be positive" ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minExclusive 0.0 ;
+        sh:message "Transaction amount must be positive" ;
+    ] ;
+    
+    # Transaction timestamp
+    sh:property [
+        sh:path :createdAt ;
+        sh:name "Transaction Timestamp" ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Transaction timestamp is required" ;
+    ] .
+
+# Authentication Method Shape
+:AuthenticationMethodShape rdf:type sh:NodeShape ;
+    sh:targetClass :AuthenticationMethod ;
+    rdfs:label "Authentication Method Validation" ;
+    rdfs:comment "Validation rules for authentication methods." ;
+    
+    # Method type validation
+    sh:property [
+        sh:path :methodType ;
+        sh:name "Method Type" ;
+        sh:description "Type of authentication method" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("password" "oauth2" "pqc" "biometric" "hardware_token") ;
+        sh:message "Authentication method type must be one of: password, oauth2, pqc, biometric, hardware_token" ;
+    ] ;
+    
+    # Active status
+    sh:property [
+        sh:path :isActive ;
+        sh:name "Active Status" ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Authentication method must have an active status" ;
+    ] .
+
+# PQC Encryption Key Shape
+:PQCEncryptionKeyShape rdf:type sh:NodeShape ;
+    sh:targetClass :EncryptionKey ;
+    rdfs:label "PQC Encryption Key Validation" ;
+    rdfs:comment "Validation for post-quantum cryptographic keys." ;
+    
+    # Algorithm validation
+    sh:property [
+        sh:path :encryptionAlgorithm ;
+        sh:name "Encryption Algorithm" ;
+        sh:description "Must be a supported PQC algorithm" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("KYBER512" "KYBER768" "KYBER1024" "NTRU_HPS_2048_509" "NTRU_HPS_2048_677" "NTRU_HRSS_701" "SABER_LIGHTSABER" "SABER_SABER" "SABER_FIRESABER") ;
+        sh:message "Must be a supported PQC algorithm" ;
+    ] ;
+    
+    # Key creation timestamp
+    sh:property [
+        sh:path :createdAt ;
+        sh:name "Key Creation Timestamp" ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Key creation timestamp is required" ;
+    ] ;
+    
+    # Key expiration
+    sh:property [
+        sh:path :expiresAt ;
+        sh:name "Key Expiration" ;
+        sh:datatype xsd:dateTime ;
+        sh:maxCount 1 ;
+        sh:message "Key expiration timestamp if applicable" ;
+    ] .
+
+# Session Token Security Shape
+:SessionTokenSecurityShape rdf:type sh:NodeShape ;
+    sh:targetClass :SessionToken ;
+    rdfs:label "Session Token Security Validation" ;
+    rdfs:comment "Security validation for session tokens." ;
+    
+    # Token format validation (JWT)
+    sh:property [
+        sh:path :tokenValue ;
+        sh:name "Token Value" ;
+        sh:description "Must be a valid JWT format" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$" ;
+        sh:message "Token must be in valid JWT format (header.payload.signature)" ;
+    ] ;
+    
+    # Token expiration validation
+    sh:property [
+        sh:path :expiresAt ;
+        sh:name "Token Expiration" ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Session token must have an expiration time" ;
+    ] ;
+    
+    # Active tokens cannot be expired (SPARQL constraint)
+    sh:sparql [
+        sh:select """
+        SELECT $this WHERE {
+            $this a :SessionToken .
+            $this :isActive true .
+            $this :expiresAt ?expiry .
+            FILTER (?expiry < NOW())
+        }
+        """ ;
+        sh:message "Active session token cannot be expired" ;
+    ] .
+
+# Document Collection Shape
+:DocumentCollectionShape rdf:type sh:NodeShape ;
+    sh:targetClass :DocumentCollection ;
+    rdfs:label "Document Collection Validation" ;
+    rdfs:comment "Validation rules for document collections." ;
+    
+    # Collection name validation
+    sh:property [
+        sh:path :collectionName ;
+        sh:name "Collection Name" ;
+        sh:description "Collection name, 2-100 characters" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 2 ;
+        sh:maxLength 100 ;
+        sh:message "Collection name must be 2-100 characters" ;
+    ] ;
+    
+    # Collection owner
+    sh:property [
+        sh:path :ownedBy ;
+        sh:name "Collection Owner" ;
+        sh:class :User ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Collection must have exactly one owner" ;
+    ] .
+
+# Cross-Entity Relationship Validation
+:CrossEntityValidationShape rdf:type sh:NodeShape ;
+    sh:targetClass owl:Thing ;
+    rdfs:label "Cross-Entity Relationship Validation" ;
+    rdfs:comment "Validation rules that span multiple entity types." ;
+    
+    # Users can only access documents they own or have permissions for
+    sh:sparql [
+        sh:select """
+        SELECT $user $document WHERE {
+            $user a :User .
+            $user :hasDocument $document .
+            $document a :Document .
+            FILTER NOT EXISTS {
+                { $document :ownedBy $user } UNION
+                { $user :hasPermission ?perm . ?perm :grantsAccessTo $document }
+            }
+        }
+        """ ;
+        sh:message "Users can only access documents they own or have explicit permissions for" ;
+    ] ;
+    
+    # Mission crystals must have valid status transitions
+    sh:sparql [
+        sh:select """
+        SELECT $crystal WHERE {
+            $crystal a :MissionCrystal .
+            $crystal :hasStatus ?status .
+            ?status :statusValue "completed" .
+            FILTER NOT EXISTS {
+                $crystal :generatesReceipt ?receipt .
+                ?receipt a :MissionReceipt .
+            }
+        }
+        """ ;
+        sh:message "Completed mission crystals must generate a cryptographic receipt" ;
+    ] .
+
+# Data Integrity Validation Shape
+:DataIntegrityShape rdf:type sh:NodeShape ;
+    sh:targetClass owl:Thing ;
+    rdfs:label "Data Integrity Validation" ;
+    rdfs:comment "Global data integrity constraints across the ontology." ;
+    
+    # Ensure all timestamps are consistent (created <= updated)
+    sh:sparql [
+        sh:select """
+        SELECT $entity WHERE {
+            $entity :createdAt ?created .
+            $entity :updatedAt ?updated .
+            FILTER (?created > ?updated)
+        }
+        """ ;
+        sh:message "Created timestamp cannot be after updated timestamp" ;
+    ] ;
+    
+    # Ensure unique email addresses
+    sh:sparql [
+        sh:select """
+        SELECT $user1 $user2 WHERE {
+            $user1 a :User .
+            $user2 a :User .
+            $user1 :email ?email .
+            $user2 :email ?email .
+            FILTER ($user1 != $user2)
+        }
+        """ ;
+        sh:message "Email addresses must be unique across all users" ;
+    ] ;
+    
+    # Ensure unique usernames
+    sh:sparql [
+        sh:select """
+        SELECT $user1 $user2 WHERE {
+            $user1 a :User .
+            $user2 a :User .
+            $user1 :username ?username .
+            $user2 :username ?username .
+            FILTER ($user1 != $user2)
+        }
+        """ ;
+        sh:message "Usernames must be unique across all users" ;
+    ] .

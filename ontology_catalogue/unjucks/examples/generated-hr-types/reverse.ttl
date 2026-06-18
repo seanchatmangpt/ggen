@@ -1,0 +1,45 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://example.org/> .
+
+# Classes
+ex:Employee a owl:Class ;
+    rdfs:comment "Employee in the enterprise system" ;
+    rdfs:subClassOf ex:Person .
+
+ex:Department a owl:Class ;
+    rdfs:comment "Organizational department" .
+
+ex:Position a owl:Class ;
+    rdfs:comment "Job position with specific responsibilities" .
+
+# Properties
+ex:name a owl:DatatypeProperty ;
+    rdfs:comment "Full name of employee" ;
+    rdfs:range xsd:string .
+
+ex:email a owl:DatatypeProperty ;
+    rdfs:comment "Business email address" ;
+    rdfs:range xsd:string .
+
+ex:employeeId a owl:DatatypeProperty ;
+    rdfs:comment "Unique employee identifier" ;
+    rdfs:range xsd:string .
+
+ex:salary a owl:DatatypeProperty ;
+    rdfs:comment "Annual salary in USD" ;
+    rdfs:range xsd:decimal .
+
+ex:startDate a owl:DatatypeProperty ;
+    rdfs:comment "Employment start date" ;
+    rdfs:range xsd:dateTime .
+
+ex:worksIn a owl:DatatypeProperty ;
+    rdfs:comment "Employee works in department" ;
+    rdfs:range ex:Department .
+
+ex:holdsPosition a owl:DatatypeProperty ;
+    rdfs:comment "Employee holds position" ;
+    rdfs:range ex:Position .

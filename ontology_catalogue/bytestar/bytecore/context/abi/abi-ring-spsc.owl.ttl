@@ -1,0 +1,13 @@
+@prefix :        <https://bytestar.org/ontology/bytecore/abi/ring-spsc#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix bcore:   <https://bytestar.org/ontology/bytestar-core#> .
+
+<https://bytestar.org/ontology/bytecore/abi/ring-spsc>
+  a owl:Ontology ;
+  rdfs:label "ByteCore SPSC Ring Buffer ABI" ;
+  rdfs:comment "The ABI for the lock-free Single-Producer, Single-Consumer ring buffer control block." ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core> ;
+  owl:versionInfo "4.2.0" .
+
+:SPSCRingABI a owl:Class ; rdfs:subClassOf bcore:ABI .

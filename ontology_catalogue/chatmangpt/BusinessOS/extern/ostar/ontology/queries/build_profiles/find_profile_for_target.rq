@@ -1,0 +1,18 @@
+# Find build profiles for a specific target architecture
+# Parameter: ?arch_label (e.g., "x86_64", "ARM64", "WASM32")
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ostar: <https://chatmangpt.com/ontologies/o-star/>
+
+SELECT ?profile ?profile_label ?opt_level ?debug_symbols
+WHERE {
+  ?profile rdf:type ostar:BuildProfile ;
+           rdfs:label ?profile_label ;
+           ostar:optimizationLevel ?opt_level ;
+           ostar:debugSymbols ?debug_symbols ;
+           ostar:targetArchitecture ?arch .
+
+  ?arch rdfs:label ?arch_label .
+}
+ORDER BY DESC(?opt_level)

@@ -1,0 +1,44 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix lspmax: <https://lsp-max.dev/ontology#> .
+
+lspmax:CompositorServer a owl:Class ;
+    rdfs:label "CompositorServer" ;
+    rdfs:comment "Single Claude Code plugin owner for contested LSP extensions. Owns the extensionToLanguage registry and fans out events to child servers via AutonomicMesh." .
+
+lspmax:hasChildServer a owl:ObjectProperty ;
+    rdfs:domain lspmax:CompositorServer ;
+    rdfs:range lspmax:ChildServer ;
+    rdfs:label "hasChildServer" .
+
+lspmax:ChildServer a owl:Class ;
+    rdfs:label "ChildServer" .
+
+lspmax:ChildTier a owl:Class ;
+    rdfs:label "ChildTier" ;
+    rdfs:comment "Priority tier for a child server: Primary (semantic intelligence wins), Secondary (diagnostics-only contribution), DiagnosticsOnly (never returns semantic responses)." .
+
+lspmax:Primary a lspmax:ChildTier ;
+    rdfs:label "Primary" .
+
+lspmax:Secondary a lspmax:ChildTier ;
+    rdfs:label "Secondary" .
+
+lspmax:DiagnosticsOnly a lspmax:ChildTier ;
+    rdfs:label "DiagnosticsOnly" .
+
+lspmax:hasTier a owl:ObjectProperty ;
+    rdfs:domain lspmax:ChildServer ;
+    rdfs:range lspmax:ChildTier ;
+    rdfs:label "hasTier" .
+
+lspmax:primaryExtension a owl:DatatypeProperty ;
+    rdfs:domain lspmax:ChildServer ;
+    rdfs:range xsd:string ;
+    rdfs:label "primaryExtension" .
+
+lspmax:secondaryExtension a owl:DatatypeProperty ;
+    rdfs:domain lspmax:ChildServer ;
+    rdfs:range xsd:string ;
+    rdfs:label "secondaryExtension" .

@@ -1,0 +1,430 @@
+# =============================================================================
+# A2A Agent Ontology Instance Data
+# Defines the Agent-related types from the A2A Protocol v0.3.0
+# Source of truth for generating Rust types, JSON Schema, and documentation
+# =============================================================================
+
+@prefix a2a: <https://ggen.io/ontology/a2a/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# AgentCard Entity
+# =============================================================================
+
+a2a:AgentCard a a2a:Entity ;
+    a2a:name "AgentCard" ;
+    rdfs:comment "The AgentCard is a self-describing manifest for an agent. It provides essential metadata including the agent's identity, capabilities, skills, supported communication methods, and security requirements." ;
+    a2a:hasProperty a2a:AgentCard_name ;
+    a2a:hasProperty a2a:AgentCard_description ;
+    a2a:hasProperty a2a:AgentCard_url ;
+    a2a:hasProperty a2a:AgentCard_version ;
+    a2a:hasProperty a2a:AgentCard_protocolVersion ;
+    a2a:hasProperty a2a:AgentCard_capabilities ;
+    a2a:hasProperty a2a:AgentCard_skills ;
+    a2a:hasProperty a2a:AgentCard_defaultInputModes ;
+    a2a:hasProperty a2a:AgentCard_defaultOutputModes ;
+    a2a:hasProperty a2a:AgentCard_provider ;
+    a2a:hasProperty a2a:AgentCard_documentationUrl ;
+    a2a:hasProperty a2a:AgentCard_iconUrl ;
+    a2a:hasProperty a2a:AgentCard_preferredTransport ;
+    a2a:hasProperty a2a:AgentCard_security ;
+    a2a:hasProperty a2a:AgentCard_securitySchemes ;
+    a2a:hasProperty a2a:AgentCard_supportsAuthenticatedExtendedCard ;
+    a2a:hasProperty a2a:AgentCard_additionalInterfaces ;
+    a2a:hasProperty a2a:AgentCard_signatures .
+
+# --- AgentCard Properties ---
+
+a2a:AgentCard_name a a2a:Property ;
+    a2a:name "name" ;
+    a2a:type "string"^^xsd:string ;
+    a2a:required true ;
+    rdfs:comment "A human-readable name for the agent." ;
+    a2a:example "Recipe Agent" .
+
+a2a:AgentCard_description a a2a:Property ;
+    a2a:name "description" ;
+    a2a:type "string"^^xsd:string ;
+    a2a:required true ;
+    rdfs:comment "A human-readable description of the agent, assisting users and other agents in understanding its purpose." ;
+    a2a:example "Agent that helps users with recipes and cooking." .
+
+a2a:AgentCard_url a a2a:Property ;
+    a2a:name "url" ;
+    a2a:type "string"^^xsd:string ;
+    a2a:required true ;
+    a2a:format "uri" ;
+    rdfs:comment "The preferred endpoint URL for interacting with the agent. This URL MUST support the transport specified by preferredTransport." ;
+    a2a:example "https://api.example.com/a2a/v1" .
+
+a2a:AgentCard_version a a2a:Property ;
+    a2a:name "version" ;
+    a2a:type "string"^^xsd:string ;
+    a2a:required true ;
+    rdfs:comment "The agent's own version number. The format is defined by the provider." ;
+    a2a:example "1.0.0" .
+
+a2a:AgentCard_protocolVersion a a2a:Property ;
+    a2a:name "protocolVersion" ;
+    a2a:type "string"^^xsd:string ;
+    a2a:required true ;
+    a2a:defaultValue "0.3.0" ;
+    rdfs:comment "The version of the A2A protocol this agent supports." .
+
+a2a:AgentCard_capabilities a a2a:Property ;
+    a2a:name "capabilities" ;
+    a2a:type "reference"^^xsd:string ;
+    a2a:required true ;
+    a2a:refEntity "AgentCapabilities" ;
+    rdfs:comment "A declaration of optional capabilities supported by the agent." .
+
+a2a:AgentCard_skills a a2a:Property ;
+    a2a:name "skills" ;
+    a2a:type "reference"^^xsd:string ;
+    a2a:required true ;
+    a2a:isArray true ;
+    a2a:refEntity "AgentSkill" ;
+    rdfs:comment "The set of skills, or distinct capabilities, that the agent can perform." .
+
+a2a:AgentCard_defaultInputModes a a2a:Property ;
+    a2a:name "defaultInputModes" ;
+    a2a:type "string"^^xsd:string ;
+    a2a:required true ;
+    a2a:isArray true ;
+    rdfs:comment "Default set of supported input MIME types for all skills, which can be overridden on a per-skill basis." .
+
+a2a:AgentCard_defaultOutputModes a a2a:Property ;
+    a2a:name "defaultOutputModes" ;
+    a2a:type "string"^^xsd:string ;
+    a2a:required true ;
+    a2a:isArray true ;
+    rdfs:comment "Default set of supported output MIME types for all skills, which can be overridden on a per-skill basis." .
+
+a2a:AgentCard_provider a a2a:Property ;
+    a2a:name "provider" ;
+    a2a:type "reference"^^xsd:string ;
+    a2a:required false ;
+    a2a:refEntity "AgentProvider" ;
+    rdfs:comment "Information about the agent's service provider." .
+
+a2a:AgentCard_documentationUrl a a2a:Property ;
+    a2a:name "documentationUrl" ;
+    a2a:type "string"^^xsd:string ;
+    a2a:required false ;
+    a2a:format "uri" ;
+    rdfs:comment "An optional URL to the agent's documentation." .
+
+a2a:AgentCard_iconUrl a a2a:Property ;
+    a2a:name "iconUrl" ;
+    a2a:type "string"^^xsd:string ;
+    a2a:required false ;
+    a2a:format "uri" ;
+    rdfs:comment "An optional URL to an icon for the agent." .
+
+a2a:AgentCard_preferredTransport a a2a:Property ;
+    a2a:name "preferredTransport" ;
+    a2a:type "string"^^xsd:string ;
+    a2a:required false ;
+    a2a:defaultValue "JSONRPC" ;
+    rdfs:comment "The transport protocol for the preferred endpoint. If not specified, defaults to JSONRPC. The transport specified here MUST be available at the main url." ;
+    a2a:example "JSONRPC" .
+
+a2a:AgentCard_security a a2a:Property ;
+    a2a:name "security" ;
+    a2a:type "object"^^xsd:string ;
+    a2a:required false ;
+    a2a:isArray true ;
+    rdfs:comment "A list of security requirement objects that apply to all agent interactions. Each object lists security schemes that can be used. This list can be seen as an OR of ANDs." .
+
+a2a:AgentCard_securitySchemes a a2a:Property ;
+    a2a:name "securitySchemes" ;
+    a2a:type "object"^^xsd:string ;
+    a2a:required false ;
+    rdfs:comment "A declaration of the security schemes available to authorize requests. The key is the scheme name. Follows the OpenAPI 3.0 Security Scheme Object." .
+
+a2a:AgentCard_supportsAuthenticatedExtendedCard a a2a:Property ;
+    a2a:name "supportsAuthenticatedExtendedCard" ;
+    a2a:type "boolean"^^xsd:string ;
+    a2a:required false ;
+    rdfs:comment "If true, the agent can provide an extended agent card with additional details to authenticated users. Defaults to false." .
+
+a2a:AgentCard_additionalInterfaces a a2a:Property ;
+    a2a:name "additionalInterfaces" ;
+    a2a:type "reference"^^xsd:string ;
+    a2a:required false ;
+    a2a:isArray true ;
+    a2a:refEntity "AgentInterface" ;
+    rdfs:comment "A list of additional supported interfaces (transport and URL combinations). This allows agents to expose multiple transports, potentially at different URLs." .
+
+a2a:AgentCard_signatures a a2a:Property ;
+    a2a:name "signatures" ;
+    a2a:type "reference"^^xsd:string ;
+    a2a:required false ;
+    a2a:isArray true ;
+    a2a:refEntity "AgentCardSignature" ;
+    rdfs:comment "JSON Web Signatures computed for this AgentCard." .
+
+# =============================================================================
+# AgentCapabilities Entity
+# =============================================================================
+
+a2a:AgentCapabilities a a2a:Entity ;
+    a2a:name "AgentCapabilities" ;
+    rdfs:comment "Defines optional capabilities supported by an agent." ;
+    a2a:hasProperty a2a:AgentCapabilities_streaming ;
+    a2a:hasProperty a2a:AgentCapabilities_pushNotifications ;
+    a2a:hasProperty a2a:AgentCapabilities_stateTransitionHistory ;
+    a2a:hasProperty a2a:AgentCapabilities_extensions .
+
+# --- AgentCapabilities Properties ---
+
+a2a:AgentCapabilities_streaming a a2a:Property ;
+    a2a:name "streaming" ;
+    a2a:type "boolean"^^xsd:string ;
+    a2a:required false ;
+    rdfs:comment "Indicates if the agent supports Server-Sent Events (SSE) for streaming responses." .
+
+a2a:AgentCapabilities_pushNotifications a a2a:Property ;
+    a2a:name "pushNotifications" ;
+    a2a:type "boolean"^^xsd:string ;
+    a2a:required false ;
+    rdfs:comment "Indicates if the agent supports sending push notifications for asynchronous task updates." .
+
+a2a:AgentCapabilities_stateTransitionHistory a a2a:Property ;
+    a2a:name "stateTransitionHistory" ;
+    a2a:type "boolean"^^xsd:string ;
+    a2a:required false ;
+    rdfs:comment "Indicates if the agent provides a history of state transitions for a task." .
+
+a2a:AgentCapabilities_extensions a a2a:Property ;
+    a2a:name "extensions" ;
+    a2a:type "reference"^^xsd:string ;
+    a2a:required false ;
+    a2a:isArray true ;
+    a2a:refEntity "AgentExtension" ;
+    rdfs:comment "A list of protocol extensions supported by the agent." .
+
+# =============================================================================
+# AgentSkill Entity
+# =============================================================================
+
+a2a:AgentSkill a a2a:Entity ;
+    a2a:name "AgentSkill" ;
+    rdfs:comment "Represents a distinct capability or function that an agent can perform." ;
+    a2a:hasProperty a2a:AgentSkill_id ;
+    a2a:hasProperty a2a:AgentSkill_name ;
+    a2a:hasProperty a2a:AgentSkill_description ;
+    a2a:hasProperty a2a:AgentSkill_tags ;
+    a2a:hasProperty a2a:AgentSkill_examples ;
+    a2a:hasProperty a2a:AgentSkill_inputModes ;
+    a2a:hasProperty a2a:AgentSkill_outputModes ;
+    a2a:hasProperty a2a:AgentSkill_security .
+
+# --- AgentSkill Properties ---
+
+a2a:AgentSkill_id a a2a:Property ;
+    a2a:name "id" ;
+    a2a:type "string"^^xsd:string ;
+    a2a:required true ;
+    rdfs:comment "A unique identifier for the agent's skill." .
+
+a2a:AgentSkill_name a a2a:Property ;
+    a2a:name "name" ;
+    a2a:type "string"^^xsd:string ;
+    a2a:required true ;
+    rdfs:comment "A human-readable name for the skill." .
+
+a2a:AgentSkill_description a a2a:Property ;
+    a2a:name "description" ;
+    a2a:type "string"^^xsd:string ;
+    a2a:required true ;
+    rdfs:comment "A detailed description of the skill, intended to help clients or users understand its purpose and functionality." .
+
+a2a:AgentSkill_tags a a2a:Property ;
+    a2a:name "tags" ;
+    a2a:type "string"^^xsd:string ;
+    a2a:required true ;
+    a2a:isArray true ;
+    rdfs:comment "A set of keywords describing the skill's capabilities." ;
+    a2a:example "cooking" .
+
+a2a:AgentSkill_examples a a2a:Property ;
+    a2a:name "examples" ;
+    a2a:type "string"^^xsd:string ;
+    a2a:required false ;
+    a2a:isArray true ;
+    rdfs:comment "Example prompts or scenarios that this skill can handle. Provides a hint to the client on how to use the skill." ;
+    a2a:example "I need a recipe for bread" .
+
+a2a:AgentSkill_inputModes a a2a:Property ;
+    a2a:name "inputModes" ;
+    a2a:type "string"^^xsd:string ;
+    a2a:required false ;
+    a2a:isArray true ;
+    rdfs:comment "The set of supported input MIME types for this skill, overriding the agent's defaults." .
+
+a2a:AgentSkill_outputModes a a2a:Property ;
+    a2a:name "outputModes" ;
+    a2a:type "string"^^xsd:string ;
+    a2a:required false ;
+    a2a:isArray true ;
+    rdfs:comment "The set of supported output MIME types for this skill, overriding the agent's defaults." .
+
+a2a:AgentSkill_security a a2a:Property ;
+    a2a:name "security" ;
+    a2a:type "object"^^xsd:string ;
+    a2a:required false ;
+    a2a:isArray true ;
+    rdfs:comment "Security schemes necessary for the agent to leverage this skill. This list represents a logical OR of security requirement objects. Each object is a set of security schemes that must be used together (a logical AND)." .
+
+# =============================================================================
+# AgentProvider Entity
+# =============================================================================
+
+a2a:AgentProvider a a2a:Entity ;
+    a2a:name "AgentProvider" ;
+    rdfs:comment "Represents the service provider of an agent." ;
+    a2a:hasProperty a2a:AgentProvider_organization ;
+    a2a:hasProperty a2a:AgentProvider_url .
+
+# --- AgentProvider Properties ---
+
+a2a:AgentProvider_organization a a2a:Property ;
+    a2a:name "organization" ;
+    a2a:type "string"^^xsd:string ;
+    a2a:required true ;
+    rdfs:comment "The name of the agent provider's organization." ;
+    a2a:example "Google" .
+
+a2a:AgentProvider_url a a2a:Property ;
+    a2a:name "url" ;
+    a2a:type "string"^^xsd:string ;
+    a2a:required true ;
+    a2a:format "uri" ;
+    rdfs:comment "A URL for the agent provider's website or relevant documentation." ;
+    a2a:example "https://ai.google.dev" .
+
+# =============================================================================
+# AgentAuthentication Entity
+# =============================================================================
+
+a2a:AgentAuthentication a a2a:Entity ;
+    a2a:name "AgentAuthentication" ;
+    rdfs:comment "Describes authentication configuration for an agent, combining security scheme declarations with security requirement references." ;
+    a2a:hasProperty a2a:AgentAuthentication_schemes ;
+    a2a:hasProperty a2a:AgentAuthentication_credentials .
+
+# --- AgentAuthentication Properties ---
+
+a2a:AgentAuthentication_schemes a a2a:Property ;
+    a2a:name "schemes" ;
+    a2a:type "reference"^^xsd:string ;
+    a2a:required true ;
+    a2a:isArray true ;
+    a2a:refEntity "SecurityScheme" ;
+    rdfs:comment "The set of security schemes available for authenticating with the agent. Follows the OpenAPI 3.0 Security Scheme Object. Supported types include apiKey, http (bearer), oauth2, openIdConnect, and mutualTLS." .
+
+a2a:AgentAuthentication_credentials a a2a:Property ;
+    a2a:name "credentials" ;
+    a2a:type "string"^^xsd:string ;
+    a2a:required false ;
+    rdfs:comment "Optional credential or token value used to authenticate requests to the agent." .
+
+# =============================================================================
+# AgentInterface Entity
+# =============================================================================
+
+a2a:AgentInterface a a2a:Entity ;
+    a2a:name "AgentInterface" ;
+    rdfs:comment "Declares a combination of a target URL and a transport protocol for interacting with the agent. This allows agents to expose the same functionality over multiple transport mechanisms." ;
+    a2a:hasProperty a2a:AgentInterface_url ;
+    a2a:hasProperty a2a:AgentInterface_transport .
+
+# --- AgentInterface Properties ---
+
+a2a:AgentInterface_url a a2a:Property ;
+    a2a:name "url" ;
+    a2a:type "string"^^xsd:string ;
+    a2a:required true ;
+    a2a:format "uri" ;
+    rdfs:comment "The URL where this interface is available. Must be a valid absolute HTTPS URL in production." ;
+    a2a:example "https://api.example.com/a2a/v1" .
+
+a2a:AgentInterface_transport a a2a:Property ;
+    a2a:name "transport" ;
+    a2a:type "string"^^xsd:string ;
+    a2a:required true ;
+    rdfs:comment "The transport protocol supported at this URL." ;
+    a2a:example "JSONRPC" .
+
+# =============================================================================
+# AgentExtension Entity
+# =============================================================================
+
+a2a:AgentExtension a a2a:Entity ;
+    a2a:name "AgentExtension" ;
+    rdfs:comment "A declaration of a protocol extension supported by an Agent." ;
+    a2a:hasProperty a2a:AgentExtension_uri ;
+    a2a:hasProperty a2a:AgentExtension_description ;
+    a2a:hasProperty a2a:AgentExtension_required ;
+    a2a:hasProperty a2a:AgentExtension_params .
+
+# --- AgentExtension Properties ---
+
+a2a:AgentExtension_uri a a2a:Property ;
+    a2a:name "uri" ;
+    a2a:type "string"^^xsd:string ;
+    a2a:required true ;
+    a2a:format "uri" ;
+    rdfs:comment "The unique URI identifying the extension." .
+
+a2a:AgentExtension_description a a2a:Property ;
+    a2a:name "description" ;
+    a2a:type "string"^^xsd:string ;
+    a2a:required false ;
+    rdfs:comment "A human-readable description of how this agent uses the extension." .
+
+a2a:AgentExtension_required a a2a:Property ;
+    a2a:name "required" ;
+    a2a:type "boolean"^^xsd:string ;
+    a2a:required false ;
+    rdfs:comment "If true, the client must understand and comply with the extension's requirements to interact with the agent." .
+
+a2a:AgentExtension_params a a2a:Property ;
+    a2a:name "params" ;
+    a2a:type "object"^^xsd:string ;
+    a2a:required false ;
+    rdfs:comment "Optional, extension-specific configuration parameters." .
+
+# =============================================================================
+# AgentCardSignature Entity
+# =============================================================================
+
+a2a:AgentCardSignature a a2a:Entity ;
+    a2a:name "AgentCardSignature" ;
+    rdfs:comment "Represents a JWS signature of an AgentCard. This follows the JSON format of an RFC 7515 JSON Web Signature (JWS)." ;
+    a2a:hasProperty a2a:AgentCardSignature_protected ;
+    a2a:hasProperty a2a:AgentCardSignature_signature ;
+    a2a:hasProperty a2a:AgentCardSignature_header .
+
+# --- AgentCardSignature Properties ---
+
+a2a:AgentCardSignature_protected a a2a:Property ;
+    a2a:name "protected" ;
+    a2a:type "string"^^xsd:string ;
+    a2a:required true ;
+    rdfs:comment "The protected JWS header for the signature. This is a Base64url-encoded JSON object, as per RFC 7515." .
+
+a2a:AgentCardSignature_signature a a2a:Property ;
+    a2a:name "signature" ;
+    a2a:type "string"^^xsd:string ;
+    a2a:required true ;
+    rdfs:comment "The computed signature, Base64url-encoded." .
+
+a2a:AgentCardSignature_header a a2a:Property ;
+    a2a:name "header" ;
+    a2a:type "object"^^xsd:string ;
+    a2a:required false ;
+    rdfs:comment "The unprotected JWS header values." .

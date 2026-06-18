@@ -1,0 +1,380 @@
+@prefix zoe:     <https://zoela.org/ontology/> .
+@prefix org:     <http://www.w3.org/ns/org#> .
+@prefix odrl:    <http://www.w3.org/ns/odrl/2/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf:    <http://xmlns.com/foaf/0.1/> .
+@prefix vcard:   <http://www.w3.org/2006/vcard/ns#> .
+
+# ============================================================================
+# ZOE LA Mobile — Roles Ontology
+# ============================================================================
+# Models ZOE LA's operational roles using the W3C ORG vocabulary.
+# Each role carries permission-level metadata that drives Supabase RLS
+# policy generation and volunteer assignment logic.
+#
+# Role hierarchy (ascending privilege):
+#   Member(1) → Volunteer(2) / PartnerOrg(2) → Leader(3) / CareTeam(3)
+#             / YouthLeader(3) / StorehouseKeeper(3) / StorehouseAuditor(3) → Admin(4) → Pastor(5)
+#
+# skos:notation values record the canonical role code used in the database
+# profiles.role column and in RLS policy predicates.
+# ============================================================================
+
+zoe:RolesOntology a owl:Ontology ;
+    rdfs:label   "ZOE LA Roles Ontology"@en ;
+    rdfs:comment "Defines operational roles and role-assignment structures for the ZOE LA Mobile combinatorial service graph."@en ;
+    dcterms:creator  "Sean Chatman" ;
+    dcterms:created  "2026-05-17"^^xsd:date ;
+    dcterms:license  <https://opensource.org/licenses/MIT> ;
+    owl:versionInfo  "1.0.0" .
+
+# ============================================================================
+# Properties on ZoeRole
+# ============================================================================
+
+zoe:roleCode a owl:DatatypeProperty ;
+    rdfs:label   "role code"@en ;
+    rdfs:comment "Short alphanumeric code identifying the role; stored in the database profiles.role column."@en ;
+    skos:notation "role_code" ;
+    rdfs:domain  zoe:ZoeRole ;
+    rdfs:range   xsd:string .
+
+zoe:permissionLevel a owl:DatatypeProperty ;
+    rdfs:label   "permission level"@en ;
+    rdfs:comment "Ordinal privilege level (1 = least, 5 = most). RLS policies compare this integer to gate data access."@en ;
+    skos:notation "permission_level" ;
+    rdfs:domain  zoe:ZoeRole ;
+    rdfs:range   xsd:integer .
+
+zoe:canViewSensitive a owl:DatatypeProperty ;
+    rdfs:label   "can view sensitive data"@en ;
+    rdfs:comment "Indicates whether this role is permitted to read youth-protected and pastoral-private data."@en ;
+    skos:notation "can_view_sensitive" ;
+    rdfs:domain  zoe:ZoeRole ;
+    rdfs:range   xsd:boolean .
+
+zoe:canCreateReceipts a owl:DatatypeProperty ;
+    rdfs:label   "can create receipts"@en ;
+    rdfs:comment "Indicates whether this role may write service receipts to the receipts table."@en ;
+    skos:notation "can_create_receipts" ;
+    rdfs:domain  zoe:ZoeRole ;
+    rdfs:range   xsd:boolean .
+
+zoe:canAssignVolunteers a owl:DatatypeProperty ;
+    rdfs:label   "can assign volunteers"@en ;
+    rdfs:comment "Indicates whether this role may assign volunteers to service routes and events."@en ;
+    skos:notation "can_assign_volunteers" ;
+    rdfs:domain  zoe:ZoeRole ;
+    rdfs:range   xsd:boolean .
+
+zoe:requiresTraining a owl:DatatypeProperty ;
+    rdfs:label   "requires training"@en ;
+    rdfs:comment "When true, the role cannot be assigned until the person has completed required training modules."@en ;
+    skos:notation "requires_training" ;
+    rdfs:domain  zoe:ZoeRole ;
+    rdfs:range   xsd:boolean .
+
+zoe:requiresBackgroundCheck a owl:DatatypeProperty ;
+    rdfs:label   "requires background check"@en ;
+    rdfs:comment "When true, an approved background check (BGC consent) must be on file before this role can be assigned."@en ;
+    skos:notation "requires_background_check" ;
+    rdfs:domain  zoe:ZoeRole ;
+    rdfs:range   xsd:boolean .
+
+zoe:canManageAssets a owl:DatatypeProperty ;
+    rdfs:label   "can manage assets"@en ;
+    rdfs:comment "Indicates whether this role may create or update storehouse assets."@en ;
+    skos:notation "can_manage_assets" ;
+    rdfs:domain  zoe:ZoeRole ;
+    rdfs:range   xsd:boolean .
+
+zoe:canAuditAssets a owl:DatatypeProperty ;
+    rdfs:label   "can audit assets"@en ;
+    rdfs:comment "Indicates whether this role may perform physical or digital audits on storehouse assets."@en ;
+    skos:notation "can_audit_assets" ;
+    rdfs:domain  zoe:ZoeRole ;
+    rdfs:range   xsd:boolean .
+
+# ============================================================================
+# Properties on PersonRoleAssignment
+# ============================================================================
+
+zoe:assignedAt a owl:DatatypeProperty ;
+    rdfs:label   "assigned at"@en ;
+    rdfs:comment "ISO-8601 timestamp at which the role assignment was created."@en ;
+    skos:notation "assigned_at" ;
+    rdfs:domain  zoe:PersonRoleAssignment ;
+    rdfs:range   xsd:dateTime .
+
+zoe:assignedBy a owl:DatatypeProperty ;
+    rdfs:label   "assigned by"@en ;
+    rdfs:comment "UUID of the AdminRole or PastorRole user who created this assignment."@en ;
+    skos:notation "assigned_by" ;
+    rdfs:domain  zoe:PersonRoleAssignment ;
+    rdfs:range   xsd:string .
+
+zoe:expiresAt a owl:DatatypeProperty ;
+    rdfs:label   "expires at"@en ;
+    rdfs:comment "Optional ISO-8601 timestamp after which the assignment is no longer active. Null means no expiry."@en ;
+    skos:notation "expires_at" ;
+    rdfs:domain  zoe:PersonRoleAssignment ;
+    rdfs:range   xsd:dateTime .
+
+zoe:isActive a owl:DatatypeProperty ;
+    rdfs:label   "is active"@en ;
+    rdfs:comment "Boolean flag. False when the assignment has been revoked or has expired."@en ;
+    skos:notation "is_active" ;
+    rdfs:domain  zoe:PersonRoleAssignment ;
+    rdfs:range   xsd:boolean .
+
+zoe:hasRole a owl:ObjectProperty ;
+    rdfs:label   "has role"@en ;
+    rdfs:comment "Links a PersonRoleAssignment to the ZoeRole concept it grants."@en ;
+    skos:notation "role_id" ;
+    rdfs:domain  zoe:PersonRoleAssignment ;
+    rdfs:range   zoe:ZoeRole ;
+    owl:equivalentProperty org:role .
+
+zoe:hasMinistry a owl:ObjectProperty ;
+    rdfs:label   "has ministry"@en ;
+    rdfs:comment "Links a PersonRoleAssignment to the ministry context in which this role is exercised."@en ;
+    skos:notation "ministry_id" ;
+    rdfs:domain  zoe:PersonRoleAssignment ;
+    rdfs:range   skos:Concept .
+
+zoe:member a owl:ObjectProperty ;
+    rdfs:label   "member"@en ;
+    rdfs:comment "Links a role assignment to the agent who holds the role."@en ;
+    skos:notation "member_id" ;
+    rdfs:domain  zoe:PersonRoleAssignment ;
+    rdfs:range   zoe:PersonProfile ;
+    owl:equivalentProperty org:member .
+
+zoe:organization a owl:ObjectProperty ;
+    rdfs:label   "organization"@en ;
+    rdfs:comment "Links a role assignment to the organization or unit in which the role is held."@en ;
+    skos:notation "organization_id" ;
+    rdfs:domain  zoe:PersonRoleAssignment ;
+    rdfs:range   zoe:Organization ;
+    owl:equivalentProperty org:organization .
+
+# ============================================================================
+# Classes
+# ============================================================================
+
+zoe:ZoeRole a owl:Class ;
+    rdfs:label      "ZOE Role"@en ;
+    rdfs:comment    "An operational role within ZOE LA's ministry structure. Each role instance is a SKOS Concept in zoe:RoleScheme and carries boolean capability flags that drive RLS policy generation."@en ;
+    rdfs:subClassOf org:Role .
+
+zoe:PersonRoleAssignment a owl:Class ;
+    rdfs:label      "Person Role Assignment"@en ;
+    rdfs:comment    "A time-bounded assignment of a ZoeRole to a person profile within a ministry context. Subclass of org:Membership."@en ;
+    rdfs:subClassOf org:Membership .
+
+# ============================================================================
+# SKOS ConceptScheme — Role Registry
+# ============================================================================
+
+zoe:RoleScheme a skos:ConceptScheme ;
+    rdfs:label   "ZOE LA Role Scheme"@en ;
+    rdfs:comment "Controlled vocabulary of all operational roles defined for ZOE LA Mobile."@en ;
+    skos:prefLabel "ZOE LA Role Registry"@en .
+
+# ── MemberRole ───────────────────────────────────────────────────────────────
+
+zoe:MemberRole a zoe:ZoeRole, skos:Concept ;
+    rdfs:label        "Member"@en ;
+    skos:prefLabel    "Member"@en ;
+    skos:definition   "A registered church member or recurring visitor. The base participation role. No elevated access."@en ;
+    skos:notation     "MEMBER" ;
+    skos:inScheme     zoe:RoleScheme ;
+    zoe:roleCode              "MEMBER" ;
+    zoe:permissionLevel       1 ;
+    zoe:canViewSensitive      false ;
+    zoe:canCreateReceipts     false ;
+    zoe:canAssignVolunteers   false ;
+    zoe:requiresTraining      false ;
+    zoe:requiresBackgroundCheck false ;
+    zoe:canManageAssets       false ;
+    zoe:canAuditAssets        false .
+
+# ── VolunteerRole ─────────────────────────────────────────────────────────────
+
+zoe:VolunteerRole a zoe:ZoeRole, skos:Concept ;
+    rdfs:label        "Volunteer"@en ;
+    skos:prefLabel    "Volunteer"@en ;
+    skos:definition   "An active ministry volunteer. Can read public and ministry-private data but not pastoral-private or youth-protected records. Must complete training."@en ;
+    skos:notation     "VOL" ;
+    skos:inScheme     zoe:RoleScheme ;
+    zoe:roleCode              "VOL" ;
+    zoe:permissionLevel       2 ;
+    zoe:canViewSensitive      false ;
+    zoe:canCreateReceipts     false ;
+    zoe:canAssignVolunteers   false ;
+    zoe:requiresTraining      true ;
+    zoe:requiresBackgroundCheck false ;
+    zoe:canManageAssets       false ;
+    zoe:canAuditAssets        false .
+
+# ── LeaderRole ────────────────────────────────────────────────────────────────
+
+zoe:LeaderRole a zoe:ZoeRole, skos:Concept ;
+    rdfs:label        "Ministry Leader"@en ;
+    skos:prefLabel    "Ministry Leader"@en ;
+    skos:definition   "A ministry-area leader with elevated data access. May view sensitive records and assign volunteers within their ministry context."@en ;
+    skos:notation     "LEADER" ;
+    skos:inScheme     zoe:RoleScheme ;
+    zoe:roleCode              "LEADER" ;
+    zoe:permissionLevel       3 ;
+    zoe:canViewSensitive      true ;
+    zoe:canCreateReceipts     false ;
+    zoe:canAssignVolunteers   true ;
+    zoe:requiresTraining      false ;
+    zoe:requiresBackgroundCheck false ;
+    zoe:canManageAssets       false ;
+    zoe:canAuditAssets        false .
+
+# ── CareTeamRole ──────────────────────────────────────────────────────────────
+
+zoe:CareTeamRole a zoe:ZoeRole, skos:Concept ;
+    rdfs:label        "Care Team Member"@en ;
+    skos:prefLabel    "Care Team Member"@en ;
+    skos:definition   "A pastoral care team member authorized to handle sensitive care requests, care notes, and referral records. Background check required."@en ;
+    skos:notation     "CARE" ;
+    skos:inScheme     zoe:RoleScheme ;
+    zoe:roleCode              "CARE" ;
+    zoe:permissionLevel       3 ;
+    zoe:canViewSensitive      true ;
+    zoe:canCreateReceipts     false ;
+    zoe:canAssignVolunteers   false ;
+    zoe:requiresTraining      false ;
+    zoe:requiresBackgroundCheck true ;
+    zoe:canManageAssets       false ;
+    zoe:canAuditAssets        false .
+
+# ── YouthLeaderRole ───────────────────────────────────────────────────────────
+
+zoe:YouthLeaderRole a zoe:ZoeRole, skos:Concept ;
+    rdfs:label        "Youth Leader"@en ;
+    skos:prefLabel    "Youth Leader"@en ;
+    skos:definition   "A ministry leader working directly with minors. Can view youth-protected records. Both background check and training are mandatory."@en ;
+    skos:notation     "YTH-LEAD" ;
+    skos:inScheme     zoe:RoleScheme ;
+    zoe:roleCode              "YTH-LEAD" ;
+    zoe:permissionLevel       3 ;
+    zoe:canViewSensitive      true ;
+    zoe:canCreateReceipts     false ;
+    zoe:canAssignVolunteers   false ;
+    zoe:requiresTraining      true ;
+    zoe:requiresBackgroundCheck true ;
+    zoe:canManageAssets       false ;
+    zoe:canAuditAssets        false .
+
+# ── AdminRole ─────────────────────────────────────────────────────────────────
+
+zoe:AdminRole a zoe:ZoeRole, skos:Concept ;
+    rdfs:label        "Administrator"@en ;
+    skos:prefLabel    "Administrator"@en ;
+    skos:definition   "A ministry administrator with full data access, receipt-writing authority, and volunteer-assignment capability across all ministry areas."@en ;
+    skos:notation     "ADMIN" ;
+    skos:inScheme     zoe:RoleScheme ;
+    zoe:roleCode              "ADMIN" ;
+    zoe:permissionLevel       4 ;
+    zoe:canViewSensitive      true ;
+    zoe:canCreateReceipts     true ;
+    zoe:canAssignVolunteers   true ;
+    zoe:requiresTraining      false ;
+    zoe:requiresBackgroundCheck false ;
+    zoe:canManageAssets       true ;
+    zoe:canAuditAssets        true .
+
+# ── PastorRole ────────────────────────────────────────────────────────────────
+
+zoe:PastorRole a zoe:ZoeRole, skos:Concept ;
+    rdfs:label        "Pastor"@en ;
+    skos:prefLabel    "Pastor"@en ;
+    skos:definition   "Senior pastoral staff with the highest privilege level. Unrestricted data access, receipt creation, and volunteer assignment across the entire ZOE LA ministry."@en ;
+    skos:notation     "PASTOR" ;
+    skos:inScheme     zoe:RoleScheme ;
+    zoe:roleCode              "PASTOR" ;
+    zoe:permissionLevel       5 ;
+    zoe:canViewSensitive      true ;
+    zoe:canCreateReceipts     true ;
+    zoe:canAssignVolunteers   true ;
+    zoe:requiresTraining      false ;
+    zoe:requiresBackgroundCheck false ;
+    zoe:canManageAssets       true ;
+    zoe:canAuditAssets        true .
+
+# ── PartnerOrgRole ────────────────────────────────────────────────────────────
+
+zoe:PartnerOrgRole a zoe:ZoeRole, skos:Concept ;
+    rdfs:label        "Partner Organization Representative"@en ;
+    skos:prefLabel    "Partner Organization Representative"@en ;
+    skos:definition   "A representative of an affiliated partner organization. May access public and shared inventory data but not internal sensitive records. No training requirement."@en ;
+    skos:notation     "PARTNER" ;
+    skos:inScheme     zoe:RoleScheme ;
+    zoe:roleCode              "PARTNER" ;
+    zoe:permissionLevel       2 ;
+    zoe:canViewSensitive      false ;
+    zoe:canCreateReceipts     false ;
+    zoe:canAssignVolunteers   false ;
+    zoe:requiresTraining      false ;
+    zoe:requiresBackgroundCheck false ;
+    zoe:canManageAssets       false ;
+    zoe:canAuditAssets        false .
+
+# ── StorehouseKeeperRole ─────────────────────────────────────────────────────
+
+zoe:StorehouseKeeperRole a zoe:ZoeRole, skos:Concept ;
+    rdfs:label        "Storehouse Keeper"@en ;
+    skos:prefLabel    "Storehouse Keeper"@en ;
+    skos:definition   "An operational role responsible for managing storehouse inventory, assets, and storage units."@en ;
+    skos:notation     "STORE-KEEP" ;
+    skos:inScheme     zoe:RoleScheme ;
+    zoe:roleCode              "STORE-KEEP" ;
+    zoe:permissionLevel       3 ;
+    zoe:canViewSensitive      false ;
+    zoe:canCreateReceipts     true ;
+    zoe:canAssignVolunteers   false ;
+    zoe:requiresTraining      true ;
+    zoe:requiresBackgroundCheck true ;
+    zoe:canManageAssets       true ;
+    zoe:canAuditAssets        false .
+
+# ── StorehouseAuditorRole ────────────────────────────────────────────────────
+
+zoe:StorehouseAuditorRole a zoe:ZoeRole, skos:Concept ;
+    rdfs:label        "Storehouse Auditor"@en ;
+    skos:prefLabel    "Storehouse Auditor"@en ;
+    skos:definition   "A quality control role responsible for conducting physical audits and verifying ledger status."@en ;
+    skos:notation     "STORE-AUDIT" ;
+    skos:inScheme     zoe:RoleScheme ;
+    zoe:roleCode              "STORE-AUDIT" ;
+    zoe:permissionLevel       3 ;
+    zoe:canViewSensitive      false ;
+    zoe:canCreateReceipts     false ;
+    zoe:canAssignVolunteers   false ;
+    zoe:requiresTraining      true ;
+    zoe:requiresBackgroundCheck true ;
+    zoe:canManageAssets       false ;
+    zoe:canAuditAssets        true .
+
+# ── Scheme top-concept links ──────────────────────────────────────────────────
+
+zoe:RoleScheme skos:hasTopConcept zoe:MemberRole,
+                                   zoe:VolunteerRole,
+                                   zoe:LeaderRole,
+                                   zoe:CareTeamRole,
+                                   zoe:YouthLeaderRole,
+                                   zoe:AdminRole,
+                                   zoe:PastorRole,
+                                   zoe:PartnerOrgRole,
+                                   zoe:StorehouseKeeperRole,
+                                   zoe:StorehouseAuditorRole .

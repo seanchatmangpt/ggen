@@ -1,0 +1,1183 @@
+@prefix ba: <https://bytestar.org/ontology/> .
+@prefix mp: <https://bytestar.org/ontology/marketplace/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+# ================================================================
+# ByteStar N-Dimensional Marketplace Usage/Metering Ontology (.usage)
+# Defines comprehensive usage tracking and metering system
+# Version: 5.0.0 - Marketplace Crystals
+# Domain: Real-time usage metering with multi-dimensional tracking
+# ================================================================
+
+<https://bytestar.org/ontology/marketplace/usage> a owl:Ontology ;
+    owl:versionIRI <https://bytestar.org/ontology/v5/marketplace/usage> ;
+    owl:versionInfo "5.0.0" ;
+    dcterms:title "ByteStar N-Dimensional Marketplace Usage/Metering Ontology" ;
+    dcterms:description "Comprehensive usage tracking system with real-time metering, multi-dimensional measurement, billing integration, and cross-organizational accounting" ;
+    dcterms:created "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    dcterms:creator "ByteStar Development Team" ;
+    owl:imports <https://bytestar.org/ontology/marketplace/asset> ,
+                <https://bytestar.org/ontology/marketplace/offer> ,
+                <https://bytestar.org/ontology/marketplace/order> ,
+                <https://bytestar.org/ontology/marketplace/settle> ,
+                <https://bytestar.org/ontology/resource-allocation> ,
+                <https://bytestar.org/ontology/performance-measurement> ,
+                <https://bytestar.org/ontology/optimization-engine> .
+
+# ================================================================
+# CORE USAGE CLASSES (80% REUSE + 20% NEW)
+# ================================================================
+
+## Primary Usage Framework
+mp:Usage a owl:Class ;
+    rdfs:label "Usage" ;
+    rdfs:comment "N-dimensional usage measurement for asset consumption" ;
+    rdfs:subClassOf ba:PerformanceMeasurement ;  # Reuse from performance-measurement
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasUsageId ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:measuresAsset ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasUsageVector ;
+        owl:cardinality 1
+    ] .
+
+mp:RealTimeUsage a mp:Usage ;
+    rdfs:label "Real-Time Usage" ;
+    rdfs:comment "Real-time usage measurement with sub-tick precision" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasMeteringFrequency ;
+        owl:cardinality 1
+    ] .
+
+mp:AggregatedUsage a mp:Usage ;
+    rdfs:label "Aggregated Usage" ;
+    rdfs:comment "Usage aggregated over time periods or multiple assets" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasAggregationPeriod ;
+        owl:cardinality 1
+    ] .
+
+mp:BillableUsage a mp:Usage ;
+    rdfs:label "Billable Usage" ;
+    rdfs:comment "Usage measurement eligible for billing" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasBillingRate ;
+        owl:cardinality 1
+    ] .
+
+# ================================================================
+# METERING SYSTEM ARCHITECTURE
+# ================================================================
+
+mp:MeteringEngine a owl:Class ;
+    rdfs:label "Metering Engine" ;
+    rdfs:comment "Engine for real-time usage measurement and tracking" ;
+    rdfs:subClassOf ba:SystemComponent ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:metersAsset ;
+        owl:minCardinality 1
+    ] .
+
+mp:UsageMeter a owl:Class ;
+    rdfs:label "Usage Meter" ;
+    rdfs:comment "Individual meter for specific asset usage dimension" ;
+    rdfs:subClassOf ba:PerformanceMonitor ;  # Reuse from performance-measurement
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasMeterType ;
+        owl:cardinality 1
+    ] .
+
+mp:MeterType a owl:Class ;
+    rdfs:label "Meter Type" ;
+    rdfs:comment "Type of usage meter for different measurement categories" ;
+    rdfs:subClassOf skos:Concept .
+
+## Meter Type Hierarchy
+mp:ComputeMeter a mp:MeterType ;
+    rdfs:label "Compute Meter" ;
+    rdfs:comment "Meter for computational resource usage" ;
+    skos:prefLabel "compute" .
+
+mp:StorageMeter a mp:MeterType ;
+    rdfs:label "Storage Meter" ;
+    rdfs:comment "Meter for storage resource usage" ;
+    skos:prefLabel "storage" .
+
+mp:NetworkMeter a mp:MeterType ;
+    rdfs:label "Network Meter" ;
+    rdfs:comment "Meter for network resource usage" ;
+    skos:prefLabel "network" .
+
+mp:DataMeter a mp:MeterType ;
+    rdfs:label "Data Meter" ;
+    rdfs:comment "Meter for data transfer and processing" ;
+    skos:prefLabel "data" .
+
+mp:TimeMeter a mp:MeterType ;
+    rdfs:label "Time Meter" ;
+    rdfs:comment "Meter for time-based usage" ;
+    skos:prefLabel "time" .
+
+mp:TransactionMeter a mp:MeterType ;
+    rdfs:label "Transaction Meter" ;
+    rdfs:comment "Meter for transaction-based usage" ;
+    skos:prefLabel "transaction" .
+
+# ================================================================
+# N-DIMENSIONAL USAGE VECTORS
+# ================================================================
+
+mp:UsageVector a owl:Class ;
+    rdfs:label "Usage Vector" ;
+    rdfs:comment "N-dimensional vector representing usage across multiple dimensions" ;
+    rdfs:subClassOf mp:AssetVector ;  # Reuse from asset.ttl
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasUsageDimension ;
+        owl:minCardinality 8  # 8 core dimensions
+    ] .
+
+mp:UsageDimension a owl:Class ;
+    rdfs:label "Usage Dimension" ;
+    rdfs:comment "Single dimension in the N-dimensional usage space" ;
+    rdfs:subClassOf mp:VectorDimension ;  # Reuse from asset.ttl
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasUsageValue ;
+        owl:cardinality 1
+    ] .
+
+## Core Usage Dimensions
+mp:QuantityUsage a mp:UsageDimension ;
+    rdfs:label "Quantity Usage" ;
+    rdfs:comment "Raw quantity of asset consumed" .
+
+mp:DurationUsage a mp:UsageDimension ;
+    rdfs:label "Duration Usage" ;
+    rdfs:comment "Time duration of asset usage" .
+
+mp:IntensityUsage a mp:UsageDimension ;
+    rdfs:label "Intensity Usage" ;
+    rdfs:comment "Intensity or rate of asset usage" .
+
+mp:QualityUsage a mp:UsageDimension ;
+    rdfs:label "Quality Usage" ;
+    rdfs:comment "Quality level of asset consumption" .
+
+mp:RegionalUsage a mp:UsageDimension ;
+    rdfs:label "Regional Usage" ;
+    rdfs:comment "Usage in specific geographic regions" .
+
+mp:PrivacyUsage a mp:UsageDimension ;
+    rdfs:label "Privacy Usage" ;
+    rdfs:comment "Usage with privacy level requirements" .
+
+mp:CarbonUsage a mp:UsageDimension ;
+    rdfs:label "Carbon Usage" ;
+    rdfs:comment "Carbon footprint from usage" .
+
+mp:LicenseUsage a mp:UsageDimension ;
+    rdfs:label "License Usage" ;
+    rdfs:comment "Usage under specific license terms" .
+
+# ================================================================
+# USAGE MEASUREMENT UNITS
+# ================================================================
+
+mp:UsageUnit a owl:Class ;
+    rdfs:label "Usage Unit" ;
+    rdfs:comment "Unit of measurement for usage tracking" ;
+    rdfs:subClassOf qudt:Unit .
+
+## Core Usage Units
+mp:CpuHours a mp:UsageUnit ;
+    rdfs:label "CPU Hours" ;
+    rdfs:comment "CPU usage measured in compute hours" ;
+    qudt:symbol "cpu-hr" .
+
+mp:StorageGigabyteHours a mp:UsageUnit ;
+    rdfs:label "Storage Gigabyte Hours" ;
+    rdfs:comment "Storage usage measured in GB-hours" ;
+    qudt:symbol "gb-hr" .
+
+mp:NetworkGigabytes a mp:UsageUnit ;
+    rdfs:label "Network Gigabytes" ;
+    rdfs:comment "Network usage measured in gigabytes transferred" ;
+    qudt:symbol "gb-net" .
+
+mp:ApiCalls a mp:UsageUnit ;
+    rdfs:label "API Calls" ;
+    rdfs:comment "Usage measured in API call count" ;
+    qudt:symbol "calls" .
+
+mp:Transactions a mp:UsageUnit ;
+    rdfs:label "Transactions" ;
+    rdfs:comment "Usage measured in transaction count" ;
+    qudt:symbol "tx" .
+
+mp:DataRecords a mp:UsageUnit ;
+    rdfs:label "Data Records" ;
+    rdfs:comment "Usage measured in data record count" ;
+    qudt:symbol "records" .
+
+mp:ExecutionMinutes a mp:UsageUnit ;
+    rdfs:label "Execution Minutes" ;
+    rdfs:comment "Usage measured in execution time minutes" ;
+    qudt:symbol "exec-min" .
+
+# ================================================================
+# BILLING & PRICING INTEGRATION
+# ================================================================
+
+mp:BillingEngine a owl:Class ;
+    rdfs:label "Billing Engine" ;
+    rdfs:comment "Engine for converting usage measurements to billable amounts" ;
+    rdfs:subClassOf ba:SystemComponent ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:processesUsage ;
+        owl:minCardinality 1
+    ] .
+
+mp:BillingRate a owl:Class ;
+    rdfs:label "Billing Rate" ;
+    rdfs:comment "Rate structure for converting usage to charges" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasRateValue ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasRateUnit ;
+        owl:cardinality 1
+    ] .
+
+mp:TieredRating a mp:BillingRate ;
+    rdfs:label "Tiered Rating" ;
+    rdfs:comment "Tiered billing rate with usage breakpoints" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasTier ;
+        owl:minCardinality 1
+    ] .
+
+mp:FlatRate a mp:BillingRate ;
+    rdfs:label "Flat Rate" ;
+    rdfs:comment "Flat rate regardless of usage volume" .
+
+mp:PerUsageRate a mp:BillingRate ;
+    rdfs:label "Per Usage Rate" ;
+    rdfs:comment "Rate charged per unit of usage" .
+
+mp:BillingTier a owl:Class ;
+    rdfs:label "Billing Tier" ;
+    rdfs:comment "Tier in tiered billing structure" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasMinUsage ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasMaxUsage ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasTierRate ;
+        owl:cardinality 1
+    ] .
+
+# ================================================================
+# USAGE COLLECTION & AGGREGATION
+# ================================================================
+
+mp:UsageCollector a owl:Class ;
+    rdfs:label "Usage Collector" ;
+    rdfs:comment "System for collecting usage data from multiple sources" ;
+    rdfs:subClassOf ba:PerformanceCollector ;  # Reuse from performance-measurement
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:collectsUsage ;
+        owl:minCardinality 1
+    ] .
+
+mp:UsageAggregator a owl:Class ;
+    rdfs:label "Usage Aggregator" ;
+    rdfs:comment "System for aggregating usage data over time and dimensions" ;
+    rdfs:subClassOf ba:MetricAggregator ;  # Reuse from performance-measurement
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasAggregationStrategy ;
+        owl:cardinality 1
+    ] .
+
+mp:AggregationStrategy a owl:Class ;
+    rdfs:label "Aggregation Strategy" ;
+    rdfs:comment "Strategy for usage data aggregation" ;
+    rdfs:subClassOf ba:OptimizationStrategy ;  # Reuse from optimization-engine
+    rdfs:subClassOf skos:Concept .
+
+## Aggregation Strategies
+mp:TimeBasedAggregation a mp:AggregationStrategy ;
+    rdfs:label "Time-Based Aggregation" ;
+    rdfs:comment "Aggregate usage over time periods" ;
+    skos:prefLabel "time-based" .
+
+mp:AssetBasedAggregation a mp:AggregationStrategy ;
+    rdfs:label "Asset-Based Aggregation" ;
+    rdfs:comment "Aggregate usage across assets" ;
+    skos:prefLabel "asset-based" .
+
+mp:OrganizationBasedAggregation a mp:AggregationStrategy ;
+    rdfs:label "Organization-Based Aggregation" ;
+    rdfs:comment "Aggregate usage by organization" ;
+    skos:prefLabel "org-based" .
+
+mp:RollingAggregation a mp:AggregationStrategy ;
+    rdfs:label "Rolling Aggregation" ;
+    rdfs:comment "Rolling window aggregation" ;
+    skos:prefLabel "rolling" .
+
+# ================================================================
+# USAGE QUOTAS & LIMITS
+# ================================================================
+
+mp:UsageQuota a owl:Class ;
+    rdfs:label "Usage Quota" ;
+    rdfs:comment "Quota limiting usage consumption" ;
+    rdfs:subClassOf ba:ResourceQuota ;  # Reuse from resource-allocation
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasQuotaLimit ;
+        owl:cardinality 1
+    ] .
+
+mp:QuotaManager a owl:Class ;
+    rdfs:label "Quota Manager" ;
+    rdfs:comment "System for managing usage quotas and limits" ;
+    rdfs:subClassOf ba:ResourceAllocator ;  # Reuse from resource-allocation
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:managesQuota ;
+        owl:minCardinality 1
+    ] .
+
+mp:QuotaEnforcement a owl:Class ;
+    rdfs:label "Quota Enforcement" ;
+    rdfs:comment "Enforcement mechanism for usage quotas" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:enforcesQuota ;
+        owl:cardinality 1
+    ] .
+
+mp:QuotaViolation a owl:Class ;
+    rdfs:label "Quota Violation" ;
+    rdfs:comment "Violation of usage quota limits" ;
+    rdfs:subClassOf ba:PerformanceAlert ;  # Reuse from performance-measurement
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:violatesQuota ;
+        owl:cardinality 1
+    ] .
+
+# ================================================================
+# USAGE ANALYTICS & REPORTING
+# ================================================================
+
+mp:UsageAnalytics a owl:Class ;
+    rdfs:label "Usage Analytics" ;
+    rdfs:comment "Analytics system for usage patterns and trends" ;
+    rdfs:subClassOf ba:MultiDimensionalAnalysis ;  # Reuse from optimization-engine
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:analyzesUsage ;
+        owl:minCardinality 1
+    ] .
+
+mp:UsageReport a owl:Class ;
+    rdfs:label "Usage Report" ;
+    rdfs:comment "Report summarizing usage data and trends" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasReportId ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasReportPeriod ;
+        owl:cardinality 1
+    ] .
+
+mp:UsageTrend a owl:Class ;
+    rdfs:label "Usage Trend" ;
+    rdfs:comment "Identified trend in usage patterns" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasTrendDirection ;
+        owl:cardinality 1
+    ] .
+
+mp:UsageAnomaly a owl:Class ;
+    rdfs:label "Usage Anomaly" ;
+    rdfs:comment "Detected anomaly in usage patterns" ;
+    rdfs:subClassOf ba:PerformanceAnomaly ;  # Reuse from optimization-engine
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasAnomalyType ;
+        owl:cardinality 1
+    ] .
+
+# ================================================================
+# CROSS-ORGANIZATIONAL ACCOUNTING
+# ================================================================
+
+mp:UsageAccount a owl:Class ;
+    rdfs:label "Usage Account" ;
+    rdfs:comment "Account for tracking cross-organizational usage" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasAccountId ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:belongsToOrganization ;
+        owl:cardinality 1
+    ] .
+
+mp:UsageTransfer a owl:Class ;
+    rdfs:label "Usage Transfer" ;
+    rdfs:comment "Transfer of usage allocation between organizations" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasTransferAmount ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasSourceAccount ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasTargetAccount ;
+        owl:cardinality 1
+    ] .
+
+mp:UsageReconciliation a owl:Class ;
+    rdfs:label "Usage Reconciliation" ;
+    rdfs:comment "Process for reconciling usage across organizations" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:reconcilesAccounts ;
+        owl:minCardinality 2
+    ] .
+
+# ================================================================
+# REAL-TIME MONITORING & ALERTS
+# ================================================================
+
+mp:UsageMonitor a owl:Class ;
+    rdfs:label "Usage Monitor" ;
+    rdfs:comment "Real-time monitoring of usage patterns and thresholds" ;
+    rdfs:subClassOf ba:PerformanceMonitor ;  # Reuse from performance-measurement
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:monitorsUsage ;
+        owl:minCardinality 1
+    ] .
+
+mp:UsageThreshold a owl:Class ;
+    rdfs:label "Usage Threshold" ;
+    rdfs:comment "Threshold for usage monitoring and alerting" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasThresholdValue ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasThresholdType ;
+        owl:cardinality 1
+    ] .
+
+mp:UsageAlert a owl:Class ;
+    rdfs:label "Usage Alert" ;
+    rdfs:comment "Alert triggered by usage threshold violation" ;
+    rdfs:subClassOf ba:PerformanceAlert ;  # Reuse from performance-measurement
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:triggeredByThreshold ;
+        owl:cardinality 1
+    ] .
+
+# ================================================================
+# OBJECT PROPERTIES
+# ================================================================
+
+## Core Usage Properties
+mp:measuresAsset a owl:ObjectProperty ;
+    rdfs:label "measures asset" ;
+    rdfs:comment "Asset being measured for usage" ;
+    rdfs:domain mp:Usage ;
+    rdfs:range mp:Asset .
+
+mp:hasUsageVector a owl:ObjectProperty ;
+    rdfs:label "has usage vector" ;
+    rdfs:comment "N-dimensional usage vector" ;
+    rdfs:domain mp:Usage ;
+    rdfs:range mp:UsageVector .
+
+mp:hasUsageDimension a owl:ObjectProperty ;
+    rdfs:label "has usage dimension" ;
+    rdfs:comment "Dimension in usage vector space" ;
+    rdfs:domain mp:UsageVector ;
+    rdfs:range mp:UsageDimension .
+
+## Metering Properties
+mp:metersAsset a owl:ObjectProperty ;
+    rdfs:label "meters asset" ;
+    rdfs:comment "Asset metered by metering engine" ;
+    rdfs:domain mp:MeteringEngine ;
+    rdfs:range mp:Asset .
+
+mp:hasMeter a owl:ObjectProperty ;
+    rdfs:label "has meter" ;
+    rdfs:comment "Usage meter for measuring specific dimension" ;
+    rdfs:domain mp:MeteringEngine ;
+    rdfs:range mp:UsageMeter .
+
+mp:hasMeterType a owl:ObjectProperty ;
+    rdfs:label "has meter type" ;
+    rdfs:comment "Type of usage meter" ;
+    rdfs:domain mp:UsageMeter ;
+    rdfs:range mp:MeterType .
+
+## Billing Properties
+mp:processesUsage a owl:ObjectProperty ;
+    rdfs:label "processes usage" ;
+    rdfs:comment "Usage processed by billing engine" ;
+    rdfs:domain mp:BillingEngine ;
+    rdfs:range mp:BillableUsage .
+
+mp:hasBillingRate a owl:ObjectProperty ;
+    rdfs:label "has billing rate" ;
+    rdfs:comment "Rate structure for billing" ;
+    rdfs:domain mp:BillableUsage ;
+    rdfs:range mp:BillingRate .
+
+mp:hasTier a owl:ObjectProperty ;
+    rdfs:label "has tier" ;
+    rdfs:comment "Billing tier in tiered structure" ;
+    rdfs:domain mp:TieredRating ;
+    rdfs:range mp:BillingTier .
+
+## Collection Properties
+mp:collectsUsage a owl:ObjectProperty ;
+    rdfs:label "collects usage" ;
+    rdfs:comment "Usage collected by collector" ;
+    rdfs:domain mp:UsageCollector ;
+    rdfs:range mp:Usage .
+
+mp:hasAggregationStrategy a owl:ObjectProperty ;
+    rdfs:label "has aggregation strategy" ;
+    rdfs:comment "Strategy for aggregating usage data" ;
+    rdfs:domain mp:UsageAggregator ;
+    rdfs:range mp:AggregationStrategy .
+
+## Quota Properties
+mp:managesQuota a owl:ObjectProperty ;
+    rdfs:label "manages quota" ;
+    rdfs:comment "Usage quota managed by manager" ;
+    rdfs:domain mp:QuotaManager ;
+    rdfs:range mp:UsageQuota .
+
+mp:enforcesQuota a owl:ObjectProperty ;
+    rdfs:label "enforces quota" ;
+    rdfs:comment "Quota enforced by enforcement mechanism" ;
+    rdfs:domain mp:QuotaEnforcement ;
+    rdfs:range mp:UsageQuota .
+
+mp:violatesQuota a owl:ObjectProperty ;
+    rdfs:label "violates quota" ;
+    rdfs:comment "Quota violated by usage" ;
+    rdfs:domain mp:QuotaViolation ;
+    rdfs:range mp:UsageQuota .
+
+## Analytics Properties
+mp:analyzesUsage a owl:ObjectProperty ;
+    rdfs:label "analyzes usage" ;
+    rdfs:comment "Usage analyzed by analytics system" ;
+    rdfs:domain mp:UsageAnalytics ;
+    rdfs:range mp:Usage .
+
+mp:hasUsageReport a owl:ObjectProperty ;
+    rdfs:label "has usage report" ;
+    rdfs:comment "Report generated from usage analysis" ;
+    rdfs:domain mp:UsageAnalytics ;
+    rdfs:range mp:UsageReport .
+
+## Accounting Properties
+mp:belongsToOrganization a owl:ObjectProperty ;
+    rdfs:label "belongs to organization" ;
+    rdfs:comment "Organization owning usage account" ;
+    rdfs:domain mp:UsageAccount ;
+    rdfs:range mp:Organization .
+
+mp:hasSourceAccount a owl:ObjectProperty ;
+    rdfs:label "has source account" ;
+    rdfs:comment "Source account for usage transfer" ;
+    rdfs:domain mp:UsageTransfer ;
+    rdfs:range mp:UsageAccount .
+
+mp:hasTargetAccount a owl:ObjectProperty ;
+    rdfs:label "has target account" ;
+    rdfs:comment "Target account for usage transfer" ;
+    rdfs:domain mp:UsageTransfer ;
+    rdfs:range mp:UsageAccount .
+
+mp:reconcilesAccounts a owl:ObjectProperty ;
+    rdfs:label "reconciles accounts" ;
+    rdfs:comment "Accounts involved in reconciliation" ;
+    rdfs:domain mp:UsageReconciliation ;
+    rdfs:range mp:UsageAccount .
+
+## Monitoring Properties
+mp:monitorsUsage a owl:ObjectProperty ;
+    rdfs:label "monitors usage" ;
+    rdfs:comment "Usage monitored by monitor" ;
+    rdfs:domain mp:UsageMonitor ;
+    rdfs:range mp:Usage .
+
+mp:hasThreshold a owl:ObjectProperty ;
+    rdfs:label "has threshold" ;
+    rdfs:comment "Threshold monitored by system" ;
+    rdfs:domain mp:UsageMonitor ;
+    rdfs:range mp:UsageThreshold .
+
+mp:triggeredByThreshold a owl:ObjectProperty ;
+    rdfs:label "triggered by threshold" ;
+    rdfs:comment "Threshold that triggered the alert" ;
+    rdfs:domain mp:UsageAlert ;
+    rdfs:range mp:UsageThreshold .
+
+# ================================================================
+# DATA PROPERTIES
+# ================================================================
+
+## Core Usage Data Properties
+mp:hasUsageId a owl:DatatypeProperty ;
+    rdfs:label "has usage ID" ;
+    rdfs:comment "Unique identifier for usage measurement" ;
+    rdfs:domain mp:Usage ;
+    rdfs:range xsd:string .
+
+mp:hasUsageValue a owl:DatatypeProperty ;
+    rdfs:label "has usage value" ;
+    rdfs:comment "Numerical value of usage dimension" ;
+    rdfs:domain mp:UsageDimension ;
+    rdfs:range xsd:decimal .
+
+mp:hasUsageUnit a owl:DatatypeProperty ;
+    rdfs:label "has usage unit" ;
+    rdfs:comment "Unit of measurement for usage" ;
+    rdfs:domain mp:Usage ;
+    rdfs:range xsd:string .
+
+mp:hasUsageTimestamp a owl:DatatypeProperty ;
+    rdfs:label "has usage timestamp" ;
+    rdfs:comment "Timestamp of usage measurement" ;
+    rdfs:domain mp:Usage ;
+    rdfs:range xsd:dateTime .
+
+## Metering Properties
+mp:hasMeteringFrequency a owl:DatatypeProperty ;
+    rdfs:label "has metering frequency" ;
+    rdfs:comment "Frequency of usage measurements per second" ;
+    rdfs:domain mp:RealTimeUsage ;
+    rdfs:range xsd:decimal .
+
+mp:hasMeteringLatency a owl:DatatypeProperty ;
+    rdfs:label "has metering latency" ;
+    rdfs:comment "Latency of usage measurement in ticks" ;
+    rdfs:domain mp:Usage ;
+    rdfs:range xsd:decimal .
+
+## Aggregation Properties
+mp:hasAggregationPeriod a owl:DatatypeProperty ;
+    rdfs:label "has aggregation period" ;
+    rdfs:comment "Time period for usage aggregation in seconds" ;
+    rdfs:domain mp:AggregatedUsage ;
+    rdfs:range xsd:decimal .
+
+mp:hasStartPeriod a owl:DatatypeProperty ;
+    rdfs:label "has start period" ;
+    rdfs:comment "Start time of aggregation period" ;
+    rdfs:domain mp:AggregatedUsage ;
+    rdfs:range xsd:dateTime .
+
+mp:hasEndPeriod a owl:DatatypeProperty ;
+    rdfs:label "has end period" ;
+    rdfs:comment "End time of aggregation period" ;
+    rdfs:domain mp:AggregatedUsage ;
+    rdfs:range xsd:dateTime .
+
+## Billing Properties
+mp:hasRateValue a owl:DatatypeProperty ;
+    rdfs:label "has rate value" ;
+    rdfs:comment "Numerical value of billing rate" ;
+    rdfs:domain mp:BillingRate ;
+    rdfs:range xsd:decimal .
+
+mp:hasRateUnit a owl:DatatypeProperty ;
+    rdfs:label "has rate unit" ;
+    rdfs:comment "Unit for billing rate (per unit usage)" ;
+    rdfs:domain mp:BillingRate ;
+    rdfs:range xsd:string .
+
+mp:hasMinUsage a owl:DatatypeProperty ;
+    rdfs:label "has minimum usage" ;
+    rdfs:comment "Minimum usage for billing tier" ;
+    rdfs:domain mp:BillingTier ;
+    rdfs:range xsd:decimal .
+
+mp:hasMaxUsage a owl:DatatypeProperty ;
+    rdfs:label "has maximum usage" ;
+    rdfs:comment "Maximum usage for billing tier" ;
+    rdfs:domain mp:BillingTier ;
+    rdfs:range xsd:decimal .
+
+mp:hasTierRate a owl:DatatypeProperty ;
+    rdfs:label "has tier rate" ;
+    rdfs:comment "Billing rate for this tier" ;
+    rdfs:domain mp:BillingTier ;
+    rdfs:range xsd:decimal .
+
+mp:hasBillableAmount a owl:DatatypeProperty ;
+    rdfs:label "has billable amount" ;
+    rdfs:comment "Total billable amount from usage" ;
+    rdfs:domain mp:BillableUsage ;
+    rdfs:range xsd:decimal .
+
+## Quota Properties
+mp:hasQuotaLimit a owl:DatatypeProperty ;
+    rdfs:label "has quota limit" ;
+    rdfs:comment "Maximum allowed usage under quota" ;
+    rdfs:domain mp:UsageQuota ;
+    rdfs:range xsd:decimal .
+
+mp:hasQuotaPeriod a owl:DatatypeProperty ;
+    rdfs:label "has quota period" ;
+    rdfs:comment "Time period for quota limit (daily, monthly, etc.)" ;
+    rdfs:domain mp:UsageQuota ;
+    rdfs:range xsd:string .
+
+mp:hasCurrentUsage a owl:DatatypeProperty ;
+    rdfs:label "has current usage" ;
+    rdfs:comment "Current usage against quota limit" ;
+    rdfs:domain mp:UsageQuota ;
+    rdfs:range xsd:decimal .
+
+mp:hasRemainingQuota a owl:DatatypeProperty ;
+    rdfs:label "has remaining quota" ;
+    rdfs:comment "Remaining usage available under quota" ;
+    rdfs:domain mp:UsageQuota ;
+    rdfs:range xsd:decimal .
+
+## Reporting Properties
+mp:hasReportId a owl:DatatypeProperty ;
+    rdfs:label "has report ID" ;
+    rdfs:comment "Unique identifier for usage report" ;
+    rdfs:domain mp:UsageReport ;
+    rdfs:range xsd:string .
+
+mp:hasReportPeriod a owl:DatatypeProperty ;
+    rdfs:label "has report period" ;
+    rdfs:comment "Time period covered by usage report" ;
+    rdfs:domain mp:UsageReport ;
+    rdfs:range xsd:string .
+
+mp:hasReportTimestamp a owl:DatatypeProperty ;
+    rdfs:label "has report timestamp" ;
+    rdfs:comment "Timestamp when report was generated" ;
+    rdfs:domain mp:UsageReport ;
+    rdfs:range xsd:dateTime .
+
+mp:hasTotalUsage a owl:DatatypeProperty ;
+    rdfs:label "has total usage" ;
+    rdfs:comment "Total usage reported in report" ;
+    rdfs:domain mp:UsageReport ;
+    rdfs:range xsd:decimal .
+
+## Trend Analysis Properties
+mp:hasTrendDirection a owl:DatatypeProperty ;
+    rdfs:label "has trend direction" ;
+    rdfs:comment "Direction of usage trend (INCREASING, DECREASING, STABLE)" ;
+    rdfs:domain mp:UsageTrend ;
+    rdfs:range xsd:string .
+
+mp:hasTrendSlope a owl:DatatypeProperty ;
+    rdfs:label "has trend slope" ;
+    rdfs:comment "Numerical slope of trend line" ;
+    rdfs:domain mp:UsageTrend ;
+    rdfs:range xsd:decimal .
+
+mp:hasConfidenceLevel a owl:DatatypeProperty ;
+    rdfs:label "has confidence level" ;
+    rdfs:comment "Confidence level of trend analysis (0.0-1.0)" ;
+    rdfs:domain mp:UsageTrend ;
+    rdfs:range xsd:decimal .
+
+## Anomaly Properties
+mp:hasAnomalyType a owl:DatatypeProperty ;
+    rdfs:label "has anomaly type" ;
+    rdfs:comment "Type of usage anomaly (SPIKE, DIP, PATTERN_CHANGE)" ;
+    rdfs:domain mp:UsageAnomaly ;
+    rdfs:range xsd:string .
+
+mp:hasAnomalyScore a owl:DatatypeProperty ;
+    rdfs:label "has anomaly score" ;
+    rdfs:comment "Severity score of anomaly (0.0-1.0)" ;
+    rdfs:domain mp:UsageAnomaly ;
+    rdfs:range xsd:decimal .
+
+## Accounting Properties
+mp:hasAccountId a owl:DatatypeProperty ;
+    rdfs:label "has account ID" ;
+    rdfs:comment "Unique identifier for usage account" ;
+    rdfs:domain mp:UsageAccount ;
+    rdfs:range xsd:string .
+
+mp:hasAccountBalance a owl:DatatypeProperty ;
+    rdfs:label "has account balance" ;
+    rdfs:comment "Current usage balance in account" ;
+    rdfs:domain mp:UsageAccount ;
+    rdfs:range xsd:decimal .
+
+mp:hasTransferAmount a owl:DatatypeProperty ;
+    rdfs:label "has transfer amount" ;
+    rdfs:comment "Amount of usage transferred" ;
+    rdfs:domain mp:UsageTransfer ;
+    rdfs:range xsd:decimal .
+
+mp:hasTransferTimestamp a owl:DatatypeProperty ;
+    rdfs:label "has transfer timestamp" ;
+    rdfs:comment "Timestamp of usage transfer" ;
+    rdfs:domain mp:UsageTransfer ;
+    rdfs:range xsd:dateTime .
+
+## Threshold Properties
+mp:hasThresholdValue a owl:DatatypeProperty ;
+    rdfs:label "has threshold value" ;
+    rdfs:comment "Numerical value of usage threshold" ;
+    rdfs:domain mp:UsageThreshold ;
+    rdfs:range xsd:decimal .
+
+mp:hasThresholdType a owl:DatatypeProperty ;
+    rdfs:label "has threshold type" ;
+    rdfs:comment "Type of threshold (WARNING, CRITICAL, QUOTA)" ;
+    rdfs:domain mp:UsageThreshold ;
+    rdfs:range xsd:string .
+
+mp:hasThresholdAction a owl:DatatypeProperty ;
+    rdfs:label "has threshold action" ;
+    rdfs:comment "Action to take when threshold is exceeded" ;
+    rdfs:domain mp:UsageThreshold ;
+    rdfs:range xsd:string .
+
+# ================================================================
+# SHACL VALIDATION SHAPES
+# ================================================================
+
+mp:UsageValidationShape a sh:NodeShape ;
+    sh:targetClass mp:Usage ;
+    rdfs:label "Usage Validation" ;
+    rdfs:comment "Validates usage measurement completeness and correctness" ;
+    sh:property [
+        sh:path mp:hasUsageId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^USAGE-[A-Z0-9]{8}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{12}$" ;
+        sh:message "Usage must have a valid usage ID with USAGE- prefix"
+    ] ;
+    sh:property [
+        sh:path mp:measuresAsset ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class mp:Asset ;
+        sh:message "Usage must measure exactly one asset"
+    ] ;
+    sh:property [
+        sh:path mp:hasUsageVector ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class mp:UsageVector ;
+        sh:message "Usage must have exactly one usage vector"
+    ] .
+
+mp:RealTimeUsageValidationShape a sh:NodeShape ;
+    sh:targetClass mp:RealTimeUsage ;
+    rdfs:label "Real-Time Usage Validation" ;
+    rdfs:comment "Validates real-time usage metering per Doctrine of 8" ;
+    sh:property [
+        sh:path mp:hasMeteringLatency ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Real-time usage metering latency must not exceed 1 tick per Doctrine of 8"
+    ] ;
+    sh:property [
+        sh:path mp:hasMeteringFrequency ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minExclusive 0.0 ;
+        sh:message "Metering frequency must be positive"
+    ] .
+
+mp:UsageVectorValidationShape a sh:NodeShape ;
+    sh:targetClass mp:UsageVector ;
+    rdfs:label "Usage Vector Validation" ;
+    rdfs:comment "Validates N-dimensional usage vector structure" ;
+    sh:property [
+        sh:path mp:hasUsageDimension ;
+        sh:minCount 8 ;
+        sh:class mp:UsageDimension ;
+        sh:message "Usage vector must have at least 8 dimensions"
+    ] .
+
+mp:UsageDimensionValidationShape a sh:NodeShape ;
+    sh:targetClass mp:UsageDimension ;
+    rdfs:label "Usage Dimension Validation" ;
+    rdfs:comment "Validates usage dimension properties" ;
+    sh:property [
+        sh:path mp:hasUsageValue ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:message "Usage value must be non-negative"
+    ] .
+
+mp:BillingTierValidationShape a sh:NodeShape ;
+    sh:targetClass mp:BillingTier ;
+    rdfs:label "Billing Tier Validation" ;
+    rdfs:comment "Validates billing tier ranges and rates" ;
+    sh:property [
+        sh:path mp:hasMinUsage ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:message "Minimum usage must be non-negative"
+    ] ;
+    sh:property [
+        sh:path mp:hasMaxUsage ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minExclusive 0.0 ;
+        sh:message "Maximum usage must be positive"
+    ] ;
+    sh:sparql [
+        sh:message "Maximum usage must be greater than minimum usage" ;
+        sh:prefixes mp: ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this mp:hasMinUsage ?min .
+                $this mp:hasMaxUsage ?max .
+                FILTER (?max <= ?min)
+            }
+        """
+    ] .
+
+mp:UsageQuotaValidationShape a sh:NodeShape ;
+    sh:targetClass mp:UsageQuota ;
+    rdfs:label "Usage Quota Validation" ;
+    rdfs:comment "Validates usage quota consistency" ;
+    sh:property [
+        sh:path mp:hasQuotaLimit ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minExclusive 0.0 ;
+        sh:message "Quota limit must be positive"
+    ] ;
+    sh:sparql [
+        sh:message "Current usage cannot exceed quota limit" ;
+        sh:prefixes mp: ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this mp:hasQuotaLimit ?limit .
+                $this mp:hasCurrentUsage ?current .
+                FILTER (?current > ?limit)
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "Remaining quota must equal limit minus current usage" ;
+        sh:prefixes mp: ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this mp:hasQuotaLimit ?limit .
+                $this mp:hasCurrentUsage ?current .
+                $this mp:hasRemainingQuota ?remaining .
+                FILTER (?remaining != (?limit - ?current))
+            }
+        """
+    ] .
+
+mp:AggregatedUsageValidationShape a sh:NodeShape ;
+    sh:targetClass mp:AggregatedUsage ;
+    rdfs:label "Aggregated Usage Validation" ;
+    rdfs:comment "Validates aggregation period consistency" ;
+    sh:sparql [
+        sh:message "Start period must be before end period" ;
+        sh:prefixes mp: ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this mp:hasStartPeriod ?start .
+                $this mp:hasEndPeriod ?end .
+                FILTER (?start >= ?end)
+            }
+        """
+    ] .
+
+mp:UsageTransferValidationShape a sh:NodeShape ;
+    sh:targetClass mp:UsageTransfer ;
+    rdfs:label "Usage Transfer Validation" ;
+    rdfs:comment "Validates cross-organizational usage transfers" ;
+    sh:property [
+        sh:path mp:hasTransferAmount ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minExclusive 0.0 ;
+        sh:message "Transfer amount must be positive"
+    ] ;
+    sh:property [
+        sh:path mp:hasSourceAccount ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class mp:UsageAccount ;
+        sh:message "Transfer must have exactly one source account"
+    ] ;
+    sh:property [
+        sh:path mp:hasTargetAccount ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class mp:UsageAccount ;
+        sh:message "Transfer must have exactly one target account"
+    ] ;
+    sh:sparql [
+        sh:message "Source and target accounts must be different" ;
+        sh:prefixes mp: ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this mp:hasSourceAccount ?source .
+                $this mp:hasTargetAccount ?target .
+                FILTER (?source = ?target)
+            }
+        """
+    ] .
+
+mp:UsageTrendValidationShape a sh:NodeShape ;
+    sh:targetClass mp:UsageTrend ;
+    rdfs:label "Usage Trend Validation" ;
+    rdfs:comment "Validates usage trend analysis" ;
+    sh:property [
+        sh:path mp:hasTrendDirection ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "INCREASING" "DECREASING" "STABLE" ) ;
+        sh:message "Trend direction must be INCREASING, DECREASING, or STABLE"
+    ] ;
+    sh:property [
+        sh:path mp:hasConfidenceLevel ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Confidence level must be between 0.0 and 1.0"
+    ] .
+
+mp:UsageThresholdValidationShape a sh:NodeShape ;
+    sh:targetClass mp:UsageThreshold ;
+    rdfs:label "Usage Threshold Validation" ;
+    rdfs:comment "Validates usage threshold configurations" ;
+    sh:property [
+        sh:path mp:hasThresholdValue ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:message "Threshold value must be non-negative"
+    ] ;
+    sh:property [
+        sh:path mp:hasThresholdType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "WARNING" "CRITICAL" "QUOTA" ) ;
+        sh:message "Threshold type must be WARNING, CRITICAL, or QUOTA"
+    ] .
+
+# ================================================================
+# INTEGRATION WITH BYTESTAR ECOSYSTEM
+# ================================================================
+
+## Usage integrates with Performance Measurement
+mp:Usage rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty ba:hasMeasuredValue ;
+    owl:someValuesFrom xsd:decimal
+] .
+
+## Usage Meter integrates with Performance Monitor
+mp:UsageMeter rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty ba:hasMonitoringInterval ;
+    owl:someValuesFrom xsd:int
+] .
+
+## Usage Analytics integrates with Optimization Engine
+mp:UsageAnalytics rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty ba:hasObjective ;
+    owl:someValuesFrom ba:OptimizationObjective
+] .
+
+# ================================================================
+# END OF USAGE/METERING ONTOLOGY
+# ================================================================

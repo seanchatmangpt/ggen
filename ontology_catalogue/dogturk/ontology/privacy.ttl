@@ -1,0 +1,105 @@
+@prefix : <http://remo-dash.example/ontology/privacy#> .
+@prefix sec: <http://remo-dash.example/ontology/security#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# Privacy Ontology for GDPR/Privacy Compliance
+:PrivacyPolicy a owl:Class ;
+    rdfs:subClassOf sec:SecurityPolicy ;
+    rdfs:label "Privacy Policy" ;
+    rdfs:comment "Data privacy and GDPR compliance rules" .
+
+:DataSubject a owl:Class ;
+    rdfs:label "Data Subject" ;
+    rdfs:comment "Individual whose personal data is processed" .
+
+:DataController a owl:Class ;
+    rdfs:label "Data Controller" ;
+    rdfs:comment "Entity that determines purposes and means of processing" .
+
+:ProcessingPurpose a owl:Class ;
+    rdfs:label "Processing Purpose" ;
+    rdfs:comment "Lawful basis for data processing" .
+
+:ConsentRecord a owl:Class ;
+    rdfs:label "Consent Record" ;
+    rdfs:comment "Record of user consent for data processing" .
+
+# Privacy Properties
+:hasConsent a owl:ObjectProperty ;
+    rdfs:domain :DataSubject ;
+    rdfs:range :ConsentRecord .
+
+:retentionPeriod a owl:DatatypeProperty ;
+    rdfs:domain :ProcessingPurpose ;
+    rdfs:range xsd:duration .
+
+:requiresRedaction a owl:DatatypeProperty ;
+    rdfs:domain sec:PIIField ;
+    rdfs:range xsd:boolean .
+
+# SHACL Shapes for Privacy Compliance
+:PIIFieldShape a sh:NodeShape ;
+    sh:targetClass sec:PIIField ;
+    sh:property [
+        sh:path :requiresRedaction ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1
+    ] ;
+    sh:property [
+        sh:path sec:sensitivityLevel ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 4 ;
+        sh:minCount 1
+    ] .
+
+:ConsentShape a sh:NodeShape ;
+    sh:targetClass :ConsentRecord ;
+    sh:property [
+        sh:path :consentDate ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1
+    ] ;
+    sh:property [
+        sh:path :consentPurpose ;
+        sh:class :ProcessingPurpose ;
+        sh:minCount 1
+    ] .
+
+# Data Subject Rights
+:DataSubjectRight a owl:Class ;
+    rdfs:label "Data Subject Right" ;
+    rdfs:comment "GDPR rights of data subjects" .
+
+:RightToErasure a :DataSubjectRight ;
+    rdfs:label "Right to Erasure" ;
+    rdfs:comment "Right to be forgotten" .
+
+:RightToPortability a :DataSubjectRight ;
+    rdfs:label "Right to Data Portability" ;
+    rdfs:comment "Right to receive personal data in structured format" .
+
+:RightToRectification a :DataSubjectRight ;
+    rdfs:label "Right to Rectification" ;
+    rdfs:comment "Right to correct inaccurate personal data" .
+
+# Processing Categories
+:PersonalDataCategory a owl:Class ;
+    rdfs:label "Personal Data Category" ;
+    rdfs:comment "Category of personal data being processed" .
+
+:IdentityData a :PersonalDataCategory ;
+    rdfs:label "Identity Data" ;
+    rdfs:comment "Name, email, identification numbers" .
+
+:FinancialData a :PersonalDataCategory ;
+    rdfs:label "Financial Data" ;
+    rdfs:comment "Payment information, account details" .
+
+:BehavioralData a :PersonalDataCategory ;
+    rdfs:label "Behavioral Data" ;
+    rdfs:comment "Usage patterns, preferences, analytics" .

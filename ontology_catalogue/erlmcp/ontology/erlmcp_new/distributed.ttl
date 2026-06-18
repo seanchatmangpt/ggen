@@ -1,0 +1,468 @@
+@prefix erlmcp: <http://erlmcp.org/schema/> .
+@prefix dist: <http://erlmcp.org/schema/distributed/> .
+@prefix otp: <http://erlang.org/otp/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+dist:Node a rdfs:Class, owl:Class ;
+    rdfs:label "Node" ;
+    rdfs:comment "Distributed Erlang node" ;
+    dist:hasNodeName xsd:string ;
+    dist:hasStatus dist:NodeStatus ;
+    dist:hasConnections dist:Connection ;
+    dist:hasCapabilities dist:NodeCapabilities ;
+    dist:hasMetric dist:NodeMetric .
+
+dist:NodeStatus a rdfs:Class, owl:Class ;
+    rdfs:label "NodeStatus" ;
+    rdfs:comment "Status of a distributed node" ;
+    owl:oneOf (
+        dist:Up
+        dist:Down
+        dist:Unreachable
+        dist:Partitioned
+    ) .
+
+dist:Up a dist:NodeStatus ;
+    rdfs:label "Up" ;
+    rdfs:comment "Node is up and connected" .
+
+dist:Down a dist:NodeStatus ;
+    rdfs:label "Down" ;
+    rdfs:comment "Node is down" .
+
+dist:Unreachable a dist:NodeStatus ;
+    rdfs:label "Unreachable" ;
+    rdfs:comment "Node is unreachable" .
+
+dist:Partitioned a dist:NodeStatus ;
+    rdfs:label "Partitioned" ;
+    rdfs:comment "Node is network partitioned" .
+
+dist:NodeCapabilities a rdfs:Class, owl:Class ;
+    rdfs:label "NodeCapabilities" ;
+    rdfs:comment "Capabilities of a node" ;
+    dist:hasMaxConnections xsd:integer ;
+    dist:hasMaxMemory xsd:integer ;
+    dist:hasSupportedTransports rdf:List ;
+    dist:hasCores xsd:integer .
+
+dist:NodeMetric a rdfs:Class, owl:Class ;
+    rdfs:label "NodeMetric" ;
+    rdfs:comment "Metrics for a node" ;
+    dist:cpuUsage xsd:float ;
+    dist:memoryUsage xsd:float ;
+    dist:messageQueueLen xsd:integer ;
+    dist:processCount xsd:integer ;
+    dist:networkLatency xsd:integer .
+
+dist:Partition a rdfs:Class, owl:Class ;
+    rdfs:label "Partition" ;
+    rdfs:comment "Network partition" ;
+    dist:hasPartitionId xsd:string ;
+    dist:hasNodes dist:Node ;
+    dist:hasStartTime xsd:dateTime ;
+    dist:hasEndTime xsd:dateTime ;
+    dist:isHealed xsd:boolean .
+
+dist:PartitionTolerance a rdfs:Class, owl:Class ;
+    rdfs:label "PartitionTolerance" ;
+    rdfs:comment "Partition tolerance strategy" ;
+    owl:oneOf (
+        dist:Availability
+        dist:Consistency
+        dist:EventualConsistency
+    ) .
+
+dist:Availability a dist:PartitionTolerance ;
+    rdfs:label "Availability" ;
+    rdfs:comment "Prioritize availability during partition" .
+
+dist:Consistency a dist:PartitionTolerance ;
+    rdfs:label "Consistency" ;
+    rdfs:comment "Prioritize consistency during partition" .
+
+dist:EventualConsistency a dist:PartitionTolerance ;
+    rdfs:label "EventualConsistency" ;
+    rdfs:comment "Eventual consistency during partition" .
+
+dist:Connection a rdfs:Class, owl:Class ;
+    rdfs:label "Connection" ;
+    rdfs:comment "Inter-node connection" ;
+    dist:hasSource dist:Node ;
+    dist:hasTarget dist:Node ;
+    dist:hasState dist:ConnectionState ;
+    dist:hasLatency xsd:integer ;
+    dist:hasBandwidth xsd:integer .
+
+dist:ConnectionState a rdfs:Class, owl:Class ;
+    rdfs:label "ConnectionState" ;
+    rdfs:comment "State of inter-node connection" ;
+    owl:oneOf (
+        dist:Established
+        dist:Pending
+        dist:Closed
+        dist:Error
+    ) .
+
+dist:Established a dist:ConnectionState ;
+    rdfs:label "Established" ;
+    rdfs:comment "Connection is established" .
+
+dist:Pending a dist:ConnectionState ;
+    rdfs:label "Pending" ;
+    rdfs:comment "Connection is pending" .
+
+dist:Closed a dist:ConnectionState ;
+    rdfs:label "Closed" ;
+    rdfs:comment "Connection is closed" .
+
+dist:Error a dist:ConnectionState ;
+    rdfs:label "Error" ;
+    rdfs:comment "Connection has error" .
+
+dist:Registry a rdfs:Class, owl:Class ;
+    rdfs:label "Registry" ;
+    rdfs:comment "Distributed process registry" ;
+    otp:moduleName "erlmcp_distribution_registry" ;
+    dist:hasRegisteredProcesses dist:RegisteredProcess ;
+    dist:hasStrategy dist:RegistrationStrategy .
+
+dist:RegisteredProcess a rdfs:Class, owl:Class ;
+    rdfs:label "RegisteredProcess" ;
+    rdfs:comment "Process registered in distributed registry" ;
+    dist:hasKey xsd:string ;
+    dist:hasPid otp:Pid ;
+    dist:hasNode dist:Node ;
+    dist:hasTTL xsd:integer .
+
+dist:RegistrationStrategy a rdfs:Class, owl:Class ;
+    rdfs:label "RegistrationStrategy" ;
+    rdfs:comment "Process registration strategy" ;
+    owl:oneOf (
+        dist:Gproc
+        dist:Global
+        dist:Pg2
+        dist:Custom
+    ) .
+
+dist:Gproc a dist:RegistrationStrategy ;
+    rdfs:label "Gproc" ;
+    rdfs:comment "Gproc-based registration" .
+
+dist:Global a dist:RegistrationStrategy ;
+    rdfs:label "Global" ;
+    rdfs:comment "global module registration" .
+
+dist:Pg2 a dist:RegistrationStrategy ;
+    rdfs:label "Pg2" ;
+    rdfs:comment "pg2 process group registration" .
+
+dist:Custom a dist:RegistrationStrategy ;
+    rdfs:label "Custom" ;
+    rdfs:comment "Custom registration strategy" .
+
+dist:ClusterMembership a rdfs:Class, owl:Class ;
+    rdfs:label "ClusterMembership" ;
+    rdfs:comment "Cluster membership management" ;
+    dist:hasStrategy dist:MembershipStrategy ;
+    dist:hasNodes dist:Node ;
+    dist:hasViewNumber xsd:integer .
+
+dist:MembershipStrategy a rdfs:Class, owl:Class ;
+    rdfs:label "MembershipStrategy" ;
+    rdfs:comment "Cluster membership strategy" ;
+    owl:oneOf (
+        dist:Gossip
+        dist:SWIM
+        dist:Raft
+        dist:CustomMembership
+    ) .
+
+dist:Gossip a dist:MembershipStrategy ;
+    rdfs:label "Gossip" ;
+    rdfs:comment "Gossip-based membership" .
+
+dist:SWIM a dist:MembershipStrategy ;
+    rdfs:label "SWIM" ;
+    rdfs:comment "Scalable Weakly-consistent Infection-style Process Group Membership" .
+
+dist:Raft a dist:MembershipStrategy ;
+    rdfs:label "Raft" ;
+    rdfs:comment "Raft-based membership" .
+
+dist:CustomMembership a dist:MembershipStrategy ;
+    rdfs:label "CustomMembership" ;
+    rdfs:comment "Custom membership strategy" .
+
+dist:LeaderElection a rdfs:Class, owl:Class ;
+    rdfs:label "LeaderElection" ;
+    rdfs:comment "Leader election mechanism" ;
+    dist:hasStrategy dist:ElectionStrategy ;
+    dist:hasLeader dist:Node ;
+    dist:hasTerm xsd:integer .
+
+dist:ElectionStrategy a rdfs:Class, owl:Class ;
+    rdfs:label "ElectionStrategy" ;
+    rdfs:comment "Leader election strategy" ;
+    owl:oneOf (
+        dist:Bully
+        dist:RaftElection
+        dist:Ring
+        dist:CustomElection
+    ) .
+
+dist:Bully a dist:ElectionStrategy ;
+    rdfs:label "Bully" ;
+    rdfs:comment "Bully election algorithm" .
+
+dist:RaftElection a dist:ElectionStrategy ;
+    rdfs:label "RaftElection" ;
+    rdfs:comment "Raft-based election" .
+
+dist:Ring a dist:ElectionStrategy ;
+    rdfs:label "Ring" ;
+    rdfs:comment "Ring-based election" .
+
+dist:CustomElection a dist:ElectionStrategy ;
+    rdfs:label "CustomElection" ;
+    rdfs:comment "Custom election strategy" .
+
+dist:Consensus a rdfs:Class, owl:Class ;
+    rdfs:label "Consensus" ;
+    rdfs:comment "Distributed consensus mechanism" ;
+    dist:hasStrategy dist:ConsensusStrategy ;
+    dist:hasQuorum xsd:integer ;
+    dist:hasCommitIndex xsd:integer .
+
+dist:ConsensusStrategy a rdfs:Class, owl:Class ;
+    rdfs:label "ConsensusStrategy" ;
+    rdfs:comment "Consensus algorithm" ;
+    owl:oneOf (
+        dist:RaftConsensus
+        dist:Paxos
+        dist:TwoPhaseCommit
+        dist:ThreePhaseCommit
+    ) .
+
+dist:RaftConsensus a dist:ConsensusStrategy ;
+    rdfs:label "RaftConsensus" ;
+    rdfs:comment "Raft consensus algorithm" .
+
+dist:Paxos a dist:ConsensusStrategy ;
+    rdfs:label "Paxos" ;
+    rdfs:comment "Paxos consensus algorithm" .
+
+dist:TwoPhaseCommit a dist:ConsensusStrategy ;
+    rdfs:label "TwoPhaseCommit" ;
+    rdfs:comment "Two-phase commit" .
+
+dist:ThreePhaseCommit a dist:ConsensusStrategy ;
+    rdfs:label "ThreePhaseCommit" ;
+    rdfs:comment "Three-phase commit" .
+
+dist:Replication a rdfs:Class, owl:Class ;
+    rdfs:label "Replication" ;
+    rdfs:comment "Data replication strategy" ;
+    dist:hasFactor xsd:integer ;
+    dist:hasStrategy dist:ReplicationStrategy .
+
+dist:ReplicationStrategy a rdfs:Class, owl:Class ;
+    rdfs:label "ReplicationStrategy" ;
+    rdfs:comment "Replication strategy" ;
+    owl:oneOf (
+        dist:MasterSlave
+        dist:MultiMaster
+        dist:Quorum
+        dist:AntiEntropy
+    ) .
+
+dist:MasterSlave a dist:ReplicationStrategy ;
+    rdfs:label "MasterSlave" ;
+    rdfs:comment "Master-slave replication" .
+
+dist:MultiMaster a dist:ReplicationStrategy ;
+    rdfs:label "MultiMaster" ;
+    rdfs:comment "Multi-master replication" .
+
+dist:Quorum a dist:ReplicationStrategy ;
+    rdfs:label "Quorum" ;
+    rdfs:comment "Quorum-based replication" .
+
+dist:AntiEntropy a dist:ReplicationStrategy ;
+    rdfs:label "AntiEntropy" ;
+    rdfs:comment "Anti-entropy replication" .
+
+dist:hasNodeName a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain dist:Node ;
+    rdfs:range xsd:string ;
+    rdfs:label "has node name" .
+
+dist:hasStatus a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain dist:Node ;
+    rdfs:range dist:NodeStatus ;
+    rdfs:label "has status" .
+
+dist:hasConnections a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain dist:Node ;
+    rdfs:range dist:Connection ;
+    rdfs:label "has connections" .
+
+dist:hasCapabilities a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain dist:Node ;
+    rdfs:range dist:NodeCapabilities ;
+    rdfs:label "has capabilities" .
+
+dist:hasMetric a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain dist:Node ;
+    rdfs:range dist:NodeMetric ;
+    rdfs:label "has metric" .
+
+dist:hasMaxConnections a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain dist:NodeCapabilities ;
+    rdfs:range xsd:integer ;
+    rdfs:label "has max connections" .
+
+dist:hasMaxMemory a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain dist:NodeCapabilities ;
+    rdfs:range xsd:integer ;
+    rdfs:label "has max memory" .
+
+dist:hasSupportedTransports a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain dist:NodeCapabilities ;
+    rdfs:range rdf:List ;
+    rdfs:label "has supported transports" .
+
+dist:hasCores a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain dist:NodeCapabilities ;
+    rdfs:range xsd:integer ;
+    rdfs:label "has cores" .
+
+dist:cpuUsage a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain dist:NodeMetric ;
+    rdfs:range xsd:float ;
+    rdfs:label "CPU usage" .
+
+dist:memoryUsage a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain dist:NodeMetric ;
+    rdfs:range xsd:float ;
+    rdfs:label "memory usage" .
+
+dist:messageQueueLen a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain dist:NodeMetric ;
+    rdfs:range xsd:integer ;
+    rdfs:label "message queue length" .
+
+dist:processCount a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain dist:NodeMetric ;
+    rdfs:range xsd:integer ;
+    rdfs:label "process count" .
+
+dist:networkLatency a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain dist:NodeMetric ;
+    rdfs:range xsd:integer ;
+    rdfs:label "network latency" .
+
+dist:hasPartitionId a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain dist:Partition ;
+    rdfs:range xsd:string ;
+    rdfs:label "has partition ID" .
+
+dist:hasNodes a rdf:Property, owl:ObjectProperty ;
+    rdfs:range dist:Node ;
+    rdfs:label "has nodes" .
+
+dist:hasStartTime a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain dist:Partition ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "has start time" .
+
+dist:hasEndTime a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain dist:Partition ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "has end time" .
+
+dist:isHealed a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain dist:Partition ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "is healed" .
+
+dist:hasSource a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain dist:Connection ;
+    rdfs:range dist:Node ;
+    rdfs:label "has source" .
+
+dist:hasTarget a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain dist:Connection ;
+    rdfs:range dist:Node ;
+    rdfs:label "has target" .
+
+dist:hasState a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain dist:Connection ;
+    rdfs:range dist:ConnectionState ;
+    rdfs:label "has state" .
+
+dist:hasLatency a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain dist:Connection ;
+    rdfs:range xsd:integer ;
+    rdfs:label "has latency" .
+
+dist:hasBandwidth a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain dist:Connection ;
+    rdfs:range xsd:integer ;
+    rdfs:label "has bandwidth" .
+
+dist:hasRegisteredProcesses a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain dist:Registry ;
+    rdfs:range dist:RegisteredProcess ;
+    rdfs:label "has registered processes" .
+
+dist:hasStrategy a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "has strategy" .
+
+dist:hasKey a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain dist:RegisteredProcess ;
+    rdfs:range xsd:string ;
+    rdfs:label "has key" .
+
+dist:hasPid a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain dist:RegisteredProcess ;
+    rdfs:range otp:Pid ;
+    rdfs:label "has PID" .
+
+dist:hasTTL a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain dist:RegisteredProcess ;
+    rdfs:range xsd:integer ;
+    rdfs:label "has TTL" .
+
+dist:hasViewNumber a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain dist:ClusterMembership ;
+    rdfs:range xsd:integer ;
+    rdfs:label "has view number" .
+
+dist:hasLeader a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain dist:LeaderElection ;
+    rdfs:range dist:Node ;
+    rdfs:label "has leader" .
+
+dist:hasTerm a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain dist:LeaderElection ;
+    rdfs:range xsd:integer ;
+    rdfs:label "has term" .
+
+dist:hasQuorum a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain dist:Consensus ;
+    rdfs:range xsd:integer ;
+    rdfs:label "has quorum" .
+
+dist:hasCommitIndex a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain dist:Consensus ;
+    rdfs:range xsd:integer ;
+    rdfs:label "has commit index" .
+
+dist:hasFactor a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain dist:Replication ;
+    rdfs:range xsd:integer ;
+    rdfs:label "has factor" .

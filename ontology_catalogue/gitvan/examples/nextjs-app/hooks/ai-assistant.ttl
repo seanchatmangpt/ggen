@@ -1,0 +1,125 @@
+@prefix gh: <http://example.org/git-hooks#> .
+@prefix git: <http://example.org/git#> .
+@prefix ai: <http://example.org/ai#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# AI Assistant Hook
+# LLM-powered development assistance with semantic analysis and recommendations
+
+gh:AIAssistant a gh:Hook ;
+  gh:name "AI Assistant" ;
+  gh:description "LLM-powered development assistance with code analysis and recommendations" ;
+  gh:priority 7 ;
+  gh:autoExecute true ;
+
+  gh:trigger [
+    a git:CommitEvent
+  ] ;
+
+  gh:condition [
+    a gh:AlwaysTrue
+  ] ;
+
+  gh:action [
+    a gh:CompositeAction ;
+    gh:steps [
+      rdf:_1 [
+        a ai:AnalyzeDiff ;
+        gh:model "claude-3-5-sonnet" ;
+        gh:context [
+          gh:repoSize "full" ;
+          gh:historyLines 100 ;
+          gh:includeTypes true
+        ]
+      ] ;
+      rdf:_2 [
+        a ai:GenerateCommitMessage ;
+        gh:model "claude-3-5-sonnet" ;
+        gh:format "semantic" ;
+        gh:validate true
+      ] ;
+      rdf:_3 [
+        a ai:SuggestOptimizations ;
+        gh:focus [ "performance" ; "maintainability" ; "readability" ] ;
+        gh:limit 5
+      ] ;
+      rdf:_4 [
+        a ai:CheckCodeQuality ;
+        gh:aspects [
+          "complexity" ;
+          "naming" ;
+          "documentation" ;
+          "testing" ;
+          "design_patterns"
+        ]
+      ] ;
+      rdf:_5 [
+        a ai:IdentifyRisks ;
+        gh:categories [
+          "security" ;
+          "performance" ;
+          "maintainability" ;
+          "compatibility" ;
+          "edge_cases"
+        ] ;
+        gh:threshold 0.7
+      ] ;
+      rdf:_6 [
+        a ai:ExplainChanges ;
+        gh:style "concise" ;
+        gh:targetAudience "developers" ;
+        gh:format "markdown"
+      ] ;
+      rdf:_7 [
+        a ai:GenerateTests ;
+        gh:framework "auto-detect" ;
+        gh:coverage "comprehensive" ;
+        gh:autoCommit false
+      ] ;
+      rdf:_8 [
+        a ai:CreateDocumentation ;
+        gh:format "markdown" ;
+        gh:includeExamples true ;
+        gh:autoCommit false
+      ] ;
+      rdf:_9 [
+        a ai:RecommendPatterns ;
+        gh:patterns [
+          "existing" ;
+          "established" ;
+          "emerging"
+        ] ;
+        gh:limit 3
+      ] ;
+      rdf:_10 [
+        a ai:UpdateContext ;
+        gh:store "knowledge-graph" ;
+        gh:ttl "30d" ;
+        gh:insights [
+          "code_style" ;
+          "common_issues" ;
+          "team_patterns"
+        ]
+      ] ;
+      rdf:_11 [
+        a ai:PostCommentPR ;
+        gh:content [
+          gh:summary true ;
+          gh:suggestions true ;
+          gh:risks true ;
+          gh:recommendations true
+        ] ;
+        gh:tone "friendly" ;
+        gh:actionable true
+      ] ;
+      rdf:_12 [
+        a ai:LogFeedback ;
+        gh:store "ai-training" ;
+        gh:collectMetrics [
+          "suggestion_accepted" ;
+          "risk_materialized" ;
+          "optimization_impact"
+        ]
+      ]
+    ]
+  ] .

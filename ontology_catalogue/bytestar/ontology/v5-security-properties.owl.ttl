@@ -1,0 +1,82 @@
+@prefix : <https://bytestar.org/ontology/v5/security-properties#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix core: <https://bytestar.org/ontology/v5/core#> .
+@prefix gov: <https://bytestar.org/ontology/v5/governance#> .
+
+<https://bytestar.org/ontology/v5/security-properties>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/v5/governance> ;
+  rdfs:label "ByteStar v5 Security Properties Ontology" ;
+  rdfs:comment "This ontology defines the inherent security characteristics of the ByteStar ecosystem, beyond just cryptographic primitives, focusing on architectural resistance." ;
+  owl:versionInfo "5.0.0" .
+
+# #################################################################
+# I. Core Security Properties
+# #################################################################
+
+:SecurityProperty a owl:Class ;
+    rdfs:label "Security Property" ;
+    rdfs:comment "A characteristic of the system that contributes to its overall security posture." .
+
+:SideChannelResistance a :SecurityProperty ;
+    rdfs:label "Side-Channel Resistance" ;
+    rdfs:comment "The property of a component or system to resist attacks that exploit information leaked through physical implementations (e.g., timing, power consumption, cache access)." .
+
+:MemorySafety a :SecurityProperty ;
+    rdfs:label "Memory Safety" ;
+    rdfs:comment "The property of a component or system to prevent memory-based vulnerabilities such as buffer overflows, use-after-free, and double-free." .
+
+:QuantumResistance a :SecurityProperty ;
+    rdfs:label "Quantum Resistance" ;
+    rdfs:comment "The property of a cryptographic algorithm or system to remain secure against attacks from quantum computers." .
+
+:TamperEvidence a :SecurityProperty ;
+    rdfs:label "Tamper Evidence" ;
+    rdfs:comment "The property of an artifact or system to reveal if it has been altered or corrupted." .
+
+# #################################################################
+# II. Properties for Quantification and Description
+# #################################################################
+
+:hasTimingVariance a owl:DatatypeProperty ;
+    rdfs:domain :SideChannelResistance ;
+    rdfs:range xsd:float ;
+    rdfs:comment "The measured variance in execution time, indicating susceptibility to timing attacks." .
+
+:hasPowerVariance a owl:DatatypeProperty ;
+    rdfs:domain :SideChannelResistance ;
+    rdfs:range xsd:float ;
+    rdfs:comment "The measured variance in power consumption, indicating susceptibility to power analysis attacks." .
+
+:hasFormalProof a owl:DatatypeProperty ;
+    rdfs:domain :SecurityProperty ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Indicates if a formal mathematical proof exists for this security property." .
+
+:usesPQCAlgorithm a owl:ObjectProperty ;
+    rdfs:domain :QuantumResistance ;
+    rdfs:range owl:Thing ;
+    rdfs:comment "Links to the specific Post-Quantum Cryptography algorithm used (e.g., Kyber, Dilithium)." .
+
+# #################################################################
+# III. Axioms (Enforcing Security Properties)
+# #################################################################
+
+# Axiom: All Kernels must contribute to Side-Channel Resistance by being branch-free and constant-time.
+core:Kernel rdfs:subClassOf [ a owl:Restriction ;
+    owl:onProperty :hasTimingVariance ;
+    owl:allValuesFrom [ a rdfs:Datatype ; owl:withRestrictions ( [ xsd:maxExclusive "0.001"^^xsd:float ] ) ]
+] .
+
+core:Kernel rdfs:subClassOf [ a owl:Restriction ;
+    owl:onProperty :hasPowerVariance ;
+    owl:allValuesFrom [ a rdfs:Datatype ; owl:withRestrictions ( [ xsd:maxExclusive "0.005"^^xsd:float ] ) ]
+] .
+
+# Axiom: All ValidArtifacts must exhibit Tamper Evidence through a cryptographic seal.
+core:ValidArtifact rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasProof ; owl:someValuesFrom xsd:hexBinary ] .
+
+# Axiom: The ByteStar Ecosystem is Quantum Resistant.
+core:ByteStarEcosystem rdfs:subClassOf :QuantumResistance .

@@ -1,0 +1,337 @@
+@prefix zoe: <https://zoela.org/ontology/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix schema: <https://schema.org/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# =============================================================================
+# ZOE LA OCEL Ontology
+# Object-Centric Event Log (OCEL 2.0) events for wasm4pm process mining.
+# Every route-stage completion emits an OCEL event captured by this ontology.
+# =============================================================================
+
+<https://zoela.org/ontology/ocel>
+    a owl:Ontology ;
+    rdfs:label "ZOE LA OCEL Ontology"@en ;
+    rdfs:comment "Defines OCEL 2.0 event and object types for the ZOE LA Mobile service graph. These events are the raw material for wasm4pm process mining of care route conformance."@en ;
+    dcterms:created "2026-05-17"^^xsd:date ;
+    owl:versionInfo "1.0.0" .
+
+# =============================================================================
+# SKOS ConceptScheme: OcelEventTypeScheme
+# =============================================================================
+
+zoe:OcelEventTypeScheme
+    a skos:ConceptScheme ;
+    rdfs:label "OCEL Event Type Scheme"@en ;
+    rdfs:comment "Controlled vocabulary of OCEL 2.0 event types emitted by the ZOE LA route graph. Used by wasm4pm for process discovery and conformance checking."@en ;
+    skos:prefLabel "OCEL Event Type Scheme"@en .
+
+zoe:NeedReceivedEvent
+    a skos:Concept ;
+    skos:inScheme zoe:OcelEventTypeScheme ;
+    skos:notation "need.received" ;
+    rdfs:label "Need Received"@en ;
+    skos:prefLabel "Need Received"@en ;
+    skos:definition "A service need was received and entered into the route graph for triage and routing."@en ;
+    rdfs:comment "A service need was received and entered into the route graph for triage and routing."@en .
+
+zoe:NeedAssignedEvent
+    a skos:Concept ;
+    skos:inScheme zoe:OcelEventTypeScheme ;
+    skos:notation "need.assigned" ;
+    rdfs:label "Need Assigned"@en ;
+    skos:prefLabel "Need Assigned"@en ;
+    skos:definition "A service need was assigned to a volunteer, ministry team, or fulfillment station."@en ;
+    rdfs:comment "A service need was assigned to a volunteer, ministry team, or fulfillment station."@en .
+
+zoe:NeedDeliveredEvent
+    a skos:Concept ;
+    skos:inScheme zoe:OcelEventTypeScheme ;
+    skos:notation "need.delivered" ;
+    rdfs:label "Need Delivered"@en ;
+    skos:prefLabel "Need Delivered"@en ;
+    skos:definition "The service or resource fulfilling a need was delivered to the recipient."@en ;
+    rdfs:comment "The service or resource fulfilling a need was delivered to the recipient."@en .
+
+zoe:NeedClosedEvent
+    a skos:Concept ;
+    skos:inScheme zoe:OcelEventTypeScheme ;
+    skos:notation "need.closed" ;
+    rdfs:label "Need Closed"@en ;
+    skos:prefLabel "Need Closed"@en ;
+    skos:definition "A service need was closed after successful fulfillment or resolution."@en ;
+    rdfs:comment "A service need was closed after successful fulfillment or resolution."@en .
+
+zoe:NeedRefusedEvent
+    a skos:Concept ;
+    skos:inScheme zoe:OcelEventTypeScheme ;
+    skos:notation "need.refused" ;
+    rdfs:label "Need Refused"@en ;
+    skos:prefLabel "Need Refused"@en ;
+    skos:definition "A service need was refused due to ineligibility, policy decision, or resource unavailability."@en ;
+    rdfs:comment "A service need was refused due to ineligibility, policy decision, or resource unavailability."@en .
+
+zoe:ConsentGrantedEvent
+    a skos:Concept ;
+    skos:inScheme zoe:OcelEventTypeScheme ;
+    skos:notation "consent.granted" ;
+    rdfs:label "Consent Granted"@en ;
+    skos:prefLabel "Consent Granted"@en ;
+    skos:definition "Informed consent was granted by a participant or guardian for a sensitive route action."@en ;
+    rdfs:comment "Informed consent was granted by a participant or guardian for a sensitive route action."@en .
+
+zoe:VolunteerAssignedEvent
+    a skos:Concept ;
+    skos:inScheme zoe:OcelEventTypeScheme ;
+    skos:notation "volunteer.assigned" ;
+    rdfs:label "Volunteer Assigned"@en ;
+    skos:prefLabel "Volunteer Assigned"@en ;
+    skos:definition "A volunteer was assigned to a specific route stage or service need."@en ;
+    rdfs:comment "A volunteer was assigned to a specific route stage or service need."@en .
+
+zoe:FoodDeliveredEvent
+    a skos:Concept ;
+    skos:inScheme zoe:OcelEventTypeScheme ;
+    skos:notation "food.delivered" ;
+    rdfs:label "Food Delivered"@en ;
+    skos:prefLabel "Food Delivered"@en ;
+    skos:definition "A food resource (bag, meal, pantry bundle) was delivered to a recipient household."@en ;
+    rdfs:comment "A food resource (bag, meal, pantry bundle) was delivered to a recipient household."@en .
+
+zoe:ClothingDeliveredEvent
+    a skos:Concept ;
+    skos:inScheme zoe:OcelEventTypeScheme ;
+    skos:notation "clothing.delivered" ;
+    rdfs:label "Clothing Delivered"@en ;
+    skos:prefLabel "Clothing Delivered"@en ;
+    skos:definition "A clothing resource was delivered to a recipient person or household."@en ;
+    rdfs:comment "A clothing resource was delivered to a recipient person or household."@en .
+
+zoe:FollowUpScheduledEvent
+    a skos:Concept ;
+    skos:inScheme zoe:OcelEventTypeScheme ;
+    skos:notation "followup.scheduled" ;
+    rdfs:label "Follow-Up Scheduled"@en ;
+    skos:prefLabel "Follow-Up Scheduled"@en ;
+    skos:definition "A follow-up contact was scheduled for a participant after a route stage completion."@en ;
+    rdfs:comment "A follow-up contact was scheduled for a participant after a route stage completion."@en .
+
+zoe:FollowUpCompletedEvent
+    a skos:Concept ;
+    skos:inScheme zoe:OcelEventTypeScheme ;
+    skos:notation "followup.completed" ;
+    rdfs:label "Follow-Up Completed"@en ;
+    skos:prefLabel "Follow-Up Completed"@en ;
+    skos:definition "A scheduled follow-up contact was completed and its outcome was recorded."@en ;
+    rdfs:comment "A scheduled follow-up contact was completed and its outcome was recorded."@en .
+
+zoe:PartnerReferralSentEvent
+    a skos:Concept ;
+    skos:inScheme zoe:OcelEventTypeScheme ;
+    skos:notation "partner.referral.sent" ;
+    rdfs:label "Partner Referral Sent"@en ;
+    skos:prefLabel "Partner Referral Sent"@en ;
+    skos:definition "A referral was formally sent to a partner organization to fulfill a need beyond the ministry's capacity."@en ;
+    rdfs:comment "A referral was formally sent to a partner organization to fulfill a need beyond the ministry's capacity."@en .
+
+zoe:CareRouteClosedEvent
+    a skos:Concept ;
+    skos:inScheme zoe:OcelEventTypeScheme ;
+    skos:notation "care_route.closed" ;
+    rdfs:label "Care Route Closed"@en ;
+    skos:prefLabel "Care Route Closed"@en ;
+    skos:definition "A care route instance was closed after all stages completed or the participant exited the program."@en ;
+    rdfs:comment "A care route instance was closed after all stages completed or the participant exited the program."@en .
+
+zoe:ReceiptEmittedEvent
+    a skos:Concept ;
+    skos:inScheme zoe:OcelEventTypeScheme ;
+    skos:notation "receipt.emitted" ;
+    rdfs:label "Receipt Emitted"@en ;
+    skos:prefLabel "Receipt Emitted"@en ;
+    skos:definition "A cryptographic receipt was emitted for a completed route stage, providing tamper-evident proof."@en ;
+    rdfs:comment "A cryptographic receipt was emitted for a completed route stage, providing tamper-evident proof."@en .
+
+zoe:RouteRefusedEvent
+    a skos:Concept ;
+    skos:inScheme zoe:OcelEventTypeScheme ;
+    skos:notation "route.refused" ;
+    rdfs:label "Route Refused"@en ;
+    skos:prefLabel "Route Refused"@en ;
+    skos:definition "A route stage or full route was refused by policy decision, eligibility check, or resource constraint."@en ;
+    rdfs:comment "A route stage or full route was refused by policy decision, eligibility check, or resource constraint."@en .
+
+zoe:GuardianConsentRequiredEvent
+    a skos:Concept ;
+    skos:inScheme zoe:OcelEventTypeScheme ;
+    skos:notation "guardian_consent.required" ;
+    rdfs:label "Guardian Consent Required"@en ;
+    skos:prefLabel "Guardian Consent Required"@en ;
+    skos:definition "A route stage was paused because guardian consent is required before the action can proceed."@en ;
+    rdfs:comment "A route stage was paused because guardian consent is required before the action can proceed."@en .
+
+zoe:EventAttendanceRecordedEvent
+    a skos:Concept ;
+    skos:inScheme zoe:OcelEventTypeScheme ;
+    skos:notation "event.attendance.recorded" ;
+    rdfs:label "Event Attendance Recorded"@en ;
+    skos:prefLabel "Event Attendance Recorded"@en ;
+    skos:definition "A participant's attendance at a scheduled event or service session was recorded in the system."@en ;
+    rdfs:comment "A participant's attendance at a scheduled event or service session was recorded in the system."@en .
+
+zoe:BaptismRegisteredEvent
+    a skos:Concept ;
+    skos:inScheme zoe:OcelEventTypeScheme ;
+    skos:notation "baptism.registered" ;
+    rdfs:label "Baptism Registered"@en ;
+    skos:prefLabel "Baptism Registered"@en ;
+    skos:definition "A participant's baptism was registered as a significant pastoral milestone within the care route."@en ;
+    rdfs:comment "A participant's baptism was registered as a significant pastoral milestone within the care route."@en .
+
+# =============================================================================
+# Core Class: zoe:OcelEvent
+# =============================================================================
+
+zoe:OcelEvent
+    a owl:Class ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:label "OCEL Event"@en ;
+    rdfs:comment "An OCEL 2.0 event capturing a route-relevant action. These events form the raw event log consumed by wasm4pm for process mining, conformance checking, and variant analysis."@en .
+
+# --- Properties of zoe:OcelEvent ---
+
+zoe:ocelEventId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:OcelEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "OCEL event ID"@en ;
+    rdfs:comment "Unique UUID identifying this OCEL event instance."@en ;
+    skos:notation "ocelEventId" .
+
+zoe:ocelEventType
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:OcelEvent ;
+    rdfs:range skos:Concept ;
+    rdfs:label "OCEL event type"@en ;
+    rdfs:comment "The SKOS concept from zoe:OcelEventTypeScheme classifying what kind of route action this event represents."@en ;
+    skos:notation "ocelEventType" .
+
+zoe:ocelTimestamp
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:OcelEvent ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "OCEL timestamp"@en ;
+    rdfs:comment "The ISO-8601 date-time when the route action represented by this event occurred."@en ;
+    skos:notation "ocelTimestamp" .
+
+zoe:ocelActorId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:OcelEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "OCEL actor ID"@en ;
+    rdfs:comment "The user ID of the human or system actor who performed the route action."@en ;
+    skos:notation "ocelActorId" .
+
+zoe:ocelRouteId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:OcelEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "OCEL route ID"@en ;
+    rdfs:comment "The identifier of the care route instance this event belongs to."@en ;
+    skos:notation "ocelRouteId" .
+
+zoe:ocelRouteStageCode
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:OcelEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "OCEL route stage code"@en ;
+    rdfs:comment "The code identifying the specific route stage at which this event was emitted."@en ;
+    skos:notation "ocelRouteStageCode" .
+
+zoe:ocelCampusId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:OcelEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "OCEL campus ID"@en ;
+    rdfs:comment "The identifier of the campus or physical location where this event occurred."@en ;
+    skos:notation "ocelCampusId" .
+
+zoe:ocelMinistryCode
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:OcelEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "OCEL ministry code"@en ;
+    rdfs:comment "The code of the ministry team responsible for the route action captured by this event."@en ;
+    skos:notation "ocelMinistryCode" .
+
+zoe:ocelReceiptId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:OcelEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "OCEL receipt ID"@en ;
+    rdfs:comment "Optional identifier of the cryptographic receipt emitted alongside this event, if one was produced."@en ;
+    skos:notation "ocelReceiptId" .
+
+zoe:ocelEvidenceId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:OcelEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "OCEL evidence ID"@en ;
+    rdfs:comment "Optional identifier of the evidence artifact that triggered or proves this event."@en ;
+    skos:notation "ocelEvidenceId" .
+
+zoe:ocelOutcomeState
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:OcelEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "OCEL outcome state"@en ;
+    rdfs:comment "The resulting state of the route or need object after this event was applied (e.g., assigned, delivered, closed, refused)."@en ;
+    skos:notation "ocelOutcomeState" .
+
+# =============================================================================
+# Core Class: zoe:OcelObjectRef
+# =============================================================================
+
+zoe:OcelObjectRef
+    a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "OCEL Object Reference"@en ;
+    rdfs:comment "An object reference in an OCEL 2.0 event. OCEL is object-centric, meaning each event can involve multiple typed objects (people, households, needs, resources, receipts)."@en .
+
+# --- Properties of zoe:OcelObjectRef ---
+
+zoe:ocelObjectId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:OcelObjectRef ;
+    rdfs:range xsd:string ;
+    rdfs:label "OCEL object ID"@en ;
+    rdfs:comment "The identifier of the object involved in the OCEL event."@en ;
+    skos:notation "ocelObjectId" .
+
+zoe:ocelObjectType
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:OcelObjectRef ;
+    rdfs:range xsd:string ;
+    rdfs:label "OCEL object type"@en ;
+    rdfs:comment "The type category of the referenced object (e.g., person, household, need, resource, receipt)."@en ;
+    skos:notation "ocelObjectType" .
+
+zoe:ocelRelation
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:OcelObjectRef ;
+    rdfs:range xsd:string ;
+    rdfs:label "OCEL relation"@en ;
+    rdfs:comment "Describes how this object relates to the event (e.g., subject, assignee, resource, witness)."@en ;
+    skos:notation "ocelRelation" .
+
+zoe:hasEvent
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:OcelObjectRef ;
+    rdfs:range zoe:OcelEvent ;
+    rdfs:label "has event"@en ;
+    rdfs:comment "Links an OCEL object reference to the event in which it participates."@en ;
+    skos:notation "hasEvent" .

@@ -1,0 +1,48 @@
+@prefix : <https://bytestar.org/ontology/bytestar-fabrication#> .
+@prefix bs: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://bytestar.org/ontology/bytestar-fabrication>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core> ;
+  rdfs:label "ByteStar Fabrication Model" ;
+  rdfs:comment "AOT compilation of (O,Σ,P) → (G,K,E); CPU default, GPU optional, deterministic builds." .
+
+### Fabrication backends
+:Fabricator a owl:Class .
+:CPUBackend a owl:Class ; rdfs:subClassOf :Fabricator .
+:GPUBackend a owl:Class ; rdfs:subClassOf :Fabricator .
+:HybridBackend a owl:Class ; rdfs:subClassOf :Fabricator .
+
+### Fabrication modes  
+:FabricationMode a owl:Class .
+:mode a owl:ObjectProperty ; rdfs:domain :Fabricator ; rdfs:range :FabricationMode .
+:cpuMode a :FabricationMode .
+:gpuMode a :FabricationMode .
+:hybridMode a :FabricationMode .
+
+### Input packs
+:OntologyPack a owl:Class .
+:ShapePack a owl:Class .
+:PatternPack a owl:Class .
+:consumes a owl:ObjectProperty ; rdfs:domain :Fabricator ; rdfs:range [
+  a owl:Class ; owl:unionOf ( :OntologyPack :ShapePack :PatternPack ) ] .
+
+### Output artifacts (G,K,E)
+:FabricationArtifact a owl:Class .
+:producesGraph a owl:ObjectProperty ; rdfs:domain :Fabricator ; rdfs:range bs:ExecutionGraph .
+:producesKernel a owl:ObjectProperty ; rdfs:domain :Fabricator ; rdfs:range bs:Kernel .
+:producesEnvelope a owl:ObjectProperty ; rdfs:domain :Fabricator ; rdfs:range bs:Envelope .
+:produces a owl:ObjectProperty ; rdfs:domain :Fabricator ; rdfs:range :FabricationArtifact .
+
+### Determinism guarantees
+:deterministicBuild a owl:DatatypeProperty ; rdfs:domain :Fabricator ; rdfs:range xsd:boolean .
+:varianceNs a owl:DatatypeProperty ; rdfs:domain :Fabricator ; rdfs:range xsd:decimal .
+:byteIdentical a owl:DatatypeProperty ; rdfs:domain :FabricationArtifact ; rdfs:range xsd:boolean .
+
+### Compilation metadata
+:compilationDigest a owl:DatatypeProperty ; rdfs:domain :FabricationArtifact ; rdfs:range xsd:hexBinary .
+:toolchainVersion a owl:DatatypeProperty ; rdfs:domain :Fabricator ; rdfs:range xsd:string .
+:reproducibleBuild a owl:DatatypeProperty ; rdfs:domain :Fabricator ; rdfs:range xsd:boolean .

@@ -1,0 +1,230 @@
+@prefix ex: <http://example.org/> .
+@prefix test: <http://test.example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# ==================================================
+# EDGE CASE TEST DATA - Complex validation scenarios
+# Tests boundary conditions, special cases, and stress scenarios
+# ==================================================
+
+# 1. BOUNDARY VALUE TESTING
+ex:boundaryTest1 a ex:RangeTest ;
+    ex:percentage "0.0"^^xsd:decimal ;      # Exact minimum
+    ex:ageRange "0"^^xsd:integer ;          # Exact minimum
+    ex:temperature "-273.15"^^xsd:decimal . # Just above absolute zero
+
+ex:boundaryTest2 a ex:RangeTest ;
+    ex:percentage "100.0"^^xsd:decimal ;    # Exact maximum
+    ex:ageRange "150"^^xsd:integer ;        # Exact maximum
+    ex:temperature "1000.0"^^xsd:decimal .  # Exact maximum
+
+ex:boundaryTest3 a ex:RangeTest ;
+    ex:percentage "-0.1"^^xsd:decimal ;     # Just below minimum (INVALID)
+    ex:positiveInteger "0"^^xsd:integer .   # Edge case: exactly 0 (INVALID - must be > 0)
+
+ex:boundaryTest4 a ex:RangeTest ;
+    ex:percentage "100.1"^^xsd:decimal ;    # Just above maximum (INVALID)
+    ex:ageRange "151"^^xsd:integer .        # Just above maximum (INVALID)
+
+# 2. STRING LENGTH EDGE CASES
+ex:stringEdge1 a ex:StringLengthTest ;
+    ex:shortString "12345" ;                # Exact minimum length (5)
+    ex:nonEmptyString "x" .                 # Minimum non-empty (1 char)
+
+ex:stringEdge2 a ex:StringLengthTest ;
+    ex:shortString "1234567890" ;           # Exact maximum length (10)
+    ex:longDescription "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." . # Exactly 500 chars
+
+ex:stringEdge3 a ex:StringLengthTest ;
+    ex:shortString "1234" ;                 # Just below minimum (INVALID)
+    ex:nonEmptyString "" .                  # Empty string (INVALID)
+
+ex:stringEdge4 a ex:StringLengthTest ;
+    ex:shortString "12345678901" ;          # Just above maximum (INVALID)
+    ex:longDescription "This description exceeds 500 characters: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Extra text here." . # Over 500 chars (INVALID)
+
+# 3. UNICODE AND SPECIAL CHARACTER TESTING
+ex:unicodeEdge1 a ex:EdgeCaseTest ;
+    ex:unicodeString "Hello 世界 🌍 café résumé naïve åäö ñoñó Москва العربية 日本語" ;
+    ex:largeNumber "1000"^^xsd:integer ;
+    ex:preciseDecimal "123.45"^^xsd:decimal .
+
+ex:unicodeEdge2 a ex:EdgeCaseTest ;
+    ex:unicodeString "Special chars: !@#$%^&*()_+-=[]{}|;':\",./<>?" ;
+    ex:largeNumber "9223372036854775807"^^xsd:integer ; # Max long value
+    ex:preciseDecimal "0.01"^^xsd:decimal .
+
+ex:unicodeEdge3 a ex:EdgeCaseTest ;
+    ex:unicodeString "" ;                   # Empty Unicode string (VALID - pattern allows empty)
+    ex:largeNumber "0"^^xsd:integer ;
+    ex:preciseDecimal "999999.99"^^xsd:decimal .
+
+# 4. PATTERN EDGE CASES
+ex:patternEdge1 a ex:PatternTest ;
+    ex:phoneNumber "+12" ;                  # Minimum valid E.164 (3 digits total)
+    ex:zipCode "00000" ;                    # All zeros ZIP
+    ex:hexColor "#000000" ;                 # Black
+    ex:ipAddress "0.0.0.0" .               # All zeros IP
+
+ex:patternEdge2 a ex:PatternTest ;
+    ex:phoneNumber "+123456789012345" ;     # Maximum E.164 (15 digits total)
+    ex:zipCode "99999-9999" ;               # Maximum ZIP+4
+    ex:hexColor "#FFFFFF" ;                 # White (uppercase)
+    ex:ipAddress "255.255.255.255" .       # Maximum IP
+
+ex:patternEdge3 a ex:PatternTest ;
+    ex:phoneNumber "+1" ;                   # Too short (INVALID)
+    ex:zipCode "1234" ;                     # Too short (INVALID)
+    ex:hexColor "#12345" ;                  # Too short (INVALID)
+    ex:ipAddress "256.1.1.1" .             # Invalid octet (INVALID)
+
+# 5. CARDINALITY EDGE CASES
+ex:cardinalityEdge1 a ex:CardinalityTest ;
+    ex:exactlyOne "single" ;               # Exactly 1 (valid)
+    ex:atLeastTwo "first", "second" ;      # Exactly 2 (minimum valid)
+    ex:atMostThree "one", "two", "three" . # Exactly 3 (maximum valid)
+
+ex:cardinalityEdge2 a ex:CardinalityTest ;
+    ex:exactlyOne "only" ;
+    ex:atLeastTwo "a", "b", "c", "d", "e" ; # More than minimum (valid)
+    ex:atMostThree "single" .               # Less than maximum (valid)
+
+# Missing exactlyOne (INVALID)
+ex:cardinalityEdge3 a ex:CardinalityTest ;
+    ex:atLeastTwo "first", "second" ;
+    ex:atMostThree "one", "two", "three", "four" . # Over maximum (INVALID)
+
+# 6. DATATYPE PRECISION AND RANGE EDGE CASES
+ex:datatypeEdge1 a ex:DataTypeTest ;
+    ex:integerValue "0"^^xsd:integer ;                      # Zero
+    ex:decimalValue "0.0"^^xsd:decimal ;                    # Zero decimal
+    ex:booleanValue "true"^^xsd:boolean ;                   # Boolean true
+    ex:dateTimeValue "1970-01-01T00:00:00Z"^^xsd:dateTime ; # Unix epoch
+    ex:stringValue "" .                                     # Empty string
+
+ex:datatypeEdge2 a ex:DataTypeTest ;
+    ex:integerValue "-2147483648"^^xsd:integer ;                        # Min 32-bit int
+    ex:decimalValue "99999999999999999999999999.999999999"^^xsd:decimal ; # Large decimal
+    ex:booleanValue "false"^^xsd:boolean ;                              # Boolean false
+    ex:dateTimeValue "9999-12-31T23:59:59.999Z"^^xsd:dateTime ;         # Far future
+    ex:stringValue "Single character string with lots of content to test string handling" .
+
+# Invalid datatype formats (INVALID)
+ex:datatypeEdge3 a ex:DataTypeTest ;
+    ex:integerValue "3.14159"^^xsd:decimal ;               # Decimal as integer (INVALID)
+    ex:decimalValue "not-a-number" ;                       # String as decimal (INVALID)
+    ex:booleanValue "yes"^^xsd:string ;                    # String as boolean (INVALID)
+    ex:dateTimeValue "tomorrow"^^xsd:string .              # String as dateTime (INVALID)
+
+# 7. COMPLEX LOGICAL CONSTRAINT EDGE CASES
+ex:logicalEdge1 a ex:LogicalTest ;
+    ex:flexibleDate "2023"^^xsd:gYear ;                    # Year format (valid OR option)
+    ex:requiredStringOrNumber "0"^^xsd:integer .           # Zero as valid integer
+
+ex:logicalEdge2 a ex:LogicalTest ;
+    ex:flexibleDate "2023-02-29"^^xsd:date ;              # Invalid date (Feb 29 non-leap year) - tests parser
+    ex:requiredStringOrNumber "x" .                        # Single character string
+
+# Test NOT constraint
+ex:logicalEdge3 a ex:LogicalTest ;
+    ex:flexibleDate "2023-12-01T10:30:00Z"^^xsd:dateTime ;
+    ex:requiredStringOrNumber "valid" ;
+    ex:forbiddenCombination "forbidden" .                  # Triggers NOT constraint (INVALID)
+
+# 8. SPARQL CONSTRAINT EDGE CASES
+ex:sparqlEdge1 a ex:SPARQLTest ;
+    ex:startDate "2023-01-01T00:00:00Z"^^xsd:dateTime ;
+    ex:endDate "2023-01-01T00:00:00Z"^^xsd:dateTime .     # Same start and end (INVALID - endDate <= startDate)
+
+ex:sparqlEdge2 a ex:SPARQLTest ;
+    ex:startDate "2023-12-31"^^xsd:date ;
+    ex:endDate "2024-01-01"^^xsd:date .                    # Different years but valid
+
+# Test self-reference constraint
+ex:selfRefPerson a ex:Person, ex:SPARQLTest ;
+    ex:name "Self Referencing Person" ;
+    ex:email "self@example.com" ;
+    ex:hasManager ex:selfRefPerson .                       # Self as manager (INVALID)
+
+# 9. QUALIFIED VALUE CONSTRAINT EDGE CASES
+ex:qualifiedEdge1 a ex:QualifiedTest ;
+    ex:hasContact _:exactlyOnePrimary ;                    # Exactly one primary (valid)
+    ex:hasPhone "+1234567890" .                            # Exactly one valid phone (valid)
+
+_:exactlyOnePrimary ex:contactType "primary" ;
+                    ex:contactInfo "primary@example.com" .
+
+ex:qualifiedEdge2 a ex:QualifiedTest ;
+    ex:hasContact _:primary1, _:primary2 ;                 # Two primary contacts (INVALID)
+    ex:hasPhone "123", "456" .                             # Two invalid phones (INVALID)
+
+_:primary1 ex:contactType "primary" .
+_:primary2 ex:contactType "primary" .
+
+# 10. BUSINESS RULE EDGE CASES
+ex:dept1 a ex:Department ;
+    ex:name "Test Department" .
+
+ex:emp1 a ex:Employee ;
+    ex:name "Equal Salary Employee" ;
+    ex:email "equal@example.com" ;
+    ex:salary "50000.00"^^xsd:decimal ;
+    ex:department ex:dept1 ;
+    ex:hasManager ex:emp2 .
+
+ex:emp2 a ex:Employee ;
+    ex:name "Equal Salary Manager" ;
+    ex:email "manager@example.com" ;
+    ex:salary "50000.00"^^xsd:decimal ;                    # Same salary as subordinate (INVALID WARNING)
+    ex:department ex:dept1 .
+
+# 11. LARGE SCALE PERFORMANCE TEST DATA
+# Generate multiple instances for performance testing
+
+ex:perfTest1 a ex:PerformanceTest ; ex:id "1001"^^xsd:integer ; ex:label "Perf Test 1001" .
+ex:perfTest2 a ex:PerformanceTest ; ex:id "1002"^^xsd:integer ; ex:label "Perf Test 1002" .
+ex:perfTest3 a ex:PerformanceTest ; ex:id "1003"^^xsd:integer ; ex:label "Perf Test 1003" .
+ex:perfTest4 a ex:PerformanceTest ; ex:id "1004"^^xsd:integer ; ex:label "Perf Test 1004" .
+ex:perfTest5 a ex:PerformanceTest ; ex:id "1005"^^xsd:integer ; ex:label "Perf Test 1005" .
+
+# Add invalid performance test cases
+ex:perfTestInvalid1 a ex:PerformanceTest ;
+    ex:id "2001"^^xsd:integer ;
+    ex:label "This performance test label is definitely way too long and exceeds the 50 character maximum limit" . # Too long (INVALID)
+
+ex:perfTestInvalid2 a ex:PerformanceTest ;
+    ex:label "No ID Test" .                                # Missing required ID (INVALID)
+
+# 12. MIXED VALID/INVALID DATA FOR BATCH TESTING
+ex:mixedBatch1 a ex:Person ;                              # VALID
+    ex:name "Valid Person" ;
+    ex:email "valid@example.com" .
+
+ex:mixedBatch2 a ex:Person .                             # INVALID - missing required fields
+
+ex:mixedBatch3 a ex:RangeTest ;                          # VALID
+    ex:percentage "50.0"^^xsd:decimal ;
+    ex:positiveInteger "100"^^xsd:integer .
+
+ex:mixedBatch4 a ex:RangeTest ;                          # INVALID - out of range
+    ex:percentage "150.0"^^xsd:decimal .
+
+# 13. NULL AND EMPTY VALUE EDGE CASES
+ex:nullTest1 a ex:StringLengthTest ;
+    ex:shortString "valid" ;
+    ex:longDescription "" ;                               # Empty but allowed
+    ex:nonEmptyString "" .                                # Empty but not allowed (INVALID)
+
+# 14. WHITESPACE AND FORMATTING EDGE CASES  
+ex:whitespaceTest1 a ex:StringLengthTest ;
+    ex:shortString "  hi  " ;                             # With whitespace (may be invalid if trimmed)
+    ex:longDescription "   " ;                            # Only whitespace
+    ex:nonEmptyString " " .                               # Single space
+
+# 15. DATATYPE COERCION EDGE CASES
+ex:coercionTest1 a ex:DataTypeTest ;
+    ex:integerValue "42" ;                                # String that could be integer
+    ex:decimalValue "3.14" ;                              # String that could be decimal
+    ex:booleanValue "true" ;                              # String that could be boolean
+    ex:stringValue "42"^^xsd:integer .                    # Integer as string (INVALID)

@@ -1,0 +1,87 @@
+@prefix : <https://bytestar.org/ontology/sap/architecture#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix arch: <https://bytestar.org/ontology/architecture#> .
+@prefix doctrines: <https://bytestar.org/ontology/doctrines#> .
+@prefix tg: <https://bytestar.org/ontology/trojan-gift#> .
+
+<https://bytestar.org/ontology/sap/architecture>
+    rdf:type owl:Ontology ;
+    owl:versionIRI <https://bytestar.org/ontology/sap/architecture/v1.0> ;
+    rdfs:comment "Ontology defining the overall architecture of the Sovereign Access Plane (SAP) as a bridge to the ByteStar fabric." ;
+    owl:imports arch: ,
+                doctrines: ,
+                tg: .
+
+#################################################################
+#    Classes
+#################################################################
+
+:SovereignAccessPlane rdf:type owl:Class ;
+    rdfs:comment "The universal connector between high-entropy external systems and the ByteStar fabric." .
+
+:NuxtLayeredFrontend rdf:type owl:Class ;
+    rdfs:comment "The multi-layered Nuxt frontend component of the SAP." .
+
+:SupabaseBackend rdf:type owl:Class ;
+    rdfs:comment "The Supabase backend component of the SAP (Postgres + RLS + Edge Functions + Realtime)." .
+
+:ExternalSystem rdf:type owl:Class ;
+    rdfs:comment "A high-entropy external system interacting with the SAP." .
+
+:ByteStarFabric rdf:type owl:Class ;
+    rdfs:comment "The deterministic ByteStar ecosystem." .
+
+:Bridge rdf:type owl:Class ;
+    rdfs:comment "A mechanism for connecting disparate systems." .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+:hasFrontend rdf:type owl:ObjectProperty ;
+    rdfs:domain :SovereignAccessPlane ;
+    rdfs:range :NuxtLayeredFrontend ;
+    rdfs:comment "The SAP has a Nuxt layered frontend." .
+
+:hasBackend rdf:type owl:ObjectProperty ;
+    rdfs:domain :SovereignAccessPlane ;
+    rdfs:range :SupabaseBackend ;
+    rdfs:comment "The SAP has a Supabase backend." .
+
+:connectsToExternalSystem rdf:type owl:ObjectProperty ;
+    rdfs:domain :SovereignAccessPlane ;
+    rdfs:range :ExternalSystem ;
+    rdfs:comment "The SAP connects to an external system." .
+
+:bridgesToByteStar rdf:type owl:ObjectProperty ;
+    rdfs:domain :SovereignAccessPlane ;
+    rdfs:range :ByteStarFabric ;
+    rdfs:comment "The SAP bridges to the ByteStar fabric." .
+
+:implementedBy rdf:type owl:ObjectProperty ;
+    rdfs:domain :SovereignAccessPlane ;
+    rdfs:range tg:TrojanGift ;
+    rdfs:comment "The SAP is implemented by the Trojan Gift model." .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+:reducesEntropy rdf:type owl:DatatypeProperty ;
+    rdfs:domain :SovereignAccessPlane ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Indicates if the SAP reduces integration entropy." .
+
+:enforcesO1CapabilityChecks rdf:type owl:DatatypeProperty ;
+    rdfs:domain :SovereignAccessPlane ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Indicates if the SAP enforces O(1) capability checks." .
+
+:providesDeterministicIngress rdf:type owl:DatatypeProperty ;
+    rdfs:domain :SovereignAccessPlane ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Indicates if the SAP provides deterministic ingress." .
+

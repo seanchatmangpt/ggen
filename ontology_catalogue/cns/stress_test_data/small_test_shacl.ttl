@@ -1,0 +1,12 @@
+
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix : <http://example.org/test#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:TestShape a sh:NodeShape ;
+    sh:targetClass :TestClass ;
+    sh:property [
+        sh:path :testProperty ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+    ] .

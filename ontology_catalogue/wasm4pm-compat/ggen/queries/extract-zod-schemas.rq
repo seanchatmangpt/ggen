@@ -1,0 +1,21 @@
+# SPARQL Query: Extract Zod Schema metadata
+# Extracts types and their fields for rendering Zod schemas.
+
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX compat: <https://wasm4pm-compat.rs/ontology#>
+PREFIX zod:    <https://wasm4pm-compat.rs/zod#>
+
+SELECT DISTINCT ?typeName ?fieldName ?fieldType ?isOptional ?isArray ?isEnum ?isUnion
+WHERE {
+  ?type compat:rustType ?typeName .
+  ?type zod:hasField ?field .
+  ?field zod:fieldName ?fieldName .
+  
+  OPTIONAL { ?field zod:fieldType ?fieldType . }
+  OPTIONAL { ?field zod:isOptional ?isOptional . }
+  OPTIONAL { ?field zod:isArray    ?isArray . }
+  OPTIONAL { ?type  zod:isEnum     ?isEnum . }
+  OPTIONAL { ?type  zod:isUnion    ?isUnion . }
+}
+ORDER BY ?typeName ?fieldName

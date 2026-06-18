@@ -1,0 +1,33 @@
+@prefix : <http://example.org/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Classes
+:Employee a owl:Class .
+:Manager a owl:Class .
+:IndividualContributor a owl:Class .
+
+# Subclass relationships
+:Manager rdfs:subClassOf :Employee .
+:IndividualContributor rdfs:subClassOf :Employee .
+
+# Properties
+:manages a owl:ObjectProperty .
+:isManagedBy a owl:ObjectProperty .
+:ancestor a owl:ObjectProperty .
+:worksWith a owl:ObjectProperty .
+
+# Property characteristics
+:ancestor a owl:TransitiveProperty .
+:worksWith a owl:SymmetricProperty .
+:manages owl:inverseOf :isManagedBy .
+
+# Some instances for testing
+:alice a :Employee .
+:bob a :Manager .
+:charlie a :IndividualContributor .
+
+# Facts
+:bob :manages :alice .
+:alice :worksWith :charlie .

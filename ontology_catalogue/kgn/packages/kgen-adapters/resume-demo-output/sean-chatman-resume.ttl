@@ -1,0 +1,174 @@
+@prefix : <https://jobhunt.me/resume#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:sean-chatman a :Person, schema:Person ;
+    :fullName "Sean Chatman" ;
+    :headline "Staff Engineer" ;
+    :summary "Experienced staff engineer with expertise in distributed systems, cloud architecture, and technical leadership. Proven track record of building scalable systems and leading high-performing engineering teams." ;
+    :email "sean.chatman@example.com" ;
+    :phone "+1-555-0123" ;
+    :linkedIn <https://linkedin.com/in/seanchatman> ;
+    :github <https://github.com/seanchatman> ;
+    :location "San Francisco Bay Area, CA" ;
+    :lastUpdated "2025-09-16T00:22:06.266Z"^^xsd:dateTime .
+
+:sean-chatman-work-1 a :WorkExperience ;
+    :belongsTo :sean-chatman ;
+    :jobTitle "Staff Engineer" ;
+    :company "TechCorp" ;
+    :startDate "2022-01"^^xsd:date ;
+    :isCurrent true .
+
+:sean-chatman-work-2 a :WorkExperience ;
+    :belongsTo :sean-chatman ;
+    :jobTitle "Senior Software Engineer" ;
+    :company "StartupCo" ;
+    :startDate "2019-03"^^xsd:date ;
+    :endDate "2021-12"^^xsd:date ;
+    :isCurrent false .
+
+:sean-chatman-education-1 a :Education ;
+    :belongsTo :sean-chatman ;
+    :institution "Stanford University" ;
+    :degree "Master of Science" ;
+    :fieldOfStudy "Computer Science" .
+
+:sean-chatman-education-2 a :Education ;
+    :belongsTo :sean-chatman ;
+    :institution "University of California, Berkeley" ;
+    :degree "Bachelor of Science" ;
+    :fieldOfStudy "Computer Science" .
+
+:sean-chatman-skill-1 a :Skill ;
+    :belongsTo :sean-chatman ;
+    :skillName "JavaScript" ;
+    :skillCategory "Programming" ;
+    :skillLevel "Expert" .
+
+:sean-chatman-skill-2 a :Skill ;
+    :belongsTo :sean-chatman ;
+    :skillName "TypeScript" ;
+    :skillCategory "Programming" ;
+    :skillLevel "Expert" .
+
+:sean-chatman-skill-3 a :Skill ;
+    :belongsTo :sean-chatman ;
+    :skillName "Python" ;
+    :skillCategory "Programming" ;
+    :skillLevel "Advanced" .
+
+:sean-chatman-skill-4 a :Skill ;
+    :belongsTo :sean-chatman ;
+    :skillName "Go" ;
+    :skillCategory "Programming" ;
+    :skillLevel "Advanced" .
+
+:sean-chatman-skill-5 a :Skill ;
+    :belongsTo :sean-chatman ;
+    :skillName "Java" ;
+    :skillCategory "Programming" ;
+    :skillLevel "Intermediate" .
+
+:sean-chatman-skill-6 a :Skill ;
+    :belongsTo :sean-chatman ;
+    :skillName "React" ;
+    :skillCategory "Framework" ;
+    :skillLevel "Expert" .
+
+:sean-chatman-skill-7 a :Skill ;
+    :belongsTo :sean-chatman ;
+    :skillName "Node.js" ;
+    :skillCategory "Framework" ;
+    :skillLevel "Expert" .
+
+:sean-chatman-skill-8 a :Skill ;
+    :belongsTo :sean-chatman ;
+    :skillName "Express" ;
+    :skillCategory "Framework" ;
+    :skillLevel "Advanced" .
+
+:sean-chatman-skill-9 a :Skill ;
+    :belongsTo :sean-chatman ;
+    :skillName "FastAPI" ;
+    :skillCategory "Framework" ;
+    :skillLevel "Advanced" .
+
+:sean-chatman-skill-10 a :Skill ;
+    :belongsTo :sean-chatman ;
+    :skillName "AWS" ;
+    :skillCategory "Cloud" ;
+    :skillLevel "Expert" .
+
+:sean-chatman-skill-11 a :Skill ;
+    :belongsTo :sean-chatman ;
+    :skillName "Kubernetes" ;
+    :skillCategory "DevOps" ;
+    :skillLevel "Advanced" .
+
+:sean-chatman-skill-12 a :Skill ;
+    :belongsTo :sean-chatman ;
+    :skillName "Docker" ;
+    :skillCategory "DevOps" ;
+    :skillLevel "Expert" .
+
+:sean-chatman-skill-13 a :Skill ;
+    :belongsTo :sean-chatman ;
+    :skillName "Terraform" ;
+    :skillCategory "DevOps" ;
+    :skillLevel "Advanced" .
+
+:sean-chatman-skill-14 a :Skill ;
+    :belongsTo :sean-chatman ;
+    :skillName "PostgreSQL" ;
+    :skillCategory "Database" ;
+    :skillLevel "Expert" .
+
+:sean-chatman-skill-15 a :Skill ;
+    :belongsTo :sean-chatman ;
+    :skillName "Redis" ;
+    :skillCategory "Database" ;
+    :skillLevel "Advanced" .
+
+:sean-chatman-skill-16 a :Skill ;
+    :belongsTo :sean-chatman ;
+    :skillName "MongoDB" ;
+    :skillCategory "Database" ;
+    :skillLevel "Advanced" .
+
+:sean-chatman-skill-17 a :Skill ;
+    :belongsTo :sean-chatman ;
+    :skillName "GraphQL" ;
+    :skillCategory "Tool" ;
+    :skillLevel "Advanced" .
+
+:sean-chatman-skill-18 a :Skill ;
+    :belongsTo :sean-chatman ;
+    :skillName "REST APIs" ;
+    :skillCategory "Tool" ;
+    :skillLevel "Expert" .
+
+:sean-chatman-skill-19 a :Skill ;
+    :belongsTo :sean-chatman ;
+    :skillName "Microservices" ;
+    :skillCategory "Tool" ;
+    :skillLevel "Expert" .
+
+:sean-chatman-skill-20 a :Skill ;
+    :belongsTo :sean-chatman ;
+    :skillName "Technical Leadership" ;
+    :skillCategory "Soft Skill" ;
+    :skillLevel "Expert" .
+
+:sean-chatman-skill-21 a :Skill ;
+    :belongsTo :sean-chatman ;
+    :skillName "System Design" ;
+    :skillCategory "Soft Skill" ;
+    :skillLevel "Expert" .
+
+:sean-chatman-skill-22 a :Skill ;
+    :belongsTo :sean-chatman ;
+    :skillName "Mentoring" ;
+    :skillCategory "Soft Skill" ;
+    :skillLevel "Advanced" .
+

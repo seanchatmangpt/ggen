@@ -1,0 +1,87 @@
+@prefix : <https://bytestar.org/ontology/security#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix arch: <https://bytestar.org/ontology/architecture#> .
+@prefix doctrines: <https://bytestar.org/ontology/doctrines#> .
+@prefix spr: <http://bytestar.net/ontology/spr_calculus#> .
+
+<https://bytestar.org/ontology/security>
+    rdf:type owl:Ontology ;
+    owl:versionIRI <https://bytestar.org/ontology/security/v1.0> ;
+    rdfs:comment "Ontology formalizing security concepts within the ByteStar ecosystem, including PQC integration, attestation, and security physics." ;
+    owl:imports arch: ,
+                doctrines: ,
+                spr: .
+
+#################################################################
+#    Classes
+#################################################################
+
+:PQC_Integration rdf:type owl:Class ;
+    rdfs:comment "The integration of Post-Quantum Cryptography primitives." .
+
+:Attestation rdf:type owl:Class ;
+    rdfs:comment "The process of verifying the identity and integrity of a platform or workload." .
+
+:PlatformQuote rdf:type owl:Class ;
+    rdfs:comment "A cryptographic quote from a trusted platform module (TPM) or similar." .
+
+:BinaryTransparency rdf:type owl:Class ;
+    rdfs:comment "A mechanism for verifying the integrity and provenance of binaries." .
+
+:SecurityPhysics rdf:type owl:Class ;
+    rdfs:comment "The inherent security properties derived from the ByteStar architecture (e.g., no source, only proofs)." .
+
+:ZeroTickDenial rdf:type owl:Class ;
+    rdfs:comment "The policy of immediately rejecting out-of-policy calls without consuming hot-path resources." .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+:usesPQC_Algorithm rdf:type owl:ObjectProperty ;
+    rdfs:domain :PQC_Integration ;
+    rdfs:range rdfs:Literal ;
+    rdfs:comment "PQC integration uses a specific algorithm (e.g., Kyber, Dilithium)." .
+
+:includesAttestation rdf:type owl:ObjectProperty ;
+    rdfs:domain :Attestation ;
+    rdfs:range :PlatformQuote ;
+    rdfs:comment "Attestation includes a platform quote." .
+
+:ensuresTransparency rdf:type owl:ObjectProperty ;
+    rdfs:domain :Attestation ;
+    rdfs:range :BinaryTransparency ;
+    rdfs:comment "Attestation ensures binary transparency." .
+
+:enforcesDenial rdf:type owl:ObjectProperty ;
+    rdfs:domain :SecurityPhysics ;
+    rdfs:range :ZeroTickDenial ;
+    rdfs:comment "Security physics enforces zero-tick denial." .
+
+:providesProofOf rdf:type owl:ObjectProperty ;
+    rdfs:domain :SecurityPhysics ;
+    rdfs:range spr:Receipt ;
+    rdfs:comment "Security physics provides cryptographic receipts as proofs." .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+:isQuantumSafe rdf:type owl:DatatypeProperty ;
+    rdfs:domain :PQC_Integration ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Indicates if the cryptographic integration is quantum-safe." .
+
+:hasFreshnessConstraint rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Attestation ;
+    rdfs:range xsd:string ;
+    rdfs:comment "A constraint on the freshness of attestation quotes (e.g., <= 15m)." .
+
+:hasAttackSurface rdf:type owl:DatatypeProperty ;
+    rdfs:domain :SecurityPhysics ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Describes the attack surface (e.g., 'minimal', 'receipts-only')." .
+

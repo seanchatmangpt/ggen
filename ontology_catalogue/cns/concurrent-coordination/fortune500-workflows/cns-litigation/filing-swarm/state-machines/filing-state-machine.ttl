@@ -1,0 +1,390 @@
+@prefix fsm: <http://cns-litigation.com/filing-state-machine#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ba: <http://cns-litigation.com/bitactor#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# Filing State Machine Logic in RDF Triples
+# Implements finite state automaton for legal document filing workflows
+
+fsm:FilingStateMachine a fsm:StateMachine ;
+    rdfs:label "Legal Document Filing State Machine" ;
+    fsm:version "2.0" ;
+    fsm:description "State machine governing legal filing workflows with zero-tick transitions" ;
+    fsm:initialState fsm:DocumentReceived ;
+    fsm:finalStates fsm:FilingComplete, fsm:FilingRejected, fsm:WorkflowAborted ;
+    ba:messagingMode ba:ZeroTick .
+
+# State Definitions
+fsm:DocumentReceived a fsm:State ;
+    rdfs:label "Document Received" ;
+    fsm:stateType fsm:InitialState ;
+    fsm:allowedTransitions fsm:ToClassification ;
+    fsm:entryActions fsm:LogDocumentReceipt, fsm:AssignWorkflowId ;
+    fsm:invariants fsm:DocumentExists, fsm:MetadataPresent ;
+    ba:tickDelay 0 .
+
+fsm:DocumentClassification a fsm:State ;
+    rdfs:label "Document Classification" ;
+    fsm:stateType fsm:ProcessingState ;
+    fsm:allowedTransitions fsm:ToCourtFiling, fsm:ToBarComplaint, fsm:ToRegulatoryFiling, fsm:ToClassificationError ;
+    fsm:entryActions fsm:AnalyzeDocumentType, fsm:DetermineJurisdiction ;
+    fsm:exitActions fsm:LogClassificationResult ;
+    fsm:invariants fsm:ClassificationComplete ;
+    ba:tickDelay 0 .
+
+fsm:CourtFilingProcess a fsm:State ;
+    rdfs:label "Court Filing Process" ;
+    fsm:stateType fsm:CompositeState ;
+    fsm:subStates fsm:CourtValidation, fsm:ECFPreparation, fsm:ECFSubmission ;
+    fsm:allowedTransitions fsm:ToValidationComplete, fsm:ToFilingError ;
+    fsm:entryActions fsm:InitializeCourtWorkflow ;
+    ba:tickDelay 0 .
+
+fsm:CourtValidation a fsm:State ;
+    rdfs:label "Court Document Validation" ;
+    fsm:stateType fsm:ProcessingState ;
+    fsm:parentState fsm:CourtFilingProcess ;
+    fsm:allowedTransitions fsm:ToECFPreparation, fsm:ToValidationError ;
+    fsm:entryActions fsm:ValidateCourtRules, fsm:CheckJurisdiction, fsm:VerifyFees ;
+    fsm:exitConditions fsm:AllValidationsPassed ;
+    ba:tickDelay 0 .
+
+fsm:ECFPreparation a fsm:State ;
+    rdfs:label "ECF Document Preparation" ;
+    fsm:stateType fsm:ProcessingState ;
+    fsm:parentState fsm:CourtFilingProcess ;
+    fsm:allowedTransitions fsm:ToECFSubmission, fsm:ToPreparationError ;
+    fsm:entryActions fsm:FormatDocument, fsm:ApplySignatures, fsm:GenerateMetadata ;
+    fsm:exitConditions fsm:DocumentReadyForECF ;
+    ba:tickDelay 0 .
+
+fsm:ECFSubmission a fsm:State ;
+    rdfs:label "ECF System Submission" ;
+    fsm:stateType fsm:ProcessingState ;
+    fsm:parentState fsm:CourtFilingProcess ;
+    fsm:allowedTransitions fsm:ToSubmissionSuccess, fsm:ToSubmissionError, fsm:ToSubmissionPending ;
+    fsm:entryActions fsm:SubmitToECF, fsm:StartTimeout ;
+    fsm:exitActions fsm:CancelTimeout, fsm:LogSubmissionResult ;
+    fsm:timeout "PT10M"^^xsd:duration ;
+    ba:tickDelay 0 .
+
+fsm:SubmissionPending a fsm:State ;
+    rdfs:label "ECF Submission Pending" ;
+    fsm:stateType fsm:WaitingState ;
+    fsm:allowedTransitions fsm:ToSubmissionSuccess, fsm:ToSubmissionError, fsm:ToSubmissionTimeout ;
+    fsm:entryActions fsm:StartPendingMonitor ;
+    fsm:exitActions fsm:StopPendingMonitor ;
+    fsm:maxWaitTime "PT30M"^^xsd:duration ;
+    ba:tickDelay 0 .
+
+fsm:BarComplaintProcess a fsm:State ;
+    rdfs:label "Bar Complaint Process" ;
+    fsm:stateType fsm:CompositeState ;
+    fsm:subStates fsm:EthicsValidation, fsm:InvestigationPrep, fsm:ComplaintSubmission ;
+    fsm:allowedTransitions fsm:ToValidationComplete, fsm:ToFilingError ;
+    fsm:entryActions fsm:InitializeBarWorkflow, fsm:CheckConfidentiality ;
+    ba:tickDelay 0 .
+
+fsm:EthicsValidation a fsm:State ;
+    rdfs:label "Ethics Compliance Validation" ;
+    fsm:stateType fsm:ProcessingState ;
+    fsm:parentState fsm:BarComplaintProcess ;
+    fsm:allowedTransitions fsm:ToInvestigationPrep, fsm:ToEthicsError ;
+    fsm:entryActions fsm:ValidateEthicsRules, fsm:CheckConflicts, fsm:VerifyStanding ;
+    fsm:exitConditions fsm:EthicsComplianceConfirmed ;
+    ba:tickDelay 0 .
+
+fsm:ValidationComplete a fsm:State ;
+    rdfs:label "Validation Complete" ;
+    fsm:stateType fsm:ProcessingState ;
+    fsm:allowedTransitions fsm:ToFinalPreparation ;
+    fsm:entryActions fsm:ConsolidateValidationResults, fsm:PrepareForSubmission ;
+    fsm:invariants fsm:AllValidationsPassed ;
+    ba:tickDelay 0 .
+
+fsm:FinalPreparation a fsm:State ;
+    rdfs:label "Final Document Preparation" ;
+    fsm:stateType fsm:ProcessingState ;
+    fsm:allowedTransitions fsm:ToElectronicSubmission, fsm:ToPreparationError ;
+    fsm:entryActions fsm:FinalFormatting, fsm:BackupCreation, fsm:QualityCheck ;
+    fsm:exitConditions fsm:DocumentFinalizedAndReady ;
+    ba:tickDelay 0 .
+
+fsm:ElectronicSubmission a fsm:State ;
+    rdfs:label "Electronic Filing Submission" ;
+    fsm:stateType fsm:ProcessingState ;
+    fsm:allowedTransitions fsm:ToConfirmationReceived, fsm:ToSubmissionError ;
+    fsm:entryActions fsm:SubmitToFilingSystem, fsm:LogSubmissionAttempt ;
+    fsm:retryPolicy fsm:ExponentialBackoff ;
+    fsm:maxRetries 3 ;
+    ba:tickDelay 0 .
+
+fsm:ConfirmationReceived a fsm:State ;
+    rdfs:label "Filing Confirmation Received" ;
+    fsm:stateType fsm:ProcessingState ;
+    fsm:allowedTransitions fsm:ToPostFilingTasks ;
+    fsm:entryActions fsm:ProcessConfirmation, fsm:ExtractReceiptInfo, fsm:UpdateStatus ;
+    fsm:exitActions fsm:NotifyStakeholders ;
+    ba:tickDelay 0 .
+
+fsm:PostFilingTasks a fsm:State ;
+    rdfs:label "Post-Filing Task Processing" ;
+    fsm:stateType fsm:CompositeState ;
+    fsm:subStates fsm:ServiceOfProcess, fsm:RecordKeeping, fsm:FollowUpScheduling ;
+    fsm:allowedTransitions fsm:ToFilingComplete ;
+    fsm:entryActions fsm:InitializePostFilingWorkflow ;
+    ba:tickDelay 0 .
+
+fsm:ServiceOfProcess a fsm:State ;
+    rdfs:label "Service of Process" ;
+    fsm:stateType fsm:ProcessingState ;
+    fsm:parentState fsm:PostFilingTasks ;
+    fsm:allowedTransitions fsm:ToServiceComplete, fsm:ToServiceError ;
+    fsm:entryActions fsm:DetermineServiceMethod, fsm:PrepareServiceDocuments ;
+    fsm:exitActions fsm:GenerateProofOfService ;
+    ba:tickDelay 0 .
+
+fsm:RecordKeeping a fsm:State ;
+    rdfs:label "Document Record Management" ;
+    fsm:stateType fsm:ProcessingState ;
+    fsm:parentState fsm:PostFilingTasks ;
+    fsm:allowedTransitions fsm:ToRecordsComplete ;
+    fsm:entryActions fsm:StoreInCaseManagement, fsm:UpdateDocketIndex, fsm:CreateBackups ;
+    fsm:exitConditions fsm:AllRecordsStored ;
+    ba:tickDelay 0 .
+
+fsm:FilingComplete a fsm:State ;
+    rdfs:label "Filing Process Complete" ;
+    fsm:stateType fsm:FinalState ;
+    fsm:entryActions fsm:GenerateCompletionReport, fsm:UpdateMetrics, fsm:CleanupTempFiles ;
+    fsm:exitActions fsm:ArchiveWorkflowData ;
+    ba:tickDelay 0 .
+
+# Error States
+fsm:ClassificationError a fsm:State ;
+    rdfs:label "Classification Error" ;
+    fsm:stateType fsm:ErrorState ;
+    fsm:allowedTransitions fsm:ToDocumentClassification, fsm:ToManualIntervention ;
+    fsm:entryActions fsm:LogClassificationError, fsm:NotifyAdministrator ;
+    fsm:errorType fsm:ClassificationFailure ;
+    ba:tickDelay 0 .
+
+fsm:ValidationError a fsm:State ;
+    rdfs:label "Validation Error" ;
+    fsm:stateType fsm:ErrorState ;
+    fsm:allowedTransitions fsm:ToErrorCorrection, fsm:ToManualIntervention ;
+    fsm:entryActions fsm:LogValidationError, fsm:IdentifyValidationFailures ;
+    fsm:errorType fsm:ValidationFailure ;
+    ba:tickDelay 0 .
+
+fsm:SubmissionError a fsm:State ;
+    rdfs:label "Submission Error" ;
+    fsm:stateType fsm:ErrorState ;
+    fsm:allowedTransitions fsm:ToErrorCorrection, fsm:ToManualIntervention, fsm:ToElectronicSubmission ;
+    fsm:entryActions fsm:LogSubmissionError, fsm:AnalyzeErrorCause ;
+    fsm:errorType fsm:SubmissionFailure ;
+    fsm:retryConditions fsm:RetryableError ;
+    ba:tickDelay 0 .
+
+fsm:ErrorCorrection a fsm:State ;
+    rdfs:label "Automatic Error Correction" ;
+    fsm:stateType fsm:ProcessingState ;
+    fsm:allowedTransitions fsm:ToPreviousState, fsm:ToManualIntervention ;
+    fsm:entryActions fsm:AttemptAutoCorrection, fsm:ValidateCorrection ;
+    fsm:maxCorrectionAttempts 3 ;
+    ba:tickDelay 0 .
+
+fsm:ManualIntervention a fsm:State ;
+    rdfs:label "Manual Intervention Required" ;
+    fsm:stateType fsm:WaitingState ;
+    fsm:allowedTransitions fsm:ToResumeWorkflow, fsm:ToWorkflowAborted ;
+    fsm:entryActions fsm:NotifyHumanOperator, fsm:CreateInterventionTicket ;
+    fsm:exitActions fsm:LogInterventionResolution ;
+    ba:tickDelay 0 .
+
+fsm:WorkflowAborted a fsm:State ;
+    rdfs:label "Workflow Aborted" ;
+    fsm:stateType fsm:FinalState ;
+    fsm:entryActions fsm:LogAbortion, fsm:NotifyStakeholders, fsm:CleanupResources ;
+    ba:tickDelay 0 .
+
+# Transition Definitions
+fsm:ToClassification a fsm:Transition ;
+    rdfs:label "Transition to Classification" ;
+    fsm:fromState fsm:DocumentReceived ;
+    fsm:toState fsm:DocumentClassification ;
+    fsm:trigger fsm:DocumentValidatedTrigger ;
+    fsm:guard fsm:DocumentIsValid ;
+    fsm:action fsm:InitiateClassification ;
+    ba:tickDelay 0 .
+
+fsm:ToCourtFiling a fsm:Transition ;
+    rdfs:label "Transition to Court Filing" ;
+    fsm:fromState fsm:DocumentClassification ;
+    fsm:toState fsm:CourtFilingProcess ;
+    fsm:trigger fsm:CourtDocumentTrigger ;
+    fsm:guard fsm:IsCourtDocument ;
+    fsm:action fsm:RouteToCourtWorkflow ;
+    ba:tickDelay 0 .
+
+fsm:ToBarComplaint a fsm:Transition ;
+    rdfs:label "Transition to Bar Complaint" ;
+    fsm:fromState fsm:DocumentClassification ;
+    fsm:toState fsm:BarComplaintProcess ;
+    fsm:trigger fsm:BarComplaintTrigger ;
+    fsm:guard fsm:IsBarComplaint ;
+    fsm:action fsm:RouteToBarWorkflow ;
+    ba:tickDelay 0 .
+
+fsm:ToECFPreparation a fsm:Transition ;
+    rdfs:label "Transition to ECF Preparation" ;
+    fsm:fromState fsm:CourtValidation ;
+    fsm:toState fsm:ECFPreparation ;
+    fsm:trigger fsm:ValidationSuccessTrigger ;
+    fsm:guard fsm:AllValidationsPassed ;
+    fsm:action fsm:BeginECFPreparation ;
+    ba:tickDelay 0 .
+
+fsm:ToSubmissionSuccess a fsm:Transition ;
+    rdfs:label "Transition to Submission Success" ;
+    fsm:fromState fsm:ECFSubmission, fsm:SubmissionPending ;
+    fsm:toState fsm:ConfirmationReceived ;
+    fsm:trigger fsm:SubmissionSuccessTrigger ;
+    fsm:guard fsm:ConfirmationReceived ;
+    fsm:action fsm:ProcessSuccessfulSubmission ;
+    ba:tickDelay 0 .
+
+fsm:ToSubmissionError a fsm:Transition ;
+    rdfs:label "Transition to Submission Error" ;
+    fsm:fromState fsm:ECFSubmission, fsm:SubmissionPending ;
+    fsm:toState fsm:SubmissionError ;
+    fsm:trigger fsm:SubmissionErrorTrigger ;
+    fsm:guard fsm:SubmissionFailed ;
+    fsm:action fsm:HandleSubmissionFailure ;
+    ba:tickDelay 0 .
+
+fsm:ToErrorCorrection a fsm:Transition ;
+    rdfs:label "Transition to Error Correction" ;
+    fsm:fromState fsm:ValidationError, fsm:SubmissionError ;
+    fsm:toState fsm:ErrorCorrection ;
+    fsm:trigger fsm:AutoCorrectionTrigger ;
+    fsm:guard fsm:ErrorIsAutoCorrectible ;
+    fsm:action fsm:InitiateAutoCorrection ;
+    ba:tickDelay 0 .
+
+# Trigger Definitions
+fsm:DocumentValidatedTrigger a fsm:Trigger ;
+    rdfs:label "Document Validated Trigger" ;
+    fsm:triggerType fsm:EventTrigger ;
+    fsm:event fsm:DocumentValidationComplete ;
+    ba:tickDelay 0 .
+
+fsm:CourtDocumentTrigger a fsm:Trigger ;
+    rdfs:label "Court Document Classification Trigger" ;
+    fsm:triggerType fsm:ConditionalTrigger ;
+    fsm:condition "documentType == 'COURT_FILING'" ;
+    ba:tickDelay 0 .
+
+fsm:BarComplaintTrigger a fsm:Trigger ;
+    rdfs:label "Bar Complaint Classification Trigger" ;
+    fsm:triggerType fsm:ConditionalTrigger ;
+    fsm:condition "documentType == 'BAR_COMPLAINT'" ;
+    ba:tickDelay 0 .
+
+fsm:SubmissionSuccessTrigger a fsm:Trigger ;
+    rdfs:label "Submission Success Trigger" ;
+    fsm:triggerType fsm:EventTrigger ;
+    fsm:event fsm:ECFConfirmationReceived ;
+    ba:tickDelay 0 .
+
+fsm:SubmissionErrorTrigger a fsm:Trigger ;
+    rdfs:label "Submission Error Trigger" ;
+    fsm:triggerType fsm:EventTrigger ;
+    fsm:event fsm:ECFSubmissionFailed ;
+    ba:tickDelay 0 .
+
+# Guard Conditions
+fsm:DocumentIsValid a fsm:GuardCondition ;
+    rdfs:label "Document Is Valid Guard" ;
+    fsm:expression "document.isValid() && document.hasRequiredFields()" ;
+    ba:tickDelay 0 .
+
+fsm:IsCourtDocument a fsm:GuardCondition ;
+    rdfs:label "Is Court Document Guard" ;
+    fsm:expression "classification.type == 'COURT_FILING'" ;
+    ba:tickDelay 0 .
+
+fsm:AllValidationsPassed a fsm:GuardCondition ;
+    rdfs:label "All Validations Passed Guard" ;
+    fsm:expression "validation.legal.passed && validation.technical.passed && validation.jurisdictional.passed" ;
+    ba:tickDelay 0 .
+
+fsm:ErrorIsAutoCorrectible a fsm:GuardCondition ;
+    rdfs:label "Error Is Auto-Correctable Guard" ;
+    fsm:expression "error.type IN ['FORMAT_ERROR', 'SIGNATURE_MISSING', 'FEE_INSUFFICIENT'] && error.severity < 'CRITICAL'" ;
+    ba:tickDelay 0 .
+
+# Action Definitions
+fsm:LogDocumentReceipt a fsm:Action ;
+    rdfs:label "Log Document Receipt Action" ;
+    fsm:actionType fsm:LoggingAction ;
+    fsm:logLevel fsm:Info ;
+    fsm:message "Document received and workflow initiated" ;
+    ba:tickDelay 0 .
+
+fsm:AnalyzeDocumentType a fsm:Action ;
+    rdfs:label "Analyze Document Type Action" ;
+    fsm:actionType fsm:AnalysisAction ;
+    fsm:analysisType fsm:DocumentClassification ;
+    fsm:criteria fsm:ContentAnalysis, fsm:MetadataAnalysis, fsm:StructuralAnalysis ;
+    ba:tickDelay 0 .
+
+fsm:ValidateCourtRules a fsm:Action ;
+    rdfs:label "Validate Court Rules Action" ;
+    fsm:actionType fsm:ValidationAction ;
+    fsm:validationType fsm:RuleCompliance ;
+    fsm:rules fsm:LocalRules, fsm:FederalRules, fsm:StateRules ;
+    ba:tickDelay 0 .
+
+fsm:SubmitToECF a fsm:Action ;
+    rdfs:label "Submit to ECF Action" ;
+    fsm:actionType fsm:SubmissionAction ;
+    fsm:target fsm:ECFSystem ;
+    fsm:method fsm:HTTPSPost ;
+    fsm:authentication fsm:X509Certificate ;
+    ba:tickDelay 0 .
+
+# Event Definitions
+fsm:DocumentValidationComplete a fsm:Event ;
+    rdfs:label "Document Validation Complete Event" ;
+    fsm:eventType fsm:SystemEvent ;
+    fsm:payload fsm:ValidationResult ;
+    ba:tickDelay 0 .
+
+fsm:ECFConfirmationReceived a fsm:Event ;
+    rdfs:label "ECF Confirmation Received Event" ;
+    fsm:eventType fsm:ExternalEvent ;
+    fsm:source fsm:ECFSystem ;
+    fsm:payload fsm:FilingReceipt ;
+    ba:tickDelay 0 .
+
+# State Machine Configuration
+fsm:StateMachineConfig a fsm:Configuration ;
+    fsm:enableLogging true ;
+    fsm:enableMetrics true ;
+    fsm:enableErrorRecovery true ;
+    fsm:maxExecutionTime "PT60M"^^xsd:duration ;
+    fsm:checkpointingEnabled true ;
+    fsm:checkpointInterval "PT5M"^^xsd:duration ;
+    ba:messagingMode ba:ZeroTick ;
+    ba:errorHandling ba:RetryWithBackoff .
+
+# Performance Metrics
+fsm:StateMachineMetrics a fsm:PerformanceMetrics ;
+    fsm:averageExecutionTime "PT15M"^^xsd:duration ;
+    fsm:successRate "0.94"^^xsd:decimal ;
+    fsm:errorRecoveryRate "0.87"^^xsd:decimal ;
+    fsm:stateTransitionCount 1543 ;
+    fsm:averageTransitionTime "PT2S"^^xsd:duration .

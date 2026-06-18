@@ -1,0 +1,225 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix legal: <http://bitflow.ai/legal#> .
+@prefix eight: <http://8space.org/constraints#> .
+@prefix ahi: <http://ahi.bitflow.ai/core#> .
+@prefix yawl: <http://yawlsystem.org/ontology#> .
+
+# Legal Domain Ontology - Nevada, California, Federal Jurisdictions
+# Based on existing CNS litigation patterns and TTL frameworks
+# Implements real legal workflow automation with 8-Space constraints
+
+<http://bitflow.ai/legal/domain> rdf:type owl:Ontology ;
+    rdfs:comment "Legal domain ontology for AHI system with jurisdiction-specific constraints" ;
+    owl:versionInfo "2026.1.1" ;
+    owl:imports <http://bitflow.ai/ahi/core> ;
+    owl:imports <http://yawlsystem.org/ontology> .
+
+# Jurisdiction Framework
+legal:Jurisdiction rdf:type owl:Class ;
+    rdfs:comment "Legal jurisdiction with specific filing requirements" ;
+    eight:maxProcessingComplexity 8 ;
+    eight:maxFilingSteps 8 .
+
+legal:Nevada rdf:type legal:Jurisdiction ;
+    rdfs:comment "Nevada state jurisdiction" ;
+    legal:filingSystem "Nevada Supreme Court E-Filing" ;
+    legal:businessDays ("Monday" "Tuesday" "Wednesday" "Thursday" "Friday") ;
+    legal:holidays ("New Year" "Memorial Day" "Independence Day" "Labor Day" "Thanksgiving" "Christmas") ;
+    eight:maxFilingLatency 8 .  # 8 time units
+
+legal:California rdf:type legal:Jurisdiction ;
+    rdfs:comment "California state jurisdiction" ;
+    legal:filingSystem "Cal-eFiling" ;
+    legal:requiresServeNotice true ;
+    legal:serviceMethods ("Personal" "Certified Mail" "Electronic") ;
+    eight:maxServiceTime 8 .  # 8 business days
+
+legal:Federal rdf:type legal:Jurisdiction ;
+    rdfs:comment "Federal jurisdiction (multiple districts)" ;
+    legal:filingSystem "CM/ECF" ;
+    legal:requiresPADUO true ;
+    legal:supportedDistricts ("D.Nev" "C.D.Cal" "N.D.Cal" "S.D.Cal") ;
+    eight:maxDistrictHops 8 .
+
+# Legal Document Types with 8-Space Constraints
+legal:LegalDocument rdf:type owl:Class ;
+    rdfs:comment "Base class for legal documents" ;
+    eight:maxPageCount 8 ;
+    eight:maxAttachments 8 ;
+    eight:maxProcessingTime 8 .
+
+legal:MotionToDismiss rdf:type owl:Class ;
+    rdfs:subClassOf legal:LegalDocument ;
+    rdfs:comment "Motion to dismiss with procedural requirements" ;
+    legal:requiredSections ("Caption" "Introduction" "Statement of Facts" "Argument" "Conclusion") ;
+    legal:citeFormat "Bluebook" ;
+    eight:maxArgumentPoints 8 .
+
+legal:ComplaintFiling rdf:type owl:Class ;
+    rdfs:subClassOf legal:LegalDocument ;
+    rdfs:comment "Civil complaint filing" ;
+    legal:requiredElements ("Jurisdiction" "Parties" "Causes of Action" "Prayer for Relief") ;
+    legal:serviceRequired true ;
+    eight:maxCausesOfAction 8 .
+
+legal:AnswerFiling rdf:type owl:Class ;
+    rdfs:subClassOf legal:LegalDocument ;
+    rdfs:comment "Answer to complaint" ;
+    legal:responseDeadline 30 ;  # days
+    legal:allowedResponses ("Admit" "Deny" "Lack Knowledge") ;
+    eight:maxDefenses 8 .
+
+legal:DiscoveryRequest rdf:type owl:Class ;
+    rdfs:subClassOf legal:LegalDocument ;
+    rdfs:comment "Discovery requests and responses" ;
+    legal:discoveryTypes ("Interrogatories" "Requests for Production" "Requests for Admission") ;
+    legal:responseDeadline 30 ;
+    eight:maxRequests 8 .
+
+# Employment Law Specialization
+legal:EmploymentCase rdf:type owl:Class ;
+    rdfs:comment "Employment law case with specialized requirements" ;
+    legal:caseTypes ("Wrongful Termination" "Discrimination" "Wage Claims" "Misclassification") ;
+    legal:requiredNotices ("EEOC" "DFEH" "Labor Commissioner") ;
+    eight:maxClaimants 8 .
+
+legal:MisclassificationClaim rdf:type owl:Class ;
+    rdfs:subClassOf legal:EmploymentCase ;
+    rdfs:comment "Independent contractor misclassification claim" ;
+    legal:applicableTests ("ABC Test" "Economic Realities" "Control Test") ;
+    legal:evidenceTypes ("Contracts" "Communications" "Work Product" "Financial Records") ;
+    eight:maxEvidenceItems 8 .
+
+# Legal Workflow Patterns (YAWL Integration)
+legal:LegalWorkflow rdf:type owl:Class ;
+    rdfs:subClassOf yawl:Workflow ;
+    rdfs:comment "Legal workflow with YAWL pattern integration" ;
+    eight:maxWorkflowSteps 8 ;
+    eight:maxParallelTasks 8 .
+
+legal:FilingWorkflow rdf:type owl:Class ;
+    rdfs:subClassOf legal:LegalWorkflow ;
+    rdfs:comment "Document filing workflow with jurisdiction-specific steps" ;
+    yawl:hasPattern yawl:Sequence ;
+    yawl:hasPattern yawl:ParallelSplit ;
+    yawl:hasPattern yawl:Synchronization ;
+    legal:workflowSteps ("Document Generation" "Review" "E-Filing" "Service" "Confirmation") .
+
+legal:ServiceWorkflow rdf:type owl:Class ;
+    rdfs:subClassOf legal:LegalWorkflow ;
+    rdfs:comment "Service of process workflow" ;
+    legal:serviceSteps ("Identify Parties" "Select Method" "Execute Service" "File Proof") ;
+    eight:maxServiceAttempts 8 .
+
+# Legal Templates and Automation
+legal:DocumentTemplate rdf:type owl:Class ;
+    rdfs:comment "Legal document template with variable substitution" ;
+    legal:templateFormat "TTL+Jinja2" ;
+    legal:variableTypes ("Party Names" "Dates" "Amounts" "Legal Standards") ;
+    eight:maxVariables 8 .
+
+legal:NevadaMotionTemplate rdf:type legal:DocumentTemplate ;
+    rdfs:comment "Motion template for Nevada state court" ;
+    legal:applicableRules "NRCP" ;
+    legal:templatePath "/templates/nevada/motion.j2" ;
+    legal:requiredVariables ("case_number" "judge" "parties" "motion_type") .
+
+legal:CaliforniaComplaintTemplate rdf:type legal:DocumentTemplate ;
+    rdfs:comment "Complaint template for California state court" ;
+    legal:applicableRules "CCP" ;
+    legal:templatePath "/templates/california/complaint.j2" ;
+    legal:requiredVariables ("court" "case_type" "damages" "causes_of_action") .
+
+# Service of Process Rules
+legal:ServiceRule rdf:type owl:Class ;
+    rdfs:comment "Service of process rules by jurisdiction" ;
+    eight:maxServiceWindow 8 .  # 8 business days
+
+legal:PersonalService rdf:type legal:ServiceRule ;
+    rdfs:comment "Personal service requirements" ;
+    legal:validRecipients ("Named Party" "Authorized Agent" "Person in Charge") ;
+    legal:proofRequired "Declaration of Service" ;
+    eight:maxAttempts 8 .
+
+legal:CertifiedMailService rdf:type legal:ServiceRule ;
+    rdfs:comment "Certified mail service" ;
+    legal:returnReceiptRequired true ;
+    legal:deliveryConfirmation "USPS Tracking" ;
+    eight:maxMailingDays 8 .
+
+# Compliance and Audit Framework
+legal:ComplianceCheck rdf:type owl:Class ;
+    rdfs:comment "Legal compliance verification" ;
+    legal:checkTypes ("Jurisdiction" "Service" "Deadlines" "Format") ;
+    eight:maxCheckTime 8 .
+
+legal:AuditTrail rdf:type owl:Class ;
+    rdfs:comment "Legal audit trail for all filings and actions" ;
+    legal:requiredFields ("Timestamp" "Actor" "Action" "Document" "Result") ;
+    legal:retentionPeriod 2555 ;  # 7 years in days
+    eight:maxTrailDepth 8 .
+
+# Properties for Legal Domain
+legal:filingSystem rdf:type owl:DatatypeProperty ;
+    rdfs:domain legal:Jurisdiction ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Electronic filing system used by jurisdiction" .
+
+legal:requiredElements rdf:type owl:DatatypeProperty ;
+    rdfs:domain legal:LegalDocument ;
+    rdfs:range rdf:List ;
+    rdfs:comment "Required elements for document validity" .
+
+legal:responseDeadline rdf:type owl:DatatypeProperty ;
+    rdfs:domain legal:LegalDocument ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:comment "Response deadline in days" .
+
+legal:caseTypes rdf:type owl:DatatypeProperty ;
+    rdfs:domain legal:EmploymentCase ;
+    rdfs:range rdf:List ;
+    rdfs:comment "Supported employment case types" .
+
+legal:serviceRequired rdf:type owl:DatatypeProperty ;
+    rdfs:domain legal:LegalDocument ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether document requires service of process" .
+
+legal:templatePath rdf:type owl:DatatypeProperty ;
+    rdfs:domain legal:DocumentTemplate ;
+    rdfs:range xsd:string ;
+    rdfs:comment "File path to document template" .
+
+legal:workflowSteps rdf:type owl:DatatypeProperty ;
+    rdfs:domain legal:LegalWorkflow ;
+    rdfs:range rdf:List ;
+    rdfs:comment "Ordered list of workflow steps" .
+
+# SHACL Validation for Legal Domain
+[] rdf:type sh:NodeShape ;
+    sh:targetClass legal:LegalDocument ;
+    sh:property [
+        sh:path eight:maxPageCount ;
+        sh:maxInclusive 8 ;
+        sh:message "Legal documents limited to 8 pages under 8-Space constraints"
+    ] .
+
+[] rdf:type sh:NodeShape ;
+    sh:targetClass legal:FilingWorkflow ;
+    sh:property [
+        sh:path eight:maxWorkflowSteps ;
+        sh:hasValue 8 ;
+        sh:message "Filing workflows must not exceed 8 steps"
+    ] .
+
+[] rdf:type sh:NodeShape ;
+    sh:targetClass legal:MisclassificationClaim ;
+    sh:property [
+        sh:path eight:maxEvidenceItems ;
+        sh:maxInclusive 8 ;
+        sh:message "Evidence items limited to 8 under 8-Space constraints"
+    ] .

@@ -1,0 +1,246 @@
+# ============================================================================
+# Order Management SPARQL Queries
+# ============================================================================
+# 12+ production-ready queries for order processing and analytics
+# ============================================================================
+
+PREFIX om: <http://ggen.io/ontology/order-management#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX schema: <http://schema.org/>
+
+# ============================================================================
+# Query 1: Extract Orders by Status
+# ============================================================================
+# Get all orders with a specific status
+# Parameters: ?statusFilter (e.g., om:ProcessingStatus)
+# ============================================================================
+
+SELECT ?order ?orderNumber ?customer ?total ?orderDate
+WHERE {
+    ?order a om:Order ;
+           om:hasOrderNumber ?orderNumber ;
+           om:hasOrderStatus ?status ;
+           om:hasCustomer ?customer ;
+           om:hasTotal ?total ;
+           om:hasOrderDate ?orderDate .
+
+    FILTER(?status = ?statusFilter)
+}
+ORDER BY DESC(?orderDate)
+
+# ============================================================================
+# Query 2: Calculate Order Totals with Tax
+# ============================================================================
+# Compute order totals including tax, shipping, and discounts
+# ============================================================================
+
+SELECT ?order ?orderNumber ?subtotal ?tax ?shipping ?discount
+       (?subtotal + ?tax + ?shipping - ?discount AS ?total)
+WHERE {
+    ?order a om:Order ;
+           om:hasOrderNumber ?orderNumber ;
+           om:hasSubtotal ?subtotal ;
+           om:hasTax ?tax ;
+           om:hasShippingCost ?shipping ;
+           om:hasDiscount ?discount .
+}
+
+# ============================================================================
+# Query 3: Generate Fulfillment Instructions
+# ============================================================================
+# Extract pick list for warehouse fulfillment
+# ============================================================================
+
+SELECT ?order ?orderNumber ?warehouse ?item ?product ?sku ?quantity
+WHERE {
+    ?order a om:Order ;
+           om:hasOrderNumber ?orderNumber ;
+           om:hasFulfillment ?fulfillment ;
+           om:hasOrderItem ?item .
+
+    ?fulfillment om:hasWarehouse ?warehouse .
+
+    ?item om:hasProduct ?product ;
+          om:hasSKU ?sku ;
+          om:hasQuantity ?quantity .
+
+    ?order om:hasOrderStatus om:ProcessingStatus .
+}
+ORDER BY ?warehouse ?sku
+
+# ============================================================================
+# Query 4: Track Shipment Status
+# ============================================================================
+# Monitor shipments and delivery estimates
+# ============================================================================
+
+SELECT ?order ?orderNumber ?carrier ?trackingNumber
+       ?estimatedDelivery ?actualDelivery
+WHERE {
+    ?order a om:Order ;
+           om:hasOrderNumber ?orderNumber ;
+           om:hasShipment ?shipment .
+
+    ?shipment om:hasCarrier ?carrier ;
+              om:hasTrackingInfo ?tracking ;
+              om:hasEstimatedDelivery ?estimatedDelivery .
+
+    ?tracking om:hasTrackingNumber ?trackingNumber .
+
+    OPTIONAL { ?shipment om:hasActualDelivery ?actualDelivery }
+}
+
+# ============================================================================
+# Query 5: Process Returns and Refunds
+# ============================================================================
+# Extract return requests with reasons
+# ============================================================================
+
+SELECT ?order ?orderNumber ?return ?returnReason ?refund ?refundAmount
+WHERE {
+    ?order a om:Order ;
+           om:hasOrderNumber ?orderNumber ;
+           om:hasReturn ?return .
+
+    ?return om:hasReturnReason ?returnReason .
+
+    OPTIONAL {
+        ?order om:hasRefund ?refund .
+        ?refund om:hasRefundAmount ?refundAmount .
+    }
+}
+
+# ============================================================================
+# Query 6: Identify Backorders
+# ============================================================================
+# Find items on backorder with expected restock dates
+# ============================================================================
+
+SELECT ?order ?orderNumber ?item ?product ?sku ?expectedRestock
+WHERE {
+    ?order a om:Order ;
+           om:hasOrderNumber ?orderNumber ;
+           om:hasOrderItem ?item .
+
+    ?item om:hasProduct ?product ;
+          om:hasSKU ?sku ;
+          om:hasBackorder ?backorder .
+
+    ?backorder om:hasExpectedRestockDate ?expectedRestock .
+}
+ORDER BY ?expectedRestock
+
+# ============================================================================
+# Query 7: Gift Orders with Messages
+# ============================================================================
+# Extract gift orders and gift messages
+# ============================================================================
+
+SELECT ?order ?orderNumber ?giftMessage ?giftWrap ?recipient
+WHERE {
+    ?order a om:GiftOrder ;
+           om:hasOrderNumber ?orderNumber ;
+           om:hasDeliveryAddress ?address .
+
+    OPTIONAL { ?order om:hasGiftMessage ?giftMessage }
+    OPTIONAL { ?order om:hasGiftWrap ?giftWrap }
+}
+
+# ============================================================================
+# Query 8: Order Analytics - Revenue by Day
+# ============================================================================
+# Calculate daily revenue
+# ============================================================================
+
+SELECT (SUBSTR(STR(?orderDate), 1, 10) AS ?date)
+       (SUM(?total) AS ?dailyRevenue)
+       (COUNT(?order) AS ?orderCount)
+WHERE {
+    ?order a om:Order ;
+           om:hasOrderDate ?orderDate ;
+           om:hasTotal ?total ;
+           om:hasOrderStatus ?status .
+
+    FILTER(?status != om:CancelledStatus && ?status != om:RefundedStatus)
+}
+GROUP BY (SUBSTR(STR(?orderDate), 1, 10))
+ORDER BY DESC(?date)
+
+# ============================================================================
+# Query 9: Multi-Warehouse Order Splitting
+# ============================================================================
+# Identify orders requiring fulfillment from multiple warehouses
+# ============================================================================
+
+SELECT ?order ?orderNumber (COUNT(DISTINCT ?warehouse) AS ?warehouseCount)
+WHERE {
+    ?order a om:Order ;
+           om:hasOrderNumber ?orderNumber ;
+           om:hasFulfillment ?fulfillment .
+
+    ?fulfillment om:hasWarehouse ?warehouse .
+}
+GROUP BY ?order ?orderNumber
+HAVING (COUNT(DISTINCT ?warehouse) > 1)
+
+# ============================================================================
+# Query 10: Payment Status Overview
+# ============================================================================
+# Monitor payment processing status
+# ============================================================================
+
+SELECT ?order ?orderNumber ?paymentMethod ?paymentStatus ?transactionId
+WHERE {
+    ?order a om:Order ;
+           om:hasOrderNumber ?orderNumber ;
+           om:hasPayment ?payment .
+
+    ?payment om:hasPaymentMethod ?paymentMethod ;
+             om:hasPaymentStatus ?paymentStatus ;
+             om:hasTransactionId ?transactionId .
+}
+
+# ============================================================================
+# Query 11: Late Deliveries
+# ============================================================================
+# Identify shipments past estimated delivery date
+# ============================================================================
+
+SELECT ?order ?orderNumber ?estimatedDelivery ?currentDate
+WHERE {
+    ?order a om:Order ;
+           om:hasOrderNumber ?orderNumber ;
+           om:hasShipment ?shipment .
+
+    ?shipment om:hasEstimatedDelivery ?estimatedDelivery .
+
+    FILTER NOT EXISTS { ?shipment om:hasActualDelivery ?actual }
+    FILTER(?estimatedDelivery < NOW())
+
+    BIND(NOW() AS ?currentDate)
+}
+ORDER BY ?estimatedDelivery
+
+# ============================================================================
+# Query 12: Customer Order History
+# ============================================================================
+# Extract complete order history for a customer
+# Parameters: ?customerId
+# ============================================================================
+
+SELECT ?order ?orderNumber ?orderDate ?total ?status
+WHERE {
+    ?order a om:Order ;
+           om:hasOrderNumber ?orderNumber ;
+           om:hasCustomer ?customer ;
+           om:hasOrderDate ?orderDate ;
+           om:hasTotal ?total ;
+           om:hasOrderStatus ?status .
+
+    FILTER(?customer = ?customerId)
+}
+ORDER BY DESC(?orderDate)
+
+# Total Queries: 12

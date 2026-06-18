@@ -1,0 +1,15 @@
+@prefix ostar: <urn:ostar:ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<urn:ostar:law:OTelWeaverBridge> a ostar:Law ;
+    ostar:lawId "OTelWeaverBridge" ;
+    ostar:hasTransition [
+        ostar:inputValue "RawLog" ;
+        ostar:selectCondition "ValidFormat" ;
+        ostar:admitConsequence "ParsedEvidence" ;
+    ] ;
+    ostar:hasTransition [
+        ostar:inputValue "ParsedEvidence" ;
+        ostar:selectCondition "CryptoVerified" ;
+        ostar:admitConsequence "AdmittedEvidence" ;
+    ] .

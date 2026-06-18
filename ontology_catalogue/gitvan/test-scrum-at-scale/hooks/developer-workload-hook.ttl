@@ -1,0 +1,34 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+@prefix op: <https://gitvan.dev/op#> .
+@prefix scrum: <http://example.org/scrum#> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+
+gh:developer-workload-hook rdf:type gh:Hook ;
+    dct:title "Developer Workload Monitor" ;
+    gh:hasPredicate gh:developer-predicate ;
+    gh:orderedPipelines ( gh:developer-workflow ) .
+
+gh:developer-predicate rdf:type gh:SELECTThreshold ;
+    gh:queryText """
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX scrum: <http://example.org/scrum#>
+        PREFIX gv: <http://example.org/gitvan#>
+        
+        SELECT ?developerName ?developerCapacity
+        WHERE {
+            ?developer rdf:type scrum:Developer .
+            ?developer gv:active true .
+            ?developer scrum:developerName ?developerName .
+            ?developer scrum:developerCapacity ?developerCapacity .
+        }
+    """ ;
+    gh:threshold 1 .
+
+gh:developer-workflow rdf:type gh:Workflow ;
+    op:steps ( gh:developer-log-step ) .
+
+gh:developer-log-step rdf:type gv:FileStep ;
+    gv:filePath "./logs/developer-workload.log" ;
+    gv:content "Developer Workload Hook Triggered" .

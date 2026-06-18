@@ -1,0 +1,190 @@
+# =============================================================================
+# safe-core.ttl — SAFe (Scaled Agile Framework) Core Ontology
+# YAWL Self-Play Simulation Loop v3.0
+#
+# Vocabulary: safe: (http://yawlfoundation.org/yawl/safe#)
+# Defines SAFe concepts for PI planning, sprint simulation, and portfolio management
+# =============================================================================
+
+@prefix rdf:         <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:        <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:         <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl:         <http://www.w3.org/2002/07/owl#> .
+@prefix safe:        <http://yawlfoundation.org/yawl/safe#> .
+
+<http://yawlfoundation.org/yawl/safe> a owl:Ontology ;
+    rdfs:label "SAFe Core Ontology" ;
+    rdfs:comment "Scaled Agile Framework vocabulary for YAWL self-play simulation" ;
+    owl:versionInfo "1.0.0" .
+
+# =============================================================================
+# CLASSES
+# =============================================================================
+
+safe:Portfolio a owl:Class ;
+    rdfs:label "Portfolio" ;
+    rdfs:comment "The highest level of SAFe organization containing multiple ARTs" .
+
+safe:ART a owl:Class ;
+    rdfs:label "Agile Release Train" ;
+    rdfs:comment "A team of teams (50-125 people) that delivers value incrementally" .
+
+safe:Team a owl:Class ;
+    rdfs:label "Agile Team" ;
+    rdfs:comment "A cross-functional team (5-11 people) within an ART" .
+
+safe:PI a owl:Class ;
+    rdfs:label "Program Increment" ;
+    rdfs:comment "8-12 week planning cadence, typically 4 sprints + IP iteration" .
+
+safe:Sprint a owl:Class ;
+    rdfs:label "Sprint" ;
+    rdfs:comment "2-week iteration within a PI" .
+
+safe:Epic a owl:Class ;
+    rdfs:label "Epic" ;
+    rdfs:comment "Large initiative that spans multiple PIs, portfolio-level" .
+
+safe:Feature a owl:Class ;
+    rdfs:label "Feature" ;
+    rdfs:comment "A service that fulfills stakeholder needs, sized for a single PI" .
+
+safe:Story a owl:Class ;
+    rdfs:label "User Story" ;
+    rdfs:comment "Small, estimable work item that fits in a single sprint" .
+
+safe:Enabler a owl:Class ;
+    rdfs:label "Enabler" ;
+    rdfs:comment "Technical initiative to support architectural runway" .
+
+safe:Capability a owl:Class ;
+    rdfs:label "Business Capability" ;
+    rdfs:comment "A specific business ability that delivers value" .
+
+safe:ValueStream a owl:Class ;
+    rdfs:label "Value Stream" ;
+    rdfs:comment "The series of steps to deliver value to the customer" .
+
+safe:Solution a owl:Class ;
+    rdfs:label "Solution" ;
+    rdfs:comment "A product or service delivered by an ART" .
+
+# =============================================================================
+# PROPERTIES
+# =============================================================================
+
+safe:hasTeam a owl:ObjectProperty ;
+    rdfs:domain safe:ART ;
+    rdfs:range safe:Team ;
+    rdfs:label "has team" .
+
+safe:hasART a owl:ObjectProperty ;
+    rdfs:domain safe:Portfolio ;
+    rdfs:range safe:ART ;
+    rdfs:label "has ART" .
+
+safe:hasPI a owl:ObjectProperty ;
+    rdfs:domain safe:ART ;
+    rdfs:range safe:PI ;
+    rdfs:label "has PI" .
+
+safe:hasSprint a owl:ObjectProperty ;
+    rdfs:domain safe:PI ;
+    rdfs:range safe:Sprint ;
+    rdfs:label "has sprint" .
+
+safe:hasFeature a owl:ObjectProperty ;
+    rdfs:domain safe:PI ;
+    rdfs:range safe:Feature ;
+    rdfs:label "has feature" .
+
+safe:hasStory a owl:ObjectProperty ;
+    rdfs:domain safe:Feature ;
+    rdfs:range safe:Story ;
+    rdfs:label "has story" .
+
+safe:hasEpic a owl:ObjectProperty ;
+    rdfs:domain safe:Portfolio ;
+    rdfs:range safe:Epic ;
+    rdfs:label "has epic" .
+
+safe:implementsCapability a owl:ObjectProperty ;
+    rdfs:domain safe:Feature ;
+    rdfs:range safe:Capability ;
+    rdfs:label "implements capability" .
+
+safe:velocity a owl:DatatypeProperty ;
+    rdfs:domain safe:Team ;
+    rdfs:range xsd:integer ;
+    rdfs:label "velocity" ;
+    rdfs:comment "Story points completed per sprint" .
+
+safe:storyPoints a owl:DatatypeProperty ;
+    rdfs:domain safe:Story ;
+    rdfs:range xsd:integer ;
+    rdfs:label "story points" .
+
+safe:wsjfScore a owl:DatatypeProperty ;
+    rdfs:domain safe:Feature ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "WSJF score" ;
+    rdfs:comment "Weighted Shortest Job First priority score" .
+
+safe:businessValue a owl:DatatypeProperty ;
+    rdfs:domain safe:Feature ;
+    rdfs:range xsd:integer ;
+    rdfs:label "business value" .
+
+safe:timeCriticality a owl:DatatypeProperty ;
+    rdfs:domain safe:Feature ;
+    rdfs:range xsd:integer ;
+    rdfs:label "time criticality" .
+
+safe:riskReduction a owl:DatatypeProperty ;
+    rdfs:domain safe:Feature ;
+    rdfs:range xsd:integer ;
+    rdfs:label "risk reduction/opportunity enablement" .
+
+safe:jobSize a owl:DatatypeProperty ;
+    rdfs:domain safe:Feature ;
+    rdfs:range xsd:integer ;
+    rdfs:label "job size" .
+
+safe:sprintNumber a owl:DatatypeProperty ;
+    rdfs:domain safe:Sprint ;
+    rdfs:range xsd:integer ;
+    rdfs:label "sprint number" .
+
+safe:piNumber a owl:DatatypeProperty ;
+    rdfs:domain safe:PI ;
+    rdfs:range xsd:integer ;
+    rdfs:label "PI number" .
+
+safe:status a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "status" ;
+    rdfs:comment "Current state: planned, in-progress, completed, blocked" .
+
+# =============================================================================
+# INSTANCES — Default Simulation Configuration
+# =============================================================================
+
+safe:DefaultPortfolio a safe:Portfolio ;
+    rdfs:label "Default Simulation Portfolio" .
+
+safe:DefaultART a safe:ART ;
+    rdfs:label "Default Simulation ART" ;
+    safe:velocity 40 ;
+    safe:hasTeam safe:TeamAlpha, safe:TeamBeta, safe:TeamGamma .
+
+safe:TeamAlpha a safe:Team ;
+    rdfs:label "Team Alpha" ;
+    safe:velocity 15 .
+
+safe:TeamBeta a safe:Team ;
+    rdfs:label "Team Beta" ;
+    safe:velocity 12 .
+
+safe:TeamGamma a safe:Team ;
+    rdfs:label "Team Gamma" ;
+    safe:velocity 13 .

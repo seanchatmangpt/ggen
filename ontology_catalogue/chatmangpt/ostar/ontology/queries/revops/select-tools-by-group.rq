@@ -1,0 +1,11 @@
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+
+SELECT ?notation ?prefLabel ?group
+WHERE {
+  ?tool a skos:Concept .
+  ?tool skos:notation ?notation .
+  ?tool skos:prefLabel ?prefLabel .
+  ?tool dcterms:hasPart ?group .
+}
+ORDER BY ?group ?notation

@@ -1,0 +1,193 @@
+# Basic RDF Schema for UNRDF Sync Examples
+# A simple ontology demonstrating common RDF patterns
+# Version: 1.0.0
+# License: MIT
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://www.foaf-project.org/> .
+
+# Example namespace for sync demonstrations
+@prefix ex: <http://example.org/schema#> .
+
+# =============================================================================
+# ONTOLOGY METADATA
+# =============================================================================
+
+ex:SyncExampleOntology a owl:Ontology ;
+    rdfs:label "UNRDF Sync Example Schema"@en ;
+    rdfs:comment """A basic RDF schema for demonstrating the UNRDF sync command.
+    This ontology defines simple classes and properties for modeling people,
+    organizations, and their relationships."""@en ;
+    owl:versionInfo "1.0.0" ;
+    dcterms:created "2026-01-19"^^xsd:date ;
+    dcterms:license <https://opensource.org/licenses/MIT> .
+
+# =============================================================================
+# CLASSES
+# =============================================================================
+
+ex:Person a rdfs:Class, owl:Class ;
+    rdfs:label "Person"@en ;
+    rdfs:comment "An individual person in the system."@en ;
+    rdfs:subClassOf foaf:Person ;
+    rdfs:isDefinedBy ex:SyncExampleOntology .
+
+ex:Organization a rdfs:Class, owl:Class ;
+    rdfs:label "Organization"@en ;
+    rdfs:comment "A company, institution, or organized group."@en ;
+    rdfs:subClassOf foaf:Organization ;
+    rdfs:isDefinedBy ex:SyncExampleOntology .
+
+ex:Project a rdfs:Class, owl:Class ;
+    rdfs:label "Project"@en ;
+    rdfs:comment "A collaborative work project or initiative."@en ;
+    rdfs:isDefinedBy ex:SyncExampleOntology .
+
+# =============================================================================
+# DATATYPE PROPERTIES
+# =============================================================================
+
+ex:name a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "name"@en ;
+    rdfs:comment "The name of a person, organization, or project."@en ;
+    rdfs:domain [ a owl:Class ;
+                  owl:unionOf (ex:Person ex:Organization ex:Project) ] ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy ex:SyncExampleOntology .
+
+ex:email a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "email"@en ;
+    rdfs:comment "The email address of a person."@en ;
+    rdfs:domain ex:Person ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf foaf:mbox ;
+    rdfs:isDefinedBy ex:SyncExampleOntology .
+
+ex:founded a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "founded"@en ;
+    rdfs:comment "The date when an organization was founded."@en ;
+    rdfs:domain ex:Organization ;
+    rdfs:range xsd:date ;
+    rdfs:isDefinedBy ex:SyncExampleOntology .
+
+ex:description a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "description"@en ;
+    rdfs:comment "A textual description of an entity."@en ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf dcterms:description ;
+    rdfs:isDefinedBy ex:SyncExampleOntology .
+
+ex:startDate a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "start date"@en ;
+    rdfs:comment "The date when a project started."@en ;
+    rdfs:domain ex:Project ;
+    rdfs:range xsd:date ;
+    rdfs:isDefinedBy ex:SyncExampleOntology .
+
+ex:endDate a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "end date"@en ;
+    rdfs:comment "The date when a project ended or is planned to end."@en ;
+    rdfs:domain ex:Project ;
+    rdfs:range xsd:date ;
+    rdfs:isDefinedBy ex:SyncExampleOntology .
+
+ex:status a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "status"@en ;
+    rdfs:comment "The current status of a project (e.g., active, completed, planned)."@en ;
+    rdfs:domain ex:Project ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy ex:SyncExampleOntology .
+
+# =============================================================================
+# OBJECT PROPERTIES
+# =============================================================================
+
+ex:worksFor a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "works for"@en ;
+    rdfs:comment "Indicates that a person works for an organization."@en ;
+    rdfs:domain ex:Person ;
+    rdfs:range ex:Organization ;
+    rdfs:isDefinedBy ex:SyncExampleOntology .
+
+ex:memberOf a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "member of"@en ;
+    rdfs:comment "Indicates that a person is a member of a project."@en ;
+    rdfs:domain ex:Person ;
+    rdfs:range ex:Project ;
+    rdfs:isDefinedBy ex:SyncExampleOntology .
+
+ex:leads a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "leads"@en ;
+    rdfs:comment "Indicates that a person leads a project."@en ;
+    rdfs:domain ex:Person ;
+    rdfs:range ex:Project ;
+    rdfs:subPropertyOf ex:memberOf ;
+    rdfs:isDefinedBy ex:SyncExampleOntology .
+
+ex:collaboratesWith a rdf:Property, owl:ObjectProperty, owl:SymmetricProperty ;
+    rdfs:label "collaborates with"@en ;
+    rdfs:comment "Indicates that a person collaborates with another person."@en ;
+    rdfs:domain ex:Person ;
+    rdfs:range ex:Person ;
+    rdfs:isDefinedBy ex:SyncExampleOntology .
+
+ex:sponsors a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "sponsors"@en ;
+    rdfs:comment "Indicates that an organization sponsors a project."@en ;
+    rdfs:domain ex:Organization ;
+    rdfs:range ex:Project ;
+    rdfs:isDefinedBy ex:SyncExampleOntology .
+
+ex:partOf a rdf:Property, owl:ObjectProperty, owl:TransitiveProperty ;
+    rdfs:label "part of"@en ;
+    rdfs:comment "Indicates that an organization is part of another organization."@en ;
+    rdfs:domain ex:Organization ;
+    rdfs:range ex:Organization ;
+    rdfs:isDefinedBy ex:SyncExampleOntology .
+
+# =============================================================================
+# EXAMPLE DATA (for demonstration)
+# =============================================================================
+
+ex:JohnDoe a ex:Person ;
+    ex:name "John Doe" ;
+    ex:email "john.doe@example.org" ;
+    ex:description "Software engineer and RDF enthusiast" ;
+    rdfs:label "John Doe"@en .
+
+ex:JaneSmith a ex:Person ;
+    ex:name "Jane Smith" ;
+    ex:email "jane.smith@example.org" ;
+    ex:description "Data architect specializing in knowledge graphs" ;
+    rdfs:label "Jane Smith"@en .
+
+ex:AcmeCorp a ex:Organization ;
+    ex:name "Acme Corporation" ;
+    ex:founded "2010-01-15"^^xsd:date ;
+    ex:description "A technology company focused on semantic web solutions" ;
+    rdfs:label "Acme Corporation"@en .
+
+ex:KnowledgeGraphProject a ex:Project ;
+    ex:name "Enterprise Knowledge Graph Initiative" ;
+    ex:description "Building a unified knowledge graph for enterprise data" ;
+    ex:startDate "2024-03-01"^^xsd:date ;
+    ex:status "active" ;
+    rdfs:label "Knowledge Graph Project"@en .
+
+# =============================================================================
+# RELATIONSHIPS
+# =============================================================================
+
+ex:JohnDoe ex:worksFor ex:AcmeCorp ;
+           ex:leads ex:KnowledgeGraphProject ;
+           ex:collaboratesWith ex:JaneSmith .
+
+ex:JaneSmith ex:worksFor ex:AcmeCorp ;
+             ex:memberOf ex:KnowledgeGraphProject ;
+             ex:collaboratesWith ex:JohnDoe .
+
+ex:AcmeCorp ex:sponsors ex:KnowledgeGraphProject .

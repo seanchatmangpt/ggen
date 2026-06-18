@@ -1,0 +1,971 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix a2a: <https://a2a.com/schema/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix eg: <https://example.org/a2a#> .
+
+# Ontology Header
+a2a:Ontology a owl:Ontology ;
+    rdfs:label "A2A (Agent-to-Agent) Comprehensive Protocol Ontology" ;
+    rdfs:comment "Comprehensive RDF/TTL ontology for A2A protocol specifications including task lifecycle, message types, communication patterns, scheduling, state machines, and error handling" ;
+    owl:versionInfo "1.0.0" ;
+    owl:imports <http://www.w3.org/ns/prov> , <http://www.w3.org/2006/time> .
+
+# =================================================================================
+# Core Protocol Classes
+# =================================================================================
+
+a2a:Protocol a owl:Class ;
+    rdfs:label "A2A Protocol" ;
+    rdfs:comment "Agent-to-Agent communication protocol specification" .
+
+a2a:Agent a owl:Class ;
+    rdfs:label "Agent" ;
+    rdfs:comment "Autonomous entity that can send and receive messages, execute tasks" .
+
+a2a:Task a owl:Class ;
+    rdfs:label "Task" ;
+    rdfs:comment "Unit of work that can be executed by an agent" .
+
+a2a:Message a owl:Class ;
+    rdfs:label "Message" ;
+    rdfs:comment "Communication payload exchanged between agents" .
+
+a2a:StateMachine a owl:Class ;
+    rdfs:label "State Machine" ;
+    rdfs:comment "Definition of state transitions for protocol entities" .
+
+a2a:Error a owl:Class ;
+    rdfs:label "Error" ;
+    rdfs:comment "Protocol error with recovery strategies" .
+
+# =================================================================================
+# Task Lifecycle States
+# =================================================================================
+
+a2a:TaskState a owl:Class ;
+    rdfs:label "Task State" ;
+    rdfs:comment "State in task lifecycle state machine" .
+
+a2a:pending a owl:Class ;
+    rdfs:label "Pending" ;
+    rdfs:subClassOf a2a:TaskState ;
+    rdfs:comment "Task is created but not yet queued for execution" .
+
+a2a:queued a owl:Class ;
+    rdfs:label "Queued" ;
+    rdfs:subClassOf a2a:TaskState ;
+    rdfs:comment "Task is in queue waiting for available agent" .
+
+a2a:running a owl:Class ;
+    rdfs:label "Running" ;
+    rdfs:subClassOf a2a:TaskState ;
+    rdfs:comment "Task is currently being executed by an agent" .
+
+a2a:paused a owl:Class ;
+    rdfs:label "Paused" ;
+    rdfs:subClassOf a2a:TaskState ;
+    rdfs:comment "Task execution has been temporarily suspended" .
+
+a2a:input_required a owl:Class ;
+    rdfs:label "Input Required" ;
+    rdfs:subClassOf a2a:TaskState ;
+    rdfs:comment "Task is waiting for additional input from user or other agents" .
+
+a2a:auth_required a owl:Class ;
+    rdfs:label "Auth Required" ;
+    rdfs:subClassOf a2a:TaskState ;
+    rdfs:comment "Task requires authentication/authorization to proceed" .
+
+a2a:completed a owl:Class ;
+    rdfs:label "Completed" ;
+    rdfs:subClassOf a2a:TaskState ;
+    rdfs:comment "Task has finished successfully" .
+
+a2a:failed a owl:Class ;
+    rdfs:label "Failed" ;
+    rdfs:subClassOf a2a:TaskState ;
+    rdfs:comment "Task has failed to complete" .
+
+a2a:canceled a owl:Class ;
+    rdfs:label "Canceled" ;
+    rdfs:subClassOf a2a:TaskState ;
+    rdfs:comment "Task was canceled by user or system" .
+
+a2a:rejected a owl:Class ;
+    rdfs:label "Rejected" ;
+    rdfs:subClassOf a2a:TaskState ;
+    rdfs:comment "Task was rejected by the agent" .
+
+# =================================================================================
+# Message Types and Protocols
+# =================================================================================
+
+a2a:MessageType a owl:Class ;
+    rdfs:label "Message Type" ;
+    rdfs:comment "Classification of protocol messages" .
+
+a2a:request a owl:Class ;
+    rdfs:label "Request" ;
+    rdfs:subClassOf a2a:MessageType ;
+    rdfs:comment "Message requesting action from recipient" .
+
+a2a:response a owl:Class ;
+    rdfs:label "Response" ;
+    rdfs:subClassOf a2a:MessageType ;
+    rdfs:comment "Message responding to a request" .
+
+a2a:notification a owl:Class ;
+    rdfs:label "Notification" ;
+    rdfs:subClassOf a2a:MessageType ;
+    rdfs:comment "One-way message informing about events" .
+
+a2a:acknowledgment a owl:Class ;
+    rdfs:label "Acknowledgment" ;
+    rdfs:subClassOf a2a:MessageType ;
+    rdfs:comment "Message confirming receipt of another message" .
+
+a2a:heartbeat a owl:Class ;
+    rdfs:label "Heartbeat" ;
+    rdfs:subClassOf a2a:MessageType ;
+    rdfs:comment "Periodic message to maintain connection aliveness" .
+
+a2a:protocol_message a owl:Class ;
+    rdfs:label "Protocol Message" ;
+    rdfs:subClassOf a2a:Message ;
+    rdfs:comment "Message adhering to A2A protocol" .
+
+a2a:json_rpc_message a owl:Class ;
+    rdfs:label "JSON-RPC Message" ;
+    rdfs:subClassOf a2a:protocol_message ;
+    rdfs:comment "Message using JSON-RPC protocol" .
+
+a2a:sse_event a owl:Class ;
+    rdfs:label "Server-Sent Event" ;
+    rdfs:subClassOf a2a:protocol_message ;
+    rdfs:comment "Message using Server-Sent Events protocol" .
+
+# =================================================================================
+# Agent Communication Patterns
+# =================================================================================
+
+a2a:CommunicationPattern a owl:Class ;
+    rdfs:label "Communication Pattern" ;
+    rdfs:comment "Pattern for agent communication" .
+
+a2a:request_response a owl:Class ;
+    rdfs:label "Request-Response" ;
+    rdfs:subClassOf a2a:CommunicationPattern ;
+    rdfs:comment "Synchronous communication pattern" .
+
+a2a:publish_subscribe a owl:Class ;
+    rdfs:label "Publish-Subscribe" ;
+    rdfs:subClassOf a2a:CommunicationPattern ;
+    rdfs:comment "Asynchronous broadcast pattern" .
+
+a2a:point_to_point a owl:Class ;
+    rdfs:label "Point-to-Point" ;
+    rdfs:subClassOf a2a:CommunicationPattern ;
+    rdfs:comment "Direct agent-to-agent communication" .
+
+a2a:broadcast a owl:Class ;
+    rdfs:label "Broadcast" ;
+    rdfs:subClassOf a2a:CommunicationPattern ;
+    rdfs:comment "Message to all agents" .
+
+a2a:multicast a owl:Class ;
+    rdfs:label "Multicast" ;
+    rdfs:subClassOf a2a:CommunicationPattern ;
+    rdfs:comment "Message to selected group of agents" .
+
+a2a:federated a owl:Class ;
+    rdfs:label "Federated" ;
+    rdfs:subClassOf a2a:CommunicationPattern ;
+    rdfs:comment "Communication across different federated domains" .
+
+# =================================================================================
+# Task Scheduling and Routing Patterns
+# =================================================================================
+
+a2a:SchedulingStrategy a owl:Class ;
+    rdfs:label "Scheduling Strategy" ;
+    rdfs:comment "Strategy for scheduling tasks to agents" .
+
+a2a:round_robin a owl:Class ;
+    rdfs:label "Round Robin" ;
+    rdfs:subClassOf a2a:SchedulingStrategy ;
+    rdfs:comment "Tasks assigned to agents in cyclic order" .
+
+a2a:least_loaded a owl:Class ;
+    rdfs:label "Least Loaded" ;
+    rdfs:subClassOf a2a:SchedulingStrategy ;
+    rdfs:comment "Tasks assigned to agent with least current workload" .
+
+a2a:skill_based a owl:Class ;
+    rdfs:label "Skill Based" ;
+    rdfs:subClassOf a2a:SchedulingStrategy ;
+    rdfs:comment "Tasks assigned based on agent capabilities" .
+
+a2a:priority_based a owl:Class ;
+    rdfs:label "Priority Based" ;
+    rdfs:subClassOf a2a:SchedulingStrategy ;
+    rdfs:comment "Tasks scheduled based on priority levels" .
+
+a2a:resource_aware a owl:Class ;
+    rdfs:label "Resource Aware" ;
+    rdfs:subClassOf a2a:SchedulingStrategy ;
+    rdfs:comment "Tasks scheduled based on resource availability" .
+
+a2a:RoutingStrategy a owl:Class ;
+    rdfs:label "Routing Strategy" ;
+    rdfs:comment "Strategy for routing messages between agents" .
+
+a2a:direct_routing a owl:Class ;
+    rdfs:label "Direct Routing" ;
+    rdfs:subClassOf a2a:RoutingStrategy ;
+    rdfs:comment "Messages sent directly to target agent" .
+
+a2a:broker_based_routing a owl:Class ;
+    rdfs:label "Broker Based Routing" ;
+    rdfs:subClassOf a2a:RoutingStrategy ;
+    rdfs:comment "Messages routed through central broker" .
+
+a2a:content_based_routing a owl:Class ;
+    rdfs:label "Content Based Routing" ;
+    rdfs:subClassOf a2a:RoutingStrategy ;
+    rdfs:comment "Messages routed based on content analysis" .
+
+a2a:adaptive_routing a owl:Class ;
+    rdfs:label "Adaptive Routing" ;
+    rdfs:subClassOf a2a:RoutingStrategy ;
+    rdfs:comment "Dynamic routing based on network conditions" .
+
+# =================================================================================
+# State Machine Definitions
+# =================================================================================
+
+a2a:State a owl:Class ;
+    rdfs:label "State" ;
+    rdfs:comment "State in a state machine" .
+
+a2a:Transition a owl:Class ;
+    rdfs:label "Transition" ;
+    rdfs:comment "State transition with conditions" .
+
+a2a:TransitionCondition a owl:Class ;
+    rdfs:label "Transition Condition" ;
+    rdfs:comment "Condition that must be met for a transition" .
+
+a2a:Action a owl:Class ;
+    rdfs:label "Action" ;
+    rdfs:comment "Action to be performed during a transition" .
+
+a2a:TaskStateMachine a owl:Class ;
+    rdfs:label "Task State Machine" ;
+    rdfs:subClassOf a2a:StateMachine ;
+    rdfs:comment "State machine for task lifecycle" .
+
+a2a:CommunicationStateMachine a owl:Class ;
+    rdfs:label "Communication State Machine" ;
+    rdfs:subClassOf a2a:StateMachine ;
+    rdfs:comment "State machine for communication sessions" .
+
+a2a:AgentLifecycleState a owl:Class ;
+    rdfs:label "Agent Lifecycle State" ;
+    rdfs:comment "State in agent lifecycle" .
+
+a2a:active a owl:Class ;
+    rdfs:label "Active" ;
+    rdfs:subClassOf a2a:AgentLifecycleState ;
+    rdfs:comment "Agent is active and ready to receive tasks" .
+
+a2a:inactive a owl:Class ;
+    rdfs:label "Inactive" ;
+    rdfs:subClassOf a2a:AgentLifecycleState ;
+    rdfs:comment "Agent is not active" .
+
+a2a:maintenance a owl:Class ;
+    rdfs:label "Maintenance" ;
+    rdfs:subClassOf a2a:AgentLifecycleState ;
+    rdfs:comment "Agent is under maintenance" .
+
+a2a:terminated a owl:Class ;
+    rdfs:label "Terminated" ;
+    rdfs:subClassOf a2a:AgentLifecycleState ;
+    rdfs:comment "Agent has been terminated" .
+
+# =================================================================================
+# Error Propagation and Recovery Patterns
+# =================================================================================
+
+a2a:ErrorType a owl:Class ;
+    rdfs:label "Error Type" ;
+    rdfs:comment "Classification of protocol errors" .
+
+a2a:timeout_error a owl:Class ;
+    rdfs:label "Timeout Error" ;
+    rdfs:subClassOf a2a:Error ;
+    rdfs:subClassOf a2a:ErrorType ;
+    rdfs:comment "Operation timed out" .
+
+a2a:network_error a owl:Class ;
+    rdfs:label "Network Error" ;
+    rdfs:subClassOf a2a:Error ;
+    rdfs:subClassOf a2a:ErrorType ;
+    rdfs:comment "Network communication failure" .
+
+a2a:protocol_error a owl:Class ;
+    rdfs:label "Protocol Error" ;
+    rdfs:subClassOf a2a:Error ;
+    rdfs:subClassOf a2a:ErrorType ;
+    rdfs:comment "Protocol violation" .
+
+a2a:validation_error a owl:Class ;
+    rdfs:label "Validation Error" ;
+    rdfs:subClassOf a2a:Error ;
+    rdfs:subClassOf a2a:ErrorType ;
+    rdfs:comment "Invalid data or state" .
+
+a2a:authorization_error a owl:Class ;
+    rdfs:label "Authorization Error" ;
+    rdfs:subClassOf a2a:Error ;
+    rdfs:subClassOf a2a:ErrorType ;
+    rdfs:comment "Unauthorized access" .
+
+a2a:resource_error a owl:Class ;
+    rdfs:label "Resource Error" ;
+    rdfs:subClassOf a2a:Error ;
+    rdfs:subClassOf a2a:ErrorType ;
+    rdfs:comment "Resource unavailable or exhausted" .
+
+a2a:RecoveryStrategy a owl:Class ;
+    rdfs:label "Recovery Strategy" ;
+    rdfs:comment "Strategy for recovering from errors" .
+
+a2a:retry_strategy a owl:Class ;
+    rdfs:label "Retry Strategy" ;
+    rdfs:subClassOf a2a:RecoveryStrategy ;
+    rdfs:comment "Retry failed operation with backoff" .
+
+a2a:fallback_strategy a owl:Class ;
+    rdfs:label "Fallback Strategy" ;
+    rdfs:subClassOf a2a:RecoveryStrategy ;
+    rdfs:comment "Use alternative method when primary fails" .
+
+a2a:compensate_strategy a owl:Class ;
+    rdfs:label "Compensate Strategy" ;
+    rdfs:subClassOf a2a:RecoveryStrategy ;
+    rdfs:comment "Undo previous operations to maintain consistency" .
+
+a2a:escalate_strategy a owl:Class ;
+    rdfs:label "Escalate Strategy" ;
+    rdfs:subClassOf a2a:RecoveryStrategy ;
+    rdfs:comment "Escalate to higher level for manual intervention" .
+
+# =================================================================================
+# Properties
+# =================================================================================
+
+# Task Properties
+a2a:task_id a owl:DatatypeProperty ;
+    rdfs:label "Task ID" ;
+    rdfs:domain a2a:Task ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Unique identifier for the task" .
+
+a2a:task_name a owl:DatatypeProperty ;
+    rdfs:label "Task Name" ;
+    rdfs:domain a2a:Task ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Human-readable name for the task" .
+
+a2a:task_description a owl:DatatypeProperty ;
+    rdfs:label "Task Description" ;
+    rdfs:domain a2a:Task ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Detailed description of the task" .
+
+a2a:task_state a owl:ObjectProperty ;
+    rdfs:label "Task State" ;
+    rdfs:domain a2a:Task ;
+    rdfs:range a2a:TaskState ;
+    rdfs:comment "Current state of the task" .
+
+a2a:task_priority a owl:DatatypeProperty ;
+    rdfs:label "Task Priority" ;
+    rdfs:domain a2a:Task ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Priority level (higher number = higher priority)" .
+
+a2a:task_timeout a owl:DatatypeProperty ;
+    rdfs:label "Task Timeout" ;
+    rdfs:domain a2a:Task ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Maximum execution time for the task" .
+
+a2a:task_created a owl:DatatypeProperty ;
+    rdfs:label "Task Created" ;
+    rdfs:domain a2a:Task ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Timestamp when task was created" .
+
+a2a:task_started a owl:DatatypeProperty ;
+    rdfs:label "Task Started" ;
+    rdfs:domain a2a:Task ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Timestamp when task execution started" .
+
+a2a:task_completed a owl:DatatypeProperty ;
+    rdfs:label "Task Completed" ;
+    rdfs:domain a2a:Task ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Timestamp when task completed" .
+
+a2a:task_duration a owl:DatatypeProperty ;
+    rdfs:label "Task Duration" ;
+    rdfs:domain a2a:Task ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Total duration of task execution" .
+
+# Agent Properties
+a2a:agent_id a owl:DatatypeProperty ;
+    rdfs:label "Agent ID" ;
+    rdfs:domain a2a:Agent ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Unique identifier for the agent" .
+
+a2a:agent_name a owl:DatatypeProperty ;
+    rdfs:label "Agent Name" ;
+    rdfs:domain a2a:Agent ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Human-readable name for the agent" .
+
+a2a:agent_type a owl:DatatypeProperty ;
+    rdfs:label "Agent Type" ;
+    rdfs:domain a2a:Agent ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type/category of the agent" .
+
+a2a:agent_state a owl:ObjectProperty ;
+    rdfs:label "Agent State" ;
+    rdfs:domain a2a:Agent ;
+    rdfs:range a2a:AgentLifecycleState ;
+    rdfs:comment "Current lifecycle state of the agent" .
+
+a2a:agent_capabilities a owl:DatatypeProperty ;
+    rdfs:label "Agent Capabilities" ;
+    rdfs:domain a2a:Agent ;
+    rdfs:range [a rdf:List] ;
+    rdfs:comment "List of capabilities the agent possesses" .
+
+a2a:agent_capacity a owl:DatatypeProperty ;
+    rdfs:label "Agent Capacity" ;
+    rdfs:domain a2a:Agent ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Maximum number of concurrent tasks the agent can handle" .
+
+a2a:agent_current_load a owl:DatatypeProperty ;
+    rdfs:label "Agent Current Load" ;
+    rdfs:domain a2a:Agent ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Current number of tasks being processed" .
+
+a2a:agent_endpoint a owl:DatatypeProperty ;
+    rdfs:label "Agent Endpoint" ;
+    rdfs:domain a2a:Agent ;
+    rdfs:range xsd:anyURI ;
+    rdfs:comment "Network endpoint for the agent" .
+
+# Message Properties
+a2a:message_id a owl:DatatypeProperty ;
+    rdfs:label "Message ID" ;
+    rdfs:domain a2a:Message ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Unique identifier for the message" .
+
+a2a:message_type a owl:ObjectProperty ;
+    rdfs:label "Message Type" ;
+    rdfs:domain a2a:Message ;
+    rdfs:range a2a:MessageType ;
+    rdfs:comment "Type of the message" .
+
+a2a:message_content a owl:DatatypeProperty ;
+    rdfs:label "Message Content" ;
+    rdfs:domain a2a:Message ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Content/payload of the message" .
+
+a2a:timestamp a owl:DatatypeProperty ;
+    rdfs:label "Timestamp" ;
+    rdfs:domain a2a:Message ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Timestamp when message was sent" .
+
+a2a:sender a owl:ObjectProperty ;
+    rdfs:label "Sender" ;
+    rdfs:domain a2a:Message ;
+    rdfs:range a2a:Agent ;
+    rdfs:comment "Agent that sent the message" .
+
+a2a:recipient a owl:ObjectProperty ;
+    rdfs:label "Recipient" ;
+    rdfs:domain a2a:Message ;
+    rdfs:range a2a:Agent ;
+    rdfs:comment "Agent that should receive the message" .
+
+a2a:correlation_id a owl:DatatypeProperty ;
+    rdfs:label "Correlation ID" ;
+    rdfs:domain a2a:Message ;
+    rdfs:range xsd:string ;
+    rdfs:comment "ID for correlating related messages" .
+
+a2a:reply_to a owl:DatatypeProperty ;
+    rdfs:label "Reply To" ;
+    rdfs:domain a2a:Message ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Message ID this is a reply to" .
+
+# Protocol Properties
+a2a:protocol_version a owl:DatatypeProperty ;
+    rdfs:label "Protocol Version" ;
+    rdfs:domain a2a:Protocol ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Version of the protocol" .
+
+a2a:supported_patterns a owl:DatatypeProperty ;
+    rdfs:label "Supported Patterns" ;
+    rdfs:domain a2a:Protocol ;
+    rdfs:range [a rdf:List] ;
+    rdfs:comment "List of supported communication patterns" .
+
+a2a:encryption_required a owl:DatatypeProperty ;
+    rdfs:label "Encryption Required" ;
+    rdfs:domain a2a:Protocol ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether encryption is required for communication" .
+
+# State Machine Properties
+a2a:current_state a owl:ObjectProperty ;
+    rdfs:label "Current State" ;
+    rdfs:domain a2a:StateMachine ;
+    rdfs:range a2a:State ;
+    rdfs:comment "Current state of the state machine" .
+
+a2a:initial_state a owl:ObjectProperty ;
+    rdfs:label "Initial State" ;
+    rdfs:domain a2a:StateMachine ;
+    rdfs:range a2a:State ;
+    rdfs:comment "Starting state of the state machine" .
+
+a2a:transition a owl:ObjectProperty ;
+    rdfs:label "Transition" ;
+    rdfs:domain a2a:StateMachine ;
+    rdfs:range a2a:Transition ;
+    rdfs:comment "Available transitions in the state machine" .
+
+a2a:from_state a owl:ObjectProperty ;
+    rdfs:label "From State" ;
+    rdfs:domain a2a:Transition ;
+    rdfs:range a2a:State ;
+    rdfs:comment "Source state for the transition" .
+
+a2a:to_state a owl:ObjectProperty ;
+    rdfs:label "To State" ;
+    rdfs:domain a2a:Transition ;
+    rdfs:range a2a:State ;
+    rdfs:comment "Target state for the transition" .
+
+a2a:condition a owl:ObjectProperty ;
+    rdfs:label "Condition" ;
+    rdfs:domain a2a:Transition ;
+    rdfs:range a2a:TransitionCondition ;
+    rdfs:comment "Condition for the transition" .
+
+a2a:action a owl:ObjectProperty ;
+    rdfs:label "Action" ;
+    rdfs:domain a2a:Transition ;
+    rdfs:range a2a:Action ;
+    rdfs:comment "Action to perform during transition" .
+
+# Error Properties
+a2a:error_code a owl:DatatypeProperty ;
+    rdfs:label "Error Code" ;
+    rdfs:domain a2a:Error ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Unique error code" .
+
+a2a:error_message a owl:DatatypeProperty ;
+    rdfs:label "Error Message" ;
+    rdfs:domain a2a:Error ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Human-readable error description" .
+
+a2a:error_severity a owl:DatatypeProperty ;
+    rdfs:label "Error Severity" ;
+    rdfs:domain a2a:Error ;
+    rdfs:range ["low" "medium" "high" "critical"] ;
+    rdfs:comment "Severity level of the error" .
+
+a2a:error_cause a owl:ObjectProperty ;
+    rdfs:label "Error Cause" ;
+    rdfs:domain a2a:Error ;
+    rdfs:range a2a:Error ;
+    rdfs:comment "Root cause of this error" .
+
+a2a:recovery_strategy a owl:ObjectProperty ;
+    rdfs:label "Recovery Strategy" ;
+    rdfs:domain a2a:Error ;
+    rdfs:range a2a:RecoveryStrategy ;
+    rdfs:comment "Strategy for recovering from this error" .
+
+# Scheduling and Routing Properties
+a2a:scheduling_strategy a owl:ObjectProperty ;
+    rdfs:label "Scheduling Strategy" ;
+    rdfs:domain a2a:Task ;
+    rdfs:range a2a:SchedulingStrategy ;
+    rdfs:comment "Strategy for scheduling this task" .
+
+a2a:routing_strategy a owl:ObjectProperty ;
+    rdfs:label "Routing Strategy" ;
+    rdfs:domain a2a:Message ;
+    rdfs:range a2a:RoutingStrategy ;
+    rdfs:comment "Strategy for routing this message" .
+
+a2a:communication_pattern a owl:ObjectProperty ;
+    rdfs:label "Communication Pattern" ;
+    rdfs:domain a2a:Message ;
+    rdfs:range a2a:CommunicationPattern ;
+    rdfs:comment "Communication pattern for this message" .
+
+# =================================================================================
+# SHACL Validation Shapes
+# =================================================================================
+
+a2a:TaskShape a sh:NodeShape ;
+    sh:targetClass a2a:Task ;
+    sh:property [
+        sh:path a2a:task_id ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxLength 256 ;
+    ] ;
+    sh:property [
+        sh:path a2a:task_name ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 100 ;
+    ] ;
+    sh:property [
+        sh:path a2a:task_description ;
+        sh:datatype xsd:string ;
+        sh:maxLength 1000 ;
+    ] ;
+    sh:property [
+        sh:path a2a:task_state ;
+        sh:in ( a2a:pending a2a:queued a2a:running a2a:paused
+                a2a:input_required a2a:auth_required
+                a2a:completed a2a:failed a2a:canceled a2a:rejected ) ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path a2a:task_priority ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 1000 ;
+    ] ;
+    sh:property [
+        sh:path a2a:task_timeout ;
+        sh:datatype xsd:duration ;
+        sh:maxInclusive "PT3600S" ;  // 1 hour max
+    ] .
+
+a2a:AgentShape a sh:NodeShape ;
+    sh:targetClass a2a:Agent ;
+    sh:property [
+        sh:path a2a:agent_id ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxLength 256 ;
+    ] ;
+    sh:property [
+        sh:path a2a:agent_name ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 100 ;
+    ] ;
+    sh:property [
+        sh:path a2a:agent_state ;
+        sh:in ( a2a:active a2a:inactive a2a:maintenance a2a:terminated ) ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path a2a:agent_capacity ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 1000 ;
+    ] ;
+    sh:property [
+        sh:path a2a:agent_current_load ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 1000 ;
+    ] ;
+    sh:constraint [
+        sh:property a2a:agent_current_load ;
+        sh:lessThanOrEquals a2a:agent_capacity ;
+    ] .
+
+a2a:MessageShape a sh:NodeShape ;
+    sh:targetClass a2a:Message ;
+    sh:property [
+        sh:path a2a:message_id ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxLength 256 ;
+    ] ;
+    sh:property [
+        sh:path a2a:message_type ;
+        sh:in ( a2a:request a2a:response a2a:notification
+                a2a:acknowledgment a2a:heartbeat ) ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path a2a:sender ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path a2a:recipient ;
+        sh:minCount 0 ;  // Notifications may not have specific recipients
+    ] ;
+    sh:property [
+        sh:path a2a:timestamp ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+    ] .
+
+a2a:ProtocolShape a sh:NodeShape ;
+    sh:targetClass a2a:Protocol ;
+    sh:property [
+        sh:path a2a:protocol_version ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9]+\\.[0-9]+(\\.[0-9]+)?$" ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path a2a:supported_patterns ;
+        sh:or (
+            [ sh:hasValue a2a:request_response ]
+            [ sh:hasValue a2a:publish_subscribe ]
+            [ sh:hasValue a2a:point_to_point ]
+            [ sh:hasValue a2a:broadcast ]
+            [ sh:hasValue a2a:multicast ]
+            [ sh:hasValue a2a:federated ]
+        ) ;
+        sh:minCount 1 ;
+    ] .
+
+a2a:ErrorShape a sh:NodeShape ;
+    sh:targetClass a2a:Error ;
+    sh:property [
+        sh:path a2a:error_code ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[A-Z]+_[0-9]+$" ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path a2a:error_message ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 500 ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path a2a:error_severity ;
+        sh:in ( "low" "medium" "high" "critical" ) ;
+        sh:minCount 1 ;
+    ] .
+
+# =================================================================================
+# Example Instances
+# =================================================================================
+
+# Example Task Instances
+eg:task_001 a a2a:Task ;
+    a2a:task_id "task_001" ;
+    a2a:task_name "Data Processing Task" ;
+    a2a:task_description "Process user data and generate reports" ;
+    a2a:task_state a2a:pending ;
+    a2a:task_priority 5 ;
+    a2a:task_timeout "PT30M" ;
+    a2a:task_created "2026-02-03T10:00:00Z"^^xsd:dateTime ;
+    a2a:scheduling_strategy a2a:skill_based .
+
+eg:task_002 a a2a:Task ;
+    a2a:task_id "task_002" ;
+    a2a:task_name "File Upload" ;
+    a2a:task_description "Upload large file to cloud storage" ;
+    a2a:task_state a2a:running ;
+    a2a:task_priority 8 ;
+    a2a:task_timeout "PT10M" ;
+    a2a:task_started "2026-02-03T10:15:00Z"^^xsd:dateTime ;
+    a2a:scheduling_strategy a2a:least_loaded .
+
+eg:task_003 a a2a:Task ;
+    a2a:task_id "task_003" ;
+    a2a:task_name "User Authentication" ;
+    a2a:task_description "Authenticate user credentials" ;
+    a2a:task_state a2a:auth_required ;
+    a2a:task_priority 10 ;
+    a2a:scheduling_strategy a2a:priority_based .
+
+# Example Agent Instances
+eg:agent_001 a a2a:Agent ;
+    a2a:agent_id "agent_001" ;
+    a2a:agent_name "Data Processor Agent" ;
+    a2a:agent_type "processing" ;
+    a2a:agent_state a2a:active ;
+    a2a:agent_capacity 10 ;
+    a2a:agent_current_load 3 ;
+    a2a:agent_capabilities ( "data_processing" "report_generation" "csv_export" ) ;
+    a2a:agent_endpoint "http://localhost:8081" .
+
+eg:agent_002 a a2a:Agent ;
+    a2a:agent_id "agent_002" ;
+    a2a:agent_name "Authentication Agent" ;
+    a2a:agent_type "security" ;
+    a2a:agent_state a2a:active ;
+    a2a:agent_capacity 5 ;
+    a2a:agent_current_load 2 ;
+    a2a:agent_capabilities ( "user_authentication" "jwt_generation" "password_hashing" ) ;
+    a2a:agent_endpoint "http://localhost:8082" .
+
+eg:agent_003 a a2a:Agent ;
+    a2a:agent_id "agent_003" ;
+    a2a:agent_name "File Upload Agent" ;
+    a2a:agent_type "storage" ;
+    a2a:agent_state a2a:active ;
+    a2a:agent_capacity 3 ;
+    a2a:agent_current_load 1 ;
+    a2a:agent_capabilities ( "file_upload" "cloud_storage" "progress_tracking" ) ;
+    a2a:agent_endpoint "http://localhost:8083" .
+
+# Example Message Instances
+eg:message_001 a a2a:Message ;
+    a2a:message_id "msg_001" ;
+    a2a:message_type a2a:request ;
+    a2a:content "{\"task_id\":\"task_001\",\"user_id\":\"user_123\",\"data\":\"sample_data\"}" ;
+    a2a:timestamp "2026-02-03T10:00:00Z"^^xsd:dateTime ;
+    a2a:sender eg:agent_001 ;
+    a2a:recipient eg:agent_002 ;
+    a2a:correlation_id "corr_001" ;
+    a2a:communication_pattern a2a:point_to_point ;
+    a2a:routing_strategy a2a:direct_routing .
+
+eg:message_002 a a2a:Message ;
+    a2a:message_id "msg_002" ;
+    a2a:message_type a2a:response ;
+    a2a:content "{\"status\":\"success\",\"result\":\"authentication_successful\"}" ;
+    a2a:timestamp "2026-02-03T10:05:00Z"^^xsd:dateTime ;
+    a2a:sender eg:agent_002 ;
+    a2a:recipient eg:agent_001 ;
+    a2a:correlation_id "corr_001" ;
+    a2a:communication_pattern a2a:point_to_point .
+
+eg:message_003 a a2a:Message ;
+    a2a:message_id "msg_003" ;
+    a2a:message_type a2a:notification ;
+    a2a:content "{\"event\":\"task_started\",\"task_id\":\"task_002\"}" ;
+    a2a:timestamp "2026-02-03T10:15:00Z"^^xsd:dateTime ;
+    a2a:sender eg:agent_003 ;
+    a2a:communication_pattern a2a:broadcast .
+
+# Example Error Instance
+eg:error_001 a a2a:Error ;
+    a2a:error_code "AUTH_001" ;
+    a2a:error_message "Authentication failed: invalid credentials" ;
+    a2a:error_severity "high" ;
+    a2a:error_type a2a:authorization_error ;
+    a2a:recovery_strategy a2a:retry_strategy .
+
+# Example Protocol Instance
+eg:a2a_protocol a a2a:Protocol ;
+    a2a:protocol_version "1.0.0" ;
+    a2a:supported_patterns ( a2a:request_response a2a:point_to_point a2a:broadcast ) ;
+    a2a:encryption_required true .
+
+# Example State Machine Instance
+eg:task_sm a a2a:TaskStateMachine ;
+    a2a:initial_state a2a:pending ;
+    a2a:current_state a2a:pending .
+
+eg:task_sm_transition_1 a a2a:Transition ;
+    a2a:from_state a2a:pending ;
+    a2a:to_state a2a:queued ;
+    a2a:condition [
+        a rdfs:label "Task priority condition" ;
+        a rdfs:comment "Transition when task has valid priority" ;
+    ] ;
+    a2a:action [
+        a rdfs:label "Queue task" ;
+        a rdfs:comment "Add task to processing queue" ;
+    ] .
+
+eg:task_sm_transition_2 a a2a:Transition ;
+    a2a:from_state a2a:queued ;
+    a2a:to_state a2a:running ;
+    a2a:condition [
+        a rdfs:label "Agent available condition" ;
+        a rdfs:comment "Transition when agent capacity is available" ;
+    ] ;
+    a2a:action [
+        a rdfs:label "Start task execution" ;
+        a rdfs:comment "Begin task processing" ;
+    ] .
+
+# =================================================================================
+# Axioms and Constraints
+# =================================================================================
+
+# Class axioms
+[ a owl:Axiom ;
+    owl:subject a2a:Task ;
+    owl:property a2a:task_state ;
+    owl:object a2a:TaskState ;
+    owl:qualifiedCardinality owl:QualifiedCardinality ;
+        owl:onClass a2a:TaskState ;
+        owl:cardinality "1" ;
+] .
+
+# Property constraints
+[ a owl:Axiom ;
+    owl:subject a2a:Message ;
+    owl:property a2a:sender ;
+    owl:qualifiedCardinality owl:QualifiedCardinality ;
+        owl:onClass a2a:Agent ;
+        owl:cardinality "1" ;
+] .
+
+[ a owl:Axiom ;
+    owl:subject a2a:Error ;
+    owl:property a2a:error_severity ;
+    owl:qualifiedCardinality owl:QualifiedCardinality ;
+        owl:hasValue "low" , "medium" , "high" , "critical" ;
+        owl:cardinality "1" ;
+] .
+
+# Disjointness constraints
+[ a owl:Axiom ;
+    owl:subject a2a:TaskState ;
+    owl:property a2a:disjointWith ;
+    owl:object ( a2a:agent_state a2a:MessageType a2a:ErrorType ) ;
+] .
+
+[ a owl:Axiom ;
+    owl:subject a2a:CommunicationPattern ;
+    owl:property a2a:disjointWith ;
+    owl:object ( a2a:SchedulingStrategy a2a:RoutingStrategy ) ;
+] .

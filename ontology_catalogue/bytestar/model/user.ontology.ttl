@@ -1,0 +1,29 @@
+
+@prefix : <http://example.com/domain/user#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://example.com/domain/user>
+  rdf:type owl:Ontology .
+
+# Classes
+:User rdf:type owl:Class ;
+  rdfs:label "User" ;
+  rdfs:comment "Represents a user in the system." .
+
+# Datatype Properties
+:name rdf:type owl:DatatypeProperty ;
+  rdfs:label "Name" ;
+  rdfs:domain :User ;
+  rdfs:range xsd:string .
+
+:email rdf:type owl:DatatypeProperty ;
+  rdfs:label "Email" ;
+  rdfs:domain :User ;
+  rdfs:range xsd:string .
+
+:age rdf:type owl:DatatypeProperty ;
+  rdfs:label "Age" ;
+  rdfs:domain :User ;
+  rdfs:range xsd:integer .

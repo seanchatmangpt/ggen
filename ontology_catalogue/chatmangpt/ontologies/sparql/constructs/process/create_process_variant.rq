@@ -1,0 +1,44 @@
+# @name: create_process_variant
+# @category: process
+# @description: Create a process variant trace in the event log ontology
+# @params: ?trace_id, ?process_id, ?variant_hash, ?frequency, ?trace_json, ?timestamp
+# @returns: prov:Collection with trace events and YAWL pattern classification
+# @version: 1.0
+# @stability: stable
+#
+# Used for process mining integration with pm4py-rust
+
+PREFIX bos: <http://businessos.dev/id/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX schema: <http://schema.org/>
+PREFIX yawl: <http://www.yawlfoundation.org/yawlschema/2.2#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+CONSTRUCT {
+  ?trace a prov:Collection ;
+    schema:identifier ?trace_id ;
+    rdfs:label ?trace_label ;
+    prov:hadMember ?process ;
+    yawl:variant_hash ?variant_hash ;
+    yawl:frequency ?frequency ;
+    schema:dateCreated ?timestamp ;
+    prov:value ?trace_json ;
+    prov:wasGeneratedBy ?activity .
+
+  ?activity a prov:Activity ;
+    rdfs:label "Process Variant Creation" ;
+    prov:startedAtTime ?timestamp ;
+    prov:used ?process .
+
+  ?process a prov:Entity ;
+    schema:identifier ?process_id ;
+    yawl:hasVariant ?trace .
+}
+
+WHERE {
+  BIND(IRI(CONCAT("http://businessos.dev/id/traces/", STR(?trace_id))) AS ?trace)
+  BIND(IRI(CONCAT("http://businessos.dev/id/processes/", STR(?process_id))) AS ?process)
+  BIND(IRI(CONCAT("http://businessos.dev/activity/traces/create/", STR(?trace_id))) AS ?activity)
+  BIND(CONCAT("Variant ", SUBSTR(STR(?variant_hash), 1, 8)) AS ?trace_label)
+}

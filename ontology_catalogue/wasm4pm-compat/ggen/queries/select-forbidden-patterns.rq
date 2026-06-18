@@ -1,0 +1,33 @@
+# select-forbidden-patterns.rq
+# Extract forbidden patterns from audit-machinery.ttl
+# Output: pattern name, description, related law, allowed contexts (if any)
+
+PREFIX audit:   <https://wasm4pm-compat.rs/audit#>
+PREFIX compat:  <https://wasm4pm-compat.rs/ontology#>
+PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT
+  ?patternName
+  ?patternDescription
+  ?lawName
+  ?forbiddenByUri
+  ?contextName
+WHERE {
+  ?pattern a audit:ForbiddenPattern .
+  ?pattern audit:patternName ?patternName .
+  ?pattern audit:patternDescription ?patternDescription .
+
+  OPTIONAL {
+    ?pattern audit:forbiddenBy ?forbiddenByUri .
+  }
+
+  OPTIONAL {
+    ?forbiddenByUri rdfs:label ?lawName .
+  }
+
+  OPTIONAL {
+    ?pattern audit:allowedIn ?context .
+    ?context audit:contextName ?contextName .
+  }
+}
+ORDER BY ?patternName ?contextName

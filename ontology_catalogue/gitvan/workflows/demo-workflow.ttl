@@ -1,0 +1,9 @@
+@prefix ex: <http://example.org/> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+ex:demo-workflow rdf:type gh:Hook ;
+    gv:title "Demo Workflow" ;
+    gh:hasPredicate ex:demoworkflow ;
+    gh:orderedPipelines ex:demo-workflow-pipeline .

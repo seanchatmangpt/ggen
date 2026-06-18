@@ -1,0 +1,46 @@
+@prefix ub: <https://chatmangpt.com/ontology/unibit#> .
+@prefix rust: <https://chatmangpt.com/ontology/rust#> .
+@prefix code: <https://chatmangpt.com/ontology/codegen#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+rust:NoStd a rust:CrateMode .
+rust:NoAlloc a rust:CrateMode .
+rust:Nightly a rust:ToolchainMode .
+rust:HotEligible a rust:ExecutionClass .
+rust:BoundaryOnly a rust:ExecutionClass .
+
+rust:GenericConstExprs a rust:NightlyFeature ;
+  rust:featureName "generic_const_exprs" .
+
+rust:InlineAsm a rust:Capability ;
+  rust:featureName "asm" .
+
+rust:ReprC a rust:LayoutAttribute ;
+  rust:source "#[repr(C, align(64))]" .
+
+rust:ReprTransparent a rust:LayoutAttribute ;
+  rust:source "#[repr(transparent)]" .
+
+rust:DenyUnsafeOpInUnsafeFn a rust:Lint ;
+  rust:source "#![deny(unsafe_op_in_unsafe_fn)]" .
+
+rust:DenyMissingDocs a rust:Lint ;
+  rust:source "#![deny(missing_docs)]" .
+
+rust:DenyUnwrap a rust:Lint ;
+  rust:source "#![deny(clippy::unwrap_used)]" .
+
+rust:DenyExpect a rust:Lint ;
+  rust:source "#![deny(clippy::expect_used)]" .
+
+rust:HotPathForbiddenAlloc a rust:ForbiddenConstruct ;
+  rust:appliesTo rust:HotEligible ;
+  rust:message "Hot crates may not allocate; use resident scratch or fixed arrays." .
+
+rust:HotPathForbiddenDynamicDispatch a rust:ForbiddenConstruct ;
+  rust:appliesTo rust:HotEligible ;
+  rust:message "Hot crates may not use dynamic dispatch." .
+
+rust:HotPathForbiddenPanic a rust:ForbiddenConstruct ;
+  rust:appliesTo rust:HotEligible ;
+  rust:message "Hot crates may not introduce panic paths." .

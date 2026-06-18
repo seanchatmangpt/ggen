@@ -1,0 +1,471 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix figma: <http://figma.com/ontology#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+
+# Ontology metadata
+figma:FigmaOntology a owl:Ontology ;
+    dc:title "Figma Design System Ontology" ;
+    dc:description "Complete ontology for Figma design files, nodes, styles, and components" ;
+    dc:creator "figex v4.0.0" ;
+    dc:version "1.0.0" ;
+    owl:versionInfo "Complete Figma domain model" .
+
+#############################################
+# Core Document Structure
+#############################################
+
+figma:Document a owl:Class ;
+    rdfs:label "Document" ;
+    rdfs:comment "Top-level Figma document containing pages" .
+
+figma:Page a owl:Class ;
+    rdfs:label "Page" ;
+    rdfs:comment "A page within a Figma document" ;
+    rdfs:subClassOf figma:Container .
+
+figma:Canvas a owl:Class ;
+    rdfs:label "Canvas" ;
+    rdfs:comment "The canvas within a page containing frames and nodes" ;
+    rdfs:subClassOf figma:Container .
+
+#############################################
+# Node Hierarchy (Base Classes)
+#############################################
+
+figma:Node a owl:Class ;
+    rdfs:label "Node" ;
+    rdfs:comment "Base class for all Figma nodes (frames, shapes, text, etc.)" .
+
+figma:Container a owl:Class ;
+    rdfs:label "Container" ;
+    rdfs:comment "A node that can contain child nodes" ;
+    rdfs:subClassOf figma:Node .
+
+figma:Leaf a owl:Class ;
+    rdfs:label "Leaf" ;
+    rdfs:comment "A node that cannot contain children" ;
+    rdfs:subClassOf figma:Node .
+
+#############################################
+# Frame Types
+#############################################
+
+figma:Frame a owl:Class ;
+    rdfs:label "Frame" ;
+    rdfs:comment "A frame node that can contain other nodes" ;
+    rdfs:subClassOf figma:Container .
+
+figma:Group a owl:Class ;
+    rdfs:label "Group" ;
+    rdfs:comment "A group of nodes" ;
+    rdfs:subClassOf figma:Container .
+
+figma:Section a owl:Class ;
+    rdfs:label "Section" ;
+    rdfs:comment "A section organizing frames on the canvas" ;
+    rdfs:subClassOf figma:Container .
+
+figma:Slice a owl:Class ;
+    rdfs:label "Slice" ;
+    rdfs:comment "An export slice region" ;
+    rdfs:subClassOf figma:Node .
+
+#############################################
+# Shape Types
+#############################################
+
+figma:Shape a owl:Class ;
+    rdfs:label "Shape" ;
+    rdfs:comment "Base class for all shapes" ;
+    rdfs:subClassOf figma:Leaf .
+
+figma:Rectangle a owl:Class ;
+    rdfs:label "Rectangle" ;
+    rdfs:comment "A rectangle shape" ;
+    rdfs:subClassOf figma:Shape .
+
+figma:Ellipse a owl:Class ;
+    rdfs:label "Ellipse" ;
+    rdfs:comment "An ellipse/circle shape" ;
+    rdfs:subClassOf figma:Shape .
+
+figma:Polygon a owl:Class ;
+    rdfs:label "Polygon" ;
+    rdfs:comment "A polygon shape" ;
+    rdfs:subClassOf figma:Shape .
+
+figma:Star a owl:Class ;
+    rdfs:label "Star" ;
+    rdfs:comment "A star shape" ;
+    rdfs:subClassOf figma:Shape .
+
+figma:Line a owl:Class ;
+    rdfs:label "Line" ;
+    rdfs:comment "A line shape" ;
+    rdfs:subClassOf figma:Shape .
+
+figma:Vector a owl:Class ;
+    rdfs:label "Vector" ;
+    rdfs:comment "A custom vector shape" ;
+    rdfs:subClassOf figma:Shape .
+
+figma:BooleanOperation a owl:Class ;
+    rdfs:label "Boolean Operation" ;
+    rdfs:comment "A boolean operation on shapes (union, subtract, intersect, exclude)" ;
+    rdfs:subClassOf figma:Container .
+
+#############################################
+# Text
+#############################################
+
+figma:Text a owl:Class ;
+    rdfs:label "Text" ;
+    rdfs:comment "A text node" ;
+    rdfs:subClassOf figma:Leaf .
+
+figma:TextStyle a owl:Class ;
+    rdfs:label "Text Style" ;
+    rdfs:comment "Typography styling for text" .
+
+figma:Font a owl:Class ;
+    rdfs:label "Font" ;
+    rdfs:comment "A font family used in text" .
+
+#############################################
+# Components & Instances
+#############################################
+
+figma:Component a owl:Class ;
+    rdfs:label "Component" ;
+    rdfs:comment "A reusable component (master)" ;
+    rdfs:subClassOf figma:Container .
+
+figma:ComponentSet a owl:Class ;
+    rdfs:label "Component Set" ;
+    rdfs:comment "A set of component variants" ;
+    rdfs:subClassOf figma:Container .
+
+figma:Instance a owl:Class ;
+    rdfs:label "Instance" ;
+    rdfs:comment "An instance of a component" ;
+    rdfs:subClassOf figma:Container .
+
+figma:Variant a owl:Class ;
+    rdfs:label "Variant" ;
+    rdfs:comment "A variant within a component set" ;
+    rdfs:subClassOf figma:Component .
+
+#############################################
+# Images & Media
+#############################################
+
+figma:Image a owl:Class ;
+    rdfs:label "Image" ;
+    rdfs:comment "An embedded image" ;
+    rdfs:subClassOf figma:Leaf .
+
+figma:ImageFill a owl:Class ;
+    rdfs:label "Image Fill" ;
+    rdfs:comment "An image used as a fill" .
+
+#############################################
+# Styles & Effects
+#############################################
+
+figma:Paint a owl:Class ;
+    rdfs:label "Paint" ;
+    rdfs:comment "Base class for fill and stroke paints" .
+
+figma:SolidPaint a owl:Class ;
+    rdfs:label "Solid Paint" ;
+    rdfs:comment "A solid color paint" ;
+    rdfs:subClassOf figma:Paint .
+
+figma:GradientPaint a owl:Class ;
+    rdfs:label "Gradient Paint" ;
+    rdfs:comment "A gradient paint (linear, radial, angular, diamond)" ;
+    rdfs:subClassOf figma:Paint .
+
+figma:Effect a owl:Class ;
+    rdfs:label "Effect" ;
+    rdfs:comment "Visual effect (shadow, blur, etc.)" .
+
+figma:Shadow a owl:Class ;
+    rdfs:label "Shadow" ;
+    rdfs:comment "Drop shadow or inner shadow effect" ;
+    rdfs:subClassOf figma:Effect .
+
+figma:Blur a owl:Class ;
+    rdfs:label "Blur" ;
+    rdfs:comment "Blur effect (layer blur, background blur)" ;
+    rdfs:subClassOf figma:Effect .
+
+#############################################
+# Layout & Constraints
+#############################################
+
+figma:LayoutConstraints a owl:Class ;
+    rdfs:label "Layout Constraints" ;
+    rdfs:comment "Constraints controlling node positioning and sizing" .
+
+figma:AutoLayout a owl:Class ;
+    rdfs:label "Auto Layout" ;
+    rdfs:comment "Auto layout configuration for frames" .
+
+figma:LayoutGrid a owl:Class ;
+    rdfs:label "Layout Grid" ;
+    rdfs:comment "Grid, column, or row layout guide" .
+
+#############################################
+# Properties (Core Attributes)
+#############################################
+
+# Identity
+figma:id a owl:DatatypeProperty ;
+    rdfs:label "id" ;
+    rdfs:domain figma:Node ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Unique identifier for the node" .
+
+figma:name a owl:DatatypeProperty ;
+    rdfs:label "name" ;
+    rdfs:domain figma:Node ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Human-readable name of the node" .
+
+figma:type a owl:DatatypeProperty ;
+    rdfs:label "type" ;
+    rdfs:domain figma:Node ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Node type (FRAME, TEXT, RECTANGLE, etc.)" .
+
+# Geometry
+figma:x a owl:DatatypeProperty ;
+    rdfs:label "x" ;
+    rdfs:domain figma:Node ;
+    rdfs:range xsd:float ;
+    rdfs:comment "X position relative to parent" .
+
+figma:y a owl:DatatypeProperty ;
+    rdfs:label "y" ;
+    rdfs:domain figma:Node ;
+    rdfs:range xsd:float ;
+    rdfs:comment "Y position relative to parent" .
+
+figma:width a owl:DatatypeProperty ;
+    rdfs:label "width" ;
+    rdfs:domain figma:Node ;
+    rdfs:range xsd:float ;
+    rdfs:comment "Width of the node" .
+
+figma:height a owl:DatatypeProperty ;
+    rdfs:label "height" ;
+    rdfs:domain figma:Node ;
+    rdfs:range xsd:float ;
+    rdfs:comment "Height of the node" .
+
+figma:rotation a owl:DatatypeProperty ;
+    rdfs:label "rotation" ;
+    rdfs:domain figma:Node ;
+    rdfs:range xsd:float ;
+    rdfs:comment "Rotation angle in degrees" .
+
+# Visibility & Opacity
+figma:visible a owl:DatatypeProperty ;
+    rdfs:label "visible" ;
+    rdfs:domain figma:Node ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether the node is visible" .
+
+figma:opacity a owl:DatatypeProperty ;
+    rdfs:label "opacity" ;
+    rdfs:domain figma:Node ;
+    rdfs:range xsd:float ;
+    rdfs:comment "Opacity from 0.0 to 1.0" .
+
+figma:blendMode a owl:DatatypeProperty ;
+    rdfs:label "blendMode" ;
+    rdfs:domain figma:Node ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Blend mode (NORMAL, MULTIPLY, SCREEN, etc.)" .
+
+# Text Properties
+figma:characters a owl:DatatypeProperty ;
+    rdfs:label "characters" ;
+    rdfs:domain figma:Text ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Text content" .
+
+figma:fontSize a owl:DatatypeProperty ;
+    rdfs:label "fontSize" ;
+    rdfs:domain figma:Text ;
+    rdfs:range xsd:float ;
+    rdfs:comment "Font size in pixels" .
+
+figma:fontFamily a owl:DatatypeProperty ;
+    rdfs:label "fontFamily" ;
+    rdfs:domain figma:Text ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Font family name" .
+
+figma:fontWeight a owl:DatatypeProperty ;
+    rdfs:label "fontWeight" ;
+    rdfs:domain figma:Text ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Font weight (100-900)" .
+
+figma:textAlign a owl:DatatypeProperty ;
+    rdfs:label "textAlign" ;
+    rdfs:domain figma:Text ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Text alignment (LEFT, CENTER, RIGHT, JUSTIFIED)" .
+
+# Component Properties
+figma:componentKey a owl:DatatypeProperty ;
+    rdfs:label "componentKey" ;
+    rdfs:domain figma:Component ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Unique key for the component" .
+
+figma:mainComponentKey a owl:DatatypeProperty ;
+    rdfs:label "mainComponentKey" ;
+    rdfs:domain figma:Instance ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Key of the main component this is an instance of" .
+
+# Export Properties
+figma:exportable a owl:DatatypeProperty ;
+    rdfs:label "exportable" ;
+    rdfs:domain figma:Node ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether the node can be exported" .
+
+figma:exportFormat a owl:DatatypeProperty ;
+    rdfs:label "exportFormat" ;
+    rdfs:domain figma:Node ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Export format (PNG, JPG, SVG, PDF)" .
+
+#############################################
+# Object Properties (Relationships)
+#############################################
+
+figma:hasChild a owl:ObjectProperty ;
+    rdfs:label "has child" ;
+    rdfs:domain figma:Container ;
+    rdfs:range figma:Node ;
+    rdfs:comment "Container has child node" .
+
+figma:hasParent a owl:ObjectProperty ;
+    rdfs:label "has parent" ;
+    rdfs:domain figma:Node ;
+    rdfs:range figma:Container ;
+    rdfs:comment "Node has parent container" .
+
+figma:hasFill a owl:ObjectProperty ;
+    rdfs:label "has fill" ;
+    rdfs:domain figma:Node ;
+    rdfs:range figma:Paint ;
+    rdfs:comment "Node has fill paint" .
+
+figma:hasStroke a owl:ObjectProperty ;
+    rdfs:label "has stroke" ;
+    rdfs:range figma:Paint ;
+    rdfs:comment "Node has stroke paint" .
+
+figma:hasEffect a owl:ObjectProperty ;
+    rdfs:label "has effect" ;
+    rdfs:domain figma:Node ;
+    rdfs:range figma:Effect ;
+    rdfs:comment "Node has visual effect" .
+
+figma:hasStyle a owl:ObjectProperty ;
+    rdfs:label "has style" ;
+    rdfs:domain figma:Node ;
+    rdfs:range figma:TextStyle ;
+    rdfs:comment "Node has text style" .
+
+figma:hasConstraints a owl:ObjectProperty ;
+    rdfs:label "has constraints" ;
+    rdfs:domain figma:Node ;
+    rdfs:range figma:LayoutConstraints ;
+    rdfs:comment "Node has layout constraints" .
+
+figma:hasAutoLayout a owl:ObjectProperty ;
+    rdfs:label "has auto layout" ;
+    rdfs:domain figma:Frame ;
+    rdfs:range figma:AutoLayout ;
+    rdfs:comment "Frame has auto layout configuration" .
+
+figma:instanceOf a owl:ObjectProperty ;
+    rdfs:label "instance of" ;
+    rdfs:domain figma:Instance ;
+    rdfs:range figma:Component ;
+    rdfs:comment "Instance is an instance of component" .
+
+figma:belongsToPage a owl:ObjectProperty ;
+    rdfs:label "belongs to page" ;
+    rdfs:domain figma:Node ;
+    rdfs:range figma:Page ;
+    rdfs:comment "Node belongs to page" .
+
+#############################################
+# Enumerations (using individuals)
+#############################################
+
+# Node Types
+figma:DOCUMENT a figma:Node ;
+    rdfs:label "DOCUMENT" .
+
+figma:CANVAS a figma:Node ;
+    rdfs:label "CANVAS" .
+
+figma:FRAME a figma:Node ;
+    rdfs:label "FRAME" .
+
+figma:GROUP a figma:Node ;
+    rdfs:label "GROUP" .
+
+figma:RECTANGLE a figma:Node ;
+    rdfs:label "RECTANGLE" .
+
+figma:ELLIPSE a figma:Node ;
+    rdfs:label "ELLIPSE" .
+
+figma:TEXT a figma:Node ;
+    rdfs:label "TEXT" .
+
+figma:VECTOR a figma:Node ;
+    rdfs:label "VECTOR" .
+
+figma:COMPONENT a figma:Node ;
+    rdfs:label "COMPONENT" .
+
+figma:INSTANCE a figma:Node ;
+    rdfs:label "INSTANCE" .
+
+# Blend Modes
+figma:NORMAL a figma:BlendMode ;
+    rdfs:label "NORMAL" .
+
+figma:MULTIPLY a figma:BlendMode ;
+    rdfs:label "MULTIPLY" .
+
+figma:SCREEN a figma:BlendMode ;
+    rdfs:label "SCREEN" .
+
+# Paint Types
+figma:SOLID a figma:Paint ;
+    rdfs:label "SOLID" .
+
+figma:GRADIENT_LINEAR a figma:GradientPaint ;
+    rdfs:label "GRADIENT_LINEAR" .
+
+figma:GRADIENT_RADIAL a figma:GradientPaint ;
+    rdfs:label "GRADIENT_RADIAL" .
+
+figma:IMAGE a figma:Paint ;
+    rdfs:label "IMAGE" .

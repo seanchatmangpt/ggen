@@ -1,0 +1,202 @@
+@prefix zoe:     <https://zoela.org/ontology/> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix schema:  <https://schema.org/> .
+@prefix time:    <http://www.w3.org/2006/time#> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+
+# ============================================================================
+# ZOE LA — Event Domain Ontology
+# ============================================================================
+# Source of truth for Events and Event Registrations in the ZOE LA Mobile
+# app manufacturing pipeline.  Classes map to schema:Event and
+# schema:RegisterAction.  OWL-Time (time:) is declared for temporal
+# precision.  skos:notation records the Postgres column name (snake_case).
+# ============================================================================
+
+zoe:EventOntology a owl:Ontology ;
+    rdfs:label   "ZOE LA Event Ontology"@en ;
+    rdfs:comment "Defines ZoeEvent, EventRegistration, and EventCategory for the ZOE LA Mobile manufacturing pipeline."@en ;
+    dcterms:creator "Sean Chatman" ;
+    dcterms:created "2026-05-17"^^xsd:date ;
+    dcterms:license <https://opensource.org/licenses/MIT> ;
+    owl:versionInfo "1.0.0" ;
+    owl:imports <https://zoela.org/ontology/PersonOntology> .
+
+# ============================================================================
+# Classes
+# ============================================================================
+
+zoe:ZoeEvent a owl:Class ;
+    rdfs:label      "ZOE LA Event"@en ;
+    rdfs:comment    "A church or community event organized by ZOE LA, such as a Sunday service, youth gathering, or outreach activity."@en ;
+    rdfs:subClassOf schema:Event .
+
+zoe:EventRegistration a owl:Class ;
+    rdfs:label      "Event Registration"@en ;
+    rdfs:comment    "A record linking a PersonProfile to a ZoeEvent, capturing sign-up time and attendance outcome."@en ;
+    rdfs:subClassOf schema:RegisterAction .
+
+# ============================================================================
+# ZoeEvent — Datatype Properties
+# ============================================================================
+
+zoe:eventTitle a owl:DatatypeProperty ;
+    rdfs:label      "event title"@en ;
+    rdfs:comment    "Human-readable title displayed on the event listing screen."@en ;
+    rdfs:domain     zoe:ZoeEvent ;
+    rdfs:range      xsd:string ;
+    skos:notation   "event_title" ;
+    owl:equivalentProperty schema:name .
+
+zoe:eventStart a owl:DatatypeProperty ;
+    rdfs:label      "event start"@en ;
+    rdfs:comment    "ISO-8601 datetime at which the event begins."@en ;
+    rdfs:domain     zoe:ZoeEvent ;
+    rdfs:range      xsd:dateTime ;
+    skos:notation   "event_start" ;
+    owl:equivalentProperty schema:startDate .
+
+zoe:eventEnd a owl:DatatypeProperty ;
+    rdfs:label      "event end"@en ;
+    rdfs:comment    "ISO-8601 datetime at which the event concludes."@en ;
+    rdfs:domain     zoe:ZoeEvent ;
+    rdfs:range      xsd:dateTime ;
+    skos:notation   "event_end" ;
+    owl:equivalentProperty schema:endDate .
+
+zoe:eventLocation a owl:DatatypeProperty ;
+    rdfs:label      "event location"@en ;
+    rdfs:comment    "Free-text description or address of the venue where the event takes place."@en ;
+    rdfs:domain     zoe:ZoeEvent ;
+    rdfs:range      xsd:string ;
+    skos:notation   "event_location" ;
+    owl:equivalentProperty schema:location .
+
+zoe:maxAttendees a owl:DatatypeProperty ;
+    rdfs:label      "max attendees"@en ;
+    rdfs:comment    "Maximum number of registrants permitted for the event; zero or absent means unlimited."@en ;
+    rdfs:domain     zoe:ZoeEvent ;
+    rdfs:range      xsd:integer ;
+    skos:notation   "max_attendees" ;
+    owl:equivalentProperty schema:maximumAttendeeCapacity .
+
+zoe:isPublic a owl:DatatypeProperty ;
+    rdfs:label      "is public"@en ;
+    rdfs:comment    "True if the event is visible to unregistered visitors; false if restricted to members."@en ;
+    rdfs:domain     zoe:ZoeEvent ;
+    rdfs:range      xsd:boolean ;
+    skos:notation   "is_public" .
+
+# ============================================================================
+# ZoeEvent — Object Properties
+# ============================================================================
+
+zoe:eventCategory a owl:ObjectProperty ;
+    rdfs:label      "event category"@en ;
+    rdfs:comment    "Links a ZoeEvent to its EventCategory concept."@en ;
+    rdfs:domain     zoe:ZoeEvent ;
+    rdfs:range      zoe:EventCategoryScheme ;
+    skos:notation   "event_category" ;
+    owl:equivalentProperty schema:additionalType .
+
+# ============================================================================
+# EventRegistration — Datatype Properties
+# ============================================================================
+
+zoe:registeredAt a owl:DatatypeProperty ;
+    rdfs:label      "registered at"@en ;
+    rdfs:comment    "ISO-8601 datetime when the person submitted their registration."@en ;
+    rdfs:domain     zoe:EventRegistration ;
+    rdfs:range      xsd:dateTime ;
+    skos:notation   "registered_at" ;
+    owl:equivalentProperty schema:startTime .
+
+zoe:attended a owl:DatatypeProperty ;
+    rdfs:label      "attended"@en ;
+    rdfs:comment    "True if the registrant was confirmed as present at the event; null if attendance not yet recorded."@en ;
+    rdfs:domain     zoe:EventRegistration ;
+    rdfs:range      xsd:boolean ;
+    skos:notation   "attended" .
+
+# ============================================================================
+# EventRegistration — Object Properties
+# ============================================================================
+
+zoe:registrantId a owl:ObjectProperty ;
+    rdfs:label      "registrant"@en ;
+    rdfs:comment    "Links an EventRegistration to the PersonProfile of the person who registered."@en ;
+    rdfs:domain     zoe:EventRegistration ;
+    rdfs:range      zoe:PersonProfile ;
+    skos:notation   "registrant_id" ;
+    owl:equivalentProperty schema:agent .
+
+zoe:eventId a owl:ObjectProperty ;
+    rdfs:label      "event"@en ;
+    rdfs:comment    "Links an EventRegistration to the ZoeEvent being registered for."@en ;
+    rdfs:domain     zoe:EventRegistration ;
+    rdfs:range      zoe:ZoeEvent ;
+    skos:notation   "event_id" ;
+    owl:equivalentProperty schema:object .
+
+# ============================================================================
+# EventCategory — SKOS ConceptScheme
+# ============================================================================
+
+zoe:EventCategoryScheme a skos:ConceptScheme ;
+    rdfs:label      "ZOE LA Event Category Scheme"@en ;
+    rdfs:comment    "Controlled vocabulary of event categories used by ZOE LA."@en ;
+    skos:prefLabel  "ZOE LA Event Categories"@en ;
+    dcterms:title   "ZOE LA Event Category Scheme" ;
+    skos:hasTopConcept zoe:SundayService ;
+    skos:hasTopConcept zoe:YouthEvent ;
+    skos:hasTopConcept zoe:CommunityOutreach ;
+    skos:hasTopConcept zoe:Camp ;
+    skos:hasTopConcept zoe:PrayerNight ;
+    skos:hasTopConcept zoe:Training .
+
+zoe:SundayService a skos:Concept ;
+    rdfs:label      "Sunday Service"@en ;
+    rdfs:comment    "Weekly Sunday worship service open to the full congregation."@en ;
+    skos:prefLabel  "Sunday Service"@en ;
+    skos:notation   "SUNDAY_SERVICE" ;
+    skos:inScheme   zoe:EventCategoryScheme .
+
+zoe:YouthEvent a skos:Concept ;
+    rdfs:label      "Youth Event"@en ;
+    rdfs:comment    "Programming targeted at children, teenagers, and young adults."@en ;
+    skos:prefLabel  "Youth Event"@en ;
+    skos:notation   "YOUTH_EVENT" ;
+    skos:inScheme   zoe:EventCategoryScheme .
+
+zoe:CommunityOutreach a skos:Concept ;
+    rdfs:label      "Community Outreach"@en ;
+    rdfs:comment    "Service-oriented events engaging the surrounding Los Angeles community."@en ;
+    skos:prefLabel  "Community Outreach"@en ;
+    skos:notation   "COMMUNITY_OUTREACH" ;
+    skos:inScheme   zoe:EventCategoryScheme .
+
+zoe:Camp a skos:Concept ;
+    rdfs:label      "Camp"@en ;
+    rdfs:comment    "Multi-day retreat or camping event for any age group."@en ;
+    skos:prefLabel  "Camp"@en ;
+    skos:notation   "CAMP" ;
+    skos:inScheme   zoe:EventCategoryScheme .
+
+zoe:PrayerNight a skos:Concept ;
+    rdfs:label      "Prayer Night"@en ;
+    rdfs:comment    "Dedicated prayer gathering, typically held on a weeknight."@en ;
+    skos:prefLabel  "Prayer Night"@en ;
+    skos:notation   "PRAYER_NIGHT" ;
+    skos:inScheme   zoe:EventCategoryScheme .
+
+zoe:Training a skos:Concept ;
+    rdfs:label      "Training"@en ;
+    rdfs:comment    "Leadership development, discipleship, or skills-based training session."@en ;
+    skos:prefLabel  "Training"@en ;
+    skos:notation   "TRAINING" ;
+    skos:inScheme   zoe:EventCategoryScheme .

@@ -1,0 +1,649 @@
+@prefix : <https://bytestar.org/ontology/crystal-lattice#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+@prefix bg: <https://bytestar.org/ontology/bytegen-fabrication#> .
+@prefix hm: <https://bytestar.org/ontology/hive-mind#> .
+
+@base <https://bytestar.org/ontology/crystal-lattice> .
+
+<https://bytestar.org/ontology/crystal-lattice> rdf:type owl:Ontology ;
+    owl:versionIRI <https://bytestar.org/ontology/crystal-lattice/1.0> ;
+    rdfs:label "Crystal Lattice Organization Ontology" ;
+    rdfs:comment """
+    The Crystal Lattice Organization Ontology defines the mathematical structure
+    for organizing, coordinating, and optimizing executable crystals within the
+    ByteStar fabric.
+    
+    This ontology embodies the geometric and algebraic principles that govern
+    how crystalline artifacts self-organize into efficient execution topologies,
+    ensuring optimal resource utilization, fault tolerance, and performance scaling.
+    
+    Core Mathematical Concepts:
+    - Lattice Topology: Graph-theoretic crystal arrangements
+    - Resonance Patterns: Harmonic optimization of crystal interactions  
+    - Crystalline Symmetries: Group-theoretic optimization strategies
+    - Defect Management: Error detection and self-healing mechanisms
+    """ ;
+    owl:imports <https://bytestar.org/ontology/bytegen-fabrication> ,
+                <https://bytestar.org/ontology/hive-mind> .
+
+#################################################################
+#    Core Lattice Structure Classes
+#################################################################
+
+:CrystalLattice a owl:Class ;
+    rdfs:label "Crystal Lattice" ;
+    rdfs:comment """
+    A mathematically-structured arrangement of executable crystals that
+    optimizes for performance, fault tolerance, and resource efficiency
+    through geometric organization principles.
+    """ ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:intersectionOf (
+            [ a owl:Restriction ; owl:onProperty :hasLatticeNode ; owl:minCardinality 1 ]
+            [ a owl:Restriction ; owl:onProperty :hasTopology ; owl:exactCardinality 1 ]
+            [ a owl:Restriction ; owl:onProperty :hasSymmetryGroup ; owl:exactCardinality 1 ]
+        )
+    ] .
+
+:LatticeNode a owl:Class ;
+    rdfs:label "Lattice Node" ;
+    rdfs:comment """
+    A positioned crystal within the lattice structure, with defined
+    coordinates, connections, and resonance characteristics.
+    """ ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:intersectionOf (
+            [ a owl:Restriction ; owl:onProperty :hostsExecutableCrystal ; owl:exactCardinality 1 ]
+            [ a owl:Restriction ; owl:onProperty :hasCoordinates ; owl:exactCardinality 1 ]
+            [ a owl:Restriction ; owl:onProperty :hasResonanceFrequency ; owl:exactCardinality 1 ]
+        )
+    ] .
+
+:LatticeTopology a owl:Class ;
+    rdfs:label "Lattice Topology" ;
+    rdfs:comment """
+    The geometric arrangement pattern that defines crystal connectivity,
+    coordination numbers, and optimization characteristics.
+    """ .
+
+:CubicTopology a owl:Class ;
+    rdfs:subClassOf :LatticeTopology ;
+    rdfs:label "Cubic Topology" ;
+    rdfs:comment """
+    Simple cubic crystal arrangement with 6-fold coordination,
+    optimal for uniform workload distribution.
+    """ .
+
+:HexagonalTopology a owl:Class ;
+    rdfs:subClassOf :LatticeTopology ;
+    rdfs:label "Hexagonal Topology" ;
+    rdfs:comment """
+    Hexagonal close-packed arrangement with 12-fold coordination,
+    optimal for maximum throughput and minimal latency.
+    """ .
+
+:FaceCenteredCubicTopology a owl:Class ;
+    rdfs:subClassOf :LatticeTopology ;
+    rdfs:label "Face-Centered Cubic Topology" ;
+    rdfs:comment """
+    FCC arrangement with 12-fold coordination and high symmetry,
+    optimal for fault tolerance and load balancing.
+    """ .
+
+:SymmetryGroup a owl:Class ;
+    rdfs:label "Symmetry Group" ;
+    rdfs:comment """
+    Mathematical group defining the symmetry operations that
+    preserve lattice optimization properties.
+    """ .
+
+#################################################################
+#    Resonance and Harmonics Classes
+#################################################################
+
+:ResonancePattern a owl:Class ;
+    rdfs:label "Resonance Pattern" ;
+    rdfs:comment """
+    Harmonic vibration pattern that coordinates crystal execution
+    timing for optimal synchronization and minimal interference.
+    """ .
+
+:FundamentalResonance a owl:Class ;
+    rdfs:subClassOf :ResonancePattern ;
+    rdfs:label "Fundamental Resonance" ;
+    rdfs:comment """
+    Base frequency resonance that establishes the primary
+    execution rhythm for the lattice structure.
+    """ .
+
+:HarmonicResonance a owl:Class ;
+    rdfs:subClassOf :ResonancePattern ;
+    rdfs:label "Harmonic Resonance" ;
+    rdfs:comment """
+    Higher-order harmonic that provides fine-tuned timing
+    coordination for specific crystal types.
+    """ .
+
+:ResonanceField a owl:Class ;
+    rdfs:label "Resonance Field" ;
+    rdfs:comment """
+    Field that propagates resonance patterns throughout
+    the lattice for synchronized execution.
+    """ .
+
+:PhaseCoherence a owl:Class ;
+    rdfs:label "Phase Coherence" ;
+    rdfs:comment """
+    Measure of synchronization between crystal execution
+    cycles within the resonance field.
+    """ .
+
+#################################################################
+#    Optimization and Performance Classes
+#################################################################
+
+:LatticeOptimizer a owl:Class ;
+    rdfs:label "Lattice Optimizer" ;
+    rdfs:comment """
+    Neural-geometric optimizer that arranges crystals for
+    optimal performance characteristics.
+    """ ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:intersectionOf (
+            [ a owl:Restriction ; owl:onProperty :optimizesLattice ; owl:someValuesFrom :CrystalLattice ]
+            [ a owl:Restriction ; owl:onProperty :usesOptimizationAlgorithm ; owl:someValuesFrom :OptimizationAlgorithm ]
+        )
+    ] .
+
+:OptimizationAlgorithm a owl:Class ;
+    rdfs:label "Optimization Algorithm" ;
+    rdfs:comment "Mathematical algorithm for lattice optimization." .
+
+:SimulatedAnnealing a owl:Class ;
+    rdfs:subClassOf :OptimizationAlgorithm ;
+    rdfs:label "Simulated Annealing" ;
+    rdfs:comment """
+    Probabilistic optimization that explores crystal arrangements
+    to find global performance optima.
+    """ .
+
+:GradientDescent a owl:Class ;
+    rdfs:subClassOf :OptimizationAlgorithm ;
+    rdfs:label "Gradient Descent" ;
+    rdfs:comment """
+    Gradient-based optimization for fine-tuning crystal
+    positions and resonance parameters.
+    """ .
+
+:EvolutionaryOptimization a owl:Class ;
+    rdfs:subClassOf :OptimizationAlgorithm ;
+    rdfs:label "Evolutionary Optimization" ;
+    rdfs:comment """
+    Genetic algorithm that evolves optimal lattice configurations
+    through selection and mutation operations.
+    """ .
+
+:PerformanceMetric a owl:Class ;
+    rdfs:label "Performance Metric" ;
+    rdfs:comment "Quantitative measure of lattice performance." .
+
+:ThroughputMetric a owl:Class ;
+    rdfs:subClassOf :PerformanceMetric ;
+    rdfs:label "Throughput Metric" ;
+    rdfs:comment "Operations per second across the entire lattice." .
+
+:LatencyMetric a owl:Class ;
+    rdfs:subClassOf :PerformanceMetric ;
+    rdfs:label "Latency Metric" ;
+    rdfs:comment "End-to-end processing latency for crystal chains." .
+
+:EfficiencyMetric a owl:Class ;
+    rdfs:subClassOf :PerformanceMetric ;
+    rdfs:label "Efficiency Metric" ;
+    rdfs:comment "Resource utilization efficiency ratio." .
+
+#################################################################
+#    Defect and Fault Tolerance Classes
+#################################################################
+
+:LatticeDefect a owl:Class ;
+    rdfs:label "Lattice Defect" ;
+    rdfs:comment """
+    Deviation from ideal lattice structure that may impact
+    performance or require remediation.
+    """ .
+
+:PointDefect a owl:Class ;
+    rdfs:subClassOf :LatticeDefect ;
+    rdfs:label "Point Defect" ;
+    rdfs:comment """
+    Localized defect at a single lattice node, such as
+    failed crystal or performance degradation.
+    """ .
+
+:LineDefect a owl:Class ;
+    rdfs:subClassOf :LatticeDefect ;
+    rdfs:label "Line Defect" ;
+    rdfs:comment """
+    Linear defect affecting crystal connectivity,
+    such as communication pathway failures.
+    """ .
+
+:PlaneDefect a owl:Class ;
+    rdfs:subClassOf :LatticeDefect ;
+    rdfs:label "Plane Defect" ;
+    rdfs:comment """
+    Planar defect affecting lattice layers,
+    such as coordinated node failures.
+    """ .
+
+:DefectDetector a owl:Class ;
+    rdfs:label "Defect Detector" ;
+    rdfs:comment """
+    Neural system that monitors lattice health and
+    identifies developing defects for remediation.
+    """ .
+
+:SelfHealingMechanism a owl:Class ;
+    rdfs:label "Self-Healing Mechanism" ;
+    rdfs:comment """
+    Autonomous system that repairs defects through
+    crystal redeployment and lattice reconfiguration.
+    """ .
+
+#################################################################
+#    Scaling and Load Balancing Classes
+#################################################################
+
+:LoadBalancer a owl:Class ;
+    rdfs:label "Load Balancer" ;
+    rdfs:comment """
+    System that distributes computational load across
+    lattice nodes for optimal resource utilization.
+    """ .
+
+:ScalingController a owl:Class ;
+    rdfs:label "Scaling Controller" ;
+    rdfs:comment """
+    Controller that manages lattice size and topology
+    based on performance requirements and load patterns.
+    """ .
+
+:HorizontalScaling a owl:Class ;
+    rdfs:label "Horizontal Scaling" ;
+    rdfs:comment """
+    Scaling strategy that adds more lattice nodes
+    to increase overall capacity.
+    """ .
+
+:VerticalScaling a owl:Class ;
+    rdfs:label "Vertical Scaling" ;
+    rdfs:comment """
+    Scaling strategy that improves individual node
+    performance through resource allocation.
+    """ .
+
+:ElasticTopology a owl:Class ;
+    rdfs:label "Elastic Topology" ;
+    rdfs:comment """
+    Dynamic topology that adapts structure based
+    on current load and performance requirements.
+    """ .
+
+#################################################################
+#    Lattice Structure Properties
+#################################################################
+
+:hasLatticeNode a owl:ObjectProperty ;
+    rdfs:label "has lattice node" ;
+    rdfs:domain :CrystalLattice ;
+    rdfs:range :LatticeNode ;
+    rdfs:comment "Associates lattice with its constituent nodes." .
+
+:hasTopology a owl:ObjectProperty ;
+    rdfs:label "has topology" ;
+    rdfs:domain :CrystalLattice ;
+    rdfs:range :LatticeTopology ;
+    a owl:FunctionalProperty ;
+    rdfs:comment "Defines the geometric arrangement of the lattice." .
+
+:hasSymmetryGroup a owl:ObjectProperty ;
+    rdfs:label "has symmetry group" ;
+    rdfs:domain :CrystalLattice ;
+    rdfs:range :SymmetryGroup ;
+    a owl:FunctionalProperty ;
+    rdfs:comment "Mathematical symmetry group of the lattice." .
+
+:hostsExecutableCrystal a owl:ObjectProperty ;
+    rdfs:label "hosts executable crystal" ;
+    rdfs:domain :LatticeNode ;
+    rdfs:range bg:ExecutableCrystal ;
+    a owl:FunctionalProperty ;
+    rdfs:comment "Crystal hosted at this lattice position." .
+
+:hasCoordinates a owl:ObjectProperty ;
+    rdfs:label "has coordinates" ;
+    rdfs:domain :LatticeNode ;
+    rdfs:comment "Spatial coordinates of the node in lattice space." .
+
+:connectedTo a owl:ObjectProperty , owl:SymmetricProperty ;
+    rdfs:label "connected to" ;
+    rdfs:domain :LatticeNode ;
+    rdfs:range :LatticeNode ;
+    rdfs:comment "Direct connection between lattice nodes." .
+
+#################################################################
+#    Resonance Properties
+#################################################################
+
+:hasResonanceFrequency a owl:DatatypeProperty ;
+    rdfs:label "has resonance frequency" ;
+    rdfs:domain :LatticeNode ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Resonance frequency in Hz for execution synchronization." .
+
+:hasPhase a owl:DatatypeProperty ;
+    rdfs:label "has phase" ;
+    rdfs:domain :LatticeNode ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Phase offset in radians for resonance synchronization." .
+
+:propagatesResonance a owl:ObjectProperty ;
+    rdfs:label "propagates resonance" ;
+    rdfs:domain :ResonanceField ;
+    rdfs:range :ResonancePattern ;
+    rdfs:comment "Resonance pattern propagated by the field." .
+
+:synchronizesWith a owl:ObjectProperty , owl:SymmetricProperty ;
+    rdfs:label "synchronizes with" ;
+    rdfs:domain :LatticeNode ;
+    rdfs:range :LatticeNode ;
+    rdfs:comment "Nodes that maintain phase coherence." .
+
+:hasCoherenceValue a owl:DatatypeProperty ;
+    rdfs:label "has coherence value" ;
+    rdfs:domain :PhaseCoherence ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Coherence measure (0.0-1.0)." .
+
+#################################################################
+#    Optimization Properties
+#################################################################
+
+:optimizesLattice a owl:ObjectProperty ;
+    rdfs:label "optimizes lattice" ;
+    rdfs:domain :LatticeOptimizer ;
+    rdfs:range :CrystalLattice ;
+    rdfs:comment "Lattice being optimized." .
+
+:usesOptimizationAlgorithm a owl:ObjectProperty ;
+    rdfs:label "uses optimization algorithm" ;
+    rdfs:domain :LatticeOptimizer ;
+    rdfs:range :OptimizationAlgorithm ;
+    rdfs:comment "Algorithm used for optimization." .
+
+:hasOptimizationTarget a owl:ObjectProperty ;
+    rdfs:label "has optimization target" ;
+    rdfs:domain :LatticeOptimizer ;
+    rdfs:range :PerformanceMetric ;
+    rdfs:comment "Performance metric being optimized." .
+
+:achievesMetricValue a owl:DatatypeProperty ;
+    rdfs:label "achieves metric value" ;
+    rdfs:domain :PerformanceMetric ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Measured value of the performance metric." .
+
+#################################################################
+#    Coordinate System Properties
+#################################################################
+
+:hasXCoordinate a owl:DatatypeProperty ;
+    rdfs:label "has X coordinate" ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "X-axis coordinate in lattice space." .
+
+:hasYCoordinate a owl:DatatypeProperty ;
+    rdfs:label "has Y coordinate" ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Y-axis coordinate in lattice space." .
+
+:hasZCoordinate a owl:DatatypeProperty ;
+    rdfs:label "has Z coordinate" ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Z-axis coordinate in lattice space." .
+
+:hasCoordinationNumber a owl:DatatypeProperty ;
+    rdfs:label "has coordination number" ;
+    rdfs:domain :LatticeNode ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:comment "Number of directly connected neighbor nodes." .
+
+:hasLatticeParameter a owl:DatatypeProperty ;
+    rdfs:label "has lattice parameter" ;
+    rdfs:domain :LatticeTopology ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Characteristic length scale of the lattice unit cell." .
+
+#################################################################
+#    Defect and Healing Properties
+#################################################################
+
+:hasDefect a owl:ObjectProperty ;
+    rdfs:label "has defect" ;
+    rdfs:domain :CrystalLattice ;
+    rdfs:range :LatticeDefect ;
+    rdfs:comment "Defect present in the lattice." .
+
+:detectsDefect a owl:ObjectProperty ;
+    rdfs:label "detects defect" ;
+    rdfs:domain :DefectDetector ;
+    rdfs:range :LatticeDefect ;
+    rdfs:comment "Defect detected by the monitoring system." .
+
+:healsDefect a owl:ObjectProperty ;
+    rdfs:label "heals defect" ;
+    rdfs:domain :SelfHealingMechanism ;
+    rdfs:range :LatticeDefect ;
+    rdfs:comment "Defect being remediated by healing mechanism." .
+
+:hasDefectSeverity a owl:DatatypeProperty ;
+    rdfs:label "has defect severity" ;
+    rdfs:domain :LatticeDefect ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Severity rating (0.0-1.0) of the defect impact." .
+
+:hasHealingTime a owl:DatatypeProperty ;
+    rdfs:label "has healing time" ;
+    rdfs:domain :SelfHealingMechanism ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Time required for defect remediation in seconds." .
+
+#################################################################
+#    Scaling Properties
+#################################################################
+
+:managesLoad a owl:ObjectProperty ;
+    rdfs:label "manages load" ;
+    rdfs:domain :LoadBalancer ;
+    rdfs:range :CrystalLattice ;
+    rdfs:comment "Lattice being load balanced." .
+
+:controlsScaling a owl:ObjectProperty ;
+    rdfs:label "controls scaling" ;
+    rdfs:domain :ScalingController ;
+    rdfs:range :CrystalLattice ;
+    rdfs:comment "Lattice being scaled." .
+
+:hasLoadThreshold a owl:DatatypeProperty ;
+    rdfs:label "has load threshold" ;
+    rdfs:domain :ScalingController ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Load threshold for triggering scaling operations." .
+
+:hasScalingFactor a owl:DatatypeProperty ;
+    rdfs:label "has scaling factor" ;
+    rdfs:domain :ScalingController ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Multiplicative factor for scaling operations." .
+
+#################################################################
+#    Mathematical Constraints and Axioms
+#################################################################
+
+# Lattice Node Uniqueness
+:CrystalLattice owl:hasKey ( :hasLatticeNode ) .
+
+# Coordination Number Constraints
+:CubicTopology rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasCoordinationNumber ;
+    owl:hasValue 6
+] .
+
+:HexagonalTopology rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasCoordinationNumber ;
+    owl:hasValue 12
+] .
+
+:FaceCenteredCubicTopology rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasCoordinationNumber ;
+    owl:hasValue 12
+] .
+
+# Resonance Frequency Positive Constraint
+:LatticeNode rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasResonanceFrequency ;
+    owl:minExclusive 0.0
+] .
+
+# Phase Coherence Range Constraint
+:PhaseCoherence rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasCoherenceValue ;
+    owl:minInclusive 0.0
+] .
+
+:PhaseCoherence rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasCoherenceValue ;
+    owl:maxInclusive 1.0
+] .
+
+# Symmetric Connection Enforcement
+owl:propertyChainAxiom ( :connectedTo ) rdfs:subPropertyOf :connectedTo .
+
+#################################################################
+#    SHACL Validation Shapes
+#################################################################
+
+:CrystalLatticeShape a shacl:NodeShape ;
+    shacl:targetClass :CrystalLattice ;
+    shacl:property [
+        shacl:path :hasLatticeNode ;
+        shacl:class :LatticeNode ;
+        shacl:minCount 1 ;
+        shacl:message "Lattice must contain at least one node"
+    ] ;
+    shacl:property [
+        shacl:path :hasTopology ;
+        shacl:class :LatticeTopology ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:message "Lattice must have exactly one topology"
+    ] .
+
+:LatticeNodeShape a shacl:NodeShape ;
+    shacl:targetClass :LatticeNode ;
+    shacl:property [
+        shacl:path :hostsExecutableCrystal ;
+        shacl:class bg:ExecutableCrystal ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:message "Node must host exactly one executable crystal"
+    ] ;
+    shacl:property [
+        shacl:path :hasResonanceFrequency ;
+        shacl:datatype xsd:decimal ;
+        shacl:minExclusive 0.0 ;
+        shacl:message "Resonance frequency must be positive"
+    ] .
+
+:PerformanceMetricShape a shacl:NodeShape ;
+    shacl:targetClass :PerformanceMetric ;
+    shacl:property [
+        shacl:path :achievesMetricValue ;
+        shacl:datatype xsd:decimal ;
+        shacl:minCount 1 ;
+        shacl:message "Performance metric must have a measured value"
+    ] .
+
+#################################################################
+#    Individual Instances
+#################################################################
+
+:PrimaryLattice a :CrystalLattice ;
+    rdfs:label "Primary Crystal Lattice" ;
+    rdfs:comment "Main production lattice for ByteStar fabric." ;
+    :hasTopology :ProductionTopology ;
+    :hasSymmetryGroup :FCCSymmetry .
+
+:ProductionTopology a :FaceCenteredCubicTopology ;
+    rdfs:label "Production Topology" ;
+    rdfs:comment "FCC topology optimized for production workloads." ;
+    :hasLatticeParameter 1.0 .
+
+:FCCSymmetry a :SymmetryGroup ;
+    rdfs:label "FCC Symmetry Group" ;
+    rdfs:comment "Face-centered cubic symmetry group." .
+
+:PrimaryOptimizer a :LatticeOptimizer ;
+    rdfs:label "Primary Lattice Optimizer" ;
+    rdfs:comment "Main optimizer for production lattice." ;
+    :optimizesLattice :PrimaryLattice ;
+    :usesOptimizationAlgorithm :ProductionSimulatedAnnealing .
+
+:ProductionSimulatedAnnealing a :SimulatedAnnealing ;
+    rdfs:label "Production Simulated Annealing" ;
+    rdfs:comment "Simulated annealing tuned for production optimization." .
+
+:MainResonanceField a :ResonanceField ;
+    rdfs:label "Main Resonance Field" ;
+    rdfs:comment "Primary resonance field for lattice synchronization." ;
+    :propagatesResonance :BaseFundamental .
+
+:BaseFundamental a :FundamentalResonance ;
+    rdfs:label "Base Fundamental Resonance" ;
+    rdfs:comment "Base 1 kHz fundamental for 8-tick synchronization." .
+
+:PrimaryDefectDetector a :DefectDetector ;
+    rdfs:label "Primary Defect Detector" ;
+    rdfs:comment "Main defect detection system." .
+
+:PrimaryHealer a :SelfHealingMechanism ;
+    rdfs:label "Primary Self-Healing Mechanism" ;
+    rdfs:comment "Main autonomous healing system." ;
+    :hasHealingTime 0.1 .
+
+:MainLoadBalancer a :LoadBalancer ;
+    rdfs:label "Main Load Balancer" ;
+    rdfs:comment "Primary load balancing system." ;
+    :managesLoad :PrimaryLattice .
+
+:PrimaryScalingController a :ScalingController ;
+    rdfs:label "Primary Scaling Controller" ;
+    rdfs:comment "Main scaling control system." ;
+    :controlsScaling :PrimaryLattice ;
+    :hasLoadThreshold 0.8 ;
+    :hasScalingFactor 1.5 .

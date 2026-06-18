@@ -1,0 +1,604 @@
+@prefix ex: <http://example.org/gitvan/hooks/> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+@prefix op: <https://gitvan.dev/op#> .
+@prefix git: <https://gitvan.dev/git#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# =============================================================================
+# Alert on Merge Conflicts Hook
+# =============================================================================
+#
+# USE CASE:
+# Detect merge conflicts early and notify team members
+# Provides conflict resolution assistance and tracks conflict patterns
+#
+# TRIGGERS ON:
+# - pre-merge (before merge attempt)
+# - post-merge (after merge with conflicts)
+# - on-conflict (when conflicts are detected)
+#
+# SUCCESS CRITERIA:
+# - Detects potential conflicts before merge
+# - Identifies conflicting authors and files
+# - Suggests conflict resolution strategies
+# - Notifies affected team members
+# - Tracks conflict frequency and patterns
+#
+# INSTALLATION:
+# 1. Copy to .gitvan/hooks/alert-on-merge-conflicts.ttl
+# 2. Configure notification channels:
+#    git config gitvan.notify.slack "#dev-team"
+#    git config gitvan.notify.email "team@company.com"
+# 3. Set conflict detection sensitivity:
+#    git config gitvan.conflict.checkBeforeMerge true
+# 4. Enable hook: gitvan hooks enable alert-on-merge-conflicts
+#
+# =============================================================================
+
+ex:alert-on-merge-conflicts-hook rdf:type gh:Hook ;
+    rdfs:label "Alert on Merge Conflicts" ;
+    gv:title "Merge Conflict Detection and Team Notification" ;
+    rdfs:comment "Detects merge conflicts and notifies affected team members" ;
+    gh:hookType "post-merge" ;
+    gh:priority 90 ;
+    gh:enabled true ;
+    gh:hasPredicate ex:merge-conflict-predicate ;
+    gh:orderedPipelines ex:conflict-resolution-pipeline .
+
+# =============================================================================
+# ASK Predicate - Detects Merge Conflicts
+# =============================================================================
+ex:merge-conflict-predicate rdf:type gh:ASKPredicate ;
+    gh:queryText """
+        PREFIX git: <https://gitvan.dev/git#>
+        PREFIX gv: <https://gitvan.dev/ontology#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+        ASK WHERE {
+            # Detect merge operation
+            ?merge rdf:type git:Merge ;
+                   git:status ?status .
+
+            # Check for conflicts
+            FILTER(?status IN ("conflicted", "in-progress"))
+
+            # Or detect files with conflict markers
+            OPTIONAL {
+                ?file git:hasConflict true .
+            }
+
+            # Recent merge only (last 10 minutes)
+            ?merge git:timestamp ?time .
+            BIND(NOW() - ?time AS ?age)
+            FILTER(?age < "PT10M"^^xsd:duration)
+        }
+    """ ;
+    gh:description "Detects merge conflicts or failed merge attempts" .
+
+# =============================================================================
+# Pipeline - Conflict Resolution and Notification
+# =============================================================================
+ex:conflict-resolution-pipeline rdf:type op:Pipeline ;
+    rdfs:label "Merge Conflict Resolution Pipeline" ;
+    op:steps (
+        ex:detect-conflict-details,
+        ex:identify-conflicting-authors,
+        ex:analyze-conflict-complexity,
+        ex:suggest-resolution-strategy,
+        ex:notify-team,
+        ex:track-conflict-patterns,
+        ex:generate-conflict-report
+    ) .
+
+# =============================================================================
+# Step 1: Detect Conflict Details
+# =============================================================================
+ex:detect-conflict-details rdf:type gv:SparqlStep ;
+    rdfs:label "Detect Merge Conflict Details" ;
+    gv:text """
+        PREFIX git: <https://gitvan.dev/git#>
+        PREFIX gv: <https://gitvan.dev/ontology#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+        SELECT ?merge ?sourceBranch ?targetBranch ?status ?timestamp
+               ?conflictCount ?conflictedFiles WHERE {
+            # Get merge information
+            ?merge rdf:type git:Merge ;
+                   git:sourceBranch ?sourceBranch ;
+                   git:targetBranch ?targetBranch ;
+                   git:status ?status ;
+                   git:timestamp ?timestamp .
+
+            # Count conflicted files
+            {
+                SELECT (COUNT(?file) AS ?conflictCount) WHERE {
+                    ?file git:hasConflict true ;
+                          git:conflictType ?type .
+                }
+            }
+
+            # Get list of conflicted files
+            {
+                SELECT (GROUP_CONCAT(?path; separator=",") AS ?conflictedFiles) WHERE {
+                    ?file git:hasConflict true ;
+                          git:filePath ?path .
+                }
+            }
+
+            FILTER(?status IN ("conflicted", "in-progress"))
+
+            # Recent merge
+            BIND(NOW() - ?timestamp AS ?age)
+            FILTER(?age < "PT10M"^^xsd:duration)
+        }
+        LIMIT 1
+    """ ;
+    gv:outputMapping '{
+        "sourceBranch": "results[0].sourceBranch.value",
+        "targetBranch": "results[0].targetBranch.value",
+        "mergeStatus": "results[0].status.value",
+        "timestamp": "results[0].timestamp.value",
+        "conflictCount": "parseInt(results[0].conflictCount.value)",
+        "conflictedFiles": "results[0].conflictedFiles.value.split(\",\").filter(f => f)",
+        "hasConflicts": "parseInt(results[0].conflictCount.value) > 0"
+    }' .
+
+# =============================================================================
+# Step 2: Identify Conflicting Authors
+# =============================================================================
+ex:identify-conflicting-authors rdf:type gv:SparqlStep ;
+    rdfs:label "Identify Authors Involved in Conflict" ;
+    gv:text """
+        PREFIX git: <https://gitvan.dev/git#>
+        PREFIX gv: <https://gitvan.dev/ontology#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+        SELECT ?file ?sourceAuthor ?targetAuthor ?lastModifiedSource ?lastModifiedTarget WHERE {
+            # Get conflicted files
+            ?file git:hasConflict true ;
+                  git:filePath ?path .
+
+            # Find last author on source branch
+            {
+                SELECT ?file (MAX(?sourceTime) AS ?lastModifiedSource) ?sourceAuthor WHERE {
+                    ?sourceCommit git:onBranch ?sourceBranch ;
+                                  git:timestamp ?sourceTime ;
+                                  git:author ?sourceAuthor ;
+                                  git:hasChange ?change .
+                    ?change git:filePath ?path .
+                    ?file git:filePath ?path .
+                }
+                GROUP BY ?file ?sourceAuthor
+            }
+
+            # Find last author on target branch
+            {
+                SELECT ?file (MAX(?targetTime) AS ?lastModifiedTarget) ?targetAuthor WHERE {
+                    ?targetCommit git:onBranch ?targetBranch ;
+                                  git:timestamp ?targetTime ;
+                                  git:author ?targetAuthor ;
+                                  git:hasChange ?change .
+                    ?change git:filePath ?path .
+                    ?file git:filePath ?path .
+                }
+                GROUP BY ?file ?targetAuthor
+            }
+        }
+        ORDER BY ?file
+    """ ;
+    gv:outputMapping '{
+        "conflictPairs": "results.map(r => ({
+            file: r.file.value,
+            sourceAuthor: r.sourceAuthor.value,
+            targetAuthor: r.targetAuthor.value,
+            sourceTime: r.lastModifiedSource.value,
+            targetTime: r.lastModifiedTarget.value
+        }))",
+        "involvedAuthors": "[...new Set(results.flatMap(r => [r.sourceAuthor.value, r.targetAuthor.value]))]",
+        "authorPairs": "results.map(r => `${r.sourceAuthor.value} ↔ ${r.targetAuthor.value}`)"
+    }' ;
+    gv:dependsOn ex:detect-conflict-details .
+
+# =============================================================================
+# Step 3: Analyze Conflict Complexity
+# =============================================================================
+ex:analyze-conflict-complexity rdf:type gv:SparqlStep ;
+    rdfs:label "Analyze Conflict Complexity" ;
+    gv:text """
+        PREFIX git: <https://gitvan.dev/git#>
+        PREFIX gv: <https://gitvan.dev/ontology#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+        SELECT ?file ?conflictType ?conflictedLines ?contextLines
+               ?complexityScore ?resolutionDifficulty WHERE {
+            ?file git:hasConflict true ;
+                  git:filePath ?path ;
+                  git:conflictType ?conflictType ;
+                  git:conflictedLines ?conflictedLines .
+
+            # Get surrounding context
+            OPTIONAL {
+                ?file git:contextLines ?contextLines .
+            }
+
+            # Calculate complexity score
+            BIND(
+                (?conflictedLines * 1.0) +
+                (IF(?conflictType = "content", 10, 0)) +
+                (IF(?conflictType = "rename", 5, 0)) +
+                (IF(?conflictType = "delete", 15, 0)) +
+                (IF(CONTAINS(?path, ".lock"), 20, 0))
+                AS ?complexityScore
+            )
+
+            # Determine resolution difficulty
+            BIND(
+                IF(?complexityScore > 50, "very-hard",
+                IF(?complexityScore > 30, "hard",
+                IF(?complexityScore > 15, "medium", "easy")))
+                AS ?resolutionDifficulty
+            )
+        }
+        ORDER BY DESC(?complexityScore)
+    """ ;
+    gv:outputMapping '{
+        "conflictDetails": "results.map(r => ({
+            file: r.file.value,
+            type: r.conflictType.value,
+            lines: parseInt(r.conflictedLines.value),
+            complexity: parseFloat(r.complexityScore.value),
+            difficulty: r.resolutionDifficulty.value
+        }))",
+        "avgComplexity": "results.reduce((sum, r) => sum + parseFloat(r.complexityScore.value), 0) / results.length",
+        "maxDifficulty": "results[0]?.resolutionDifficulty.value || \"unknown\"",
+        "totalConflictedLines": "results.reduce((sum, r) => sum + parseInt(r.conflictedLines.value), 0)"
+    }' ;
+    gv:dependsOn ex:identify-conflicting-authors .
+
+# =============================================================================
+# Step 4: Suggest Resolution Strategy
+# =============================================================================
+ex:suggest-resolution-strategy rdf:type gv:SparqlStep ;
+    rdfs:label "Suggest Conflict Resolution Strategy" ;
+    gv:text """
+        PREFIX git: <https://gitvan.dev/git#>
+        PREFIX gv: <https://gitvan.dev/ontology#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+        SELECT ?strategy ?toolRecommendation ?estimatedTime ?shouldPair WHERE {
+            ?file git:hasConflict true ;
+                  git:conflictType ?type ;
+                  git:conflictedLines ?lines .
+
+            # Determine resolution strategy
+            BIND(
+                IF(?type = "delete", "manual-review",
+                IF(?type = "rename", "accept-rename",
+                IF(?lines < 10, "quick-merge",
+                IF(?lines < 50, "careful-review", "pair-programming"))))
+                AS ?strategy
+            )
+
+            # Recommend tools
+            BIND(
+                IF(?type = "content", "git mergetool --tool=vscode",
+                IF(?type = "rename", "git mv --force",
+                "git checkout --ours/--theirs"))
+                AS ?toolRecommendation
+            )
+
+            # Estimate resolution time
+            BIND(
+                CEIL(?lines / 10) +
+                IF(?type = "delete", 15, 0) +
+                IF(?type = "rename", 5, 0)
+                AS ?estimatedTime
+            )
+
+            # Recommend pairing for complex conflicts
+            BIND(?lines > 50 || ?type = "delete" AS ?shouldPair)
+        }
+    """ ;
+    gv:outputMapping '{
+        "resolutionStrategy": "results[0]?.strategy.value || \"manual-review\"",
+        "recommendedTool": "results[0]?.toolRecommendation.value",
+        "estimatedMinutes": "results.reduce((sum, r) => sum + parseInt(r.estimatedTime.value), 0)",
+        "recommendPairing": "results.some(r => r.shouldPair.value === \"true\")",
+        "strategyBreakdown": "results.map(r => r.strategy.value)"
+    }' ;
+    gv:dependsOn ex:analyze-conflict-complexity .
+
+# =============================================================================
+# Step 5: Notify Team Members
+# =============================================================================
+ex:notify-team rdf:type gv:ActionStep ;
+    rdfs:label "Notify Affected Team Members" ;
+    gv:actionType "notification" ;
+    gv:notificationChannels "slack:dev-team, email:{{ involvedAuthors | join(\",\") }}" ;
+    gv:notificationTitle "⚠️ Merge Conflict Detected" ;
+    gv:notificationBody """
+Merge conflict detected between {{ sourceBranch }} and {{ targetBranch }}
+
+**Files Affected:** {{ conflictCount }}
+**Difficulty:** {{ maxDifficulty | upper }}
+**Estimated Resolution Time:** ~{{ estimatedMinutes }} minutes
+
+**Involved Authors:**
+{% for author in involvedAuthors %}
+- @{{ author }}
+{% endfor %}
+
+**Action Required:**
+{{ resolutionStrategy | replace("-", " ") | title }}
+{% if recommendPairing %}
+👥 **Pairing recommended** due to conflict complexity
+{% endif %}
+
+View full report: {{ reportPath }}
+    """ ;
+    gv:notificationPriority "high" ;
+    gv:dependsOn ex:suggest-resolution-strategy .
+
+# =============================================================================
+# Step 6: Track Conflict Patterns
+# =============================================================================
+ex:track-conflict-patterns rdf:type gv:SparqlStep ;
+    rdfs:label "Track Conflict Patterns and Trends" ;
+    gv:updateQuery """
+        PREFIX git: <https://gitvan.dev/git#>
+        PREFIX gv: <https://gitvan.dev/ontology#>
+        PREFIX metrics: <https://gitvan.dev/metrics#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+        INSERT DATA {
+            <urn:conflict:{{ sourceBranch }}-{{ targetBranch }}-{{ timestamp }}>
+                rdf:type metrics:ConflictEvent ;
+                metrics:sourceBranch "{{ sourceBranch }}" ;
+                metrics:targetBranch "{{ targetBranch }}" ;
+                metrics:conflictCount {{ conflictCount }} ;
+                metrics:totalLines {{ totalConflictedLines }} ;
+                metrics:avgComplexity {{ avgComplexity }} ;
+                metrics:maxDifficulty "{{ maxDifficulty }}" ;
+                metrics:involvedAuthors "{{ involvedAuthors | join(\",\") }}" ;
+                metrics:timestamp "{{ timestamp }}"^^xsd:dateTime ;
+                metrics:resolved false ;
+                metrics:resolutionStrategy "{{ resolutionStrategy }}" ;
+                metrics:estimatedResolutionTime {{ estimatedMinutes }} .
+
+            {% for detail in conflictDetails %}
+            <urn:conflict:file:{{ detail.file }}-{{ timestamp }}>
+                rdf:type metrics:ConflictDetail ;
+                metrics:parentConflict <urn:conflict:{{ sourceBranch }}-{{ targetBranch }}-{{ timestamp }}> ;
+                metrics:filePath "{{ detail.file }}" ;
+                metrics:conflictType "{{ detail.type }}" ;
+                metrics:linesAffected {{ detail.lines }} ;
+                metrics:complexity {{ detail.complexity }} ;
+                metrics:difficulty "{{ detail.difficulty }}" .
+            {% endfor %}
+        }
+    """ ;
+    gv:dependsOn ex:notify-team .
+
+# =============================================================================
+# Step 7: Generate Conflict Resolution Report
+# =============================================================================
+ex:generate-conflict-report rdf:type gv:TemplateStep ;
+    rdfs:label "Generate Conflict Resolution Report" ;
+    gv:text """
+# Merge Conflict Resolution Report
+
+**Generated:** {{ "now" | date("YYYY-MM-DD HH:mm:ss") }}
+**Hook:** Alert on Merge Conflicts
+**Status:** ⚠️ **CONFLICTS DETECTED**
+
+## Merge Information
+
+- **Source Branch:** `{{ sourceBranch }}`
+- **Target Branch:** `{{ targetBranch }}`
+- **Conflict Count:** {{ conflictCount }} file(s)
+- **Total Conflicted Lines:** {{ totalConflictedLines }}
+- **Overall Difficulty:** {{ maxDifficulty | upper }}
+- **Estimated Resolution Time:** ~{{ estimatedMinutes }} minutes
+
+## Involved Team Members
+
+{% for author in involvedAuthors %}
+- **@{{ author }}**
+{% endfor %}
+
+{% if recommendPairing %}
+### 👥 Pairing Recommended
+Due to the complexity of these conflicts, we recommend pair programming for resolution.
+
+**Suggested Pairs:**
+{% for pair in authorPairs %}
+- {{ pair }}
+{% endfor %}
+{% endif %}
+
+## Conflicted Files
+
+{% for detail in conflictDetails %}
+### {{ loop.index }}. `{{ detail.file }}`
+
+- **Conflict Type:** {{ detail.type | upper }}
+- **Lines Affected:** {{ detail.lines }}
+- **Complexity Score:** {{ detail.complexity }}/100
+- **Difficulty:** {{ detail.difficulty | upper }}
+
+**Authors:**
+{% for pair in conflictPairs %}
+{% if pair.file == detail.file %}
+- {{ pair.sourceAuthor }} ({{ sourceBranch }}, {{ pair.sourceTime | date("YYYY-MM-DD HH:mm") }})
+- {{ pair.targetAuthor }} ({{ targetBranch }}, {{ pair.targetTime | date("YYYY-MM-DD HH:mm") }})
+{% endif %}
+{% endfor %}
+
+{% endfor %}
+
+## Resolution Strategy
+
+**Recommended Approach:** {{ resolutionStrategy | replace("-", " ") | title }}
+
+### Step-by-Step Resolution
+
+1. **Review Conflicts**
+   ```bash
+   # View conflicted files
+   git status
+
+   # Check diff for each file
+   git diff {{ conflictedFiles[0] }}
+   ```
+
+2. **Choose Resolution Tool**
+   ```bash
+   # Recommended: {{ recommendedTool }}
+   {{ recommendedTool }}
+   ```
+
+3. **Resolve Conflicts**
+   {% if resolutionStrategy == "quick-merge" %}
+   - Review conflict markers (<<<<<<, ======, >>>>>>)
+   - Keep necessary changes from both sides
+   - Remove conflict markers
+   - Test changes
+   {% elif resolutionStrategy == "careful-review" %}
+   - Analyze the intent of both changes
+   - Consult with original authors if unclear
+   - Merge changes preserving both intentions
+   - Verify no functionality is lost
+   {% elif resolutionStrategy == "manual-review" %}
+   - Schedule meeting with both authors
+   - Review changes together
+   - Decide on correct resolution
+   - Document decision rationale
+   {% elif resolutionStrategy == "pair-programming" %}
+   - Pair with the other author
+   - Work through conflicts together
+   - Test thoroughly after resolution
+   - Review as a team if needed
+   {% endif %}
+
+4. **Verify Resolution**
+   ```bash
+   # Run tests
+   npm test  # or your test command
+
+   # Verify no conflict markers remain
+   grep -r "<<<<<<" .
+
+   # Complete the merge
+   git add .
+   git commit -m "Resolve merge conflicts between {{ sourceBranch }} and {{ targetBranch }}"
+   ```
+
+## Conflict Details by Type
+
+{% for detail in conflictDetails | groupBy("type") %}
+### {{ detail.type | upper }} Conflicts
+
+{% for file in detail.files %}
+- `{{ file.file }}` ({{ file.lines }} lines, {{ file.difficulty }})
+{% endfor %}
+
+**Resolution Tip:**
+{% if detail.type == "content" %}
+Content conflicts require careful review of both changes. Look for:
+- Logic differences that need to be reconciled
+- Variable/function name changes
+- Different approaches to the same problem
+{% elif detail.type == "rename" %}
+Rename conflicts usually indicate parallel refactoring. Consider:
+- Which name is more descriptive?
+- Does either name break existing code?
+- Can you update references automatically?
+{% elif detail.type == "delete" %}
+Delete conflicts mean one branch deleted what another modified. You must:
+- Determine if the deletion was intentional
+- Check if the modifications are still needed
+- Decide: keep modifications or accept deletion
+{% endif %}
+
+{% endfor %}
+
+## Prevention Tips
+
+To reduce future conflicts:
+
+1. **Pull Frequently**
+   ```bash
+   git pull origin {{ targetBranch }} --rebase
+   ```
+
+2. **Keep Branches Short-Lived**
+   - Merge feature branches within 2-3 days
+   - Avoid long-running parallel development
+
+3. **Communicate**
+   - Announce major refactorings to the team
+   - Use feature flags for large changes
+   - Coordinate on shared files
+
+4. **Use Smaller Commits**
+   - Commit related changes together
+   - Merge frequently to reduce divergence
+
+## Conflict History
+
+View past conflicts involving these files/authors:
+```bash
+gitvan metrics conflicts --files {{ conflictedFiles | join(",") }}
+gitvan metrics conflicts --authors {{ involvedAuthors | join(",") }}
+```
+
+## Quick Reference
+
+### Useful Git Commands
+```bash
+# Accept all changes from source branch
+git checkout --theirs {{ conflictedFiles | join(" ") }}
+
+# Accept all changes from target branch
+git checkout --ours {{ conflictedFiles | join(" ") }}
+
+# Abort merge and start over
+git merge --abort
+
+# View merge in progress
+git status
+
+# Get help
+git mergetool --help
+```
+
+### GitVan Conflict Tools
+```bash
+# Analyze conflict patterns
+gitvan conflicts analyze
+
+# Get AI-powered resolution suggestions
+gitvan conflicts suggest {{ conflictedFiles[0] }}
+
+# Track conflict resolution time
+gitvan conflicts start-timer
+```
+
+---
+*This report was automatically generated by the Alert on Merge Conflicts Hook*
+*All team members have been notified via configured channels*
+    """ ;
+    gv:filePath "./reports/conflicts/{{ sourceBranch }}-{{ targetBranch }}-{{ 'now' | date('YYYY-MM-DD-HH-mm-ss') }}.md" ;
+    gv:dependsOn ex:track-conflict-patterns .
+
+# =============================================================================
+# Metadata
+# =============================================================================
+ex:alert-on-merge-conflicts-hook
+    gv:version "1.0.0" ;
+    gv:author "GitVan Team" ;
+    gv:created "2025-12-03T00:00:00Z" ;
+    gv:tags "git", "merge", "conflicts", "collaboration", "notifications" ;
+    gv:documentation "https://gitvan.dev/docs/hooks/alert-on-merge-conflicts" .

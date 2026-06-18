@@ -1,0 +1,847 @@
+# YAWL Data Lineage Ontology (v6.0.0)
+#
+# This file defines the RDF schema for data lineage tracking in YAWL workflows.
+# It covers workflow execution, data access patterns, schema metadata, and H-Guards
+# validation violations.
+#
+# License: GNU Lesser General Public License v2.1 or later
+# Compatibility: Apache Jena, RDF4J, Virtuoso, GraphDB
+
+@prefix code:     <http://yawl.org/code#> .
+@prefix data:     <http://yawl.org/data#> .
+@prefix lineage:  <http://yawl.org/lineage#> .
+@prefix exec:     <http://yawl.org/execution#> .
+@prefix xsd:      <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf:      <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:      <http://www.w3.org/2002/07/owl#> .
+@prefix skos:     <http://www.w3.org/2004/02/skos/core#> .
+
+# ============================================================================
+# ONTOLOGY METADATA
+# ============================================================================
+
+<http://yawl.org/lineage> a owl:Ontology ;
+  rdfs:label "YAWL Data Lineage Ontology"@en ;
+  rdfs:comment "RDF schema for tracking data provenance in YAWL workflows"@en ;
+  owl:versionInfo "6.0.0" ;
+  owl:imports <http://www.w3.org/2001/XMLSchema> ,
+              <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ;
+  rdfs:seeAlso <https://yawlfoundation.org/> .
+
+# ============================================================================
+# NAMESPACE DOCUMENTATION
+# ============================================================================
+
+code: rdfs:comment "Code/workflow entities: Workflow, Activity, Variable, Method" .
+data: rdfs:comment "Data entities: Table, Column, Database" .
+lineage: rdfs:comment "Lineage tracking: DataAccess, LineageEdge, events" .
+exec: rdfs:comment "Case execution: Case, execution state" .
+
+# ============================================================================
+# CLASSES: WORKFLOW & EXECUTION
+# ============================================================================
+
+code:Workflow a owl:Class ;
+  rdfs:label "Workflow"@en ;
+  rdfs:comment "A YAWL workflow specification" ;
+  rdfs:subClassOf owl:Thing ;
+  owl:equivalentClass [ a owl:Class ;
+    owl:hasValue "urn:yawl:*" ] .
+
+code:Activity a owl:Class ;
+  rdfs:label "Activity (Task)"@en ;
+  rdfs:comment "A task or activity in a YAWL workflow" ;
+  rdfs:subClassOf owl:Thing ;
+  owl:disjointWith data:Table, code:Variable .
+
+code:Variable a owl:Class ;
+  rdfs:label "Variable"@en ;
+  rdfs:comment "A workflow variable (case data)" ;
+  rdfs:subClassOf owl:Thing ;
+  owl:disjointWith data:Table, code:Activity .
+
+exec:Case a owl:Class ;
+  rdfs:label "Case (Execution Instance)"@en ;
+  rdfs:comment "An instance of a workflow case" ;
+  rdfs:subClassOf owl:Thing .
+
+# ============================================================================
+# CLASSES: DATA SCHEMA
+# ============================================================================
+
+data:Table a owl:Class ;
+  rdfs:label "Table"@en ;
+  rdfs:comment "An external database table" ;
+  rdfs:subClassOf owl:Thing ;
+  owl:disjointWith code:Activity .
+
+data:Column a owl:Class ;
+  rdfs:label "Column"@en ;
+  rdfs:comment "A column in a database table" ;
+  rdfs:subClassOf owl:Thing ;
+  owl:disjointWith code:Activity .
+
+data:Database a owl:Class ;
+  rdfs:label "Database"@en ;
+  rdfs:comment "A database system (PostgreSQL, MySQL, etc.)" ;
+  rdfs:subClassOf owl:Thing .
+
+# ============================================================================
+# CLASSES: LINEAGE & EXECUTION TRACKING
+# ============================================================================
+
+lineage:DataAccess a owl:Class ;
+  rdfs:label "Data Access"@en ;
+  rdfs:comment "A single data access event (read or write)" ;
+  rdfs:subClassOf owl:Thing .
+
+lineage:LineageEdge a owl:Class ;
+  rdfs:label "Lineage Edge"@en ;
+  rdfs:comment "A data dependency from producer task to consumer task" ;
+  rdfs:subClassOf owl:Thing .
+
+lineage:DataFlow a owl:Class ;
+  rdfs:label "Data Flow"@en ;
+  rdfs:comment "Describes how data flows from one column to another" ;
+  rdfs:subClassOf owl:Thing .
+
+# ============================================================================
+# CLASSES: CODE GENERATION & VALIDATION
+# ============================================================================
+
+code:GuardViolation a owl:Class ;
+  rdfs:label "Guard Violation"@en ;
+  rdfs:comment "A forbidden code pattern detected in generated code" ;
+  rdfs:subClassOf owl:Thing .
+
+code:Method a owl:Class ;
+  rdfs:label "Method"@en ;
+  rdfs:comment "A Java method in generated code" ;
+  rdfs:subClassOf owl:Thing .
+
+code:SourceFile a owl:Class ;
+  rdfs:label "Source File"@en ;
+  rdfs:comment "A generated Java source file" ;
+  rdfs:subClassOf owl:Thing .
+
+code:HyperStandardsReceipt a owl:Class ;
+  rdfs:label "H-Guards Validation Receipt"@en ;
+  rdfs:comment "Complete validation report from H-Guards phase" ;
+  rdfs:subClassOf owl:Thing .
+
+code:Validator a owl:Class ;
+  rdfs:label "Validator"@en ;
+  rdfs:comment "A code validation tool or service" ;
+  rdfs:subClassOf owl:Thing .
+
+# ============================================================================
+# PROPERTIES: WORKFLOW & SPECIFICATION
+# ============================================================================
+
+code:specId a owl:DatatypeProperty ;
+  rdfs:label "Specification ID"@en ;
+  rdfs:comment "Unique identifier for workflow specification" ;
+  rdfs:domain code:Workflow ;
+  rdfs:range xsd:string ;
+  owl:minCardinality 1 ;
+  owl:maxCardinality 1 .
+
+code:version a owl:DatatypeProperty ;
+  rdfs:label "Version"@en ;
+  rdfs:comment "Semantic version (e.g., 0.1, 1.0)" ;
+  rdfs:range xsd:string ;
+  owl:maxCardinality 1 .
+
+code:created a owl:DatatypeProperty ;
+  rdfs:label "Created At"@en ;
+  rdfs:comment "Creation timestamp" ;
+  rdfs:range xsd:dateTime ;
+  owl:maxCardinality 1 .
+
+code:hasTask a owl:ObjectProperty ;
+  rdfs:label "has Task"@en ;
+  rdfs:comment "Links workflow to its tasks" ;
+  rdfs:domain code:Workflow ;
+  rdfs:range code:Activity ;
+  owl:minCardinality 1 .
+
+code:hasVariable a owl:ObjectProperty ;
+  rdfs:label "has Variable"@en ;
+  rdfs:comment "Links workflow to its variables" ;
+  rdfs:domain code:Workflow ;
+  rdfs:range code:Variable .
+
+# ============================================================================
+# PROPERTIES: ACTIVITY (TASK)
+# ============================================================================
+
+code:taskId a owl:DatatypeProperty ;
+  rdfs:label "Task ID"@en ;
+  rdfs:comment "Unique identifier for the task within its workflow" ;
+  rdfs:domain code:Activity ;
+  rdfs:range xsd:string ;
+  owl:minCardinality 1 ;
+  owl:maxCardinality 1 ;
+  owl:equivalentProperty rdfs:label .
+
+code:taskType a owl:DatatypeProperty ;
+  rdfs:label "Task Type"@en ;
+  rdfs:comment "Type of task: 'atomic' or 'composite'" ;
+  rdfs:domain code:Activity ;
+  rdfs:range [ a owl:Datatype ;
+    owl:onDatatype xsd:string ;
+    owl:withRestrictions (
+      [ xsd:enumeration "atomic" ]
+      [ xsd:enumeration "composite" ]
+    )
+  ] ;
+  owl:maxCardinality 1 .
+
+code:reads a owl:ObjectProperty ;
+  rdfs:label "reads"@en ;
+  rdfs:comment "Task reads from this table" ;
+  rdfs:domain code:Activity ;
+  rdfs:range data:Table ;
+  owl:inverseOf data:readBy .
+
+code:writes a owl:ObjectProperty ;
+  rdfs:label "writes"@en ;
+  rdfs:comment "Task writes to this table" ;
+  rdfs:domain code:Activity ;
+  rdfs:range data:Table ;
+  owl:inverseOf data:writtenBy .
+
+code:executes_in a owl:ObjectProperty ;
+  rdfs:label "executes in"@en ;
+  rdfs:comment "Task is part of this workflow" ;
+  rdfs:domain code:Activity ;
+  rdfs:range code:Workflow ;
+  owl:minCardinality 1 ;
+  owl:maxCardinality 1 .
+
+code:documentation a owl:DatatypeProperty ;
+  rdfs:label "Documentation"@en ;
+  rdfs:comment "Task description or Javadoc" ;
+  rdfs:domain code:Activity ;
+  rdfs:range xsd:string ;
+  owl:maxCardinality 1 .
+
+code:schema_version a owl:DatatypeProperty ;
+  rdfs:label "Schema Version"@en ;
+  rdfs:comment "Version of ODCS schema used by this task" ;
+  rdfs:domain code:Activity ;
+  rdfs:range xsd:string ;
+  owl:maxCardinality 1 .
+
+# ============================================================================
+# PROPERTIES: DATA ENTITIES (TABLE & COLUMN)
+# ============================================================================
+
+data:tableName a owl:DatatypeProperty ;
+  rdfs:label "Table Name"@en ;
+  rdfs:comment "Name of the database table" ;
+  rdfs:domain data:Table ;
+  rdfs:range xsd:string ;
+  owl:minCardinality 1 ;
+  owl:maxCardinality 1 ;
+  owl:equivalentProperty rdfs:label .
+
+data:database a owl:DatatypeProperty ;
+  rdfs:label "Database"@en ;
+  rdfs:comment "Database identifier (PostgreSQL, MySQL, etc.)" ;
+  rdfs:domain data:Table ;
+  rdfs:range xsd:string ;
+  owl:maxCardinality 1 .
+
+data:hasColumn a owl:ObjectProperty ;
+  rdfs:label "has Column"@en ;
+  rdfs:comment "Links table to its columns" ;
+  rdfs:domain data:Table ;
+  rdfs:range data:Column ;
+  owl:minCardinality 0 ;
+  owl:inverseOf data:inTable .
+
+data:inTable a owl:ObjectProperty ;
+  rdfs:label "in Table"@en ;
+  rdfs:comment "Column belongs to this table" ;
+  rdfs:domain data:Column ;
+  rdfs:range data:Table ;
+  owl:minCardinality 1 ;
+  owl:maxCardinality 1 .
+
+data:readBy a owl:ObjectProperty ;
+  rdfs:label "read by"@en ;
+  rdfs:comment "Inverse of code:reads" ;
+  rdfs:domain data:Table ;
+  rdfs:range code:Activity ;
+  owl:inverseOf code:reads .
+
+data:writtenBy a owl:ObjectProperty ;
+  rdfs:label "written by"@en ;
+  rdfs:comment "Inverse of code:writes" ;
+  rdfs:domain data:Table ;
+  rdfs:range code:Activity ;
+  owl:inverseOf code:writes .
+
+data:columnName a owl:DatatypeProperty ;
+  rdfs:label "Column Name"@en ;
+  rdfs:comment "Name of the column" ;
+  rdfs:domain data:Column ;
+  rdfs:range xsd:string ;
+  owl:minCardinality 1 ;
+  owl:maxCardinality 1 ;
+  owl:equivalentProperty rdfs:label .
+
+data:dataType a owl:DatatypeProperty ;
+  rdfs:label "Data Type"@en ;
+  rdfs:comment "SQL data type (bigint, varchar, decimal, etc.)" ;
+  rdfs:domain data:Column ;
+  rdfs:range xsd:string ;
+  owl:maxCardinality 1 .
+
+data:isNullable a owl:DatatypeProperty ;
+  rdfs:label "is Nullable"@en ;
+  rdfs:comment "Whether the column can contain NULL values" ;
+  rdfs:domain data:Column ;
+  rdfs:range xsd:boolean ;
+  owl:maxCardinality 1 .
+
+data:isPII a owl:DatatypeProperty ;
+  rdfs:label "is PII"@en ;
+  rdfs:comment "Whether the column contains personally identifiable information" ;
+  rdfs:domain data:Column ;
+  rdfs:range xsd:boolean ;
+  owl:maxCardinality 1 ;
+  owl:equivalentProperty [ owl:inverseOf data:hasPIIColumn ] .
+
+data:description a owl:DatatypeProperty ;
+  rdfs:label "Description"@en ;
+  rdfs:comment "Documentation for the column" ;
+  rdfs:domain data:Column ;
+  rdfs:range xsd:string ;
+  owl:maxCardinality 1 ;
+  owl:equivalentProperty rdfs:comment .
+
+data:rowCount a owl:DatatypeProperty ;
+  rdfs:label "Row Count"@en ;
+  rdfs:comment "Number of rows in table (for statistics)" ;
+  rdfs:domain data:Table ;
+  rdfs:range xsd:integer ;
+  owl:maxCardinality 1 .
+
+data:lastModified a owl:DatatypeProperty ;
+  rdfs:label "Last Modified"@en ;
+  rdfs:comment "Last modification timestamp" ;
+  rdfs:domain data:Table ;
+  rdfs:range xsd:dateTime ;
+  owl:maxCardinality 1 .
+
+# ============================================================================
+# PROPERTIES: CASE EXECUTION
+# ============================================================================
+
+exec:caseId a owl:DatatypeProperty ;
+  rdfs:label "Case ID"@en ;
+  rdfs:comment "Unique identifier for the workflow instance" ;
+  rdfs:domain exec:Case ;
+  rdfs:range xsd:string ;
+  owl:minCardinality 1 ;
+  owl:maxCardinality 1 ;
+  owl:equivalentProperty rdfs:label .
+
+exec:ofWorkflow a owl:ObjectProperty ;
+  rdfs:label "of Workflow"@en ;
+  rdfs:comment "Which workflow specification this case instantiates" ;
+  rdfs:domain exec:Case ;
+  rdfs:range code:Workflow ;
+  owl:minCardinality 1 ;
+  owl:maxCardinality 1 .
+
+exec:createdAt a owl:DatatypeProperty ;
+  rdfs:label "Created At"@en ;
+  rdfs:comment "Case start timestamp" ;
+  rdfs:domain exec:Case ;
+  rdfs:range xsd:dateTime ;
+  owl:maxCardinality 1 .
+
+exec:completedAt a owl:DatatypeProperty ;
+  rdfs:label "Completed At"@en ;
+  rdfs:comment "Case completion timestamp" ;
+  rdfs:domain exec:Case ;
+  rdfs:range xsd:dateTime ;
+  owl:maxCardinality 1 .
+
+exec:status a owl:DatatypeProperty ;
+  rdfs:label "Status"@en ;
+  rdfs:comment "Case status: current, complete, failed" ;
+  rdfs:domain exec:Case ;
+  rdfs:range [ a owl:Datatype ;
+    owl:onDatatype xsd:string ;
+    owl:withRestrictions (
+      [ xsd:enumeration "current" ]
+      [ xsd:enumeration "complete" ]
+      [ xsd:enumeration "failed" ]
+    )
+  ] ;
+  owl:maxCardinality 1 .
+
+exec:accessesTable a owl:ObjectProperty ;
+  rdfs:label "accesses Table"@en ;
+  rdfs:comment "Case accesses this table (either read or write)" ;
+  rdfs:domain exec:Case ;
+  rdfs:range data:Table .
+
+# ============================================================================
+# PROPERTIES: LINEAGE & DATA ACCESS
+# ============================================================================
+
+lineage:caseId a owl:DatatypeProperty ;
+  rdfs:label "Case ID"@en ;
+  rdfs:comment "The case this access belongs to" ;
+  rdfs:domain lineage:DataAccess ;
+  rdfs:range xsd:string ;
+  owl:minCardinality 1 ;
+  owl:maxCardinality 1 .
+
+lineage:activity a owl:ObjectProperty ;
+  rdfs:label "activity"@en ;
+  rdfs:comment "Task that performed this data access" ;
+  rdfs:domain lineage:DataAccess ;
+  rdfs:range code:Activity ;
+  owl:maxCardinality 1 .
+
+lineage:timestamp a owl:DatatypeProperty ;
+  rdfs:label "Timestamp"@en ;
+  rdfs:comment "When the data access occurred" ;
+  rdfs:domain lineage:DataAccess ;
+  rdfs:range xsd:dateTime ;
+  owl:minCardinality 1 ;
+  owl:maxCardinality 1 .
+
+lineage:accessType a owl:DatatypeProperty ;
+  rdfs:label "Access Type"@en ;
+  rdfs:comment "Type of access: read or write" ;
+  rdfs:domain lineage:DataAccess ;
+  rdfs:range [ a owl:Datatype ;
+    owl:onDatatype xsd:string ;
+    owl:withRestrictions (
+      [ xsd:enumeration "read" ]
+      [ xsd:enumeration "write" ]
+    )
+  ] ;
+  owl:minCardinality 1 ;
+  owl:maxCardinality 1 .
+
+lineage:table a owl:ObjectProperty ;
+  rdfs:label "table"@en ;
+  rdfs:comment "The table being accessed" ;
+  rdfs:domain lineage:DataAccess ;
+  rdfs:range data:Table ;
+  owl:minCardinality 1 ;
+  owl:maxCardinality 1 .
+
+lineage:columns a owl:ObjectProperty ;
+  rdfs:label "columns"@en ;
+  rdfs:comment "Specific columns accessed (RDF List of data:Column)" ;
+  rdfs:domain lineage:DataAccess ;
+  rdfs:range rdf:List ;
+  owl:maxCardinality 1 .
+
+lineage:rowsAffected a owl:DatatypeProperty ;
+  rdfs:label "Rows Affected"@en ;
+  rdfs:comment "Number of rows involved in access" ;
+  rdfs:domain lineage:DataAccess ;
+  rdfs:range xsd:integer ;
+  owl:maxCardinality 1 .
+
+lineage:dataHash a owl:DatatypeProperty ;
+  rdfs:label "Data Hash"@en ;
+  rdfs:comment "SHA-256 hash of data content" ;
+  rdfs:domain lineage:DataAccess ;
+  rdfs:range xsd:string ;
+  owl:maxCardinality 1 .
+
+lineage:sourceIp a owl:DatatypeProperty ;
+  rdfs:label "Source IP"@en ;
+  rdfs:comment "IP address that initiated the access" ;
+  rdfs:domain lineage:DataAccess ;
+  rdfs:range xsd:string ;
+  owl:maxCardinality 1 .
+
+lineage:producer a owl:ObjectProperty ;
+  rdfs:label "producer"@en ;
+  rdfs:comment "Source task producing data" ;
+  rdfs:domain lineage:LineageEdge ;
+  rdfs:range code:Activity ;
+  owl:minCardinality 1 ;
+  owl:maxCardinality 1 .
+
+lineage:consumer a owl:ObjectProperty ;
+  rdfs:label "consumer"@en ;
+  rdfs:comment "Target task consuming data" ;
+  rdfs:domain lineage:LineageEdge ;
+  rdfs:range code:Activity ;
+  owl:minCardinality 1 ;
+  owl:maxCardinality 1 .
+
+lineage:dataFlows a owl:ObjectProperty ;
+  rdfs:label "data Flows"@en ;
+  rdfs:comment "Data columns flowing from producer to consumer (RDF List)" ;
+  rdfs:domain lineage:LineageEdge ;
+  rdfs:range rdf:List ;
+  owl:maxCardinality 1 .
+
+lineage:transformation a owl:DatatypeProperty ;
+  rdfs:label "Transformation"@en ;
+  rdfs:comment "XQuery or transformation expression" ;
+  rdfs:domain [ a owl:Class ; owl:unionOf (lineage:DataFlow lineage:LineageEdge) ] ;
+  rdfs:range xsd:string ;
+  owl:maxCardinality 1 .
+
+lineage:transformationType a owl:DatatypeProperty ;
+  rdfs:label "Transformation Type"@en ;
+  rdfs:comment "Type: passthrough, aggregate, join, etc." ;
+  rdfs:domain lineage:LineageEdge ;
+  rdfs:range [ a owl:Datatype ;
+    owl:onDatatype xsd:string ;
+    owl:withRestrictions (
+      [ xsd:enumeration "passthrough" ]
+      [ xsd:enumeration "aggregate" ]
+      [ xsd:enumeration "join" ]
+      [ xsd:enumeration "filter" ]
+      [ xsd:enumeration "transform" ]
+    )
+  ] ;
+  owl:maxCardinality 1 .
+
+lineage:pathLength a owl:DatatypeProperty ;
+  rdfs:label "Path Length"@en ;
+  rdfs:comment "Hop distance from producer to consumer" ;
+  rdfs:domain lineage:LineageEdge ;
+  rdfs:range xsd:integer ;
+  owl:maxCardinality 1 .
+
+# ============================================================================
+# PROPERTIES: GUARD VIOLATIONS
+# ============================================================================
+
+code:pattern a owl:DatatypeProperty ;
+  rdfs:label "Pattern"@en ;
+  rdfs:comment "Guard pattern type (H_TODO, H_MOCK, etc.)" ;
+  rdfs:domain code:GuardViolation ;
+  rdfs:range [ a owl:Datatype ;
+    owl:onDatatype xsd:string ;
+    owl:withRestrictions (
+      [ xsd:enumeration "H_TODO" ]
+      [ xsd:enumeration "H_MOCK" ]
+      [ xsd:enumeration "H_STUB" ]
+      [ xsd:enumeration "H_EMPTY" ]
+      [ xsd:enumeration "H_FALLBACK" ]
+      [ xsd:enumeration "H_LIE" ]
+      [ xsd:enumeration "H_SILENT" ]
+    )
+  ] ;
+  owl:minCardinality 1 ;
+  owl:maxCardinality 1 .
+
+code:severity a owl:DatatypeProperty ;
+  rdfs:label "Severity"@en ;
+  rdfs:comment "Violation severity: FAIL or WARN" ;
+  rdfs:domain code:GuardViolation ;
+  rdfs:range [ a owl:Datatype ;
+    owl:onDatatype xsd:string ;
+    owl:withRestrictions (
+      [ xsd:enumeration "FAIL" ]
+      [ xsd:enumeration "WARN" ]
+    )
+  ] ;
+  owl:minCardinality 1 ;
+  owl:maxCardinality 1 .
+
+code:file a owl:DatatypeProperty ;
+  rdfs:label "File"@en ;
+  rdfs:comment "Absolute path to source file" ;
+  rdfs:domain [ a owl:Class ; owl:unionOf (code:GuardViolation code:SourceFile code:Method) ] ;
+  rdfs:range xsd:string ;
+  owl:minCardinality 1 ;
+  owl:maxCardinality 1 .
+
+code:lineNumber a owl:DatatypeProperty ;
+  rdfs:label "Line Number"@en ;
+  rdfs:comment "Line number in source file" ;
+  rdfs:domain code:GuardViolation ;
+  rdfs:range xsd:integer ;
+  owl:minCardinality 1 ;
+  owl:maxCardinality 1 .
+
+code:content a owl:DatatypeProperty ;
+  rdfs:label "Content"@en ;
+  rdfs:comment "Exact code that violates" ;
+  rdfs:domain code:GuardViolation ;
+  rdfs:range xsd:string ;
+  owl:minCardinality 1 ;
+  owl:maxCardinality 1 .
+
+code:fixGuidance a owl:DatatypeProperty ;
+  rdfs:label "Fix Guidance"@en ;
+  rdfs:comment "How to fix the violation" ;
+  rdfs:domain code:GuardViolation ;
+  rdfs:range xsd:string ;
+  owl:maxCardinality 1 .
+
+code:discoveredAt a owl:DatatypeProperty ;
+  rdfs:label "Discovered At"@en ;
+  rdfs:comment "When the violation was detected" ;
+  rdfs:domain code:GuardViolation ;
+  rdfs:range xsd:dateTime ;
+  owl:maxCardinality 1 .
+
+code:discoveredBy a owl:ObjectProperty ;
+  rdfs:label "discovered by"@en ;
+  rdfs:comment "Which validator found the violation" ;
+  rdfs:domain code:GuardViolation ;
+  rdfs:range code:Validator ;
+  owl:maxCardinality 1 .
+
+code:linkedToMethod a owl:ObjectProperty ;
+  rdfs:label "linked to Method"@en ;
+  rdfs:comment "Method containing the violation" ;
+  rdfs:domain code:GuardViolation ;
+  rdfs:range code:Method ;
+  owl:maxCardinality 1 .
+
+code:contains a owl:ObjectProperty ;
+  rdfs:label "contains"@en ;
+  rdfs:comment "Container has this element" ;
+  rdfs:range owl:Thing ;
+  owl:inverseOf [ owl:inverseOf code:contains ] .
+
+# ============================================================================
+# PROPERTIES: METHOD & SOURCE FILE
+# ============================================================================
+
+code:methodId a owl:DatatypeProperty ;
+  rdfs:label "Method ID"@en ;
+  rdfs:comment "Fully qualified method identifier" ;
+  rdfs:domain code:Method ;
+  rdfs:range xsd:string ;
+  owl:minCardinality 1 ;
+  owl:maxCardinality 1 ;
+  owl:equivalentProperty rdfs:label .
+
+code:lineStart a owl:DatatypeProperty ;
+  rdfs:label "Line Start"@en ;
+  rdfs:comment "First line of method in source" ;
+  rdfs:domain code:Method ;
+  rdfs:range xsd:integer ;
+  owl:maxCardinality 1 .
+
+code:lineEnd a owl:DatatypeProperty ;
+  rdfs:label "Line End"@en ;
+  rdfs:comment "Last line of method in source" ;
+  rdfs:domain code:Method ;
+  rdfs:range xsd:integer ;
+  owl:maxCardinality 1 .
+
+code:signature a owl:DatatypeProperty ;
+  rdfs:label "Signature"@en ;
+  rdfs:comment "Method signature (parameters and return type)" ;
+  rdfs:domain code:Method ;
+  rdfs:range xsd:string ;
+  owl:maxCardinality 1 .
+
+code:returnType a owl:DatatypeProperty ;
+  rdfs:label "Return Type"@en ;
+  rdfs:comment "Java return type" ;
+  rdfs:domain code:Method ;
+  rdfs:range xsd:string ;
+  owl:maxCardinality 1 .
+
+code:filePath a owl:DatatypeProperty ;
+  rdfs:label "File Path"@en ;
+  rdfs:comment "Absolute path to source file" ;
+  rdfs:domain code:SourceFile ;
+  rdfs:range xsd:string ;
+  owl:minCardinality 1 ;
+  owl:maxCardinality 1 ;
+  owl:equivalentProperty code:file .
+
+code:generatedAt a owl:DatatypeProperty ;
+  rdfs:label "Generated At"@en ;
+  rdfs:comment "File generation timestamp" ;
+  rdfs:domain code:SourceFile ;
+  rdfs:range xsd:dateTime ;
+  owl:maxCardinality 1 .
+
+code:generatedBy a owl:DatatypeProperty ;
+  rdfs:label "Generated By"@en ;
+  rdfs:comment "Generator name/version" ;
+  rdfs:domain code:SourceFile ;
+  rdfs:range xsd:string ;
+  owl:maxCardinality 1 .
+
+code:violationCount a owl:DatatypeProperty ;
+  rdfs:label "Violation Count"@en ;
+  rdfs:comment "Total violations in file" ;
+  rdfs:domain code:SourceFile ;
+  rdfs:range xsd:integer ;
+  owl:maxCardinality 1 .
+
+code:violationList a owl:ObjectProperty ;
+  rdfs:label "violation List"@en ;
+  rdfs:comment "All violations (RDF List)" ;
+  rdfs:domain code:SourceFile ;
+  rdfs:range rdf:List ;
+  owl:maxCardinality 1 .
+
+code:status a owl:DatatypeProperty ;
+  rdfs:label "Status"@en ;
+  rdfs:comment "Validation status: GREEN or RED" ;
+  rdfs:domain [ a owl:Class ; owl:unionOf (code:SourceFile code:HyperStandardsReceipt) ] ;
+  rdfs:range [ a owl:Datatype ;
+    owl:onDatatype xsd:string ;
+    owl:withRestrictions (
+      [ xsd:enumeration "GREEN" ]
+      [ xsd:enumeration "RED" ]
+    )
+  ] ;
+  owl:maxCardinality 1 .
+
+# ============================================================================
+# PROPERTIES: VALIDATION RECEIPT
+# ============================================================================
+
+code:phase a owl:DatatypeProperty ;
+  rdfs:label "Phase"@en ;
+  rdfs:comment "Validation phase name" ;
+  rdfs:domain code:HyperStandardsReceipt ;
+  rdfs:range xsd:string ;
+  owl:maxCardinality 1 .
+
+code:timestamp a owl:DatatypeProperty ;
+  rdfs:label "Timestamp"@en ;
+  rdfs:comment "Validation execution time" ;
+  rdfs:domain code:HyperStandardsReceipt ;
+  rdfs:range xsd:dateTime ;
+  owl:maxCardinality 1 .
+
+code:filesScanned a owl:DatatypeProperty ;
+  rdfs:label "Files Scanned"@en ;
+  rdfs:comment "Number of files checked" ;
+  rdfs:domain code:HyperStandardsReceipt ;
+  rdfs:range xsd:integer ;
+  owl:maxCardinality 1 .
+
+code:totalViolations a owl:DatatypeProperty ;
+  rdfs:label "Total Violations"@en ;
+  rdfs:comment "Sum of all violations" ;
+  rdfs:domain code:HyperStandardsReceipt ;
+  rdfs:range xsd:integer ;
+  owl:maxCardinality 1 .
+
+code:violations a owl:ObjectProperty ;
+  rdfs:label "violations"@en ;
+  rdfs:comment "All GuardViolation nodes (RDF List)" ;
+  rdfs:domain code:HyperStandardsReceipt ;
+  rdfs:range rdf:List ;
+  owl:maxCardinality 1 .
+
+code:errorMessage a owl:DatatypeProperty ;
+  rdfs:label "Error Message"@en ;
+  rdfs:comment "Summary error message" ;
+  rdfs:domain code:HyperStandardsReceipt ;
+  rdfs:range xsd:string ;
+  owl:maxCardinality 1 .
+
+code:summary a owl:ObjectProperty ;
+  rdfs:label "summary"@en ;
+  rdfs:comment "Violation count summary" ;
+  rdfs:domain code:HyperStandardsReceipt ;
+  rdfs:range code:ViolationSummary ;
+  owl:maxCardinality 1 .
+
+# ============================================================================
+# CLASSES: SUMMARY & METADATA
+# ============================================================================
+
+code:ViolationSummary a owl:Class ;
+  rdfs:label "Violation Summary"@en ;
+  rdfs:comment "Counts of violations by pattern type" ;
+  rdfs:subClassOf owl:Thing .
+
+code:h_todo_count a owl:DatatypeProperty ;
+  rdfs:label "H_TODO Count"@en ;
+  rdfs:domain code:ViolationSummary ;
+  rdfs:range xsd:integer ;
+  owl:maxCardinality 1 .
+
+code:h_mock_count a owl:DatatypeProperty ;
+  rdfs:label "H_MOCK Count"@en ;
+  rdfs:domain code:ViolationSummary ;
+  rdfs:range xsd:integer ;
+  owl:maxCardinality 1 .
+
+code:h_stub_count a owl:DatatypeProperty ;
+  rdfs:label "H_STUB Count"@en ;
+  rdfs:domain code:ViolationSummary ;
+  rdfs:range xsd:integer ;
+  owl:maxCardinality 1 .
+
+code:h_empty_count a owl:DatatypeProperty ;
+  rdfs:label "H_EMPTY Count"@en ;
+  rdfs:domain code:ViolationSummary ;
+  rdfs:range xsd:integer ;
+  owl:maxCardinality 1 .
+
+code:h_fallback_count a owl:DatatypeProperty ;
+  rdfs:label "H_FALLBACK Count"@en ;
+  rdfs:domain code:ViolationSummary ;
+  rdfs:range xsd:integer ;
+  owl:maxCardinality 1 .
+
+code:h_lie_count a owl:DatatypeProperty ;
+  rdfs:label "H_LIE Count"@en ;
+  rdfs:domain code:ViolationSummary ;
+  rdfs:range xsd:integer ;
+  owl:maxCardinality 1 .
+
+code:h_silent_count a owl:DatatypeProperty ;
+  rdfs:label "H_SILENT Count"@en ;
+  rdfs:domain code:ViolationSummary ;
+  rdfs:range xsd:integer ;
+  owl:maxCardinality 1 .
+
+# ============================================================================
+# INFERENCE RULES (OPTIONAL)
+# ============================================================================
+
+# If a column is read in a case, then the case accesses that column's table
+[ a owl:Restriction ;
+  owl:onProperty lineage:columns ;
+  owl:qualifiedCardinality 1 ;
+  owl:onClass data:Column ] .
+
+# If a task reads from a table, and an access references that table,
+# then the access is from that task
+[ a owl:Restriction ;
+  owl:onProperty lineage:activity ;
+  owl:qualifiedCardinality 1 ;
+  owl:onClass code:Activity ] .
+
+# ============================================================================
+# SKOS VOCABULARY ALIGNMENTS (for semantic interop)
+# ============================================================================
+
+code:Activity owl:equivalentClass skos:Concept .
+data:Column owl:equivalentClass skos:Concept .
+lineage:DataAccess owl:equivalentClass skos:Concept .
+
+# ============================================================================
+# END OF ONTOLOGY
+# ============================================================================
+
+# File: /home/user/yawl/schema/yawl-lineage-ontology.ttl
+# Last modified: 2026-02-28
+# Validation: SPARQL and OWL/RDF validated
+# SHACL shapes available: schema/yawl-lineage-shapes.ttl

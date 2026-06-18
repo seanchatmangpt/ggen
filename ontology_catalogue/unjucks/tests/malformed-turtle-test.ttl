@@ -1,0 +1,16 @@
+@prefix ex: <http://example.org/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# This is intentionally malformed Turtle - missing closing bracket and quotes
+ex:Person a rdfs:Class ;
+    rdfs:label "Person ;
+    rdfs:comment "A human being
+    # missing bracket here
+
+ex:hasName a rdf:Property ;
+    rdfs:domain ex:Person ;
+    # malformed literal without quotes
+    rdfs:range someValue .
+
+# Syntax error - invalid IRI
+<> rdfs:label "Invalid" .

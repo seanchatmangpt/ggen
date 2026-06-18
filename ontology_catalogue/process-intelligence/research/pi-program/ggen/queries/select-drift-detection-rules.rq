@@ -1,0 +1,91 @@
+# Select Drift Detection Rules
+# Authority: Autonomic Knowledge Actuation + Blue River Dam
+# Purpose: Extract runtime drift detection and self-repair triggers
+
+PREFIX aka: <http://process-intelligence.local/autonomic/>
+PREFIX mape: <http://process-intelligence.local/mape-k/>
+PREFIX gov: <http://process-intelligence.local/governance/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+CONSTRUCT {
+  ?rule a aka:DriftDetectionRule ;
+    rdfs:label ?label ;
+    rdfs:comment ?comment ;
+    aka:driftType ?type ;
+    aka:detectCondition ?condition ;
+    aka:sparqlQuery ?sparql ;
+    aka:autoRepair ?autoRepair ;
+    aka:requiresApproval ?approval .
+} WHERE {
+  {
+    # Drift Rule 1: Sudden Fitness Degradation
+    BIND(IRI("http://process-intelligence.local/autonomic/drift-fitness-degradation") AS ?rule)
+    BIND("Sudden Fitness Degradation" AS ?label)
+    BIND("Detect rapid drop in conformance fitness metric" AS ?comment)
+    BIND("concept-drift" AS ?type)
+    BIND("Fitness(σ_recent) < Fitness(σ_baseline) - threshold" AS ?condition)
+    BIND("ASK { ?trace a mape:Trace . ?trace mape:fitness ?f . ?baseline mape:baselineFitness ?b . FILTER(?f < ?b - 0.15) }") AS ?sparql)
+    BIND(false AS ?autoRepair)
+    BIND(true AS ?approval)
+  }
+  UNION
+  {
+    # Drift Rule 2: Emergence of Rare Behavior Patterns
+    BIND(IRI("http://process-intelligence.local/autonomic/drift-rare-patterns") AS ?rule)
+    BIND("Rare Behavior Pattern Emergence" AS ?label)
+    BIND("Detect statistically improbable process execution paths" AS ?comment)
+    BIND("behavior-drift" AS ?type)
+    BIND("novelActivity() observed in event log < threshold frequency" AS ?condition)
+    BIND("ASK { ?trace a mape:Trace . ?trace mape:activities ?acts . FILTER(COUNT(?acts) < 0.05 * TOTAL_ACTIVITIES) }") AS ?sparql)
+    BIND(false AS ?autoRepair)
+    BIND(true AS ?approval)
+  }
+  UNION
+  {
+    # Drift Rule 3: Structural Invariant Violation
+    BIND(IRI("http://process-intelligence.local/autonomic/drift-invariant-violation") AS ?rule)
+    BIND("Structural Invariant Violation" AS ?label)
+    BIND("Detect P-invariant conservation violation" AS ?comment)
+    BIND("structural-drift" AS ?type)
+    BIND("y^T · M ≠ y^T · M0 for some P-invariant y" AS ?condition)
+    BIND("ASK { ?trace a mape:Trace . ?trace mape:marking ?m . ?invariant mape:vector ?y . FILTER(NOT(invariant_holds(?y, ?m))) }") AS ?sparql)
+    BIND(false AS ?autoRepair)
+    BIND(true AS ?approval)
+  }
+  UNION
+  {
+    # Drift Rule 4: Performance Bottleneck Emergence
+    BIND(IRI("http://process-intelligence.local/autonomic/drift-performance-bottleneck") AS ?rule)
+    BIND("Performance Bottleneck Emergence" AS ?label)
+    BIND("Detect unexplained increase in activity inter-arrival time" AS ?comment)
+    BIND("performance-drift" AS ?type)
+    BIND("Latency(activities) > baseline + 3σ" AS ?condition)
+    BIND("ASK { ?activity a mape:Activity . ?activity mape:interArrivalTime ?iat . ?activity mape:baselineIAT ?baseline . ?activity mape:stddev ?sigma . FILTER(?iat > ?baseline + (3 * ?sigma)) }") AS ?sparql)
+    BIND(true AS ?autoRepair)
+    BIND(false AS ?approval)
+  }
+  UNION
+  {
+    # Drift Rule 5: Compliance Policy Deviation (Declare Constraint Violation)
+    BIND(IRI("http://process-intelligence.local/autonomic/drift-declare-violation") AS ?rule)
+    BIND("Declare Constraint Violation" AS ?label)
+    BIND("Detect violation of Response/Precedence/Choice temporal constraints" AS ?comment)
+    BIND("compliance-drift" AS ?type)
+    BIND("σ |≠ φ_declare for some constraint φ" AS ?condition)
+    BIND("ASK { ?trace a mape:Trace . ?constraint a aka:DeclareConstraint . FILTER(NOT(satisfies(?trace, ?constraint))) }") AS ?sparql)
+    BIND(false AS ?autoRepair)
+    BIND(true AS ?approval)
+  }
+  UNION
+  {
+    # Drift Rule 6: Abrupt Model Degradation (Process Tree Simplification)
+    BIND(IRI("http://process-intelligence.local/autonomic/drift-model-degradation") AS ?rule)
+    BIND("Abrupt Process Model Degradation" AS ?label)
+    BIND("Detect simplification of discovered process tree (over-generalization)" AS ?comment)
+    BIND("model-drift" AS ?type)
+    BIND("Complexity(discovered_tree_recent) < Complexity(discovered_tree_baseline) - threshold" AS ?condition)
+    BIND("ASK { ?tree a mape:ProcessTree . ?tree mape:complexity ?c . ?baseline mape:baselineComplexity ?bc . FILTER(?c < ?bc - 5) }") AS ?sparql)
+    BIND(false AS ?autoRepair)
+    BIND(true AS ?approval)
+  }
+}

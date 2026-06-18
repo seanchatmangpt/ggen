@@ -1,0 +1,214 @@
+# data-modelling-sdk v2.3.0 — JTBD Job Instances
+# Five L4 Jobs To Be Done for the DataModelling native bridge.
+#
+# Each job encodes a real business actor performing a real workflow
+# using a sequence of L3 domain API calls.
+
+@prefix rdf:       <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:      <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:       <http://www.w3.org/2001/XMLSchema#> .
+@prefix yawl-jtbd: <http://yawlfoundation.org/yawl/jtbd#> .
+@prefix dm-jtbd:   <http://yawlfoundation.org/yawl/datamodelling/jtbd#> .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Shared role instances
+# ─────────────────────────────────────────────────────────────────────────────
+
+dm-jtbd:role-DataEngineer a yawl-jtbd:JTBDRole ;
+    yawl-jtbd:roleName "DataEngineer" .
+
+dm-jtbd:role-BusinessAnalyst a yawl-jtbd:JTBDRole ;
+    yawl-jtbd:roleName "BusinessAnalyst" .
+
+dm-jtbd:role-DataSteward a yawl-jtbd:JTBDRole ;
+    yawl-jtbd:roleName "DataSteward" .
+
+dm-jtbd:role-DataGovernanceOfficer a yawl-jtbd:JTBDRole ;
+    yawl-jtbd:roleName "DataGovernanceOfficer" .
+
+dm-jtbd:role-KnowledgeEngineer a yawl-jtbd:JTBDRole ;
+    yawl-jtbd:roleName "KnowledgeEngineer" .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Shared trigger instances
+# ─────────────────────────────────────────────────────────────────────────────
+
+dm-jtbd:trigger-ApiDocumentationUpdate a yawl-jtbd:JTBDTrigger ;
+    yawl-jtbd:triggerName "ApiDocumentationUpdate" .
+
+dm-jtbd:trigger-DecisionGovernanceReview a yawl-jtbd:JTBDTrigger ;
+    yawl-jtbd:triggerName "DecisionGovernanceReview" .
+
+dm-jtbd:trigger-OpenDataComplianceAudit a yawl-jtbd:JTBDTrigger ;
+    yawl-jtbd:triggerName "OpenDataComplianceAudit" .
+
+dm-jtbd:trigger-DataQualityIncident a yawl-jtbd:JTBDTrigger ;
+    yawl-jtbd:triggerName "DataQualityIncident" .
+
+dm-jtbd:trigger-DomainModelRefactoring a yawl-jtbd:JTBDTrigger ;
+    yawl-jtbd:triggerName "DomainModelRefactoring" .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Job 1: Schema Documentation Publishing
+# Actor: DataEngineer | Trigger: ApiDocumentationUpdate
+# Steps: importOdcsSchema → convertOdcsToOpenapi → exportOpenapiSchema
+# ─────────────────────────────────────────────────────────────────────────────
+
+dm-jtbd:job-SchemaDocumentationPublishing a yawl-jtbd:JTBDJob ;
+    yawl-jtbd:jobName        "SCHEMA_DOCUMENTATION_PUBLISHING" ;
+    yawl-jtbd:jobDescription "A data engineer publishes API documentation by converting an ODCS schema to OpenAPI format." ;
+    yawl-jtbd:hasRole        dm-jtbd:role-DataEngineer ;
+    yawl-jtbd:hasTrigger     dm-jtbd:trigger-ApiDocumentationUpdate ;
+    yawl-jtbd:hasStep        dm-jtbd:step-sdp-1 ;
+    yawl-jtbd:hasStep        dm-jtbd:step-sdp-2 ;
+    yawl-jtbd:hasStep        dm-jtbd:step-sdp-3 .
+
+dm-jtbd:step-sdp-1 a yawl-jtbd:JTBDStep ;
+    yawl-jtbd:stepOrder            "1"^^xsd:integer ;
+    yawl-jtbd:stepOperation        "importOdcsSchema" ;
+    yawl-jtbd:stepFixture          "odcs-schema-simple" ;
+    yawl-jtbd:stepPlausibilityField "schema_id" .
+
+dm-jtbd:step-sdp-2 a yawl-jtbd:JTBDStep ;
+    yawl-jtbd:stepOrder            "2"^^xsd:integer ;
+    yawl-jtbd:stepOperation        "convertOdcsToOpenapi" ;
+    yawl-jtbd:stepFixture          "convert-odcs-to-openapi" ;
+    yawl-jtbd:stepPlausibilityField "openapi" .
+
+dm-jtbd:step-sdp-3 a yawl-jtbd:JTBDStep ;
+    yawl-jtbd:stepOrder            "3"^^xsd:integer ;
+    yawl-jtbd:stepOperation        "exportOpenapiSchema" ;
+    yawl-jtbd:stepFixture          "convert-odcs-to-openapi" ;
+    yawl-jtbd:stepPlausibilityField "content" .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Job 2: Process Decision Extraction
+# Actor: BusinessAnalyst | Trigger: DecisionGovernanceReview
+# Steps: importBpmnProcess → convertBpmnToDmn → validateDmnDecision
+# ─────────────────────────────────────────────────────────────────────────────
+
+dm-jtbd:job-ProcessDecisionExtraction a yawl-jtbd:JTBDJob ;
+    yawl-jtbd:jobName        "PROCESS_DECISION_EXTRACTION" ;
+    yawl-jtbd:jobDescription "A business analyst extracts decision logic from a BPMN process and converts it to DMN for governance review." ;
+    yawl-jtbd:hasRole        dm-jtbd:role-BusinessAnalyst ;
+    yawl-jtbd:hasTrigger     dm-jtbd:trigger-DecisionGovernanceReview ;
+    yawl-jtbd:hasStep        dm-jtbd:step-pde-1 ;
+    yawl-jtbd:hasStep        dm-jtbd:step-pde-2 ;
+    yawl-jtbd:hasStep        dm-jtbd:step-pde-3 .
+
+dm-jtbd:step-pde-1 a yawl-jtbd:JTBDStep ;
+    yawl-jtbd:stepOrder            "1"^^xsd:integer ;
+    yawl-jtbd:stepOperation        "importBpmnProcess" ;
+    yawl-jtbd:stepFixture          "bpmn-process-simple" ;
+    yawl-jtbd:stepPlausibilityField "process_id" .
+
+dm-jtbd:step-pde-2 a yawl-jtbd:JTBDStep ;
+    yawl-jtbd:stepOrder            "2"^^xsd:integer ;
+    yawl-jtbd:stepOperation        "convertBpmnToDmn" ;
+    yawl-jtbd:stepFixture          "bpmn-process-simple" ;
+    yawl-jtbd:stepPlausibilityField "decision_id" .
+
+dm-jtbd:step-pde-3 a yawl-jtbd:JTBDStep ;
+    yawl-jtbd:stepOrder            "3"^^xsd:integer ;
+    yawl-jtbd:stepOperation        "validateDmnDecision" ;
+    yawl-jtbd:stepFixture          "bpmn-process-simple" ;
+    yawl-jtbd:stepPlausibilityField "valid" .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Job 3: Vocabulary Harmonization
+# Actor: DataSteward | Trigger: OpenDataComplianceAudit
+# Steps: importVocabulary → convertVocabularyToOdcs → mapVocabularies
+# ─────────────────────────────────────────────────────────────────────────────
+
+dm-jtbd:job-VocabularyHarmonization a yawl-jtbd:JTBDJob ;
+    yawl-jtbd:jobName        "VOCABULARY_HARMONIZATION" ;
+    yawl-jtbd:jobDescription "A data steward harmonizes vocabularies into ODCS format during an open-data compliance audit." ;
+    yawl-jtbd:hasRole        dm-jtbd:role-DataSteward ;
+    yawl-jtbd:hasTrigger     dm-jtbd:trigger-OpenDataComplianceAudit ;
+    yawl-jtbd:hasStep        dm-jtbd:step-vh-1 ;
+    yawl-jtbd:hasStep        dm-jtbd:step-vh-2 ;
+    yawl-jtbd:hasStep        dm-jtbd:step-vh-3 .
+
+dm-jtbd:step-vh-1 a yawl-jtbd:JTBDStep ;
+    yawl-jtbd:stepOrder            "1"^^xsd:integer ;
+    yawl-jtbd:stepOperation        "importVocabulary" ;
+    yawl-jtbd:stepFixture          "vocabulary-simple" ;
+    yawl-jtbd:stepPlausibilityField "vocabulary_id" .
+
+dm-jtbd:step-vh-2 a yawl-jtbd:JTBDStep ;
+    yawl-jtbd:stepOrder            "2"^^xsd:integer ;
+    yawl-jtbd:stepOperation        "convertVocabularyToOdcs" ;
+    yawl-jtbd:stepFixture          "vocabulary-simple" ;
+    yawl-jtbd:stepPlausibilityField "schema_id" .
+
+dm-jtbd:step-vh-3 a yawl-jtbd:JTBDStep ;
+    yawl-jtbd:stepOrder            "3"^^xsd:integer ;
+    yawl-jtbd:stepOperation        "mapVocabularies" ;
+    yawl-jtbd:stepFixture          "vocabulary-simple" ;
+    yawl-jtbd:stepPlausibilityField "mappings" .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Job 4: Schema Constraint Discovery
+# Actor: DataGovernanceOfficer | Trigger: DataQualityIncident
+# Steps: importOdcsSchema → inferConstraints → exportConstraintSet
+# ─────────────────────────────────────────────────────────────────────────────
+
+dm-jtbd:job-SchemaConstraintDiscovery a yawl-jtbd:JTBDJob ;
+    yawl-jtbd:jobName        "SCHEMA_CONSTRAINT_DISCOVERY" ;
+    yawl-jtbd:jobDescription "A data governance officer discovers schema constraints after a data quality incident." ;
+    yawl-jtbd:hasRole        dm-jtbd:role-DataGovernanceOfficer ;
+    yawl-jtbd:hasTrigger     dm-jtbd:trigger-DataQualityIncident ;
+    yawl-jtbd:hasStep        dm-jtbd:step-scd-1 ;
+    yawl-jtbd:hasStep        dm-jtbd:step-scd-2 ;
+    yawl-jtbd:hasStep        dm-jtbd:step-scd-3 .
+
+dm-jtbd:step-scd-1 a yawl-jtbd:JTBDStep ;
+    yawl-jtbd:stepOrder            "1"^^xsd:integer ;
+    yawl-jtbd:stepOperation        "importOdcsSchema" ;
+    yawl-jtbd:stepFixture          "odcs-schema-simple" ;
+    yawl-jtbd:stepPlausibilityField "schema_id" .
+
+dm-jtbd:step-scd-2 a yawl-jtbd:JTBDStep ;
+    yawl-jtbd:stepOrder            "2"^^xsd:integer ;
+    yawl-jtbd:stepOperation        "inferConstraints" ;
+    yawl-jtbd:stepFixture          "odcs-schema-simple" ;
+    yawl-jtbd:stepPlausibilityField "constraints" .
+
+dm-jtbd:step-scd-3 a yawl-jtbd:JTBDStep ;
+    yawl-jtbd:stepOrder            "3"^^xsd:integer ;
+    yawl-jtbd:stepOperation        "exportConstraintSet" ;
+    yawl-jtbd:stepFixture          "odcs-schema-simple" ;
+    yawl-jtbd:stepPlausibilityField "content" .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Job 5: Knowledge Gap Analysis
+# Actor: KnowledgeEngineer | Trigger: DomainModelRefactoring
+# Steps: importDomainOrg → inferKnowledgeGaps → exportKnowledgeBase
+# ─────────────────────────────────────────────────────────────────────────────
+
+dm-jtbd:job-KnowledgeGapAnalysis a yawl-jtbd:JTBDJob ;
+    yawl-jtbd:jobName        "KNOWLEDGE_GAP_ANALYSIS" ;
+    yawl-jtbd:jobDescription "A knowledge engineer identifies gaps in domain knowledge during a domain model refactoring." ;
+    yawl-jtbd:hasRole        dm-jtbd:role-KnowledgeEngineer ;
+    yawl-jtbd:hasTrigger     dm-jtbd:trigger-DomainModelRefactoring ;
+    yawl-jtbd:hasStep        dm-jtbd:step-kga-1 ;
+    yawl-jtbd:hasStep        dm-jtbd:step-kga-2 ;
+    yawl-jtbd:hasStep        dm-jtbd:step-kga-3 .
+
+dm-jtbd:step-kga-1 a yawl-jtbd:JTBDStep ;
+    yawl-jtbd:stepOrder            "1"^^xsd:integer ;
+    yawl-jtbd:stepOperation        "importDomainOrg" ;
+    yawl-jtbd:stepFixture          "vocabulary-simple" ;
+    yawl-jtbd:stepPlausibilityField "domain_id" .
+
+dm-jtbd:step-kga-2 a yawl-jtbd:JTBDStep ;
+    yawl-jtbd:stepOrder            "2"^^xsd:integer ;
+    yawl-jtbd:stepOperation        "inferKnowledgeGaps" ;
+    yawl-jtbd:stepFixture          "vocabulary-simple" ;
+    yawl-jtbd:stepPlausibilityField "gaps" .
+
+dm-jtbd:step-kga-3 a yawl-jtbd:JTBDStep ;
+    yawl-jtbd:stepOrder            "3"^^xsd:integer ;
+    yawl-jtbd:stepOperation        "exportKnowledgeBase" ;
+    yawl-jtbd:stepFixture          "vocabulary-simple" ;
+    yawl-jtbd:stepPlausibilityField "content" .

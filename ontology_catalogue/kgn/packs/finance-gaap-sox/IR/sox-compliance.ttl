@@ -1,0 +1,262 @@
+@prefix sox: <https://kgen.dev/ontology/sox#> .
+@prefix gaap: <https://kgen.dev/ontology/gaap#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+
+# Sarbanes-Oxley (SOX) Compliance Ontology
+# Implements SOX Act requirements for financial reporting controls
+
+sox: a owl:Ontology ;
+    dc:title "SOX Compliance Ontology" ;
+    dc:description "Ontology for Sarbanes-Oxley Act compliance and internal controls" ;
+    owl:versionInfo "1.0.0" .
+
+# Core SOX Sections
+
+sox:Section302 a owl:Class ;
+    rdfs:label "Section 302 - Corporate Responsibility" ;
+    rdfs:comment "CEO/CFO certification of financial reports" .
+
+sox:Section404 a owl:Class ;
+    rdfs:label "Section 404 - Internal Control Assessment" ;
+    rdfs:comment "Management assessment of internal controls" .
+
+sox:Section409 a owl:Class ;
+    rdfs:label "Section 409 - Real Time Disclosure" ;
+    rdfs:comment "Rapid disclosure of material changes" .
+
+sox:Section802 a owl:Class ;
+    rdfs:label "Section 802 - Records Retention" ;
+    rdfs:comment "Criminal penalties for document destruction" .
+
+# Internal Controls Framework (COSO)
+
+sox:InternalControl a owl:Class ;
+    rdfs:label "Internal Control" ;
+    rdfs:comment "Process to provide reasonable assurance" .
+
+sox:ControlEnvironment a owl:Class ;
+    rdfs:subClassOf sox:InternalControl ;
+    rdfs:label "Control Environment" ;
+    rdfs:comment "Tone at the top and ethical values" .
+
+sox:RiskAssessment a owl:Class ;
+    rdfs:subClassOf sox:InternalControl ;
+    rdfs:label "Risk Assessment" ;
+    rdfs:comment "Identification and analysis of risks" .
+
+sox:ControlActivity a owl:Class ;
+    rdfs:subClassOf sox:InternalControl ;
+    rdfs:label "Control Activity" ;
+    rdfs:comment "Policies and procedures to mitigate risks" .
+
+sox:InformationCommunication a owl:Class ;
+    rdfs:subClassOf sox:InternalControl ;
+    rdfs:label "Information & Communication" ;
+    rdfs:comment "Relevant information captured and communicated" .
+
+sox:MonitoringActivity a owl:Class ;
+    rdfs:subClassOf sox:InternalControl ;
+    rdfs:label "Monitoring Activity" ;
+    rdfs:comment "Ongoing evaluations of control effectiveness" .
+
+# Control Types
+
+sox:PreventiveControl a owl:Class ;
+    rdfs:subClassOf sox:ControlActivity ;
+    rdfs:label "Preventive Control" ;
+    rdfs:comment "Prevents errors before they occur" .
+
+sox:DetectiveControl a owl:Class ;
+    rdfs:subClassOf sox:ControlActivity ;
+    rdfs:label "Detective Control" ;
+    rdfs:comment "Detects errors after they occur" .
+
+sox:CompensatingControl a owl:Class ;
+    rdfs:subClassOf sox:ControlActivity ;
+    rdfs:label "Compensating Control" ;
+    rdfs:comment "Mitigates risk when primary control is absent" .
+
+# Specific Control Activities
+
+sox:SegregationOfDuties a owl:Class ;
+    rdfs:subClassOf sox:PreventiveControl ;
+    rdfs:label "Segregation of Duties" ;
+    rdfs:comment "Separation of authorization, recording, custody" .
+
+sox:Authorization a owl:Class ;
+    rdfs:subClassOf sox:PreventiveControl ;
+    rdfs:label "Authorization Control" ;
+    rdfs:comment "Proper approval for transactions" .
+
+sox:Reconciliation a owl:Class ;
+    rdfs:subClassOf sox:DetectiveControl ;
+    rdfs:label "Reconciliation" ;
+    rdfs:comment "Comparison of records to identify discrepancies" .
+
+sox:PhysicalControl a owl:Class ;
+    rdfs:subClassOf sox:PreventiveControl ;
+    rdfs:label "Physical Control" ;
+    rdfs:comment "Safeguarding of assets and records" .
+
+sox:ITGeneralControl a owl:Class ;
+    rdfs:subClassOf sox:ControlActivity ;
+    rdfs:label "IT General Control" ;
+    rdfs:comment "Controls over IT infrastructure" .
+
+sox:ApplicationControl a owl:Class ;
+    rdfs:subClassOf sox:ControlActivity ;
+    rdfs:label "Application Control" ;
+    rdfs:comment "Controls within business applications" .
+
+# Control Testing
+
+sox:ControlTest a owl:Class ;
+    rdfs:label "Control Test" ;
+    rdfs:comment "Evaluation of control effectiveness" .
+
+sox:WalkthroughTest a owl:Class ;
+    rdfs:subClassOf sox:ControlTest ;
+    rdfs:label "Walkthrough Test" ;
+    rdfs:comment "End-to-end process verification" .
+
+sox:SampleTest a owl:Class ;
+    rdfs:subClassOf sox:ControlTest ;
+    rdfs:label "Sample Test" ;
+    rdfs:comment "Statistical sampling of transactions" .
+
+sox:SubstantiveTest a owl:Class ;
+    rdfs:subClassOf sox:ControlTest ;
+    rdfs:label "Substantive Test" ;
+    rdfs:comment "Detailed testing of account balances" .
+
+# Deficiencies
+
+sox:ControlDeficiency a owl:Class ;
+    rdfs:label "Control Deficiency" ;
+    rdfs:comment "Weakness in control design or operation" .
+
+sox:SignificantDeficiency a owl:Class ;
+    rdfs:subClassOf sox:ControlDeficiency ;
+    rdfs:label "Significant Deficiency" ;
+    rdfs:comment "Less severe than material weakness" .
+
+sox:MaterialWeakness a owl:Class ;
+    rdfs:subClassOf sox:ControlDeficiency ;
+    rdfs:label "Material Weakness" ;
+    rdfs:comment "Reasonable possibility of material misstatement" .
+
+# Certifications and Attestations
+
+sox:ManagementCertification a owl:Class ;
+    rdfs:label "Management Certification" ;
+    rdfs:comment "CEO/CFO certification under Section 302" .
+
+sox:AuditorAttestation a owl:Class ;
+    rdfs:label "Auditor Attestation" ;
+    rdfs:comment "Independent auditor's opinion on controls" .
+
+# Properties
+
+sox:hasControl a owl:ObjectProperty ;
+    rdfs:domain gaap:FinancialStatement ;
+    rdfs:range sox:InternalControl ;
+    rdfs:label "has control" .
+
+sox:hasDeficiency a owl:ObjectProperty ;
+    rdfs:domain sox:InternalControl ;
+    rdfs:range sox:ControlDeficiency ;
+    rdfs:label "has deficiency" .
+
+sox:hasTestResult a owl:ObjectProperty ;
+    rdfs:domain sox:ControlTest ;
+    rdfs:range sox:TestResult ;
+    rdfs:label "has test result" .
+
+sox:isEffective a owl:DatatypeProperty ;
+    rdfs:domain sox:InternalControl ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "is effective" .
+
+sox:hasSeverity a owl:DatatypeProperty ;
+    rdfs:domain sox:ControlDeficiency ;
+    rdfs:range xsd:string ;
+    rdfs:label "has severity" .
+
+sox:requiresRemediation a owl:DatatypeProperty ;
+    rdfs:domain sox:ControlDeficiency ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "requires remediation" .
+
+sox:certificationDate a owl:DatatypeProperty ;
+    rdfs:domain sox:ManagementCertification ;
+    rdfs:range xsd:date ;
+    rdfs:label "certification date" .
+
+sox:certifiedBy a owl:ObjectProperty ;
+    rdfs:domain sox:ManagementCertification ;
+    rdfs:range sox:Officer ;
+    rdfs:label "certified by" .
+
+# Officers
+
+sox:Officer a owl:Class ;
+    rdfs:label "Corporate Officer" .
+
+sox:CEO a owl:Class ;
+    rdfs:subClassOf sox:Officer ;
+    rdfs:label "Chief Executive Officer" .
+
+sox:CFO a owl:Class ;
+    rdfs:subClassOf sox:Officer ;
+    rdfs:label "Chief Financial Officer" .
+
+# Audit Trail
+
+sox:AuditTrail a owl:Class ;
+    rdfs:label "Audit Trail" ;
+    rdfs:comment "Record of system activities for review" .
+
+sox:hasAuditEntry a owl:ObjectProperty ;
+    rdfs:domain sox:AuditTrail ;
+    rdfs:range sox:AuditEntry ;
+    rdfs:label "has audit entry" .
+
+sox:AuditEntry a owl:Class ;
+    rdfs:label "Audit Entry" ;
+    rdfs:comment "Individual audit trail record" .
+
+sox:timestamp a owl:DatatypeProperty ;
+    rdfs:domain sox:AuditEntry ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "timestamp" .
+
+sox:performedBy a owl:DatatypeProperty ;
+    rdfs:domain sox:AuditEntry ;
+    rdfs:range xsd:string ;
+    rdfs:label "performed by" .
+
+sox:action a owl:DatatypeProperty ;
+    rdfs:domain sox:AuditEntry ;
+    rdfs:range xsd:string ;
+    rdfs:label "action" .
+
+# Compliance Status
+
+sox:ComplianceStatus a owl:Class ;
+    rdfs:label "Compliance Status" .
+
+sox:Compliant a owl:Class ;
+    rdfs:subClassOf sox:ComplianceStatus ;
+    rdfs:label "Compliant" .
+
+sox:NonCompliant a owl:Class ;
+    rdfs:subClassOf sox:ComplianceStatus ;
+    rdfs:label "Non-Compliant" .
+
+sox:RemediationInProgress a owl:Class ;
+    rdfs:subClassOf sox:ComplianceStatus ;
+    rdfs:label "Remediation In Progress" .

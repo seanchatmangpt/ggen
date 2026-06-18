@@ -1,0 +1,539 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix cas: <http://ggen.ai/ontology/compliance-audit-system#> .
+
+# Compliance & Audit System Ontology
+# Enterprise compliance and audit trail management
+# Version: 1.0.0
+
+cas:ComplianceAuditSystem a owl:Ontology ;
+    dcterms:title "Compliance & Audit System Ontology" ;
+    dcterms:description "Comprehensive compliance and audit management for Fortune 5 enterprises" ;
+    dcterms:creator "GGEN.ai" ;
+    dcterms:created "2025-11-08"^^xsd:date ;
+    owl:versionInfo "1.0.0" .
+
+# ==================== Audit Trail Classes ====================
+
+cas:AuditEvent a owl:Class ;
+    rdfs:label "Audit Event" ;
+    rdfs:comment "Base class for all audit events in the system" .
+
+cas:UserAction a owl:Class ;
+    rdfs:subClassOf cas:AuditEvent ;
+    rdfs:label "User Action" ;
+    rdfs:comment "Audit event for user-initiated actions" .
+
+cas:SystemEvent a owl:Class ;
+    rdfs:subClassOf cas:AuditEvent ;
+    rdfs:label "System Event" ;
+    rdfs:comment "Audit event for system-generated events" .
+
+cas:SecurityEvent a owl:Class ;
+    rdfs:subClassOf cas:AuditEvent ;
+    rdfs:label "Security Event" ;
+    rdfs:comment "Security-related audit event" .
+
+cas:DataAccessEvent a owl:Class ;
+    rdfs:subClassOf cas:AuditEvent ;
+    rdfs:label "Data Access Event" ;
+    rdfs:comment "Audit event for data access operations" .
+
+cas:ConfigurationChange a owl:Class ;
+    rdfs:subClassOf cas:AuditEvent ;
+    rdfs:label "Configuration Change" ;
+    rdfs:comment "Audit event for configuration modifications" .
+
+cas:AuditLog a owl:Class ;
+    rdfs:label "Audit Log" ;
+    rdfs:comment "Collection of audit events" .
+
+# ==================== Compliance Framework Classes ====================
+
+cas:ComplianceFramework a owl:Class ;
+    rdfs:label "Compliance Framework" ;
+    rdfs:comment "Regulatory compliance framework" .
+
+cas:SOXFramework a owl:Class ;
+    rdfs:subClassOf cas:ComplianceFramework ;
+    rdfs:label "SOX Framework" ;
+    rdfs:comment "Sarbanes-Oxley compliance framework" .
+
+cas:GDPRFramework a owl:Class ;
+    rdfs:subClassOf cas:ComplianceFramework ;
+    rdfs:label "GDPR Framework" ;
+    rdfs:comment "General Data Protection Regulation framework" .
+
+cas:HIPAAFramework a owl:Class ;
+    rdfs:subClassOf cas:ComplianceFramework ;
+    rdfs:label "HIPAA Framework" ;
+    rdfs:comment "Health Insurance Portability and Accountability Act framework" .
+
+cas:SOC2Framework a owl:Class ;
+    rdfs:subClassOf cas:ComplianceFramework ;
+    rdfs:label "SOC 2 Framework" ;
+    rdfs:comment "Service Organization Control 2 framework" .
+
+cas:PCI_DSS_Framework a owl:Class ;
+    rdfs:subClassOf cas:ComplianceFramework ;
+    rdfs:label "PCI DSS Framework" ;
+    rdfs:comment "Payment Card Industry Data Security Standard" .
+
+cas:ISO27001Framework a owl:Class ;
+    rdfs:subClassOf cas:ComplianceFramework ;
+    rdfs:label "ISO 27001 Framework" ;
+    rdfs:comment "Information Security Management System standard" .
+
+# ==================== Policy Classes ====================
+
+cas:Policy a owl:Class ;
+    rdfs:label "Policy" ;
+    rdfs:comment "Compliance policy definition" .
+
+cas:DataRetentionPolicy a owl:Class ;
+    rdfs:subClassOf cas:Policy ;
+    rdfs:label "Data Retention Policy" ;
+    rdfs:comment "Policy for data retention and deletion" .
+
+cas:AccessControlPolicy a owl:Class ;
+    rdfs:subClassOf cas:Policy ;
+    rdfs:label "Access Control Policy" ;
+    rdfs:comment "Policy for access control and authorization" .
+
+cas:EncryptionPolicy a owl:Class ;
+    rdfs:subClassOf cas:Policy ;
+    rdfs:label "Encryption Policy" ;
+    rdfs:comment "Policy for data encryption requirements" .
+
+cas:BackupPolicy a owl:Class ;
+    rdfs:subClassOf cas:Policy ;
+    rdfs:label "Backup Policy" ;
+    rdfs:comment "Policy for data backup and recovery" .
+
+cas:IncidentResponsePolicy a owl:Class ;
+    rdfs:subClassOf cas:Policy ;
+    rdfs:label "Incident Response Policy" ;
+    rdfs:comment "Policy for security incident response" .
+
+cas:PolicyViolation a owl:Class ;
+    rdfs:label "Policy Violation" ;
+    rdfs:comment "Record of policy violation" .
+
+# ==================== Access Review Classes ====================
+
+cas:AccessReview a owl:Class ;
+    rdfs:label "Access Review" ;
+    rdfs:comment "Periodic review of user access rights" .
+
+cas:AccessRecertification a owl:Class ;
+    rdfs:subClassOf cas:AccessReview ;
+    rdfs:label "Access Recertification" ;
+    rdfs:comment "Recertification of user access privileges" .
+
+cas:PrivilegedAccessReview a owl:Class ;
+    rdfs:subClassOf cas:AccessReview ;
+    rdfs:label "Privileged Access Review" ;
+    rdfs:comment "Review of privileged access accounts" .
+
+cas:AccessDecision a owl:Class ;
+    rdfs:label "Access Decision" ;
+    rdfs:comment "Decision made during access review" .
+
+cas:Reviewer a owl:Class ;
+    rdfs:label "Reviewer" ;
+    rdfs:comment "Person responsible for access review" .
+
+# ==================== Risk Assessment Classes ====================
+
+cas:RiskAssessment a owl:Class ;
+    rdfs:label "Risk Assessment" ;
+    rdfs:comment "Assessment of compliance and security risks" .
+
+cas:RiskFinding a owl:Class ;
+    rdfs:label "Risk Finding" ;
+    rdfs:comment "Identified risk or vulnerability" .
+
+cas:RiskMitigation a owl:Class ;
+    rdfs:label "Risk Mitigation" ;
+    rdfs:comment "Action to mitigate identified risk" .
+
+cas:ControlObjective a owl:Class ;
+    rdfs:label "Control Objective" ;
+    rdfs:comment "Compliance control objective" .
+
+cas:ControlTest a owl:Class ;
+    rdfs:label "Control Test" ;
+    rdfs:comment "Test of compliance control effectiveness" .
+
+# ==================== Incident Management Classes ====================
+
+cas:ComplianceIncident a owl:Class ;
+    rdfs:label "Compliance Incident" ;
+    rdfs:comment "Compliance or security incident" .
+
+cas:DataBreach a owl:Class ;
+    rdfs:subClassOf cas:ComplianceIncident ;
+    rdfs:label "Data Breach" ;
+    rdfs:comment "Data breach incident" .
+
+cas:PolicyBreach a owl:Class ;
+    rdfs:subClassOf cas:ComplianceIncident ;
+    rdfs:label "Policy Breach" ;
+    rdfs:comment "Policy violation incident" .
+
+cas:IncidentResponse a owl:Class ;
+    rdfs:label "Incident Response" ;
+    rdfs:comment "Response action to compliance incident" .
+
+cas:IncidentReport a owl:Class ;
+    rdfs:label "Incident Report" ;
+    rdfs:comment "Formal incident report" .
+
+# ==================== Evidence Collection Classes ====================
+
+cas:Evidence a owl:Class ;
+    rdfs:label "Evidence" ;
+    rdfs:comment "Compliance evidence or documentation" .
+
+cas:AuditEvidence a owl:Class ;
+    rdfs:subClassOf cas:Evidence ;
+    rdfs:label "Audit Evidence" ;
+    rdfs:comment "Evidence collected during audit" .
+
+cas:TestEvidence a owl:Class ;
+    rdfs:subClassOf cas:Evidence ;
+    rdfs:label "Test Evidence" ;
+    rdfs:comment "Evidence from control testing" .
+
+cas:Screenshot a owl:Class ;
+    rdfs:subClassOf cas:Evidence ;
+    rdfs:label "Screenshot" ;
+    rdfs:comment "Screenshot evidence" .
+
+cas:LogFile a owl:Class ;
+    rdfs:subClassOf cas:Evidence ;
+    rdfs:label "Log File" ;
+    rdfs:comment "System or audit log file" .
+
+cas:EvidenceCollection a owl:Class ;
+    rdfs:label "Evidence Collection" ;
+    rdfs:comment "Collection of related evidence" .
+
+# ==================== Reporting Classes ====================
+
+cas:ComplianceReport a owl:Class ;
+    rdfs:label "Compliance Report" ;
+    rdfs:comment "Compliance status report" .
+
+cas:AuditReport a owl:Class ;
+    rdfs:subClassOf cas:ComplianceReport ;
+    rdfs:label "Audit Report" ;
+    rdfs:comment "Internal or external audit report" .
+
+cas:RiskReport a owl:Class ;
+    rdfs:subClassOf cas:ComplianceReport ;
+    rdfs:label "Risk Report" ;
+    rdfs:comment "Risk assessment report" .
+
+cas:ExecutiveSummary a owl:Class ;
+    rdfs:label "Executive Summary" ;
+    rdfs:comment "Executive-level compliance summary" .
+
+cas:ComplianceMetrics a owl:Class ;
+    rdfs:label "Compliance Metrics" ;
+    rdfs:comment "Compliance KPIs and metrics" .
+
+# ==================== Data Classification Classes ====================
+
+cas:DataClassification a owl:Class ;
+    rdfs:label "Data Classification" ;
+    rdfs:comment "Classification of data sensitivity" .
+
+cas:PublicData a owl:Class ;
+    rdfs:subClassOf cas:DataClassification ;
+    rdfs:label "Public Data" ;
+    rdfs:comment "Publicly accessible data" .
+
+cas:InternalData a owl:Class ;
+    rdfs:subClassOf cas:DataClassification ;
+    rdfs:label "Internal Data" ;
+    rdfs:comment "Internal use only data" .
+
+cas:ConfidentialData a owl:Class ;
+    rdfs:subClassOf cas:DataClassification ;
+    rdfs:label "Confidential Data" ;
+    rdfs:comment "Confidential data requiring protection" .
+
+cas:RestrictedData a owl:Class ;
+    rdfs:subClassOf cas:DataClassification ;
+    rdfs:label "Restricted Data" ;
+    rdfs:comment "Highly restricted data (PII, PHI, PCI)" .
+
+# ==================== Properties ====================
+
+# Audit Event Properties
+cas:eventId a owl:DatatypeProperty ;
+    rdfs:domain cas:AuditEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "event ID" .
+
+cas:eventType a owl:DatatypeProperty ;
+    rdfs:domain cas:AuditEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "event type" .
+
+cas:timestamp a owl:DatatypeProperty ;
+    rdfs:domain cas:AuditEvent ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "timestamp" .
+
+cas:actor a owl:DatatypeProperty ;
+    rdfs:domain cas:AuditEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "actor" .
+
+cas:action a owl:DatatypeProperty ;
+    rdfs:domain cas:AuditEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "action" .
+
+cas:resource a owl:DatatypeProperty ;
+    rdfs:domain cas:AuditEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "resource" .
+
+cas:outcome a owl:DatatypeProperty ;
+    rdfs:domain cas:AuditEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "outcome" .
+
+cas:ipAddress a owl:DatatypeProperty ;
+    rdfs:domain cas:AuditEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "IP address" .
+
+cas:userAgent a owl:DatatypeProperty ;
+    rdfs:domain cas:AuditEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "user agent" .
+
+# Policy Properties
+cas:policyId a owl:DatatypeProperty ;
+    rdfs:domain cas:Policy ;
+    rdfs:range xsd:string ;
+    rdfs:label "policy ID" .
+
+cas:policyName a owl:DatatypeProperty ;
+    rdfs:domain cas:Policy ;
+    rdfs:range xsd:string ;
+    rdfs:label "policy name" .
+
+cas:policyVersion a owl:DatatypeProperty ;
+    rdfs:domain cas:Policy ;
+    rdfs:range xsd:string ;
+    rdfs:label "policy version" .
+
+cas:effectiveDate a owl:DatatypeProperty ;
+    rdfs:domain cas:Policy ;
+    rdfs:range xsd:date ;
+    rdfs:label "effective date" .
+
+cas:expirationDate a owl:DatatypeProperty ;
+    rdfs:domain cas:Policy ;
+    rdfs:range xsd:date ;
+    rdfs:label "expiration date" .
+
+cas:retentionPeriod a owl:DatatypeProperty ;
+    rdfs:domain cas:DataRetentionPolicy ;
+    rdfs:range xsd:duration ;
+    rdfs:label "retention period" .
+
+# Framework Properties
+cas:frameworkName a owl:DatatypeProperty ;
+    rdfs:domain cas:ComplianceFramework ;
+    rdfs:range xsd:string ;
+    rdfs:label "framework name" .
+
+cas:frameworkVersion a owl:DatatypeProperty ;
+    rdfs:domain cas:ComplianceFramework ;
+    rdfs:range xsd:string ;
+    rdfs:label "framework version" .
+
+cas:requirementId a owl:DatatypeProperty ;
+    rdfs:domain cas:ComplianceFramework ;
+    rdfs:range xsd:string ;
+    rdfs:label "requirement ID" .
+
+# Access Review Properties
+cas:reviewId a owl:DatatypeProperty ;
+    rdfs:domain cas:AccessReview ;
+    rdfs:range xsd:string ;
+    rdfs:label "review ID" .
+
+cas:reviewDate a owl:DatatypeProperty ;
+    rdfs:domain cas:AccessReview ;
+    rdfs:range xsd:date ;
+    rdfs:label "review date" .
+
+cas:dueDate a owl:DatatypeProperty ;
+    rdfs:domain cas:AccessReview ;
+    rdfs:range xsd:date ;
+    rdfs:label "due date" .
+
+cas:completionDate a owl:DatatypeProperty ;
+    rdfs:domain cas:AccessReview ;
+    rdfs:range xsd:date ;
+    rdfs:label "completion date" .
+
+cas:reviewStatus a owl:DatatypeProperty ;
+    rdfs:domain cas:AccessReview ;
+    rdfs:range xsd:string ;
+    rdfs:label "review status" .
+
+cas:decision a owl:DatatypeProperty ;
+    rdfs:domain cas:AccessDecision ;
+    rdfs:range xsd:string ;
+    rdfs:label "decision" .
+
+cas:justification a owl:DatatypeProperty ;
+    rdfs:domain cas:AccessDecision ;
+    rdfs:range xsd:string ;
+    rdfs:label "justification" .
+
+# Risk Properties
+cas:riskLevel a owl:DatatypeProperty ;
+    rdfs:domain cas:RiskFinding ;
+    rdfs:range xsd:string ;
+    rdfs:label "risk level" .
+
+cas:likelihood a owl:DatatypeProperty ;
+    rdfs:domain cas:RiskFinding ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "likelihood" .
+
+cas:impact a owl:DatatypeProperty ;
+    rdfs:domain cas:RiskFinding ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "impact" .
+
+cas:residualRisk a owl:DatatypeProperty ;
+    rdfs:domain cas:RiskMitigation ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "residual risk" .
+
+# Incident Properties
+cas:incidentId a owl:DatatypeProperty ;
+    rdfs:domain cas:ComplianceIncident ;
+    rdfs:range xsd:string ;
+    rdfs:label "incident ID" .
+
+cas:severity a owl:DatatypeProperty ;
+    rdfs:domain cas:ComplianceIncident ;
+    rdfs:range xsd:string ;
+    rdfs:label "severity" .
+
+cas:discoveredAt a owl:DatatypeProperty ;
+    rdfs:domain cas:ComplianceIncident ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "discovered at" .
+
+cas:resolvedAt a owl:DatatypeProperty ;
+    rdfs:domain cas:ComplianceIncident ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "resolved at" .
+
+cas:affectedRecords a owl:DatatypeProperty ;
+    rdfs:domain cas:DataBreach ;
+    rdfs:range xsd:integer ;
+    rdfs:label "affected records" .
+
+# Evidence Properties
+cas:evidenceId a owl:DatatypeProperty ;
+    rdfs:domain cas:Evidence ;
+    rdfs:range xsd:string ;
+    rdfs:label "evidence ID" .
+
+cas:evidenceType a owl:DatatypeProperty ;
+    rdfs:domain cas:Evidence ;
+    rdfs:range xsd:string ;
+    rdfs:label "evidence type" .
+
+cas:collectedAt a owl:DatatypeProperty ;
+    rdfs:domain cas:Evidence ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "collected at" .
+
+cas:collectedBy a owl:DatatypeProperty ;
+    rdfs:domain cas:Evidence ;
+    rdfs:range xsd:string ;
+    rdfs:label "collected by" .
+
+cas:hashValue a owl:DatatypeProperty ;
+    rdfs:domain cas:Evidence ;
+    rdfs:range xsd:string ;
+    rdfs:label "hash value" .
+
+# Report Properties
+cas:reportId a owl:DatatypeProperty ;
+    rdfs:domain cas:ComplianceReport ;
+    rdfs:range xsd:string ;
+    rdfs:label "report ID" .
+
+cas:reportDate a owl:DatatypeProperty ;
+    rdfs:domain cas:ComplianceReport ;
+    rdfs:range xsd:date ;
+    rdfs:label "report date" .
+
+cas:reportPeriod a owl:DatatypeProperty ;
+    rdfs:domain cas:ComplianceReport ;
+    rdfs:range xsd:string ;
+    rdfs:label "report period" .
+
+cas:complianceScore a owl:DatatypeProperty ;
+    rdfs:domain cas:ComplianceMetrics ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "compliance score" .
+
+# Object Properties
+cas:relatedToFramework a owl:ObjectProperty ;
+    rdfs:domain cas:Policy ;
+    rdfs:range cas:ComplianceFramework ;
+    rdfs:label "related to framework" .
+
+cas:hasEvidence a owl:ObjectProperty ;
+    rdfs:domain cas:AuditEvent ;
+    rdfs:range cas:Evidence ;
+    rdfs:label "has evidence" .
+
+cas:violatesPolicy a owl:ObjectProperty ;
+    rdfs:domain cas:AuditEvent ;
+    rdfs:range cas:Policy ;
+    rdfs:label "violates policy" .
+
+cas:triggeredBy a owl:ObjectProperty ;
+    rdfs:domain cas:ComplianceIncident ;
+    rdfs:range cas:AuditEvent ;
+    rdfs:label "triggered by" .
+
+cas:hasResponse a owl:ObjectProperty ;
+    rdfs:domain cas:ComplianceIncident ;
+    rdfs:range cas:IncidentResponse ;
+    rdfs:label "has response" .
+
+cas:reviewedBy a owl:ObjectProperty ;
+    rdfs:domain cas:AccessReview ;
+    rdfs:range cas:Reviewer ;
+    rdfs:label "reviewed by" .
+
+cas:mitigatedBy a owl:ObjectProperty ;
+    rdfs:domain cas:RiskFinding ;
+    rdfs:range cas:RiskMitigation ;
+    rdfs:label "mitigated by" .
+
+cas:classifiedAs a owl:ObjectProperty ;
+    rdfs:domain cas:Evidence ;
+    rdfs:range cas:DataClassification ;
+    rdfs:label "classified as" .

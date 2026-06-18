@@ -1,0 +1,2 @@
+@prefix : <http://test.com/> .
+:test a :Thing .

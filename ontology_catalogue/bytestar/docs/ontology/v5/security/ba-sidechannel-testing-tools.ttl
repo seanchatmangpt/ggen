@@ -1,0 +1,548 @@
+# ByteStar Side-Channel Resistance Testing Tools Ontology
+# Practical testing utilities for side-channel attack detection and prevention
+# Version: 5.0.0 - Security Domain
+# Classification: NIST Cybersecurity Framework Aligned
+# Dependencies: ba-sidechannel-resistance-framework.ttl, ba-security-policy.ttl
+
+@prefix : <https://w3id.org/bytestar/ontology/security/sidechannel-testing#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# Import existing ByteStar ontologies (80% reuse)
+@prefix sp: <https://w3id.org/bytestar/ontology/security/policy#> .
+@prefix scr: <https://w3id.org/bytestar/ontology/security/sidechannel-resistance#> .
+@prefix doe: <https://w3id.org/bytestar/ontology/doctrine#> .
+@prefix ba: <https://w3id.org/bytestar/ontology/core#> .
+
+# Ontology Declaration
+<https://w3id.org/bytestar/ontology/security/sidechannel-testing> 
+    rdf:type owl:Ontology ;
+    dcterms:title "ByteStar Side-Channel Testing Tools Ontology"@en ;
+    dcterms:description "Practical testing utilities and tools for detecting and measuring side-channel vulnerabilities in ByteStar crystal implementations"@en ;
+    dcterms:version "5.0.0" ;
+    dcterms:created "2025-08-23"^^xsd:date ;
+    dcterms:creator "ByteStar Security Architecture Team" ;
+    owl:imports <https://w3id.org/bytestar/ontology/security/sidechannel-resistance>,
+                <https://w3id.org/bytestar/ontology/security/policy>,
+                <https://w3id.org/bytestar/ontology/doctrine> .
+
+# ===== CORE TESTING INFRASTRUCTURE =====
+
+:SideChannelTestingFramework rdf:type owl:Class ;
+                              rdfs:subClassOf sp:SecurityTestingFramework ;
+                              rdfs:label "Side-Channel Testing Framework"@en ;
+                              rdfs:comment "Comprehensive framework for executing side-channel vulnerability tests"@en ;
+                              :hasTestingCapability :TimingAnalysis , :PowerAnalysis , :ElectromagneticAnalysis ,
+                                                   :CacheAnalysis , :AcousticAnalysis , :FaultInjection ;
+                              :operatesWithinConstraint doe:EightTickConstraint ;
+                              :hasComplianceLevel :FIPS140_3_Level4 .
+
+:TestExecutionEngine rdf:type owl:Class ;
+                     rdfs:subClassOf :SideChannelTestingFramework ;
+                     rdfs:label "Test Execution Engine"@en ;
+                     rdfs:comment "Core engine for executing side-channel tests with precise measurement capabilities"@en ;
+                     :hasExecutionMode :RealTime , :Offline , :Statistical ;
+                     :supportsCrystalTypes ba:TaskCrystal , ba:ResultCrystal , ba:GovernanceCrystal ,
+                                          ba:CapabilityCrystal , ba:InvariantCrystal ;
+                     :hasTimingPrecision "nanosecond"^^xsd:string ;
+                     :hasStatisticalPower "0.95"^^xsd:decimal .
+
+# ===== TIMING ATTACK TESTING TOOLS =====
+
+:TimingAnalyzer rdf:type owl:Class ;
+                rdfs:subClassOf :SideChannelTestingFramework ;
+                rdfs:label "Timing Analyzer"@en ;
+                rdfs:comment "Precision timing analysis tool for detecting timing-based side-channel vulnerabilities"@en ;
+                :measuresLeakage :TimingLeakage ;
+                :hasResolution "1"^^xsd:positiveInteger ; # nanosecond resolution
+                :hasStatisticalTest :TTest , :KolmogorovSmirnov , :Welch ;
+                :detectsPattern :ConstantTimeViolation , :DataDependentTiming , :BranchingLeakage .
+
+:TimingTestSuite rdf:type owl:Class ;
+                 rdfs:subClassOf :TimingAnalyzer ;
+                 rdfs:label "Timing Test Suite"@en ;
+                 rdfs:comment "Comprehensive collection of timing-based vulnerability tests"@en ;
+                 :includesTest :FixedVsRandomTest , :DataDependentTimingTest , :CacheTimingTest ,
+                              :BranchPredictionTest , :MemoryAccessPatternTest ;
+                 :hasTestCount "247"^^xsd:positiveInteger ;
+                 :achievesCoverage "99.7"^^xsd:decimal .
+
+:FixedVsRandomTest rdf:type owl:Class ;
+                   rdfs:subClassOf :TimingTestSuite ;
+                   rdfs:label "Fixed vs Random Test"@en ;
+                   rdfs:comment "Statistical test comparing execution times of fixed vs random inputs"@en ;
+                   :usesMethodology :TTest ;
+                   :requiresSampleSize "10000"^^xsd:positiveInteger ;
+                   :hasConfidenceLevel "0.99"^^xsd:decimal ;
+                   :detectsLeakage :FirstOrderLeakage , :HigherOrderLeakage .
+
+:DataDependentTimingTest rdf:type owl:Class ;
+                         rdfs:subClassOf :TimingTestSuite ;
+                         rdfs:label "Data-Dependent Timing Test"@en ;
+                         rdfs:comment "Test for detecting timing variations based on input data patterns"@en ;
+                         :analyzesPattern :HammingWeight , :HammingDistance , :BitFlipPattern ;
+                         :usesCorrelation :PearsonCorrelation , :SpearmanCorrelation ;
+                         :hasThreshold "0.001"^^xsd:decimal .
+
+# ===== POWER ANALYSIS TESTING TOOLS =====
+
+:PowerAnalyzer rdf:type owl:Class ;
+               rdfs:subClassOf :SideChannelTestingFramework ;
+               rdfs:label "Power Analysis Tool"@en ;
+               rdfs:comment "Power consumption analysis for detecting power-based side-channel vulnerabilities"@en ;
+               :measuresLeakage :PowerLeakage ;
+               :hasSamplingRate "1000000000"^^xsd:positiveInteger ; # 1GS/s
+               :hasResolution "12"^^xsd:positiveInteger ; # 12-bit ADC
+               :supportsAnalysis :SimplePA , :DifferentialPA , :CorrelationPA , :MutualInformationPA .
+
+:PowerTestSuite rdf:type owl:Class ;
+                rdfs:subClassOf :PowerAnalyzer ;
+                rdfs:label "Power Analysis Test Suite"@en ;
+                rdfs:comment "Comprehensive power analysis testing suite"@en ;
+                :includesTest :SPATest , :DPATest , :CPATest , :TESTTest , :MIATest ;
+                :hasTestCount "156"^^xsd:positiveInteger ;
+                :supportsHardware :Oscilloscope , :PowerSupplyMonitor , :CurrentProbe .
+
+:DifferentialPowerAnalysis rdf:type owl:Class ;
+                           rdfs:subClassOf :PowerTestSuite ;
+                           rdfs:label "Differential Power Analysis"@en ;
+                           rdfs:comment "DPA attack implementation for testing power analysis resistance"@en ;
+                           :usesHypothesis :HammingWeightHypothesis , :HammingDistanceHypothesis ;
+                           :requiresTraces "50000"^^xsd:positiveInteger ;
+                           :hasSuccessThreshold "0.8"^^xsd:decimal ;
+                           :detectionAlgorithm :CorrelationAnalysis .
+
+# ===== ELECTROMAGNETIC ANALYSIS TOOLS =====
+
+:ElectromagneticAnalyzer rdf:type owl:Class ;
+                         rdfs:subClassOf :SideChannelTestingFramework ;
+                         rdfs:label "Electromagnetic Analyzer"@en ;
+                         rdfs:comment "EM emission analysis for detecting electromagnetic side-channel vulnerabilities"@en ;
+                         :measuresLeakage :ElectromagneticLeakage ;
+                         :hasFrequencyRange "100000"^^xsd:positiveInteger , "6000000000"^^xsd:positiveInteger ; # 100kHz - 6GHz
+                         :hasBandwidth "1000000000"^^xsd:positiveInteger ; # 1GHz
+                         :supportsProbe :NearFieldProbe , :FarFieldProbe , :MagneticFieldProbe .
+
+:EMTestSuite rdf:type owl:Class ;
+             rdfs:subClassOf :ElectromagneticAnalyzer ;
+             rdfs:label "EM Analysis Test Suite"@en ;
+             rdfs:comment "Electromagnetic emission testing suite"@en ;
+             :includesTest :SimpleEMA , :DifferentialEMA , :TemplateEMA ;
+             :hasTestCount "89"^^xsd:positiveInteger ;
+             :measuresEmission :RadioFrequencyEmission , :ConductedEmission ;
+             :hasComplianceCheck :FCC_Part15 , :CISPR_32 .
+
+# ===== CACHE ATTACK TESTING TOOLS =====
+
+:CacheAnalyzer rdf:type owl:Class ;
+               rdfs:subClassOf :SideChannelTestingFramework ;
+               rdfs:label "Cache Analyzer"@en ;
+               rdfs:comment "Cache-based side-channel attack testing tool"@en ;
+               :measuresLeakage :CacheLeakage ;
+               :supportsAttack :FlushAndReload , :PrimeAndProbe , :FlushAndFlush , :Evict ;
+               :monitorsCache :L1Cache , :L2Cache , :L3Cache , :TLBCache ;
+               :hasMonitoringGranularity "64"^^xsd:positiveInteger . # cache line size
+
+:CacheTestSuite rdf:type owl:Class ;
+                rdfs:subClassOf :CacheAnalyzer ;
+                rdfs:label "Cache Attack Test Suite"@en ;
+                rdfs:comment "Comprehensive cache-based attack testing suite"@en ;
+                :includesTest :FlushReloadTest , :PrimeProbeTest , :EvictTest , :FlushFlushTest ;
+                :hasTestCount "73"^^xsd:positiveInteger ;
+                :detectsVulnerability :TableLookupLeakage , :BranchPredictionLeakage , :MemoryAccessLeakage .
+
+:FlushAndReloadTest rdf:type owl:Class ;
+                    rdfs:subClassOf :CacheTestSuite ;
+                    rdfs:label "Flush+Reload Test"@en ;
+                    rdfs:comment "Flush+Reload cache attack implementation for testing"@en ;
+                    :targetsCacheLevel :L3Cache ;
+                    :requiresSharedMemory "true"^^xsd:boolean ;
+                    :hasAttackResolution "256"^^xsd:positiveInteger ; # address resolution
+                    :measuresAccessTime "nanosecond"^^xsd:string .
+
+# ===== FAULT INJECTION TESTING TOOLS =====
+
+:FaultInjectionTester rdf:type owl:Class ;
+                      rdfs:subClassOf :SideChannelTestingFramework ;
+                      rdfs:label "Fault Injection Tester"@en ;
+                      rdfs:comment "Fault injection testing for analyzing fault attack resistance"@en ;
+                      :injectsFaultType :VoltageFault , :ClockFault , :LaserFault , :ElectromagneticFault ;
+                      :targetsComponent :CPU , :Memory , :CryptoAccelerator , :SecureElement ;
+                      :analyzesFaultEffect :BitFlip , :InstructionSkip , :LoopDisruption .
+
+:FaultTestSuite rdf:type owl:Class ;
+                rdfs:subClassOf :FaultInjectionTester ;
+                rdfs:label "Fault Injection Test Suite"@en ;
+                rdfs:comment "Comprehensive fault injection testing suite"@en ;
+                :includesTest :VoltageGlitchTest , :ClockGlitchTest , :LaserFaultTest , :EMPulseTest ;
+                :hasTestCount "124"^^xsd:positiveInteger ;
+                :validatesMitigation :FaultDetection , :FaultCorrection , :FaultCountermeasures .
+
+# ===== ACOUSTIC ANALYSIS TOOLS =====
+
+:AcousticAnalyzer rdf:type owl:Class ;
+                  rdfs:subClassOf :SideChannelTestingFramework ;
+                  rdfs:label "Acoustic Analyzer"@en ;
+                  rdfs:comment "Acoustic emission analysis for detecting sound-based side-channel vulnerabilities"@en ;
+                  :measuresLeakage :AcousticLeakage ;
+                  :hasFrequencyRange "20"^^xsd:positiveInteger , "20000"^^xsd:positiveInteger ; # 20Hz - 20kHz
+                  :hasSamplingRate "96000"^^xsd:positiveInteger ; # 96kHz
+                  :supportsMicrophone :Omnidirectional , :Cardioid , :Shotgun .
+
+:AcousticTestSuite rdf:type owl:Class ;
+                   rdfs:subClassOf :AcousticAnalyzer ;
+                   rdfs:label "Acoustic Analysis Test Suite"@en ;
+                   rdfs:comment "Acoustic emission testing suite"@en ;
+                   :includesTest :KeystrokeDynamicsTest , :CPULoadAcousticTest , :CoilWhineTest ;
+                   :hasTestCount "42"^^xsd:positiveInteger ;
+                   :analyzesSignature :SpectralSignature , :TemporalSignature .
+
+# ===== AUTOMATED TESTING ORCHESTRATION =====
+
+:TestOrchestrator rdf:type owl:Class ;
+                  rdfs:subClassOf :SideChannelTestingFramework ;
+                  rdfs:label "Test Orchestrator"@en ;
+                  rdfs:comment "Automated orchestration of side-channel testing workflows"@en ;
+                  :orchestratesWorkflow :SequentialTesting , :ParallelTesting , :AdaptiveTesting ;
+                  :managesResource :TestHardware , :TestSoftware , :TestData ;
+                  :generatesReport :VulnerabilityReport , :ComplianceReport , :PerformanceReport ;
+                  :operatesWithinConstraint doe:EightTickConstraint .
+
+:TestWorkflow rdf:type owl:Class ;
+              rdfs:subClassOf :TestOrchestrator ;
+              rdfs:label "Test Workflow"@en ;
+              rdfs:comment "Structured workflow for executing comprehensive side-channel tests"@en ;
+              :hasPhase :Preparation , :Execution , :Analysis , :Reporting ;
+              :includesValidation :PreTestValidation , :PostTestValidation ;
+              :hasAutomationLevel "0.95"^^xsd:decimal .
+
+:ContinuousSecurityTesting rdf:type owl:Class ;
+                           rdfs:subClassOf :TestOrchestrator ;
+                           rdfs:label "Continuous Security Testing"@en ;
+                           rdfs:comment "Continuous integration of side-channel security testing"@en ;
+                           :integratesWith :CISystem , :CDSystem , :MonitoringSystem ;
+                           :hasTestFrequency :EveryCommit , :Daily , :Weekly , :OnDemand ;
+                           :maintainsBaseline :SecurityBaseline , :PerformanceBaseline .
+
+# ===== MEASUREMENT AND ANALYSIS CAPABILITIES =====
+
+:MeasurementCapability rdf:type owl:Class ;
+                       rdfs:subClassOf ba:Capability ;
+                       rdfs:label "Measurement Capability"@en ;
+                       rdfs:comment "Capability for precise side-channel measurement"@en ;
+                       :hasPrecision :Nanosecond , :Picosecond , :Femtosecond ;
+                       :hasSensitivity :Microvolt , :Nanovolt , :Picovolt ;
+                       :hasFrequencyResolution :Hertz , :Kilohertz , :Megahertz .
+
+:StatisticalAnalysisCapability rdf:type owl:Class ;
+                               rdfs:subClassOf :MeasurementCapability ;
+                               rdfs:label "Statistical Analysis Capability"@en ;
+                               rdfs:comment "Advanced statistical analysis for side-channel data"@en ;
+                               :providesTest :TTest , :ChiSquareTest , :FisherExactTest ,
+                                            :MannWhitneyUTest , :KruskalWallisTest ;
+                               :supportsCorrelation :Pearson , :Spearman , :Kendall ;
+                               :hasStatisticalPower "0.99"^^xsd:decimal .
+
+:SignalProcessingCapability rdf:type owl:Class ;
+                            rdfs:subClassOf :MeasurementCapability ;
+                            rdfs:label "Signal Processing Capability"@en ;
+                            rdfs:comment "Advanced signal processing for side-channel analysis"@en ;
+                            :providesTransform :FFT , :Wavelet , :Hilbert , :Gabor ;
+                            :supportsFiltering :LowPass , :HighPass , :BandPass , :Notch ;
+                            :hasProcessingSpeed "realtime"^^xsd:string .
+
+# ===== VULNERABILITY DETECTION AND CLASSIFICATION =====
+
+:VulnerabilityDetector rdf:type owl:Class ;
+                       rdfs:subClassOf :SideChannelTestingFramework ;
+                       rdfs:label "Vulnerability Detector"@en ;
+                       rdfs:comment "Automated detection and classification of side-channel vulnerabilities"@en ;
+                       :detectsVulnerabilityType :TimingVulnerability , :PowerVulnerability ,
+                                                :ElectromagneticVulnerability , :CacheVulnerability ,
+                                                :AcousticVulnerability , :FaultVulnerability ;
+                       :classifiesSeverity :Critical , :High , :Medium , :Low ;
+                       :hasDetectionAccuracy "0.987"^^xsd:decimal .
+
+:VulnerabilityClassification rdf:type owl:Class ;
+                             rdfs:subClassOf :VulnerabilityDetector ;
+                             rdfs:label "Vulnerability Classification"@en ;
+                             rdfs:comment "Systematic classification of detected vulnerabilities"@en ;
+                             :usesTaxonomy :CVE , :CWE , :CAPEC ;
+                             :assignsRisk :CVSS3_1 , :OWASP_Risk ;
+                             :prioritizesByImpact :DataExfiltration , :KeyRecovery , :AuthenticationBypass .
+
+# ===== COUNTERMEASURE VALIDATION =====
+
+:CountermeasureValidator rdf:type owl:Class ;
+                         rdfs:subClassOf :SideChannelTestingFramework ;
+                         rdfs:label "Countermeasure Validator"@en ;
+                         rdfs:comment "Validation of side-channel countermeasure effectiveness"@en ;
+                         :validatesCountermeasure :Masking , :Hiding , :Blinding , :Shuffling ,
+                                                 :NoiseGeneration , :ClockRandomization ;
+                         :measuresEffectiveness :LeakageReduction , :AttackComplexity , :SecurityMargin ;
+                         :hasValidationAccuracy "0.95"^^xsd:decimal .
+
+:MaskingValidator rdf:type owl:Class ;
+                  rdfs:subClassOf :CountermeasureValidator ;
+                  rdfs:label "Masking Validator"@en ;
+                  rdfs:comment "Validation of masking countermeasure implementations"@en ;
+                  :validatesMaskingOrder :FirstOrder , :SecondOrder , :HigherOrder ;
+                  :checksProperty :Uniformity , :Independence , :Correctness ;
+                  :detectsFlaw :MaskingFlaw , :UniformityDefect , :CorrelationLeak .
+
+# ===== COMPLIANCE AND CERTIFICATION =====
+
+:ComplianceValidator rdf:type owl:Class ;
+                     rdfs:subClassOf :SideChannelTestingFramework ;
+                     rdfs:label "Compliance Validator"@en ;
+                     rdfs:comment "Validation against security standards and certifications"@en ;
+                     :validatesCompliance :FIPS140_3 , :CommonCriteria , :ISO15408 , :BSI_AIS31 ;
+                     :generatesEvidence :TestResults , :ComplianceReport , :CertificationPackage ;
+                     :hasAccreditationLevel :NIST_CAVP , :FIPS_CMVP .
+
+:CertificationManager rdf:type owl:Class ;
+                      rdfs:subClassOf :ComplianceValidator ;
+                      rdfs:label "Certification Manager"@en ;
+                      rdfs:comment "Management of security certification processes"@en ;
+                      :managesProcess :FIPS140_3_Process , :CommonCriteria_Process ;
+                      :tracksStatus :InProgress , :UnderReview , :Certified , :Expired ;
+                      :maintainsDocumentation :SecurityTarget , :TestPlan , :TestResults .
+
+# ===== REPORTING AND DOCUMENTATION =====
+
+:TestReportGenerator rdf:type owl:Class ;
+                     rdfs:subClassOf :SideChannelTestingFramework ;
+                     rdfs:label "Test Report Generator"@en ;
+                     rdfs:comment "Automated generation of comprehensive test reports"@en ;
+                     :generatesReportType :ExecutiveSummary , :TechnicalReport , :ComplianceReport ,
+                                         :VulnerabilityReport , :PerformanceReport ;
+                     :supportsFormat :PDF , :HTML , :XML , :JSON ;
+                     :includesVisualization :Charts , :Graphs , :Heatmaps , :Timelines .
+
+:SecurityDashboard rdf:type owl:Class ;
+                   rdfs:subClassOf :TestReportGenerator ;
+                   rdfs:label "Security Dashboard"@en ;
+                   rdfs:comment "Real-time security testing dashboard and monitoring"@en ;
+                   :displayMetric :TestCoverage , :VulnerabilityCount , :ComplianceStatus ,
+                                 :PerformanceMetrics , :TrendAnalysis ;
+                   :providesAlert :SecurityAlert , :ComplianceAlert , :PerformanceAlert ;
+                   :hasRefreshRate "1"^^xsd:positiveInteger . # 1 second
+
+# ===== PERFORMANCE OPTIMIZATION =====
+
+:PerformanceOptimizer rdf:type owl:Class ;
+                      rdfs:subClassOf :SideChannelTestingFramework ;
+                      rdfs:label "Performance Optimizer"@en ;
+                      rdfs:comment "Optimization of testing performance while maintaining security"@en ;
+                      :optimizesAspect :TestExecutionTime , :ResourceUtilization , :AccuracyPrecision ;
+                      :usesStrategy :ParallelExecution , :CacheOptimization , :AlgorithmTuning ;
+                      :maintainsConstraint doe:EightTickConstraint ;
+                      :achievesSpeedup "8.7"^^xsd:decimal .
+
+:ResourceManager rdf:type owl:Class ;
+                 rdfs:subClassOf :PerformanceOptimizer ;
+                 rdfs:label "Resource Manager"@en ;
+                 rdfs:comment "Efficient management of testing resources"@en ;
+                 :managesResource :CPU , :Memory , :Storage , :Network , :TestEquipment ;
+                 :implementsStrategy :ResourcePooling , :LoadBalancing , :QoSManagement ;
+                 :hasUtilizationTarget "0.85"^^xsd:decimal .
+
+# ===== SHACL VALIDATION SHAPES =====
+
+:SideChannelTestingFrameworkShape rdf:type sh:NodeShape ;
+                                  sh:targetClass :SideChannelTestingFramework ;
+                                  sh:property [
+                                      sh:path :hasTestingCapability ;
+                                      sh:minCount 1 ;
+                                      sh:maxCount 10 ;
+                                  ] ;
+                                  sh:property [
+                                      sh:path :operatesWithinConstraint ;
+                                      sh:hasValue doe:EightTickConstraint ;
+                                      sh:minCount 1 ;
+                                      sh:maxCount 1 ;
+                                  ] .
+
+:TimingAnalyzerShape rdf:type sh:NodeShape ;
+                     sh:targetClass :TimingAnalyzer ;
+                     sh:property [
+                         sh:path :hasResolution ;
+                         sh:datatype xsd:positiveInteger ;
+                         sh:maxInclusive 1000 ;
+                         sh:minCount 1 ;
+                         sh:maxCount 1 ;
+                     ] ;
+                     sh:property [
+                         sh:path :hasStatisticalPower ;
+                         sh:datatype xsd:decimal ;
+                         sh:minInclusive 0.90 ;
+                         sh:maxInclusive 1.0 ;
+                         sh:minCount 1 ;
+                         sh:maxCount 1 ;
+                     ] .
+
+:VulnerabilityDetectorShape rdf:type sh:NodeShape ;
+                            sh:targetClass :VulnerabilityDetector ;
+                            sh:property [
+                                sh:path :hasDetectionAccuracy ;
+                                sh:datatype xsd:decimal ;
+                                sh:minInclusive 0.95 ;
+                                sh:maxInclusive 1.0 ;
+                                sh:minCount 1 ;
+                                sh:maxCount 1 ;
+                            ] .
+
+# ===== PROPERTIES =====
+
+:hasTestingCapability rdf:type owl:ObjectProperty ;
+                      rdfs:domain :SideChannelTestingFramework ;
+                      rdfs:range :TestingCapability ;
+                      rdfs:label "has testing capability"@en .
+
+:measuresLeakage rdf:type owl:ObjectProperty ;
+                 rdfs:domain :SideChannelTestingFramework ;
+                 rdfs:range scr:SideChannelLeakage ;
+                 rdfs:label "measures leakage"@en .
+
+:hasExecutionMode rdf:type owl:ObjectProperty ;
+                  rdfs:domain :TestExecutionEngine ;
+                  rdfs:range :ExecutionMode ;
+                  rdfs:label "has execution mode"@en .
+
+:includesTest rdf:type owl:ObjectProperty ;
+              rdfs:domain :TestSuite ;
+              rdfs:range :SecurityTest ;
+              rdfs:label "includes test"@en .
+
+:detectsPattern rdf:type owl:ObjectProperty ;
+                rdfs:domain :TimingAnalyzer ;
+                rdfs:range :VulnerabilityPattern ;
+                rdfs:label "detects pattern"@en .
+
+:hasResolution rdf:type owl:DatatypeProperty ;
+               rdfs:domain :MeasurementCapability ;
+               rdfs:range xsd:positiveInteger ;
+               rdfs:label "has resolution"@en .
+
+:hasStatisticalPower rdf:type owl:DatatypeProperty ;
+                     rdfs:domain :StatisticalAnalysisCapability ;
+                     rdfs:range xsd:decimal ;
+                     rdfs:label "has statistical power"@en .
+
+:hasDetectionAccuracy rdf:type owl:DatatypeProperty ;
+                      rdfs:domain :VulnerabilityDetector ;
+                      rdfs:range xsd:decimal ;
+                      rdfs:label "has detection accuracy"@en .
+
+# ===== INDIVIDUALS (TESTING CAPABILITIES) =====
+
+:TimingAnalysis rdf:type :TestingCapability ;
+                rdfs:label "Timing Analysis"@en ;
+                :detectsVulnerabilityType :TimingVulnerability .
+
+:PowerAnalysis rdf:type :TestingCapability ;
+               rdfs:label "Power Analysis"@en ;
+               :detectsVulnerabilityType :PowerVulnerability .
+
+:ElectromagneticAnalysis rdf:type :TestingCapability ;
+                         rdfs:label "Electromagnetic Analysis"@en ;
+                         :detectsVulnerabilityType :ElectromagneticVulnerability .
+
+:CacheAnalysis rdf:type :TestingCapability ;
+               rdfs:label "Cache Analysis"@en ;
+               :detectsVulnerabilityType :CacheVulnerability .
+
+:AcousticAnalysis rdf:type :TestingCapability ;
+                  rdfs:label "Acoustic Analysis"@en ;
+                  :detectsVulnerabilityType :AcousticVulnerability .
+
+:FaultInjection rdf:type :TestingCapability ;
+                rdfs:label "Fault Injection"@en ;
+                :detectsVulnerabilityType :FaultVulnerability .
+
+# ===== EXECUTION MODES =====
+
+:RealTime rdf:type :ExecutionMode ;
+          rdfs:label "Real Time"@en ;
+          :hasLatency "1"^^xsd:positiveInteger . # microsecond
+
+:Offline rdf:type :ExecutionMode ;
+         rdfs:label "Offline"@en ;
+         :allowsBatchProcessing "true"^^xsd:boolean .
+
+:Statistical rdf:type :ExecutionMode ;
+             rdfs:label "Statistical"@en ;
+             :requiresSampleSize "10000"^^xsd:positiveInteger .
+
+# ===== VULNERABILITY PATTERNS =====
+
+:ConstantTimeViolation rdf:type :VulnerabilityPattern ;
+                       rdfs:label "Constant Time Violation"@en ;
+                       :hasSeverity :High ;
+                       :affectsCryptographicOperation "true"^^xsd:boolean .
+
+:DataDependentTiming rdf:type :VulnerabilityPattern ;
+                     rdfs:label "Data Dependent Timing"@en ;
+                     :hasSeverity :High ;
+                     :enablesAttack :TimingAttack .
+
+:BranchingLeakage rdf:type :VulnerabilityPattern ;
+                  rdfs:label "Branching Leakage"@en ;
+                  :hasSeverity :Medium ;
+                  :causedByConstruct :ConditionalBranch , :LoopConstruct .
+
+# ===== STATISTICAL TESTS =====
+
+:TTest rdf:type :StatisticalTest ;
+       rdfs:label "Student's t-test"@en ;
+       :hasConfidenceLevel "0.99"^^xsd:decimal ;
+       :detectsLeakage :FirstOrderLeakage .
+
+:Welch rdf:type :StatisticalTest ;
+       rdfs:label "Welch's t-test"@en ;
+       :hasConfidenceLevel "0.99"^^xsd:decimal ;
+       :handlesUnequalVariances "true"^^xsd:boolean .
+
+:KolmogorovSmirnov rdf:type :StatisticalTest ;
+                   rdfs:label "Kolmogorov-Smirnov test"@en ;
+                   :testsDistribution :Normality .
+
+# ===== SEVERITY LEVELS =====
+
+:Critical rdf:type :SeverityLevel ;
+          rdfs:label "Critical"@en ;
+          :hasScore "9.0"^^xsd:decimal ;
+          :requiresImmediateAction "true"^^xsd:boolean .
+
+:High rdf:type :SeverityLevel ;
+      rdfs:label "High"@en ;
+      :hasScore "7.0"^^xsd:decimal ;
+      :hasResponseTime "24"^^xsd:positiveInteger . # hours
+
+:Medium rdf:type :SeverityLevel ;
+        rdfs:label "Medium"@en ;
+        :hasScore "4.0"^^xsd:decimal ;
+        :hasResponseTime "72"^^xsd:positiveInteger . # hours
+
+:Low rdf:type :SeverityLevel ;
+     rdfs:label "Low"@en ;
+     :hasScore "2.0"^^xsd:decimal ;
+     :hasResponseTime "168"^^xsd:positiveInteger . # hours (1 week)
+
+# ===== LEAKAGE TYPES =====
+
+:FirstOrderLeakage rdf:type scr:SideChannelLeakage ;
+                   rdfs:label "First Order Leakage"@en ;
+                   :hasComplexity :Linear ;
+                   :detectableByTest :TTest .
+
+:HigherOrderLeakage rdf:type scr:SideChannelLeakage ;
+                    rdfs:label "Higher Order Leakage"@en ;
+                    :hasComplexity :Nonlinear ;
+                    :requiresAdvancedAnalysis "true"^^xsd:boolean .
+
+# ===== END OF ONTOLOGY =====

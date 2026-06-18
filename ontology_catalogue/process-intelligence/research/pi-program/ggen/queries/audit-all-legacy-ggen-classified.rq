@@ -1,0 +1,18 @@
+PREFIX pi: <https://process.intelligence/ontology/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+
+# AUDIT: All Legacy GGEN Files Are Classified
+# ASK query: Verifies all 23 .ggen files in referenced projects are in the invalid-extension-ledger
+# Passes if: All legacy ggen files are documented with classification status
+# Date: 2026-06-01
+
+ASK {
+    {
+        SELECT (COUNT(?file) AS ?ggenTotal)
+        WHERE {
+            ?file a pi:InvalidGGENFile .
+            ?file pi:sourceType "ggen" .
+        }
+    }
+    FILTER (?ggenTotal >= 23)
+}

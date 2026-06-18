@@ -1,0 +1,6 @@
+@prefix core: <https://cns.dev/core#> .
+@prefix cfg: <https://cns.dev/config#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+cfg:Config a rdfs:Class ; rdfs:subClassOf core:Primitive .
+cfg:hasSource a rdfs:Property ; rdfs:domain cfg:Config ; rdfs:range rdfs:Literal .

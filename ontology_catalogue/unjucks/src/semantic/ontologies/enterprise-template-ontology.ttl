@@ -1,0 +1,410 @@
+# Enterprise Template Ontology
+# Core ontology for semantic template processing and code generation
+
+@prefix template: <http://unjucks.dev/template/> .
+@prefix enterprise: <http://unjucks.dev/enterprise/> .
+@prefix unjucks: <http://unjucks.dev/ontology/> .
+@prefix generator: <http://unjucks.dev/generator/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+# Ontology Metadata
+<http://unjucks.dev/ontology/> a owl:Ontology ;
+    dc:title "Enterprise Template Ontology"@en ;
+    dc:description "Semantic ontology for enterprise code generation and template processing"@en ;
+    dc:creator "Unjucks Development Team" ;
+    dc:created "2024-01-01"^^xsd:date ;
+    dc:modified "2024-12-06"^^xsd:date ;
+    owl:versionInfo "1.0.0" ;
+    rdfs:comment "Defines semantic concepts for intelligent template processing, code generation, and enterprise compliance"@en .
+
+# Core Template Classes
+template:Template a owl:Class ;
+    rdfs:label "Template"@en ;
+    rdfs:comment "A template for code generation with semantic annotations"@en ;
+    skos:definition "A structured template file containing code patterns and metadata for automated code generation"@en .
+
+template:GeneratorTemplate a owl:Class ;
+    rdfs:subClassOf template:Template ;
+    rdfs:label "Generator Template"@en ;
+    rdfs:comment "Template used for scaffolding and code generation"@en .
+
+template:ComponentTemplate a owl:Class ;
+    rdfs:subClassOf template:Template ;
+    rdfs:label "Component Template"@en ;
+    rdfs:comment "Template for generating software components"@en .
+
+template:ServiceTemplate a owl:Class ;
+    rdfs:subClassOf template:Template ;
+    rdfs:label "Service Template"@en ;
+    rdfs:comment "Template for generating service layers"@en .
+
+template:DataTemplate a owl:Class ;
+    rdfs:subClassOf template:Template ;
+    rdfs:label "Data Template"@en ;
+    rdfs:comment "Template for generating data access and persistence code"@en .
+
+template:UiTemplate a owl:Class ;
+    rdfs:subClassOf template:Template ;
+    rdfs:label "UI Template"@en ;
+    rdfs:comment "Template for generating user interface components"@en .
+
+# Template Categories by Architecture
+template:MicroserviceTemplate a owl:Class ;
+    rdfs:subClassOf template:ServiceTemplate ;
+    rdfs:label "Microservice Template"@en ;
+    rdfs:comment "Template for generating microservice architectures"@en .
+
+template:MonolithTemplate a owl:Class ;
+    rdfs:subClassOf template:Template ;
+    rdfs:label "Monolith Template"@en ;
+    rdfs:comment "Template for generating monolithic applications"@en .
+
+template:ServerlessTemplate a owl:Class ;
+    rdfs:subClassOf template:Template ;
+    rdfs:label "Serverless Template"@en ;
+    rdfs:comment "Template for generating serverless functions"@en .
+
+# Enterprise Template Categories
+enterprise:EnterpriseTemplate a owl:Class ;
+    rdfs:subClassOf template:Template ;
+    rdfs:label "Enterprise Template"@en ;
+    rdfs:comment "Template designed for enterprise-grade applications with compliance requirements"@en .
+
+enterprise:ComplianceTemplate a owl:Class ;
+    rdfs:subClassOf enterprise:EnterpriseTemplate ;
+    rdfs:label "Compliance Template"@en ;
+    rdfs:comment "Template with built-in compliance and governance features"@en .
+
+enterprise:SecurityTemplate a owl:Class ;
+    rdfs:subClassOf enterprise:EnterpriseTemplate ;
+    rdfs:label "Security Template"@en ;
+    rdfs:comment "Template with enhanced security features and controls"@en .
+
+enterprise:AuditTemplate a owl:Class ;
+    rdfs:subClassOf enterprise:EnterpriseTemplate ;
+    rdfs:label "Audit Template"@en ;
+    rdfs:comment "Template with comprehensive audit trail capabilities"@en .
+
+# Template Processing Classes
+generator:Generator a owl:Class ;
+    rdfs:label "Code Generator"@en ;
+    rdfs:comment "Engine that processes templates and generates code"@en .
+
+generator:Context a owl:Class ;
+    rdfs:label "Generation Context"@en ;
+    rdfs:comment "Context information for template processing"@en .
+
+generator:Variable a owl:Class ;
+    rdfs:label "Template Variable"@en ;
+    rdfs:comment "Variable used in template processing"@en .
+
+generator:Rule a owl:Class ;
+    rdfs:label "Generation Rule"@en ;
+    rdfs:comment "Semantic rule that governs code generation"@en .
+
+# Template Properties
+template:name a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:string ;
+    rdfs:label "Template Name"@en ;
+    rdfs:comment "Human-readable name of the template"@en .
+
+template:description a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:string ;
+    rdfs:label "Description"@en ;
+    rdfs:comment "Description of the template's purpose and functionality"@en .
+
+template:version a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:string ;
+    rdfs:label "Version"@en ;
+    rdfs:comment "Version of the template"@en .
+
+template:author a owl:ObjectProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range foaf:Person ;
+    rdfs:label "Author"@en ;
+    rdfs:comment "Author of the template"@en .
+
+template:path a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:string ;
+    rdfs:label "Template Path"@en ;
+    rdfs:comment "File system path to the template"@en .
+
+template:language a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:string ;
+    rdfs:label "Programming Language"@en ;
+    rdfs:comment "Primary programming language for the generated code"@en .
+
+template:framework a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:string ;
+    rdfs:label "Framework"@en ;
+    rdfs:comment "Software framework or library used by the template"@en .
+
+# Functional Properties
+template:hasContent a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Has Content"@en ;
+    rdfs:comment "Indicates if the template contains content"@en .
+
+template:isExecutable a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Is Executable"@en ;
+    rdfs:comment "Indicates if the generated code is executable"@en .
+
+template:requiresCompilation a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Requires Compilation"@en ;
+    rdfs:comment "Indicates if the generated code requires compilation"@en .
+
+# Data Processing Properties
+template:hasFinancialData a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Handles Financial Data"@en ;
+    rdfs:comment "Indicates if the template processes financial information"@en .
+
+template:accessesFinancialReports a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Accesses Financial Reports"@en ;
+    rdfs:comment "Indicates if the template accesses financial reporting systems"@en .
+
+template:processesTransactions a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Processes Transactions"@en ;
+    rdfs:comment "Indicates if the template handles financial transactions"@en .
+
+template:processesPayments a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Processes Payments"@en ;
+    rdfs:comment "Indicates if the template handles payment processing"@en .
+
+template:accessesDatabase a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Accesses Database"@en ;
+    rdfs:comment "Indicates if the template includes database access"@en .
+
+# System Architecture Properties
+template:isMicroservice a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Is Microservice"@en ;
+    rdfs:comment "Indicates if the template generates microservice components"@en .
+
+template:isMonolith a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Is Monolith"@en ;
+    rdfs:comment "Indicates if the template generates monolithic applications"@en .
+
+template:isServerless a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Is Serverless"@en ;
+    rdfs:comment "Indicates if the template generates serverless functions"@en .
+
+template:isRealTimeSystem a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Is Real-time System"@en ;
+    rdfs:comment "Indicates if the template generates real-time systems"@en .
+
+template:isCriticalSystem a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Is Critical System"@en ;
+    rdfs:comment "Indicates if the template generates business-critical systems"@en .
+
+template:isCriticalInfrastructure a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Is Critical Infrastructure"@en ;
+    rdfs:comment "Indicates if the template generates critical infrastructure components"@en .
+
+template:isMultiTenant a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Is Multi-tenant"@en ;
+    rdfs:comment "Indicates if the template generates multi-tenant systems"@en .
+
+# Integration Properties
+template:integratesExternalApis a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Integrates External APIs"@en ;
+    rdfs:comment "Indicates if the template integrates with external APIs"@en .
+
+template:integratesThirdPartyServices a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Integrates Third-party Services"@en ;
+    rdfs:comment "Indicates if the template integrates with third-party services"@en .
+
+# Machine Learning Properties
+template:deploysMlModel a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Deploys ML Model"@en ;
+    rdfs:comment "Indicates if the template deploys machine learning models"@en .
+
+template:performsDataAnalytics a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Performs Data Analytics"@en ;
+    rdfs:comment "Indicates if the template performs data analytics"@en .
+
+# Performance Properties
+template:expectedRequestsPerMinute a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Expected Requests Per Minute"@en ;
+    rdfs:comment "Expected number of requests per minute for the generated system"@en .
+
+template:expectedConcurrentUsers a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Expected Concurrent Users"@en ;
+    rdfs:comment "Expected number of concurrent users for the generated system"@en .
+
+# Business Logic Properties
+template:hasBusinessLogic a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Has Business Logic"@en ;
+    rdfs:comment "Indicates if the template contains business logic"@en .
+
+template:hasUserInput a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Has User Input"@en ;
+    rdfs:comment "Indicates if the template processes user input"@en .
+
+# Development Properties
+template:hasQueries a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Has Database Queries"@en ;
+    rdfs:comment "Indicates if the template contains database queries"@en .
+
+template:createsTables a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Creates Database Tables"@en ;
+    rdfs:comment "Indicates if the template creates database tables"@en .
+
+template:hasPublicApi a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Has Public API"@en ;
+    rdfs:comment "Indicates if the template exposes public APIs"@en .
+
+# Relationship Properties
+template:dependsOn a owl:ObjectProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range template:Template ;
+    rdfs:label "Depends On"@en ;
+    rdfs:comment "Indicates dependency relationship between templates"@en .
+
+template:extendsTemplate a owl:ObjectProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range template:Template ;
+    rdfs:label "Extends Template"@en ;
+    rdfs:comment "Indicates template inheritance relationship"@en .
+
+template:hasVariable a owl:ObjectProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range generator:Variable ;
+    rdfs:label "Has Variable"@en ;
+    rdfs:comment "Associates template with its variables"@en .
+
+template:usesGenerator a owl:ObjectProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range generator:Generator ;
+    rdfs:label "Uses Generator"@en ;
+    rdfs:comment "Associates template with code generator"@en .
+
+# Quality Properties
+template:codeQualityScore a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Code Quality Score"@en ;
+    rdfs:comment "Quality score of the generated code (0-100)"@en .
+
+template:maintainabilityScore a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Maintainability Score"@en ;
+    rdfs:comment "Maintainability score of the generated code (0-100)"@en .
+
+template:testCoverageRequirement a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Test Coverage Requirement"@en ;
+    rdfs:comment "Required test coverage percentage for the generated code"@en .
+
+# Usage Statistics Properties
+template:usageCount a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Usage Count"@en ;
+    rdfs:comment "Number of times the template has been used"@en .
+
+template:lastUsed a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Last Used"@en ;
+    rdfs:comment "Date and time when the template was last used"@en .
+
+template:popularityRank a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Popularity Rank"@en ;
+    rdfs:comment "Popularity ranking of the template"@en .
+
+# Template Categories (SKOS Concepts)
+unjucks:TemplateCategory a skos:ConceptScheme ;
+    skos:prefLabel "Template Category Scheme"@en ;
+    skos:definition "Hierarchical classification of template types"@en .
+
+unjucks:WebDevelopment a skos:Concept ;
+    skos:inScheme unjucks:TemplateCategory ;
+    skos:prefLabel "Web Development"@en ;
+    skos:definition "Templates for web application development"@en .
+
+unjucks:ApiDevelopment a skos:Concept ;
+    skos:inScheme unjucks:TemplateCategory ;
+    skos:broader unjucks:WebDevelopment ;
+    skos:prefLabel "API Development"@en ;
+    skos:definition "Templates for API development"@en .
+
+unjucks:DatabaseDevelopment a skos:Concept ;
+    skos:inScheme unjucks:TemplateCategory ;
+    skos:prefLabel "Database Development"@en ;
+    skos:definition "Templates for database and data access layer development"@en .
+
+unjucks:SecurityDevelopment a skos:Concept ;
+    skos:inScheme unjucks:TemplateCategory ;
+    skos:prefLabel "Security Development"@en ;
+    skos:definition "Templates for security-focused development"@en .
+
+unjucks:ComplianceDevelopment a skos:Concept ;
+    skos:inScheme unjucks:TemplateCategory ;
+    skos:prefLabel "Compliance Development"@en ;
+    skos:definition "Templates for compliance and governance requirements"@en .

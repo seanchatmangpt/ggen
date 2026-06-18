@@ -1,0 +1,873 @@
+@prefix test: <http://cns.io/ontology/testing#> .
+@prefix valid: <http://cns.io/ontology/validation#> .
+@prefix dfls: <http://cns.bitactor.io/ontology/dfls#> .
+@prefix otel: <http://cns.io/ontology/otel#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# =============================================================================
+# TESTING & VALIDATION SHACL VALIDATION RULES
+# Quality constraints for comprehensive testing framework with DFLS compliance
+# and 80/20 test prioritization
+# =============================================================================
+
+# =============================================================================
+# 80/20 TEST PRIORITIZATION CONSTRAINTS
+# =============================================================================
+
+test:CriticalTestShape
+    a sh:NodeShape ;
+    sh:targetClass test:CriticalTest ;
+    sh:property [
+        sh:path test:paretoClass ;
+        sh:datatype xsd:string ;
+        sh:hasValue "critical" ;
+        sh:message "Critical tests must have paretoClass 'critical'" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path test:defectDetectionRate ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 10.0 ;  # Minimum 10% defect detection
+        sh:maxInclusive 100.0 ;
+        sh:message "Critical tests must detect 10-100% of defects" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path test:testExecutionCost ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 1.0 ;
+        sh:maxInclusive 25.0 ;  # Critical tests should be efficient
+        sh:message "Critical tests should have execution cost ≤25%" ;
+        sh:severity sh:Warning ;
+    ] ;
+    sh:property [
+        sh:path test:riskCoverage ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 70.0 ;  # High risk coverage
+        sh:maxInclusive 100.0 ;
+        sh:message "Critical tests must cover ≥70% of identified risks" ;
+        sh:severity sh:Violation ;
+    ] ;
+    # Critical tests must have high priority
+    sh:sparql [
+        sh:message "Critical tests must have high or critical priority" ;
+        sh:prefixes test: ;
+        sh:select """
+            SELECT ?this ?priority
+            WHERE {
+                ?this a test:CriticalTest ;
+                      test:testPriority ?priority .
+                FILTER(?priority != "critical" && ?priority != "high")
+            }
+        """ ;
+        sh:severity sh:Warning ;
+    ] .
+
+test:EdgeCaseTestShape
+    a sh:NodeShape ;
+    sh:targetClass test:EdgeCaseTest ;
+    sh:property [
+        sh:path test:paretoClass ;
+        sh:datatype xsd:string ;
+        sh:hasValue "edge" ;
+        sh:message "Edge case tests must have paretoClass 'edge'" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path test:defectDetectionRate ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.1 ;
+        sh:maxInclusive 10.0 ;  # Low defect detection
+        sh:message "Edge case tests typically detect 0.1-10% of defects" ;
+        sh:severity sh:Info ;
+    ] ;
+    sh:property [
+        sh:path test:testExecutionCost ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 30.0 ;  # Higher cost
+        sh:maxInclusive 90.0 ;
+        sh:message "Edge case tests typically have higher execution cost" ;
+        sh:severity sh:Info ;
+    ] .
+
+# 80/20 Balance Validation
+test:ParetoBalanceShape
+    a sh:NodeShape ;
+    sh:targetNode test:TestPortfolio ;
+    sh:sparql [
+        sh:message "Test portfolio should follow 80/20 principle" ;
+        sh:prefixes test: ;
+        sh:select """
+            SELECT ?criticalCount ?totalCount ?criticalPercentage
+            WHERE {
+                {
+                    SELECT (COUNT(?critical) AS ?criticalCount)
+                    WHERE { ?critical a test:CriticalTest }
+                }
+                {
+                    SELECT (COUNT(?test) AS ?totalCount)
+                    WHERE { ?test a test:Test }
+                }
+                BIND(?criticalCount * 100.0 / ?totalCount AS ?criticalPercentage)
+                FILTER(?criticalPercentage < 15.0 || ?criticalPercentage > 25.0)  # Should be ~20%
+            }
+        """ ;
+        sh:severity sh:Warning ;
+    ] .
+
+# =============================================================================
+# CORE TEST CONSTRAINTS
+# =============================================================================
+
+test:TestShape
+    a sh:NodeShape ;
+    sh:targetClass test:Test ;
+    sh:property [
+        sh:path test:testName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-z][a-z0-9_]*[a-z0-9]$" ;  # Valid test name format
+        sh:message "Test name must follow naming convention: lowercase, underscores" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path test:testDescription ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:minLength 20 ;  # Meaningful description
+        sh:message "Test description must be ≥20 characters" ;
+        sh:severity sh:Warning ;
+    ] ;
+    sh:property [
+        sh:path test:testPriority ;
+        sh:datatype xsd:string ;
+        sh:in ("critical" "high" "medium" "low") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Test priority must be valid level" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path test:testScope ;
+        sh:datatype xsd:string ;
+        sh:in ("component" "interface" "system" "performance" "security" "regression" "adversarial" "chaos") ;
+        sh:message "Test scope must be valid scope type" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path test:expectedDuration ;
+        sh:datatype xsd:duration ;
+        sh:message "Expected duration must be valid ISO 8601 duration" ;
+        sh:severity sh:Warning ;
+    ] ;
+    sh:property [
+        sh:path test:maxExecutionTime ;
+        sh:datatype xsd:duration ;
+        sh:message "Maximum execution time must be valid ISO 8601 duration" ;
+        sh:severity sh:Warning ;
+    ] ;
+    # Max execution time should be greater than expected duration
+    sh:sparql [
+        sh:message "Maximum execution time should be greater than expected duration" ;
+        sh:prefixes test: ;
+        sh:select """
+            SELECT ?this ?expected ?maximum
+            WHERE {
+                ?this a test:Test ;
+                      test:expectedDuration ?expected ;
+                      test:maxExecutionTime ?maximum .
+                # Duration comparison is complex, simplified check
+                FILTER(STR(?maximum) < STR(?expected))
+            }
+        """ ;
+        sh:severity sh:Warning ;
+    ] .
+
+test:TestSuiteShape
+    a sh:NodeShape ;
+    sh:targetClass test:TestSuite ;
+    sh:property [
+        sh:path test:hasTest ;
+        sh:class test:Test ;
+        sh:minCount 1 ;
+        sh:message "Test suite must contain at least one test" ;
+        sh:severity sh:Violation ;
+    ] ;
+    # Test suite should have balanced test types
+    sh:sparql [
+        sh:message "Test suite should include different test priorities" ;
+        sh:prefixes test: ;
+        sh:select """
+            SELECT ?this
+            WHERE {
+                ?this a test:TestSuite .
+                FILTER NOT EXISTS {
+                    ?this test:hasTest ?criticalTest .
+                    ?criticalTest test:testPriority "critical" .
+                }
+                FILTER EXISTS {
+                    ?this test:hasTest ?someTest .
+                }
+            }
+        """ ;
+        sh:severity sh:Warning ;
+    ] .
+
+test:TestPlanShape
+    a sh:NodeShape ;
+    sh:targetClass test:TestPlan ;
+    sh:property [
+        sh:path test:hasTestSuite ;
+        sh:class test:TestSuite ;
+        sh:minCount 1 ;
+        sh:message "Test plan must contain at least one test suite" ;
+        sh:severity sh:Violation ;
+    ] ;
+    # Test plan must include DFLS phase validation
+    sh:sparql [
+        sh:message "Test plan should validate DFLS phases" ;
+        sh:prefixes test: dfls: ;
+        sh:select """
+            SELECT ?this
+            WHERE {
+                ?this a test:TestPlan .
+                FILTER NOT EXISTS {
+                    ?this test:hasTestSuite ?suite .
+                    ?suite test:hasTest ?test .
+                    ?test test:validatesPhase ?phase .
+                }
+            }
+        """ ;
+        sh:severity sh:Warning ;
+    ] .
+
+# =============================================================================
+# UNIT TEST CONSTRAINTS
+# =============================================================================
+
+test:UnitTestShape
+    a sh:NodeShape ;
+    sh:targetClass test:UnitTest ;
+    sh:property [
+        sh:path test:isolationLevel ;
+        sh:datatype xsd:string ;
+        sh:hasValue "high" ;
+        sh:message "Unit tests must have high isolation level" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path test:testScope ;
+        sh:datatype xsd:string ;
+        sh:hasValue "component" ;
+        sh:message "Unit tests must have component scope" ;
+        sh:severity sh:Violation ;
+    ] ;
+    # Unit tests should be fast
+    sh:sparql [
+        sh:message "Unit tests should execute quickly (≤10 seconds)" ;
+        sh:prefixes test: ;
+        sh:select """
+            SELECT ?this ?duration
+            WHERE {
+                ?this a test:UnitTest ;
+                      test:expectedDuration ?duration .
+                # Simplified duration check
+                FILTER(CONTAINS(STR(?duration), "M") || CONTAINS(STR(?duration), "H"))
+            }
+        """ ;
+        sh:severity sh:Warning ;
+    ] .
+
+test:IntegrationTestShape
+    a sh:NodeShape ;
+    sh:targetClass test:IntegrationTest ;
+    sh:property [
+        sh:path test:isolationLevel ;
+        sh:datatype xsd:string ;
+        sh:hasValue "medium" ;
+        sh:message "Integration tests should have medium isolation level" ;
+        sh:severity sh:Warning ;
+    ] ;
+    sh:property [
+        sh:path test:testScope ;
+        sh:datatype xsd:string ;
+        sh:hasValue "interface" ;
+        sh:message "Integration tests must have interface scope" ;
+        sh:severity sh:Violation ;
+    ] .
+
+test:SystemTestShape
+    a sh:NodeShape ;
+    sh:targetClass test:SystemTest ;
+    sh:property [
+        sh:path test:isolationLevel ;
+        sh:datatype xsd:string ;
+        sh:hasValue "low" ;
+        sh:message "System tests should have low isolation level" ;
+        sh:severity sh:Warning ;
+    ] ;
+    sh:property [
+        sh:path test:testScope ;
+        sh:datatype xsd:string ;
+        sh:hasValue "system" ;
+        sh:message "System tests must have system scope" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# =============================================================================
+# PERFORMANCE TEST CONSTRAINTS
+# =============================================================================
+
+test:PerformanceTestShape
+    a sh:NodeShape ;
+    sh:targetClass test:PerformanceTest ;
+    sh:property [
+        sh:path test:performanceTarget ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:message "Performance target must be non-negative" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path test:loadPattern ;
+        sh:datatype xsd:string ;
+        sh:in ("constant" "ramp" "spike" "step" "random") ;
+        sh:message "Load pattern must be valid pattern type" ;
+        sh:severity sh:Warning ;
+    ] ;
+    # Performance tests must validate against DFLS metrics
+    sh:sparql [
+        sh:message "Performance tests should measure DFLS quality metrics" ;
+        sh:prefixes test: dfls: ;
+        sh:select """
+            SELECT ?this
+            WHERE {
+                ?this a test:PerformanceTest .
+                FILTER NOT EXISTS {
+                    ?this test:measuresQualityMetric ?metric .
+                    ?metric a dfls:SixSigmaMetric .
+                }
+            }
+        """ ;
+        sh:severity sh:Warning ;
+    ] .
+
+test:StressTestShape
+    a sh:NodeShape ;
+    sh:targetClass test:StressTest ;
+    sh:property [
+        sh:path test:stressLevel ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 1.0 ;    # At least normal load
+        sh:maxInclusive 100.0 ;  # Maximum 100x stress
+        sh:message "Stress level must be between 1.0x and 100.0x" ;
+        sh:severity sh:Violation ;
+    ] ;
+    # High stress levels should have warnings
+    sh:sparql [
+        sh:message "Very high stress levels may damage systems" ;
+        sh:prefixes test: ;
+        sh:select """
+            SELECT ?this ?level
+            WHERE {
+                ?this a test:StressTest ;
+                      test:stressLevel ?level .
+                FILTER(?level > 50.0)  # >50x stress
+            }
+        """ ;
+        sh:severity sh:Warning ;
+    ] .
+
+test:BenchmarkTestShape
+    a sh:NodeShape ;
+    sh:targetClass test:BenchmarkTest ;
+    sh:property [
+        sh:path test:benchmarks ;
+        sh:class test:BenchmarkTarget ;
+        sh:minCount 1 ;
+        sh:message "Benchmark test must target at least one benchmark" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# =============================================================================
+# ADVANCED TESTING CONSTRAINTS
+# =============================================================================
+
+test:PermutationTestShape
+    a sh:NodeShape ;
+    sh:targetClass test:PermutationTest ;
+    sh:property [
+        sh:path test:permutationCoverage ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Permutation coverage must be between 0.0 and 1.0" ;
+        sh:severity sh:Violation ;
+    ] ;
+    # High permutation coverage should have performance warning
+    sh:sparql [
+        sh:message "High permutation coverage may be computationally expensive" ;
+        sh:prefixes test: ;
+        sh:select """
+            SELECT ?this ?coverage
+            WHERE {
+                ?this a test:PermutationTest ;
+                      test:permutationCoverage ?coverage .
+                FILTER(?coverage > 0.8)  # >80% coverage
+            }
+        """ ;
+        sh:severity sh:Info ;
+    ] .
+
+test:CombinationTestShape
+    a sh:NodeShape ;
+    sh:targetClass test:CombinationTest ;
+    sh:property [
+        sh:path test:usesCombinationStrategy ;
+        sh:class test:CombinationStrategy ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Combination test must use exactly one strategy" ;
+        sh:severity sh:Violation ;
+    ] .
+
+test:AdversarialTestShape
+    a sh:NodeShape ;
+    sh:targetClass test:AdversarialTest ;
+    sh:property [
+        sh:path test:adversarialIntensity ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 10 ;
+        sh:message "Adversarial intensity must be between 1 and 10" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path test:targetsAttackVector ;
+        sh:class test:AttackVector ;
+        sh:minCount 1 ;
+        sh:message "Adversarial test must target at least one attack vector" ;
+        sh:severity sh:Violation ;
+    ] ;
+    # High intensity adversarial tests should be controlled
+    sh:sparql [
+        sh:message "High intensity adversarial tests should be run in isolated environments" ;
+        sh:prefixes test: ;
+        sh:select """
+            SELECT ?this ?intensity
+            WHERE {
+                ?this a test:AdversarialTest ;
+                      test:adversarialIntensity ?intensity .
+                FILTER(?intensity > 7)  # Intensity > 7
+            }
+        """ ;
+        sh:severity sh:Warning ;
+    ] .
+
+test:ChaosTestShape
+    a sh:NodeShape ;
+    sh:targetClass test:ChaosTest ;
+    sh:property [
+        sh:path test:chaosLevel ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Chaos level must be between 0.0 and 1.0" ;
+        sh:severity sh:Violation ;
+    ] ;
+    # High chaos levels should have safety warnings
+    sh:sparql [
+        sh:message "High chaos levels should only be used in test environments" ;
+        sh:prefixes test: ;
+        sh:select """
+            SELECT ?this ?level
+            WHERE {
+                ?this a test:ChaosTest ;
+                      test:chaosLevel ?level .
+                FILTER(?level > 0.5)  # >50% chaos
+            }
+        """ ;
+        sh:severity sh:Warning ;
+    ] .
+
+# =============================================================================
+# VALIDATION CONSTRAINTS
+# =============================================================================
+
+valid:ValidatorShape
+    a sh:NodeShape ;
+    sh:targetClass valid:Validator ;
+    # Validators must validate something
+    sh:sparql [
+        sh:message "Validator must validate at least one component or constraint" ;
+        sh:prefixes valid: ;
+        sh:select """
+            SELECT ?this
+            WHERE {
+                ?this a valid:Validator .
+                FILTER NOT EXISTS {
+                    { ?this valid:validatesConstraint ?constraint } UNION
+                    { ?component valid:validatedBy ?this }
+                }
+            }
+        """ ;
+        sh:severity sh:Warning ;
+    ] .
+
+valid:SemanticValidatorShape
+    a sh:NodeShape ;
+    sh:targetClass valid:SemanticValidator ;
+    sh:property [
+        sh:path valid:usesSHACL ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Semantic validators must use SHACL" ;
+        sh:severity sh:Violation ;
+    ] ;
+    # Semantic validators should validate SHACL shapes
+    sh:sparql [
+        sh:message "Semantic validator should validate SHACL shapes" ;
+        sh:prefixes valid: sh: ;
+        sh:select """
+            SELECT ?this
+            WHERE {
+                ?this a valid:SemanticValidator .
+                FILTER NOT EXISTS {
+                    ?this valid:validatesConstraint ?shape .
+                    ?shape a sh:Shape .
+                }
+            }
+        """ ;
+        sh:severity sh:Warning ;
+    ] .
+
+valid:PerformanceValidatorShape
+    a sh:NodeShape ;
+    sh:targetClass valid:PerformanceValidator ;
+    sh:property [
+        sh:path valid:performanceThreshold ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:message "Performance threshold must be non-negative" ;
+        sh:severity sh:Violation ;
+    ] .
+
+valid:ComplianceValidatorShape
+    a sh:NodeShape ;
+    sh:targetClass valid:ComplianceValidator ;
+    sh:property [
+        sh:path valid:complianceStandard ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:minLength 3 ;
+        sh:message "Compliance standard must be specified" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# =============================================================================
+# TEST RESULT CONSTRAINTS
+# =============================================================================
+
+test:TestResultShape
+    a sh:NodeShape ;
+    sh:targetClass test:TestResult ;
+    sh:property [
+        sh:path test:resultStatus ;
+        sh:datatype xsd:string ;
+        sh:in ("pass" "fail" "skip" "error") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Test result must have valid status" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path test:executionTime ;
+        sh:datatype xsd:duration ;
+        sh:message "Execution time must be valid duration" ;
+        sh:severity sh:Warning ;
+    ] .
+
+test:FailResultShape
+    a sh:NodeShape ;
+    sh:targetClass test:FailResult ;
+    sh:property [
+        sh:path test:defectCount ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;  # At least one defect for fail
+        sh:message "Fail result must have at least one defect" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path test:resultStatus ;
+        sh:datatype xsd:string ;
+        sh:hasValue "fail" ;
+        sh:message "Fail result must have status 'fail'" ;
+        sh:severity sh:Violation ;
+    ] .
+
+test:PassResultShape
+    a sh:NodeShape ;
+    sh:targetClass test:PassResult ;
+    sh:property [
+        sh:path test:resultStatus ;
+        sh:datatype xsd:string ;
+        sh:hasValue "pass" ;
+        sh:message "Pass result must have status 'pass'" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path test:defectCount ;
+        sh:datatype xsd:integer ;
+        sh:hasValue 0 ;
+        sh:message "Pass result should have zero defects" ;
+        sh:severity sh:Warning ;
+    ] .
+
+# =============================================================================
+# COVERAGE CONSTRAINTS
+# =============================================================================
+
+test:CoverageShape
+    a sh:NodeShape ;
+    sh:targetClass test:Coverage ;
+    sh:property [
+        sh:path test:coveragePercentage ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Coverage percentage must be between 0.0 and 100.0" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path test:coverageTarget ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Coverage target must be between 0.0 and 100.0" ;
+        sh:severity sh:Violation ;
+    ] ;
+    # Coverage should meet target
+    sh:sparql [
+        sh:message "Coverage should meet or exceed target" ;
+        sh:prefixes test: ;
+        sh:select """
+            SELECT ?this ?actual ?target
+            WHERE {
+                ?this a test:Coverage ;
+                      test:coveragePercentage ?actual ;
+                      test:coverageTarget ?target .
+                FILTER(?actual < ?target)
+            }
+        """ ;
+        sh:severity sh:Warning ;
+    ] .
+
+# Coverage targets should be reasonable
+test:CoverageTargetShape
+    a sh:NodeShape ;
+    sh:targetClass test:StatementCoverage ;
+    sh:property [
+        sh:path test:coverageTarget ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 80.0 ;  # Minimum 80% for statement coverage
+        sh:message "Statement coverage target should be ≥80%" ;
+        sh:severity sh:Warning ;
+    ] .
+
+test:BranchCoverageShape
+    a sh:NodeShape ;
+    sh:targetClass test:BranchCoverage ;
+    sh:property [
+        sh:path test:coverageTarget ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 70.0 ;  # Minimum 70% for branch coverage
+        sh:message "Branch coverage target should be ≥70%" ;
+        sh:severity sh:Warning ;
+    ] .
+
+# =============================================================================
+# DFLS INTEGRATION CONSTRAINTS
+# =============================================================================
+
+test:DFLSTestIntegrationShape
+    a sh:NodeShape ;
+    sh:targetClass test:Test ;
+    # Critical tests should implement quality gates
+    sh:sparql [
+        sh:message "Critical tests should implement DFLS quality gates" ;
+        sh:prefixes test: dfls: ;
+        sh:select """
+            SELECT ?this
+            WHERE {
+                ?this a test:CriticalTest .
+                FILTER NOT EXISTS {
+                    ?this test:implementsQualityGate ?gate .
+                    ?gate a dfls:QualityGate .
+                }
+            }
+        """ ;
+        sh:severity sh:Warning ;
+    ] ;
+    # Tests should validate appropriate DFLS phases
+    sh:sparql [
+        sh:message "Tests should validate appropriate DFLS phases" ;
+        sh:prefixes test: dfls: ;
+        sh:select """
+            SELECT ?this ?testType
+            WHERE {
+                ?this a ?testType .
+                ?testType rdfs:subClassOf test:Test .
+                FILTER NOT EXISTS {
+                    ?this test:validatesPhase ?phase .
+                }
+                FILTER(?testType != test:Test)  # Exclude base class
+            }
+        """ ;
+        sh:severity sh:Info ;
+    ] .
+
+# =============================================================================
+# OTEL INTEGRATION CONSTRAINTS
+# =============================================================================
+
+test:OTELTestIntegrationShape
+    a sh:NodeShape ;
+    sh:targetClass test:Test ;
+    # Performance tests should generate OTEL metrics
+    sh:sparql [
+        sh:message "Performance tests should generate OTEL metrics" ;
+        sh:prefixes test: otel: ;
+        sh:select """
+            SELECT ?this
+            WHERE {
+                ?this a test:PerformanceTest .
+                FILTER NOT EXISTS {
+                    ?this test:reportsTestMetric ?metric .
+                    ?metric a otel:Metric .
+                }
+            }
+        """ ;
+        sh:severity sh:Warning ;
+    ] ;
+    # Critical tests should have tracing
+    sh:sparql [
+        sh:message "Critical tests should generate OTEL spans for tracing" ;
+        sh:prefixes test: otel: ;
+        sh:select """
+            SELECT ?this
+            WHERE {
+                ?this a test:CriticalTest .
+                FILTER NOT EXISTS {
+                    ?this test:generatesTestSpan ?span .
+                    ?span a otel:Span .
+                }
+            }
+        """ ;
+        sh:severity sh:Info ;
+    ] .
+
+# =============================================================================
+# SYSTEM INTEGRATION CONSTRAINTS
+# =============================================================================
+
+test:SystemTestIntegrationShape
+    a sh:NodeShape ;
+    sh:targetNode test:SystemIntegration ;
+    # Test execution time budget
+    sh:sparql [
+        sh:message "Total test execution time exceeds reasonable budget" ;
+        sh:prefixes test: ;
+        sh:select """
+            SELECT (COUNT(?test) AS ?testCount)
+            WHERE {
+                ?test a test:Test ;
+                      test:expectedDuration ?duration .
+                # Simplified check for long durations
+                FILTER(CONTAINS(STR(?duration), "H"))  # Hours
+            }
+            HAVING (?testCount > 10)  # More than 10 hour-long tests
+        """ ;
+        sh:severity sh:Warning ;
+    ] ;
+    # Test dependency cycles
+    sh:sparql [
+        sh:message "Test dependencies should not form cycles" ;
+        sh:prefixes test: ;
+        sh:select """
+            SELECT ?test1 ?test2
+            WHERE {
+                ?test1 test:dependsOn+ ?test2 .
+                ?test2 test:dependsOn+ ?test1 .
+                FILTER(?test1 != ?test2)
+            }
+        """ ;
+        sh:severity sh:Violation ;
+    ] ;
+    # Reasonable retry limits
+    sh:sparql [
+        sh:message "Excessive retry attempts may indicate test instability" ;
+        sh:prefixes test: ;
+        sh:select """
+            SELECT ?this ?retries
+            WHERE {
+                ?this a test:Test ;
+                      test:retryAttempts ?retries .
+                FILTER(?retries > 5)  # More than 5 retries
+            }
+        """ ;
+        sh:severity sh:Warning ;
+    ] .
+
+# =============================================================================
+# QUALITY METRICS CONSTRAINTS
+# =============================================================================
+
+test:QualityMetricsShape
+    a sh:NodeShape ;
+    sh:targetNode test:QualityDashboard ;
+    # Test success rate should be high
+    sh:sparql [
+        sh:message "Test success rate should be ≥95% for quality systems" ;
+        sh:prefixes test: ;
+        sh:select """
+            SELECT ?passRate
+            WHERE {
+                {
+                    SELECT (COUNT(?pass) AS ?passCount)
+                    WHERE { ?pass a test:PassResult }
+                }
+                {
+                    SELECT (COUNT(?result) AS ?totalCount)
+                    WHERE { ?result a test:TestResult }
+                }
+                BIND(?passCount * 100.0 / ?totalCount AS ?passRate)
+                FILTER(?passRate < 95.0)
+            }
+        """ ;
+        sh:severity sh:Warning ;
+    ] ;
+    # Critical test coverage
+    sh:sparql [
+        sh:message "Critical functionality should have high test coverage" ;
+        sh:prefixes test: ;
+        sh:select """
+            SELECT ?component
+            WHERE {
+                ?component a dfls:CriticalComponent .
+                FILTER NOT EXISTS {
+                    ?test a test:CriticalTest ;
+                          test:covers ?component .
+                }
+            }
+        """ ;
+        sh:severity sh:Violation ;
+    ] .
+
+# =============================================================================
+# END OF SHACL VALIDATION RULES
+# =============================================================================

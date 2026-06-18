@@ -1,0 +1,139 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bench: <http://chatmangpt.com/ontology/benchmark#> .
+
+# Benchmark Ontology - Language-Agnostic Performance Test Definitions
+
+bench:Benchmark rdf:type rdfs:Class ;
+    rdfs:label "Benchmark"@en ;
+    rdfs:comment "A language-agnostic performance test definition"@en ;
+    rdfs:subClassOf rdfs:Resource .
+
+bench:operation_name rdf:type rdf:Property ;
+    rdfs:label "operation name"@en ;
+    rdfs:domain bench:Benchmark ;
+    rdfs:range xsd:string .
+
+bench:description rdf:type rdf:Property ;
+    rdfs:label "description"@en ;
+    rdfs:domain bench:Benchmark ;
+    rdfs:range xsd:string .
+
+bench:complexity_class rdf:type rdf:Property ;
+    rdfs:label "complexity class"@en ;
+    rdfs:domain bench:Benchmark ;
+    rdfs:range xsd:string .
+
+bench:dataset_size rdf:type rdf:Property ;
+    rdfs:label "dataset size"@en ;
+    rdfs:domain bench:Benchmark ;
+    rdfs:range xsd:string .
+
+bench:dataset_cardinality rdf:type rdf:Property ;
+    rdfs:label "dataset cardinality"@en ;
+    rdfs:domain bench:Benchmark ;
+    rdfs:range xsd:integer .
+
+bench:slo_ms rdf:type rdf:Property ;
+    rdfs:label "SLO in milliseconds"@en ;
+    rdfs:domain bench:Benchmark ;
+    rdfs:range xsd:decimal .
+
+bench:warmup_iterations rdf:type rdf:Property ;
+    rdfs:label "warmup iterations"@en ;
+    rdfs:domain bench:Benchmark ;
+    rdfs:range xsd:integer .
+
+bench:measurement_iterations rdf:type rdf:Property ;
+    rdfs:label "measurement iterations"@en ;
+    rdfs:domain bench:Benchmark ;
+    rdfs:range xsd:integer .
+
+bench:operation_category rdf:type rdf:Property ;
+    rdfs:label "operation category"@en ;
+    rdfs:domain bench:Benchmark ;
+    rdfs:range xsd:string .
+
+bench:memory_profile rdf:type rdf:Property ;
+    rdfs:label "memory profile"@en ;
+    rdfs:domain bench:Benchmark ;
+    rdfs:range xsd:string .
+
+bench:requires_state rdf:type rdf:Property ;
+    rdfs:label "requires state"@en ;
+    rdfs:domain bench:Benchmark ;
+    rdfs:range xsd:boolean .
+
+bench:state_setup rdf:type rdf:Property ;
+    rdfs:label "state setup"@en ;
+    rdfs:domain bench:Benchmark ;
+    rdfs:range xsd:string .
+
+bench:telemetry_opentelemetry rdf:type rdf:Property ;
+    rdfs:label "OpenTelemetry enabled"@en ;
+    rdfs:domain bench:Benchmark ;
+    rdfs:range xsd:boolean .
+
+bench:span_name rdf:type rdf:Property ;
+    rdfs:label "span name"@en ;
+    rdfs:domain bench:Benchmark ;
+    rdfs:range xsd:string .
+
+bench:attributes rdf:type rdf:Property ;
+    rdfs:label "attributes"@en ;
+    rdfs:domain bench:Benchmark ;
+    rdfs:range xsd:string .
+
+# Benchmark Instances
+
+bench:sparql_select_simple rdf:type bench:Benchmark ;
+    bench:operation_name "sparql_select_simple" ;
+    bench:description "Simple SPARQL SELECT with single triple pattern" ;
+    bench:complexity_class "O(1)" ;
+    bench:operation_category "query" ;
+    bench:dataset_size "small" ;
+    bench:dataset_cardinality 10 ;
+    bench:slo_ms 5.0 ;
+    bench:warmup_iterations 3 ;
+    bench:measurement_iterations 100 ;
+    bench:memory_profile "constant" ;
+    bench:requires_state true ;
+    bench:state_setup "Load 10 triples into Oxigraph" ;
+    bench:telemetry_opentelemetry true ;
+    bench:span_name "sparql.select.simple" ;
+    bench:attributes """{"query_type":"select","triple_patterns":1}""" .
+
+bench:sparql_select_complex_join rdf:type bench:Benchmark ;
+    bench:operation_name "sparql_select_complex_join" ;
+    bench:description "SPARQL SELECT with multiple JOIN patterns across 3 variables" ;
+    bench:complexity_class "O(n^2)" ;
+    bench:operation_category "query" ;
+    bench:dataset_size "medium" ;
+    bench:dataset_cardinality 1000 ;
+    bench:slo_ms 100.0 ;
+    bench:warmup_iterations 5 ;
+    bench:measurement_iterations 50 ;
+    bench:memory_profile "quadratic" ;
+    bench:requires_state true ;
+    bench:state_setup "Load 1000 triples with interconnected predicates" ;
+    bench:telemetry_opentelemetry true ;
+    bench:span_name "sparql.select.join" ;
+    bench:attributes """{"query_type":"select","join_variables":3}""" .
+
+bench:rdf_bulk_insert rdf:type bench:Benchmark ;
+    bench:operation_name "rdf_bulk_insert" ;
+    bench:description "Bulk insert of RDF triples into Oxigraph" ;
+    bench:complexity_class "O(n)" ;
+    bench:operation_category "insert" ;
+    bench:dataset_size "large" ;
+    bench:dataset_cardinality 10000 ;
+    bench:slo_ms 500.0 ;
+    bench:warmup_iterations 1 ;
+    bench:measurement_iterations 10 ;
+    bench:memory_profile "linear" ;
+    bench:requires_state false ;
+    bench:state_setup "None - creates fresh data" ;
+    bench:telemetry_opentelemetry true ;
+    bench:span_name "rdf.insert.bulk" ;
+    bench:attributes """{"operation":"bulk_insert","format":"n-triples"}""" .

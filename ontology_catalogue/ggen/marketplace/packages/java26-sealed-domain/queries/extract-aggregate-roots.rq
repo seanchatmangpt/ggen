@@ -1,0 +1,41 @@
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX java26: <http://ggen.io/java26#>
+
+# =============================================================================
+# QUERY: Extract Aggregate Roots
+# =============================================================================
+# Returns one row per java26:AggregateRoot with its fields encoded as a
+# pipe-delimited, comma-separated list: "fieldName|fieldType|isId"
+#
+# Variables bound per row:
+#   ?className    — Java simple class name (e.g. "Order")
+#   ?javaPackage  — Java package (e.g. "com.example.orders")
+#   ?fields       — "fieldName|fieldType|isId" triples, comma-separated
+#                   isId is "true" or "false" per field
+#
+# Template: templates/AggregateRoot.java.tera
+#
+# FIELD ENCODING:
+#   Parts: [0] = fieldName, [1] = fieldType, [2] = isId ("true"/"false")
+#   Example: "id|UUID|true,status|OrderStatus|false,createdAt|Instant|false"
+#
+# COALESCE usage: java26:id is optional; defaults to "false" when absent.
+# STR() ensures the boolean literal becomes the string "true" or "false".
+# =============================================================================
+
+SELECT ?className ?javaPackage
+       (GROUP_CONCAT(
+           CONCAT(?fieldName, "|", ?fieldType, "|", STR(COALESCE(?isId, false)));
+           separator=","
+       ) AS ?fields)
+WHERE {
+    ?root a java26:AggregateRoot ;
+          java26:name ?className ;
+          java26:javaPackage ?javaPackage ;
+          java26:field ?f .
+    ?f java26:fieldName ?fieldName ;
+       java26:fieldType ?fieldType .
+    OPTIONAL { ?f java26:id ?isId . }
+}
+GROUP BY ?className ?javaPackage
+ORDER BY ?className

@@ -1,0 +1,185 @@
+@prefix : <http://movies.example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Movies
+:Inception a :Movie ;
+    :title "Inception" ;
+    :releaseDate "2010-07-16"^^xsd:date ;
+    :runtime 148 ;
+    :budget 160000000 ;
+    :boxOffice 836800000 ;
+    :rating 8.8 ;
+    :hasGenre :SciFi, :Thriller ;
+    :hasDirector :ChristopherNolan ;
+    :hasActor :LeonardoDiCaprio, :TomHardy, :EllenPage, :MarionCotillard ;
+    :producedBy :WarnerBros ;
+    :wonAward :Oscar_Cinematography, :Oscar_Sound .
+
+:TheDarkKnight a :Movie ;
+    :title "The Dark Knight" ;
+    :releaseDate "2008-07-18"^^xsd:date ;
+    :runtime 152 ;
+    :budget 185000000 ;
+    :boxOffice 1004558444 ;
+    :rating 9.0 ;
+    :hasGenre :Action, :Drama ;
+    :hasDirector :ChristopherNolan ;
+    :hasActor :ChristianBale, :HeathLedger, :GaryOldman ;
+    :producedBy :WarnerBros ;
+    :wonAward :Oscar_SupportingActor .
+
+:Interstellar a :Movie ;
+    :title "Interstellar" ;
+    :releaseDate "2014-11-07"^^xsd:date ;
+    :runtime 169 ;
+    :budget 165000000 ;
+    :boxOffice 677400000 ;
+    :rating 8.6 ;
+    :hasGenre :SciFi, :Drama ;
+    :hasDirector :ChristopherNolan ;
+    :hasActor :MatthewMcConaughey, :AnneHathaway ;
+    :producedBy :Paramount .
+
+:Titanic a :Movie ;
+    :title "Titanic" ;
+    :releaseDate "1997-12-19"^^xsd:date ;
+    :runtime 194 ;
+    :budget 200000000 ;
+    :boxOffice 2187463944 ;
+    :rating 7.8 ;
+    :hasGenre :Drama ;
+    :hasDirector :JamesCameron ;
+    :hasActor :LeonardoDiCaprio, :KateWinslet ;
+    :producedBy :Paramount ;
+    :wonAward :Oscar_BestPicture, :Oscar_BestDirector .
+
+:TheMatrix a :Movie ;
+    :title "The Matrix" ;
+    :releaseDate "1999-03-31"^^xsd:date ;
+    :runtime 136 ;
+    :budget 63000000 ;
+    :boxOffice 467222728 ;
+    :rating 8.7 ;
+    :hasGenre :SciFi, :Action ;
+    :hasDirector :TheWachowskis ;
+    :hasActor :KeanuReeves, :LaurenceFishburne ;
+    :producedBy :WarnerBros .
+
+:TheMatrixReloaded a :Movie ;
+    :title "The Matrix Reloaded" ;
+    :releaseDate "2003-05-15"^^xsd:date ;
+    :runtime 138 ;
+    :budget 150000000 ;
+    :boxOffice 742128461 ;
+    :rating 7.2 ;
+    :hasGenre :SciFi, :Action ;
+    :hasDirector :TheWachowskis ;
+    :hasActor :KeanuReeves, :LaurenceFishburne ;
+    :producedBy :WarnerBros .
+
+:TheMatrix :hasSequel :TheMatrixReloaded .
+
+# People
+:ChristopherNolan a :Director ;
+    :name "Christopher Nolan" ;
+    :birthDate "1970-07-30"^^xsd:date ;
+    :wonAward :Oscar_BestDirector_Nomination ;
+    :collaboratedWith :ChristianBale, :LeonardoDiCaprio .
+
+:JamesCameron a :Director ;
+    :name "James Cameron" ;
+    :birthDate "1954-08-16"^^xsd:date ;
+    :wonAward :Oscar_BestDirector .
+
+:TheWachowskis a :Director ;
+    :name "The Wachowskis" ;
+    :birthDate "1965-06-21"^^xsd:date .
+
+:LeonardoDiCaprio a :Actor ;
+    :name "Leonardo DiCaprio" ;
+    :birthDate "1974-11-11"^^xsd:date ;
+    :wonAward :Oscar_BestActor, :GoldenGlobe_BestActor ;
+    :collaboratedWith :KateWinslet, :TomHardy .
+
+:ChristianBale a :Actor ;
+    :name "Christian Bale" ;
+    :birthDate "1974-01-30"^^xsd:date ;
+    :wonAward :Oscar_SupportingActor ;
+    :collaboratedWith :ChristopherNolan, :HeathLedger .
+
+:HeathLedger a :Actor ;
+    :name "Heath Ledger" ;
+    :birthDate "1979-04-04"^^xsd:date ;
+    :wonAward :Oscar_SupportingActor .
+
+:TomHardy a :Actor ;
+    :name "Tom Hardy" ;
+    :birthDate "1977-09-15"^^xsd:date ;
+    :collaboratedWith :ChristopherNolan, :LeonardoDiCaprio .
+
+:EllenPage a :Actor ;
+    :name "Ellen Page" ;
+    :birthDate "1987-02-21"^^xsd:date .
+
+:MarionCotillard a :Actor ;
+    :name "Marion Cotillard" ;
+    :birthDate "1975-09-30"^^xsd:date ;
+    :wonAward :Oscar_BestActress .
+
+:MatthewMcConaughey a :Actor ;
+    :name "Matthew McConaughey" ;
+    :birthDate "1969-11-04"^^xsd:date ;
+    :wonAward :Oscar_BestActor .
+
+:AnneHathaway a :Actor ;
+    :name "Anne Hathaway" ;
+    :birthDate "1982-11-12"^^xsd:date ;
+    :wonAward :Oscar_SupportingActress .
+
+:KateWinslet a :Actor ;
+    :name "Kate Winslet" ;
+    :birthDate "1975-10-05"^^xsd:date ;
+    :wonAward :Oscar_BestActress ;
+    :collaboratedWith :LeonardoDiCaprio .
+
+:KeanuReeves a :Actor ;
+    :name "Keanu Reeves" ;
+    :birthDate "1964-09-02"^^xsd:date .
+
+:LaurenceFishburne a :Actor ;
+    :name "Laurence Fishburne" ;
+    :birthDate "1961-07-30"^^xsd:date .
+
+:GaryOldman a :Actor ;
+    :name "Gary Oldman" ;
+    :birthDate "1958-03-21"^^xsd:date ;
+    :wonAward :Oscar_BestActor .
+
+# Studios
+:WarnerBros a :Studio ;
+    :name "Warner Bros." .
+
+:Paramount a :Studio ;
+    :name "Paramount Pictures" .
+
+# Awards
+:Oscar_BestPicture a :Oscar .
+:Oscar_BestDirector a :Oscar .
+:Oscar_BestActor a :Oscar .
+:Oscar_BestActress a :Oscar .
+:Oscar_SupportingActor a :Oscar .
+:Oscar_SupportingActress a :Oscar .
+:Oscar_Cinematography a :Oscar .
+:Oscar_Sound a :Oscar .
+:Oscar_BestDirector_Nomination a :Oscar .
+
+:GoldenGlobe_BestActor a :GoldenGlobe .
+
+# Genres
+:Action a :Genre .
+:Drama a :Genre .
+:Comedy a :Genre .
+:SciFi a :Genre .
+:Thriller a :Genre .
+:Horror a :Genre .
+:Documentary a :Genre .

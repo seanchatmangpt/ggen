@@ -1,0 +1,427 @@
+@prefix : <https://bytestar.org/ontology/v5/microservices#> .
+@prefix ms: <https://bytestar.org/ontology/v5/microservices#> .
+@prefix docker: <https://bytestar.org/ontology/v5/docker#> .
+@prefix k8s: <https://bytestar.org/ontology/v5/kubernetes#> .
+@prefix api: <https://bytestar.org/ontology/v5/api#> .
+@prefix bytestar: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://bytestar.org/ontology/v5/microservices>
+  a owl:Ontology ;
+  owl:versionInfo "5.0.0" ;
+  rdfs:label "ByteStar v5 Microservices Architecture Ontology" ;
+  rdfs:comment "Complete microservices decomposition and container orchestration" .
+
+#################################################################
+# Core Microservice Classes
+#################################################################
+
+:Microservice a owl:Class ;
+  rdfs:label "Microservice" ;
+  rdfs:comment "Individual deployable service unit" .
+
+:ByteActorService a owl:Class ;
+  rdfs:subClassOf :Microservice ;
+  rdfs:label "ByteActor Service" ;
+  rdfs:comment "Erlang/OTP actor system service" .
+
+:BytePQCService a owl:Class ;
+  rdfs:subClassOf :Microservice ;
+  rdfs:label "BytePQC Service" ;
+  rdfs:comment "Post-quantum cryptography service" .
+
+:ByteCoreService a owl:Class ;
+  rdfs:subClassOf :Microservice ;
+  rdfs:label "ByteCore Service" ;
+  rdfs:comment "Core ABI and kernel service" .
+
+:ByteFlowService a owl:Class ;
+  rdfs:subClassOf :Microservice ;
+  rdfs:label "ByteFlow Service" ;
+  rdfs:comment "Workflow orchestration service" .
+
+:HiveMindService a owl:Class ;
+  rdfs:subClassOf :Microservice ;
+  rdfs:label "HIVE MIND Service" ;
+  rdfs:comment "Neural orchestration service" .
+
+:ByteGPUService a owl:Class ;
+  rdfs:subClassOf :Microservice ;
+  rdfs:label "ByteGPU Service" ;
+  rdfs:comment "GPU acceleration service" .
+
+#################################################################
+# API Gateway and Communication
+#################################################################
+
+:APIGateway a owl:Class ;
+  rdfs:label "API Gateway" ;
+  rdfs:comment "Central API gateway for service routing" .
+
+:ServiceMesh a owl:Class ;
+  rdfs:label "Service Mesh" ;
+  rdfs:comment "Inter-service communication mesh" .
+
+:MessageBroker a owl:Class ;
+  rdfs:label "Message Broker" ;
+  rdfs:comment "Asynchronous message broker" .
+
+api:RESTEndpoint a owl:Class ;
+  rdfs:label "REST Endpoint" ;
+  rdfs:comment "RESTful API endpoint" .
+
+api:GraphQLEndpoint a owl:Class ;
+  rdfs:label "GraphQL Endpoint" ;
+  rdfs:comment "GraphQL API endpoint" .
+
+api:gRPCEndpoint a owl:Class ;
+  rdfs:label "gRPC Endpoint" ;
+  rdfs:comment "gRPC service endpoint" .
+
+api:WebSocketEndpoint a owl:Class ;
+  rdfs:label "WebSocket Endpoint" ;
+  rdfs:comment "WebSocket real-time endpoint" .
+
+#################################################################
+# Container Orchestration
+#################################################################
+
+docker:Container a owl:Class ;
+  rdfs:label "Docker Container" ;
+  rdfs:comment "Docker container instance" .
+
+docker:Image a owl:Class ;
+  rdfs:label "Docker Image" ;
+  rdfs:comment "Docker container image" .
+
+docker:Registry a owl:Class ;
+  rdfs:label "Container Registry" ;
+  rdfs:comment "Container image registry" .
+
+k8s:Pod a owl:Class ;
+  rdfs:label "Kubernetes Pod" ;
+  rdfs:comment "Kubernetes pod with containers" .
+
+k8s:Deployment a owl:Class ;
+  rdfs:label "Kubernetes Deployment" ;
+  rdfs:comment "Kubernetes deployment configuration" .
+
+k8s:Service a owl:Class ;
+  rdfs:label "Kubernetes Service" ;
+  rdfs:comment "Kubernetes service for load balancing" .
+
+k8s:Ingress a owl:Class ;
+  rdfs:label "Kubernetes Ingress" ;
+  rdfs:comment "Kubernetes ingress controller" .
+
+k8s:ConfigMap a owl:Class ;
+  rdfs:label "Config Map" ;
+  rdfs:comment "Configuration data store" .
+
+k8s:Secret a owl:Class ;
+  rdfs:label "Secret" ;
+  rdfs:comment "Sensitive configuration store" .
+
+#################################################################
+# Service Discovery and Load Balancing
+#################################################################
+
+:ServiceDiscovery a owl:Class ;
+  rdfs:label "Service Discovery" ;
+  rdfs:comment "Service registration and discovery" .
+
+:LoadBalancer a owl:Class ;
+  rdfs:label "Load Balancer" ;
+  rdfs:comment "Traffic load balancer" .
+
+:CircuitBreaker a owl:Class ;
+  rdfs:label "Circuit Breaker" ;
+  rdfs:comment "Fault tolerance circuit breaker" .
+
+:RateLimiter a owl:Class ;
+  rdfs:label "Rate Limiter" ;
+  rdfs:comment "API rate limiting" .
+
+#################################################################
+# Properties
+#################################################################
+
+# Service Properties
+:serviceName a owl:DatatypeProperty ;
+  rdfs:domain :Microservice ;
+  rdfs:range xsd:string .
+
+:servicePort a owl:DatatypeProperty ;
+  rdfs:domain :Microservice ;
+  rdfs:range xsd:integer .
+
+:serviceVersion a owl:DatatypeProperty ;
+  rdfs:domain :Microservice ;
+  rdfs:range xsd:string .
+
+:replicas a owl:DatatypeProperty ;
+  rdfs:domain :Microservice ;
+  rdfs:range xsd:integer .
+
+:healthCheckPath a owl:DatatypeProperty ;
+  rdfs:domain :Microservice ;
+  rdfs:range xsd:string .
+
+:readinessPath a owl:DatatypeProperty ;
+  rdfs:domain :Microservice ;
+  rdfs:range xsd:string .
+
+# Container Properties
+:imageName a owl:DatatypeProperty ;
+  rdfs:domain docker:Image ;
+  rdfs:range xsd:string .
+
+:imageTag a owl:DatatypeProperty ;
+  rdfs:domain docker:Image ;
+  rdfs:range xsd:string .
+
+:cpuLimit a owl:DatatypeProperty ;
+  rdfs:domain docker:Container ;
+  rdfs:range xsd:string ;
+  rdfs:comment "CPU limit (e.g., '2.0' cores)" .
+
+:memoryLimit a owl:DatatypeProperty ;
+  rdfs:domain docker:Container ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Memory limit (e.g., '4Gi')" .
+
+:gpuRequired a owl:DatatypeProperty ;
+  rdfs:domain docker:Container ;
+  rdfs:range xsd:boolean .
+
+# API Properties
+:endpoint a owl:DatatypeProperty ;
+  rdfs:domain api:RESTEndpoint ;
+  rdfs:range xsd:string .
+
+:method a owl:DatatypeProperty ;
+  rdfs:domain api:RESTEndpoint ;
+  rdfs:range xsd:string ;
+  rdfs:comment "HTTP method (GET, POST, etc.)" .
+
+:responseTime a owl:DatatypeProperty ;
+  rdfs:domain api:RESTEndpoint ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Target response time in ms" .
+
+# Relationships
+:hasContainer a owl:ObjectProperty ;
+  rdfs:domain :Microservice ;
+  rdfs:range docker:Container .
+
+:hasImage a owl:ObjectProperty ;
+  rdfs:domain docker:Container ;
+  rdfs:range docker:Image .
+
+:exposesAPI a owl:ObjectProperty ;
+  rdfs:domain :Microservice ;
+  rdfs:range api:RESTEndpoint .
+
+:communicatesWith a owl:ObjectProperty ;
+  rdfs:domain :Microservice ;
+  rdfs:range :Microservice .
+
+:routesTo a owl:ObjectProperty ;
+  rdfs:domain :APIGateway ;
+  rdfs:range :Microservice .
+
+:registeredIn a owl:ObjectProperty ;
+  rdfs:domain :Microservice ;
+  rdfs:range :ServiceDiscovery .
+
+#################################################################
+# Service Specifications
+#################################################################
+
+# ByteActor Service
+:ByteActorServiceInstance a :ByteActorService ;
+  :serviceName "byteactor" ;
+  :servicePort "8080"^^xsd:integer ;
+  :serviceVersion "5.0.0" ;
+  :replicas "3"^^xsd:integer ;
+  :healthCheckPath "/health" ;
+  :readinessPath "/ready" ;
+  :hasContainer :ByteActorContainer ;
+  :exposesAPI :ByteActorAPI ;
+  :communicatesWith :ByteCoreServiceInstance, :HiveMindServiceInstance .
+
+:ByteActorContainer a docker:Container ;
+  :cpuLimit "2.0" ;
+  :memoryLimit "4Gi" ;
+  :gpuRequired false ;
+  :hasImage :ByteActorImage .
+
+:ByteActorImage a docker:Image ;
+  :imageName "bytestar/byteactor" ;
+  :imageTag "v5.0.0" .
+
+:ByteActorAPI a api:RESTEndpoint ;
+  :endpoint "/api/v5/actor" ;
+  :method "POST" ;
+  :responseTime "50"^^xsd:integer .
+
+# BytePQC Service
+:BytePQCServiceInstance a :BytePQCService ;
+  :serviceName "bytepqc" ;
+  :servicePort "8081"^^xsd:integer ;
+  :serviceVersion "5.0.0" ;
+  :replicas "5"^^xsd:integer ;
+  :healthCheckPath "/health" ;
+  :hasContainer :BytePQCContainer ;
+  :exposesAPI :BytePQCAPI ;
+  :communicatesWith :ByteCoreServiceInstance .
+
+:BytePQCContainer a docker:Container ;
+  :cpuLimit "4.0" ;
+  :memoryLimit "8Gi" ;
+  :gpuRequired true ;
+  :hasImage :BytePQCImage .
+
+:BytePQCImage a docker:Image ;
+  :imageName "bytestar/bytepqc" ;
+  :imageTag "v5.0.0" .
+
+:BytePQCAPI a api:gRPCEndpoint ;
+  :endpoint "bytepqc:8081" ;
+  :responseTime "25"^^xsd:integer .
+
+# HIVE MIND Service
+:HiveMindServiceInstance a :HiveMindService ;
+  :serviceName "hivemind" ;
+  :servicePort "8082"^^xsd:integer ;
+  :serviceVersion "5.0.0" ;
+  :replicas "8"^^xsd:integer ;
+  :healthCheckPath "/health" ;
+  :hasContainer :HiveMindContainer ;
+  :exposesAPI :HiveMindAPI ;
+  :communicatesWith :ByteActorServiceInstance, :BytePQCServiceInstance, :ByteGPUServiceInstance .
+
+:HiveMindContainer a docker:Container ;
+  :cpuLimit "8.0" ;
+  :memoryLimit "16Gi" ;
+  :gpuRequired true ;
+  :hasImage :HiveMindImage .
+
+:HiveMindImage a docker:Image ;
+  :imageName "bytestar/hivemind" ;
+  :imageTag "v5.0.0" .
+
+:HiveMindAPI a api:GraphQLEndpoint ;
+  :endpoint "/graphql" ;
+  :responseTime "100"^^xsd:integer .
+
+# ByteGPU Service
+:ByteGPUServiceInstance a :ByteGPUService ;
+  :serviceName "bytegpu" ;
+  :servicePort "8083"^^xsd:integer ;
+  :serviceVersion "5.0.0" ;
+  :replicas "2"^^xsd:integer ;
+  :hasContainer :ByteGPUContainer .
+
+:ByteGPUContainer a docker:Container ;
+  :cpuLimit "4.0" ;
+  :memoryLimit "32Gi" ;
+  :gpuRequired true ;
+  :hasImage :ByteGPUImage .
+
+:ByteGPUImage a docker:Image ;
+  :imageName "bytestar/bytegpu" ;
+  :imageTag "v5.0.0-cuda12" .
+
+#################################################################
+# Kubernetes Deployment Configuration
+#################################################################
+
+:ByteStarDeployment a k8s:Deployment ;
+  rdfs:label "ByteStar v5 Deployment" ;
+  rdfs:comment "Complete Kubernetes deployment configuration" .
+
+:ByteStarService a k8s:Service ;
+  rdfs:label "ByteStar Service" ;
+  rdfs:comment "Kubernetes service configuration" .
+
+:ByteStarIngress a k8s:Ingress ;
+  rdfs:label "ByteStar Ingress" ;
+  rdfs:comment "Ingress configuration for external access" .
+
+#################################################################
+# Service Mesh Configuration
+#################################################################
+
+:IstioMesh a :ServiceMesh ;
+  rdfs:label "Istio Service Mesh" ;
+  rdfs:comment "Istio-based service mesh for ByteStar" .
+
+:EnvoyProxy a owl:Class ;
+  rdfs:label "Envoy Proxy" ;
+  rdfs:comment "Envoy sidecar proxy for service mesh" .
+
+#################################################################
+# Constraints
+#################################################################
+
+# All services must have health checks
+:Microservice rdfs:subClassOf [
+  a owl:Restriction ;
+  owl:onProperty :healthCheckPath ;
+  owl:minCardinality "1"^^xsd:integer
+] .
+
+# Services must have valid port range
+:Microservice rdfs:subClassOf [
+  a owl:Restriction ;
+  owl:onProperty :servicePort ;
+  owl:allValuesFrom [ 
+    a rdfs:Datatype ;
+    owl:onDatatype xsd:integer ;
+    owl:withRestrictions (
+      [ xsd:minInclusive "1024"^^xsd:integer ]
+      [ xsd:maxInclusive "65535"^^xsd:integer ]
+    )
+  ]
+] .
+
+# Replica count constraints
+:Microservice rdfs:subClassOf [
+  a owl:Restriction ;
+  owl:onProperty :replicas ;
+  owl:allValuesFrom [ 
+    a rdfs:Datatype ;
+    owl:onDatatype xsd:integer ;
+    owl:withRestrictions (
+      [ xsd:minInclusive "1"^^xsd:integer ]
+      [ xsd:maxInclusive "100"^^xsd:integer ]
+    )
+  ]
+] .
+
+#################################################################
+# SPARQL Query Examples
+#################################################################
+
+# Get all GPU-enabled services
+# SELECT ?service ?image WHERE {
+#   ?service a :Microservice ;
+#            :hasContainer ?container .
+#   ?container :gpuRequired true ;
+#              :hasImage ?image .
+# }
+
+# Find service dependencies
+# SELECT ?service1 ?service2 WHERE {
+#   ?service1 :communicatesWith ?service2 .
+# }
+
+# Get deployment configuration
+# SELECT ?service ?replicas ?port WHERE {
+#   ?service a :Microservice ;
+#            :replicas ?replicas ;
+#            :servicePort ?port .
+# }

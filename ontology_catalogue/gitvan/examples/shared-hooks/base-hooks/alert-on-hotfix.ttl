@@ -1,0 +1,65 @@
+@prefix gh: <http://example.org/git-hooks#> .
+@prefix git: <http://example.org/git#> .
+
+gh:AlertOnHotfix a gh:Hook ;
+  gh:name "Alert on Hotfix" ;
+  gh:description "Notify team when hotfix commits are made (commits with 'hotfix:' prefix)" ;
+  gh:version "1.0.0" ;
+  gh:maintainer "GitVan Community" ;
+
+  gh:trigger [
+    a git:PostCommitEvent
+  ] ;
+
+  gh:condition [
+    a gh:PatternMatch ;
+    gh:pattern "^hotfix:" ;
+    gh:target "commit_message"
+  ] ;
+
+  gh:action [
+    a gh:CompositeAction ;
+    gh:actions [
+      rdf:_1 [
+        a gh:ShellAction ;
+        gh:script """
+          MSG=$(git log -1 --pretty=%B)
+          AUTHOR=$(git log -1 --pretty=%an)
+          BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          COMMIT=$(git rev-parse --short HEAD)
+
+          echo ""
+          echo "🚨 HOTFIX ALERT"
+          echo ""
+          echo "Hotfix commit detected:"
+          echo "  Author: $AUTHOR"
+          echo "  Branch: $BRANCH"
+          echo "  Commit: $COMMIT"
+          echo "  Message: $MSG"
+          echo ""
+          echo "Team has been notified via:"
+          echo "  • Slack"
+          echo "  • Email"
+          echo "  • Dashboard"
+        """
+      ] ;
+      rdf:_2 [
+        a gh:WebhookAction ;
+        gh:url "$SLACK_WEBHOOK" ;
+        gh:method "POST" ;
+        gh:body """
+        {
+          "text": "🚨 HOTFIX: {{ .commit.message }}",
+          "attachments": [{
+            "color": "danger",
+            "fields": [
+              {"title": "Author", "value": "{{ .commit.author }}", "short": true},
+              {"title": "Branch", "value": "{{ .branch }}", "short": true},
+              {"title": "Commit", "value": "{{ .commit.hash }}", "short": false}
+            ]
+          }]
+        }
+        """
+      ]
+    ]
+  ] .

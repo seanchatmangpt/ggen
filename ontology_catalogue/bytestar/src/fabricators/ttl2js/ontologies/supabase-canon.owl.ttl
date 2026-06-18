@@ -1,0 +1,606 @@
+@prefix : <https://bytestar.org/ontology/supabase-canon#> .
+@prefix bstar: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix bc: <https://bytestar.org/ontology/bytestar-bytecore#> .
+@prefix bf: <https://bytestar.org/ontology/byteflow/orchestration#> .
+@prefix bfpr: <https://bytestar.org/ontology/byteflow/production-readiness#> .
+@prefix badm: <https://bytestar.org/ontology/byteflow-admission#> .
+@prefix sup: <https://bytestar.org/ontology/supabase#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://bytestar.org/ontology/supabase-canon>
+    a owl:Ontology ;
+    rdfs:label "ByteStar Supabase Canonical Ontology" ;
+    rdfs:comment """
+    The SINGLE source of truth for ByteStar-Supabase integration.
+    This ontology serves as the canonical architecture mapping ByteStar concepts
+    to real Supabase database tables, RLS policies, and API endpoints.
+    
+    Architecture principles:
+    1. Every ByteStar class maps to exact Supabase table schemas
+    2. All properties enforce SHACL validation in the database
+    3. RLS policies implement ByteStar security doctrines
+    4. Real-time subscriptions follow ByteStar pulse patterns
+    5. Edge functions implement ByteStar crystal admission gates
+    """ ;
+    owl:versionInfo "1.0.0" ;
+    owl:imports bstar: ,
+                bc: ,
+                bf: ,
+                bfpr: ,
+                badm: .
+
+#################################################################
+# Core Supabase Infrastructure Classes
+#################################################################
+
+sup:SupabaseTable a owl:Class ;
+    rdfs:label "Supabase Table" ;
+    rdfs:comment "A concrete table in the Supabase database that stores ByteStar entities" .
+
+sup:RLSPolicy a owl:Class ;
+    rdfs:label "Row Level Security Policy" ;
+    rdfs:comment "Supabase RLS policy implementing ByteStar security doctrines" .
+
+sup:EdgeFunction a owl:Class ;
+    rdfs:label "Supabase Edge Function" ;
+    rdfs:comment "Serverless function implementing ByteStar admission gates and workflows" .
+
+sup:RealtimeChannel a owl:Class ;
+    rdfs:label "Realtime Subscription Channel" ;
+    rdfs:comment "Supabase realtime channel for ByteStar pulse and observer patterns" .
+
+sup:StorageBucket a owl:Class ;
+    rdfs:label "Storage Bucket" ;
+    rdfs:comment "Supabase storage for ByteStar crystals, manifests, and artifacts" .
+
+#################################################################
+# ByteStar Entity Mappings to Supabase Tables
+#################################################################
+
+:ByteActorTable a sup:SupabaseTable ;
+    rdfs:label "byteactors" ;
+    sup:mapsToClass bstar:ByteActor ;
+    sup:hasSchema [
+        sup:columnName "id" ;
+        sup:columnType "uuid" ;
+        sup:isPrimaryKey true ;
+        sup:defaultValue "gen_random_uuid()"
+    ] , [
+        sup:columnName "name" ;
+        sup:columnType "text" ;
+        sup:isRequired true ;
+        sup:hasConstraint "LENGTH(name) <= 255"
+    ] , [
+        sup:columnName "identifier" ;
+        sup:columnType "text" ;
+        sup:isUnique true ;
+        sup:isRequired true
+    ] , [
+        sup:columnName "status" ;
+        sup:columnType "text" ;
+        sup:hasEnum ("active", "idle", "crashed", "terminated") ;
+        sup:defaultValue "idle"
+    ] , [
+        sup:columnName "tick_budget" ;
+        sup:columnType "smallint" ;
+        sup:hasConstraint "tick_budget >= 0 AND tick_budget <= 8" ;
+        sup:hasComment "Doctrine of 8: max 8 ticks per kernel"
+    ] , [
+        sup:columnName "l1_resident" ;
+        sup:columnType "boolean" ;
+        sup:defaultValue true ;
+        sup:hasComment "L1 cache residency requirement"
+    ] , [
+        sup:columnName "kernel_set_id" ;
+        sup:columnType "uuid" ;
+        sup:isReference ":KernelSetTable"
+    ] , [
+        sup:columnName "mphf_table_id" ;
+        sup:columnType "uuid" ;
+        sup:isReference ":MPHFTable"
+    ] , [
+        sup:columnName "current_envelope_id" ;
+        sup:columnType "uuid" ;
+        sup:isReference ":CrystalEnvelopeTable"
+    ] , [
+        sup:columnName "created_at" ;
+        sup:columnType "timestamptz" ;
+        sup:defaultValue "now()"
+    ] , [
+        sup:columnName "updated_at" ;
+        sup:columnType "timestamptz" ;
+        sup:defaultValue "now()"
+    ] .
+
+:ByteFlowTable a sup:SupabaseTable ;
+    rdfs:label "byteflows" ;
+    sup:mapsToClass bstar:ByteFlow ;
+    sup:hasSchema [
+        sup:columnName "id" ;
+        sup:columnType "uuid" ;
+        sup:isPrimaryKey true ;
+        sup:defaultValue "gen_random_uuid()"
+    ] , [
+        sup:columnName "workflow_id" ;
+        sup:columnType "text" ;
+        sup:isUnique true ;
+        sup:isRequired true
+    ] , [
+        sup:columnName "current_hop" ;
+        sup:columnType "smallint" ;
+        sup:hasConstraint "current_hop >= 0 AND current_hop <= 8" ;
+        sup:defaultValue 0 ;
+        sup:hasComment "Doctrine of 8: max 8 hops per workflow"
+    ] , [
+        sup:columnName "status" ;
+        sup:columnType "text" ;
+        sup:hasEnum ("pending", "admitted", "executing", "completed", "rejected", "failed") ;
+        sup:defaultValue "pending"
+    ] , [
+        sup:columnName "production_readiness" ;
+        sup:columnType "jsonb" ;
+        sup:hasComment "Production readiness metrics and requirements"
+    ] , [
+        sup:columnName "admission_decision" ;
+        sup:columnType "boolean" ;
+        sup:hasComment "Theta decision gate result"
+    ] , [
+        sup:columnName "rejection_reason" ;
+        sup:columnType "jsonb" ;
+        sup:hasComment "Structured rejection reason if admission fails"
+    ] , [
+        sup:columnName "crystal_id" ;
+        sup:columnType "uuid" ;
+        sup:isReference ":CrystalTable"
+    ] , [
+        sup:columnName "created_at" ;
+        sup:columnType "timestamptz" ;
+        sup:defaultValue "now()"
+    ] , [
+        sup:columnName "updated_at" ;
+        sup:columnType "timestamptz" ;
+        sup:defaultValue "now()"
+    ] .
+
+:CrystalTable a sup:SupabaseTable ;
+    rdfs:label "crystals" ;
+    sup:mapsToClass bstar:Crystal ;
+    sup:hasSchema [
+        sup:columnName "id" ;
+        sup:columnType "uuid" ;
+        sup:isPrimaryKey true ;
+        sup:defaultValue "gen_random_uuid()"
+    ] , [
+        sup:columnName "pattern_byte" ;
+        sup:columnType "smallint" ;
+        sup:hasConstraint "pattern_byte >= 0 AND pattern_byte <= 255" ;
+        sup:isRequired true ;
+        sup:hasComment "Pattern byte for congruence validation"
+    ] , [
+        sup:columnName "pattern_id" ;
+        sup:columnType "uuid" ;
+        sup:isReference ":PatternTable" ;
+        sup:isRequired true
+    ] , [
+        sup:columnName "envelope_data" ;
+        sup:columnType "jsonb" ;
+        sup:isRequired true ;
+        sup:hasComment "Crystal envelope structure and metadata"
+    ] , [
+        sup:columnName "manifest_digest" ;
+        sup:columnType "bytea" ;
+        sup:hasComment "Content-addressed manifest hash"
+    ] , [
+        sup:columnName "pqc_signature" ;
+        sup:columnType "bytea" ;
+        sup:hasComment "Post-quantum cryptographic signature"
+    ] , [
+        sup:columnName "admission_proofs" ;
+        sup:columnType "jsonb" ;
+        sup:hasComment "SHACL, PQC, and congruence validation proofs"
+    ] , [
+        sup:columnName "determinism_stamp" ;
+        sup:columnType "jsonb" ;
+        sup:hasComment "Determinism verification data"
+    ] , [
+        sup:columnName "created_at" ;
+        sup:columnType "timestamptz" ;
+        sup:defaultValue "now()"
+    ] .
+
+:PatternTable a sup:SupabaseTable ;
+    rdfs:label "patterns" ;
+    sup:mapsToClass bstar:Pattern ;
+    sup:hasSchema [
+        sup:columnName "id" ;
+        sup:columnType "uuid" ;
+        sup:isPrimaryKey true ;
+        sup:defaultValue "gen_random_uuid()"
+    ] , [
+        sup:columnName "pattern_id" ;
+        sup:columnType "smallint" ;
+        sup:hasConstraint "pattern_id >= 0 AND pattern_id <= 42" ;
+        sup:isUnique true ;
+        sup:hasComment "Registry constraint: exactly 43 patterns (0-42)"
+    ] , [
+        sup:columnName "name" ;
+        sup:columnType "text" ;
+        sup:isRequired true ;
+        sup:isUnique true
+    ] , [
+        sup:columnName "van_der_aalst_type" ;
+        sup:columnType "text" ;
+        sup:hasEnum ("sequence", "parallel_split", "synchronization", "exclusive_choice", "simple_merge", "multi_choice", "structured_synchronizing_merge", "multiple_instances_without_synchronization", "multiple_instances_with_a_priori_design_time_knowledge", "multiple_instances_with_a_priori_runtime_knowledge", "multiple_instances_without_a_priori_runtime_knowledge") ;
+        sup:hasComment "van der Aalst workflow pattern classification"
+    ] , [
+        sup:columnName "graph_structure" ;
+        sup:columnType "jsonb" ;
+        sup:isRequired true ;
+        sup:hasComment "Graph topology and node definitions"
+    ] , [
+        sup:columnName "is_active" ;
+        sup:columnType "boolean" ;
+        sup:defaultValue true
+    ] , [
+        sup:columnName "created_at" ;
+        sup:columnType "timestamptz" ;
+        sup:defaultValue "now()"
+    ] .
+
+:KernelTable a sup:SupabaseTable ;
+    rdfs:label "kernels" ;
+    sup:mapsToClass bstar:Kernel ;
+    sup:hasSchema [
+        sup:columnName "id" ;
+        sup:columnType "uuid" ;
+        sup:isPrimaryKey true ;
+        sup:defaultValue "gen_random_uuid()"
+    ] , [
+        sup:columnName "kernel_id" ;
+        sup:columnType "smallint" ;
+        sup:hasConstraint "kernel_id >= 0 AND kernel_id <= 63" ;
+        sup:isUnique true ;
+        sup:hasComment "Registry constraint: exactly 64 kernels (0-63)"
+    ] , [
+        sup:columnName "name" ;
+        sup:columnType "text" ;
+        sup:isRequired true ;
+        sup:isUnique true
+    ] , [
+        sup:columnName "tick_cost" ;
+        sup:columnType "smallint" ;
+        sup:hasConstraint "tick_cost >= 0 AND tick_cost <= 8" ;
+        sup:isRequired true ;
+        sup:hasComment "Doctrine of 8: kernel execution cost"
+    ] , [
+        sup:columnName "cpu_fabricator_abi" ;
+        sup:columnType "jsonb" ;
+        sup:hasComment "CPU-specific ABI definition"
+    ] , [
+        sup:columnName "gpu_fabricator_abi" ;
+        sup:columnType "jsonb" ;
+        sup:hasComment "GPU-specific ABI definition"
+    ] , [
+        sup:columnName "schedule_invariant" ;
+        sup:columnType "boolean" ;
+        sup:defaultValue true ;
+        sup:hasComment "Fixed execution schedule requirement"
+    ] , [
+        sup:columnName "is_active" ;
+        sup:columnType "boolean" ;
+        sup:defaultValue true
+    ] , [
+        sup:columnName "created_at" ;
+        sup:columnType "timestamptz" ;
+        sup:defaultValue "now()"
+    ] .
+
+:AdmissionRequestTable a sup:SupabaseTable ;
+    rdfs:label "admission_requests" ;
+    sup:mapsToClass badm:AdmissionRequest ;
+    sup:hasSchema [
+        sup:columnName "id" ;
+        sup:columnType "uuid" ;
+        sup:isPrimaryKey true ;
+        sup:defaultValue "gen_random_uuid()"
+    ] , [
+        sup:columnName "crystal_id" ;
+        sup:columnType "uuid" ;
+        sup:isReference ":CrystalTable" ;
+        sup:isRequired true
+    ] , [
+        sup:columnName "shacl_validation_status" ;
+        sup:columnType "text" ;
+        sup:hasEnum ("pending", "passed", "failed") ;
+        sup:defaultValue "pending"
+    ] , [
+        sup:columnName "pqc_validation_status" ;
+        sup:columnType "text" ;
+        sup:hasEnum ("pending", "passed", "failed") ;
+        sup:defaultValue "pending"
+    ] , [
+        sup:columnName "pb_congruence_status" ;
+        sup:columnType "text" ;
+        sup:hasEnum ("pending", "passed", "failed") ;
+        sup:defaultValue "pending"
+    ] , [
+        sup:columnName "theta_decision" ;
+        sup:columnType "boolean" ;
+        sup:hasComment "Final admission gate decision"
+    ] , [
+        sup:columnName "hot_ticks_consumed" ;
+        sup:columnType "smallint" ;
+        sup:defaultValue 0 ;
+        sup:hasConstraint "hot_ticks_consumed >= 0" ;
+        sup:hasComment "Zero-tick rejection doctrine enforcement"
+    ] , [
+        sup:columnName "rejection_reason_code" ;
+        sup:columnType "text"
+    ] , [
+        sup:columnName "rejection_reason_message" ;
+        sup:columnType "text"
+    ] , [
+        sup:columnName "validation_proofs" ;
+        sup:columnType "jsonb" ;
+        sup:hasComment "Complete validation proof set"
+    ] , [
+        sup:columnName "processed_at" ;
+        sup:columnType "timestamptz"
+    ] , [
+        sup:columnName "created_at" ;
+        sup:columnType "timestamptz" ;
+        sup:defaultValue "now()"
+    ] .
+
+#################################################################
+# RLS Security Policies (ByteStar Doctrine Implementation)
+#################################################################
+
+:ByteActorRLS a sup:RLSPolicy ;
+    rdfs:label "ByteActor Access Control" ;
+    sup:appliesToTable :ByteActorTable ;
+    sup:policyType "permissive" ;
+    sup:operation "SELECT" ;
+    sup:condition "auth.role() = 'authenticated' AND (auth.uid() = user_id OR is_public = true)" ;
+    sup:hasComment "Users can read their own actors or public actors" .
+
+:ByteActorInsertRLS a sup:RLSPolicy ;
+    rdfs:label "ByteActor Creation Control" ;
+    sup:appliesToTable :ByteActorTable ;
+    sup:policyType "permissive" ;
+    sup:operation "INSERT" ;
+    sup:condition "auth.role() = 'authenticated' AND auth.uid() = user_id" ;
+    sup:hasComment "Users can only create actors owned by themselves" .
+
+:CrystalAdmissionRLS a sup:RLSPolicy ;
+    rdfs:label "Crystal Admission Security" ;
+    sup:appliesToTable :CrystalTable ;
+    sup:policyType "restrictive" ;
+    sup:operation "INSERT" ;
+    sup:condition """
+        admission_proofs->>'shacl_valid' = 'true' 
+        AND admission_proofs->>'pqc_valid' = 'true' 
+        AND admission_proofs->>'pb_congruent' = 'true'
+    """ ;
+    sup:hasComment "Crystals can only be inserted if all admission validations pass" .
+
+:ZeroTickRejectionRLS a sup:RLSPolicy ;
+    rdfs:label "Zero-Tick Rejection Enforcement" ;
+    sup:appliesToTable :AdmissionRequestTable ;
+    sup:policyType "restrictive" ;
+    sup:operation "INSERT" ;
+    sup:condition """
+        (theta_decision = true) OR 
+        (theta_decision = false AND hot_ticks_consumed = 0)
+    """ ;
+    sup:hasComment "Rejected admissions must consume zero hot ticks" .
+
+#################################################################
+# Edge Functions (ByteStar Admission Gates)
+#################################################################
+
+:CrystalAdmissionGate a sup:EdgeFunction ;
+    rdfs:label "crystal-admission-gate" ;
+    sup:functionPath "/crystal-admission-gate" ;
+    sup:implementsClass badm:AdmissionRequest ;
+    sup:hasLogic """
+        1. Receive crystal submission
+        2. Validate SHACL shapes against patterns
+        3. Verify PQC signatures
+        4. Check pattern-byte congruence
+        5. Execute Theta decision gate
+        6. Return admission or rejection (zero-tick for rejection)
+    """ ;
+    sup:hasComment "Multi-stage admission process implementing ByteFlow doctrine" .
+
+:WorkflowOrchestrationEngine a sup:EdgeFunction ;
+    rdfs:label "workflow-orchestration" ;
+    sup:functionPath "/workflow-orchestration" ;
+    sup:implementsClass bf:WorkflowOrchestration ;
+    sup:hasLogic """
+        1. Accept admitted crystals
+        2. Initialize 8-hop workflow execution
+        3. Apply van der Aalst workflow patterns
+        4. Coordinate inter-realm communication
+        5. Monitor production readiness metrics
+        6. Complete or fail workflow execution
+    """ ;
+    sup:hasComment "8-hop workflow orchestration with production monitoring" .
+
+:ByteActorSpawner a sup:EdgeFunction ;
+    rdfs:label "byteactor-spawn" ;
+    sup:functionPath "/byteactor-spawn" ;
+    sup:implementsClass bstar:ByteActor ;
+    sup:hasLogic """
+        1. Validate actor spawn request
+        2. Ensure L1 residency requirements
+        3. Allocate kernel set and MPHF table
+        4. Initialize let-it-crash semantics
+        5. Register actor in fabric
+        6. Return actor instance or spawn failure
+    """ ;
+    sup:hasComment "ByteActor spawning with L1 cache and kernel allocation" .
+
+#################################################################
+# Realtime Channels (ByteStar Pulse Patterns)
+#################################################################
+
+:ActorPulseChannel a sup:RealtimeChannel ;
+    rdfs:label "actor:pulse" ;
+    sup:channelPattern "actor:pulse:*" ;
+    sup:implementsClass bstar:Pulse ;
+    sup:hasSubscribers [
+        sup:subscriberType "observer" ;
+        sup:filterCondition "off_path = false"
+    ] ;
+    sup:hasComment "Real-time actor pulse emissions for observers" .
+
+:WorkflowProgressChannel a sup:RealtimeChannel ;
+    rdfs:label "workflow:progress" ;
+    sup:channelPattern "workflow:progress:*" ;
+    sup:implementsClass bf:EightHopWorkflow ;
+    sup:hasSubscribers [
+        sup:subscriberType "coordinator" ;
+        sup:filterCondition "current_hop <= 8"
+    ] ;
+    sup:hasComment "8-hop workflow progress tracking" .
+
+:AdmissionDecisionChannel a sup:RealtimeChannel ;
+    rdfs:label "admission:decisions" ;
+    sup:channelPattern "admission:decisions" ;
+    sup:implementsClass badm:ThetaDecision ;
+    sup:hasComment "Real-time admission gate decisions" .
+
+#################################################################
+# Storage Buckets (ByteStar Artifact Management)
+#################################################################
+
+:CrystalManifests a sup:StorageBucket ;
+    rdfs:label "crystal-manifests" ;
+    sup:bucketName "crystal-manifests" ;
+    sup:isPublic false ;
+    sup:allowedMimeTypes ("application/octet-stream", "application/json") ;
+    sup:maxFileSize 10485760 ;
+    sup:hasComment "Content-addressed crystal manifests and toolchain locks" .
+
+:FabricatorArtifacts a sup:StorageBucket ;
+    rdfs:label "fabricator-artifacts" ;
+    sup:bucketName "fabricator-artifacts" ;
+    sup:isPublic false ;
+    sup:allowedMimeTypes ("application/octet-stream", "application/wasm") ;
+    sup:maxFileSize 104857600 ;
+    sup:hasComment "AOT fabricated binaries (CPU/GPU driver parity enforced)" .
+
+#################################################################
+# Property Definitions
+#################################################################
+
+sup:mapsToClass a owl:ObjectProperty ;
+    rdfs:domain sup:SupabaseTable ;
+    rdfs:range owl:Class ;
+    rdfs:comment "Links Supabase table to its corresponding ByteStar class" .
+
+sup:hasSchema a owl:ObjectProperty ;
+    rdfs:domain sup:SupabaseTable ;
+    rdfs:comment "Defines the column schema for a Supabase table" .
+
+sup:appliesToTable a owl:ObjectProperty ;
+    rdfs:domain sup:RLSPolicy ;
+    rdfs:range sup:SupabaseTable ;
+    rdfs:comment "Specifies which table an RLS policy applies to" .
+
+sup:implementsClass a owl:ObjectProperty ;
+    rdfs:domain sup:EdgeFunction ;
+    rdfs:range owl:Class ;
+    rdfs:comment "Indicates which ByteStar class an edge function implements" .
+
+sup:columnName a owl:DatatypeProperty ;
+    rdfs:range xsd:string .
+
+sup:columnType a owl:DatatypeProperty ;
+    rdfs:range xsd:string .
+
+sup:isPrimaryKey a owl:DatatypeProperty ;
+    rdfs:range xsd:boolean .
+
+sup:isRequired a owl:DatatypeProperty ;
+    rdfs:range xsd:boolean .
+
+sup:isUnique a owl:DatatypeProperty ;
+    rdfs:range xsd:boolean .
+
+sup:defaultValue a owl:DatatypeProperty ;
+    rdfs:range xsd:string .
+
+sup:hasConstraint a owl:DatatypeProperty ;
+    rdfs:range xsd:string .
+
+sup:hasEnum a rdf:Property .
+
+sup:isReference a owl:DatatypeProperty ;
+    rdfs:range xsd:string .
+
+sup:hasComment a owl:DatatypeProperty ;
+    rdfs:range xsd:string .
+
+sup:policyType a owl:DatatypeProperty ;
+    rdfs:range xsd:string .
+
+sup:operation a owl:DatatypeProperty ;
+    rdfs:range xsd:string .
+
+sup:condition a owl:DatatypeProperty ;
+    rdfs:range xsd:string .
+
+sup:functionPath a owl:DatatypeProperty ;
+    rdfs:range xsd:string .
+
+sup:hasLogic a owl:DatatypeProperty ;
+    rdfs:range xsd:string .
+
+sup:channelPattern a owl:DatatypeProperty ;
+    rdfs:range xsd:string .
+
+sup:hasSubscribers a rdf:Property .
+
+sup:subscriberType a owl:DatatypeProperty ;
+    rdfs:range xsd:string .
+
+sup:filterCondition a owl:DatatypeProperty ;
+    rdfs:range xsd:string .
+
+sup:bucketName a owl:DatatypeProperty ;
+    rdfs:range xsd:string .
+
+sup:isPublic a owl:DatatypeProperty ;
+    rdfs:range xsd:boolean .
+
+sup:allowedMimeTypes a rdf:Property .
+
+sup:maxFileSize a owl:DatatypeProperty ;
+    rdfs:range xsd:integer .
+
+#################################################################
+# Supabase SQL Generation Instructions
+#################################################################
+
+:SQLGenerationInstructions a owl:Class ;
+    rdfs:label "SQL Generation Instructions" ;
+    rdfs:comment """
+    This section defines how to generate actual Supabase SQL from this ontology:
+    
+    1. CREATE TABLE statements from sup:SupabaseTable definitions
+    2. ALTER TABLE statements for constraints and references
+    3. CREATE POLICY statements from sup:RLSPolicy definitions
+    4. CREATE FUNCTION statements for Edge Functions
+    5. CREATE TRIGGER statements for realtime channels
+    6. INSERT statements for initial pattern and kernel registries
+    
+    The fabricator should generate:
+    - supabase/migrations/001_create_bytestar_tables.sql
+    - supabase/seed.sql (for patterns and kernels)
+    - supabase/functions/ directory with edge function implementations
+    """ .

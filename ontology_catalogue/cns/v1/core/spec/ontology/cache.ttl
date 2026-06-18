@@ -1,0 +1,6 @@
+@prefix core: <https://cns.dev/core#> .
+@prefix cache: <https://cns.dev/cache#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+cache:LRU a rdfs:Class ; rdfs:subClassOf core:Primitive .
+cache:TTLCache a rdfs:Class ; rdfs:subClassOf core:Primitive .

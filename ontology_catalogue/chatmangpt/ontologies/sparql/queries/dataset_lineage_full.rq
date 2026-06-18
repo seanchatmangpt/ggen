@@ -1,0 +1,131 @@
+# SPARQL Query: Full Dataset Lineage Tracing
+#
+# Purpose: Trace complete provenance chain for a dataset
+# Shows source → derived → derived ... chain up to 5 levels deep
+#
+# Input Parameters:
+#   - datasetUri: Full URI of the dataset to trace (e.g., https://businessos.local/datasets/finance/ledger-v2)
+#
+# Output Columns:
+#   - level: Depth in the lineage chain (0 = starting dataset, 1 = immediate parent, etc.)
+#   - datasetUri: URI of dataset at this level
+#   - datasetLabel: Human-readable label
+#   - datasetType: Type of dataset (e.g., "CoreDataset", "DerivedDataset")
+#   - generatedBy: Activity that generated this dataset
+#   - generatedAtTime: Timestamp when dataset was created
+#   - description: Description of dataset or transformation
+#
+# Behavior:
+#   - Follows prov:wasDerivedFrom chain recursively (depth-first, up to 5 levels)
+#   - Includes prov:wasGeneratedBy activity for each dataset
+#   - Orders results from source (level 0) to leaf
+#   - Excludes cycles (won't re-traverse already visited URIs)
+#
+# Performance: ~15s timeout on large graphs (1M+ triples)
+# Tested: Oxigraph 0.3+
+
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT DISTINCT
+  ?level
+  ?datasetUri
+  ?datasetLabel
+  ?datasetType
+  ?generatedBy
+  ?generatedAtTime
+  ?description
+
+WHERE {
+  # STEP 1: Bind the starting dataset URI (from parameter)
+  # Replace EXAMPLE_URI with actual dataset URI or use as SPARQL parameter
+  BIND(<https://businessos.local/datasets/finance/ledger-v2> AS ?targetDataset)
+
+  # STEP 2: Initialize level counter at 0 for starting dataset
+  {
+    BIND(0 as ?level)
+    BIND(?targetDataset as ?datasetUri)
+    ?datasetUri a ?datasetType .
+    OPTIONAL { ?datasetUri rdfs:label ?datasetLabel }
+    OPTIONAL { ?datasetUri prov:wasGeneratedBy ?generatedBy }
+    OPTIONAL { ?datasetUri prov:generatedAtTime ?generatedAtTime }
+    OPTIONAL { ?datasetUri dcterms:description ?description }
+  }
+  UNION
+  # STEP 3: Recursive chain: find all datasets that this one derives from (1 level up)
+  {
+    BIND(1 as ?level)
+    ?targetDataset prov:wasDerivedFrom ?datasetUri .
+    ?datasetUri a ?datasetType .
+    OPTIONAL { ?datasetUri rdfs:label ?datasetLabel }
+    OPTIONAL { ?datasetUri prov:wasGeneratedBy ?generatedBy }
+    OPTIONAL { ?datasetUri prov:generatedAtTime ?generatedAtTime }
+    OPTIONAL { ?datasetUri dcterms:description ?description }
+  }
+  UNION
+  # STEP 4: Recursive chain: 2 levels up (derives from derives from)
+  {
+    BIND(2 as ?level)
+    ?targetDataset prov:wasDerivedFrom ?parent1 .
+    ?parent1 prov:wasDerivedFrom ?datasetUri .
+    FILTER (?datasetUri != ?targetDataset)
+    ?datasetUri a ?datasetType .
+    OPTIONAL { ?datasetUri rdfs:label ?datasetLabel }
+    OPTIONAL { ?datasetUri prov:wasGeneratedBy ?generatedBy }
+    OPTIONAL { ?datasetUri prov:generatedAtTime ?generatedAtTime }
+    OPTIONAL { ?datasetUri dcterms:description ?description }
+  }
+  UNION
+  # STEP 5: Recursive chain: 3 levels up
+  {
+    BIND(3 as ?level)
+    ?targetDataset prov:wasDerivedFrom ?parent1 .
+    ?parent1 prov:wasDerivedFrom ?parent2 .
+    ?parent2 prov:wasDerivedFrom ?datasetUri .
+    FILTER (?datasetUri != ?targetDataset && ?datasetUri != ?parent1)
+    ?datasetUri a ?datasetType .
+    OPTIONAL { ?datasetUri rdfs:label ?datasetLabel }
+    OPTIONAL { ?datasetUri prov:wasGeneratedBy ?generatedBy }
+    OPTIONAL { ?datasetUri prov:generatedAtTime ?generatedAtTime }
+    OPTIONAL { ?datasetUri dcterms:description ?description }
+  }
+  UNION
+  # STEP 6: Recursive chain: 4 levels up
+  {
+    BIND(4 as ?level)
+    ?targetDataset prov:wasDerivedFrom ?parent1 .
+    ?parent1 prov:wasDerivedFrom ?parent2 .
+    ?parent2 prov:wasDerivedFrom ?parent3 .
+    ?parent3 prov:wasDerivedFrom ?datasetUri .
+    FILTER (?datasetUri != ?targetDataset && ?datasetUri != ?parent1 && ?datasetUri != ?parent2)
+    ?datasetUri a ?datasetType .
+    OPTIONAL { ?datasetUri rdfs:label ?datasetLabel }
+    OPTIONAL { ?datasetUri prov:wasGeneratedBy ?generatedBy }
+    OPTIONAL { ?datasetUri prov:generatedAtTime ?generatedAtTime }
+    OPTIONAL { ?datasetUri dcterms:description ?description }
+  }
+  UNION
+  # STEP 7: Recursive chain: 5 levels up (maximum depth)
+  {
+    BIND(5 as ?level)
+    ?targetDataset prov:wasDerivedFrom ?parent1 .
+    ?parent1 prov:wasDerivedFrom ?parent2 .
+    ?parent2 prov:wasDerivedFrom ?parent3 .
+    ?parent3 prov:wasDerivedFrom ?parent4 .
+    ?parent4 prov:wasDerivedFrom ?datasetUri .
+    FILTER (?datasetUri != ?targetDataset && ?datasetUri != ?parent1 &&
+            ?datasetUri != ?parent2 && ?datasetUri != ?parent3)
+    ?datasetUri a ?datasetType .
+    OPTIONAL { ?datasetUri rdfs:label ?datasetLabel }
+    OPTIONAL { ?datasetUri prov:wasGeneratedBy ?generatedBy }
+    OPTIONAL { ?datasetUri prov:generatedAtTime ?generatedAtTime }
+    OPTIONAL { ?datasetUri dcterms:description ?description }
+  }
+}
+
+ORDER BY ?level ?datasetUri
+
+LIMIT 1000

@@ -1,0 +1,25 @@
+# Semantically equivalent to baseline.ttl but with different syntax/ordering
+@prefix example: <http://example.org/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Same semantic content in different order/syntax
+example:Marketing a example:Department ;
+    example:budget 500000 ;
+    example:code "MKT" .
+
+example:Engineering a example:Department ;
+    example:budget 1000000 ;
+    example:code "ENG" .
+
+example:Person2 a example:Person ;
+    example:department example:Marketing ;
+    example:email "jane@example.com" ;
+    example:age 25 ;
+    example:name "Jane Smith" .
+
+example:Person1 a example:Person ;
+    example:department example:Engineering ;
+    example:email "john@example.com" ;
+    example:age 30 ;
+    example:name "John Doe" .

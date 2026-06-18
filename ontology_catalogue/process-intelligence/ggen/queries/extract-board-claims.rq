@@ -1,0 +1,70 @@
+# extract-board-claims.rq
+# SPARQL query to select all board-admissible claims from process-intelligence ontology
+# Authority: define_board-admissible_claim_requirements.md
+# Output: Claims backed by wasm4pm ConformanceVerdicts and cryptographic receipts
+
+PREFIX ma: <https://process.intelligence/ma/>
+PREFIX compat: <https://process.intelligence/compat/>
+PREFIX wasm4pm: <https://process.intelligence/wasm4pm/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT DISTINCT
+  ?claim
+  ?claimLabel
+  ?claimType
+  ?metric
+  ?metricValue
+  ?metricThreshold
+  ?verdict
+  ?verdictFitness
+  ?verdictPrecision
+  ?receipt
+  ?receiptHash
+  ?receiptTimestamp
+  ?backedByLog
+  ?logFormat
+
+WHERE {
+  # Select all board-level claims (SynergyProjection, OperationalDebtClaim, etc.)
+  ?claim a ?claimType .
+  FILTER (?claimType IN (
+    ma:SynergyProjection,
+    ma:OperationalDebtClaim,
+    ma:IntegrationRiskClaim,
+    ma:ProcessAssetClaim,
+    ma:ControlClaim
+  ))
+
+  # Claim must have a human-readable label
+  ?claim rdfs:label ?claimLabel .
+
+  # Claim must reference a metric (operational savings, compliance rate, etc.)
+  ?claim ma:quantifies ?metric .
+  ?metric ma:value ?metricValue .
+  ?metric ma:threshold ?metricThreshold .
+
+  # Claim must be backed by a wasm4pm conformance verdict (fitness >= 0.95)
+  ?claim ma:backedBy ?verdict .
+  ?verdict a wasm4pm:ConformanceVerdict .
+  ?verdict wasm4pm:fitness ?verdictFitness .
+  ?verdict wasm4pm:precision ?verdictPrecision .
+  FILTER (?verdictFitness >= 0.95 && ?verdictPrecision >= 0.90)
+
+  # Verdict must have cryptographic receipt for board verification
+  ?verdict wasm4pm:receipt ?receipt .
+  ?receipt wasm4pm:receiptHash ?receiptHash .
+  ?receipt wasm4pm:timestamp ?receiptTimestamp .
+
+  # Trace back to the event log that was replayed
+  ?verdict wasm4pm:replayedAgainst ?backedByLog .
+  ?backedByLog a compat:EventLog .
+  ?backedByLog compat:format ?logFormat .
+  FILTER (?logFormat IN ("ocel:2.0", "xes:1849-2016"))
+
+  # Optional: claim must be marked as admissible (not rejected during audit)
+  OPTIONAL { ?claim ma:admissible true . }
+
+  # Order by fitness (highest confidence first)
+}
+ORDER BY DESC(?verdictFitness)

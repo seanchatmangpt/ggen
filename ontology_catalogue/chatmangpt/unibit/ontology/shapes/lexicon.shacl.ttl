@@ -1,0 +1,11 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix lex: <https://chatmangpt.com/ontology/lexicon#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+lex:ForbiddenTokenShape a sh:NodeShape ;
+  sh:targetClass lex:ForbiddenToken ;
+  sh:property [
+    sh:path lex:encodedToken ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+  ] .

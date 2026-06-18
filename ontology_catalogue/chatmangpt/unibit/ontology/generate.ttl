@@ -1,0 +1,78 @@
+@prefix ub: <https://chatmangpt.com/ontology/unibit#> .
+@prefix rust: <https://chatmangpt.com/ontology/rust#> .
+@prefix code: <https://chatmangpt.com/ontology/codegen#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+code:UnibitWorkspace a code:Workspace ;
+  code:name "unibit" ;
+  code:edition "2024" ;
+  code:toolchain "nightly" .
+
+code:CrateSmoke a code:RustCrate ;
+  code:name "unibit-smoke" ;
+  code:path "crates/unibit-smoke" ;
+  rust:executionClass rust:BoundaryOnly ;
+  rust:toolchain rust:Nightly ;
+  code:generates code:SmokeMain .
+
+code:CrateL1 a code:RustCrate ;
+  code:name "unibit-l1" ;
+  code:path "crates/unibit-l1" ;
+  rust:crateMode rust:NoStd ;
+  rust:crateMode rust:NoAlloc ;
+  rust:executionClass rust:HotEligible ;
+  code:module code:L1Lib ;
+  code:module code:WordModule ;
+  code:module code:RegionModule ;
+  code:module code:ScratchModule ;
+  code:module code:DeltaModule .
+
+code:CrateKernel a code:RustCrate ;
+  code:name "unibit-kernel" ;
+  code:path "crates/unibit-kernel" ;
+  rust:crateMode rust:NoStd ;
+  rust:crateMode rust:NoAlloc ;
+  rust:executionClass rust:HotEligible ;
+  code:dependsOn code:CrateL1 ;
+  code:module code:KernelLib ;
+  code:module code:SparseKernelModule .
+
+code:CrateAsmcheck a code:RustCrate ;
+  code:name "unibit-asmcheck" ;
+  code:path "crates/unibit-asmcheck" ;
+  rust:executionClass rust:BoundaryOnly .
+
+code:CrateBench a code:RustCrate ;
+  code:name "unibit-bench" ;
+  code:path "crates/unibit-bench" ;
+  rust:executionClass rust:BoundaryOnly .
+
+code:L1Lib a code:RustModule ;
+  code:crate code:CrateL1 ;
+  code:path "crates/unibit-l1/src/lib.rs" ;
+  code:template "crate-lib.rs.njk" ;
+  code:exports "region" ;
+  code:exports "word" ;
+  code:exports "scratch" ;
+  code:exports "delta" .
+
+code:RegionModule a code:RustModule ;
+  code:crate code:CrateL1 ;
+  code:path "crates/unibit-l1/src/region.rs" ;
+  code:template "region.rs.njk" ;
+  code:defines ub:L1Region ;
+  code:defines ub:TruthRegion ;
+  code:defines ub:ScratchRegion .
+
+code:WordModule a code:RustModule ;
+  code:crate code:CrateL1 ;
+  code:path "crates/unibit-l1/src/word.rs" ;
+  code:template "word.rs.njk" ;
+  code:defines ub:WordCell .
+
+code:SparseKernelModule a code:RustModule ;
+  code:crate code:CrateKernel ;
+  code:path "crates/unibit-kernel/src/sparse.rs" ;
+  code:template "sparse.rs.njk" ;
+  code:requires ub:ScratchRegion ;
+  code:requires ub:TruthRegion .

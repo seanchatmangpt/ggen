@@ -1,0 +1,279 @@
+@prefix simd: <http://bytestar.io/ontology/simd#> .
+@prefix cpu: <http://bytestar.io/ontology/cpu#> .
+@prefix perf: <http://bytestar.io/ontology/performance#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# CPU Instruction Set Ontology for SIMD Operations
+# Focused on cryptographic primitive optimization
+
+# Base Classes
+simd:InstructionSet a owl:Class ;
+    rdfs:label "SIMD Instruction Set" ;
+    rdfs:comment "A collection of SIMD instructions supported by a CPU architecture" .
+
+simd:Instruction a owl:Class ;
+    rdfs:label "SIMD Instruction" ;
+    rdfs:comment "A single SIMD instruction with specific semantics and performance characteristics" .
+
+simd:VectorWidth a owl:Class ;
+    rdfs:label "Vector Width" ;
+    rdfs:comment "The bit width of vector registers (128, 256, 512, etc.)" .
+
+simd:DataType a owl:Class ;
+    rdfs:label "Data Type" ;
+    rdfs:comment "The primitive data type for vector operations" .
+
+# Properties
+simd:hasInstruction a owl:ObjectProperty ;
+    rdfs:domain simd:InstructionSet ;
+    rdfs:range simd:Instruction .
+
+simd:hasVectorWidth a owl:ObjectProperty ;
+    rdfs:domain simd:InstructionSet ;
+    rdfs:range simd:VectorWidth .
+
+simd:supportedDataType a owl:ObjectProperty ;
+    rdfs:domain simd:Instruction ;
+    rdfs:range simd:DataType .
+
+simd:latency a owl:DatatypeProperty ;
+    rdfs:domain simd:Instruction ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Instruction latency in CPU cycles" .
+
+simd:throughput a owl:DatatypeProperty ;
+    rdfs:domain simd:Instruction ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Instructions per cycle throughput" .
+
+simd:portUsage a owl:DatatypeProperty ;
+    rdfs:domain simd:Instruction ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Execution ports used by instruction" .
+
+# AVX2 Instruction Set
+simd:AVX2 a simd:InstructionSet ;
+    rdfs:label "Intel AVX2" ;
+    simd:hasVectorWidth simd:VectorWidth256 ;
+    rdfs:comment "Intel Advanced Vector Extensions 2" .
+
+# AVX2 Instructions for Cryptographic Operations
+simd:VPADDW_AVX2 a simd:Instruction ;
+    rdfs:label "_mm256_add_epi16" ;
+    simd:supportedDataType simd:Int16 ;
+    simd:latency "1"^^xsd:decimal ;
+    simd:throughput "2"^^xsd:decimal ;
+    simd:portUsage "p015" ;
+    rdfs:comment "256-bit packed 16-bit integer addition" .
+
+simd:VPSUBW_AVX2 a simd:Instruction ;
+    rdfs:label "_mm256_sub_epi16" ;
+    simd:supportedDataType simd:Int16 ;
+    simd:latency "1"^^xsd:decimal ;
+    simd:throughput "2"^^xsd:decimal ;
+    simd:portUsage "p015" .
+
+simd:VPMULLW_AVX2 a simd:Instruction ;
+    rdfs:label "_mm256_mullo_epi16" ;
+    simd:supportedDataType simd:Int16 ;
+    simd:latency "5"^^xsd:decimal ;
+    simd:throughput "1"^^xsd:decimal ;
+    simd:portUsage "p0" ;
+    rdfs:comment "256-bit packed 16-bit integer multiplication (low)" .
+
+simd:VPMULHW_AVX2 a simd:Instruction ;
+    rdfs:label "_mm256_mulhi_epi16" ;
+    simd:supportedDataType simd:Int16 ;
+    simd:latency "5"^^xsd:decimal ;
+    simd:throughput "1"^^xsd:decimal ;
+    simd:portUsage "p0" ;
+    rdfs:comment "256-bit packed 16-bit integer multiplication (high)" .
+
+simd:VPBLENDVB_AVX2 a simd:Instruction ;
+    rdfs:label "_mm256_blendv_epi8" ;
+    simd:supportedDataType simd:Int8 ;
+    simd:latency "1"^^xsd:decimal ;
+    simd:throughput "2"^^xsd:decimal ;
+    simd:portUsage "p015" ;
+    rdfs:comment "Variable blend packed bytes" .
+
+simd:VPSHUFB_AVX2 a simd:Instruction ;
+    rdfs:label "_mm256_shuffle_epi8" ;
+    simd:supportedDataType simd:Int8 ;
+    simd:latency "1"^^xsd:decimal ;
+    simd:throughput "1"^^xsd:decimal ;
+    simd:portUsage "p5" ;
+    rdfs:comment "Packed shuffle bytes" .
+
+simd:VPERMD_AVX2 a simd:Instruction ;
+    rdfs:label "_mm256_permutevar8x32_epi32" ;
+    simd:supportedDataType simd:Int32 ;
+    simd:latency "3"^^xsd:decimal ;
+    simd:throughput "1"^^xsd:decimal ;
+    simd:portUsage "p5" ;
+    rdfs:comment "Variable permute packed 32-bit integers" .
+
+# AVX-512 Instruction Set
+simd:AVX512 a simd:InstructionSet ;
+    rdfs:label "Intel AVX-512" ;
+    simd:hasVectorWidth simd:VectorWidth512 ;
+    rdfs:comment "Intel Advanced Vector Extensions 512-bit" .
+
+# AVX-512 Instructions
+simd:VPADDW_AVX512 a simd:Instruction ;
+    rdfs:label "_mm512_add_epi16" ;
+    simd:supportedDataType simd:Int16 ;
+    simd:latency "1"^^xsd:decimal ;
+    simd:throughput "2"^^xsd:decimal ;
+    simd:portUsage "p05" .
+
+simd:VPMULLW_AVX512 a simd:Instruction ;
+    rdfs:label "_mm512_mullo_epi16" ;
+    simd:supportedDataType simd:Int16 ;
+    simd:latency "5"^^xsd:decimal ;
+    simd:throughput "1"^^xsd:decimal ;
+    simd:portUsage "p0" .
+
+simd:VPMULHRSW_AVX512 a simd:Instruction ;
+    rdfs:label "_mm512_mulhrs_epi16" ;
+    simd:supportedDataType simd:Int16 ;
+    simd:latency "5"^^xsd:decimal ;
+    simd:throughput "1"^^xsd:decimal ;
+    simd:portUsage "p0" ;
+    rdfs:comment "Packed multiply high with round and scale" .
+
+# ARM NEON Instruction Set
+simd:NEON a simd:InstructionSet ;
+    rdfs:label "ARM NEON" ;
+    simd:hasVectorWidth simd:VectorWidth128 ;
+    rdfs:comment "ARM Advanced SIMD (NEON)" .
+
+# NEON Instructions
+simd:VADD_NEON a simd:Instruction ;
+    rdfs:label "vaddq_s16" ;
+    simd:supportedDataType simd:Int16 ;
+    simd:latency "2"^^xsd:decimal ;
+    simd:throughput "2"^^xsd:decimal ;
+    rdfs:comment "Vector add 16-bit integers" .
+
+simd:VMUL_NEON a simd:Instruction ;
+    rdfs:label "vmulq_s16" ;
+    simd:supportedDataType simd:Int16 ;
+    simd:latency "4"^^xsd:decimal ;
+    simd:throughput "1"^^xsd:decimal ;
+    rdfs:comment "Vector multiply 16-bit integers" .
+
+simd:VQRDMULH_NEON a simd:Instruction ;
+    rdfs:label "vqrdmulhq_s16" ;
+    simd:supportedDataType simd:Int16 ;
+    simd:latency "4"^^xsd:decimal ;
+    simd:throughput "1"^^xsd:decimal ;
+    rdfs:comment "Vector saturating rounding doubling multiply high" .
+
+simd:VTBL_NEON a simd:Instruction ;
+    rdfs:label "vqtbl1q_s8" ;
+    simd:supportedDataType simd:Int8 ;
+    simd:latency "3"^^xsd:decimal ;
+    simd:throughput "1"^^xsd:decimal ;
+    rdfs:comment "Vector table lookup" .
+
+# ARM SVE Instruction Set
+simd:SVE a simd:InstructionSet ;
+    rdfs:label "ARM SVE" ;
+    simd:hasVectorWidth simd:VectorWidthVariable ;
+    rdfs:comment "ARM Scalable Vector Extension" .
+
+# SVE Instructions
+simd:SVADD_SVE a simd:Instruction ;
+    rdfs:label "svadd_s16_z" ;
+    simd:supportedDataType simd:Int16 ;
+    simd:latency "2"^^xsd:decimal ;
+    simd:throughput "2"^^xsd:decimal ;
+    rdfs:comment "Scalable vector add with zeroing predicate" .
+
+simd:SVMUL_SVE a simd:Instruction ;
+    rdfs:label "svmul_s16_z" ;
+    simd:supportedDataType simd:Int16 ;
+    simd:latency "4"^^xsd:decimal ;
+    simd:throughput "1"^^xsd:decimal ;
+    rdfs:comment "Scalable vector multiply" .
+
+simd:SVTBL_SVE a simd:Instruction ;
+    rdfs:label "svtbl_s16" ;
+    simd:supportedDataType simd:Int16 ;
+    simd:latency "3"^^xsd:decimal ;
+    simd:throughput "1"^^xsd:decimal ;
+    rdfs:comment "Scalable vector table lookup" .
+
+# Vector Widths
+simd:VectorWidth128 a simd:VectorWidth ;
+    rdfs:label "128-bit" ;
+    simd:bitWidth "128"^^xsd:integer .
+
+simd:VectorWidth256 a simd:VectorWidth ;
+    rdfs:label "256-bit" ;
+    simd:bitWidth "256"^^xsd:integer .
+
+simd:VectorWidth512 a simd:VectorWidth ;
+    rdfs:label "512-bit" ;
+    simd:bitWidth "512"^^xsd:integer .
+
+simd:VectorWidthVariable a simd:VectorWidth ;
+    rdfs:label "Variable" ;
+    rdfs:comment "Scalable vector width (SVE)" .
+
+# Data Types
+simd:Int8 a simd:DataType ;
+    rdfs:label "8-bit integer" ;
+    simd:bitWidth "8"^^xsd:integer .
+
+simd:Int16 a simd:DataType ;
+    rdfs:label "16-bit integer" ;
+    simd:bitWidth "16"^^xsd:integer .
+
+simd:Int32 a simd:DataType ;
+    rdfs:label "32-bit integer" ;
+    simd:bitWidth "32"^^xsd:integer .
+
+simd:Int64 a simd:DataType ;
+    rdfs:label "64-bit integer" ;
+    simd:bitWidth "64"^^xsd:integer .
+
+# Instruction Set Relations
+simd:AVX2 simd:hasInstruction simd:VPADDW_AVX2, simd:VPSUBW_AVX2, simd:VPMULLW_AVX2, 
+                               simd:VPMULHW_AVX2, simd:VPBLENDVB_AVX2, simd:VPSHUFB_AVX2, 
+                               simd:VPERMD_AVX2 .
+
+simd:AVX512 simd:hasInstruction simd:VPADDW_AVX512, simd:VPMULLW_AVX512, simd:VPMULHRSW_AVX512 .
+
+simd:NEON simd:hasInstruction simd:VADD_NEON, simd:VMUL_NEON, simd:VQRDMULH_NEON, simd:VTBL_NEON .
+
+simd:SVE simd:hasInstruction simd:SVADD_SVE, simd:SVMUL_SVE, simd:SVTBL_SVE .
+
+# Cryptographic Operation Mapping
+simd:cryptoOperation a owl:ObjectProperty ;
+    rdfs:domain simd:Instruction ;
+    rdfs:range simd:CryptoOperation .
+
+simd:CryptoOperation a owl:Class ;
+    rdfs:label "Cryptographic Operation" .
+
+simd:PolynomialMultiplication a simd:CryptoOperation ;
+    rdfs:label "Polynomial Multiplication" .
+
+simd:ModularReduction a simd:CryptoOperation ;
+    rdfs:label "Modular Reduction" .
+
+simd:NumberTheoreticTransform a simd:CryptoOperation ;
+    rdfs:label "Number Theoretic Transform" .
+
+simd:MatrixVectorMultiplication a simd:CryptoOperation ;
+    rdfs:label "Matrix-Vector Multiplication" .
+
+# Map instructions to crypto operations
+simd:VPMULLW_AVX2 simd:cryptoOperation simd:PolynomialMultiplication .
+simd:VPMULHW_AVX2 simd:cryptoOperation simd:PolynomialMultiplication .
+simd:VPMULHRSW_AVX512 simd:cryptoOperation simd:ModularReduction .

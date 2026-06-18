@@ -1,0 +1,112 @@
+# ============================================================================
+# JTBD Query: Outcome Achievement Metrics
+# ============================================================================
+# Purpose: Aggregate outcome achievement across all jobs and personas.
+#          Tracks desired outcomes vs. actual achievement, identifies gaps,
+#          and calculates opportunity scores for underserved outcomes.
+#
+# Output: Outcomes with importance, satisfaction, achievement rate, opportunity
+# Use: Feature prioritization, outcome tracking, gap analysis, OKR reporting
+#
+# Example Output:
+# Outcome                    | Importance | Satisfaction | Gap  | Opportunity | Type              | Features
+# Fast dependency resolution | 9.2        | 6.1          | 3.1  | 12.3        | Underserved       | 3
+# Complete observability     | 8.8        | 4.2          | 4.6  | 13.4        | Severely Under.   | 1
+# Zero security vulnerabilities| 9.5      | 8.9          | 0.6  | 10.1        | Appropriately Srv | 5
+# Automated testing          | 8.0        | 7.5          | 0.5  | 8.5         | Appropriately Srv | 4
+# ============================================================================
+
+PREFIX jtbd: <http://github.com/github/spec-kit/jtbd#>
+PREFIX sk: <http://github.com/github/spec-kit#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT
+  ?outcomeStatement
+  ?outcomeDirection
+  ?outcomeMetric
+  ?outcomeObject
+  ?outcomeClarifier
+  (AVG(?importance) AS ?avgImportance)
+  (AVG(?satisfaction) AS ?avgSatisfaction)
+  ((AVG(?importance) - AVG(?satisfaction)) AS ?importanceSatisfactionGap)
+  ((AVG(?importance) + (AVG(?importance) - AVG(?satisfaction))) AS ?opportunityScore)
+  ?opportunityType
+  ?targetValue
+  ?currentValue
+  ?achievementRate
+  (COUNT(DISTINCT ?persona) AS ?personasImpacted)
+  (COUNT(DISTINCT ?feature) AS ?featuresAddressing)
+  (COUNT(DISTINCT ?painpoint) AS ?painpointsAddressed)
+  (IF(?opportunityScore > 15, "Severely Underserved - Critical",
+      IF(?opportunityScore > 10, "Underserved - High Priority",
+         IF(?opportunityScore > 5, "Appropriately Served",
+            "Overserved - Deprioritize"))) AS ?priorityRecommendation)
+  ?dateRangeStart
+  ?dateRangeEnd
+WHERE {
+  # All desired outcomes
+  ?outcome a jtbd:DesiredOutcome ;
+           jtbd:outcomeStatement ?outcomeStatement .
+
+  OPTIONAL { ?outcome jtbd:outcomeDirection ?outcomeDirection }
+  OPTIONAL { ?outcome jtbd:outcomeMetric ?outcomeMetric }
+  OPTIONAL { ?outcome jtbd:outcomeObject ?outcomeObject }
+  OPTIONAL { ?outcome jtbd:outcomeClarifier ?outcomeClarifier }
+
+  # Outcome priority scores
+  OPTIONAL {
+    ?outcome jtbd:hasOutcomePriority ?priority .
+    ?priority jtbd:importanceScore ?importance ;
+              jtbd:satisfactionScore ?satisfaction .
+  }
+
+  # Opportunity score
+  OPTIONAL {
+    ?outcome jtbd:hasOpportunityScore ?oppScore .
+    ?oppScore jtbd:opportunityScoreValue ?opportunityScoreValue ;
+              jtbd:opportunityType ?opportunityType .
+  }
+
+  # Success metrics
+  OPTIONAL {
+    ?outcome jtbd:hasSuccessCriteria ?criteria .
+    ?criteria jtbd:measuredBy ?metric .
+    ?metric jtbd:targetValue ?targetValue .
+    OPTIONAL { ?metric jtbd:currentValue ?currentValue }
+  }
+
+  # Achievement rate calculation
+  OPTIONAL { ?outcome sk:achievementRate ?achievementRate }
+
+  # Personas impacted by this outcome
+  OPTIONAL {
+    ?job jtbd:hasDesiredOutcome ?outcome .
+    ?job jtbd:performedBy ?segment .
+    ?segment jtbd:hasPersona ?persona .
+  }
+
+  # Features addressing this outcome
+  OPTIONAL {
+    ?feature jtbd:enablesOutcome ?outcome .
+  }
+
+  # Painpoints addressed
+  OPTIONAL {
+    ?feature jtbd:addressesPainpoint ?painpoint .
+    ?job jtbd:hasPainpoint ?painpoint .
+    ?job jtbd:hasDesiredOutcome ?outcome .
+  }
+
+  # Date range filtering
+  OPTIONAL { ?outcome sk:metricsDateStart ?dateRangeStart }
+  OPTIONAL { ?outcome sk:metricsDateEnd ?dateRangeEnd }
+
+  # Default values
+  BIND(COALESCE(?importance, 5.0) AS ?importance)
+  BIND(COALESCE(?satisfaction, 5.0) AS ?satisfaction)
+  BIND(COALESCE(?achievementRate, 0.0) AS ?achievementRate)
+}
+GROUP BY ?outcomeStatement ?outcomeDirection ?outcomeMetric ?outcomeObject
+         ?outcomeClarifier ?opportunityType ?targetValue ?currentValue
+         ?achievementRate ?dateRangeStart ?dateRangeEnd
+ORDER BY DESC(?opportunityScore) ?outcomeStatement

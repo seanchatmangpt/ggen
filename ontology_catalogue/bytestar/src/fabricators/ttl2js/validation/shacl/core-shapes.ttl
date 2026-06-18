@@ -1,0 +1,774 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix bytestar: <http://bitbizeco.dev/ontology/v1/> .
+@prefix shapes: <http://bitbizeco.dev/shapes/> .
+
+<http://bitbizeco.dev/shapes/>
+    a owl:Ontology ;
+    rdfs:label "ByteStar SHACL Validation Shapes" ;
+    rdfs:comment "Comprehensive validation shapes for ByteStar ecosystem data integrity" ;
+    sh:declare [
+        sh:prefix "bytestar" ;
+        sh:namespace "http://bitbizeco.dev/ontology/v1/"^^xsd:anyURI ;
+    ] ;
+    sh:declare [
+        sh:prefix "shapes" ;
+        sh:namespace "http://bitbizeco.dev/shapes/"^^xsd:anyURI ;
+    ] .
+
+# ========================================
+# USER REGISTRATION VALIDATION SHAPES
+# ========================================
+
+shapes:UserRegistrationShape
+    a sh:NodeShape ;
+    sh:targetClass bytestar:User ;
+    rdfs:label "User Registration Validation" ;
+    rdfs:comment "Comprehensive validation for user registration data" ;
+    
+    # Email validation with strict pattern
+    sh:property [
+        sh:path bytestar:email ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+        sh:flags "i" ;
+        sh:name "email" ;
+        sh:description "Valid email address required for registration" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Username validation
+    sh:property [
+        sh:path bytestar:username ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 3 ;
+        sh:maxLength 30 ;
+        sh:pattern "^[a-zA-Z0-9_-]+$" ;
+        sh:name "username" ;
+        sh:description "Username must be 3-30 characters, alphanumeric with underscore and dash" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Password validation
+    sh:property [
+        sh:path bytestar:password ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 8 ;
+        sh:maxLength 128 ;
+        sh:pattern "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$" ;
+        sh:name "password" ;
+        sh:description "Password must be 8+ chars with uppercase, lowercase, digit, and special char" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Phone validation
+    sh:property [
+        sh:path bytestar:phoneNumber ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:pattern "^\\+?[1-9]\\d{1,14}$" ;
+        sh:name "phoneNumber" ;
+        sh:description "Valid international phone number format" ;
+        sh:severity sh:Warning ;
+    ] ;
+    
+    # Age validation
+    sh:property [
+        sh:path bytestar:age ;
+        sh:datatype xsd:integer ;
+        sh:maxCount 1 ;
+        sh:minInclusive 13 ;
+        sh:maxInclusive 120 ;
+        sh:name "age" ;
+        sh:description "Age must be between 13 and 120" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Profile completion validation
+    sh:property [
+        sh:path bytestar:profileComplete ;
+        sh:datatype xsd:boolean ;
+        sh:maxCount 1 ;
+        sh:hasValue true ;
+        sh:name "profileComplete" ;
+        sh:description "Profile must be completed during registration" ;
+        sh:severity sh:Info ;
+    ] ;
+    
+    # Terms acceptance validation
+    sh:property [
+        sh:path bytestar:termsAccepted ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:hasValue true ;
+        sh:name "termsAccepted" ;
+        sh:description "Terms and conditions must be accepted" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Privacy policy acceptance
+    sh:property [
+        sh:path bytestar:privacyAccepted ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:hasValue true ;
+        sh:name "privacyAccepted" ;
+        sh:description "Privacy policy must be accepted" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Account creation timestamp
+    sh:property [
+        sh:path bytestar:createdAt ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "createdAt" ;
+        sh:description "Account creation timestamp is required" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# ========================================
+# DOCUMENT STRUCTURE VALIDATION SHAPES
+# ========================================
+
+shapes:DocumentShape
+    a sh:NodeShape ;
+    sh:targetClass bytestar:Document ;
+    rdfs:label "Document Structure Validation" ;
+    rdfs:comment "Validation for document structure and metadata" ;
+    
+    # Document ID validation
+    sh:property [
+        sh:path bytestar:documentId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$" ;
+        sh:name "documentId" ;
+        sh:description "Document ID must be a valid UUID v4" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Document title validation
+    sh:property [
+        sh:path bytestar:title ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:maxLength 255 ;
+        sh:name "title" ;
+        sh:description "Document title is required and must be 1-255 characters" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Content validation
+    sh:property [
+        sh:path bytestar:content ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:maxLength 10000000 ;  # 10MB limit
+        sh:name "content" ;
+        sh:description "Document content is required with 10MB limit" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Document type validation
+    sh:property [
+        sh:path bytestar:documentType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("text" "markdown" "json" "xml" "pdf" "image" "crystal") ;
+        sh:name "documentType" ;
+        sh:description "Document type must be one of the supported types" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # MIME type validation
+    sh:property [
+        sh:path bytestar:mimeType ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-zA-Z0-9][a-zA-Z0-9!#$&\\-\\^_]*\\/[a-zA-Z0-9][a-zA-Z0-9!#$&\\-\\^_]*$" ;
+        sh:name "mimeType" ;
+        sh:description "Valid MIME type format" ;
+        sh:severity sh:Warning ;
+    ] ;
+    
+    # File size validation
+    sh:property [
+        sh:path bytestar:fileSize ;
+        sh:datatype xsd:integer ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 10485760 ;  # 10MB in bytes
+        sh:name "fileSize" ;
+        sh:description "File size must be between 0 and 10MB" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Hash validation for integrity
+    sh:property [
+        sh:path bytestar:contentHash ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-fA-F0-9]{64}$" ;
+        sh:name "contentHash" ;
+        sh:description "SHA-256 hash for content integrity verification" ;
+        sh:severity sh:Info ;
+    ] ;
+    
+    # Version validation
+    sh:property [
+        sh:path bytestar:version ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:pattern "^\\d+\\.\\d+\\.\\d+$" ;
+        sh:name "version" ;
+        sh:description "Semantic version format (x.y.z)" ;
+        sh:severity sh:Info ;
+    ] ;
+    
+    # Author validation
+    sh:property [
+        sh:path bytestar:author ;
+        sh:class bytestar:User ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "author" ;
+        sh:description "Document must have an author" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Creation and modification timestamps
+    sh:property [
+        sh:path bytestar:createdAt ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "createdAt" ;
+        sh:description "Document creation timestamp is required" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    sh:property [
+        sh:path bytestar:modifiedAt ;
+        sh:datatype xsd:dateTime ;
+        sh:maxCount 1 ;
+        sh:name "modifiedAt" ;
+        sh:description "Document modification timestamp" ;
+        sh:severity sh:Info ;
+    ] .
+
+# ========================================
+# CRYSTAL FORMAT VALIDATION SHAPES  
+# ========================================
+
+shapes:CrystalShape
+    a sh:NodeShape ;
+    sh:targetClass bytestar:Crystal ;
+    rdfs:label "Crystal Format Validation" ;
+    rdfs:comment "Validation for Crystal data structure and format" ;
+    
+    # Crystal ID validation
+    sh:property [
+        sh:path bytestar:crystalId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^crystal_[0-9a-fA-F]{32}$" ;
+        sh:name "crystalId" ;
+        sh:description "Crystal ID must follow crystal_ prefix with 32 hex chars" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Crystal name validation
+    sh:property [
+        sh:path bytestar:crystalName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 3 ;
+        sh:maxLength 100 ;
+        sh:pattern "^[a-zA-Z0-9_\\-\\.\\s]+$" ;
+        sh:name "crystalName" ;
+        sh:description "Crystal name must be 3-100 chars, alphanumeric with basic symbols" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Crystal structure validation
+    sh:property [
+        sh:path bytestar:structure ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "structure" ;
+        sh:description "Crystal structure data is required" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Crystal type validation
+    sh:property [
+        sh:path bytestar:crystalType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("data" "computation" "smart_contract" "neural_network" "quantum_state") ;
+        sh:name "crystalType" ;
+        sh:description "Crystal type must be one of the supported types" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Purity level validation (0.0 to 1.0)
+    sh:property [
+        sh:path bytestar:purityLevel ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:name "purityLevel" ;
+        sh:description "Purity level must be between 0.0 and 1.0" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Energy level validation
+    sh:property [
+        sh:path bytestar:energyLevel ;
+        sh:datatype xsd:integer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 1000000 ;
+        sh:name "energyLevel" ;
+        sh:description "Energy level must be between 0 and 1,000,000" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Stability index validation
+    sh:property [
+        sh:path bytestar:stabilityIndex ;
+        sh:datatype xsd:decimal ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 10.0 ;
+        sh:name "stabilityIndex" ;
+        sh:description "Stability index must be between 0.0 and 10.0" ;
+        sh:severity sh:Warning ;
+    ] ;
+    
+    # Quantum signature validation
+    sh:property [
+        sh:path bytestar:quantumSignature ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:pattern "^[A-Z0-9]{128}$" ;
+        sh:name "quantumSignature" ;
+        sh:description "Quantum signature must be 128 uppercase alphanumeric chars" ;
+        sh:severity sh:Info ;
+    ] ;
+    
+    # Creation context validation
+    sh:property [
+        sh:path bytestar:creationContext ;
+        sh:class bytestar:Context ;
+        sh:maxCount 1 ;
+        sh:name "creationContext" ;
+        sh:description "Crystal creation context information" ;
+        sh:severity sh:Info ;
+    ] ;
+    
+    # Creator validation
+    sh:property [
+        sh:path bytestar:creator ;
+        sh:class bytestar:User ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "creator" ;
+        sh:description "Crystal must have a creator" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Formation timestamp
+    sh:property [
+        sh:path bytestar:formedAt ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "formedAt" ;
+        sh:description "Crystal formation timestamp is required" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# ========================================
+# MARKETPLACE TRANSACTION VALIDATION SHAPES
+# ========================================
+
+shapes:TransactionShape
+    a sh:NodeShape ;
+    sh:targetClass bytestar:Transaction ;
+    rdfs:label "Marketplace Transaction Validation" ;
+    rdfs:comment "Validation for marketplace transaction data and rules" ;
+    
+    # Transaction ID validation
+    sh:property [
+        sh:path bytestar:transactionId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^tx_[0-9a-fA-F]{40}$" ;
+        sh:name "transactionId" ;
+        sh:description "Transaction ID must follow tx_ prefix with 40 hex chars" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Transaction type validation
+    sh:property [
+        sh:path bytestar:transactionType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("buy" "sell" "trade" "auction" "mint" "transfer" "burn") ;
+        sh:name "transactionType" ;
+        sh:description "Transaction type must be one of the supported types" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Buyer validation
+    sh:property [
+        sh:path bytestar:buyer ;
+        sh:class bytestar:User ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "buyer" ;
+        sh:description "Transaction must have a buyer" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Seller validation
+    sh:property [
+        sh:path bytestar:seller ;
+        sh:class bytestar:User ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "seller" ;
+        sh:description "Transaction must have a seller" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Asset validation
+    sh:property [
+        sh:path bytestar:asset ;
+        sh:or (
+            [sh:class bytestar:Crystal]
+            [sh:class bytestar:Document]
+            [sh:class bytestar:Service]
+        ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "asset" ;
+        sh:description "Transaction must involve an asset (Crystal, Document, or Service)" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Amount validation
+    sh:property [
+        sh:path bytestar:amount ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minExclusive 0.0 ;
+        sh:maxInclusive 1000000000.0 ;
+        sh:name "amount" ;
+        sh:description "Transaction amount must be positive and under 1 billion" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Currency validation
+    sh:property [
+        sh:path bytestar:currency ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("BYTE" "ETH" "BTC" "USD" "EUR") ;
+        sh:name "currency" ;
+        sh:description "Currency must be one of the supported types" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Transaction status validation
+    sh:property [
+        sh:path bytestar:status ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("pending" "confirmed" "completed" "failed" "cancelled" "disputed") ;
+        sh:name "status" ;
+        sh:description "Transaction status must be one of the valid states" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Gas fee validation
+    sh:property [
+        sh:path bytestar:gasFee ;
+        sh:datatype xsd:decimal ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1000.0 ;
+        sh:name "gasFee" ;
+        sh:description "Gas fee must be between 0 and 1000" ;
+        sh:severity sh:Warning ;
+    ] ;
+    
+    # Block hash validation (for blockchain transactions)
+    sh:property [
+        sh:path bytestar:blockHash ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:pattern "^0x[a-fA-F0-9]{64}$" ;
+        sh:name "blockHash" ;
+        sh:description "Block hash must be a valid hex string with 0x prefix" ;
+        sh:severity sh:Info ;
+    ] ;
+    
+    # Confirmation count validation
+    sh:property [
+        sh:path bytestar:confirmations ;
+        sh:datatype xsd:integer ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 100 ;
+        sh:name "confirmations" ;
+        sh:description "Confirmation count must be between 0 and 100" ;
+        sh:severity sh:Info ;
+    ] ;
+    
+    # Transaction timestamp
+    sh:property [
+        sh:path bytestar:transactionTime ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "transactionTime" ;
+        sh:description "Transaction timestamp is required" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Settlement timestamp
+    sh:property [
+        sh:path bytestar:settledAt ;
+        sh:datatype xsd:dateTime ;
+        sh:maxCount 1 ;
+        sh:name "settledAt" ;
+        sh:description "Transaction settlement timestamp" ;
+        sh:severity sh:Info ;
+    ] .
+
+# ========================================
+# PQC SIGNATURE VALIDATION SHAPES
+# ========================================
+
+shapes:PQCSignatureShape
+    a sh:NodeShape ;
+    sh:targetClass bytestar:PQCSignature ;
+    rdfs:label "Post-Quantum Cryptography Signature Validation" ;
+    rdfs:comment "Validation for PQC signature data and cryptographic integrity" ;
+    
+    # Signature ID validation
+    sh:property [
+        sh:path bytestar:signatureId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^pqc_sig_[0-9a-fA-F]{32}$" ;
+        sh:name "signatureId" ;
+        sh:description "Signature ID must follow pqc_sig_ prefix with 32 hex chars" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Algorithm validation
+    sh:property [
+        sh:path bytestar:algorithm ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("CRYSTALS-Dilithium" "FALCON" "SPHINCS+" "CRYSTALS-KYBER" "NTRU") ;
+        sh:name "algorithm" ;
+        sh:description "PQC algorithm must be one of the approved types" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Key size validation
+    sh:property [
+        sh:path bytestar:keySize ;
+        sh:datatype xsd:integer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (2048 3072 4096 8192) ;
+        sh:name "keySize" ;
+        sh:description "Key size must be one of the supported sizes" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Public key validation
+    sh:property [
+        sh:path bytestar:publicKey ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 100 ;
+        sh:maxLength 10000 ;
+        sh:pattern "^[A-Za-z0-9+/]+=*$" ;
+        sh:name "publicKey" ;
+        sh:description "Public key must be valid base64 encoded string" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Signature data validation
+    sh:property [
+        sh:path bytestar:signatureData ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 100 ;
+        sh:maxLength 20000 ;
+        sh:pattern "^[A-Za-z0-9+/]+=*$" ;
+        sh:name "signatureData" ;
+        sh:description "Signature data must be valid base64 encoded string" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Message hash validation
+    sh:property [
+        sh:path bytestar:messageHash ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-fA-F0-9]{64}$" ;
+        sh:name "messageHash" ;
+        sh:description "Message hash must be a valid SHA-256 hex string" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Signature validity
+    sh:property [
+        sh:path bytestar:isValid ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "isValid" ;
+        sh:description "Signature validity status is required" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Verification timestamp
+    sh:property [
+        sh:path bytestar:verifiedAt ;
+        sh:datatype xsd:dateTime ;
+        sh:maxCount 1 ;
+        sh:name "verifiedAt" ;
+        sh:description "Signature verification timestamp" ;
+        sh:severity sh:Info ;
+    ] ;
+    
+    # Signature creation timestamp
+    sh:property [
+        sh:path bytestar:createdAt ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "createdAt" ;
+        sh:description "Signature creation timestamp is required" ;
+        sh:severity sh:Violation ;
+    ] ;
+    
+    # Expiration validation
+    sh:property [
+        sh:path bytestar:expiresAt ;
+        sh:datatype xsd:dateTime ;
+        sh:maxCount 1 ;
+        sh:name "expiresAt" ;
+        sh:description "Signature expiration timestamp" ;
+        sh:severity sh:Info ;
+    ] ;
+    
+    # Signer validation
+    sh:property [
+        sh:path bytestar:signer ;
+        sh:class bytestar:User ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "signer" ;
+        sh:description "Signature must have a signer" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# ========================================
+# COMPOSITE VALIDATION RULES
+# ========================================
+
+# Rule: User cannot buy from themselves
+shapes:SelfTransactionRule
+    a sh:NodeShape ;
+    sh:targetClass bytestar:Transaction ;
+    sh:sparql [
+        sh:message "User cannot buy from themselves" ;
+        sh:prefixes shapes: ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this bytestar:buyer ?buyer .
+                $this bytestar:seller ?seller .
+                FILTER (?buyer = ?seller)
+            }
+        """ ;
+    ] .
+
+# Rule: Crystal purity affects energy level constraints
+shapes:CrystalPurityEnergyRule
+    a sh:NodeShape ;
+    sh:targetClass bytestar:Crystal ;
+    sh:sparql [
+        sh:message "High purity crystals must have energy level above 1000" ;
+        sh:prefixes shapes: ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this bytestar:purityLevel ?purity .
+                $this bytestar:energyLevel ?energy .
+                FILTER (?purity > 0.8 && ?energy < 1000)
+            }
+        """ ;
+    ] .
+
+# Rule: Transaction amount must match asset value
+shapes:TransactionValueRule
+    a sh:NodeShape ;
+    sh:targetClass bytestar:Transaction ;
+    sh:sparql [
+        sh:message "Transaction amount should align with asset market value" ;
+        sh:prefixes shapes: ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this bytestar:amount ?amount .
+                $this bytestar:asset ?asset .
+                ?asset bytestar:marketValue ?value .
+                FILTER (ABS(?amount - ?value) > (?value * 0.1))
+            }
+        """ ;
+    ] .

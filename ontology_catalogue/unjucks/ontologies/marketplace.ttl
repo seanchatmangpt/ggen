@@ -1,0 +1,396 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix kgen: <http://kgen.ai/ontology/> .
+@prefix kmkt: <http://kgen.ai/marketplace/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
+
+# ==============================================================================
+# KGEN Marketplace Ontology - Knowledge Pack Discovery and Distribution
+# ==============================================================================
+
+<http://kgen.ai/marketplace/> a owl:Ontology ;
+    dcterms:title "KGEN Marketplace Ontology"@en ;
+    dcterms:description "Ontology for Knowledge Pack marketplace with N-dimensional facet search"@en ;
+    dcterms:creator "KGEN System"@en ;
+    dcterms:created "2025-09-12"^^xsd:date ;
+    dcterms:modified "2025-09-12"^^xsd:date ;
+    owl:versionInfo "1.0.0"@en ;
+    owl:imports <http://kgen.ai/ontology/> ;
+    owl:imports <http://www.w3.org/ns/prov#> ;
+    rdfs:seeAlso <https://kgen.ai/marketplace> ;
+    dcterms:license <https://opensource.org/licenses/MIT> .
+
+# ==============================================================================
+# Core Marketplace Classes
+# ==============================================================================
+
+kmkt:Listing a owl:Class ;
+    rdfs:label "Marketplace Listing"@en ;
+    rdfs:comment "A Knowledge Pack listing in the marketplace"@en ;
+    rdfs:subClassOf prov:Entity .
+
+kmkt:KnowledgePack a owl:Class ;
+    rdfs:label "Knowledge Pack"@en ;
+    rdfs:comment "A packaged collection of knowledge graphs, templates, and artifacts"@en ;
+    rdfs:subClassOf kgen:Artifact .
+
+kmkt:Publisher a owl:Class ;
+    rdfs:label "Knowledge Pack Publisher"@en ;
+    rdfs:comment "An entity that publishes Knowledge Packs"@en ;
+    rdfs:subClassOf foaf:Agent .
+
+kmkt:Registry a owl:Class ;
+    rdfs:label "Package Registry"@en ;
+    rdfs:comment "A registry that hosts Knowledge Packs"@en ;
+    rdfs:subClassOf prov:Collection .
+
+# ==============================================================================
+# Facet Dimension Classes
+# ==============================================================================
+
+kmkt:Domain a owl:Class ;
+    rdfs:label "Domain"@en ;
+    rdfs:comment "Business or application domain"@en ;
+    rdfs:subClassOf skos:Concept .
+
+kmkt:ArtifactType a owl:Class ;
+    rdfs:label "Artifact Type"@en ;
+    rdfs:comment "Type of generated artifact"@en ;
+    rdfs:subClassOf skos:Concept .
+
+kmkt:ProgrammingLanguage a owl:Class ;
+    rdfs:label "Programming Language"@en ;
+    rdfs:comment "Primary programming language"@en ;
+    rdfs:subClassOf skos:Concept .
+
+kmkt:Framework a owl:Class ;
+    rdfs:label "Framework"@en ;
+    rdfs:comment "Software framework or library"@en ;
+    rdfs:subClassOf skos:Concept .
+
+kmkt:License a owl:Class ;
+    rdfs:label "License"@en ;
+    rdfs:comment "Software license"@en ;
+    rdfs:subClassOf skos:Concept .
+
+kmkt:MaturityLevel a owl:Class ;
+    rdfs:label "Maturity Level"@en ;
+    rdfs:comment "Development maturity level"@en ;
+    rdfs:subClassOf skos:Concept .
+
+kmkt:ComplianceStandard a owl:Class ;
+    rdfs:label "Compliance Standard"@en ;
+    rdfs:comment "Regulatory compliance standard"@en ;
+    rdfs:subClassOf skos:Concept .
+
+kmkt:SecurityFeature a owl:Class ;
+    rdfs:label "Security Feature"@en ;
+    rdfs:comment "Security capability or feature"@en ;
+    rdfs:subClassOf skos:Concept .
+
+kmkt:Architecture a owl:Class ;
+    rdfs:label "Architecture Pattern"@en ;
+    rdfs:comment "Software architecture pattern"@en ;
+    rdfs:subClassOf skos:Concept .
+
+# ==============================================================================
+# Core Properties
+# ==============================================================================
+
+kmkt:id a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range xsd:string ;
+    rdfs:label "Listing ID"@en ;
+    rdfs:comment "Unique identifier for the listing"@en .
+
+kmkt:name a owl:DatatypeProperty ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range xsd:string ;
+    rdfs:label "Package Name"@en ;
+    rdfs:comment "Human-readable name of the package"@en .
+
+kmkt:description a owl:DatatypeProperty ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range xsd:string ;
+    rdfs:label "Description"@en ;
+    rdfs:comment "Detailed description of the package"@en .
+
+kmkt:version a owl:DatatypeProperty ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range xsd:string ;
+    rdfs:label "Version"@en ;
+    rdfs:comment "Current version of the package"@en .
+
+kmkt:author a owl:ObjectProperty ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range kmkt:Publisher ;
+    rdfs:label "Author"@en ;
+    rdfs:comment "Author or publisher of the package"@en .
+
+# ==============================================================================
+# Facet Properties (N-dimensional filtering)
+# ==============================================================================
+
+kmkt:domain a owl:ObjectProperty ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range kmkt:Domain ;
+    rdfs:label "Domain"@en ;
+    rdfs:comment "Business or application domain"@en .
+
+kmkt:artifactType a owl:ObjectProperty ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range kmkt:ArtifactType ;
+    rdfs:label "Artifact Type"@en ;
+    rdfs:comment "Type of generated artifact"@en .
+
+kmkt:language a owl:ObjectProperty ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range kmkt:ProgrammingLanguage ;
+    rdfs:label "Programming Language"@en ;
+    rdfs:comment "Primary programming language"@en .
+
+kmkt:framework a owl:ObjectProperty ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range kmkt:Framework ;
+    rdfs:label "Framework"@en ;
+    rdfs:comment "Software framework or library"@en .
+
+kmkt:license a owl:ObjectProperty ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range kmkt:License ;
+    rdfs:label "License"@en ;
+    rdfs:comment "Software license"@en .
+
+kmkt:maturity a owl:ObjectProperty ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range kmkt:MaturityLevel ;
+    rdfs:label "Maturity Level"@en ;
+    rdfs:comment "Development maturity level"@en .
+
+kmkt:compliance a owl:ObjectProperty ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range kmkt:ComplianceStandard ;
+    rdfs:label "Compliance"@en ;
+    rdfs:comment "Supported compliance standards"@en .
+
+kmkt:security a owl:ObjectProperty ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range kmkt:SecurityFeature ;
+    rdfs:label "Security Feature"@en ;
+    rdfs:comment "Security capabilities"@en .
+
+kmkt:architecture a owl:ObjectProperty ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range kmkt:Architecture ;
+    rdfs:label "Architecture"@en ;
+    rdfs:comment "Software architecture pattern"@en .
+
+# ==============================================================================
+# Metrics and Trust Properties
+# ==============================================================================
+
+kmkt:downloads a owl:DatatypeProperty ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:label "Download Count"@en ;
+    rdfs:comment "Number of downloads"@en .
+
+kmkt:stars a owl:DatatypeProperty ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:label "Star Count"@en ;
+    rdfs:comment "Number of stars or likes"@en .
+
+kmkt:trustScore a owl:DatatypeProperty ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Trust Score"@en ;
+    rdfs:comment "Calculated trust score (0.0-1.0)"@en .
+
+kmkt:attestationStrength a owl:DatatypeProperty ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range xsd:string ;
+    rdfs:label "Attestation Strength"@en ;
+    rdfs:comment "Strength of cryptographic attestation (weak, medium, strong)"@en .
+
+kmkt:lastUpdated a owl:DatatypeProperty ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Last Updated"@en ;
+    rdfs:comment "Date and time of last update"@en .
+
+# ==============================================================================
+# Visibility and Policy Properties
+# ==============================================================================
+
+kmkt:visibility a owl:DatatypeProperty ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range xsd:string ;
+    rdfs:label "Visibility"@en ;
+    rdfs:comment "Visibility level (public, internal, private)"@en .
+
+kmkt:private a owl:DatatypeProperty ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Private"@en ;
+    rdfs:comment "Whether the listing is private"@en .
+
+kmkt:internal a owl:DatatypeProperty ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Internal"@en ;
+    rdfs:comment "Whether the listing is internal only"@en .
+
+kmkt:verified a owl:DatatypeProperty ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Verified"@en ;
+    rdfs:comment "Whether the listing is verified"@en .
+
+# ==============================================================================
+# Registry and Distribution Properties
+# ==============================================================================
+
+kmkt:registry a owl:ObjectProperty ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range kmkt:Registry ;
+    rdfs:label "Registry"@en ;
+    rdfs:comment "Registry that hosts the package"@en .
+
+kmkt:registryType a owl:DatatypeProperty ;
+    rdfs:domain kmkt:Registry ;
+    rdfs:range xsd:string ;
+    rdfs:label "Registry Type"@en ;
+    rdfs:comment "Type of registry (npm, oci, git, sparql)"@en .
+
+kmkt:url a owl:DatatypeProperty ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range xsd:anyURI ;
+    rdfs:label "Package URL"@en ;
+    rdfs:comment "URL to access the package"@en .
+
+kmkt:repositoryUrl a owl:DatatypeProperty ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range xsd:anyURI ;
+    rdfs:label "Repository URL"@en ;
+    rdfs:comment "URL of source code repository"@en .
+
+# ==============================================================================
+# Facet Value Instances
+# ==============================================================================
+
+# Domains
+kmkt:DomainLegal a kmkt:Domain ;
+    skos:prefLabel "Legal"@en ;
+    skos:definition "Legal document and contract processing"@en .
+
+kmkt:DomainFinancial a kmkt:Domain ;
+    skos:prefLabel "Financial"@en ;
+    skos:definition "Financial services and transactions"@en .
+
+kmkt:DomainHealthcare a kmkt:Domain ;
+    skos:prefLabel "Healthcare"@en ;
+    skos:definition "Healthcare and medical data processing"@en .
+
+kmkt:DomainEducation a kmkt:Domain ;
+    skos:prefLabel "Education"@en ;
+    skos:definition "Educational systems and content"@en .
+
+kmkt:DomainEnterprise a kmkt:Domain ;
+    skos:prefLabel "Enterprise"@en ;
+    skos:definition "Enterprise software and systems"@en .
+
+kmkt:DomainGovernment a kmkt:Domain ;
+    skos:prefLabel "Government"@en ;
+    skos:definition "Government and public sector systems"@en .
+
+# Artifact Types
+kmkt:ArtifactAPI a kmkt:ArtifactType ;
+    skos:prefLabel "API"@en ;
+    skos:definition "Application Programming Interface"@en .
+
+kmkt:ArtifactService a kmkt:ArtifactType ;
+    skos:prefLabel "Service"@en ;
+    skos:definition "Microservice or web service"@en .
+
+kmkt:ArtifactComponent a kmkt:ArtifactType ;
+    skos:prefLabel "Component"@en ;
+    skos:definition "Software component or module"@en .
+
+kmkt:ArtifactLibrary a kmkt:ArtifactType ;
+    skos:prefLabel "Library"@en ;
+    skos:definition "Software library or package"@en .
+
+kmkt:ArtifactTemplate a kmkt:ArtifactType ;
+    skos:prefLabel "Template"@en ;
+    skos:definition "Code generation template"@en .
+
+kmkt:ArtifactDOCX a kmkt:ArtifactType ;
+    skos:prefLabel "DOCX"@en ;
+    skos:definition "Microsoft Word document"@en .
+
+kmkt:ArtifactPDF a kmkt:ArtifactType ;
+    skos:prefLabel "PDF"@en ;
+    skos:definition "Portable Document Format"@en .
+
+# Programming Languages
+kmkt:LanguageJavaScript a kmkt:ProgrammingLanguage ;
+    skos:prefLabel "JavaScript"@en .
+
+kmkt:LanguageTypeScript a kmkt:ProgrammingLanguage ;
+    skos:prefLabel "TypeScript"@en .
+
+kmkt:LanguagePython a kmkt:ProgrammingLanguage ;
+    skos:prefLabel "Python"@en .
+
+kmkt:LanguageJava a kmkt:ProgrammingLanguage ;
+    skos:prefLabel "Java"@en .
+
+# Compliance Standards
+kmkt:ComplianceGDPR a kmkt:ComplianceStandard ;
+    skos:prefLabel "GDPR"@en ;
+    skos:definition "General Data Protection Regulation"@en .
+
+kmkt:ComplianceHIPAA a kmkt:ComplianceStandard ;
+    skos:prefLabel "HIPAA"@en ;
+    skos:definition "Health Insurance Portability and Accountability Act"@en .
+
+kmkt:ComplianceSOX a kmkt:ComplianceStandard ;
+    skos:prefLabel "SOX"@en ;
+    skos:definition "Sarbanes-Oxley Act"@en .
+
+kmkt:CompliancePCIDSS a kmkt:ComplianceStandard ;
+    skos:prefLabel "PCI-DSS"@en ;
+    skos:definition "Payment Card Industry Data Security Standard"@en .
+
+# Security Features
+kmkt:SecurityEncryption a kmkt:SecurityFeature ;
+    skos:prefLabel "Encryption"@en ;
+    skos:definition "Data encryption capabilities"@en .
+
+kmkt:SecurityAuthentication a kmkt:SecurityFeature ;
+    skos:prefLabel "Authentication"@en ;
+    skos:definition "User authentication mechanisms"@en .
+
+kmkt:SecurityAuthorization a kmkt:SecurityFeature ;
+    skos:prefLabel "Authorization"@en ;
+    skos:definition "Access control and authorization"@en .
+
+# Architecture Patterns
+kmkt:ArchitectureMicroservice a kmkt:Architecture ;
+    skos:prefLabel "Microservice"@en ;
+    skos:definition "Microservices architecture"@en .
+
+kmkt:ArchitectureMonolith a kmkt:Architecture ;
+    skos:prefLabel "Monolith"@en ;
+    skos:definition "Monolithic architecture"@en .
+
+kmkt:ArchitectureServerless a kmkt:Architecture ;
+    skos:prefLabel "Serverless"@en ;
+    skos:definition "Serverless/Function-as-a-Service architecture"@en .

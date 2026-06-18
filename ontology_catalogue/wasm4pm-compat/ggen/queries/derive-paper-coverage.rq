@@ -1,0 +1,11 @@
+# Derive paper coverage from ontology
+PREFIX ex: <http://example.org/>
+PREFIX wasm4pm: <http://wasm4pm-compat.org/>
+
+CONSTRUCT {
+  ?p wasm4pm:hasCoverage ?coverage .
+}
+WHERE {
+  ?p a wasm4pm:Paper .
+  OPTIONAL { ?p wasm4pm:coverage ?coverage . }
+}

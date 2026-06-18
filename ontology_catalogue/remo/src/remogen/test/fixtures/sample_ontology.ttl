@@ -1,0 +1,255 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix remo: <http://example.com/remo/ontology#> .
+
+# Ontology metadata
+<http://example.com/remo/ontology> rdf:type owl:Ontology ;
+    dcterms:title "Remo Sample Ontology" ;
+    dcterms:description "A sample ontology for testing the remogen compiler" ;
+    dcterms:creator "Remo Team" ;
+    dcterms:created "2024-01-01T00:00:00Z"^^xsd:dateTime ;
+    dcterms:modified "2024-01-15T12:00:00Z"^^xsd:dateTime ;
+    owl:versionInfo "1.0.0" ;
+    dcterms:license "MIT" .
+
+# Classes
+remo:User rdf:type owl:Class ;
+    rdfs:label "User" ;
+    rdfs:comment "Represents a user in the system" .
+
+remo:Document rdf:type owl:Class ;
+    rdfs:label "Document" ;
+    rdfs:comment "Represents a document that can be processed" .
+
+remo:Task rdf:type owl:Class ;
+    rdfs:label "Task" ;
+    rdfs:comment "Represents a processing task" ;
+    rdfs:subClassOf remo:ProcessableItem .
+
+remo:ProcessableItem rdf:type owl:Class ;
+    rdfs:label "Processable Item" ;
+    rdfs:comment "Base class for items that can be processed" .
+
+# Properties
+remo:hasName rdf:type owl:DatatypeProperty ;
+    rdfs:label "has name" ;
+    rdfs:comment "The name of an entity" ;
+    rdfs:domain remo:User, remo:Document, remo:Task ;
+    rdfs:range xsd:string .
+
+remo:hasEmail rdf:type owl:DatatypeProperty ;
+    rdfs:label "has email" ;
+    rdfs:comment "The email address of a user" ;
+    rdfs:domain remo:User ;
+    rdfs:range xsd:string .
+
+remo:hasContent rdf:type owl:DatatypeProperty ;
+    rdfs:label "has content" ;
+    rdfs:comment "The content of a document" ;
+    rdfs:domain remo:Document ;
+    rdfs:range xsd:string .
+
+remo:hasStatus rdf:type owl:DatatypeProperty ;
+    rdfs:label "has status" ;
+    rdfs:comment "The status of a task" ;
+    rdfs:domain remo:Task ;
+    rdfs:range xsd:string .
+
+remo:assignedTo rdf:type owl:ObjectProperty ;
+    rdfs:label "assigned to" ;
+    rdfs:comment "Associates a task with a user" ;
+    rdfs:domain remo:Task ;
+    rdfs:range remo:User .
+
+remo:processes rdf:type owl:ObjectProperty ;
+    rdfs:label "processes" ;
+    rdfs:comment "Associates a task with a document it processes" ;
+    rdfs:domain remo:Task ;
+    rdfs:range remo:Document .
+
+# Actions
+remo:CreateUserAction rdf:type remo:Action ;
+    rdfs:label "Create User Action" ;
+    rdfs:comment "Creates a new user in the system" ;
+    remo:hasParameter [
+        remo:parameterName "name" ;
+        remo:parameterType xsd:string ;
+        remo:parameterDescription "The user's name" ;
+        remo:parameterRequired true
+    ] ;
+    remo:hasParameter [
+        remo:parameterName "email" ;
+        remo:parameterType xsd:string ;
+        remo:parameterDescription "The user's email address" ;
+        remo:parameterRequired true
+    ] ;
+    remo:hasParameter [
+        remo:parameterName "isActive" ;
+        remo:parameterType xsd:boolean ;
+        remo:parameterDescription "Whether the user is active" ;
+        remo:parameterRequired false ;
+        remo:parameterDefault "true"^^xsd:boolean
+    ] ;
+    remo:returns [
+        remo:returnType remo:User ;
+        remo:returnDescription "The created user object"
+    ] ;
+    remo:hasPrecondition "Email must be unique" ;
+    remo:hasPostcondition "User exists in system" ;
+    remo:references remo:User .
+
+remo:ProcessDocumentAction rdf:type remo:Action ;
+    rdfs:label "Process Document Action" ;
+    rdfs:comment "Processes a document using AI capabilities" ;
+    remo:hasParameter [
+        remo:parameterName "documentId" ;
+        remo:parameterType xsd:string ;
+        remo:parameterDescription "The ID of the document to process" ;
+        remo:parameterRequired true
+    ] ;
+    remo:hasParameter [
+        remo:parameterName "processingType" ;
+        remo:parameterType xsd:string ;
+        remo:parameterDescription "The type of processing to perform" ;
+        remo:parameterRequired true ;
+        remo:parameterConstraint "Must be one of: summarize, translate, analyze"
+    ] ;
+    remo:hasParameter [
+        remo:parameterName "options" ;
+        remo:parameterType remo:ProcessingOptions ;
+        remo:parameterDescription "Additional processing options" ;
+        remo:parameterRequired false
+    ] ;
+    remo:returns [
+        remo:returnType remo:Task ;
+        remo:returnDescription "The processing task created"
+    ] ;
+    remo:hasPrecondition "Document must exist" ;
+    remo:hasPrecondition "User must have access to document" ;
+    remo:hasPostcondition "Task is created and queued" ;
+    remo:references remo:Document ;
+    remo:references remo:Task ;
+    remo:references remo:User .
+
+remo:GetUserTasksAction rdf:type remo:Action ;
+    rdfs:label "Get User Tasks Action" ;
+    rdfs:comment "Retrieves all tasks assigned to a user" ;
+    remo:hasParameter [
+        remo:parameterName "userId" ;
+        remo:parameterType xsd:string ;
+        remo:parameterDescription "The ID of the user" ;
+        remo:parameterRequired true
+    ] ;
+    remo:hasParameter [
+        remo:parameterName "status" ;
+        remo:parameterType xsd:string ;
+        remo:parameterDescription "Filter tasks by status" ;
+        remo:parameterRequired false
+    ] ;
+    remo:hasParameter [
+        remo:parameterName "limit" ;
+        remo:parameterType xsd:integer ;
+        remo:parameterDescription "Maximum number of tasks to return" ;
+        remo:parameterRequired false ;
+        remo:parameterDefault "50"^^xsd:integer
+    ] ;
+    remo:returns [
+        remo:returnType "[]remo:Task" ;
+        remo:returnDescription "List of user tasks"
+    ] ;
+    remo:hasPrecondition "User must exist" ;
+    remo:hasPostcondition "Tasks are retrieved" ;
+    remo:references remo:User ;
+    remo:references remo:Task .
+
+# Processing Options (custom type)
+remo:ProcessingOptions rdf:type owl:Class ;
+    rdfs:label "Processing Options" ;
+    rdfs:comment "Configuration options for document processing" .
+
+remo:hasLanguage rdf:type owl:DatatypeProperty ;
+    rdfs:label "has language" ;
+    rdfs:comment "The target language for processing" ;
+    rdfs:domain remo:ProcessingOptions ;
+    rdfs:range xsd:string .
+
+remo:hasQuality rdf:type owl:DatatypeProperty ;
+    rdfs:label "has quality" ;
+    rdfs:comment "The quality level for processing" ;
+    rdfs:domain remo:ProcessingOptions ;
+    rdfs:range xsd:string .
+
+# Action base class
+remo:Action rdf:type owl:Class ;
+    rdfs:label "Action" ;
+    rdfs:comment "Base class for all semantic actions" .
+
+# Action properties
+remo:hasParameter rdf:type owl:ObjectProperty ;
+    rdfs:label "has parameter" ;
+    rdfs:comment "Defines a parameter for an action" ;
+    rdfs:domain remo:Action .
+
+remo:returns rdf:type owl:ObjectProperty ;
+    rdfs:label "returns" ;
+    rdfs:comment "Defines the return type of an action" ;
+    rdfs:domain remo:Action .
+
+remo:hasPrecondition rdf:type owl:DatatypeProperty ;
+    rdfs:label "has precondition" ;
+    rdfs:comment "Defines a precondition for an action" ;
+    rdfs:domain remo:Action ;
+    rdfs:range xsd:string .
+
+remo:hasPostcondition rdf:type owl:DatatypeProperty ;
+    rdfs:label "has postcondition" ;
+    rdfs:comment "Defines a postcondition for an action" ;
+    rdfs:domain remo:Action ;
+    rdfs:range xsd:string .
+
+remo:references rdf:type owl:ObjectProperty ;
+    rdfs:label "references" ;
+    rdfs:comment "References to other ontology elements" ;
+    rdfs:domain remo:Action .
+
+# Parameter properties
+remo:parameterName rdf:type owl:DatatypeProperty ;
+    rdfs:label "parameter name" ;
+    rdfs:comment "The name of a parameter" ;
+    rdfs:range xsd:string .
+
+remo:parameterType rdf:type owl:ObjectProperty ;
+    rdfs:label "parameter type" ;
+    rdfs:comment "The type of a parameter" .
+
+remo:parameterDescription rdf:type owl:DatatypeProperty ;
+    rdfs:label "parameter description" ;
+    rdfs:comment "The description of a parameter" ;
+    rdfs:range xsd:string .
+
+remo:parameterRequired rdf:type owl:DatatypeProperty ;
+    rdfs:label "parameter required" ;
+    rdfs:comment "Whether a parameter is required" ;
+    rdfs:range xsd:boolean .
+
+remo:parameterDefault rdf:type owl:ObjectProperty ;
+    rdfs:label "parameter default" ;
+    rdfs:comment "The default value of a parameter" .
+
+remo:parameterConstraint rdf:type owl:DatatypeProperty ;
+    rdfs:label "parameter constraint" ;
+    rdfs:comment "Constraints on parameter values" ;
+    rdfs:range xsd:string .
+
+# Return properties
+remo:returnType rdf:type owl:ObjectProperty ;
+    rdfs:label "return type" ;
+    rdfs:comment "The return type of an action" .
+
+remo:returnDescription rdf:type owl:DatatypeProperty ;
+    rdfs:label "return description" ;
+    rdfs:comment "Description of the return value" ;
+    rdfs:range xsd:string .

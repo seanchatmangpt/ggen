@@ -1,0 +1,44 @@
+# classify_surfaces.rq
+# The μ classification query — maps admissible capabilities to surface kinds and projector families.
+#
+# Full-Auto MCP Doctrine §10: MCP is a compiled consequence of admissible semantic state.
+#
+# Rules applied:
+#   - Admitted ostar:McpTool       → surfaceKind=ostar:McpTool,     projectorFamily=proj:McpToolFamily
+#   - Admitted ostar:McpResource   → surfaceKind=ostar:McpResource,  projectorFamily=proj:McpResourceFamily
+#   - Admitted ostar:McpPrompt     → surfaceKind=ostar:McpPrompt,    projectorFamily=proj:McpPromptFamily
+
+PREFIX ostar: <https://chatmangpt.com/ontologies/o-star/>
+PREFIX proj:  <https://chatmangpt.com/ontologies/o-star/proj:>
+PREFIX mcp:   <https://chatmangpt.com/ontologies/o-star/mcp:>
+PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:   <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?capability ?label ?surfaceKind ?projectorFamily
+WHERE {
+  # Only admitted capabilities may be classified
+  ?capability ostar:admissibilityStatus ostar:Admitted .
+  OPTIONAL { ?capability rdfs:label ?label }
+
+  {
+    # Tool surface: mutating or invocable capability
+    ?capability a ostar:McpTool .
+    BIND(ostar:McpTool          AS ?surfaceKind)
+    BIND(proj:McpToolFamily     AS ?projectorFamily)
+  }
+  UNION
+  {
+    # Resource surface: URI-addressable knowledge object
+    ?capability a ostar:McpResource .
+    BIND(ostar:McpResource      AS ?surfaceKind)
+    BIND(proj:McpResourceFamily AS ?projectorFamily)
+  }
+  UNION
+  {
+    # Prompt surface: guided interaction pattern
+    ?capability a ostar:McpPrompt .
+    BIND(ostar:McpPrompt        AS ?surfaceKind)
+    BIND(proj:McpPromptFamily   AS ?projectorFamily)
+  }
+}
+ORDER BY ?surfaceKind ?label

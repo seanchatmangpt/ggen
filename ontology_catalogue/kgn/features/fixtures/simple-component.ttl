@@ -1,0 +1,22 @@
+@prefix ex: <http://example.org/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Simple component definition for KGEN testing
+ex:Component a rdfs:Class ;
+  rdfs:label "Component" ;
+  rdfs:comment "Base component class for UI elements" .
+
+ex:ButtonComponent a ex:Component ;
+  ex:name "Button" ;
+  ex:description "A clickable button component" ;
+  ex:type "ui-component" ;
+  ex:props "text,onClick,disabled" ;
+  ex:defaultText "Click me" .
+
+ex:InputComponent a ex:Component ;
+  ex:name "Input" ;
+  ex:description "A text input field" ;
+  ex:type "form-component" ;
+  ex:props "value,onChange,placeholder" ;
+  ex:required true .

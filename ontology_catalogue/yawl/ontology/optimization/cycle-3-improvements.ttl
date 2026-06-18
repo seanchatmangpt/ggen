@@ -1,0 +1,6 @@
+@prefix opt: <http://yawl.org/optimization/>.
+
+opt:OptimizationCycle_3 a opt:OptimizationPhase ;
+  opt:cycle 3 ;
+  opt:improvements_proposed 0 ;
+  opt:timestamp "2026-02-22T01:4000Z" .

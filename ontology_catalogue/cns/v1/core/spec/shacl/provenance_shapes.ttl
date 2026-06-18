@@ -1,0 +1,4 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix prov: <https://cns.dev/provenance#> .
+
+prov:ProvenanceShape a sh:NodeShape ; sh:targetClass prov:Provenance .

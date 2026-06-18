@@ -1,0 +1,475 @@
+@prefix : <https://bytestar.org/ontology/jtbd-shapes#> .
+@prefix jtbd: <https://bytestar.org/ontology/jtbd#> .
+@prefix jtbdp: <https://bytestar.org/ontology/jtbd-patterns#> .
+@prefix bs: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://bytestar.org/ontology/jtbd-shapes> a sh:Graph ;
+    rdfs:label "JTBD SHACL Shapes"@en ;
+    rdfs:comment "SHACL shapes for validating JTBD data structures and ensuring ByteStar compliance."@en ;
+    bs:validationRequired true ;
+    bs:doctrine8Compliant true .
+
+# ===============================================================================
+# CORE JTBD VALIDATION SHAPES
+# ===============================================================================
+
+:JobShape a sh:NodeShape ;
+    sh:targetClass jtbd:Job ;
+    rdfs:label "Job Validation Shape"@en ;
+    rdfs:comment "Validates core JTBD job structure and requirements."@en ;
+    
+    # Required properties
+    sh:property [
+        sh:path jtbd:hasJobOutcome ;
+        sh:minCount 1 ;
+        sh:class jtbd:JobOutcome ;
+        sh:message "Job must have at least one defined outcome"
+    ] ;
+    
+    sh:property [
+        sh:path jtbd:hasContext ;
+        sh:minCount 1 ;
+        sh:class jtbd:Context ;
+        sh:message "Job must have defined context"
+    ] ;
+    
+    # Business value validation
+    sh:property [
+        sh:path jtbd:businessValue ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0 ;
+        sh:message "Business value must be non-negative decimal"
+    ] ;
+    
+    # Priority validation
+    sh:property [
+        sh:path jtbd:priority ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 10 ;
+        sh:message "Priority must be integer between 1 (highest) and 10 (lowest)"
+    ] ;
+    
+    # Stakeholder validation
+    sh:property [
+        sh:path jtbd:stakeholder ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 100 ;
+        sh:message "Stakeholder must be non-empty string, max 100 characters"
+    ] .
+
+:EnterpriseJobShape a sh:NodeShape ;
+    sh:targetClass jtbd:EnterpriseJob ;
+    rdfs:label "Enterprise Job Validation Shape"@en ;
+    rdfs:comment "Extended validation for Fortune 5 enterprise jobs."@en ;
+    
+    # Inherit from base Job shape
+    sh:node :JobShape ;
+    
+    # Enterprise-specific validations
+    sh:property [
+        sh:path jtbd:businessValue ;
+        sh:minInclusive 100000 ;
+        sh:message "Enterprise jobs must have business value >= $100,000"
+    ] ;
+    
+    sh:property [
+        sh:path jtbd:hasPerformanceMetric ;
+        sh:minCount 1 ;
+        sh:class jtbd:PerformanceMetric ;
+        sh:message "Enterprise jobs must have defined performance metrics"
+    ] ;
+    
+    # Compliance requirement for enterprise jobs
+    sh:property [
+        sh:path jtbd:hasConstraint ;
+        sh:class jtbd:ComplianceRequirement ;
+        sh:minCount 1 ;
+        sh:message "Enterprise jobs must have compliance requirements defined"
+    ] .
+
+:RealTimeJobShape a sh:NodeShape ;
+    sh:targetClass jtbd:RealTimeJob ;
+    rdfs:label "Real-Time Job Validation Shape"@en ;
+    rdfs:comment "Validation for real-time JTBD execution requirements."@en ;
+    
+    # Latency constraint validation
+    sh:property [
+        sh:path jtbd:executionLatency ;
+        sh:datatype xsd:long ;
+        sh:maxInclusive 50 ;
+        sh:message "Real-time jobs must execute within 50 microseconds"
+    ] ;
+    
+    # Throughput requirement validation
+    sh:property [
+        sh:path jtbd:throughput ;
+        sh:datatype xsd:long ;
+        sh:minInclusive 105000 ;
+        sh:message "Real-time jobs must achieve minimum 105K ops/sec throughput"
+    ] ;
+    
+    # ByteStar integration validation
+    sh:property [
+        sh:path jtbd:enabledBy ;
+        sh:class bs:ByteStarComponent ;
+        sh:minCount 1 ;
+        sh:message "Real-time jobs must be enabled by ByteStar components"
+    ] .
+
+# ===============================================================================
+# BYTESTAR WORKFLOW VALIDATION SHAPES
+# ===============================================================================
+
+:ByteStarWorkflowShape a sh:NodeShape ;
+    sh:targetClass jtbd:ByteStarWorkflow ;
+    rdfs:label "ByteStar Workflow Validation Shape"@en ;
+    rdfs:comment "Validates ByteStar-specific workflow requirements."@en ;
+    
+    # ByteGen fabrication validation
+    sh:property [
+        sh:path jtbd:fabricatedBy ;
+        sh:minCount 1 ;
+        sh:message "ByteStar workflows must be fabricated by ByteGen"
+    ] ;
+    
+    # ByteFlow orchestration validation
+    sh:property [
+        sh:path jtbd:orchestratedBy ;
+        sh:minCount 1 ;
+        sh:message "ByteStar workflows must be orchestrated by ByteFlow"
+    ] ;
+    
+    # Performance optimization validation
+    sh:property [
+        sh:path jtbd:optimizedBy ;
+        sh:class bs:OptimizationKernel ;
+        sh:message "ByteStar workflows should be optimized by ByteCore kernels"
+    ] ;
+    
+    # Doctrine of 8 compliance
+    sh:property [
+        sh:path bs:hotPathTicks ;
+        sh:datatype xsd:integer ;
+        sh:maxInclusive 8 ;
+        sh:message "Workflows must comply with Doctrine of 8: ≤8 ticks"
+    ] ;
+    
+    sh:property [
+        sh:path bs:workflowHops ;
+        sh:datatype xsd:integer ;
+        sh:maxInclusive 8 ;
+        sh:message "Workflows must comply with Doctrine of 8: ≤8 hops"
+    ] .
+
+:QuantumSecureJobShape a sh:NodeShape ;
+    sh:targetClass jtbd:QuantumSecureJob ;
+    rdfs:label "Quantum-Secure Job Validation Shape"@en ;
+    rdfs:comment "Validates post-quantum cryptographic requirements."@en ;
+    
+    # PQC algorithm validation
+    sh:property [
+        sh:path bs:pqcAlgorithm ;
+        sh:in ( "Dilithium3" "Kyber1024" "Dilithium3+Kyber1024" ) ;
+        sh:message "Must use approved PQC algorithms: Dilithium3, Kyber1024, or both"
+    ] ;
+    
+    # Security level validation
+    sh:property [
+        sh:path bs:securityLevel ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 128 ;
+        sh:message "Security level must be at least 128 bits"
+    ] ;
+    
+    # Quantum resistance validation
+    sh:property [
+        sh:path bs:quantumResistant ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Quantum-secure jobs must be quantum resistant"
+    ] .
+
+# ===============================================================================
+# PERFORMANCE METRIC VALIDATION SHAPES
+# ===============================================================================
+
+:PerformanceMetricShape a sh:NodeShape ;
+    sh:targetClass jtbd:PerformanceMetric ;
+    rdfs:label "Performance Metric Validation Shape"@en ;
+    rdfs:comment "Validates performance metric definitions and measurements."@en ;
+    
+    # Metric name validation
+    sh:property [
+        sh:path rdfs:label ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 50 ;
+        sh:message "Performance metric must have descriptive name (1-50 chars)"
+    ] ;
+    
+    # Metric value validation
+    sh:property [
+        sh:path bs:metricValue ;
+        sh:datatype xsd:decimal ;
+        sh:message "Performance metric must have numeric value"
+    ] ;
+    
+    # Metric unit validation
+    sh:property [
+        sh:path bs:metricUnit ;
+        sh:datatype xsd:string ;
+        sh:in ( "microseconds" "milliseconds" "seconds" "ops/sec" "requests/sec" "bytes/sec" "percentage" ) ;
+        sh:message "Performance metric must use standard units"
+    ] ;
+    
+    # Target value validation
+    sh:property [
+        sh:path bs:targetValue ;
+        sh:datatype xsd:decimal ;
+        sh:message "Performance metric should have target value for optimization"
+    ] .
+
+# ===============================================================================
+# SOLUTION VALIDATION SHAPES
+# ===============================================================================
+
+:SolutionShape a sh:NodeShape ;
+    sh:targetClass jtbd:Solution ;
+    rdfs:label "Solution Validation Shape"@en ;
+    rdfs:comment "Validates solution definitions and capabilities."@en ;
+    
+    # Solution description validation
+    sh:property [
+        sh:path rdfs:comment ;
+        sh:datatype xsd:string ;
+        sh:minLength 10 ;
+        sh:maxLength 500 ;
+        sh:message "Solution must have detailed description (10-500 chars)"
+    ] ;
+    
+    # Automation level validation
+    sh:property [
+        sh:path jtbd:automationLevel ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 100 ;
+        sh:message "Automation level must be percentage (0-100)"
+    ] ;
+    
+    # Cost reduction validation
+    sh:property [
+        sh:path jtbd:costReduction ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 100 ;
+        sh:message "Cost reduction must be percentage (0-100)"
+    ] ;
+    
+    # Achievement relationship validation
+    sh:property [
+        sh:path jtbd:achieves ;
+        sh:class jtbd:Outcome ;
+        sh:minCount 1 ;
+        sh:message "Solution must achieve at least one outcome"
+    ] .
+
+# ===============================================================================
+# PATTERN VALIDATION SHAPES
+# ===============================================================================
+
+:JTBDPatternShape a sh:NodeShape ;
+    sh:targetClass jtbdp:JTBDPattern ;
+    rdfs:label "JTBD Pattern Validation Shape"@en ;
+    rdfs:comment "Validates JTBD workflow pattern definitions."@en ;
+    
+    # Canonical mapping validation
+    sh:property [
+        sh:path bs:canonicalMapping ;
+        sh:datatype xsd:string ;
+        sh:pattern "^P[0-4][0-9]$" ;
+        sh:message "Canonical mapping must follow pattern P01-P43"
+    ] ;
+    
+    # Execution complexity validation
+    sh:property [
+        sh:path jtbdp:executionComplexity ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 10 ;
+        sh:message "Execution complexity must be 1-10"
+    ] ;
+    
+    # Expected latency validation
+    sh:property [
+        sh:path jtbdp:expectedLatency ;
+        sh:datatype xsd:long ;
+        sh:minInclusive 1 ;
+        sh:message "Expected latency must be positive (microseconds)"
+    ] ;
+    
+    # Resource requirement validation
+    sh:property [
+        sh:path jtbdp:resourceRequirement ;
+        sh:datatype xsd:string ;
+        sh:in ( "LOW" "MEDIUM" "HIGH" ) ;
+        sh:message "Resource requirement must be LOW, MEDIUM, or HIGH"
+    ] .
+
+:RealTimePatternShape a sh:NodeShape ;
+    sh:targetClass jtbdp:RealTimeDecisionPattern ;
+    rdfs:label "Real-Time Pattern Validation Shape"@en ;
+    rdfs:comment "Validates real-time decision pattern constraints."@en ;
+    
+    # Real-time latency constraint
+    sh:property [
+        sh:path jtbdp:expectedLatency ;
+        sh:maxInclusive 50 ;
+        sh:message "Real-time patterns must execute within 50 microseconds"
+    ] ;
+    
+    # High resource requirement for real-time
+    sh:property [
+        sh:path jtbdp:resourceRequirement ;
+        sh:hasValue "HIGH" ;
+        sh:message "Real-time patterns require HIGH resource allocation"
+    ] .
+
+# ===============================================================================
+# COMPLIANCE VALIDATION SHAPES
+# ===============================================================================
+
+:ComplianceRequirementShape a sh:NodeShape ;
+    sh:targetClass jtbd:ComplianceRequirement ;
+    rdfs:label "Compliance Requirement Validation Shape"@en ;
+    rdfs:comment "Validates compliance requirements for enterprise jobs."@en ;
+    
+    # Compliance framework validation
+    sh:property [
+        sh:path jtbd:complianceFramework ;
+        sh:datatype xsd:string ;
+        sh:in ( "SOX" "GDPR" "HIPAA" "PCI-DSS" "SOC2" "ISO27001" "NIST" "FedRAMP" ) ;
+        sh:message "Must use recognized compliance framework"
+    ] ;
+    
+    # Audit trail requirement
+    sh:property [
+        sh:path bs:auditTrailRequired ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Compliance requirements must mandate audit trails"
+    ] ;
+    
+    # PQC security requirement for sensitive compliance
+    sh:sparql [
+        sh:message "High-security compliance frameworks require PQC protection" ;
+        sh:select """
+            PREFIX jtbd: <https://bytestar.org/ontology/jtbd#>
+            PREFIX bs: <https://bytestar.org/ontology/bytestar-core#>
+            SELECT $this
+            WHERE {
+                $this jtbd:complianceFramework ?framework .
+                FILTER(?framework IN ("HIPAA", "FedRAMP", "SOX"))
+                FILTER NOT EXISTS { $this bs:pqcSecurityRequired true }
+            }
+        """
+    ] .
+
+# ===============================================================================
+# FORTUNE 5 SPECIFIC VALIDATION SHAPES
+# ===============================================================================
+
+:Fortune5JobShape a sh:NodeShape ;
+    sh:targetClass jtbd:StrategicInitiative ;
+    rdfs:label "Fortune 5 Strategic Job Validation Shape"@en ;
+    rdfs:comment "Validates Fortune 5 strategic initiative requirements."@en ;
+    
+    # Minimum business value for strategic initiatives
+    sh:property [
+        sh:path jtbd:businessValue ;
+        sh:minInclusive 10000000 ;
+        sh:message "Strategic initiatives must have business value >= $10M"
+    ] ;
+    
+    # Board-level visibility requirement
+    sh:property [
+        sh:path bs:boardLevelVisibility ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Strategic initiatives must have board-level visibility"
+    ] ;
+    
+    # Executive stakeholder requirement
+    sh:property [
+        sh:path jtbd:stakeholder ;
+        sh:pattern "^(CEO|CFO|CTO|COO|CISO|President|Executive|VP)" ;
+        sh:message "Strategic initiatives must have executive-level stakeholder"
+    ] ;
+    
+    # Multiple outcome requirement
+    sh:property [
+        sh:path jtbd:hasJobOutcome ;
+        sh:minCount 2 ;
+        sh:message "Strategic initiatives must have multiple defined outcomes"
+    ] .
+
+# ===============================================================================
+# INTEGRATION VALIDATION RULES
+# ===============================================================================
+
+:ByteStarIntegrationShape a sh:NodeShape ;
+    sh:targetNode jtbd:ByteStarWorkflow ;
+    rdfs:label "ByteStar Integration Validation"@en ;
+    rdfs:comment "Validates proper integration with ByteStar ecosystem components."@en ;
+    
+    # Comprehensive component integration check
+    sh:sparql [
+        sh:message "ByteStar workflows must integrate with at least 2 of 3 core components" ;
+        sh:select """
+            PREFIX jtbd: <https://bytestar.org/ontology/jtbd#>
+            PREFIX bf: <https://bytestar.org/ontology/byteflow/fabrication-specification#>
+            PREFIX bs: <https://bytestar.org/ontology/bytestar-core#>
+            SELECT $this
+            WHERE {
+                $this a jtbd:ByteStarWorkflow .
+                BIND(
+                    (EXISTS { $this jtbd:fabricatedBy ?gen } AS ?hasBytegen) +
+                    (EXISTS { $this jtbd:orchestratedBy ?flow } AS ?hasByteflow) +
+                    (EXISTS { $this jtbd:optimizedBy ?core } AS ?hasBytecore)
+                    AS ?integrationCount
+                )
+                FILTER(?integrationCount < 2)
+            }
+        """
+    ] .
+
+# ===============================================================================
+# PERFORMANCE VALIDATION RULES
+# ===============================================================================
+
+:PerformanceValidationShape a sh:NodeShape ;
+    sh:targetClass jtbd:RealTimeJob ;
+    rdfs:label "Real-Time Performance Validation"@en ;
+    rdfs:comment "Comprehensive performance validation for real-time jobs."@en ;
+    
+    # Latency-throughput consistency check
+    sh:sparql [
+        sh:message "High throughput jobs with low latency must have HIGH resource allocation" ;
+        sh:select """
+            PREFIX jtbd: <https://bytestar.org/ontology/jtbd#>
+            SELECT $this
+            WHERE {
+                $this jtbd:executionLatency ?latency ;
+                      jtbd:throughput ?throughput .
+                FILTER(?latency <= 50 && ?throughput >= 100000)
+                FILTER NOT EXISTS {
+                    $this jtbd:solvedBy/jtbdp:resourceRequirement "HIGH"
+                }
+            }
+        """
+    ] .

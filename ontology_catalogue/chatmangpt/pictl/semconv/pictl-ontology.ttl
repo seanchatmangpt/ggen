@@ -1,0 +1,248 @@
+@prefix pm: <http://purl.org/pm/ontology#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Core Concepts
+pm:EventLog a rdfs:Class ;
+    rdfs:label "Event Log"@en ;
+    rdfs:comment "A collection of events representing process execution"@en ;
+    rdfs:subClassOf prov:Collection .
+
+pm:Event a rdfs:Class ;
+    rdfs:label "Event"@en ;
+    rdfs:comment "A single recorded occurrence of an activity in a process"@en ;
+    rdfs:subClassOf prov:InstantaneousEvent .
+
+pm:Activity a rdfs:Class ;
+    rdfs:label "Activity"@en ;
+    rdfs:comment "A named action or task in a process"@en .
+
+pm:Case a rdfs:Class ;
+    rdfs:label "Case"@en ;
+    rdfs:comment "A process instance or trace"@en ;
+    rdfs:subClassOf prov:Entity .
+
+pm:ProcessModel a rdfs:Class ;
+    rdfs:label "Process Model"@en ;
+    rdfs:comment "A formal representation of a process"@en .
+
+pm:PetriNet a rdfs:Class ;
+    rdfs:label "Petri Net"@en ;
+    rdfs:comment "A process model represented as a Petri net"@en ;
+    rdfs:subClassOf pm:ProcessModel .
+
+pm:DirectlyFollowsGraph a rdfs:Class ;
+    rdfs:label "Directly-Follows Graph"@en ;
+    rdfs:comment "A process model showing activity sequences"@en ;
+    rdfs:subClassOf pm:ProcessModel .
+
+pm:ProcessTree a rdfs:Class ;
+    rdfs:label "Process Tree"@en ;
+    rdfs:comment "A process model represented as a tree structure"@en ;
+    rdfs:subClassOf pm:ProcessModel .
+
+# Object-Centric Concepts
+pm:ObjectCentricEventLog a rdfs:Class ;
+    rdfs:label "Object-Centric Event Log"@en ;
+    rdfs:comment "An event log with multiple object types"@en ;
+    rdfs:subClassOf pm:EventLog .
+
+pm:BusinessObject a rdfs:Class ;
+    rdfs:label "Business Object"@en ;
+    rdfs:comment "An entity tracked through the process"@en ;
+    rdfs:subClassOf prov:Entity .
+
+pm:ObjectType a rdfs:Class ;
+    rdfs:label "Object Type"@en ;
+    rdfs:comment "Classification of business objects"@en .
+
+# Discovery Algorithms
+pm:DiscoveryAlgorithm a rdfs:Class ;
+    rdfs:label "Discovery Algorithm"@en ;
+    rdfs:comment "An algorithm that discovers process models from event logs"@en .
+
+pm:DFGDiscovery a pm:DiscoveryAlgorithm ;
+    rdfs:label "DFG Discovery"@en ;
+    rdfs:comment "Directly-Follows Graph discovery - fast, lossless"@en .
+
+pm:AlphaPlusPlusDiscovery a pm:DiscoveryAlgorithm ;
+    rdfs:label "Alpha++ Discovery"@en ;
+    rdfs:comment "Balanced accuracy and performance for Petri net discovery"@en .
+
+pm:ILPDiscovery a pm:DiscoveryAlgorithm ;
+    rdfs:label "ILP Optimization Discovery"@en ;
+    rdfs:comment "Optimal process model using Integer Linear Programming"@en .
+
+pm:GeneticDiscovery a pm:DiscoveryAlgorithm ;
+    rdfs:label "Genetic Algorithm Discovery"@en ;
+    rdfs:comment "Evolutionary algorithm for process discovery"@en .
+
+pm:HeuristicMinerDiscovery a pm:DiscoveryAlgorithm ;
+    rdfs:label "Heuristic Miner Discovery"@en ;
+    rdfs:comment "Heuristic-based discovery handling noise and incompleteness"@en .
+
+pm:InductiveDiscovery a pm:DiscoveryAlgorithm ;
+    rdfs:label "Inductive Miner Discovery"@en ;
+    rdfs:comment "Recursive partitioning-based discovery"@en .
+
+# Analysis Concepts
+pm:ConformanceAnalysis a rdfs:Class ;
+    rdfs:label "Conformance Analysis"@en ;
+    rdfs:comment "Analysis of log conformance to a model"@en .
+
+pm:ConformanceReport a rdfs:Class ;
+    rdfs:label "Conformance Report"@en ;
+    rdfs:comment "Results of conformance checking"@en ;
+    rdfs:subClassOf prov:Report .
+
+pm:ConceptDrift a rdfs:Class ;
+    rdfs:label "Concept Drift"@en ;
+    rdfs:comment "Changes in process behavior over time"@en .
+
+pm:Bottleneck a rdfs:Class ;
+    rdfs:label "Bottleneck"@en ;
+    rdfs:comment "Activity causing delays in the process"@en .
+
+# Quality Metrics
+pm:Fitness a rdfs:Class ;
+    rdfs:label "Fitness"@en ;
+    rdfs:comment "How well the model explains the observed behavior"@en .
+
+pm:Precision a rdfs:Class ;
+    rdfs:label "Precision"@en ;
+    rdfs:comment "How much behavior the model allows beyond what was observed"@en .
+
+pm:Generalization a rdfs:Class ;
+    rdfs:label "Generalization"@en ;
+    rdfs:comment "How well the model generalizes to unseen behavior"@en .
+
+pm:Simplicity a rdfs:Class ;
+    rdfs:label "Simplicity"@en ;
+    rdfs:comment "How concise the model representation is"@en .
+
+# Prediction Concepts
+pm:PredictiveModel a rdfs:Class ;
+    rdfs:label "Predictive Model"@en ;
+    rdfs:comment "A model for predicting future process behavior"@en .
+
+pm:ActivityPrediction a rdfs:Class ;
+    rdfs:label "Activity Prediction"@en ;
+    rdfs:comment "Prediction of next activity in a case"@en ;
+    rdfs:subClassOf pm:PredictiveModel .
+
+pm:DurationPrediction a rdfs:Class ;
+    rdfs:label "Duration Prediction"@en ;
+    rdfs:comment "Prediction of remaining time for a case"@en ;
+    rdfs:subClassOf pm:PredictiveModel .
+
+pm:OutcomePrediction a rdfs:Class ;
+    rdfs:label "Outcome Prediction"@en ;
+    rdfs:comment "Prediction of case outcome or classification"@en ;
+    rdfs:subClassOf pm:PredictiveModel .
+
+pm:AnomalyDetection a rdfs:Class ;
+    rdfs:label "Anomaly Detection"@en ;
+    rdfs:comment "Detection of unusual behavior in the process"@en ;
+    rdfs:subClassOf pm:PredictiveModel .
+
+# Properties
+pm:hasEvent a rdf:Property ;
+    rdfs:label "has event"@en ;
+    rdfs:comment "Relates a log to an event"@en ;
+    rdfs:domain pm:EventLog ;
+    rdfs:range pm:Event .
+
+pm:hasActivity a rdf:Property ;
+    rdfs:label "has activity"@en ;
+    rdfs:comment "Relates an event to an activity"@en ;
+    rdfs:domain pm:Event ;
+    rdfs:range pm:Activity .
+
+pm:hasCase a rdf:Property ;
+    rdfs:label "has case"@en ;
+    rdfs:comment "Relates an event to a case"@en ;
+    rdfs:domain pm:Event ;
+    rdfs:range pm:Case .
+
+pm:hasBusinessObject a rdf:Property ;
+    rdfs:label "has business object"@en ;
+    rdfs:comment "Relates an event to a business object"@en ;
+    rdfs:domain pm:Event ;
+    rdfs:range pm:BusinessObject .
+
+pm:discoversWith a rdf:Property ;
+    rdfs:label "discovered with"@en ;
+    rdfs:comment "The algorithm used to discover a model"@en ;
+    rdfs:domain pm:ProcessModel ;
+    rdfs:range pm:DiscoveryAlgorithm .
+
+pm:hasFitness a rdf:Property ;
+    rdfs:label "has fitness"@en ;
+    rdfs:comment "The fitness score of a model"@en ;
+    rdfs:domain pm:ProcessModel ;
+    rdfs:range xsd:double .
+
+pm:hasPrecision a rdf:Property ;
+    rdfs:label "has precision"@en ;
+    rdfs:comment "The precision score of a model"@en ;
+    rdfs:domain pm:ProcessModel ;
+    rdfs:range xsd:double .
+
+pm:hasGeneralization a rdf:Property ;
+    rdfs:label "has generalization"@en ;
+    rdfs:comment "The generalization score of a model"@en ;
+    rdfs:domain pm:ProcessModel ;
+    rdfs:range xsd:double .
+
+pm:hasSimplicity a rdf:Property ;
+    rdfs:label "has simplicity"@en ;
+    rdfs:comment "The simplicity score of a model"@en ;
+    rdfs:domain pm:ProcessModel ;
+    rdfs:range xsd:double .
+
+pm:conformsTo a rdf:Property ;
+    rdfs:label "conforms to"@en ;
+    rdfs:comment "A log conforms to a model"@en ;
+    rdfs:domain pm:EventLog ;
+    rdfs:range pm:ProcessModel .
+
+pm:executionTime a rdf:Property ;
+    rdfs:label "execution time"@en ;
+    rdfs:comment "Time taken for an operation"@en ;
+    rdfs:range xsd:duration .
+
+pm:eventCount a rdf:Property ;
+    rdfs:label "event count"@en ;
+    rdfs:comment "Number of events in a log"@en ;
+    rdfs:domain pm:EventLog ;
+    rdfs:range xsd:integer .
+
+pm:traceCount a rdf:Property ;
+    rdfs:label "trace count"@en ;
+    rdfs:comment "Number of traces/cases in a log"@en ;
+    rdfs:domain pm:EventLog ;
+    rdfs:range xsd:integer .
+
+pm:activityCount a rdf:Property ;
+    rdfs:label "activity count"@en ;
+    rdfs:comment "Number of unique activities"@en ;
+    rdfs:range xsd:integer .
+
+pm:driftDetected a rdf:Property ;
+    rdfs:label "drift detected"@en ;
+    rdfs:comment "Whether concept drift was detected"@en ;
+    rdfs:range xsd:boolean .
+
+pm:anomalyScore a rdf:Property ;
+    rdfs:label "anomaly score"@en ;
+    rdfs:comment "Numeric score indicating anomaly level"@en ;
+    rdfs:range xsd:double .
+
+pm:predictionConfidence a rdf:Property ;
+    rdfs:label "prediction confidence"@en ;
+    rdfs:comment "Confidence of a prediction"@en ;
+    rdfs:range xsd:double .

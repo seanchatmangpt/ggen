@@ -1,0 +1,9 @@
+# SHACL shapes for the CXP Header (Marketplace).
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix bs: <urn:bs:> .
+
+bs:CXPHeaderShape
+    a sh:NodeShape ;
+    sh:targetClass bs:CXPHeader ;
+    # ... properties
+.

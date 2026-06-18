@@ -1,0 +1,15 @@
+PREFIX ostar: <https://chatmangpt.com/ontologies/o-star/>
+
+# Query: 01_list_plugins
+# Law 9 audit — enumerate all plugins with admission status
+# Returns: plugin IRI, name, version, source tier, admission decision
+
+SELECT ?plugin ?pluginName ?version ?sourceTier ?admissionDecision
+WHERE {
+  ?plugin a ostar:Plugin .
+  OPTIONAL { ?plugin ostar:pluginName ?pluginName }
+  OPTIONAL { ?plugin ostar:version ?version }
+  OPTIONAL { ?plugin ostar:sourceTier ?sourceTier }
+  OPTIONAL { ?plugin ostar:admissionDecision ?admissionDecision }
+}
+ORDER BY ?pluginName

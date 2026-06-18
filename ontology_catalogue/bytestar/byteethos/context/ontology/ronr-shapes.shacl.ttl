@@ -1,0 +1,132 @@
+@prefix : <https://bytestar.org/ontology/byteethos/ronr-shapes#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ronr: <https://bytestar.org/ontology/byteethos/ronr-governance#> .
+
+<https://bytestar.org/ontology/byteethos/ronr-shapes>
+  a owl:Ontology ;
+  rdfs:label "ByteEthos Robert's Rules of Order SHACL Shapes" ;
+  rdfs:comment "SHACL shapes for validating governance proposals and actions against Robert's Rules of Order, ensuring procedural integrity." ;
+  owl:versionInfo "1.0.0" ;
+  owl:imports
+    ronr: .
+
+#################################################################
+# RONR Core Validation Shapes
+#################################################################
+
+:MotionShape a sh:NodeShape ;
+  sh:targetClass ronr:Motion ;
+  sh:property [
+    sh:path ronr:proposes ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "A Motion must be proposed by exactly one Member." ;
+  ] ;
+  sh:property [
+    sh:path ronr:isSecondedBy ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "A Motion must be seconded by exactly one Member." ;
+  ] ;
+  sh:property [
+    sh:path ronr:hasVote ;
+    sh:maxCount 1 ;
+    sh:message "A Motion can have at most one associated Vote." ;
+  ] ;
+  sh:property [
+    sh:path ronr:isDebatable ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:boolean ;
+    sh:message "A Motion must specify if it is debatable." ;
+  ] ;
+  sh:property [
+    sh:path ronr:isAmendable ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:boolean ;
+    sh:message "A Motion must specify if it is amendable." ;
+  ] .
+
+:VoteShape a sh:NodeShape ;
+  sh:targetClass ronr:Vote ;
+  sh:property [
+    sh:path ronr:voteResult ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:boolean ;
+    sh:message "A Vote must have a result." ;
+  ] ;
+  sh:property [
+    sh:path ronr:voteCountFor ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 0 ;
+    sh:message "Vote count for must be a non-negative integer." ;
+  ] ;
+  sh:property [
+    sh:path ronr:voteCountAgainst ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 0 ;
+    sh:message "Vote count against must be a non-negative integer." ;
+  ] .
+
+:MeetingShape a sh:NodeShape ;
+  sh:targetClass ronr:Meeting ;
+  sh:property [
+    sh:path ronr:requiresQuorum ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "A Meeting must specify its quorum requirements." ;
+  ] .
+
+:QuorumShape a sh:NodeShape ;
+  sh:targetClass ronr:Quorum ;
+  sh:property [
+    sh:path ronr:quorumCount ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 1 ;
+    sh:message "Quorum count must be a positive integer." ;
+  ] .
+
+# Rule: A motion cannot be passed if it did not meet the quorum requirement.
+:VoteQuorumRule a sh:NodeShape ;
+  sh:targetClass ronr:Vote ;
+  sh:sparql [
+    sh:message "A vote cannot pass if the meeting did not meet its quorum." ;
+    sh:select """
+      SELECT $this WHERE {
+        $this ronr:voteResult true .
+        ?motion ronr:hasVote $this .
+        ?meeting ronr:hasNode ?motion . # Assuming motion is part of a meeting
+        ?meeting ronr:requiresQuorum ?quorum .
+        ?quorum ronr:quorumCount ?requiredQuorum .
+        # This part would need actual instance data about members present in the meeting
+        # and comparison with requiredQuorum. This is a conceptual placeholder.
+        FILTER (false) # Placeholder for actual quorum check logic
+      }
+    """ ;
+  ] .
+
+# Rule: A motion cannot be seconded by the same member who proposed it.
+:ProposerSecondedByDifferentMemberRule a sh:NodeShape ;
+  sh:targetClass ronr:Motion ;
+  sh:sparql [
+    sh:message "A motion cannot be seconded by the same member who proposed it." ;
+    sh:select """
+      SELECT $this WHERE {
+        $this ronr:proposes ?proposer .
+        $this ronr:isSecondedBy ?seconder .
+        FILTER (?proposer = ?seconder)
+      }
+    """ ;
+  ] .

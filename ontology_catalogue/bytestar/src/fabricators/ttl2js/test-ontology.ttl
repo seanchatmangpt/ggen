@@ -1,0 +1,70 @@
+@prefix : <http://bitbizeco.dev/ontology/v1/test#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://bitbizeco.dev/ontology/v1/test>
+  a owl:Ontology ;
+  rdfs:label "Test ByteStar Ontology" ;
+  rdfs:comment "Simple test ontology for TTL2JS fabrication" .
+
+:ByteActor a rdfs:Class ;
+  rdfs:label "ByteActor" ;
+  rdfs:comment "A computational actor in the ByteStar system" .
+
+:ByteCore a rdfs:Class ;
+  rdfs:label "ByteCore" ;
+  rdfs:comment "Core processing unit for ByteStar operations" .
+
+:Execution a rdfs:Class ;
+  rdfs:label "Execution" ;
+  rdfs:comment "Execution context for ByteStar processes" .
+
+:name a rdf:Property ;
+  rdfs:label "name" ;
+  rdfs:comment "Name property" ;
+  rdfs:domain :ByteActor ;
+  rdfs:range xsd:string .
+
+:identifier a rdf:Property ;
+  rdfs:label "identifier" ;
+  rdfs:comment "Unique identifier" ;
+  rdfs:domain :ByteActor ;
+  rdfs:range xsd:string .
+
+:status a rdf:Property ;
+  rdfs:label "status" ;
+  rdfs:comment "Current status" ;
+  rdfs:domain :ByteActor ;
+  rdfs:range xsd:string .
+
+:capacity a rdf:Property ;
+  rdfs:label "capacity" ;
+  rdfs:comment "Processing capacity" ;
+  rdfs:domain :ByteCore ;
+  rdfs:range xsd:integer .
+
+:coreId a rdf:Property ;
+  rdfs:label "coreId" ;
+  rdfs:comment "Core identifier" ;
+  rdfs:domain :ByteCore ;
+  rdfs:range xsd:string .
+
+:executionId a rdf:Property ;
+  rdfs:label "executionId" ;
+  rdfs:comment "Execution identifier" ;
+  rdfs:domain :Execution ;
+  rdfs:range xsd:string .
+
+:startTime a rdf:Property ;
+  rdfs:label "startTime" ;
+  rdfs:comment "Execution start time" ;
+  rdfs:domain :Execution ;
+  rdfs:range xsd:dateTime .
+
+:endTime a rdf:Property ;
+  rdfs:label "endTime" ;
+  rdfs:comment "Execution end time" ;
+  rdfs:domain :Execution ;
+  rdfs:range xsd:dateTime .

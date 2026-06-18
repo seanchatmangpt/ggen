@@ -1,0 +1,125 @@
+@prefix ggen:    <https://open-ontologies.org/ggen#> .
+@prefix zoe:     <https://zoela.org/ontology/> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix org:     <http://www.w3.org/ns/org#> .
+
+# ============================================================================
+# ZOE LA Supabase Governance Profile
+# ============================================================================
+#
+# Declares the operational reference tables that RLS policies depend on:
+#   - roles                    (W3C Org-anchored role catalog)
+#   - person_role_assignments  (W3C Org-anchored membership w/ active flag)
+#
+# These tables are NOT part of the domain ontology — they are the substrate
+# the RLS subqueries reference. They have no RLS themselves (the foundation
+# can't depend on the floor it's holding up). Mutations are restricted via
+# Postgres role grants (service_role only) at the runtime layer.
+#
+# Doctrine:
+#   - Tables are declared as TTL facts here.
+#   - extract-governance-tables.rq surfaces them as a single row.
+#   - supabase-governance.tera renders DDL with no admission/dedupe logic.
+#   - This file is the source of truth; the SQL is the consequence.
+# ============================================================================
+
+<https://open-ontologies.org/ggen/profiles/zoela-governance>
+    a owl:Ontology ;
+    rdfs:label   "ZOE LA Supabase Governance Profile"@en ;
+    rdfs:comment "Operational reference tables that RLS subqueries depend on. Declared once, manufactured by ggen, deployed before all domain migrations."@en ;
+    dcterms:creator "Sean Chatman" ;
+    dcterms:created "2026-05-19"^^xsd:date ;
+    dcterms:license <https://opensource.org/licenses/MIT> ;
+    owl:versionInfo "P0-B.7c" .
+
+# ============================================================================
+# § 1  ZOE governance classes (specialize W3C Org anchors)
+# ============================================================================
+
+zoe:Role a owl:Class ;
+    rdfs:subClassOf org:Role ;
+    rdfs:label "Role"@en ;
+    rdfs:comment "Application role used by RLS subqueries. Each row is a (role_code, label) pair referenced by person_role_assignments.role_id."@en ;
+    skos:notation "roles" .
+
+zoe:PersonRoleAssignment a owl:Class ;
+    rdfs:subClassOf org:Membership ;
+    rdfs:label "Person Role Assignment"@en ;
+    rdfs:comment "Junction binding a Supabase auth.user (person_id) to a role with an active flag. RLS subqueries gate access by checking pra.person_id = auth.uid()::text AND pra.is_active = true."@en ;
+    skos:notation "person_role_assignments" .
+
+# ============================================================================
+# § 2  Body columns (per-table column declarations)
+# ============================================================================
+# These are declared inline here rather than as datatype properties because
+# the governance schema has constraints (UNIQUE, NOT NULL, DEFAULT) that the
+# public-vocab admission chain doesn't currently express. ggen:hasGovernanceColumn
+# carries the full column DDL fragment.
+# ============================================================================
+
+ggen:hasGovernanceColumn a owl:DatatypeProperty ;
+    rdfs:label "has governance column"@en ;
+    rdfs:comment "A complete SQL column DDL fragment for an operational governance table. Format: 'column_name TYPE [NOT NULL] [DEFAULT ...] [REFERENCES ...]'."@en ;
+    rdfs:domain owl:Class ;
+    rdfs:range  xsd:string .
+
+ggen:governanceColumnOrder a owl:DatatypeProperty ;
+    rdfs:label "governance column order"@en ;
+    rdfs:comment "Integer ordering for column emission within a governance table. Lower numbers emit first."@en ;
+    rdfs:domain owl:Class ;
+    rdfs:range  xsd:integer .
+
+ggen:governanceTableOrder a owl:DatatypeProperty ;
+    rdfs:label "governance table order"@en ;
+    rdfs:comment "Integer ordering for table emission across governance classes. Tables referenced by FOREIGN KEY must have a LOWER order than the referring table."@en ;
+    rdfs:domain owl:Class ;
+    rdfs:range  xsd:integer .
+
+zoe:Role                 ggen:governanceTableOrder 10 .
+zoe:PersonRoleAssignment ggen:governanceTableOrder 20 .
+
+# ── zoe:Role columns ──────────────────────────────────────────────────────────
+
+zoe:Role
+    ggen:hasGovernanceColumn "role_code   TEXT        NOT NULL UNIQUE" ;
+    ggen:hasGovernanceColumn "role_label  TEXT        NOT NULL" ;
+    ggen:hasGovernanceColumn "description TEXT" .
+
+# ── zoe:PersonRoleAssignment columns ──────────────────────────────────────────
+
+zoe:PersonRoleAssignment
+    ggen:hasGovernanceColumn "person_id   TEXT        NOT NULL" ;
+    ggen:hasGovernanceColumn "role_id     UUID        NOT NULL REFERENCES roles(id)" ;
+    ggen:hasGovernanceColumn "is_active   BOOLEAN     NOT NULL DEFAULT true" ;
+    ggen:hasGovernanceColumn "assigned_at TIMESTAMPTZ NOT NULL DEFAULT NOW()" ;
+    ggen:hasGovernanceColumn "assigned_by TEXT" .
+
+# ============================================================================
+# § 3  Seed data (referenced by zoela-supabase-rls.ttl role codes)
+# ============================================================================
+# The RLS policies use role_code values 'member', 'volunteer', 'ministry_lead',
+# 'admin'. These seed rows are emitted as INSERT ... ON CONFLICT DO NOTHING by
+# supabase-governance.tera so the rows exist when migrations apply.
+# ============================================================================
+
+ggen:hasSeedRow a owl:DatatypeProperty ;
+    rdfs:label "has seed row"@en ;
+    rdfs:comment "An idempotent INSERT row for governance reference data. Format: '(value1, value2, ...)' matching the column order."@en ;
+    rdfs:domain owl:Class ;
+    rdfs:range  xsd:string .
+
+# Role catalog seed (role_code, role_label, description)
+zoe:Role
+    ggen:hasSeedRow "('member', 'Member', 'Standard authenticated member of the congregation')" ;
+    ggen:hasSeedRow "('volunteer', 'Volunteer', 'Member who has accepted at least one serve opportunity')" ;
+    ggen:hasSeedRow "('ministry_lead', 'Ministry Lead', 'Leads a ministry and can manage assignments')" ;
+    ggen:hasSeedRow "('admin', 'Admin', 'Full administrative access')" .
+
+# ============================================================================
+# End of governance profile
+# ============================================================================

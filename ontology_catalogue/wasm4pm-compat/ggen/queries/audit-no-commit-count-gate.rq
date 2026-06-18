@@ -1,0 +1,46 @@
+# SPARQL Query: Reject ALIVE from Commit Count Alone
+# Purpose: ASK query that fails if ALIVE is justified by commit count metrics without law coverage.
+# Rationale: Process-mining-chicago-tdd doctrine: if the log cannot prove lawful execution, it did not happen.
+#           ALIVE certification requires law-to-fixture mapping, not velocity metrics.
+# Returns: false if any law in scope lacks a fixture; true if all laws have backing fixtures.
+# Usage: ggen query audit-no-commit-count-gate.rq --format sparql-results
+
+PREFIX audit:   <https://wasm4pm-compat.rs/audit#>
+PREFIX compat:  <https://wasm4pm-compat.rs/ontology#>
+PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:     <http://www.w3.org/2001/XMLSchema#>
+
+ASK
+WHERE {
+  # For any active checkpoint claim
+  ?checkpoint a audit:CheckpointClaim ;
+              audit:checkpointName ?name ;
+              audit:allLawsCovered true .
+
+  # Find a law within the checkpoint's scope
+  ?law a compat:CompileFailLaw ;
+       compat:definedInModule ?module .
+
+  # Verify that this law is actually backed by a fixture in the checkpoint's scope
+  # The law must have:
+  #   1. audit:lawName defined
+  #   2. audit:applicableTemplate pointing to a template
+  #   3. The template must have a corresponding fixture file
+  FILTER NOT EXISTS {
+    ?law rdfs:label ?lawLabel ;
+         audit:lawName ?lawNameStr .
+    ?fixture a audit:AuditExecutable ;
+             audit:fixtureFile ?fixtureFilePath ;
+             audit:instantiatedBy ?template .
+    ?template audit:templateKind "compile-fail-fixture" .
+    # The fixture must be indexed in the knowledge graph as enforcing this law
+    ?fixture_spec a audit:AuditSpec ;
+                  audit:applicableTemplate ?template ;
+                  audit:lawName ?lawNameStr .
+  }
+}
+# This ASK returns TRUE (failure) if:
+#   - The checkpoint claims allLawsCovered = true
+#   - But at least one CompileFailLaw has no linked audit:AuditExecutable fixture
+# Commit count (number of CommitEvidence triples) is NOT a valid substitute
+# for law-to-fixture coverage verification.

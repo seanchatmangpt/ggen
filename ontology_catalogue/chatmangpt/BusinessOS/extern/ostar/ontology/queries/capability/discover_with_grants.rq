@@ -1,0 +1,24 @@
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX odrl: <http://www.w3.org/ns/odrl/2/>
+PREFIX ost: <https://chatmangpt.com/ontologies/>
+PREFIX dct: <http://purl.org/dc/terms/>
+
+SELECT ?agent ?capabilityLabel ?statusLabel ?grantTime ?policyType
+WHERE {
+    ?agent a prov:Agent .
+    ?grantActivity a prov:Activity ;
+        prov:generated ?grantEntity ;
+        prov:startedAtTime ?grantTime .
+    ?grantEntity prov:type "CapabilityGrant" ;
+        ost:grantsCapability ?capability ;
+        ost:grantsTo ?agent ;
+        ost:hasStatus ?status .
+    ?capability skos:prefLabel ?capabilityLabel .
+    ?status dct:title ?statusLabel .
+    OPTIONAL {
+        ?grantActivity prov:used ?policy .
+        ?policy prov:type ?policyType .
+    }
+}
+ORDER BY ?agent ?capabilityLabel ?grantTime

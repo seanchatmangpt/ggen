@@ -1,0 +1,29 @@
+PREFIX bos: <http://businessos.dev/id/>
+PREFIX bpmn: <http://www.omg.org/spec/BPMN/20100524/MODEL#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX org: <http://www.w3.org/ns/org#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX schema: <http://schema.org/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+CONSTRUCT {
+  ?conversations_uri a <http://schema.org/Discussion> ;
+    <http://schema.org/identifier> ?id ;
+    <http://schema.org/name> ?title ;
+    <http://schema.org/about> ?context_id_uri ;
+    <http://schema.org/dateCreated> ?created_at ;
+    <http://schema.org/dateModified> ?updated_at ;
+    <http://www.w3.org/ns/prov#wasGeneratedBy> ?activity_uri .
+}
+
+WHERE {
+  # Variables bound from data source
+  BIND(IRI(CONCAT("http://businessos.dev/id/conversations/{id}", STR(?id))) AS ?conversations_uri)
+  BIND(IF(BOUND(?context_id) && ?context_id != "",
+    IRI(CONCAT("http://businessos.dev/id/contexts/", STR(?context_id))),
+    UNDEF) AS ?context_id_uri)
+  BIND(IRI(CONCAT("http://businessos.dev/activity/conversations/", STR(?id))) AS ?activity_uri)
+}

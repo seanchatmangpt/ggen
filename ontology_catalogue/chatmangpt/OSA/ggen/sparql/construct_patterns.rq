@@ -1,0 +1,22 @@
+# SPARQL CONSTRUCT Query: Generate SPR patterns.json from workspace.ttl
+# Fortune 5 Layer 4: Correlation
+# Signal Theory: S=(code,spec,inform,sparql,query)
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX osa: <https://chatmangpt.com/workspace#>
+PREFIX pattern: <https://chatmangpt.com/workspace#pattern/>
+
+CONSTRUCT {
+  ?pattern_uri a osa:Pattern ;
+    rdfs:label ?name ;
+    osa:category ?category ;
+    osa:file ?file .
+}
+WHERE {
+  ?pattern_uri a osa:Pattern ;
+    rdfs:label ?name ;
+    osa:category ?category ;
+    osa:file ?file .
+}
+ORDER BY ?category ?name

@@ -1,0 +1,198 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix unproj: <http://example.org/unrdf/project#> .
+@prefix unfs: <http://example.org/unrdf/filesystem#> .
+
+# UNRDF Project Ontology
+# Models project structure: features, modules, files, and their semantic roles
+
+# Classes: Project Structure
+
+unproj:Project
+  a rdfs:Class ;
+  rdfs:label "Project" ;
+  rdfs:comment "A software project" .
+
+unproj:Feature
+  a rdfs:Class ;
+  rdfs:label "Feature" ;
+  rdfs:comment "A cohesive collection of related functionality" .
+
+unproj:Module
+  a rdfs:Class ;
+  rdfs:label "Module" ;
+  rdfs:comment "A grouping of files within a feature" .
+
+unproj:FileGroup
+  a rdfs:Class ;
+  rdfs:label "File Group" ;
+  rdfs:comment "A logical collection of files by role" .
+
+# Classes: File Roles
+
+unproj:View
+  a rdfs:Class ;
+  rdfs:label "View" ;
+  rdfs:comment "UI view/component (React, Vue, etc.)" ;
+  rdfs:subClassOf unproj:FileGroup .
+
+unproj:Component
+  a rdfs:Class ;
+  rdfs:label "Component" ;
+  rdfs:comment "Reusable UI component" ;
+  rdfs:subClassOf unproj:View .
+
+unproj:Page
+  a rdfs:Class ;
+  rdfs:label "Page" ;
+  rdfs:comment "Full page route handler (Next.js pages/app)" ;
+  rdfs:subClassOf unproj:View .
+
+unproj:Api
+  a rdfs:Class ;
+  rdfs:label "API" ;
+  rdfs:comment "API route, endpoint, or server function" ;
+  rdfs:subClassOf unproj:FileGroup .
+
+unproj:Service
+  a rdfs:Class ;
+  rdfs:label "Service" ;
+  rdfs:comment "Business logic or domain service" ;
+  rdfs:subClassOf unproj:FileGroup .
+
+unproj:State
+  a rdfs:Class ;
+  rdfs:label "State" ;
+  rdfs:comment "State management (Redux, Zustand, etc.)" ;
+  rdfs:subClassOf unproj:FileGroup .
+
+unproj:Hook
+  a rdfs:Class ;
+  rdfs:label "Hook" ;
+  rdfs:comment "Custom hook or composable" ;
+  rdfs:subClassOf unproj:FileGroup .
+
+unproj:Schema
+  a rdfs:Class ;
+  rdfs:label "Schema" ;
+  rdfs:comment "Data schema, type definitions, or validation" ;
+  rdfs:subClassOf unproj:FileGroup .
+
+unproj:Test
+  a rdfs:Class ;
+  rdfs:label "Test" ;
+  rdfs:comment "Test file (unit, integration, e2e)" ;
+  rdfs:subClassOf unproj:FileGroup .
+
+unproj:Doc
+  a rdfs:Class ;
+  rdfs:label "Documentation" ;
+  rdfs:comment "Documentation, README, or guide" ;
+  rdfs:subClassOf unproj:FileGroup .
+
+unproj:Config
+  a rdfs:Class ;
+  rdfs:label "Configuration" ;
+  rdfs:comment "Configuration file (package.json, tsconfig, etc.)" ;
+  rdfs:subClassOf unproj:FileGroup .
+
+unproj:Build
+  a rdfs:Class ;
+  rdfs:label "Build" ;
+  rdfs:comment "Build script or build configuration" ;
+  rdfs:subClassOf unproj:FileGroup .
+
+unproj:Other
+  a rdfs:Class ;
+  rdfs:label "Other" ;
+  rdfs:comment "File with no specific semantic role" ;
+  rdfs:subClassOf unproj:FileGroup .
+
+# Properties: Project Structure
+
+unproj:hasFeature
+  a rdf:Property ;
+  rdfs:label "Has Feature" ;
+  rdfs:comment "Project contains a feature" ;
+  rdfs:domain unproj:Project ;
+  rdfs:range unproj:Feature .
+
+unproj:hasModule
+  a rdf:Property ;
+  rdfs:label "Has Module" ;
+  rdfs:comment "Feature contains a module" ;
+  rdfs:domain unproj:Feature ;
+  rdfs:range unproj:Module .
+
+unproj:hasFile
+  a rdf:Property ;
+  rdfs:label "Has File" ;
+  rdfs:comment "Module contains a file" ;
+  rdfs:domain unproj:Module ;
+  rdfs:range unfs:FileDataObject .
+
+unproj:belongsToFeature
+  a rdf:Property ;
+  rdfs:label "Belongs To Feature" ;
+  rdfs:comment "File belongs to a feature" ;
+  rdfs:domain unfs:FileDataObject ;
+  rdfs:range unproj:Feature .
+
+unproj:hasRole
+  a rdf:Property ;
+  rdfs:label "Has Role" ;
+  rdfs:comment "File has a semantic role (view, api, test, etc.)" ;
+  rdfs:domain unfs:FileDataObject ;
+  rdfs:range [ a rdfs:Class ; owl:oneOf ( unproj:View unproj:Component unproj:Page unproj:Api unproj:Service unproj:State unproj:Hook unproj:Schema unproj:Test unproj:Doc unproj:Config unproj:Build unproj:Other ) ] .
+
+unproj:roleString
+  a rdf:Property ;
+  rdfs:label "Role String" ;
+  rdfs:comment "String representation of file role" ;
+  rdfs:domain unfs:FileDataObject ;
+  rdfs:range xsd:string .
+
+unproj:pathPattern
+  a rdf:Property ;
+  rdfs:label "Path Pattern" ;
+  rdfs:comment "Glob pattern for files in this group" ;
+  rdfs:domain unproj:FileGroup ;
+  rdfs:range xsd:string .
+
+# Properties: Stack Information
+
+unproj:uiFramework
+  a rdf:Property ;
+  rdfs:label "UI Framework" ;
+  rdfs:comment "UI framework (react, vue, svelte, etc.)" ;
+  rdfs:domain unproj:Project ;
+  rdfs:range xsd:string .
+
+unproj:webFramework
+  a rdf:Property ;
+  rdfs:label "Web Framework" ;
+  rdfs:comment "Web framework (next, nest, express, etc.)" ;
+  rdfs:domain unproj:Project ;
+  rdfs:range xsd:string .
+
+unproj:apiFramework
+  a rdf:Property ;
+  rdfs:label "API Framework" ;
+  rdfs:comment "API framework (nest, express, fastify, etc.)" ;
+  rdfs:domain unproj:Project ;
+  rdfs:range xsd:string .
+
+unproj:testFramework
+  a rdf:Property ;
+  rdfs:label "Test Framework" ;
+  rdfs:comment "Test framework (jest, vitest, mocha, etc.)" ;
+  rdfs:domain unproj:Project ;
+  rdfs:range xsd:string .
+
+unproj:packageManager
+  a rdf:Property ;
+  rdfs:label "Package Manager" ;
+  rdfs:comment "Package manager (npm, pnpm, yarn, bun)" ;
+  rdfs:domain unproj:Project ;
+  rdfs:range xsd:string .

@@ -1,0 +1,239 @@
+# Example SPARQL Queries for JTBD Templates
+# These queries extract data for the five JTBD-focused templates
+
+# =============================================================================
+# 1. Query for Feature Outcome Card Template (feature-outcome-card.tera)
+# =============================================================================
+
+PREFIX sk: <http://github.com/github/spec-kit#>
+PREFIX jtbd: <http://github.com/github/spec-kit/jtbd#>
+
+SELECT DISTINCT
+  ?featureName
+  ?featureDescription
+  ?jobTitle
+  ?personaName
+  ?outcome
+  ?outcomeMetric
+  ?successCriteria
+  ?targetValue
+  ?painpoint
+  ?emotionalBenefit
+  (GROUP_CONCAT(DISTINCT ?relatedFeature; separator="|") AS ?relatedFeatures)
+WHERE {
+  ?feature a sk:Feature ;
+    sk:featureName ?featureName ;
+    sk:featureDescription ?featureDescription ;
+    jtbd:accomplishesJob ?job ;
+    jtbd:deliversOutcome ?outcomeNode ;
+    jtbd:targetPersona ?persona .
+
+  ?job jtbd:jobTitle ?jobTitle .
+
+  ?outcomeNode jtbd:outcomeDescription ?outcome ;
+    jtbd:outcomeMetric ?outcomeMetric ;
+    jtbd:successCriteria ?successCriteria ;
+    jtbd:targetValue ?targetValue .
+
+  ?persona jtbd:personaName ?personaName .
+
+  OPTIONAL { ?feature jtbd:resolvesPainpoint ?painpointNode .
+             ?painpointNode jtbd:painpointDescription ?painpoint }
+
+  OPTIONAL { ?feature jtbd:emotionalBenefit ?emotionalBenefit }
+
+  OPTIONAL {
+    ?relatedFeatureNode a sk:Feature ;
+      jtbd:accomplishesJob ?job ;
+      sk:featureName ?relatedFeature .
+    FILTER(?relatedFeatureNode != ?feature)
+  }
+}
+GROUP BY ?featureName ?featureDescription ?jobTitle ?personaName
+         ?outcome ?outcomeMetric ?successCriteria ?targetValue
+         ?painpoint ?emotionalBenefit
+ORDER BY ?featureName
+
+# =============================================================================
+# 2. Query for JTBD User Story Template (jtbd-user-story.tera)
+# =============================================================================
+
+PREFIX sk: <http://github.com/github/spec-kit#>
+PREFIX jtbd: <http://github.com/github/spec-kit/jtbd#>
+
+SELECT DISTINCT
+  ?storyId
+  ?personaName
+  ?jobContext
+  ?desiredOutcome
+  ?featureName
+  ?emotionalBenefit
+  ?painpoint
+  ?acceptanceCriteria
+  ?priority
+  ?estimatedValue
+WHERE {
+  ?story a jtbd:UserStory ;
+    jtbd:storyId ?storyId ;
+    jtbd:targetPersona ?persona ;
+    jtbd:desiredOutcome ?outcomeNode ;
+    jtbd:enabledByFeature ?feature .
+
+  ?persona jtbd:personaName ?personaName ;
+    jtbd:jobContext ?jobContext .
+
+  ?outcomeNode jtbd:outcomeDescription ?desiredOutcome .
+
+  ?feature sk:featureName ?featureName ;
+    jtbd:emotionalBenefit ?emotionalBenefit .
+
+  OPTIONAL { ?story jtbd:resolvesPainpoint ?painpointNode .
+             ?painpointNode jtbd:painpointDescription ?painpoint }
+
+  OPTIONAL { ?story jtbd:acceptanceCriteria ?acceptanceCriteria }
+  OPTIONAL { ?story jtbd:priority ?priority }
+  OPTIONAL { ?story jtbd:estimatedValue ?estimatedValue }
+}
+ORDER BY ?priority DESC(?estimatedValue) ?storyId
+
+# =============================================================================
+# 3. Query for Outcome-Focused Docs Template (outcome-focused-docs.tera)
+# =============================================================================
+
+PREFIX sk: <http://github.com/github/spec-kit#>
+PREFIX jtbd: <http://github.com/github/spec-kit/jtbd#>
+
+SELECT DISTINCT
+  ?featureName
+  ?featureDescription
+  ?jobTitle
+  ?personaName
+  ?outcome
+  ?outcomeMetric
+  ?successCriteria
+  ?targetValue
+  ?painpoint
+  ?usageExample
+  (GROUP_CONCAT(DISTINCT ?relatedFeature; separator="|") AS ?relatedFeatures)
+  ?prerequisites
+WHERE {
+  ?feature a sk:Feature ;
+    sk:featureName ?featureName ;
+    sk:featureDescription ?featureDescription ;
+    jtbd:accomplishesJob ?job ;
+    jtbd:deliversOutcome ?outcomeNode ;
+    jtbd:targetPersona ?persona .
+
+  ?job jtbd:jobTitle ?jobTitle .
+
+  ?outcomeNode jtbd:outcomeDescription ?outcome ;
+    jtbd:outcomeMetric ?outcomeMetric ;
+    jtbd:successCriteria ?successCriteria ;
+    jtbd:targetValue ?targetValue .
+
+  ?persona jtbd:personaName ?personaName .
+
+  OPTIONAL { ?feature jtbd:resolvesPainpoint ?painpointNode .
+             ?painpointNode jtbd:painpointDescription ?painpoint }
+
+  OPTIONAL { ?feature jtbd:usageExample ?usageExample }
+  OPTIONAL { ?feature jtbd:prerequisites ?prerequisites }
+
+  OPTIONAL {
+    ?relatedFeatureNode a sk:Feature ;
+      jtbd:accomplishesJob ?job ;
+      sk:featureName ?relatedFeature .
+    FILTER(?relatedFeatureNode != ?feature)
+  }
+}
+GROUP BY ?featureName ?featureDescription ?jobTitle ?personaName
+         ?outcome ?outcomeMetric ?successCriteria ?targetValue
+         ?painpoint ?usageExample ?prerequisites
+ORDER BY ?featureName
+
+# =============================================================================
+# 4. Query for JTBD Metrics Dashboard Template (jtbd-metrics-dashboard.tera)
+# =============================================================================
+
+PREFIX sk: <http://github.com/github/spec-kit#>
+PREFIX jtbd: <http://github.com/github/spec-kit/jtbd#>
+
+SELECT DISTINCT
+  ?outcome
+  ?outcomeDescription
+  ?featureName
+  ?personaName
+  ?successCriteria
+  ?targetValue
+  ?currentValue
+  ?featureStatus
+  ?priority
+WHERE {
+  ?outcomeNode a jtbd:Outcome ;
+    jtbd:outcomeDescription ?outcome ;
+    jtbd:outcomeDescription ?outcomeDescription ;
+    jtbd:successCriteria ?successCriteria ;
+    jtbd:targetValue ?targetValue .
+
+  ?feature a sk:Feature ;
+    sk:featureName ?featureName ;
+    jtbd:deliversOutcome ?outcomeNode ;
+    jtbd:targetPersona ?persona ;
+    sk:featureStatus ?featureStatus .
+
+  ?persona jtbd:personaName ?personaName .
+
+  OPTIONAL { ?outcomeNode jtbd:currentValue ?currentValue }
+  OPTIONAL { ?outcomeNode jtbd:priority ?priority }
+}
+ORDER BY ?outcome ?featureName
+
+# =============================================================================
+# 5. Query for JTBD Roadmap Template (jtbd-roadmap.tera)
+# =============================================================================
+
+PREFIX sk: <http://github.com/github/spec-kit#>
+PREFIX jtbd: <http://github.com/github/spec-kit/jtbd#>
+
+SELECT DISTINCT
+  ?quarter
+  ?releaseName
+  ?releaseDescription
+  ?featureName
+  ?jobTitle
+  ?jobFrequency
+  ?jobImportance
+  ?outcome
+  ?personaName
+  ?riskLevel
+  ?mitigation
+  ?dependencies
+  ?estimatedEffort
+WHERE {
+  ?release a jtbd:Release ;
+    jtbd:quarter ?quarter ;
+    jtbd:releaseName ?releaseName ;
+    jtbd:hasFeature ?plannedFeature .
+
+  OPTIONAL { ?release jtbd:releaseDescription ?releaseDescription }
+
+  ?plannedFeature a jtbd:PlannedFeature ;
+    sk:featureName ?featureName ;
+    jtbd:accomplishesJob ?job ;
+    jtbd:deliversOutcome ?outcomeNode ;
+    jtbd:targetPersona ?persona ;
+    jtbd:jobFrequency ?jobFrequency ;
+    jtbd:jobImportance ?jobImportance .
+
+  ?job jtbd:jobTitle ?jobTitle .
+
+  ?outcomeNode jtbd:outcomeDescription ?outcome .
+
+  ?persona jtbd:personaName ?personaName .
+
+  OPTIONAL { ?plannedFeature jtbd:riskLevel ?riskLevel }
+  OPTIONAL { ?plannedFeature jtbd:mitigation ?mitigation }
+  OPTIONAL { ?plannedFeature jtbd:dependencies ?dependencies }
+  OPTIONAL { ?plannedFeature jtbd:estimatedEffort ?estimatedEffort }
+}
+ORDER BY ?quarter ?jobFrequency DESC(?jobImportance) ?featureName

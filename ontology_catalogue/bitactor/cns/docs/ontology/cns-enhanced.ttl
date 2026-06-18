@@ -1,0 +1,988 @@
+@prefix cns: <https://schema.chatman.ai/cns#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+#################################################################
+# CNS Enhanced Ontology - Complete System Model
+#################################################################
+
+# ============================================================================
+# CORE SYSTEM CLASSES
+# ============================================================================
+
+cns:TelemetrySpan a rdfs:Class ;
+    rdfs:label "Telemetry Span" ;
+    rdfs:comment "A span for OpenTelemetry instrumentation" .
+
+cns:Function a rdfs:Class ;
+    rdfs:label "C Function" ;
+    rdfs:comment "A C function that can be instrumented" .
+
+cns:Pattern a rdfs:Class ;
+    rdfs:label "Design Pattern" ;
+    rdfs:comment "A design pattern used in CNS" .
+
+cns:Domain a rdfs:Class ;
+    rdfs:label "CNS Domain" ;
+    rdfs:comment "A domain represents a subsystem with related commands" .
+
+cns:Command a rdfs:Class ;
+    rdfs:label "CNS Command" ;
+    rdfs:comment "A command within a domain" .
+
+cns:Engine a rdfs:Class ;
+    rdfs:label "CNS Engine" ;
+    rdfs:comment "A specialized engine for specific functionality" .
+
+cns:PerformanceMetric a rdfs:Class ;
+    rdfs:label "Performance Metric" ;
+    rdfs:comment "A performance measurement or constraint" .
+
+cns:QualityGate a rdfs:Class ;
+    rdfs:label "Quality Gate" ;
+    rdfs:comment "A quality gate enforcing CTQ requirements" .
+
+cns:Benchmark a rdfs:Class ;
+    rdfs:label "Benchmark" ;
+    rdfs:comment "A performance benchmark test" .
+
+cns:MemoryModel a rdfs:Class ;
+    rdfs:label "Memory Model" ;
+    rdfs:comment "A memory management model or allocator" .
+
+cns:Optimization a rdfs:Class ;
+    rdfs:label "Optimization" ;
+    rdfs:comment "A performance optimization technique" .
+
+# ============================================================================
+# DOMAIN CLASSES
+# ============================================================================
+
+cns:SparqlDomain a cns:Domain ;
+    rdfs:label "SPARQL Domain" ;
+    rdfs:comment "Domain for SPARQL query processing and pattern matching" .
+
+cns:ShaclDomain a cns:Domain ;
+    rdfs:label "SHACL Domain" ;
+    rdfs:comment "Domain for SHACL validation and constraint checking" .
+
+cns:CjinjaDomain a cns:Domain ;
+    rdfs:comment "Domain for CJinja template rendering" .
+
+cns:TelemetryDomain a cns:Domain ;
+    rdfs:label "Telemetry Domain" ;
+    rdfs:comment "Domain for OpenTelemetry integration" .
+
+cns:BenchmarkDomain a cns:Domain ;
+    rdfs:label "Benchmark Domain" ;
+    rdfs:comment "Domain for performance benchmarking" .
+
+cns:TestDomain a cns:Domain ;
+    rdfs:label "Test Domain" ;
+    rdfs:comment "Domain for testing and validation" .
+
+cns:GatekeeperDomain a cns:Domain ;
+    rdfs:label "Gatekeeper Domain" ;
+    rdfs:comment "Domain for quality gates and CTQ enforcement" .
+
+cns:BuildDomain a cns:Domain ;
+    rdfs:label "Build Domain" ;
+    rdfs:comment "Domain for build system management" .
+
+cns:ProfileDomain a cns:Domain ;
+    rdfs:label "Profile Domain" ;
+    rdfs:comment "Domain for profiling and performance analysis" .
+
+cns:DashboardDomain a cns:Domain ;
+    rdfs:label "Dashboard Domain" ;
+    rdfs:comment "Domain for monitoring dashboards" .
+
+cns:DeployDomain a cns:Domain ;
+    rdfs:label "Deploy Domain" ;
+    rdfs:comment "Domain for deployment management" .
+
+cns:ReleaseDomain a cns:Domain ;
+    rdfs:label "Release Domain" ;
+    rdfs:comment "Domain for release management" .
+
+cns:DocsDomain a cns:Domain ;
+    rdfs:label "Documentation Domain" ;
+    rdfs:comment "Domain for documentation generation" .
+
+cns:ParseDomain a cns:Domain ;
+    rdfs:label "Parse Domain" ;
+    rdfs:comment "Domain for parsing and analysis" .
+
+cns:SigmaDomain a cns:Domain ;
+    rdfs:label "Sigma Domain" ;
+    rdfs:comment "Domain for Six Sigma analytics" .
+
+cns:SqlDomain a cns:Domain ;
+    rdfs:label "SQL Domain" ;
+    rdfs:comment "Domain for SQL operations" .
+
+cns:OwlDomain a cns:Domain ;
+    rdfs:label "OWL Domain" ;
+    rdfs:comment "Domain for OWL ontology operations" .
+
+cns:WeaverDomain a cns:Domain ;
+    rdfs:label "Weaver Domain" ;
+    rdfs:comment "Domain for code generation pipeline" .
+
+# ============================================================================
+# ENGINE CLASSES
+# ============================================================================
+
+cns:SparqlEngine a cns:Engine ;
+    rdfs:label "SPARQL Engine" ;
+    rdfs:comment "Ultra-fast triple pattern matching and knowledge graph operations" .
+
+cns:ShaclEngine a cns:Engine ;
+    rdfs:label "SHACL Engine" ;
+    rdfs:comment "High-performance shape validation and constraint checking" .
+
+cns:CjinjaEngine a cns:Engine ;
+    rdfs:label "CJinja Engine" ;
+    rdfs:comment "Sub-microsecond template rendering engine" .
+
+cns:TelemetryEngine a cns:Engine ;
+    rdfs:label "Telemetry Engine" ;
+    rdfs:comment "OpenTelemetry-like distributed tracing and performance metrics" .
+
+cns:GatekeeperEngine a cns:Engine ;
+    rdfs:label "Gatekeeper Engine" ;
+    rdfs:comment "Quality gate enforcement and CTQ validation" .
+
+cns:BenchmarkEngine a cns:Engine ;
+    rdfs:label "Benchmark Engine" ;
+    rdfs:comment "Performance benchmarking and regression testing" .
+
+# ============================================================================
+# COMMAND CLASSES
+# ============================================================================
+
+cns:SparqlCommand a cns:Command ;
+    rdfs:label "SPARQL Command" ;
+    rdfs:comment "A command within the SPARQL domain" .
+
+cns:ShaclCommand a cns:Command ;
+    rdfs:label "SHACL Command" ;
+    rdfs:comment "A command within the SHACL domain" .
+
+cns:CjinjaCommand a cns:Command ;
+    rdfs:label "CJinja Command" ;
+    rdfs:comment "A command within the CJinja domain" .
+
+cns:TelemetryCommand a cns:Command ;
+    rdfs:label "Telemetry Command" ;
+    rdfs:comment "A command within the Telemetry domain" .
+
+cns:BenchmarkCommand a cns:Command ;
+    rdfs:label "Benchmark Command" ;
+    rdfs:comment "A command within the Benchmark domain" .
+
+cns:TestCommand a cns:Command ;
+    rdfs:label "Test Command" ;
+    rdfs:comment "A command within the Test domain" .
+
+cns:GatekeeperCommand a cns:Command ;
+    rdfs:label "Gatekeeper Command" ;
+    rdfs:comment "A command within the Gatekeeper domain" .
+
+# ============================================================================
+# PERFORMANCE TIER CLASSES
+# ============================================================================
+
+cns:SevenTickTier a cns:PerformanceMetric ;
+    rdfs:label "7-Tick Performance Tier" ;
+    rdfs:comment "Critical operations optimized to complete within 7 CPU cycles" .
+
+cns:SubMicrosecondTier a cns:PerformanceMetric ;
+    rdfs:label "Sub-Microsecond Performance Tier" ;
+    rdfs:comment "Operations optimized for sub-microsecond performance" .
+
+cns:MicrosecondTier a cns:PerformanceMetric ;
+    rdfs:label "Microsecond Performance Tier" ;
+    rdfs:comment "Operations optimized for microsecond performance" .
+
+# ============================================================================
+# MEMORY MODEL CLASSES
+# ============================================================================
+
+cns:SlabAllocator a cns:MemoryModel ;
+    rdfs:label "Slab Allocator" ;
+    rdfs:comment "Lock-free slab allocator for small objects" .
+
+cns:ArenaAllocator a cns:MemoryModel ;
+    rdfs:label "Arena Allocator" ;
+    rdfs:comment "Per-command arena allocation with zero-copy parsing" .
+
+cns:StaticAllocator a cns:MemoryModel ;
+    rdfs:label "Static Allocator" ;
+    rdfs:comment "Pre-allocated static memory pools" .
+
+# ============================================================================
+# OPTIMIZATION CLASSES
+# ============================================================================
+
+cns:SimdOptimization a cns:Optimization ;
+    rdfs:label "SIMD Optimization" ;
+    rdfs:comment "Single Instruction Multiple Data optimizations" .
+
+cns:CacheOptimization a cns:Optimization ;
+    rdfs:label "Cache Optimization" ;
+    rdfs:comment "Cache-friendly memory layout and access patterns" .
+
+cns:BranchOptimization a cns:Optimization ;
+    rdfs:label "Branch Optimization" ;
+    rdfs:comment "Branch prediction and elimination optimizations" .
+
+cns:MemoryOptimization a cns:Optimization ;
+    rdfs:label "Memory Optimization" ;
+    rdfs:comment "Memory access and allocation optimizations" .
+
+# ============================================================================
+# PROPERTIES
+# ============================================================================
+
+cns:providesFunction a rdf:Property ;
+    rdfs:label "provides function" ;
+    rdfs:domain cns:TelemetrySpan ;
+    rdfs:range cns:Function .
+
+cns:providesAPI a rdf:Property ;
+    rdfs:label "provides API" ;
+    rdfs:domain cns:Function ;
+    rdfs:range rdfs:Literal .
+
+cns:cycleCost a rdf:Property ;
+    rdfs:label "cycle cost" ;
+    rdfs:domain cns:Function ;
+    rdfs:range xsd:integer .
+
+cns:belongsToDomain a rdf:Property ;
+    rdfs:label "belongs to domain" ;
+    rdfs:domain cns:Command ;
+    rdfs:range cns:Domain .
+
+cns:implementsEngine a rdf:Property ;
+    rdfs:label "implements engine" ;
+    rdfs:domain cns:Domain ;
+    rdfs:range cns:Engine .
+
+cns:hasPerformanceTier a rdf:Property ;
+    rdfs:label "has performance tier" ;
+    rdfs:domain cns:Function ;
+    rdfs:range cns:PerformanceMetric .
+
+cns:usesMemoryModel a rdf:Property ;
+    rdfs:label "uses memory model" ;
+    rdfs:domain cns:Function ;
+    rdfs:range cns:MemoryModel .
+
+cns:appliesOptimization a rdf:Property ;
+    rdfs:label "applies optimization" ;
+    rdfs:domain cns:Function ;
+    rdfs:range cns:Optimization .
+
+cns:enforcesQualityGate a rdf:Property ;
+    rdfs:label "enforces quality gate" ;
+    rdfs:domain cns:GatekeeperEngine ;
+    rdfs:range cns:QualityGate .
+
+cns:runsBenchmark a rdf:Property ;
+    rdfs:label "runs benchmark" ;
+    rdfs:domain cns:BenchmarkEngine ;
+    rdfs:range cns:Benchmark .
+
+# ============================================================================
+# SPARQL FUNCTIONS AND SPANS
+# ============================================================================
+
+cns:spqlAsk a cns:Function ;
+    cns:providesAPI "CnsSpqlResult* cns_spql_ask(CnsSpqlEngine*, const char*)" ;
+    cns:cycleCost 3 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    rdfs:label "SPARQL Ask Function" .
+
+cns:spqlSelect a cns:Function ;
+    cns:providesAPI "CnsSpqlResult* cns_spql_select(CnsSpqlEngine*, const char*)" ;
+    cns:cycleCost 5 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    rdfs:label "SPARQL Select Function" .
+
+cns:spqlConstruct a cns:Function ;
+    cns:providesAPI "CnsSpqlResult* cns_spql_construct(CnsSpqlEngine*, const char*)" ;
+    cns:cycleCost 7 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    rdfs:label "SPARQL Construct Function" .
+
+cns:spqlDescribe a cns:Function ;
+    cns:providesAPI "CnsSpqlResult* cns_spql_describe(CnsSpqlEngine*, const char*)" ;
+    cns:cycleCost 6 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    rdfs:label "SPARQL Describe Function" .
+
+cns:spqlAdd a cns:Function ;
+    cns:providesAPI "int cns_spql_add_triple(CnsSpqlEngine*, const char*, const char*, const char*)" ;
+    cns:cycleCost 2 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    rdfs:label "SPARQL Add Triple Function" .
+
+cns:spqlDelete a cns:Function ;
+    cns:providesAPI "int cns_spql_delete_triple(CnsSpqlEngine*, const char*, const char*, const char*)" ;
+    cns:cycleCost 2 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    rdfs:label "SPARQL Delete Triple Function" .
+
+# SPARQL Spans
+cns:spqlAskSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:spqlAsk ;
+    rdfs:label "SPARQL Ask Span" .
+
+cns:spqlSelectSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:spqlSelect ;
+    rdfs:label "SPARQL Select Span" .
+
+cns:spqlConstructSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:spqlConstruct ;
+    rdfs:label "SPARQL Construct Span" .
+
+cns:spqlDescribeSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:spqlDescribe ;
+    rdfs:label "SPARQL Describe Span" .
+
+cns:spqlAddSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:spqlAdd ;
+    rdfs:label "SPARQL Add Span" .
+
+cns:spqlDeleteSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:spqlDelete ;
+    rdfs:label "SPARQL Delete Span" .
+
+# ============================================================================
+# CJINJA FUNCTIONS AND SPANS
+# ============================================================================
+
+cns:jinjaExec a cns:Function ;
+    cns:providesAPI "char* cns_jinja_exec(const char*, const char*)" ;
+    cns:cycleCost 4 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    rdfs:label "Jinja Execute Function" .
+
+cns:jinjaCompile a cns:Function ;
+    cns:providesAPI "CnsJinjaTemplate* cns_jinja_compile(const char*)" ;
+    cns:cycleCost 6 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    rdfs:label "Jinja Compile Function" .
+
+cns:jinjaRender a cns:Function ;
+    cns:providesAPI "char* cns_jinja_render(CnsJinjaTemplate*, const char*)" ;
+    cns:cycleCost 5 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    rdfs:label "Jinja Render Function" .
+
+cns:jinjaParse a cns:Function ;
+    cns:providesAPI "CnsJinjaAST* cns_jinja_parse(const char*)" ;
+    cns:cycleCost 7 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    rdfs:label "Jinja Parse Function" .
+
+# CJinja Spans
+cns:jinjaExecSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:jinjaExec ;
+    rdfs:label "Jinja Exec Span" .
+
+cns:jinjaCompileSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:jinjaCompile ;
+    rdfs:label "Jinja Compile Span" .
+
+cns:jinjaRenderSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:jinjaRender ;
+    rdfs:label "Jinja Render Span" .
+
+cns:jinjaParseSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:jinjaParse ;
+    rdfs:label "Jinja Parse Span" .
+
+# ============================================================================
+# SHACL FUNCTIONS AND SPANS
+# ============================================================================
+
+cns:shaclValidate a cns:Function ;
+    cns:providesAPI "int cns_shacl_validate(CnsShaclEngine*, const char*, const char*)" ;
+    cns:cycleCost 4 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    rdfs:label "SHACL Validate Function" .
+
+cns:shaclLoadShape a cns:Function ;
+    cns:providesAPI "int cns_shacl_load_shape(CnsShaclEngine*, const char*)" ;
+    cns:cycleCost 3 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    rdfs:label "SHACL Load Shape Function" .
+
+cns:shaclShape a cns:Function ;
+    cns:providesAPI "CnsShaclShape* cns_shacl_create_shape(const char*)" ;
+    cns:cycleCost 5 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    rdfs:label "SHACL Shape Function" .
+
+cns:shaclRule a cns:Function ;
+    cns:providesAPI "int cns_shacl_execute_rule(CnsShaclEngine*, CnsShaclRule*)" ;
+    cns:cycleCost 6 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    rdfs:label "SHACL Rule Function" .
+
+# SHACL Spans
+cns:shaclValidateSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:shaclValidate ;
+    rdfs:label "SHACL Validate Span" .
+
+cns:shaclLoadShapeSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:shaclLoadShape ;
+    rdfs:label "SHACL Load Shape Span" .
+
+cns:shaclShapeSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:shaclShape ;
+    rdfs:label "SHACL Shape Span" .
+
+cns:shaclRuleSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:shaclRule ;
+    rdfs:label "SHACL Rule Span" .
+
+# ============================================================================
+# GATEKEEPER FUNCTIONS AND SPANS
+# ============================================================================
+
+cns:gatekeeperCorrectness a cns:Function ;
+    cns:providesAPI "int cns_gatekeeper_test_correctness(void)" ;
+    cns:cycleCost 10 ;
+    cns:hasPerformanceTier cns:SubMicrosecondTier ;
+    rdfs:label "Gatekeeper Correctness Function" .
+
+cns:gatekeeperCycleBudget a cns:Function ;
+    cns:providesAPI "int cns_gatekeeper_test_cycle_budget(void)" ;
+    cns:cycleCost 8 ;
+    cns:hasPerformanceTier cns:SubMicrosecondTier ;
+    rdfs:label "Gatekeeper Cycle Budget Function" .
+
+cns:gatekeeperThroughput a cns:Function ;
+    cns:providesAPI "int cns_gatekeeper_test_throughput(void)" ;
+    cns:cycleCost 12 ;
+    cns:hasPerformanceTier cns:SubMicrosecondTier ;
+    rdfs:label "Gatekeeper Throughput Function" .
+
+cns:gatekeeperOntology a cns:Function ;
+    cns:providesAPI "int cns_gatekeeper_test_ontology_parsing(void)" ;
+    cns:cycleCost 15 ;
+    cns:hasPerformanceTier cns:SubMicrosecondTier ;
+    rdfs:label "Gatekeeper Ontology Function" .
+
+# Gatekeeper Spans
+cns:gatekeeperCorrectnessSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:gatekeeperCorrectness ;
+    rdfs:label "Gatekeeper Correctness Span" .
+
+cns:gatekeeperCycleBudgetSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:gatekeeperCycleBudget ;
+    rdfs:label "Gatekeeper Cycle Budget Span" .
+
+cns:gatekeeperThroughputSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:gatekeeperThroughput ;
+    rdfs:label "Gatekeeper Throughput Span" .
+
+cns:gatekeeperOntologySpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:gatekeeperOntology ;
+    rdfs:label "Gatekeeper Ontology Span" .
+
+# ============================================================================
+# MEMORY MANAGEMENT FUNCTIONS AND SPANS
+# ============================================================================
+
+cns:memoryAlloc a cns:Function ;
+    cns:providesAPI "void* cns_memory_alloc(size_t)" ;
+    cns:cycleCost 3 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    cns:usesMemoryModel cns:SlabAllocator ;
+    rdfs:label "Memory Allocation Function" .
+
+cns:memoryFree a cns:Function ;
+    cns:providesAPI "void cns_memory_free(void*)" ;
+    cns:cycleCost 2 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    cns:usesMemoryModel cns:SlabAllocator ;
+    rdfs:label "Memory Free Function" .
+
+cns:slabAlloc a cns:Function ;
+    cns:providesAPI "void* cns_slab_alloc(CnsSlab*)" ;
+    cns:cycleCost 2 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    cns:usesMemoryModel cns:SlabAllocator ;
+    rdfs:label "Slab Allocate Function" .
+
+# Memory Spans
+cns:memoryAllocSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:memoryAlloc ;
+    rdfs:label "Memory Allocation Span" .
+
+cns:memoryFreeSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:memoryFree ;
+    rdfs:label "Memory Free Span" .
+
+cns:slabAllocSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:slabAlloc ;
+    rdfs:label "Slab Allocation Span" .
+
+# ============================================================================
+# PATTERN FUNCTIONS AND SPANS
+# ============================================================================
+
+cns:singletonGet a cns:Function ;
+    cns:providesAPI "CnsSingleton* cns_singleton_get(void)" ;
+    cns:cycleCost 1 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    rdfs:label "Singleton Get Function" .
+
+cns:factoryCreate a cns:Function ;
+    cns:providesAPI "void* cns_factory_create(const char*)" ;
+    cns:cycleCost 4 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    rdfs:label "Factory Create Function" .
+
+cns:strategyExecute a cns:Function ;
+    cns:providesAPI "int cns_strategy_execute(CnsStrategy*, void*)" ;
+    cns:cycleCost 3 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    rdfs:label "Strategy Execute Function" .
+
+cns:stateTransition a cns:Function ;
+    cns:providesAPI "int cns_state_transition(CnsStateMachine*, int)" ;
+    cns:cycleCost 2 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    rdfs:label "State Transition Function" .
+
+cns:observerPublish a cns:Function ;
+    cns:providesAPI "int cns_observer_publish(CnsObserver*, const char*, void*)" ;
+    cns:cycleCost 3 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    rdfs:label "Observer Publish Function" .
+
+cns:commandExecute a cns:Function ;
+    cns:providesAPI "int cns_command_execute(CnsCommand*, void*)" ;
+    cns:cycleCost 4 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    rdfs:label "Command Execute Function" .
+
+cns:pipelineProcess a cns:Function ;
+    cns:providesAPI "int cns_pipeline_process(CnsPipeline*, void*)" ;
+    cns:cycleCost 6 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    rdfs:label "Pipeline Process Function" .
+
+cns:flyweightIntern a cns:Function ;
+    cns:providesAPI "uint32_t cns_flyweight_intern(const char*)" ;
+    cns:cycleCost 1 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    rdfs:label "Flyweight Intern Function" .
+
+cns:iteratorNext a cns:Function ;
+    cns:providesAPI "void* cns_iterator_next(CnsIterator*)" ;
+    cns:cycleCost 2 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    rdfs:label "Iterator Next Function" .
+
+cns:visitorAccept a cns:Function ;
+    cns:providesAPI "int cns_visitor_accept(CnsVisitable*, CnsVisitor*)" ;
+    cns:cycleCost 3 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    rdfs:label "Visitor Accept Function" .
+
+cns:templateExecute a cns:Function ;
+    cns:providesAPI "int cns_template_execute(CnsTemplate*, void*)" ;
+    cns:cycleCost 5 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    rdfs:label "Template Execute Function" .
+
+cns:decoratorAdd a cns:Function ;
+    cns:providesAPI "CnsDecorator* cns_decorator_add(CnsComponent*, CnsDecorator*)" ;
+    cns:cycleCost 2 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    rdfs:label "Decorator Add Function" .
+
+cns:prototypeClone a cns:Function ;
+    cns:providesAPI "void* cns_prototype_clone(CnsPrototype*)" ;
+    cns:cycleCost 3 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    rdfs:label "Prototype Clone Function" .
+
+# Pattern Spans
+cns:singletonSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:singletonGet ;
+    rdfs:label "Singleton Pattern Span" .
+
+cns:factorySpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:factoryCreate ;
+    rdfs:label "Factory Pattern Span" .
+
+cns:strategySpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:strategyExecute ;
+    rdfs:label "Strategy Pattern Span" .
+
+cns:stateSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:stateTransition ;
+    rdfs:label "State Pattern Span" .
+
+cns:observerSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:observerPublish ;
+    rdfs:label "Observer Pattern Span" .
+
+cns:commandSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:commandExecute ;
+    rdfs:label "Command Pattern Span" .
+
+cns:pipelineSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:pipelineProcess ;
+    rdfs:label "Pipeline Pattern Span" .
+
+cns:flyweightSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:flyweightIntern ;
+    rdfs:label "Flyweight Pattern Span" .
+
+cns:iteratorSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:iteratorNext ;
+    rdfs:label "Iterator Pattern Span" .
+
+cns:visitorSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:visitorAccept ;
+    rdfs:label "Visitor Pattern Span" .
+
+cns:templateSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:templateExecute ;
+    rdfs:label "Template Method Span" .
+
+cns:decoratorSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:decoratorAdd ;
+    rdfs:label "Decorator Pattern Span" .
+
+cns:prototypeSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:prototypeClone ;
+    rdfs:label "Prototype Pattern Span" .
+
+# ============================================================================
+# PERFORMANCE FUNCTIONS AND SPANS
+# ============================================================================
+
+cns:radixSort a cns:Function ;
+    cns:providesAPI "void cns_radix8_u32(uint32_t*, size_t)" ;
+    cns:cycleCost 5 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    cns:appliesOptimization cns:SimdOptimization ;
+    rdfs:label "Radix Sort Function" .
+
+cns:cmdQueuePush a cns:Function ;
+    cns:providesAPI "int cns_cmdq_push(CnsCmdQ*, const CnsCmd*)" ;
+    cns:cycleCost 3 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    rdfs:label "Command Queue Push Function" .
+
+cns:cmdQueuePop a cns:Function ;
+    cns:providesAPI "int cns_cmdq_pop(CnsCmdQ*, CnsCmd*)" ;
+    cns:cycleCost 3 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    rdfs:label "Command Queue Pop Function" .
+
+cns:roaringBitsetAnd a cns:Function ;
+    cns:providesAPI "size_t cns_roar_and(const CnsRoar*, const CnsRoar*, uint32_t*)" ;
+    cns:cycleCost 4 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    cns:appliesOptimization cns:SimdOptimization ;
+    rdfs:label "Roaring Bitset AND Function" .
+
+cns:arenaSnapshot a cns:Function ;
+    cns:providesAPI "CnsArenaSnapshot* cns_arena_snapshot(CnsArena*)" ;
+    cns:cycleCost 2 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    cns:usesMemoryModel cns:ArenaAllocator ;
+    rdfs:label "Arena Snapshot Function" .
+
+cns:histogramAdd a cns:Function ;
+    cns:providesAPI "void cns_histogram_add(CnsHistogram*, uint64_t)" ;
+    cns:cycleCost 1 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    rdfs:label "Histogram Add Function" .
+
+cns:simdPrefixSum a cns:Function ;
+    cns:providesAPI "void cns_simd_prefix_sum(uint32_t*, size_t)" ;
+    cns:cycleCost 6 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    cns:appliesOptimization cns:SimdOptimization ;
+    rdfs:label "SIMD Prefix Sum Function" .
+
+cns:schedulerTick a cns:Function ;
+    cns:providesAPI "int cns_scheduler_tick(CnsScheduler*)" ;
+    cns:cycleCost 7 ;
+    cns:hasPerformanceTier cns:SevenTickTier ;
+    rdfs:label "Scheduler Tick Function" .
+
+# Performance Spans
+cns:radixSortSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:radixSort ;
+    rdfs:label "Radix Sort Span" .
+
+cns:cmdQueueSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:cmdQueuePush ;
+    rdfs:label "Command Queue Span" .
+
+cns:roaringBitsetSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:roaringBitsetAnd ;
+    rdfs:label "Roaring Bitset Span" .
+
+cns:arenaSnapshotSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:arenaSnapshot ;
+    rdfs:label "Arena Snapshot Span" .
+
+cns:histogramSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:histogramAdd ;
+    rdfs:label "Histogram Span" .
+
+cns:simdPrefixSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:simdPrefixSum ;
+    rdfs:label "SIMD Prefix Sum Span" .
+
+cns:schedulerSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:schedulerTick ;
+    rdfs:label "Scheduler Span" .
+
+# ============================================================================
+# DOMAIN-COMMAND RELATIONSHIPS
+# ============================================================================
+
+cns:sparqlQuery a cns:SparqlCommand ;
+    cns:belongsToDomain cns:SparqlDomain ;
+    rdfs:label "SPARQL Query Command" ;
+    rdfs:comment "Execute SPARQL query" .
+
+cns:sparqlCompile a cns:SparqlCommand ;
+    cns:belongsToDomain cns:SparqlDomain ;
+    rdfs:label "SPARQL Compile Command" ;
+    rdfs:comment "Compile SPARQL query to C code (AOT)" .
+
+cns:sparqlBenchmark a cns:SparqlCommand ;
+    cns:belongsToDomain cns:SparqlDomain ;
+    rdfs:label "SPARQL Benchmark Command" ;
+    rdfs:comment "Run SPARQL performance benchmark" .
+
+cns:shaclValidate a cns:ShaclCommand ;
+    cns:belongsToDomain cns:ShaclDomain ;
+    rdfs:label "SHACL Validate Command" ;
+    rdfs:comment "Validate data against shapes" .
+
+cns:shaclCheck a cns:ShaclCommand ;
+    cns:belongsToDomain cns:ShaclDomain ;
+    rdfs:label "SHACL Check Command" ;
+    rdfs:comment "Check constraints" .
+
+cns:shaclBenchmark a cns:ShaclCommand ;
+    cns:belongsToDomain cns:ShaclDomain ;
+    rdfs:label "SHACL Benchmark Command" ;
+    rdfs:comment "Performance benchmarks" .
+
+cns:cjinjaRender a cns:CjinjaCommand ;
+    cns:belongsToDomain cns:CjinjaDomain ;
+    rdfs:label "CJinja Render Command" ;
+    rdfs:comment "Render templates" .
+
+cns:cjinjaCompile a cns:CjinjaCommand ;
+    cns:belongsToDomain cns:CjinjaDomain ;
+    rdfs:label "CJinja Compile Command" ;
+    rdfs:comment "Compile templates" .
+
+cns:cjinjaBenchmark a cns:CjinjaCommand ;
+    cns:belongsToDomain cns:CjinjaDomain ;
+    rdfs:label "CJinja Benchmark Command" ;
+    rdfs:comment "Performance benchmarks" .
+
+cns:telemetryStart a cns:TelemetryCommand ;
+    cns:belongsToDomain cns:TelemetryDomain ;
+    rdfs:label "Telemetry Start Command" ;
+    rdfs:comment "Start telemetry collection" .
+
+cns:telemetryStop a cns:TelemetryCommand ;
+    cns:belongsToDomain cns:TelemetryDomain ;
+    rdfs:label "Telemetry Stop Command" ;
+    rdfs:comment "Stop telemetry collection" .
+
+cns:telemetryReport a cns:TelemetryCommand ;
+    cns:belongsToDomain cns:TelemetryDomain ;
+    rdfs:label "Telemetry Report Command" ;
+    rdfs:comment "Generate performance reports" .
+
+cns:telemetryExport a cns:TelemetryCommand ;
+    cns:belongsToDomain cns:TelemetryDomain ;
+    rdfs:label "Telemetry Export Command" ;
+    rdfs:comment "Export telemetry data" .
+
+cns:benchmarkAll a cns:BenchmarkCommand ;
+    cns:belongsToDomain cns:BenchmarkDomain ;
+    rdfs:label "Benchmark All Command" ;
+    rdfs:comment "Run all benchmarks" .
+
+cns:benchmarkStress a cns:BenchmarkCommand ;
+    cns:belongsToDomain cns:BenchmarkDomain ;
+    rdfs:label "Benchmark Stress Command" ;
+    rdfs:comment "Run stress tests" .
+
+cns:benchmarkInfo a cns:BenchmarkCommand ;
+    cns:belongsToDomain cns:BenchmarkDomain ;
+    rdfs:label "Benchmark Info Command" ;
+    rdfs:comment "Show benchmark information" .
+
+cns:testUnit a cns:TestCommand ;
+    cns:belongsToDomain cns:TestDomain ;
+    rdfs:label "Test Unit Command" ;
+    rdfs:comment "Run unit tests" .
+
+cns:testIntegration a cns:TestCommand ;
+    cns:belongsToDomain cns:TestDomain ;
+    rdfs:label "Test Integration Command" ;
+    rdfs:comment "Run integration tests" .
+
+cns:gatekeeperRun a cns:GatekeeperCommand ;
+    cns:belongsToDomain cns:GatekeeperDomain ;
+    rdfs:label "Gatekeeper Run Command" ;
+    rdfs:comment "Run all gatekeeper tests" .
+
+# ============================================================================
+# ENGINE-DOMAIN RELATIONSHIPS
+# ============================================================================
+
+cns:SparqlDomain cns:implementsEngine cns:SparqlEngine .
+cns:ShaclDomain cns:implementsEngine cns:ShaclEngine .
+cns:CjinjaDomain cns:implementsEngine cns:CjinjaEngine .
+cns:TelemetryDomain cns:implementsEngine cns:TelemetryEngine .
+cns:BenchmarkDomain cns:implementsEngine cns:BenchmarkEngine .
+cns:GatekeeperDomain cns:implementsEngine cns:GatekeeperEngine .
+
+# ============================================================================
+# SHACL SHAPES FOR VALIDATION
+# ============================================================================
+
+cns:TelemetrySpanShape a sh:NodeShape ;
+    sh:targetClass cns:TelemetrySpan ;
+    sh:property [
+        sh:path cns:providesFunction ;
+        sh:class cns:Function ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every telemetry span must provide exactly one function"
+    ] .
+
+cns:FunctionShape a sh:NodeShape ;
+    sh:targetClass cns:Function ;
+    sh:property [
+        sh:path cns:providesAPI ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every function must provide an API signature"
+    ] ;
+    sh:property [
+        sh:path cns:cycleCost ;
+        sh:datatype xsd:integer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 100 ;
+        sh:message "Every function must have a cycle cost between 1 and 100"
+    ] .
+
+cns:CommandShape a sh:NodeShape ;
+    sh:targetClass cns:Command ;
+    sh:property [
+        sh:path cns:belongsToDomain ;
+        sh:class cns:Domain ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every command must belong to exactly one domain"
+    ] .
+
+cns:DomainShape a sh:NodeShape ;
+    sh:targetClass cns:Domain ;
+    sh:property [
+        sh:path cns:implementsEngine ;
+        sh:class cns:Engine ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:message "A domain may implement at most one engine"
+    ] .
+
+cns:EngineShape a sh:NodeShape ;
+    sh:targetClass cns:Engine ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every engine must have a label"
+    ] ;
+    sh:property [
+        sh:path rdfs:comment ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every engine must have a description"
+    ] .
+
+cns:PerformanceMetricShape a sh:NodeShape ;
+    sh:targetClass cns:PerformanceMetric ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every performance metric must have a label"
+    ] ;
+    sh:property [
+        sh:path rdfs:comment ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every performance metric must have a description"
+    ] .
+
+cns:MemoryModelShape a sh:NodeShape ;
+    sh:targetClass cns:MemoryModel ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every memory model must have a label"
+    ] ;
+    sh:property [
+        sh:path rdfs:comment ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every memory model must have a description"
+    ] .
+
+cns:OptimizationShape a sh:NodeShape ;
+    sh:targetClass cns:Optimization ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every optimization must have a label"
+    ] ;
+    sh:property [
+        sh:path rdfs:comment ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every optimization must have a description"
+    ] . 

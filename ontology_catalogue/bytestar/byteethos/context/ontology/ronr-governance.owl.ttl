@@ -1,0 +1,124 @@
+@prefix : <https://bytestar.org/ontology/byteethos/ronr-governance#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+
+<https://bytestar.org/ontology/byteethos/ronr-governance>
+  a owl:Ontology ;
+  rdfs:label "ByteEthos Robert's Rules of Order Governance Specification" ;
+  rdfs:comment "Formalizes the procedural rules of Robert's Rules of Order as executable governance contracts within ByteEthos, ensuring deterministic and auditable decision-making." ;
+  owl:versionInfo "1.0.0" ;
+  owl:imports bcore: .
+
+#################################################################
+# Core RONR Concepts
+#################################################################
+
+:Motion a owl:Class ;
+  rdfs:label "Motion" ;
+  rdfs:comment "A formal proposal by a member for action or decision by the assembly." .
+
+:Amendment a owl:Class ;
+  rdfs:label "Amendment" ;
+  rdfs:comment "A proposal to modify a motion." .
+
+:Vote a owl:Class ;
+  rdfs:label "Vote" ;
+  rdfs:comment "A formal expression of choice or opinion by the assembly." .
+
+:Quorum a owl:Class ;
+  rdfs:label "Quorum" ;
+  rdfs:comment "The minimum number of members who must be present at the meetings of a deliberative assembly for business to be validly transacted." .
+
+:Meeting a owl:Class ;
+  rdfs:label "Meeting" ;
+  rdfs:comment "A formal gathering of the assembly." .
+
+:Member a owl:Class ;
+  rdfs:label "Member" ;
+  rdfs:comment "An individual with voting rights in the assembly." ;
+  rdfs:subClassOf bcore:IdentityCrystal . # Members are represented by Identity Crystals
+
+#################################################################
+# RONR Properties
+#################################################################
+
+:proposes a owl:ObjectProperty ;
+  rdfs:label "proposes" ;
+  rdfs:domain :Member ;
+  rdfs:range :Motion ;
+  rdfs:comment "A member proposes a motion." .
+
+:isSecondedBy a owl:ObjectProperty ;
+  rdfs:label "is seconded by" ;
+  rdfs:domain :Motion ;
+  rdfs:range :Member ;
+  rdfs:comment "A motion is seconded by a member." .
+
+:isSubjectTo a owl:ObjectProperty ;
+  rdfs:label "is subject to" ;
+  rdfs:domain :Motion ;
+  rdfs:range :Amendment ;
+  rdfs:comment "A motion is subject to an amendment." .
+
+:hasVote a owl:ObjectProperty ;
+  rdfs:label "has vote" ;
+  rdfs:domain :Motion ;
+  rdfs:range :Vote ;
+  rdfs:comment "A motion has a vote associated with it." .
+
+:requiresQuorum a owl:ObjectProperty ;
+  rdfs:label "requires quorum" ;
+  rdfs:domain :Meeting ;
+  rdfs:range :Quorum ;
+  rdfs:comment "A meeting requires a specific quorum." .
+
+:quorumCount a owl:DatatypeProperty ;
+  rdfs:label "quorum count" ;
+  rdfs:domain :Quorum ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "The numerical count for the quorum." .
+
+:voteResult a owl:DatatypeProperty ;
+  rdfs:label "vote result" ;
+  rdfs:domain :Vote ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "The outcome of a vote (true for passed, false for failed)." .
+
+:voteCountFor a owl:DatatypeProperty ;
+  rdfs:label "vote count for" ;
+  rdfs:domain :Vote ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "The number of votes in favor." .
+
+:voteCountAgainst a owl:DatatypeProperty ;
+  rdfs:label "vote count against" ;
+  rdfs:domain :Vote ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "The number of votes against." .
+
+:isPassedBy a owl:ObjectProperty ;
+  rdfs:label "is passed by" ;
+  rdfs:domain :Motion ;
+  rdfs:range :Vote ;
+  rdfs:comment "A motion is passed by a specific vote." .
+
+:hasPrecedenceOver a owl:ObjectProperty ;
+  rdfs:label "has precedence over" ;
+  rdfs:domain :Motion ;
+  rdfs:range :Motion ;
+  rdfs:comment "Indicates a motion has precedence over another motion according to RONR rules." .
+
+:isDebatable a owl:DatatypeProperty ;
+  rdfs:label "is debatable" ;
+  rdfs:domain :Motion ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "Indicates if a motion is debatable." .
+
+:isAmendable a owl:DatatypeProperty ;
+  rdfs:label "is amendable" ;
+  rdfs:domain :Motion ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "Indicates if a motion is amendable." .

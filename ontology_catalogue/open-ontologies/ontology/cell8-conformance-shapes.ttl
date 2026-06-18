@@ -1,0 +1,49 @@
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix earl:  <http://www.w3.org/ns/earl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix cell8: <urn:ontostar:cell8:shape:> .
+@prefix c8:    <urn:ontostar:cell8:> .
+
+#
+# Cell8 13-gate EARL conformance shapes (Phase 10 final)
+#
+# Validates the EARL Turtle report emitted by `crate::cell8::emit_earl_report`.
+# The emitter writes one `c8:hasGate` triple on the receipt subject per
+# emitted assertion (one per Cell8 gate). The shape below requires that
+# every `earl:TestSubject` carry EXACTLY 13 such edges.
+#
+# We use a forward path (`c8:hasGate`) rather than `sh:inversePath earl:subject`
+# because the inline validator in `crate::shacl` does not yet implement
+# inverse paths. The forward count is byte-for-byte equivalent — the emitter
+# writes one `c8:hasGate` triple for each `earl:Assertion` blank node it emits.
+#
+
+cell8:ReceiptCoverageShape
+    a sh:NodeShape ;
+    rdfs:label "Cell8 13-gate receipt coverage shape" ;
+    rdfs:comment
+        "Asserts that every receipt declared as earl:TestSubject carries exactly thirteen c8:hasGate edges, one per Cell8 gate (A1–A13). Used by tests/cell8_thirteen_gates.rs to reject any report that drops a gate." ;
+    sh:targetClass earl:TestSubject ;
+    sh:property [
+        sh:path c8:hasGate ;
+        sh:minCount 13 ;
+        sh:maxCount 13 ;
+        sh:in (
+            <urn:ontostar:gate:A1_WorkflowDeclared>
+            <urn:ontostar:gate:A2_ScopeClosed>
+            <urn:ontostar:gate:A3_OCELComplete>
+            <urn:ontostar:gate:A4_POWLReplayPass>
+            <urn:ontostar:gate:A5_ThresholdPass>
+            <urn:ontostar:gate:A6_RequiredStagesPresent>
+            <urn:ontostar:gate:A7_NoBypassRevocation>
+            <urn:ontostar:gate:A8_ReceiptValid>
+            <urn:ontostar:gate:A9_ProvenanceChain>
+            <urn:ontostar:gate:A10_ExternalAttestation>
+            <urn:ontostar:gate:A11_TemporalValidity>
+            <urn:ontostar:gate:A12_DependencyClosure>
+            <urn:ontostar:gate:A13_ReplayProof>
+        ) ;
+        sh:message "Cell8 conformance requires exactly 13 c8:hasGate edges per receipt subject (A1–A13)." ;
+    ] .

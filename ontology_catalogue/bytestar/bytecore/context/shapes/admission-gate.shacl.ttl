@@ -1,0 +1,16 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+
+<https://bytestar.org/ontology/bytecore/governance/admission-gate>
+  a sh:NodeShape ;
+  sh:targetClass bcore:MissionCrystal ;
+  sh:message "SHACL shapes for the ByteFlow admission gate (Theta predicate). These rules validate a MissionCrystal before it is accepted for fabrication." .
+
+# Example Rule: MissionCrystal must have a valid PQC signature (conceptual).
+# The actual validation would be a more complex function, but this shape enforces the presence of the signature property.
+# A property like :hasPQCSignature would need to be defined in a relevant ontology.
+# :MissionCrystalShape sh:property [
+#   sh:path :hasPQCSignature ;
+#   sh:minCount 1 ;
+#   sh:message "A MissionCrystal must have a PQC signature."
+# ] .

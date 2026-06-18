@@ -1,0 +1,26 @@
+# Invalid TTL file for error testing
+@prefix ex: <http://example.org/> .
+
+# Missing object
+ex:subject ex:predicate .
+
+# Invalid URI (unclosed)
+ex:subject2 ex:predicate <http://example.org/unclosed .
+
+# Invalid string literal (unclosed)
+ex:subject3 ex:predicate "unclosed string .
+
+# Invalid prefix declaration
+@prefix : .
+
+# Missing dot at end of statement
+ex:subject4 ex:predicate ex:object
+
+# Invalid blank node syntax
+ex:subject5 ex:predicate _ .
+
+# Multiple errors in one statement
+ex:subject6 ex:predicate "unclosed <invalid .
+
+# Valid statement after errors (for recovery testing)
+ex:validSubject ex:validPredicate "Valid Object" .

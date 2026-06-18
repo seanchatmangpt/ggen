@@ -1,0 +1,8 @@
+SELECT DISTINCT ?test ?test_name ?test_description ?test_code ?test_assertion
+WHERE {
+    ?test a ggen:Test .
+    ?test ggen:name ?test_name .
+    OPTIONAL { ?test ggen:description ?test_description }
+    OPTIONAL { ?test ggen:code ?test_code }
+    OPTIONAL { ?test ggen:assertion ?test_assertion }
+} ORDER BY ?test_name

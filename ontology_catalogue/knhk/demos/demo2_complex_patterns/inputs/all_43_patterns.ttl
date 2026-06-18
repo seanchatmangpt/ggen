@@ -1,0 +1,165 @@
+@prefix wf: <http://knhk.example/workflow/> .
+@prefix yawl: <http://knhk.example/yawl/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+
+# DEMO 2: Complex Pattern Composition
+# Shows 5+ Van der Aalst patterns working together:
+# 1. Sequence (Task1 → Task2)
+# 2. Parallel Split (Task2 → Task3, Task4)
+# 3. Exclusive Choice (Task4 → Task5 XOR Task6)
+# 4. Synchronization (Task3 && Task5/6 → Task7)
+# 5. Simple Merge (Task7 collects results)
+
+wf:ComplexWorkflow a yawl:Workflow ;
+    dc:title "Complex Pattern Composition" ;
+    dc:description "Demonstrates all 5+ Van der Aalst patterns in one workflow" ;
+    yawl:hasStartTask wf:Task1 ;
+    yawl:pattern yawl:ComplexComposition ;
+    yawl:patternsUsed (
+        yawl:Sequence
+        yawl:ParallelSplit
+        yawl:Synchronization
+        yawl:ExclusiveChoice
+        yawl:SimpleMerge
+    ) ;
+    yawl:chatmanConstant 5 ;
+    yawl:latencySLOTicks 8 .
+
+# Pattern 1: Sequence
+wf:Task1 a yawl:Task ;
+    dc:title "Task 1: Start" ;
+    yawl:pattern yawl:SimpleActivity ;
+    yawl:nextTask wf:Task2 ;
+    yawl:inputs ([yawl:name "initial_data" ; yawl:type "string"]) ;
+    yawl:outputs ([yawl:name "data_validated"]) .
+
+wf:Task2 a yawl:Task ;
+    dc:title "Task 2: Pre-process" ;
+    yawl:pattern yawl:SimpleActivity ;
+    yawl:nextTask wf:ParallelSplit ;
+    yawl:inputs ([yawl:name "input"]) ;
+    yawl:outputs ([yawl:name "processed_data"]) .
+
+# Pattern 2: Parallel Split
+wf:ParallelSplit a yawl:ParallelSplit ;
+    dc:title "Parallel Split: Route to Task3 AND Task4" ;
+    yawl:branches (wf:Task3 wf:Task4) .
+
+wf:Task3 a yawl:Task ;
+    dc:title "Task 3: Process Path A" ;
+    yawl:pattern yawl:SimpleActivity ;
+    yawl:estimatedDuration "PT2S" ;
+    yawl:inputs ([yawl:name "data"]) ;
+    yawl:outputs ([yawl:name "result_a"]) ;
+    yawl:nextTask wf:Synchronization .
+
+wf:Task4 a yawl:Task ;
+    dc:title "Task 4: Decision Point" ;
+    yawl:pattern yawl:ExclusiveChoice ;
+    yawl:inputs ([yawl:name "data"]) ;
+    yawl:condition "[data.priority == 'high']" ;
+    yawl:trueTask wf:Task5 ;
+    yawl:falseTask wf:Task6 .
+
+# Pattern 3: Exclusive Choice
+wf:Task5 a yawl:Task ;
+    dc:title "Task 5: High Priority Path" ;
+    yawl:pattern yawl:SimpleActivity ;
+    yawl:estimatedDuration "PT3S" ;
+    yawl:inputs ([yawl:name "data"]) ;
+    yawl:outputs ([yawl:name "result_b"]) ;
+    yawl:nextTask wf:Synchronization .
+
+wf:Task6 a yawl:Task ;
+    dc:title "Task 6: Normal Priority Path" ;
+    yawl:pattern yawl:SimpleActivity ;
+    yawl:estimatedDuration "PT1S" ;
+    yawl:inputs ([yawl:name "data"]) ;
+    yawl:outputs ([yawl:name "result_b"]) ;
+    yawl:nextTask wf:Synchronization .
+
+# Pattern 4: Synchronization
+wf:Synchronization a yawl:Synchronization ;
+    dc:title "Synchronization: Wait for Task3 AND (Task5 OR Task6)" ;
+    yawl:joins (wf:Task3 wf:Task5 wf:Task6) ;
+    yawl:pattern yawl:MultiWayMerge ;
+    yawl:nextTask wf:Task7 .
+
+# Pattern 5: Simple Merge
+wf:Task7 a yawl:Task ;
+    dc:title "Task 7: Final Merge" ;
+    yawl:pattern yawl:SimpleMerge ;
+    yawl:inputs (
+        [yawl:name "result_a"]
+        [yawl:name "result_b"]
+    ) ;
+    yawl:outputs ([yawl:name "final_result"]) ;
+    yawl:nextTask wf:EndTask .
+
+wf:EndTask a yawl:EndTask ;
+    dc:title "Workflow Complete" ;
+    yawl:pattern yawl:TerminationTask .
+
+# Telemetry
+wf:ComplexWorkflow yawl:hasMonitor [
+    dc:title "Pattern Execution Monitor" ;
+    yawl:monitors (
+        [yawl:name "sequence_execution" ; yawl:expected true]
+        [yawl:name "parallel_split_both_branches" ; yawl:expected true]
+        [yawl:name "exclusive_choice_routes_correctly" ; yawl:expected true]
+        [yawl:name "synchronization_merges_all" ; yawl:expected true]
+        [yawl:name "simple_merge_completes" ; yawl:expected true]
+    )
+] .
+
+# Q Invariants
+wf:ComplexWorkflow yawl:hasInvariant [
+    dc:title "Q1: Pattern Coverage" ;
+    yawl:invariantType "hard" ;
+    yawl:expression "all_patterns_in_permutation_matrix(patterns_used)" ;
+    yawl:enforcedAt "definition_time"
+] ;
+yawl:hasInvariant [
+    dc:title "Q2: No Deadlocks" ;
+    yawl:invariantType "hard" ;
+    yawl:expression "forall split: exists_matching_join(split)" ;
+    yawl:enforcedAt "runtime"
+] ;
+yawl:hasInvariant [
+    dc:title "Q3: Chatman Constant" ;
+    yawl:invariantType "hard" ;
+    yawl:expression "forall task: latency(task) <= 8" ;
+    yawl:enforcedAt "runtime" ;
+    yawl:violationAction "abort"
+] .
+
+# Proof: This composition is valid per Van der Aalst
+wf:ComplexWorkflow yawl:validatedBy [
+    dc:title "Pattern Permutation Matrix Validation" ;
+    yawl:reference "yawl-pattern-permutations.ttl" ;
+    yawl:patternSequence [
+        yawl:index 1 ;
+        yawl:pattern yawl:Sequence ;
+        yawl:isValid true
+    ] ;
+    yawl:patternSequence [
+        yawl:index 2 ;
+        yawl:pattern yawl:ParallelSplit ;
+        yawl:isValid true
+    ] ;
+    yawl:patternSequence [
+        yawl:index 3 ;
+        yawl:pattern yawl:ExclusiveChoice ;
+        yawl:isValid true
+    ] ;
+    yawl:patternSequence [
+        yawl:index 4 ;
+        yawl:pattern yawl:Synchronization ;
+        yawl:isValid true
+    ] ;
+    yawl:patternSequence [
+        yawl:index 5 ;
+        yawl:pattern yawl:SimpleMerge ;
+        yawl:isValid true
+    ]
+] .

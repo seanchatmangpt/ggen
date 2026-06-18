@@ -1,0 +1,254 @@
+# YAWL Net Shapes
+# Defines SHACL constraints for YAWL net structure
+
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix yawl:    <http://www.yawlfoundation.org/yawl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex:      <http://example.org/yawl-shapes#> .
+
+# Shape for YAWL Conditions
+ex:ConditionShape a sh:NodeShape ;
+    rdfs:comment "YAWL condition element" ;
+    sh:targetClass yawl:Condition ;
+    sh:property [
+        sh:path yawl:hasName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^(start|end|condition-.*|condition[0-9]+)$" ;
+        sh:message "Condition names must follow pattern: start, end, or condition-*" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasFlows ;
+        sh:node ex:FlowsContainerShape ;
+        sh:minCount 1 ;
+        sh:message "Condition must have flows" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasOutputFlow ;
+        sh:minCount 0 ;
+        sh:message "Condition can have output flows but no input flows" ;
+    ] .
+
+# Shape for YAWL Tasks
+ex:TaskShape a sh:NodeShape ;
+    rdfs:comment "YAWL task element" ;
+    sh:targetClass yawl:Task ;
+    sh:property [
+        sh:path yawl:hasName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^(task-.*|task[0-9]+)$" ;
+        sh:message "Task names must follow pattern: task-* or task[0-9]+" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasFlows ;
+        sh:node ex:FlowsContainerShape ;
+        sh:minCount 1 ;
+        sh:message "Task must have flows" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasInputFlow ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedValueShapes [
+            sh:node ex:InputFlowShape ;
+        ] ;
+        sh:message "Task must have at least one input flow" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasOutputFlow ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedValueShapes [
+            sh:node ex:OutputFlowShape ;
+        ] ;
+        sh:message "Task must have at least one output flow" ;
+    ] .
+
+# Shape for YAWL Gateways
+ex:NetGatewayShape a sh:NodeShape ;
+    rdfs:comment "YAWL gateway element" ;
+    sh:targetClass yawl:Gateway ;
+    sh:property [
+        sh:path yawl:hasName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^(gateway-.*|gateway[0-9]+)$" ;
+        sh:message "Gateway names must follow pattern: gateway-* or gateway[0-9]+" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasFlows ;
+        sh:node ex:FlowsContainerShape ;
+        sh:minCount 1 ;
+        sh:message "Gateway must have flows" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasInputFlow ;
+        sh:qualifiedMinCount 2 ;
+        sh:qualifiedValueShapes [
+            sh:node ex:InputFlowShape ;
+        ] ;
+        sh:message "Gateway must have at least two input flows" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasOutputFlow ;
+        sh:qualifiedMinCount 2 ;
+        sh:qualifiedValueShapes [
+            sh:node ex:OutputFlowShape ;
+        ] ;
+        sh:message "Gateway must have at least two output flows" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasGatewayType ;
+        sh:datatype xsd:string ;
+        sh:hasValue "xor" ;
+        sh:message "Gateway type must be 'xor'" ;
+    ] .
+
+# Shape for Flows Container
+ex:FlowsContainerShape a sh:NodeShape ;
+    rdfs:comment "Container for flows in a YAWL element" ;
+    sh:targetClass yawl:Flows ;
+    sh:property [
+        sh:path yawl:hasFlow ;
+        sh:node ex:FlowShape ;
+        sh:minCount 1 ;
+        sh:message "Flows container must have at least one flow" ;
+    ] .
+
+# Shape for YAWL Flow
+ex:FlowShape a sh:NodeShape ;
+    rdfs:comment "YAWL flow element" ;
+    sh:targetClass yawl:Flow ;
+    sh:property [
+        sh:path yawl:hasSource ;
+        sh:datatype xsd:anyURI ;
+        sh:minCount 1 ;
+        sh:message "Flow must have a source element" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasTarget ;
+        sh:datatype xsd:anyURI ;
+        sh:minCount 1 ;
+        sh:message "Flow must have a target element" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasFlowType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:hasValue "normal" ;
+        sh:message "Flow type must be 'normal'" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasCondition ;
+        sh:node ex:FlowConditionShape ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:message "Flow can have a condition" ;
+    ] .
+
+# Shape for Input Flow
+ex:InputFlowShape a sh:NodeShape ;
+    rdfs:comment "Input flow to a YAWL element" ;
+    sh:targetClass yawl:InputFlow ;
+    sh:property [
+        sh:path yawl:hasSource ;
+        sh:datatype xsd:anyURI ;
+        sh:minCount 1 ;
+        sh:message "Input flow must have a source" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasTarget ;
+        sh:datatype xsd:anyURI ;
+        sh:minCount 1 ;
+        sh:message "Input flow must have a target" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasFlowType ;
+        sh:datatype xsd:string ;
+        sh:hasValue "input" ;
+        sh:message "Input flow type must be 'input'" ;
+    ] .
+
+# Shape for Output Flow
+ex:OutputFlowShape a sh:NodeShape ;
+    rdfs:comment "Output flow from a YAWL element" ;
+    sh:targetClass yawl:OutputFlow ;
+    sh:property [
+        sh:path yawl:hasSource ;
+        sh:datatype xsd:anyURI ;
+        sh:minCount 1 ;
+        sh:message "Output flow must have a source" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasTarget ;
+        sh:datatype xsd:anyURI ;
+        sh:minCount 1 ;
+        sh:message "Output flow must have a target" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasFlowType ;
+        sh:datatype xsd:string ;
+        sh:hasValue "output" ;
+        sh:message "Output flow type must be 'output'" ;
+    ] .
+
+# Shape for XOR Join Gateway
+ex:XorJoinShape a sh:NodeShape ;
+    rdfs:comment "XOR join gateway" ;
+    sh:targetClass yawl:Gateway ;
+    sh:property [
+        sh:path yawl:hasGatewayType ;
+        sh:datatype xsd:string ;
+        sh:hasValue "xor-join" ;
+        sh:message "XOR join gateway type must be 'xor-join'" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasInputFlow ;
+        sh:qualifiedMinCount 2 ;
+        sh:qualifiedMaxCount 5 ;
+        sh:qualifiedValueShapes [
+            sh:node ex:InputFlowShape ;
+        ] ;
+        sh:message "XOR join must have 2-5 input flows" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasOutputFlow ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:qualifiedValueShapes [
+            sh:node ex:OutputFlowShape ;
+        ] ;
+        sh:message "XOR join must have exactly one output flow" ;
+    ] .
+
+# Shape for XOR Split Gateway
+ex:XorSplitShape a sh:NodeShape ;
+    rdfs:comment "XOR split gateway" ;
+    sh:targetClass yawl:Gateway ;
+    sh:property [
+        sh:path yawl:hasGatewayType ;
+        sh:datatype xsd:string ;
+        sh:hasValue "xor-split" ;
+        sh:message "XOR split gateway type must be 'xor-split'" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasInputFlow ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:qualifiedValueShapes [
+            sh:node ex:InputFlowShape ;
+        ] ;
+        sh:message "XOR split must have exactly one input flow" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasOutputFlow ;
+        sh:qualifiedMinCount 2 ;
+        sh:qualifiedMaxCount 5 ;
+        sh:qualifiedValueShapes [
+            sh:node ex:OutputFlowShape ;
+        ] ;
+        sh:message "XOR split must have 2-5 output flows" ;
+    ] .

@@ -1,0 +1,1050 @@
+@prefix : <http://bitflow.ai/ontology/patterns#> .
+@prefix wp: <http://bitflow.ai/ontology/workflow-patterns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix yawl: <http://bitflow.ai/ontology/yawl/v2#> .
+@prefix perf: <http://bitflow.ai/ontology/performance#> .
+@prefix sparql: <http://bitflow.ai/sparql/patterns#> .
+@prefix bitflow: <http://bitflow.ai/ontology/core#> .
+@prefix telemetry: <http://bitflow.ai/ontology/telemetry#> .
+
+# ========================================
+# BitFlow Comprehensive Workflow Patterns Ontology v2.0
+# Complete TTL Implementation of all 43 Workflow Patterns
+# ========================================
+
+<http://bitflow.ai/ontology/bitflow-comprehensive-patterns> a owl:Ontology ;
+    rdfs:label "BitFlow Comprehensive Workflow Patterns Ontology v2.0" ;
+    rdfs:comment "Complete TTL semantic model for all 43 workflow patterns with BitFlow performance extensions" ;
+    owl:versionInfo "2.0.0" ;
+    owl:imports <http://bitflow.ai/ontology/yawl/v2> ;
+    rdfs:seeAlso <http://www.workflowpatterns.com/> ;
+    rdfs:seeAlso <https://www.yawlfoundation.org/> ;
+    rdfs:seeAlso <http://bitflow.ai/> .
+
+# ========================================
+# Core BitFlow Engine Integration
+# ========================================
+
+bitflow:Engine a owl:Class ;
+    rdfs:label "BitFlow Engine" ;
+    rdfs:comment "The runtime engine that executes workflow patterns" .
+
+bitflow:InstanceContext a owl:Class ;
+    rdfs:label "Instance Context" ;
+    rdfs:comment "Execution context for a pattern instance" .
+
+bitflow:PatternHandler a owl:Class ;
+    rdfs:label "Pattern Handler" ;
+    rdfs:comment "Function that implements pattern execution logic" .
+
+bitflow:TelemetryFrame a owl:Class ;
+    rdfs:label "Telemetry Frame" ;
+    rdfs:comment "Performance measurement data structure" .
+
+# ========================================
+# Performance and Memory Management Classes
+# ========================================
+
+perf:TickBudget a owl:Class ;
+    rdfs:label "Tick Budget" ;
+    rdfs:comment "CPU tick allocation for pattern execution" .
+
+perf:SIMDCapability a owl:Class ;
+    rdfs:label "SIMD Capability" ;
+    rdfs:comment "Vector instruction support for patterns" .
+
+perf:MemoryPool a owl:Class ;
+    rdfs:label "Memory Pool" ;
+    rdfs:comment "Pre-allocated memory for pattern scratch space" .
+
+perf:AtomicOperation a owl:Class ;
+    rdfs:label "Atomic Operation" ;
+    rdfs:comment "Thread-safe operation for concurrent patterns" .
+
+# ========================================
+# Pattern Base Class with BitFlow Extensions
+# ========================================
+
+:BitFlowPattern a owl:Class ;
+    rdfs:subClassOf yawl:Task ;
+    rdfs:label "BitFlow Pattern" ;
+    rdfs:comment "Workflow pattern optimized for BitFlow engine execution" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :maxExecutionTicks ;
+        owl:hasValue 8
+    ] .
+
+# Enhanced Properties
+:patternID a owl:DatatypeProperty ;
+    rdfs:domain :BitFlowPattern ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Pattern ID" ;
+    rdfs:comment "Zero-based pattern identifier (0-42)" .
+
+:handlerFunction a owl:DatatypeProperty ;
+    rdfs:domain :BitFlowPattern ;
+    rdfs:range xsd:string ;
+    rdfs:label "Handler Function" ;
+    rdfs:comment "C function name that implements the pattern" .
+
+:maxExecutionTicks a owl:DatatypeProperty ;
+    rdfs:domain :BitFlowPattern ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Maximum Execution Ticks" ;
+    rdfs:comment "Hard limit of CPU ticks (≤8 for BitFlow)" .
+
+:requiredFeatures a owl:DatatypeProperty ;
+    rdfs:domain :BitFlowPattern ;
+    rdfs:range xsd:string ;
+    rdfs:label "Required Features" ;
+    rdfs:comment "CPU features needed (SIMD, atomic, prefetch)" .
+
+:scratchSize a owl:DatatypeProperty ;
+    rdfs:domain :BitFlowPattern ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Scratch Size" ;
+    rdfs:comment "Pre-allocated scratch memory in bytes (128 aligned)" .
+
+:isBranchless a owl:DatatypeProperty ;
+    rdfs:domain :BitFlowPattern ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Is Branchless" ;
+    rdfs:comment "Uses branchless programming for performance" .
+
+:usesAtomicOps a owl:DatatypeProperty ;
+    rdfs:domain :BitFlowPattern ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Uses Atomic Operations" ;
+    rdfs:comment "Requires atomic operations for thread safety" .
+
+# ========================================
+# CATEGORY 1: Basic Control Flow Patterns (0-4)
+# ========================================
+
+# Pattern 0: Sequence (1 in literature)
+:SequencePattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 0: Sequence" ;
+    rdfs:comment "Sequential execution of activities with zero overhead flow transition" ;
+    :patternID 0 ;
+    :handlerFunction "pattern_sequence_handler" ;
+    :maxExecutionTicks 2 ;
+    :requiredFeatures "PATTERN_FEATURE_NONE" ;
+    :scratchSize 128 ;
+    :isBranchless true ;
+    :usesAtomicOps false ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+    :hasImplementationHint "Direct flow transition, zero overhead, single write telemetry" .
+
+# Pattern 1: Parallel Split (2 in literature)
+:ParallelSplitPattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 1: Parallel Split (AND-split)" ;
+    rdfs:comment "Splits execution into multiple parallel branches with SIMD optimization" ;
+    :patternID 1 ;
+    :handlerFunction "pattern_parallel_split_handler" ;
+    :maxExecutionTicks 3 ;
+    :requiredFeatures "PATTERN_FEATURE_SIMD" ;
+    :scratchSize 128 ;
+    :isBranchless true ;
+    :usesAtomicOps false ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:XOR ;
+    :hasImplementationHint "Use SIMD for parallel branch initialization, packed operations" .
+
+# Pattern 2: Synchronization (3 in literature)
+:SynchronizationPattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 2: Synchronization (AND-join)" ;
+    rdfs:comment "Synchronizes multiple parallel branches using atomic counters" ;
+    :patternID 2 ;
+    :handlerFunction "pattern_synchronization_handler" ;
+    :maxExecutionTicks 4 ;
+    :requiredFeatures "PATTERN_FEATURE_ATOMIC" ;
+    :scratchSize 128 ;
+    :isBranchless true ;
+    :usesAtomicOps true ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:AND ;
+    :hasImplementationHint "Atomic counter for branch tracking, memory barriers avoided" .
+
+# Pattern 3: Exclusive Choice (4 in literature)
+:ExclusiveChoicePattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 3: Exclusive Choice (XOR-split)" ;
+    rdfs:comment "Selects one branch from multiple alternatives with branch prediction" ;
+    :patternID 3 ;
+    :handlerFunction "pattern_exclusive_choice_handler" ;
+    :maxExecutionTicks 3 ;
+    :requiredFeatures "PATTERN_FEATURE_NONE" ;
+    :scratchSize 128 ;
+    :isBranchless true ;
+    :usesAtomicOps false ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+    :hasImplementationHint "Branch prediction optimization, fast modulo for power-of-2" .
+
+# Pattern 4: Simple Merge (5 in literature)
+:SimpleMergePattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 4: Simple Merge (XOR-join)" ;
+    rdfs:comment "Merges alternative branches without synchronization" ;
+    :patternID 4 ;
+    :handlerFunction "pattern_simple_merge_handler" ;
+    :maxExecutionTicks 2 ;
+    :requiredFeatures "PATTERN_FEATURE_NONE" ;
+    :scratchSize 128 ;
+    :isBranchless true ;
+    :usesAtomicOps false ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+    :hasImplementationHint "Direct flow merge, no waiting, single atomic write" .
+
+# ========================================
+# CATEGORY 2: Advanced Branching and Synchronization (5-8)
+# ========================================
+
+# Pattern 5: Multi-Choice (6 in literature)
+:MultiChoicePattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 5: Multi-Choice (OR-split)" ;
+    rdfs:comment "Selects one or more branches based on conditions using bitmasks" ;
+    :patternID 5 ;
+    :handlerFunction "pattern_multi_choice_handler" ;
+    :maxExecutionTicks 3 ;
+    :requiredFeatures "PATTERN_FEATURE_SIMD" ;
+    :scratchSize 128 ;
+    :isBranchless true ;
+    :usesAtomicOps false ;
+    yawl:hasSplitType yawl:OR ;
+    yawl:hasJoinType yawl:XOR ;
+    :hasImplementationHint "Bitmap for branch selection, SIMD condition evaluation" .
+
+# Pattern 6: Structured Synchronizing Merge (7 in literature)
+:StructuredSyncMergePattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 6: Structured Synchronizing Merge" ;
+    rdfs:comment "Merges paths that diverged from same OR-split" ;
+    :patternID 6 ;
+    :handlerFunction "pattern_structured_sync_merge_handler" ;
+    :maxExecutionTicks 4 ;
+    :requiredFeatures "PATTERN_FEATURE_ATOMIC" ;
+    :scratchSize 128 ;
+    :isBranchless false ;
+    :usesAtomicOps true ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:OR ;
+    :hasImplementationHint "Track split context for proper sync, complex reachability" .
+
+# Pattern 7: Multi-Merge (8 in literature)
+:MultiMergePattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 7: Multi-Merge" ;
+    rdfs:comment "Allows activity execution for each incoming branch" ;
+    :patternID 7 ;
+    :handlerFunction "pattern_multi_merge_handler" ;
+    :maxExecutionTicks 2 ;
+    :requiredFeatures "PATTERN_FEATURE_NONE" ;
+    :scratchSize 128 ;
+    :isBranchless true ;
+    :usesAtomicOps false ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:OR ;
+    :hasImplementationHint "Queue incoming tokens, no synchronization needed" .
+
+# Pattern 8: Structured Discriminator (9 in literature)
+:StructuredDiscriminatorPattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 8: Structured Discriminator" ;
+    rdfs:comment "Waits for first incoming branch then cancels others" ;
+    :patternID 8 ;
+    :handlerFunction "pattern_structured_discriminator_handler" ;
+    :maxExecutionTicks 3 ;
+    :requiredFeatures "PATTERN_FEATURE_ATOMIC" ;
+    :scratchSize 128 ;
+    :isBranchless false ;
+    :usesAtomicOps true ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:OR ;
+    :hasImplementationHint "Atomic first-arrival detection, cancel signal broadcast" .
+
+# ========================================
+# CATEGORY 3: Structural (9-10)
+# ========================================
+
+# Pattern 9: Arbitrary Cycles (10 in literature)
+:ArbitraryCyclesPattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 9: Arbitrary Cycles" ;
+    rdfs:comment "Supports loops in workflow graph with overflow protection" ;
+    :patternID 9 ;
+    :handlerFunction "pattern_arbitrary_cycles_handler" ;
+    :maxExecutionTicks 4 ;
+    :requiredFeatures "PATTERN_FEATURE_NONE" ;
+    :scratchSize 128 ;
+    :isBranchless true ;
+    :usesAtomicOps false ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+    :hasImplementationHint "Loop counter with overflow protection, cycle detection" .
+
+# Pattern 10: Implicit Termination (11 in literature)
+:ImplicitTerminationPattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 10: Implicit Termination" ;
+    rdfs:comment "Process ends when no activities can execute" ;
+    :patternID 10 ;
+    :handlerFunction "pattern_implicit_termination_handler" ;
+    :maxExecutionTicks 4 ;
+    :requiredFeatures "PATTERN_FEATURE_ATOMIC" ;
+    :scratchSize 128 ;
+    :isBranchless false ;
+    :usesAtomicOps true ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+    :hasImplementationHint "Global activity counter, deadlock detection" .
+
+# ========================================
+# CATEGORY 4: Multiple Instance Patterns (11-14)
+# ========================================
+
+# Pattern 11: Multiple Instances without Synchronization (12 in literature)
+:MIWithoutSyncPattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 11: MI without Synchronization" ;
+    rdfs:comment "Creates instances without waiting for completion" ;
+    :patternID 11 ;
+    :handlerFunction "pattern_mi_without_sync_handler" ;
+    :maxExecutionTicks 2 ;
+    :requiredFeatures "PATTERN_FEATURE_SIMD" ;
+    :scratchSize 128 ;
+    :isBranchless true ;
+    :usesAtomicOps false ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:XOR ;
+    :hasImplementationHint "Fire-and-forget spawning, SIMD for batch creation" .
+
+# Pattern 12: Multiple Instances with Design-Time Knowledge (13 in literature)
+:MIDesignTimePattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 12: MI with Design-Time Knowledge" ;
+    rdfs:comment "Number of instances known at design time" ;
+    :patternID 12 ;
+    :handlerFunction "pattern_mi_design_time_handler" ;
+    :maxExecutionTicks 3 ;
+    :requiredFeatures "PATTERN_FEATURE_SIMD" ;
+    :scratchSize 128 ;
+    :isBranchless true ;
+    :usesAtomicOps false ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:AND ;
+    :hasImplementationHint "Pre-allocated instance pool, vectorized initialization" .
+
+# Pattern 13: Multiple Instances with Runtime Knowledge (14 in literature)
+:MIRuntimePattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 13: MI with Runtime Knowledge" ;
+    rdfs:comment "Number of instances known at runtime" ;
+    :patternID 13 ;
+    :handlerFunction "pattern_mi_runtime_handler" ;
+    :maxExecutionTicks 4 ;
+    :requiredFeatures "PATTERN_FEATURE_SIMD" ;
+    :scratchSize 128 ;
+    :isBranchless true ;
+    :usesAtomicOps true ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:AND ;
+    :hasImplementationHint "Dynamic instance allocation, atomic instance counter" .
+
+# Pattern 14: Multiple Instances without Runtime Knowledge (15 in literature)
+:MINoRuntimePattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 14: MI without Runtime Knowledge" ;
+    rdfs:comment "Dynamic instance creation during execution" ;
+    :patternID 14 ;
+    :handlerFunction "pattern_mi_no_runtime_handler" ;
+    :maxExecutionTicks 5 ;
+    :requiredFeatures "PATTERN_FEATURE_ATOMIC" ;
+    :scratchSize 128 ;
+    :isBranchless false ;
+    :usesAtomicOps true ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:AND ;
+    :hasImplementationHint "Growing instance pool, dynamic memory management" .
+
+# ========================================
+# CATEGORY 5: State-based Patterns (15-17)
+# ========================================
+
+# Pattern 15: Deferred Choice (16 in literature)
+:DeferredChoicePattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 15: Deferred Choice" ;
+    rdfs:comment "Choice made by environment, not process" ;
+    :patternID 15 ;
+    :handlerFunction "pattern_deferred_choice_handler" ;
+    :maxExecutionTicks 6 ;
+    :requiredFeatures "PATTERN_FEATURE_NONE" ;
+    :scratchSize 128 ;
+    :isBranchless false ;
+    :usesAtomicOps true ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+    :hasImplementationHint "Event-driven branch selection, first-arrival wins" .
+
+# Pattern 16: Interleaved Parallel Routing (17 in literature)
+:InterleavedParallelPattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 16: Interleaved Parallel Routing" ;
+    rdfs:comment "Parallel execution with shared resources" ;
+    :patternID 16 ;
+    :handlerFunction "pattern_interleaved_parallel_handler" ;
+    :maxExecutionTicks 6 ;
+    :requiredFeatures "PATTERN_FEATURE_ATOMIC" ;
+    :scratchSize 128 ;
+    :isBranchless false ;
+    :usesAtomicOps true ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:AND ;
+    :hasImplementationHint "Lock-free mutex for resource access, CAS operations" .
+
+# Pattern 17: Milestone (18 in literature)
+:MilestonePattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 17: Milestone" ;
+    rdfs:comment "Activity enabled until milestone reached" ;
+    :patternID 17 ;
+    :handlerFunction "pattern_milestone_handler" ;
+    :maxExecutionTicks 2 ;
+    :requiredFeatures "PATTERN_FEATURE_NONE" ;
+    :scratchSize 128 ;
+    :isBranchless true ;
+    :usesAtomicOps false ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+    :hasImplementationHint "State flag checking, branchless condition evaluation" .
+
+# ========================================
+# CATEGORY 6: Cancellation Patterns (18-24)
+# ========================================
+
+# Pattern 18: Cancel Activity (19 in literature)
+:CancelActivityPattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 18: Cancel Activity" ;
+    rdfs:comment "Cancels a running activity" ;
+    :patternID 18 ;
+    :handlerFunction "pattern_cancel_activity_handler" ;
+    :maxExecutionTicks 2 ;
+    :requiredFeatures "PATTERN_FEATURE_ATOMIC" ;
+    :scratchSize 128 ;
+    :isBranchless true ;
+    :usesAtomicOps true ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+    :hasImplementationHint "Interrupt flag signaling, atomic state transition" .
+
+# Pattern 19: Cancel Case (20 in literature)
+:CancelCasePattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 19: Cancel Case" ;
+    rdfs:comment "Cancels entire process instance" ;
+    :patternID 19 ;
+    :handlerFunction "pattern_cancel_case_handler" ;
+    :maxExecutionTicks 4 ;
+    :requiredFeatures "PATTERN_FEATURE_SIMD" ;
+    :scratchSize 128 ;
+    :isBranchless true ;
+    :usesAtomicOps true ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+    :hasImplementationHint "Broadcast cancellation signal, SIMD for bulk updates" .
+
+# Pattern 20: Structured Loop (21 in literature)
+:StructuredLoopPattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 20: Structured Loop" ;
+    rdfs:comment "Pre-test or post-test loop construct" ;
+    :patternID 20 ;
+    :handlerFunction "pattern_structured_loop_handler" ;
+    :maxExecutionTicks 5 ;
+    :requiredFeatures "PATTERN_FEATURE_NONE" ;
+    :scratchSize 128 ;
+    :isBranchless true ;
+    :usesAtomicOps false ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+    :hasImplementationHint "Loop counter with condition check, overflow protection" .
+
+# Pattern 21: Recursion (22 in literature)
+:RecursionPattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 21: Recursion" ;
+    rdfs:comment "Activity can invoke itself recursively" ;
+    :patternID 21 ;
+    :handlerFunction "pattern_recursion_handler" ;
+    :maxExecutionTicks 5 ;
+    :requiredFeatures "PATTERN_FEATURE_NONE" ;
+    :scratchSize 128 ;
+    :isBranchless false ;
+    :usesAtomicOps true ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+    :hasImplementationHint "Stack depth limit enforcement, tail recursion optimization" .
+
+# Pattern 22: Transient Trigger (23 in literature)
+:TransientTriggerPattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 22: Transient Trigger" ;
+    rdfs:comment "Trigger lost if activity not ready" ;
+    :patternID 22 ;
+    :handlerFunction "pattern_transient_trigger_handler" ;
+    :maxExecutionTicks 1 ;
+    :requiredFeatures "PATTERN_FEATURE_NONE" ;
+    :scratchSize 128 ;
+    :isBranchless true ;
+    :usesAtomicOps false ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+    :hasImplementationHint "Non-blocking trigger check, zero-copy message passing" .
+
+# Pattern 23: Persistent Trigger (24 in literature)
+:PersistentTriggerPattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 23: Persistent Trigger" ;
+    rdfs:comment "Trigger retained until consumed" ;
+    :patternID 23 ;
+    :handlerFunction "pattern_persistent_trigger_handler" ;
+    :maxExecutionTicks 2 ;
+    :requiredFeatures "PATTERN_FEATURE_ATOMIC" ;
+    :scratchSize 128 ;
+    :isBranchless true ;
+    :usesAtomicOps true ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+    :hasImplementationHint "Lock-free trigger queue per activity, atomic dequeue" .
+
+# Pattern 24: Cancel Region (25 in literature)
+:CancelRegionPattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 24: Cancel Region" ;
+    rdfs:comment "Cancels set of activities in region" ;
+    :patternID 24 ;
+    :handlerFunction "pattern_cancel_region_handler" ;
+    :maxExecutionTicks 4 ;
+    :requiredFeatures "PATTERN_FEATURE_SIMD" ;
+    :scratchSize 128 ;
+    :isBranchless true ;
+    :usesAtomicOps true ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+    :hasImplementationHint "Region bitmap for bulk cancel, SIMD mask operations" .
+
+# ========================================
+# CATEGORY 7: New Control Flow Patterns (25-38)
+# ========================================
+
+# Pattern 25: Blocking Discriminator (28 in literature)
+:BlockingDiscriminatorPattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 25: Blocking Discriminator" ;
+    rdfs:comment "Blocks until all branches complete" ;
+    :patternID 25 ;
+    :handlerFunction "pattern_blocking_discriminator_handler" ;
+    :maxExecutionTicks 4 ;
+    :requiredFeatures "PATTERN_FEATURE_ATOMIC" ;
+    :scratchSize 128 ;
+    :isBranchless false ;
+    :usesAtomicOps true ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:OR ;
+    :hasImplementationHint "Branch completion counter, blocking wait with timeout" .
+
+# Pattern 26: Cancelling Discriminator (29 in literature)
+:CancellingDiscriminatorPattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 26: Cancelling Discriminator" ;
+    rdfs:comment "Cancels remaining branches after first" ;
+    :patternID 26 ;
+    :handlerFunction "pattern_cancelling_discriminator_handler" ;
+    :maxExecutionTicks 3 ;
+    :requiredFeatures "PATTERN_FEATURE_SIMD" ;
+    :scratchSize 128 ;
+    :isBranchless true ;
+    :usesAtomicOps true ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:OR ;
+    :hasImplementationHint "Atomic cancel broadcast, SIMD for parallel cancellation" .
+
+# Pattern 27: Structured Partial Join (30 in literature)
+:StructuredPartialJoinPattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 27: Structured Partial Join" ;
+    rdfs:comment "Joins N of M branches then cancels rest" ;
+    :patternID 27 ;
+    :handlerFunction "pattern_structured_partial_join_handler" ;
+    :maxExecutionTicks 4 ;
+    :requiredFeatures "PATTERN_FEATURE_SIMD" ;
+    :scratchSize 128 ;
+    :isBranchless true ;
+    :usesAtomicOps true ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:OR ;
+    :hasImplementationHint "Threshold counter with cancel, SIMD branch tracking" .
+
+# Pattern 28: Blocking Partial Join (31 in literature)
+:BlockingPartialJoinPattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 28: Blocking Partial Join" ;
+    rdfs:comment "Waits for N of M then blocks rest" ;
+    :patternID 28 ;
+    :handlerFunction "pattern_blocking_partial_join_handler" ;
+    :maxExecutionTicks 5 ;
+    :requiredFeatures "PATTERN_FEATURE_ATOMIC" ;
+    :scratchSize 128 ;
+    :isBranchless false ;
+    :usesAtomicOps true ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:OR ;
+    :hasImplementationHint "Blocking queue for late arrivals, wait-free completion" .
+
+# Pattern 29: Cancelling Partial Join (32 in literature)
+:CancellingPartialJoinPattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 29: Cancelling Partial Join" ;
+    rdfs:comment "Joins N of M then cancels rest" ;
+    :patternID 29 ;
+    :handlerFunction "pattern_cancelling_partial_join_handler" ;
+    :maxExecutionTicks 4 ;
+    :requiredFeatures "PATTERN_FEATURE_SIMD" ;
+    :scratchSize 128 ;
+    :isBranchless true ;
+    :usesAtomicOps true ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:OR ;
+    :hasImplementationHint "Threshold with immediate cancel, vectorized operations" .
+
+# Pattern 30: Generalized AND-Join (33 in literature)
+:GeneralizedANDJoinPattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 30: Generalized AND-Join" ;
+    rdfs:comment "Waits for all active incoming branches" ;
+    :patternID 30 ;
+    :handlerFunction "pattern_generalized_and_join_handler" ;
+    :maxExecutionTicks 6 ;
+    :requiredFeatures "PATTERN_FEATURE_ATOMIC" ;
+    :scratchSize 128 ;
+    :isBranchless false ;
+    :usesAtomicOps true ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:AND ;
+    :hasImplementationHint "Dynamic branch tracking, complex reachability analysis" .
+
+# Pattern 31: Static Partial Join for MI (34 in literature)
+:StaticPartialJoinMIPattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 31: Static Partial Join for MI" ;
+    rdfs:comment "Joins fixed number of MI instances" ;
+    :patternID 31 ;
+    :handlerFunction "pattern_static_partial_join_mi_handler" ;
+    :maxExecutionTicks 3 ;
+    :requiredFeatures "PATTERN_FEATURE_SIMD" ;
+    :scratchSize 128 ;
+    :isBranchless true ;
+    :usesAtomicOps true ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:AND ;
+    :hasImplementationHint "Static counter initialization, SIMD instance tracking" .
+
+# Pattern 32: Cancelling Partial Join for MI (35 in literature)
+:CancellingPartialJoinMIPattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 32: Cancelling Partial Join for MI" ;
+    rdfs:comment "Cancels remaining MI after threshold" ;
+    :patternID 32 ;
+    :handlerFunction "pattern_cancelling_partial_join_mi_handler" ;
+    :maxExecutionTicks 4 ;
+    :requiredFeatures "PATTERN_FEATURE_SIMD" ;
+    :scratchSize 128 ;
+    :isBranchless true ;
+    :usesAtomicOps true ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:AND ;
+    :hasImplementationHint "MI cancel broadcast, SIMD for bulk instance operations" .
+
+# Pattern 33: Dynamic Partial Join for MI (36 in literature)
+:DynamicPartialJoinMIPattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 33: Dynamic Partial Join for MI" ;
+    rdfs:comment "Runtime determined MI join threshold" ;
+    :patternID 33 ;
+    :handlerFunction "pattern_dynamic_partial_join_mi_handler" ;
+    :maxExecutionTicks 5 ;
+    :requiredFeatures "PATTERN_FEATURE_ATOMIC" ;
+    :scratchSize 128 ;
+    :isBranchless false ;
+    :usesAtomicOps true ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:AND ;
+    :hasImplementationHint "Dynamic threshold evaluation, adaptive instance management" .
+
+# Pattern 34: Acyclic Synchronizing Merge (37 in literature)
+:AcyclicSyncMergePattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 34: Acyclic Synchronizing Merge" ;
+    rdfs:comment "OR-join without cycles" ;
+    :patternID 34 ;
+    :handlerFunction "pattern_acyclic_sync_merge_handler" ;
+    :maxExecutionTicks 4 ;
+    :requiredFeatures "PATTERN_FEATURE_NONE" ;
+    :scratchSize 128 ;
+    :isBranchless false ;
+    :usesAtomicOps true ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:OR ;
+    :hasImplementationHint "Topological branch analysis, DAG traversal optimization" .
+
+# Pattern 35: General Synchronizing Merge (38 in literature)
+:GeneralSyncMergePattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 35: General Synchronizing Merge" ;
+    rdfs:comment "Complex OR-join with cycle support" ;
+    :patternID 35 ;
+    :handlerFunction "pattern_general_sync_merge_handler" ;
+    :maxExecutionTicks 7 ;
+    :requiredFeatures "PATTERN_FEATURE_ATOMIC" ;
+    :scratchSize 128 ;
+    :isBranchless false ;
+    :usesAtomicOps true ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:OR ;
+    :hasImplementationHint "Reachability analysis required, graph traversal algorithms" .
+
+# Pattern 36: Critical Section (39 in literature)
+:CriticalSectionPattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 36: Critical Section" ;
+    rdfs:comment "Mutual exclusion for shared resources" ;
+    :patternID 36 ;
+    :handlerFunction "pattern_critical_section_handler" ;
+    :maxExecutionTicks 3 ;
+    :requiredFeatures "PATTERN_FEATURE_ATOMIC" ;
+    :scratchSize 128 ;
+    :isBranchless true ;
+    :usesAtomicOps true ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+    :hasImplementationHint "Lock-free CAS operations, spinlock with backoff" .
+
+# Pattern 37: Interleaved Routing (40 in literature)
+:InterleavedRoutingPattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 37: Interleaved Routing" ;
+    rdfs:comment "Sequential execution of parallel segments" ;
+    :patternID 37 ;
+    :handlerFunction "pattern_interleaved_routing_handler" ;
+    :maxExecutionTicks 5 ;
+    :requiredFeatures "PATTERN_FEATURE_ATOMIC" ;
+    :scratchSize 128 ;
+    :isBranchless false ;
+    :usesAtomicOps true ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:AND ;
+    :hasImplementationHint "Segment queue management, work-stealing scheduler" .
+
+# Pattern 38: Thread Merge (41 in literature)
+:ThreadMergePattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 38: Thread Merge" ;
+    rdfs:comment "Merges thread of control" ;
+    :patternID 38 ;
+    :handlerFunction "pattern_thread_merge_handler" ;
+    :maxExecutionTicks 2 ;
+    :requiredFeatures "PATTERN_FEATURE_ATOMIC" ;
+    :scratchSize 128 ;
+    :isBranchless true ;
+    :usesAtomicOps true ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+    :hasImplementationHint "Thread ID tracking, atomic thread counter" .
+
+# ========================================
+# CATEGORY 8: Trigger Patterns (39-42)
+# ========================================
+
+# Pattern 39: Thread Split (42 in literature)
+:ThreadSplitPattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 39: Thread Split" ;
+    rdfs:comment "Splits thread of control" ;
+    :patternID 39 ;
+    :handlerFunction "pattern_thread_split_handler" ;
+    :maxExecutionTicks 2 ;
+    :requiredFeatures "PATTERN_FEATURE_SIMD" ;
+    :scratchSize 128 ;
+    :isBranchless true ;
+    :usesAtomicOps true ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:XOR ;
+    :hasImplementationHint "Thread spawning optimization, SIMD for parallel thread creation" .
+
+# Pattern 40: Explicit Termination (43 in literature)
+:ExplicitTerminationPattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 40: Explicit Termination" ;
+    rdfs:comment "Defined end point for process" ;
+    :patternID 40 ;
+    :handlerFunction "pattern_explicit_termination_handler" ;
+    :maxExecutionTicks 1 ;
+    :requiredFeatures "PATTERN_FEATURE_SIMD" ;
+    :scratchSize 128 ;
+    :isBranchless true ;
+    :usesAtomicOps false ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+    :hasImplementationHint "Termination signal broadcast, SIMD for bulk cleanup" .
+
+# Pattern 41: Hierarchical Cancellation (26 in literature)
+:HierarchicalCancellationPattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 41: Hierarchical Cancellation" ;
+    rdfs:comment "Cancels activities in hierarchical order" ;
+    :patternID 41 ;
+    :handlerFunction "pattern_hierarchical_cancellation_handler" ;
+    :maxExecutionTicks 6 ;
+    :requiredFeatures "PATTERN_FEATURE_SIMD" ;
+    :scratchSize 128 ;
+    :isBranchless false ;
+    :usesAtomicOps true ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+    :hasImplementationHint "Hierarchy traversal, SIMD for level-order cancellation" .
+
+# Pattern 42: Non-Local Synchronization (27 in literature)
+:NonLocalSyncPattern a owl:Class ;
+    rdfs:subClassOf :BitFlowPattern ;
+    rdfs:label "Pattern 42: Non-Local Synchronization" ;
+    rdfs:comment "Synchronization across process boundaries" ;
+    :patternID 42 ;
+    :handlerFunction "pattern_non_local_sync_handler" ;
+    :maxExecutionTicks 8 ;
+    :requiredFeatures "PATTERN_FEATURE_ATOMIC" ;
+    :scratchSize 128 ;
+    :isBranchless false ;
+    :usesAtomicOps true ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:AND ;
+    :hasImplementationHint "Cross-process synchronization, distributed consensus algorithms" .
+
+# ========================================
+# Telemetry and Performance Measurement
+# ========================================
+
+telemetry:ExecutionMetrics a owl:Class ;
+    rdfs:label "Execution Metrics" ;
+    rdfs:comment "Real-time performance measurements for pattern execution" .
+
+telemetry:hasBlake3Hash a owl:DatatypeProperty ;
+    rdfs:domain telemetry:ExecutionMetrics ;
+    rdfs:range xsd:string ;
+    rdfs:label "Blake3 Hash" ;
+    rdfs:comment "Cryptographic hash of execution data" .
+
+telemetry:actualTicks a owl:DatatypeProperty ;
+    rdfs:domain telemetry:ExecutionMetrics ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Actual Ticks" ;
+    rdfs:comment "Measured CPU ticks consumed" .
+
+telemetry:taskState a owl:DatatypeProperty ;
+    rdfs:domain telemetry:ExecutionMetrics ;
+    rdfs:range xsd:string ;
+    rdfs:label "Task State" ;
+    rdfs:comment "Current execution state (EXECUTING, COMPLETED, etc.)" .
+
+telemetry:memoryUsage a owl:DatatypeProperty ;
+    rdfs:domain telemetry:ExecutionMetrics ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Memory Usage" ;
+    rdfs:comment "Scratch memory consumed in bytes" .
+
+# ========================================
+# SHACL Validation Constraints
+# ========================================
+
+:BitFlowPatternShape a sh:NodeShape ;
+    sh:targetClass :BitFlowPattern ;
+    sh:property [
+        sh:path :patternID ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 42 ;
+        sh:message "Pattern ID must be between 0 and 42 (zero-based)"
+    ] ;
+    sh:property [
+        sh:path :maxExecutionTicks ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 8 ;
+        sh:message "Execution must complete within 8 ticks"
+    ] ;
+    sh:property [
+        sh:path :handlerFunction ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every pattern must have a handler function"
+    ] ;
+    sh:property [
+        sh:path :scratchSize ;
+        sh:hasValue 128 ;
+        sh:message "All patterns use 128-byte aligned scratch space"
+    ] ;
+    sh:property [
+        sh:path :isBranchless ;
+        sh:datatype xsd:boolean ;
+        sh:message "Branchless optimization must be specified"
+    ] ;
+    sh:property [
+        sh:path :usesAtomicOps ;
+        sh:datatype xsd:boolean ;
+        sh:message "Atomic operation usage must be specified"
+    ] .
+
+# ========================================
+# Pattern Registry Instances
+# ========================================
+
+:PatternRegistry a owl:Class ;
+    rdfs:label "Pattern Registry" ;
+    rdfs:comment "Static registry of all 43 pattern implementations" .
+
+:bitflowPatternRegistry a :PatternRegistry ;
+    rdfs:label "BitFlow Pattern Registry" ;
+    rdfs:comment "Main registry instance containing all patterns" ;
+    :containsPattern 
+        :SequencePattern, :ParallelSplitPattern, :SynchronizationPattern, :ExclusiveChoicePattern, :SimpleMergePattern,
+        :MultiChoicePattern, :StructuredSyncMergePattern, :MultiMergePattern, :StructuredDiscriminatorPattern,
+        :ArbitraryCyclesPattern, :ImplicitTerminationPattern,
+        :MIWithoutSyncPattern, :MIDesignTimePattern, :MIRuntimePattern, :MINoRuntimePattern,
+        :DeferredChoicePattern, :InterleavedParallelPattern, :MilestonePattern,
+        :CancelActivityPattern, :CancelCasePattern, :StructuredLoopPattern, :RecursionPattern, :TransientTriggerPattern, :PersistentTriggerPattern, :CancelRegionPattern,
+        :BlockingDiscriminatorPattern, :CancellingDiscriminatorPattern, :StructuredPartialJoinPattern, :BlockingPartialJoinPattern, :CancellingPartialJoinPattern,
+        :GeneralizedANDJoinPattern, :StaticPartialJoinMIPattern, :CancellingPartialJoinMIPattern, :DynamicPartialJoinMIPattern,
+        :AcyclicSyncMergePattern, :GeneralSyncMergePattern, :CriticalSectionPattern, :InterleavedRoutingPattern, :ThreadMergePattern,
+        :ThreadSplitPattern, :ExplicitTerminationPattern, :HierarchicalCancellationPattern, :NonLocalSyncPattern .
+
+:containsPattern a owl:ObjectProperty ;
+    rdfs:domain :PatternRegistry ;
+    rdfs:range :BitFlowPattern ;
+    rdfs:label "contains pattern" .
+
+# ========================================
+# Performance Optimization Classifications
+# ========================================
+
+:OptimizationClass a owl:Class ;
+    rdfs:label "Optimization Class" ;
+    rdfs:comment "Classification of patterns by optimization strategy" .
+
+:SIMDOptimizable a :OptimizationClass ;
+    rdfs:label "SIMD Optimizable" ;
+    rdfs:comment "Patterns that benefit from SIMD vectorization" ;
+    rdfs:seeAlso :ParallelSplitPattern, :SynchronizationPattern, :MultiChoicePattern, :MIWithoutSyncPattern, :MIDesignTimePattern, :MIRuntimePattern, :CancelCasePattern, :CancelRegionPattern, :CancellingDiscriminatorPattern, :StructuredPartialJoinPattern, :CancellingPartialJoinPattern, :StaticPartialJoinMIPattern, :CancellingPartialJoinMIPattern, :ThreadSplitPattern, :ExplicitTerminationPattern, :HierarchicalCancellationPattern .
+
+:AtomicRequired a :OptimizationClass ;
+    rdfs:label "Atomic Required" ;
+    rdfs:comment "Patterns requiring atomic operations for correctness" ;
+    rdfs:seeAlso :SynchronizationPattern, :StructuredSyncMergePattern, :StructuredDiscriminatorPattern, :ImplicitTerminationPattern, :MIRuntimePattern, :MINoRuntimePattern, :DeferredChoicePattern, :InterleavedParallelPattern, :CancelActivityPattern, :CancelCasePattern, :RecursionPattern, :PersistentTriggerPattern, :CancelRegionPattern .
+
+:BranchlessOptimized a :OptimizationClass ;
+    rdfs:label "Branchless Optimized" ;
+    rdfs:comment "Patterns using branchless programming techniques" ;
+    rdfs:seeAlso :SequencePattern, :ParallelSplitPattern, :SynchronizationPattern, :ExclusiveChoicePattern, :SimpleMergePattern, :MultiChoicePattern, :MultiMergePattern, :ArbitraryCyclesPattern, :MIWithoutSyncPattern, :MIDesignTimePattern, :MIRuntimePattern, :MilestonePattern, :CancelActivityPattern, :CancelCasePattern, :StructuredLoopPattern, :TransientTriggerPattern, :PersistentTriggerPattern, :CancelRegionPattern .
+
+# ========================================
+# SPARQL Query Templates for Analysis
+# ========================================
+
+:BitFlowPatternAnalysisQuery a sparql:QueryTemplate ;
+    rdfs:label "BitFlow Pattern Analysis Query" ;
+    sparql:queryString """
+        PREFIX : <http://bitflow.ai/ontology/patterns#>
+        PREFIX bitflow: <http://bitflow.ai/ontology/core#>
+        
+        # Find all patterns with their performance characteristics
+        SELECT ?pattern ?id ?ticks ?simd ?atomic ?branchless ?handler
+        WHERE {
+            ?pattern a :BitFlowPattern ;
+                     :patternID ?id ;
+                     :maxExecutionTicks ?ticks ;
+                     :requiredFeatures ?features ;
+                     :isBranchless ?branchless ;
+                     :usesAtomicOps ?atomic ;
+                     :handlerFunction ?handler .
+            BIND(CONTAINS(?features, "SIMD") AS ?simd)
+        }
+        ORDER BY ?id
+    """ .
+
+:SIMDOptimizationQuery a sparql:QueryTemplate ;
+    rdfs:label "SIMD Optimization Query" ;
+    sparql:queryString """
+        PREFIX : <http://bitflow.ai/ontology/patterns#>
+        
+        # Find patterns suitable for SIMD optimization
+        SELECT ?pattern ?id ?hint ?ticks
+        WHERE {
+            ?pattern a :BitFlowPattern ;
+                     :patternID ?id ;
+                     :maxExecutionTicks ?ticks ;
+                     :requiredFeatures ?features ;
+                     :hasImplementationHint ?hint .
+            FILTER(CONTAINS(?features, "SIMD"))
+        }
+        ORDER BY ?ticks DESC
+    """ .
+
+:ComplexityAnalysisQuery a sparql:QueryTemplate ;
+    rdfs:label "Complexity Analysis Query" ;
+    sparql:queryString """
+        PREFIX : <http://bitflow.ai/ontology/patterns#>
+        
+        # Find high-complexity patterns requiring special attention
+        SELECT ?pattern ?id ?ticks ?atomic ?hint
+        WHERE {
+            ?pattern a :BitFlowPattern ;
+                     :patternID ?id ;
+                     :maxExecutionTicks ?ticks ;
+                     :usesAtomicOps ?atomic ;
+                     :hasImplementationHint ?hint .
+            FILTER(?ticks >= 5)
+        }
+        ORDER BY DESC(?ticks)
+    """ .
+
+:PatternDependencyQuery a sparql:QueryTemplate ;
+    rdfs:label "Pattern Dependency Query" ;
+    sparql:queryString """
+        PREFIX : <http://bitflow.ai/ontology/patterns#>
+        PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+        
+        # Find split/join pattern combinations
+        SELECT ?pattern ?id ?splitType ?joinType ?ticks
+        WHERE {
+            ?pattern a :BitFlowPattern ;
+                     :patternID ?id ;
+                     :maxExecutionTicks ?ticks ;
+                     yawl:hasSplitType ?splitType ;
+                     yawl:hasJoinType ?joinType .
+        }
+        ORDER BY ?splitType, ?joinType, ?id
+    """ .

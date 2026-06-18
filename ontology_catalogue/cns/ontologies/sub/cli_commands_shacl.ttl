@@ -1,0 +1,680 @@
+@prefix cli: <http://cns.io/cli-commands#> .
+@prefix dflss: <http://bitbizeco.dev/ontology/v1/dflss#> .
+@prefix otel: <http://opentelemetry.io/ontology#> .
+@prefix weaver: <http://opentelemetry.io/weaver#> .
+@prefix uvmgr: <http://cns.io/uvmgr#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# =============================================================================
+# SHACL CONSTRAINTS FOR CLI COMMAND SUB-ONTOLOGY
+# Validation rules ensuring data quality and DFLS compliance
+# =============================================================================
+
+# =============================================================================
+# CORE COMMAND VALIDATION
+# =============================================================================
+
+cli:CommandShape a sh:NodeShape ;
+    sh:targetClass cli:Command ;
+    rdfs:label "Command Shape" ;
+    rdfs:comment "Basic validation for all CLI commands" ;
+    sh:property [
+        sh:path cli:commandName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-z]+([_-][a-z0-9]+)*$" ;
+        sh:message "Command name must be lowercase with hyphens/underscores, starting with letter"
+    ] ;
+    sh:property [
+        sh:path cli:commandGroup ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("system" "turtle" "semantic" "bitactor" "validation" "heuristics" "deployment" "project" "infrastructure" "testing" "analysis" "maintenance" "config" "profiling") ;
+        sh:message "Command group must be from predefined list"
+    ] ;
+    sh:property [
+        sh:path cli:priority ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("critical" "high" "medium" "low") ;
+        sh:message "Priority must be critical, high, medium, or low"
+    ] ;
+    sh:property [
+        sh:path cli:moduleFile ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^modules/.*\\.py$" ;
+        sh:message "Module file must be in modules/ directory with .py extension"
+    ] ;
+    sh:property [
+        sh:path cli:functionName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^execute_[a-z_]+$" ;
+        sh:message "Function name must start with 'execute_' and use snake_case"
+    ] ;
+    sh:property [
+        sh:path cli:expectedDuration ;
+        sh:datatype xsd:duration ;
+        sh:maxCount 1 ;
+        sh:message "Expected duration must be valid ISO 8601 duration"
+    ] ;
+    sh:property [
+        sh:path cli:maxCpuCycles ;
+        sh:datatype xsd:nonNegativeInteger ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 8 ;
+        sh:message "CPU cycles must be between 1 and 8 (8-tick constraint)"
+    ] .
+
+# =============================================================================
+# 80/20 PARETO OPTIMIZATION CONSTRAINTS
+# =============================================================================
+
+cli:CoreCommandShape a sh:NodeShape ;
+    sh:targetClass cli:CoreCommand ;
+    rdfs:label "Core Command Shape" ;
+    rdfs:comment "80/20 optimization constraints for core commands" ;
+    sh:property [
+        sh:path cli:priority ;
+        sh:in ("critical" "high") ;
+        sh:message "Core commands must have critical or high priority"
+    ] ;
+    sh:property [
+        sh:path cli:coverage ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 60.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Core commands must cover 60-100% of use cases"
+    ] ;
+    sh:property [
+        sh:path cli:usageFrequency ;
+        sh:in ("daily" "weekly") ;
+        sh:message "Core commands must be used daily or weekly"
+    ] ;
+    sh:property [
+        sh:path cli:paretoClass ;
+        sh:hasValue "core" ;
+        sh:message "Core commands must have paretoClass = 'core'"
+    ] ;
+    sh:property [
+        sh:path cli:valueContribution ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 10.0 ;
+        sh:message "Core commands must contribute at least 10% of total value"
+    ] ;
+    sh:property [
+        sh:path cli:implementationCost ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 25.0 ;
+        sh:message "Core commands should have low implementation cost (≤25%)"
+    ] .
+
+cli:ExtendedCommandShape a sh:NodeShape ;
+    sh:targetClass cli:ExtendedCommand ;
+    rdfs:label "Extended Command Shape" ;
+    rdfs:comment "Validation for extended/specialized commands" ;
+    sh:property [
+        sh:path cli:priority ;
+        sh:in ("medium" "low") ;
+        sh:message "Extended commands must have medium or low priority"
+    ] ;
+    sh:property [
+        sh:path cli:coverage ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 40.0 ;
+        sh:message "Extended commands should cover ≤40% of use cases"
+    ] ;
+    sh:property [
+        sh:path cli:paretoClass ;
+        sh:hasValue "extended" ;
+        sh:message "Extended commands must have paretoClass = 'extended'"
+    ] ;
+    sh:property [
+        sh:path cli:valueContribution ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 10.0 ;
+        sh:message "Extended commands should contribute ≤10% of total value"
+    ] .
+
+# Pareto Distribution Validation
+cli:ParetoDistributionShape a sh:NodeShape ;
+    sh:targetClass cli:Command ;
+    rdfs:label "Pareto Distribution Validation" ;
+    rdfs:comment "Ensures command distribution follows 80/20 principle" ;
+    sh:sparql [
+        sh:message "Command distribution must follow 80/20 principle (20% core, 80% extended)" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                {
+                    SELECT (COUNT(?core) as ?coreCount) (COUNT(?all) as ?allCount)
+                    WHERE {
+                        ?all rdf:type/rdfs:subClassOf* cli:Command .
+                        OPTIONAL { ?core rdf:type/rdfs:subClassOf* cli:CoreCommand }
+                    }
+                }
+                BIND(?coreCount * 4 as ?expectedExtended)
+                BIND(?allCount - ?coreCount as ?actualExtended)
+                FILTER(?actualExtended < ?expectedExtended * 0.8 || ?actualExtended > ?expectedExtended * 1.2)
+                # Allow ±20% variance from ideal 80/20 split
+            }
+        """
+    ] .
+
+# =============================================================================
+# DFLS DMEDI METHODOLOGY CONSTRAINTS
+# =============================================================================
+
+cli:DMEDIPhaseValidationShape a sh:NodeShape ;
+    sh:targetClass cli:Command ;
+    rdfs:label "DMEDI Phase Validation" ;
+    rdfs:comment "Ensures commands are properly aligned with DFLS DMEDI phases" ;
+    sh:sparql [
+        sh:message "Commands must be aligned with appropriate DMEDI phase" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this rdf:type ?commandType .
+                ?commandType rdfs:subClassOf* cli:Command .
+                
+                # Check if command claims to implement a phase
+                OPTIONAL { $this cli:implementsPhase ?phase }
+                
+                # Validate phase alignment
+                FILTER(
+                    (?commandType = cli:DefineCommand && ?phase != dflss:Define) ||
+                    (?commandType = cli:MeasureCommand && ?phase != dflss:Measure) ||
+                    (?commandType = cli:ExploreCommand && ?phase != dflss:Explore) ||
+                    (?commandType = cli:DevelopCommand && ?phase != dflss:Develop) ||
+                    (?commandType = cli:ImplementCommand && ?phase != dflss:Implement)
+                )
+            }
+        """
+    ] .
+
+cli:MeasurePhaseGateShape a sh:NodeShape ;
+    sh:targetClass cli:MeasureCommand ;
+    rdfs:label "Measure Phase Gate" ;
+    rdfs:comment "DFLS gate: Measure commands must identify metrics or risks" ;
+    sh:sparql [
+        sh:message "Measure commands must identify metrics (CTQs) or risks" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this rdf:type/rdfs:subClassOf* cli:MeasureCommand .
+                FILTER NOT EXISTS {
+                    { $this dflss:identifies dflss:Metric } UNION
+                    { $this dflss:identifies dflss:Risk }
+                }
+            }
+        """
+    ] .
+
+cli:ExplorePhaseGateShape a sh:NodeShape ;
+    sh:targetClass cli:ExploreCommand ;
+    rdfs:label "Explore Phase Gate" ;
+    rdfs:comment "DFLS gate: Explore commands must generate concepts" ;
+    sh:sparql [
+        sh:message "Explore commands must generate concepts during exploration" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this rdf:type/rdfs:subClassOf* cli:ExploreCommand .
+                FILTER NOT EXISTS {
+                    $this dflss:generates dflss:Concept
+                }
+            }
+        """
+    ] .
+
+cli:DevelopPhaseGateShape a sh:NodeShape ;
+    sh:targetClass cli:DevelopCommand ;
+    rdfs:label "Develop Phase Gate" ;
+    rdfs:comment "DFLS gate: Develop commands must optimize metrics" ;
+    sh:sparql [
+        sh:message "Develop commands must optimize metrics identified in Measure phase" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this rdf:type/rdfs:subClassOf* cli:DevelopCommand .
+                FILTER NOT EXISTS {
+                    $this dflss:optimizes dflss:Metric
+                }
+            }
+        """
+    ] .
+
+# =============================================================================
+# UVMGR THREE-TIER ARCHITECTURE CONSTRAINTS
+# =============================================================================
+
+cli:ArchitectureLevelShape a sh:NodeShape ;
+    sh:targetClass cli:Command ;
+    rdfs:label "Architecture Level Validation" ;
+    rdfs:comment "uvmgr three-tier architecture level constraints" ;
+    sh:property [
+        sh:path cli:architectureLevel ;
+        sh:datatype xsd:string ;
+        sh:in ("L1" "L2" "L3") ;
+        sh:message "Architecture level must be L1, L2, or L3"
+    ] ;
+    sh:property [
+        sh:path cli:executionModel ;
+        sh:datatype xsd:string ;
+        sh:in ("immediate" "coordinated" "orchestrated") ;
+        sh:message "Execution model must be immediate, coordinated, or orchestrated"
+    ] .
+
+cli:L1CommandShape a sh:NodeShape ;
+    sh:targetClass cli:L1Command ;
+    rdfs:label "L1 Command Constraints" ;
+    rdfs:comment "Level 1: Direct operations without coordination" ;
+    sh:property [
+        sh:path cli:architectureLevel ;
+        sh:hasValue "L1" ;
+        sh:message "L1 commands must have architecture level L1"
+    ] ;
+    sh:property [
+        sh:path cli:coordinationRequired ;
+        sh:hasValue false ;
+        sh:message "L1 commands must not require coordination"
+    ] ;
+    sh:property [
+        sh:path cli:executionModel ;
+        sh:hasValue "immediate" ;
+        sh:message "L1 commands must use immediate execution model"
+    ] ;
+    sh:property [
+        sh:path cli:maxCpuCycles ;
+        sh:maxInclusive 4 ;
+        sh:message "L1 commands should use ≤4 CPU cycles for immediate execution"
+    ] .
+
+cli:L2CommandShape a sh:NodeShape ;
+    sh:targetClass cli:L2Command ;
+    rdfs:label "L2 Command Constraints" ;
+    rdfs:comment "Level 2: Coordinated operations with state management" ;
+    sh:property [
+        sh:path cli:architectureLevel ;
+        sh:hasValue "L2" ;
+        sh:message "L2 commands must have architecture level L2"
+    ] ;
+    sh:property [
+        sh:path cli:coordinationRequired ;
+        sh:hasValue true ;
+        sh:message "L2 commands must require coordination"
+    ] ;
+    sh:property [
+        sh:path cli:executionModel ;
+        sh:hasValue "coordinated" ;
+        sh:message "L2 commands must use coordinated execution model"
+    ] ;
+    sh:property [
+        sh:path cli:maxCpuCycles ;
+        sh:maxInclusive 6 ;
+        sh:message "L2 commands should use ≤6 CPU cycles for coordinated execution"
+    ] .
+
+cli:L3CommandShape a sh:NodeShape ;
+    sh:targetClass cli:L3Command ;
+    rdfs:label "L3 Command Constraints" ;
+    rdfs:comment "Level 3: Strategic orchestration across systems" ;
+    sh:property [
+        sh:path cli:architectureLevel ;
+        sh:hasValue "L3" ;
+        sh:message "L3 commands must have architecture level L3"
+    ] ;
+    sh:property [
+        sh:path cli:coordinationRequired ;
+        sh:hasValue true ;
+        sh:message "L3 commands must require coordination"
+    ] ;
+    sh:property [
+        sh:path cli:executionModel ;
+        sh:hasValue "orchestrated" ;
+        sh:message "L3 commands must use orchestrated execution model"
+    ] ;
+    sh:property [
+        sh:path cli:priority ;
+        sh:in ("critical" "high") ;
+        sh:message "L3 commands should have critical or high priority"
+    ] ;
+    sh:property [
+        sh:path cli:maxCpuCycles ;
+        sh:hasValue 8 ;
+        sh:message "L3 commands use full 8 CPU cycles for complex orchestration"
+    ] .
+
+# =============================================================================
+# OTEL WEAVER INTEGRATION CONSTRAINTS
+# =============================================================================
+
+cli:WeaverInstrumentationShape a sh:NodeShape ;
+    sh:targetClass cli:WeaverInstrumentedCommand ;
+    rdfs:label "Weaver Instrumentation Validation" ;
+    rdfs:comment "OTEL Weaver integration requirements" ;
+    sh:property [
+        sh:path cli:spanName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^cli\\.[a-z]+\\.[a-z_]+$" ;
+        sh:message "Span name must follow pattern 'cli.{group}.{operation}'"
+    ] ;
+    sh:property [
+        sh:path cli:weaverTemplate ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Instrumented commands must have a Weaver template"
+    ] .
+
+cli:MetricGenerationShape a sh:NodeShape ;
+    sh:targetClass cli:MetricGeneratingCommand ;
+    rdfs:label "Metric Generation Validation" ;
+    rdfs:comment "Commands that generate OTEL metrics" ;
+    sh:property [
+        sh:path cli:metricName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:pattern "^cli\\.[a-z]+\\.[a-z_]+\\.(duration|count|rate|size|score|coverage)$" ;
+        sh:message "Metric name must follow OTEL naming conventions"
+    ] ;
+    sh:sparql [
+        sh:message "Metric generating commands must actually generate metrics" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this rdf:type/rdfs:subClassOf* cli:MetricGeneratingCommand .
+                FILTER NOT EXISTS {
+                    $this cli:generatesMetric ?metric
+                }
+            }
+        """
+    ] .
+
+cli:HeuristicCommandShape a sh:NodeShape ;
+    sh:targetClass cli:HeuristicCommand ;
+    rdfs:label "Heuristic Command Validation" ;
+    rdfs:comment "Commands implementing AI/ML heuristics" ;
+    sh:property [
+        sh:path cli:implementsHeuristics ;
+        sh:hasValue true ;
+        sh:message "Heuristic commands must have implementsHeuristics = true"
+    ] ;
+    sh:property [
+        sh:path cli:heuristicAlgorithm ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Heuristic commands must specify their algorithm"
+    ] ;
+    sh:property [
+        sh:path cli:optimizationTarget ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("performance" "accuracy" "efficiency" "reliability" "relevance") ;
+        sh:message "Optimization target must be predefined value"
+    ] ;
+    sh:property [
+        sh:path cli:weaverTemplate ;
+        sh:hasValue cli:HeuristicWeaverTemplate ;
+        sh:message "Heuristic commands should use HeuristicWeaverTemplate"
+    ] .
+
+# =============================================================================
+# PARAMETER VALIDATION CONSTRAINTS
+# =============================================================================
+
+cli:ParameterShape a sh:NodeShape ;
+    sh:targetClass cli:Parameter ;
+    rdfs:label "Parameter Validation" ;
+    rdfs:comment "Basic parameter validation" ;
+    sh:property [
+        sh:path cli:parameterName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-z][a-z0-9_]*$" ;
+        sh:message "Parameter name must be valid Python identifier"
+    ] ;
+    sh:property [
+        sh:path cli:parameterType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("str" "int" "float" "bool" "Path" "List[str]" "Optional[str]" "Optional[int]" "Optional[Path]") ;
+        sh:message "Parameter type must be valid Python type"
+    ] ;
+    sh:property [
+        sh:path cli:required ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Required property must be specified"
+    ] .
+
+cli:ArgumentShape a sh:NodeShape ;
+    sh:targetClass cli:Argument ;
+    rdfs:label "Argument Validation" ;
+    rdfs:comment "Command argument constraints" ;
+    sh:property [
+        sh:path cli:required ;
+        sh:hasValue true ;
+        sh:message "Arguments should typically be required"
+    ] .
+
+cli:OptionShape a sh:NodeShape ;
+    sh:targetClass cli:Option ;
+    rdfs:label "Option Validation" ;
+    rdfs:comment "Command option constraints" ;
+    sh:property [
+        sh:path cli:shortFlag ;
+        sh:datatype xsd:string ;
+        sh:pattern "^-[a-zA-Z]$" ;
+        sh:message "Short flag must be single letter with dash prefix"
+    ] ;
+    sh:property [
+        sh:path cli:longFlag ;
+        sh:datatype xsd:string ;
+        sh:pattern "^--[a-z][a-z0-9-]*$" ;
+        sh:message "Long flag must start with -- and use kebab-case"
+    ] ;
+    sh:property [
+        sh:path cli:defaultValue ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:message "Options can have at most one default value"
+    ] .
+
+cli:TyperAnnotationShape a sh:NodeShape ;
+    sh:targetClass cli:TyperAnnotation ;
+    rdfs:label "Typer Annotation Validation" ;
+    rdfs:comment "Typer-specific parameter constraints" ;
+    sh:property [
+        sh:path cli:typerHelp ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Typer annotations must have help text"
+    ] ;
+    sh:property [
+        sh:path cli:typerConstraint ;
+        sh:datatype xsd:string ;
+        sh:message "Typer constraint for validation"
+    ] .
+
+# =============================================================================
+# INTEGRATION AND DEPENDENCY CONSTRAINTS
+# =============================================================================
+
+cli:CommandDependencyShape a sh:NodeShape ;
+    sh:targetClass cli:Command ;
+    rdfs:label "Command Dependency Validation" ;
+    rdfs:comment "Validates command dependency relationships" ;
+    sh:sparql [
+        sh:message "Commands cannot have circular dependencies" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this cli:dependsOn+ $this
+            }
+        """
+    ] .
+
+cli:ConsolidationValidationShape a sh:NodeShape ;
+    sh:targetClass cli:Command ;
+    rdfs:label "Consolidation Validation" ;
+    rdfs:comment "Validates command consolidation from 93 legacy commands" ;
+    sh:sparql [
+        sh:message "Core commands should consolidate multiple legacy commands" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this rdf:type/rdfs:subClassOf* cli:CoreCommand .
+                {
+                    SELECT $this (COUNT(?legacy) as ?legacyCount)
+                    WHERE {
+                        OPTIONAL { $this cli:consolidates ?legacy }
+                    }
+                    GROUP BY $this
+                }
+                FILTER(?legacyCount = 0)
+                # Core commands should consolidate at least some legacy commands
+            }
+        """
+    ] .
+
+# =============================================================================
+# PERFORMANCE AND QUALITY CONSTRAINTS
+# =============================================================================
+
+cli:PerformanceBudgetShape a sh:NodeShape ;
+    sh:targetClass cli:Command ;
+    rdfs:label "Performance Budget Validation" ;
+    rdfs:comment "Ensures commands meet performance requirements" ;
+    sh:sparql [
+        sh:message "High priority commands must have reasonable performance expectations" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this cli:priority ?priority .
+                $this cli:expectedDuration ?duration .
+                FILTER(?priority IN ("critical", "high"))
+                
+                # Convert duration to seconds for validation
+                BIND(
+                    IF(CONTAINS(STR(?duration), "PT"),
+                        xsd:decimal(REPLACE(REPLACE(STR(?duration), "PT", ""), "S", "")),
+                        300.0
+                    ) as ?seconds
+                )
+                
+                # Critical/high priority commands should complete in reasonable time
+                FILTER(?seconds > 300.0)  # 5 minutes max for high priority
+            }
+        """
+    ] .
+
+cli:QualityGateShape a sh:NodeShape ;
+    sh:targetClass cli:Command ;
+    rdfs:label "Quality Gate Validation" ;
+    rdfs:comment "Ensures commands meet quality standards" ;
+    sh:sparql [
+        sh:message "Commands must have adequate documentation" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this cli:commandName ?name .
+                OPTIONAL { $this cli:helpText ?help }
+                FILTER(!BOUND(?help) || STRLEN(?help) < 20)
+                # Commands should have meaningful help text
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "Core commands must be instrumented for monitoring" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this rdf:type/rdfs:subClassOf* cli:CoreCommand .
+                FILTER NOT EXISTS {
+                    $this rdf:type/rdfs:subClassOf* cli:WeaverInstrumentedCommand
+                }
+            }
+        """
+    ] .
+
+# =============================================================================
+# BUSINESS LOGIC CONSTRAINTS
+# =============================================================================
+
+cli:BusinessRuleValidationShape a sh:NodeShape ;
+    sh:targetClass cli:Command ;
+    rdfs:label "Business Rule Validation" ;
+    rdfs:comment "Enforces business logic constraints" ;
+    sh:sparql [
+        sh:message "Critical commands must have comprehensive validation" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this cli:priority "critical" .
+                FILTER NOT EXISTS {
+                    $this rdf:type/rdfs:subClassOf* cli:ValidationCommand .
+                    ?validator cli:dependsOn $this
+                }
+                # Critical commands should have associated validation
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "Deployment commands must have validation dependencies" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this rdf:type/rdfs:subClassOf* cli:DeploymentCommand .
+                FILTER NOT EXISTS {
+                    $this cli:dependsOn ?validator .
+                    ?validator rdf:type/rdfs:subClassOf* cli:ValidationCommand
+                }
+            }
+        """
+    ] .
+
+# =============================================================================
+# SECURITY CONSTRAINTS
+# =============================================================================
+
+cli:SecurityValidationShape a sh:NodeShape ;
+    sh:targetClass cli:Command ;
+    rdfs:label "Security Validation" ;
+    rdfs:comment "Security constraints for sensitive commands" ;
+    sh:sparql [
+        sh:message "L3 and deployment commands require security review" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                {
+                    $this rdf:type/rdfs:subClassOf* cli:L3Command
+                } UNION {
+                    $this rdf:type/rdfs:subClassOf* cli:DeploymentCommand
+                }
+                $this cli:commandGroup ?group .
+                FILTER(?group IN ("infrastructure", "deployment", "system"))
+                # These commands need security validation
+            }
+        """
+    ] .

@@ -1,0 +1,391 @@
+# Operations Domain Ontology — BusinessOS
+# Built on PROV-O (W3C Provenance) + Custom Operations Model
+# URI: https://businessos.local/ontology/operations/
+# Version: 1.0.0
+# Date: 2026-03-25
+
+@prefix : <https://businessos.local/ontology/operations/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dqv: <http://www.w3.org/ns/dqv#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix yawl: <http://www.yawlfoundation.org/yawl/4.0/> .
+
+# ============================================================================
+# DOMAIN DEFINITION
+# ============================================================================
+
+:OperationsDomain
+  a owl:Class ;
+  dcterms:title "Operations Domain"@en ;
+  dcterms:description "Process management, execution, and operational metrics"@en ;
+  dcterms:created "2026-03-25"^^xsd:date ;
+  dcterms:isPartOf <https://businessos.local> ;
+  skos:broadMatch prov:Activity .
+
+# ============================================================================
+# CORE ENTITIES
+# ============================================================================
+
+# Process - Business process definition (YAWL-aware)
+:Process
+  a owl:Class ;
+  dcterms:title "Business Process"@en ;
+  dcterms:description "Formal definition of a business process with control flow"@en ;
+  skos:definition "A sequence of activities orchestrated to deliver business value" ;
+  rdfs:subClassOf prov:Activity .
+
+:Process
+  skos:hasProperty :processId, :processName, :workflowDefinition, :owner, :status .
+
+:processId
+  a owl:DatatypeProperty ;
+  dcterms:title "Process ID"@en ;
+  rdfs:range xsd:string ;
+  dcterms:description "Unique identifier for process definition" .
+
+:processName
+  a owl:DatatypeProperty ;
+  dcterms:title "Process Name"@en ;
+  rdfs:range xsd:string ;
+  dcterms:description "Human-readable process name" .
+
+:workflowDefinition
+  a owl:ObjectProperty ;
+  dcterms:title "Workflow Definition"@en ;
+  rdfs:range yawl:YAWLSpecification ;
+  dcterms:description "YAWL or other formal workflow definition" .
+
+:owner
+  a owl:ObjectProperty ;
+  dcterms:title "Process Owner"@en ;
+  rdfs:range :Agent ;
+  dcterms:description "Person or team responsible for process" .
+
+# ProcessExecution - Single instance of a process running
+:ProcessExecution
+  a owl:Class ;
+  dcterms:title "Process Execution"@en ;
+  dcterms:description "Single runtime instance of a business process"@en ;
+  rdfs:subClassOf prov:Activity .
+
+:ProcessExecution
+  skos:hasProperty :executionId, :processRef, :status, :startTime, :endTime, :duration .
+
+:executionId
+  a owl:DatatypeProperty ;
+  dcterms:title "Execution ID"@en ;
+  rdfs:range xsd:string ;
+  owl:inverseOf prov:generated .
+
+:processRef
+  a owl:ObjectProperty ;
+  dcterms:title "Process Reference"@en ;
+  rdfs:range :Process ;
+  dcterms:description "References the process definition" .
+
+:startTime
+  a owl:DatatypeProperty ;
+  dcterms:title "Start Time"@en ;
+  rdfs:range xsd:dateTime ;
+  dcterms:description "When execution started" .
+
+:endTime
+  a owl:DatatypeProperty ;
+  dcterms:title "End Time"@en ;
+  rdfs:range xsd:dateTime ;
+  dcterms:description "When execution completed (null if running)" .
+
+:duration
+  a owl:DatatypeProperty ;
+  dcterms:title "Execution Duration"@en ;
+  rdfs:range xsd:duration ;
+  dqv:dimension dqv:Timeliness ;
+  dcterms:description "Total execution time (end - start)" .
+
+# Activity - Smallest unit of work within process
+:Activity
+  a owl:Class ;
+  dcterms:title "Process Activity"@en ;
+  dcterms:description "Individual task or unit of work within a process"@en ;
+  rdfs:subClassOf prov:Activity ;
+  skos:broadMatch yawl:Task .
+
+:Activity
+  skos:hasProperty :activityId, :activityName, :assignee, :activityStatus .
+
+:activityId
+  a owl:DatatypeProperty ;
+  dcterms:title "Activity ID"@en ;
+  rdfs:range xsd:string .
+
+:activityName
+  a owl:DatatypeProperty ;
+  dcterms:title "Activity Name"@en ;
+  rdfs:range xsd:string .
+
+:assignee
+  a owl:ObjectProperty ;
+  dcterms:title "Assigned To"@en ;
+  rdfs:range :Agent ;
+  dcterms:description "Person or system assigned to execute activity" .
+
+:activityStatus
+  a owl:DatatypeProperty ;
+  dcterms:title "Activity Status"@en ;
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:oneOf ( "PENDING" "ACTIVE" "COMPLETED" "FAILED" "SKIPPED" )
+  ] ;
+  dqv:dimension dqv:Completeness .
+
+# Asset - Physical or logical resource
+:Asset
+  a owl:Class ;
+  dcterms:title "Operational Asset"@en ;
+  dcterms:description "Physical or logical resource used in operations"@en ;
+  skos:definition "Server, equipment, facility, or logical component" .
+
+:Asset
+  skos:hasProperty :assetId, :assetType, :location, :status, :utilization .
+
+:assetId
+  a owl:DatatypeProperty ;
+  dcterms:title "Asset ID"@en ;
+  rdfs:range xsd:string .
+
+:assetType
+  a owl:DatatypeProperty ;
+  dcterms:title "Asset Type"@en ;
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:oneOf ( "SERVER" "EQUIPMENT" "FACILITY" "SOFTWARE" "DATA" )
+  ] .
+
+:location
+  a owl:DatatypeProperty ;
+  dcterms:title "Location"@en ;
+  rdfs:range xsd:string ;
+  dcterms:description "Physical location or logical zone" .
+
+:utilization
+  a owl:DatatypeProperty ;
+  dcterms:title "Utilization Rate"@en ;
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:onDatatype xsd:decimal ;
+    owl:withRestrictions (
+      [ xsd:minInclusive "0.0"^^xsd:decimal ; xsd:maxInclusive "100.0"^^xsd:decimal ]
+    )
+  ] ;
+  dqv:dimension dqv:Accuracy ;
+  dcterms:description "Current utilization percentage" .
+
+# Capability - What the organization can do
+:Capability
+  a owl:Class ;
+  dcterms:title "Operational Capability"@en ;
+  dcterms:description "Competency or capacity to perform a business function"@en ;
+  skos:definition "Ability to execute a process at scale" .
+
+:Capability
+  skos:hasProperty :capabilityId, :capabilityName, :maturityLevel, :owner .
+
+:capabilityId
+  a owl:DatatypeProperty ;
+  dcterms:title "Capability ID"@en ;
+  rdfs:range xsd:string .
+
+:maturityLevel
+  a owl:DatatypeProperty ;
+  dcterms:title "Maturity Level"@en ;
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:oneOf ( "INITIAL" "REPEATABLE" "DEFINED" "MANAGED" "OPTIMIZING" )
+  ] ;
+  dqv:dimension dqv:Completeness ;
+  dcterms:description "CMM capability maturity level" .
+
+# Metric - Operational KPI
+:Metric
+  a owl:Class ;
+  dcterms:title "Operational Metric"@en ;
+  dcterms:description "Key Performance Indicator for process or asset"@en ;
+  rdfs:subClassOf dqv:QualityMeasure .
+
+:Metric
+  skos:hasProperty :metricId, :metricName, :metricType, :targetValue, :actualValue .
+
+:metricId
+  a owl:DatatypeProperty ;
+  rdfs:range xsd:string .
+
+:metricName
+  a owl:DatatypeProperty ;
+  dcterms:title "Metric Name"@en ;
+  rdfs:range xsd:string .
+
+:metricType
+  a owl:DatatypeProperty ;
+  dcterms:title "Metric Type"@en ;
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:oneOf ( "EFFICIENCY" "QUALITY" "COST" "TIMELINESS" "AVAILABILITY" )
+  ] .
+
+:targetValue
+  a owl:DatatypeProperty ;
+  dcterms:title "Target Value"@en ;
+  rdfs:range xsd:decimal ;
+  dcterms:description "Goal or SLA threshold" .
+
+:actualValue
+  a owl:DatatypeProperty ;
+  dcterms:title "Actual Value"@en ;
+  rdfs:range xsd:decimal ;
+  dqv:dimension dqv:Accuracy ;
+  dcterms:description "Current measured value" .
+
+# ============================================================================
+# DATA CONTRACTS (DCAT)
+# ============================================================================
+
+:ProcessDefinitionDataset
+  a dcat:Dataset ;
+  dcterms:title "Process Definitions"@en ;
+  dcterms:description "Formal process definitions in YAWL or BPMN format"@en ;
+  dcterms:issued "2026-01-01"^^xsd:date ;
+  dcterms:creator <https://businessos.local/agents/operations> ;
+  dcat:keyword "process", "workflow", "bpmn", "yawl" ;
+  dcat:accessURL <https://businessos.local/api/operations/processes> ;
+  dcterms:accrualPeriodicity <http://purl.org/ckan/accrual/monthly> ;
+  dqv:hasQualityMeasurement :ProcessDefintionCompletenessMetric .
+
+:ProcessDefinitionCompletenessMetric
+  a dqv:QualityMeasurement ;
+  dqv:isMeasurementOf :ProcessDefinitionDataset ;
+  dqv:value 0.95 ;  # 95% of processes have formal definitions
+  dqv:dimension dqv:Completeness ;
+  dcterms:issued "2026-03-25T00:00:00Z"^^xsd:dateTime .
+
+:ProcessExecutionDataset
+  a dcat:Dataset ;
+  dcterms:title "Process Execution Logs"@en ;
+  dcterms:description "Real-time process instance events and state transitions"@en ;
+  dcterms:issued "2026-01-01"^^xsd:date ;
+  dcat:accessURL <https://businessos.local/api/operations/executions> ;
+  dcterms:accrualPeriodicity <http://purl.org/ckan/accrual/real-time> ;
+  dqv:hasQualityMeasurement :ExecutionFreshnessMetric .
+
+:ExecutionFreshnessMetric
+  a dqv:QualityMeasurement ;
+  dqv:isMeasurementOf :ProcessExecutionDataset ;
+  dqv:value 0.998 ;  # 99.8% of executions logged within 100ms
+  dqv:dimension dqv:Freshness ;
+  dcterms:issued "2026-03-25T00:00:00Z"^^xsd:dateTime .
+
+:OperationalMetricsDataset
+  a dcat:Dataset ;
+  dcterms:title "Operational Metrics"@en ;
+  dcterms:description "KPIs and SLA metrics across all operations"@en ;
+  dcterms:issued "2026-01-01"^^xsd:date ;
+  dcat:accessURL <https://businessos.local/api/operations/metrics> ;
+  dcterms:accrualPeriodicity <http://purl.org/ckan/accrual/hourly> ;
+  dqv:hasQualityMeasurement :MetricsAccuracyMetric .
+
+:MetricsAccuracyMetric
+  a dqv:QualityMeasurement ;
+  dqv:isMeasurementOf :OperationalMetricsDataset ;
+  dqv:value 0.99 ;  # 99% accuracy
+  dqv:dimension dqv:Accuracy .
+
+# ============================================================================
+# QUALITY METRICS (DQV)
+# ============================================================================
+
+:OperationsQualityDimensions
+  a dqv:Dimension ;
+  dcterms:title "Operations Quality Dimensions"@en ;
+  dqv:inCategory dqv:Accuracy, dqv:Completeness, dqv:Timeliness, dqv:Availability .
+
+:ProcessEfficiencyMetric
+  a dqv:QualityMetric ;
+  dcterms:title "Process Efficiency"@en ;
+  skos:definition "Percentage of process instances completed within SLA" ;
+  dqv:expectedValue "95"^^xsd:integer ;
+  dqv:unit "percent" .
+
+# ============================================================================
+# GOVERNANCE (ODRL)
+# ============================================================================
+
+:ProcessExecutionAccessPolicy
+  a odrl:Policy ;
+  dcterms:title "Process Execution Access Policy"@en ;
+  odrl:permission
+    [ a odrl:Permission ;
+      odrl:action odrl:Read ;
+      odrl:target :ProcessExecutionDataset ;
+      odrl:assignee <https://businessos.local/teams/operations>,
+                    <https://businessos.local/teams/finance> ;
+      odrl:constraint
+        [ a odrl:Constraint ;
+          odrl:operator odrl:eq ;
+          odrl:leftOperand odrl:purpose ;
+          odrl:rightOperand odrl:businessPurpose:ProcessOptimization
+        ] ;
+      dcterms:description "Operations can READ process logs for analysis; Finance for cost allocation"
+    ] ;
+  odrl:permission
+    [ a odrl:Permission ;
+      odrl:action odrl:Write ;
+      odrl:target :ProcessExecutionDataset ;
+      odrl:assignee <https://businessos.local/agents/operations> ;
+      dcterms:description "Operations agent can WRITE execution events"
+    ] .
+
+# ============================================================================
+# PROVENANCE & AUDIT (PROV-O)
+# ============================================================================
+
+:ProcessAnalysisActivity
+  a prov:Activity ;
+  dcterms:title "Process Analysis"@en ;
+  prov:wasAssociatedWith <https://businessos.local/agents/operations> ;
+  prov:used :ProcessExecutionDataset ;
+  prov:generated :ProcessOptimizationReport ;
+  prov:startedAtTime "2026-03-20T08:00:00Z"^^xsd:dateTime ;
+  prov:endedAtTime "2026-03-22T17:00:00Z"^^xsd:dateTime .
+
+:ProcessOptimizationReport
+  a prov:Entity ;
+  dcterms:title "Process Optimization Report"@en ;
+  prov:wasDerivedFrom :ProcessExecutionDataset ;
+  dcterms:issued "2026-03-22T17:00:00Z"^^xsd:dateTime .
+
+# ============================================================================
+# FEDERATION LINKS (Cross-domain Integration)
+# ============================================================================
+
+# Link to Finance domain (Process costs -> GL allocation)
+:ProcessCost
+  a owl:Class ;
+  skos:relatedMatch <https://businessos.local/ontology/finance/Allocation> ;
+  dcterms:description "Operations process costs allocated to finance" .
+
+# Link to HR domain (Activity assignee -> Employee)
+:ActivityAssignment
+  a owl:Class ;
+  owl:sameAs <https://businessos.local/ontology/hr/Person> ;
+  dcterms:description "Activity assigned to HR person" .
+
+# Link to Sales domain (Process fulfillment -> Deal realization)
+:ProcessFulfillment
+  a owl:Class ;
+  dcterms:references <https://businessos.local/ontology/sales/Deal> ;
+  dcterms:description "Operations process fulfills sales deal" .
+

@@ -1,0 +1,17 @@
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX pi: <https://process.intelligence/ontology/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+
+# AUDIT: Verify all RESEARCH_ARTIFACT claims cite a source (paper, experiment, or prior checkpoint)
+# Returns artifacts without source traceability (violation if results non-empty)
+SELECT ?artifact ?label
+WHERE {
+  ?artifact a pi:RESEARCH_ARTIFACT ;
+            rdfs:label ?label .
+  FILTER (!BOUND(?source))
+  OPTIONAL {
+    ?artifact prov:wasDerivedFrom ?source .
+  }
+  FILTER (!BOUND(?source))
+}

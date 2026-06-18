@@ -1,0 +1,386 @@
+@prefix bitactor: <http://bitactor.org/ontology#> .
+@prefix reactive: <http://bitactor.org/reactive#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix stream: <http://reactive-streams.org/schema#> .
+
+# Reactive BitActor Ontology Variant
+# Explores reactive streams, backpressure, and flow control patterns
+
+reactive: a owl:Ontology ;
+    rdfs:label "Reactive BitActor Ontology" ;
+    rdfs:comment "Reactive streams variant of BitActor ontology with backpressure and flow control" ;
+    owl:versionInfo "1.0.0-reactive" ;
+    owl:imports bitactor: .
+
+# =============================================================================
+# Reactive Stream Classes
+# =============================================================================
+
+# Core Reactive Actor Classes
+reactive:ReactiveActor a owl:Class ;
+    rdfs:subClassOf bitactor:BitActor ;
+    rdfs:label "Reactive Actor" ;
+    rdfs:comment "BitActor with reactive streams processing and backpressure handling" .
+
+reactive:StreamProcessor a owl:Class ;
+    rdfs:subClassOf reactive:ReactiveActor ;
+    rdfs:label "Stream Processor" ;
+    rdfs:comment "Specialized reactive actor for stream processing" .
+
+reactive:BackpressureHandler a owl:Class ;
+    rdfs:subClassOf reactive:ReactiveActor ;
+    rdfs:label "Backpressure Handler" ;
+    rdfs:comment "Actor specialized in managing backpressure and flow control" .
+
+# Signal Stream Classes
+reactive:SignalStream a owl:Class ;
+    rdfs:subClassOf bitactor:Signal ;
+    rdfs:label "Signal Stream" ;
+    rdfs:comment "Continuous stream of signals with flow control" .
+
+reactive:BackpressureSignal a owl:Class ;
+    rdfs:subClassOf reactive:SignalStream ;
+    rdfs:label "Backpressure Signal" ;
+    rdfs:comment "Signal indicating backpressure conditions" .
+
+reactive:FlowControlSignal a owl:Class ;
+    rdfs:subClassOf reactive:SignalStream ;
+    rdfs:label "Flow Control Signal" ;
+    rdfs:comment "Signal for controlling stream flow rates" .
+
+# Reactive Flow Control Classes
+reactive:FlowControlStrategy a owl:Class ;
+    rdfs:label "Flow Control Strategy" ;
+    rdfs:comment "Strategy for managing reactive stream flow" ;
+    owl:oneOf (
+        reactive:DropStrategy
+        reactive:BufferStrategy
+        reactive:BackpressureStrategy
+        reactive:ThrottleStrategy
+        reactive:BatchStrategy
+    ) .
+
+reactive:BackpressureMode a owl:Class ;
+    rdfs:label "Backpressure Mode" ;
+    rdfs:comment "Mode for handling backpressure conditions" ;
+    owl:oneOf (
+        reactive:Drop
+        reactive:Buffer
+        reactive:Block
+        reactive:Error
+        reactive:Latest
+    ) .
+
+# Stream Buffer Classes
+reactive:StreamBuffer a owl:Class ;
+    rdfs:label "Stream Buffer" ;
+    rdfs:comment "Buffer for managing stream elements with capacity limits" .
+
+reactive:CircularBuffer a owl:Class ;
+    rdfs:subClassOf reactive:StreamBuffer ;
+    rdfs:label "Circular Buffer" ;
+    rdfs:comment "Circular buffer with fixed capacity and overwrite behavior" .
+
+reactive:BoundedBuffer a owl:Class ;
+    rdfs:subClassOf reactive:StreamBuffer ;
+    rdfs:label "Bounded Buffer" ;
+    rdfs:comment "Buffer with strict capacity bounds and backpressure signaling" .
+
+# =============================================================================
+# Reactive Properties
+# =============================================================================
+
+# Stream Flow Properties
+reactive:hasFlowRate a owl:DatatypeProperty ;
+    rdfs:domain reactive:ReactiveActor ;
+    rdfs:range xsd:float ;
+    rdfs:label "has flow rate" ;
+    rdfs:comment "Processing flow rate in signals per second" ;
+    owl:minInclusive 0.0 .
+
+reactive:maxBufferSize a owl:DatatypeProperty ;
+    rdfs:domain reactive:ReactiveActor ;
+    rdfs:range xsd:integer ;
+    rdfs:label "max buffer size" ;
+    rdfs:comment "Maximum buffer capacity before backpressure" ;
+    owl:minInclusive 1 .
+
+reactive:currentBufferSize a owl:DatatypeProperty ;
+    rdfs:domain reactive:ReactiveActor ;
+    rdfs:range xsd:integer ;
+    rdfs:label "current buffer size" ;
+    rdfs:comment "Current number of elements in buffer" ;
+    owl:minInclusive 0 .
+
+reactive:demandRequestSize a owl:DatatypeProperty ;
+    rdfs:domain reactive:ReactiveActor ;
+    rdfs:range xsd:integer ;
+    rdfs:label "demand request size" ;
+    rdfs:comment "Number of elements requested from upstream" ;
+    owl:minInclusive 1 .
+
+# Backpressure Properties
+reactive:backpressureThreshold a owl:DatatypeProperty ;
+    rdfs:domain reactive:ReactiveActor ;
+    rdfs:range xsd:float ;
+    rdfs:label "backpressure threshold" ;
+    rdfs:comment "Buffer utilization threshold for backpressure (0.0-1.0)" ;
+    owl:minInclusive 0.0 ;
+    owl:maxInclusive 1.0 .
+
+reactive:droppedSignalCount a owl:DatatypeProperty ;
+    rdfs:domain reactive:ReactiveActor ;
+    rdfs:range xsd:integer ;
+    rdfs:label "dropped signal count" ;
+    rdfs:comment "Total number of signals dropped due to backpressure" ;
+    owl:minInclusive 0 .
+
+reactive:throttleRate a owl:DatatypeProperty ;
+    rdfs:domain reactive:ReactiveActor ;
+    rdfs:range xsd:float ;
+    rdfs:label "throttle rate" ;
+    rdfs:comment "Rate limiting in signals per second" ;
+    owl:minInclusive 0.0 .
+
+# Stream Processing Properties
+reactive:windowSize a owl:DatatypeProperty ;
+    rdfs:domain reactive:StreamProcessor ;
+    rdfs:range xsd:integer ;
+    rdfs:label "window size" ;
+    rdfs:comment "Size of processing window for stream aggregation" ;
+    owl:minInclusive 1 .
+
+reactive:windowType a owl:DatatypeProperty ;
+    rdfs:domain reactive:StreamProcessor ;
+    rdfs:range xsd:string ;
+    rdfs:label "window type" ;
+    rdfs:comment "Type of windowing strategy (tumbling, sliding, session)" ;
+    owl:oneOf ("tumbling" "sliding" "session" "count") .
+
+reactive:batchSize a owl:DatatypeProperty ;
+    rdfs:domain reactive:StreamProcessor ;
+    rdfs:range xsd:integer ;
+    rdfs:label "batch size" ;
+    rdfs:comment "Number of signals to process in a batch" ;
+    owl:minInclusive 1 .
+
+# TTL Properties for Reactive Streams
+reactive:streamTTLBudgetMs a owl:DatatypeProperty ;
+    rdfs:domain reactive:SignalStream ;
+    rdfs:range xsd:integer ;
+    rdfs:label "stream TTL budget (ms)" ;
+    rdfs:comment "TTL budget for entire stream processing" ;
+    owl:minInclusive 1 .
+
+reactive:elementTTLBudgetNs a owl:DatatypeProperty ;
+    rdfs:domain reactive:SignalStream ;
+    rdfs:range xsd:long ;
+    rdfs:label "element TTL budget (ns)" ;
+    rdfs:comment "TTL budget per stream element in nanoseconds" ;
+    owl:minInclusive 1 .
+
+reactive:streamStartTime a owl:DatatypeProperty ;
+    rdfs:domain reactive:SignalStream ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "stream start time" ;
+    rdfs:comment "Timestamp when stream processing started" .
+
+reactive:streamEndTime a owl:DatatypeProperty ;
+    rdfs:domain reactive:SignalStream ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "stream end time" ;
+    rdfs:comment "Timestamp when stream processing ended" .
+
+# =============================================================================
+# Reactive Object Properties
+# =============================================================================
+
+# Stream Relationships
+reactive:subscribesTo a owl:ObjectProperty ;
+    rdfs:domain reactive:ReactiveActor ;
+    rdfs:range reactive:SignalStream ;
+    rdfs:label "subscribes to" ;
+    rdfs:comment "Actor subscribes to a signal stream" .
+
+reactive:publishes a owl:ObjectProperty ;
+    rdfs:domain reactive:ReactiveActor ;
+    rdfs:range reactive:SignalStream ;
+    rdfs:label "publishes" ;
+    rdfs:comment "Actor publishes to a signal stream" .
+
+reactive:hasUpstream a owl:ObjectProperty ;
+    rdfs:domain reactive:ReactiveActor ;
+    rdfs:range reactive:ReactiveActor ;
+    rdfs:label "has upstream" ;
+    rdfs:comment "Links to upstream actor in processing chain" .
+
+reactive:hasDownstream a owl:ObjectProperty ;
+    rdfs:domain reactive:ReactiveActor ;
+    rdfs:range reactive:ReactiveActor ;
+    rdfs:label "has downstream" ;
+    rdfs:comment "Links to downstream actor in processing chain" ;
+    owl:inverseOf reactive:hasUpstream .
+
+# Flow Control Relationships
+reactive:appliesFlowControl a owl:ObjectProperty ;
+    rdfs:domain reactive:ReactiveActor ;
+    rdfs:range reactive:FlowControlStrategy ;
+    rdfs:label "applies flow control" ;
+    rdfs:comment "Actor applies specific flow control strategy" ;
+    a owl:FunctionalProperty .
+
+reactive:handlesBackpressure a owl:ObjectProperty ;
+    rdfs:domain reactive:BackpressureHandler ;
+    rdfs:range reactive:BackpressureMode ;
+    rdfs:label "handles backpressure" ;
+    rdfs:comment "Handler uses specific backpressure mode" ;
+    a owl:FunctionalProperty .
+
+reactive:hasBuffer a owl:ObjectProperty ;
+    rdfs:domain reactive:ReactiveActor ;
+    rdfs:range reactive:StreamBuffer ;
+    rdfs:label "has buffer" ;
+    rdfs:comment "Actor uses specific buffer implementation" ;
+    a owl:FunctionalProperty .
+
+# Stream Processing Relationships
+reactive:transformsStream a owl:ObjectProperty ;
+    rdfs:domain reactive:StreamProcessor ;
+    rdfs:range reactive:SignalStream ;
+    rdfs:label "transforms stream" ;
+    rdfs:comment "Processor transforms input stream to output stream" .
+
+reactive:aggregatesStream a owl:ObjectProperty ;
+    rdfs:domain reactive:StreamProcessor ;
+    rdfs:range reactive:SignalStream ;
+    rdfs:label "aggregates stream" ;
+    rdfs:comment "Processor aggregates elements from stream" .
+
+reactive:partitionsStream a owl:ObjectProperty ;
+    rdfs:domain reactive:StreamProcessor ;
+    rdfs:range reactive:SignalStream ;
+    rdfs:label "partitions stream" ;
+    rdfs:comment "Processor partitions stream into multiple streams" .
+
+# =============================================================================
+# Reactive Constraints and Rules
+# =============================================================================
+
+# Buffer Capacity Constraints
+[ a owl:Restriction ;
+  owl:onProperty reactive:currentBufferSize ;
+  owl:allValuesFrom [
+    a rdfs:Datatype ;
+    owl:onDatatype xsd:integer ;
+    owl:withRestrictions (
+      [ owl:onProperty reactive:maxBufferSize ;
+        owl:maxInclusive 1000000 ]
+    )
+  ]
+] .
+
+# Flow Rate Constraints
+[ a owl:Restriction ;
+  owl:onProperty reactive:hasFlowRate ;
+  owl:allValuesFrom [
+    a rdfs:Datatype ;
+    owl:onDatatype xsd:float ;
+    owl:withRestrictions (
+      [ xsd:minInclusive "0.0"^^xsd:float ]
+      [ xsd:maxInclusive "1000000.0"^^xsd:float ]
+    )
+  ]
+] .
+
+# Backpressure Threshold Validation
+[ a owl:Class ;
+  rdfs:subClassOf reactive:ReactiveActor ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty reactive:backpressureThreshold ;
+    owl:allValuesFrom [
+      a rdfs:Datatype ;
+      owl:onDatatype xsd:float ;
+      owl:withRestrictions (
+        [ xsd:minInclusive "0.0"^^xsd:float ]
+        [ xsd:maxInclusive "1.0"^^xsd:float ]
+      )
+    ]
+  ]
+] .
+
+# Stream TTL Inheritance Rule
+[ a owl:Class ;
+  rdfs:subClassOf reactive:SignalStream ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty reactive:elementTTLBudgetNs ;
+    owl:someValuesFrom [
+      a rdfs:Datatype ;
+      owl:onDatatype xsd:long ;
+      owl:withRestrictions (
+        [ xsd:maxInclusive "10000000"^^xsd:long ]  # 10ms max per element
+      )
+    ]
+  ]
+] .
+
+# =============================================================================
+# Reactive Actor Examples
+# =============================================================================
+
+# Example Reactive Threat Detection Stream
+reactive:ThreatDetectionStream a reactive:SignalStream ;
+    rdfs:label "Threat Detection Stream" ;
+    rdfs:comment "Continuous stream of threat detection signals" ;
+    reactive:streamTTLBudgetMs 5000 ;
+    reactive:elementTTLBudgetNs 5000000 .
+
+reactive:ThreatStreamProcessor a reactive:StreamProcessor ;
+    rdfs:label "Threat Stream Processor" ;
+    rdfs:comment "Processes threat detection stream with windowing" ;
+    reactive:hasFlowRate 1000.0 ;
+    reactive:maxBufferSize 10000 ;
+    reactive:windowSize 100 ;
+    reactive:windowType "sliding" ;
+    reactive:batchSize 10 ;
+    reactive:subscribesTo reactive:ThreatDetectionStream .
+
+reactive:ThreatBackpressureHandler a reactive:BackpressureHandler ;
+    rdfs:label "Threat Backpressure Handler" ;
+    rdfs:comment "Manages backpressure for threat processing pipeline" ;
+    reactive:backpressureThreshold 0.8 ;
+    reactive:appliesFlowControl reactive:BackpressureStrategy ;
+    reactive:handlesBackpressure reactive:Buffer .
+
+# Example Alert Processing Pipeline
+reactive:AlertProcessingPipeline a owl:Class ;
+    rdfs:subClassOf reactive:ReactiveActor ;
+    rdfs:label "Alert Processing Pipeline" ;
+    rdfs:comment "End-to-end reactive pipeline for alert processing" .
+
+reactive:AlertIngestionActor a reactive:AlertProcessingPipeline ;
+    rdfs:label "Alert Ingestion Actor" ;
+    reactive:hasFlowRate 5000.0 ;
+    reactive:maxBufferSize 50000 ;
+    reactive:appliesFlowControl reactive:ThrottleStrategy ;
+    reactive:hasBuffer reactive:CircularBuffer .
+
+reactive:AlertAnalysisActor a reactive:AlertProcessingPipeline ;
+    rdfs:label "Alert Analysis Actor" ;
+    reactive:hasFlowRate 2000.0 ;
+    reactive:maxBufferSize 20000 ;
+    reactive:windowSize 50 ;
+    reactive:windowType "tumbling" ;
+    reactive:hasUpstream reactive:AlertIngestionActor .
+
+reactive:AlertResponseActor a reactive:AlertProcessingPipeline ;
+    rdfs:label "Alert Response Actor" ;
+    reactive:hasFlowRate 1000.0 ;
+    reactive:maxBufferSize 10000 ;
+    reactive:appliesFlowControl reactive:BatchStrategy ;
+    reactive:batchSize 25 ;
+    reactive:hasUpstream reactive:AlertAnalysisActor .

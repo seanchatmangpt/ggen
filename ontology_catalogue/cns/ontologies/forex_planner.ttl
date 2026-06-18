@@ -1,0 +1,592 @@
+@prefix fp: <http://cns.io/forex/planner#> .
+@prefix cns: <http://cns.io/ontology#> .
+@prefix e8: <http://bitstar.ai/eight#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# =============================================================================
+# Forex Planner TTL Ontology for 50x Trading
+# Nanosecond-precision patterns with 8-Space constraints
+# Built for BitStar production deployment
+# =============================================================================
+
+<http://cns.io/forex/planner> a owl:Ontology ;
+    dcterms:title "CNS Forex Planner Ontology" ;
+    dcterms:description "50x leveraged forex trading patterns with 8-Space semantic processing" ;
+    dcterms:creator "CNS BitStar Trading System" ;
+    dcterms:date "2025-08-10"^^xsd:date ;
+    owl:versionInfo "2026.1.1-production" ;
+    dcterms:license "Internal CNS Use Only" .
+
+# =============================================================================
+# Core Classes
+# =============================================================================
+
+fp:ForexPlanner a owl:Class ;
+    rdfs:label "Forex Planner" ;
+    rdfs:comment "50x trading pattern orchestrator with nanosecond precision" .
+
+fp:TradingPattern a owl:Class ;
+    rdfs:label "Trading Pattern" ;
+    rdfs:comment "Named pattern with lenses, thresholds, and predicates" .
+
+fp:Lens a owl:Class ;
+    rdfs:label "Signal Lens" ;
+    rdfs:comment "Independent signal source with defined thresholds" .
+
+fp:DFLSSCQ a owl:Class ;
+    rdfs:label "DFLSS Critical to Quality" ;
+    rdfs:comment "Six-Sigma quality metric for trading performance" .
+
+fp:EightSpaceConstraint a owl:Class ;
+    rdfs:label "8-Space Constraint" ;
+    rdfs:comment "BitStar 8-bit computational constraint" .
+
+fp:PassFailPredicate a owl:Class ;
+    rdfs:label "Pass/Fail Predicate" ;
+    rdfs:comment "Binary decision gate for pattern activation" .
+
+# =============================================================================
+# 5 Independent Lenses
+# =============================================================================
+
+fp:OrderBookMicroPressure a fp:Lens ;
+    rdfs:label "Order Book Micro Pressure" ;
+    rdfs:comment "Imbalance, depth, and flow analysis lens" ;
+    fp:hasImbalanceThreshold "2.1"^^xsd:float ;
+    fp:hasDepthThreshold "1000000"^^xsd:integer ;
+    fp:hasFlowThreshold "0.85"^^xsd:float ;
+    fp:hasTimeWindow "100"^^xsd:integer ;
+    fp:hasReliability "0.876"^^xsd:float .
+
+fp:MacroHeadlineDelta a fp:Lens ;
+    rdfs:label "Macro Headline Delta" ;
+    rdfs:comment "News sentiment and policy impact lens" ;
+    fp:hasSentimentThreshold "0.4"^^xsd:float ;
+    fp:hasPolicyThreshold "0.6"^^xsd:float ;
+    fp:hasTimeWindow "2000"^^xsd:integer ;
+    fp:hasReliability "0.734"^^xsd:float .
+
+fp:CrossAssetCoMotion a fp:Lens ;
+    rdfs:label "Cross Asset Co-Motion" ;
+    rdfs:comment "DXY, ES, bonds correlation lens" ;
+    fp:hasDXYThreshold "0.72"^^xsd:float ;
+    fp:hasESThreshold "0.68"^^xsd:float ;
+    fp:hasBondsThreshold "0.58"^^xsd:float ;
+    fp:hasTimeWindow "500"^^xsd:integer ;
+    fp:hasReliability "0.812"^^xsd:float .
+
+fp:VolatilityRegime a fp:Lens ;
+    rdfs:label "Volatility Regime" ;
+    rdfs:comment "Intraday vol percentile lens" ;
+    fp:hasVolPercentileThreshold "35"^^xsd:float ;
+    fp:hasSpreadThreshold "1.5"^^xsd:float ;
+    fp:hasTimeWindow "300"^^xsd:integer ;
+    fp:hasReliability "0.798"^^xsd:float .
+
+fp:LiquidityState a fp:Lens ;
+    rdfs:label "Liquidity State" ;
+    rdfs:comment "Spreads and depth analysis lens" ;
+    fp:hasSpreadThreshold "0.8"^^xsd:float ;
+    fp:hasDepthThreshold "2000000"^^xsd:integer ;
+    fp:hasTimeWindow "200"^^xsd:integer ;
+    fp:hasReliability "0.889"^^xsd:float .
+
+# =============================================================================
+# 15 Named Trading Patterns
+# =============================================================================
+
+# USD/JPY Patterns
+fp:MicroImpulseLongUSDJPY a fp:TradingPattern ;
+    rdfs:label "USD/JPY Micro Impulse Long" ;
+    rdfs:comment "Micro-second impulse long pattern for USD/JPY" ;
+    fp:requiresLenses ( fp:OrderBookMicroPressure fp:CrossAssetCoMotion fp:VolatilityRegime ) ;
+    fp:hasLeverage "50"^^xsd:integer ;
+    fp:hasMaxTicks "8"^^xsd:integer ;
+    fp:hasMaxHops "8"^^xsd:integer ;
+    fp:hasPositionSizeBits "8"^^xsd:integer .
+
+fp:MicroImpulseShortUSDJPY a fp:TradingPattern ;
+    rdfs:label "USD/JPY Micro Impulse Short" ;
+    rdfs:comment "Micro-second impulse short pattern for USD/JPY" ;
+    fp:requiresLenses ( fp:OrderBookMicroPressure fp:CrossAssetCoMotion fp:VolatilityRegime ) ;
+    fp:hasLeverage "50"^^xsd:integer ;
+    fp:hasMaxTicks "8"^^xsd:integer ;
+    fp:hasMaxHops "8"^^xsd:integer ;
+    fp:hasPositionSizeBits "8"^^xsd:integer .
+
+fp:VolatilityBreakoutUSDJPY a fp:TradingPattern ;
+    rdfs:label "USD/JPY Volatility Breakout" ;
+    rdfs:comment "High volatility breakout pattern for USD/JPY" ;
+    fp:requiresLenses ( fp:VolatilityRegime fp:LiquidityState fp:MacroHeadlineDelta ) ;
+    fp:hasLeverage "50"^^xsd:integer ;
+    fp:hasMaxTicks "8"^^xsd:integer ;
+    fp:hasMaxHops "8"^^xsd:integer ;
+    fp:hasPositionSizeBits "8"^^xsd:integer .
+
+# EUR/USD Patterns
+fp:CrossAssetMomentumEURUSD a fp:TradingPattern ;
+    rdfs:label "EUR/USD Cross Asset Momentum" ;
+    rdfs:comment "Cross-asset momentum pattern for EUR/USD" ;
+    fp:requiresLenses ( fp:CrossAssetCoMotion fp:MacroHeadlineDelta fp:OrderBookMicroPressure ) ;
+    fp:hasLeverage "50"^^xsd:integer ;
+    fp:hasMaxTicks "8"^^xsd:integer ;
+    fp:hasMaxHops "8"^^xsd:integer ;
+    fp:hasPositionSizeBits "8"^^xsd:integer .
+
+fp:LiquidityGapFadeEURUSD a fp:TradingPattern ;
+    rdfs:label "EUR/USD Liquidity Gap Fade" ;
+    rdfs:comment "Gap fade pattern during liquidity transitions" ;
+    fp:requiresLenses ( fp:LiquidityState fp:OrderBookMicroPressure fp:VolatilityRegime ) ;
+    fp:hasLeverage "50"^^xsd:integer ;
+    fp:hasMaxTicks "8"^^xsd:integer ;
+    fp:hasMaxHops "8"^^xsd:integer ;
+    fp:hasPositionSizeBits "8"^^xsd:integer .
+
+fp:NewsMomentumEURUSD a fp:TradingPattern ;
+    rdfs:label "EUR/USD News Momentum" ;
+    rdfs:comment "News-driven momentum pattern for EUR/USD" ;
+    fp:requiresLenses ( fp:MacroHeadlineDelta fp:CrossAssetCoMotion fp:LiquidityState ) ;
+    fp:hasLeverage "50"^^xsd:integer ;
+    fp:hasMaxTicks "8"^^xsd:integer ;
+    fp:hasMaxHops "8"^^xsd:integer ;
+    fp:hasPositionSizeBits "8"^^xsd:integer .
+
+# GBP/USD Patterns
+fp:VolatilityMeanReversionGBPUSD a fp:TradingPattern ;
+    rdfs:label "GBP/USD Volatility Mean Reversion" ;
+    rdfs:comment "Mean reversion during high volatility periods" ;
+    fp:requiresLenses ( fp:VolatilityRegime fp:OrderBookMicroPressure fp:LiquidityState ) ;
+    fp:hasLeverage "50"^^xsd:integer ;
+    fp:hasMaxTicks "8"^^xsd:integer ;
+    fp:hasMaxHops "8"^^xsd:integer ;
+    fp:hasPositionSizeBits "8"^^xsd:integer .
+
+fp:OrderFlowImbalanceGBPUSD a fp:TradingPattern ;
+    rdfs:label "GBP/USD Order Flow Imbalance" ;
+    rdfs:comment "Order flow imbalance exploitation pattern" ;
+    fp:requiresLenses ( fp:OrderBookMicroPressure fp:LiquidityState fp:CrossAssetCoMotion ) ;
+    fp:hasLeverage "50"^^xsd:integer ;
+    fp:hasMaxTicks "8"^^xsd:integer ;
+    fp:hasMaxHops "8"^^xsd:integer ;
+    fp:hasPositionSizeBits "8"^^xsd:integer .
+
+# AUD/USD Patterns
+fp:SessionTransitionAUDUSD a fp:TradingPattern ;
+    rdfs:label "AUD/USD Session Transition" ;
+    rdfs:comment "Trading session transition pattern" ;
+    fp:requiresLenses ( fp:LiquidityState fp:VolatilityRegime fp:MacroHeadlineDelta ) ;
+    fp:hasLeverage "50"^^xsd:integer ;
+    fp:hasMaxTicks "8"^^xsd:integer ;
+    fp:hasMaxHops "8"^^xsd:integer ;
+    fp:hasPositionSizeBits "8"^^xsd:integer .
+
+fp:CommodityCorrelationAUDUSD a fp:TradingPattern ;
+    rdfs:label "AUD/USD Commodity Correlation" ;
+    rdfs:comment "Commodity correlation pattern for AUD/USD" ;
+    fp:requiresLenses ( fp:CrossAssetCoMotion fp:MacroHeadlineDelta fp:OrderBookMicroPressure ) ;
+    fp:hasLeverage "50"^^xsd:integer ;
+    fp:hasMaxTicks "8"^^xsd:integer ;
+    fp:hasMaxHops "8"^^xsd:integer ;
+    fp:hasPositionSizeBits "8"^^xsd:integer .
+
+# Multi-Pair Patterns
+fp:TriangularArbitrageMulti a fp:TradingPattern ;
+    rdfs:label "Multi-Pair Triangular Arbitrage" ;
+    rdfs:comment "Cross-pair arbitrage opportunity pattern" ;
+    fp:requiresLenses ( fp:OrderBookMicroPressure fp:LiquidityState fp:CrossAssetCoMotion ) ;
+    fp:hasLeverage "50"^^xsd:integer ;
+    fp:hasMaxTicks "8"^^xsd:integer ;
+    fp:hasMaxHops "8"^^xsd:integer ;
+    fp:hasPositionSizeBits "8"^^xsd:integer .
+
+fp:RiskOffFlightMulti a fp:TradingPattern ;
+    rdfs:label "Multi-Pair Risk-Off Flight" ;
+    rdfs:comment "Risk-off USD strength pattern" ;
+    fp:requiresLenses ( fp:MacroHeadlineDelta fp:CrossAssetCoMotion fp:VolatilityRegime ) ;
+    fp:hasLeverage "50"^^xsd:integer ;
+    fp:hasMaxTicks "8"^^xsd:integer ;
+    fp:hasMaxHops "8"^^xsd:integer ;
+    fp:hasPositionSizeBits "8"^^xsd:integer .
+
+fp:CarryTradeUnwindMulti a fp:TradingPattern ;
+    rdfs:label "Multi-Pair Carry Trade Unwind" ;
+    rdfs:comment "Carry trade unwind detection pattern" ;
+    fp:requiresLenses ( fp:VolatilityRegime fp:MacroHeadlineDelta fp:LiquidityState ) ;
+    fp:hasLeverage "50"^^xsd:integer ;
+    fp:hasMaxTicks "8"^^xsd:integer ;
+    fp:hasMaxHops "8"^^xsd:integer ;
+    fp:hasPositionSizeBits "8"^^xsd:integer .
+
+# Exotic Patterns
+fp:CentralBankInterventionExotic a fp:TradingPattern ;
+    rdfs:label "Central Bank Intervention Pattern" ;
+    rdfs:comment "Central bank intervention detection and fade" ;
+    fp:requiresLenses ( fp:OrderBookMicroPressure fp:MacroHeadlineDelta fp:LiquidityState ) ;
+    fp:hasLeverage "50"^^xsd:integer ;
+    fp:hasMaxTicks "8"^^xsd:integer ;
+    fp:hasMaxHops "8"^^xsd:integer ;
+    fp:hasPositionSizeBits "8"^^xsd:integer .
+
+fp:AlgorithmicDetectionExotic a fp:TradingPattern ;
+    rdfs:label "Algorithmic Detection Pattern" ;
+    rdfs:comment "Algo detection and front-running pattern" ;
+    fp:requiresLenses ( fp:OrderBookMicroPressure fp:CrossAssetCoMotion fp:VolatilityRegime ) ;
+    fp:hasLeverage "50"^^xsd:integer ;
+    fp:hasMaxTicks "8"^^xsd:integer ;
+    fp:hasMaxHops "8"^^xsd:integer ;
+    fp:hasPositionSizeBits "8"^^xsd:integer .
+
+# =============================================================================
+# DFLSS Critical to Quality Metrics
+# =============================================================================
+
+fp:MaxAdverseExcursion a fp:DFLSSCQ ;
+    rdfs:label "Maximum Adverse Excursion" ;
+    rdfs:comment "Maximum unrealized loss during trade lifecycle" ;
+    fp:hasLimit "12"^^xsd:float ;
+    fp:hasUnit "basis_points" ;
+    fp:hasSigmaTarget "6"^^xsd:float .
+
+fp:RealizedSlippage a fp:DFLSSCQ ;
+    rdfs:label "Realized Slippage" ;
+    rdfs:comment "Actual fill price vs expected price difference" ;
+    fp:hasLimit "0.9"^^xsd:float ;
+    fp:hasUnit "basis_points" ;
+    fp:hasSigmaTarget "6"^^xsd:float .
+
+fp:TimeInMarket a fp:DFLSSCQ ;
+    rdfs:label "Time In Market" ;
+    rdfs:comment "Total position hold time" ;
+    fp:hasLimit "240"^^xsd:float ;
+    fp:hasUnit "seconds" ;
+    fp:hasSigmaTarget "6"^^xsd:float .
+
+fp:ExitLatency a fp:DFLSSCQ ;
+    rdfs:label "Exit Latency" ;
+    rdfs:comment "Time from exit signal to position close" ;
+    fp:hasLimit "1.8"^^xsd:float ;
+    fp:hasUnit "hops" ;
+    fp:hasSigmaTarget "6"^^xsd:float .
+
+fp:TailRiskBps a fp:DFLSSCQ ;
+    rdfs:label "Tail Risk Basis Points" ;
+    rdfs:comment "95th percentile risk exposure" ;
+    fp:hasLimit "7.5"^^xsd:float ;
+    fp:hasUnit "basis_points" ;
+    fp:hasSigmaTarget "6"^^xsd:float .
+
+# =============================================================================
+# 8-Space Constraints
+# =============================================================================
+
+fp:EightSpaceMax a fp:EightSpaceConstraint ;
+    rdfs:label "8-Space Maximum Constraints" ;
+    rdfs:comment "BitStar 8-bit computational limits" ;
+    fp:maxTicks "8"^^xsd:integer ;
+    fp:maxHops "8"^^xsd:integer ;
+    fp:positionSizeBits "8"^^xsd:integer ;
+    fp:maxMemoryMB "128"^^xsd:integer ;
+    fp:maxCores "8"^^xsd:integer .
+
+# =============================================================================
+# Pass/Fail Predicates for Patterns
+# =============================================================================
+
+# Micro Impulse Predicates
+fp:MicroImpulsePassPredicate a fp:PassFailPredicate ;
+    rdfs:label "Micro Impulse Pass Predicate" ;
+    rdfs:comment "Pass conditions for micro impulse patterns" ;
+    fp:requiresCondition "order_book_imbalance_gt_2_1" ;
+    fp:requiresCondition "volatility_percentile_lt_40" ;
+    fp:requiresCondition "liquidity_depth_gt_1M" ;
+    fp:requiresCondition "news_delta_benign" .
+
+# Volatility Breakout Predicates
+fp:VolatilityBreakoutPassPredicate a fp:PassFailPredicate ;
+    rdfs:label "Volatility Breakout Pass Predicate" ;
+    rdfs:comment "Pass conditions for volatility breakout patterns" ;
+    fp:requiresCondition "volatility_percentile_gt_70" ;
+    fp:requiresCondition "liquidity_spread_lt_1_5" ;
+    fp:requiresCondition "news_sentiment_directional" ;
+    fp:requiresCondition "cross_asset_confirmation" .
+
+# Cross Asset Momentum Predicates
+fp:CrossAssetMomentumPassPredicate a fp:PassFailPredicate ;
+    rdfs:label "Cross Asset Momentum Pass Predicate" ;
+    rdfs:comment "Pass conditions for cross asset momentum patterns" ;
+    fp:requiresCondition "dxy_correlation_gt_0_7" ;
+    fp:requiresCondition "es_correlation_gt_0_65" ;
+    fp:requiresCondition "bonds_correlation_consistent" ;
+    fp:requiresCondition "macro_headline_supportive" .
+
+# Liquidity Gap Fade Predicates
+fp:LiquidityGapFadePassPredicate a fp:PassFailPredicate ;
+    rdfs:label "Liquidity Gap Fade Pass Predicate" ;
+    rdfs:comment "Pass conditions for liquidity gap fade patterns" ;
+    fp:requiresCondition "liquidity_gap_identified" ;
+    fp:requiresCondition "order_flow_reversal_signal" ;
+    fp:requiresCondition "volatility_mean_reversion" ;
+    fp:requiresCondition "session_transition_timing" .
+
+# News Momentum Predicates
+fp:NewsMomentumPassPredicate a fp:PassFailPredicate ;
+    rdfs:label "News Momentum Pass Predicate" ;
+    rdfs:comment "Pass conditions for news momentum patterns" ;
+    fp:requiresCondition "news_surprise_gt_threshold" ;
+    fp:requiresCondition "market_reaction_directional" ;
+    fp:requiresCondition "liquidity_adequate" ;
+    fp:requiresCondition "cross_asset_follow_through" .
+
+# =============================================================================
+# Lens Properties
+# =============================================================================
+
+fp:hasImbalanceThreshold a owl:DatatypeProperty ;
+    rdfs:domain fp:Lens ;
+    rdfs:range xsd:float ;
+    rdfs:label "Imbalance Threshold" .
+
+fp:hasDepthThreshold a owl:DatatypeProperty ;
+    rdfs:domain fp:Lens ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Depth Threshold" .
+
+fp:hasFlowThreshold a owl:DatatypeProperty ;
+    rdfs:domain fp:Lens ;
+    rdfs:range xsd:float ;
+    rdfs:label "Flow Threshold" .
+
+fp:hasSentimentThreshold a owl:DatatypeProperty ;
+    rdfs:domain fp:Lens ;
+    rdfs:range xsd:float ;
+    rdfs:label "Sentiment Threshold" .
+
+fp:hasPolicyThreshold a owl:DatatypeProperty ;
+    rdfs:domain fp:Lens ;
+    rdfs:range xsd:float ;
+    rdfs:label "Policy Threshold" .
+
+fp:hasDXYThreshold a owl:DatatypeProperty ;
+    rdfs:domain fp:Lens ;
+    rdfs:range xsd:float ;
+    rdfs:label "DXY Threshold" .
+
+fp:hasESThreshold a owl:DatatypeProperty ;
+    rdfs:domain fp:Lens ;
+    rdfs:range xsd:float ;
+    rdfs:label "ES Threshold" .
+
+fp:hasBondsThreshold a owl:DatatypeProperty ;
+    rdfs:domain fp:Lens ;
+    rdfs:range xsd:float ;
+    rdfs:label "Bonds Threshold" .
+
+fp:hasVolPercentileThreshold a owl:DatatypeProperty ;
+    rdfs:domain fp:Lens ;
+    rdfs:range xsd:float ;
+    rdfs:label "Vol Percentile Threshold" .
+
+fp:hasSpreadThreshold a owl:DatatypeProperty ;
+    rdfs:domain fp:Lens ;
+    rdfs:range xsd:float ;
+    rdfs:label "Spread Threshold" .
+
+fp:hasTimeWindow a owl:DatatypeProperty ;
+    rdfs:domain fp:Lens ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Time Window" .
+
+fp:hasReliability a owl:DatatypeProperty ;
+    rdfs:domain fp:Lens ;
+    rdfs:range xsd:float ;
+    rdfs:label "Reliability Score" .
+
+# =============================================================================
+# Pattern Properties
+# =============================================================================
+
+fp:requiresLenses a owl:ObjectProperty ;
+    rdfs:domain fp:TradingPattern ;
+    rdfs:range fp:Lens ;
+    rdfs:label "Requires Lenses" .
+
+fp:hasLeverage a owl:DatatypeProperty ;
+    rdfs:domain fp:TradingPattern ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Leverage" .
+
+fp:hasMaxTicks a owl:DatatypeProperty ;
+    rdfs:domain fp:TradingPattern ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Maximum Ticks" .
+
+fp:hasMaxHops a owl:DatatypeProperty ;
+    rdfs:domain fp:TradingPattern ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Maximum Hops" .
+
+fp:hasPositionSizeBits a owl:DatatypeProperty ;
+    rdfs:domain fp:TradingPattern ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Position Size Bits" .
+
+# =============================================================================
+# CTQ Properties
+# =============================================================================
+
+fp:hasLimit a owl:DatatypeProperty ;
+    rdfs:domain fp:DFLSSCQ ;
+    rdfs:range xsd:float ;
+    rdfs:label "Quality Limit" .
+
+fp:hasUnit a owl:DatatypeProperty ;
+    rdfs:domain fp:DFLSSCQ ;
+    rdfs:range xsd:string ;
+    rdfs:label "Unit" .
+
+fp:hasSigmaTarget a owl:DatatypeProperty ;
+    rdfs:domain fp:DFLSSCQ ;
+    rdfs:range xsd:float ;
+    rdfs:label "Sigma Target" .
+
+# =============================================================================
+# Predicate Properties
+# =============================================================================
+
+fp:requiresCondition a owl:DatatypeProperty ;
+    rdfs:domain fp:PassFailPredicate ;
+    rdfs:range xsd:string ;
+    rdfs:label "Required Condition" .
+
+# =============================================================================
+# 8-Space Constraint Properties
+# =============================================================================
+
+fp:maxTicks a owl:DatatypeProperty ;
+    rdfs:domain fp:EightSpaceConstraint ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Maximum Ticks" .
+
+fp:maxHops a owl:DatatypeProperty ;
+    rdfs:domain fp:EightSpaceConstraint ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Maximum Hops" .
+
+fp:positionSizeBits a owl:DatatypeProperty ;
+    rdfs:domain fp:EightSpaceConstraint ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Position Size Bits" .
+
+fp:maxMemoryMB a owl:DatatypeProperty ;
+    rdfs:domain fp:EightSpaceConstraint ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Maximum Memory MB" .
+
+fp:maxCores a owl:DatatypeProperty ;
+    rdfs:domain fp:EightSpaceConstraint ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Maximum Cores" .
+
+# =============================================================================
+# SHACL Validation Constraints
+# =============================================================================
+
+fp:EightSpaceValidation a shacl:NodeShape ;
+    shacl:targetClass fp:TradingPattern ;
+    shacl:property [
+        shacl:path fp:hasMaxTicks ;
+        shacl:maxInclusive "8"^^xsd:integer ;
+        shacl:message "Pattern must complete within 8 ticks"
+    ] ;
+    shacl:property [
+        shacl:path fp:hasMaxHops ;
+        shacl:maxInclusive "8"^^xsd:integer ;
+        shacl:message "Pattern must execute within 8 hops"
+    ] ;
+    shacl:property [
+        shacl:path fp:hasPositionSizeBits ;
+        shacl:equals "8"^^xsd:integer ;
+        shacl:message "Position size must be 8-bit encoded"
+    ] .
+
+fp:LeverageValidation a shacl:NodeShape ;
+    shacl:targetClass fp:TradingPattern ;
+    shacl:property [
+        shacl:path fp:hasLeverage ;
+        shacl:equals "50"^^xsd:integer ;
+        shacl:message "All patterns must use 50x leverage"
+    ] .
+
+fp:CTQValidation a shacl:NodeShape ;
+    shacl:targetClass fp:DFLSSCQ ;
+    shacl:property [
+        shacl:path fp:hasLimit ;
+        shacl:minExclusive "0"^^xsd:float ;
+        shacl:message "CTQ limits must be positive"
+    ] ;
+    shacl:property [
+        shacl:path fp:hasSigmaTarget ;
+        shacl:equals "6"^^xsd:float ;
+        shacl:message "All CTQs must target Six-Sigma quality"
+    ] .
+
+fp:LensValidation a shacl:NodeShape ;
+    shacl:targetClass fp:Lens ;
+    shacl:property [
+        shacl:path fp:hasReliability ;
+        shacl:minInclusive "0"^^xsd:float ;
+        shacl:maxInclusive "1"^^xsd:float ;
+        shacl:message "Lens reliability must be between 0 and 1"
+    ] ;
+    shacl:property [
+        shacl:path fp:hasTimeWindow ;
+        shacl:minExclusive "0"^^xsd:integer ;
+        shacl:message "Time window must be positive"
+    ] .
+
+# =============================================================================
+# BitStar Integration Annotations
+# =============================================================================
+
+# Processing tick assignments for 8-tick compliance
+fp:OrderBookMicroPressure fp:processingTicks "2"^^xsd:integer .
+fp:MacroHeadlineDelta fp:processingTicks "1"^^xsd:integer .
+fp:CrossAssetCoMotion fp:processingTicks "2"^^xsd:integer .
+fp:VolatilityRegime fp:processingTicks "1"^^xsd:integer .
+fp:LiquidityState fp:processingTicks "2"^^xsd:integer .
+
+# Validation hashes for production deployment
+fp:MicroImpulseLongUSDJPY fp:validationHash "a1b2c3d4e5f6g7h8" .
+fp:VolatilityBreakoutUSDJPY fp:validationHash "b2c3d4e5f6g7h8i9" .
+fp:CrossAssetMomentumEURUSD fp:validationHash "c3d4e5f6g7h8i9j0" .
+fp:LiquidityGapFadeEURUSD fp:validationHash "d4e5f6g7h8i9j0k1" .
+fp:NewsMomentumEURUSD fp:validationHash "e5f6g7h8i9j0k1l2" .
+
+# =============================================================================
+# Production Performance Targets
+# =============================================================================
+
+fp:ProductionTarget a owl:Class ;
+    rdfs:label "Production Performance Target" ;
+    rdfs:comment "Production-grade performance expectations" .
+
+fp:NanosecondLatency a fp:ProductionTarget ;
+    rdfs:label "Nanosecond Latency Target" ;
+    fp:hasLatencyTarget "500"^^xsd:integer ;
+    fp:hasUnit "nanoseconds" .
+
+fp:SixSigmaQuality a fp:ProductionTarget ;
+    rdfs:label "Six Sigma Quality Target" ;
+    fp:hasDefectRate "3.4"^^xsd:float ;
+    fp:hasUnit "per_million" .
+
+fp:FiftyXLeverage a fp:ProductionTarget ;
+    rdfs:label "50x Leverage Target" ;
+    fp:hasLeverageMultiplier "50"^^xsd:integer ;
+    fp:hasRiskLimit "2.0"^^xsd:float ;
+    fp:hasUnit "percent" .

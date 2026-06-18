@@ -1,0 +1,12 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix ex: <http://example.org/> .
+
+ex:hello rdf:type ex:CLICommand ;
+    rdfs:label "Print a greeting" .
+
+ex:init rdf:type ex:CLICommand ;
+    rdfs:label "Initialize a new project" .
+
+ex:build rdf:type ex:CLICommand ;
+    rdfs:label "Build the project" .

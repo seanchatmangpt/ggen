@@ -1,0 +1,146 @@
+# SPARQL CONSTRUCT: Transform OCEL Load Result to RDF
+# Maps pictl OCEL load result into pm:ObjectCentricEventLog and related triples
+# Input: JSON with object_types[], event_types[], counts, timestamp_range
+# Output: RDF graph describing object-centric event log structure and metadata
+
+PREFIX pm: <http://purl.org/pm/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#> .
+
+CONSTRUCT {
+  # Object-Centric Event Log
+  ?ocel a pm:ObjectCentricEventLog ;
+    rdfs:label ?ocel_label ;
+    pm:eventCount ?event_count ;
+    pm:traceCount ?trace_count ;
+    pm:activityCount ?activity_count ;
+    pm:objectCount ?object_count ;
+    pm:executionTime ?execution_time ;
+    prov:wasGeneratedAtTime ?timestamp ;
+    prov:wasDerivedFrom ?source_file ;
+    dcat:temporal [
+      rdfs:comment ?time_range ;
+      dcat:startDate ?start_time ;
+      dcat:endDate ?end_time
+    ] ;
+    rdfs:comment ?ocel_description .
+
+  # Object types in log
+  ?object_type a pm:ObjectType ;
+    rdfs:label ?object_type_label ;
+    pm:objectCount ?object_type_count ;
+    pm:eventParticipationCount ?events_involving_type ;
+    pm:averageObjectAgeInDays ?avg_object_age ;
+    rdfs:comment ?object_type_description .
+
+  # Event types in log
+  ?event_type a pm:Activity ;
+    rdfs:label ?event_type_label ;
+    pm:eventCount ?event_type_count ;
+    pm:frequency ?event_frequency ;
+    pm:averageDuration ?avg_duration ;
+    pm:involvedObjectTypes ?related_object_types ;
+    rdfs:comment ?event_type_description .
+
+  # Relationships between object types
+  ?object_relationship a rdf:Statement ;
+    rdfs:label ?relationship_label ;
+    rdf:subject ?object_type_1 ;
+    rdf:predicate pm:relatesTo ;
+    rdf:object ?object_type_2 ;
+    pm:relationType ?relation_type ;
+    pm:relationStrength ?strength ;
+    pm:frequency ?relation_frequency .
+
+  # Log statistics
+  ?statistics a prov:Report ;
+    rdfs:label "OCEL Statistics" ;
+    pm:eventCount ?event_count ;
+    pm:traceCount ?trace_count ;
+    pm:objectCount ?object_count ;
+    pm:averageTraceLength ?avg_trace_length ;
+    pm:averageObjectsPerEvent ?avg_objects_per_event ;
+    pm:eventTypeCount ?event_type_count ;
+    pm:objectTypeCount ?object_type_count ;
+    pm:sparsity ?sparsity_score ;
+    pm:complexity ?complexity_score .
+
+  # Data quality metrics
+  ?data_quality a prov:Report ;
+    rdfs:label "Data Quality Assessment" ;
+    pm:completenesScore ?completeness ;
+    pm:consistencyScore ?consistency ;
+    pm:accuracyScore ?accuracy ;
+    pm:timelinesScore ?timeliness ;
+    pm:issues ?quality_issues .
+}
+WHERE {
+  # Source bindings (from application layer JSON processing):
+  # $ocel_result = { object_types: [...], event_types: [...], counts: {...},
+  #                  startTime: "2026-01-01", endTime: "2026-04-10" }
+
+  # Generate OCEL IRI
+  BIND(IRI(CONCAT("http://pictl.org/ocel/", SUBSTR(STR(NOW()), 1, 10), "/", RAND())) AS ?ocel)
+  BIND(NOW() AS ?timestamp)
+
+  # Placeholder URIs
+  BIND(IRI("http://pictl.org/log/ocel-2026-04.jsonocel") AS ?source_file)
+
+  # OCEL metadata
+  BIND("Order-to-Cash Event Log (Object-Centric)" AS ?ocel_label)
+  BIND(45000 AS ?event_count)
+  BIND(1200 AS ?trace_count)
+  BIND(15 AS ?activity_count)
+  BIND(3500 AS ?object_count)
+  BIND("PT8.5S"^^xsd:duration AS ?execution_time)
+  BIND("2026-01-01 to 2026-04-10 (100 days)" AS ?time_range)
+  BIND(xsd:dateTime("2026-01-01T00:00:00Z") AS ?start_time)
+  BIND(xsd:dateTime("2026-04-10T23:59:59Z") AS ?end_time)
+  BIND("Comprehensive O2C process with order, invoice, and payment objects" AS ?ocel_description)
+
+  # Object type 1: Order
+  BIND(IRI("http://pictl.org/objecttype/order") AS ?object_type)
+  BIND("Order (Object Type)" AS ?object_type_label)
+  BIND(1200 AS ?object_type_count)
+  BIND(8400 AS ?events_involving_type)
+  BIND(45 AS ?avg_object_age)
+  BIND("Primary business object; lifecycle from creation to closure" AS ?object_type_description)
+
+  # Event type 1: Create Order
+  BIND(IRI("http://pictl.org/eventtype/create-order") AS ?event_type)
+  BIND("Create Order" AS ?event_type_label)
+  BIND(1200 AS ?event_type_count)
+  BIND(0.027 AS ?event_frequency)
+  BIND("PT0.05S"^^xsd:duration AS ?avg_duration)
+  BIND("order, customer" AS ?related_object_types)
+  BIND("Initial event for all order objects" AS ?event_type_description)
+
+  # Object relationships
+  BIND(IRI(CONCAT("http://pictl.org/relation/", RAND())) AS ?object_relationship)
+  BIND("Order-Invoice Relationship" AS ?relationship_label)
+  BIND(IRI("http://pictl.org/objecttype/order") AS ?object_type_1)
+  BIND(IRI("http://pictl.org/objecttype/invoice") AS ?object_type_2)
+  BIND("one-to-many" AS ?relation_type)
+  BIND(0.92 AS ?strength)
+  BIND(1200 AS ?relation_frequency)
+
+  # Statistics
+  BIND(IRI(CONCAT("http://pictl.org/stats/", RAND())) AS ?statistics)
+  BIND(37.5 AS ?avg_trace_length)
+  BIND(2.9 AS ?avg_objects_per_event)
+  BIND(15 AS ?event_type_count)
+  BIND(3 AS ?object_type_count)
+  BIND(0.18 AS ?sparsity_score)
+  BIND(0.72 AS ?complexity_score)
+
+  # Data quality
+  BIND(IRI(CONCAT("http://pictl.org/quality/", RAND())) AS ?data_quality)
+  BIND(0.94 AS ?completeness)
+  BIND(0.96 AS ?consistency)
+  BIND(0.91 AS ?accuracy)
+  BIND(0.88 AS ?timeliness)
+  BIND("2 records with missing timestamps; 1 duplicate event detected" AS ?quality_issues)
+}

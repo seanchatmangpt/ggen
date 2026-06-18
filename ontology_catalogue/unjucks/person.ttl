@@ -1,0 +1,23 @@
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix person: <http://unjucks.dev/person/> .
+@prefix skill: <http://unjucks.dev/skill/> .
+@prefix schema: <http://schema.org/> .
+
+<http://example.org/person/alex-martinez> a foaf:Person ;
+    foaf:name "Alex Martinez" ;
+    foaf:firstName "Alex" ;
+    foaf:lastName "Martinez" ;
+    foaf:mbox <mailto:alex.martinez@email.com> ;
+    schema:jobTitle "Senior Full Stack Developer" ;
+    person:hasSkill skill:JavaScript, skill:TypeScript, skill:React, skill:Node.js, skill:AWS, skill:Docker ;
+    person:hasExperience [
+        a person:WorkExperience ;
+        schema:name "Tech Lead at InnovateCorp" ;
+        schema:description "Led development of microservices architecture" ;
+        person:yearsOfExperience 6
+    ] ;
+    person:hasEducation [
+        a person:Education ;
+        schema:name "BS Computer Science" ;
+        schema:description "University of Technology"
+    ] .

@@ -1,0 +1,173 @@
+# =============================================================================
+# erlmcp Sandbox Ontology
+# =============================================================================
+# Defines secure tool execution sandbox for isolation
+#
+# Features:
+#   - Process isolation via ports/os:cmd
+#   - Resource limits (CPU, memory, time)
+#   - Filesystem sandboxing
+#   - Network access control
+#   - Audit logging
+#   - Permission sets
+# =============================================================================
+
+@prefix sandbox: <http://erlmcp.org/schema/sandbox/> .
+@prefix otp: <http://erlang.org/otp/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# -----------------------------------------------------------------------------
+# Core Classes
+# -----------------------------------------------------------------------------
+
+sandbox:ToolSandbox a rdfs:Class ;
+    rdfs:label "Tool Sandbox" ;
+    rdfs:comment "Secure execution environment for tools" ;
+    rdfs:subClassOf otp:GenServer .
+
+sandbox:SandboxConfig a rdfs:Class ;
+    rdfs:label "Sandbox Config" ;
+    rdfs:comment "Sandbox configuration" .
+
+sandbox:ResourceLimit a rdfs:Class ;
+    rdfs:label "Resource Limit" ;
+    rdfs:comment "Resource constraints for sandboxed execution" .
+
+sandbox:Permission a rdfs:Class ;
+    rdfs:label "Permission" ;
+    rdfs:comment "Granted capabilities for sandboxed code" .
+
+sandbox:AuditLog a rdfs:Class ;
+    rdfs:label "Audit Log" ;
+    rdfs:comment "Execution audit trail" .
+
+# -----------------------------------------------------------------------------
+# Permission Types
+# -----------------------------------------------------------------------------
+
+sandbox:ReadFile a sandbox:Permission ;
+    rdfs:label "Read File" ;
+    rdfs:comment "Allow reading files" .
+
+sandbox:WriteFile a sandbox:Permission ;
+    rdfs:label "Write File" ;
+    rdfs:comment "Allow writing files" .
+
+sandbox:NetworkAccess a sandbox:Permission ;
+    rdfs:label "Network Access" ;
+    rdfs:comment "Allow network operations" .
+
+sandbox:ExecuteCommand a sandbox:Permission ;
+    rdfs:label "Execute Command" ;
+    rdfs:comment "Allow executing external commands" .
+
+sandbox:ReadEnv a sandbox:Permission ;
+    rdfs:label "Read Environment" ;
+    rdfs:comment "Allow reading environment variables" .
+
+sandbox:Subprocess a sandbox:Permission ;
+    rdfs:label "Subprocess" ;
+    rdfs:comment "Allow spawning subprocesses" .
+
+# -----------------------------------------------------------------------------
+# Properties
+# -----------------------------------------------------------------------------
+
+sandbox:hasPermission a rdf:Property ;
+    rdfs:domain sandbox:SandboxConfig ;
+    rdfs:range sandbox:Permission ;
+    rdfs:label "has permission" .
+
+sandbox:maxCpuPercent a rdf:Property ;
+    rdfs:domain sandbox:ResourceLimit ;
+    rdfs:range xsd:integer ;
+    rdfs:label "max CPU percent" .
+
+sandbox:maxMemoryMb a rdf:Property ;
+    rdfs:domain sandbox:ResourceLimit ;
+    rdfs:range xsd:integer ;
+    rdfs:label "max memory MB" .
+
+sandbox:maxTimeoutSec a rdf:Property ;
+    rdfs:domain sandbox:ResourceLimit ;
+    rdfs:range xsd:integer ;
+    rdfs:label "max timeout seconds" .
+
+sandbox:maxFileSizeMb a rdf:Property ;
+    rdfs:domain sandbox:ResourceLimit ;
+    rdfs:range xsd:integer ;
+    rdfs:label "max file size MB" .
+
+sandbox:allowedPaths a rdf:Property ;
+    rdfs:domain sandbox:SandboxConfig ;
+    rdfs:range xsd:string ;
+    rdfs:label "allowed paths" .
+
+sandbox:deniedPaths a rdf:Property ;
+    rdfs:domain sandbox:SandboxConfig ;
+    rdfs:range xsd:string ;
+    rdfs:label "denied paths" .
+
+sandbox:allowedHosts a rdf:Property ;
+    rdfs:domain sandbox:SandboxConfig ;
+    rdfs:range xsd:string ;
+    rdfs:label "allowed hosts" .
+
+sandbox:hasResourceLimit a rdf:Property ;
+    rdfs:domain sandbox:SandboxConfig ;
+    rdfs:range sandbox:ResourceLimit ;
+    rdfs:label "has resource limit" .
+
+sandbox:auditEnabled a rdf:Property ;
+    rdfs:domain sandbox:SandboxConfig ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "audit enabled" .
+
+sandbox:executionId a rdf:Property ;
+    rdfs:domain sandbox:AuditLog ;
+    rdfs:range xsd:string ;
+    rdfs:label "execution ID" .
+
+sandbox:timestamp a rdf:Property ;
+    rdfs:domain sandbox:AuditLog ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "timestamp" .
+
+sandbox:toolName a rdf:Property ;
+    rdfs:domain sandbox:AuditLog ;
+    rdfs:range xsd:string ;
+    rdfs:label "tool name" .
+
+sandbox:executionResult a rdf:Property ;
+    rdfs:domain sandbox:AuditLog ;
+    rdfs:range xsd:string ;
+    rdfs:label "execution result" .
+
+sandbox:violatedConstraint a rdf:Property ;
+    rdfs:domain sandbox:AuditLog ;
+    rdfs:range xsd:string ;
+    rdfs:label "violated constraint" .
+
+# -----------------------------------------------------------------------------
+# Default Configurations
+# -----------------------------------------------------------------------------
+
+sandbox:StrictConfig a sandbox:SandboxConfig ;
+    rdfs:label "Strict Sandbox Config" ;
+    sandbox:hasPermission sandbox:ReadFile ;
+    sandbox:auditEnabled true .
+
+sandbox:PermissiveConfig a sandbox:SandboxConfig ;
+    rdfs:label "Permissive Sandbox Config" ;
+    sandbox:hasPermission sandbox:ReadFile ;
+    sandbox:hasPermission sandbox:WriteFile ;
+    sandbox:hasPermission sandbox:NetworkAccess ;
+    sandbox:auditEnabled true .
+
+sandbox:DefaultLimits a sandbox:ResourceLimit ;
+    sandbox:maxCpuPercent 50 ;
+    sandbox:maxMemoryMb 256 ;
+    sandbox:maxTimeoutSec 30 ;
+    sandbox:maxFileSizeMb 10 .

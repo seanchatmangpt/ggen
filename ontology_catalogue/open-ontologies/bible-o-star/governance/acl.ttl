@@ -1,0 +1,89 @@
+@prefix cell8: <urn:cell8:gate:> .
+@prefix bos: <https://open-ontologies.org/bible-o-star#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+#
+# Bible O* Operator Access Control List
+# Gates: A1–A13 (10 sanctioned gates per CELL8_CONFORMANCE_RECEIPT)
+#
+
+bos:BibleOStarACL a cell8:AccessControlList ;
+  rdfs:label "Bible O* ACL" ;
+  rdfs:comment "Authorized and forbidden operations for the bible-o-star package" ;
+  dcterms:created "2026-06-02T00:00:00Z"^^xsd:dateTime ;
+  cell8:governedBy bos:BibleOStarGovernancePolicy .
+
+# --- Authorized operations ---
+
+bos:AuthorizedOperationCompose a cell8:AuthorizedOperation ;
+  rdfs:label "compose" ;
+  cell8:permittedFor bos:InspectionGateOperator ;
+  cell8:scope "Add new ontology triples, examples, queries, or documentation" .
+
+bos:AuthorizedOperationModify a cell8:AuthorizedOperation ;
+  rdfs:label "modify" ;
+  cell8:permittedFor bos:InspectionGateOperator ;
+  cell8:scope "Amend existing ontology triples under Inspection Gate review" .
+
+bos:AuthorizedOperationValidate a cell8:AuthorizedOperation ;
+  rdfs:label "validate" ;
+  cell8:permittedFor bos:InspectionGateOperator ;
+  cell8:scope "Run SHACL and SPARQL conformance checks against the ontology" .
+
+bos:AuthorizedOperationEmit a cell8:AuthorizedOperation ;
+  rdfs:label "emit" ;
+  cell8:permittedFor bos:InspectionGateOperator ;
+  cell8:scope "Emit receipts, provenance records, and snapshot manifests" .
+
+bos:AuthorizedOperationSeal a cell8:AuthorizedOperation ;
+  rdfs:label "seal" ;
+  cell8:permittedFor bos:InspectionGateOperator ;
+  cell8:scope "Seal a versioned checkpoint after all required gates pass" .
+
+bos:AuthorizedOperationAttest a cell8:AuthorizedOperation ;
+  rdfs:label "attest" ;
+  cell8:permittedFor bos:InspectionGateOperator ;
+  cell8:scope "Attest ALIVE status once all 13 Cell8 gates are confirmed passing" .
+
+# --- Forbidden operations ---
+
+bos:ForbiddenOperationDeleteWithoutReceipt a cell8:ForbiddenOperation ;
+  rdfs:label "delete-without-receipt" ;
+  rdfs:comment "No file or triple may be deleted without a corresponding receipt documenting the deletion and its justification" .
+
+bos:ForbiddenOperationOverwriteWithoutReview a cell8:ForbiddenOperation ;
+  rdfs:label "overwrite-without-review" ;
+  rdfs:comment "No existing ontology file may be overwritten without an Inspection Gate review and a new receipt emission" .
+
+bos:ForbiddenOperationAddFakeGate a cell8:ForbiddenOperation ;
+  rdfs:label "add-fake-gate" ;
+  rdfs:comment "No gate may be declared passing unless its artifacts exist and are verifiable. Fabricated gate receipts are strictly forbidden." .
+
+# --- Sanctioned gate set (10 gates) ---
+
+bos:SanctionedGateSet a cell8:GateSet ;
+  rdfs:label "Cell8 Sanctioned Gates" ;
+  cell8:member bos:SheepGate,
+               bos:FishGate,
+               bos:OldGate,
+               bos:ValleyGate,
+               bos:DungGate,
+               bos:FountainGate,
+               bos:WaterGate,
+               bos:HorseGate,
+               bos:EastGate,
+               bos:InspectionGate .
+
+bos:SheepGate a cell8:Gate ; rdfs:label "Sheep Gate (A1)" .
+bos:FishGate a cell8:Gate ; rdfs:label "Fish Gate (A2)" .
+bos:OldGate a cell8:Gate ; rdfs:label "Old Gate (A3)" .
+bos:ValleyGate a cell8:Gate ; rdfs:label "Valley Gate (A4)" .
+bos:DungGate a cell8:Gate ; rdfs:label "Dung Gate (A5)" .
+bos:FountainGate a cell8:Gate ; rdfs:label "Fountain Gate (A6)" .
+bos:WaterGate a cell8:Gate ; rdfs:label "Water Gate (A7)" .
+bos:HorseGate a cell8:Gate ; rdfs:label "Horse Gate (A8)" .
+bos:EastGate a cell8:Gate ; rdfs:label "East Gate (A9)" .
+bos:InspectionGate a cell8:Gate ; rdfs:label "Inspection Gate (A10)" .

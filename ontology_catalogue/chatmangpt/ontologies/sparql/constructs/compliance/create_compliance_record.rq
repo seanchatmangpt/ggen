@@ -1,0 +1,72 @@
+# @name: create_compliance_record
+# @category: compliance
+# @description: Create an audit record for SOC2, HIPAA, GDPR compliance tracking
+# @params: ?record_id, ?framework, ?control_id, ?resource_id, ?status, ?evidence_id, ?timestamp, ?auditor_id
+# @returns: prov:Entity with prov:wasGeneratedBy audit activity and compliance metadata
+# @version: 1.0
+# @stability: stable
+# @requires_parameters: true
+#
+# Frameworks: "SOC2", "HIPAA", "GDPR", "SOX", "CUSTOM"
+# Status: "pass", "fail", "partial", "not_applicable"
+#
+# Usage:
+#   registry.lookup("create_compliance_record")
+#     .bind({
+#       record_id: "audit-cc6.1-2026-03-25",
+#       framework: "SOC2",
+#       control_id: "CC6.1",
+#       resource_id: "db-prod-01",
+#       status: "pass",
+#       evidence_id: "log-abc123",
+#       timestamp: "2026-03-25T15:30:00Z",
+#       auditor_id: "auditor-001"
+#     })
+#     .execute()
+
+PREFIX bos: <http://businessos.dev/id/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX schema: <http://schema.org/>
+PREFIX compliance: <http://businessos.dev/compliance/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+CONSTRUCT {
+  ?record a prov:Entity ;
+    rdfs:label ?record_label ;
+    schema:identifier ?record_id ;
+    prov:wasGeneratedBy ?audit_activity ;
+    prov:wasAttributedTo ?auditor ;
+    prov:wasInformedBy ?evidence ;
+    compliance:framework ?framework ;
+    compliance:control ?control_id ;
+    compliance:resource ?resource ;
+    compliance:status ?status ;
+    compliance:timestamp ?timestamp ;
+    schema:description "Compliance audit record" .
+
+  ?audit_activity a prov:Activity ;
+    rdfs:label "Compliance Audit" ;
+    prov:startedAtTime ?timestamp ;
+    prov:wasAssociatedWith ?auditor ;
+    prov:used ?resource .
+
+  ?auditor a prov:Agent ;
+    schema:identifier ?auditor_id .
+
+  ?evidence a prov:Entity ;
+    schema:identifier ?evidence_id .
+
+  ?resource a prov:Entity ;
+    schema:identifier ?resource_id ;
+    compliance:framework ?framework .
+}
+
+WHERE {
+  BIND(IRI(CONCAT("http://businessos.dev/id/compliance/records/", STR(?record_id))) AS ?record)
+  BIND(CONCAT(?framework, " Audit - ", STR(?control_id)) AS ?record_label)
+  BIND(IRI(CONCAT("http://businessos.dev/id/users/", STR(?auditor_id))) AS ?auditor)
+  BIND(IRI(CONCAT("http://businessos.dev/id/compliance/evidence/", STR(?evidence_id))) AS ?evidence)
+  BIND(IRI(CONCAT("http://businessos.dev/id/resources/", STR(?resource_id))) AS ?resource)
+  BIND(IRI(CONCAT("http://businessos.dev/activity/compliance/audit/", STR(?record_id))) AS ?audit_activity)
+}

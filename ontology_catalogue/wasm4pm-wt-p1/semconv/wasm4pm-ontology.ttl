@@ -1,0 +1,299 @@
+@prefix mls: <http://www.w3.org/ns/mls#> .
+@prefix schema: <https://schema.org/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Core Concepts
+dcat:Dataset a rdfs:Class ;
+    rdfs:label "Event Log"@en ;
+    rdfs:comment "A collection of events representing process execution"@en ;
+    rdfs:subClassOf prov:Collection .
+
+prov:InstantaneousEvent a rdfs:Class ;
+    rdfs:label "Event"@en ;
+    rdfs:comment "A single recorded occurrence of an activity in a process"@en ;
+    rdfs:subClassOf prov:InstantaneousEvent .
+
+schema:Action a rdfs:Class ;
+    rdfs:label "Activity"@en ;
+    rdfs:comment "A named action or task in a process"@en .
+
+mls:Run a rdfs:Class ;
+    rdfs:label "Case"@en ;
+    rdfs:comment "A process instance or trace"@en ;
+    rdfs:subClassOf prov:Entity .
+
+schema:SoftwareSourceCode a rdfs:Class ;
+    rdfs:label "Process Model"@en ;
+    rdfs:comment "A formal representation of a process"@en .
+
+schema:SoftwareSourceCode a rdfs:Class ;
+    rdfs:label "Petri Net"@en ;
+    rdfs:comment "A process model represented as a Petri net"@en ;
+    rdfs:subClassOf schema:SoftwareSourceCode .
+
+schema:SoftwareSourceCode a rdfs:Class ;
+    rdfs:label "Directly-Follows Graph"@en ;
+    rdfs:comment "A process model showing activity sequences"@en ;
+    rdfs:subClassOf schema:SoftwareSourceCode .
+
+schema:SoftwareSourceCode a rdfs:Class ;
+    rdfs:label "Process Tree"@en ;
+    rdfs:comment "A process model represented as a tree structure"@en ;
+    rdfs:subClassOf schema:SoftwareSourceCode .
+
+# Object-Centric Concepts
+dcat:Dataset a rdfs:Class ;
+    rdfs:label "Object-Centric Event Log"@en ;
+    rdfs:comment "An event log with multiple object types"@en ;
+    rdfs:subClassOf dcat:Dataset .
+
+prov:Entity a rdfs:Class ;
+    rdfs:label "Business Object"@en ;
+    rdfs:comment "An entity tracked through the process"@en ;
+    rdfs:subClassOf prov:Entity .
+
+skos:Concept a rdfs:Class ;
+    rdfs:label "Object Type"@en ;
+    rdfs:comment "Classification of business objects"@en .
+
+# Discovery Algorithms
+mls:Algorithm a rdfs:Class ;
+    rdfs:label "Discovery Algorithm"@en ;
+    rdfs:comment "An algorithm that discovers process models from event logs"@en .
+
+mls:Algorithm a mls:Algorithm ;
+    rdfs:label "DFG Discovery"@en ;
+    rdfs:comment "Directly-Follows Graph discovery - fast, lossless"@en .
+
+mls:Algorithm a mls:Algorithm ;
+    rdfs:label "Alpha++ Discovery"@en ;
+    rdfs:comment "Balanced accuracy and performance for Petri net discovery"@en .
+
+mls:Algorithm a mls:Algorithm ;
+    rdfs:label "ILP Optimization Discovery"@en ;
+    rdfs:comment "Optimal process model using Integer Linear Programming"@en .
+
+mls:Algorithm a mls:Algorithm ;
+    rdfs:label "Genetic Algorithm Discovery"@en ;
+    rdfs:comment "Evolutionary algorithm for process discovery"@en .
+
+mls:Algorithm a mls:Algorithm ;
+    rdfs:label "Heuristic Miner Discovery"@en ;
+    rdfs:comment "Heuristic-based discovery handling noise and incompleteness"@en .
+
+mls:Algorithm a mls:Algorithm ;
+    rdfs:label "Inductive Miner Discovery"@en ;
+    rdfs:comment "Recursive partitioning-based discovery"@en .
+
+# Analysis Concepts
+prov:Activity a rdfs:Class ;
+    rdfs:label "Conformance Analysis"@en ;
+    rdfs:comment "Analysis of log conformance to a model"@en .
+
+prov:Report a rdfs:Class ;
+    rdfs:label "Conformance Report"@en ;
+    rdfs:comment "Results of conformance checking"@en ;
+    rdfs:subClassOf prov:Report .
+
+skos:Concept a rdfs:Class ;
+    rdfs:label "Concept Drift"@en ;
+    rdfs:comment "Changes in process behavior over time"@en .
+
+skos:Concept a rdfs:Class ;
+    rdfs:label "Bottleneck"@en ;
+    rdfs:comment "Activity causing delays in the process"@en .
+
+# Quality Metrics
+schema:PropertyValue a rdfs:Class ;
+    rdfs:label "Fitness"@en ;
+    rdfs:comment "How well the model explains the observed behavior"@en .
+
+schema:PropertyValue a rdfs:Class ;
+    rdfs:label "Precision"@en ;
+    rdfs:comment "How much behavior the model allows beyond what was observed"@en .
+
+schema:PropertyValue a rdfs:Class ;
+    rdfs:label "Generalization"@en ;
+    rdfs:comment "How well the model generalizes to unseen behavior"@en .
+
+schema:PropertyValue a rdfs:Class ;
+    rdfs:label "Simplicity"@en ;
+    rdfs:comment "How concise the model representation is"@en .
+
+# Prediction Concepts
+mls:Model a rdfs:Class ;
+    rdfs:label "Predictive Model"@en ;
+    rdfs:comment "A model for predicting future process behavior"@en .
+
+schema:ActionPrediction a rdfs:Class ;
+    rdfs:label "Activity Prediction"@en ;
+    rdfs:comment "Prediction of next activity in a case"@en ;
+    rdfs:subClassOf mls:Model .
+
+mls:Model a rdfs:Class ;
+    rdfs:label "Duration Prediction"@en ;
+    rdfs:comment "Prediction of remaining time for a case"@en ;
+    rdfs:subClassOf mls:Model .
+
+mls:Model a rdfs:Class ;
+    rdfs:label "Outcome Prediction"@en ;
+    rdfs:comment "Prediction of case outcome or classification"@en ;
+    rdfs:subClassOf mls:Model .
+
+mls:Model a rdfs:Class ;
+    rdfs:label "Anomaly Detection"@en ;
+    rdfs:comment "Detection of unusual behavior in the process"@en ;
+    rdfs:subClassOf mls:Model .
+
+# Properties
+schema:hasPart a rdf:Property ;
+    rdfs:label "has event"@en ;
+    rdfs:comment "Relates a log to an event"@en ;
+    rdfs:domain dcat:Dataset ;
+    rdfs:range prov:InstantaneousEvent .
+
+schema:action a rdf:Property ;
+    rdfs:label "has activity"@en ;
+    rdfs:comment "Relates an event to an activity"@en ;
+    rdfs:domain prov:InstantaneousEvent ;
+    rdfs:range schema:Action .
+
+schema:isPartOf a rdf:Property ;
+    rdfs:label "has case"@en ;
+    rdfs:comment "Relates an event to a case"@en ;
+    rdfs:domain prov:InstantaneousEvent ;
+    rdfs:range mls:Run .
+
+schema:object a rdf:Property ;
+    rdfs:label "has business object"@en ;
+    rdfs:comment "Relates an event to a business object"@en ;
+    rdfs:domain prov:InstantaneousEvent ;
+    rdfs:range prov:Entity .
+
+prov:wasGeneratedBy a rdf:Property ;
+    rdfs:label "discovered with"@en ;
+    rdfs:comment "The algorithm used to discover a model"@en ;
+    rdfs:domain schema:SoftwareSourceCode ;
+    rdfs:range mls:Algorithm .
+
+schema:value a rdf:Property ;
+    rdfs:label "has fitness"@en ;
+    rdfs:comment "The fitness score of a model"@en ;
+    rdfs:domain schema:SoftwareSourceCode ;
+    rdfs:range xsd:double .
+
+schema:value a rdf:Property ;
+    rdfs:label "has precision"@en ;
+    rdfs:comment "The precision score of a model"@en ;
+    rdfs:domain schema:SoftwareSourceCode ;
+    rdfs:range xsd:double .
+
+schema:value a rdf:Property ;
+    rdfs:label "has generalization"@en ;
+    rdfs:comment "The generalization score of a model"@en ;
+    rdfs:domain schema:SoftwareSourceCode ;
+    rdfs:range xsd:double .
+
+schema:value a rdf:Property ;
+    rdfs:label "has simplicity"@en ;
+    rdfs:comment "The simplicity score of a model"@en ;
+    rdfs:domain schema:SoftwareSourceCode ;
+    rdfs:range xsd:double .
+
+schema:isBasedOn a rdf:Property ;
+    rdfs:label "conforms to"@en ;
+    rdfs:comment "A log conforms to a model"@en ;
+    rdfs:domain dcat:Dataset ;
+    rdfs:range schema:SoftwareSourceCode .
+
+schema:duration a rdf:Property ;
+    rdfs:label "execution time"@en ;
+    rdfs:comment "Time taken for an operation"@en ;
+    rdfs:range xsd:duration .
+
+schema:value a rdf:Property ;
+    rdfs:label "event count"@en ;
+    rdfs:comment "Number of events in a log"@en ;
+    rdfs:domain dcat:Dataset ;
+    rdfs:range xsd:integer .
+
+schema:value a rdf:Property ;
+    rdfs:label "trace count"@en ;
+    rdfs:comment "Number of traces/cases in a log"@en ;
+    rdfs:domain dcat:Dataset ;
+    rdfs:range xsd:integer .
+
+schema:value a rdf:Property ;
+    rdfs:label "activity count"@en ;
+    rdfs:comment "Number of unique activities"@en ;
+    rdfs:range xsd:integer .
+
+schema:value a rdf:Property ;
+    rdfs:label "drift detected"@en ;
+    rdfs:comment "Whether concept drift was detected"@en ;
+    rdfs:range xsd:boolean .
+
+schema:value a rdf:Property ;
+    rdfs:label "anomaly score"@en ;
+    rdfs:comment "Numeric score indicating anomaly level"@en ;
+    rdfs:range xsd:double .
+
+schema:value a rdf:Property ;
+    rdfs:label "prediction confidence"@en ;
+    rdfs:comment "Confidence of a prediction"@en ;
+    rdfs:range xsd:double .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# AutoReceipt & Evidence Manufacturing Concepts
+# ─────────────────────────────────────────────────────────────────────────────
+prov:Activity a rdfs:Class ;
+    rdfs:label "Evidence Case"@en ;
+    rdfs:comment "A test case required for combinatorial maximalism proof."@en .
+
+prov:Activity a rdfs:Class ;
+    rdfs:label "Positive Case"@en ;
+    rdfs:subClassOf prov:Activity .
+
+skos:Concept a rdfs:Class ;
+    rdfs:label "Negative Case"@en ;
+    rdfs:subClassOf prov:Activity .
+
+prov:Activity a rdfs:Class ;
+    rdfs:label "Invariant Case"@en ;
+    rdfs:subClassOf prov:Activity .
+
+schema:error a rdf:Property ;
+    rdfs:label "requires negative case"@en ;
+    rdfs:domain mls:Algorithm ;
+    rdfs:range skos:Concept .
+
+schema:target a rdf:Property ;
+    rdfs:label "requires invariant case"@en ;
+    rdfs:domain mls:Algorithm ;
+    rdfs:range prov:Activity .
+
+# Specific Required Cases
+<urn:uuid:failure-EmptyLogCase> a skos:Concept ;
+    rdfs:label "Empty Log Case"@en ;
+    skos:prefLabel "EMPTY_EVENT_LOG" .
+
+<urn:uuid:failure-MalformedLogCase> a skos:Concept ;
+    rdfs:label "Malformed Log Case"@en ;
+    skos:prefLabel "MALFORMED_EVENT_LOG" .
+
+<urn:uuid:failure-MissingFeaturesCase> a skos:Concept ;
+    rdfs:label "Missing Features Case"@en ;
+    skos:prefLabel "PREDICTION_FEATURES_REQUIRED" .
+
+<urn:uuid:invariant-SeededRepeatabilityCase> a prov:Activity ;
+    rdfs:label "Seeded Repeatability Case"@en .
+
+<urn:uuid:invariant-DeterministicSameInputCase> a prov:Activity ;
+    rdfs:label "Deterministic Same Input Case"@en .

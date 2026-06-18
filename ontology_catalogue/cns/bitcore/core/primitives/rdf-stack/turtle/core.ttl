@@ -1,0 +1,118 @@
+@prefix bitstar: <http://bitstar.ai/core#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+
+# BitStar Core Ontology - The Foundation
+bitstar:Core a owl:Ontology ;
+    rdfs:label "BitStar Core Ontology" ;
+    rdfs:comment "First principles RDF triple foundation implementing the 80/20 principle" ;
+    bitstar:version "1.0.0" ;
+    bitstar:hasInvariant bitstar:EightTickGuarantee ;
+    bitstar:hasInvariant bitstar:ZeroAllocation ;
+    bitstar:hasInvariant bitstar:DeterministicExecution ;
+    bitstar:hasInvariant bitstar:TruthValidation ;
+    bitstar:hasInvariant bitstar:PerformanceGuarantee .
+
+# Core Classes
+bitstar:Primitive a owl:Class ;
+    rdfs:label "Core Primitive" ;
+    rdfs:comment "Fundamental building block of BitStar system" ;
+    rdfs:subClassOf owl:Thing ;
+    bitstar:maxTicks 8 ;
+    bitstar:memoryAllocation 0 .
+
+bitstar:Component a owl:Class ;
+    rdfs:label "BitStar Component" ;
+    rdfs:subClassOf bitstar:Primitive ;
+    bitstar:hasInvariant bitstar:ComponentInvariant .
+
+# The Three Pillars
+bitstar:BitActor a owl:Class ;
+    rdfs:subClassOf bitstar:Component ;
+    rdfs:label "BitActor" ;
+    rdfs:comment "Ultra-low latency actor system with 8-tick guarantee" ;
+    bitstar:performance "625M ops/sec" ;
+    bitstar:latency "30ns" .
+
+bitstar:BitFlow a owl:Class ;
+    rdfs:subClassOf bitstar:Component ;
+    rdfs:label "BitFlow" ;
+    rdfs:comment "Workflow engine implementing 43 YAWL patterns" ;
+    bitstar:performance "2.186B ops/sec" ;
+    bitstar:patterns 43 .
+
+bitstar:BitMesh a owl:Class ;
+    rdfs:subClassOf bitstar:Component ;
+    rdfs:label "BitMesh" ;
+    rdfs:comment "12-layer neural fabric with L0-invariant validation" ;
+    bitstar:layers 12 ;
+    bitstar:invariants 7 .
+
+# Invariants
+bitstar:Invariant a owl:Class ;
+    rdfs:label "System Invariant" ;
+    rdfs:comment "Mathematical truth that must always hold" .
+
+bitstar:EightTickGuarantee a bitstar:Invariant ;
+    rdfs:label "8-Tick Guarantee" ;
+    bitstar:constraint "∀ operation: ticks(operation) ≤ 8" ;
+    bitstar:enforcement "TICK_ENFORCE macro" ;
+    bitstar:validation "compile-time and runtime" .
+
+bitstar:ZeroAllocation a bitstar:Invariant ;
+    rdfs:label "Zero Allocation Invariant" ;
+    bitstar:constraint "∀ operation: malloc(operation) = 0" ;
+    bitstar:enforcement "pre-allocated buffers" ;
+    bitstar:validation "static analysis" .
+
+bitstar:DeterministicExecution a bitstar:Invariant ;
+    rdfs:label "Deterministic Execution" ;
+    bitstar:constraint "∀ input: output(input) is deterministic" ;
+    bitstar:enforcement "no random, no time-based decisions" .
+
+bitstar:TruthValidation a bitstar:Invariant ;
+    rdfs:label "Truth Validation" ;
+    bitstar:constraint "∀ state: validate(state) = true" ;
+    bitstar:enforcement "L0-invariant checks" ;
+    bitstar:crypto "Blake3" .
+
+# Performance Constraints
+bitstar:PerformanceConstraint a owl:Class ;
+    rdfs:subClassOf bitstar:Invariant ;
+    rdfs:label "Performance Constraint" .
+
+bitstar:TickConstraint a bitstar:PerformanceConstraint ;
+    bitstar:maxValue 8 ;
+    bitstar:unit "CPU cycles" .
+
+bitstar:LatencyConstraint a bitstar:PerformanceConstraint ;
+    bitstar:maxValue 100 ;
+    bitstar:unit "nanoseconds" .
+
+bitstar:ThroughputConstraint a bitstar:PerformanceConstraint ;
+    bitstar:minValue 500000000 ;
+    bitstar:unit "operations/second" .
+
+# SHACL Shapes for Validation
+bitstar:PrimitiveShape a shacl:NodeShape ;
+    shacl:targetClass bitstar:Primitive ;
+    shacl:property [
+        shacl:path bitstar:maxTicks ;
+        shacl:maxInclusive 8 ;
+        shacl:datatype xsd:integer
+    ] ;
+    shacl:property [
+        shacl:path bitstar:memoryAllocation ;
+        shacl:hasValue 0 ;
+        shacl:datatype xsd:integer
+    ] .
+
+bitstar:ComponentShape a shacl:NodeShape ;
+    shacl:targetClass bitstar:Component ;
+    shacl:property [
+        shacl:path bitstar:hasInvariant ;
+        shacl:minCount 1 ;
+        shacl:class bitstar:Invariant
+    ] .

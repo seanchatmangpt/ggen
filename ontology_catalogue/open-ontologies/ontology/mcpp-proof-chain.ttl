@@ -1,0 +1,147 @@
+@prefix mcpp:    <urn:ontostar:mcpp:> .
+@prefix aat:     <urn:ontostar:aat:live:> .
+@prefix powl:    <urn:ontostar:powl:> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# ============================================================================
+# MCPP Proof Chain Ontology
+# ============================================================================
+#
+# Formally models the sequence of proof gates that must pass for a work order
+# to be admitted in the MCP+ (MCPP) manufacturing pipeline.
+#
+# The five gates correspond directly to the admission checks enforced by
+# mcpp-core's `onto_admit_ctq` tool and the `Discovery` struct in manifest.rs:
+#
+#   OcelCompleteGate    — OCEL log is complete (all object lifecycles closed)
+#   PowlReplayGate      — POWL model replays cleanly against the event log
+#   PrecisionGate       — ETConformance precision threshold satisfied
+#   StagesPresentGate   — All required manufacturing stages present in log
+#   DriftPrescreenGate  — Jaccard distance between runs ≤ 0.30
+#
+# Imports:
+#   powl-process-mining.ttl — DiscoveryVariant, ConformanceDimension classes
+#   aat-live-rules.ttl      — LiveRule class and 16 LIVE correlation rules
+# ============================================================================
+
+mcpp:Ontology a owl:Ontology ;
+    rdfs:label   "MCPP Proof Chain Ontology"@en ;
+    rdfs:comment "Formal OWL model of the five admission gates that must all pass before a work order is admitted in the MCP+ manufacturing pipeline. Each gate corresponds to a verification dimension in the CompiledFrom.Discovery struct."@en ;
+    dcterms:creator  "Sean Chatman" ;
+    dcterms:created  "2026-05-17"^^xsd:date ;
+    dcterms:license  <https://opensource.org/licenses/MIT> ;
+    owl:versionInfo  "1.0.0" ;
+    owl:imports <urn:ontostar:powl:ontology> ;
+    owl:imports aat:Ontology .
+
+# ============================================================================
+# 1. ProofGate — class
+# ============================================================================
+
+mcpp:ProofGate a owl:Class ;
+    rdfs:label   "Proof Gate"@en ;
+    rdfs:comment "A single verifiable admission check in the MCPP proof chain. A work order is admitted only when every ProofGate it requires returns a passing verdict. Gate failure halts the chain and produces a mcpp:Refused verdict."@en .
+
+# ── Gate individuals ─────────────────────────────────────────────────────────
+
+mcpp:OcelCompleteGate a owl:NamedIndividual, mcpp:ProofGate ;
+    rdfs:label   "OCEL Complete Gate"@en ;
+    rdfs:comment "Verifies that the Object-Centric Event Log (OCEL 2.0) derived from the MCP/A2A sessions is complete: every object instance has a closed lifecycle (no dangling start events without a matching end event) and all declared object types are represented with at least one trace. Corresponds to the mcpp admission check ocel_complete."@en .
+
+mcpp:PowlReplayGate a owl:NamedIndividual, mcpp:ProofGate ;
+    rdfs:label   "POWL Replay Gate"@en ;
+    rdfs:comment "Replays the declared POWL route model against the event log using token-based replay. All traces in the log must be replayable without remaining tokens or missing tokens. A Discovery.fitness value of exactly 1.0 is required; 0.999 is an Andon pull. Corresponds to the mcpp admission check powl_replay."@en .
+
+mcpp:PrecisionGate a owl:NamedIndividual, mcpp:ProofGate ;
+    rdfs:label   "Precision Gate"@en ;
+    rdfs:comment "Checks that the ETConformance precision score meets the required threshold. A precision of 1.0 means the POWL model permits no behaviour beyond what was observed in the log. Lower precision indicates the model over-generalises, admitting unseen and potentially invalid process traces. Corresponds to the mcpp admission check precision."@en .
+
+mcpp:StagesPresentGate a owl:NamedIndividual, mcpp:ProofGate ;
+    rdfs:label   "Stages Present Gate"@en ;
+    rdfs:comment "Verifies that all manufacturing stages declared in the work order's route model appear at least once in the event log, with required_stage_coverage equal to exactly 1.0. A missing stage means the manufactured artifact was never processed through a required manufacturing stage. Corresponds to the mcpp admission check stages_present."@en .
+
+mcpp:DriftPrescreenGate a owl:NamedIndividual, mcpp:ProofGate ;
+    rdfs:label   "Drift Prescreen Gate"@en ;
+    rdfs:comment "Computes the Jaccard distance between the activity set of the current run's event log and the activity set of the declared POWL route model. The distance must be at most 0.30. A Jaccard distance > 0.30 indicates the observed process has drifted too far from the expected model to be a near-miss — the work order is refused rather than flagged as partial. This gate runs before replay to avoid costly alignment on fundamentally divergent logs."@en .
+
+# ============================================================================
+# 2. Verdict — class and individuals
+# ============================================================================
+
+mcpp:Verdict a owl:Class ;
+    rdfs:label   "Verdict"@en ;
+    rdfs:comment "The admission decision produced by evaluating all required ProofGates for a WorkOrder. A verdict is emitted exactly once per work order evaluation and is immutable once signed."@en .
+
+mcpp:Admitted a owl:NamedIndividual, mcpp:Verdict ;
+    rdfs:label   "Admitted"@en ;
+    rdfs:comment "All required ProofGates passed. The work order is admitted to the manufacturing pipeline. The compiled part produced from this work order may carry a CompiledFrom lineage with all Discovery dimensions equal to 1.0."@en .
+
+mcpp:Refused a owl:NamedIndividual, mcpp:Verdict ;
+    rdfs:label   "Refused"@en ;
+    rdfs:comment "One or more required ProofGates failed. The work order is not admitted. The refusal must carry a refusal class (mcpp.refusal_class OTel attribute) identifying the first failing gate. Refused work orders may be resubmitted after the underlying defect is resolved."@en .
+
+mcpp:Partial a owl:NamedIndividual, mcpp:Verdict ;
+    rdfs:label   "Partial"@en ;
+    rdfs:comment "All required gates passed but one or more optional quality dimensions (e.g. Generalization, Simplicity) fell below their advisory thresholds. The work order may proceed under advisory conditions. A Partial verdict requires explicit governance acknowledgement before release."@en .
+
+# ============================================================================
+# 3. WorkOrder — class and datatype properties
+# ============================================================================
+
+mcpp:WorkOrder a owl:Class ;
+    rdfs:label   "Work Order"@en ;
+    rdfs:comment "A request to manufacture a compiled part from observed MCP/A2A sessions. A WorkOrder packages the OCEL log reference, the nominated discovery variant, and the resulting admission verdict. It is the primary unit evaluated by the MCPP proof chain."@en .
+
+# ── Datatype properties ──────────────────────────────────────────────────────
+
+mcpp:hasRunId a owl:DatatypeProperty ;
+    rdfs:label   "has run ID"@en ;
+    rdfs:comment "The unique identifier of the manufacturing run that produced this work order. Formatted as a UUIDv4 string. Matches the run.id OTel attribute carried on all spine spans for this evaluation."@en ;
+    rdfs:domain  mcpp:WorkOrder ;
+    rdfs:range   xsd:string .
+
+mcpp:hasVerdict a owl:ObjectProperty ;
+    rdfs:label   "has verdict"@en ;
+    rdfs:comment "The admission verdict assigned to this work order after all required ProofGates have been evaluated. Exactly one verdict is assigned per work order. The property range is mcpp:Verdict."@en ;
+    rdfs:domain  mcpp:WorkOrder ;
+    rdfs:range   mcpp:Verdict .
+
+# ── Object property linking WorkOrder to its discovery variant ────────────────
+
+mcpp:hasDiscoveryVariant a owl:ObjectProperty ;
+    rdfs:label   "has discovery variant"@en ;
+    rdfs:comment "The POWL inductive-miner algorithm variant used to discover the route model for this work order's evaluation. Links to a powl:DiscoveryVariant individual. The variant determines which CutFilter sequence is applied during model discovery."@en ;
+    rdfs:domain  mcpp:WorkOrder ;
+    rdfs:range   powl:DiscoveryVariant .
+
+# ============================================================================
+# 4. mcpp:requiresGate — object property
+# ============================================================================
+
+mcpp:requiresGate a owl:ObjectProperty ;
+    rdfs:label   "requires gate"@en ;
+    rdfs:comment "Links a WorkOrder to each ProofGate that must pass for the work order to receive an Admitted verdict. A work order with no requiresGate assertions is trivially admitted, which is a configuration error. Admission infrastructure must reject work orders lacking at least one gate assertion."@en ;
+    rdfs:domain  mcpp:WorkOrder ;
+    rdfs:range   mcpp:ProofGate .
+
+# ============================================================================
+# 5. Standard work order template — required gate set (informative)
+# ============================================================================
+#
+# The canonical MCPP V1 work order requires all five gates. This named
+# individual serves as a reference template for conformance checking.
+# Concrete work orders should owl:sameAs or copy these gate assertions.
+# ============================================================================
+
+mcpp:StandardWorkOrderTemplate a owl:NamedIndividual, mcpp:WorkOrder ;
+    rdfs:label   "Standard Work Order Template"@en ;
+    rdfs:comment "Reference template declaring the five gates required by every MCPP V1 work order. Concrete work orders must link to at least these five gates to be considered fully specified."@en ;
+    mcpp:requiresGate mcpp:OcelCompleteGate ;
+    mcpp:requiresGate mcpp:PowlReplayGate ;
+    mcpp:requiresGate mcpp:PrecisionGate ;
+    mcpp:requiresGate mcpp:StagesPresentGate ;
+    mcpp:requiresGate mcpp:DriftPrescreenGate .

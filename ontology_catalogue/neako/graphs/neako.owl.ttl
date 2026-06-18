@@ -1,0 +1,187 @@
+@prefix neako:  <urn:neako#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+
+#################################################################
+# Ontology
+#################################################################
+
+neako: a owl:Ontology ;
+  rdfs:label "NEAKO Cosmos Ontology" ;
+  owl:versionInfo "0.2" ;
+  rdfs:comment "Primitives: Entity, Relation, Signal, Field, Thread. Constellations link complementary Signals." .
+
+#################################################################
+# Core classes
+#################################################################
+
+neako:Entity     a owl:Class ; rdfs:label "Entity" .
+neako:Signal     a owl:Class ; rdfs:label "Signal" .
+neako:Field      a owl:Class ; rdfs:label "Field" .
+neako:Thread     a owl:Class ; rdfs:label "Thread" .
+neako:Constellation a owl:Class ; rdfs:label "Constellation" .
+neako:SignalLink a owl:Class ; rdfs:label "Signal Link" ;
+  rdfs:comment "Reified link between two Signals with strength/reason." .
+
+# Entity specializations
+neako:Person     a owl:Class ; rdfs:subClassOf neako:Entity .
+neako:Group      a owl:Class ; rdfs:subClassOf neako:Entity .
+neako:Project    a owl:Class ; rdfs:subClassOf neako:Entity .
+neako:Object     a owl:Class ; rdfs:subClassOf neako:Entity .
+neako:Idea       a owl:Class ; rdfs:subClassOf neako:Entity .
+neako:Place      a owl:Class ; rdfs:subClassOf neako:Entity .
+neako:Event      a owl:Class ; rdfs:subClassOf neako:Entity .
+neako:Agent      a owl:Class ; rdfs:subClassOf neako:Entity ;
+  rdfs:comment "Autonomous simulation agent that emits Signals." .
+
+# Signal specializations
+neako:Offer        a owl:Class ; rdfs:subClassOf neako:Signal .
+neako:Request      a owl:Class ; rdfs:subClassOf neako:Signal .
+neako:Update       a owl:Class ; rdfs:subClassOf neako:Signal .
+neako:Invitation   a owl:Class ; rdfs:subClassOf neako:Signal .
+neako:Opportunity  a owl:Class ; rdfs:subClassOf neako:Signal .
+neako:Reflection   a owl:Class ; rdfs:subClassOf neako:Signal .
+
+# Disjointness
+[ a owl:AllDisjointClasses ; owl:members ( neako:Entity neako:Signal neako:Field neako:Thread neako:Constellation neako:SignalLink ) ] .
+
+#################################################################
+# Object properties (relations)
+#################################################################
+
+# Emission / membership
+neako:hasSignal  a owl:ObjectProperty ;
+  rdfs:domain neako:Entity ; rdfs:range neako:Signal ;
+  owl:inverseOf neako:emittedBy ;
+  rdfs:label "has signal" .
+
+neako:emittedBy  a owl:ObjectProperty ;
+  rdfs:domain neako:Signal ; rdfs:range neako:Entity ;
+  rdfs:label "emitted by" .
+
+neako:inField    a owl:ObjectProperty ;
+  rdfs:domain neako:Signal ; rdfs:range neako:Field ;
+  rdfs:label "in field" .
+
+neako:inThread   a owl:ObjectProperty ;
+  rdfs:domain neako:Signal ; rdfs:range neako:Thread ;
+  rdfs:label "in thread" .
+
+neako:nextInThread a owl:ObjectProperty ;
+  rdfs:domain neako:Signal ; rdfs:range neako:Signal ;
+  rdfs:label "next in thread" ;
+  rdfs:comment "Linear ordering inside a Thread." .
+
+# Targeting / aboutness
+neako:targetsEntity a owl:ObjectProperty ;
+  rdfs:domain neako:Signal ; rdfs:range neako:Entity ;
+  rdfs:label "targets entity" .
+
+neako:aboutEntity a owl:ObjectProperty ;
+  rdfs:domain neako:Signal ; rdfs:range neako:Entity ;
+  rdfs:label "about entity" .
+
+# Constellations
+neako:hasMember a owl:ObjectProperty ;
+  rdfs:domain neako:Constellation ; rdfs:range neako:Signal ;
+  rdfs:label "has member signal" .
+
+neako:connectsSignal a owl:ObjectProperty ;
+  rdfs:domain neako:SignalLink ; rdfs:range neako:Signal ;
+  rdfs:label "connects signal" .
+
+neako:signalA a owl:ObjectProperty ;
+  rdfs:subPropertyOf neako:connectsSignal ;
+  rdfs:domain neako:SignalLink ; rdfs:range neako:Signal .
+
+neako:signalB a owl:ObjectProperty ;
+  rdfs:subPropertyOf neako:connectsSignal ;
+  rdfs:domain neako:SignalLink ; rdfs:range neako:Signal .
+
+# Structural relations among entities
+neako:owns     a owl:ObjectProperty ; rdfs:domain neako:Entity ; rdfs:range neako:Entity ;
+  owl:inverseOf neako:ownedBy .
+
+neako:ownedBy  a owl:ObjectProperty ; rdfs:domain neako:Entity ; rdfs:range neako:Entity .
+
+neako:partOf   a owl:ObjectProperty ; rdfs:domain neako:Entity ; rdfs:range neako:Entity ;
+  owl:inverseOf neako:hasPart ; owl:propertyChainAxiom ( neako:partOf neako:partOf ) .
+
+neako:hasPart  a owl:ObjectProperty ; rdfs:domain neako:Entity ; rdfs:range neako:Entity .
+
+neako:hostedBy a owl:ObjectProperty ; rdfs:domain neako:Entity ; rdfs:range neako:Entity ;
+  owl:inverseOf neako:hosts .
+
+neako:hosts    a owl:ObjectProperty ; rdfs:domain neako:Entity ; rdfs:range neako:Entity .
+
+neako:near     a owl:ObjectProperty ; rdfs:domain neako:Entity ; rdfs:range neako:Entity ;
+  a owl:SymmetricProperty .
+
+neako:createdBy a owl:ObjectProperty ; rdfs:domain neako:Entity ; rdfs:range neako:Entity ;
+  owl:inverseOf neako:created .
+
+neako:created   a owl:ObjectProperty ; rdfs:domain neako:Entity ; rdfs:range neako:Entity .
+
+neako:needs     a owl:ObjectProperty ; rdfs:domain neako:Entity ; rdfs:range neako:Entity ;
+  owl:inverseOf neako:neededBy .
+
+neako:neededBy  a owl:ObjectProperty ; rdfs:domain neako:Entity ; rdfs:range neako:Entity .
+
+#################################################################
+# Data properties
+#################################################################
+
+neako:name        a owl:DatatypeProperty ; rdfs:domain neako:Entity ; rdfs:range xsd:string .
+neako:description a owl:DatatypeProperty ; rdfs:domain [ owl:unionOf ( neako:Entity neako:Signal neako:Field neako:Thread neako:Constellation ) ] ; rdfs:range xsd:string .
+neako:tag         a owl:DatatypeProperty ; rdfs:domain [ owl:unionOf ( neako:Entity neako:Signal ) ] ; rdfs:range xsd:string .
+neako:text        a owl:DatatypeProperty ; rdfs:domain neako:Signal ; rdfs:range xsd:string .
+neako:payloadJson a owl:DatatypeProperty ; rdfs:domain neako:Signal ; rdfs:range xsd:string ; rdfs:comment "Opaque JSON string." .
+neako:createdAt   a owl:DatatypeProperty ; rdfs:domain [ owl:unionOf ( neako:Entity neako:Signal neako:Thread ) ] ; rdfs:range xsd:dateTime .
+neako:visibility  a owl:DatatypeProperty ; rdfs:domain neako:Field ; rdfs:range xsd:string .
+neako:context     a owl:DatatypeProperty ; rdfs:domain neako:Field ; rdfs:range xsd:string .
+neako:relevance   a owl:DatatypeProperty ; rdfs:domain neako:Field ; rdfs:range xsd:decimal .
+neako:cadenceSec  a owl:DatatypeProperty ; rdfs:domain neako:Agent ; rdfs:range xsd:decimal ; rdfs:comment "Emission cadence for simulation." .
+
+# SignalLink attributes
+neako:linkStrength a owl:DatatypeProperty ; rdfs:domain neako:SignalLink ; rdfs:range xsd:float .
+neako:linkReason   a owl:DatatypeProperty ; rdfs:domain neako:SignalLink ; rdfs:range xsd:string .
+
+#################################################################
+# Key axioms / restrictions (happy path)
+#################################################################
+
+# Every Signal has exactly one emitter
+[ a owl:Restriction ;
+  owl:onProperty neako:emittedBy ;
+  owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+  owl:onClass neako:Entity
+] rdfs:subClassOf neako:Signal .
+
+# Constellation has at least two member signals
+[ a owl:Restriction ;
+  owl:onProperty neako:hasMember ;
+  owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ;
+  owl:onClass neako:Signal
+] rdfs:subClassOf neako:Constellation .
+
+#################################################################
+# Matching annotations (for visualization logic)
+#################################################################
+
+neako:complements a owl:AnnotationProperty ;
+  rdfs:comment "Signals of class A complement Signals of class B for linking." .
+
+neako:Offer     neako:complements neako:Request .
+neako:Invitation neako:complements neako:Opportunity .
+
+#################################################################
+# Convenience individuals (optional)
+#################################################################
+
+neako:GlobalField a neako:Field ;
+  neako:name "global" ;
+  neako:visibility "public" ;
+  neako:context "default" ;
+  neako:relevance 1.0 .

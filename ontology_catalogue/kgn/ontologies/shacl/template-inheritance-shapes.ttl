@@ -1,0 +1,737 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix kgen: <https://kgen.dev/ontology#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix tmpl: <https://kgen.dev/template#> .
+
+# KGEN Template Inheritance SHACL Shapes - Validation for Template Inheritance
+#
+# This file defines comprehensive SHACL constraints for validating KGEN template inheritance including:
+# - Template hierarchy validation
+# - Block inheritance constraints
+# - Circular inheritance detection
+# - Variable scope in inheritance chains
+# - Performance constraints for deep inheritance
+
+#######################################
+# Template Core Constraints
+#######################################
+
+tmpl:TemplateShape a sh:NodeShape ;
+    rdfs:label "Template Shape" ;
+    rdfs:comment "Core constraints for all KGEN templates" ;
+    sh:targetClass tmpl:Template ;
+
+    # Template name is required and must be valid
+    sh:property [
+        sh:path tmpl:templateName ;
+        sh:name "template name" ;
+        sh:description "Name of the template file" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-zA-Z][a-zA-Z0-9_.-]*\\.(njk|hbs|mustache|liquid|ejs|pug)$" ;
+        sh:message "Template name must be valid filename with supported template extension" ;
+    ] ;
+
+    # Template path for resolution
+    sh:property [
+        sh:path tmpl:templatePath ;
+        sh:name "template path" ;
+        sh:description "Full path to the template file" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Template path is required" ;
+    ] ;
+
+    # Template engine specification
+    sh:property [
+        sh:path tmpl:templateEngine ;
+        sh:name "template engine" ;
+        sh:description "Template engine used for processing" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (
+            "nunjucks"
+            "handlebars"
+            "mustache"
+            "liquid"
+            "ejs"
+            "pug"
+        ) ;
+        sh:message "Template engine must be supported type" ;
+    ] ;
+
+    # Template variables
+    sh:property [
+        sh:path tmpl:hasVariable ;
+        sh:name "template variables" ;
+        sh:nodeKind sh:BlankNode ;
+        sh:node tmpl:TemplateVariableShape ;
+    ] ;
+
+    # Template metadata
+    sh:property [
+        sh:path tmpl:templateVersion ;
+        sh:name "template version" ;
+        sh:description "Version of the template" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^\\d+\\.\\d+\\.\\d+(-.+)?$" ;
+        sh:message "Template version must follow semantic versioning" ;
+    ] ;
+
+    # Creation and modification timestamps
+    sh:property [
+        sh:path prov:generatedAtTime ;
+        sh:name "creation time" ;
+        sh:description "When the template was created" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Template creation timestamp" ;
+    ] .
+
+tmpl:TemplateVariableShape a sh:NodeShape ;
+    rdfs:label "Template Variable Shape" ;
+    rdfs:comment "Constraints for template variables" ;
+
+    sh:property [
+        sh:path tmpl:variableName ;
+        sh:name "variable name" ;
+        sh:description "Name of the template variable" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-zA-Z_$][a-zA-Z0-9_$]*$" ;
+        sh:message "Variable name must be valid JavaScript identifier" ;
+    ] ;
+
+    sh:property [
+        sh:path tmpl:variableType ;
+        sh:name "variable type" ;
+        sh:description "Data type of the variable" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (
+            "string"
+            "number"
+            "boolean"
+            "array"
+            "object"
+            "date"
+            "uri"
+            "any"
+        ) ;
+        sh:message "Variable type must be supported type" ;
+    ] ;
+
+    sh:property [
+        sh:path tmpl:isRequired ;
+        sh:name "is required" ;
+        sh:description "Whether the variable is required" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:message "Must specify if variable is required" ;
+    ] ;
+
+    sh:property [
+        sh:path tmpl:defaultValue ;
+        sh:name "default value" ;
+        sh:description "Default value for the variable" ;
+        sh:maxCount 1 ;
+        sh:message "Optional default value" ;
+    ] .
+
+#######################################
+# Template Inheritance Constraints
+#######################################
+
+tmpl:InheritanceShape a sh:NodeShape ;
+    rdfs:label "Template Inheritance Shape" ;
+    rdfs:comment "Constraints for template inheritance relationships" ;
+    sh:targetClass tmpl:Template ;
+
+    # Parent template reference
+    sh:property [
+        sh:path tmpl:extendsTemplate ;
+        sh:name "extends template" ;
+        sh:description "Parent template this template extends" ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "Template can extend at most one parent template" ;
+    ] ;
+
+    # Inheritance depth constraint
+    sh:property [
+        sh:path tmpl:inheritanceDepth ;
+        sh:name "inheritance depth" ;
+        sh:description "Depth in the inheritance hierarchy" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:nonNegativeInteger ;
+        sh:maxInclusive 5 ;
+        sh:message "Inheritance depth should not exceed 5 levels for performance" ;
+    ] ;
+
+    # Template blocks definition
+    sh:property [
+        sh:path tmpl:hasBlock ;
+        sh:name "template blocks" ;
+        sh:nodeKind sh:BlankNode ;
+        sh:node tmpl:TemplateBlockShape ;
+    ] ;
+
+    # Inheritance validation
+    sh:property [
+        sh:path tmpl:inheritanceValid ;
+        sh:name "inheritance validity" ;
+        sh:description "Whether inheritance chain is valid" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Template inheritance must be valid" ;
+    ] .
+
+tmpl:TemplateBlockShape a sh:NodeShape ;
+    rdfs:label "Template Block Shape" ;
+    rdfs:comment "Constraints for template blocks in inheritance" ;
+
+    # Block name is required and must be valid identifier
+    sh:property [
+        sh:path tmpl:blockName ;
+        sh:name "block name" ;
+        sh:description "Name of the template block" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-zA-Z][a-zA-Z0-9_]*$" ;
+        sh:message "Block names must be valid identifiers" ;
+    ] ;
+
+    # Block content
+    sh:property [
+        sh:path tmpl:blockContent ;
+        sh:name "block content" ;
+        sh:description "Content of the template block" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Template block content" ;
+    ] ;
+
+    # Parent override specification
+    sh:property [
+        sh:path tmpl:overridesParent ;
+        sh:name "overrides parent" ;
+        sh:description "Whether this block overrides parent block" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:message "Must specify if block overrides parent" ;
+    ] ;
+
+    # Super call specification
+    sh:property [
+        sh:path tmpl:callsSuper ;
+        sh:name "calls super" ;
+        sh:description "Whether this block calls super()" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:message "Must specify if block calls super()" ;
+    ] ;
+
+    # Block visibility
+    sh:property [
+        sh:path tmpl:blockVisibility ;
+        sh:name "block visibility" ;
+        sh:description "Visibility of the block" ;
+        sh:maxCount 1 ;
+        sh:in (
+            tmpl:public
+            tmpl:protected
+            tmpl:private
+        ) ;
+        sh:message "Block visibility must be public, protected, or private" ;
+    ] ;
+
+    # Block requirements
+    sh:property [
+        sh:path tmpl:requiresVariable ;
+        sh:name "required variables" ;
+        sh:description "Variables required by this block" ;
+        sh:nodeKind sh:BlankNode ;
+        sh:node tmpl:TemplateVariableShape ;
+    ] .
+
+#######################################
+# Inheritance Hierarchy Validation
+#######################################
+
+tmpl:HierarchyValidationShape a sh:NodeShape ;
+    rdfs:label "Inheritance Hierarchy Validation" ;
+    rdfs:comment "Validates template inheritance hierarchy structure" ;
+    sh:targetClass tmpl:InheritanceHierarchy ;
+
+    # Root template identification
+    sh:property [
+        sh:path tmpl:rootTemplate ;
+        sh:name "root template" ;
+        sh:description "Root template in the hierarchy" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "Hierarchy must have exactly one root template" ;
+    ] ;
+
+    # Maximum depth constraint
+    sh:property [
+        sh:path tmpl:maxDepth ;
+        sh:name "maximum depth" ;
+        sh:description "Maximum inheritance depth in hierarchy" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:positiveInteger ;
+        sh:maxInclusive 5 ;
+        sh:message "Inheritance hierarchy should not exceed 5 levels" ;
+    ] ;
+
+    # Template count constraint
+    sh:property [
+        sh:path tmpl:templateCount ;
+        sh:name "template count" ;
+        sh:description "Number of templates in hierarchy" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:positiveInteger ;
+        sh:maxInclusive 20 ;
+        sh:message "Inheritance hierarchy should not exceed 20 templates" ;
+    ] ;
+
+    # Consistency validation
+    sh:property [
+        sh:path tmpl:isConsistent ;
+        sh:name "hierarchy consistency" ;
+        sh:description "Whether hierarchy is consistent" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Inheritance hierarchy must be consistent" ;
+    ] .
+
+#######################################
+# Block Override Validation
+#######################################
+
+tmpl:BlockOverrideShape a sh:NodeShape ;
+    rdfs:label "Block Override Shape" ;
+    rdfs:comment "Validates block override relationships" ;
+    sh:targetClass tmpl:BlockOverride ;
+
+    # Child block reference
+    sh:property [
+        sh:path tmpl:childBlock ;
+        sh:name "child block" ;
+        sh:description "Block that overrides parent" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "Override must reference child block" ;
+    ] ;
+
+    # Parent block reference
+    sh:property [
+        sh:path tmpl:parentBlock ;
+        sh:name "parent block" ;
+        sh:description "Block being overridden" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "Override must reference parent block" ;
+    ] ;
+
+    # Override type
+    sh:property [
+        sh:path tmpl:overrideType ;
+        sh:name "override type" ;
+        sh:description "Type of block override" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (
+            tmpl:replace      # Completely replace parent content
+            tmpl:extend       # Add to parent content with super()
+            tmpl:prepend      # Add before parent content
+            tmpl:append       # Add after parent content
+        ) ;
+        sh:message "Override type must be replace, extend, prepend, or append" ;
+    ] ;
+
+    # Compatibility validation
+    sh:property [
+        sh:path tmpl:isCompatible ;
+        sh:name "override compatibility" ;
+        sh:description "Whether override is compatible with parent" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Block override must be compatible with parent" ;
+    ] .
+
+#######################################
+# Variable Scope in Inheritance
+#######################################
+
+tmpl:VariableScopeShape a sh:NodeShape ;
+    rdfs:label "Variable Scope Shape" ;
+    rdfs:comment "Validates variable scope across inheritance hierarchy" ;
+    sh:targetClass tmpl:VariableScope ;
+
+    # Scope level
+    sh:property [
+        sh:path tmpl:scopeLevel ;
+        sh:name "scope level" ;
+        sh:description "Level of variable scope in hierarchy" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (
+            tmpl:global       # Available to all templates in hierarchy
+            tmpl:inherited    # Available to child templates
+            tmpl:local        # Available only to declaring template
+            tmpl:block        # Available only within specific block
+        ) ;
+        sh:message "Variable scope must be global, inherited, local, or block" ;
+    ] ;
+
+    # Variable visibility
+    sh:property [
+        sh:path tmpl:variableVisibility ;
+        sh:name "variable visibility" ;
+        sh:description "Visibility of variable in inheritance chain" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (
+            tmpl:public       # Accessible to all child templates
+            tmpl:protected    # Accessible to direct children only
+            tmpl:private      # Not accessible to children
+        ) ;
+        sh:message "Variable visibility must be public, protected, or private" ;
+    ] ;
+
+    # Shadowing constraints
+    sh:property [
+        sh:path tmpl:allowsShadowing ;
+        sh:name "allows shadowing" ;
+        sh:description "Whether variable can be shadowed by children" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:message "Shadowing behavior specification" ;
+    ] ;
+
+    # Override constraints
+    sh:property [
+        sh:path tmpl:allowsOverride ;
+        sh:name "allows override" ;
+        sh:description "Whether variable can be overridden by children" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:message "Override behavior specification" ;
+    ] .
+
+#######################################
+# SPARQL-based Advanced Constraints
+#######################################
+
+# Circular inheritance detection
+tmpl:CircularInheritanceShape a sh:NodeShape ;
+    rdfs:label "Circular Inheritance Detection" ;
+    rdfs:comment "Detects circular inheritance in template hierarchies" ;
+    sh:targetClass tmpl:Template ;
+    sh:sparql [
+        sh:message "Circular inheritance detected in template hierarchy" ;
+        sh:severity sh:Violation ;
+        sh:select '''
+            PREFIX tmpl: <https://kgen.dev/template#>
+            SELECT $this ?cycle
+            WHERE {
+                $this tmpl:extendsTemplate+ $this .
+                BIND($this as ?cycle)
+            }
+        ''' ;
+    ] .
+
+# Orphaned template detection
+tmpl:OrphanedTemplateShape a sh:NodeShape ;
+    rdfs:label "Orphaned Template Detection" ;
+    rdfs:comment "Detects templates with broken parent references" ;
+    sh:targetClass tmpl:Template ;
+    sh:sparql [
+        sh:message "Template extends non-existent parent template" ;
+        sh:severity sh:Violation ;
+        sh:select '''
+            PREFIX tmpl: <https://kgen.dev/template#>
+            SELECT $this ?missingParent
+            WHERE {
+                $this tmpl:extendsTemplate ?parent .
+                FILTER NOT EXISTS {
+                    ?parent a tmpl:Template .
+                }
+                BIND(?parent as ?missingParent)
+            }
+        ''' ;
+    ] .
+
+# Block name conflict detection
+tmpl:BlockConflictShape a sh:NodeShape ;
+    rdfs:label "Block Name Conflict Detection" ;
+    rdfs:comment "Detects conflicting block names in inheritance chain" ;
+    sh:targetClass tmpl:Template ;
+    sh:sparql [
+        sh:message "Block name conflicts with parent template block" ;
+        sh:severity sh:Warning ;
+        sh:select '''
+            PREFIX tmpl: <https://kgen.dev/template#>
+            SELECT $this ?conflictingBlock
+            WHERE {
+                $this tmpl:hasBlock ?childBlock .
+                ?childBlock tmpl:blockName ?blockName .
+                ?childBlock tmpl:overridesParent false .
+
+                $this tmpl:extendsTemplate+ ?ancestor .
+                ?ancestor tmpl:hasBlock ?ancestorBlock .
+                ?ancestorBlock tmpl:blockName ?blockName .
+
+                BIND(?blockName as ?conflictingBlock)
+            }
+        ''' ;
+    ] .
+
+# Unused block detection
+tmpl:UnusedBlockShape a sh:NodeShape ;
+    rdfs:label "Unused Block Detection" ;
+    rdfs:comment "Detects blocks that are never overridden or used" ;
+    sh:targetClass tmpl:Template ;
+    sh:sparql [
+        sh:message "Block is defined but never used or overridden" ;
+        sh:severity sh:Info ;
+        sh:select '''
+            PREFIX tmpl: <https://kgen.dev/template#>
+            SELECT $this ?unusedBlock
+            WHERE {
+                $this tmpl:hasBlock ?block .
+                ?block tmpl:blockName ?blockName .
+                ?block tmpl:blockVisibility tmpl:public .
+
+                FILTER NOT EXISTS {
+                    ?child tmpl:extendsTemplate+ $this .
+                    ?child tmpl:hasBlock ?childBlock .
+                    ?childBlock tmpl:blockName ?blockName .
+                }
+
+                FILTER NOT EXISTS {
+                    ?block tmpl:isUsedInTemplate true .
+                }
+
+                BIND(?blockName as ?unusedBlock)
+            }
+        ''' ;
+    ] .
+
+# Variable shadowing validation
+tmpl:VariableShadowingShape a sh:NodeShape ;
+    rdfs:label "Variable Shadowing Validation" ;
+    rdfs:comment "Validates variable shadowing in inheritance chains" ;
+    sh:targetClass tmpl:Template ;
+    sh:sparql [
+        sh:message "Variable shadows parent variable without explicit override" ;
+        sh:severity sh:Warning ;
+        sh:select '''
+            PREFIX tmpl: <https://kgen.dev/template#>
+            SELECT $this ?shadowedVariable
+            WHERE {
+                $this tmpl:hasVariable ?childVar .
+                ?childVar tmpl:variableName ?varName .
+
+                $this tmpl:extendsTemplate+ ?parent .
+                ?parent tmpl:hasVariable ?parentVar .
+                ?parentVar tmpl:variableName ?varName .
+                ?parentVar tmpl:allowsShadowing false .
+
+                FILTER NOT EXISTS {
+                    ?childVar tmpl:explicitlyOverrides ?parentVar .
+                }
+
+                BIND(?varName as ?shadowedVariable)
+            }
+        ''' ;
+    ] .
+
+# Missing required variables from parent
+tmpl:MissingRequiredVariableShape a sh:NodeShape ;
+    rdfs:label "Missing Required Variable Detection" ;
+    rdfs:comment "Detects missing required variables from parent templates" ;
+    sh:targetClass tmpl:Template ;
+    sh:sparql [
+        sh:message "Template does not provide required variable from parent" ;
+        sh:severity sh:Violation ;
+        sh:select '''
+            PREFIX tmpl: <https://kgen.dev/template#>
+            SELECT $this ?missingVariable
+            WHERE {
+                $this tmpl:extendsTemplate+ ?parent .
+                ?parent tmpl:hasVariable ?parentVar .
+                ?parentVar tmpl:variableName ?varName .
+                ?parentVar tmpl:isRequired true .
+                ?parentVar tmpl:variableVisibility tmpl:public .
+
+                FILTER NOT EXISTS {
+                    $this tmpl:hasVariable ?childVar .
+                    ?childVar tmpl:variableName ?varName .
+                }
+
+                FILTER NOT EXISTS {
+                    ?parentVar tmpl:defaultValue ?defaultVal .
+                }
+
+                BIND(?varName as ?missingVariable)
+            }
+        ''' ;
+    ] .
+
+#######################################
+# Performance Constraints for Inheritance
+#######################################
+
+tmpl:InheritancePerformanceShape a sh:NodeShape ;
+    rdfs:label "Inheritance Performance Shape" ;
+    rdfs:comment "Performance constraints for template inheritance" ;
+    sh:targetClass tmpl:InheritanceHierarchy ;
+
+    # Maximum resolution time
+    sh:property [
+        sh:path tmpl:maxResolutionTime ;
+        sh:name "maximum resolution time" ;
+        sh:description "Maximum time to resolve inheritance chain" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 1000.0 ; # 1 second
+        sh:message "Inheritance resolution should complete within 1 second" ;
+    ] ;
+
+    # Maximum memory usage during resolution
+    sh:property [
+        sh:path tmpl:maxResolutionMemory ;
+        sh:name "maximum resolution memory" ;
+        sh:description "Maximum memory usage during resolution" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:long ;
+        sh:maxInclusive 52428800 ; # 50MB
+        sh:message "Inheritance resolution should not exceed 50MB memory" ;
+    ] ;
+
+    # Cache efficiency
+    sh:property [
+        sh:path tmpl:cacheHitRatio ;
+        sh:name "cache hit ratio" ;
+        sh:description "Minimum cache hit ratio for performance" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.8 ; # 80%
+        sh:message "Template inheritance should achieve 80%+ cache hit ratio" ;
+    ] .
+
+#######################################
+# Template Compatibility Constraints
+#######################################
+
+tmpl:CompatibilityShape a sh:NodeShape ;
+    rdfs:label "Template Compatibility Shape" ;
+    rdfs:comment "Ensures template compatibility across inheritance chain" ;
+    sh:targetClass tmpl:Template ;
+
+    # Engine compatibility
+    sh:property [
+        sh:path tmpl:engineCompatible ;
+        sh:name "engine compatible" ;
+        sh:description "Whether template is compatible with parent engine" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Template must be compatible with parent template engine" ;
+    ] ;
+
+    # Version compatibility
+    sh:property [
+        sh:path tmpl:versionCompatible ;
+        sh:name "version compatible" ;
+        sh:description "Whether template version is compatible with parent" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Template version must be compatible with parent" ;
+    ] ;
+
+    # API compatibility
+    sh:property [
+        sh:path tmpl:apiCompatible ;
+        sh:name "API compatible" ;
+        sh:description "Whether template API is compatible with parent" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Template API must be compatible with parent" ;
+    ] .
+
+#######################################
+# Template Resolution Constraints
+#######################################
+
+tmpl:ResolutionShape a sh:NodeShape ;
+    rdfs:label "Template Resolution Shape" ;
+    rdfs:comment "Constraints for template inheritance resolution" ;
+    sh:targetClass tmpl:TemplateResolution ;
+
+    # Resolution strategy
+    sh:property [
+        sh:path tmpl:resolutionStrategy ;
+        sh:name "resolution strategy" ;
+        sh:description "Strategy for resolving template inheritance" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (
+            tmpl:depthFirst
+            tmpl:breadthFirst
+            tmpl:topological
+            tmpl:lazy
+        ) ;
+        sh:message "Resolution strategy must be specified" ;
+    ] ;
+
+    # Caching strategy
+    sh:property [
+        sh:path tmpl:cachingStrategy ;
+        sh:name "caching strategy" ;
+        sh:description "Strategy for caching resolved templates" ;
+        sh:maxCount 1 ;
+        sh:in (
+            tmpl:noCache
+            tmpl:memoryCache
+            tmpl:diskCache
+            tmpl:hybridCache
+        ) ;
+        sh:message "Caching strategy specification" ;
+    ] ;
+
+    # Error handling
+    sh:property [
+        sh:path tmpl:errorHandling ;
+        sh:name "error handling" ;
+        sh:description "Error handling strategy for resolution failures" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (
+            tmpl:fail
+            tmpl:fallback
+            tmpl:ignore
+            tmpl:substitute
+        ) ;
+        sh:message "Error handling strategy must be specified" ;
+    ] .

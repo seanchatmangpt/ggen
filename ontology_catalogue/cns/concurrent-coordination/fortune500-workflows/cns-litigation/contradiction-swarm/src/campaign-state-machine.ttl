@@ -1,0 +1,535 @@
+@prefix csm: <http://cns-litigation.com/campaign-state-machine#> .
+@prefix ts: <http://cns-litigation.com/trigger-swarm#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ba: <http://cns-litigation.com/bitactor#> .
+@prefix vda: <http://van-der-aalst.com/patterns#> .
+
+# Campaign State Machine Definition
+# Deterministic state transitions with 8-tick execution window
+# Implements formal state machine with rollback and recovery
+
+csm:CampaignStateMachine a owl:Class ;
+    rdfs:label "Campaign State Machine" ;
+    rdfs:comment "Formal state machine controller for legal campaign execution" ;
+    csm:version "2.0" ;
+    csm:executionModel csm:Deterministic ;
+    csm:tickWindow 8 ;
+    csm:rollbackSupport true ;
+    csm:concurrentCampaigns 5 .
+
+# ============================================================================
+# STATE DEFINITIONS AND PROPERTIES
+# ============================================================================
+
+# State Class Hierarchy
+csm:State a owl:Class ;
+    rdfs:label "Campaign State" ;
+    rdfs:comment "Base class for all campaign states" .
+
+csm:InitialState a owl:Class ;
+    rdfs:label "Initial State" ;
+    rdfs:comment "Initial state of the campaign state machine" ;
+    rdfs:subClassOf csm:State .
+
+csm:TransitionalState a owl:Class ;
+    rdfs:label "Transitional State" ;
+    rdfs:comment "State during active transitions" ;
+    rdfs:subClassOf csm:State .
+
+csm:FinalState a owl:Class ;
+    rdfs:label "Final State" ;
+    rdfs:comment "Terminal state of campaign execution" ;
+    rdfs:subClassOf csm:State .
+
+csm:ErrorState a owl:Class ;
+    rdfs:label "Error State" ;
+    rdfs:comment "Error state requiring intervention" ;
+    rdfs:subClassOf csm:State .
+
+# Concrete State Instances
+csm:CampaignIdle a csm:InitialState ;
+    rdfs:label "Campaign Idle" ;
+    rdfs:comment "System idle, monitoring for triggers" ;
+    csm:stateId "IDLE" ;
+    csm:timeout "PT∞S"^^xsd:duration ;
+    csm:nextStates csm:CampaignInitializing, csm:EmergencyMode ;
+    csm:actions csm:MonitorTriggers, csm:MaintainSystemHealth .
+
+csm:CampaignInitializing a csm:TransitionalState ;
+    rdfs:label "Campaign Initializing" ;
+    rdfs:comment "Campaign initialization and resource allocation" ;
+    csm:stateId "INITIALIZING" ;
+    csm:timeout "PT5M"^^xsd:duration ;
+    csm:ticksRequired 1 ;
+    csm:nextStates csm:CampaignAnalyzing, csm:CampaignError ;
+    csm:actions csm:AllocateResources, csm:InitializeSwarms, csm:ValidateConfiguration .
+
+csm:CampaignAnalyzing a csm:TransitionalState ;
+    rdfs:label "Campaign Analyzing" ;
+    rdfs:comment "Evidence analysis and contradiction detection phase" ;
+    csm:stateId "ANALYZING" ;
+    csm:timeout "PT15M"^^xsd:duration ;
+    csm:ticksRequired 2 ;
+    csm:nextStates csm:CampaignPlanning, csm:CampaignError, csm:CampaignSuspended ;
+    csm:actions csm:AnalyzeEvidence, csm:DetectContradictions, csm:AssessViability .
+
+csm:CampaignPlanning a csm:TransitionalState ;
+    rdfs:label "Campaign Planning" ;
+    rdfs:comment "Strategic planning and workflow coordination" ;
+    csm:stateId "PLANNING" ;
+    csm:timeout "PT10M"^^xsd:duration ;
+    csm:ticksRequired 1 ;
+    csm:nextStates csm:CampaignExecuting, csm:CampaignError ;
+    csm:actions csm:DevelopStrategy, csm:CoordinateWorkflows, csm:PlanExecution .
+
+csm:CampaignExecuting a csm:TransitionalState ;
+    rdfs:label "Campaign Executing" ;
+    rdfs:comment "Active execution of legal campaign workflows" ;
+    csm:stateId "EXECUTING" ;
+    csm:timeout "PT2H"^^xsd:duration ;
+    csm:ticksRequired 3 ;
+    csm:nextStates csm:CampaignMonitoring, csm:CampaignError, csm:CampaignSuspended ;
+    csm:actions csm:ExecuteWorkflows, csm:CoordinateSwarms, csm:TrackProgress .
+
+csm:CampaignMonitoring a csm:TransitionalState ;
+    rdfs:label "Campaign Monitoring" ;
+    rdfs:comment "Real-time monitoring and adjustment phase" ;
+    csm:stateId "MONITORING" ;
+    csm:timeout "PT30M"^^xsd:duration ;
+    csm:ticksRequired 1 ;
+    csm:nextStates csm:CampaignCompleting, csm:CampaignExecuting, csm:CampaignError ;
+    csm:actions csm:MonitorProgress, csm:AdjustExecution, csm:EvaluateResults .
+
+csm:CampaignCompleting a csm:TransitionalState ;
+    rdfs:label "Campaign Completing" ;
+    rdfs:comment "Campaign completion and cleanup phase" ;
+    csm:stateId "COMPLETING" ;
+    csm:timeout "PT10M"^^xsd:duration ;
+    csm:ticksRequired 1 ;
+    csm:nextStates csm:CampaignComplete, csm:CampaignError ;
+    csm:actions csm:FinalizeResults, csm:CleanupResources, csm:GenerateReports .
+
+csm:CampaignComplete a csm:FinalState ;
+    rdfs:label "Campaign Complete" ;
+    rdfs:comment "Campaign successfully completed" ;
+    csm:stateId "COMPLETE" ;
+    csm:nextStates csm:CampaignIdle ;
+    csm:actions csm:ArchiveResults, csm:UpdateMetrics, csm:PrepareNextCampaign .
+
+csm:CampaignError a csm:ErrorState ;
+    rdfs:label "Campaign Error" ;
+    rdfs:comment "Campaign error state requiring intervention" ;
+    csm:stateId "ERROR" ;
+    csm:timeout "PT15M"^^xsd:duration ;
+    csm:nextStates csm:CampaignInitializing, csm:CampaignSuspended, csm:EmergencyMode ;
+    csm:actions csm:DiagnoseError, csm:AttemptRecovery, csm:NotifyAdministrators .
+
+csm:CampaignSuspended a csm:TransitionalState ;
+    rdfs:label "Campaign Suspended" ;
+    rdfs:comment "Campaign temporarily suspended" ;
+    csm:stateId "SUSPENDED" ;
+    csm:timeout "PT1H"^^xsd:duration ;
+    csm:nextStates csm:CampaignInitializing, csm:CampaignAnalyzing, csm:CampaignExecuting, csm:CampaignError ;
+    csm:actions csm:PreserveState, csm:NotifyStakeholders, csm:WaitForResumption .
+
+csm:EmergencyMode a csm:ErrorState ;
+    rdfs:label "Emergency Mode" ;
+    rdfs:comment "Emergency mode with immediate intervention required" ;
+    csm:stateId "EMERGENCY" ;
+    csm:timeout "PT5M"^^xsd:duration ;
+    csm:nextStates csm:CampaignIdle, csm:SystemShutdown ;
+    csm:actions csm:EmergencyShutdown, csm:PreserveEvidentialIntegrity, csm:AlertAuthorities .
+
+csm:SystemShutdown a csm:FinalState ;
+    rdfs:label "System Shutdown" ;
+    rdfs:comment "Controlled system shutdown" ;
+    csm:stateId "SHUTDOWN" ;
+    csm:actions csm:SafeShutdown, csm:DataPersistence, csm:AuditTrail .
+
+# ============================================================================
+# STATE TRANSITION DEFINITIONS
+# ============================================================================
+
+# Transition Class
+csm:StateTransition a owl:Class ;
+    rdfs:label "State Transition" ;
+    rdfs:comment "Formal state transition with conditions and actions" .
+
+# Idle to Initializing Transitions
+csm:IdleToInitializing a csm:StateTransition ;
+    rdfs:label "Idle to Initializing Transition" ;
+    csm:fromState csm:CampaignIdle ;
+    csm:toState csm:CampaignInitializing ;
+    csm:trigger csm:CampaignTriggerReceived ;
+    csm:conditions [
+        csm:condition "triggerValid == true" ;
+        csm:condition "systemReady == true" ;
+        csm:condition "resourcesAvailable == true"
+    ] ;
+    csm:actions csm:LogTransition, csm:AllocateInitialResources, csm:NotifySwarms ;
+    csm:ticksConsumed 0 ;
+    csm:priority 10 .
+
+csm:IdleToEmergency a csm:StateTransition ;
+    rdfs:label "Idle to Emergency Transition" ;
+    csm:fromState csm:CampaignIdle ;
+    csm:toState csm:EmergencyMode ;
+    csm:trigger csm:EmergencyTriggerReceived ;
+    csm:conditions [
+        csm:condition "emergencyLevel >= 'CRITICAL'" ;
+        csm:condition "immediateActionRequired == true"
+    ] ;
+    csm:actions csm:ActivateEmergencyProtocols, csm:NotifyAuthorities ;
+    csm:ticksConsumed 0 ;
+    csm:priority 100 .
+
+# Initializing to Analyzing Transitions
+csm:InitializingToAnalyzing a csm:StateTransition ;
+    rdfs:label "Initializing to Analyzing Transition" ;
+    csm:fromState csm:CampaignInitializing ;
+    csm:toState csm:CampaignAnalyzing ;
+    csm:trigger csm:InitializationComplete ;
+    csm:conditions [
+        csm:condition "swarmsInitialized == true" ;
+        csm:condition "resourcesAllocated == true" ;
+        csm:condition "configurationValid == true"
+    ] ;
+    csm:actions csm:StartAnalysis, csm:ActivateAnalysisSwarms ;
+    csm:ticksConsumed 1 ;
+    csm:priority 9 .
+
+csm:InitializingToError a csm:StateTransition ;
+    rdfs:label "Initializing to Error Transition" ;
+    csm:fromState csm:CampaignInitializing ;
+    csm:toState csm:CampaignError ;
+    csm:trigger csm:InitializationFailure ;
+    csm:conditions [
+        csm:condition "initializationFailed == true" ;
+        csm:condition "retryAttemptsExceeded == true"
+    ] ;
+    csm:actions csm:LogError, csm:PreserveState, csm:NotifyAdministrators ;
+    csm:ticksConsumed 1 ;
+    csm:priority 95 .
+
+# Analyzing to Planning Transitions
+csm:AnalyzingToPlanning a csm:StateTransition ;
+    rdfs:label "Analyzing to Planning Transition" ;
+    csm:fromState csm:CampaignAnalyzing ;
+    csm:toState csm:CampaignPlanning ;
+    csm:trigger csm:AnalysisComplete ;
+    csm:conditions [
+        csm:condition "contradictionsFound == true" ;
+        csm:condition "evidenceValidated == true" ;
+        csm:condition "viabilityConfirmed == true"
+    ] ;
+    csm:actions csm:StartPlanning, csm:CoordinatePlanning ;
+    csm:ticksConsumed 2 ;
+    csm:priority 8 .
+
+csm:AnalyzingToSuspended a csm:StateTransition ;
+    rdfs:label "Analyzing to Suspended Transition" ;
+    csm:fromState csm:CampaignAnalyzing ;
+    csm:toState csm:CampaignSuspended ;
+    csm:trigger csm:InsufficientEvidence ;
+    csm:conditions [
+        csm:condition "evidenceThresholdNotMet == true" ;
+        csm:condition "manualReviewRequired == true"
+    ] ;
+    csm:actions csm:PreserveAnalysisState, csm:RequestManualReview ;
+    csm:ticksConsumed 2 ;
+    csm:priority 6 .
+
+# Planning to Executing Transitions
+csm:PlanningToExecuting a csm:StateTransition ;
+    rdfs:label "Planning to Executing Transition" ;
+    csm:fromState csm:CampaignPlanning ;
+    csm:toState csm:CampaignExecuting ;
+    csm:trigger csm:PlanningComplete ;
+    csm:conditions [
+        csm:condition "strategyApproved == true" ;
+        csm:condition "workflowsCoordinated == true" ;
+        csm:condition "executionReady == true"
+    ] ;
+    csm:actions csm:StartExecution, csm:ActivateExecutionSwarms ;
+    csm:ticksConsumed 1 ;
+    csm:priority 7 .
+
+# Executing to Monitoring Transitions
+csm:ExecutingToMonitoring a csm:StateTransition ;
+    rdfs:label "Executing to Monitoring Transition" ;
+    csm:fromState csm:CampaignExecuting ;
+    csm:toState csm:CampaignMonitoring ;
+    csm:trigger csm:ExecutionMilestoneReached ;
+    csm:conditions [
+        csm:condition "criticalTasksComplete == true" ;
+        csm:condition "monitoringRequired == true"
+    ] ;
+    csm:actions csm:StartMonitoring, csm:ActivateMonitoringSwarms ;
+    csm:ticksConsumed 3 ;
+    csm:priority 6 .
+
+csm:ExecutingToSuspended a csm:StateTransition ;
+    rdfs:label "Executing to Suspended Transition" ;
+    csm:fromState csm:CampaignExecuting ;
+    csm:toState csm:CampaignSuspended ;
+    csm:trigger csm:ExecutionBlockage ;
+    csm:conditions [
+        csm:condition "criticalResourceUnavailable == true" ;
+        csm:condition "externalDependencyBlocked == true"
+    ] ;
+    csm:actions csm:SuspendExecution, csm:PreserveExecutionState ;
+    csm:ticksConsumed 3 ;
+    csm:priority 8 .
+
+# Monitoring to Completing Transitions
+csm:MonitoringToCompleting a csm:StateTransition ;
+    rdfs:label "Monitoring to Completing Transition" ;
+    csm:fromState csm:CampaignMonitoring ;
+    csm:toState csm:CampaignCompleting ;
+    csm:trigger csm:CampaignObjectivesMet ;
+    csm:conditions [
+        csm:condition "allObjectivesComplete == true" ;
+        csm:condition "qualityThresholdMet == true" ;
+        csm:condition "complianceVerified == true"
+    ] ;
+    csm:actions csm:StartCompletion, csm:InitiateCleanup ;
+    csm:ticksConsumed 1 ;
+    csm:priority 5 .
+
+csm:MonitoringToExecuting a csm:StateTransition ;
+    rdfs:label "Monitoring to Executing Transition" ;
+    csm:fromState csm:CampaignMonitoring ;
+    csm:toState csm:CampaignExecuting ;
+    csm:trigger csm:AdditionalExecutionRequired ;
+    csm:conditions [
+        csm:condition "adjustmentsRequired == true" ;
+        csm:condition "additionalTasksIdentified == true"
+    ] ;
+    csm:actions csm:ResumeExecution, csm:ApplyAdjustments ;
+    csm:ticksConsumed 1 ;
+    csm:priority 7 .
+
+# Completing to Complete Transitions
+csm:CompletingToComplete a csm:StateTransition ;
+    rdfs:label "Completing to Complete Transition" ;
+    csm:fromState csm:CampaignCompleting ;
+    csm:toState csm:CampaignComplete ;
+    csm:trigger csm:CompletionSuccessful ;
+    csm:conditions [
+        csm:condition "cleanupComplete == true" ;
+        csm:condition "reportsGenerated == true" ;
+        csm:condition "resultsArchived == true"
+    ] ;
+    csm:actions csm:FinalizeCompletion, csm:UpdateSystemMetrics ;
+    csm:ticksConsumed 1 ;
+    csm:priority 4 .
+
+# Complete to Idle Transitions
+csm:CompleteToIdle a csm:StateTransition ;
+    rdfs:label "Complete to Idle Transition" ;
+    csm:fromState csm:CampaignComplete ;
+    csm:toState csm:CampaignIdle ;
+    csm:trigger csm:ReadyForNextCampaign ;
+    csm:conditions [
+        csm:condition "systemResetComplete == true" ;
+        csm:condition "nextCampaignPrepped == true"
+    ] ;
+    csm:actions csm:ResetSystemState, csm:PrepareForNext ;
+    csm:ticksConsumed 0 ;
+    csm:priority 3 .
+
+# Error Recovery Transitions
+csm:ErrorToInitializing a csm:StateTransition ;
+    rdfs:label "Error to Initializing Transition" ;
+    csm:fromState csm:CampaignError ;
+    csm:toState csm:CampaignInitializing ;
+    csm:trigger csm:ErrorRecoverySuccessful ;
+    csm:conditions [
+        csm:condition "errorResolved == true" ;
+        csm:condition "systemStable == true" ;
+        csm:condition "retryAuthorized == true"
+    ] ;
+    csm:actions csm:ClearError, csm:RestoreSystemState ;
+    csm:ticksConsumed 0 ;
+    csm:priority 90 .
+
+csm:ErrorToSuspended a csm:StateTransition ;
+    rdfs:label "Error to Suspended Transition" ;
+    csm:fromState csm:CampaignError ;
+    csm:toState csm:CampaignSuspended ;
+    csm:trigger csm:ManualInterventionRequired ;
+    csm:conditions [
+        csm:condition "automaticRecoveryFailed == true" ;
+        csm:condition "humanReviewRequired == true"
+    ] ;
+    csm:actions csm:PreserveErrorState, csm:RequestManualIntervention ;
+    csm:ticksConsumed 0 ;
+    csm:priority 85 .
+
+# Suspended Resume Transitions
+csm:SuspendedToAnalyzing a csm:StateTransition ;
+    rdfs:label "Suspended to Analyzing Transition" ;
+    csm:fromState csm:CampaignSuspended ;
+    csm:toState csm:CampaignAnalyzing ;
+    csm:trigger csm:ResumeFromAnalysis ;
+    csm:conditions [
+        csm:condition "resumeAuthorized == true" ;
+        csm:condition "blockageResolved == true" ;
+        csm:condition "analysisStatePreserved == true"
+    ] ;
+    csm:actions csm:RestoreAnalysisState, csm:ResumeAnalysis ;
+    csm:ticksConsumed 0 ;
+    csm:priority 75 .
+
+csm:SuspendedToExecuting a csm:StateTransition ;
+    rdfs:label "Suspended to Executing Transition" ;
+    csm:fromState csm:CampaignSuspended ;
+    csm:toState csm:CampaignExecuting ;
+    csm:trigger csm:ResumeFromExecution ;
+    csm:conditions [
+        csm:condition "resumeAuthorized == true" ;
+        csm:condition "resourcesRestored == true" ;
+        csm:condition "executionStatePreserved == true"
+    ] ;
+    csm:actions csm:RestoreExecutionState, csm:ResumeExecution ;
+    csm:ticksConsumed 0 ;
+    csm:priority 75 .
+
+# Emergency Transitions
+csm:EmergencyToShutdown a csm:StateTransition ;
+    rdfs:label "Emergency to Shutdown Transition" ;
+    csm:fromState csm:EmergencyMode ;
+    csm:toState csm:SystemShutdown ;
+    csm:trigger csm:EmergencyShutdownRequired ;
+    csm:conditions [
+        csm:condition "criticalSystemFailure == true" ;
+        csm:condition "dataIntegrityCritical == true"
+    ] ;
+    csm:actions csm:InitiateEmergencyShutdown, csm:PreserveEvidentialIntegrity ;
+    csm:ticksConsumed 0 ;
+    csm:priority 999 .
+
+csm:EmergencyToIdle a csm:StateTransition ;
+    rdfs:label "Emergency to Idle Transition" ;
+    csm:fromState csm:EmergencyMode ;
+    csm:toState csm:CampaignIdle ;
+    csm:trigger csm:EmergencyResolved ;
+    csm:conditions [
+        csm:condition "emergencyHandled == true" ;
+        csm:condition "systemStabilized == true" ;
+        csm:condition "safeToResume == true"
+    ] ;
+    csm:actions csm:ClearEmergencyState, csm:RestoreNormalOperation ;
+    csm:ticksConsumed 0 ;
+    csm:priority 95 .
+
+# ============================================================================
+# STATE MACHINE EXECUTION ENGINE
+# ============================================================================
+
+csm:StateMachineEngine a owl:Class ;
+    rdfs:label "State Machine Execution Engine" ;
+    rdfs:comment "Engine for executing deterministic state transitions" ;
+    csm:executionMode csm:Deterministic ;
+    csm:maxConcurrentStates 5 ;
+    csm:tickWindow 8 ;
+    csm:transitionTimeout "PT30S"^^xsd:duration ;
+    csm:rollbackSupport true .
+
+# Execution Context
+csm:ExecutionContext a owl:Class ;
+    rdfs:label "Execution Context" ;
+    rdfs:comment "Context for state machine execution" .
+
+csm:CampaignExecutionContext a csm:ExecutionContext ;
+    csm:campaignId xsd:string ;
+    csm:currentState csm:State ;
+    csm:previousState csm:State ;
+    csm:ticksConsumed xsd:integer ;
+    csm:ticksRemaining xsd:integer ;
+    csm:transitionHistory rdf:List ;
+    csm:rollbackPoints rdf:List ;
+    csm:executionStartTime xsd:dateTime ;
+    csm:lastTransitionTime xsd:dateTime ;
+    csm:errorCount xsd:integer ;
+    csm:suspensionCount xsd:integer .
+
+# State Machine Properties
+csm:hasState rdf:type owl:ObjectProperty ;
+    rdfs:label "has state" ;
+    rdfs:comment "State machine has this state" ;
+    rdfs:domain csm:CampaignStateMachine ;
+    rdfs:range csm:State .
+
+csm:hasTransition rdf:type owl:ObjectProperty ;
+    rdfs:label "has transition" ;
+    rdfs:comment "State machine has this transition" ;
+    rdfs:domain csm:CampaignStateMachine ;
+    rdfs:range csm:StateTransition .
+
+csm:fromState rdf:type owl:ObjectProperty ;
+    rdfs:label "from state" ;
+    rdfs:comment "Source state for transition" ;
+    rdfs:domain csm:StateTransition ;
+    rdfs:range csm:State .
+
+csm:toState rdf:type owl:ObjectProperty ;
+    rdfs:label "to state" ;
+    rdfs:comment "Target state for transition" ;
+    rdfs:domain csm:StateTransition ;
+    rdfs:range csm:State .
+
+csm:trigger rdf:type owl:ObjectProperty ;
+    rdfs:label "trigger" ;
+    rdfs:comment "Event that triggers this transition" ;
+    rdfs:domain csm:StateTransition .
+
+csm:nextStates rdf:type owl:ObjectProperty ;
+    rdfs:label "next states" ;
+    rdfs:comment "Possible next states from this state" ;
+    rdfs:domain csm:State ;
+    rdfs:range csm:State .
+
+# Data Properties
+csm:stateId rdf:type owl:DatatypeProperty ;
+    rdfs:label "state ID" ;
+    rdfs:comment "Unique identifier for state" ;
+    rdfs:domain csm:State ;
+    rdfs:range xsd:string .
+
+csm:ticksRequired rdf:type owl:DatatypeProperty ;
+    rdfs:label "ticks required" ;
+    rdfs:comment "Number of ticks required for this state" ;
+    rdfs:domain csm:State ;
+    rdfs:range xsd:integer .
+
+csm:ticksConsumed rdf:type owl:DatatypeProperty ;
+    rdfs:label "ticks consumed" ;
+    rdfs:comment "Number of ticks consumed by this transition" ;
+    rdfs:domain csm:StateTransition ;
+    rdfs:range xsd:integer .
+
+csm:priority rdf:type owl:DatatypeProperty ;
+    rdfs:label "priority" ;
+    rdfs:comment "Priority for transition execution (higher = more priority)" ;
+    rdfs:domain csm:StateTransition ;
+    rdfs:range xsd:integer .
+
+csm:timeout rdf:type owl:DatatypeProperty ;
+    rdfs:label "timeout" ;
+    rdfs:comment "Maximum time allowed in this state" ;
+    rdfs:domain csm:State ;
+    rdfs:range xsd:duration .
+
+# Rollback and Recovery Configuration
+csm:RollbackConfiguration a owl:Class ;
+    rdfs:label "Rollback Configuration" ;
+    rdfs:comment "Configuration for state machine rollback and recovery" ;
+    csm:maxRollbackDepth 10 ;
+    csm:rollbackTimeout "PT2M"^^xsd:duration ;
+    csm:rollbackTriggers csm:CriticalError, csm:TimeoutExceeded, csm:ManualRollback ;
+    csm:preservationStrategy csm:FullStatePreservation ;
+    csm:recoveryMode csm:Automatic .

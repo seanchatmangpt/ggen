@@ -1,0 +1,68 @@
+# Query: Heijunka Production Leveling Schedule
+#
+# Business Logic:
+# - Implements Toyota Heijunka (production leveling) by balancing work across buckets
+# - Prevents batch processing by selecting N items from each bucket proportionally
+# - Creates a mixed-model schedule to smooth production flow
+# - Uses priority within each bucket to determine selection order
+#
+# Parameters:
+# - ?items_per_bucket: Number of work orders to select from each bucket (default: 5)
+# - ?max_total_items: Maximum total items in schedule (default: 20)
+#
+# Returns:
+# - work_order_id: Selected work order identifier
+# - bucket: TPS bucket assignment
+# - priority: Work order priority
+# - rank_in_bucket: Position within bucket (1 = highest priority)
+# - created_timestamp: Creation time
+#
+# Usage Example:
+# To get 3 items per bucket: BIND(3 AS ?items_per_bucket)
+
+PREFIX tcps: <http://example.org/tcps#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?work_order_id ?bucket ?priority ?rank_in_bucket ?created_timestamp
+WHERE {
+  {
+    # Subquery: Rank work orders within each bucket
+    SELECT ?work_order_id ?bucket ?priority ?created_timestamp
+           (ROW_NUMBER() OVER (
+             PARTITION BY ?bucket
+             ORDER BY
+               (IF(?priority = "critical", 1,
+                   IF(?priority = "high", 2,
+                      IF(?priority = "medium", 3, 4)))),
+               ?created_timestamp
+           ) AS ?rank_in_bucket)
+    WHERE {
+      ?work_order rdf:type tcps:WorkOrder ;
+                  tcps:workOrderId ?work_order_id ;
+                  tcps:bucket ?bucket ;
+                  tcps:priority ?priority ;
+                  tcps:createdTimestamp ?created_timestamp ;
+                  tcps:status ?status .
+
+      # Only consider pending work orders
+      FILTER(?status = "pending")
+    }
+  }
+
+  # Default: Select top 5 from each bucket
+  # Override by binding: BIND(3 AS ?items_per_bucket)
+  BIND(5 AS ?default_items_per_bucket)
+  BIND(COALESCE(?items_per_bucket, ?default_items_per_bucket) AS ?limit_per_bucket)
+
+  # Filter to keep only top N from each bucket
+  FILTER(?rank_in_bucket <= ?limit_per_bucket)
+}
+ORDER BY
+  # Interleave buckets for balanced flow
+  # Rotate through: reliability → security → cost → compliance → repeat
+  ((?rank_in_bucket - 1) * 4 +
+   IF(?bucket = "reliability", 1,
+      IF(?bucket = "security", 2,
+         IF(?bucket = "cost", 3, 4))))
+LIMIT 20  # Default max total items (override with ?max_total_items)

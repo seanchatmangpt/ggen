@@ -1,0 +1,152 @@
+@prefix zoe:     <https://zoela.org/ontology/> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix schema:  <https://schema.org/> .
+@prefix org:     <http://www.w3.org/ns/org#> .
+
+# ============================================================================
+# ZOE LA Mobile — Campus Ontology
+# ============================================================================
+# Models the physical campuses of ZOE LA Church using ORG vocabulary.
+# Each campus is both an org:Organization (for administrative membership)
+# and a schema:Place (for geospatial grounding).  CampusLocation captures
+# the precise address and coordinates for map/navigation features.
+#
+# Design alignment:
+#   zoe:Campus         → org:Organization ∩ schema:Place
+#   zoe:CampusLocation → schema:Place (address + lat/lon)
+#   zoe:CampusScheme   → skos:ConceptScheme (controlled campus vocabulary)
+# ============================================================================
+
+zoe:CampusOntology a owl:Ontology ;
+    rdfs:label   "ZOE LA Campus Ontology"@en ;
+    rdfs:comment "Models the physical campuses of ZOE LA Church for the ZOE LA Mobile manufacturing pipeline."@en ;
+    dcterms:creator  "Sean Chatman" ;
+    dcterms:created  "2026-05-17"^^xsd:date ;
+    dcterms:license  <https://opensource.org/licenses/MIT> ;
+    owl:versionInfo  "1.0.0" .
+
+# ── Classes ──────────────────────────────────────────────────────────────────
+
+zoe:Campus a owl:Class ;
+    rdfs:label      "ZOE LA Campus"@en ;
+    rdfs:comment    "A physical church campus operated by ZOE LA. Represents both the administrative organization unit and the geographic place."@en ;
+    rdfs:subClassOf org:Organization ;
+    rdfs:subClassOf schema:Place .
+
+zoe:CampusLocation a owl:Class ;
+    rdfs:label      "Campus Location"@en ;
+    rdfs:comment    "The precise physical address, coordinates, and parking information for a ZOE LA campus."@en ;
+    rdfs:subClassOf schema:Place .
+
+# ── Datatype properties on Campus ────────────────────────────────────────────
+
+zoe:campusCode a owl:DatatypeProperty ;
+    rdfs:domain  zoe:Campus ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Campus Code"@en ;
+    rdfs:comment "Short uppercase code uniquely identifying the campus (e.g. HLP, SBY, WAD). Used as a routing key in the manufacturing pipeline."@en ;
+    skos:notation "campus_code" .
+
+zoe:campusCity a owl:DatatypeProperty ;
+    rdfs:domain  zoe:Campus ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Campus City"@en ;
+    rdfs:comment "City in which the campus is located (e.g. Los Angeles, Torrance)."@en ;
+    skos:notation "campus_city" .
+
+zoe:isActive a owl:DatatypeProperty ;
+    rdfs:domain  zoe:Campus ;
+    rdfs:range   xsd:boolean ;
+    rdfs:label   "Is Active"@en ;
+    rdfs:comment "True when the campus is currently holding services; false when temporarily or permanently closed."@en ;
+    skos:notation "is_active" .
+
+zoe:campusTimezone a owl:DatatypeProperty ;
+    rdfs:domain  zoe:Campus ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Campus Timezone"@en ;
+    rdfs:comment "IANA timezone string for the campus location (e.g. America/Los_Angeles). Used for event scheduling."@en ;
+    skos:notation "campus_timezone" .
+
+# ── Datatype / object properties on CampusLocation ──────────────────────────
+
+zoe:latitude a owl:DatatypeProperty ;
+    rdfs:domain  zoe:CampusLocation ;
+    rdfs:range   xsd:decimal ;
+    rdfs:label   "Latitude"@en ;
+    rdfs:comment "WGS-84 latitude of the campus site in decimal degrees."@en ;
+    skos:notation "latitude" .
+
+zoe:longitude a owl:DatatypeProperty ;
+    rdfs:domain  zoe:CampusLocation ;
+    rdfs:range   xsd:decimal ;
+    rdfs:label   "Longitude"@en ;
+    rdfs:comment "WGS-84 longitude of the campus site in decimal degrees."@en ;
+    skos:notation "longitude" .
+
+zoe:parkingNotes a owl:DatatypeProperty ;
+    rdfs:domain  zoe:CampusLocation ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Parking Notes"@en ;
+    rdfs:comment "Human-readable guidance on parking availability and restrictions at the campus."@en ;
+    skos:notation "parking_notes" .
+
+zoe:hasLocation a owl:ObjectProperty ;
+    rdfs:domain  zoe:Campus ;
+    rdfs:range   zoe:CampusLocation ;
+    rdfs:label   "Has Location"@en ;
+    rdfs:comment "Links a campus to its detailed physical location record."@en ;
+    skos:notation "has_location" .
+
+# ── SKOS ConceptScheme ────────────────────────────────────────────────────────
+
+zoe:CampusScheme a skos:ConceptScheme ;
+    rdfs:label      "ZOE LA Campus Scheme"@en ;
+    rdfs:comment    "Controlled vocabulary of ZOE LA Church campuses."@en ;
+    skos:prefLabel  "ZOE LA Campus Scheme"@en .
+
+# ── Named individuals ─────────────────────────────────────────────────────────
+
+zoe:HighlandParkCampus a zoe:Campus , skos:Concept ;
+    rdfs:label        "Highland Park Campus"@en ;
+    skos:prefLabel    "Highland Park Campus"@en ;
+    skos:notation     "HLP" ;
+    skos:definition   "ZOE LA campus serving the Highland Park neighbourhood of Los Angeles."@en ;
+    skos:inScheme     zoe:CampusScheme ;
+    zoe:campusCode    "HLP" ;
+    zoe:campusCity    "Los Angeles" ;
+    zoe:isActive      true ;
+    zoe:campusTimezone "America/Los_Angeles" .
+
+zoe:SouthBayCampus a zoe:Campus , skos:Concept ;
+    rdfs:label        "South Bay Campus"@en ;
+    skos:prefLabel    "South Bay Campus"@en ;
+    skos:notation     "SBY" ;
+    skos:definition   "ZOE LA campus serving the South Bay region centred in Torrance."@en ;
+    skos:inScheme     zoe:CampusScheme ;
+    zoe:campusCode    "SBY" ;
+    zoe:campusCity    "Torrance" ;
+    zoe:isActive      true ;
+    zoe:campusTimezone "America/Los_Angeles" .
+
+zoe:WestAdamsCampus a zoe:Campus , skos:Concept ;
+    rdfs:label        "West Adams Campus"@en ;
+    skos:prefLabel    "West Adams Campus"@en ;
+    skos:notation     "WAD" ;
+    skos:definition   "ZOE LA campus serving the West Adams neighbourhood of Los Angeles."@en ;
+    skos:inScheme     zoe:CampusScheme ;
+    zoe:campusCode    "WAD" ;
+    zoe:campusCity    "Los Angeles" ;
+    zoe:isActive      true ;
+    zoe:campusTimezone "America/Los_Angeles" .
+
+# ── ConceptScheme back-links ──────────────────────────────────────────────────
+
+zoe:CampusScheme skos:hasTopConcept zoe:HighlandParkCampus ,
+                                     zoe:SouthBayCampus ,
+                                     zoe:WestAdamsCampus .

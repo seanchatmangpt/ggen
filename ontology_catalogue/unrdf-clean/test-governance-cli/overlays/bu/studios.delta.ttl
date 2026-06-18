@@ -1,0 +1,35 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix reg: <http://example.org/registry#> .
+@prefix studio: <http://example.org/studio#> .
+
+# Delta Capsule: Studios Business Unit Additions
+# Proposes new entities for admission
+
+# New Project
+studio:Project_BU_Studios
+  a reg:Project ;
+  rdfs:label "Studios Platform" ;
+  reg:status "active" ;
+  reg:createdAt "2024-12-01T00:00:00Z"^^xsd:dateTime ;
+  reg:businessUnit "Studios" .
+
+# New Features
+studio:Feature_ContentManagement
+  a reg:Feature ;
+  rdfs:label "Content Management System" ;
+  reg:belongsTo studio:Project_BU_Studios ;
+  reg:priority "high" .
+
+studio:Feature_AssetLibrary
+  a reg:Feature ;
+  rdfs:label "Digital Asset Library" ;
+  reg:belongsTo studio:Project_BU_Studios ;
+  reg:priority "medium" .
+
+studio:Feature_Collaboration
+  a reg:Feature ;
+  rdfs:label "Collaboration Tools" ;
+  reg:belongsTo studio:Project_BU_Studios ;
+  reg:priority "medium" .

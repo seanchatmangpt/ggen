@@ -1,0 +1,258 @@
+# wasm4pm-compat integrated type-law ontology
+# Orchestration file with owl:imports statements linking to open-ontologies standards
+# and domain-specific RDF definitions.
+#
+# Generated from: src/witness.rs, src/state.rs, src/evidence.rs, src/admission.rs
+# and all src/*.rs modules, PLUS open-ontologies standards for process mining
+# and event data interchange.
+#
+# This ontology maps the Rust type-law surfaces of wasm4pm-compat to RDF triples,
+# integrates process-mining domain ontologies from standard URIs, and provides
+# unified interop structures. Structure only — this ontology does NOT run engines,
+# compute conformance, or replay tokens. Graduate those concerns to wasm4pm.
+
+# ============================================================================
+# PREFIX DECLARATIONS
+# ============================================================================
+
+@prefix compat: <https://wasm4pm-compat.rs/ontology#> .
+@prefix paper:  <https://wasm4pm-compat.rs/paper#> .
+@prefix domain: <https://wasm4pm-compat.rs/domain#> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
+
+# Standard process-mining ontologies (open-ontologies URIs)
+@prefix pm:     <http://www.purl.org/pm/ontology/2023/05#> .
+@prefix ocel:   <https://ocel-standard.org/ontology#> .
+@prefix xes:    <http://www.xes-standard.org/ontology#> .
+@prefix bpmn:   <https://www.omg.org/spec/BPMN/20100524/MODEL#> .
+@prefix prov:   <http://www.w3.org/ns/prov#> .
+@prefix dcat:   <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# ============================================================================
+# MAIN ONTOLOGY DEFINITION WITH IMPORTS
+# ============================================================================
+
+<https://wasm4pm-compat.rs/ontology>
+    a owl:Ontology ;
+    rdfs:label "wasm4pm-compat integrated type-law ontology" ;
+    rdfs:comment "Machine-readable index of the Rust type-law surfaces in wasm4pm-compat, integrated with open-ontologies standards for process mining, event logs, and object-centric process analysis." ;
+    owl:versionInfo "1.0.0" ;
+    dcterms:created "2026-06-01"^^xsd:date ;
+    dcterms:modified "2026-06-01"^^xsd:date ;
+    dcterms:description "A unified RDF ontology bridging Rust type-law enforcement with W3C and industry-standard process-mining data models. Supports OCEL 2.0, XES 1849-2016, BPMN 2.0, Petri nets, POWL, process trees, Declare, and object-centric process mining." ;
+
+    # OWL imports from canonical standard sources
+    owl:imports <http://www.purl.org/pm/ontology/2023/05> ;
+    owl:imports <https://ocel-standard.org/ontology> ;
+    owl:imports <http://www.xes-standard.org/ontology> ;
+    owl:imports <https://www.omg.org/spec/BPMN/20100524/MODEL> ;
+    owl:imports <http://www.w3.org/ns/prov> ;
+    owl:imports <http://www.w3.org/ns/dcat> ;
+    owl:imports <http://purl.org/dc/terms/> ;
+
+    # Internal imports (sibling ontology files)
+    owl:imports <https://wasm4pm-compat.rs/domain/evidence-structure> ;
+    owl:imports <https://wasm4pm-compat.rs/domain/process-forms> ;
+    owl:imports <https://wasm4pm-compat.rs/domain/graduation-boundaries> ;
+    owl:imports <https://wasm4pm-compat.rs/domain/type-constraints> ;
+
+    # Metadata
+    dcterms:creator "wasm4pm-compat contributors" ;
+    dcterms:license <https://opensource.org/licenses/Apache-2.0> ;
+    dcterms:subject "process mining", "event logs", "object-centric process analysis", "type-law enforcement", "Rust nightly", "zero-cost abstraction" ;
+    skos:note "This ontology is part of wasm4pm-compat, a zero-cost Rust nightly crate that enforces process-mining type laws at compile time and exports type-bearing receipts for runtime verification." .
+
+
+# ============================================================================
+# DOMAIN VOCABULARY EXTENSIONS (new definitions specific to wasm4pm-compat)
+# ============================================================================
+
+# Type-law evidence classes
+domain:Evidence
+    a rdfs:Class ;
+    rdfs:label "Evidence" ;
+    rdfs:comment "A universal carrier type Evidence<T, State, W> that bundles a value T with a lifecycle State tag and a Witness W. All values flow through Evidence with zero runtime cost. The State parameter enforces the one-way-door lifecycle via PhantomData." ;
+    rdfs:seeAlso compat:Evidence ;
+    owl:equivalentClass compat:Evidence .
+
+domain:WitnessMarker
+    a rdfs:Class ;
+    rdfs:label "WitnessMarker" ;
+    rdfs:comment "A zero-sized compile-time marker that names which standard, paper, API grammar, Rust law, or internal bridge a piece of evidence is admitted against. Witness markers are discriminators: Evidence<T, Admitted, Ocel20> is not Evidence<T, Admitted, Xes1849> at the type level." ;
+    rdfs:seeAlso compat:WitnessMarker ;
+    owl:equivalentClass compat:WitnessMarker .
+
+domain:LifecycleStage
+    a rdfs:Class ;
+    rdfs:label "LifecycleStage" ;
+    rdfs:comment "One of seven canonical evidence lifecycle stages (Raw, Parsed, Admitted, Refused, Projected, Exportable, Receipted) that implements the sealed EvidenceState trait. The one-way-door lifecycle is encoded as StateTransition triples." ;
+    rdfs:seeAlso compat:EvidenceState ;
+    owl:equivalentClass compat:EvidenceState .
+
+domain:Admission
+    a rdfs:Class ;
+    rdfs:label "Admission" ;
+    rdfs:comment "A first-class admission verdict: Admission<T, W> proves at the type level that an Admit impl accepted a value against witness W. Only sanctioned path from Raw → Admitted." ;
+    rdfs:seeAlso compat:Admission ;
+    owl:equivalentClass compat:Admission ;
+    rdfs:subClassOf rdf:Statement .
+
+domain:Refusal
+    a rdfs:Class ;
+    rdfs:label "Refusal" ;
+    rdfs:comment "A first-class refusal verdict: Refusal<R, W> carries a specific named reason R (e.g. DanglingEventObjectLink) and witness W. Bare InvalidInput is forbidden. Each reason is a named law that must be unbreakable." ;
+    rdfs:seeAlso compat:Refusal ;
+    owl:equivalentClass compat:Refusal ;
+    rdfs:subClassOf rdf:Statement .
+
+domain:ProcessForm
+    a rdfs:Class ;
+    rdfs:label "ProcessForm" ;
+    rdfs:comment "A primary process-evidence shape (event log, Petri net, process tree, DFG, OCEL, Declare model, etc.) defined in a src module. All process forms are structure-only carriers — they hold data shapes and never execute discovery, conformance, or replay." ;
+    rdfs:seeAlso compat:ProcessForm ;
+    owl:equivalentClass compat:ProcessForm .
+
+domain:GraduationBoundary
+    a rdfs:Class ;
+    rdfs:label "GraduationBoundary" ;
+    rdfs:comment "A named boundary where wasm4pm-compat structure ends and the wasm4pm execution engine begins. Corresponds to GraduationReason enum variants: NeedsDiscovery, NeedsConformanceExecution, NeedsReplay, NeedsBenchmarkGating, NeedsObjectCentricQuery, RebuildingProcessMiningLocally." ;
+    rdfs:seeAlso compat:GraduationBoundary ;
+    owl:equivalentClass compat:GraduationBoundary .
+
+# Interop properties connecting to standard ontologies
+domain:correspondToOcelStandard
+    a rdf:Property ;
+    rdfs:label "corresponds to OCEL standard" ;
+    rdfs:comment "Links a wasm4pm-compat type to the corresponding OCEL 2.0 (https://ocel-standard.org/) class or property." ;
+    rdfs:domain owl:Thing ;
+    rdfs:range owl:Thing ;
+    rdfs:seeAlso ocel: .
+
+domain:correspondToXesStandard
+    a rdf:Property ;
+    rdfs:label "corresponds to XES standard" ;
+    rdfs:comment "Links a wasm4pm-compat type to the corresponding XES (IEEE 1849-2016) class or property." ;
+    rdfs:domain owl:Thing ;
+    rdfs:range owl:Thing ;
+    rdfs:seeAlso xes: .
+
+domain:correspondToBpmnStandard
+    a rdf:Property ;
+    rdfs:label "corresponds to BPMN standard" ;
+    rdfs:comment "Links a wasm4pm-compat type to the corresponding BPMN 2.0 element or attribute." ;
+    rdfs:domain owl:Thing ;
+    rdfs:range owl:Thing ;
+    rdfs:seeAlso bpmn: .
+
+domain:correspondToProcessMiningOntology
+    a rdf:Property ;
+    rdfs:label "corresponds to process mining ontology" ;
+    rdfs:comment "Links a wasm4pm-compat type to the corresponding concept in the general process-mining ontology (http://www.purl.org/pm/ontology/)." ;
+    rdfs:domain owl:Thing ;
+    rdfs:range owl:Thing ;
+    rdfs:seeAlso pm: .
+
+domain:provenance
+    a rdf:Property ;
+    rdfs:label "provenance" ;
+    rdfs:comment "The provenance chain (W3C PROV provenance) of an evidence value or admission result. Links to prov:Entity, prov:Activity, prov:Agent, etc." ;
+    rdfs:domain domain:Evidence ;
+    rdfs:range prov:Entity ;
+    rdfs:seeAlso prov: .
+
+domain:hasCompileFailLaw
+    a rdf:Property ;
+    rdfs:label "has compile-fail law" ;
+    rdfs:comment "A specific law that must be unbreakable at compile time, backed by a trybuild compile-fail fixture (tests/ui/compile_fail/)." ;
+    rdfs:domain owl:Thing ;
+    rdfs:range compat:CompileFailLaw .
+
+domain:hasCompilePassSurface
+    a rdf:Property ;
+    rdfs:label "has compile-pass surface" ;
+    rdfs:comment "A lawful path that must compile successfully, backed by a trybuild compile-pass fixture (tests/ui/compile_pass/)." ;
+    rdfs:domain owl:Thing ;
+    rdfs:range compat:CompilePassSurface .
+
+# ============================================================================
+# INTEROP BRIDGES TO STANDARD ONTOLOGIES
+# ============================================================================
+
+compat:OcelLog
+    domain:correspondToOcelStandard ocel:OcelLog ;
+    skos:exactMatch ocel:OcelLog ;
+    owl:sameAs ocel:OcelLog ;
+    rdfs:comment "Maps to OCEL 2.0 standard: the object-centric event log shape with event-to-object and object-to-object relationships." .
+
+compat:EventLog
+    domain:correspondToXesStandard xes:Log ;
+    skos:broadMatch xes:Log ;
+    rdfs:comment "Corresponds to XES (IEEE 1849-2016) event log structure: a collection of traces, each trace being a sequence of events." .
+
+compat:PetriNet
+    domain:correspondToProcessMiningOntology pm:PetriNet ;
+    skos:exactMatch pm:PetriNet ;
+    rdfs:comment "Maps to the general process-mining ontology Petri net class. Includes places, transitions, arcs, and markings." .
+
+compat:BpmnModel
+    domain:correspondToBpmnStandard bpmn:Process ;
+    skos:exactMatch bpmn:Process ;
+    rdfs:comment "Maps to BPMN 2.0 process model. Encompasses tasks, gateways, events, and control flow." .
+
+compat:DeclareModel
+    domain:correspondToProcessMiningOntology pm:DeclareModel ;
+    skos:broadMatch pm:DeclareModel ;
+    rdfs:comment "Corresponds to the general process-mining Declare constraint model structure." .
+
+compat:Receipt
+    prov:wasAttributedTo domain:Evidence ;
+    rdfs:comment "A provenance-bearing receipt that records evidence admission, witness, and lifecycle stage. Links to W3C PROV for multi-log correlation and causal ordering chains." .
+
+# ============================================================================
+# REFERENCE TO EXTERNAL DOMAIN ONTOLOGY FILES
+# ============================================================================
+
+<https://wasm4pm-compat.rs/domain/evidence-structure>
+    a owl:Ontology ;
+    rdfs:label "Evidence Structure Domain Ontology" ;
+    rdfs:comment "Domain-specific RDF definitions for evidence types, witness markers, lifecycle stages, and admission/refusal verdicts." ;
+    owl:imports <https://wasm4pm-compat.rs/ontology> ;
+    dcat:accessURL <file:///Users/sac/wasm4pm-compat/ggen/ontology/domain-evidence-structure.ttl> .
+
+<https://wasm4pm-compat.rs/domain/process-forms>
+    a owl:Ontology ;
+    rdfs:label "Process Forms Domain Ontology" ;
+    rdfs:comment "Domain-specific RDF definitions for all process forms: event logs, Petri nets, process trees, DFGs, OCEL, Declare, BPMN, OCPQ, etc." ;
+    owl:imports <https://wasm4pm-compat.rs/ontology> ;
+    dcat:accessURL <file:///Users/sac/wasm4pm-compat/ggen/ontology/domain-process-forms.ttl> .
+
+<https://wasm4pm-compat.rs/domain/graduation-boundaries>
+    a owl:Ontology ;
+    rdfs:label "Graduation Boundaries Domain Ontology" ;
+    rdfs:comment "Domain-specific RDF definitions for graduation boundaries and surfaces where wasm4pm-compat graduates to the wasm4pm execution engine." ;
+    owl:imports <https://wasm4pm-compat.rs/ontology> ;
+    dcat:accessURL <file:///Users/sac/wasm4pm-compat/ggen/ontology/domain-graduation-boundaries.ttl> .
+
+<https://wasm4pm-compat.rs/domain/type-constraints>
+    a owl:Ontology ;
+    rdfs:label "Type Constraints Domain Ontology" ;
+    rdfs:comment "Domain-specific RDF definitions for compile-time type constraints, unbreakable laws, and the nightly Rust feature law kernel." ;
+    owl:imports <https://wasm4pm-compat.rs/ontology> ;
+    dcat:accessURL <file:///Users/sac/wasm4pm-compat/ggen/ontology/domain-type-constraints.ttl> .
+
+# ============================================================================
+# CLOSED-WORLD ANNOTATION
+# ============================================================================
+
+<https://wasm4pm-compat.rs/ontology>
+    rdfs:comment "Structure-only ontology. This crate defines shapes and type laws only. Engine logic (process discovery, conformance checking, token replay, lifecycle tracking) does not belong here and must graduate to wasm4pm for execution. Queries against this ontology are guaranteed to find no runtime behavior — only type definitions, witness markers, lifecycle stages, and graduation boundaries." ;
+    skos:note "Closed-world assumption applies to the RDF model: if a law is not in this ontology, it is not an enforceable type law in wasm4pm-compat." .
+
+# ============================================================================
+# END OF INTEGRATED ONTOLOGY
+# ============================================================================

@@ -1,0 +1,127 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix unjucks: <http://unjucks.dev/ontology#> .
+
+# Unjucks Template Ontology
+
+unjucks: a owl:Ontology ;
+    rdfs:label "Unjucks Template Ontology"@en ;
+    rdfs:comment "Ontology for describing template structures and generation rules"@en ;
+    owl:versionInfo "1.0.0" .
+
+# Classes
+
+unjucks:Template a owl:Class ;
+    rdfs:label "Template"@en ;
+    rdfs:comment "A template file with frontmatter and body"@en .
+
+unjucks:Generator a owl:Class ;
+    rdfs:label "Generator"@en ;
+    rdfs:comment "A code generator configuration"@en .
+
+unjucks:Variable a owl:Class ;
+    rdfs:label "Variable"@en ;
+    rdfs:comment "A template variable"@en .
+
+unjucks:Filter a owl:Class ;
+    rdfs:label "Filter"@en ;
+    rdfs:comment "A Nunjucks filter function"@en .
+
+unjucks:Injection a owl:Class ;
+    rdfs:label "Injection"@en ;
+    rdfs:comment "Code injection configuration"@en .
+
+unjucks:FileOperation a owl:Class ;
+    rdfs:label "File Operation"@en ;
+    rdfs:comment "File system operation (create, inject, append, etc.)"@en .
+
+# Properties
+
+unjucks:hasTemplate a owl:ObjectProperty ;
+    rdfs:label "has template"@en ;
+    rdfs:domain unjucks:Generator ;
+    rdfs:range unjucks:Template .
+
+unjucks:hasVariable a owl:ObjectProperty ;
+    rdfs:label "has variable"@en ;
+    rdfs:domain unjucks:Template ;
+    rdfs:range unjucks:Variable .
+
+unjucks:hasFilter a owl:ObjectProperty ;
+    rdfs:label "has filter"@en ;
+    rdfs:domain unjucks:Template ;
+    rdfs:range unjucks:Filter .
+
+unjucks:targetPath a owl:DatatypeProperty ;
+    rdfs:label "target path"@en ;
+    rdfs:domain unjucks:FileOperation ;
+    rdfs:range xsd:string .
+
+unjucks:injectionPoint a owl:DatatypeProperty ;
+    rdfs:label "injection point"@en ;
+    rdfs:domain unjucks:Injection ;
+    rdfs:range xsd:string .
+
+unjucks:skipCondition a owl:DatatypeProperty ;
+    rdfs:label "skip condition"@en ;
+    rdfs:domain unjucks:FileOperation ;
+    rdfs:range xsd:string .
+
+unjucks:variableName a owl:DatatypeProperty ;
+    rdfs:label "variable name"@en ;
+    rdfs:domain unjucks:Variable ;
+    rdfs:range xsd:string .
+
+unjucks:variableType a owl:DatatypeProperty ;
+    rdfs:label "variable type"@en ;
+    rdfs:domain unjucks:Variable ;
+    rdfs:range xsd:string .
+
+unjucks:defaultValue a owl:DatatypeProperty ;
+    rdfs:label "default value"@en ;
+    rdfs:domain unjucks:Variable ;
+    rdfs:range xsd:string .
+
+unjucks:required a owl:DatatypeProperty ;
+    rdfs:label "required"@en ;
+    rdfs:domain unjucks:Variable ;
+    rdfs:range xsd:boolean .
+
+unjucks:templateBody a owl:DatatypeProperty ;
+    rdfs:label "template body"@en ;
+    rdfs:domain unjucks:Template ;
+    rdfs:range xsd:string .
+
+unjucks:generatorName a owl:DatatypeProperty ;
+    rdfs:label "generator name"@en ;
+    rdfs:domain unjucks:Generator ;
+    rdfs:range xsd:string .
+
+unjucks:generatorDescription a owl:DatatypeProperty ;
+    rdfs:label "generator description"@en ;
+    rdfs:domain unjucks:Generator ;
+    rdfs:range xsd:string .
+
+# Individuals (Example generator)
+
+unjucks:commandGenerator a unjucks:Generator ;
+    unjucks:generatorName "command" ;
+    unjucks:generatorDescription "Generate CLI command using citty" ;
+    unjucks:hasTemplate unjucks:commandTemplate .
+
+unjucks:commandTemplate a unjucks:Template ;
+    unjucks:hasVariable unjucks:commandNameVar, unjucks:withSubcommandsVar ;
+    unjucks:targetPath "src/commands/{{ commandName | kebabCase }}.ts" .
+
+unjucks:commandNameVar a unjucks:Variable ;
+    unjucks:variableName "commandName" ;
+    unjucks:variableType "string" ;
+    unjucks:required true .
+
+unjucks:withSubcommandsVar a unjucks:Variable ;
+    unjucks:variableName "withSubcommands" ;
+    unjucks:variableType "boolean" ;
+    unjucks:defaultValue "false" ;
+    unjucks:required false .

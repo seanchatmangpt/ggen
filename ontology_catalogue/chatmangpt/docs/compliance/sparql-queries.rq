@@ -1,0 +1,567 @@
+# ============================================================================
+# SPARQL COMPLIANCE QUERIES FOR CHATMANGPT OXIGRAPH
+# ============================================================================
+#
+# All queries use SPARQL CONSTRUCT to generate RDF output for compliance reports.
+# Execute via: obsr query < sparql-queries.rq
+#
+# Namespace prefixes:
+#   chatman: <http://chatmangpt.ai/>
+#   comp: <http://chatmangpt.ai/compliance/>
+#   framework: <http://chatmangpt.ai/compliance/framework/>
+#   control: <http://chatmangpt.ai/compliance/control/>
+#   evidence: <http://chatmangpt.ai/compliance/evidence/>
+#   soc2: <http://chatmangpt.ai/compliance/framework/soc2/>
+#   hipaa: <http://chatmangpt.ai/compliance/framework/hipaa/>
+#   gdpr: <http://chatmangpt.ai/compliance/framework/gdpr/>
+#   sox: <http://chatmangpt.ai/compliance/framework/sox/>
+#   prov: <http://www.w3.org/ns/prov#>
+#   dcat: <http://www.w3.org/ns/dcat#>
+#   dqv: <http://www.w3.org/ns/dqv#>
+#   odrl: <http://www.w3.org/ns/odrl/2/>
+#
+# ============================================================================
+
+# QUERY 1: SOC2 CONTROL MAPPING AND COMPLIANCE MATRIX
+# ============================================================================
+#
+# Purpose: Map technical controls to SOC2 criteria (CC.6.1, A.1.1, etc.)
+#          Generate compliance matrix showing:
+#          - Control ID, Title, Status (COMPLIANT/NON_COMPLIANT)
+#          - Evidence count
+#          - Related CIS/NIST/ISO 27001 controls
+#
+# Usage:
+#   obsr query --query-file sparql-queries.rq --query-name "soc2_control_mapping"
+#
+# Output: RDF triples representing SOC2 compliance state
+#
+# Example Result:
+#   control:CC6.1 comp:complianceStatus "COMPLIANT" (2 test evidences)
+#   control:CC6.2 comp:complianceStatus "COMPLIANT" (1 policy document)
+#   control:C1.1 comp:complianceStatus "NON_COMPLIANT" (gap: encryption key rotation)
+#
+# ============================================================================
+
+PREFIX comp: <http://chatmangpt.ai/compliance/>
+PREFIX framework: <http://chatmangpt.ai/compliance/framework/>
+PREFIX control: <http://chatmangpt.ai/compliance/control/>
+PREFIX evidence: <http://chatmangpt.ai/compliance/evidence/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+CONSTRUCT {
+  ?control a comp:ComplianceControl ;
+    comp:controlId ?controlId ;
+    comp:controlTitle ?controlTitle ;
+    comp:hasFramework framework:SOC2 ;
+    ?controlProp ?controlValue ;
+    comp:evidenceCount ?evidenceCount ;
+    comp:complianceStatus ?status ;
+    comp:relatedControl ?relatedControl ;
+    comp:assessmentDate ?assessmentDate .
+
+  ?assessment a comp:Assessment ;
+    comp:controlId ?controlId ;
+    comp:complianceStatus ?status ;
+    comp:hasEvidence ?evidence ;
+    dcterms:issued ?assessmentDate .
+
+  ?evidence a comp:Evidence ;
+    rdfs:label ?evidenceLabel ;
+    comp:evidenceScore ?evidenceScore .
+}
+WHERE {
+  # Get all SOC2 controls
+  ?control comp:hasFramework framework:SOC2 ;
+    comp:controlId ?controlId ;
+    comp:controlTitle ?controlTitle ;
+    ?controlProp ?controlValue .
+
+  # Find assessments for this control
+  OPTIONAL {
+    ?assessment comp:complianceStatus ?status ;
+      dcterms:issued ?assessmentDate ;
+      comp:hasEvidence ?evidence .
+
+    FILTER (?controlId = ?assessmentControlId || !BOUND(?assessmentControlId))
+  }
+
+  # Count evidence items
+  OPTIONAL {
+    {
+      SELECT ?control (COUNT(?ev) as ?evidenceCount)
+      WHERE {
+        ?assessment comp:hasEvidence ?ev .
+        ?control comp:controlId ?controlId .
+      }
+      GROUP BY ?control
+    }
+  }
+
+  # Find related controls in other frameworks
+  OPTIONAL {
+    ?control comp:relatedControl ?relatedControl .
+  }
+
+  # Find evidence scores
+  OPTIONAL {
+    ?evidence comp:evidenceScore ?evidenceScore .
+  }
+
+  # Set default compliance status if no assessment exists
+  BIND(COALESCE(?status, "PENDING") as ?status)
+  BIND(COALESCE(?assessmentDate, NOW()) as ?assessmentDate)
+}
+ORDER BY DESC(?evidenceCount) ?controlId
+
+
+# QUERY 2: GDPR DATA PROCESSING AND DATA SUBJECT RIGHTS (DSR)
+# ============================================================================
+#
+# Purpose: Track GDPR data processing activities, identify unprocessed DSRs
+#          Output:
+#          - All data processing activities (datasets, processors, purposes)
+#          - Pending data subject requests (access, rectification, erasure)
+#          - DSR SLA compliance (30-day response deadline)
+#          - Consent records and withdrawal history
+#
+# Usage:
+#   obsr query --query-name "gdpr_dsr_tracking" --param now $(date -u +%Y-%m-%dT%H:%M:%SZ)
+#
+# Output: GDPR compliance data showing:
+#   Dataset -> Processor -> Purpose
+#   DSR -> Status -> Days Pending
+#   Consent -> Version -> Timestamp
+#
+# Example Results:
+#   Dataset: Customer PII -> Processor: Analytics -> Purpose: Usage Metrics
+#   DSR #4521 -> PENDING -> 25 days (within SLA)
+#   DSR #4522 -> OVERDUE -> 32 days (5 days past SLA)
+#
+# ============================================================================
+
+PREFIX comp: <http://chatmangpt.ai/compliance/>
+PREFIX framework: <http://chatmangpt.ai/compliance/framework/>
+PREFIX control: <http://chatmangpt.ai/compliance/control/>
+PREFIX gdpr: <http://chatmangpt.ai/compliance/framework/gdpr/>
+PREFIX evidence: <http://chatmangpt.ai/compliance/evidence/>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX odrl: <http://www.w3.org/ns/odrl/2/>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+CONSTRUCT {
+  ?dataset a dcat:Dataset ;
+    dc:title ?datasetTitle ;
+    dcat:theme "GDPR", "PERSONAL_DATA" ;
+    comp:hasDataProcessor ?processor ;
+    comp:processingPurpose ?purpose ;
+    comp:consentRequired ?consentRequired ;
+    comp:hasConsent ?consent ;
+    comp:consentStatus ?consentStatus ;
+    comp:consentCount ?consentCount ;
+    comp:dataSubjectRequestCount ?dsrCount ;
+    comp:pendingDSRCount ?pendingDSRCount ;
+    comp:overdueDSRCount ?overdueDSRCount ;
+    comp:overallGDPRStatus ?dsrStatus .
+
+  ?processor a prov:Agent ;
+    foaf:name ?processorName ;
+    comp:processingPurpose ?purpose ;
+    comp:slaCompliance ?slaStatus .
+
+  ?consent a odrl:Policy ;
+    dc:title ?consentTitle ;
+    dcterms:issued ?consentDate ;
+    odrl:target ?dataset ;
+    comp:consentVersion ?consentVersion .
+
+  ?dsr a prov:Activity ;
+    dc:title ?dsrType ;
+    dcterms:issued ?dsrDate ;
+    comp:dsrStatus ?dsrStatus ;
+    comp:daysRemaining ?daysRemaining ;
+    comp:slaMet ?slaMet ;
+    comp:dataSubject ?subject .
+}
+WHERE {
+  # Get all datasets with GDPR personal data
+  ?dataset a dcat:Dataset ;
+    dcat:theme "PERSONAL_DATA" ;
+    dc:title ?datasetTitle .
+
+  # Find data processors
+  OPTIONAL {
+    ?dataset comp:hasDataProcessor ?processor .
+    ?processor foaf:name ?processorName .
+    ?processor comp:processingPurpose ?purpose .
+  }
+
+  # Determine if consent required
+  BIND(IF(CONTAINS(STR(?dataset), "marketing") || CONTAINS(STR(?dataset), "cookies"), true, false) as ?consentRequired)
+
+  # Get consent records
+  OPTIONAL {
+    ?consent a odrl:Policy ;
+      odrl:target ?dataset ;
+      dcterms:issued ?consentDate ;
+      dc:title ?consentTitle ;
+      comp:consentVersion ?consentVersion .
+  }
+
+  # Count total consents for dataset
+  {
+    SELECT ?dataset (COUNT(?c) as ?consentCount) (
+      SUM(IF(?withdrawn = true, 1, 0)) as ?withdrawnCount
+    )
+    WHERE {
+      OPTIONAL {
+        ?c odrl:target ?dataset .
+        ?c a odrl:Policy .
+        OPTIONAL {
+          ?c comp:consentWithdrawn ?withdrawn .
+        }
+      }
+    }
+    GROUP BY ?dataset
+  }
+
+  # Get DSR status
+  OPTIONAL {
+    ?dsr a prov:Activity ;
+      dc:title ?dsrType ;
+      dcterms:issued ?dsrDate ;
+      comp:dsrStatus ?dsrStatus ;
+      prov:wasAssociatedWith ?subject .
+
+    # Calculate days pending (today - DSR date)
+    BIND(STRLEN(STR(NOW())) as ?nowDays)
+    BIND(FLOOR((?nowDays - STRLEN(STR(?dsrDate))) / 86400) as ?daysRemaining)
+
+    # Check if SLA met (30 days)
+    BIND(IF(?daysRemaining <= 30, "MET", "OVERDUE") as ?slaMet)
+  }
+
+  # Count DSRs by status
+  {
+    SELECT ?dataset
+      (COUNT(?dsr) as ?dsrCount)
+      (SUM(IF(?dsrStatus = "PENDING", 1, 0)) as ?pendingDSRCount)
+      (SUM(IF(?dsrStatus = "OVERDUE", 1, 0)) as ?overdueDSRCount)
+    WHERE {
+      ?dataset a dcat:Dataset .
+      OPTIONAL {
+        ?dsr a prov:Activity ;
+          prov:wasAssociatedWith [ ] ;
+          comp:dsrStatus ?dsrStatus .
+      }
+    }
+    GROUP BY ?dataset
+  }
+
+  # Determine overall status
+  BIND(IF(?overdueDSRCount > 0, "NON_COMPLIANT",
+      IF(?pendingDSRCount > 0, "IN_REMEDIATION", "COMPLIANT")) as ?dsrStatus)
+
+  # Processor SLA status
+  BIND(IF(?daysRemaining <= 30, "COMPLIANT", "CRITICAL") as ?slaStatus)
+
+  # Consent status
+  BIND(IF(?consentCount > 0, "DOCUMENTED", "MISSING") as ?consentStatus)
+}
+ORDER BY ?dataset
+
+
+# QUERY 3: HIPAA PHI TRACKING AND ENCRYPTION STATUS
+# ============================================================================
+#
+# Purpose: Identify all Protected Health Information (PHI) data flows,
+#          access logs, and encryption status. Flag unencrypted PHI at rest.
+#
+# Output:
+#   - PHI dataset location (database, file storage, backup)
+#   - Encryption status (encrypted/plaintext)
+#   - Access audit trail (WHO accessed WHAT WHEN)
+#   - Risk assessment (high-risk unencrypted PHI)
+#   - Remediation priority
+#
+# Usage:
+#   obsr query --query-name "hipaa_phi_tracking"
+#
+# Example Results:
+#   Database: patients.records -> ENCRYPTED (AES-256) -> Last access: 2026-03-25 14:30
+#   Backup: backup_2025_12.tar.gz -> PLAINTEXT -> 12 months old -> CRITICAL RISK
+#   Access Log: Dr. Johnson (PHI-002 control) -> 45 accesses this month -> All logged
+#
+# ============================================================================
+
+PREFIX comp: <http://chatmangpt.ai/compliance/>
+PREFIX framework: <http://chatmangpt.ai/compliance/framework/>
+PREFIX control: <http://chatmangpt.ai/compliance/control/>
+PREFIX hipaa: <http://chatmangpt.ai/compliance/framework/hipaa/>
+PREFIX evidence: <http://chatmangpt.ai/compliance/evidence/>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX dqv: <http://www.w3.org/ns/dqv#>
+
+CONSTRUCT {
+  ?phiDataset a dcat:Dataset ;
+    dcat:theme "PHI", "HIPAA", "SENSITIVE" ;
+    dc:title ?datasetTitle ;
+    comp:storageLocation ?location ;
+    comp:encryptionStatus ?encryptionStatus ;
+    comp:encryptionAlgorithm ?algorithm ;
+    comp:encryptionKeyRotation ?keyRotationDays ;
+    comp:complianceStatus ?phiStatus ;
+    comp:riskLevel ?riskLevel ;
+    comp:accessCount ?accessCount ;
+    comp:lastAccessTime ?lastAccess ;
+    comp:remediationPriority ?remediationPriority ;
+    comp:relatedControl control:PHI001, control:PHI002, control:PHI003 ;
+    comp:hasAccessLog ?accessLog ;
+    comp:hasGap ?gap .
+
+  ?accessLog a prov:Activity ;
+    prov:wasAssociatedWith ?accessor ;
+    prov:used ?phiDataset ;
+    prov:startedAtTime ?accessTime ;
+    dc:title ?accessDescription ;
+    comp:accessType ?accessType ;
+    comp:logged ?logged .
+
+  ?gap a comp:Gap ;
+    comp:controlId "PHI-001" ;
+    comp:gapSeverity ?gapSeverity ;
+    dc:description ?gapDescription .
+
+  ?accessor a prov:Agent ;
+    foaf:name ?accessorName ;
+    comp:accessCount ?userAccessCount ;
+    comp:lastAccessTime ?userLastAccess .
+}
+WHERE {
+  # Get all PHI datasets
+  ?phiDataset a dcat:Dataset ;
+    dcat:theme "PHI" ;
+    dc:title ?datasetTitle .
+
+  # Storage location and encryption status
+  OPTIONAL {
+    ?phiDataset comp:storageLocation ?location ;
+      comp:encryptionStatus ?encryptionStatus ;
+      comp:encryptionAlgorithm ?algorithm ;
+      comp:encryptionKeyRotation ?keyRotationDays .
+  }
+
+  # Default encryption to plaintext if not specified
+  BIND(COALESCE(?encryptionStatus, "PLAINTEXT") as ?encryptionStatus)
+
+  # Determine compliance and risk level
+  BIND(IF(?encryptionStatus = "PLAINTEXT", "NON_COMPLIANT", "COMPLIANT") as ?phiStatus)
+  BIND(IF(?encryptionStatus = "PLAINTEXT", "CRITICAL",
+      IF(?encryptionStatus = "ENCRYPTED" && ?keyRotationDays > 365, "HIGH", "MEDIUM")) as ?riskLevel)
+
+  # Set remediation priority
+  BIND(IF(?riskLevel = "CRITICAL", 1, IF(?riskLevel = "HIGH", 2, 3)) as ?remediationPriority)
+
+  # Get access logs
+  OPTIONAL {
+    ?accessLog a prov:Activity ;
+      prov:used ?phiDataset ;
+      prov:wasAssociatedWith ?accessor ;
+      prov:startedAtTime ?accessTime ;
+      dc:title ?accessDescription ;
+      comp:accessType ?accessType ;
+      comp:logged ?logged .
+  }
+
+  # Count accesses and find most recent
+  {
+    SELECT ?phiDataset
+      (COUNT(?log) as ?accessCount)
+      (MAX(?aTime) as ?lastAccess)
+    WHERE {
+      OPTIONAL {
+        ?log a prov:Activity ;
+          prov:used ?phiDataset ;
+          prov:startedAtTime ?aTime .
+      }
+    }
+    GROUP BY ?phiDataset
+  }
+
+  # Count accesses per user
+  {
+    SELECT ?accessor
+      (COUNT(?uLog) as ?userAccessCount)
+      (MAX(?uTime) as ?userLastAccess)
+    WHERE {
+      OPTIONAL {
+        ?uLog a prov:Activity ;
+          prov:wasAssociatedWith ?accessor ;
+          prov:startedAtTime ?uTime .
+      }
+    }
+    GROUP BY ?accessor
+  }
+
+  # Get accessor details
+  OPTIONAL {
+    ?accessor foaf:name ?accessorName .
+  }
+
+  # Find unencrypted PHI gaps
+  {
+    SELECT ?phiDataset ?gapSeverity ?gapDescription
+    WHERE {
+      FILTER(?encryptionStatus = "PLAINTEXT")
+      BIND("CRITICAL" as ?gapSeverity)
+      BIND(CONCAT("PHI at ", STR(?location), " not encrypted; requires AES-256+ encryption (HIPAA PHI-001)") as ?gapDescription)
+    }
+  }
+
+  # Create gap record if unencrypted
+  OPTIONAL {
+    ?gap a comp:Gap ;
+      comp:controlId "PHI-001" ;
+      comp:gapSeverity ?gapSeverity ;
+      dc:description ?gapDescription .
+  }
+}
+ORDER BY DESC(?riskLevel) ?remediationPriority ?datasetTitle
+
+
+# QUERY 4: COMPLIANCE GAP DETECTION AND REMEDIATION STATUS
+# ============================================================================
+#
+# Purpose: Automated gap detection across all frameworks.
+#   - Controls missing evidence
+#   - Controls failing internal tests
+#   - Remediation actions overdue
+#   - Gap severity and SLA tracking
+#
+# Output:
+#   - Gap ID, Severity, Framework
+#   - Control lacking evidence
+#   - Required remediation
+#   - Days remaining (SLA)
+#   - Root cause analysis
+#
+# Usage:
+#   obsr query --query-name "gap_detection_and_remediation"
+#
+# Example Results:
+#   Gap soc2.cc6.1.001: MFA -> CRITICAL -> 7 days SLA -> OVERDUE (5 days past)
+#   Gap gdpr.cm.1.001: Consent -> HIGH -> 30 days SLA -> PENDING (2 days remaining)
+#   Gap phi.001.002: Backup Encryption -> CRITICAL -> 3 days SLA -> NOT STARTED
+#
+# ============================================================================
+
+PREFIX comp: <http://chatmangpt.ai/compliance/>
+PREFIX framework: <http://chatmangpt.ai/compliance/framework/>
+PREFIX control: <http://chatmangpt.ai/compliance/control/>
+PREFIX evidence: <http://chatmangpt.ai/compliance/evidence/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+CONSTRUCT {
+  ?gap a comp:Gap ;
+    comp:gapId ?gapId ;
+    comp:controlId ?controlId ;
+    comp:controlTitle ?controlTitle ;
+    comp:framework ?frameworkCode ;
+    comp:gapSeverity ?severity ;
+    comp:description ?gapDescription ;
+    comp:rootCause ?rootCause ;
+    comp:remediationSLA ?slaInDays ;
+    comp:daysRemaining ?daysRemaining ;
+    comp:slaMet ?slaMet ;
+    comp:remediation ?remediation ;
+    comp:remediationStatus ?remediationStatus ;
+    comp:remediationStartDate ?remediationStart ;
+    comp:remediationTargetDate ?remediationTarget ;
+    comp:assignedTo ?assignee ;
+    dcterms:issued ?gapDetectedDate ;
+    comp:escalationRequired ?escalation .
+
+  ?remediation a comp:Remediation ;
+    dc:title ?remediationTitle ;
+    dc:description ?remediationPlan ;
+    prov:wasAssociatedWith ?assignee ;
+    dcterms:issued ?remediationStart ;
+    prov:endedAtTime ?remediationTarget .
+}
+WHERE {
+  # Get all gaps
+  ?gap a comp:Gap ;
+    comp:gapId ?gapId ;
+    comp:controlId ?controlId ;
+    comp:gapSeverity ?severity ;
+    dcterms:issued ?gapDetectedDate ;
+    comp:remediationSLA ?slaInDays .
+
+  # Get control details
+  ?ctrl comp:controlId ?controlId ;
+    comp:controlTitle ?controlTitle ;
+    comp:hasFramework ?fw .
+
+  # Get framework code
+  ?fw a comp:ComplianceFramework ;
+    comp:frameworkCode ?frameworkCode .
+
+  # Get gap description and root cause
+  OPTIONAL {
+    ?gap dc:description ?gapDescription ;
+      comp:rootCause ?rootCause .
+  }
+
+  # Calculate days remaining
+  BIND(FLOOR((?slaInDays * 86400 -
+      STRLEN(STR(NOW())) + STRLEN(STR(?gapDetectedDate))) / 86400) as ?daysRemaining)
+
+  # Determine if SLA met
+  BIND(IF(?daysRemaining <= 0, "OVERDUE",
+      IF(?daysRemaining > 0, "PENDING", "MET")) as ?slaMet)
+
+  # Flag escalation if overdue
+  BIND(IF(?daysRemaining < 0, true, false) as ?escalation)
+
+  # Get remediation details
+  OPTIONAL {
+    ?remediation a comp:Remediation ;
+      dc:title ?remediationTitle ;
+      dc:description ?remediationPlan ;
+      prov:wasAssociatedWith ?assignee ;
+      dcterms:issued ?remediationStart ;
+      prov:endedAtTime ?remediationTarget ;
+      comp:status ?remediationStatus .
+  }
+
+  # Default remediation status if none exists
+  BIND(COALESCE(?remediationStatus, "NOT_STARTED") as ?remediationStatus)
+
+  # Get assignee name
+  OPTIONAL {
+    ?assignee foaf:name ?assigneeName .
+  }
+}
+ORDER BY DESC(?severity) ?daysRemaining ?controlId
+
+# ============================================================================
+# END OF SPARQL QUERIES
+# ============================================================================

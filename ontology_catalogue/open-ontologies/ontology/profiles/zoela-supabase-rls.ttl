@@ -1,0 +1,223 @@
+@prefix ggen:    <https://open-ontologies.org/ggen#> .
+@prefix zoe:     <https://zoela.org/ontology/> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix odrl:    <http://www.w3.org/ns/odrl/2/> .
+
+# ============================================================================
+# ZOE LA Supabase RLS Profile — ODRL action → Postgres RLS translation
+# ============================================================================
+#
+# Profile-layer mapping that translates ODRL actions (declared in
+# ontology/zoela/policy.ttl) into the Postgres RLS primitives required
+# by the Supabase target runtime.
+#
+# Closes admission condition (3) of the Public Vocabulary Materialization
+# Policy:
+#
+#   admissible_materialization ⟺
+#     (1) class specializes a public anchor                    [B.1 + B.1b]
+#     (2) SHACL shape declares required properties             [B.6]
+#     (3) ODRL policy declares access                          [THIS FILE]
+#     (4) public/PROV/OCEL role requires persistence           [B.2]
+#
+# Hard rule (from feedback_public_vocab_materialization):
+#   No table may get default authenticated-read unless an ODRL policy
+#   explicitly permits it. If a materialization kind has no ODRL
+#   coverage, the migration template MUST refuse to emit RLS for it.
+#
+# This file does NOT redefine ODRL action vocabulary. Actions are declared
+# in ontology/zoela/policy.ttl. This file ADDS the runtime-translation
+# annotations (ggen:rlsOperation, ggen:rlsTargetKind, ggen:rlsConstraintSql)
+# so the SPARQL extractor can surface (role, operation, target, constraint)
+# tuples for RLS rendering.
+# ============================================================================
+
+<https://open-ontologies.org/ggen/profiles/zoela-supabase-rls>
+    a owl:Ontology ;
+    rdfs:label "ZOE LA Supabase RLS Profile"@en ;
+    rdfs:comment "Translates ODRL action vocabulary into Postgres RLS operation/target/constraint tuples for the Supabase target runtime."@en ;
+    dcterms:creator "Sean Chatman" ;
+    dcterms:created "2026-05-18"^^xsd:date ;
+    dcterms:license <https://opensource.org/licenses/MIT> ;
+    owl:versionInfo "P0-B.7" .
+
+# ============================================================================
+# § 1  Profile vocabulary
+# ============================================================================
+
+ggen:rlsOperation a owl:DatatypeProperty ;
+    rdfs:label "RLS operation"@en ;
+    rdfs:comment "The Postgres RLS operation this ODRL action expands into (SELECT/INSERT/UPDATE/DELETE/ALL)."@en ;
+    rdfs:domain odrl:Action ;
+    rdfs:range xsd:string .
+
+ggen:rlsTargetKind a owl:ObjectProperty ;
+    rdfs:label "RLS target materialization kind"@en ;
+    rdfs:comment "Materialization kind whose tables this ODRL action governs. The extractor joins through ggen:materializesPublicAnchor to find affected tables."@en ;
+    rdfs:domain odrl:Action ;
+    rdfs:range ggen:MaterializationKind .
+
+ggen:rlsConstraintSql a owl:DatatypeProperty ;
+    rdfs:label "RLS constraint SQL template"@en ;
+    rdfs:comment "Postgres SQL fragment used in USING() or WITH CHECK() for this action's permissions. Substitution placeholders: ${user_id} = auth.uid(), ${table} = target table, ${role} = role notation. Empty string means 'no constraint' (true)."@en ;
+    rdfs:domain odrl:Action ;
+    rdfs:range xsd:string .
+
+ggen:rlsAppliesToRole a owl:ObjectProperty ;
+    rdfs:label "RLS applies to role"@en ;
+    rdfs:comment "Database role (Supabase 'authenticated', 'anon', or custom claim role) this ODRL policy applies to. Defaults to 'authenticated'."@en ;
+    rdfs:domain odrl:Policy ;
+    rdfs:range xsd:string .
+
+# ============================================================================
+# § 2  ODRL Action → RLS annotations
+# ============================================================================
+#
+# These triples extend the ODRL actions declared in policy.ttl with the
+# runtime-translation facts the RLS extractor needs.
+# ============================================================================
+
+zoe:viewPublicEvents
+    ggen:rlsOperation     "SELECT" ;
+    ggen:rlsTargetKind    ggen:EventMaterialization ;
+    ggen:rlsConstraintSql "" .                            # public read; no row restriction
+
+zoe:submitNeed
+    ggen:rlsOperation     "INSERT" ;
+    ggen:rlsTargetKind    ggen:ActionMaterialization ;
+    ggen:rlsConstraintSql "auth.uid() = created_by" .     # may only submit on own behalf
+
+zoe:joinServeOpportunity
+    ggen:rlsOperation     "INSERT" ;
+    ggen:rlsTargetKind    ggen:ActionMaterialization ;
+    ggen:rlsConstraintSql "auth.uid() = created_by" .
+
+zoe:viewOwnAssignments
+    ggen:rlsOperation     "SELECT" ;
+    ggen:rlsTargetKind    ggen:ActionMaterialization ;
+    ggen:rlsConstraintSql "auth.uid() = sent_to_person" .  # recipient-only read
+
+zoe:checkIn
+    ggen:rlsOperation     "INSERT" ;
+    ggen:rlsTargetKind    ggen:EvidenceActivityMaterialization ;
+    ggen:rlsConstraintSql "auth.uid() = created_by" .
+
+zoe:completeTask
+    ggen:rlsOperation     "UPDATE" ;
+    ggen:rlsTargetKind    ggen:ActionMaterialization ;
+    ggen:rlsTargetKind    ggen:OcelEventMaterialization ;
+    ggen:rlsConstraintSql "auth.uid() = sent_to_person" . # recipient may complete
+
+zoe:viewOpenNeeds
+    ggen:rlsOperation     "SELECT" ;
+    ggen:rlsTargetKind    ggen:ActionMaterialization ;
+    ggen:rlsConstraintSql "" .                            # ministry-private; role gate handles it
+
+zoe:manageAssignments
+    ggen:rlsOperation     "ALL" ;
+    ggen:rlsTargetKind    ggen:ActionMaterialization ;
+    ggen:rlsConstraintSql "" .
+
+zoe:viewFollowUps
+    ggen:rlsOperation     "SELECT" ;
+    ggen:rlsTargetKind    ggen:ActionMaterialization ;
+    ggen:rlsConstraintSql "" .
+
+zoe:createEditEvents
+    ggen:rlsOperation     "ALL" ;
+    ggen:rlsTargetKind    ggen:EventMaterialization ;
+    ggen:rlsConstraintSql "" .
+
+zoe:manageAllNeeds
+    ggen:rlsOperation     "ALL" ;
+    ggen:rlsTargetKind    ggen:ActionMaterialization ;
+    ggen:rlsConstraintSql "" .
+
+zoe:viewReports
+    ggen:rlsOperation     "SELECT" ;
+    ggen:rlsTargetKind    ggen:EvidenceEntityMaterialization ;
+    ggen:rlsConstraintSql "" .
+
+# AgentMaterialization (persons)
+zoe:viewOwnProfile
+    ggen:rlsOperation     "SELECT" ;
+    ggen:rlsTargetKind    ggen:AgentMaterialization ;
+    ggen:rlsConstraintSql "auth.uid()::text = id::text" .  # only own row
+
+zoe:manageAllProfiles
+    ggen:rlsOperation     "ALL" ;
+    ggen:rlsTargetKind    ggen:AgentMaterialization ;
+    ggen:rlsConstraintSql "" .
+
+# OrganizationMaterialization (households)
+zoe:viewOwnHousehold
+    ggen:rlsOperation     "SELECT" ;
+    ggen:rlsTargetKind    ggen:OrganizationMaterialization ;
+    ggen:rlsConstraintSql "" .  # role gate; further scope via app layer
+
+zoe:manageAllHouseholds
+    ggen:rlsOperation     "ALL" ;
+    ggen:rlsTargetKind    ggen:OrganizationMaterialization ;
+    ggen:rlsConstraintSql "" .
+
+zoe:viewConnectGroups
+    ggen:rlsOperation     "SELECT" ;
+    ggen:rlsTargetKind    ggen:OrganizationMaterialization ;
+    ggen:rlsConstraintSql "" .
+
+zoe:manageConnectGroups
+    ggen:rlsOperation     "ALL" ;
+    ggen:rlsTargetKind    ggen:OrganizationMaterialization ;
+    ggen:rlsConstraintSql "" .
+
+# ============================================================================
+# § 3  Policy → role binding (which authenticated principal applies this policy)
+# ============================================================================
+
+zoe:MemberPolicy        ggen:rlsAppliesToRole "member" .
+zoe:VolunteerPolicy     ggen:rlsAppliesToRole "volunteer" .
+zoe:MinistryLeadPolicy  ggen:rlsAppliesToRole "ministry_lead" .
+zoe:AdminPolicy         ggen:rlsAppliesToRole "admin" .
+
+# ============================================================================
+# § 4  Materialization-kind RLS requirements
+# ============================================================================
+#
+# When ggen:emitsSql is true on a materialization kind, RLS is mandatory.
+# These annotations let the migration template refuse rendering for any
+# class whose kind has emitsSql=true but no covering ODRL permission.
+# ============================================================================
+
+ggen:rlsRequired a owl:DatatypeProperty ;
+    rdfs:label "RLS required"@en ;
+    rdfs:comment "True when this materialization kind MUST have at least one ODRL permission targeting it before its tables may be emitted with RLS. The migration template refuses rendering when this is true and no policy exists."@en ;
+    rdfs:domain ggen:MaterializationKind ;
+    rdfs:range xsd:boolean .
+
+# Default policy: every emitsSql=true kind requires RLS coverage.
+ggen:AgentMaterialization            ggen:rlsRequired true .
+ggen:OrganizationMaterialization     ggen:rlsRequired true .
+ggen:ContainerMaterialization        ggen:rlsRequired true .
+ggen:EventMaterialization            ggen:rlsRequired true .
+ggen:ActionMaterialization           ggen:rlsRequired true .
+ggen:MessageMaterialization          ggen:rlsRequired true .
+ggen:ActivityStreamMaterialization   ggen:rlsRequired true .
+ggen:EvidenceActivityMaterialization ggen:rlsRequired true .
+ggen:EvidenceEntityMaterialization   ggen:rlsRequired true .
+ggen:ConceptSchemeMaterialization    ggen:rlsRequired true .
+ggen:ReservationMaterialization      ggen:rlsRequired true .
+ggen:OcelObjectMaterialization       ggen:rlsRequired true .
+ggen:OcelEventMaterialization        ggen:rlsRequired true .
+ggen:TimeWindowMaterialization       ggen:rlsRequired true .
+
+# Concept lookup tables and policy tables don't emit DDL, so RLS is N/A.
+# Already covered by ggen:emitsSql=false.
+
+# ============================================================================
+# End of RLS profile
+# ============================================================================

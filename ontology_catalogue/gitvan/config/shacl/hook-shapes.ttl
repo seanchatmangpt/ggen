@@ -1,0 +1,147 @@
+# SHACL Shapes for Hook Validation
+# Validates hook definitions, predicates, and structure
+# Version: 1.0.0
+# Date: January 10, 2026
+
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# ============================================================================
+# HOOK DEFINITION SHAPES
+# ============================================================================
+
+# Hook definition structure
+gh:HookShape a sh:NodeShape ;
+  sh:targetClass gh:Hook ;
+  rdfs:label "Hook Shape" ;
+  rdfs:comment "Validates hook definition has required components" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path gv:title ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:message "Hook must have non-empty title" ;
+  ] ;
+
+  sh:property [
+    sh:path gh:hasPredicate ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "Hook must have exactly one predicate" ;
+  ] ;
+
+  sh:property [
+    sh:path gh:orderedPipelines ;
+    sh:minCount 1 ;
+    sh:message "Hook must have at least one pipeline" ;
+  ] ;
+
+  sh:property [
+    sh:path gv:description ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Hook description should be a string" ;
+  ] .
+
+# ============================================================================
+# PREDICATE TYPE SHAPES
+# ============================================================================
+
+# Result Delta predicate must have query
+gh:ResultDeltaShape a sh:NodeShape ;
+  sh:targetClass gh:ResultDelta ;
+  rdfs:label "Result Delta Predicate Shape" ;
+  rdfs:comment "ResultDelta predicate must define SPARQL query" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path gh:hasQuery ;
+    sh:minCount 1 ;
+    sh:message "ResultDelta predicate must have SPARQL query" ;
+  ] ;
+
+  sh:property [
+    sh:path gh:queryLanguage ;
+    sh:maxCount 1 ;
+    sh:in ("sparql") ;
+    sh:message "Query language must be specified" ;
+  ] .
+
+# Select Threshold predicate requirements
+gh:SelectThresholdShape a sh:NodeShape ;
+  sh:targetClass gh:SelectThreshold ;
+  rdfs:label "Select Threshold Predicate Shape" ;
+  rdfs:comment "SelectThreshold predicate must have query, threshold, and operator" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path gh:hasQuery ;
+    sh:minCount 1 ;
+    sh:message "SelectThreshold must have SPARQL query" ;
+  ] ;
+
+  sh:property [
+    sh:path gh:threshold ;
+    sh:minCount 1 ;
+    sh:datatype xsd:decimal ;
+    sh:message "SelectThreshold must have numeric threshold" ;
+  ] ;
+
+  sh:property [
+    sh:path gh:operator ;
+    sh:minCount 1 ;
+    sh:in (">" ">=" "<" "<=" "==" "!=") ;
+    sh:message "SelectThreshold operator must be valid comparison operator" ;
+  ] .
+
+# SHACL All Conform predicate
+gh:SHACLAllConformShape a sh:NodeShape ;
+  sh:targetClass gh:SHACLAllConform ;
+  rdfs:label "SHACL All Conform Predicate Shape" ;
+  rdfs:comment "SHACLAllConform predicate must define shapes" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path gh:hasShapes ;
+    sh:minCount 1 ;
+    sh:message "SHACLAllConform predicate must specify SHACL shapes" ;
+  ] ;
+
+  sh:property [
+    sh:path gh:shapesLocation ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Shapes location should be a file path or URI" ;
+  ] .
+
+# ============================================================================
+# PIPELINE CONSTRAINTS
+# ============================================================================
+
+# Pipeline must have orderable steps
+gh:PipelineShape a sh:NodeShape ;
+  sh:targetClass gh:Pipeline ;
+  rdfs:label "Pipeline Shape" ;
+  rdfs:comment "Validates pipeline has required properties" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path gh:hasOrder ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 0 ;
+    sh:message "Pipeline order must be non-negative integer" ;
+  ] ;
+
+  sh:property [
+    sh:path gh:hasSteps ;
+    sh:minCount 1 ;
+    sh:message "Pipeline must have at least one step" ;
+  ] .

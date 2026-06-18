@@ -1,0 +1,344 @@
+@prefix cli: <http://cns.io/unified-cli#> .
+@prefix otel: <http://opentelemetry.io/ontology#> .
+@prefix weaver: <http://opentelemetry.io/weaver#> .
+@prefix uvmgr: <http://cns.io/uvmgr#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# EXAMPLE CLI COMMAND INSTANCES
+# Demonstrates how actual CLI commands are modeled in the ontology
+# =============================================================================
+
+# Core Command Examples (80/20 High Priority)
+
+# Turtle Analysis Command (Core - 80% use case)
+cli:TurtleAnalyzeCommand a cli:TurtleCommand, cli:CoreCommand, cli:InstrumentedCommand, cli:L2Command ;
+    cli:commandName "analyze" ;
+    cli:commandGroup "turtle" ;
+    cli:helpText "🧠 Analyze turtle files with 12-agent swarm intelligence" ;
+    cli:priority "high" ;
+    cli:coverage 85.0 ;
+    cli:usageFrequency "daily" ;
+    cli:moduleFile "turtle-analyzer-ultra/src/turtle_analyzer_ultra/cli/analyze.py" ;
+    cli:functionName "analyze_turtle_files" ;
+    cli:architectureLevel "L2" ;
+    cli:coordinationRequired true ;
+    cli:spanName "turtle.analyze" ;
+    cli:traceName "turtle.analysis.workflow" ;
+    cli:hasParameter cli:TurtleAnalyzeInput, cli:TurtleAnalyzeOutput, cli:TurtleAnalyzeVerbose .
+
+cli:TurtleAnalyzeInput a cli:Argument ;
+    cli:parameterName "input_path" ;
+    cli:parameterType "Path" ;
+    cli:required true .
+
+cli:TurtleAnalyzeOutput a cli:Option ;
+    cli:parameterName "output" ;
+    cli:parameterType "Optional[Path]" ;
+    cli:required false ;
+    cli:defaultValue "analysis_results.json" .
+
+cli:TurtleAnalyzeVerbose a cli:Option ;
+    cli:parameterName "verbose" ;
+    cli:parameterType "bool" ;
+    cli:required false ;
+    cli:defaultValue "false" .
+
+# Semantic Processing Command (Core - 80% use case)
+cli:SemanticParseCommand a cli:SemanticCommand, cli:CoreCommand, cli:InstrumentedCommand, cli:MetricCommand, cli:L1Command ;
+    cli:commandName "parse" ;
+    cli:commandGroup "semantic" ;
+    cli:helpText "🔗 Parse RDF/TTL files with validation" ;
+    cli:priority "high" ;
+    cli:coverage 90.0 ;
+    cli:usageFrequency "daily" ;
+    cli:moduleFile "modules/semantic_commands.py" ;
+    cli:functionName "parse_rdf" ;
+    cli:architectureLevel "L1" ;
+    cli:coordinationRequired false ;
+    cli:spanName "semantic.parse" ;
+    cli:traceName "semantic.parse.execution" ;
+    cli:metricName "semantic.parse.duration" ;
+    cli:hasParameter cli:SemanticParseFile, cli:SemanticParseFormat, cli:SemanticParseValidate .
+
+cli:SemanticParseFile a cli:Argument ;
+    cli:parameterName "ttl_file" ;
+    cli:parameterType "Path" ;
+    cli:required true .
+
+cli:SemanticParseFormat a cli:Option ;
+    cli:parameterName "format" ;
+    cli:parameterType "str" ;
+    cli:required false ;
+    cli:defaultValue "turtle" .
+
+cli:SemanticParseValidate a cli:Option ;
+    cli:parameterName "validate" ;
+    cli:parameterType "bool" ;
+    cli:required false ;
+    cli:defaultValue "true" .
+
+# BitActor Generation Command (Core - 80% use case)
+cli:BitActorGenerateCommand a cli:BitActorCommand, cli:CoreCommand, cli:InstrumentedCommand, cli:MetricCommand, cli:L2Command ;
+    cli:commandName "generate" ;
+    cli:commandGroup "bitactor" ;
+    cli:helpText "⚡ Generate BitActor code from TTL ontologies" ;
+    cli:priority "high" ;
+    cli:coverage 75.0 ;
+    cli:usageFrequency "weekly" ;
+    cli:moduleFile "bitactor_cli.py" ;
+    cli:functionName "generate_bitactor_code" ;
+    cli:architectureLevel "L2" ;
+    cli:coordinationRequired true ;
+    cli:spanName "bitactor.generate" ;
+    cli:traceName "bitactor.generation.pipeline" ;
+    cli:metricName "bitactor.generation.count" ;
+    cli:hasParameter cli:BitActorGenerateOntology, cli:BitActorGenerateTarget, cli:BitActorGenerateOptimize .
+
+cli:BitActorGenerateOntology a cli:Argument ;
+    cli:parameterName "ontology_file" ;
+    cli:parameterType "Path" ;
+    cli:required true .
+
+cli:BitActorGenerateTarget a cli:Option ;
+    cli:parameterName "target" ;
+    cli:parameterType "str" ;
+    cli:required false ;
+    cli:defaultValue "c" .
+
+cli:BitActorGenerateOptimize a cli:Option ;
+    cli:parameterName "optimize" ;
+    cli:parameterType "bool" ;
+    cli:required false ;
+    cli:defaultValue "true" .
+
+# Pipeline Orchestration Command (Core - Strategic)
+cli:PipelineRunCommand a cli:PipelineCommand, cli:CoreCommand, cli:InstrumentedCommand, cli:MetricCommand, cli:L3Command ;
+    cli:commandName "run" ;
+    cli:commandGroup "pipeline" ;
+    cli:helpText "🔄 Execute complex multi-stage pipelines with orchestration" ;
+    cli:priority "high" ;
+    cli:coverage 70.0 ;
+    cli:usageFrequency "weekly" ;
+    cli:moduleFile "pipeline_cli.py" ;
+    cli:functionName "run_pipeline" ;
+    cli:architectureLevel "L3" ;
+    cli:coordinationRequired true ;
+    cli:spanName "pipeline.run" ;
+    cli:traceName "pipeline.orchestration.workflow" ;
+    cli:metricName "pipeline.execution.duration" ;
+    cli:hasParameter cli:PipelineRunConfig, cli:PipelineRunParallel, cli:PipelineRunMonitor .
+
+cli:PipelineRunConfig a cli:Argument ;
+    cli:parameterName "pipeline_config" ;
+    cli:parameterType "Path" ;
+    cli:required true .
+
+cli:PipelineRunParallel a cli:Option ;
+    cli:parameterName "parallel" ;
+    cli:parameterType "bool" ;
+    cli:required false ;
+    cli:defaultValue "true" .
+
+cli:PipelineRunMonitor a cli:Option ;
+    cli:parameterName "monitor" ;
+    cli:parameterType "bool" ;
+    cli:required false ;
+    cli:defaultValue "true" .
+
+# Heuristics Optimization Command (Core - Performance Critical)
+cli:HeuristicsOptimizeCommand a cli:HeuristicCommand, cli:CoreCommand, cli:InstrumentedCommand, cli:MetricCommand, cli:L2Command ;
+    cli:commandName "optimize" ;
+    cli:commandGroup "heuristics" ;
+    cli:helpText "🧠 Run C-powered heuristic optimization algorithms" ;
+    cli:priority "high" ;
+    cli:coverage 65.0 ;
+    cli:usageFrequency "daily" ;
+    cli:moduleFile "heuristics_cli/heuristics_cli.py" ;
+    cli:functionName "run_optimization" ;
+    cli:architectureLevel "L2" ;
+    cli:coordinationRequired true ;
+    cli:spanName "heuristics.optimize" ;
+    cli:traceName "heuristics.optimization.execution" ;
+    cli:metricName "heuristics.optimization.performance" ;
+    cli:hasParameter cli:HeuristicsOptimizeAlgorithm, cli:HeuristicsOptimizeIterations, cli:HeuristicsOptimizeBenchmark .
+
+cli:HeuristicsOptimizeAlgorithm a cli:Argument ;
+    cli:parameterName "algorithm" ;
+    cli:parameterType "str" ;
+    cli:required true .
+
+cli:HeuristicsOptimizeIterations a cli:Option ;
+    cli:parameterName "iterations" ;
+    cli:parameterType "int" ;
+    cli:required false ;
+    cli:defaultValue "1000" .
+
+cli:HeuristicsOptimizeBenchmark a cli:Option ;
+    cli:parameterName "benchmark" ;
+    cli:parameterType "bool" ;
+    cli:required false ;
+    cli:defaultValue "true" .
+
+# Extended Command Examples (20% edge cases)
+
+# Deployment Command (Extended - Infrastructure)
+cli:DeploymentK8sCommand a cli:DeploymentCommand, cli:ExtendedCommand, cli:InstrumentedCommand, cli:L3Command ;
+    cli:commandName "k8s-deploy" ;
+    cli:commandGroup "deployment" ;
+    cli:helpText "🚀 Deploy to Kubernetes with full orchestration" ;
+    cli:priority "medium" ;
+    cli:coverage 25.0 ;
+    cli:usageFrequency "monthly" ;
+    cli:moduleFile "deploy_cli.py" ;
+    cli:functionName "deploy_to_kubernetes" ;
+    cli:architectureLevel "L3" ;
+    cli:coordinationRequired true ;
+    cli:spanName "deployment.k8s" ;
+    cli:traceName "deployment.k8s.workflow" ;
+    cli:hasParameter cli:DeploymentK8sManifest, cli:DeploymentK8sNamespace, cli:DeploymentK8sWatch .
+
+cli:DeploymentK8sManifest a cli:Argument ;
+    cli:parameterName "manifest_path" ;
+    cli:parameterType "Path" ;
+    cli:required true .
+
+cli:DeploymentK8sNamespace a cli:Option ;
+    cli:parameterName "namespace" ;
+    cli:parameterType "str" ;
+    cli:required false ;
+    cli:defaultValue "default" .
+
+cli:DeploymentK8sWatch a cli:Option ;
+    cli:parameterName "watch" ;
+    cli:parameterType "bool" ;
+    cli:required false ;
+    cli:defaultValue "false" .
+
+# System Status Command (Extended - Monitoring)
+cli:SystemStatusCommand a cli:ExtendedCommand, cli:InstrumentedCommand, cli:MetricCommand, cli:L1Command ;
+    cli:commandName "status" ;
+    cli:commandGroup "system" ;
+    cli:helpText "📊 Display comprehensive system status and health metrics" ;
+    cli:priority "low" ;
+    cli:coverage 15.0 ;
+    cli:usageFrequency "rare" ;
+    cli:moduleFile "modules/system_commands.py" ;
+    cli:functionName "show_system_status" ;
+    cli:architectureLevel "L1" ;
+    cli:coordinationRequired false ;
+    cli:spanName "system.status" ;
+    cli:traceName "system.status.check" ;
+    cli:metricName "system.status.response_time" ;
+    cli:hasParameter cli:SystemStatusDetailed, cli:SystemStatusRefresh .
+
+cli:SystemStatusDetailed a cli:Option ;
+    cli:parameterName "detailed" ;
+    cli:parameterType "bool" ;
+    cli:required false ;
+    cli:defaultValue "false" .
+
+cli:SystemStatusRefresh a cli:Option ;
+    cli:parameterName "refresh" ;
+    cli:parameterType "int" ;
+    cli:required false ;
+    cli:defaultValue "0" .
+
+# =============================================================================
+# COMMAND GROUP INSTANCES
+# =============================================================================
+
+cli:TurtleCommandGroup a cli:CommandGroup, cli:SubApplication ;
+    rdfs:label "Turtle Commands" ;
+    rdfs:comment "Commands for turtle file analysis and generation" ;
+    cli:commandGroup "turtle" .
+
+cli:SemanticCommandGroup a cli:CommandGroup, cli:SubApplication ;
+    rdfs:label "Semantic Commands" ;
+    rdfs:comment "Commands for RDF/TTL/SPARQL processing" ;
+    cli:commandGroup "semantic" .
+
+cli:BitActorCommandGroup a cli:CommandGroup, cli:SubApplication ;
+    rdfs:label "BitActor Commands" ;
+    rdfs:comment "Commands for BitActor code generation and management" ;
+    cli:commandGroup "bitactor" .
+
+cli:PipelineCommandGroup a cli:CommandGroup, cli:SubApplication ;
+    rdfs:label "Pipeline Commands" ;
+    rdfs:comment "Commands for pipeline orchestration and workflow management" ;
+    cli:commandGroup "pipeline" .
+
+cli:HeuristicsCommandGroup a cli:CommandGroup, cli:SubApplication ;
+    rdfs:label "Heuristics Commands" ;
+    rdfs:comment "Commands for heuristic optimization algorithms" ;
+    cli:commandGroup "heuristics" .
+
+cli:DeploymentCommandGroup a cli:CommandGroup, cli:SubApplication ;
+    rdfs:label "Deployment Commands" ;
+    rdfs:comment "Commands for deployment and infrastructure management" ;
+    cli:commandGroup "deployment" .
+
+cli:SystemCommandGroup a cli:CommandGroup, cli:SubApplication ;
+    rdfs:label "System Commands" ;
+    rdfs:comment "Commands for system management and monitoring" ;
+    cli:commandGroup "system" .
+
+# =============================================================================
+# OTEL WEAVER CONFIGURATION EXAMPLES
+# =============================================================================
+
+# Weaver Span Configuration
+cli:TurtleAnalysisSpan a otel:Span ;
+    otel:spanName "turtle.analyze" ;
+    otel:serviceName "unified-cli" ;
+    otel:instrumentationScope "turtle-analyzer" ;
+    weaver:generateCode true ;
+    weaver:templatePath "templates/otel_span.j2" .
+
+cli:SemanticParsingSpan a otel:Span ;
+    otel:spanName "semantic.parse" ;
+    otel:serviceName "unified-cli" ;
+    otel:instrumentationScope "semantic-processor" ;
+    weaver:generateCode true ;
+    weaver:templatePath "templates/otel_span.j2" .
+
+# Weaver Metric Configuration
+cli:BitActorGenerationMetric a otel:Metric ;
+    otel:metricName "bitactor.generation.count" ;
+    otel:metricType "counter" ;
+    otel:description "Number of BitActor components generated" ;
+    weaver:generateCode true ;
+    weaver:templatePath "templates/otel_metric.j2" .
+
+cli:PipelineExecutionMetric a otel:Metric ;
+    otel:metricName "pipeline.execution.duration" ;
+    otel:metricType "histogram" ;
+    otel:description "Duration of pipeline execution in milliseconds" ;
+    weaver:generateCode true ;
+    weaver:templatePath "templates/otel_metric.j2" .
+
+# =============================================================================
+# RELATIONSHIP MAPPINGS
+# =============================================================================
+
+# Command Group Relationships
+cli:TurtleAnalyzeCommand cli:belongsToGroup cli:TurtleCommandGroup .
+cli:SemanticParseCommand cli:belongsToGroup cli:SemanticCommandGroup .
+cli:BitActorGenerateCommand cli:belongsToGroup cli:BitActorCommandGroup .
+cli:PipelineRunCommand cli:belongsToGroup cli:PipelineCommandGroup .
+cli:HeuristicsOptimizeCommand cli:belongsToGroup cli:HeuristicsCommandGroup .
+cli:DeploymentK8sCommand cli:belongsToGroup cli:DeploymentCommandGroup .
+cli:SystemStatusCommand cli:belongsToGroup cli:SystemCommandGroup .
+
+# Dependency Relationships
+cli:PipelineRunCommand cli:dependsOn cli:SemanticParseCommand .
+cli:BitActorGenerateCommand cli:dependsOn cli:SemanticParseCommand .
+cli:DeploymentK8sCommand cli:dependsOn cli:BitActorGenerateCommand .
+
+# OTEL Generation Relationships
+cli:TurtleAnalyzeCommand cli:generatesSpan cli:TurtleAnalysisSpan .
+cli:SemanticParseCommand cli:generatesSpan cli:SemanticParsingSpan .
+cli:BitActorGenerateCommand cli:generatesMetric cli:BitActorGenerationMetric .
+cli:PipelineRunCommand cli:generatesMetric cli:PipelineExecutionMetric .

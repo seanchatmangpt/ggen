@@ -1,0 +1,221 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix aws: <http://example.com/ontology/aws/> .
+@prefix : <http://example.com/ontology/aws/> .
+
+# AWS Cloud Services Ontology
+:CloudService rdf:type owl:Class ;
+  rdfs:label "Cloud Service" ;
+  rdfs:comment "Cloud computing service offering" .
+
+:ComputeService rdf:type owl:Class ;
+  rdfs:label "Compute Service" ;
+  rdfs:comment "Compute resources" ;
+  rdfs:subClassOf :CloudService .
+
+:StorageService rdf:type owl:Class ;
+  rdfs:label "Storage Service" ;
+  rdfs:comment "Data storage services" ;
+  rdfs:subClassOf :CloudService .
+
+:DatabaseService rdf:type owl:Class ;
+  rdfs:label "Database Service" ;
+  rdfs:comment "Database management services" ;
+  rdfs:subClassOf :CloudService .
+
+:NetworkingService rdf:type owl:Class ;
+  rdfs:label "Networking Service" ;
+  rdfs:comment "Network and connectivity services" ;
+  rdfs:subClassOf :CloudService .
+
+:VirtualMachine rdf:type owl:Class ;
+  rdfs:label "Virtual Machine" ;
+  rdfs:comment "EC2 instance" ;
+  rdfs:subClassOf :ComputeService .
+
+:ContainerService rdf:type owl:Class ;
+  rdfs:label "Container Service" ;
+  rdfs:comment "Container orchestration service" ;
+  rdfs:subClassOf :ComputeService .
+
+:ServerlessCompute rdf:type owl:Class ;
+  rdfs:label "Serverless Compute" ;
+  rdfs:comment "Function-as-a-Service" ;
+  rdfs:subClassOf :ComputeService .
+
+:ObjectStorage rdf:type owl:Class ;
+  rdfs:label "Object Storage" ;
+  rdfs:comment "S3 object storage" ;
+  rdfs:subClassOf :StorageService .
+
+:BlockStorage rdf:type owl:Class ;
+  rdfs:label "Block Storage" ;
+  rdfs:comment "EBS block storage" ;
+  rdfs:subClassOf :StorageService .
+
+:LoadBalancer rdf:type owl:Class ;
+  rdfs:label "Load Balancer" ;
+  rdfs:comment "Load balancing service" ;
+  rdfs:subClassOf :NetworkingService .
+
+:VPC rdf:type owl:Class ;
+  rdfs:label "Virtual Private Cloud" ;
+  rdfs:comment "VPC for network isolation" ;
+  rdfs:subClassOf :NetworkingService .
+
+# Properties
+:serviceRegion rdf:type owl:DatatypeProperty ;
+  rdfs:label "Service Region" ;
+  rdfs:range xsd:string .
+
+:instanceType rdf:type owl:DatatypeProperty ;
+  rdfs:label "Instance Type" ;
+  rdfs:range xsd:string .
+
+:vCPUCount rdf:type owl:DatatypeProperty ;
+  rdfs:label "vCPU Count" ;
+  rdfs:range xsd:integer .
+
+:memoryGB rdf:type owl:DatatypeProperty ;
+  rdfs:label "Memory (GB)" ;
+  rdfs:range xsd:integer .
+
+:supportedRegions rdf:type owl:ObjectProperty ;
+  rdfs:label "Supported Regions" .
+
+:hasAvailabilityZones rdf:type owl:DatatypeProperty ;
+  rdfs:label "Availability Zones" ;
+  rdfs:range xsd:integer .
+
+# Compute Service Instances
+:EC2GeneralPurpose rdf:type :VirtualMachine ;
+  rdfs:label "EC2 General Purpose" ;
+  rdfs:comment "General purpose compute instances" ;
+  :instanceType "t3.medium" ;
+  :vCPUCount 2 ;
+  :memoryGB 4 .
+
+:EC2ComputeOptimized rdf:type :VirtualMachine ;
+  rdfs:label "EC2 Compute Optimized" ;
+  rdfs:comment "Compute-optimized instances" ;
+  :instanceType "c5.2xlarge" ;
+  :vCPUCount 8 ;
+  :memoryGB 16 .
+
+:EC2MemoryOptimized rdf:type :VirtualMachine ;
+  rdfs:label "EC2 Memory Optimized" ;
+  rdfs:comment "Memory-optimized instances" ;
+  :instanceType "r5.4xlarge" ;
+  :vCPUCount 16 ;
+  :memoryGB 128 .
+
+:ECSCluster rdf:type :ContainerService ;
+  rdfs:label "ECS Cluster" ;
+  rdfs:comment "Elastic Container Service cluster" ;
+  :serviceRegion "us-east-1" .
+
+:EKSCluster rdf:type :ContainerService ;
+  rdfs:label "EKS Cluster" ;
+  rdfs:comment "Elastic Kubernetes Service cluster" ;
+  :serviceRegion "us-east-1" .
+
+:LambdaFunction rdf:type :ServerlessCompute ;
+  rdfs:label "Lambda Function" ;
+  rdfs:comment "Serverless Lambda function" ;
+  :memoryGB 3 .
+
+# Storage Service Instances
+:S3Standard rdf:type :ObjectStorage ;
+  rdfs:label "S3 Standard" ;
+  rdfs:comment "Standard S3 storage class" ;
+  :serviceRegion "global" .
+
+:S3InfrequentAccess rdf:type :ObjectStorage ;
+  rdfs:label "S3 Infrequent Access" ;
+  rdfs:comment "S3 IA storage class" ;
+  :serviceRegion "global" .
+
+:S3Glacier rdf:type :ObjectStorage ;
+  rdfs:label "S3 Glacier" ;
+  rdfs:comment "S3 Glacier archive storage" ;
+  :serviceRegion "global" .
+
+:EBSVolume rdf:type :BlockStorage ;
+  rdfs:label "EBS Volume" ;
+  rdfs:comment "Elastic Block Storage volume" ;
+  :serviceRegion "us-east-1" .
+
+:EBSOptimized rdf:type :BlockStorage ;
+  rdfs:label "EBS Optimized" ;
+  rdfs:comment "EBS optimized instance" ;
+  :serviceRegion "us-east-1" .
+
+# Database Service Instances
+:RDSMySQL rdf:type :DatabaseService ;
+  rdfs:label "RDS MySQL" ;
+  rdfs:comment "RDS MySQL database" .
+
+:RDSPostgreSQL rdf:type :DatabaseService ;
+  rdfs:label "RDS PostgreSQL" ;
+  rdfs:comment "RDS PostgreSQL database" .
+
+:DynamoDB rdf:type :DatabaseService ;
+  rdfs:label "DynamoDB" ;
+  rdfs:comment "DynamoDB NoSQL database" ;
+  :serviceRegion "global" .
+
+# Networking Service Instances
+:ALB rdf:type :LoadBalancer ;
+  rdfs:label "Application Load Balancer" ;
+  rdfs:comment "ALB for Layer 7 load balancing" ;
+  :serviceRegion "us-east-1" .
+
+:NLB rdf:type :LoadBalancer ;
+  rdfs:label "Network Load Balancer" ;
+  rdfs:comment "NLB for ultra-high performance" ;
+  :serviceRegion "us-east-1" .
+
+:DefaultVPC rdf:type :VPC ;
+  rdfs:label "Default VPC" ;
+  rdfs:comment "Default VPC" ;
+  :hasAvailabilityZones 3 .
+
+:CustomVPC rdf:type :VPC ;
+  rdfs:label "Custom VPC" ;
+  rdfs:comment "Custom VPC with custom subnets" ;
+  :hasAvailabilityZones 3 .
+
+# Additional instances for realistic size
+:IAM rdf:type :CloudService ;
+  rdfs:label "AWS Identity and Access Management" ;
+  rdfs:comment "Identity and access management" .
+
+:CloudWatch rdf:type :CloudService ;
+  rdfs:label "CloudWatch" ;
+  rdfs:comment "Monitoring and logging service" .
+
+:CloudTrail rdf:type :CloudService ;
+  rdfs:label "CloudTrail" ;
+  rdfs:comment "API activity logging service" .
+
+:KMS rdf:type :CloudService ;
+  rdfs:label "Key Management Service" ;
+  rdfs:comment "Encryption key management" .
+
+:SecretsManager rdf:type :CloudService ;
+  rdfs:label "Secrets Manager" ;
+  rdfs:comment "Secret management service" .
+
+:SNS rdf:type :CloudService ;
+  rdfs:label "Simple Notification Service" ;
+  rdfs:comment "Pub/sub messaging service" .
+
+:SQS rdf:type :CloudService ;
+  rdfs:label "Simple Queue Service" ;
+  rdfs:comment "Message queuing service" .
+
+:EventBridge rdf:type :CloudService ;
+  rdfs:label "EventBridge" ;
+  rdfs:comment "Event routing service" .

@@ -1,0 +1,87 @@
+@prefix : <https://bytestar.org/ontology/byteactor/execution#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix arch: <https://bytestar.org/ontology/architecture#> .
+@prefix doctrines: <https://bytestar.org/ontology/doctrines#> .
+@prefix lgc: <https://bytestar.org/ontology/bytestar-lgc#> .
+
+<https://bytestar.org/ontology/byteactor/execution>
+    rdf:type owl:Ontology ;
+    owl:versionIRI <https://bytestar.org/ontology/byteactor/execution/v1.0> ;
+    rdfs:comment "Ontology describing the hot-path execution and kernel operations within the ByteActor realm, including performance guarantees." ;
+    owl:imports arch: ,
+                doctrines: ,
+                lgc: .
+
+#################################################################
+#    Classes
+#################################################################
+
+:HotPathExecution rdf:type owl:Class ;
+    rdfs:comment "The high-performance, low-latency execution path within ByteActor." .
+
+:KernelOperation rdf:type owl:Class ;
+    rdfs:comment "A fundamental, constant-time computational unit within ByteActor." .
+
+:PerformanceGuarantee rdf:type owl:Class ;
+    rdfs:comment "A verifiable guarantee about the performance characteristics of ByteActor." .
+
+:L1Residency rdf:type owl:Class ;
+    rdfs:comment "The property of data or code residing entirely within the L1 cache." .
+
+:O_1_Operation rdf:type owl:Class ;
+    rdfs:comment "An operation with constant time complexity." .
+
+:ZeroBranching rdf:type owl:Class ;
+    rdfs:comment "The property of code execution having no conditional branches." .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+:executesOperation rdf:type owl:ObjectProperty ;
+    rdfs:domain :HotPathExecution ;
+    rdfs:range :KernelOperation ;
+    rdfs:comment "A hot path execution performs kernel operations." .
+
+:providesGuarantee rdf:type owl:ObjectProperty ;
+    rdfs:domain arch:ByteActor ;
+    rdfs:range :PerformanceGuarantee ;
+    rdfs:comment "ByteActor provides specific performance guarantees." .
+
+:ensuresResidency rdf:type owl:ObjectProperty ;
+    rdfs:domain :HotPathExecution ;
+    rdfs:range :L1Residency ;
+    rdfs:comment "Hot path execution ensures L1 cache residency." .
+
+:hasComplexity rdf:type owl:ObjectProperty ;
+    rdfs:domain :KernelOperation ;
+    rdfs:range :O_1_Operation ;
+    rdfs:comment "A kernel operation has O(1) time complexity." .
+
+:exhibitsProperty rdf:type owl:ObjectProperty ;
+    rdfs:domain :KernelOperation ;
+    rdfs:range :ZeroBranching ;
+    rdfs:comment "A kernel operation exhibits zero branching." .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+:hasTickCount rdf:type owl:DatatypeProperty ;
+    rdfs:domain :KernelOperation ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "The number of ticks a kernel operation takes (e.g., <= 8)." .
+
+:hasLatencyTarget_ns rdf:type owl:DatatypeProperty ;
+    rdfs:domain :PerformanceGuarantee ;
+    rdfs:range xsd:float ;
+    rdfs:comment "The target latency in nanoseconds (e.g., 2.0 for 2ns)." .
+
+:hasCacheMissRate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :L1Residency ;
+    rdfs:range xsd:float ;
+    rdfs:comment "The L1 cache miss rate (e.g., 0.0 for zero miss)." .
+

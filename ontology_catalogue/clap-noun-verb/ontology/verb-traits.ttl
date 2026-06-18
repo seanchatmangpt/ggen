@@ -1,0 +1,545 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix cnv: <http://clap-noun-verb.io/ontology#> .
+@prefix vt: <http://clap-noun-verb.io/verb-traits#> .
+
+# Verb Traits Specification: VerbCommand Interface & Requirements
+# Defines the contract for verb implementations, trait bounds, and execution semantics
+
+vt: a owl:Ontology ;
+    rdfs:label "CLAP Noun-Verb Traits Specification"@en ;
+    rdfs:comment "Formal specification of the VerbCommand trait, its required implementations, trait bounds, and execution semantics"@en ;
+    dcterms:creator "Sean Chatman" ;
+    dcterms:created "2026-06-01"^^xsd:date ;
+    dcterms:license <https://opensource.org/licenses/MIT> ;
+    owl:imports cnv: ;
+    owl:versionInfo "5.6.0" .
+
+# ============================================================================
+# VERBCOMMAND TRAIT DEFINITION
+# ============================================================================
+
+vt:VerbCommandTrait a rdfs:Class ;
+    rdfs:label "VerbCommand Trait"@en ;
+    rdfs:comment "Core trait in clap_noun_verb for implementing verb handlers. All verbs must implement Send + Sync + VerbCommand."@en ;
+    rdfs:isDefinedBy vt: .
+
+vt:isRustTrait a rdf:Property ;
+    rdfs:label "is Rust trait"@en ;
+    rdfs:comment "Indicates this is a Rust language trait definition"@en ;
+    a owl:DatatypeProperty .
+
+vt:VerbCommandTrait vt:isRustTrait "true"^^xsd:boolean .
+
+# ============================================================================
+# REQUIRED TRAIT BOUNDS
+# ============================================================================
+
+vt:RequiredTraitBound a rdfs:Class ;
+    rdfs:label "Required Trait Bound"@en ;
+    rdfs:comment "A trait that every VerbCommand implementation must satisfy"@en .
+
+vt:Send a vt:RequiredTraitBound ;
+    rdfs:label "Send"@en ;
+    rdfs:comment "Rust std::marker::Send trait. Indicates safe to send across thread boundaries."@en ;
+    rdfs:seeAlso <https://doc.rust-lang.org/std/marker/trait.Send.html> .
+
+vt:Sync a vt:RequiredTraitBound ;
+    rdfs:label "Sync"@en ;
+    rdfs:comment "Rust std::marker::Sync trait. Indicates safe to share across thread boundaries."@en ;
+    rdfs:seeAlso <https://doc.rust-lang.org/std/marker/trait.Sync.html> .
+
+vt:VerbCommandTrait rdfs:comment "Trait bounds: Self: Send + Sync"@en .
+
+# ============================================================================
+# VERBCOMMAND REQUIRED METHODS
+# ============================================================================
+
+vt:MethodRequirement a rdfs:Class ;
+    rdfs:label "Method Requirement"@en ;
+    rdfs:comment "A required method that must be implemented in VerbCommand"@en .
+
+# Method: name()
+vt:name_method a vt:MethodRequirement ;
+    rdfs:label "name()"@en ;
+    rdfs:comment "Returns the CLI-safe identifier for this verb command"@en ;
+    vt:signature "&self -> &'static str"@en ;
+    vt:visibility "public"@en ;
+    vt:isRequired true ;
+    rdfs:comment "CRITICAL: Return value must be exactly the noun-verb identifier (e.g., 'status', 'create', 'delete')"@en ;
+    vt:example "fn name(&self) -> &'static str { \"status\" }"@en .
+
+vt:signature a rdf:Property ;
+    rdfs:label "method signature"@en ;
+    rdfs:comment "The Rust type signature of this method"@en ;
+    a owl:DatatypeProperty .
+
+vt:visibility a rdf:Property ;
+    rdfs:label "visibility"@en ;
+    rdfs:comment "Rust visibility modifier (public, private, crate)"@en ;
+    a owl:DatatypeProperty .
+
+vt:isRequired a rdf:Property ;
+    rdfs:label "is required"@en ;
+    rdfs:comment "Whether implementation of this method is required"@en ;
+    a owl:DatatypeProperty .
+
+vt:example a rdf:Property ;
+    rdfs:label "example"@en ;
+    rdfs:comment "Example Rust code implementing this method"@en ;
+    a owl:DatatypeProperty .
+
+# Method: about()
+vt:about_method a vt:MethodRequirement ;
+    rdfs:label "about()"@en ;
+    rdfs:comment "Returns human-readable description of the verb's purpose"@en ;
+    vt:signature "&self -> &'static str"@en ;
+    vt:visibility "public"@en ;
+    vt:isRequired true ;
+    rdfs:comment "Used in --help output to explain what this verb does"@en ;
+    vt:example "fn about(&self) -> &'static str { \"Show status of service\" }"@en .
+
+# Method: run()
+vt:run_method a vt:MethodRequirement ;
+    rdfs:label "run()"@en ;
+    rdfs:comment "Core execution method for the verb. Implements the actual business logic."@en ;
+    vt:signature "&self, args: &VerbArgs -> Result<()>"@en ;
+    vt:visibility "public"@en ;
+    vt:isRequired true ;
+    rdfs:comment "CRITICAL: Must return Result<()>. Never panic, unwrap, or expect. Always use ? operator or map_err()."@en ;
+    vt:example "fn run(&self, args: &VerbArgs) -> Result<()> { ... }"@en .
+
+# Method: build_command() - with default
+vt:build_command_method a vt:MethodRequirement ;
+    rdfs:label "build_command()"@en ;
+    rdfs:comment "Builds the clap Command tree for this verb. Has a default implementation."@en ;
+    vt:signature "&self -> Command"@en ;
+    vt:visibility "public"@en ;
+    vt:isRequired false ;
+    rdfs:comment "Default impl creates Command with name() and about(). Override to customize."@en ;
+    vt:example "fn build_command(&self) -> Command { Command::new(self.name()).about(self.about()) }"@en .
+
+# Method: additional_args() - with default
+vt:additional_args_method a vt:MethodRequirement ;
+    rdfs:label "additional_args()"@en ;
+    rdfs:comment "Returns custom CLI arguments for this verb. Has a default implementation (empty)."@en ;
+    vt:signature "&self -> Vec<Arg>"@en ;
+    vt:visibility "public"@en ;
+    vt:isRequired false ;
+    rdfs:comment "Default returns empty Vec. Override to add verb-specific --flag, --option arguments."@en ;
+    vt:example "fn additional_args(&self) -> Vec<Arg> { vec![Arg::new(\"verbose\").long(\"verbose\")] }"@en .
+
+# Register methods in trait
+vt:VerbCommandTrait vt:hasMethod vt:name_method ;
+    vt:hasMethod vt:about_method ;
+    vt:hasMethod vt:run_method ;
+    vt:hasMethod vt:build_command_method ;
+    vt:hasMethod vt:additional_args_method .
+
+vt:hasMethod a rdf:Property ;
+    rdfs:label "has method"@en ;
+    rdfs:comment "A method defined in this trait"@en ;
+    rdfs:domain rdfs:Class ;
+    rdfs:range vt:MethodRequirement ;
+    a owl:ObjectProperty .
+
+# ============================================================================
+# VERBARGS STRUCT SPECIFICATION
+# ============================================================================
+
+vt:VerbArgsStruct a rdfs:Class ;
+    rdfs:label "VerbArgs Struct"@en ;
+    rdfs:comment "Container struct passed to every verb handler. Provides parsed args, parent matches, and context."@en .
+
+vt:VerbArgsField a rdfs:Class ;
+    rdfs:label "VerbArgs Field"@en ;
+    rdfs:comment "A field in the VerbArgs struct"@en .
+
+# Field: matches
+vt:matches_field a vt:VerbArgsField ;
+    rdfs:label "matches"@en ;
+    rdfs:comment "The parsed clap ArgMatches for this verb's arguments"@en ;
+    vt:fieldType "clap::ArgMatches"@en ;
+    vt:visibility "public"@en ;
+    rdfs:comment "Use methods like get_one(), get_many(), get_flag(), get_count() to extract values"@en .
+
+vt:fieldType a rdf:Property ;
+    rdfs:label "field type"@en ;
+    rdfs:comment "Rust type of this field"@en ;
+    a owl:DatatypeProperty .
+
+# Field: parent_matches
+vt:parent_matches_field a vt:VerbArgsField ;
+    rdfs:label "parent_matches"@en ;
+    rdfs:comment "Optional parent ArgMatches for accessing global arguments (--verbose, --config, etc.)"@en ;
+    vt:fieldType "Option<clap::ArgMatches>"@en ;
+    vt:visibility "public"@en ;
+    rdfs:comment "Use VerbArgs methods like get_global(), get_global_many(), is_global_flag_set() to access"@en .
+
+# Field: context
+vt:context_field a vt:VerbArgsField ;
+    rdfs:label "context"@en ;
+    rdfs:comment "VerbContext with verb name, noun, context data, and typed extensions"@en ;
+    vt:fieldType "VerbContext"@en ;
+    vt:visibility "public"@en ;
+    rdfs:comment "Access via args.context or convenience methods like args.verb(), args.noun()"@en .
+
+vt:VerbArgsStruct vt:hasField vt:matches_field ;
+    vt:hasField vt:parent_matches_field ;
+    vt:hasField vt:context_field .
+
+vt:hasField a rdf:Property ;
+    rdfs:label "has field"@en ;
+    rdfs:comment "A field in this struct"@en ;
+    rdfs:domain rdfs:Class ;
+    rdfs:range vt:VerbArgsField ;
+    a owl:ObjectProperty .
+
+# ============================================================================
+# VERBARGS HELPER METHODS
+# ============================================================================
+
+vt:VerbArgsMethod a rdfs:Class ;
+    rdfs:label "VerbArgs Method"@en ;
+    rdfs:comment "A method provided by VerbArgs for argument extraction and query"@en .
+
+# Argument extraction methods
+vt:get_one_str a vt:VerbArgsMethod ;
+    rdfs:label "get_one_str()"@en ;
+    vt:signature "&self, name: &str -> Result<String>"@en ;
+    rdfs:comment "Get required string argument by name"@en .
+
+vt:get_one_str_opt a vt:VerbArgsMethod ;
+    rdfs:label "get_one_str_opt()"@en ;
+    vt:signature "&self, name: &str -> Option<String>"@en ;
+    rdfs:comment "Get optional string argument by name. Uses get_raw() to get original CLI string."@en .
+
+vt:get_one a vt:VerbArgsMethod ;
+    rdfs:label "get_one<T>()"@en ;
+    vt:signature "&self, name: &str -> Result<T> where T: Clone + Send + Sync + 'static"@en ;
+    rdfs:comment "Get required typed argument (u16, PathBuf, custom types)"@en .
+
+vt:get_one_opt a vt:VerbArgsMethod ;
+    rdfs:label "get_one_opt<T>()"@en ;
+    vt:signature "&self, name: &str -> Option<T> where T: Clone + Send + Sync + 'static"@en ;
+    rdfs:comment "Get optional typed argument"@en .
+
+vt:get_many a vt:VerbArgsMethod ;
+    rdfs:label "get_many<T>()"@en ;
+    vt:signature "&self, name: &str -> Result<Vec<T>> where T: Clone + Send + Sync + 'static"@en ;
+    rdfs:comment "Get required multi-value argument (must have at least one value)"@en .
+
+vt:get_many_opt a vt:VerbArgsMethod ;
+    rdfs:label "get_many_opt<T>()"@en ;
+    vt:signature "&self, name: &str -> Vec<T> where T: Clone + Send + Sync + 'static"@en ;
+    rdfs:comment "Get optional multi-value argument (returns empty vec if missing)"@en .
+
+vt:get_many_opt_str a vt:VerbArgsMethod ;
+    rdfs:label "get_many_opt_str()"@en ;
+    vt:signature "&self, name: &str -> Vec<String>"@en ;
+    rdfs:comment "Get multi-value strings using get_raw() for original CLI values"@en .
+
+vt:get_path a vt:VerbArgsMethod ;
+    rdfs:label "get_path()"@en ;
+    vt:signature "&self, name: &str -> Result<PathBuf>"@en ;
+    rdfs:comment "Convenience method for getting required PathBuf argument"@en .
+
+vt:get_path_opt a vt:VerbArgsMethod ;
+    rdfs:label "get_path_opt()"@en ;
+    vt:signature "&self, name: &str -> Option<PathBuf>"@en ;
+    rdfs:comment "Convenience method for getting optional PathBuf argument"@en .
+
+# Flag and count methods
+vt:is_flag_set a vt:VerbArgsMethod ;
+    rdfs:label "is_flag_set()"@en ;
+    vt:signature "&self, name: &str -> bool"@en ;
+    rdfs:comment "Check if a boolean flag is set (--verbose, --force)"@en .
+
+vt:get_flag_count a vt:VerbArgsMethod ;
+    rdfs:label "get_flag_count()"@en ;
+    vt:signature "&self, name: &str -> u8"@en ;
+    rdfs:comment "Get count of a repeating flag (-v, -vv, -vvv for verbosity levels)"@en .
+
+# Global argument methods
+vt:get_global a vt:VerbArgsMethod ;
+    rdfs:label "get_global<T>()"@en ;
+    vt:signature "&self, name: &str -> Option<T> where T: Clone + Send + Sync + 'static"@en ;
+    rdfs:comment "Get typed global argument from parent matches"@en .
+
+vt:get_global_str a vt:VerbArgsMethod ;
+    rdfs:label "get_global_str()"@en ;
+    vt:signature "&self, name: &str -> Option<String>"@en ;
+    rdfs:comment "Get global string argument using get_raw() for original value"@en .
+
+vt:get_global_many a vt:VerbArgsMethod ;
+    rdfs:label "get_global_many<T>()"@en ;
+    vt:signature "&self, name: &str -> Result<Vec<T>> where T: Clone + Send + Sync + 'static"@en ;
+    rdfs:comment "Get required multi-value global argument"@en .
+
+vt:get_global_many_opt a vt:VerbArgsMethod ;
+    rdfs:label "get_global_many_opt<T>()"@en ;
+    vt:signature "&self, name: &str -> Vec<T> where T: Clone + Send + Sync + 'static"@en ;
+    rdfs:comment "Get optional multi-value global argument (empty vec if missing)"@en .
+
+vt:is_global_flag_set a vt:VerbArgsMethod ;
+    rdfs:label "is_global_flag_set()"@en ;
+    vt:signature "&self, name: &str -> bool"@en ;
+    rdfs:comment "Check if a global flag is set"@en .
+
+vt:get_global_flag_count a vt:VerbArgsMethod ;
+    rdfs:label "get_global_flag_count()"@en ;
+    vt:signature "&self, name: &str -> u8"@en ;
+    rdfs:comment "Get count of global flag (verbosity levels)"@en .
+
+# Context methods
+vt:verb a vt:VerbArgsMethod ;
+    rdfs:label "verb()"@en ;
+    vt:signature "&self -> &str"@en ;
+    rdfs:comment "Get the verb name from context"@en .
+
+vt:noun a vt:VerbArgsMethod ;
+    rdfs:label "noun()"@en ;
+    vt:signature "&self -> Option<&str>"@en ;
+    rdfs:comment "Get the parent noun name from context (if available)"@en .
+
+vt:get_context a vt:VerbArgsMethod ;
+    rdfs:label "get_context()"@en ;
+    vt:signature "&self, key: &str -> Option<&String>"@en ;
+    rdfs:comment "Get context data by key from the data map"@en .
+
+vt:arg_names_refs a vt:VerbArgsMethod ;
+    rdfs:label "arg_names_refs()"@en ;
+    vt:signature "&self -> Vec<&str>"@en ;
+    rdfs:comment "Get all argument names as borrowed references (zero-copy, preferred)"@en .
+
+vt:arg_names a vt:VerbArgsMethod ;
+    rdfs:label "arg_names()"@en ;
+    vt:signature "&self -> Vec<String>"@en ;
+    vt:isDeprecated true ;
+    rdfs:comment "Get all argument names as owned Strings (DEPRECATED: use arg_names_refs())"@en .
+
+vt:VerbArgsStruct vt:hasMethod vt:get_one_str ;
+    vt:hasMethod vt:get_one_str_opt ;
+    vt:hasMethod vt:get_one ;
+    vt:hasMethod vt:get_one_opt ;
+    vt:hasMethod vt:get_many ;
+    vt:hasMethod vt:get_many_opt ;
+    vt:hasMethod vt:get_many_opt_str ;
+    vt:hasMethod vt:get_path ;
+    vt:hasMethod vt:get_path_opt ;
+    vt:hasMethod vt:is_flag_set ;
+    vt:hasMethod vt:get_flag_count ;
+    vt:hasMethod vt:get_global ;
+    vt:hasMethod vt:get_global_str ;
+    vt:hasMethod vt:get_global_many ;
+    vt:hasMethod vt:get_global_many_opt ;
+    vt:hasMethod vt:is_global_flag_set ;
+    vt:hasMethod vt:get_global_flag_count ;
+    vt:hasMethod vt:verb ;
+    vt:hasMethod vt:noun ;
+    vt:hasMethod vt:get_context ;
+    vt:hasMethod vt:arg_names_refs ;
+    vt:hasMethod vt:arg_names .
+
+vt:isDeprecated a rdf:Property ;
+    rdfs:label "is deprecated"@en ;
+    rdfs:comment "Whether this method is deprecated"@en ;
+    a owl:DatatypeProperty .
+
+# ============================================================================
+# VERBCONTEXT STRUCT
+# ============================================================================
+
+vt:VerbContextStruct a rdfs:Class ;
+    rdfs:label "VerbContext Struct"@en ;
+    rdfs:comment "Runtime context information associated with verb execution"@en .
+
+vt:VerbContextField a rdfs:Class ;
+    rdfs:label "VerbContext Field"@en ;
+    rdfs:comment "A field in the VerbContext struct"@en .
+
+vt:verbField a vt:VerbContextField ;
+    rdfs:label "verb"@en ;
+    vt:fieldType "String"@en ;
+    rdfs:comment "The verb name being executed"@en .
+
+vt:nounField a vt:VerbContextField ;
+    rdfs:label "noun"@en ;
+    vt:fieldType "Option<String>"@en ;
+    rdfs:comment "The parent noun this verb belongs to (if applicable)"@en .
+
+vt:dataField a vt:VerbContextField ;
+    rdfs:label "data"@en ;
+    vt:fieldType "HashMap<String, String>"@en ;
+    rdfs:comment "Key-value context data shared across execution"@en .
+
+vt:extensionsField a vt:VerbContextField ;
+    rdfs:label "extensions"@en ;
+    vt:fieldType "TypeMap"@en ;
+    rdfs:comment "Type-safe map for typed extension data (dependency injection)"@en .
+
+vt:VerbContextStruct vt:hasField vt:verbField ;
+    vt:hasField vt:nounField ;
+    vt:hasField vt:dataField ;
+    vt:hasField vt:extensionsField .
+
+# ============================================================================
+# TYPE MAP (DEPENDENCY INJECTION)
+# ============================================================================
+
+vt:TypeMap a rdfs:Class ;
+    rdfs:label "TypeMap"@en ;
+    rdfs:comment "Type-safe map for storing typed extension data in context. Enables dependency injection of custom types."@en .
+
+vt:TypeMapMethod a rdfs:Class ;
+    rdfs:label "TypeMap Method"@en ;
+    rdfs:comment "A method provided by TypeMap"@en .
+
+vt:insert_method a vt:TypeMapMethod ;
+    rdfs:label "insert<T>()"@en ;
+    vt:signature "pub fn insert<T: Send + Sync + 'static>(&mut self, val: T)"@en ;
+    rdfs:comment "Insert a typed value into the map"@en .
+
+vt:get_method a vt:TypeMapMethod ;
+    rdfs:label "get<T>()"@en ;
+    vt:signature "pub fn get<T: Send + Sync + 'static>(&self) -> Option<&T>"@en ;
+    rdfs:comment "Retrieve a typed value by its type"@en .
+
+vt:TypeMap vt:hasMethod vt:insert_method ;
+    vt:hasMethod vt:get_method .
+
+# ============================================================================
+# ERROR HANDLING REQUIREMENTS
+# ============================================================================
+
+vt:ErrorHandlingRequirement a rdfs:Class ;
+    rdfs:label "Error Handling Requirement"@en ;
+    rdfs:comment "Rules for error handling in verb implementations"@en .
+
+vt:NoUnwrap a vt:ErrorHandlingRequirement ;
+    rdfs:label "No unwrap()"@en ;
+    rdfs:comment "FORBIDDEN: unwrap() in production code. Use ? operator or map_err() instead."@en ;
+    rdfs:comment "Clippy lints deny unwrap_used"@en .
+
+vt:NoExpect a vt:ErrorHandlingRequirement ;
+    rdfs:label "No expect()"@en ;
+    rdfs:comment "FORBIDDEN: expect() in production code. Use ? operator or map_err() instead."@en ;
+    rdfs:comment "Clippy lints deny expect_used"@en .
+
+vt:NoPanic a vt:ErrorHandlingRequirement ;
+    rdfs:label "No panic!()"@en ;
+    rdfs:comment "FORBIDDEN: panic!() in production code. Return error instead."@en ;
+    rdfs:comment "Clippy lints deny panic"@en .
+
+vt:UseQuestionOperator a vt:ErrorHandlingRequirement ;
+    rdfs:label "Use ? operator"@en ;
+    rdfs:comment "PREFERRED: Use ? to propagate Result errors up the call stack"@en ;
+    vt:example "let value = function_returning_result()?;"@en .
+
+vt:UseMapErr a vt:ErrorHandlingRequirement ;
+    rdfs:label "Use map_err()"@en ;
+    rdfs:comment "PREFERRED: Use map_err() to transform error types"@en ;
+    vt:example ".map_err(|e| NounVerbError::argument_error(e.to_string()))?;"@en .
+
+# ============================================================================
+# SERIALIZATION REQUIREMENTS
+# ============================================================================
+
+vt:SerializationRequirement a rdfs:Class ;
+    rdfs:label "Serialization Requirement"@en ;
+    rdfs:comment "Requirements for verb return types and output serialization"@en .
+
+vt:ReturnTypeSerializable a vt:SerializationRequirement ;
+    rdfs:label "Return Type Must Be Serializable"@en ;
+    rdfs:comment "Verb return types must implement serde::Serialize for JSON/YAML output"@en .
+
+vt:ResultType a vt:SerializationRequirement ;
+    rdfs:label "Must Return Result<()>"@en ;
+    rdfs:comment "All verb run() methods must return Result<()>. Use anyhow::Result or clap_noun_verb::Result."@en .
+
+vt:NoStdoutPrint a vt:SerializationRequirement ;
+    rdfs:label "No println! in Library Code"@en ;
+    rdfs:comment "FORBIDDEN: println! in library code (clap_noun_verb module). Only allowed in src/bin/ and tests."@en ;
+    rdfs:comment "Use logging (log::info!) or return serializable data instead."@en .
+
+vt:UseLogging a vt:SerializationRequirement ;
+    rdfs:label "Use log macros"@en ;
+    rdfs:comment "PREFERRED: Use log::info!, log::warn!, log::error! for diagnostics"@en ;
+    vt:example "log::info!(\"Operation completed\");"@en .
+
+# ============================================================================
+# TRAIT IMPLEMENTATION EXAMPLE
+# ============================================================================
+
+vt:ExampleVerbImplementation a rdfs:Class ;
+    rdfs:label "Example VerbCommand Implementation"@en ;
+    rdfs:comment "Complete example of implementing the VerbCommand trait"@en ;
+    vt:example """
+struct StatusCommand;
+
+impl VerbCommand for StatusCommand {
+    fn name(&self) -> &'static str {
+        \"status\"
+    }
+
+    fn about(&self) -> &'static str {
+        \"Show service status\"
+    }
+
+    fn run(&self, args: &VerbArgs) -> Result<()> {
+        let service_name = args.get_one_str_opt(\"service\");
+        let verbose = args.is_flag_set(\"verbose\");
+
+        // Business logic
+        let status = query_service_status(service_name)?;
+
+        if verbose {
+            log::info!(\"Full status: {:?}\", status);
+        }
+
+        println!(\"{}\", serde_json::to_string(&status)?);
+        Ok(())
+    }
+
+    fn additional_args(&self) -> Vec<Arg> {
+        vec![
+            Arg::new(\"service\")
+                .long(\"service\")
+                .help(\"Service name\"),
+            Arg::new(\"verbose\")
+                .short('v')
+                .long(\"verbose\")
+                .help(\"Verbose output\"),
+        ]
+    }
+}
+"""@en .
+
+# ============================================================================
+# MACRO INTEGRATION
+# ============================================================================
+
+vt:VerbMacroIntegration a rdfs:Class ;
+    rdfs:label "Verb Macro Integration"@en ;
+    rdfs:comment "How the #[verb] proc-macro generates linkme entries for VerbCommand implementations"@en .
+
+vt:linkmeDistributedSlice a rdfs:Class ;
+    rdfs:label "linkme Distributed Slice"@en ;
+    rdfs:comment "Compile-time mechanism for collecting all VerbCommand implementations into a global array"@en ;
+    rdfs:seeAlso <https://docs.rs/linkme/latest/linkme/> .
+
+vt:MacroExpansion a rdfs:Class ;
+    rdfs:label "Macro Expansion"@en ;
+    rdfs:comment "How #[verb] expands to generate registry entries"@en ;
+    vt:example """
+// Source
+#[verb]
+fn status_handler(args: &VerbArgs) -> Result<()> { ... }
+
+// Expands to something like
+#[linkme::distributed_slice(VERB_HANDLERS)]
+static STATUS_HANDLER: Box<dyn VerbCommand> = Box::new(StatusCommand { ... });
+"""@en .

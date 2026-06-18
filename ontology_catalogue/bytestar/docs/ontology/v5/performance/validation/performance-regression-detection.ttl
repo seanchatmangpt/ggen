@@ -1,0 +1,822 @@
+@prefix : <http://bytestar.org/ontology/regression-detection#> .
+@prefix ba: <http://bytestar.org/ontology/byteactor#> .
+@prefix doctrine: <http://bytestar.org/ontology/doctrine-of-8#> .
+@prefix perf: <http://bytestar.org/ontology/performance-measurement#> .
+@prefix benchmark: <http://bytestar.org/ontology/performance-benchmark#> .
+@prefix throughput: <http://bytestar.org/ontology/throughput-latency-benchmarks#> .
+@prefix opt: <http://bytestar.org/ontology/optimization-engine#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+
+<http://bytestar.org/ontology/regression-detection> rdf:type owl:Ontology ;
+    dct:title "Performance Regression Detection System"@en ;
+    dct:description """Comprehensive performance regression detection system for
+    identifying degradation in crystal operations under Doctrine of 8. Includes
+    statistical analysis, trend detection, automated alerts, and root cause
+    analysis with machine learning capabilities."""@en ;
+    dct:creator "ByteStar Performance Analysis Team"@en ;
+    dct:created "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    owl:versionInfo "5.0.0-regression-detection"@en ;
+    owl:imports <http://bytestar.org/ontology/doctrine-of-8> ,
+                <http://bytestar.org/ontology/performance-measurement> ,
+                <http://bytestar.org/ontology/performance-benchmark> ,
+                <http://bytestar.org/ontology/throughput-latency-benchmarks> ,
+                <http://bytestar.org/ontology/optimization-engine> .
+
+#################################################################
+#    Regression Detection Core Classes
+#################################################################
+
+###  http://bytestar.org/ontology/regression-detection#RegressionDetectionSystem
+:RegressionDetectionSystem rdf:type owl:Class ;
+                          rdfs:subClassOf benchmark:RegressionDetector ;
+                          rdfs:label "Regression Detection System"@en ;
+                          rdfs:comment """Comprehensive system for detecting performance
+                          regressions across all crystal operations."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#BaselineManager
+:BaselineManager rdf:type owl:Class ;
+                rdfs:subClassOf benchmark:BaselineComparator ;
+                rdfs:label "Baseline Manager"@en ;
+                rdfs:comment """Manager maintaining performance baselines for
+                regression comparison and analysis."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#TrendAnalyzer
+:TrendAnalyzer rdf:type owl:Class ;
+              rdfs:subClassOf opt:TrendAnalyzer ;
+              rdfs:label "Performance Trend Analyzer"@en ;
+              rdfs:comment """Analyzer detecting performance trends and
+              predicting potential regression points."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#AnomalyDetector
+:AnomalyDetector rdf:type owl:Class ;
+                rdfs:subClassOf opt:AnomalyDetector ;
+                rdfs:label "Performance Anomaly Detector"@en ;
+                rdfs:comment """Detector identifying performance anomalies
+                that may indicate regressions."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#StatisticalTestEngine
+:StatisticalTestEngine rdf:type owl:Class ;
+                      rdfs:subClassOf benchmark:StatisticalAnalyzer ;
+                      rdfs:label "Statistical Test Engine"@en ;
+                      rdfs:comment """Engine performing statistical tests to
+                      validate regression significance."""@en .
+
+#################################################################
+#    Regression Types & Classification
+#################################################################
+
+###  http://bytestar.org/ontology/regression-detection#PerformanceRegression
+:PerformanceRegression rdf:type owl:Class ;
+                      rdfs:subClassOf benchmark:PerformanceRegression ;
+                      rdfs:label "Performance Regression"@en ;
+                      rdfs:comment """Detected degradation in performance compared
+                      to established baselines or historical data."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#ThroughputRegression
+:ThroughputRegression rdf:type owl:Class ;
+                     rdfs:subClassOf :PerformanceRegression ;
+                     rdfs:label "Throughput Regression"@en ;
+                     rdfs:comment """Regression in throughput performance
+                     showing decreased operation rates."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#LatencyRegression
+:LatencyRegression rdf:type owl:Class ;
+                  rdfs:subClassOf :PerformanceRegression ;
+                  rdfs:label "Latency Regression"@en ;
+                  rdfs:comment """Regression in latency performance
+                  showing increased response times."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#MemoryRegression
+:MemoryRegression rdf:type owl:Class ;
+                 rdfs:subClassOf :PerformanceRegression ;
+                 rdfs:label "Memory Regression"@en ;
+                 rdfs:comment """Regression in memory usage showing
+                 increased memory consumption."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#CpuRegression
+:CpuRegression rdf:type owl:Class ;
+              rdfs:subClassOf :PerformanceRegression ;
+              rdfs:label "CPU Regression"@en ;
+              rdfs:comment """Regression in CPU usage showing
+              increased processing requirements."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#ScalabilityRegression
+:ScalabilityRegression rdf:type owl:Class ;
+                      rdfs:subClassOf :PerformanceRegression ;
+                      rdfs:label "Scalability Regression"@en ;
+                      rdfs:comment """Regression in scalability characteristics
+                      under increased load conditions."""@en .
+
+#################################################################
+#    Baseline Management
+#################################################################
+
+###  http://bytestar.org/ontology/regression-detection#PerformanceBaseline
+:PerformanceBaseline rdf:type owl:Class ;
+                    rdfs:subClassOf benchmark:PerformanceBaseline ;
+                    rdfs:label "Enhanced Performance Baseline"@en ;
+                    rdfs:comment """Enhanced baseline with statistical
+                    characterization and confidence intervals."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#RollingBaseline
+:RollingBaseline rdf:type owl:Class ;
+                rdfs:subClassOf :PerformanceBaseline ;
+                rdfs:label "Rolling Baseline"@en ;
+                rdfs:comment """Dynamic baseline updated over time
+                with rolling window of measurements."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#StaticBaseline
+:StaticBaseline rdf:type owl:Class ;
+               rdfs:subClassOf :PerformanceBaseline ;
+               rdfs:label "Static Baseline"@en ;
+               rdfs:comment """Fixed baseline established from
+               specific reference measurements."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#AdaptiveBaseline
+:AdaptiveBaseline rdf:type owl:Class ;
+                 rdfs:subClassOf :PerformanceBaseline ;
+                 rdfs:label "Adaptive Baseline"@en ;
+                 rdfs:comment """Baseline that adapts to expected
+                 performance changes and seasonal variations."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#BaselineSnapshot
+:BaselineSnapshot rdf:type owl:Class ;
+                 rdfs:subClassOf :PerformanceBaseline ;
+                 rdfs:label "Baseline Snapshot"@en ;
+                 rdfs:comment """Point-in-time snapshot of performance
+                 characteristics for regression comparison."""@en .
+
+#################################################################
+#    Statistical Analysis Methods
+#################################################################
+
+###  http://bytestar.org/ontology/regression-detection#RegressionTest
+:RegressionTest rdf:type owl:Class ;
+               rdfs:subClassOf throughput:StatisticalAnalyzer ;
+               rdfs:label "Regression Test"@en ;
+               rdfs:comment """Statistical test for detecting
+               performance regressions."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#TwoSampleTTest
+:TwoSampleTTest rdf:type owl:Class ;
+               rdfs:subClassOf :RegressionTest ;
+               rdfs:label "Two-Sample T-Test"@en ;
+               rdfs:comment """T-test comparing current performance
+               against baseline measurements."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#MannWhitneyUTest
+:MannWhitneyUTest rdf:type owl:Class ;
+                 rdfs:subClassOf :RegressionTest ;
+                 rdfs:label "Mann-Whitney U Test"@en ;
+                 rdfs:comment """Non-parametric test for comparing
+                 performance distributions."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#KolmogorovSmirnovTest
+:KolmogorovSmirnovTest rdf:type owl:Class ;
+                      rdfs:subClassOf :RegressionTest ;
+                      rdfs:label "Kolmogorov-Smirnov Test"@en ;
+                      rdfs:comment """Test comparing cumulative distribution
+                      functions for regression detection."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#ChangePointDetection
+:ChangePointDetection rdf:type owl:Class ;
+                     rdfs:subClassOf :RegressionTest ;
+                     rdfs:label "Change Point Detection"@en ;
+                     rdfs:comment """Algorithm detecting points where
+                     performance characteristics change significantly."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#TimeSeriesAnalysis
+:TimeSeriesAnalysis rdf:type owl:Class ;
+                   rdfs:subClassOf :TrendAnalyzer ;
+                   rdfs:label "Time Series Analysis"@en ;
+                   rdfs:comment """Analysis of performance time series
+                   for trend and regression identification."""@en .
+
+#################################################################
+#    Alerting & Notification System
+#################################################################
+
+###  http://bytestar.org/ontology/regression-detection#RegressionAlert
+:RegressionAlert rdf:type owl:Class ;
+                rdfs:subClassOf benchmark:RegressionAlert ;
+                rdfs:label "Enhanced Regression Alert"@en ;
+                rdfs:comment """Enhanced alert with detailed analysis
+                and remediation recommendations."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#CriticalRegressionAlert
+:CriticalRegressionAlert rdf:type owl:Class ;
+                        rdfs:subClassOf :RegressionAlert ;
+                        rdfs:label "Critical Regression Alert"@en ;
+                        rdfs:comment """Critical alert for severe regressions
+                        requiring immediate attention."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#WarningRegressionAlert
+:WarningRegressionAlert rdf:type owl:Class ;
+                       rdfs:subClassOf :RegressionAlert ;
+                       rdfs:label "Warning Regression Alert"@en ;
+                       rdfs:comment """Warning alert for moderate regressions
+                       requiring investigation."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#PredictiveRegressionAlert
+:PredictiveRegressionAlert rdf:type owl:Class ;
+                          rdfs:subClassOf :RegressionAlert ;
+                          rdfs:label "Predictive Regression Alert"@en ;
+                          rdfs:comment """Predictive alert for potential
+                          regressions based on trend analysis."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#AlertManager
+:AlertManager rdf:type owl:Class ;
+             rdfs:subClassOf ba:SystemComponent ;
+             rdfs:label "Regression Alert Manager"@en ;
+             rdfs:comment """Manager coordinating regression alerts
+             and notification distribution."""@en .
+
+#################################################################
+#    Root Cause Analysis
+#################################################################
+
+###  http://bytestar.org/ontology/regression-detection#RootCauseAnalyzer
+:RootCauseAnalyzer rdf:type owl:Class ;
+                  rdfs:subClassOf opt:BottleneckAnalyzer ;
+                  rdfs:label "Root Cause Analyzer"@en ;
+                  rdfs:comment """Analyzer identifying root causes
+                  of performance regressions."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#CorrelationAnalyzer
+:CorrelationAnalyzer rdf:type owl:Class ;
+                    rdfs:subClassOf :RootCauseAnalyzer ;
+                    rdfs:label "Correlation Analyzer"@en ;
+                    rdfs:comment """Analyzer finding correlations between
+                    system changes and performance regressions."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#CausalityAnalyzer
+:CausalityAnalyzer rdf:type owl:Class ;
+                  rdfs:subClassOf :RootCauseAnalyzer ;
+                  rdfs:label "Causality Analyzer"@en ;
+                  rdfs:comment """Analyzer establishing causal relationships
+                  between events and regressions."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#RegressionCause
+:RegressionCause rdf:type owl:Class ;
+                rdfs:subClassOf ba:SystemEvent ;
+                rdfs:label "Regression Cause"@en ;
+                rdfs:comment """Identified cause or contributing factor
+                to a performance regression."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#CodeChange
+:CodeChange rdf:type owl:Class ;
+           rdfs:subClassOf :RegressionCause ;
+           rdfs:label "Code Change"@en ;
+           rdfs:comment """Code change that contributed to
+           performance regression."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#ConfigurationChange
+:ConfigurationChange rdf:type owl:Class ;
+                    rdfs:subClassOf :RegressionCause ;
+                    rdfs:label "Configuration Change"@en ;
+                    rdfs:comment """Configuration change that contributed
+                    to performance regression."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#EnvironmentalChange
+:EnvironmentalChange rdf:type owl:Class ;
+                    rdfs:subClassOf :RegressionCause ;
+                    rdfs:label "Environmental Change"@en ;
+                    rdfs:comment """Environmental change that contributed
+                    to performance regression."""@en .
+
+#################################################################
+#    Machine Learning Components
+#################################################################
+
+###  http://bytestar.org/ontology/regression-detection#MachineLearningDetector
+:MachineLearningDetector rdf:type owl:Class ;
+                        rdfs:subClassOf :AnomalyDetector ;
+                        rdfs:label "Machine Learning Detector"@en ;
+                        rdfs:comment """ML-powered detector for complex
+                        regression patterns and anomalies."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#NeuralNetworkDetector
+:NeuralNetworkDetector rdf:type owl:Class ;
+                      rdfs:subClassOf :MachineLearningDetector ;
+                      rdfs:label "Neural Network Detector"@en ;
+                      rdfs:comment """Neural network for detecting
+                      subtle regression patterns."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#EnsembleDetector
+:EnsembleDetector rdf:type owl:Class ;
+                 rdfs:subClassOf :MachineLearningDetector ;
+                 rdfs:label "Ensemble Detector"@en ;
+                 rdfs:comment """Ensemble of multiple ML models
+                 for robust regression detection."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#PredictiveModel
+:PredictiveModel rdf:type owl:Class ;
+                rdfs:subClassOf benchmark:PerformancePredictor ;
+                rdfs:label "Regression Predictive Model"@en ;
+                rdfs:comment """Model predicting future performance
+                and potential regression risks."""@en .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://bytestar.org/ontology/regression-detection#detectsRegression
+:detectsRegression rdf:type owl:ObjectProperty ;
+                  rdfs:domain :RegressionDetectionSystem ;
+                  rdfs:range :PerformanceRegression ;
+                  rdfs:label "detects regression"@en ;
+                  rdfs:comment "Relates system to regressions detected."@en .
+
+###  http://bytestar.org/ontology/regression-detection#maintainsBaseline
+:maintainsBaseline rdf:type owl:ObjectProperty ;
+                  rdfs:domain :BaselineManager ;
+                  rdfs:range :PerformanceBaseline ;
+                  rdfs:label "maintains baseline"@en ;
+                  rdfs:comment "Relates manager to baselines maintained."@en .
+
+###  http://bytestar.org/ontology/regression-detection#comparesAgainstBaseline
+:comparesAgainstBaseline rdf:type owl:ObjectProperty ;
+                        rdfs:domain :RegressionTest ;
+                        rdfs:range :PerformanceBaseline ;
+                        rdfs:label "compares against baseline"@en ;
+                        rdfs:comment "Relates test to baseline used for comparison."@en .
+
+###  http://bytestar.org/ontology/regression-detection#triggersAlert
+:triggersAlert rdf:type owl:ObjectProperty ;
+              rdfs:domain :PerformanceRegression ;
+              rdfs:range :RegressionAlert ;
+              rdfs:label "triggers alert"@en ;
+              rdfs:comment "Relates regression to alerts triggered."@en .
+
+###  http://bytestar.org/ontology/regression-detection#identifiesCause
+:identifiesCause rdf:type owl:ObjectProperty ;
+                rdfs:domain :RootCauseAnalyzer ;
+                rdfs:range :RegressionCause ;
+                rdfs:label "identifies cause"@en ;
+                rdfs:comment "Relates analyzer to causes identified."@en .
+
+###  http://bytestar.org/ontology/regression-detection#correlatesWith
+:correlatesWith rdf:type owl:ObjectProperty ;
+               rdfs:domain :PerformanceRegression ;
+               rdfs:range :RegressionCause ;
+               rdfs:label "correlates with"@en ;
+               rdfs:comment "Relates regression to correlated causes."@en .
+
+###  http://bytestar.org/ontology/regression-detection#appliesTest
+:appliesTest rdf:type owl:ObjectProperty ;
+            rdfs:domain :StatisticalTestEngine ;
+            rdfs:range :RegressionTest ;
+            rdfs:label "applies test"@en ;
+            rdfs:comment "Relates engine to statistical tests applied."@en .
+
+###  http://bytestar.org/ontology/regression-detection#trainsModel
+:trainsModel rdf:type owl:ObjectProperty ;
+            rdfs:domain :MachineLearningDetector ;
+            rdfs:range :PredictiveModel ;
+            rdfs:label "trains model"@en ;
+            rdfs:comment "Relates detector to models trained."@en .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+###  http://bytestar.org/ontology/regression-detection#regressionSeverity
+:regressionSeverity rdf:type owl:DatatypeProperty ,
+                             owl:FunctionalProperty ;
+                   rdfs:domain :PerformanceRegression ;
+                   rdfs:range xsd:string ;
+                   rdfs:label "regression severity"@en ;
+                   rdfs:comment "Severity level of performance regression."@en .
+
+###  http://bytestar.org/ontology/regression-detection#regressionMagnitude
+:regressionMagnitude rdf:type owl:DatatypeProperty ,
+                              owl:FunctionalProperty ;
+                    rdfs:domain :PerformanceRegression ;
+                    rdfs:range xsd:double ;
+                    rdfs:label "regression magnitude"@en ;
+                    rdfs:comment "Magnitude of regression as percentage change."@en .
+
+###  http://bytestar.org/ontology/regression-detection#detectionTimestamp
+:detectionTimestamp rdf:type owl:DatatypeProperty ,
+                             owl:FunctionalProperty ;
+                   rdfs:domain :PerformanceRegression ;
+                   rdfs:range xsd:dateTime ;
+                   rdfs:label "detection timestamp"@en ;
+                   rdfs:comment "Timestamp when regression was detected."@en .
+
+###  http://bytestar.org/ontology/regression-detection#confidenceScore
+:confidenceScore rdf:type owl:DatatypeProperty ,
+                          owl:FunctionalProperty ;
+                rdfs:domain :PerformanceRegression ;
+                rdfs:range xsd:double ;
+                rdfs:label "confidence score"@en ;
+                rdfs:comment "Confidence score for regression detection (0.0-1.0)."@en .
+
+###  http://bytestar.org/ontology/regression-detection#baselineWindow
+:baselineWindow rdf:type owl:DatatypeProperty ,
+                         owl:FunctionalProperty ;
+               rdfs:domain :RollingBaseline ;
+               rdfs:range xsd:duration ;
+               rdfs:label "baseline window"@en ;
+               rdfs:comment "Time window for rolling baseline calculation."@en .
+
+###  http://bytestar.org/ontology/regression-detection#establishmentDate
+:establishmentDate rdf:type owl:DatatypeProperty ,
+                            owl:FunctionalProperty ;
+                  rdfs:domain :StaticBaseline ;
+                  rdfs:range xsd:dateTime ;
+                  rdfs:label "establishment date"@en ;
+                  rdfs:comment "Date when static baseline was established."@en .
+
+###  http://bytestar.org/ontology/regression-detection#adaptationRate
+:adaptationRate rdf:type owl:DatatypeProperty ,
+                         owl:FunctionalProperty ;
+               rdfs:domain :AdaptiveBaseline ;
+               rdfs:range xsd:double ;
+               rdfs:label "adaptation rate"@en ;
+               rdfs:comment "Rate of adaptation for adaptive baseline (0.0-1.0)."@en .
+
+###  http://bytestar.org/ontology/regression-detection#testStatistic
+:testStatistic rdf:type owl:DatatypeProperty ,
+                        owl:FunctionalProperty ;
+              rdfs:domain :RegressionTest ;
+              rdfs:range xsd:double ;
+              rdfs:label "test statistic"@en ;
+              rdfs:comment "Calculated test statistic value."@en .
+
+###  http://bytestar.org/ontology/regression-detection#pValue
+:pValue rdf:type owl:DatatypeProperty ,
+                 owl:FunctionalProperty ;
+       rdfs:domain :RegressionTest ;
+       rdfs:range xsd:double ;
+       rdfs:label "p-value"@en ;
+       rdfs:comment "P-value from statistical test."@en .
+
+###  http://bytestar.org/ontology/regression-detection#significanceThreshold
+:significanceThreshold rdf:type owl:DatatypeProperty ,
+                                owl:FunctionalProperty ;
+                      rdfs:domain :StatisticalTestEngine ;
+                      rdfs:range xsd:double ;
+                      rdfs:label "significance threshold"@en ;
+                      rdfs:comment "Significance threshold for regression detection."@en .
+
+###  http://bytestar.org/ontology/regression-detection#alertPriority
+:alertPriority rdf:type owl:DatatypeProperty ,
+                        owl:FunctionalProperty ;
+              rdfs:domain :RegressionAlert ;
+              rdfs:range xsd:string ;
+              rdfs:label "alert priority"@en ;
+              rdfs:comment "Priority level of regression alert."@en .
+
+###  http://bytestar.org/ontology/regression-detection#alertMessage
+:alertMessage rdf:type owl:DatatypeProperty ,
+                       owl:FunctionalProperty ;
+             rdfs:domain :RegressionAlert ;
+             rdfs:range xsd:string ;
+             rdfs:label "alert message"@en ;
+             rdfs:comment "Human-readable alert message."@en .
+
+###  http://bytestar.org/ontology/regression-detection#correlationCoefficient
+:correlationCoefficient rdf:type owl:DatatypeProperty ,
+                                 owl:FunctionalProperty ;
+                       rdfs:domain :CorrelationAnalyzer ;
+                       rdfs:range xsd:double ;
+                       rdfs:label "correlation coefficient"@en ;
+                       rdfs:comment "Correlation coefficient between variables."@en .
+
+###  http://bytestar.org/ontology/regression-detection#causalityStrength
+:causalityStrength rdf:type owl:DatatypeProperty ,
+                            owl:FunctionalProperty ;
+                  rdfs:domain :CausalityAnalyzer ;
+                  rdfs:range xsd:double ;
+                  rdfs:label "causality strength"@en ;
+                  rdfs:comment "Strength of causal relationship (0.0-1.0)."@en .
+
+###  http://bytestar.org/ontology/regression-detection#modelAccuracy
+:modelAccuracy rdf:type owl:DatatypeProperty ,
+                        owl:FunctionalProperty ;
+              rdfs:domain :PredictiveModel ;
+              rdfs:range xsd:double ;
+              rdfs:label "model accuracy"@en ;
+              rdfs:comment "Accuracy of predictive model (0.0-1.0)."@en .
+
+###  http://bytestar.org/ontology/regression-detection#predictionHorizon
+:predictionHorizon rdf:type owl:DatatypeProperty ,
+                            owl:FunctionalProperty ;
+                  rdfs:domain :PredictiveModel ;
+                  rdfs:range xsd:duration ;
+                  rdfs:label "prediction horizon"@en ;
+                  rdfs:comment "Time horizon for performance predictions."@en .
+
+#################################################################
+#    SHACL Validation Shapes
+#################################################################
+
+###  http://bytestar.org/ontology/regression-detection#PerformanceRegressionShape
+:PerformanceRegressionShape rdf:type sh:NodeShape ;
+                           sh:targetClass :PerformanceRegression ;
+                           rdfs:label "Performance Regression Shape"@en ;
+                           rdfs:comment "Validates performance regression properties."@en ;
+                           sh:property [
+                               sh:path :regressionSeverity ;
+                               sh:datatype xsd:string ;
+                               sh:in ("LOW" "MEDIUM" "HIGH" "CRITICAL") ;
+                               sh:minCount 1 ;
+                               sh:maxCount 1 ;
+                               sh:message "Regression severity must be LOW, MEDIUM, HIGH, or CRITICAL."@en
+                           ] ;
+                           sh:property [
+                               sh:path :regressionMagnitude ;
+                               sh:datatype xsd:double ;
+                               sh:minExclusive 0.0 ; # Must be positive degradation
+                               sh:message "Regression magnitude must be positive."@en
+                           ] ;
+                           sh:property [
+                               sh:path :confidenceScore ;
+                               sh:datatype xsd:double ;
+                               sh:minInclusive 0.0 ;
+                               sh:maxInclusive 1.0 ;
+                               sh:minCount 1 ;
+                               sh:maxCount 1 ;
+                               sh:message "Confidence score must be between 0.0 and 1.0."@en
+                           ] .
+
+###  http://bytestar.org/ontology/regression-detection#RegressionTestShape
+:RegressionTestShape rdf:type sh:NodeShape ;
+                    sh:targetClass :RegressionTest ;
+                    rdfs:label "Regression Test Shape"@en ;
+                    rdfs:comment "Validates regression test properties."@en ;
+                    sh:property [
+                        sh:path :pValue ;
+                        sh:datatype xsd:double ;
+                        sh:minInclusive 0.0 ;
+                        sh:maxInclusive 1.0 ;
+                        sh:message "P-value must be between 0.0 and 1.0."@en
+                    ] .
+
+###  http://bytestar.org/ontology/regression-detection#BaselineManagerShape
+:BaselineManagerShape rdf:type sh:NodeShape ;
+                     sh:targetClass :BaselineManager ;
+                     rdfs:label "Baseline Manager Shape"@en ;
+                     rdfs:comment "Validates baseline manager configuration."@en ;
+                     sh:property [
+                         sh:path :maintainsBaseline ;
+                         sh:class :PerformanceBaseline ;
+                         sh:minCount 1 ;
+                         sh:message "Baseline manager must maintain at least one baseline."@en
+                     ] .
+
+###  http://bytestar.org/ontology/regression-detection#RollingBaselineShape
+:RollingBaselineShape rdf:type sh:NodeShape ;
+                     sh:targetClass :RollingBaseline ;
+                     rdfs:label "Rolling Baseline Shape"@en ;
+                     rdfs:comment "Validates rolling baseline configuration."@en ;
+                     sh:property [
+                         sh:path :baselineWindow ;
+                         sh:datatype xsd:duration ;
+                         sh:minCount 1 ;
+                         sh:maxCount 1 ;
+                         sh:message "Rolling baseline must have a baseline window."@en
+                     ] .
+
+###  http://bytestar.org/ontology/regression-detection#AdaptiveBaselineShape
+:AdaptiveBaselineShape rdf:type sh:NodeShape ;
+                      sh:targetClass :AdaptiveBaseline ;
+                      rdfs:label "Adaptive Baseline Shape"@en ;
+                      rdfs:comment "Validates adaptive baseline configuration."@en ;
+                      sh:property [
+                          sh:path :adaptationRate ;
+                          sh:datatype xsd:double ;
+                          sh:minInclusive 0.0 ;
+                          sh:maxInclusive 1.0 ;
+                          sh:minCount 1 ;
+                          sh:maxCount 1 ;
+                          sh:message "Adaptation rate must be between 0.0 and 1.0."@en
+                      ] .
+
+###  http://bytestar.org/ontology/regression-detection#StatisticalTestEngineShape
+:StatisticalTestEngineShape rdf:type sh:NodeShape ;
+                           sh:targetClass :StatisticalTestEngine ;
+                           rdfs:label "Statistical Test Engine Shape"@en ;
+                           rdfs:comment "Validates statistical test engine configuration."@en ;
+                           sh:property [
+                               sh:path :significanceThreshold ;
+                               sh:datatype xsd:double ;
+                               sh:minInclusive 0.001 ; # Minimum 0.1%
+                               sh:maxInclusive 0.1 ; # Maximum 10%
+                               sh:minCount 1 ;
+                               sh:maxCount 1 ;
+                               sh:message "Significance threshold must be between 0.001 and 0.1."@en
+                           ] .
+
+###  http://bytestar.org/ontology/regression-detection#RegressionAlertShape
+:RegressionAlertShape rdf:type sh:NodeShape ;
+                     sh:targetClass :RegressionAlert ;
+                     rdfs:label "Regression Alert Shape"@en ;
+                     rdfs:comment "Validates regression alert properties."@en ;
+                     sh:property [
+                         sh:path :alertPriority ;
+                         sh:datatype xsd:string ;
+                         sh:in ("LOW" "MEDIUM" "HIGH" "CRITICAL") ;
+                         sh:minCount 1 ;
+                         sh:maxCount 1 ;
+                         sh:message "Alert priority must be LOW, MEDIUM, HIGH, or CRITICAL."@en
+                     ] ;
+                     sh:property [
+                         sh:path :alertMessage ;
+                         sh:datatype xsd:string ;
+                         sh:minCount 1 ;
+                         sh:maxCount 1 ;
+                         sh:minLength 1 ;
+                         sh:message "Alert message must be non-empty."@en
+                     ] .
+
+###  http://bytestar.org/ontology/regression-detection#PredictiveModelShape
+:PredictiveModelShape rdf:type sh:NodeShape ;
+                     sh:targetClass :PredictiveModel ;
+                     rdfs:label "Predictive Model Shape"@en ;
+                     rdfs:comment "Validates predictive model properties."@en ;
+                     sh:property [
+                         sh:path :modelAccuracy ;
+                         sh:datatype xsd:double ;
+                         sh:minInclusive 0.5 ; # Minimum 50% accuracy
+                         sh:maxInclusive 1.0 ;
+                         sh:minCount 1 ;
+                         sh:maxCount 1 ;
+                         sh:message "Model accuracy must be between 0.5 and 1.0."@en
+                     ] .
+
+#################################################################
+#    Regression Detection Axioms
+#################################################################
+
+# Axiom: Critical regressions must trigger critical alerts
+[] rdf:type owl:Class ;
+   owl:equivalentClass [
+       rdf:type owl:Class ;
+       owl:intersectionOf (
+           :PerformanceRegression
+           [
+               rdf:type owl:Restriction ;
+               owl:onProperty :regressionSeverity ;
+               owl:hasValue "CRITICAL"
+           ]
+       )
+   ] ;
+   rdfs:subClassOf [
+       rdf:type owl:Restriction ;
+       owl:onProperty :triggersAlert ;
+       owl:someValuesFrom :CriticalRegressionAlert
+   ] .
+
+# Axiom: All regressions must be tested for statistical significance
+[] rdf:type owl:Class ;
+   owl:equivalentClass [
+       rdf:type owl:Class ;
+       owl:intersectionOf (
+           :PerformanceRegression
+           [
+               rdf:type owl:Restriction ;
+               owl:onProperty :appliesTest ;
+               owl:someValuesFrom :RegressionTest
+           ]
+       )
+   ] .
+
+# Axiom: Machine learning detectors must train predictive models
+[] rdf:type owl:Class ;
+   owl:equivalentClass [
+       rdf:type owl:Class ;
+       owl:intersectionOf (
+           :MachineLearningDetector
+           [
+               rdf:type owl:Restriction ;
+               owl:onProperty :trainsModel ;
+               owl:someValuesFrom :PredictiveModel
+           ]
+       )
+   ] .
+
+#################################################################
+#    Predefined Detection Components
+#################################################################
+
+###  http://bytestar.org/ontology/regression-detection#GlobalRegressionDetectionSystem
+:GlobalRegressionDetectionSystem rdf:type owl:NamedIndividual ,
+                                          :RegressionDetectionSystem ;
+                                rdfs:label "Global Regression Detection System"@en ;
+                                rdfs:comment """Primary regression detection system
+                                monitoring all crystal operations."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#PrimaryBaselineManager
+:PrimaryBaselineManager rdf:type owl:NamedIndividual ,
+                                 :BaselineManager ;
+                       rdfs:label "Primary Baseline Manager"@en ;
+                       rdfs:comment """Primary manager maintaining performance
+                       baselines across all operations."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#AdvancedStatisticalEngine
+:AdvancedStatisticalEngine rdf:type owl:NamedIndividual ,
+                                    :StatisticalTestEngine ;
+                          rdfs:label "Advanced Statistical Test Engine"@en ;
+                          rdfs:comment """Advanced engine performing multiple
+                          statistical tests for regression validation."""@en ;
+                          :significanceThreshold "0.05"^^xsd:double . # 5% significance
+
+###  http://bytestar.org/ontology/regression-detection#SevenDayRollingBaseline
+:SevenDayRollingBaseline rdf:type owl:NamedIndividual ,
+                                  :RollingBaseline ;
+                        rdfs:label "Seven-Day Rolling Baseline"@en ;
+                        rdfs:comment """Rolling baseline using 7-day window
+                        for short-term performance tracking."""@en ;
+                        :baselineWindow "P7D"^^xsd:duration . # 7 days
+
+###  http://bytestar.org/ontology/regression-detection#AdaptivePerformanceBaseline
+:AdaptivePerformanceBaseline rdf:type owl:NamedIndividual ,
+                                      :AdaptiveBaseline ;
+                            rdfs:label "Adaptive Performance Baseline"@en ;
+                            rdfs:comment """Adaptive baseline adjusting to expected
+                            performance variations and trends."""@en ;
+                            :adaptationRate "0.1"^^xsd:double . # 10% adaptation rate
+
+###  http://bytestar.org/ontology/regression-detection#CrystalOperationTrendAnalyzer
+:CrystalOperationTrendAnalyzer rdf:type owl:NamedIndividual ,
+                                        :TrendAnalyzer ;
+                              rdfs:label "Crystal Operation Trend Analyzer"@en ;
+                              rdfs:comment """Specialized analyzer for crystal
+                              operation performance trends."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#MultiLayerAnomalyDetector
+:MultiLayerAnomalyDetector rdf:type owl:NamedIndividual ,
+                                    :AnomalyDetector ;
+                          rdfs:label "Multi-Layer Anomaly Detector"@en ;
+                          rdfs:comment """Multi-layer detector using various
+                          algorithms for comprehensive anomaly detection."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#CriticalAlertManager
+:CriticalAlertManager rdf:type owl:NamedIndividual ,
+                               :AlertManager ;
+                     rdfs:label "Critical Alert Manager"@en ;
+                     rdfs:comment """Manager for critical regression alerts
+                     requiring immediate attention."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#IntelligentRootCauseAnalyzer
+:IntelligentRootCauseAnalyzer rdf:type owl:NamedIndividual ,
+                                       :RootCauseAnalyzer ;
+                             rdfs:label "Intelligent Root Cause Analyzer"@en ;
+                             rdfs:comment """AI-powered analyzer for identifying
+                             complex root causes of regressions."""@en .
+
+###  http://bytestar.org/ontology/regression-detection#PerformancePredictionModel
+:PerformancePredictionModel rdf:type owl:NamedIndividual ,
+                                     :PredictiveModel ;
+                           rdfs:label "Performance Prediction Model"@en ;
+                           rdfs:comment """ML model predicting future performance
+                           and regression risks."""@en ;
+                           :modelAccuracy "0.92"^^xsd:double ; # 92% accuracy
+                           :predictionHorizon "P1D"^^xsd:duration . # 1 day horizon
+
+#################################################################
+#    Example Regression Scenarios
+#################################################################
+
+# Example throughput regression
+:ExampleThroughputRegression rdf:type owl:NamedIndividual ,
+                                      :ThroughputRegression ;
+                            rdfs:label "Example Throughput Regression"@en ;
+                            :regressionSeverity "HIGH" ;
+                            :regressionMagnitude "15.0"^^xsd:double ; # 15% degradation
+                            :confidenceScore "0.95"^^xsd:double ;
+                            :detectionTimestamp "2025-08-23T12:00:00Z"^^xsd:dateTime .
+
+# Example latency regression
+:ExampleLatencyRegression rdf:type owl:NamedIndividual ,
+                                   :LatencyRegression ;
+                         rdfs:label "Example Latency Regression"@en ;
+                         :regressionSeverity "MEDIUM" ;
+                         :regressionMagnitude "8.0"^^xsd:double ; # 8% increase
+                         :confidenceScore "0.88"^^xsd:double ;
+                         :detectionTimestamp "2025-08-23T12:00:01Z"^^xsd:dateTime .
+
+# Example critical alert
+:ExampleCriticalAlert rdf:type owl:NamedIndividual ,
+                               :CriticalRegressionAlert ;
+                     rdfs:label "Example Critical Regression Alert"@en ;
+                     :alertPriority "CRITICAL" ;
+                     :alertMessage "Critical throughput regression detected: 15% degradation in crystal operations"@en ;
+                     dct:created "2025-08-23T12:00:02Z"^^xsd:dateTime .
+
+# Example statistical test
+:ExampleTTest rdf:type owl:NamedIndividual ,
+                       :TwoSampleTTest ;
+             rdfs:label "Example Two-Sample T-Test"@en ;
+             :testStatistic "3.85"^^xsd:double ;
+             :pValue "0.0001"^^xsd:double ; # Highly significant
+             dct:created "2025-08-23T12:00:03Z"^^xsd:dateTime .

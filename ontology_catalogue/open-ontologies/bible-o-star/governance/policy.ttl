@@ -1,0 +1,21 @@
+@prefix cell8: <urn:cell8:gate:> .
+@prefix bos: <https://open-ontologies.org/bible-o-star#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+bos:BibleOStarGovernancePolicy a cell8:GovernancePolicy ;
+  rdfs:label "Bible O* Governance Policy" ;
+  rdfs:comment "Operator authorization and ACL for bible-o-star package modifications" ;
+  dcterms:created "2026-06-02T00:00:00Z"^^xsd:dateTime ;
+  cell8:authorizedOperator bos:InspectionGateOperator ;
+  cell8:requiredGate bos:InspectionGate ;
+  cell8:aliveCriterion "All 13 Cell8 gates must pass before ALIVE is declared" ;
+  cell8:modificationPolicy "Modifications require Inspection Gate review and new receipt emission" ;
+  cell8:forbiddenAction "No fake gates. No proprietary namespaces. No unsupported claims." .
+
+bos:InspectionGateOperator a cell8:AuthorizedOperator, foaf:Agent ;
+  rdfs:label "Nehemiah / Inspection Gate Operator" ;
+  cell8:operatorRole "InspectionGate" ;
+  cell8:authorizedFor bos:BibleOStarGovernancePolicy .

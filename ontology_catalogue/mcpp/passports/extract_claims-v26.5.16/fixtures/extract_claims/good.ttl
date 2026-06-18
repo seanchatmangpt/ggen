@@ -1,0 +1,4 @@
+@prefix ex: <http://example.org/> .
+
+ex:claim1 a ex:Claim ; ex:text "The sky is blue." .
+ex:claim2 a ex:Claim ; ex:text "Water is wet." .

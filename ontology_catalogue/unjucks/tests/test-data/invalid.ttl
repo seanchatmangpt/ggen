@@ -1,0 +1,14 @@
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Invalid RDF - missing period at end of triple
+ex:Alice rdf:type foaf:Person 
+
+# Invalid RDF - malformed URI
+ex:Bob foaf:knows <invalid-uri-without-scheme> .
+
+# Invalid RDF - unclosed string literal
+ex:Charlie foaf:name "Unclosed string .
+
+# Valid triple for comparison
+ex:Valid rdf:type ex:Thing .

@@ -1,0 +1,419 @@
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov:   <http://www.w3.org/ns/prov#> .
+@prefix dcat:   <http://www.w3.org/ns/dcat#> .
+@prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
+@prefix schema: <https://schema.org/> .
+@prefix pi:     <https://process.intelligence/ontology/> .
+@prefix proj:   <https://process.intelligence/project/> .
+
+# Project Registry — 7 Discovered Projects with Roles and Dependencies
+# Date: 2026-06-01
+# Authority: PI Research Program
+
+# 1. PROCESS-INTELLIGENCE (PROGRAM)
+proj:PROCESS_INTELLIGENCE a owl:NamedIndividual, dcat:Dataset, pi:Project ;
+    dcterms:title "Process Intelligence" ;
+    dcterms:description "Canonical research authority for full-lifecycle process intelligence. Issues verdicts and authorizes downstream engineering" ;
+    dcterms:created "2024-01-15"^^xsd:date ;
+    dcterms:identifier "process-intelligence" ;
+    pi:role pi:PROGRAM ;
+    pi:status "ALIVE" ;
+    pi:checkpointReference "PROCESS_INTELLIGENCE_ALIVE_001" ;
+    schema:codeRepository <file:///Users/sac/process-intelligence> ;
+    schema:url "https://github.com/seanchatmangpt/process-intelligence" ;
+    dcat:theme "research", "authorization", "doctrine", "process-intelligence" ;
+    pi:outputAuthority [
+        a pi:AuthorityOutput ;
+        dcterms:title "Doctrine & Standards" ;
+        pi:doctrineFileCount 30 ;
+        pi:standardsFileCount 52 ;
+        pi:lifecycleFileCount 42 ;
+        pi:maClaimFileCount 40 ;
+    ] ;
+    pi:studiedProjects proj:WASM4PM, proj:WASM4PM_COMPAT, proj:GGEN, proj:ZOEAPP, proj:BLUE_RIVER_DAM, proj:OTEL_WEAVER ;
+    .
+
+# 2. WASM4PM (ENGINE)
+proj:WASM4PM a owl:NamedIndividual, dcat:Dataset, pi:Project ;
+    dcterms:title "wasm4pm" ;
+    dcterms:description "Deterministic, branchless process mining and conformance engine. Implements mining algorithms, conformance checking, token replay, and cryptographic receipt emission" ;
+    dcterms:created "2023-08-01"^^xsd:date ;
+    dcterms:identifier "wasm4pm" ;
+    pi:role pi:ENGINE ;
+    pi:status "ALIVE" ;
+    pi:version "26.5.29" ;
+    schema:codeRepository <file:///Users/sac/wasm4pm> ;
+    schema:url "https://github.com/seanchatmangpt/wasm4pm" ;
+    dcat:theme "mining", "conformance", "execution", "petri-nets" ;
+    pi:workspaceMembers "wasm4pm", "wasm4pm-types", "wasm4pm-algos", "wasm4pm-cli", "wasm4pm-utils", "wasm4pm-cognition", "miniml-core", "prolog8", "ocel-core", "ocpq", "pm-core" ;
+    pi:capability [
+        a pi:EngineCapability ;
+        dcterms:title "Mining Authority" ;
+        pi:capabilityName "Algorithm Signatures, Process Discovery, Cycle Lineage" ;
+    ] ;
+    pi:capability [
+        a pi:EngineCapability ;
+        dcterms:title "Conformance Authority" ;
+        pi:capabilityName "Token Replay, Soundness Verification, Fitness/Precision Calculation" ;
+    ] ;
+    pi:knownGap "GAP_001: No dependency on wasm4pm-compat in Cargo.toml. Graduation bridge declared but unimplemented" ;
+    .
+
+# 3. WASM4PM-COMPAT (COMPATIBILITY_LAYER)
+proj:WASM4PM_COMPAT a owl:NamedIndividual, dcat:Dataset, pi:Project ;
+    dcterms:title "wasm4pm-compat" ;
+    dcterms:description "Minimal, feature-capped type foundry for process-evidence type law. Defines Evidence<T, State, Witness> lattices, Admission/Refusal surfaces, graduation bridges" ;
+    dcterms:created "2023-11-20"^^xsd:date ;
+    dcterms:identifier "wasm4pm-compat" ;
+    pi:role pi:COMPATIBILITY_LAYER ;
+    pi:status "ALIVE" ;
+    schema:codeRepository "https://github.com/wasm4pm/wasm4pm-compat" ;
+    dcat:theme "type-law", "type-foundry", "evidence", "witness-lattices" ;
+    pi:coreModule "src/evidence.rs" ;
+    pi:coreModule "src/law.rs" ;
+    pi:coreModule "src/graduation.rs" ;
+    pi:feature "default: formats" ;
+    pi:feature "strict: Stricter admission/refusal surfaces" ;
+    pi:feature "ts: TypeScript law projection" ;
+    pi:feature "wasm: WASM-safe boundary projection" ;
+    pi:dependency proj:WASM4PM ;
+    .
+
+# 4. BLUE_RIVER_DAM (LIFECYCLE_AUTHORITY)
+proj:BLUE_RIVER_DAM a owl:NamedIndividual, dcat:Dataset, pi:Project ;
+    dcterms:title "Blue River Dam" ;
+    dcterms:description "Autonomic process intelligence orchestrator implementing MAPE-K feedback loop. Enforces governance rules and quality gates across six lifecycle states" ;
+    dcterms:created "2024-02-10"^^xsd:date ;
+    dcterms:identifier "blue-river-dam" ;
+    pi:role pi:LIFECYCLE_AUTHORITY ;
+    pi:status "ALIVE" ;
+    schema:codeRepository <file:///Users/sac/blue_river_dam> ;
+    dcat:theme "governance", "lifecycle", "MAPE-K", "orchestration" ;
+    pi:lifecycleState "Design", "Simulation", "Monitoring", "Repair", "Escalation", "Optimization", "Decommission" ;
+    pi:qualityGate [
+        a pi:QualityGate ;
+        dcterms:title "Structural Soundness" ;
+        pi:gateNumber 1 ;
+        pi:criterion "Petri Net 1-boundedness, unique source/sink" ;
+    ] ;
+    pi:qualityGate [
+        a pi:QualityGate ;
+        dcterms:title "Behavioral Bounds" ;
+        pi:gateNumber 2 ;
+        pi:criterion "Conformance envelope, fitness 0.85-0.95" ;
+    ] ;
+    pi:qualityGate [
+        a pi:QualityGate ;
+        dcterms:title "Conformance Admissibility" ;
+        pi:gateNumber 3 ;
+        pi:criterion "Fitness >= 0.85" ;
+    ] ;
+    .
+
+# 5. GGEN (MANUFACTURING_CELL)
+proj:GGEN a owl:NamedIndividual, dcat:Dataset, pi:Project ;
+    dcterms:title "ggen" ;
+    dcterms:description "Deterministic code generation framework treating software artifacts as projections of RDF ontologies. 5-stage pipeline with 8 canonical proof gates" ;
+    dcterms:created "2023-06-15"^^xsd:date ;
+    dcterms:identifier "ggen" ;
+    pi:role pi:MANUFACTURING_CELL ;
+    pi:status "ALIVE" ;
+    pi:version "26.5.29" ;
+    schema:codeRepository <file:///Users/sac/ggen> ;
+    schema:url "https://github.com/seanchatmangpt/ggen" ;
+    dcat:theme "code-generation", "rdf", "manufacturing", "ontology-first" ;
+    pi:pipelineStage "μ₁ Normalization: RDF canonicalization" ;
+    pi:pipelineStage "μ₂ SPARQL Extraction: CONSTRUCT queries" ;
+    pi:pipelineStage "μ₃ Template Rendering: Tera engine" ;
+    pi:pipelineStage "μ₄ Canonicalization: Output normalization" ;
+    pi:pipelineStage "μ₅ Receipt Generation: BLAKE3 proofs" ;
+    pi:proofGate "Schema validation" ;
+    pi:proofGate "Ontology consistency" ;
+    pi:proofGate "Projection soundness" ;
+    pi:proofGate "Compilation success" ;
+    pi:proofGate "Receipt chain integrity" ;
+    pi:proofGate "Ethos verification" ;
+    pi:proofGate "Observability (OTel)" ;
+    pi:proofGate "Causality (determinism)" ;
+    pi:testCoverage "87%" ;
+    .
+
+# 6. ZOEAPP (PROOF_CELL)
+proj:ZOEAPP a owl:NamedIndividual, dcat:Dataset, pi:Project ;
+    dcterms:title "zoeapp" ;
+    dcterms:description "Mobile proof cell demonstrating full-lifecycle process intelligence capability. React Native + Expo + Supabase application validating process mining and domain governance patterns" ;
+    dcterms:created "2024-01-20"^^xsd:date ;
+    dcterms:identifier "zoeapp" ;
+    pi:role pi:PROOF_CELL ;
+    pi:status "ALIVE" ;
+    schema:codeRepository <file:///Users/sac/zoeapp> ;
+    dcat:theme "proof-cell", "mobile", "validation", "domain-proof", "react-native" ;
+    pi:subsystem [
+        a pi:ProofCellSubsystem ;
+        dcterms:title "Authentication & Protected Routes" ;
+        pi:count 1 ;
+    ] ;
+    pi:subsystem [
+        a pi:ProofCellSubsystem ;
+        dcterms:title "Telemetry & Event Logging" ;
+        pi:count 1 ;
+    ] ;
+    pi:subsystem [
+        a pi:ProofCellSubsystem ;
+        dcterms:title "RDF Inference Engine" ;
+        pi:count 1 ;
+    ] ;
+    pi:subsystem [
+        a pi:ProofCellSubsystem ;
+        dcterms:title "Domain Governance (Church Ministry)" ;
+        pi:count 1 ;
+    ] ;
+    pi:subsystem [
+        a pi:ProofCellSubsystem ;
+        dcterms:title "Conformance & Replay" ;
+        pi:count 1 ;
+    ] ;
+    pi:testFixtureCount 516 ;
+    pi:testSuiteCount 268 ;
+    .
+
+# 7. OTEL-WEAVER (RESEARCH_SUBSTRATE)
+proj:OTEL_WEAVER a owl:NamedIndividual, dcat:Dataset, pi:Project ;
+    dcterms:title "otel-weaver" ;
+    dcterms:description "OpenTelemetry weaver infrastructure for standardizing telemetry semantics. Bridges raw instrumentation into process-mining-ready event logs with receipt emission" ;
+    dcterms:created "2024-03-01"^^xsd:date ;
+    dcterms:identifier "otel-weaver" ;
+    pi:role pi:RESEARCH_SUBSTRATE ;
+    pi:status "ALIVE" ;
+    schema:codeRepository <file:///Users/sac/process-intelligence/otel-weaver> ;
+    dcat:theme "telemetry", "otel", "standardization", "trace-conversion" ;
+    pi:responsibility "OTel span semantics definition (semantic conventions for process mining)" ;
+    pi:responsibility "Trace-to-event-log conversion (OTel traces → OCEL 2.0)" ;
+    pi:responsibility "Receipt chain integration (cryptographic proof of log generation)" ;
+    pi:responsibility "Comparative validation (otel-weaver output vs. PM4Py oracle)" ;
+    .
+
+# Vocabulary: Classes
+pi:Project a owl:Class ;
+    rdfs:label "Project" ;
+    skos:definition "A discovered system in the Process Intelligence ecosystem" ;
+    .
+
+pi:AuthorityOutput a owl:Class ;
+    rdfs:label "Authority Output" ;
+    skos:definition "Documentation or artifact produced by a project's authority role" ;
+    .
+
+pi:EngineCapability a owl:Class ;
+    rdfs:label "Engine Capability" ;
+    skos:definition "Algorithm or verification capability exposed by an execution engine" ;
+    .
+
+pi:QualityGate a owl:Class ;
+    rdfs:label "Quality Gate" ;
+    skos:definition "Enforcement checkpoint for lifecycle state transitions" ;
+    .
+
+pi:ProofCellSubsystem a owl:Class ;
+    rdfs:label "Proof Cell Subsystem" ;
+    skos:definition "Modular component of a proof cell demonstrating capability" ;
+    .
+
+# Vocabulary: Properties
+pi:role a owl:ObjectProperty ;
+    rdfs:label "role" ;
+    skos:definition "The role a project plays in the PI ecosystem (PROGRAM, ENGINE, etc.)" ;
+    .
+
+pi:status a owl:DatatypeProperty ;
+    rdfs:label "status" ;
+    rdfs:range xsd:string ;
+    skos:definition "Checkpoint verdict status: ALIVE, PARTIAL, or FAILED" ;
+    .
+
+pi:checkpointReference a owl:DatatypeProperty ;
+    rdfs:label "checkpoint reference" ;
+    rdfs:range xsd:string ;
+    skos:definition "ID of the checkpoint declaring this project ALIVE" ;
+    .
+
+pi:version a owl:DatatypeProperty ;
+    rdfs:label "version" ;
+    rdfs:range xsd:string ;
+    .
+
+pi:outputAuthority a owl:ObjectProperty ;
+    rdfs:label "output authority" ;
+    skos:definition "Authority documentation produced by this project" ;
+    .
+
+pi:studiedProjects a owl:ObjectProperty ;
+    rdfs:label "studied projects" ;
+    skos:definition "Downstream projects analyzed by this research program" ;
+    .
+
+pi:workspaceMembers a owl:DatatypeProperty ;
+    rdfs:label "workspace members" ;
+    rdfs:range xsd:string ;
+    skos:definition "Crates or modules within this workspace" ;
+    .
+
+pi:capability a owl:ObjectProperty ;
+    rdfs:label "capability" ;
+    skos:definition "Algorithm or verification capability" ;
+    .
+
+pi:capabilityName a owl:DatatypeProperty ;
+    rdfs:label "capability name" ;
+    rdfs:range xsd:string ;
+    .
+
+pi:knownGap a owl:DatatypeProperty ;
+    rdfs:label "known gap" ;
+    rdfs:range xsd:string ;
+    skos:definition "Documented structural gap or missing implementation" ;
+    .
+
+pi:coreModule a owl:DatatypeProperty ;
+    rdfs:label "core module" ;
+    rdfs:range xsd:string ;
+    .
+
+pi:feature a owl:DatatypeProperty ;
+    rdfs:label "feature" ;
+    rdfs:range xsd:string ;
+    skos:definition "Cargo feature or build-time configuration" ;
+    .
+
+pi:dependency a owl:ObjectProperty ;
+    rdfs:label "dependency" ;
+    skos:definition "Project dependency" ;
+    .
+
+pi:lifecycleState a owl:DatatypeProperty ;
+    rdfs:label "lifecycle state" ;
+    rdfs:range xsd:string ;
+    .
+
+pi:qualityGate a owl:ObjectProperty ;
+    rdfs:label "quality gate" ;
+    skos:definition "Proof gate or enforcement checkpoint" ;
+    .
+
+pi:gateNumber a owl:DatatypeProperty ;
+    rdfs:label "gate number" ;
+    rdfs:range xsd:integer ;
+    .
+
+pi:criterion a owl:DatatypeProperty ;
+    rdfs:label "criterion" ;
+    rdfs:range xsd:string ;
+    skos:definition "Specific constraint or measurement for gate pass/fail" ;
+    .
+
+pi:pipelineStage a owl:DatatypeProperty ;
+    rdfs:label "pipeline stage" ;
+    rdfs:range xsd:string ;
+    .
+
+pi:proofGate a owl:DatatypeProperty ;
+    rdfs:label "proof gate" ;
+    rdfs:range xsd:string ;
+    skos:definition "Canonical proof gate constraining manufacturing" ;
+    .
+
+pi:testCoverage a owl:DatatypeProperty ;
+    rdfs:label "test coverage" ;
+    rdfs:range xsd:string ;
+    .
+
+pi:subsystem a owl:ObjectProperty ;
+    rdfs:label "subsystem" ;
+    skos:definition "Modular component within a project" ;
+    .
+
+pi:count a owl:DatatypeProperty ;
+    rdfs:label "count" ;
+    rdfs:range xsd:integer ;
+    .
+
+pi:testFixtureCount a owl:DatatypeProperty ;
+    rdfs:label "test fixture count" ;
+    rdfs:range xsd:integer ;
+    .
+
+pi:testSuiteCount a owl:DatatypeProperty ;
+    rdfs:label "test suite count" ;
+    rdfs:range xsd:integer ;
+    .
+
+pi:responsibility a owl:DatatypeProperty ;
+    rdfs:label "responsibility" ;
+    rdfs:range xsd:string ;
+    skos:definition "Key responsibility or capability of this project" ;
+    .
+
+pi:doctrineFileCount a owl:DatatypeProperty ;
+    rdfs:label "doctrine file count" ;
+    rdfs:range xsd:integer ;
+    .
+
+pi:standardsFileCount a owl:DatatypeProperty ;
+    rdfs:label "standards file count" ;
+    rdfs:range xsd:integer ;
+    .
+
+pi:lifecycleFileCount a owl:DatatypeProperty ;
+    rdfs:label "lifecycle file count" ;
+    rdfs:range xsd:integer ;
+    .
+
+pi:maClaimFileCount a owl:DatatypeProperty ;
+    rdfs:label "M&A claim file count" ;
+    rdfs:range xsd:integer ;
+    .
+
+# Program Role Enum
+pi:PROGRAM a owl:NamedIndividual, pi:ProgramRole ;
+    rdfs:label "PROGRAM" ;
+    skos:definition "Research authority issuing verdicts and authorizing downstream" ;
+    .
+
+pi:ENGINE a owl:NamedIndividual, pi:ProgramRole ;
+    rdfs:label "ENGINE" ;
+    skos:definition "Execution authority implementing algorithms and conformance" ;
+    .
+
+pi:COMPATIBILITY_LAYER a owl:NamedIndividual, pi:ProgramRole ;
+    rdfs:label "COMPATIBILITY_LAYER" ;
+    skos:definition "Type foundry bridging academic law to execution" ;
+    .
+
+pi:LIFECYCLE_AUTHORITY a owl:NamedIndividual, pi:ProgramRole ;
+    rdfs:label "LIFECYCLE_AUTHORITY" ;
+    skos:definition "Governance engine enforcing MAPE-K and quality gates" ;
+    .
+
+pi:MANUFACTURING_CELL a owl:NamedIndividual, pi:ProgramRole ;
+    rdfs:label "MANUFACTURING_CELL" ;
+    skos:definition "Code generation and artifact projection from ontologies" ;
+    .
+
+pi:PROOF_CELL a owl:NamedIndividual, pi:ProgramRole ;
+    rdfs:label "PROOF_CELL" ;
+    skos:definition "Validation and reference implementation demonstrating capability" ;
+    .
+
+pi:RESEARCH_SUBSTRATE a owl:NamedIndividual, pi:ProgramRole ;
+    rdfs:label "RESEARCH_SUBSTRATE" ;
+    skos:definition "Supporting infrastructure (telemetry, tracing, conversion)" ;
+    .
+
+pi:ProgramRole a owl:Class ;
+    rdfs:label "Program Role" ;
+    skos:definition "Classification of a project's function in the PI ecosystem" ;
+    .

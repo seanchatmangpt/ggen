@@ -1,0 +1,23 @@
+# SPARQL query: extract PI algorithm anti-cheat pointer pairs.
+# Feeds algorithm-anticheat.tera to generate wasm4pm/tests/algorithm_anticheat_generated.rs.
+
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX pi:   <https://wasm4pm.dev/pi#>
+
+SELECT ?algorithm_id ?pointer_kind ?pointer_value ?pointer_locus
+       ?pointer_derivation ?decoy_reason ?module_file ?hardcode_lockable
+WHERE {
+  ?pp a pi:AlgorithmPointer ;
+      pi:forAlgorithm ?a ;
+      pi:pointerKind  ?pointer_kind ;
+      pi:pointerValue ?pointer_value ;
+      pi:pointerLocus ?pointer_locus .
+  ?a pi:algorithmId ?algorithm_id .
+  OPTIONAL { ?a  pi:modulePath        ?module_path        }
+  OPTIONAL { ?pp pi:pointerDerivation ?pointer_derivation }
+  OPTIONAL { ?pp pi:decoyReason       ?decoy_reason       }
+  OPTIONAL { ?pp pi:hardcodeLockable  ?hardcode_lockable  }
+  BIND(COALESCE(?module_path, ?algorithm_id) AS ?module_file)
+}
+ORDER BY ?algorithm_id ?pointer_kind

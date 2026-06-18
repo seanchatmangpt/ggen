@@ -1,0 +1,15 @@
+PREFIX ostar: <https://chatmangpt.com/ontologies/o-star/>
+PREFIX anom: <https://chatmangpt.com/ontologies/o-star/governance:anomaly-detection:>
+
+SELECT ?anomalyType ?affectedMotion ?anomalyScore ?detectedAt ?description
+WHERE {
+  ?anomaly a anom:GovernanceAnomaly .
+  ?anomaly anom:anomalyType ?anomalyType .
+  ?anomaly anom:affectedMotion ?affectedMotion .
+  ?anomaly anom:anomalyScore ?anomalyScore .
+  ?anomaly prov:generatedAtTime ?detectedAt .
+  ?anomaly anom:description ?description .
+
+  FILTER(?anomalyScore > 0.7)  # High-confidence anomalies only
+}
+ORDER BY DESC(?anomalyScore)

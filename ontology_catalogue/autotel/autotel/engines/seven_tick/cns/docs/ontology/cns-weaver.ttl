@@ -1,0 +1,517 @@
+@prefix cns: <https://schema.chatman.ai/cns#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix weaver: <https://schema.chatman.ai/weaver#> .
+@prefix perf: <https://schema.chatman.ai/performance#> .
+@prefix test: <https://schema.chatman.ai/testing#> .
+
+#################################################################
+# CNS Weaver Ontology
+# Focus: Code generation, templates, and weaver pipeline
+#################################################################
+
+# ============================================================================
+# WEAVER CLASSES
+# ============================================================================
+
+weaver:CodeGenerator a rdfs:Class ;
+    rdfs:label "Code Generator" ;
+    rdfs:comment "A code generation component" ;
+    rdfs:subClassOf owl:Thing .
+
+weaver:Template a rdfs:Class ;
+    rdfs:label "Template" ;
+    rdfs:comment "A code generation template" ;
+    rdfs:subClassOf owl:Thing .
+
+weaver:GenerationPipeline a rdfs:Class ;
+    rdfs:label "Generation Pipeline" ;
+    rdfs:comment "A code generation pipeline" ;
+    rdfs:subClassOf owl:Thing .
+
+weaver:GeneratedCode a rdfs:Class ;
+    rdfs:label "Generated Code" ;
+    rdfs:comment "Generated code artifact" ;
+    rdfs:subClassOf owl:Thing .
+
+weaver:SpanExtractor a rdfs:Class ;
+    rdfs:label "Span Extractor" ;
+    rdfs:comment "A component that extracts spans from ontology" ;
+    rdfs:subClassOf owl:Thing .
+
+weaver:Instrumentation a rdfs:Class ;
+    rdfs:label "Instrumentation" ;
+    rdfs:comment "Generated instrumentation code" ;
+    rdfs:subClassOf weaver:GeneratedCode .
+
+# ============================================================================
+# CODE GENERATORS
+# ============================================================================
+
+weaver:CNSWeaver a weaver:CodeGenerator ;
+    rdfs:label "CNS Weaver" ;
+    rdfs:comment "Main code generation system for CNS" ;
+    weaver:generates weaver:OpenTelemetryCode ;
+    weaver:generates weaver:InstrumentationCode ;
+    weaver:usesTemplate weaver:OTELHeaderTemplate ;
+    weaver:usesTemplate weaver:OTELInjectTemplate ;
+    weaver:cycleBudget 1000 ;
+    weaver:priority "high" .
+
+weaver:SpanExtractor a weaver:CodeGenerator ;
+    rdfs:label "Span Extractor" ;
+    rdfs:comment "Extracts spans from TTL ontology" ;
+    weaver:generates weaver:JSONOutput ;
+    weaver:inputFormat "TTL" ;
+    weaver:outputFormat "JSON" ;
+    weaver:cycleBudget 500 ;
+    weaver:priority "medium" .
+
+# ============================================================================
+# TEMPLATES
+# ============================================================================
+
+weaver:OTELHeaderTemplate a weaver:Template ;
+    rdfs:label "OpenTelemetry Header Template" ;
+    rdfs:comment "Template for OpenTelemetry header generation" ;
+    weaver:templateFile "templates/otel_header.h.j2" ;
+    weaver:outputFile "src/cns_otel.h" ;
+    weaver:templateType "header" ;
+    weaver:language "C" ;
+    weaver:framework "OpenTelemetry" .
+
+weaver:OTELInjectTemplate a weaver:Template ;
+    rdfs:label "OpenTelemetry Inject Template" ;
+    rdfs:comment "Template for OpenTelemetry instrumentation injection" ;
+    weaver:templateFile "templates/otel_inject.c.j2" ;
+    weaver:outputFile "src/cns_otel_inject.c" ;
+    weaver:templateType "implementation" ;
+    weaver:language "C" ;
+    weaver:framework "OpenTelemetry" .
+
+# ============================================================================
+# GENERATION PIPELINES
+# ============================================================================
+
+weaver:WeaverPipeline a weaver:GenerationPipeline ;
+    rdfs:label "Weaver Pipeline" ;
+    rdfs:comment "Complete weaver code generation pipeline" ;
+    weaver:step1 weaver:SpanExtraction ;
+    weaver:step2 weaver:CodeGeneration ;
+    weaver:step3 weaver:Validation ;
+    weaver:cycleBudget 5000 ;
+    weaver:priority "critical" .
+
+weaver:SpanExtraction a weaver:GenerationPipeline ;
+    rdfs:label "Span Extraction Pipeline" ;
+    rdfs:comment "Pipeline for extracting spans from TTL" ;
+    weaver:input "docs/ontology/cns-core.ttl" ;
+    weaver:output "build/cns_spans.json" ;
+    weaver:tool "extract_spans.py" ;
+    weaver:cycleBudget 1000 ;
+    weaver:priority "high" .
+
+weaver:CodeGeneration a weaver:GenerationPipeline ;
+    rdfs:label "Code Generation Pipeline" ;
+    rdfs:comment "Pipeline for generating OpenTelemetry code" ;
+    weaver:input "build/cns_spans.json" ;
+    weaver:output "src/cns_otel.h" ;
+    weaver:output "src/cns_otel_inject.c" ;
+    weaver:tool "weaver_simple.py" ;
+    weaver:cycleBudget 3000 ;
+    weaver:priority "high" .
+
+weaver:Validation a weaver:GenerationPipeline ;
+    rdfs:label "Validation Pipeline" ;
+    rdfs:comment "Pipeline for validating generated code" ;
+    weaver:input "src/cns_otel.h" ;
+    weaver:input "src/cns_otel_inject.c" ;
+    weaver:output "validation_report.txt" ;
+    weaver:tool "validate_weaver.py" ;
+    weaver:cycleBudget 1000 ;
+    weaver:priority "medium" .
+
+# ============================================================================
+# GENERATED CODE
+# ============================================================================
+
+weaver:OpenTelemetryCode a weaver:GeneratedCode ;
+    rdfs:label "OpenTelemetry Code" ;
+    rdfs:comment "Generated OpenTelemetry instrumentation code" ;
+    weaver:codeType "instrumentation" ;
+    weaver:language "C" ;
+    weaver:framework "OpenTelemetry" ;
+    weaver:features weaver:SpanManagement ;
+    weaver:features weaver:PerformanceTracking ;
+    weaver:features weaver:SixSigmaIntegration ;
+    weaver:features weaver:PatternSupport .
+
+weaver:InstrumentationCode a weaver:GeneratedCode ;
+    rdfs:label "Instrumentation Code" ;
+    rdfs:comment "Generated instrumentation code" ;
+    weaver:codeType "instrumentation" ;
+    weaver:language "C" ;
+    weaver:framework "OpenTelemetry" ;
+    weaver:features weaver:FunctionWrappers ;
+    weaver:features weaver:PerformanceMonitoring ;
+    weaver:features weaver:GatekeeperIntegration .
+
+# ============================================================================
+# GENERATED FEATURES
+# ============================================================================
+
+weaver:SpanManagement a weaver:Instrumentation ;
+    rdfs:label "Span Management" ;
+    rdfs:comment "Automatic span creation and management" ;
+    weaver:featureType "span" ;
+    weaver:cycleCost 10 ;
+    weaver:usage "Automatic span generation" .
+
+weaver:PerformanceTracking a weaver:Instrumentation ;
+    rdfs:label "Performance Tracking" ;
+    rdfs:comment "Built-in cycle counting and violation detection" ;
+    weaver:featureType "performance" ;
+    weaver:cycleCost 20 ;
+    weaver:usage "Performance monitoring" .
+
+weaver:SixSigmaIntegration a weaver:Instrumentation ;
+    rdfs:label "Six Sigma Integration" ;
+    rdfs:comment "Automatic sigma calculation and ppm tracking" ;
+    weaver:featureType "quality" ;
+    weaver:cycleCost 50 ;
+    weaver:usage "Quality assurance" .
+
+weaver:PatternSupport a weaver:Instrumentation ;
+    rdfs:label "Pattern Support" ;
+    rdfs:comment "Macro definitions for design patterns" ;
+    weaver:featureType "pattern" ;
+    weaver:cycleCost 5 ;
+    weaver:usage "Pattern implementation" .
+
+weaver:FunctionWrappers a weaver:Instrumentation ;
+    rdfs:label "Function Wrappers" ;
+    rdfs:comment "Instrumented function wrappers" ;
+    weaver:featureType "wrapper" ;
+    weaver:cycleCost 15 ;
+    weaver:usage "Function instrumentation" .
+
+weaver:PerformanceMonitoring a weaver:Instrumentation ;
+    rdfs:label "Performance Monitoring" ;
+    rdfs:comment "Performance monitoring and statistics" ;
+    weaver:featureType "monitoring" ;
+    weaver:cycleCost 30 ;
+    weaver:usage "Performance analysis" .
+
+weaver:GatekeeperIntegration a weaver:Instrumentation ;
+    rdfs:label "Gatekeeper Integration" ;
+    rdfs:comment "Integration with gatekeeper validation" ;
+    weaver:featureType "integration" ;
+    weaver:cycleCost 25 ;
+    weaver:usage "Quality validation" .
+
+# ============================================================================
+# WEAVER PROPERTIES
+# ============================================================================
+
+weaver:generates a rdf:Property ;
+    rdfs:label "generates" ;
+    rdfs:comment "Links a generator to code it generates" ;
+    rdfs:domain weaver:CodeGenerator ;
+    rdfs:range weaver:GeneratedCode .
+
+weaver:usesTemplate a rdf:Property ;
+    rdfs:label "uses template" ;
+    rdfs:comment "Links a generator to templates it uses" ;
+    rdfs:domain weaver:CodeGenerator ;
+    rdfs:range weaver:Template .
+
+weaver:cycleBudget a rdf:Property ;
+    rdfs:label "cycle budget" ;
+    rdfs:comment "Cycle budget for generation process" ;
+    rdfs:domain weaver:CodeGenerator ;
+    rdfs:range xsd:integer .
+
+weaver:priority a rdf:Property ;
+    rdfs:label "priority" ;
+    rdfs:comment "Priority of generation process" ;
+    rdfs:domain weaver:CodeGenerator ;
+    rdfs:range rdfs:Literal .
+
+weaver:templateFile a rdf:Property ;
+    rdfs:label "template file" ;
+    rdfs:comment "Template file path" ;
+    rdfs:domain weaver:Template ;
+    rdfs:range rdfs:Literal .
+
+weaver:outputFile a rdf:Property ;
+    rdfs:label "output file" ;
+    rdfs:comment "Output file path" ;
+    rdfs:domain weaver:Template ;
+    rdfs:range rdfs:Literal .
+
+weaver:templateType a rdf:Property ;
+    rdfs:label "template type" ;
+    rdfs:comment "Type of template" ;
+    rdfs:domain weaver:Template ;
+    rdfs:range rdfs:Literal .
+
+weaver:language a rdf:Property ;
+    rdfs:label "language" ;
+    rdfs:comment "Programming language" ;
+    rdfs:domain weaver:Template ;
+    rdfs:range rdfs:Literal .
+
+weaver:framework a rdf:Property ;
+    rdfs:label "framework" ;
+    rdfs:comment "Framework used" ;
+    rdfs:domain weaver:Template ;
+    rdfs:range rdfs:Literal .
+
+weaver:step1 a rdf:Property ;
+    rdfs:label "step 1" ;
+    rdfs:comment "First step in pipeline" ;
+    rdfs:domain weaver:GenerationPipeline ;
+    rdfs:range weaver:GenerationPipeline .
+
+weaver:step2 a rdf:Property ;
+    rdfs:label "step 2" ;
+    rdfs:comment "Second step in pipeline" ;
+    rdfs:domain weaver:GenerationPipeline ;
+    rdfs:range weaver:GenerationPipeline .
+
+weaver:step3 a rdf:Property ;
+    rdfs:label "step 3" ;
+    rdfs:comment "Third step in pipeline" ;
+    rdfs:domain weaver:GenerationPipeline ;
+    rdfs:range weaver:GenerationPipeline .
+
+weaver:input a rdf:Property ;
+    rdfs:label "input" ;
+    rdfs:comment "Input file for pipeline" ;
+    rdfs:domain weaver:GenerationPipeline ;
+    rdfs:range rdfs:Literal .
+
+weaver:output a rdf:Property ;
+    rdfs:label "output" ;
+    rdfs:comment "Output file from pipeline" ;
+    rdfs:domain weaver:GenerationPipeline ;
+    rdfs:range rdfs:Literal .
+
+weaver:tool a rdf:Property ;
+    rdfs:label "tool" ;
+    rdfs:comment "Tool used in pipeline" ;
+    rdfs:domain weaver:GenerationPipeline ;
+    rdfs:range rdfs:Literal .
+
+weaver:codeType a rdf:Property ;
+    rdfs:label "code type" ;
+    rdfs:comment "Type of generated code" ;
+    rdfs:domain weaver:GeneratedCode ;
+    rdfs:range rdfs:Literal .
+
+weaver:features a rdf:Property ;
+    rdfs:label "features" ;
+    rdfs:comment "Features of generated code" ;
+    rdfs:domain weaver:GeneratedCode ;
+    rdfs:range weaver:Instrumentation .
+
+weaver:featureType a rdf:Property ;
+    rdfs:label "feature type" ;
+    rdfs:comment "Type of instrumentation feature" ;
+    rdfs:domain weaver:Instrumentation ;
+    rdfs:range rdfs:Literal .
+
+weaver:cycleCost a rdf:Property ;
+    rdfs:label "cycle cost" ;
+    rdfs:comment "Cycle cost of feature" ;
+    rdfs:domain weaver:Instrumentation ;
+    rdfs:range xsd:integer .
+
+weaver:usage a rdf:Property ;
+    rdfs:label "usage" ;
+    rdfs:comment "Usage description of feature" ;
+    rdfs:domain weaver:Instrumentation ;
+    rdfs:range rdfs:Literal .
+
+weaver:inputFormat a rdf:Property ;
+    rdfs:label "input format" ;
+    rdfs:comment "Input format for generator" ;
+    rdfs:domain weaver:CodeGenerator ;
+    rdfs:range rdfs:Literal .
+
+weaver:outputFormat a rdf:Property ;
+    rdfs:label "output format" ;
+    rdfs:comment "Output format for generator" ;
+    rdfs:domain weaver:CodeGenerator ;
+    rdfs:range rdfs:Literal .
+
+# ============================================================================
+# WEAVER RELATIONSHIPS
+# ============================================================================
+
+cns:SPARQLEngine weaver:instrumentedBy weaver:OpenTelemetryCode ;
+    weaver:hasSpan weaver:spqlAskSpan ;
+    weaver:hasSpan weaver:spqlSelectSpan ;
+    weaver:hasSpan weaver:spqlAddSpan .
+
+cns:SHACLEngine weaver:instrumentedBy weaver:OpenTelemetryCode ;
+    weaver:hasSpan weaver:shaclValidateSpan ;
+    weaver:hasSpan weaver:shaclLoadShapeSpan .
+
+cns:CJinjaEngine weaver:instrumentedBy weaver:OpenTelemetryCode ;
+    weaver:hasSpan weaver:jinjaExecSpan ;
+    weaver:hasSpan weaver:jinjaCompileSpan .
+
+cns:TelemetryEngine weaver:instrumentedBy weaver:OpenTelemetryCode ;
+    weaver:hasSpan weaver:telemetrySpan ;
+    weaver:hasSpan weaver:performanceSpan .
+
+# ============================================================================
+# SHACL SHAPES FOR WEAVER VALIDATION
+# ============================================================================
+
+weaver:CodeGeneratorShape a sh:NodeShape ;
+    sh:targetClass weaver:CodeGenerator ;
+    sh:property [
+        sh:path weaver:cycleBudget ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:message "Every code generator must have a cycle budget" ;
+    ] ;
+    sh:property [
+        sh:path weaver:priority ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every code generator must have a priority" ;
+    ] ;
+    sh:property [
+        sh:path weaver:generates ;
+        sh:minCount 1 ;
+        sh:message "Every code generator must generate at least one type of code" ;
+    ] .
+
+weaver:TemplateShape a sh:NodeShape ;
+    sh:targetClass weaver:Template ;
+    sh:property [
+        sh:path weaver:templateFile ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every template must have a template file" ;
+    ] ;
+    sh:property [
+        sh:path weaver:outputFile ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every template must have an output file" ;
+    ] ;
+    sh:property [
+        sh:path weaver:templateType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every template must have a template type" ;
+    ] ;
+    sh:property [
+        sh:path weaver:language ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every template must have a language" ;
+    ] .
+
+weaver:GenerationPipelineShape a sh:NodeShape ;
+    sh:targetClass weaver:GenerationPipeline ;
+    sh:property [
+        sh:path weaver:cycleBudget ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:message "Every generation pipeline must have a cycle budget" ;
+    ] ;
+    sh:property [
+        sh:path weaver:priority ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every generation pipeline must have a priority" ;
+    ] ;
+    sh:property [
+        sh:path weaver:input ;
+        sh:minCount 1 ;
+        sh:message "Every generation pipeline must have at least one input" ;
+    ] ;
+    sh:property [
+        sh:path weaver:output ;
+        sh:minCount 1 ;
+        sh:message "Every generation pipeline must have at least one output" ;
+    ] ;
+    sh:property [
+        sh:path weaver:tool ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every generation pipeline must have a tool" ;
+    ] .
+
+weaver:GeneratedCodeShape a sh:NodeShape ;
+    sh:targetClass weaver:GeneratedCode ;
+    sh:property [
+        sh:path weaver:codeType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every generated code must have a code type" ;
+    ] ;
+    sh:property [
+        sh:path weaver:language ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every generated code must have a language" ;
+    ] ;
+    sh:property [
+        sh:path weaver:framework ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every generated code must have a framework" ;
+    ] ;
+    sh:property [
+        sh:path weaver:features ;
+        sh:minCount 1 ;
+        sh:message "Every generated code must have at least one feature" ;
+    ] .
+
+weaver:InstrumentationShape a sh:NodeShape ;
+    sh:targetClass weaver:Instrumentation ;
+    sh:property [
+        sh:path weaver:featureType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every instrumentation must have a feature type" ;
+    ] ;
+    sh:property [
+        sh:path weaver:cycleCost ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:message "Every instrumentation must have a cycle cost" ;
+    ] ;
+    sh:property [
+        sh:path weaver:usage ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every instrumentation must have a usage description" ;
+    ] . 

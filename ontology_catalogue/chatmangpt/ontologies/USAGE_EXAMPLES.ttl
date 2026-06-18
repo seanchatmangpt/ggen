@@ -1,0 +1,382 @@
+@prefix : <https://ontology.chatmangpt.com/process/examples/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix chatman: <https://ontology.chatmangpt.com/core#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# USAGE EXAMPLES FOR CHATMANGPT PROCESS ONTOLOGY
+# ============================================================================
+# These examples demonstrate practical usage of the ontology in
+# ChatmanGPT systems (OSA, Canopy, BusinessOS, pm4py-rust).
+# ============================================================================
+
+# ============================================================================
+# EXAMPLE 1: Sound Process (Order Processing)
+# ============================================================================
+# A well-formed, deadlock-free process with formal proof.
+
+:order_processing a chatman:SoundProcess ;
+  rdfs:label "Order Processing Workflow"@en ;
+  rdfs:comment "End-to-end order processing with payment and fulfillment."@en ;
+  chatman:hasNoDeadTransitions true ;
+  chatman:hasNoLiveLocks true ;
+  chatman:hasProperCompletion true ;
+  chatman:isSound true ;
+  chatman:deadlockFreeProof :order_deadlock_proof ;
+  chatman:livenessProof :order_liveness_proof ;
+  chatman:boundednessProof :order_boundedness_proof ;
+  chatman:hasMaxDuration [ a time:DurationDescription ;
+    time:hours 24 ] .
+
+:order_deadlock_proof a chatman:FormalProof ;
+  rdfs:label "Deadlock Freedom Proof for Order Processing"@en ;
+  rdfs:comment "Petri net model verified with UPPAAL showing no circular wait conditions."@en ;
+  chatman:proofMethod "UPPAAL model checker" ;
+  chatman:proofDate "2026-03-25"^^xsd:date ;
+  chatman:proofArtifact "order_processing.xml" .
+
+:order_liveness_proof a chatman:FormalProof ;
+  rdfs:label "Liveness Proof for Order Processing"@en ;
+  rdfs:comment "All actions eventually complete: no infinite loops without escape."@en ;
+  chatman:proofMethod "Bounded loop analysis" ;
+  chatman:maxIterations 5 .
+
+:order_boundedness_proof a chatman:FormalProof ;
+  rdfs:label "Boundedness Proof for Order Processing"@en ;
+  rdfs:comment "Queue depths and memory usage remain bounded under all conditions."@en ;
+  chatman:proofMethod "Resource allocation analysis" ;
+  chatman:maxQueueDepth 1000 ;
+  chatman:maxMemoryMb 512 .
+
+# ============================================================================
+# EXAMPLE 2: Process Using YAWL Patterns
+# ============================================================================
+# Order processing uses Parallel Split (WCP-2) and Synchronization (WCP-3).
+
+:order_workflow a chatman:Process ;
+  rdfs:label "Order Workflow Process"@en ;
+  rdfs:comment "Multi-step order handling with parallel payment and inventory check."@en ;
+  chatman:composedOf :task_validate_order, :task_payment, :task_inventory_check, :task_fulfillment ;
+  chatman:parallelComposition :task_payment, :task_inventory_check ;
+  chatman:sequentialComposition :task_fulfillment .
+
+# Parallel Split (WCP-2): Validation splits into payment and inventory check
+:order_workflow_implements_wcp2 a rdf:Statement ;
+  rdf:subject :order_workflow ;
+  rdf:predicate rdfs:label ;
+  rdf:object "Uses WCP-2: Parallel Split"@en ;
+  chatman:refersToPattern :wcp-2 .
+
+# Synchronization (WCP-3): Wait for both payment and inventory before fulfillment
+:order_workflow_implements_wcp3 a rdf:Statement ;
+  rdf:subject :order_workflow ;
+  rdf:predicate rdfs:label ;
+  rdf:object "Uses WCP-3: Synchronization"@en ;
+  chatman:refersToPattern :wcp-3 .
+
+# Tasks in the workflow
+:task_validate_order a chatman:AtomicTask ;
+  rdfs:label "Validate Order"@en ;
+  chatman:hasTaskType "Service" ;
+  chatman:isMultiInstance false ;
+  chatman:hasMaxDuration [ a time:DurationDescription ; time:minutes 2 ] .
+
+:task_payment a chatman:AtomicTask ;
+  rdfs:label "Process Payment"@en ;
+  chatman:hasTaskType "Service" ;
+  chatman:hasMaxDuration [ a time:DurationDescription ; time:minutes 5 ] ;
+  chatman:hasResourceConstraint [
+    a chatman:ResourceConstraint ;
+    chatman:budgetConstraint [
+      a chatman:OperationBudget ;
+      chatman:timeMs 5000 ;
+      chatman:cpuPercent 30 ] ] .
+
+:task_inventory_check a chatman:AtomicTask ;
+  rdfs:label "Check Inventory"@en ;
+  chatman:hasTaskType "Service" ;
+  chatman:hasMaxDuration [ a time:DurationDescription ; time:minutes 3 ] .
+
+:task_fulfillment a chatman:CompositeTask ;
+  rdfs:label "Fulfill Order"@en ;
+  chatman:hasTaskType "Subprocess" ;
+  chatman:composedOf :task_pack, :task_ship, :task_notify ;
+  chatman:hasMaxDuration [ a time:DurationDescription ; time:days 1 ] .
+
+:task_pack a chatman:AtomicTask ;
+  rdfs:label "Pack Items"@en ;
+  chatman:hasTaskType "User" .
+
+:task_ship a chatman:AtomicTask ;
+  rdfs:label "Ship Package"@en ;
+  chatman:hasTaskType "Service" .
+
+:task_notify a chatman:AtomicTask ;
+  rdfs:label "Notify Customer"@en ;
+  chatman:hasTaskType "Service" .
+
+# ============================================================================
+# EXAMPLE 3: Process with Temporal Constraints and SLA
+# ============================================================================
+# Invoice processing with deadline and availability SLA.
+
+:invoice_process a chatman:Process ;
+  rdfs:label "Invoice Processing"@en ;
+  chatman:hasMaxDuration [ a time:DurationDescription ; time:hours 4 ] ;
+  chatman:hasDeadline "2026-03-31T17:00:00Z"^^xsd:dateTime ;
+  chatman:hasMinDuration [ a time:DurationDescription ; time:minutes 30 ] ;
+  chatman:hasSLA :invoice_sla ;
+  chatman:composedOf :task_extract_invoice, :task_validate_invoice, :task_post_journal ;
+  chatman:sequentialComposition :task_post_journal .
+
+:invoice_sla a chatman:ServiceLevelAgreement ;
+  rdfs:label "Invoice Processing SLA"@en ;
+  rdfs:comment "99.9% uptime, 2-minute response time target."@en ;
+  chatman:targetResponseTime [ a time:DurationDescription ; time:minutes 2 ] ;
+  chatman:targetAvailability 0.999 ;
+  chatman:penaltyPercent 0.5 .
+
+:task_extract_invoice a chatman:AtomicTask ;
+  rdfs:label "Extract Invoice Data"@en ;
+  chatman:hasMaxDuration [ a time:DurationDescription ; time:minutes 1 ] .
+
+:task_validate_invoice a chatman:AtomicTask ;
+  rdfs:label "Validate Invoice"@en ;
+  chatman:hasMaxDuration [ a time:DurationDescription ; time:minutes 2 ] .
+
+:task_post_journal a chatman:AtomicTask ;
+  rdfs:label "Post to Journal"@en ;
+  chatman:hasMaxDuration [ a time:DurationDescription ; time:minutes 1 ] .
+
+# ============================================================================
+# EXAMPLE 4: Process with Resource Constraints and Budget
+# ============================================================================
+# Critical operation with strict resource limits (Armstrong principles).
+
+:critical_ai_operation a chatman:BPMNTask ;
+  rdfs:label "Critical AI Model Training"@en ;
+  rdfs:comment "GPU-intensive operation with strict budget constraints."@en ;
+  chatman:hasTaskType "Service" ;
+  chatman:isMultiInstance false ;
+  chatman:hasResourceConstraint :critical_op_constraint .
+
+:critical_op_constraint a chatman:ResourceConstraint ;
+  rdfs:label "Critical Operation Constraint"@en ;
+  chatman:maxQueueSize 10 ;
+  chatman:maxConcurrentInstances 2 ;
+  chatman:budgetConstraint :critical_op_budget .
+
+:critical_op_budget a chatman:OperationBudget ;
+  rdfs:label "Critical Operation Budget"@en ;
+  rdfs:comment "Time: 30s, Memory: 8GB, CPU: 80%"@en ;
+  chatman:timeMs 30000 ;
+  chatman:memoryMb 8192 ;
+  chatman:cpuPercent 80.0 .
+
+# ============================================================================
+# EXAMPLE 5: Multi-Instance Activity (WCP-14)
+# ============================================================================
+# Dynamic instantiation determined at runtime.
+
+:approval_loop a chatman:Process ;
+  rdfs:label "Approval Loop"@en ;
+  rdfs:comment "Approvers determined at runtime; each gets approval task."@en ;
+  chatman:composedOf :task_get_approvers, :task_approval_multi, :task_aggregate ;
+  chatman:refersToPattern :wcp-14 .  # Runtime Knowledge
+
+:task_get_approvers a chatman:AtomicTask ;
+  rdfs:label "Get Approval List"@en ;
+  chatman:hasTaskType "Service" .
+
+:task_approval_multi a chatman:BPMNTask ;
+  rdfs:label "Approval Task (Multi-Instance)"@en ;
+  chatman:isMultiInstance true ;
+  chatman:runtimeInstanceCount true ;
+  chatman:maxConcurrentInstances 5 .
+
+:task_aggregate a chatman:AtomicTask ;
+  rdfs:label "Aggregate Decisions"@en ;
+  chatman:hasTaskType "Service" .
+
+# ============================================================================
+# EXAMPLE 6: Loop with Boundary Condition (WCP-10)
+# ============================================================================
+# Arbitrary cycle: retry on failure.
+
+:retry_loop a chatman:Process ;
+  rdfs:label "Retry Loop"@en ;
+  rdfs:comment "Attempts operation up to 3 times before escalation."@en ;
+  chatman:refersToPattern :wcp-10 ;  # Arbitrary Cycles
+  chatman:composedOf :task_attempt, :task_check_success, :task_escalate .
+
+:task_attempt a chatman:AtomicTask ;
+  rdfs:label "Attempt Operation"@en ;
+  chatman:hasMaxDuration [ a time:DurationDescription ; time:seconds 10 ] .
+
+:task_check_success a chatman:AtomicTask ;
+  rdfs:label "Check Success"@en ;
+  chatman:hasTaskType "Service" .
+
+:task_escalate a chatman:AtomicTask ;
+  rdfs:label "Escalate to Supervisor"@en ;
+  chatman:hasTaskType "User" .
+
+# Guard condition on retry edge
+:retry_edge a chatman:ControlFlowEdge ;
+  rdfs:label "Retry Edge"@en ;
+  chatman:fromNode :task_check_success ;
+  chatman:toNode :task_attempt ;
+  chatman:hasGuardCondition "attempt_count < 3" .
+
+# ============================================================================
+# EXAMPLE 7: Petri Net Model
+# ============================================================================
+# Simple two-place, two-transition model.
+
+:simple_petri_model a chatman:PetriNet ;
+  rdfs:label "Simple Petri Net: Sequential Execution"@en ;
+  chatman:hasPlace :place_start, :place_middle, :place_end ;
+  chatman:hasTransition :transition_begin, :transition_complete ;
+  chatman:arc :arc_start_to_begin,
+              :arc_begin_to_middle,
+              :arc_middle_to_complete,
+              :arc_complete_to_end ;
+  chatman:isSound true .
+
+# Places
+:place_start a chatman:Place ;
+  rdfs:label "Start"@en ;
+  chatman:markingConstraint 1 ;
+  chatman:initialMarking 1 .
+
+:place_middle a chatman:Place ;
+  rdfs:label "Middle"@en ;
+  chatman:markingConstraint 1 ;
+  chatman:initialMarking 0 .
+
+:place_end a chatman:Place ;
+  rdfs:label "End"@en ;
+  chatman:markingConstraint 1 ;
+  chatman:initialMarking 0 .
+
+# Transitions
+:transition_begin a chatman:Transition ;
+  rdfs:label "Begin Processing"@en .
+
+:transition_complete a chatman:Transition ;
+  rdfs:label "Complete Processing"@en .
+
+# Arcs (edges with weight)
+:arc_start_to_begin a chatman:Arc ;
+  chatman:source :place_start ;
+  chatman:target :transition_begin ;
+  chatman:weight 1 .
+
+:arc_begin_to_middle a chatman:Arc ;
+  chatman:source :transition_begin ;
+  chatman:target :place_middle ;
+  chatman:weight 1 .
+
+:arc_middle_to_complete a chatman:Arc ;
+  chatman:source :place_middle ;
+  chatman:target :transition_complete ;
+  chatman:weight 1 .
+
+:arc_complete_to_end a chatman:Arc ;
+  chatman:source :transition_complete ;
+  chatman:target :place_end ;
+  chatman:weight 1 .
+
+# ============================================================================
+# EXAMPLE 8: Execution Path Through Process
+# ============================================================================
+# Specific path taken through order workflow.
+
+:execution_path_normal a chatman:ExecutionPath ;
+  rdfs:label "Normal Order Path"@en ;
+  rdfs:comment "Happy path: validate -> pay+check (parallel) -> fulfill."@en ;
+  chatman:follows :task_validate_order,
+                   :task_payment,
+                   :task_inventory_check,
+                   :task_fulfillment .
+
+# ============================================================================
+# EXAMPLE 9: Deferred Choice (WCP-15) - External Event
+# ============================================================================
+# Process waits for external event, not data condition.
+
+:customer_selection a chatman:Process ;
+  rdfs:label "Customer Selection via External Event"@en ;
+  rdfs:comment "Process waits for customer to choose payment method (external choice)."@en ;
+  chatman:refersToPattern :wcp-15 ;  # Deferred Choice
+  chatman:composedOf :task_wait_for_choice, :task_process_choice .
+
+:task_wait_for_choice a chatman:AtomicTask ;
+  rdfs:label "Wait for Customer Choice"@en ;
+  rdfs:comment "Waits for external event: user selects payment method."@en ;
+  chatman:hasMaxDuration [ a time:DurationDescription ; time:minutes 5 ] .
+
+:task_process_choice a chatman:AtomicTask ;
+  rdfs:label "Process Selected Payment"@en ;
+  chatman:hasTaskType "Service" .
+
+# ============================================================================
+# EXAMPLE 10: BPMN Task Hierarchy
+# ============================================================================
+# Demonstrating atomic vs composite vs loop tasks.
+
+:procurement_process a chatman:Process ;
+  rdfs:label "Procurement Process"@en ;
+  chatman:composedOf :task_request_items,
+                     :task_approval_workflow,
+                     :task_order_loop,
+                     :task_receive .
+
+:task_request_items a chatman:AtomicTask ;
+  rdfs:label "Request Items"@en ;
+  chatman:hasTaskType "User" .
+
+:task_approval_workflow a chatman:CompositeTask ;
+  rdfs:label "Approval Workflow"@en ;
+  rdfs:comment "Composite task decomposed into multiple steps."@en ;
+  chatman:composedOf :task_route_to_approver,
+                     :task_wait_approval,
+                     :task_record_approval ;
+  chatman:sequentialComposition :task_record_approval .
+
+:task_order_loop a chatman:LoopTask ;
+  rdfs:label "Order Items (Loop)"@en ;
+  rdfs:comment "Loops for each item in request list."@en ;
+  chatman:hasTaskType "Service" ;
+  chatman:refersToPattern :wcp-21 .  # Structured Loop
+
+:task_receive a chatman:AtomicTask ;
+  rdfs:label "Receive Goods"@en ;
+  chatman:hasTaskType "User" .
+
+:task_route_to_approver a chatman:AtomicTask ;
+  rdfs:label "Route to Approver"@en .
+
+:task_wait_approval a chatman:AtomicTask ;
+  rdfs:label "Wait for Approval"@en .
+
+:task_record_approval a chatman:AtomicTask ;
+  rdfs:label "Record Approval"@en .
+
+# ============================================================================
+# EXAMPLE 11: Pattern Reference and Categorization
+# ============================================================================
+# Query example: Find all control-flow patterns.
+
+# These would be used in SPARQL queries like:
+#   SELECT ?pattern ?label WHERE {
+#     ?pattern skos:broader :wcp-category-control-flow ;
+#              skos:prefLabel ?label .
+#   } ORDER BY ?pattern
+
+# ============================================================================
+# END OF USAGE EXAMPLES
+# ============================================================================

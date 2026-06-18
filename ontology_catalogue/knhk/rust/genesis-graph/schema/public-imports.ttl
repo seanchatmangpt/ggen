@@ -1,0 +1,67 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix ocel: <http://www.liquid-reality.de/def/ocel#> .
+@prefix kh: <https://chatmangpt.com/kgc/hooks#> .
+
+# RDF
+rdf:type a rdf:Property .
+rdf:Property a rdfs:Class .
+
+# SHACL
+shacl:NodeShape a rdfs:Class .
+shacl:PropertyShape a rdfs:Class .
+shacl:targetClass a rdf:Property .
+shacl:property a rdf:Property .
+shacl:path a rdf:Property .
+shacl:minCount a rdf:Property .
+shacl:message a rdf:Property .
+shacl:severity a rdf:Property .
+shacl:Violation a owl:NamedIndividual .
+shacl:ValidationReport a rdfs:Class .
+shacl:conforms a rdf:Property .
+shacl:result a rdf:Property .
+
+# PROV
+prov:Activity a rdfs:Class .
+prov:Entity a rdfs:Class .
+prov:Agent a rdfs:Class .
+prov:startedAtTime a rdf:Property .
+prov:used a rdf:Property .
+prov:generated a rdf:Property .
+prov:wasAssociatedWith a rdf:Property .
+prov:wasDerivedFrom a rdf:Property .
+prov:wasGeneratedBy a rdf:Property .
+
+# OCEL
+ocel:Event a rdfs:Class .
+ocel:Object a rdfs:Class .
+ocel:time a rdf:Property .
+ocel:type a rdf:Property .
+ocel:object a rdf:Property .
+ocel:qualifier a rdf:Property .
+ocel:relationship a rdf:Property .
+
+# XSD
+xsd:string a rdfs:Class .
+xsd:dateTime a rdfs:Class .
+xsd:integer a rdfs:Class .
+xsd:boolean a rdfs:Class .
+
+# KH
+kh:Hook a rdfs:Class .
+kh:KnowledgeHook a rdfs:Class .
+kh:hookId a rdf:Property .
+kh:phase a rdf:Property .
+kh:event a rdf:Property .
+kh:priority a rdf:Property .
+kh:trigger a rdf:Property .
+kh:action a rdf:Property .
+kh:askQuery a rdf:Property .
+kh:constructQuery a rdf:Property .
+kh:text a rdf:Property .
+kh:SparqlTrigger a rdfs:Class .
+kh:SparqlConstructAction a rdfs:Class .

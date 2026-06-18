@@ -1,0 +1,554 @@
+#
+# ChatmanGPT Healthcare SPARQL Queries
+# ====================================
+# Template queries for HIPAA-compliant healthcare data operations
+# Status: Example implementations for future use
+#
+# Query Categories:
+#   1. PHI Lineage Tracking (who accessed what and when)
+#   2. Consent Enforcement (verify consent before operations)
+#   3. HIPAA Audit Trail (comprehensive compliance logging)
+#   4. Healthcare Data Quality (quality metrics)
+#   5. Access Pattern Detection (identify suspicious activity)
+#
+# Usage:
+#   1. Load chatman-healthcare.ttl into Oxigraph triple store
+#   2. Run queries via SPARQL endpoint at http://localhost:8000/
+#   3. Use CONSTRUCT queries to extract audit artifacts
+#
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX time: <http://www.w3.org/2006/time#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dqv: <http://www.w3.org/ns/dqv#>
+PREFIX odrl: <http://www.w3.org/ns/odrl/2/>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX chatman_health: <https://ontology.chatmangpt.com/healthcare#>
+
+###############################################################################
+# QUERY 1: PHI LINEAGE TRACKING
+# =============================
+# Extract complete audit trail for a specific patient's PHI
+# Shows: who accessed, what data, when, action, outcome, location, reason
+#
+# Use Case: HIPAA 164.304(b)(1) Audit Controls - respond to privacy request
+# "Show all access to patient Jane Doe's records for the past 90 days"
+#
+# CONSTRUCT output: RDF graph ready for storage/analysis
+###############################################################################
+
+CONSTRUCT {
+  ?lineageRecord
+    a chatman_health:PHILineageRecord ;
+    chatman_health:trackedPHI ?phiCategory ;
+    chatman_health:accessedBy ?agent ;
+    chatman_health:accessTimestamp ?timestamp ;
+    chatman_health:accessAction ?action ;
+    chatman_health:accessOutcome ?outcome ;
+    chatman_health:accessLocation ?location ;
+    chatman_health:accessReason ?reason ;
+    prov:wasDerivedFrom ?medicalRecord ;
+    chatman_health:hasGDPRDataSubject ?patient .
+}
+WHERE {
+  # Filter by patient (example: patient with MRN 12345)
+  ?patient a chatman_health:Patient ;
+    chatman_health:hasPatientIdentifier "12345" .
+
+  ?medicalRecord chatman_health:belongsToPatient ?patient ;
+    dcterms:issued ?recordDate .
+
+  # Join to lineage tracking
+  ?lineageRecord
+    prov:wasDerivedFrom ?medicalRecord ;
+    chatman_health:trackedPHI ?phiCategory ;
+    chatman_health:accessedBy ?agent ;
+    chatman_health:accessTimestamp ?timestamp ;
+    chatman_health:accessAction ?action ;
+    chatman_health:accessOutcome ?outcome ;
+    chatman_health:accessLocation ?location ;
+    chatman_health:accessReason ?reason ;
+    chatman_health:hasGDPRDataSubject ?patient .
+
+  # Filter: only last 90 days
+  BIND(NOW() AS ?now)
+  BIND(?now - "PT90D"^^xsd:duration AS ?ninetyDaysAgo)
+  FILTER(?timestamp >= ?ninetyDaysAgo)
+
+  # Sort by timestamp descending (most recent first)
+}
+ORDER BY DESC(?timestamp)
+LIMIT 1000
+
+---
+
+###############################################################################
+# QUERY 2: CONSENT ENFORCEMENT (Before Data Access)
+# ==================================================
+# Verify patient consent BEFORE allowing PHI access
+# Returns: consent status, permitted operations, expiry date
+#
+# Use Case: Authorization check on each PHI access request
+# "Can clinician access patient's lab results?"
+#
+# ASK output: boolean (true = access allowed, false = denied)
+###############################################################################
+
+ASK {
+  # Patient and consent lookup
+  ?patient a chatman_health:Patient ;
+    chatman_health:hasPatientIdentifier "12345" ;
+    chatman_health:hasConsent ?consent .
+
+  ?consent
+    a chatman_health:ConsentAgreement ;
+    chatman_health:consentStatus "active" ;
+    chatman_health:consentPolicy ?policy ;
+    chatman_health:consentExpiryDate ?expiryDate .
+
+  ?policy
+    a chatman_health:ConsentPolicy ;
+    chatman_health:permitsTreatment true .
+
+  # Verify consent not expired
+  FILTER(NOW() <= ?expiryDate)
+}
+
+---
+
+###############################################################################
+# QUERY 3: CONSENT ENFORCEMENT - DETAILED QUERY (with reasoning)
+# ===============================================================
+# Returns all consent details for a patient
+# Shows: what's permitted, what's restricted, expiry
+#
+# Use Case: Display consent details to clinician before access
+# "Show what operations are permitted under patient's active consent"
+#
+# SELECT output: structured data for policy enforcement
+###############################################################################
+
+SELECT DISTINCT ?consentStatus ?permitsTreatment ?permitsPayment ?permitsResearch
+  ?permitsSecondaryUse ?hasExportRestriction ?expiryDate
+WHERE {
+  # Patient lookup
+  ?patient a chatman_health:Patient ;
+    chatman_health:hasPatientIdentifier "12345" ;
+    chatman_health:hasConsent ?consent .
+
+  # Consent and policy details
+  ?consent
+    a chatman_health:ConsentAgreement ;
+    chatman_health:consentStatus ?consentStatus ;
+    chatman_health:consentPolicy ?policy ;
+    chatman_health:consentExpiryDate ?expiryDate .
+
+  ?policy
+    a chatman_health:ConsentPolicy ;
+    chatman_health:permitsTreatment ?permitsTreatment ;
+    chatman_health:permitsPayment ?permitsPayment ;
+    chatman_health:permitsResearch ?permitsResearch ;
+    chatman_health:permitsSecondaryUse ?permitsSecondaryUse ;
+    chatman_health:hasDataExportRestriction ?hasExportRestriction .
+
+  # Verify consent is active and not expired
+  FILTER(?consentStatus = "active")
+  FILTER(NOW() <= ?expiryDate)
+}
+
+---
+
+###############################################################################
+# QUERY 4: HIPAA AUDIT TRAIL - MONTHLY COMPLIANCE REPORT
+# ========================================================
+# Extract all security events for HIPAA compliance reporting
+# Groups by event type and shows summary statistics
+#
+# Use Case: HIPAA 164.308(a)(5)(ii) - regular audit review
+# "Generate monthly security log for January 2026"
+#
+# SELECT output: audit summary for compliance documentation
+###############################################################################
+
+SELECT ?eventType (COUNT(?event) as ?count) (MIN(?timestamp) as ?firstEvent)
+  (MAX(?timestamp) as ?lastEvent)
+WHERE {
+  # All HIPAA events in January 2026
+  ?event a chatman_health:HIPAAEvent ;
+    chatman_health:eventType ?eventType ;
+    chatman_health:eventTimestamp ?timestamp ;
+    chatman_health:eventAgent ?agent ;
+    chatman_health:eventOutcome ?outcome .
+
+  # Date filter: January 2026
+  BIND(xsd:dateTime("2026-01-01T00:00:00Z") AS ?startOfMonth)
+  BIND(xsd:dateTime("2026-02-01T00:00:00Z") AS ?endOfMonth)
+  FILTER(?timestamp >= ?startOfMonth && ?timestamp < ?endOfMonth)
+
+  # Optional: filter by severity (failed events more important)
+  OPTIONAL {
+    FILTER(?outcome = "FAILURE")
+  }
+}
+GROUP BY ?eventType
+ORDER BY DESC(?count)
+
+---
+
+###############################################################################
+# QUERY 5: UNAUTHORIZED ACCESS DETECTION
+# ========================================
+# Find suspicious PHI access patterns
+# Detection rules:
+#   - Access outside normal business hours
+#   - Same PHI accessed multiple times by different users in short window
+#   - Failed access attempts followed by successful access
+#   - Export operations
+#
+# Use Case: Real-time threat detection (run every 15 minutes)
+# "Alert if PHI accessed by unauthorized user at 3am"
+#
+# CONSTRUCT output: suspicious events for security alerting
+###############################################################################
+
+CONSTRUCT {
+  ?suspiciousEvent
+    a chatman_health:PHILineageRecord ;
+    chatman_health:flaggedForReview true ;
+    chatman_health:suspiciousReason ?reason ;
+    chatman_health:trackedPHI ?phiCategory ;
+    chatman_health:accessedBy ?agent ;
+    chatman_health:accessTimestamp ?timestamp ;
+    chatman_health:accessAction ?action .
+}
+WHERE {
+  # Find access events
+  ?event a chatman_health:PHILineageRecord ;
+    chatman_health:accessedBy ?agent ;
+    chatman_health:accessTimestamp ?timestamp ;
+    chatman_health:accessAction ?action ;
+    chatman_health:trackedPHI ?phiCategory .
+
+  # Rule 1: Access outside 6am-10pm (suspicious hours)
+  BIND(HOURS(?timestamp) AS ?hour)
+  FILTER(?hour < 6 || ?hour > 22)
+
+  # Rule 2: PHI EXPORT operations (high risk)
+  FILTER(?action = "EXPORT" || ?action = "SHARE")
+
+  # Assign reason
+  BIND(
+    IF(?action = "EXPORT", "Export operation outside business hours", "High-risk access pattern")
+    AS ?reason
+  )
+
+  # Only recent events (last 24 hours)
+  FILTER(?timestamp >= NOW() - "PT24H"^^xsd:duration)
+}
+
+---
+
+###############################################################################
+# QUERY 6: HIPAA AUDIT TRAIL - FAILED ACCESS ATTEMPTS
+# =====================================================
+# Track failed access attempts (security incident detection)
+# Useful for identifying credential theft, unauthorized access, system faults
+#
+# Use Case: Investigate security incident
+# "Show all failed access attempts in last 7 days"
+#
+# SELECT output: detailed failure log for incident response
+###############################################################################
+
+SELECT ?timestamp ?agent ?resource ?failureReason ?location
+WHERE {
+  ?event a chatman_health:HIPAAEvent ;
+    chatman_health:eventType ?eventType ;
+    chatman_health:eventTimestamp ?timestamp ;
+    chatman_health:eventAgent ?agent ;
+    chatman_health:eventOutcome "FAILURE" ;
+    chatman_health:eventFailureReason ?failureReason ;
+    chatman_health:eventResource ?resource ;
+    chatman_health:accessLocation ?location .
+
+  # Filter to access attempt types
+  FILTER(?eventType IN (
+    "PHI_ACCESS",
+    "PHI_MODIFY",
+    "PHI_DELETE",
+    "PHI_EXPORT",
+    "USER_LOGIN"
+  ))
+
+  # Last 7 days
+  FILTER(?timestamp >= NOW() - "PT7D"^^xsd:duration)
+}
+ORDER BY DESC(?timestamp)
+
+---
+
+###############################################################################
+# QUERY 7: CONSENT REVOCATION IMPACT
+# ===================================
+# When consent is revoked, find all data that should be deleted/archived
+# GDPR "right to be forgotten" support
+#
+# Use Case: Data subject requests deletion after revoking consent
+# "What data should be deleted when consent is revoked?"
+#
+# CONSTRUCT output: RDF graph of data to be purged
+###############################################################################
+
+CONSTRUCT {
+  ?medicalRecord
+    a chatman_health:MedicalRecord ;
+    chatman_health:markedForDeletion true ;
+    chatman_health:deleteReason "Consent revoked by patient" ;
+    chatman_health:deletionDeadline ?deadline ;
+    chatman_health:belongsToPatient ?patient ;
+    dcterms:issued ?recordDate .
+
+  ?lineageRecord
+    a chatman_health:PHILineageRecord ;
+    chatman_health:markedForDeletion true ;
+    prov:wasDerivedFrom ?medicalRecord .
+}
+WHERE {
+  # Find recently revoked consent
+  ?consent a chatman_health:ConsentAgreement ;
+    chatman_health:consentPatient ?patient ;
+    chatman_health:consentStatus "revoked" ;
+    dcterms:modified ?revocationDate .
+
+  # Only if revoked within last 30 days
+  FILTER(?revocationDate >= NOW() - "PT30D"^^xsd:duration)
+
+  # Find all medical records and lineage records for this patient
+  ?medicalRecord chatman_health:belongsToPatient ?patient ;
+    dcterms:issued ?recordDate .
+
+  ?lineageRecord prov:wasDerivedFrom ?medicalRecord .
+
+  # Set deletion deadline (60 days from revocation)
+  BIND(?revocationDate + "P60D"^^xsd:duration AS ?deadline)
+}
+
+---
+
+###############################################################################
+# QUERY 8: DATA QUALITY ASSESSMENT
+# ==================================
+# Assess quality of medical records: completeness, accuracy, timeliness
+# Identifies records needing clinician review
+#
+# Use Case: Quality assurance workflow
+# "Which patient records have low quality scores?"
+#
+# SELECT output: records flagged for quality review
+###############################################################################
+
+SELECT ?patient ?mrn ?recordId ?completenessScore ?accuracyScore ?timelinessScore
+  ?qualityRating
+WHERE {
+  # Patient and medical record
+  ?patient a chatman_health:Patient ;
+    chatman_health:hasPatientIdentifier ?mrn ;
+    chatman_health:hasMedicalRecord ?medicalRecord .
+
+  ?medicalRecord
+    a chatman_health:MedicalRecord ;
+    dcterms:identifier ?recordId ;
+    dqv:hasQualityMeasurement ?completeness ;
+    dqv:hasQualityMeasurement ?accuracy ;
+    dqv:hasQualityMeasurement ?timeliness .
+
+  # Quality metrics
+  ?completeness
+    a dqv:QualityMeasurement ;
+    dqv:isMeasurementOf chatman_health:completenessScore ;
+    dqv:value ?completenessScore .
+
+  ?accuracy
+    a dqv:QualityMeasurement ;
+    dqv:isMeasurementOf chatman_health:accuracyScore ;
+    dqv:value ?accuracyScore .
+
+  ?timeliness
+    a dqv:QualityMeasurement ;
+    dqv:isMeasurementOf chatman_health:timelinessScore ;
+    dqv:value ?timelinessScore .
+
+  # Calculate overall rating
+  BIND(
+    IF((?completenessScore + ?accuracyScore + ?timelinessScore) / 3 >= 90,
+      "EXCELLENT",
+      IF((?completenessScore + ?accuracyScore + ?timelinessScore) / 3 >= 75,
+        "GOOD",
+        IF((?completenessScore + ?accuracyScore + ?timelinessScore) / 3 >= 60,
+          "FAIR",
+          "POOR"
+        )
+      )
+    )
+    AS ?qualityRating
+  )
+
+  # Filter: only poor quality records
+  FILTER(?qualityRating IN ("FAIR", "POOR"))
+}
+ORDER BY ?qualityRating DESC((?completenessScore + ?accuracyScore + ?timelinessScore) / 3)
+
+---
+
+###############################################################################
+# QUERY 9: PROVIDER ACCESS LOG (per clinician)
+# =============================================
+# Track what data each provider accessed
+# Use Case: Clinician performance monitoring, "Why did this doctor access X?"
+#
+# SELECT output: per-provider access audit
+###############################################################################
+
+SELECT ?provider ?name ?accessDate ?accessAction ?accessReason (COUNT(?event) as ?accessCount)
+WHERE {
+  # Provider access patterns
+  ?event a chatman_health:PHILineageRecord ;
+    chatman_health:accessedBy ?provider ;
+    chatman_health:accessTimestamp ?accessDate ;
+    chatman_health:accessAction ?accessAction ;
+    chatman_health:accessReason ?accessReason .
+
+  ?provider a chatman_health:HealthcareProvider ;
+    foaf:name ?name .
+
+  # Last 30 days
+  FILTER(?accessDate >= NOW() - "PT30D"^^xsd:duration)
+}
+GROUP BY ?provider ?name ?accessDate ?accessAction ?accessReason
+ORDER BY ?provider ?accessDate DESC(?accessCount)
+
+---
+
+###############################################################################
+# QUERY 10: CONDITION-DIAGNOSIS EXTRACTION
+# ==========================================
+# Extract patient's diagnosed conditions with clinical status
+# Maps to SNOMED CT and ICD-11 codes
+#
+# Use Case: Generate problem list for clinical summary
+# "List all active diagnoses for patient 12345"
+#
+# SELECT output: structured condition list
+###############################################################################
+
+SELECT ?conditionCode ?conditionSNOMED ?conditionICD11 ?conditionStatus ?onsetDate
+WHERE {
+  # Patient lookup
+  ?patient a chatman_health:Patient ;
+    chatman_health:hasPatientIdentifier "12345" ;
+    chatman_health:hasMedicalRecord ?record .
+
+  # Conditions
+  ?record chatman_health:hasCondition ?condition .
+
+  ?condition
+    a chatman_health:Condition ;
+    chatman_health:hasSNOMEDCode ?conditionSNOMED ;
+    chatman_health:hasICD11Code ?conditionICD11 ;
+    chatman_health:conditionClinicalStatus ?conditionStatus ;
+    chatman_health:conditionOnsetDate ?onsetDate .
+
+  # Filter: only active conditions
+  FILTER(?conditionStatus = "active")
+
+  # Assign internal code
+  BIND(STRAFTER(STR(?condition), "#") AS ?conditionCode)
+}
+ORDER BY ?onsetDate
+
+---
+
+###############################################################################
+# QUERY 11: LAB RESULT EXTRACTION (LOINC codes)
+# ==============================================
+# Extract recent lab observations with LOINC coding
+# Use Case: Display lab results in EHR frontend
+#
+# SELECT output: lab value, unit, date, reference range
+###############################################################################
+
+SELECT ?testName ?loincCode ?value ?unit ?observationDate ?status
+WHERE {
+  # Patient
+  ?patient a chatman_health:Patient ;
+    chatman_health:hasPatientIdentifier "12345" ;
+    chatman_health:hasMedicalRecord ?record .
+
+  # Observations (lab results)
+  ?record chatman_health:hasObservation ?observation .
+
+  ?observation
+    a chatman_health:Observation ;
+    chatman_health:hasLOINCCode ?loincCode ;
+    chatman_health:hasObservationValue ?value ;
+    chatman_health:hasUnit ?unit ;
+    chatman_health:observationDate ?observationDate ;
+    chatman_health:observationStatus ?status ;
+    rdfs:label ?testName .
+
+  # Last 90 days
+  FILTER(?observationDate >= NOW() - "PT90D"^^xsd:duration)
+  FILTER(?status = "final")
+}
+ORDER BY DESC(?observationDate)
+
+---
+
+###############################################################################
+# QUERY 12: VALIDATION CHECK - HIPAA-Compliant Records
+# ======================================================
+# Check if all records comply with HIPAA requirements
+# Must have: consent, audit trail, data quality assessment
+#
+# Use Case: Pre-export validation before data sharing
+# "Can we export this patient's records to external system?"
+#
+# ASK output: boolean (all checks pass = true)
+###############################################################################
+
+ASK {
+  ?patient a chatman_health:Patient ;
+    chatman_health:hasPatientIdentifier "12345" ;
+    chatman_health:hasMedicalRecord ?record ;
+    chatman_health:hasConsent ?consent .
+
+  # Requirement 1: Active consent
+  ?consent
+    a chatman_health:ConsentAgreement ;
+    chatman_health:consentStatus "active" ;
+    chatman_health:permitsSecondaryUse true ;
+    chatman_health:hasDataExportRestriction false .
+
+  # Requirement 2: Has audit trail
+  ?lineage
+    a chatman_health:PHILineageRecord ;
+    prov:wasDerivedFrom ?record ;
+    chatman_health:accessedBy ?agent .
+
+  # Requirement 3: Has quality assessment
+  ?record dqv:hasQualityMeasurement ?metric .
+
+  ?metric
+    a dqv:QualityMeasurement ;
+    dqv:value ?score .
+
+  FILTER(?score >= 75)
+}
+
+###############################################################################
+# END OF HEALTHCARE SPARQL QUERIES
+###############################################################################

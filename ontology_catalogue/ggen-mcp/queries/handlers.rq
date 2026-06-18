@@ -1,0 +1,14 @@
+PREFIX ddd: <https://ddd-patterns.dev/schema#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?handler_name ?handles_cmd ?emits_event
+WHERE {
+  ?h a ddd:Handler .
+  ?h rdfs:label ?handler_name .
+  ?h ddd:handles ?cmd .
+  ?cmd rdfs:label ?handles_cmd .
+  ?h ddd:emits ?evt .
+  ?evt rdfs:label ?emits_event .
+}
+ORDER BY ?handler_name
+LIMIT 10000

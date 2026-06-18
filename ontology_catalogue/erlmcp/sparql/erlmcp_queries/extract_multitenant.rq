@@ -1,0 +1,46 @@
+# =============================================================================
+# SPARQL Query: Extract Multi-Tenant Configuration
+# =============================================================================
+# Purpose: Extract tenant configuration for code generation
+# =============================================================================
+
+PREFIX mt: <http://erlmcp.org/schema/multitenant/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+CONSTRUCT {
+    ?tenant a mt:Tenant ;
+        mt:tenantId ?tenantId ;
+        mt:tenantStatus ?status ;
+        mt:hasQuota ?quota ;
+        mt:hasRateLimit ?rateLimit .
+
+    ?quota a mt:TenantQuota ;
+        mt:maxConcurrentRequests ?maxRequests ;
+        mt:maxConnections ?maxConn ;
+        mt:maxStorageMb ?maxStorage ;
+        mt:maxTools ?maxTools .
+
+    ?rateLimit a mt:TenantRateLimit ;
+        mt:requestsPerMinute ?rpm ;
+        mt:requestsPerHour ?rph ;
+        mt:tokensPerDay ?tpd .
+}
+WHERE {
+    ?tenant a mt:Tenant ;
+        mt:tenantId ?tenantId .
+
+    OPTIONAL { ?tenant mt:tenantStatus ?status . }
+    OPTIONAL {
+        ?tenant mt:hasQuota ?quota .
+        OPTIONAL { ?quota mt:maxConcurrentRequests ?maxRequests . }
+        OPTIONAL { ?quota mt:maxConnections ?maxConn . }
+        OPTIONAL { ?quota mt:maxStorageMb ?maxStorage . }
+        OPTIONAL { ?quota mt:maxTools ?maxTools . }
+    }
+    OPTIONAL {
+        ?tenant mt:hasRateLimit ?rateLimit .
+        OPTIONAL { ?rateLimit mt:requestsPerMinute ?rpm . }
+        OPTIONAL { ?rateLimit mt:requestsPerHour ?rph . }
+        OPTIONAL { ?rateLimit mt:tokensPerDay ?tpd . }
+    }
+}

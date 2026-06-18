@@ -1,0 +1,367 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix gql: <http://ggen.io/ontology/graphql#> .
+@prefix ggen: <http://ggen.io/ontology/core#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+
+# GraphQL API Template Ontology
+# Defines patterns for type-safe GraphQL schema generation
+
+gql:GraphQLSchema a owl:Class ;
+    rdfs:label "GraphQL Schema" ;
+    rdfs:comment "Root container for GraphQL type definitions" ;
+    rdfs:subClassOf ggen:Template .
+
+gql:ObjectType a owl:Class ;
+    rdfs:label "GraphQL Object Type" ;
+    rdfs:comment "Named collection of fields representing an entity" ;
+    rdfs:subClassOf gql:GraphQLType .
+
+gql:InterfaceType a owl:Class ;
+    rdfs:label "GraphQL Interface" ;
+    rdfs:comment "Abstract type that other types can implement" ;
+    rdfs:subClassOf gql:GraphQLType .
+
+gql:UnionType a owl:Class ;
+    rdfs:label "GraphQL Union Type" ;
+    rdfs:comment "Type representing one of several possible types" ;
+    rdfs:subClassOf gql:GraphQLType .
+
+gql:EnumType a owl:Class ;
+    rdfs:label "GraphQL Enum Type" ;
+    rdfs:comment "Type with predefined set of values" ;
+    rdfs:subClassOf gql:GraphQLType .
+
+gql:InputType a owl:Class ;
+    rdfs:label "GraphQL Input Type" ;
+    rdfs:comment "Complex input type for mutations and queries" ;
+    rdfs:subClassOf gql:GraphQLType .
+
+gql:ScalarType a owl:Class ;
+    rdfs:label "GraphQL Scalar Type" ;
+    rdfs:comment "Leaf type (String, Int, Float, Boolean, ID, custom)" ;
+    rdfs:subClassOf gql:GraphQLType .
+
+# Root operation types
+gql:QueryType a owl:Class ;
+    rdfs:label "Query Root Type" ;
+    rdfs:comment "Root type for read operations" ;
+    rdfs:subClassOf gql:ObjectType .
+
+gql:MutationType a owl:Class ;
+    rdfs:label "Mutation Root Type" ;
+    rdfs:comment "Root type for write operations" ;
+    rdfs:subClassOf gql:ObjectType .
+
+gql:SubscriptionType a owl:Class ;
+    rdfs:label "Subscription Root Type" ;
+    rdfs:comment "Root type for real-time subscriptions" ;
+    rdfs:subClassOf gql:ObjectType .
+
+# Field definitions
+gql:Field a owl:Class ;
+    rdfs:label "GraphQL Field" ;
+    rdfs:comment "Named field with type and resolver" .
+
+gql:Argument a owl:Class ;
+    rdfs:label "Field Argument" ;
+    rdfs:comment "Input parameter for field resolution" .
+
+gql:Resolver a owl:Class ;
+    rdfs:label "Field Resolver" ;
+    rdfs:comment "Function that resolves field value" .
+
+# DataLoader patterns
+gql:DataLoader a owl:Class ;
+    rdfs:label "DataLoader" ;
+    rdfs:comment "Batching and caching layer for resolvers" .
+
+gql:BatchFunction a owl:Class ;
+    rdfs:label "Batch Function" ;
+    rdfs:comment "Function that loads multiple items efficiently" ;
+    rdfs:subClassOf gql:Resolver .
+
+# Pagination patterns
+gql:Connection a owl:Class ;
+    rdfs:label "Relay Connection" ;
+    rdfs:comment "Cursor-based pagination pattern" ;
+    rdfs:subClassOf gql:ObjectType .
+
+gql:Edge a owl:Class ;
+    rdfs:label "Relay Edge" ;
+    rdfs:comment "Edge containing cursor and node" ;
+    rdfs:subClassOf gql:ObjectType .
+
+gql:PageInfo a owl:Class ;
+    rdfs:label "Page Info" ;
+    rdfs:comment "Pagination metadata" ;
+    rdfs:subClassOf gql:ObjectType .
+
+# Directives
+gql:Directive a owl:Class ;
+    rdfs:label "GraphQL Directive" ;
+    rdfs:comment "Metadata annotation for schema elements" .
+
+gql:AuthDirective a owl:Class ;
+    rdfs:label "Authorization Directive" ;
+    rdfs:comment "Directive for authentication and authorization" ;
+    rdfs:subClassOf gql:Directive .
+
+gql:CacheDirective a owl:Class ;
+    rdfs:label "Cache Directive" ;
+    rdfs:comment "Directive for caching control" ;
+    rdfs:subClassOf gql:Directive .
+
+gql:DeprecatedDirective a owl:Class ;
+    rdfs:label "Deprecated Directive" ;
+    rdfs:comment "Marks field or type as deprecated" ;
+    rdfs:subClassOf gql:Directive .
+
+# Subscription patterns
+gql:PubSub a owl:Class ;
+    rdfs:label "PubSub System" ;
+    rdfs:comment "Publish-subscribe system for subscriptions" .
+
+gql:SubscriptionResolver a owl:Class ;
+    rdfs:label "Subscription Resolver" ;
+    rdfs:comment "Async iterator for subscription events" ;
+    rdfs:subClassOf gql:Resolver .
+
+# Properties
+gql:hasField a owl:ObjectProperty ;
+    rdfs:label "has field" ;
+    rdfs:domain gql:ObjectType ;
+    rdfs:range gql:Field .
+
+gql:fieldName a owl:DatatypeProperty ;
+    rdfs:label "field name" ;
+    rdfs:domain gql:Field ;
+    rdfs:range xsd:string .
+
+gql:fieldType a owl:ObjectProperty ;
+    rdfs:label "field type" ;
+    rdfs:domain gql:Field ;
+    rdfs:range gql:GraphQLType .
+
+gql:isNullable a owl:DatatypeProperty ;
+    rdfs:label "is nullable" ;
+    rdfs:domain gql:Field ;
+    rdfs:range xsd:boolean .
+
+gql:isList a owl:DatatypeProperty ;
+    rdfs:label "is list" ;
+    rdfs:domain gql:Field ;
+    rdfs:range xsd:boolean .
+
+gql:hasArgument a owl:ObjectProperty ;
+    rdfs:label "has argument" ;
+    rdfs:domain gql:Field ;
+    rdfs:range gql:Argument .
+
+gql:argumentName a owl:DatatypeProperty ;
+    rdfs:label "argument name" ;
+    rdfs:domain gql:Argument ;
+    rdfs:range xsd:string .
+
+gql:argumentType a owl:ObjectProperty ;
+    rdfs:label "argument type" ;
+    rdfs:domain gql:Argument ;
+    rdfs:range gql:GraphQLType .
+
+gql:defaultValue a owl:DatatypeProperty ;
+    rdfs:label "default value" ;
+    rdfs:domain gql:Argument .
+
+gql:hasResolver a owl:ObjectProperty ;
+    rdfs:label "has resolver" ;
+    rdfs:domain gql:Field ;
+    rdfs:range gql:Resolver .
+
+gql:resolverFunction a owl:DatatypeProperty ;
+    rdfs:label "resolver function" ;
+    rdfs:domain gql:Resolver ;
+    rdfs:range xsd:string .
+
+gql:usesDataLoader a owl:ObjectProperty ;
+    rdfs:label "uses DataLoader" ;
+    rdfs:domain gql:Resolver ;
+    rdfs:range gql:DataLoader .
+
+gql:batchKey a owl:DatatypeProperty ;
+    rdfs:label "batch key" ;
+    rdfs:domain gql:DataLoader ;
+    rdfs:range xsd:string .
+
+gql:cacheEnabled a owl:DatatypeProperty ;
+    rdfs:label "cache enabled" ;
+    rdfs:domain gql:DataLoader ;
+    rdfs:range xsd:boolean .
+
+gql:hasDirective a owl:ObjectProperty ;
+    rdfs:label "has directive" ;
+    rdfs:range gql:Directive .
+
+gql:directiveName a owl:DatatypeProperty ;
+    rdfs:label "directive name" ;
+    rdfs:domain gql:Directive ;
+    rdfs:range xsd:string .
+
+gql:requiredRole a owl:DatatypeProperty ;
+    rdfs:label "required role" ;
+    rdfs:domain gql:AuthDirective ;
+    rdfs:range xsd:string .
+
+gql:maxAge a owl:DatatypeProperty ;
+    rdfs:label "max age" ;
+    rdfs:domain gql:CacheDirective ;
+    rdfs:range xsd:integer .
+
+# Validation constraints
+gql:ValidationRule a owl:Class ;
+    rdfs:label "Validation Rule" ;
+    rdfs:comment "Input validation constraint" .
+
+gql:hasValidation a owl:ObjectProperty ;
+    rdfs:label "has validation" ;
+    rdfs:domain gql:InputType ;
+    rdfs:range gql:ValidationRule .
+
+gql:minLength a owl:DatatypeProperty ;
+    rdfs:label "minimum length" ;
+    rdfs:domain gql:ValidationRule ;
+    rdfs:range xsd:integer .
+
+gql:maxLength a owl:DatatypeProperty ;
+    rdfs:label "maximum length" ;
+    rdfs:domain gql:ValidationRule ;
+    rdfs:range xsd:integer .
+
+gql:pattern a owl:DatatypeProperty ;
+    rdfs:label "regex pattern" ;
+    rdfs:domain gql:ValidationRule ;
+    rdfs:range xsd:string .
+
+gql:min a owl:DatatypeProperty ;
+    rdfs:label "minimum value" ;
+    rdfs:domain gql:ValidationRule ;
+    rdfs:range xsd:decimal .
+
+gql:max a owl:DatatypeProperty ;
+    rdfs:label "maximum value" ;
+    rdfs:domain gql:ValidationRule ;
+    rdfs:range xsd:decimal .
+
+# Example schema definition
+gql:UserType a gql:ObjectType ;
+    gql:typeName "User" ;
+    gql:hasField gql:UserIdField, gql:UserNameField, gql:UserEmailField, gql:UserPostsField .
+
+gql:UserIdField a gql:Field ;
+    gql:fieldName "id" ;
+    gql:fieldType gql:IDScalar ;
+    gql:isNullable false .
+
+gql:UserNameField a gql:Field ;
+    gql:fieldName "name" ;
+    gql:fieldType gql:StringScalar ;
+    gql:isNullable false .
+
+gql:UserEmailField a gql:Field ;
+    gql:fieldName "email" ;
+    gql:fieldType gql:StringScalar ;
+    gql:isNullable false .
+
+gql:UserPostsField a gql:Field ;
+    gql:fieldName "posts" ;
+    gql:fieldType gql:PostConnection ;
+    gql:isList false ;
+    gql:hasArgument gql:FirstArg, gql:AfterArg ;
+    gql:hasResolver gql:UserPostsResolver .
+
+gql:UserPostsResolver a gql:Resolver ;
+    gql:usesDataLoader gql:PostsByUserLoader .
+
+gql:PostsByUserLoader a gql:DataLoader ;
+    gql:batchKey "userId" ;
+    gql:cacheEnabled true .
+
+gql:PostType a gql:ObjectType ;
+    gql:typeName "Post" ;
+    gql:hasField gql:PostIdField, gql:PostTitleField, gql:PostContentField, gql:PostAuthorField .
+
+gql:PostAuthorField a gql:Field ;
+    gql:fieldName "author" ;
+    gql:fieldType gql:UserType ;
+    gql:hasResolver gql:PostAuthorResolver .
+
+gql:PostAuthorResolver a gql:Resolver ;
+    gql:usesDataLoader gql:UserByIdLoader .
+
+gql:UserByIdLoader a gql:DataLoader ;
+    gql:batchKey "id" ;
+    gql:cacheEnabled true .
+
+# Connection types for pagination
+gql:PostConnection a gql:Connection ;
+    gql:typeName "PostConnection" ;
+    gql:hasField gql:ConnectionEdgesField, gql:ConnectionPageInfoField .
+
+gql:PostEdge a gql:Edge ;
+    gql:typeName "PostEdge" ;
+    gql:hasField gql:EdgeNodeField, gql:EdgeCursorField .
+
+# Query root
+gql:QueryRoot a gql:QueryType ;
+    gql:typeName "Query" ;
+    gql:hasField gql:UserQuery, gql:UsersQuery, gql:PostQuery .
+
+gql:UserQuery a gql:Field ;
+    gql:fieldName "user" ;
+    gql:fieldType gql:UserType ;
+    gql:hasArgument gql:UserIdArg ;
+    gql:hasResolver gql:UserByIdResolver .
+
+gql:UsersQuery a gql:Field ;
+    gql:fieldName "users" ;
+    gql:fieldType gql:UserConnection ;
+    gql:hasArgument gql:FirstArg, gql:AfterArg .
+
+# Mutation root
+gql:MutationRoot a gql:MutationType ;
+    gql:typeName "Mutation" ;
+    gql:hasField gql:CreateUserMutation, gql:UpdateUserMutation, gql:DeleteUserMutation .
+
+gql:CreateUserMutation a gql:Field ;
+    gql:fieldName "createUser" ;
+    gql:fieldType gql:UserType ;
+    gql:hasArgument gql:CreateUserInput ;
+    gql:hasDirective gql:RequireAuthDirective .
+
+gql:RequireAuthDirective a gql:AuthDirective ;
+    gql:directiveName "auth" ;
+    gql:requiredRole "admin" .
+
+# Subscription root
+gql:SubscriptionRoot a gql:SubscriptionType ;
+    gql:typeName "Subscription" ;
+    gql:hasField gql:UserCreatedSubscription, gql:PostUpdatedSubscription .
+
+gql:UserCreatedSubscription a gql:Field ;
+    gql:fieldName "userCreated" ;
+    gql:fieldType gql:UserType ;
+    gql:hasResolver gql:UserCreatedSubResolver .
+
+gql:UserCreatedSubResolver a gql:SubscriptionResolver ;
+    gql:pubsubChannel "USER_CREATED" .
+
+# Input types
+gql:CreateUserInput a gql:InputType ;
+    gql:typeName "CreateUserInput" ;
+    gql:hasField gql:InputNameField, gql:InputEmailField ;
+    gql:hasValidation gql:UserInputValidation .
+
+gql:UserInputValidation a gql:ValidationRule ;
+    gql:minLength 1 ;
+    gql:maxLength 255 .

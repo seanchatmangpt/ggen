@@ -1,0 +1,18 @@
+@prefix ns1: <http://example.org/> .
+@prefix quantum: <http://quantum.entanglement/> .
+@prefix temporal: <http://temporal.paradox/> .
+
+ns1:test ns1:prop ns1:value ;
+    quantum:entangledWith ns1:value ;
+    quantum:observes ns1:test ;
+    temporal:existsIn _:Nf586b23ecd5a494e8198004eb3046574 .
+
+ns1:value quantum:entangledWith ns1:test ;
+    quantum:observes ns1:value .
+
+[] quantum:superposition ns1:test,
+        ns1:value .
+
+_:Nf586b23ecd5a494e8198004eb3046574 temporal:loops_to _:Nf586b23ecd5a494e8198004eb3046574 ;
+    temporal:timestamp "∞" .
+

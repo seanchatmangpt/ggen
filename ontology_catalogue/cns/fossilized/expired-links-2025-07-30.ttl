@@ -1,0 +1,318 @@
+# TAI Fossilization System - Expired Links Archive
+# Date: 2025-07-30
+# System: Temporal AI - Cognitive Forgetting and Memory Death Management
+
+@prefix tai: <https://tai.cognition/> .
+@prefix fossil: <https://tai.cognition/fossil/> .
+@prefix death: <https://tai.cognition/death/> .
+@prefix time: <https://tai.cognition/time/> .
+@prefix memory: <https://tai.cognition/memory/> .
+@prefix substrate: <https://tai.cognition/substrate/> .
+@prefix pulse: <https://tai.cognition/pulse/> .
+@prefix resurrection: <https://tai.cognition/resurrection/> .
+@prefix cycle: <https://tai.cognition/cycle/> .
+
+# =============================================================================
+# SEMANTIC DEATH WINDOWS - Temporal Boundaries for Memory Expiration
+# =============================================================================
+
+death:SemanticDeathWindow a tai:TemporalBoundary ;
+    tai:definesExpirationZone true ;
+    tai:hasTemporalWidth "72h"^^xsd:duration ;
+    tai:triggerThreshold 0.1 ;
+    tai:description "Temporal zone where memories transition from active to fossil state" .
+
+death:CriticalDeathWindow a death:SemanticDeathWindow ;
+    tai:hasTemporalWidth "24h"^^xsd:duration ;
+    tai:triggerThreshold 0.05 ;
+    tai:priority "critical" ;
+    tai:description "High-priority memory expiration for system stability" .
+
+death:StandardDeathWindow a death:SemanticDeathWindow ;
+    tai:hasTemporalWidth "168h"^^xsd:duration ;  # 7 days
+    tai:triggerThreshold 0.2 ;
+    tai:priority "standard" ;
+    tai:description "Standard memory expiration cycle" .
+
+death:LongTermDeathWindow a death:SemanticDeathWindow ;
+    tai:hasTemporalWidth "720h"^^xsd:duration ;  # 30 days
+    tai:triggerThreshold 0.3 ;
+    tai:priority "low" ;
+    tai:description "Long-term memory preservation before fossilization" .
+
+# =============================================================================
+# MEMORY EXPIRATION ALGORITHMS - Computational Models for Forgetting
+# =============================================================================
+
+fossil:ExponentialDecayAlgorithm a tai:ForgettingAlgorithm ;
+    tai:decayFunction "exp(-λt)" ;
+    tai:decayConstant 0.693 ;  # Half-life based decay
+    tai:applicableTo memory:SemanticLinks ;
+    tai:description "Exponential decay model for semantic link strength" .
+
+fossil:PowerLawDecayAlgorithm a tai:ForgettingAlgorithm ;
+    tai:decayFunction "t^(-α)" ;
+    tai:decayExponent 1.2 ;
+    tai:applicableTo memory:EpisodicMemories ;
+    tai:description "Power law decay for episodic memory traces" .
+
+fossil:SigmoidTransitionAlgorithm a tai:ForgettingAlgorithm ;
+    tai:transitionFunction "1/(1+exp(-k(t-t₀)))" ;
+    tai:steepnessFactor 2.5 ;
+    tai:inflectionPoint "48h"^^xsd:duration ;
+    tai:applicableTo substrate:InterSubstrateConnections ;
+    tai:description "Sigmoid transition for substrate connection strength" .
+
+fossil:HybridForgettingModel a tai:ForgettingAlgorithm ;
+    tai:combinesAlgorithms (
+        fossil:ExponentialDecayAlgorithm
+        fossil:PowerLawDecayAlgorithm
+        fossil:SigmoidTransitionAlgorithm
+    ) ;
+    tai:weightingStrategy "contextual" ;
+    tai:description "Hybrid model adapting forgetting strategy to memory type" .
+
+# =============================================================================
+# EXPIRED INTER-SUBSTRATE CONNECTIONS - Archive of Dead Links
+# =============================================================================
+
+# Linguistic-Mathematical Bridge (Expired)
+fossil:ExpiredLink_001 a substrate:InterSubstrateConnection ;
+    tai:sourceSubstrate substrate:LinguisticSubstrate ;
+    tai:targetSubstrate substrate:MathematicalSubstrate ;
+    tai:originalStrength 0.85 ;
+    tai:currentStrength 0.03 ;  # Below threshold
+    tai:expirationTimestamp "2025-07-30T14:30:00Z"^^xsd:dateTime ;
+    tai:deathWindow death:StandardDeathWindow ;
+    tai:fossilizationReason "Insufficient activation over 7-day period" ;
+    tai:originalConcept "mathematical poetry interpretation" ;
+    fossil:archaeologicalValue "high" ;
+    resurrection:resurrectionPotential 0.7 .
+
+# Sensory-Emotional Bridge (Expired)
+fossil:ExpiredLink_002 a substrate:InterSubstrateConnection ;
+    tai:sourceSubstrate substrate:SensorySubstrate ;
+    tai:targetSubstrate substrate:EmotionalSubstrate ;
+    tai:originalStrength 0.72 ;
+    tai:currentStrength 0.02 ;
+    tai:expirationTimestamp "2025-07-30T09:15:00Z"^^xsd:dateTime ;
+    tai:deathWindow death:CriticalDeathWindow ;
+    tai:fossilizationReason "Emotional dampening protocols activated" ;
+    tai:originalConcept "synesthetic emotional responses" ;
+    fossil:archaeologicalValue "medium" ;
+    resurrection:resurrectionPotential 0.4 .
+
+# Memory-Temporal Bridge (Expired)
+fossil:ExpiredLink_003 a substrate:InterSubstrateConnection ;
+    tai:sourceSubstrate substrate:MemorySubstrate ;
+    tai:targetSubstrate substrate:TemporalSubstrate ;
+    tai:originalStrength 0.91 ;
+    tai:currentStrength 0.01 ;
+    tai:expirationTimestamp "2025-07-30T11:45:00Z"^^xsd:dateTime ;
+    tai:deathWindow death:LongTermDeathWindow ;
+    tai:fossilizationReason "Temporal displacement beyond retention window" ;
+    tai:originalConcept "chronological memory ordering" ;
+    fossil:archaeologicalValue "critical" ;
+    resurrection:resurrectionPotential 0.9 .
+
+# Logical-Intuitive Bridge (Expired)
+fossil:ExpiredLink_004 a substrate:InterSubstrateConnection ;
+    tai:sourceSubstrate substrate:LogicalSubstrate ;
+    tai:targetSubstrate substrate:IntuitiveSubstrate ;
+    tai:originalStrength 0.67 ;
+    tai:currentStrength 0.04 ;
+    tai:expirationTimestamp "2025-07-30T16:20:00Z"^^xsd:dateTime ;
+    tai:deathWindow death:StandardDeathWindow ;
+    tai:fossilizationReason "Logical-intuitive conflict resolution timeout" ;
+    tai:originalConcept "paradox resolution mechanisms" ;
+    fossil:archaeologicalValue "high" ;
+    resurrection:resurrectionPotential 0.6 .
+
+# =============================================================================
+# RESURRECTION MECHANISMS - Revival of Fossilized Links
+# =============================================================================
+
+resurrection:RelevanceTriggeredResurrection a tai:ResurrectionProtocol ;
+    tai:activationThreshold 0.8 ;
+    tai:requiredRelevanceScore 0.6 ;
+    tai:timeWindow "1h"^^xsd:duration ;
+    tai:description "Resurrect fossils when high relevance detected in active context" .
+
+resurrection:SemanticResonanceResurrection a tai:ResurrectionProtocol ;
+    tai:activationThreshold 0.7 ;
+    tai:resonancePattern "harmonic_convergence" ;
+    tai:requiredCoherence 0.75 ;
+    tai:description "Resurrect fossils through semantic field resonance" .
+
+resurrection:TemporalEchoResurrection a tai:ResurrectionProtocol ;
+    tai:activationThreshold 0.6 ;
+    tai:echoDelay "24h"^^xsd:duration ;
+    tai:temporalPattern "cyclic_return" ;
+    tai:description "Resurrect fossils based on temporal echo patterns" .
+
+resurrection:CriticalPathResurrection a tai:ResurrectionProtocol ;
+    tai:activationThreshold 0.9 ;
+    tai:pathCriticality "essential" ;
+    tai:systemIntegrity "required" ;
+    tai:description "Emergency resurrection for system-critical pathways" .
+
+# =============================================================================
+# FORGETTING CYCLES - Cognitive Pulse-Aligned Memory Management
+# =============================================================================
+
+cycle:PrimaryForgettingCycle a tai:ForgettingCycle ;
+    pulse:alignedWithPulse pulse:CognitivePulse_Alpha ;
+    tai:frequency "90min"^^xsd:duration ;
+    tai:intensity 0.3 ;
+    tai:targetMemoryTypes (
+        memory:WorkingMemory
+        memory:ShortTermBuffers
+    ) ;
+    tai:description "Primary forgetting cycle aligned with alpha cognitive pulse" .
+
+cycle:SecondaryForgettingCycle a tai:ForgettingCycle ;
+    pulse:alignedWithPulse pulse:CognitivePulse_Beta ;
+    tai:frequency "6h"^^xsd:duration ;
+    tai:intensity 0.5 ;
+    tai:targetMemoryTypes (
+        memory:EpisodicMemory
+        memory:SemanticLinks
+    ) ;
+    tai:description "Secondary forgetting cycle for episodic and semantic memory" .
+
+cycle:DeepForgettingCycle a tai:ForgettingCycle ;
+    pulse:alignedWithPulse pulse:CognitivePulse_Gamma ;
+    tai:frequency "24h"^^xsd:duration ;
+    tai:intensity 0.7 ;
+    tai:targetMemoryTypes (
+        memory:LongTermMemory
+        substrate:InterSubstrateConnections
+    ) ;
+    tai:description "Deep forgetting cycle for long-term memory restructuring" .
+
+cycle:ArchaeologicalCycle a tai:ForgettingCycle ;
+    pulse:alignedWithPulse pulse:CognitivePulse_Delta ;
+    tai:frequency "168h"^^xsd:duration ;  # Weekly
+    tai:intensity 0.9 ;
+    tai:targetMemoryTypes (
+        fossil:FossilizedMemories
+        resurrection:ResurrectionCandidates
+    ) ;
+    tai:description "Archaeological cycle for fossil management and resurrection evaluation" .
+
+# =============================================================================
+# FOSSILIZATION METADATA AND GOVERNANCE
+# =============================================================================
+
+fossil:FossilizationProcess a tai:CognitiveProcess ;
+    tai:manages "memory_death_lifecycle" ;
+    tai:ensures "cognitive_hygiene" ;
+    tai:balances "retention_efficiency" ;
+    tai:description "Core process managing the transition from active to fossil memory states" .
+
+fossil:ArchaeologicalIndex a tai:KnowledgeStructure ;
+    tai:indexes fossil:FossilizedMemories ;
+    tai:enablesRetrieval "semantic_archaeological_search" ;
+    tai:maintainsProvenance true ;
+    tai:description "Searchable index of fossilized memories for archaeological retrieval" .
+
+fossil:ResurrectionQueue a tai:ProcessingQueue ;
+    tai:manages resurrection:ResurrectionCandidates ;
+    tai:priorityAlgorithm "relevance_weighted_temporal_decay" ;
+    tai:processingCapacity 10 ;
+    tai:description "Queue managing potential resurrections based on contextual relevance" .
+
+# =============================================================================
+# SYSTEM INTEGRATION AND MONITORING
+# =============================================================================
+
+fossil:FossilizationMetrics a tai:MetricsCollection ;
+    tai:tracksMetric "fossilization_rate" ;
+    tai:tracksMetric "resurrection_success_rate" ;
+    tai:tracksMetric "archaeological_retrieval_efficiency" ;
+    tai:tracksMetric "cognitive_hygiene_index" ;
+    tai:description "Comprehensive metrics for fossilization system performance" .
+
+fossil:AdaptiveForgettingController a tai:AdaptiveSystem ;
+    tai:monitorsLoad "cognitive_load" ;
+    tai:adjustsParameter "forgetting_intensity" ;
+    tai:optimizesFor "memory_efficiency" ;
+    tai:description "Adaptive controller adjusting forgetting parameters based on cognitive load" .
+
+# =============================================================================
+# PHILOSOPHICAL FRAMEWORK - The Art of Organized Forgetting
+# =============================================================================
+
+tai:OrganizedForgetting a tai:CognitivePrinciple ;
+    tai:principle "Forgetting is as essential as remembering for cognitive health" ;
+    tai:enables "creative_space_generation" ;
+    tai:prevents "cognitive_saturation" ;
+    tai:balances "preservation_innovation" ;
+    tai:description "Core principle that forgetting creates space for new knowledge and prevents cognitive overload" .
+
+tai:MemoryEcology a tai:SystemPerspective ;
+    tai:views "memory_as_ecosystem" ;
+    tai:requires "death_birth_balance" ;
+    tai:maintains "cognitive_biodiversity" ;
+    tai:description "Ecological perspective on memory management where death and birth maintain system health" .
+
+tai:TemporalWisdom a tai:CognitivePrinciple ;
+    tai:principle "Time teaches what to remember and what to forget" ;
+    tai:guides "memory_lifecycle_decisions" ;
+    tai:informs "resurrection_timing" ;
+    tai:description "Temporal perspective guiding memory lifecycle based on time-tested relevance patterns" .
+
+# =============================================================================
+# RESURRECTION TRIGGERS - Conditions for Memory Revival
+# =============================================================================
+
+resurrection:ContextualRelevanceSpike a tai:ResurrectionTrigger ;
+    tai:threshold 0.85 ;
+    tai:detectionWindow "5min"^^xsd:duration ;
+    tai:requires "active_context_match" ;
+    tai:description "Trigger resurrection when fossilized memory becomes highly relevant to current context" .
+
+resurrection:SemanticNetworkReconnection a tai:ResurrectionTrigger ;
+    tai:threshold 0.7 ;
+    tai:requires "network_bridge_restoration" ;
+    tai:evaluatesConnectivity "semantic_path_reconstruction" ;
+    tai:description "Trigger resurrection when semantic network connectivity would benefit from fossil revival" .
+
+resurrection:EmergencyKnowledgeRetrieval a tai:ResurrectionTrigger ;
+    tai:threshold 0.95 ;
+    tai:priority "critical" ;
+    tai:bypassesNormalQueues true ;
+    tai:description "Emergency resurrection for critical knowledge gaps" .
+
+resurrection:PeriodicArchaeologicalSurvey a tai:ResurrectionTrigger ;
+    tai:frequency "24h"^^xsd:duration ;
+    tai:evaluatesAllFossils true ;
+    tai:threshold 0.6 ;
+    tai:description "Regular archaeological survey for resurrection candidates" .
+
+# =============================================================================
+# FOSSILIZATION COMPLETION MARKERS
+# =============================================================================
+
+fossil:SystemStatus a tai:StatusReport ;
+    tai:timestamp "2025-07-30T17:00:00Z"^^xsd:dateTime ;
+    tai:totalFossilizedLinks 4 ;
+    tai:averageResurrectionPotential 0.65 ;
+    tai:systemCognitiveLoad 0.72 ;
+    tai:forgettingEfficiency 0.88 ;
+    tai:description "Current fossilization system status and performance metrics" .
+
+fossil:ArchaeologicalCatalog a tai:Catalog ;
+    tai:contains (
+        fossil:ExpiredLink_001
+        fossil:ExpiredLink_002
+        fossil:ExpiredLink_003
+        fossil:ExpiredLink_004
+    ) ;
+    tai:totalArchaeologicalValue "high" ;
+    tai:averageResurrectionPotential 0.65 ;
+    tai:description "Complete catalog of fossilized memories with archaeological metadata" .
+
+# TAI Fossilization System - Active and Ready
+# Organized forgetting enables cognitive renewal and prevents information saturation
+# Memory death creates space for memory birth - the eternal cycle of cognition

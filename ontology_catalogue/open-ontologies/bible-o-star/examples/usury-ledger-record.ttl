@@ -1,0 +1,33 @@
+@prefix bos: <https://open-ontologies.org/bible-o-star#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# UsuryLedgerRecord: internal extraction audit entry.
+# Usury = internal extraction from builders. It is not external opposition — it is betrayal from within.
+# The audit names the extractors and records the demanded restoration.
+
+bos:NoblesAndRulersExtractors a bos:Builder ;
+    rdfs:label "Nobles and Rulers of Judah" ;
+    rdfs:comment "Internal members of the building community who were extracting usury from fellow builders. Named as the source of internal economic harm." ;
+    bos:hasCanonicalReference "Neh.5.7"^^xsd:string ;
+    bos:assignedToGate bos:DungGate ;
+    bos:hasSource "Neh.5.7" ;
+    dcterms:created "2026-06-02"^^xsd:date .
+
+bos:UsuryLedgerRecord001 a bos:UsuryLedgerRecord ;
+    rdfs:label "Usury Ledger Record 001 — Internal Extraction Audit" ;
+    rdfs:comment "Audit finding: nobles and rulers were extracting usury from brothers who mortgaged fields, vineyards, and houses to buy food during the wall-building campaign." ;
+    bos:hasCanonicalReference "Neh.5.1-13"^^xsd:string ;
+    bos:hasUsuryAudit bos:UsuryAudit001 ;
+    bos:hasSource "Neh.5.1-13" ;
+    bos:hasBuilder bos:NoblesAndRulersExtractors .
+
+bos:UsuryAudit001 a bos:UsuryAudit ;
+    rdfs:label "Usury Audit 001 — Usury Refused: Restoration Demanded" ;
+    rdfs:comment "Nehemiah rebuked the nobles and rulers. Demanded restoration of fields, vineyards, olive yards, houses, and the hundredth of money, grain, wine, and oil. Oath taken before the congregation and priests. Sworn and confirmed." ;
+    bos:hasCanonicalReference "Neh.5.7-13" ;
+    bos:hasSource "Neh.5.7-13" ;
+    bos:refusesPoison true .

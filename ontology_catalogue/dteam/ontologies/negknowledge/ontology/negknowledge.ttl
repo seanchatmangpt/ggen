@@ -1,0 +1,40 @@
+@prefix neg: <https://chatmangpt.com/ontology/negknowledge#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+neg:NegativeResult a rdfs:Class ;
+  rdfs:label "Empirically rejected optimisation or design pattern" .
+
+neg:id                   a rdf:Property ; rdfs:domain neg:NegativeResult ; rdfs:range rdfs:Literal .
+neg:attempt              a rdf:Property ; rdfs:domain neg:NegativeResult ; rdfs:range rdfs:Literal .
+neg:source               a rdf:Property ; rdfs:domain neg:NegativeResult ; rdfs:range rdfs:Literal .
+neg:outcome              a rdf:Property ; rdfs:domain neg:NegativeResult ; rdfs:range rdfs:Literal .
+neg:reason               a rdf:Property ; rdfs:domain neg:NegativeResult ; rdfs:range rdfs:Literal .
+
+neg:MANUAL_SUPEROP_FUSION a neg:NegativeResult ;
+  neg:id       "MANUAL_SUPEROP_FUSION" ;
+  neg:attempt  "manually fused admit+commit+fragment superop at T0" ;
+  neg:source   "docs/opus/58, docs/opus/59" ;
+  neg:outcome  "Pessimisation" ;
+  neg:reason   "Autovectoriser already fuses #[inline(always)] primitives; manual fusion adds state-passing overhead." .
+
+neg:CONDVAR_WORKER_POOL_SUB_MICROSECOND a neg:NegativeResult ;
+  neg:id       "CONDVAR_WORKER_POOL_SUB_MICROSECOND" ;
+  neg:attempt  "std::sync::Condvar-based worker pool for sub-µs fan-out" ;
+  neg:source   "docs/opus/58, docs/opus/59" ;
+  neg:outcome  "Pessimisation" ;
+  neg:reason   "Condvar wake-up is ~3 µs per notify; eight-core fan-out needs futex/ulock or spin-armed cores." .
+
+neg:CRITERION_ITER_WITH_SETUP_FOR_NS_OPS a neg:NegativeResult ;
+  neg:id       "CRITERION_ITER_WITH_SETUP_FOR_NS_OPS" ;
+  neg:attempt  "Criterion iter_with_setup to benchmark sub-100 ns operations" ;
+  neg:source   "docs/opus/58" ;
+  neg:outcome  "Pessimisation" ;
+  neg:reason   "Setup harness overhead dominates the measurement; use reused-state benches instead." .
+
+neg:HOT_HASHMAP_FOR_PROTOTYPE_LOOKUP a neg:NegativeResult ;
+  neg:id       "HOT_HASHMAP_FOR_PROTOTYPE_LOOKUP" ;
+  neg:attempt  "HashMap<HyperVector, Prototype> on hot path" ;
+  neg:source   "doc 37 SPR, doc 49 glossary" ;
+  neg:outcome  "Rejected" ;
+  neg:reason   "Hash probing defeats locality; use PackedKeyTable / dense direct indexing." .

@@ -1,0 +1,563 @@
+@prefix :       <http://bitbizeco.dev/ontology/v1/business-ecosystem/shacl#> .
+@prefix beco:   <http://bitbizeco.dev/ontology/v1/business-ecosystem#> .
+@prefix sh:     <http://www.w3.org/ns/shacl#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+
+<http://bitbizeco.dev/ontology/v1/business-ecosystem/shacl>
+  a owl:Ontology ;
+  rdfs:label "Business Ecosystem SHACL Constraints" ;
+  rdfs:comment "SHACL validation rules for business ecosystem modeling and Michael Lewrick framework compliance" ;
+  owl:imports <http://bitbizeco.dev/ontology/v1/business-ecosystem> .
+
+#################################################################
+# Value Proposition Validation
+#################################################################
+
+:ValuePropositionShape
+  a sh:NodeShape ;
+  sh:targetClass beco:ValueProposition ;
+  sh:message "Value Proposition must be properly structured according to Lewrick framework" ;
+  
+  sh:property [
+    sh:path rdfs:label ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 5 ;
+    sh:maxLength 100 ;
+    sh:message "Value Proposition must have a clear, concise label (5-100 characters)"
+  ] ;
+  
+  sh:property [
+    sh:path rdfs:comment ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 20 ;
+    sh:maxLength 500 ;
+    sh:message "Value Proposition must have detailed description (20-500 characters)"
+  ] ;
+  
+  sh:property [
+    sh:path beco:serves ;
+    sh:minCount 1 ;
+    sh:class beco:CustomerSegment ;
+    sh:message "Value Proposition must serve at least one Customer Segment"
+  ] ;
+  
+  sh:property [
+    sh:path beco:targetsStage ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:class beco:GrowthStage ;
+    sh:message "Value Proposition must target exactly one Growth Stage"
+  ] ;
+  
+  sh:property [
+    sh:path beco:analyzedThrough ;
+    sh:minCount 2 ;
+    sh:class beco:DesignLens ;
+    sh:message "Value Proposition must be analyzed through at least 2 Design Lenses"
+  ] .
+
+#################################################################
+# Customer Segment Validation
+#################################################################
+
+:CustomerSegmentShape
+  a sh:NodeShape ;
+  sh:targetClass beco:CustomerSegment ;
+  sh:message "Customer Segment must follow market segmentation best practices" ;
+  
+  sh:property [
+    sh:path beco:targetIndustry ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:pattern "^[A-Za-z ]+$" ;
+    sh:message "Target Industry must be specified and contain only letters and spaces"
+  ] ;
+  
+  sh:property [
+    sh:path beco:customerAcquisitionCost ;
+    sh:minCount 1 ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 0 ;
+    sh:message "Customer Acquisition Cost must be specified and non-negative"
+  ] ;
+  
+  sh:property [
+    sh:path beco:lifetimeValue ;
+    sh:minCount 1 ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 0 ;
+    sh:message "Lifetime Value must be specified and non-negative"
+  ] ;
+  
+  sh:property [
+    sh:path beco:generatesRevenue ;
+    sh:minCount 1 ;
+    sh:class beco:RevenueStream ;
+    sh:message "Customer Segment must generate at least one Revenue Stream"
+  ] .
+
+# Customer Acquisition Cost vs Lifetime Value validation
+:CustomerSegmentEconomicsShape
+  a sh:NodeShape ;
+  sh:targetClass beco:CustomerSegment ;
+  sh:sparql [
+    sh:message "Lifetime Value must be at least 3x Customer Acquisition Cost for viable economics" ;
+    sh:prefixes beco: ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this beco:customerAcquisitionCost ?cac .
+        $this beco:lifetimeValue ?ltv .
+        FILTER (?ltv < (?cac * 3))
+      }
+    """
+  ] .
+
+#################################################################
+# Revenue Stream Validation (bit* Strategy)
+#################################################################
+
+:RevenueStreamShape
+  a sh:NodeShape ;
+  sh:targetClass beco:RevenueStream ;
+  sh:message "Revenue Stream must align with bit* monetization strategy" ;
+  
+  sh:property [
+    sh:path beco:annualRevenueTarget ;
+    sh:minCount 1 ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 1000 ;
+    sh:message "Annual Revenue Target must be at least $1,000"
+  ] ;
+  
+  sh:property [
+    sh:path beco:revenueYear ;
+    sh:minCount 1 ;
+    sh:datatype xsd:gYear ;
+    sh:minInclusive "2025"^^xsd:gYear ;
+    sh:maxInclusive "2030"^^xsd:gYear ;
+    sh:message "Revenue Year must be between 2025-2030"
+  ] ;
+  
+  sh:property [
+    sh:path beco:utilizesMonetization ;
+    sh:minCount 1 ;
+    sh:class beco:MonetizationPattern ;
+    sh:message "Revenue Stream must utilize at least one Monetization Pattern"
+  ] .
+
+# bit* Revenue Targets Validation
+:BitRevenueTargetsShape
+  a sh:NodeShape ;
+  sh:targetClass beco:RevenueStream ;
+  sh:sparql [
+    sh:message "Year 1 (2025) revenue targets should align with $380K goal" ;
+    sh:prefixes beco: ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this beco:revenueYear "2025"^^xsd:gYear .
+        $this beco:annualRevenueTarget ?target .
+        FILTER (?target > 500000)
+      }
+    """
+  ] ;
+  sh:sparql [
+    sh:message "Year 2 (2026) revenue targets should align with $1.95M goal" ;
+    sh:prefixes beco: ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this beco:revenueYear "2026"^^xsd:gYear .
+        $this beco:annualRevenueTarget ?target .
+        FILTER (?target > 3000000)
+      }
+    """
+  ] .
+
+#################################################################
+# Ecosystem Layer Validation
+#################################################################
+
+:EcosystemLayerShape
+  a sh:NodeShape ;
+  sh:targetClass beco:EcosystemLayer ;
+  sh:message "Ecosystem Layer must contribute to network effects" ;
+  
+  sh:property [
+    sh:path beco:enablesNetworkEffect ;
+    sh:minCount 1 ;
+    sh:class beco:NetworkEffect ;
+    sh:message "Ecosystem Layer must enable at least one Network Effect"
+  ] .
+
+:CorePlatformShape
+  a sh:NodeShape ;
+  sh:targetClass beco:CorePlatform ;
+  sh:message "Core Platform must be the foundation of the ecosystem" ;
+  
+  sh:property [
+    sh:path beco:enablesNetworkEffect ;
+    sh:minCount 2 ;
+    sh:message "Core Platform must enable at least 2 Network Effects"
+  ] ;
+  
+  sh:property [
+    sh:path beco:analyzedThrough ;
+    sh:class beco:TechnicalLens ;
+    sh:minCount 1 ;
+    sh:message "Core Platform must be analyzed through Technical Lens"
+  ] .
+
+#################################################################
+# Network Effect Validation
+#################################################################
+
+:NetworkEffectShape
+  a sh:NodeShape ;
+  sh:targetClass beco:NetworkEffect ;
+  sh:message "Network Effect must create value through ecosystem participation" ;
+  
+  sh:property [
+    sh:path rdfs:comment ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:pattern ".*→.*→.*→.*" ;
+    sh:message "Network Effect description must show causal chain with arrows (→)"
+  ] .
+
+#################################################################
+# Growth Stage Validation (Scaling Framework)
+#################################################################
+
+:GrowthStageShape
+  a sh:NodeShape ;
+  sh:targetClass beco:GrowthStage ;
+  sh:message "Growth Stage must have measurable progression" ;
+  
+  sh:property [
+    sh:path beco:timeframe ;
+    sh:minCount 1 ;
+    sh:datatype xsd:duration ;
+    sh:message "Growth Stage must have defined timeframe"
+  ] ;
+  
+  sh:property [
+    sh:path beco:measuredBy ;
+    sh:minCount 2 ;
+    sh:class beco:SuccessMetric ;
+    sh:message "Growth Stage must be measured by at least 2 Success Metrics"
+  ] .
+
+# Growth Stage Progression Validation
+:GrowthProgressionShape
+  a sh:NodeShape ;
+  sh:targetClass beco:GrowthStage ;
+  sh:sparql [
+    sh:message "Foundation Stage must evolve to Expansion Stage" ;
+    sh:prefixes beco: ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this a beco:Foundation .
+        FILTER NOT EXISTS { $this beco:evolvesToward ?next . ?next a beco:Expansion }
+      }
+    """
+  ] ;
+  sh:sparql [
+    sh:message "Expansion Stage must evolve to Scaling Stage" ;
+    sh:prefixes beco: ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this a beco:Expansion .
+        FILTER NOT EXISTS { $this beco:evolvesToward ?next . ?next a beco:Scaling }
+      }
+    """
+  ] .
+
+#################################################################
+# Success Metrics Validation
+#################################################################
+
+:SuccessMetricShape
+  a sh:NodeShape ;
+  sh:targetClass beco:SuccessMetric ;
+  sh:message "Success Metric must have quantifiable targets" ;
+  
+  sh:property [
+    sh:path rdfs:label ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Success Metric must have descriptive label"
+  ] .
+
+:GrowthMetricShape
+  a sh:NodeShape ;
+  sh:targetClass beco:GrowthMetric ;
+  sh:message "Growth Metric must show positive growth trajectory" ;
+  
+  sh:property [
+    sh:path beco:monthlyGrowthRate ;
+    sh:minCount 1 ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 0 ;
+    sh:maxInclusive 100 ;
+    sh:message "Monthly Growth Rate must be between 0-100%"
+  ] .
+
+:RevenueMetricShape
+  a sh:NodeShape ;
+  sh:targetClass beco:RevenueMetric ;
+  sh:message "Revenue Metric must track financial performance" ;
+  
+  sh:property [
+    sh:path beco:monthlyGrowthRate ;
+    sh:minCount 1 ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 0 ;
+    sh:message "Revenue Growth Rate must be positive"
+  ] .
+
+:EngagementMetricShape
+  a sh:NodeShape ;
+  sh:targetClass beco:EngagementMetric ;
+  sh:message "Engagement Metric must track user satisfaction" ;
+  
+  sh:property [
+    sh:path beco:churnRate ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 0 ;
+    sh:maxInclusive 50 ;
+    sh:message "Churn Rate should be below 50% for healthy ecosystem"
+  ] ;
+  
+  sh:property [
+    sh:path beco:netPromoterScore ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive -100 ;
+    sh:maxInclusive 100 ;
+    sh:message "Net Promoter Score must be between -100 and 100"
+  ] .
+
+:HealthMetricShape
+  a sh:NodeShape ;
+  sh:targetClass beco:HealthMetric ;
+  sh:message "Health Metric must track ecosystem sustainability" ;
+  
+  sh:property [
+    sh:path beco:partnerSatisfactionScore ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 0 ;
+    sh:maxInclusive 100 ;
+    sh:message "Partner Satisfaction Score must be between 0-100"
+  ] ;
+  
+  sh:property [
+    sh:path beco:ecosystemVelocity ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 0 ;
+    sh:maxInclusive 1 ;
+    sh:message "Ecosystem Velocity must be between 0.0-1.0"
+  ] .
+
+#################################################################
+# Design Lens Analysis Validation (Lewrick Framework)
+#################################################################
+
+:DesignLensShape
+  a sh:NodeShape ;
+  sh:targetClass beco:DesignLens ;
+  sh:message "Design Lens must provide specific analytical perspective" ;
+  
+  sh:property [
+    sh:path rdfs:comment ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:pattern ".*perspective.*" ;
+    sh:message "Design Lens must describe its analytical perspective"
+  ] .
+
+# Multi-lens Analysis Validation
+:MultiLensAnalysisShape
+  a sh:NodeShape ;
+  sh:targetClass beco:ValueProposition ;
+  sh:sparql [
+    sh:message "Value Propositions should be analyzed through Business and Technical lenses minimum" ;
+    sh:prefixes beco: ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this a beco:ValueProposition .
+        FILTER NOT EXISTS { 
+          $this beco:analyzedThrough ?businessLens . 
+          ?businessLens a beco:BusinessLens 
+        }
+      }
+    """
+  ] .
+
+#################################################################
+# Collaboration Pattern Validation
+#################################################################
+
+:CollaborationPatternShape
+  a sh:NodeShape ;
+  sh:targetClass beco:CollaborationPattern ;
+  sh:message "Collaboration Pattern must enable cross-industry value creation" ;
+  
+  sh:property [
+    sh:path beco:crossIndustryPotential ;
+    sh:minCount 1 ;
+    sh:datatype xsd:boolean ;
+    sh:hasValue true ;
+    sh:message "Collaboration Pattern must enable cross-industry collaboration"
+  ] .
+
+#################################################################
+# Monetization Pattern Validation
+#################################################################
+
+:MonetizationPatternShape
+  a sh:NodeShape ;
+  sh:targetClass beco:MonetizationPattern ;
+  sh:message "Monetization Pattern must be sustainable and scalable" ;
+  
+  sh:property [
+    sh:path rdfs:comment ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 20 ;
+    sh:message "Monetization Pattern must have detailed description"
+  ] .
+
+# Subscription Model Constraints
+:SubscriptionModelShape
+  a sh:NodeShape ;
+  sh:targetClass beco:SubscriptionModel ;
+  sh:message "Subscription Model must provide recurring value" ;
+  
+  sh:property [
+    sh:path rdfs:comment ;
+    sh:pattern ".*recurring.*" ;
+    sh:message "Subscription Model description must mention recurring value"
+  ] .
+
+# Usage-Based Model Constraints
+:UsageBasedModelShape
+  a sh:NodeShape ;
+  sh:targetClass beco:UsageBasedModel ;
+  sh:message "Usage-Based Model must scale with customer value" ;
+  
+  sh:property [
+    sh:path rdfs:comment ;
+    sh:pattern ".*(pay-per|usage|consumption).*" ;
+    sh:message "Usage-Based Model description must mention pay-per-use or consumption"
+  ] .
+
+#################################################################
+# Partnership Ecosystem Validation
+#################################################################
+
+:PartnerEcosystemShape
+  a sh:NodeShape ;
+  sh:targetClass beco:PartnerEcosystem ;
+  sh:message "Partner Ecosystem must facilitate meaningful collaboration" ;
+  
+  sh:property [
+    sh:path beco:facilitatesCollaboration ;
+    sh:minCount 1 ;
+    sh:class beco:CollaborationPattern ;
+    sh:message "Partner Ecosystem must facilitate at least one Collaboration Pattern"
+  ] .
+
+#################################################################
+# Key Partnership Business Model Validation
+#################################################################
+
+:KeyPartnershipShape
+  a sh:NodeShape ;
+  sh:targetClass beco:KeyPartnership ;
+  sh:message "Key Partnership must participate in ecosystem layers" ;
+  
+  sh:property [
+    sh:path beco:participatesInLayer ;
+    sh:minCount 1 ;
+    sh:class beco:EcosystemLayer ;
+    sh:message "Key Partnership must participate in at least one Ecosystem Layer"
+  ] .
+
+#################################################################
+# Temporal Consistency Validation
+#################################################################
+
+:TemporalConsistencyShape
+  a sh:NodeShape ;
+  sh:targetClass beco:RevenueStream ;
+  sh:sparql [
+    sh:message "Revenue targets must be achievable and properly sequenced" ;
+    sh:prefixes beco: ;
+    sh:select """
+      SELECT $this ?year1 ?year2 ?target1 ?target2
+      WHERE {
+        $this beco:revenueYear ?year1 ;
+              beco:annualRevenueTarget ?target1 .
+        ?other beco:revenueYear ?year2 ;
+               beco:annualRevenueTarget ?target2 .
+        FILTER (?year1 < ?year2 && ?target1 > ?target2)
+      }
+    """
+  ] .
+
+#################################################################
+# Industry Disruption Validation
+#################################################################
+
+:IndustryDisruptionShape
+  a sh:NodeShape ;
+  sh:targetClass beco:ValueProposition ;
+  sh:property [
+    sh:path beco:industryDisruption ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:in ( 
+      "Automation" 
+      "AI Enhancement" 
+      "Platform Creation" 
+      "Process Optimization" 
+      "Data Intelligence" 
+      "Integration Simplification"
+      "Workflow Transformation"
+    ) ;
+    sh:message "Industry Disruption must be one of the recognized bit* disruption types"
+  ] .
+
+#################################################################
+# Ecosystem Health Thresholds
+#################################################################
+
+:EcosystemHealthThresholdShape
+  a sh:NodeShape ;
+  sh:targetClass beco:HealthMetric ;
+  sh:sparql [
+    sh:message "Healthy ecosystem requires partner satisfaction > 70 and ecosystem velocity > 0.5" ;
+    sh:prefixes beco: ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this beco:partnerSatisfactionScore ?satisfaction ;
+              beco:ecosystemVelocity ?velocity .
+        FILTER (?satisfaction < 70 || ?velocity < 0.5)
+      }
+    """
+  ] .

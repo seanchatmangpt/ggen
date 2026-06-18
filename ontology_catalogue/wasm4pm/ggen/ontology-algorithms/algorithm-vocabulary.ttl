@@ -1,0 +1,160 @@
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix pi:    <https://wasm4pm.dev/pi#> .
+
+# PI algorithm vocabulary — class and property definitions for Process Intelligence algorithms.
+# Namespace: https://wasm4pm.dev/pi# (parallel to compat: for cognition breeds)
+#
+# DERIVED PROPERTIES (NEVER assert in instances):
+#   pi:algorithmStatus  — CONSTRUCT-derived from pi-certified-gate in ggen.toml
+#   pi:measuredFitness  — projected by scripts/project_pi_evidence.py
+#   pi:piAdmitted       — projected by scripts/project_pi_evidence.py
+#   pi:fitnessProvenance — projected by scripts/project_pi_evidence.py
+
+# ── ProcessIntelligenceAlgorithm class ─────────────────────────────────────
+
+pi:ProcessIntelligenceAlgorithm a rdfs:Class ;
+  rdfs:label "ProcessIntelligenceAlgorithm" ;
+  rdfs:comment "A registered process mining algorithm in the wasm4pm platform, with paper-grounded evidence and WASM export metadata." .
+
+pi:algorithmId a rdf:Property ;
+  rdfs:domain pi:ProcessIntelligenceAlgorithm ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Canonical snake_case algorithm identifier — matches Rust enum id() and TypeScript AlgorithmId." .
+
+pi:algorithmLabel a rdf:Property ;
+  rdfs:domain pi:ProcessIntelligenceAlgorithm ;
+  rdfs:range xsd:string ;
+  rdfs:comment "PascalCase label used as Rust enum variant name (e.g. 'AlphaPlusPlus')." .
+
+pi:algorithmDoc a rdf:Property ;
+  rdfs:domain pi:ProcessIntelligenceAlgorithm ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Human-readable description of what the algorithm computes and its primary use case." .
+
+pi:citation a rdf:Property ;
+  rdfs:domain pi:ProcessIntelligenceAlgorithm ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Bibliographic reference to the primary paper introducing or canonically describing this algorithm." .
+
+pi:outputType a rdf:Property ;
+  rdfs:domain pi:ProcessIntelligenceAlgorithm ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Primary artifact type produced: dfg | petrinet | declare | tree | analytics | ml_result | model." .
+
+pi:category a rdf:Property ;
+  rdfs:domain pi:ProcessIntelligenceAlgorithm ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Functional category: discovery | discovery_analytics | object_centric | ml_analytics | conformance | simulation | prediction | import_export | agentic." .
+
+pi:speedTier a rdf:Property ;
+  rdfs:domain pi:ProcessIntelligenceAlgorithm ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Relative throughput rank 1-80 (lower = faster, 1 = fastest)." .
+
+pi:qualityTier a rdf:Property ;
+  rdfs:domain pi:ProcessIntelligenceAlgorithm ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Model quality rank 0-100 (higher = more faithful to the process). Orthogonal to speed." .
+
+pi:wasmExport a rdf:Property ;
+  rdfs:domain pi:ProcessIntelligenceAlgorithm ;
+  rdfs:range xsd:string ;
+  rdfs:comment "WASM-exported function name callable from TypeScript. Empty string if no direct WASM export." .
+
+pi:cliAlias a rdf:Property ;
+  rdfs:domain pi:ProcessIntelligenceAlgorithm ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Optional CLI alias string for wpm run (e.g. 'dfg'). Omit entirely when no alias exists." .
+
+pi:inputFormat a rdf:Property ;
+  rdfs:domain pi:ProcessIntelligenceAlgorithm ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Required input format: xes | ocel | bpmn | pnml | petri_net_handle | any." .
+
+pi:algorithmStatus a rdf:Property ;
+  rdfs:domain pi:ProcessIntelligenceAlgorithm ;
+  rdfs:range xsd:string ;
+  rdfs:comment "CONSTRUCT-derived lifecycle state: UNSUPPORTED | CERTIFIED. NEVER assert manually." .
+
+pi:standing a rdf:Property ;
+  rdfs:domain pi:ProcessIntelligenceAlgorithm ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Rung in the 11-rung manufactured-reason ladder: REGISTERED | DISPATCHABLE | REPLAYABLE. Assert directly when Rung 9 conditions are met (emitPiReceipt wired, dispatch table covers algorithm, OCEL fitness=1.0)." .
+
+pi:measuredFitness a rdf:Property ;
+  rdfs:domain pi:ProcessIntelligenceAlgorithm ;
+  rdfs:range xsd:decimal ;
+  rdfs:comment "Measured fitness from evidence projection. Do not hand-set." .
+
+pi:piAdmitted a rdf:Property ;
+  rdfs:domain pi:ProcessIntelligenceAlgorithm ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "True when admitted through PI evidence gate (measuredFitness >= 0.8). Derived; never hand-set." .
+
+pi:fitnessProvenance a rdf:Property ;
+  rdfs:domain pi:ProcessIntelligenceAlgorithm ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Reference to the OCEL report or fixture that measured this algorithm's fitness." .
+
+pi:vdaFitness a rdf:Property ;
+  rdfs:domain pi:ProcessIntelligenceAlgorithm ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Van der Aalst quality axis fitness from primary paper: high | medium | low | na." .
+
+pi:vdaPrecision a rdf:Property ;
+  rdfs:domain pi:ProcessIntelligenceAlgorithm ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Van der Aalst quality axis precision from primary paper: high | medium | low | na." .
+
+pi:vdaGeneralization a rdf:Property ;
+  rdfs:domain pi:ProcessIntelligenceAlgorithm ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Van der Aalst quality axis generalization from primary paper: high | medium | low | na." .
+
+pi:vdaSimplicity a rdf:Property ;
+  rdfs:domain pi:ProcessIntelligenceAlgorithm ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Van der Aalst quality axis simplicity of produced model: high | medium | low | na." .
+
+# ── AlgorithmPointer class ──────────────────────────────────────────────────
+
+pi:AlgorithmPointer a rdfs:Class ;
+  rdfs:label "AlgorithmPointer" ;
+  rdfs:comment "Anti-cheat assertion: a true published value + a decoy miscitation value per PI algorithm. The decoy must NOT appear as a literal in the algorithm's production source." .
+
+pi:forAlgorithm a rdf:Property ;
+  rdfs:domain pi:AlgorithmPointer ;
+  rdfs:range pi:ProcessIntelligenceAlgorithm ;
+  rdfs:comment "Links this pointer to its parent algorithm instance." .
+
+pi:pointerKind a rdf:Property ;
+  rdfs:domain pi:AlgorithmPointer ;
+  rdfs:range xsd:string ;
+  rdfs:comment "true | decoy" .
+
+pi:pointerValue a rdf:Property ;
+  rdfs:domain pi:AlgorithmPointer ;
+  rdfs:range xsd:string ;
+  rdfs:comment "The metric or result value as a string literal." .
+
+pi:pointerLocus a rdf:Property ;
+  rdfs:domain pi:AlgorithmPointer ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Bibliographic location: Author Year, paper section, figure/table reference." .
+
+pi:pointerDerivation a rdf:Property ;
+  rdfs:domain pi:AlgorithmPointer ;
+  rdfs:range xsd:string ;
+  rdfs:comment "For true pointers: how the value was derived from the paper." .
+
+pi:decoyReason a rdf:Property ;
+  rdfs:domain pi:AlgorithmPointer ;
+  rdfs:range xsd:string ;
+  rdfs:comment "For decoy pointers: why this value is a plausible miscitation." .
+
+pi:hardcodeLockable a rdf:Property ;
+  rdfs:domain pi:AlgorithmPointer ;
+  rdfs:range xsd:string ;
+  rdfs:comment "true emits a hardcode lock (value must be absent from production source). false/absent = no lock." .

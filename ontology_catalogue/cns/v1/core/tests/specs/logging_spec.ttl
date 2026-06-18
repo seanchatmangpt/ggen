@@ -1,0 +1,11 @@
+@prefix log: <http://bitstar.ai/core/log#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+[] a log:Event ;
+   log:level "INFO" ;
+   log:timestamp "2025-01-01T00:00:00Z"^^xsd:dateTime ;
+   log:message "hello" .
+
+
+
+

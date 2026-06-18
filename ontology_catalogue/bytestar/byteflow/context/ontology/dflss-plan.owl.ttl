@@ -1,0 +1,8 @@
+@prefix : <https://bytestar.org/ontology/byteflow/dflss-plan#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://bytestar.org/ontology/byteflow/dflss-plan>
+  a owl:Ontology ;
+  rdfs:label "ByteFlow DfLSS Project Plan" ;
+  rdfs:comment "The formal Design for Lean Six Sigma project plan for fabricating the ByteFlow orchestration engine and AOT compiler." .

@@ -1,0 +1,32 @@
+PREFIX : <http://uvmgr.io/cli#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Extract command structure for runtime layer generation
+# Result: Command information with subcommands and their options
+
+SELECT DISTINCT
+  ?commandName
+  ?description
+  ?module
+  ?subcommandName
+  ?subcommandDesc
+  (GROUP_CONCAT(?optionFlag; separator=",") AS ?optionFlags)
+WHERE {
+  ?command a :Command .
+  ?command :name ?commandName .
+  ?command :description ?description .
+  ?command :module ?module .
+
+  OPTIONAL {
+    ?command :hasSubcommand ?subcommand .
+    ?subcommand :name ?subcommandName .
+    ?subcommand :description ?subcommandDesc .
+
+    OPTIONAL {
+      ?subcommand :hasOption ?option .
+      ?option :flag ?optionFlag .
+    }
+  }
+}
+GROUP BY ?commandName ?description ?module ?subcommandName ?subcommandDesc
+ORDER BY ?commandName ?subcommandName

@@ -1,0 +1,53 @@
+@prefix : <http://bitflow.ai/example#> .
+@prefix yawl: <http://bitflow.ai/ontology/yawl/v2#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+:SimpleWorkflow a yawl:WorkflowSpecification ;
+    rdfs:label "Simple Example Workflow" ;
+    yawl:hasInputCondition :Start ;
+    yawl:hasOutputCondition :End .
+
+:Start a yawl:Condition ;
+    rdfs:label "Start" ;
+    yawl:flowsTo :ProcessData .
+
+:ProcessData a yawl:AtomicTask ;
+    rdfs:label "Process Data" ;
+    yawl:hasJoinType yawl:AND ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:maxExecutionTicks 10 ;
+    yawl:priority 100 ;
+    yawl:flowsTo :ValidateData .
+
+:ValidateData a yawl:AtomicTask ;
+    rdfs:label "Validate Data" ;
+    yawl:hasJoinType yawl:XOR ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:maxExecutionTicks 5 ;
+    yawl:priority 150 ;
+    yawl:flowsTo :Valid, :Invalid .
+
+:Valid a yawl:Condition ;
+    rdfs:label "Valid" ;
+    yawl:flowsTo :SaveData .
+
+:Invalid a yawl:Condition ;
+    rdfs:label "Invalid" ;
+    yawl:flowsTo :LogError .
+
+:SaveData a yawl:AtomicTask ;
+    rdfs:label "Save Data" ;
+    yawl:hasJoinType yawl:XOR ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:maxExecutionTicks 8 ;
+    yawl:flowsTo :End .
+
+:LogError a yawl:AtomicTask ;
+    rdfs:label "Log Error" ;
+    yawl:hasJoinType yawl:XOR ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:maxExecutionTicks 3 ;
+    yawl:flowsTo :End .
+
+:End a yawl:Condition ;
+    rdfs:label "End" . 

@@ -1,0 +1,47 @@
+@prefix : <http://example.org/db/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# CLI Ontology for database management
+
+:DatabaseCLI
+    a owl:Class ;
+    skos:prefLabel "database" ;
+    rdfs:comment "Database management CLI" .
+
+:StatusVerb
+    a owl:Class ;
+    rdfs:subClassOf :DatabaseVerb ;
+    skos:prefLabel "status" ;
+    rdfs:comment "Show database status" .
+
+:BackupVerb
+    a owl:Class ;
+    rdfs:subClassOf :DatabaseVerb ;
+    skos:prefLabel "backup" ;
+    rdfs:comment "Create database backup" .
+
+:MigrateVerb
+    a owl:Class ;
+    rdfs:subClassOf :DatabaseVerb ;
+    skos:prefLabel "migrate" ;
+    rdfs:comment "Run database migrations" .
+
+:DatabaseVerb
+    a owl:Class ;
+    rdfs:subClassOf owl:Thing ;
+    skos:prefLabel "Verb" ;
+    rdfs:comment "Base verb class" .
+
+:status_output
+    a owl:Class ;
+    rdfs:comment "Status output structure" .
+
+:backup_output
+    a owl:Class ;
+    rdfs:comment "Backup operation result" .
+
+:migrate_output
+    a owl:Class ;
+    rdfs:comment "Migration result" .

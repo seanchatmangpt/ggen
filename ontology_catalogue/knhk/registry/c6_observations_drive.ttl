@@ -1,0 +1,7 @@
+@prefix knhk: <https://knhk.io/covenant#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+knhk:C6_ObservationsDriveEverything a owl:Class ;
+    rdfs:label "C6 — Observations Drive Everything" ;
+    rdfs:comment "All state transitions are receipt-emitting. The Gamma store is append-only. No side effects without observation." .

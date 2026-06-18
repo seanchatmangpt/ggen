@@ -1,0 +1,60 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix bf: <https://bytestar.org/ontology/byteflow-admission#> .
+@prefix bs: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# SHAPE FOR A VALID ADMISSION REQUEST
+bf:AdmissionRequestShape
+  a sh:NodeShape ;
+  sh:targetClass bf:AdmissionRequest ;
+  sh:property [
+    sh:path bf:hasCrystal ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "An admission request must have exactly one crystal." ;
+    sh:node :YAWLWorkflowContentShape ; # New constraint to validate YAWL content within the crystal
+  ] ;
+
+# New Shape to Validate YAWL Workflow Content within a Crystal
+:YAWLWorkflowContentShape a sh:NodeShape ;
+  sh:targetClass bs:Crystal ; # Assuming the YAWL workflow is embedded within a bs:Crystal
+  sh:property [
+    sh:path bs:hasYAWLWorkflowSpecification ; # Assuming a property linking Crystal to YAWL spec
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:node yawl:WorkflowSpecificationShape ; # Apply the YAWL validation shapes
+    sh:message "The crystal must contain a valid YAWL Workflow Specification." ;
+  ] .
+  sh:property [
+    sh:path bf:hasProofs ;
+    sh:minCount 1 ;
+    sh:node bf:ProofSetShape ;
+    sh:message "An admission request must have a valid proof set." ;
+  ] .
+
+# SHAPE FOR THE PROOF SET
+bf:ProofSetShape
+  a sh:NodeShape ;
+  sh:targetClass bf:ProofSet ;
+  sh:property [
+    sh:path bf:hasPQCProof ;
+    sh:minCount 1 ;
+    sh:message "A proof set must contain a PQC proof." ;
+  ] ;
+  sh:property [
+    sh:path bf:hasSHACLProof ;
+    sh:minCount 1 ;
+    sh:message "A proof set must contain a SHACL proof." ;
+  ] .
+
+# SHAPE FOR THE CRYSTAL ITSELF
+bs:CrystalShape
+  a sh:NodeShape ;
+  sh:targetClass bs:Crystal ;
+  sh:property [
+    sh:path bs:patternByte ;
+    sh:datatype xsd:unsignedByte ;
+    sh:minInclusive 0 ;
+    sh:maxInclusive 255 ;
+    sh:message "Pattern Byte must be a valid byte value (0-255)." ;
+  ] .

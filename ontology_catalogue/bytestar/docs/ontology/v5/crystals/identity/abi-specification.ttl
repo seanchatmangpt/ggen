@@ -1,0 +1,579 @@
+@prefix abi: <http://bytestar.org/ontology/identity/abi#> .
+@prefix ba: <http://bytestar.org/ontology/> .
+@prefix orgbind: <http://bytestar.org/ontology/identity/orgbind#> .
+@prefix revoke: <http://bytestar.org/ontology/identity/revoke#> .
+@prefix idc: <http://bytestar.org/ontology/identity/idc#> .
+@prefix cap: <http://bytestar.org/ontology/identity/cap#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+# ================================================================================
+# Identity Crystal Suite - ABI Specification Ontology
+# Version: 5.0.0 - Complete Interface Definitions
+# CTID: identity-abi-2025-01-23-v5.0.0-specification
+# ================================================================================
+
+<http://bytestar.org/ontology/identity/abi> a owl:Ontology ;
+    owl:versionIRI <http://bytestar.org/ontology/identity/abi/5.0.0> ;
+    dct:title "Identity Crystal Suite - ABI Specification"@en ;
+    dct:description """Comprehensive Application Binary Interface (ABI) specifications for the
+    ByteStar Identity Crystal Suite, defining Wire, Storage, and Capability interfaces for
+    .orgbind, .revoke, .idc, and .cap crystals with quantum-resistant protocols and
+    Doctrine of 8 performance constraints."""@en ;
+    dct:creator "ByteStar Identity Foundation" ;
+    dct:created "2025-01-23T00:00:00Z"^^xsd:dateTime ;
+    dct:modified "2025-01-23T00:00:00Z"^^xsd:dateTime ;
+    owl:versionInfo "5.0.0" ;
+    dct:license <https://opensource.org/licenses/MIT> ;
+    owl:imports <http://bytestar.org/ontology/identity/orgbind> ,
+                <http://bytestar.org/ontology/identity/revoke> ,
+                <http://bytestar.org/ontology/identity/idc> ,
+                <http://bytestar.org/ontology/identity/cap> ;
+    abi:specificationStatus "production-ready" ;
+    abi:compatibilityLevel "v5.0" ;
+    abi:quantumResistant true ;
+    abi:doctrineCompliant true .
+
+# ================================================================================
+# CORE ABI ARCHITECTURE
+# ================================================================================
+
+## Base ABI Interface Classes
+abi:WireInterface a owl:Class ;
+    rdfs:label "Wire Interface"@en ;
+    rdfs:comment "Network protocol interface definition for crystal communications."@en ;
+    rdfs:subClassOf ba:Interface ;
+    abi:interfaceType "wire" ;
+    abi:protocolFamily "bytestar-identity" ;
+    abi:versioningSupported true ;
+    abi:backwardCompatible true .
+
+abi:StorageInterface a owl:Class ;
+    rdfs:label "Storage Interface"@en ;
+    rdfs:comment "Persistent storage interface definition for crystal data."@en ;
+    rdfs:subClassOf ba:Interface ;
+    abi:interfaceType "storage" ;
+    abi:durabilityGuarantees "ACID" ;
+    abi:consistencyModel "strong" ;
+    abi:partitioningSupported true .
+
+abi:CapabilityInterface a owl:Class ;
+    rdfs:label "Capability Interface"@en ;
+    rdfs:comment "Capability-based access interface definition."@en ;
+    rdfs:subClassOf ba:Interface ;
+    abi:interfaceType "capability" ;
+    abi:securityModel "object-capability" ;
+    abi:delegationSupported true ;
+    abi:attenuationSupported true .
+
+## ABI Method Definition
+abi:ABIMethod a owl:Class ;
+    rdfs:label "ABI Method"@en ;
+    rdfs:comment "Method definition within an ABI interface."@en ;
+    rdfs:subClassOf ba:Method ;
+    abi:methodSignature xsd:string ;
+    abi:inputParameters xsd:string ;
+    abi:outputParameters xsd:string ;
+    abi:errorCodes xsd:string ;
+    abi:performanceContract xsd:string .
+
+abi:ABIDataType a owl:Class ;
+    rdfs:label "ABI Data Type"@en ;
+    rdfs:comment "Data type definition for ABI interfaces."@en ;
+    rdfs:subClassOf ba:DataType ;
+    abi:typeDefinition xsd:string ;
+    abi:serialization "protobuf" ;
+    abi:validation "schema-based" ;
+    abi:versioning "semantic" .
+
+# ================================================================================
+# WIRE INTERFACE SPECIFICATIONS
+# ================================================================================
+
+## OrgBind Wire Interface
+abi:OrgBindWire a abi:WireInterface ;
+    rdfs:label "OrgBind Wire Interface"@en ;
+    rdfs:comment "Network protocol for organizational binding operations."@en ;
+    abi:protocolVersion "3.0" ;
+    abi:transport "HTTP/3-QUIC" ;
+    abi:encryption "TLS-1.3-PQC" ;
+    abi:compression "brotli" ;
+    abi:maxMessageSize "1048576"^^xsd:int ;  # 1MB
+    abi:timeoutDefault "PT30S"^^xsd:duration .
+
+abi:orgBind_CreateBinding a abi:ABIMethod ;
+    rdfs:label "Create Organizational Binding"@en ;
+    abi:methodSignature "createBinding(identity: Identity, organization: OrgEntity, attestations: AttestationList) -> BindingResult" ;
+    abi:inputParameters "identity,organization,attestations,signature" ;
+    abi:outputParameters "bindingId,expirationTime,attestationHash" ;
+    abi:errorCodes "INSUFFICIENT_ATTESTATIONS,INVALID_SIGNATURE,EXPIRED_CREDENTIALS" ;
+    abi:performanceContract "< 8ms response time" .
+
+abi:orgBind_VerifyBinding a abi:ABIMethod ;
+    rdfs:label "Verify Organizational Binding"@en ;
+    abi:methodSignature "verifyBinding(bindingId: String, challengeNonce: Bytes) -> VerificationResult" ;
+    abi:inputParameters "bindingId,challengeNonce,currentTime" ;
+    abi:outputParameters "valid,trustLevel,expirationTime,membershipLevel" ;
+    abi:errorCodes "BINDING_NOT_FOUND,BINDING_EXPIRED,INVALID_CHALLENGE" ;
+    abi:performanceContract "< 2ms verification time" .
+
+abi:orgBind_RevokeBinding a abi:ABIMethod ;
+    rdfs:label "Revoke Organizational Binding"@en ;
+    abi:methodSignature "revokeBinding(bindingId: String, reason: String, authority: Authority) -> RevocationResult" ;
+    abi:inputParameters "bindingId,reason,authority,signature" ;
+    abi:outputParameters "revocationId,propagationStatus,confirmationTime" ;
+    abi:errorCodes "INSUFFICIENT_AUTHORITY,BINDING_NOT_FOUND,ALREADY_REVOKED" ;
+    abi:performanceContract "< 5ms revocation initiation" .
+
+## Revoke Wire Interface
+abi:RevokeWire a abi:WireInterface ;
+    rdfs:label "Revoke Wire Interface"@en ;
+    rdfs:comment "Network protocol for revocation operations."@en ;
+    abi:protocolVersion "3.0" ;
+    abi:transport "HTTP/3-QUIC" ;
+    abi:encryption "ChaCha20-Poly1305-PQC" ;
+    abi:compression "lz4" ;
+    abi:maxMessageSize "102400"^^xsd:int ;  # 100KB
+    abi:timeoutDefault "PT5S"^^xsd:duration .
+
+abi:revoke_IssueRevocation a abi:ABIMethod ;
+    rdfs:label "Issue Revocation"@en ;
+    abi:methodSignature "issueRevocation(entityId: String, revocationReason: String, authority: Authority) -> RevocationEvent" ;
+    abi:inputParameters "entityId,revocationReason,authority,signature,timestamp" ;
+    abi:outputParameters "revocationId,blockchainHash,propagationTargets" ;
+    abi:errorCodes "INVALID_AUTHORITY,ENTITY_NOT_FOUND,ALREADY_REVOKED" ;
+    abi:performanceContract "< 8ms issuance time" .
+
+abi:revoke_CheckRevocationStatus a abi:ABIMethod ;
+    rdfs:label "Check Revocation Status"@en ;
+    abi:methodSignature "checkRevocationStatus(entityId: String) -> RevocationStatus" ;
+    abi:inputParameters "entityId,checkTime" ;
+    abi:outputParameters "revoked,revocationTime,revocationReason,validityWindow" ;
+    abi:errorCodes "ENTITY_NOT_FOUND,CRL_UNAVAILABLE" ;
+    abi:performanceContract "< 1ms status check" .
+
+## IDC Wire Interface
+abi:IdcWire a abi:WireInterface ;
+    rdfs:label "IDC Wire Interface"@en ;
+    rdfs:comment "Network protocol for identity management operations."@en ;
+    abi:protocolVersion "3.0-identity" ;
+    abi:transport "HTTP/3-QUIC" ;
+    abi:encryption "Kyber-1024-AES-256-GCM" ;
+    abi:compression "brotli" ;
+    abi:maxMessageSize "5242880"^^xsd:int ;  # 5MB
+    abi:timeoutDefault "PT60S"^^xsd:duration .
+
+abi:idc_CreateIdentity a abi:ABIMethod ;
+    rdfs:label "Create Quantum-Resistant Identity"@en ;
+    abi:methodSignature "createIdentity(identitySpec: IdentitySpec, credentials: CredentialList) -> IdentityResult" ;
+    abi:inputParameters "identitySpec,credentials,biometricTemplate,publicKey" ;
+    abi:outputParameters "identityId,certificate,verificationLevel,expirationTime" ;
+    abi:errorCodes "INSUFFICIENT_CREDENTIALS,INVALID_BIOMETRIC,WEAK_KEYS" ;
+    abi:performanceContract "< 8ms creation time" .
+
+abi:idc_VerifyIdentity a abi:ABIMethod ;
+    rdfs:label "Verify Identity with Multi-Level Assurance"@en ;
+    abi:methodSignature "verifyIdentity(identityId: String, challenge: Challenge, targetLevel: Int) -> VerificationResult" ;
+    abi:inputParameters "identityId,challenge,targetLevel,biometricSample,context" ;
+    abi:outputParameters "verified,achievedLevel,confidence,riskScore" ;
+    abi:errorCodes "IDENTITY_NOT_FOUND,INSUFFICIENT_ASSURANCE,BIOMETRIC_MISMATCH" ;
+    abi:performanceContract "< 6ms verification time" .
+
+## CAP Wire Interface
+abi:CapWire a abi:WireInterface ;
+    rdfs:label "CAP Wire Interface"@en ;
+    rdfs:comment "Network protocol for capability management operations."@en ;
+    abi:protocolVersion "3.0-capability" ;
+    abi:transport "HTTP/3-QUIC" ;
+    abi:encryption "Dilithium-3-ChaCha20-Poly1305" ;
+    abi:compression "snappy" ;
+    abi:maxMessageSize "1048576"^^xsd:int ;  # 1MB
+    abi:timeoutDefault "PT30S"^^xsd:duration .
+
+abi:cap_CreateThresholdCapability a abi:ABIMethod ;
+    rdfs:label "Create Threshold Capability"@en ;
+    abi:methodSignature "createThresholdCapability(capSpec: CapabilitySpec, signers: SignerList, threshold: Int) -> ThresholdCapability" ;
+    abi:inputParameters "capSpec,signers,threshold,constraints,expiration" ;
+    abi:outputParameters "capabilityId,macaroonToken,thresholdProof,activationKey" ;
+    abi:errorCodes "INSUFFICIENT_SIGNERS,INVALID_THRESHOLD,CONSTRAINT_VIOLATION" ;
+    abi:performanceContract "< 8ms creation time" .
+
+abi:cap_ActivateCapability a abi:ABIMethod ;
+    rdfs:label "Activate Threshold Capability"@en ;
+    abi:methodSignature "activateCapability(capabilityId: String, signatures: SignatureList, context: Context) -> ActivationResult" ;
+    abi:inputParameters "capabilityId,signatures,context,challenge" ;
+    abi:outputParameters "activated,authorizationToken,validUntil,constraints" ;
+    abi:errorCodes "INSUFFICIENT_SIGNATURES,CAPABILITY_EXPIRED,CONTEXT_VIOLATION" ;
+    abi:performanceContract "< 5ms activation time" .
+
+# ================================================================================
+# STORAGE INTERFACE SPECIFICATIONS
+# ================================================================================
+
+## OrgBind Storage Interface
+abi:OrgBindStorage a abi:StorageInterface ;
+    rdfs:label "OrgBind Storage Interface"@en ;
+    rdfs:comment "Persistent storage for organizational bindings using Merkle Patricia Trie."@en ;
+    abi:storageEngine "Merkle-Patricia-Trie" ;
+    abi:indexingStrategy "composite-index" ;
+    abi:replicationFactor "3"^^xsd:int ;
+    abi:consistencyModel "strong" ;
+    abi:encryptionAtRest "AES-256-GCM" .
+
+abi:orgBind_StoreBinding a abi:ABIMethod ;
+    rdfs:label "Store Organizational Binding"@en ;
+    abi:methodSignature "storeBinding(binding: OrgBinding, proof: MerkleProof) -> StorageResult" ;
+    abi:inputParameters "binding,proof,timestamp,signature" ;
+    abi:outputParameters "storageKey,merkleRoot,replicationStatus" ;
+    abi:errorCodes "STORAGE_FULL,INVALID_PROOF,DUPLICATE_BINDING" ;
+    abi:performanceContract "< 10ms storage time" .
+
+abi:orgBind_RetrieveBinding a abi:ABIMethod ;
+    rdfs:label "Retrieve Organizational Binding"@en ;
+    abi:methodSignature "retrieveBinding(bindingId: String, includeProof: Boolean) -> BindingData" ;
+    abi:inputParameters "bindingId,includeProof,requestTime" ;
+    abi:outputParameters "binding,merkleProof,verificationData" ;
+    abi:errorCodes "BINDING_NOT_FOUND,PROOF_UNAVAILABLE" ;
+    abi:performanceContract "< 2ms retrieval time" .
+
+## Revoke Storage Interface  
+abi:RevokeStorage a abi:StorageInterface ;
+    rdfs:label "Revoke Storage Interface"@en ;
+    rdfs:comment "Storage for revocation data using accumulator trees for efficient proofs."@en ;
+    abi:storageEngine "RSA-Accumulator-Tree" ;
+    abi:indexingStrategy "bloom-filter-index" ;
+    abi:replicationFactor "5"^^xsd:int ;  # Higher replication for revocation data
+    abi:consistencyModel "eventual" ;
+    abi:encryptionAtRest "ChaCha20-Poly1305" .
+
+abi:revoke_AddRevocation a abi:ABIMethod ;
+    rdfs:label "Add Revocation to Accumulator"@en ;
+    abi:methodSignature "addRevocation(revocation: RevocationEvent, witness: AccumulatorWitness) -> AccumulatorUpdate" ;
+    abi:inputParameters "revocation,witness,currentAccumulator,signature" ;
+    abi:outputParameters "newAccumulator,witnessUpdate,bloomFilterUpdate" ;
+    abi:errorCodes "INVALID_WITNESS,ACCUMULATOR_OVERFLOW,DUPLICATE_REVOCATION" ;
+    abi:performanceContract "< 5ms accumulator update" .
+
+abi:revoke_GenerateRevocationProof a abi:ABIMethod ;
+    rdfs:label "Generate Revocation Proof"@en ;
+    abi:methodSignature "generateRevocationProof(entityId: String, accumulator: Accumulator) -> RevocationProof" ;
+    abi:inputParameters "entityId,accumulator,witnessData" ;
+    abi:outputParameters "proof,witness,verificationKey" ;
+    abi:errorCodes "ENTITY_NOT_IN_ACCUMULATOR,INVALID_WITNESS_DATA" ;
+    abi:performanceContract "< 3ms proof generation" .
+
+## IDC Storage Interface
+abi:IdcStorage a abi:StorageInterface ;
+    rdfs:label "IDC Storage Interface"@en ;
+    rdfs:comment "Graph-based storage for identity relationships and attributes."@en ;
+    abi:storageEngine "Identity-Graph-Store" ;
+    abi:indexingStrategy "graph-traversal-index" ;
+    abi:replicationFactor "3"^^xsd:int ;
+    abi:consistencyModel "strong" ;
+    abi:encryptionAtRest "Kyber-1024-AES-256" .
+
+abi:idc_StoreIdentity a abi:ABIMethod ;
+    rdfs:label "Store Identity in Graph"@en ;
+    abi:methodSignature "storeIdentity(identity: QuantumIdentity, relationships: RelationshipList) -> GraphResult" ;
+    abi:inputParameters "identity,relationships,metadata,encryptionKey" ;
+    abi:outputParameters "nodeId,edgeIds,graphHash" ;
+    abi:errorCodes "GRAPH_CONSTRAINT_VIOLATION,ENCRYPTION_FAILURE" ;
+    abi:performanceContract "< 8ms graph insertion" .
+
+abi:idc_QueryIdentityGraph a abi:ABIMethod ;
+    rdfs:label "Query Identity Graph"@en ;
+    abi:methodSignature "queryIdentityGraph(query: GraphQuery, constraints: ConstraintList) -> QueryResult" ;
+    abi:inputParameters "query,constraints,accessToken,pagination" ;
+    abi:outputParameters "nodes,edges,resultMetadata,nextPageToken" ;
+    abi:errorCodes "QUERY_TIMEOUT,ACCESS_DENIED,INVALID_QUERY" ;
+    abi:performanceContract "< 50ms complex queries" .
+
+## CAP Storage Interface
+abi:CapStorage a abi:StorageInterface ;
+    rdfs:label "CAP Storage Interface"@en ;
+    rdfs:comment "Tree-based storage for capability hierarchies and relationships."@en ;
+    abi:storageEngine "B-Plus-Tree-Enhanced" ;
+    abi:indexingStrategy "capability-hierarchy-index" ;
+    abi:replicationFactor "3"^^xsd:int ;
+    abi:consistencyModel "strong" ;
+    abi:encryptionAtRest "AES-256-GCM" .
+
+abi:cap_StoreCapability a abi:ABIMethod ;
+    rdfs:label "Store Threshold Capability"@en ;
+    abi:methodSignature "storeCapability(capability: ThresholdCapability, tree: CapabilityTree) -> StorageResult" ;
+    abi:inputParameters "capability,tree,parentId,constraints" ;
+    abi:outputParameters "capabilityId,treeNode,hierarchyPath" ;
+    abi:errorCodes "TREE_CONSTRAINT_VIOLATION,PARENT_NOT_FOUND" ;
+    abi:performanceContract "< 5ms tree insertion" .
+
+abi:cap_RetrieveCapabilityChain a abi:ABIMethod ;
+    rdfs:label "Retrieve Capability Chain"@en ;
+    abi:methodSignature "retrieveCapabilityChain(capabilityId: String, maxDepth: Int) -> CapabilityChain" ;
+    abi:inputParameters "capabilityId,maxDepth,includeConstraints" ;
+    abi:outputParameters "capabilityChain,delegationProofs,constraintList" ;
+    abi:errorCodes "CAPABILITY_NOT_FOUND,MAX_DEPTH_EXCEEDED" ;
+    abi:performanceContract "< 10ms chain retrieval" .
+
+# ================================================================================
+# CAPABILITY INTERFACE SPECIFICATIONS
+# ================================================================================
+
+## OrgBind Capability Interface
+abi:OrgBindCapability a abi:CapabilityInterface ;
+    rdfs:label "OrgBind Capability Interface"@en ;
+    rdfs:comment "Capability-based access using Macaroon v2 tokens for organizational bindings."@en ;
+    abi:tokenFormat "macaroon-v2-orgbind" ;
+    abi:caveatTypes "organization-scope,role-constraints,time-bounds" ;
+    abi:thirdPartyCaveats true ;
+    abi:delegationDepth "5"^^xsd:int .
+
+abi:orgBind_CreateOrgCapability a abi:ABIMethod ;
+    rdfs:label "Create Organizational Capability"@en ;
+    abi:methodSignature "createOrgCapability(orgId: String, role: Role, constraints: ConstraintList) -> MacaroonToken" ;
+    abi:inputParameters "orgId,role,constraints,duration,authority" ;
+    abi:outputParameters "macaroonToken,caveats,expirationTime" ;
+    abi:errorCodes "INVALID_ORGANIZATION,INSUFFICIENT_AUTHORITY,CONSTRAINT_CONFLICT" ;
+    abi:performanceContract "< 3ms token creation" .
+
+abi:orgBind_AttenuateOrgCapability a abi:ABIMethod ;
+    rdfs:label "Attenuate Organizational Capability"@en ;
+    abi:methodSignature "attenuateOrgCapability(token: MacaroonToken, additionalCaveats: CaveatList) -> MacaroonToken" ;
+    abi:inputParameters "token,additionalCaveats,signature" ;
+    abi:outputParameters "attenuatedToken,caveatList,validityPeriod" ;
+    abi:errorCodes "INVALID_TOKEN,CAVEAT_VIOLATION,ATTENUATION_FORBIDDEN" ;
+    abi:performanceContract "< 2ms attenuation time" .
+
+## Revoke Capability Interface
+abi:RevokeCapability a abi:CapabilityInterface ;
+    rdfs:label "Revoke Capability Interface"@en ;
+    rdfs:comment "Capability interface using Bloom filter-based CRLs for revocation checks."@en ;
+    abi:tokenFormat "bloom-filter-capability" ;
+    abi:falsePositiveHandling true ;
+    abi:batchUpdates true ;
+    abi:filterSyncRequired true .
+
+abi:revoke_CreateRevocationCapability a abi:ABIMethod ;
+    rdfs:label "Create Revocation Capability"@en ;
+    abi:methodSignature "createRevocationCapability(authority: Authority, scope: Scope) -> RevocationToken" ;
+    abi:inputParameters "authority,scope,permissions,expiration" ;
+    abi:outputParameters "revocationToken,bloomFilterUpdate,authoritySignature" ;
+    abi:errorCodes "INSUFFICIENT_AUTHORITY,INVALID_SCOPE" ;
+    abi:performanceContract "< 5ms token creation" .
+
+## IDC Capability Interface
+abi:IdcCapability a abi:CapabilityInterface ;
+    rdfs:label "IDC Capability Interface"@en ;
+    rdfs:comment "JWT-based capability tokens with identity context and claims."@en ;
+    abi:tokenFormat "identity-jwt-v2" ;
+    abi:claimValidation true ;
+    abi:audienceRestriction true ;
+    abi:identityContext true .
+
+abi:idc_CreateIdentityCapability a abi:ABIMethod ;
+    rdfs:label "Create Identity Capability"@en ;
+    abi:methodSignature "createIdentityCapability(identityId: String, claims: ClaimList, audience: Audience) -> JWTToken" ;
+    abi:inputParameters "identityId,claims,audience,expiration,issuer" ;
+    abi:outputParameters "jwtToken,publicKey,verificationEndpoint" ;
+    abi:errorCodes "IDENTITY_NOT_FOUND,INVALID_CLAIMS,UNAUTHORIZED_ISSUER" ;
+    abi:performanceContract "< 4ms token creation" .
+
+## CAP Capability Interface
+abi:CapCapability a abi:CapabilityInterface ;
+    rdfs:label "CAP Capability Interface"@en ;
+    rdfs:comment "Native capability interface using threshold macaroons v3."@en ;
+    abi:tokenFormat "threshold-macaroon-v3" ;
+    abi:thresholdSignatures true ;
+    abi:caveatSupported true ;
+    abi:attenuationSupported true .
+
+abi:cap_CreateThresholdCapabilityToken a abi:ABIMethod ;
+    rdfs:label "Create Threshold Capability Token"@en ;
+    abi:methodSignature "createThresholdCapabilityToken(capSpec: CapSpec, signers: SignerList, threshold: Int) -> ThresholdMacaroon" ;
+    abi:inputParameters "capSpec,signers,threshold,caveats,expiration" ;
+    abi:outputParameters "thresholdMacaroon,signatureShares,verificationKeys" ;
+    abi:errorCodes "INSUFFICIENT_SIGNERS,INVALID_THRESHOLD,SIGNATURE_FAILURE" ;
+    abi:performanceContract "< 8ms threshold token creation" .
+
+# ================================================================================
+# TIME-BOX CONSTRAINT SYSTEM
+# ================================================================================
+
+abi:TimeBoxConstraint a owl:Class ;
+    rdfs:label "Time-Box Constraint"@en ;
+    rdfs:comment "Temporal constraint system for all identity crystal operations."@en ;
+    rdfs:subClassOf ba:TemporalConstraint ;
+    abi:constraintType "temporal" ;
+    abi:enforcementLevel "strict" ;
+    abi:granularity "millisecond" ;
+    abi:clockSynchronization "NTP-synced" .
+
+abi:DoctrineOfEightConstraint a owl:Class ;
+    rdfs:label "Doctrine of 8 Constraint"@en ;
+    rdfs:comment "Specific 8ms performance constraint for all operations."@en ;
+    rdfs:subClassOf abi:TimeBoxConstraint ;
+    abi:maxExecutionTime "PT0.008S"^^xsd:duration ;  # 8 milliseconds
+    abi:violationAction "immediate-rejection" ;
+    abi:measurementAccuracy "microsecond" ;
+    abi:enforcementMechanism "hardware-timer" .
+
+abi:OperationTimeBox a owl:Class ;
+    rdfs:label "Operation Time Box"@en ;
+    rdfs:comment "Time-boxed execution context for crystal operations."@en ;
+    rdfs:subClassOf ba:ExecutionContext ;
+    abi:startTime xsd:dateTime ;
+    abi:maxDuration xsd:duration ;
+    abi:warningThreshold xsd:duration ;
+    abi:currentDuration xsd:duration ;
+    abi:violationCount xsd:int .
+
+## Time-Box Enforcement Methods
+abi:timeBox_StartOperation a abi:ABIMethod ;
+    rdfs:label "Start Time-Boxed Operation"@en ;
+    abi:methodSignature "startOperation(operationType: String, maxDuration: Duration) -> TimeBoxContext" ;
+    abi:inputParameters "operationType,maxDuration,priority" ;
+    abi:outputParameters "contextId,startTime,deadline" ;
+    abi:errorCodes "RESOURCE_EXHAUSTED,INVALID_DURATION" ;
+    abi:performanceContract "< 100μs overhead" .
+
+abi:timeBox_CheckConstraint a abi:ABIMethod ;
+    rdfs:label "Check Time-Box Constraint"@en ;
+    abi:methodSignature "checkConstraint(contextId: String) -> ConstraintStatus" ;
+    abi:inputParameters "contextId,currentTime" ;
+    abi:outputParameters "status,remainingTime,violationRisk" ;
+    abi:errorCodes "CONTEXT_NOT_FOUND,TIME_EXCEEDED" ;
+    abi:performanceContract "< 10μs check time" .
+
+abi:timeBox_EnforceViolation a abi:ABIMethod ;
+    rdfs:label "Enforce Time-Box Violation"@en ;
+    abi:methodSignature "enforceViolation(contextId: String, violationType: ViolationType) -> EnforcementAction" ;
+    abi:inputParameters "contextId,violationType,violationTime" ;
+    abi:outputParameters "actionTaken,logEntry,alertGenerated" ;
+    abi:errorCodes "ENFORCEMENT_FAILED,INVALID_VIOLATION" ;
+    abi:performanceContract "< 50μs enforcement time" .
+
+# ================================================================================
+# ABI DATA TYPES AND STRUCTURES
+# ================================================================================
+
+## Common Data Types
+abi:IdentityId a abi:ABIDataType ;
+    rdfs:label "Identity ID"@en ;
+    abi:typeDefinition "String[32-128]" ;
+    abi:encoding "base58" ;
+    abi:validation "checksum-verified" .
+
+abi:OrganizationId a abi:ABIDataType ;
+    rdfs:label "Organization ID"@en ;
+    abi:typeDefinition "String[16-64]" ;
+    abi:encoding "base32" ;
+    abi:validation "regex-validated" .
+
+abi:CapabilityId a abi:ABIDataType ;
+    rdfs:label "Capability ID"@en ;
+    abi:typeDefinition "String[32-128]" ;
+    abi:encoding "base64url" ;
+    abi:validation "hmac-signed" .
+
+abi:ThresholdSignature a abi:ABIDataType ;
+    rdfs:label "Threshold Signature"@en ;
+    abi:typeDefinition "Struct{threshold: UInt8, total: UInt8, signatures: Array[Signature]}" ;
+    abi:encoding "protobuf" ;
+    abi:validation "bls-threshold-verified" .
+
+abi:TimeBoxContext a abi:ABIDataType ;
+    rdfs:label "Time-Box Context"@en ;
+    abi:typeDefinition "Struct{contextId: String, startTime: Timestamp, maxDuration: Duration, currentDuration: Duration}" ;
+    abi:encoding "protobuf" ;
+    abi:validation "temporal-consistency-checked" .
+
+# ================================================================================
+# PERFORMANCE CONTRACTS AND GUARANTEES
+# ================================================================================
+
+abi:PerformanceContract a owl:Class ;
+    rdfs:label "Performance Contract"@en ;
+    rdfs:comment "Formal performance guarantee for ABI methods."@en ;
+    rdfs:subClassOf ba:ServiceContract ;
+    abi:latencyGuarantee xsd:duration ;
+    abi:throughputGuarantee xsd:double ;
+    abi:availabilityGuarantee xsd:double ;
+    abi:scalabilityProfile xsd:string .
+
+## Doctrine of 8 Performance Contracts
+abi:Wire_PerformanceContract a abi:PerformanceContract ;
+    rdfs:label "Wire Interface Performance Contract"@en ;
+    abi:latencyGuarantee "PT0.008S"^^xsd:duration ;  # 8ms
+    abi:throughputGuarantee "10000.0"^^xsd:double ;  # 10K ops/sec
+    abi:availabilityGuarantee "0.9999"^^xsd:double ;  # 99.99%
+    abi:scalabilityProfile "horizontal-linear" .
+
+abi:Storage_PerformanceContract a abi:PerformanceContract ;
+    rdfs:label "Storage Interface Performance Contract"@en ;
+    abi:latencyGuarantee "PT0.01S"^^xsd:duration ;  # 10ms
+    abi:throughputGuarantee "50000.0"^^xsd:double ;  # 50K ops/sec  
+    abi:availabilityGuarantee "0.999"^^xsd:double ;  # 99.9%
+    abi:scalabilityProfile "vertical-optimized" .
+
+abi:Capability_PerformanceContract a abi:PerformanceContract ;
+    rdfs:label "Capability Interface Performance Contract"@en ;
+    abi:latencyGuarantee "PT0.005S"^^xsd:duration ;  # 5ms
+    abi:throughputGuarantee "25000.0"^^xsd:double ;  # 25K ops/sec
+    abi:availabilityGuarantee "0.9995"^^xsd:double ;  # 99.95%
+    abi:scalabilityProfile "hybrid-adaptive" .
+
+# ================================================================================
+# OBJECT PROPERTIES FOR ABI RELATIONSHIPS
+# ================================================================================
+
+abi:implementsInterface a owl:ObjectProperty ;
+    rdfs:label "implements interface"@en ;
+    rdfs:comment "Links implementation to ABI interface specification."@en ;
+    rdfs:domain ba:Implementation ;
+    rdfs:range abi:WireInterface .
+
+abi:hasPerformanceContract a owl:ObjectProperty ;
+    rdfs:label "has performance contract"@en ;
+    rdfs:comment "Associates ABI method with performance guarantees."@en ;
+    rdfs:domain abi:ABIMethod ;
+    rdfs:range abi:PerformanceContract .
+
+abi:constrainedBy a owl:ObjectProperty ;
+    rdfs:label "constrained by"@en ;
+    rdfs:comment "Links operation to time-box constraint."@en ;
+    rdfs:range abi:TimeBoxConstraint .
+
+# ================================================================================
+# SHACL VALIDATION FOR ABI COMPLIANCE
+# ================================================================================
+
+abi:ABIMethodShape a sh:NodeShape ;
+    sh:targetClass abi:ABIMethod ;
+    sh:property [
+        sh:path abi:methodSignature ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "ABI method must have signature definition" ;
+    ] ;
+    sh:property [
+        sh:path abi:performanceContract ;
+        sh:pattern "< \\d+ms" ;
+        sh:message "Performance contract must specify latency in milliseconds" ;
+    ] .
+
+abi:TimeBoxConstraintShape a sh:NodeShape ;
+    sh:targetClass abi:TimeBoxConstraint ;
+    sh:property [
+        sh:path abi:maxExecutionTime ;
+        sh:datatype xsd:duration ;
+        sh:maxInclusive "PT0.008S"^^xsd:duration ;
+        sh:message "Execution time must not exceed 8ms (Doctrine of 8)" ;
+    ] .
+
+# ================================================================================
+# END OF ABI SPECIFICATION ONTOLOGY
+# ================================================================================

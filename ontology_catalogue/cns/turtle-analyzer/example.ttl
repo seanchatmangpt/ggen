@@ -1,0 +1,84 @@
+@prefix : <http://example.org/dark#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Example demonstrating dark 80/20 patterns
+# These are complex for humans but trivial for AI
+
+# OWL Dark Pattern: Property Chain Axiom
+:hasParent owl:propertyChainAxiom ( :hasMother :hasChild ) .
+:hasGrandparent owl:propertyChainAxiom ( :hasParent :hasParent ) .
+
+# OWL Dark Pattern: Complement Classes
+:NotStudent owl:complementOf :Student .
+:NotEmployed owl:complementOf :Employed .
+
+# OWL Dark Pattern: Complex Restriction with Qualified Cardinality
+:ComplexPerson a owl:Class ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasChild ;
+        owl:qualifiedCardinality 2 ;
+        owl:onClass :Doctor
+    ] .
+
+# OWL Dark Pattern: Disjoint Union
+:LivingBeing owl:disjointUnionOf ( :Animal :Plant :Fungus :Bacteria ) .
+
+# SHACL Dark Pattern: SPARQL-based Constraint
+:PersonShape a sh:NodeShape ;
+    sh:targetClass :Person ;
+    sh:sparql [
+        sh:message "Complex age validation across relationships" ;
+        sh:select """
+            SELECT ?this WHERE {
+                ?this :hasAge ?age .
+                ?this :hasChild ?child .
+                ?child :hasAge ?childAge .
+                FILTER (?childAge > ?age - 15)
+            }
+        """
+    ] .
+
+# SHACL Dark Pattern: Qualified Value Shape
+:QualifiedShape a sh:NodeShape ;
+    sh:property [
+        sh:path :hasPublication ;
+        sh:qualifiedValueShape [
+            sh:property [
+                sh:path :publicationYear ;
+                sh:minInclusive 2020
+            ]
+        ] ;
+        sh:qualifiedMinCount 5 ;
+        sh:qualifiedMaxCount 10
+    ] .
+
+# SHACL Dark Pattern: Exclusive Or (xone)
+:ExclusiveShape a sh:NodeShape ;
+    sh:xone (
+        [ sh:property [ sh:path :hasPassport ; sh:minCount 1 ] ]
+        [ sh:property [ sh:path :hasDriverLicense ; sh:minCount 1 ] ]
+        [ sh:property [ sh:path :hasNationalID ; sh:minCount 1 ] ]
+    ) .
+
+# SPARQL Dark Pattern embedded in SHACL: Property Paths
+:PathConstraint a sh:NodeShape ;
+    sh:sparql [
+        sh:select """
+            SELECT ?this WHERE {
+                ?this :knows+ ?other .
+                ?other :worksFor* ?company .
+                ?company :locatedIn/^:containsCity ?country .
+                MINUS {
+                    ?this :bannedFrom ?country
+                }
+                FILTER NOT EXISTS {
+                    ?company :status :bankrupt
+                }
+            }
+        """
+    ] .

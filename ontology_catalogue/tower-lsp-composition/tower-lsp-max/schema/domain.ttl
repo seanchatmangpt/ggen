@@ -1,0 +1,136 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ostar: <https://w3id.org/ostar/ontology#> .
+@prefix lsp: <https://w3id.org/ostar/lsp-law#> .
+
+# Ontology declaration
+<https://w3id.org/ostar/lsp-law> rdf:type owl:Ontology ;
+    rdfs:label "LSP Lifecycle and Admission Law Ontology" ;
+    rdfs:comment "Ontology for governing tower-lsp-max server lifecycle states and request admission using the IES 4D pattern." .
+
+# Classes for State (Field8)
+lsp:LspState rdf:type owl:Class ;
+    rdfs:subClassOf ostar:StateField8 ;
+    rdfs:label "LSP Lifecycle State" ;
+    rdfs:comment "Represents a lifecycle state of the LSP server." .
+
+lsp:UninitializedState rdf:type lsp:LspState ;
+    rdfs:label "Uninitialized State" ;
+    rdfs:comment "The server is started but not yet initialized." .
+
+lsp:InitializingState rdf:type lsp:LspState ;
+    rdfs:label "Initializing State" ;
+    rdfs:comment "The server is processing the initialize request." .
+
+lsp:InitializedState rdf:type lsp:LspState ;
+    rdfs:label "Initialized State" ;
+    rdfs:comment "The server is fully initialized and operational." .
+
+lsp:ShutDownState rdf:type lsp:LspState ;
+    rdfs:label "Shut Down State" ;
+    rdfs:comment "The server has been shut down but not yet exited." .
+
+lsp:ExitedState rdf:type lsp:LspState ;
+    rdfs:label "Exited State" ;
+    rdfs:comment "The server has exited." .
+
+# Classes for Event (Condition)
+lsp:LspEvent rdf:type owl:Class ;
+    rdfs:subClassOf ostar:EventCondition ;
+    rdfs:label "LSP Message Event" ;
+    rdfs:comment "Represents an incoming RPC request or notification." .
+
+lsp:InitializeRequest rdf:type lsp:LspEvent ;
+    rdfs:label "Initialize Request" ;
+    rdfs:comment "The client sent an 'initialize' request." .
+
+lsp:ShutdownRequest rdf:type lsp:LspEvent ;
+    rdfs:label "Shutdown Request" ;
+    rdfs:comment "The client sent a 'shutdown' request." .
+
+lsp:ExitNotification rdf:type lsp:LspEvent ;
+    rdfs:label "Exit Notification" ;
+    rdfs:comment "The client sent an 'exit' notification." .
+
+lsp:NormalEvent rdf:type lsp:LspEvent ;
+    rdfs:label "Normal LSP Message" ;
+    rdfs:comment "Any standard LSP request/notification other than initialize, shutdown, or exit." .
+
+# Classes for Consequence (Admitted)
+lsp:LspConsequence rdf:type owl:Class ;
+    rdfs:subClassOf ostar:ConsequenceAdmitted ;
+    rdfs:label "LSP Admission Consequence" ;
+    rdfs:comment "Represents the permitted operational consequence or transition." .
+
+lsp:AdmittedAccess rdf:type lsp:LspConsequence ;
+    rdfs:label "Admitted Access" ;
+    rdfs:comment "The request/notification is admitted for processing." .
+
+lsp:DeniedAccess rdf:type lsp:LspConsequence ;
+    rdfs:label "Denied Access" ;
+    rdfs:comment "The request/notification is denied processing, resulting in an error." .
+
+# Properties
+ostar:hasState rdf:type owl:ObjectProperty ;
+    rdfs:domain ostar:Law ;
+    rdfs:range ostar:StateField8 .
+
+ostar:hasEvent rdf:type owl:ObjectProperty ;
+    rdfs:domain ostar:Law ;
+    rdfs:range ostar:EventCondition .
+
+ostar:hasConsequence rdf:type owl:ObjectProperty ;
+    rdfs:domain ostar:Law ;
+    rdfs:range ostar:ConsequenceAdmitted .
+
+ostar:targetState rdf:type owl:ObjectProperty ;
+    rdfs:domain ostar:Law ;
+    rdfs:range ostar:StateField8 .
+
+# The AccessAdmissionLaw definition
+lsp:AccessAdmissionLaw rdf:type owl:Class ;
+    rdfs:subClassOf ostar:Law ;
+    rdfs:label "Access Admission Law" ;
+    rdfs:comment "Governs incoming message admission based on the current server lifecycle state." .
+
+# Transition rules mapping (State + Event -> Consequence + Next State)
+lsp:Rule_Uninitialized_Initialize rdf:type lsp:AccessAdmissionLaw ;
+    rdfs:label "Rule: Uninitialized -> Initialize" ;
+    ostar:hasState lsp:UninitializedState ;
+    ostar:hasEvent lsp:InitializeRequest ;
+    ostar:hasConsequence lsp:AdmittedAccess ;
+    ostar:targetState lsp:InitializingState .
+
+lsp:Rule_Uninitialized_Other rdf:type lsp:AccessAdmissionLaw ;
+    rdfs:label "Rule: Reject non-initialize when Uninitialized" ;
+    ostar:hasState lsp:UninitializedState ;
+    ostar:hasEvent lsp:NormalEvent ;
+    ostar:hasConsequence lsp:DeniedAccess .
+
+lsp:Rule_Initialized_Normal rdf:type lsp:AccessAdmissionLaw ;
+    rdfs:label "Rule: Accept normal messages when Initialized" ;
+    ostar:hasState lsp:InitializedState ;
+    ostar:hasEvent lsp:NormalEvent ;
+    ostar:hasConsequence lsp:AdmittedAccess .
+
+lsp:Rule_Initialized_Shutdown rdf:type lsp:AccessAdmissionLaw ;
+    rdfs:label "Rule: Initialized -> Shutdown" ;
+    ostar:hasState lsp:InitializedState ;
+    ostar:hasEvent lsp:ShutdownRequest ;
+    ostar:hasConsequence lsp:AdmittedAccess ;
+    ostar:targetState lsp:ShutDownState .
+
+lsp:Rule_ShutDown_Exit rdf:type lsp:AccessAdmissionLaw ;
+    rdfs:label "Rule: ShutDown -> Exit" ;
+    ostar:hasState lsp:ShutDownState ;
+    ostar:hasEvent lsp:ExitNotification ;
+    ostar:hasConsequence lsp:AdmittedAccess ;
+    ostar:targetState lsp:ExitedState .
+
+lsp:Rule_ShutDown_Normal rdf:type lsp:AccessAdmissionLaw ;
+    rdfs:label "Rule: Reject normal messages when ShutDown" ;
+    ostar:hasState lsp:ShutDownState ;
+    ostar:hasEvent lsp:NormalEvent ;
+    ostar:hasConsequence lsp:DeniedAccess .

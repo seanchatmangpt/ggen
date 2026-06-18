@@ -1,0 +1,11 @@
+# Derive witness metadata from ontology
+PREFIX ex: <http://example.org/>
+PREFIX wasm4pm: <http://wasm4pm-compat.org/>
+
+CONSTRUCT {
+  ?w wasm4pm:hasMetadata ?metadata .
+}
+WHERE {
+  ?w a wasm4pm:WitnessMarker .
+  OPTIONAL { ?w wasm4pm:metadata ?metadata . }
+}

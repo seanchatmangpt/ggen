@@ -1,0 +1,108 @@
+@prefix bacore: <http://bitbizeco.dev/ontology/v3/core-allocation#> .
+@prefix :      <http://bitbizeco.dev/ontology/v3/core-allocation#> .
+@prefix ba3:   <http://bitbizeco.dev/ontology/v3/byteactor#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+<http://bitbizeco.dev/ontology/v3/core-allocation>
+  a owl:Ontology ;
+  rdfs:label "ByteActor v3 Core Allocation Ontology" ;
+  rdfs:comment "The formal ontology for dedicating and pinning physical CPU cores to the ByteActor, ByteFlow, and ByteEthos workloads." ;
+  owl:imports <http://bitbizeco.dev/ontology/v3/byteactor> .
+
+#################################################################
+# Core Classes
+#################################################################
+
+bacore:Core           a owl:Class ; rdfs:label "Physical CPU Core" .
+bacore:CoreCluster    a owl:Class ; rdfs:label "Core Cluster" .
+bacore:Workload       a owl:Class ; rdfs:label "Workload Type" .
+bacore:ByteComponent  a owl:Class ; rdfs:label "Byte* Component" .
+
+#################################################################
+# Properties
+#################################################################
+
+bacore:isPinnedTo     a owl:ObjectProperty ; rdfs:label "is Pinned To" .
+bacore:hasCore        a owl:ObjectProperty ; rdfs:domain bacore:CoreCluster ; rdfs:range bacore:Core .
+bacore:dedicatedTo    a owl:ObjectProperty ; rdfs:domain bacore:Core ; rdfs:range bacore:Workload .
+bacore:coreId         a owl:DatatypeProperty ; rdfs:domain bacore:Core ; rdfs:range xsd:integer .
+bacore:numaNode       a owl:DatatypeProperty ; rdfs:domain bacore:Core ; rdfs:range xsd:integer .
+
+#################################################################
+# Individuals (Workloads & Components)
+#################################################################
+
+bacore:HotPath_Execution       a bacore:Workload ; rdfs:label "Hot Path (ByteActor)" .
+bacore:WarmPath_Orchestration  a bacore:Workload ; rdfs:label "Warm Path (ByteFlow)" .
+bacore:Governance_Sealing      a bacore:Workload ; rdfs:label "Governance & Sealing (ByteEthos)" .
+
+# Component Declarations
+ba3:ByteActor a bacore:ByteComponent .
+ba3:ByteFlow  a bacore:ByteComponent .
+ba3:ByteEthos a bacore:ByteComponent .
+
+#################################################################
+# SHACL Shapes (Enforcing the Placement Rules)
+#################################################################
+
+:CorePinningShape a sh:NodeShape ;
+  sh:targetClass bacore:Core ;
+  sh:property [
+    sh:path bacore:dedicatedTo ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "A physical core MUST be dedicated to exactly one workload type."
+  ] .
+
+:ByteActorPinningShape a sh:NodeShape ;
+  sh:targetClass ba3:ByteActor ;
+  sh:property [
+    sh:path bacore:isPinnedTo ;
+    sh:class bacore:Core ;
+    sh:minCount 1 ;
+    sh:message "The ByteActor component MUST be pinned to one or more physical cores."
+  ] ;
+  sh:sparql [
+    sh:select """
+      SELECT $this WHERE {
+        $this bacore:isPinnedTo ?core .
+        FILTER NOT EXISTS { ?core bacore:dedicatedTo bacore:HotPath_Execution . }
+      }
+    """ ;
+    sh:message "ByteActor MUST be pinned to a core dedicated to Hot-Path Execution."
+  ] .
+
+#################################################################
+# The Physical Placement Plan
+#################################################################
+
+# A cluster representing the first three cores of the machine.
+:SystemCluster a bacore:CoreCluster ;
+  bacore:hasCore :Core0, :Core1, :Core2 .
+
+# Core 0 is dedicated to ByteActor.
+:Core0 a bacore:Core ;
+  bacore:coreId 0 ;
+  bacore:numaNode 0 ;
+  bacore:dedicatedTo bacore:HotPath_Execution .
+
+# Core 1 is dedicated to ByteFlow.
+:Core1 a bacore:Core ;
+  bacore:coreId 1 ;
+  bacore:numaNode 0 ;
+  bacore:dedicatedTo bacore:WarmPath_Orchestration .
+
+# Core 2 is dedicated to ByteEthos.
+:Core2 a bacore:Core ;
+  bacore:coreId 2 ;
+  bacore:numaNode 0 ;
+  bacore:dedicatedTo bacore:Governance_Sealing .
+
+# Formal pinning of the components to their dedicated cores.
+ba3:ByteActor bacore:isPinnedTo :Core0 .
+ba3:ByteFlow  bacore:isPinnedTo :Core1 .
+ba3:ByteEthos bacore:isPinnedTo :Core2 .

@@ -1,0 +1,260 @@
+@prefix compat: <https://wasm4pm-compat.rs/ontology#> .
+@prefix zod:    <https://wasm4pm-compat.rs/zod#> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+
+# Zod Schema Metadata Ontology
+
+zod:hasField a rdf:Property ;
+    rdfs:label "hasField" ;
+    rdfs:comment "Links a schema to one of its fields." .
+
+zod:fieldName a rdf:Property ;
+    rdfs:label "fieldName" ;
+    rdfs:range xsd:string .
+
+zod:fieldType a rdf:Property ;
+    rdfs:label "fieldType" ;
+    rdfs:range xsd:string .
+
+zod:isOptional a rdf:Property ;
+    rdfs:label "isOptional" ;
+    rdfs:range xsd:boolean .
+
+zod:isArray a rdf:Property ;
+    rdfs:label "isArray" ;
+    rdfs:range xsd:boolean .
+
+# --- Helper definitions for inner types ---
+
+zod:Event compat:rustType "Event" .
+zod:Trace compat:rustType "Trace" .
+zod:OcelEvent compat:rustType "OcelEvent" .
+zod:OcelObject compat:rustType "OcelObject" .
+zod:OcelType compat:rustType "OcelType" .
+zod:OcelTypeAttribute compat:rustType "OcelTypeAttribute" .
+zod:OcelEventAttribute compat:rustType "OcelEventAttribute" .
+zod:OcelRelationship compat:rustType "OcelRelationship" .
+zod:OcelObjectAttribute compat:rustType "OcelObjectAttribute" .
+zod:OcelAttributeValue compat:rustType "OcelAttributeValue" .
+zod:ObjectTypeCardinality compat:rustType "ObjectTypeCardinality" .
+zod:Place compat:rustType "Place" .
+zod:Transition compat:rustType "Transition" .
+zod:Arc compat:rustType "Arc" .
+zod:DFG compat:rustType "DFG" .
+zod:DFGNode compat:rustType "DFGNode" .
+zod:DFGEdge compat:rustType "DFGEdge" .
+zod:DeclareModel compat:rustType "DeclareModel" .
+zod:DeclareConstraint compat:rustType "DeclareConstraint" .
+zod:TokenReplayResult compat:rustType "TokenReplayResult" .
+zod:ConformanceResult compat:rustType "ConformanceResult" .
+zod:Receipt compat:rustType "Receipt" .
+zod:ConformanceVerdict compat:rustType "ConformanceVerdict" .
+
+# BPMN
+zod:BpmnProcess compat:rustType "BpmnProcess" .
+zod:BpmnNode compat:rustType "BpmnNode" .
+zod:BpmnEdge compat:rustType "BpmnEdge" .
+zod:BpmnLane compat:rustType "BpmnLane" .
+
+# POWL
+zod:Powl compat:rustType "Powl" .
+zod:PowlNode compat:rustType "PowlNode" .
+zod:OrderEdge compat:rustType "OrderEdge" .
+zod:ChoiceGraphEdge compat:rustType "ChoiceGraphEdge" .
+
+# Process Tree
+zod:ProcessTree compat:rustType "ProcessTree" .
+zod:ProcessTreeNode compat:rustType "ProcessTreeNode" .
+
+# XES
+zod:XesLog compat:rustType "XesLog" .
+zod:XesTrace compat:rustType "XesTrace" .
+zod:XesEvent compat:rustType "XesEvent" .
+zod:XesExtension compat:rustType "XesExtension" .
+
+# Evidence
+zod:Evidence compat:rustType "Evidence" .
+
+# Loss
+zod:LossReport compat:rustType "LossReport" .
+zod:NamedLoss compat:rustType "NamedLoss" .
+zod:LossChain compat:rustType "LossChain" .
+
+# Diagnostic
+zod:CompatDiagnostic compat:rustType "CompatDiagnostic" .
+
+# --- Field Assignments ---
+
+# Evidence
+zod:Evidence zod:hasField [ zod:fieldName "inner" ; zod:fieldType "any" ] ;
+             zod:hasField [ zod:fieldName "state" ; zod:fieldType "string" ] ;
+             zod:hasField [ zod:fieldName "witness" ; zod:fieldType "string" ] .
+
+# BPMN
+zod:BpmnProcess zod:hasField [ zod:fieldName "nodes" ; zod:fieldType "BpmnNode" ; zod:isArray true ] ;
+                zod:hasField [ zod:fieldName "edges" ; zod:fieldType "BpmnEdge" ; zod:isArray true ] ;
+                zod:hasField [ zod:fieldName "lanes" ; zod:fieldType "BpmnLane" ; zod:isArray true ] .
+
+zod:BpmnNode zod:hasField [ zod:fieldName "id" ; zod:fieldType "string" ] ;
+             zod:hasField [ zod:fieldName "name" ; zod:fieldType "string" ; zod:isOptional true ] ;
+             zod:hasField [ zod:fieldName "kind" ; zod:fieldType "string" ] .
+
+zod:BpmnEdge zod:hasField [ zod:fieldName "id" ; zod:fieldType "string" ] ;
+             zod:hasField [ zod:fieldName "source" ; zod:fieldType "string" ] ;
+             zod:hasField [ zod:fieldName "target" ; zod:fieldType "string" ] .
+
+zod:BpmnLane zod:hasField [ zod:fieldName "id" ; zod:fieldType "string" ] ;
+             zod:hasField [ zod:fieldName "name" ; zod:fieldType "string" ] ;
+             zod:hasField [ zod:fieldName "nodes" ; zod:fieldType "string" ; zod:isArray true ] .
+
+# POWL
+zod:Powl zod:hasField [ zod:fieldName "nodes" ; zod:fieldType "PowlNode" ; zod:isArray true ] ;
+         zod:hasField [ zod:fieldName "edges" ; zod:fieldType "OrderEdge" ; zod:isArray true ] ;
+         zod:hasField [ zod:fieldName "root" ; zod:fieldType "number" ; zod:isOptional true ] .
+
+zod:PowlNode zod:hasField [ zod:fieldName "id" ; zod:fieldType "number" ] ;
+             zod:hasField [ zod:fieldName "kind" ; zod:fieldType "string" ] .
+
+zod:OrderEdge zod:hasField [ zod:fieldName "from" ; zod:fieldType "number" ] ;
+              zod:hasField [ zod:fieldName "to" ; zod:fieldType "number" ] .
+
+# Process Tree
+zod:ProcessTree zod:hasField [ zod:fieldName "nodes" ; zod:fieldType "ProcessTreeNode" ; zod:isArray true ] ;
+                zod:hasField [ zod:fieldName "root" ; zod:fieldType "number" ; zod:isOptional true ] .
+
+zod:ProcessTreeNode zod:hasField [ zod:fieldName "kind" ; zod:fieldType "string" ] ;
+                    zod:hasField [ zod:fieldName "label" ; zod:fieldType "string" ; zod:isOptional true ] ;
+                    zod:hasField [ zod:fieldName "children" ; zod:fieldType "number" ; zod:isArray true ; zod:isOptional true ] .
+
+# XES
+zod:XesLog zod:hasField [ zod:fieldName "name" ; zod:fieldType "string" ] ;
+           zod:hasField [ zod:fieldName "extensions" ; zod:fieldType "XesExtension" ; zod:isArray true ] ;
+           zod:hasField [ zod:fieldName "traces" ; zod:fieldType "XesTrace" ; zod:isArray true ] .
+
+zod:XesTrace zod:hasField [ zod:fieldName "name" ; zod:fieldType "string" ] ;
+             zod:hasField [ zod:fieldName "events" ; zod:fieldType "XesEvent" ; zod:isArray true ] .
+
+zod:XesEvent zod:hasField [ zod:fieldName "attributes" ; zod:fieldType "Record<string, string>" ] .
+
+zod:XesExtension zod:hasField [ zod:fieldName "name" ; zod:fieldType "string" ] ;
+                 zod:hasField [ zod:fieldName "prefix" ; zod:fieldType "string" ] ;
+                 zod:hasField [ zod:fieldName "uri" ; zod:fieldType "string" ] .
+
+# Event
+zod:Event zod:hasField [ zod:fieldName "activity" ; zod:fieldType "string" ] ;
+          zod:hasField [ zod:fieldName "timestamp_ns" ; zod:fieldType "number" ; zod:isOptional true ] ;
+          zod:hasField [ zod:fieldName "resource" ; zod:fieldType "string" ; zod:isOptional true ] ;
+          zod:hasField [ zod:fieldName "lifecycle" ; zod:fieldType "string" ; zod:isOptional true ] .
+
+zod:Trace zod:hasField [ zod:fieldName "id" ; zod:fieldType "string" ] ;
+          zod:hasField [ zod:fieldName "events" ; zod:fieldType "Event" ; zod:isArray true ] .
+
+compat:EventLog zod:hasField [ zod:fieldName "traces" ; zod:fieldType "Trace" ; zod:isArray true ] ;
+                zod:hasField [ zod:fieldName "attributes" ; zod:fieldType "Record<string, string>" ] .
+
+# OCEL
+zod:OcelEvent zod:hasField [ zod:fieldName "id" ; zod:fieldType "string" ] ;
+              zod:hasField [ zod:fieldName "type" ; zod:fieldType "string" ] ;
+              zod:hasField [ zod:fieldName "time" ; zod:fieldType "any" ] ;
+              zod:hasField [ zod:fieldName "attributes" ; zod:fieldType "OcelEventAttribute" ; zod:isArray true ] ;
+              zod:hasField [ zod:fieldName "relationships" ; zod:fieldType "OcelRelationship" ; zod:isArray true ] .
+
+zod:OcelObject zod:hasField [ zod:fieldName "id" ; zod:fieldType "string" ] ;
+               zod:hasField [ zod:fieldName "type" ; zod:fieldType "string" ] ;
+               zod:hasField [ zod:fieldName "attributes" ; zod:fieldType "OcelObjectAttribute" ; zod:isArray true ] .
+
+zod:OcelType zod:hasField [ zod:fieldName "name" ; zod:fieldType "string" ] ;
+             zod:hasField [ zod:fieldName "attributes" ; zod:fieldType "OcelTypeAttribute" ; zod:isArray true ] .
+
+zod:OcelTypeAttribute zod:hasField [ zod:fieldName "name" ; zod:fieldType "string" ] ;
+                      zod:hasField [ zod:fieldName "type" ; zod:fieldType "string" ] .
+
+zod:OcelEventAttribute zod:hasField [ zod:fieldName "name" ; zod:fieldType "string" ] ;
+                       zod:hasField [ zod:fieldName "value" ; zod:fieldType "any" ] .
+
+zod:OcelObjectAttribute zod:hasField [ zod:fieldName "name" ; zod:fieldType "string" ] ;
+                        zod:hasField [ zod:fieldName "value" ; zod:fieldType "any" ] ;
+                        zod:hasField [ zod:fieldName "time" ; zod:fieldType "any" ] .
+
+zod:OcelRelationship zod:hasField [ zod:fieldName "objectId" ; zod:fieldType "string" ] ;
+                     zod:hasField [ zod:fieldName "qualifier" ; zod:fieldType "string" ] .
+
+zod:OcelAttributeValue zod:hasField [ zod:fieldName "value" ; zod:fieldType "any" ] .
+
+compat:OcelLog zod:hasField [ zod:fieldName "eventTypes" ; zod:fieldType "OcelType" ; zod:isArray true ] ;
+                zod:hasField [ zod:fieldName "objectTypes" ; zod:fieldType "OcelType" ; zod:isArray true ] ;
+                zod:hasField [ zod:fieldName "events" ; zod:fieldType "OcelEvent" ; zod:isArray true ] ;
+                zod:hasField [ zod:fieldName "objects" ; zod:fieldType "OcelObject" ; zod:isArray true ] .
+
+zod:ObjectTypeCardinality zod:hasField [ zod:fieldName "object_type" ; zod:fieldType "string" ] ;
+                          zod:hasField [ zod:fieldName "min_occurrence" ; zod:fieldType "number" ] ;
+                          zod:hasField [ zod:fieldName "max_occurrence" ; zod:fieldType "number" ; zod:isOptional true ] .
+
+# Petri Net
+compat:PetriNet zod:hasField [ zod:fieldName "places" ; zod:fieldType "Place" ; zod:isArray true ] ;
+                zod:hasField [ zod:fieldName "transitions" ; zod:fieldType "Transition" ; zod:isArray true ] ;
+                zod:hasField [ zod:fieldName "arcs" ; zod:fieldType "Arc" ; zod:isArray true ] .
+
+zod:Place zod:hasField [ zod:fieldName "id" ; zod:fieldType "string" ] ;
+          zod:hasField [ zod:fieldName "name" ; zod:fieldType "string" ; zod:isOptional true ] .
+
+zod:Transition zod:hasField [ zod:fieldName "id" ; zod:fieldType "string" ] ;
+               zod:hasField [ zod:fieldName "label" ; zod:fieldType "string" ; zod:isOptional true ] .
+
+zod:Arc zod:hasField [ zod:fieldName "from" ; zod:fieldType "string" ] ;
+        zod:hasField [ zod:fieldName "to" ; zod:fieldType "string" ] ;
+        zod:hasField [ zod:fieldName "weight" ; zod:fieldType "number" ; zod:isOptional true ] .
+
+# DFG
+zod:DFG zod:hasField [ zod:fieldName "nodes" ; zod:fieldType "DFGNode" ; zod:isArray true ] ;
+        zod:hasField [ zod:fieldName "edges" ; zod:fieldType "DFGEdge" ; zod:isArray true ] .
+
+zod:DFGNode zod:hasField [ zod:fieldName "activity" ; zod:fieldType "string" ] ;
+            zod:hasField [ zod:fieldName "frequency" ; zod:fieldType "number" ] .
+
+zod:DFGEdge zod:hasField [ zod:fieldName "source" ; zod:fieldType "string" ] ;
+            zod:hasField [ zod:fieldName "target" ; zod:fieldType "string" ] ;
+            zod:hasField [ zod:fieldName "frequency" ; zod:fieldType "number" ] .
+
+# Declare
+zod:DeclareModel zod:hasField [ zod:fieldName "constraints" ; zod:fieldType "DeclareConstraint" ; zod:isArray true ] .
+
+zod:DeclareConstraint zod:hasField [ zod:fieldName "constraint_type" ; zod:fieldType "string" ] ;
+                      zod:hasField [ zod:fieldName "activities" ; zod:fieldType "string" ; zod:isArray true ] .
+
+# Analytics
+zod:TokenReplayResult zod:hasField [ zod:fieldName "fitness" ; zod:fieldType "number" ] ;
+                      zod:hasField [ zod:fieldName "produced_tokens" ; zod:fieldType "number" ] ;
+                      zod:hasField [ zod:fieldName "consumed_tokens" ; zod:fieldType "number" ] ;
+                      zod:hasField [ zod:fieldName "missing_tokens" ; zod:fieldType "number" ] ;
+                      zod:hasField [ zod:fieldName "remaining_tokens" ; zod:fieldType "number" ] .
+
+zod:ConformanceResult zod:hasField [ zod:fieldName "fitness" ; zod:fieldType "number" ] ;
+                      zod:hasField [ zod:fieldName "precision" ; zod:fieldType "number" ; zod:isOptional true ] ;
+                      zod:hasField [ zod:fieldName "total_traces" ; zod:fieldType "number" ] ;
+                      zod:hasField [ zod:fieldName "fitting_traces" ; zod:fieldType "number" ] ;
+                      zod:hasField [ zod:fieldName "deviating_traces" ; zod:fieldType "number" ] .
+
+# Governance
+zod:Receipt zod:hasField [ zod:fieldName "model_id" ; zod:fieldType "string" ] ;
+            zod:hasField [ zod:fieldName "final_hash_chain" ; zod:fieldType "string" ] ;
+            zod:hasField [ zod:fieldName "verdict" ; zod:fieldType "ConformanceVerdict" ] .
+
+zod:ConformanceVerdict zod:hasField [ zod:fieldName "is_perfect" ; zod:fieldType "boolean" ] .
+
+# Loss
+zod:LossReport zod:hasField [ zod:fieldName "projection" ; zod:fieldType "string" ] ;
+               zod:hasField [ zod:fieldName "policy" ; zod:fieldType "string" ] ;
+               zod:hasField [ zod:fieldName "lost" ; zod:fieldType "any" ] .
+
+zod:NamedLoss zod:hasField [ zod:fieldName "projection" ; zod:fieldType "string" ] ;
+              zod:hasField [ zod:fieldName "category" ; zod:fieldType "string" ] .
+
+zod:LossChain zod:hasField [ zod:fieldName "steps" ; zod:fieldType "NamedLoss" ; zod:isArray true ] .
+
+# Diagnostic
+zod:CompatDiagnostic zod:hasField [ zod:fieldName "variant" ; zod:fieldType "string" ] ;
+                     zod:hasField [ zod:fieldName "severity" ; zod:fieldType "string" ] ;
+                     zod:hasField [ zod:fieldName "message" ; zod:fieldType "string" ] .

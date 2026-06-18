@@ -1,0 +1,38 @@
+@prefix : <http://example.org/sprint_health#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# Classes
+:Person a owl:Class .
+:Patient rdfs:subClassOf :Person .
+:Doctor rdfs:subClassOf :Person .
+:Appointment a owl:Class .
+:Measurement a owl:Class .
+:BloodPressure rdfs:subClassOf :Measurement .
+:HeartRate rdfs:subClassOf :Measurement .
+
+# Properties
+:hasAppointment a owl:ObjectProperty ;
+    rdfs:domain :Patient ;
+    rdfs:range :Appointment .
+
+:attendedBy a owl:ObjectProperty ;
+    rdfs:domain :Appointment ;
+    rdfs:range :Doctor .
+
+:hasMeasurement a owl:ObjectProperty ;
+    rdfs:domain :Patient ;
+    rdfs:range :Measurement .
+
+:hasValue a owl:DatatypeProperty ;
+    rdfs:domain :Measurement ;
+    rdfs:range rdfs:Literal .
+
+:hasDate a owl:DatatypeProperty ;
+    rdfs:domain :Appointment ;
+    rdfs:range rdfs:Literal .
+
+:hasName a owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range rdfs:Literal ;
+    a owl:FunctionalProperty .

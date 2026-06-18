@@ -1,0 +1,137 @@
+@prefix : <http://yawl.org/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://yawl.org/ontology>
+  a owl:Ontology ;
+  rdfs:label "YAWL Core Ontology" ;
+  rdfs:comment "Defines the fundamental building blocks of Yet Another Workflow Language (YAWL)." ;
+  owl:versionInfo "1.0.0" .
+
+#################################################################
+# Core YAWL Elements
+#################################################################
+
+:WorkflowSpecification a owl:Class ;
+  rdfs:label "YAWL Workflow Specification" ;
+  rdfs:comment "Represents a complete YAWL workflow, composed of one or more EWF-nets." .
+
+:EWFNet a owl:Class ;
+  rdfs:label "Extended Workflow Net (EWF-net)" ;
+  rdfs:comment "The fundamental building block of a YAWL workflow, extending Petri nets." .
+
+:Task a owl:Class ;
+  rdfs:label "Task" ;
+  rdfs:comment "An atomic unit of work within a YAWL workflow." .
+
+:AtomicTask a owl:Class ;
+  rdfs:subClassOf :Task ;
+  rdfs:label "Atomic Task" ;
+  rdfs:comment "A simple, indivisible task." .
+
+:CompositeTask a owl:Class ;
+  rdfs:subClassOf :Task ;
+  rdfs:label "Composite Task" ;
+  rdfs:comment "A task that refers to a unique EWF-net at a lower level in the hierarchy." .
+
+:Condition a owl:Class ;
+  rdfs:label "Condition" ;
+  rdfs:comment "Represents a state or place in the workflow, similar to a Petri net place." .
+
+:FlowRelation a owl:Class ;
+  rdfs:label "Flow Relation" ;
+  rdfs:comment "Represents an arc between tasks and conditions, defining the flow of control." .
+
+:Node a owl:Class ;
+  rdfs:label "Node" ;
+  rdfs:comment "A generic term for either a Task or a Condition in a YAWL workflow." ;
+  owl:equivalentClass [ owl:unionOf (:Task :Condition) ] .
+
+#################################################################
+# Basic Properties
+#################################################################
+
+:hasEWFNet a owl:ObjectProperty ;
+  rdfs:label "has EWF-net" ;
+  rdfs:domain :WorkflowSpecification ;
+  rdfs:range :EWFNet ;
+  rdfs:comment "Links a workflow specification to its constituent EWF-nets." .
+
+:hasTopLevelEWFNet a owl:ObjectProperty ;
+  rdfs:label "has Top-Level EWF-net" ;
+  rdfs:domain :WorkflowSpecification ;
+  rdfs:range :EWFNet ;
+  rdfs:comment "Identifies the root EWF-net of a hierarchical workflow specification." ;
+  owl:cardinality 1 .
+
+:hasCondition a owl:ObjectProperty ;
+  rdfs:label "has Condition" ;
+  rdfs:domain :EWFNet ;
+  rdfs:range :Condition ;
+  rdfs:comment "Links an EWF-net to its conditions." .
+
+:hasTask a owl:ObjectProperty ;
+  rdfs:label "has Task" ;
+  rdfs:domain :EWFNet ;
+  rdfs:range :Task ;
+  rdfs:comment "Links an EWF-net to its tasks." .
+
+:hasFlowRelation a owl:ObjectProperty ;
+  rdfs:label "has Flow Relation" ;
+  rdfs:domain :EWFNet ;
+  rdfs:range :FlowRelation ;
+  rdfs:comment "Links an EWF-net to its flow relations (arcs)." .
+
+:hasInputCondition a owl:ObjectProperty ;
+  rdfs:label "has Input Condition" ;
+  rdfs:domain :EWFNet ;
+  rdfs:range :Condition ;
+  rdfs:comment "Identifies the unique input condition of an EWF-net." ;
+  owl:cardinality 1 .
+
+:hasOutputCondition a owl:ObjectProperty ;
+  rdfs:label "has Output Condition" ;
+  rdfs:domain :EWFNet ;
+  rdfs:range :Condition ;
+  rdfs:comment "Identifies the unique output condition of an EWF-net." ;
+  owl:cardinality 1 .
+
+:fromNode a owl:ObjectProperty ;
+  rdfs:label "from Node" ;
+  rdfs:domain :FlowRelation ;
+  rdfs:range :Node ;
+  rdfs:comment "Specifies the source node of a flow relation." .
+
+:toNode a owl:ObjectProperty ;
+  rdfs:label "to Node" ;
+  rdfs:domain :FlowRelation ;
+  rdfs:range :Node ;
+  rdfs:comment "Specifies the destination node of a flow relation." .
+
+:mapsToEWFNet a owl:ObjectProperty ;
+  rdfs:label "maps to EWF-net" ;
+  rdfs:domain :CompositeTask ;
+  rdfs:range :EWFNet ;
+  rdfs:comment "Links a composite task to the EWF-net it decomposes into." .
+
+#################################################################
+# Basic Behavior Classes (to be specialized in yawl-behaviors.owl.ttl)
+#################################################################
+
+:SplitBehavior a owl:Class ;
+  rdfs:label "Split Behavior" ;
+  rdfs:comment "Defines how a task splits the control flow." .
+
+:JoinBehavior a owl:Class ;
+  rdfs:label "Join Behavior" ;
+  rdfs:comment "Defines how a task joins incoming control flows." .
+
+:RemovalBehavior a owl:Class ;
+  rdfs:label "Removal Behavior" ;
+  rdfs:comment "Defines how tokens are removed from parts of the workflow (e.g., for cancellation)." .
+
+:MultiInstanceBehavior a owl:Class ;
+  rdfs:label "Multi-Instance Behavior" ;
+  rdfs:comment "Defines how a task can have multiple instances." .

@@ -1,0 +1,24 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# This file contains intentionally invalid RDF/Turtle syntax
+# Used for testing error handling in ontology extraction
+
+# Missing closing bracket for prefix declaration
+@prefix broken: <http://example.org/broken# .
+
+# Invalid triple without proper syntax
+<http://example.org/TestClass> INVALID_KEYWORD "value" .
+
+# Unclosed string literal
+<http://example.org/TestClass2> rdfs:label "This label is not closed .
+
+# Invalid blank node
+_ _blankInvalidSyntax .
+
+# These should cause parse errors
+rdfs:Class "not a valid statement"
+
+# Missing required properties for Class definition
+<http://example.org/BadClass> a owl:Class ;
+    "incomplete definition without period"

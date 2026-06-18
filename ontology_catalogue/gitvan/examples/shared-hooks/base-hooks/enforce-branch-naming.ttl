@@ -1,0 +1,55 @@
+@prefix gh: <http://example.org/git-hooks#> .
+@prefix git: <http://example.org/git#> .
+
+gh:EnforceBranchNaming a gh:Hook ;
+  gh:name "Enforce Branch Naming" ;
+  gh:description "Require branch names follow naming conventions (feature/*, bugfix/*, hotfix/*, release/*, docs/*)" ;
+  gh:version "1.0.0" ;
+  gh:maintainer "GitVan Community" ;
+
+  # Trigger on branch checkout
+  gh:trigger [
+    a git:PostCheckoutEvent
+  ] ;
+
+  # Validate branch name matches pattern
+  gh:condition [
+    a gh:PatternMatch ;
+    gh:pattern "^(feature|bugfix|hotfix|release|docs|main|master|develop)(/[a-z0-9-]+)?$" ;
+    gh:flags "i" ;
+    gh:invertMatch false
+  ] ;
+
+  # Action: Reject invalid branch names
+  gh:action [
+    a gh:ShellAction ;
+    gh:script """
+      BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+      if ! echo "$BRANCH" | grep -E '^(feature|bugfix|hotfix|release|docs|main|master|develop)(/[a-z0-9-]+)?$' > /dev/null; then
+        echo ""
+        echo "❌ INVALID BRANCH NAME: $BRANCH"
+        echo ""
+        echo "Use format: type/description"
+        echo ""
+        echo "Valid types:"
+        echo "  • feature    - New feature"
+        echo "  • bugfix     - Bug fix"
+        echo "  • hotfix     - Hot fix (production)"
+        echo "  • release    - Release preparation"
+        echo "  • docs       - Documentation"
+        echo "  • main/master/develop - Main branches (auto-allowed)"
+        echo ""
+        echo "Examples:"
+        echo "  • feature/user-authentication"
+        echo "  • bugfix/null-pointer-exception"
+        echo "  • hotfix/security-patch"
+        echo "  • release/v1.0.0"
+        echo "  • docs/api-reference"
+        echo ""
+        exit 1
+      fi
+
+      echo "✅ Branch name valid: $BRANCH"
+    """
+  ] .

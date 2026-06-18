@@ -1,0 +1,393 @@
+@prefix batch: <http://bytestar.io/ontology/batch#> .
+@prefix perf: <http://bytestar.io/ontology/performance#> .
+@prefix mem: <http://bytestar.io/ontology/memory#> .
+@prefix simd: <http://bytestar.io/ontology/simd#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Batch Processing Ontology
+# Defines queue sizes, parallelism patterns, and batch optimization strategies
+
+# Base Classes
+batch:BatchProcess a owl:Class ;
+    rdfs:label "Batch Process" ;
+    rdfs:comment "A process that operates on batches of data" .
+
+batch:BatchSize a owl:Class ;
+    rdfs:label "Batch Size" ;
+    rdfs:comment "The number of items processed in a single batch" .
+
+batch:QueueConfiguration a owl:Class ;
+    rdfs:label "Queue Configuration" ;
+    rdfs:comment "Configuration parameters for processing queues" .
+
+batch:ParallelismPattern a owl:Class ;
+    rdfs:label "Parallelism Pattern" ;
+    rdfs:comment "Pattern for parallel execution of batch operations" .
+
+batch:BatchingStrategy a owl:Class ;
+    rdfs:label "Batching Strategy" ;
+    rdfs:comment "Strategy for organizing data into batches" .
+
+# Properties
+batch:batchSize a owl:DatatypeProperty ;
+    rdfs:domain batch:BatchProcess ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Number of items in each batch" .
+
+batch:queueDepth a owl:DatatypeProperty ;
+    rdfs:domain batch:QueueConfiguration ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Maximum number of batches in queue" .
+
+batch:concurrencyLevel a owl:DatatypeProperty ;
+    rdfs:domain batch:ParallelismPattern ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Number of concurrent processing units" .
+
+batch:latencyTolerance a owl:DatatypeProperty ;
+    rdfs:domain batch:BatchingStrategy ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Acceptable latency for batch formation" .
+
+batch:memoryFootprint a owl:DatatypeProperty ;
+    rdfs:domain batch:BatchProcess ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Memory required per batch in bytes" .
+
+batch:throughputTarget a owl:DatatypeProperty ;
+    rdfs:domain batch:BatchProcess ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Target throughput in items/second" .
+
+# Batch Size Classifications
+batch:SmallBatch a batch:BatchSize ;
+    rdfs:label "Small Batch" ;
+    batch:minSize "1"^^xsd:integer ;
+    batch:maxSize "16"^^xsd:integer ;
+    rdfs:comment "Small batch size for low latency" .
+
+batch:MediumBatch a batch:BatchSize ;
+    rdfs:label "Medium Batch" ;
+    batch:minSize "17"^^xsd:integer ;
+    batch:maxSize "128"^^xsd:integer ;
+    rdfs:comment "Medium batch size for balanced performance" .
+
+batch:LargeBatch a batch:BatchSize ;
+    rdfs:label "Large Batch" ;
+    batch:minSize "129"^^xsd:integer ;
+    batch:maxSize "1024"^^xsd:integer ;
+    rdfs:comment "Large batch size for maximum throughput" .
+
+batch:MegaBatch a batch:BatchSize ;
+    rdfs:label "Mega Batch" ;
+    batch:minSize "1025"^^xsd:integer ;
+    rdfs:comment "Very large batch size for bulk processing" .
+
+batch:minSize a owl:DatatypeProperty ;
+    rdfs:domain batch:BatchSize ;
+    rdfs:range xsd:integer .
+
+batch:maxSize a owl:DatatypeProperty ;
+    rdfs:domain batch:BatchSize ;
+    rdfs:range xsd:integer .
+
+# Queue Configurations
+batch:ShallowQueue a batch:QueueConfiguration ;
+    rdfs:label "Shallow Queue" ;
+    batch:queueDepth "2"^^xsd:integer ;
+    rdfs:comment "Shallow queue for low memory usage" .
+
+batch:DeepQueue a batch:QueueConfiguration ;
+    rdfs:label "Deep Queue" ;
+    batch:queueDepth "32"^^xsd:integer ;
+    rdfs:comment "Deep queue for high throughput" .
+
+batch:AdaptiveQueue a batch:QueueConfiguration ;
+    rdfs:label "Adaptive Queue" ;
+    rdfs:comment "Queue that adapts depth based on load" .
+
+# Parallelism Patterns
+batch:DataParallelism a batch:ParallelismPattern ;
+    rdfs:label "Data Parallelism" ;
+    rdfs:comment "Parallel processing of different data elements" .
+
+batch:TaskParallelism a batch:ParallelismPattern ;
+    rdfs:label "Task Parallelism" ;
+    rdfs:comment "Parallel execution of different tasks" .
+
+batch:PipelineParallelism a batch:ParallelismPattern ;
+    rdfs:label "Pipeline Parallelism" ;
+    rdfs:comment "Pipeline stages processing different batches" .
+
+batch:HybridParallelism a batch:ParallelismPattern ;
+    rdfs:label "Hybrid Parallelism" ;
+    rdfs:comment "Combination of data and task parallelism" .
+
+# SIMD Batch Processing Patterns
+batch:SIMDDataParallelism a batch:ParallelismPattern ;
+    rdfs:subClassOf batch:DataParallelism ;
+    rdfs:label "SIMD Data Parallelism" ;
+    rdfs:comment "SIMD-based data parallel processing" .
+
+batch:VectorizedBatch a batch:BatchProcess ;
+    rdfs:label "Vectorized Batch Process" ;
+    rdfs:comment "Batch process optimized for SIMD execution" .
+
+batch:AVX2BatchSize a batch:BatchSize ;
+    rdfs:label "AVX2 Optimal Batch Size" ;
+    batch:minSize "16"^^xsd:integer ;
+    batch:maxSize "64"^^xsd:integer ;
+    rdfs:comment "Optimal batch size for AVX2 operations" .
+
+batch:AVX512BatchSize a batch:BatchSize ;
+    rdfs:label "AVX-512 Optimal Batch Size" ;
+    batch:minSize "32"^^xsd:integer ;
+    batch:maxSize "128"^^xsd:integer ;
+    rdfs:comment "Optimal batch size for AVX-512 operations" .
+
+batch:NEONBatchSize a batch:BatchSize ;
+    rdfs:label "NEON Optimal Batch Size" ;
+    batch:minSize "8"^^xsd:integer ;
+    batch:maxSize "32"^^xsd:integer ;
+    rdfs:comment "Optimal batch size for NEON operations" .
+
+# Batching Strategies
+batch:ImmediateBatching a batch:BatchingStrategy ;
+    rdfs:label "Immediate Batching" ;
+    batch:latencyTolerance "0.1"^^xsd:decimal ;
+    rdfs:comment "Form batches immediately when minimum size reached" .
+
+batch:TimeBasedBatching a batch:BatchingStrategy ;
+    rdfs:label "Time-Based Batching" ;
+    batch:latencyTolerance "10.0"^^xsd:decimal ;
+    rdfs:comment "Form batches based on time windows" .
+
+batch:SizeBasedBatching a batch:BatchingStrategy ;
+    rdfs:label "Size-Based Batching" ;
+    rdfs:comment "Form batches when target size is reached" .
+
+batch:AdaptiveBatching a batch:BatchingStrategy ;
+    rdfs:label "Adaptive Batching" ;
+    rdfs:comment "Dynamically adjust batching based on load" .
+
+# Cryptographic Batch Processing
+batch:CryptoBatchProcess a batch:BatchProcess ;
+    rdfs:label "Cryptographic Batch Process" ;
+    rdfs:comment "Batch processing for cryptographic operations" .
+
+batch:KyberBatchProcess a batch:CryptoBatchProcess ;
+    rdfs:label "Kyber Batch Process" ;
+    batch:batchSize "32"^^xsd:integer ;
+    batch:memoryFootprint "262144"^^xsd:integer ;
+    batch:throughputTarget "50000"^^xsd:decimal ;
+    rdfs:comment "Batch processing for Kyber operations" .
+
+batch:DilithiumBatchProcess a batch:CryptoBatchProcess ;
+    rdfs:label "Dilithium Batch Process" ;
+    batch:batchSize "16"^^xsd:integer ;
+    batch:memoryFootprint "524288"^^xsd:integer ;
+    batch:throughputTarget "25000"^^xsd:decimal ;
+    rdfs:comment "Batch processing for Dilithium operations" .
+
+batch:NTTBatchProcess a batch:CryptoBatchProcess ;
+    rdfs:label "NTT Batch Process" ;
+    batch:batchSize "64"^^xsd:integer ;
+    batch:memoryFootprint "131072"^^xsd:integer ;
+    batch:throughputTarget "100000"^^xsd:decimal ;
+    rdfs:comment "Batch processing for Number Theoretic Transform" .
+
+# Load Balancing Patterns
+batch:LoadBalancing a owl:Class ;
+    rdfs:label "Load Balancing" ;
+    rdfs:comment "Strategy for distributing batches across processing units" .
+
+batch:RoundRobinBalancing a batch:LoadBalancing ;
+    rdfs:label "Round Robin Load Balancing" ;
+    rdfs:comment "Distribute batches in round-robin fashion" .
+
+batch:WorkStealingBalancing a batch:LoadBalancing ;
+    rdfs:label "Work Stealing Load Balancing" ;
+    rdfs:comment "Idle processors steal work from busy ones" .
+
+batch:WeightedBalancing a batch:LoadBalancing ;
+    rdfs:label "Weighted Load Balancing" ;
+    rdfs:comment "Distribute based on processor capabilities" .
+
+batch:hasLoadBalancing a owl:ObjectProperty ;
+    rdfs:domain batch:BatchProcess ;
+    rdfs:range batch:LoadBalancing .
+
+# Batch Optimization Patterns
+batch:OptimizationPattern a owl:Class ;
+    rdfs:label "Batch Optimization Pattern" ;
+    rdfs:comment "Pattern for optimizing batch processing performance" .
+
+batch:CacheAwareBatching a batch:OptimizationPattern ;
+    rdfs:label "Cache-Aware Batching" ;
+    rdfs:comment "Optimize batch size for cache efficiency" .
+
+batch:MemoryBandwidthOptimization a batch:OptimizationPattern ;
+    rdfs:label "Memory Bandwidth Optimization" ;
+    rdfs:comment "Optimize for memory bandwidth utilization" .
+
+batch:NUMAAwareBatching a batch:OptimizationPattern ;
+    rdfs:label "NUMA-Aware Batching" ;
+    rdfs:comment "Optimize batch distribution for NUMA topology" .
+
+batch:PowerAwareBatching a batch:OptimizationPattern ;
+    rdfs:label "Power-Aware Batching" ;
+    rdfs:comment "Optimize batching for energy efficiency" .
+
+# Batch Processing Pipeline Stages
+batch:PipelineStage a owl:Class ;
+    rdfs:label "Pipeline Stage" ;
+    rdfs:comment "A stage in a batch processing pipeline" .
+
+batch:InputStage a batch:PipelineStage ;
+    rdfs:label "Input Stage" ;
+    rdfs:comment "Data input and initial batching stage" .
+
+batch:ProcessingStage a batch:PipelineStage ;
+    rdfs:label "Processing Stage" ;
+    rdfs:comment "Main computation stage" .
+
+batch:OutputStage a batch:PipelineStage ;
+    rdfs:label "Output Stage" ;
+    rdfs:comment "Result aggregation and output stage" .
+
+batch:hasPipelineStage a owl:ObjectProperty ;
+    rdfs:domain batch:BatchProcess ;
+    rdfs:range batch:PipelineStage .
+
+batch:stageLatency a owl:DatatypeProperty ;
+    rdfs:domain batch:PipelineStage ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Latency of pipeline stage in microseconds" .
+
+batch:stageThroughput a owl:DatatypeProperty ;
+    rdfs:domain batch:PipelineStage ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Throughput of pipeline stage" .
+
+# Batch Processing Metrics
+batch:ProcessingMetric a owl:Class ;
+    rdfs:subClassOf perf:PerformanceMetric ;
+    rdfs:label "Batch Processing Metric" ;
+    rdfs:comment "Performance metric specific to batch processing" .
+
+batch:BatchLatency a batch:ProcessingMetric ;
+    rdfs:label "Batch Latency" ;
+    rdfs:comment "Time to process a single batch" .
+
+batch:BatchThroughput a batch:ProcessingMetric ;
+    rdfs:label "Batch Throughput" ;
+    rdfs:comment "Number of batches processed per unit time" .
+
+batch:QueueUtilization a batch:ProcessingMetric ;
+    rdfs:label "Queue Utilization" ;
+    rdfs:comment "Percentage of queue capacity utilized" .
+
+batch:BatchEfficiency a batch:ProcessingMetric ;
+    rdfs:label "Batch Processing Efficiency" ;
+    rdfs:comment "Ratio of useful work to total processing time" .
+
+# Resource Utilization in Batch Processing
+batch:ResourceUtilization a owl:Class ;
+    rdfs:label "Resource Utilization" ;
+    rdfs:comment "Utilization of computing resources in batch processing" .
+
+batch:CPUUtilization a batch:ResourceUtilization ;
+    rdfs:label "CPU Utilization" ;
+    rdfs:comment "CPU core utilization in batch processing" .
+
+batch:VectorUnitUtilization a batch:ResourceUtilization ;
+    rdfs:label "Vector Unit Utilization" ;
+    rdfs:comment "SIMD vector unit utilization" .
+
+batch:MemoryUtilization a batch:ResourceUtilization ;
+    rdfs:label "Memory Utilization" ;
+    rdfs:comment "Memory bandwidth utilization" .
+
+batch:CacheUtilization a batch:ResourceUtilization ;
+    rdfs:label "Cache Utilization" ;
+    rdfs:comment "Cache efficiency in batch processing" .
+
+# Batch Size Optimization Rules
+batch:OptimizationRule a owl:Class ;
+    rdfs:label "Optimization Rule" ;
+    rdfs:comment "Rule for batch processing optimization" .
+
+batch:CacheFitRule a batch:OptimizationRule ;
+    rdfs:label "Cache Fit Rule" ;
+    rdfs:comment "Batch size should fit in cache level" .
+
+batch:VectorAlignmentRule a batch:OptimizationRule ;
+    rdfs:label "Vector Alignment Rule" ;
+    rdfs:comment "Batch size should align with vector width" .
+
+batch:MemoryPageRule a batch:OptimizationRule ;
+    rdfs:label "Memory Page Rule" ;
+    rdfs:comment "Batch size should consider memory page boundaries" .
+
+batch:LatencyConstraintRule a batch:OptimizationRule ;
+    rdfs:label "Latency Constraint Rule" ;
+    rdfs:comment "Batch size bounded by latency requirements" .
+
+# Relationships between concepts
+batch:optimizes a owl:ObjectProperty ;
+    rdfs:domain batch:OptimizationPattern ;
+    rdfs:range batch:BatchProcess .
+
+batch:appliesTo a owl:ObjectProperty ;
+    rdfs:domain batch:OptimizationRule ;
+    rdfs:range batch:BatchProcess .
+
+batch:recommendedFor a owl:ObjectProperty ;
+    rdfs:domain batch:BatchSize ;
+    rdfs:range simd:InstructionSet .
+
+# Recommendations
+batch:AVX2BatchSize batch:recommendedFor simd:AVX2 .
+batch:AVX512BatchSize batch:recommendedFor simd:AVX512 .
+batch:NEONBatchSize batch:recommendedFor simd:NEON .
+
+# Adaptive Batch Processing
+batch:AdaptiveBatchProcess a batch:BatchProcess ;
+    rdfs:label "Adaptive Batch Process" ;
+    rdfs:comment "Batch process that adapts to runtime conditions" .
+
+batch:LoadAdaptation a owl:Class ;
+    rdfs:label "Load Adaptation" ;
+    rdfs:comment "Adaptation based on processing load" .
+
+batch:MemoryAdaptation a owl:Class ;
+    rdfs:label "Memory Adaptation" ;
+    rdfs:comment "Adaptation based on memory pressure" .
+
+batch:PerformanceAdaptation a owl:Class ;
+    rdfs:label "Performance Adaptation" ;
+    rdfs:comment "Adaptation based on performance metrics" .
+
+batch:hasAdaptation a owl:ObjectProperty ;
+    rdfs:domain batch:AdaptiveBatchProcess ;
+    rdfs:range batch:LoadAdaptation .
+
+# Batch Processing for Different Workload Types
+batch:CPUBoundBatch a batch:BatchProcess ;
+    rdfs:label "CPU-Bound Batch Process" ;
+    rdfs:comment "Batch process optimized for CPU-intensive workloads" .
+
+batch:MemoryBoundBatch a batch:BatchProcess ;
+    rdfs:label "Memory-Bound Batch Process" ;
+    rdfs:comment "Batch process optimized for memory-intensive workloads" .
+
+batch:IOBoundBatch a batch:BatchProcess ;
+    rdfs:label "I/O-Bound Batch Process" ;
+    rdfs:comment "Batch process optimized for I/O-intensive workloads" .
+
+batch:ComputeBoundBatch a batch:BatchProcess ;
+    rdfs:label "Compute-Bound Batch Process" ;
+    rdfs:comment "Batch process optimized for computation-intensive workloads" .

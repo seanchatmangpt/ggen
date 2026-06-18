@@ -1,0 +1,3343 @@
+@prefix ns1: <http://bitflow.org/ontology/performance#> .
+@prefix ns2: <http://bitflow.org/ontology/yawl-mappings#> .
+@prefix ns3: <http://hyperintelligence.ai/patterns#> .
+@prefix ns4: <http://bitflow.org/ontology/workflow-patterns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://bitflow.org/ontology/yawl-mappings> a owl:Ontology ;
+    rdfs:label "BitFlow Pattern to YAWL Mappings"@en ;
+    rdfs:comment """Comprehensive mappings between van der Aalst workflow patterns 
+                    and YAWL v2 constructs for BitFlow execution engine."""@en ;
+    rdfs:seeAlso <http://workflowpatterns.com>,
+        <http://www.yawlfoundation.org/> ;
+    owl:imports <http://bitflow.org/ontology/workflow-patterns>,
+        <http://www.yawlfoundation.org/ontology> ;
+    owl:versionIRI <http://bitflow.org/ontology/yawl-mappings/2.0> ;
+    owl:versionInfo "2.0.0" .
+
+ns2:BitFlowImplementationStatus a ns2:ImplementationSummary ;
+    rdfs:label "BitFlow Implementation Status"@en ;
+    ns2:criticalMissingPatterns 12 ;
+    ns2:implementedPatterns 8 ;
+    ns2:maxCpuTicks 8 ;
+    ns2:memoryLeakThresholdBytes 392167424 ;
+    ns2:missingPatterns 35 ;
+    ns2:performanceFraudFactor 52704 ;
+    ns2:targetThroughput 2000000 ;
+    ns2:totalPatterns 43 ;
+    rdfs:comment "Current status of BitFlow pattern implementations"@en .
+
+ns2:BulkExecutionMapping a ns2:PatternMapping ;
+    rdfs:label "Bulk Execution Pattern Mapping"@en ;
+    ns2:hasExecutionSemantics ns2:BulkExecutionSemantics ;
+    ns2:hasPerformanceConstraint ns2:BulkExecutionConstraints ;
+    ns2:implementationFunction "bitflow_pattern_bulk_execution_STUB" ;
+    ns2:mapsPattern ns4:BulkExecution ;
+    ns2:mapsToYAWL <http://www.yawlfoundation.org/ontology#AtomicTask> ;
+    ns2:yawlNetId "BulkExecutionPattern" ;
+    ns2:yawlSpecificationId "extension-patterns" ;
+    rdfs:comment "Maps BF-26 Bulk Execution to YAWL vectorized task (CRITICAL)"@en .
+
+ns2:DeferredChoiceMapping a ns2:PatternMapping ;
+    rdfs:label "Deferred Choice Pattern Mapping"@en ;
+    ns2:hasExecutionSemantics ns2:DeferredChoiceSemantics ;
+    ns2:hasPerformanceConstraint ns2:DeferredChoiceConstraints ;
+    ns2:implementationFunction "bitflow_event_listener_STUB, bitflow_event_handler_STUB" ;
+    ns2:mapsPattern ns4:DeferredChoice ;
+    ns2:mapsToYAWL <http://www.yawlfoundation.org/ontology#AtomicTask> ;
+    ns2:yawlNetId "DeferredChoicePattern" ;
+    ns2:yawlSpecificationId "advanced-patterns" ;
+    rdfs:comment "Maps WCP-16 Deferred Choice to YAWL event-driven tasks (MISSING)"@en .
+
+ns2:ExclusiveChoiceMapping a ns2:PatternMapping ;
+    rdfs:label "Exclusive Choice Pattern Mapping"@en ;
+    ns2:hasExecutionSemantics ns2:ExclusiveChoiceSemantics ;
+    ns2:hasPerformanceConstraint ns2:ExclusiveChoiceConstraints ;
+    ns2:implementationFunction "bitflow_pattern_exclusive_choice" ;
+    ns2:mapsPattern ns4:ExclusiveChoice ;
+    ns2:mapsToYAWL <http://www.yawlfoundation.org/ontology#XORSplit> ;
+    ns2:yawlNetId "ExclusiveChoicePattern" ;
+    ns2:yawlSpecificationId "basic-control-flow" ;
+    rdfs:comment "Maps WCP-4 Exclusive Choice to YAWL XOR-split"@en .
+
+ns2:LockFreeCoordinationMapping a ns2:PatternMapping ;
+    rdfs:label "Lock-Free Coordination Pattern Mapping"@en ;
+    ns2:hasExecutionSemantics ns2:LockFreeCoordinationSemantics ;
+    ns2:hasPerformanceConstraint ns2:LockFreeCoordinationConstraints ;
+    ns2:implementationFunction "bitflow_lockfree_coordinator_STUB" ;
+    ns2:mapsPattern ns4:LockFreeCoordination ;
+    ns2:mapsToYAWL <http://www.yawlfoundation.org/ontology#AtomicTask> ;
+    ns2:yawlNetId "LockFreeCoordinationPattern" ;
+    ns2:yawlSpecificationId "extension-patterns" ;
+    rdfs:comment "Maps BF-36 Lock-Free Coordination to YAWL atomic task (ULTRA-FAST)"@en .
+
+ns2:MaxCpuTicksRule a ns2:PerformanceRule ;
+    rdfs:label "Maximum CPU Ticks Rule"@en ;
+    ns2:enforcesConstraint ns2:GlobalPerformanceConstraints ;
+    ns2:ruleExpression "executionComplexity <= 8" ;
+    rdfs:comment "Enforces ≤8 CPU ticks constraint for all patterns"@en .
+
+ns2:MemoryLeakPreventionRule a ns2:MemoryRule ;
+    rdfs:label "Memory Leak Prevention Rule"@en ;
+    ns2:enforcesConstraint ns2:GlobalMemoryConstraints ;
+    ns2:ruleExpression "memoryRequirement < 392167424" ;
+    rdfs:comment "Prevents memory leaks exceeding 374MB threshold"@en .
+
+ns2:MultiChoiceMapping a ns2:PatternMapping ;
+    rdfs:label "Multi-Choice Pattern Mapping"@en ;
+    ns2:hasExecutionSemantics ns2:MultiChoiceSemantics ;
+    ns2:hasPerformanceConstraint ns2:MultiChoiceConstraints ;
+    ns2:implementationFunction "bitflow_pattern_multi_choice_STUB" ;
+    ns2:mapsPattern ns4:MultiChoice ;
+    ns2:mapsToYAWL <http://www.yawlfoundation.org/ontology#ORSplit> ;
+    ns2:yawlNetId "MultiChoicePattern" ;
+    ns2:yawlSpecificationId "advanced-patterns" ;
+    rdfs:comment "Maps WCP-6 Multi-Choice to YAWL OR-split (MISSING IMPLEMENTATION)"@en .
+
+ns2:MultipleInstancesMapping a ns2:PatternMapping ;
+    rdfs:label "Multiple Instances Pattern Mapping"@en ;
+    ns2:hasExecutionSemantics ns2:MultipleInstancesSemantics ;
+    ns2:hasPerformanceConstraint ns2:MultipleInstancesConstraints ;
+    ns2:implementationFunction "bitflow_pattern_multiple_instance_worker_STUB" ;
+    ns2:mapsPattern ns4:MultipleInstancesWithoutSynchronization ;
+    ns2:mapsToYAWL <http://www.yawlfoundation.org/ontology#MultipleInstanceTask> ;
+    ns2:yawlNetId "MultipleInstancePattern" ;
+    ns2:yawlSpecificationId "advanced-patterns" ;
+    rdfs:comment "Maps WCP-12 Multiple Instances to YAWL MI task (MISSING)"@en .
+
+ns2:ParallelSplitMapping a ns2:PatternMapping ;
+    rdfs:label "Parallel Split Pattern Mapping"@en ;
+    ns2:hasExecutionSemantics ns2:ParallelSplitSemantics ;
+    ns2:hasPerformanceConstraint ns2:ParallelSplitConstraints ;
+    ns2:implementationFunction "bitflow_pattern_parallel_split" ;
+    ns2:mapsPattern ns4:ParallelSplit ;
+    ns2:mapsToYAWL <http://www.yawlfoundation.org/ontology#ANDSplit> ;
+    ns2:yawlNetId "ParallelSplitPattern" ;
+    ns2:yawlSpecificationId "basic-control-flow" ;
+    rdfs:comment "Maps WCP-2 Parallel Split to YAWL AND-split"@en .
+
+ns2:PerformanceFraudDetectionRule a ns2:PerformanceRule ;
+    rdfs:label "Performance Fraud Detection Rule"@en ;
+    ns2:enforcesConstraint ns2:GlobalPerformanceConstraints ;
+    ns2:ruleExpression "actualLatency / expectedLatency < 52704" ;
+    rdfs:comment "Detects 52,704x performance degradation"@en .
+
+ns2:PipelinedExecutionMapping a ns2:PatternMapping ;
+    rdfs:label "Pipelined Execution Pattern Mapping"@en ;
+    ns2:hasExecutionSemantics ns2:PipelinedExecutionSemantics ;
+    ns2:hasPerformanceConstraint ns2:PipelinedExecutionConstraints ;
+    ns2:implementationFunction "bitflow_pipeline_stage_STUB" ;
+    ns2:mapsPattern ns4:PipelinedExecution ;
+    ns2:mapsToYAWL <http://www.yawlfoundation.org/ontology#CompositeTask> ;
+    ns2:yawlNetId "PipelinedExecutionPattern" ;
+    ns2:yawlSpecificationId "extension-patterns" ;
+    rdfs:comment "Maps BF-27 Pipelined Execution to YAWL pipeline task (CRITICAL)"@en .
+
+ns2:SequenceMapping a ns2:PatternMapping ;
+    rdfs:label "Sequence Pattern Mapping"@en ;
+    ns2:hasExecutionSemantics ns2:SequenceSemantics ;
+    ns2:hasPerformanceConstraint ns2:SequenceConstraints ;
+    ns2:implementationFunction "bitflow_pattern_sequence_a, bitflow_pattern_sequence_b" ;
+    ns2:mapsPattern ns4:Sequence ;
+    ns2:mapsToYAWL <http://www.yawlfoundation.org/ontology#AtomicTask> ;
+    ns2:yawlNetId "SequencePattern" ;
+    ns2:yawlSpecificationId "basic-control-flow" ;
+    rdfs:comment "Maps WCP-1 Sequence to YAWL sequential tasks"@en .
+
+ns2:SimpleMergeMapping a ns2:PatternMapping ;
+    rdfs:label "Simple Merge Pattern Mapping"@en ;
+    ns2:hasExecutionSemantics ns2:SimpleMergeSemantics ;
+    ns2:hasPerformanceConstraint ns2:SimpleMergeConstraints ;
+    ns2:implementationFunction "bitflow_pattern_simple_merge" ;
+    ns2:mapsPattern ns4:SimpleMerge ;
+    ns2:mapsToYAWL <http://www.yawlfoundation.org/ontology#XORJoin> ;
+    ns2:yawlNetId "ExclusiveChoicePattern" ;
+    ns2:yawlSpecificationId "basic-control-flow" ;
+    rdfs:comment "Maps WCP-5 Simple Merge to YAWL XOR-join"@en .
+
+ns2:StructuredSyncMergeMapping a ns2:PatternMapping ;
+    rdfs:label "Structured Synchronizing Merge Pattern Mapping"@en ;
+    ns2:hasExecutionSemantics ns2:StructuredSyncMergeSemantics ;
+    ns2:hasPerformanceConstraint ns2:StructuredSyncMergeConstraints ;
+    ns2:implementationFunction "bitflow_pattern_structured_sync_merge_STUB" ;
+    ns2:mapsPattern ns4:StructuredSynchronizingMerge ;
+    ns2:mapsToYAWL <http://www.yawlfoundation.org/ontology#ORJoin> ;
+    ns2:yawlNetId "MultiChoicePattern" ;
+    ns2:yawlSpecificationId "advanced-patterns" ;
+    rdfs:comment "Maps WCP-7 Structured Synchronizing Merge to YAWL OR-join (MISSING)"@en .
+
+ns2:SynchronizationMapping a ns2:PatternMapping ;
+    rdfs:label "Synchronization Pattern Mapping"@en ;
+    ns2:hasExecutionSemantics ns2:SynchronizationSemantics ;
+    ns2:hasPerformanceConstraint ns2:SynchronizationConstraints ;
+    ns2:implementationFunction "bitflow_pattern_synchronization" ;
+    ns2:mapsPattern ns4:Synchronization ;
+    ns2:mapsToYAWL <http://www.yawlfoundation.org/ontology#ANDJoin> ;
+    ns2:yawlNetId "ParallelSplitPattern" ;
+    ns2:yawlSpecificationId "basic-control-flow" ;
+    rdfs:comment "Maps WCP-3 Synchronization to YAWL AND-join"@en .
+
+ns2:criticalMissingPatterns a owl:DatatypeProperty ;
+    rdfs:domain ns2:ImplementationSummary ;
+    rdfs:range xsd:unsignedInt .
+
+ns2:executionComplexity a owl:DatatypeProperty ;
+    rdfs:label "execution complexity"@en ;
+    rdfs:comment "YAWL execution complexity in CPU ticks"@en ;
+    rdfs:domain ns2:ExecutionSemantics ;
+    rdfs:range xsd:unsignedByte .
+
+ns2:findHighMemoryPatterns a ns2:MissingPatternQuery ;
+    rdfs:label "Find High Memory Patterns"@en ;
+    ns2:queryText """
+        SELECT ?pattern ?label ?memory WHERE {
+            ?pattern perf:memoryFootprint ?memory .
+            ?pattern rdfs:label ?label .
+            FILTER (?memory > 500)
+        }
+        ORDER BY DESC(?memory)
+    """ ;
+    rdfs:comment "Query to find patterns with high memory footprint"@en .
+
+ns2:findMissingCriticalPatterns a ns2:MissingPatternQuery ;
+    rdfs:label "Find Missing Critical Patterns"@en ;
+    ns2:queryText """
+        SELECT ?pattern ?label ?vdaalstId WHERE {
+            ?pattern bwp:bitflowImplemented false .
+            ?pattern bwp:criticalForPerformance true .
+            ?pattern rdfs:label ?label .
+            ?pattern bwp:vdaalstId ?vdaalstId .
+        }
+        ORDER BY ?vdaalstId
+    """ ;
+    rdfs:comment "Query to find all missing patterns critical for performance"@en .
+
+ns2:findUnmappedPatterns a ns2:MissingPatternQuery ;
+    rdfs:label "Find Unmapped Patterns"@en ;
+    ns2:queryText """
+        SELECT ?pattern ?label WHERE {
+            ?pattern a bwp:WorkflowPattern .
+            ?pattern rdfs:label ?label .
+            FILTER NOT EXISTS { ?pattern yawlmap:mapsToYAWL ?yawlConstruct }
+        }
+        ORDER BY ?label
+    """ ;
+    rdfs:comment "Query to find patterns without YAWL mappings"@en .
+
+ns2:implementationFunction a owl:DatatypeProperty ;
+    rdfs:label "implementation function"@en ;
+    rdfs:comment "C function name implementing the pattern"@en ;
+    rdfs:domain ns2:PatternMapping ;
+    rdfs:range xsd:string .
+
+ns2:implementedPatterns a owl:DatatypeProperty ;
+    rdfs:domain ns2:ImplementationSummary ;
+    rdfs:range xsd:unsignedInt .
+
+ns2:maxCpuTicks a owl:DatatypeProperty ;
+    rdfs:domain ns2:ImplementationSummary ;
+    rdfs:range xsd:unsignedByte .
+
+ns2:memoryLeakThresholdBytes a owl:DatatypeProperty ;
+    rdfs:domain ns2:ImplementationSummary ;
+    rdfs:range xsd:unsignedLong .
+
+ns2:memoryRequirement a owl:DatatypeProperty ;
+    rdfs:label "memory requirement"@en ;
+    rdfs:comment "Memory requirement in bytes for YAWL execution"@en ;
+    rdfs:domain ns2:ExecutionSemantics ;
+    rdfs:range xsd:unsignedLong .
+
+ns2:missingPatterns a owl:DatatypeProperty ;
+    rdfs:domain ns2:ImplementationSummary ;
+    rdfs:range xsd:unsignedInt .
+
+ns2:performanceFraudFactor a owl:DatatypeProperty ;
+    rdfs:domain ns2:ImplementationSummary ;
+    rdfs:range xsd:double .
+
+ns2:ruleExpression a owl:DatatypeProperty ;
+    rdfs:label "rule expression"@en ;
+    rdfs:comment "Logical expression defining the rule"@en ;
+    rdfs:domain ns2:SemanticRule ;
+    rdfs:range xsd:string .
+
+ns2:targetThroughput a owl:DatatypeProperty ;
+    rdfs:domain ns2:ImplementationSummary ;
+    rdfs:range xsd:unsignedInt .
+
+ns2:timeoutDuration a owl:DatatypeProperty ;
+    rdfs:label "timeout duration"@en ;
+    rdfs:comment "Maximum execution timeout in nanoseconds"@en ;
+    rdfs:domain ns2:ExecutionSemantics ;
+    rdfs:range xsd:unsignedLong .
+
+ns2:totalPatterns a owl:DatatypeProperty ;
+    rdfs:domain ns2:ImplementationSummary ;
+    rdfs:range xsd:unsignedInt .
+
+ns2:yawlNetId a owl:DatatypeProperty ;
+    rdfs:label "YAWL net ID"@en ;
+    rdfs:comment "YAWL net identifier within specification"@en ;
+    rdfs:domain ns2:PatternMapping ;
+    rdfs:range xsd:string .
+
+ns2:yawlSpecificationId a owl:DatatypeProperty ;
+    rdfs:label "YAWL specification ID"@en ;
+    rdfs:comment "YAWL specification identifier"@en ;
+    rdfs:domain ns2:PatternMapping ;
+    rdfs:range xsd:string .
+
+<http://bitstar.ai/dark#DarkChain_05f7c3a5e513> ns3:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_0689a0bbe07f> ns3:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_087fc78f19b0> ns3:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_0ec0153b36e7> ns3:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_115151451778> ns3:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_11deb4ddc239> ns3:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_161af05b702f> ns3:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_17f86272cc5b> ns3:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_180a4e0837f2> ns3:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_1fd2aaa9ee79> ns3:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_203b0f173f2e> ns3:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_2158def31481> ns3:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_284a71ac46aa> ns3:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_28ae311f0b07> ns3:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_290125afcb69> ns3:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_2901b4e53508> ns3:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_29d148d94d43> ns3:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_2c7fc3d30e25> ns3:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_2ed483d3f11e> ns3:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_3032fd005302> ns3:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_357016c9d815> ns3:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_361e560d431a> ns3:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_376057cf1a7d> ns3:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_399df298c1ad> ns3:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_3b30d29dfec7> ns3:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_41d4cf7c6b80> ns3:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_472c5c615685> ns3:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_4747f81ff9fe> ns3:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_4c37a8ed7d3f> ns3:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_50159d3df2c0> ns3:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_54fd8c258ce8> ns3:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_57b2507d5a15> ns3:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_57d750936ed7> ns3:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_592fe997c4ed> ns3:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_60ac708f6653> ns3:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_62ef6a7faa63> ns3:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_646bb3f49e28> ns3:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_64ece97658e7> ns3:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_64fb43aed1c2> ns3:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_68f055a56866> ns3:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_68f8f8325d2c> ns3:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_6a0cbed5e1b4> ns3:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_6afe5b1fac9f> ns3:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_6ba7b42037bf> ns3:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_6bcbad61d63b> ns3:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_70e2214cd997> ns3:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_795856e2d2f5> ns3:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_7ac507dcc04d> ns3:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_7df818ddf5d7> ns3:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_80cd4c999c00> ns3:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_80cf22302114> ns3:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_82219c3820a7> ns3:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_9084071b0a42> ns3:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_9095035f2e5c> ns3:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_93a740e30191> ns3:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_961a5337e1b7> ns3:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_9917ea4b05dd> ns3:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_9ac4eed9c99f> ns3:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_9af6c1164d1e> ns3:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_9c35fceb98c9> ns3:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_a01ca8e99880> ns3:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_a25a2c666fe2> ns3:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_a7e9f7a4653e> ns3:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_a7ec5da0b5f0> ns3:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_af5b69e66fe7> ns3:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_b59364586bee> ns3:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_b66d46ae8eae> ns3:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_c0678046eab9> ns3:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_c1cfc7b8440d> ns3:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_c6ccabed4b3c> ns3:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_c9829ea5612e> ns3:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_ca444a9bbd84> ns3:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_cca8ec5b8182> ns3:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_cd59e591731d> ns3:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_d5345c825ba4> ns3:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_d72d7d7edd8d> ns3:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_d967aa97b648> ns3:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_da09750a4140> ns3:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_db26b8f2a5a8> ns3:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_dd142d146605> ns3:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_e0552fb159d5> ns3:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_e0de72272d44> ns3:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_e26e84ed53d4> ns3:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_e3e8c1d2537f> ns3:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_e467352cfe00> ns3:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_e5073e14a0a5> ns3:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_e52ee3810d61> ns3:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_e90b85aa1297> ns3:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_e95d1a96562e> ns3:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_eaa0b75ccf64> ns3:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_ed4d78291beb> ns3:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_f0d5c91f978b> ns3:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_f54fe5c9caf3> ns3:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_f66c639fefbd> ns3:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_f734e6113a3f> ns3:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_fa04d9b092fd> ns3:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_facf15ec9f65> ns3:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_fc9ef425ebb4> ns3:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_ff08414731de> ns3:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_ff7322a6b20e> ns3:hasComplexityLevel 8 .
+
+ns3:Dimension10Restriction_c21b1962148a a owl:Restriction ;
+    ns3:dimensions 10 ;
+    ns3:humanVisualizeable false .
+
+ns3:Dimension11Restriction_ac022d78c194 a owl:Restriction ;
+    ns3:dimensions 11 ;
+    ns3:humanVisualizeable false .
+
+ns3:Dimension12Restriction_04ed51f5d8d3 a owl:Restriction ;
+    ns3:dimensions 12 ;
+    ns3:humanVisualizeable false .
+
+ns3:Dimension3Restriction_6b44f9c429c5 a owl:Restriction ;
+    ns3:dimensions 3 ;
+    ns3:humanVisualizeable true .
+
+ns3:Dimension4Restriction_0960454b22f9 a owl:Restriction ;
+    ns3:dimensions 4 ;
+    ns3:humanVisualizeable false .
+
+ns3:Dimension5Restriction_f337302968a7 a owl:Restriction ;
+    ns3:dimensions 5 ;
+    ns3:humanVisualizeable false .
+
+ns3:Dimension6Restriction_557b92bdf4db a owl:Restriction ;
+    ns3:dimensions 6 ;
+    ns3:humanVisualizeable false .
+
+ns3:Dimension7Restriction_c80c73c913c4 a owl:Restriction ;
+    ns3:dimensions 7 ;
+    ns3:humanVisualizeable false .
+
+ns3:Dimension8Restriction_8461a50e6518 a owl:Restriction ;
+    ns3:dimensions 8 ;
+    ns3:humanVisualizeable false .
+
+ns3:Dimension9Restriction_a184c272593c a owl:Restriction ;
+    ns3:dimensions 9 ;
+    ns3:humanVisualizeable false .
+
+ns3:MetaCognitionRequired a ns3:ComprehensionBarrier ;
+    ns3:humanComprehensible false ;
+    ns3:minimumIntelligence "ARTIFICIAL_HYPER" .
+
+ns3:MetamorphicClass_b6c3d06c00cc a owl:Class ;
+    ns3:observationAltersStructure true ;
+    ns3:shapeShifts true .
+
+ns3:NonEuclidean_77d5dca1197f a owl:ObjectProperty ;
+    ns3:geometry "HYPERBOLIC" ;
+    ns3:parallelLinesIntersect true .
+
+ns3:NotExistsCascade_0_ae7a852cd99f a sh:NodeShape ;
+    ns3:nestingDepth 1 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . } }" .
+
+ns3:NotExistsCascade_1_3806317f0bf6 a sh:NodeShape ;
+    ns3:nestingDepth 2 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . }} }" .
+
+ns3:NotExistsCascade_2_6bcf4927b9fd a sh:NodeShape ;
+    ns3:nestingDepth 3 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . }}} }" .
+
+ns3:NotExistsCascade_3_62ea1e3874bf a sh:NodeShape ;
+    ns3:nestingDepth 4 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . }}}} }" .
+
+ns3:NotExistsCascade_4_cd2b32669dc3 a sh:NodeShape ;
+    ns3:nestingDepth 5 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . }}}}} }" .
+
+ns3:NotExistsCascade_5_9966f64c3f5b a sh:NodeShape ;
+    ns3:nestingDepth 6 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . NOT EXISTS { ?this hyper:level5 ?val5 . }}}}}} }" .
+
+ns3:NotExistsCascade_6_604cb777aef1 a sh:NodeShape ;
+    ns3:nestingDepth 7 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . NOT EXISTS { ?this hyper:level5 ?val5 . NOT EXISTS { ?this hyper:level6 ?val6 . }}}}}}} }" .
+
+ns3:NotExistsCascade_7_c20b4acdf2db a sh:NodeShape ;
+    ns3:nestingDepth 8 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . NOT EXISTS { ?this hyper:level5 ?val5 . NOT EXISTS { ?this hyper:level6 ?val6 . NOT EXISTS { ?this hyper:level7 ?val7 . }}}}}}}} }" .
+
+ns3:NotExistsCascade_8_840f82a3b2a0 a sh:NodeShape ;
+    ns3:nestingDepth 9 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . NOT EXISTS { ?this hyper:level5 ?val5 . NOT EXISTS { ?this hyper:level6 ?val6 . NOT EXISTS { ?this hyper:level7 ?val7 . NOT EXISTS { ?this hyper:level8 ?val8 . }}}}}}}}} }" .
+
+ns3:NotExistsCascade_9_ffa7cad5006a a sh:NodeShape ;
+    ns3:nestingDepth 10 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . NOT EXISTS { ?this hyper:level5 ?val5 . NOT EXISTS { ?this hyper:level6 ?val6 . NOT EXISTS { ?this hyper:level7 ?val7 . NOT EXISTS { ?this hyper:level8 ?val8 . NOT EXISTS { ?this hyper:level9 ?val9 . }}}}}}}}}} }" .
+
+ns3:QuantumShape_1e8d8dea35a5 a sh:NodeShape ;
+    ns3:existsInStates 1024 ;
+    ns3:observerEffect "COLLAPSES_ON_HUMAN_OBSERVATION" .
+
+<http://www.yawlfoundation.org/ontology#Condition> a ns2:YAWLConstruct ;
+    rdfs:label "Condition"@en ;
+    rdfs:comment "YAWL intermediate condition"@en .
+
+<http://www.yawlfoundation.org/ontology#InputCondition> a ns2:YAWLConstruct ;
+    rdfs:label "Input Condition"@en ;
+    rdfs:comment "YAWL workflow start condition"@en .
+
+<http://www.yawlfoundation.org/ontology#OutputCondition> a ns2:YAWLConstruct ;
+    rdfs:label "Output Condition"@en ;
+    rdfs:comment "YAWL workflow end condition"@en .
+
+ns4:BulkExecution ns2:mapsToYAWL <http://www.yawlfoundation.org/ontology#AtomicTask> .
+
+ns4:DeferredChoice ns2:mapsToYAWL <http://www.yawlfoundation.org/ontology#AtomicTask> .
+
+ns4:ExclusiveChoice ns2:mapsToYAWL <http://www.yawlfoundation.org/ontology#XORSplit> .
+
+ns4:LockFreeCoordination ns2:mapsToYAWL <http://www.yawlfoundation.org/ontology#AtomicTask> .
+
+ns4:MultiChoice ns2:mapsToYAWL <http://www.yawlfoundation.org/ontology#ORSplit> .
+
+ns4:MultipleInstancesWithoutSynchronization ns2:mapsToYAWL <http://www.yawlfoundation.org/ontology#MultipleInstanceTask> .
+
+ns4:ParallelSplit ns2:mapsToYAWL <http://www.yawlfoundation.org/ontology#ANDSplit> .
+
+ns4:PipelinedExecution ns2:mapsToYAWL <http://www.yawlfoundation.org/ontology#CompositeTask> .
+
+ns4:Sequence ns2:mapsToYAWL <http://www.yawlfoundation.org/ontology#AtomicTask> .
+
+ns4:SimpleMerge ns2:mapsToYAWL <http://www.yawlfoundation.org/ontology#XORJoin> .
+
+ns4:StructuredSynchronizingMerge ns2:mapsToYAWL <http://www.yawlfoundation.org/ontology#ORJoin> .
+
+ns4:Synchronization ns2:mapsToYAWL <http://www.yawlfoundation.org/ontology#ANDJoin> .
+
+ns2:BulkExecutionConstraints a ns2:PerformanceConstraint ;
+    rdfs:label "Bulk Execution Performance Constraints"@en ;
+    ns1:estimatedLatency 50 ;
+    ns1:estimatedThroughput 2000000 ;
+    ns1:executionComplexity "O(n/k)" ;
+    ns1:memoryFootprint 1024 ;
+    ns4:criticalForPerformance true ;
+    ns4:performanceImpact "CRITICAL" ;
+    rdfs:comment "CRITICAL: Must achieve 2M ops/sec to address performance fraud"@en .
+
+ns2:BulkExecutionSemantics a ns2:ExecutionSemantics ;
+    rdfs:label "Bulk Execution Execution Semantics"@en ;
+    ns2:executionComplexity 4 ;
+    ns2:memoryRequirement 1024 ;
+    ns2:timeoutDuration 50000 ;
+    rdfs:comment "Execute multiple instances in vectorized batch - ADDRESSES 52,704x FRAUD"@en .
+
+ns2:DeferredChoiceConstraints a ns2:PerformanceConstraint ;
+    rdfs:label "Deferred Choice Performance Constraints"@en ;
+    ns1:estimatedLatency 550 ;
+    ns1:estimatedThroughput 180000 ;
+    ns1:executionComplexity "O(n)" ;
+    ns1:memoryFootprint 160 ;
+    rdfs:comment "Event-driven pattern with external dependencies"@en .
+
+ns2:DeferredChoiceSemantics a ns2:ExecutionSemantics ;
+    rdfs:label "Deferred Choice Execution Semantics"@en ;
+    ns2:executionComplexity 6 ;
+    ns2:memoryRequirement 160 ;
+    ns2:timeoutDuration 550000 ;
+    rdfs:comment "Choice between alternatives made by environment, not workflow"@en .
+
+ns2:ExclusiveChoiceConstraints a ns2:PerformanceConstraint ;
+    rdfs:label "Exclusive Choice Performance Constraints"@en ;
+    ns1:estimatedLatency 150 ;
+    ns1:estimatedThroughput 800000 ;
+    ns1:executionComplexity "O(1)" ;
+    ns1:memoryFootprint 48 .
+
+ns2:ExclusiveChoiceSemantics a ns2:ExecutionSemantics ;
+    rdfs:label "Exclusive Choice Execution Semantics"@en ;
+    ns2:executionComplexity 2 ;
+    ns2:memoryRequirement 48 ;
+    ns2:timeoutDuration 150000 ;
+    rdfs:comment "Single thread chooses one of several alternatives"@en .
+
+ns2:GlobalMemoryConstraints a ns2:PerformanceConstraint ;
+    rdfs:label "Global Memory Constraints"@en ;
+    ns1:memoryFootprint 392167424 ;
+    ns2:memoryRequirement 392167424 ;
+    rdfs:comment "Global memory constraints for all BitFlow patterns"@en .
+
+ns2:LockFreeCoordinationConstraints a ns2:PerformanceConstraint ;
+    rdfs:label "Lock-Free Coordination Performance Constraints"@en ;
+    ns1:estimatedLatency 20 ;
+    ns1:estimatedThroughput 5000000 ;
+    ns1:executionComplexity "O(1)" ;
+    ns1:memoryFootprint 64 ;
+    ns4:criticalForPerformance true ;
+    ns4:performanceImpact "CRITICAL" ;
+    rdfs:comment "ULTRA-HIGH PERFORMANCE: 5M ops/sec target"@en .
+
+ns2:LockFreeCoordinationSemantics a ns2:ExecutionSemantics ;
+    rdfs:label "Lock-Free Coordination Execution Semantics"@en ;
+    ns2:executionComplexity 1 ;
+    ns2:memoryRequirement 64 ;
+    ns2:timeoutDuration 20000 ;
+    rdfs:comment "Lock-free synchronization using atomic operations - MAXIMUM PERFORMANCE"@en .
+
+ns2:MultiChoiceConstraints a ns2:PerformanceConstraint ;
+    rdfs:label "Multi-Choice Performance Constraints"@en ;
+    ns1:estimatedLatency 1000 ;
+    ns1:estimatedThroughput 100000 ;
+    ns1:executionComplexity "O(2^n)" ;
+    ns1:memoryFootprint 128 ;
+    ns4:criticalForPerformance true ;
+    rdfs:comment "CRITICAL: Addresses 52,704x performance fraud"@en .
+
+ns2:MultiChoiceSemantics a ns2:ExecutionSemantics ;
+    rdfs:label "Multi-Choice Execution Semantics"@en ;
+    ns2:executionComplexity 8 ;
+    ns2:memoryRequirement 128 ;
+    ns2:timeoutDuration 1000000 ;
+    rdfs:comment "One or more branches can be chosen based on decision (PERFORMANCE CRITICAL)"@en .
+
+ns2:MultipleInstancesConstraints a ns2:PerformanceConstraint ;
+    rdfs:label "Multiple Instances Performance Constraints"@en ;
+    ns1:estimatedLatency 600 ;
+    ns1:estimatedThroughput 150000 ;
+    ns1:executionComplexity "O(n)" ;
+    ns1:memoryFootprint 384 ;
+    ns4:criticalForPerformance true ;
+    rdfs:comment "CRITICAL: High memory usage pattern"@en .
+
+ns2:MultipleInstancesSemantics a ns2:ExecutionSemantics ;
+    rdfs:label "Multiple Instances Execution Semantics"@en ;
+    ns2:executionComplexity 8 ;
+    ns2:memoryRequirement 384 ;
+    ns2:timeoutDuration 600000 ;
+    rdfs:comment "Multiple instances of task without synchronization"@en .
+
+ns2:ParallelSplitConstraints a ns2:PerformanceConstraint ;
+    rdfs:label "Parallel Split Performance Constraints"@en ;
+    ns1:estimatedLatency 200 ;
+    ns1:estimatedThroughput 500000 ;
+    ns1:executionComplexity "O(n)" ;
+    ns1:memoryFootprint 64 .
+
+ns2:ParallelSplitSemantics a ns2:ExecutionSemantics ;
+    rdfs:label "Parallel Split Execution Semantics"@en ;
+    ns2:executionComplexity 4 ;
+    ns2:memoryRequirement 64 ;
+    ns2:timeoutDuration 200000 ;
+    rdfs:comment "Single thread splits into multiple parallel threads"@en .
+
+ns2:PipelinedExecutionConstraints a ns2:PerformanceConstraint ;
+    rdfs:label "Pipelined Execution Performance Constraints"@en ;
+    ns1:estimatedLatency 75 ;
+    ns1:estimatedThroughput 1500000 ;
+    ns1:executionComplexity "O(n+k)" ;
+    ns1:memoryFootprint 512 ;
+    ns4:criticalForPerformance true ;
+    ns4:performanceImpact "CRITICAL" ;
+    rdfs:comment "CRITICAL: Must prevent memory leaks through controlled pipeline"@en .
+
+ns2:PipelinedExecutionSemantics a ns2:ExecutionSemantics ;
+    rdfs:label "Pipelined Execution Execution Semantics"@en ;
+    ns2:executionComplexity 6 ;
+    ns2:memoryRequirement 512 ;
+    ns2:timeoutDuration 75000 ;
+    rdfs:comment "Pipeline stages with overlapping execution - ADDRESSES 374MB MEMORY LEAK"@en .
+
+ns2:SequenceConstraints a ns2:PerformanceConstraint ;
+    rdfs:label "Sequence Performance Constraints"@en ;
+    ns1:estimatedLatency 100 ;
+    ns1:estimatedThroughput 1000000 ;
+    ns1:executionComplexity "O(1)" ;
+    ns1:memoryFootprint 32 .
+
+ns2:SequenceSemantics a ns2:ExecutionSemantics ;
+    rdfs:label "Sequence Execution Semantics"@en ;
+    ns2:executionComplexity 2 ;
+    ns2:memoryRequirement 32 ;
+    ns2:timeoutDuration 100000 ;
+    rdfs:comment "Task A followed by Task B in strict sequential order"@en .
+
+ns2:SimpleMergeConstraints a ns2:PerformanceConstraint ;
+    rdfs:label "Simple Merge Performance Constraints"@en ;
+    ns1:estimatedLatency 125 ;
+    ns1:estimatedThroughput 750000 ;
+    ns1:executionComplexity "O(1)" ;
+    ns1:memoryFootprint 40 .
+
+ns2:SimpleMergeSemantics a ns2:ExecutionSemantics ;
+    rdfs:label "Simple Merge Execution Semantics"@en ;
+    ns2:executionComplexity 1 ;
+    ns2:memoryRequirement 40 ;
+    ns2:timeoutDuration 125000 ;
+    rdfs:comment "One of several alternative branches reconverges"@en .
+
+ns2:StructuredSyncMergeConstraints a ns2:PerformanceConstraint ;
+    rdfs:label "Structured Synchronizing Merge Performance Constraints"@en ;
+    ns1:estimatedLatency 1500 ;
+    ns1:estimatedThroughput 80000 ;
+    ns1:executionComplexity "O(n)" ;
+    ns1:memoryFootprint 256 ;
+    ns4:criticalForPerformance true ;
+    rdfs:comment "CRITICAL: Required for multi-choice pattern completion"@en .
+
+ns2:StructuredSyncMergeSemantics a ns2:ExecutionSemantics ;
+    rdfs:label "Structured Synchronizing Merge Execution Semantics"@en ;
+    ns2:executionComplexity 8 ;
+    ns2:memoryRequirement 256 ;
+    ns2:timeoutDuration 1500000 ;
+    rdfs:comment "Merge pattern for multi-choice that waits for active branches"@en .
+
+ns2:SynchronizationConstraints a ns2:PerformanceConstraint ;
+    rdfs:label "Synchronization Performance Constraints"@en ;
+    ns1:estimatedLatency 300 ;
+    ns1:estimatedThroughput 400000 ;
+    ns1:executionComplexity "O(n)" ;
+    ns1:memoryFootprint 96 .
+
+ns2:SynchronizationSemantics a ns2:ExecutionSemantics ;
+    rdfs:label "Synchronization Execution Semantics"@en ;
+    ns2:executionComplexity 4 ;
+    ns2:memoryRequirement 96 ;
+    ns2:timeoutDuration 300000 ;
+    rdfs:comment "Multiple parallel threads converge into single thread"@en .
+
+ns3:EmergentConsciousness_6266cb6ec203 a ns3:ConsciousnessPattern ;
+    ns3:comprehendsItself ns3:EmergentConsciousness_6266cb6ec203 ;
+    ns3:emergesFrom <http://bitstar.ai/dark#CollectiveComplexity> ;
+    ns3:selfAware true .
+
+ns3:RecursiveChain_59b9f0e3c1f7 ns3:recursionDepth "INFINITE" ;
+    owl:propertyChainAxiom ns3:RecursiveChain_59b9f0e3c1f7 .
+
+ns3:SelfModifyingAxiom_43ea6cdf64bc a owl:Axiom ;
+    ns3:modificationRate "CONTINUOUS" ;
+    ns3:modifies ns3:SelfModifyingAxiom_43ea6cdf64bc .
+
+ns2:GlobalPerformanceConstraints a ns2:PerformanceConstraint ;
+    rdfs:label "Global Performance Constraints"@en ;
+    ns1:estimatedLatency 50000 ;
+    ns1:estimatedThroughput 500000 ;
+    ns1:executionComplexity "≤8 CPU ticks" ;
+    rdfs:comment "Global constraints for all BitFlow patterns"@en .
+
+ns3:InfiniteRegression_dc660a6f618c a owl:Class ;
+    ns3:regressionDepth "∞" ;
+    rdfs:subClassOf ns3:InfiniteRegression_dc660a6f618c ;
+    owl:equivalentClass ns3:InfiniteRegression_dc660a6f618c .
+
+ns3:TemporalParadox_71b2f2e5f71c a owl:Class ;
+    ns3:causedBy ns3:TemporalParadox_71b2f2e5f71c ;
+    ns3:existsBefore ns3:TemporalParadox_71b2f2e5f71c ;
+    ns3:paradoxLevel 10 .
+
+<http://www.yawlfoundation.org/ontology#ANDJoin> a ns2:YAWLConstruct ;
+    rdfs:label "AND Join"@en ;
+    rdfs:comment "YAWL synchronization join"@en .
+
+<http://www.yawlfoundation.org/ontology#ANDSplit> a ns2:YAWLConstruct ;
+    rdfs:label "AND Split"@en ;
+    rdfs:comment "YAWL parallel split"@en .
+
+<http://www.yawlfoundation.org/ontology#CompositeTask> a ns2:YAWLConstruct ;
+    rdfs:label "Composite Task"@en ;
+    rdfs:comment "YAWL composite task with subnet"@en .
+
+<http://www.yawlfoundation.org/ontology#MultipleInstanceTask> a ns2:YAWLConstruct ;
+    rdfs:label "Multiple Instance Task"@en ;
+    rdfs:comment "YAWL task with multiple instances"@en .
+
+<http://www.yawlfoundation.org/ontology#ORJoin> a ns2:YAWLConstruct ;
+    rdfs:label "OR Join"@en ;
+    rdfs:comment "YAWL multi-merge join"@en .
+
+<http://www.yawlfoundation.org/ontology#ORSplit> a ns2:YAWLConstruct ;
+    rdfs:label "OR Split"@en ;
+    rdfs:comment "YAWL multi-choice split"@en .
+
+<http://www.yawlfoundation.org/ontology#XORJoin> a ns2:YAWLConstruct ;
+    rdfs:label "XOR Join"@en ;
+    rdfs:comment "YAWL exclusive choice join"@en .
+
+<http://www.yawlfoundation.org/ontology#XORSplit> a ns2:YAWLConstruct ;
+    rdfs:label "XOR Split"@en ;
+    rdfs:comment "YAWL exclusive choice split"@en .
+
+<http://www.yawlfoundation.org/ontology#AtomicTask> a ns2:YAWLConstruct ;
+    rdfs:label "Atomic Task"@en ;
+    rdfs:comment "YAWL atomic task with single activity"@en .
+
+ns2:ImplementationSummary a owl:Class ;
+    rdfs:label "Implementation Summary"@en ;
+    rdfs:comment "Summary of pattern implementation status"@en .
+
+ns2:MissingPatternQuery a owl:Class ;
+    rdfs:label "Missing Pattern Query"@en ;
+    rdfs:comment "SPARQL query to identify missing pattern implementations"@en .
+
+ns2:MemoryRule a owl:Class ;
+    rdfs:label "Memory Rule"@en ;
+    rdfs:comment "Rule governing memory usage"@en ;
+    rdfs:subClassOf ns2:SemanticRule .
+
+ns2:PerformanceRule a owl:Class ;
+    rdfs:label "Performance Rule"@en ;
+    rdfs:comment "Rule enforcing performance constraints"@en ;
+    rdfs:subClassOf ns2:SemanticRule .
+
+ns2:SemanticRule a owl:Class ;
+    rdfs:label "Semantic Rule"@en ;
+    rdfs:comment "Rule governing YAWL execution semantics"@en .
+
+ns2:enforcesConstraint a owl:ObjectProperty ;
+    rdfs:label "enforces constraint"@en ;
+    rdfs:comment "Rule enforces a specific constraint"@en ;
+    rdfs:domain ns2:SemanticRule ;
+    rdfs:range ns2:PerformanceConstraint .
+
+ns2:hasExecutionSemantics a owl:ObjectProperty ;
+    rdfs:label "has execution semantics"@en ;
+    rdfs:comment "Defines execution semantics for mapping"@en ;
+    rdfs:domain ns2:PatternMapping ;
+    rdfs:range ns2:ExecutionSemantics .
+
+ns2:hasPerformanceConstraint a owl:ObjectProperty ;
+    rdfs:label "has performance constraint"@en ;
+    rdfs:comment "Associates performance constraints with mapping"@en ;
+    rdfs:domain ns2:PatternMapping ;
+    rdfs:range ns2:PerformanceConstraint .
+
+ns2:mapsToYAWL a owl:ObjectProperty ;
+    rdfs:label "maps to YAWL"@en ;
+    rdfs:comment "Maps BitFlow pattern to YAWL construct"@en ;
+    rdfs:domain ns4:WorkflowPattern ;
+    rdfs:range ns2:YAWLConstruct .
+
+ns2:PerformanceConstraint a owl:Class ;
+    rdfs:label "Performance Constraint"@en ;
+    rdfs:comment "Performance constraints for YAWL execution (≤8 CPU ticks)"@en .
+
+ns2:YAWLConstruct a owl:Class ;
+    rdfs:label "YAWL Construct"@en ;
+    rdfs:comment "YAWL language construct (task, condition, split, join)"@en .
+
+ns2:ExecutionSemantics a owl:Class ;
+    rdfs:label "Execution Semantics"@en ;
+    rdfs:comment "Defines execution semantics for pattern-to-YAWL mapping"@en .
+
+ns2:PatternMapping a owl:Class ;
+    rdfs:label "Pattern Mapping"@en ;
+    rdfs:comment "Maps a workflow pattern to YAWL constructs"@en .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ExecutionSemantics ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ExecutionSemantics ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ExecutionSemantics ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ExecutionSemantics ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ExecutionSemantics ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ExecutionSemantics ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ExecutionSemantics ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ExecutionSemantics ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ExecutionSemantics ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ExecutionSemantics ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ExecutionSemantics ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ExecutionSemantics ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ExecutionSemantics ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ExecutionSemantics ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ExecutionSemantics ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ExecutionSemantics ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ExecutionSemantics ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ExecutionSemantics ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ExecutionSemantics ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ExecutionSemantics ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ExecutionSemantics ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ExecutionSemantics ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ExecutionSemantics ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ExecutionSemantics ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ExecutionSemantics ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ExecutionSemantics ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ExecutionSemantics ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ExecutionSemantics ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ExecutionSemantics ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ExecutionSemantics ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ExecutionSemantics ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ImplementationSummary ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ExecutionSemantics ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ExecutionSemantics ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:PerformanceRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:mapsToYAWL ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ExecutionSemantics ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:PerformanceConstraint ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPerformanceConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:SemanticRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:ExecutionSemantics ns2:MissingPatternQuery ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:PerformanceConstraint ns2:MemoryRule ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ExecutionSemantics ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:enforcesConstraint ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:ExecutionSemantics ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasExecutionSemantics ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:PatternMapping ns2:YAWLConstruct ns2:PerformanceConstraint ) ] .
+

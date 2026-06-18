@@ -1,0 +1,545 @@
+@prefix : <http://bytestar.ethos/dao-governance#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ethos: <http://bytestar.ethos/core#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+<http://bytestar.ethos/dao-governance> rdf:type owl:Ontology ;
+    rdfs:label "DAO Governance Ontology" ;
+    rdfs:comment "Ontology for decentralized autonomous organization governance system" ;
+    owl:versionInfo "1.0.0" ;
+    ethos:component "ByteEthos" ;
+    ethos:layer "Governance" .
+
+# ==========================================
+# Classes - Core Governance Entities
+# ==========================================
+
+:DAO rdf:type owl:Class ;
+    rdfs:label "Decentralized Autonomous Organization" ;
+    rdfs:comment "A decentralized autonomous organization with governance rules" ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty :hasGovernanceToken ;
+        owl:someValuesFrom :GovernanceToken
+    ] ,
+    [
+        rdf:type owl:Restriction ;
+        owl:onProperty :hasQuorumThreshold ;
+        owl:cardinality 1
+    ] .
+
+:GovernanceToken rdf:type owl:Class ;
+    rdfs:label "Governance Token" ;
+    rdfs:comment "Token that grants voting rights in DAO governance" ;
+    rdfs:subClassOf ethos:Token .
+
+:Proposal rdf:type owl:Class ;
+    rdfs:label "Governance Proposal" ;
+    rdfs:comment "A proposal for DAO governance decision" ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty :proposedBy ;
+        owl:someValuesFrom foaf:Agent
+    ] ,
+    [
+        rdf:type owl:Restriction ;
+        owl:onProperty :hasProposalType ;
+        owl:cardinality 1
+    ] .
+
+:Vote rdf:type owl:Class ;
+    rdfs:label "Governance Vote" ;
+    rdfs:comment "A vote cast on a governance proposal" ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty :castBy ;
+        owl:someValuesFrom foaf:Agent
+    ] ,
+    [
+        rdf:type owl:Restriction ;
+        owl:onProperty :hasVoteType ;
+        owl:cardinality 1
+    ] .
+
+:VotingDelegation rdf:type owl:Class ;
+    rdfs:label "Voting Delegation" ;
+    rdfs:comment "Delegation of voting power to another entity" ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty :delegatedBy ;
+        owl:someValuesFrom foaf:Agent
+    ] ,
+    [
+        rdf:type owl:Restriction ;
+        owl:onProperty :delegatedTo ;
+        owl:someValuesFrom foaf:Agent
+    ] .
+
+:GovernanceAuthority rdf:type owl:Class ;
+    rdfs:label "Governance Authority" ;
+    rdfs:comment "Authority level for governance participation" ;
+    rdfs:subClassOf ethos:Authority .
+
+:QuorumRequirement rdf:type owl:Class ;
+    rdfs:label "Quorum Requirement" ;
+    rdfs:comment "Minimum participation required for valid governance decision" .
+
+:VotingMechanism rdf:type owl:Class ;
+    rdfs:label "Voting Mechanism" ;
+    rdfs:comment "Method used for conducting governance votes" .
+
+:ConsensusRule rdf:type owl:Class ;
+    rdfs:label "Consensus Rule" ;
+    rdfs:comment "Rule defining how consensus is achieved" .
+
+:GovernanceAction rdf:type owl:Class ;
+    rdfs:label "Governance Action" ;
+    rdfs:comment "Action to be executed upon proposal approval" ;
+    rdfs:subClassOf prov:Activity .
+
+:AuditLog rdf:type owl:Class ;
+    rdfs:label "Governance Audit Log" ;
+    rdfs:comment "Immutable log of governance actions" ;
+    rdfs:subClassOf ethos:AuditLog .
+
+# ==========================================
+# Proposal Types
+# ==========================================
+
+:ProposalType rdf:type owl:Class ;
+    rdfs:label "Proposal Type" ;
+    rdfs:comment "Type classification for governance proposals" .
+
+:GovernanceProposal rdf:type owl:Class ;
+    rdfs:label "Governance Proposal" ;
+    rdfs:comment "Proposal for governance rule changes" ;
+    rdfs:subClassOf :Proposal .
+
+:TreasuryProposal rdf:type owl:Class ;
+    rdfs:label "Treasury Proposal" ;
+    rdfs:comment "Proposal for treasury fund allocation" ;
+    rdfs:subClassOf :Proposal .
+
+:TechnicalProposal rdf:type owl:Class ;
+    rdfs:label "Technical Proposal" ;
+    rdfs:comment "Proposal for technical system changes" ;
+    rdfs:subClassOf :Proposal .
+
+:MembershipProposal rdf:type owl:Class ;
+    rdfs:label "Membership Proposal" ;
+    rdfs:comment "Proposal for membership changes" ;
+    rdfs:subClassOf :Proposal .
+
+:ProtocolProposal rdf:type owl:Class ;
+    rdfs:label "Protocol Proposal" ;
+    rdfs:comment "Proposal for protocol upgrades" ;
+    rdfs:subClassOf :Proposal .
+
+# ==========================================
+# Vote Types
+# ==========================================
+
+:VoteType rdf:type owl:Class ;
+    rdfs:label "Vote Type" ;
+    rdfs:comment "Type of vote cast on proposal" .
+
+:ForVote rdf:type :VoteType ;
+    rdfs:label "For Vote" ;
+    rdfs:comment "Vote in favor of proposal" .
+
+:AgainstVote rdf:type :VoteType ;
+    rdfs:label "Against Vote" ;
+    rdfs:comment "Vote against proposal" .
+
+:AbstainVote rdf:type :VoteType ;
+    rdfs:label "Abstain Vote" ;
+    rdfs:comment "Vote to abstain from decision" .
+
+# ==========================================
+# Proposal States
+# ==========================================
+
+:ProposalState rdf:type owl:Class ;
+    rdfs:label "Proposal State" ;
+    rdfs:comment "Current state of governance proposal" .
+
+:ActiveProposal rdf:type :ProposalState ;
+    rdfs:label "Active Proposal" ;
+    rdfs:comment "Proposal currently accepting votes" .
+
+:PassedProposal rdf:type :ProposalState ;
+    rdfs:label "Passed Proposal" ;
+    rdfs:comment "Proposal that has been approved" .
+
+:RejectedProposal rdf:type :ProposalState ;
+    rdfs:label "Rejected Proposal" ;
+    rdfs:comment "Proposal that has been rejected" .
+
+:ExpiredProposal rdf:type :ProposalState ;
+    rdfs:label "Expired Proposal" ;
+    rdfs:comment "Proposal that has expired without resolution" .
+
+:ExecutedProposal rdf:type :ProposalState ;
+    rdfs:label "Executed Proposal" ;
+    rdfs:comment "Proposal that has been executed" .
+
+# ==========================================
+# Object Properties
+# ==========================================
+
+:hasGovernanceToken rdf:type owl:ObjectProperty ;
+    rdfs:label "has governance token" ;
+    rdfs:comment "Associates DAO with its governance token" ;
+    rdfs:domain :DAO ;
+    rdfs:range :GovernanceToken .
+
+:proposedBy rdf:type owl:ObjectProperty ;
+    rdfs:label "proposed by" ;
+    rdfs:comment "Identifies who proposed the governance proposal" ;
+    rdfs:domain :Proposal ;
+    rdfs:range foaf:Agent .
+
+:castBy rdf:type owl:ObjectProperty ;
+    rdfs:label "cast by" ;
+    rdfs:comment "Identifies who cast the vote" ;
+    rdfs:domain :Vote ;
+    rdfs:range foaf:Agent .
+
+:votesOn rdf:type owl:ObjectProperty ;
+    rdfs:label "votes on" ;
+    rdfs:comment "Associates vote with proposal" ;
+    rdfs:domain :Vote ;
+    rdfs:range :Proposal .
+
+:delegatedBy rdf:type owl:ObjectProperty ;
+    rdfs:label "delegated by" ;
+    rdfs:comment "Identifies delegator of voting power" ;
+    rdfs:domain :VotingDelegation ;
+    rdfs:range foaf:Agent .
+
+:delegatedTo rdf:type owl:ObjectProperty ;
+    rdfs:label "delegated to" ;
+    rdfs:comment "Identifies delegate receiving voting power" ;
+    rdfs:domain :VotingDelegation ;
+    rdfs:range foaf:Agent .
+
+:hasProposalType rdf:type owl:ObjectProperty ;
+    rdfs:label "has proposal type" ;
+    rdfs:comment "Associates proposal with its type" ;
+    rdfs:domain :Proposal ;
+    rdfs:range :ProposalType .
+
+:hasVoteType rdf:type owl:ObjectProperty ;
+    rdfs:label "has vote type" ;
+    rdfs:comment "Associates vote with its type" ;
+    rdfs:domain :Vote ;
+    rdfs:range :VoteType .
+
+:hasProposalState rdf:type owl:ObjectProperty ;
+    rdfs:label "has proposal state" ;
+    rdfs:comment "Associates proposal with its current state" ;
+    rdfs:domain :Proposal ;
+    rdfs:range :ProposalState .
+
+:hasQuorumRequirement rdf:type owl:ObjectProperty ;
+    rdfs:label "has quorum requirement" ;
+    rdfs:comment "Associates proposal with quorum requirement" ;
+    rdfs:domain :Proposal ;
+    rdfs:range :QuorumRequirement .
+
+:usesVotingMechanism rdf:type owl:ObjectProperty ;
+    rdfs:label "uses voting mechanism" ;
+    rdfs:comment "Associates proposal with voting mechanism" ;
+    rdfs:domain :Proposal ;
+    rdfs:range :VotingMechanism .
+
+:hasConsensusRule rdf:type owl:ObjectProperty ;
+    rdfs:label "has consensus rule" ;
+    rdfs:comment "Associates DAO with consensus rules" ;
+    rdfs:domain :DAO ;
+    rdfs:range :ConsensusRule .
+
+:executesAction rdf:type owl:ObjectProperty ;
+    rdfs:label "executes action" ;
+    rdfs:comment "Associates proposal with governance action" ;
+    rdfs:domain :Proposal ;
+    rdfs:range :GovernanceAction .
+
+:loggedIn rdf:type owl:ObjectProperty ;
+    rdfs:label "logged in" ;
+    rdfs:comment "Associates action with audit log entry" ;
+    rdfs:domain :GovernanceAction ;
+    rdfs:range :AuditLog .
+
+:hasAdminCouncil rdf:type owl:ObjectProperty ;
+    rdfs:label "has admin council" ;
+    rdfs:comment "Associates DAO with admin council members" ;
+    rdfs:domain :DAO ;
+    rdfs:range foaf:Agent .
+
+:cosponsors rdf:type owl:ObjectProperty ;
+    rdfs:label "cosponsors" ;
+    rdfs:comment "Associates proposal with cosponsoring entities" ;
+    rdfs:domain :Proposal ;
+    rdfs:range foaf:Agent .
+
+:dependsOn rdf:type owl:ObjectProperty ;
+    rdfs:label "depends on" ;
+    rdfs:comment "Indicates proposal dependency" ;
+    rdfs:domain :Proposal ;
+    rdfs:range :Proposal .
+
+# ==========================================
+# Data Properties
+# ==========================================
+
+:hasQuorumThreshold rdf:type owl:DatatypeProperty ;
+    rdfs:label "has quorum threshold" ;
+    rdfs:comment "Minimum participation rate for valid vote" ;
+    rdfs:domain :DAO ;
+    rdfs:range xsd:decimal .
+
+:hasApprovalThreshold rdf:type owl:DatatypeProperty ;
+    rdfs:label "has approval threshold" ;
+    rdfs:comment "Minimum approval rate for proposal passage" ;
+    rdfs:domain :Proposal ;
+    rdfs:range xsd:decimal .
+
+:hasVotingPower rdf:type owl:DatatypeProperty ;
+    rdfs:label "has voting power" ;
+    rdfs:comment "Amount of voting power for vote or delegation" ;
+    rdfs:domain [ owl:unionOf ( :Vote :VotingDelegation ) ] ;
+    rdfs:range xsd:integer .
+
+:hasTotalSupply rdf:type owl:DatatypeProperty ;
+    rdfs:label "has total supply" ;
+    rdfs:comment "Total supply of governance tokens" ;
+    rdfs:domain :GovernanceToken ;
+    rdfs:range xsd:integer .
+
+:hasVotingPeriod rdf:type owl:DatatypeProperty ;
+    rdfs:label "has voting period" ;
+    rdfs:comment "Duration of voting period in seconds" ;
+    rdfs:domain :Proposal ;
+    rdfs:range xsd:integer .
+
+:hasExecutionDelay rdf:type owl:DatatypeProperty ;
+    rdfs:label "has execution delay" ;
+    rdfs:comment "Delay before execution after approval" ;
+    rdfs:domain :Proposal ;
+    rdfs:range xsd:integer .
+
+:hasStartTime rdf:type owl:DatatypeProperty ;
+    rdfs:label "has start time" ;
+    rdfs:comment "Voting start timestamp" ;
+    rdfs:domain :Proposal ;
+    rdfs:range xsd:dateTime .
+
+:hasEndTime rdf:type owl:DatatypeProperty ;
+    rdfs:label "has end time" ;
+    rdfs:comment "Voting end timestamp" ;
+    rdfs:domain :Proposal ;
+    rdfs:range xsd:dateTime .
+
+:hasExecutionTime rdf:type owl:DatatypeProperty ;
+    rdfs:label "has execution time" ;
+    rdfs:comment "Scheduled execution timestamp" ;
+    rdfs:domain :Proposal ;
+    rdfs:range xsd:dateTime .
+
+:hasVoteTimestamp rdf:type owl:DatatypeProperty ;
+    rdfs:label "has vote timestamp" ;
+    rdfs:comment "Timestamp when vote was cast" ;
+    rdfs:domain :Vote ;
+    rdfs:range xsd:dateTime .
+
+:hasDelegationExpiry rdf:type owl:DatatypeProperty ;
+    rdfs:label "has delegation expiry" ;
+    rdfs:comment "Expiration timestamp for delegation" ;
+    rdfs:domain :VotingDelegation ;
+    rdfs:range xsd:dateTime .
+
+:hasProposalTitle rdf:type owl:DatatypeProperty ;
+    rdfs:label "has proposal title" ;
+    rdfs:comment "Title of the governance proposal" ;
+    rdfs:domain :Proposal ;
+    rdfs:range xsd:string .
+
+:hasProposalDescription rdf:type owl:DatatypeProperty ;
+    rdfs:label "has proposal description" ;
+    rdfs:comment "Detailed description of proposal" ;
+    rdfs:domain :Proposal ;
+    rdfs:range xsd:string .
+
+:hasVoteReason rdf:type owl:DatatypeProperty ;
+    rdfs:label "has vote reason" ;
+    rdfs:comment "Reason provided for vote decision" ;
+    rdfs:domain :Vote ;
+    rdfs:range xsd:string .
+
+:hasEstimatedCost rdf:type owl:DatatypeProperty ;
+    rdfs:label "has estimated cost" ;
+    rdfs:comment "Estimated cost of proposal implementation" ;
+    rdfs:domain :Proposal ;
+    rdfs:range xsd:integer .
+
+:hasExpectedImpact rdf:type owl:DatatypeProperty ;
+    rdfs:label "has expected impact" ;
+    rdfs:comment "Expected impact of proposal" ;
+    rdfs:domain :Proposal ;
+    rdfs:range xsd:string .
+
+:isActive rdf:type owl:DatatypeProperty ;
+    rdfs:label "is active" ;
+    rdfs:comment "Whether DAO is currently active" ;
+    rdfs:domain :DAO ;
+    rdfs:range xsd:boolean .
+
+:hasForVotes rdf:type owl:DatatypeProperty ;
+    rdfs:label "has for votes" ;
+    rdfs:comment "Total voting power in favor" ;
+    rdfs:domain :Proposal ;
+    rdfs:range xsd:integer .
+
+:hasAgainstVotes rdf:type owl:DatatypeProperty ;
+    rdfs:label "has against votes" ;
+    rdfs:comment "Total voting power against" ;
+    rdfs:domain :Proposal ;
+    rdfs:range xsd:integer .
+
+:hasAbstainVotes rdf:type owl:DatatypeProperty ;
+    rdfs:label "has abstain votes" ;
+    rdfs:comment "Total voting power abstaining" ;
+    rdfs:domain :Proposal ;
+    rdfs:range xsd:integer .
+
+:hasParticipationRate rdf:type owl:DatatypeProperty ;
+    rdfs:label "has participation rate" ;
+    rdfs:comment "Percentage of eligible voters who participated" ;
+    rdfs:domain :Proposal ;
+    rdfs:range xsd:decimal .
+
+:hasApprovalRate rdf:type owl:DatatypeProperty ;
+    rdfs:label "has approval rate" ;
+    rdfs:comment "Percentage of votes in favor" ;
+    rdfs:domain :Proposal ;
+    rdfs:range xsd:decimal .
+
+# ==========================================
+# Rules and Constraints
+# ==========================================
+
+# Rule: Vote can only be cast during active proposal period
+[ rdf:type owl:Class ;
+  owl:intersectionOf (
+    :Vote
+    [ rdf:type owl:Restriction ;
+      owl:onProperty :votesOn ;
+      owl:someValuesFrom [
+        rdf:type owl:Restriction ;
+        owl:onProperty :hasProposalState ;
+        owl:hasValue :ActiveProposal
+      ]
+    ]
+  )
+] rdfs:subClassOf :Vote .
+
+# Rule: Delegation must have future expiry
+[ rdf:type owl:Restriction ;
+  owl:onProperty :hasDelegationExpiry ;
+  owl:allValuesFrom [
+    rdf:type rdfs:Datatype ;
+    owl:onDatatype xsd:dateTime ;
+    owl:withRestrictions (
+      [ xsd:minInclusive "2024-01-01T00:00:00Z"^^xsd:dateTime ]
+    )
+  ]
+] rdfs:subClassOf :VotingDelegation .
+
+# Rule: Quorum threshold must be between 0 and 1
+[ rdf:type owl:Restriction ;
+  owl:onProperty :hasQuorumThreshold ;
+  owl:allValuesFrom [
+    rdf:type rdfs:Datatype ;
+    owl:onDatatype xsd:decimal ;
+    owl:withRestrictions (
+      [ xsd:minInclusive 0.0 ]
+      [ xsd:maxInclusive 1.0 ]
+    )
+  ]
+] rdfs:subClassOf :DAO .
+
+# Rule: Approval threshold must be between 0 and 1
+[ rdf:type owl:Restriction ;
+  owl:onProperty :hasApprovalThreshold ;
+  owl:allValuesFrom [
+    rdf:type rdfs:Datatype ;
+    owl:onDatatype xsd:decimal ;
+    owl:withRestrictions (
+      [ xsd:minInclusive 0.0 ]
+      [ xsd:maxInclusive 1.0 ]
+    )
+  ]
+] rdfs:subClassOf :Proposal .
+
+# Rule: Voting power must be non-negative
+[ rdf:type owl:Restriction ;
+  owl:onProperty :hasVotingPower ;
+  owl:allValuesFrom [
+    rdf:type rdfs:Datatype ;
+    owl:onDatatype xsd:integer ;
+    owl:withRestrictions (
+      [ xsd:minInclusive 0 ]
+    )
+  ]
+] rdfs:subClassOf [ owl:unionOf ( :Vote :VotingDelegation ) ] .
+
+# ==========================================
+# Annotation Properties
+# ==========================================
+
+ethos:implements rdf:type owl:AnnotationProperty ;
+    rdfs:label "implements" ;
+    rdfs:comment "Indicates implementation relationship" .
+
+ethos:requires rdf:type owl:AnnotationProperty ;
+    rdfs:label "requires" ;
+    rdfs:comment "Indicates dependency requirement" .
+
+ethos:version rdf:type owl:AnnotationProperty ;
+    rdfs:label "version" ;
+    rdfs:comment "Version information" .
+
+ethos:component rdf:type owl:AnnotationProperty ;
+    rdfs:label "component" ;
+    rdfs:comment "System component classification" .
+
+ethos:layer rdf:type owl:AnnotationProperty ;
+    rdfs:label "layer" ;
+    rdfs:comment "Architecture layer classification" .
+
+# ==========================================
+# Annotations
+# ==========================================
+
+:DAO ethos:implements "Decentralized governance structure" ;
+     ethos:requires :GovernanceToken ;
+     ethos:version "1.0.0" .
+
+:Proposal ethos:implements "Democratic decision-making process" ;
+          ethos:requires :VotingMechanism ;
+          ethos:version "1.0.0" .
+
+:Vote ethos:implements "Democratic participation mechanism" ;
+      ethos:requires :GovernanceToken ;
+      ethos:version "1.0.0" .
+
+:VotingDelegation ethos:implements "Liquid democracy support" ;
+                  ethos:requires :GovernanceAuthority ;
+                  ethos:version "1.0.0" .

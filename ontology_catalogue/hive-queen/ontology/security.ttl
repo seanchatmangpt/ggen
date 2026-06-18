@@ -1,0 +1,474 @@
+@prefix hqs: <https://hive-queen.ai/ontology/security#> .
+@prefix hq: <https://hive-queen.ai/ontology/core#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix acl: <http://www.w3.org/ns/auth/acl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+# ==========================================
+# HIVE QUEEN Security Ontology
+# Defines security policies, access controls, and RLS
+# ==========================================
+
+<https://hive-queen.ai/ontology/security#>
+  a owl:Ontology ;
+  dct:title "HIVE QUEEN Security Ontology" ;
+  dct:description "Security policies and Row Level Security definitions" ;
+  dct:version "1.0.0" ;
+  dct:created "2025-09-03"^^xsd:date ;
+  owl:imports <https://hive-queen.ai/ontology/core#> ;
+  owl:versionIRI <https://hive-queen.ai/ontology/security/1.0.0#> .
+
+# ==========================================
+# Security Classes
+# ==========================================
+
+hqs:SecurityPolicy
+  a owl:Class ;
+  rdfs:label "Security Policy" ;
+  rdfs:comment "A security policy that governs access and behavior" .
+
+hqs:AccessControl
+  a owl:Class ;
+  rdfs:label "Access Control" ;
+  rdfs:comment "Access control mechanism for resources" ;
+  rdfs:subClassOf acl:Authorization .
+
+hqs:Role
+  a owl:Class ;
+  rdfs:label "Role" ;
+  rdfs:comment "A role that defines permissions and responsibilities" .
+
+hqs:Permission
+  a owl:Class ;
+  rdfs:label "Permission" ;
+  rdfs:comment "A specific permission to perform actions" .
+
+hqs:SecurityContext
+  a owl:Class ;
+  rdfs:label "Security Context" ;
+  rdfs:comment "Security context for operations" ;
+  rdfs:subClassOf hq:Context .
+
+hqs:ThreatModel
+  a owl:Class ;
+  rdfs:label "Threat Model" ;
+  rdfs:comment "A model describing potential security threats" .
+
+hqs:SecurityIncident
+  a owl:Class ;
+  rdfs:label "Security Incident" ;
+  rdfs:comment "A security incident or breach" ;
+  rdfs:subClassOf prov:Activity .
+
+hqs:AuditLog
+  a owl:Class ;
+  rdfs:label "Audit Log" ;
+  rdfs:comment "Log entry for security auditing" ;
+  rdfs:subClassOf prov:Activity .
+
+hqs:Credential
+  a owl:Class ;
+  rdfs:label "Credential" ;
+  rdfs:comment "Authentication credential" .
+
+hqs:SecurityToken
+  a owl:Class ;
+  rdfs:label "Security Token" ;
+  rdfs:comment "Security token for authentication/authorization" .
+
+# ==========================================
+# Row Level Security Classes
+# ==========================================
+
+hqs:RLSPolicy
+  a owl:Class ;
+  rdfs:label "RLS Policy" ;
+  rdfs:comment "Row Level Security policy" ;
+  rdfs:subClassOf hqs:SecurityPolicy .
+
+hqs:DataClassification
+  a owl:Class ;
+  rdfs:label "Data Classification" ;
+  rdfs:comment "Classification level for data" .
+
+hqs:DataOwner
+  a owl:Class ;
+  rdfs:label "Data Owner" ;
+  rdfs:comment "Entity that owns data" .
+
+hqs:AccessPattern
+  a owl:Class ;
+  rdfs:label "Access Pattern" ;
+  rdfs:comment "Pattern of data access" .
+
+# ==========================================
+# Security Level Enumeration
+# ==========================================
+
+hqs:SecurityLevel
+  a owl:Class ;
+  rdfs:label "Security Level" ;
+  rdfs:comment "Enumeration of security levels" .
+
+hqs:public
+  a hqs:SecurityLevel ;
+  rdfs:label "public" ;
+  rdfs:comment "Publicly accessible" .
+
+hqs:internal
+  a hqs:SecurityLevel ;
+  rdfs:label "internal" ;
+  rdfs:comment "Internal use only" .
+
+hqs:confidential
+  a hqs:SecurityLevel ;
+  rdfs:label "confidential" ;
+  rdfs:comment "Confidential information" .
+
+hqs:restricted
+  a hqs:SecurityLevel ;
+  rdfs:label "restricted" ;
+  rdfs:comment "Restricted access" .
+
+hqs:top_secret
+  a hqs:SecurityLevel ;
+  rdfs:label "top secret" ;
+  rdfs:comment "Top secret classification" .
+
+# ==========================================
+# Permission Types
+# ==========================================
+
+hqs:read
+  a hqs:Permission ;
+  rdfs:label "read" ;
+  rdfs:comment "Permission to read data" .
+
+hqs:write
+  a hqs:Permission ;
+  rdfs:label "write" ;
+  rdfs:comment "Permission to write data" .
+
+hqs:execute
+  a hqs:Permission ;
+  rdfs:label "execute" ;
+  rdfs:comment "Permission to execute operations" .
+
+hqs:delete
+  a hqs:Permission ;
+  rdfs:label "delete" ;
+  rdfs:comment "Permission to delete data" .
+
+hqs:admin
+  a hqs:Permission ;
+  rdfs:label "admin" ;
+  rdfs:comment "Administrative permissions" .
+
+# ==========================================
+# Security Properties
+# ==========================================
+
+hqs:hasSecurityPolicy
+  a owl:ObjectProperty ;
+  rdfs:label "has security policy" ;
+  rdfs:comment "Associates an entity with a security policy" ;
+  rdfs:range hqs:SecurityPolicy .
+
+hqs:hasAccessControl
+  a owl:ObjectProperty ;
+  rdfs:label "has access control" ;
+  rdfs:comment "Associates a resource with access control" ;
+  rdfs:domain hq:Resource ;
+  rdfs:range hqs:AccessControl .
+
+hqs:hasRole
+  a owl:ObjectProperty ;
+  rdfs:label "has role" ;
+  rdfs:comment "Associates an agent with a role" ;
+  rdfs:domain hq:Agent ;
+  rdfs:range hqs:Role .
+
+hqs:hasPermission
+  a owl:ObjectProperty ;
+  rdfs:label "has permission" ;
+  rdfs:comment "Associates a role with permissions" ;
+  rdfs:domain hqs:Role ;
+  rdfs:range hqs:Permission .
+
+hqs:grantsPermission
+  a owl:ObjectProperty ;
+  rdfs:label "grants permission" ;
+  rdfs:comment "Associates an access control with granted permissions" ;
+  rdfs:domain hqs:AccessControl ;
+  rdfs:range hqs:Permission .
+
+hqs:appliesTo
+  a owl:ObjectProperty ;
+  rdfs:label "applies to" ;
+  rdfs:comment "Associates a security policy with entities it applies to" ;
+  rdfs:domain hqs:SecurityPolicy .
+
+hqs:hasSecurityLevel
+  a owl:ObjectProperty ;
+  rdfs:label "has security level" ;
+  rdfs:comment "Associates an entity with a security level" ;
+  rdfs:range hqs:SecurityLevel .
+
+hqs:hasDataClassification
+  a owl:ObjectProperty ;
+  rdfs:label "has data classification" ;
+  rdfs:comment "Associates data with its classification" ;
+  rdfs:range hqs:DataClassification .
+
+hqs:ownedBy
+  a owl:ObjectProperty ;
+  rdfs:label "owned by" ;
+  rdfs:comment "Associates data with its owner" ;
+  rdfs:range hqs:DataOwner .
+
+hqs:authenticatedBy
+  a owl:ObjectProperty ;
+  rdfs:label "authenticated by" ;
+  rdfs:comment "Associates an agent with authentication mechanism" ;
+  rdfs:domain hq:Agent ;
+  rdfs:range hqs:Credential .
+
+hqs:hasToken
+  a owl:ObjectProperty ;
+  rdfs:label "has token" ;
+  rdfs:comment "Associates an agent with security token" ;
+  rdfs:domain hq:Agent ;
+  rdfs:range hqs:SecurityToken .
+
+# ==========================================
+# Security Data Properties
+# ==========================================
+
+hqs:encryptionLevel
+  a owl:DatatypeProperty ;
+  rdfs:label "encryption level" ;
+  rdfs:comment "Level of encryption applied" ;
+  rdfs:range xsd:string .
+
+hqs:hashAlgorithm
+  a owl:DatatypeProperty ;
+  rdfs:label "hash algorithm" ;
+  rdfs:comment "Hash algorithm used" ;
+  rdfs:range xsd:string .
+
+hqs:keyLength
+  a owl:DatatypeProperty ;
+  rdfs:label "key length" ;
+  rdfs:comment "Encryption key length in bits" ;
+  rdfs:range xsd:int .
+
+hqs:expirationTime
+  a owl:DatatypeProperty ;
+  rdfs:label "expiration time" ;
+  rdfs:comment "Token or credential expiration time" ;
+  rdfs:range xsd:dateTime .
+
+hqs:issuedAt
+  a owl:DatatypeProperty ;
+  rdfs:label "issued at" ;
+  rdfs:comment "Token or credential issue time" ;
+  rdfs:range xsd:dateTime .
+
+hqs:issuer
+  a owl:DatatypeProperty ;
+  rdfs:label "issuer" ;
+  rdfs:comment "Entity that issued the token or credential" ;
+  rdfs:range xsd:string .
+
+hqs:ipAddress
+  a owl:DatatypeProperty ;
+  rdfs:label "IP address" ;
+  rdfs:comment "IP address for access control" ;
+  rdfs:range xsd:string .
+
+hqs:userAgent
+  a owl:DatatypeProperty ;
+  rdfs:label "user agent" ;
+  rdfs:comment "User agent string for access control" ;
+  rdfs:range xsd:string .
+
+hqs:riskScore
+  a owl:DatatypeProperty ;
+  rdfs:label "risk score" ;
+  rdfs:comment "Risk assessment score (0.0-1.0)" ;
+  rdfs:range xsd:double .
+
+hqs:incidentSeverity
+  a owl:DatatypeProperty ;
+  rdfs:label "incident severity" ;
+  rdfs:comment "Severity level of security incident" ;
+  rdfs:range xsd:string .
+
+# ==========================================
+# RLS Data Properties
+# ==========================================
+
+hqs:rlsCondition
+  a owl:DatatypeProperty ;
+  rdfs:label "RLS condition" ;
+  rdfs:comment "SQL condition for row level security" ;
+  rdfs:domain hqs:RLSPolicy ;
+  rdfs:range xsd:string .
+
+hqs:dataRetentionPeriod
+  a owl:DatatypeProperty ;
+  rdfs:label "data retention period" ;
+  rdfs:comment "Period for which data should be retained" ;
+  rdfs:range xsd:duration .
+
+hqs:anonymizationLevel
+  a owl:DatatypeProperty ;
+  rdfs:label "anonymization level" ;
+  rdfs:comment "Level of data anonymization" ;
+  rdfs:range xsd:string .
+
+hqs:consentRequired
+  a owl:DatatypeProperty ;
+  rdfs:label "consent required" ;
+  rdfs:comment "Whether consent is required for data access" ;
+  rdfs:range xsd:boolean .
+
+# ==========================================
+# Predefined Security Policies
+# ==========================================
+
+hqs:DefaultSecurityPolicy
+  a hqs:SecurityPolicy ;
+  rdfs:label "Default Security Policy" ;
+  rdfs:comment "Default security policy for all entities" ;
+  hqs:hasSecurityLevel hqs:internal .
+
+hqs:AgentSecurityPolicy
+  a hqs:SecurityPolicy ;
+  rdfs:label "Agent Security Policy" ;
+  rdfs:comment "Security policy specific to agents" ;
+  hqs:appliesTo hq:Agent ;
+  hqs:hasSecurityLevel hqs:confidential .
+
+hqs:TaskSecurityPolicy
+  a hqs:SecurityPolicy ;
+  rdfs:label "Task Security Policy" ;
+  rdfs:comment "Security policy specific to tasks" ;
+  hqs:appliesTo hq:Task ;
+  hqs:hasSecurityLevel hqs:internal .
+
+hqs:ResourceSecurityPolicy
+  a hqs:SecurityPolicy ;
+  rdfs:label "Resource Security Policy" ;
+  rdfs:comment "Security policy specific to resources" ;
+  hqs:appliesTo hq:Resource ;
+  hqs:hasSecurityLevel hqs:confidential .
+
+# ==========================================
+# Predefined Roles
+# ==========================================
+
+hqs:AdminRole
+  a hqs:Role ;
+  rdfs:label "Admin Role" ;
+  rdfs:comment "Administrative role with full permissions" ;
+  hqs:hasPermission hqs:read, hqs:write, hqs:execute, hqs:delete, hqs:admin .
+
+hqs:UserRole
+  a hqs:Role ;
+  rdfs:label "User Role" ;
+  rdfs:comment "Standard user role" ;
+  hqs:hasPermission hqs:read, hqs:write, hqs:execute .
+
+hqs:ReadOnlyRole
+  a hqs:Role ;
+  rdfs:label "Read Only Role" ;
+  rdfs:comment "Read-only access role" ;
+  hqs:hasPermission hqs:read .
+
+hqs:AgentRole
+  a hqs:Role ;
+  rdfs:label "Agent Role" ;
+  rdfs:comment "Role for AI agents" ;
+  hqs:hasPermission hqs:read, hqs:write, hqs:execute .
+
+# ==========================================
+# RLS Policies
+# ==========================================
+
+hqs:AgentDataRLS
+  a hqs:RLSPolicy ;
+  rdfs:label "Agent Data RLS" ;
+  rdfs:comment "RLS policy for agent data access" ;
+  hqs:appliesTo hq:Agent ;
+  hqs:rlsCondition "owner_id = current_user_id() OR has_permission(current_user_id(), 'agent:read')" .
+
+hqs:TaskDataRLS
+  a hqs:RLSPolicy ;
+  rdfs:label "Task Data RLS" ;
+  rdfs:comment "RLS policy for task data access" ;
+  hqs:appliesTo hq:Task ;
+  hqs:rlsCondition "assigned_agent_id = current_agent_id() OR creator_id = current_user_id()" .
+
+hqs:ResourceDataRLS
+  a hqs:RLSPolicy ;
+  rdfs:label "Resource Data RLS" ;
+  rdfs:comment "RLS policy for resource data access" ;
+  hqs:appliesTo hq:Resource ;
+  hqs:rlsCondition "security_level <= current_user_clearance() AND (public = true OR owner_id = current_user_id())" .
+
+# ==========================================
+# Security Constraints
+# ==========================================
+
+# All agents must have at least one role
+[]
+  a owl:Restriction ;
+  owl:onProperty hqs:hasRole ;
+  owl:minCardinality 1 ;
+  rdfs:subClassOf hq:Agent .
+
+# All resources must have security classification
+[]
+  a owl:Restriction ;
+  owl:onProperty hqs:hasSecurityLevel ;
+  owl:cardinality 1 ;
+  rdfs:subClassOf hq:Resource .
+
+# Risk score must be between 0.0 and 1.0
+hqs:riskScore
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:onDatatype xsd:double ;
+    owl:withRestrictions (
+      [ xsd:minInclusive 0.0 ]
+      [ xsd:maxInclusive 1.0 ]
+    )
+  ] .
+
+# Key length must be at least 128 bits
+hqs:keyLength
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:onDatatype xsd:int ;
+    owl:withRestrictions (
+      [ xsd:minInclusive 128 ]
+    )
+  ] .
+
+# ==========================================
+# Security Rules (SWRL-style)
+# ==========================================
+
+# If agent has admin role, grant all permissions
+# hqs:AdminRole(?role) ∧ hqs:hasRole(?agent, ?role) → hqs:hasPermission(?agent, hqs:admin)
+
+# If resource is top secret, require admin role
+# hqs:hasSecurityLevel(?resource, hqs:top_secret) ∧ hqs:hasAccessControl(?resource, ?ac) → hqs:requiresRole(?ac, hqs:AdminRole)
+
+# If incident severity is critical, escalate immediately
+# hqs:incidentSeverity(?incident, "critical") → hqs:requiresEscalation(?incident, true)

@@ -1,0 +1,16 @@
+@prefix dmop: <http://www.e-lico.eu/ontologies/dmo/DMOP/DMOP.owl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<http://www.e-lico.eu/ontologies/dmo/DMOP/DMOP.owl> a owl:Ontology ;
+    rdfs:label "Data Mining OPtimization Ontology (DMOP)" .
+
+dmop:DM_Algorithm rdf:type owl:Class ;
+    rdfs:label "Data Mining Algorithm" ;
+    rdfs:comment "A specification of a procedure for solving a data mining task." .
+
+dmop:InductionAlgorithm rdf:type owl:Class ;
+    rdfs:subClassOf dmop:DM_Algorithm .
+
+dmop:DecisionTreeInduction rdf:type owl:Class ;
+    rdfs:subClassOf dmop:InductionAlgorithm .

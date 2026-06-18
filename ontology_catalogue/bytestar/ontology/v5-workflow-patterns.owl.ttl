@@ -1,0 +1,103 @@
+@prefix : <https://bytestar.org/ontology/v5/workflow-patterns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix core: <https://bytestar.org/ontology/v5/core#> .
+@prefix fab: <https://bytestar.org/ontology/v5/fabrication#> .
+
+<https://bytestar.org/ontology/v5/workflow-patterns>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/v5/fabrication> ;
+  rdfs:label "ByteStar v5 Workflow Patterns Ontology" ;
+  rdfs:comment "The canonical registry of all 43 workflow patterns that ByteFlow can orchestrate. These patterns define the legal flow of work through the system." ;
+  owl:versionInfo "5.0.0" .
+
+# #################################################################
+# I. Workflow Pattern Categories
+# #################################################################
+
+:PatternCategory a owl:Class ;
+    rdfs:label "Workflow Pattern Category" .
+
+:BasicControlFlow a :PatternCategory ;
+    rdfs:label "Basic Control Flow Patterns" .
+
+:AdvancedControlFlow a :PatternCategory ;
+    rdfs:label "Advanced Control Flow Patterns" .
+
+:MultipleInstancePatterns a :PatternCategory ;
+    rdfs:label "Multiple Instance Patterns" .
+
+:StateBasedPatterns a :PatternCategory ;
+    rdfs:label "State-Based Patterns" .
+
+:hasCategory a owl:ObjectProperty ;
+    rdfs:domain core:Pattern ;
+    rdfs:range :PatternCategory .
+
+# #################################################################
+# II. The 43 Canonical Workflow Patterns
+# #################################################################
+
+# The full file would contain all 43 patterns from P01 to P43.
+
+# --- Basic Control Flow ---
+fab:P01 a core:Pattern ;
+    rdfs:label "P01_Sequence" ;
+    rdfs:comment "A task is enabled after the completion of another task." ;
+    :hasCategory :BasicControlFlow .
+
+fab:P02 a core:Pattern ;
+    rdfs:label "P02_Parallel_Split" ;
+    rdfs:comment "A single thread of control splits into multiple parallel threads." ;
+    :hasCategory :BasicControlFlow .
+
+fab:P03 a core:Pattern ;
+    rdfs:label "P03_Synchronization" ;
+    rdfs:comment "Multiple parallel threads of control converge into a single thread." ;
+    :hasCategory :BasicControlFlow .
+
+fab:P04 a core:Pattern ;
+    rdfs:label "P04_Exclusive_Choice" ;
+    rdfs:comment "A single thread of control splits into multiple alternative threads, only one of which is chosen." ;
+    :hasCategory :BasicControlFlow .
+
+fab:P05 a core:Pattern ;
+    rdfs:label "P05_Simple_Merge" ;
+    rdfs:comment "Multiple alternative threads of control converge into a single thread." ;
+    :hasCategory :BasicControlFlow .
+
+# --- Advanced Control Flow ---
+fab:P06 a core:Pattern ;
+    rdfs:label "P06_Multi_Choice" ;
+    rdfs:comment "A single thread of control splits into multiple threads, where one or several are chosen." ;
+    :hasCategory :AdvancedControlFlow .
+
+fab:P07 a core:Pattern ;
+    rdfs:label "P07_Synchronizing_Merge" ;
+    rdfs:comment "Multiple parallel threads of control converge, synchronizing only if necessary." ;
+    :hasCategory :AdvancedControlFlow .
+
+fab:P08 a core:Pattern ;
+    rdfs:label "P08_Multi_Merge" ;
+    rdfs:comment "Multiple threads of control converge, where each incoming thread may or may not be active." ;
+    :hasCategory :AdvancedControlFlow .
+
+# --- Multiple Instance Patterns ---
+fab:P12 a core:Pattern ;
+    rdfs:label "P12_MI_without_Synchronization" ;
+    rdfs:comment "A task can have multiple instances that execute concurrently without explicit synchronization." ;
+    :hasCategory :MultipleInstancePatterns .
+
+fab:P13 a core:Pattern ;
+    rdfs:label "P13_MI_with_a_priori_Design_Time_Knowledge" ;
+    rdfs:comment "A task can have multiple instances, where the number of instances is known at design time." ;
+    :hasCategory :MultipleInstancePatterns .
+
+# --- State-Based Patterns ---
+fab:P16 a core:Pattern ;
+    rdfs:label "P16_Deferred_Choice" ;
+    rdfs:comment "A choice between alternative paths is deferred until one of the paths is actually taken." ;
+    :hasCategory :StateBasedPatterns .
+
+# ... and so on for the remaining patterns up to P43 ...

@@ -1,0 +1,21 @@
+PREFIX pi: <https://process.intelligence/ontology/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+
+# SELECT: All Rendered Artifacts
+# Returns artifacts produced by code generation rules (output files from READY rules)
+# Date: 2026-06-01
+
+SELECT ?rule ?title ?outputFile ?outputMode ?targetFormat ?audience ?evidence ?status
+WHERE {
+    ?rule a pi:GenerationRule .
+    ?rule pi:status "READY" .
+    ?rule dcterms:title ?title .
+    ?rule pi:outputFile ?outputFile .
+
+    OPTIONAL { ?rule pi:outputMode ?outputMode }
+    OPTIONAL { ?rule pi:targetFormat ?targetFormat }
+    OPTIONAL { ?rule pi:audience ?audience }
+    OPTIONAL { ?rule pi:evidence ?evidence }
+    OPTIONAL { ?rule pi:status ?status }
+}
+ORDER BY ?outputFile

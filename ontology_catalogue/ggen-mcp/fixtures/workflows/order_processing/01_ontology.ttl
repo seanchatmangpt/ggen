@@ -1,0 +1,180 @@
+@prefix : <http://example.org/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix mcp: <http://modelcontextprotocol.io/ontology#> .
+
+# Order Aggregate Definition
+:Order a rdfs:Class ;
+    rdfs:label "Order" ;
+    rdfs:comment "A customer order" ;
+    :hasProperty :orderId, :customerId, :items, :subtotal, :tax, :total, :status, :createdAt .
+
+:orderId a rdf:Property ;
+    rdfs:label "order_id" ;
+    rdfs:domain :Order ;
+    rdfs:range xsd:string ;
+    :required true .
+
+:customerId a rdf:Property ;
+    rdfs:label "customer_id" ;
+    rdfs:domain :Order ;
+    rdfs:range xsd:string ;
+    :required true .
+
+:items a rdf:Property ;
+    rdfs:label "items" ;
+    rdfs:domain :Order ;
+    rdfs:range :OrderItem ;
+    :required true ;
+    :collection true .
+
+:subtotal a rdf:Property ;
+    rdfs:label "subtotal" ;
+    rdfs:domain :Order ;
+    rdfs:range xsd:decimal ;
+    :required true ;
+    :default 0.0 .
+
+:tax a rdf:Property ;
+    rdfs:label "tax" ;
+    rdfs:domain :Order ;
+    rdfs:range xsd:decimal ;
+    :required true ;
+    :default 0.0 .
+
+:total a rdf:Property ;
+    rdfs:label "total" ;
+    rdfs:domain :Order ;
+    rdfs:range xsd:decimal ;
+    :required true ;
+    :default 0.0 .
+
+:status a rdf:Property ;
+    rdfs:label "status" ;
+    rdfs:domain :Order ;
+    rdfs:range :OrderStatus ;
+    :required true ;
+    :default "created" .
+
+:createdAt a rdf:Property ;
+    rdfs:label "created_at" ;
+    rdfs:domain :Order ;
+    rdfs:range xsd:dateTime ;
+    :required true ;
+    :default "now" .
+
+# Order Item Definition
+:OrderItem a rdfs:Class ;
+    rdfs:label "OrderItem" ;
+    :hasProperty :productId, :name, :quantity, :unitPrice .
+
+:productId a rdf:Property ;
+    rdfs:label "product_id" ;
+    rdfs:domain :OrderItem ;
+    rdfs:range xsd:string ;
+    :required true .
+
+:itemName a rdf:Property ;
+    rdfs:label "name" ;
+    rdfs:domain :OrderItem ;
+    rdfs:range xsd:string ;
+    :required true .
+
+:quantity a rdf:Property ;
+    rdfs:label "quantity" ;
+    rdfs:domain :OrderItem ;
+    rdfs:range xsd:integer ;
+    :required true ;
+    :minimum 1 .
+
+:unitPrice a rdf:Property ;
+    rdfs:label "unit_price" ;
+    rdfs:domain :OrderItem ;
+    rdfs:range xsd:decimal ;
+    :required true ;
+    :minimum 0.0 .
+
+# Order Status Enum
+:OrderStatus a rdfs:Class ;
+    rdfs:label "OrderStatus" ;
+    :enumValues ("created" "processing" "paid" "placed" "shipped" "delivered" "cancelled") .
+
+# MCP Tools
+:CreateOrderTool a mcp:Tool ;
+    mcp:name "create_order" ;
+    mcp:description "Create a new order" ;
+    mcp:inputSchema [
+        a mcp:Schema ;
+        mcp:type "object" ;
+        mcp:properties [
+            mcp:customerId [ mcp:type "string" ; mcp:required true ]
+        ]
+    ] .
+
+:AddItemTool a mcp:Tool ;
+    mcp:name "add_item" ;
+    mcp:description "Add an item to the order" ;
+    mcp:inputSchema [
+        a mcp:Schema ;
+        mcp:type "object" ;
+        mcp:properties [
+            mcp:orderId [ mcp:type "string" ; mcp:required true ] ;
+            mcp:productId [ mcp:type "string" ; mcp:required true ] ;
+            mcp:name [ mcp:type "string" ; mcp:required true ] ;
+            mcp:quantity [ mcp:type "integer" ; mcp:minimum 1 ; mcp:required true ] ;
+            mcp:unitPrice [ mcp:type "number" ; mcp:minimum 0 ; mcp:required true ]
+        ]
+    ] .
+
+:CalculateTotalTool a mcp:Tool ;
+    mcp:name "calculate_total" ;
+    mcp:description "Calculate order total with tax" ;
+    mcp:inputSchema [
+        a mcp:Schema ;
+        mcp:type "object" ;
+        mcp:properties [
+            mcp:orderId [ mcp:type "string" ; mcp:required true ] ;
+            mcp:taxRate [ mcp:type "number" ; mcp:default 0.08 ]
+        ]
+    ] .
+
+:ProcessPaymentTool a mcp:Tool ;
+    mcp:name "process_payment" ;
+    mcp:description "Process payment for the order" ;
+    mcp:inputSchema [
+        a mcp:Schema ;
+        mcp:type "object" ;
+        mcp:properties [
+            mcp:orderId [ mcp:type "string" ; mcp:required true ] ;
+            mcp:paymentMethod [ mcp:type "object" ; mcp:required true ]
+        ]
+    ] .
+
+# Events
+:OrderCreatedEvent a :Event ;
+    rdfs:label "order_created" ;
+    :aggregate :Order ;
+    :payload [
+        :orderId xsd:string ;
+        :customerId xsd:string ;
+        :timestamp xsd:dateTime
+    ] .
+
+:ItemAddedEvent a :Event ;
+    rdfs:label "item_added" ;
+    :aggregate :Order ;
+    :payload [
+        :orderId xsd:string ;
+        :productId xsd:string ;
+        :quantity xsd:integer
+    ] .
+
+:OrderPlacedEvent a :Event ;
+    rdfs:label "order_placed" ;
+    :aggregate :Order ;
+    :payload [
+        :orderId xsd:string ;
+        :total xsd:decimal ;
+        :timestamp xsd:dateTime
+    ] .

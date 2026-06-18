@@ -1,0 +1,12 @@
+PREFIX ostar: <https://chatmangpt.com/ontologies/o-star/>
+
+# Query: unpinned_git_sources
+# Returns: Git-sourced plugins missing SHA pinning
+
+SELECT ?plugin ?version ?sourceUrl WHERE {
+  ?plugin ostar:pluginName ?name ;
+          ostar:hasVersion ?version .
+  ?version ostar:sourceUrl ?sourceUrl .
+  FILTER(STRSTARTS(STR(?sourceUrl), "git"))
+  FILTER NOT EXISTS { ?version ostar:sourceSha ?sha }
+}

@@ -1,0 +1,740 @@
+@prefix ba: <http://bytestar.org/ontology/> .
+@prefix badp: <http://bytestar.org/ontology/differential-privacy/> .
+@prefix bapa: <http://bytestar.org/ontology/privacy-automation/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix time: <http://www.w3.org/2006/time#> .
+
+# =============================================================================
+# ByteStar Differential Privacy Budget Mathematics and Validation Ontology
+# Version: 5.0.0 - Phase 5
+# =============================================================================
+
+<http://bytestar.org/ontology/differential-privacy> a owl:Ontology ;
+    owl:versionIRI <http://bytestar.org/ontology/differential-privacy/5.0.0> ;
+    dct:title "ByteStar Differential Privacy Budget Mathematics and Validation Ontology" ;
+    dct:description "Mathematical framework for differential privacy budget management, composition theorems, noise calibration, and formal verification of privacy guarantees in crystal operations" ;
+    dct:creator "ByteStar Architecture Team" ;
+    dct:created "2025-01-23"^^xsd:date ;
+    dct:modified "2025-01-23"^^xsd:date ;
+    owl:imports <http://bytestar.org/ontology/core>,
+                <http://bytestar.org/ontology/privacy-automation>,
+                <http://bytestar.org/ontology/security> .
+
+# =============================================================================
+# MATHEMATICAL FOUNDATIONS
+# =============================================================================
+
+## Core Mathematical Structures
+badp:MathematicalStructure a owl:Class ;
+    rdfs:label "Mathematical Structure" ;
+    rdfs:comment "Base class for mathematical structures in differential privacy" ;
+    rdfs:subClassOf ba:MathematicalConstruct .
+
+badp:PrivacyMechanism a owl:Class ;
+    rdfs:label "Privacy Mechanism" ;
+    rdfs:comment "Mathematical mechanism providing differential privacy guarantees" ;
+    rdfs:subClassOf badp:MathematicalStructure ;
+    badp:privacyParameters "epsilon,delta" ;
+    badp:noiseDistribution xsd:string ;
+    badp:sensitivityType xsd:string .
+
+badp:EpsilonDifferentialPrivacy a owl:Class ;
+    rdfs:label "Epsilon Differential Privacy" ;
+    rdfs:comment "Pure differential privacy with epsilon parameter only" ;
+    rdfs:subClassOf badp:PrivacyMechanism ;
+    badp:epsilonParameter xsd:double ;
+    badp:compositionTheorem "basic,advanced,concentrated" .
+
+badp:EpsilonDeltaDifferentialPrivacy a owl:Class ;
+    rdfs:label "Epsilon-Delta Differential Privacy" ;
+    rdfs:comment "Approximate differential privacy with epsilon and delta parameters" ;
+    rdfs:subClassOf badp:PrivacyMechanism ;
+    badp:epsilonParameter xsd:double ;
+    badp:deltaParameter xsd:double ;
+    badp:failureProbability xsd:double .
+
+badp:ConcentratedDifferentialPrivacy a owl:Class ;
+    rdfs:label "Concentrated Differential Privacy" ;
+    rdfs:comment "Concentrated differential privacy for tighter composition bounds" ;
+    rdfs:subClassOf badp:PrivacyMechanism ;
+    badp:rhoParameter xsd:double ;
+    badp:concentrationFunction xsd:string .
+
+badp:RenyiDifferentialPrivacy a owl:Class ;
+    rdfs:label "Renyi Differential Privacy" ;
+    rdfs:comment "Renyi differential privacy for optimal composition" ;
+    rdfs:subClassOf badp:PrivacyMechanism ;
+    badp:alphaParameter xsd:double ;
+    badp:epsilonParameter xsd:double ;
+    badp:renyiOrder xsd:double .
+
+# =============================================================================
+# NOISE MECHANISMS AND CALIBRATION
+# =============================================================================
+
+badp:NoiseMechanism a owl:Class ;
+    rdfs:label "Noise Mechanism" ;
+    rdfs:comment "Specific noise mechanism for achieving differential privacy" ;
+    rdfs:subClassOf badp:PrivacyMechanism ;
+    badp:noiseGeneration "algorithmic" ;
+    badp:distributionType xsd:string ;
+    badp:calibrationMethod xsd:string .
+
+badp:LaplaceMechanism a owl:Class ;
+    rdfs:label "Laplace Mechanism" ;
+    rdfs:comment "Laplace noise mechanism for epsilon-differential privacy" ;
+    rdfs:subClassOf badp:NoiseMechanism ;
+    badp:distributionType "laplace" ;
+    badp:scaleParameter xsd:double ;
+    badp:sensitivityType "L1" ;
+    badp:optimalFor "counting_queries,linear_queries" .
+
+badp:GaussianMechanism a owl:Class ;
+    rdfs:label "Gaussian Mechanism" ;
+    rdfs:comment "Gaussian noise mechanism for (ε,δ)-differential privacy" ;
+    rdfs:subClassOf badp:NoiseMechanism ;
+    badp:distributionType "gaussian" ;
+    badp:sigmaParameter xsd:double ;
+    badp:sensitivityType "L2" ;
+    badp:optimalFor "numerical_queries,statistical_queries" .
+
+badp:ExponentialMechanism a owl:Class ;
+    rdfs:label "Exponential Mechanism" ;
+    rdfs:comment "Exponential mechanism for selecting from discrete sets" ;
+    rdfs:subClassOf badp:NoiseMechanism ;
+    badp:distributionType "exponential" ;
+    badp:utilityFunction xsd:string ;
+    badp:sensitivityType "utility" ;
+    badp:optimalFor "selection_queries,optimization" .
+
+badp:NoiseCalibrationEngine a owl:Class ;
+    rdfs:label "Noise Calibration Engine" ;
+    rdfs:comment "Engine for automatic calibration of noise parameters" ;
+    rdfs:subClassOf ba:CalibrationEngine ;
+    badp:calibrationMethod "sensitivity_analysis,utility_optimization" ;
+    badp:optimizationObjective "utility_preservation,privacy_maximization" ;
+    ba:calibrationAccuracy "> 99.9%" ;
+    ba:calibrationLatency "< 1ms" .
+
+# =============================================================================
+# SENSITIVITY ANALYSIS
+# =============================================================================
+
+badp:SensitivityAnalyzer a owl:Class ;
+    rdfs:label "Sensitivity Analyzer" ;
+    rdfs:comment "Analyzes global and local sensitivity of queries and functions" ;
+    rdfs:subClassOf ba:Analyzer ;
+    badp:sensitivityTypes "global,local,smooth" ;
+    badp:analysisMethod "automatic,symbolic,numerical" ;
+    ba:analysisAccuracy "> 99.99%" ;
+    ba:analysisLatency "< 5ms" .
+
+badp:GlobalSensitivity a owl:Class ;
+    rdfs:label "Global Sensitivity" ;
+    rdfs:comment "Maximum change in function output over all adjacent datasets" ;
+    rdfs:subClassOf badp:SensitivityMeasure ;
+    badp:sensitivityValue xsd:double ;
+    badp:metricType "L1,L2,Linf" ;
+    badp:computationMethod "worst_case_analysis" .
+
+badp:LocalSensitivity a owl:Class ;
+    rdfs:label "Local Sensitivity" ;
+    rdfs:comment "Maximum change in function output for a specific dataset" ;
+    rdfs:subClassOf badp:SensitivityMeasure ;
+    badp:sensitivityValue xsd:double ;
+    badp:datasetSpecific true ;
+    badp:computationMethod "dataset_analysis" .
+
+badp:SmoothSensitivity a owl:Class ;
+    rdfs:label "Smooth Sensitivity" ;
+    rdfs:comment "Smooth upper bound on local sensitivity for better utility" ;
+    rdfs:subClassOf badp:SensitivityMeasure ;
+    badp:sensitivityValue xsd:double ;
+    badp:smoothingParameter xsd:double ;
+    badp:betaSmoothing true .
+
+badp:SensitivityMeasure a owl:Class ;
+    rdfs:label "Sensitivity Measure" ;
+    rdfs:comment "Base class for different types of sensitivity measures" ;
+    rdfs:subClassOf badp:MathematicalStructure ;
+    badp:measureType xsd:string ;
+    badp:boundType "tight,loose" ;
+    badp:computationComplexity xsd:string .
+
+# =============================================================================
+# COMPOSITION THEOREMS
+# =============================================================================
+
+badp:CompositionFramework a owl:Class ;
+    rdfs:label "Composition Framework" ;
+    rdfs:comment "Framework for composing multiple differentially private mechanisms" ;
+    rdfs:subClassOf badp:MathematicalStructure ;
+    badp:compositionType "sequential,parallel,adaptive" ;
+    badp:compositionTheorem xsd:string ;
+    badp:privacyLoss "additive,advanced" .
+
+badp:BasicComposition a owl:Class ;
+    rdfs:label "Basic Composition" ;
+    rdfs:comment "Basic composition theorem with additive privacy loss" ;
+    rdfs:subClassOf badp:CompositionFramework ;
+    badp:compositionTheorem "basic" ;
+    badp:privacyLoss "additive" ;
+    badp:compositionBound "loose" ;
+    badp:applicability "simple_cases" .
+
+badp:AdvancedComposition a owl:Class ;
+    rdfs:label "Advanced Composition" ;
+    rdfs:comment "Advanced composition theorem with tighter bounds" ;
+    rdfs:subClassOf badp:CompositionFramework ;
+    badp:compositionTheorem "advanced" ;
+    badp:privacyLoss "sublinear" ;
+    badp:compositionBound "tight" ;
+    badp:applicability "general_cases" .
+
+badp:ConcentratedComposition a owl:Class ;
+    rdfs:label "Concentrated Composition" ;
+    rdfs:comment "Composition using concentrated differential privacy" ;
+    rdfs:subClassOf badp:CompositionFramework ;
+    badp:compositionTheorem "concentrated" ;
+    badp:privacyLoss "minimal" ;
+    badp:compositionBound "optimal" ;
+    badp:applicability "optimal_cases" .
+
+badp:RenyiComposition a owl:Class ;
+    rdfs:label "Renyi Composition" ;
+    rdfs:comment "Composition using Renyi differential privacy" ;
+    rdfs:subClassOf badp:CompositionFramework ;
+    badp:compositionTheorem "renyi" ;
+    badp:privacyLoss "optimal" ;
+    badp:compositionBound "tight" ;
+    badp:renyiOrder xsd:double .
+
+# =============================================================================
+# PRIVACY BUDGET MANAGEMENT
+# =============================================================================
+
+badp:PrivacyBudgetManager a owl:Class ;
+    rdfs:label "Privacy Budget Manager" ;
+    rdfs:comment "Comprehensive manager for privacy budget allocation and tracking" ;
+    rdfs:subClassOf ba:ResourceManager ;
+    badp:budgetType "epsilon,delta,rho,renyi" ;
+    badp:allocationStrategy "static,dynamic,adaptive" ;
+    badp:trackingGranularity "global,per_user,per_dataset,per_query" ;
+    ba:performanceRequirement "< 1ms budget operations" .
+
+badp:EpsilonBudgetTracker a owl:Class ;
+    rdfs:label "Epsilon Budget Tracker" ;
+    rdfs:comment "Tracks epsilon budget consumption with mathematical precision" ;
+    rdfs:subClassOf badp:PrivacyBudgetManager ;
+    badp:budgetParameter "epsilon" ;
+    badp:compositionTracking true ;
+    badp:budgetExhaustionWarning true ;
+    badp:precisionLevel "arbitrary_precision" .
+
+badp:DeltaBudgetTracker a owl:Class ;
+    rdfs:label "Delta Budget Tracker" ;
+    rdfs:comment "Tracks delta budget for (ε,δ)-differential privacy" ;
+    rdfs:subClassOf badp:PrivacyBudgetManager ;
+    badp:budgetParameter "delta" ;
+    badp:probabilityTracking true ;
+    badp:unionBound true ;
+    badp:failureProbabilityLimit 1e-6 .
+
+badp:AdaptiveBudgetAllocator a owl:Class ;
+    rdfs:label "Adaptive Budget Allocator" ;
+    rdfs:comment "Dynamically allocates privacy budget based on query importance" ;
+    rdfs:subClassOf badp:PrivacyBudgetManager ;
+    badp:allocationCriteria "utility,importance,frequency" ;
+    badp:reallocationSupport true ;
+    badp:optimizationObjective "utility_maximization" ;
+    badp:adaptationLatency "< 10ms" .
+
+badp:BudgetAccountingLedger a owl:Class ;
+    rdfs:label "Budget Accounting Ledger" ;
+    rdfs:comment "Immutable ledger for privacy budget accounting" ;
+    rdfs:subClassOf ba:ImmutableLedger ;
+    badp:transactionType "allocation,consumption,transfer" ;
+    badp:auditTrail true ;
+    badp:balanceVerification "cryptographic" ;
+    badp:doubleEntryBookkeeping true .
+
+# =============================================================================
+# MATHEMATICAL VERIFICATION
+# =============================================================================
+
+badp:MathematicalVerifier a owl:Class ;
+    rdfs:label "Mathematical Verifier" ;
+    rdfs:comment "Verifies mathematical correctness of privacy mechanisms" ;
+    rdfs:subClassOf ba:Verifier ;
+    badp:verificationMethod "formal_proof,numerical_verification,symbolic_computation" ;
+    badp:theoremProver "coq,lean,isabelle,z3" ;
+    badp:verificationLatency "< 100ms" ;
+    badp:soundness true .
+
+badp:PrivacyProofSystem a owl:Class ;
+    rdfs:label "Privacy Proof System" ;
+    rdfs:comment "Formal proof system for differential privacy guarantees" ;
+    rdfs:subClassOf ba:ProofSystem ;
+    badp:proofLanguage "coq,lean,agda" ;
+    badp:axiomaticFoundation "measure_theory,probability_theory" ;
+    badp:mechanizedProofs true ;
+    badp:proofCertificate true .
+
+badp:CompositionVerifier a owl:Class ;
+    rdfs:label "Composition Verifier" ;
+    rdfs:comment "Verifies correctness of privacy composition calculations" ;
+    rdfs:subClassOf badp:MathematicalVerifier ;
+    badp:compositionTypes "basic,advanced,concentrated,renyi" ;
+    badp:boundTightness "verification" ;
+    badp:errorBounds "formal" ;
+    badp:verificationComplexity "polynomial" .
+
+badp:NoiseVerifier a owl:Class ;
+    rdfs:label "Noise Verifier" ;
+    rdfs:comment "Verifies correctness of noise calibration and generation" ;
+    rdfs:subClassOf badp:MathematicalVerifier ;
+    badp:distributionTesting "kolmogorov_smirnov,anderson_darling" ;
+    badp:entropyTesting true ;
+    badp:randomnessVerification true ;
+    badp:statisticalSignificance 0.001 .
+
+# =============================================================================
+# UTILITY OPTIMIZATION
+# =============================================================================
+
+badp:UtilityOptimizer a owl:Class ;
+    rdfs:label "Utility Optimizer" ;
+    rdfs:comment "Optimizes utility while maintaining privacy guarantees" ;
+    rdfs:subClassOf ba:Optimizer ;
+    badp:optimizationObjective "accuracy,precision,recall,f1_score" ;
+    badp:privacyConstraints "epsilon,delta" ;
+    badp:optimizationAlgorithm "gradient_descent,evolutionary,bayesian" ;
+    badp:convergenceGuarantee true .
+
+badp:AccuracyPrivacyTradeoff a owl:Class ;
+    rdfs:label "Accuracy Privacy Tradeoff" ;
+    rdfs:comment "Models the tradeoff between accuracy and privacy" ;
+    rdfs:subClassOf badp:UtilityOptimizer ;
+    badp:tradeoffCurve "pareto_optimal" ;
+    badp:accuracyMeasure xsd:string ;
+    badp:privacyMeasure xsd:string ;
+    badp:dominanceRelation true .
+
+badp:NoiseOptimizer a owl:Class ;
+    rdfs:label "Noise Optimizer" ;
+    rdfs:comment "Optimizes noise parameters for maximum utility" ;
+    rdfs:subClassOf badp:UtilityOptimizer ;
+    badp:optimizationTarget "scale_parameter,distribution_family" ;
+    badp:utilityMetric "mean_squared_error,bias,variance" ;
+    badp:optimizationConstraint "differential_privacy" ;
+    badp:globalOptimum "guaranteed" .
+
+# =============================================================================
+# CRYSTAL OPERATIONS INTEGRATION
+# =============================================================================
+
+badp:CrystalPrivacyMechanism a owl:Class ;
+    rdfs:label "Crystal Privacy Mechanism" ;
+    rdfs:comment "Privacy mechanism specifically designed for crystal operations" ;
+    rdfs:subClassOf badp:PrivacyMechanism ;
+    badp:crystalCompatibility true ;
+    badp:quantumResistance true ;
+    badp:crystallineNoise "quantum_harmonic_oscillator" ;
+    badp:coherencePreservation true .
+
+badp:QuantumDifferentialPrivacy a owl:Class ;
+    rdfs:label "Quantum Differential Privacy" ;
+    rdfs:comment "Differential privacy extended to quantum computing contexts" ;
+    rdfs:subClassOf badp:CrystalPrivacyMechanism ;
+    badp:quantumMechanism "quantum_noise,decoherence" ;
+    badp:quantumSensitivity "trace_distance" ;
+    badp:quantumComposition "quantum_advanced" ;
+    badp:quantumUtility "fidelity,entanglement_preservation" .
+
+badp:CrystalNoiseGenerator a owl:Class ;
+    rdfs:label "Crystal Noise Generator" ;
+    rdfs:comment "Specialized noise generator for crystal operations" ;
+    rdfs:subClassOf badp:NoiseMechanism ;
+    badp:crystalResonance true ;
+    badp:harmonicCoupling true ;
+    badp:crystallineStructure "hexagonal,cubic,orthorhombic" ;
+    badp:latticeNoise true .
+
+# =============================================================================
+# DATA PROPERTIES
+# =============================================================================
+
+## Privacy Parameters
+badp:epsilonValue a owl:DatatypeProperty ;
+    rdfs:label "epsilon value" ;
+    rdfs:comment "Epsilon privacy parameter value" ;
+    rdfs:range xsd:double ;
+    rdfs:domain badp:EpsilonDifferentialPrivacy .
+
+badp:deltaValue a owl:DatatypeProperty ;
+    rdfs:label "delta value" ;
+    rdfs:comment "Delta privacy parameter value" ;
+    rdfs:range xsd:double ;
+    rdfs:domain badp:EpsilonDeltaDifferentialPrivacy .
+
+badp:rhoValue a owl:DatatypeProperty ;
+    rdfs:label "rho value" ;
+    rdfs:comment "Rho parameter for concentrated differential privacy" ;
+    rdfs:range xsd:double ;
+    rdfs:domain badp:ConcentratedDifferentialPrivacy .
+
+badp:alphaValue a owl:DatatypeProperty ;
+    rdfs:label "alpha value" ;
+    rdfs:comment "Alpha parameter for Renyi differential privacy" ;
+    rdfs:range xsd:double ;
+    rdfs:domain badp:RenyiDifferentialPrivacy .
+
+## Noise Parameters
+badp:scaleParameter a owl:DatatypeProperty ;
+    rdfs:label "scale parameter" ;
+    rdfs:comment "Scale parameter for Laplace distribution" ;
+    rdfs:range xsd:double ;
+    rdfs:domain badp:LaplaceMechanism .
+
+badp:sigmaParameter a owl:DatatypeProperty ;
+    rdfs:label "sigma parameter" ;
+    rdfs:comment "Standard deviation parameter for Gaussian distribution" ;
+    rdfs:range xsd:double ;
+    rdfs:domain badp:GaussianMechanism .
+
+badp:varianceParameter a owl:DatatypeProperty ;
+    rdfs:label "variance parameter" ;
+    rdfs:comment "Variance parameter for noise distribution" ;
+    rdfs:range xsd:double ;
+    rdfs:domain badp:NoiseMechanism .
+
+## Sensitivity Values
+badp:globalSensitivityValue a owl:DatatypeProperty ;
+    rdfs:label "global sensitivity value" ;
+    rdfs:comment "Numerical value of global sensitivity" ;
+    rdfs:range xsd:double ;
+    rdfs:domain badp:GlobalSensitivity .
+
+badp:localSensitivityValue a owl:DatatypeProperty ;
+    rdfs:label "local sensitivity value" ;
+    rdfs:comment "Numerical value of local sensitivity" ;
+    rdfs:range xsd:double ;
+    rdfs:domain badp:LocalSensitivity .
+
+badp:smoothSensitivityValue a owl:DatatypeProperty ;
+    rdfs:label "smooth sensitivity value" ;
+    rdfs:comment "Numerical value of smooth sensitivity" ;
+    rdfs:range xsd:double ;
+    rdfs:domain badp:SmoothSensitivity .
+
+## Budget Properties
+badp:budgetAllocated a owl:DatatypeProperty ;
+    rdfs:label "budget allocated" ;
+    rdfs:comment "Amount of privacy budget allocated" ;
+    rdfs:range xsd:double ;
+    rdfs:domain badp:PrivacyBudgetManager .
+
+badp:budgetConsumed a owl:DatatypeProperty ;
+    rdfs:label "budget consumed" ;
+    rdfs:comment "Amount of privacy budget consumed" ;
+    rdfs:range xsd:double ;
+    rdfs:domain badp:PrivacyBudgetManager .
+
+badp:budgetRemaining a owl:DatatypeProperty ;
+    rdfs:label "budget remaining" ;
+    rdfs:comment "Amount of privacy budget remaining" ;
+    rdfs:range xsd:double ;
+    rdfs:domain badp:PrivacyBudgetManager .
+
+## Performance Properties
+badp:calibrationLatency a owl:DatatypeProperty ;
+    rdfs:label "calibration latency" ;
+    rdfs:comment "Time required for noise calibration in milliseconds" ;
+    rdfs:range xsd:decimal ;
+    rdfs:domain badp:NoiseCalibrationEngine .
+
+badp:verificationTime a owl:DatatypeProperty ;
+    rdfs:label "verification time" ;
+    rdfs:comment "Time required for mathematical verification in milliseconds" ;
+    rdfs:range xsd:decimal ;
+    rdfs:domain badp:MathematicalVerifier .
+
+badp:optimizationIterations a owl:DatatypeProperty ;
+    rdfs:label "optimization iterations" ;
+    rdfs:comment "Number of iterations required for utility optimization" ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:domain badp:UtilityOptimizer .
+
+# =============================================================================
+# OBJECT PROPERTIES
+# =============================================================================
+
+## Mechanism Relationships
+badp:usesMechanism a owl:ObjectProperty ;
+    rdfs:label "uses mechanism" ;
+    rdfs:comment "Query or system using specific privacy mechanism" ;
+    rdfs:domain ba:Query ;
+    rdfs:range badp:PrivacyMechanism .
+
+badp:calibratedBy a owl:ObjectProperty ;
+    rdfs:label "calibrated by" ;
+    rdfs:comment "Noise mechanism calibrated by calibration engine" ;
+    rdfs:domain badp:NoiseMechanism ;
+    rdfs:range badp:NoiseCalibrationEngine .
+
+badp:analyzedBy a owl:ObjectProperty ;
+    rdfs:label "analyzed by" ;
+    rdfs:comment "Sensitivity analyzed by sensitivity analyzer" ;
+    rdfs:domain badp:SensitivityMeasure ;
+    rdfs:range badp:SensitivityAnalyzer .
+
+## Budget Relationships
+badp:managesBudget a owl:ObjectProperty ;
+    rdfs:label "manages budget" ;
+    rdfs:comment "Budget manager managing specific budget tracker" ;
+    rdfs:domain badp:PrivacyBudgetManager ;
+    rdfs:range badp:EpsilonBudgetTracker .
+
+badp:allocatesTo a owl:ObjectProperty ;
+    rdfs:label "allocates to" ;
+    rdfs:comment "Budget allocator assigning budget to query or mechanism" ;
+    rdfs:domain badp:AdaptiveBudgetAllocator ;
+    rdfs:range ba:Query .
+
+badp:trackedBy a owl:ObjectProperty ;
+    rdfs:label "tracked by" ;
+    rdfs:comment "Privacy expenditure tracked by budget tracker" ;
+    rdfs:domain ba:PrivacyExpenditure ;
+    rdfs:range badp:PrivacyBudgetManager .
+
+## Composition Relationships
+badp:composedWith a owl:ObjectProperty ;
+    rdfs:label "composed with" ;
+    rdfs:comment "Privacy mechanism composed with another mechanism" ;
+    rdfs:domain badp:PrivacyMechanism ;
+    rdfs:range badp:PrivacyMechanism .
+
+badp:appliesComposition a owl:ObjectProperty ;
+    rdfs:label "applies composition" ;
+    rdfs:comment "Composition framework applied to privacy mechanisms" ;
+    rdfs:domain badp:CompositionFramework ;
+    rdfs:range badp:PrivacyMechanism .
+
+## Verification Relationships
+badp:verifiedBy a owl:ObjectProperty ;
+    rdfs:label "verified by" ;
+    rdfs:comment "Privacy guarantee verified by verification system" ;
+    rdfs:domain badp:PrivacyMechanism ;
+    rdfs:range badp:MathematicalVerifier .
+
+badp:provenBy a owl:ObjectProperty ;
+    rdfs:label "proven by" ;
+    rdfs:comment "Mathematical property proven by proof system" ;
+    rdfs:domain ba:MathematicalProperty ;
+    rdfs:range badp:PrivacyProofSystem .
+
+## Crystal Integration
+badp:protectsCrystal a owl:ObjectProperty ;
+    rdfs:label "protects crystal" ;
+    rdfs:comment "Privacy mechanism protecting crystal operation" ;
+    rdfs:domain badp:CrystalPrivacyMechanism ;
+    rdfs:range ba:CrystalOperation .
+
+badp:quantumExtension a owl:ObjectProperty ;
+    rdfs:label "quantum extension" ;
+    rdfs:comment "Classical mechanism extended to quantum setting" ;
+    rdfs:domain badp:PrivacyMechanism ;
+    rdfs:range badp:QuantumDifferentialPrivacy .
+
+# =============================================================================
+# SHACL VALIDATION SHAPES
+# =============================================================================
+
+badp:EpsilonDPShape a sh:NodeShape ;
+    sh:targetClass badp:EpsilonDifferentialPrivacy ;
+    sh:property [
+        sh:path badp:epsilonValue ;
+        sh:datatype xsd:double ;
+        sh:minExclusive 0.0 ;
+        sh:maxInclusive 10.0 ;
+        sh:message "Epsilon must be positive and reasonable (0 < ε ≤ 10)" ;
+    ] .
+
+badp:EpsilonDeltaDPShape a sh:NodeShape ;
+    sh:targetClass badp:EpsilonDeltaDifferentialPrivacy ;
+    sh:property [
+        sh:path badp:deltaValue ;
+        sh:datatype xsd:double ;
+        sh:minExclusive 0.0 ;
+        sh:maxExclusive 1.0 ;
+        sh:message "Delta must be between 0 and 1 (0 < δ < 1)" ;
+    ] .
+
+badp:LaplaceShape a sh:NodeShape ;
+    sh:targetClass badp:LaplaceMechanism ;
+    sh:property [
+        sh:path badp:scaleParameter ;
+        sh:datatype xsd:double ;
+        sh:minExclusive 0.0 ;
+        sh:message "Laplace scale parameter must be positive" ;
+    ] ;
+    sh:sparql [
+        sh:message "Scale parameter must equal global sensitivity divided by epsilon" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this badp:scaleParameter ?scale .
+                $this badp:globalSensitivityValue ?gs .
+                $this badp:epsilonValue ?epsilon .
+                FILTER(?scale != ?gs / ?epsilon)
+            }
+        """ ;
+    ] .
+
+badp:BudgetConsistencyShape a sh:NodeShape ;
+    sh:targetClass badp:PrivacyBudgetManager ;
+    sh:sparql [
+        sh:message "Budget consumed cannot exceed budget allocated" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this badp:budgetAllocated ?allocated .
+                $this badp:budgetConsumed ?consumed .
+                FILTER(?consumed > ?allocated)
+            }
+        """ ;
+    ] ;
+    sh:sparql [
+        sh:message "Budget remaining must equal allocated minus consumed" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this badp:budgetAllocated ?allocated .
+                $this badp:budgetConsumed ?consumed .
+                $this badp:budgetRemaining ?remaining .
+                FILTER(?remaining != (?allocated - ?consumed))
+            }
+        """ ;
+    ] .
+
+badp:PerformanceShape a sh:NodeShape ;
+    sh:targetClass badp:NoiseCalibrationEngine ;
+    sh:property [
+        sh:path badp:calibrationLatency ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Calibration must meet sub-millisecond requirement" ;
+    ] .
+
+# =============================================================================
+# MATHEMATICAL INSTANCES
+# =============================================================================
+
+# Standard Privacy Mechanisms
+badp:StandardLaplaceMechanism a badp:LaplaceMechanism ;
+    rdfs:label "Standard Laplace Mechanism" ;
+    rdfs:comment "Standard Laplace mechanism for counting queries" ;
+    badp:scaleParameter 1.0 ;
+    badp:globalSensitivityValue 1.0 ;
+    badp:epsilonValue 1.0 .
+
+badp:StandardGaussianMechanism a badp:GaussianMechanism ;
+    rdfs:label "Standard Gaussian Mechanism" ;
+    rdfs:comment "Standard Gaussian mechanism for numerical queries" ;
+    badp:sigmaParameter 1.0 ;
+    badp:globalSensitivityValue 1.0 ;
+    badp:epsilonValue 1.0 ;
+    badp:deltaValue 1e-5 .
+
+# Budget Management Systems
+badp:GlobalEpsilonBudget a badp:EpsilonBudgetTracker ;
+    rdfs:label "Global Epsilon Budget Tracker" ;
+    rdfs:comment "Global epsilon budget tracker for all crystal operations" ;
+    badp:budgetAllocated 10.0 ;
+    badp:budgetConsumed 0.0 ;
+    badp:budgetRemaining 10.0 .
+
+badp:GlobalDeltaBudget a badp:DeltaBudgetTracker ;
+    rdfs:label "Global Delta Budget Tracker" ;
+    rdfs:comment "Global delta budget tracker for all crystal operations" ;
+    badp:budgetAllocated 1e-5 ;
+    badp:budgetConsumed 0.0 ;
+    badp:budgetRemaining 1e-5 .
+
+# Composition Systems
+badp:AdvancedCompositionSystem a badp:AdvancedComposition ;
+    rdfs:label "Advanced Composition System" ;
+    rdfs:comment "Advanced composition system for optimal privacy accounting" ;
+    badp:compositionBound "tight" ;
+    badp:privacyLoss "sublinear" .
+
+# Crystal Privacy Mechanisms
+badp:CrystalLaplaceMechanism a badp:CrystalPrivacyMechanism ;
+    rdfs:label "Crystal Laplace Mechanism" ;
+    rdfs:comment "Laplace mechanism adapted for crystal operations" ;
+    badp:crystalCompatibility true ;
+    badp:quantumResistance true ;
+    badp:crystallineNoise "harmonic_oscillator" .
+
+# =============================================================================
+# PERFORMANCE METRICS AND KPIS
+# =============================================================================
+
+badp:PrivacyBudgetEfficiency a ba:EfficiencyMetric ;
+    rdfs:label "Privacy Budget Efficiency" ;
+    rdfs:comment "Efficiency of privacy budget utilization" ;
+    ba:targetValue 90.0 ;
+    ba:unit "percentage" ;
+    ba:calculationMethod "effective_budget_usage / total_budget_allocated * 100" .
+
+badp:NoiseCalibrationAccuracy a ba:AccuracyMetric ;
+    rdfs:label "Noise Calibration Accuracy" ;
+    rdfs:comment "Accuracy of automated noise calibration" ;
+    ba:targetValue 99.99 ;
+    ba:unit "percentage" ;
+    ba:calculationMethod "correct_calibrations / total_calibrations * 100" .
+
+badp:CompositionTightness a ba:QualityMetric ;
+    rdfs:label "Composition Bound Tightness" ;
+    rdfs:comment "Tightness of composition bounds compared to optimal" ;
+    ba:targetValue 95.0 ;
+    ba:unit "percentage" ;
+    ba:calculationMethod "achieved_bound / optimal_bound * 100" .
+
+badp:UtilityPreservation a ba:QualityMetric ;
+    rdfs:label "Utility Preservation" ;
+    rdfs:comment "Utility preserved after privacy protection" ;
+    ba:targetValue 95.0 ;
+    ba:unit "percentage" ;
+    ba:calculationMethod "private_utility / original_utility * 100" .
+
+# =============================================================================
+# MATHEMATICAL CONSTANTS AND FORMULAS
+# =============================================================================
+
+# Mathematical constants for differential privacy
+badp:E_CONSTANT a badp:MathematicalConstant ;
+    rdfs:label "Euler's Number" ;
+    badp:value 2.718281828459045 ;
+    badp:usage "exponential_mechanism,composition_bounds" .
+
+badp:PI_CONSTANT a badp:MathematicalConstant ;
+    rdfs:label "Pi" ;
+    badp:value 3.141592653589793 ;
+    badp:usage "gaussian_mechanism,circular_statistics" .
+
+badp:SQRT_2_CONSTANT a badp:MathematicalConstant ;
+    rdfs:label "Square Root of 2" ;
+    badp:value 1.4142135623730951 ;
+    badp:usage "gaussian_calibration,l2_sensitivity" .
+
+# =============================================================================
+# End of Ontology
+# =============================================================================

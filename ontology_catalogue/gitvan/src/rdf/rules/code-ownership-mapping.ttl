@@ -1,0 +1,21 @@
+# Code Ownership Mapping Rule
+# Maps file authorship to developers based on commit history
+# Helps identify code owners and knowledge distribution
+
+@prefix ex: <http://example.org/> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# RULE: {"id": "code-ownership-mapping", "name": "Code Ownership Mapping", "description": "Maps code files to primary authors based on commit history", "antecedent": "?file gv:author ?author . ?file gv:commitCount ?commits . FILTER(?commits > 5)", "consequent": "?file gv:owner ?author", "priority": 85}
+
+# Example data structure
+ex:src/core.mjs gv:author "alice@example.com" .
+ex:src/core.mjs gv:commitCount 42 .
+
+ex:src/utils.mjs gv:author "bob@example.com" .
+ex:src/utils.mjs gv:commitCount 15 .
+
+ex:src/test.mjs gv:author "carol@example.com" .
+ex:src/test.mjs gv:commitCount 3 .

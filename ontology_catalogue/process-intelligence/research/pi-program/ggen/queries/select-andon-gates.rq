@@ -1,0 +1,85 @@
+# Select Andon Gates (Policy Enforcement Points)
+# Authority: Blue River Dam
+# Purpose: Extract compliance boundary enforcement gates
+
+PREFIX gov: <http://process-intelligence.local/governance/>
+PREFIX aka: <http://process-intelligence.local/autonomic/>
+PREFIX mape: <http://process-intelligence.local/mape-k/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+CONSTRUCT {
+  ?gate a gov:AndonGate ;
+    rdfs:label ?label ;
+    rdfs:comment ?comment ;
+    gov:gateName ?gateName ;
+    gov:triggerCondition ?condition ;
+    gov:action ?action ;
+    gov:severity ?severity ;
+    gov:authority ?authority ;
+    gov:signingRequired ?signed .
+} WHERE {
+  {
+    # Andon Gate 1: Conformance Fitness Violation
+    BIND(IRI("http://process-intelligence.local/governance/andon-gate-fitness") AS ?gate)
+    BIND("Conformance Fitness Gate" AS ?label)
+    BIND("Trigger auditor containment when fitness drops below 0.85" AS ?comment)
+    BIND("fitness-below-threshold" AS ?gateName)
+    BIND("Fitness(σ, W) < 0.85" AS ?condition)
+    BIND("escalate-to-auditor" AS ?action)
+    BIND("high" AS ?severity)
+    BIND("ostar-auditor" AS ?authority)
+    BIND(false AS ?signed)
+  }
+  UNION
+  {
+    # Andon Gate 2: Dead Transition Detection
+    BIND(IRI("http://process-intelligence.local/governance/andon-gate-dead-transition") AS ?gate)
+    BIND("Dead Transition Detection Gate" AS ?label)
+    BIND("Halt execution if unreachable transition detected" AS ?comment)
+    BIND("dead-transition-found" AS ?gateName)
+    BIND("exists t ∈ T : t unreachable from M0" AS ?condition)
+    BIND("halt-execution" AS ?action)
+    BIND("critical" AS ?severity)
+    BIND("ostar-auditor" AS ?authority)
+    BIND(false AS ?signed)
+  }
+  UNION
+  {
+    # Andon Gate 3: Compliance Override Request
+    BIND(IRI("http://process-intelligence.local/governance/andon-gate-override") AS ?gate)
+    BIND("Compliance Override Gate" AS ?label)
+    BIND("Require governor signature for override authorization" AS ?comment)
+    BIND("compliance-override-request" AS ?gateName)
+    BIND("override(trace, fitness) requested" AS ?condition)
+    BIND("verify-gov-proof" AS ?action)
+    BIND("critical" AS ?severity)
+    BIND("ostar-governor" AS ?authority)
+    BIND(true AS ?signed)
+  }
+  UNION
+  {
+    # Andon Gate 4: Policy Mutation Boundary
+    BIND(IRI("http://process-intelligence.local/governance/andon-gate-policy-mutation") AS ?gate)
+    BIND("Policy Mutation Gate" AS ?label)
+    BIND("Enforce HSM-signed approval for LTL policy changes" AS ?comment)
+    BIND("policy-mutation-attempt" AS ?gateName)
+    BIND("Phi_Gov → Phi'_Gov" AS ?condition)
+    BIND("require-hms-signature" AS ?action)
+    BIND("critical" AS ?severity)
+    BIND("ostar-governor" AS ?authority)
+    BIND(true AS ?signed)
+  }
+  UNION
+  {
+    # Andon Gate 5: Model Hot-Swap Verification
+    BIND(IRI("http://process-intelligence.local/governance/andon-gate-model-swap") AS ?gate)
+    BIND("Model Hot-Swap Gate" AS ?label)
+    BIND("Verify new model soundness before activation (W → W')" AS ?comment)
+    BIND("model-replacement-request" AS ?gateName)
+    BIND("Soundness(W') AND Signature(W) unchanged" AS ?condition)
+    BIND("verify-soundness-compile" AS ?action)
+    BIND("high" AS ?severity)
+    BIND("ostar-architect" AS ?authority)
+    BIND(true AS ?signed)
+  }
+}

@@ -1,0 +1,50 @@
+@prefix zoe:     <https://zoela.org/ontology/> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix schema:  <https://schema.org/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+
+# ============================================================================
+# ZOE LA Mobile — Care FollowUp Semantic Law
+# ============================================================================
+
+zoe:CareFollowUpLaw a owl:Ontology ;
+  rdfs:label   "ZOE LA Care FollowUp Semantic Law"@en ;
+  rdfs:comment "Defines the IES 4D State/Event/Consequence law for Care FollowUp execution."@en ;
+  dcterms:creator  "Gemini CLI" ;
+  dcterms:created  "2026-05-20"^^xsd:date .
+
+# ── States ──────────────────────────────────────────────────────────────────
+
+zoe:CareFollowUpPending a owl:Class ;
+  rdfs:subClassOf zoe:FollowUpTask ;
+  rdfs:label "Follow-Up Pending"@en .
+
+zoe:CareFollowUpActive a owl:Class ;
+  rdfs:subClassOf zoe:FollowUpTask ;
+  rdfs:label "Follow-Up In Progress"@en .
+
+zoe:CareFollowUpCompleted a owl:Class ;
+  rdfs:subClassOf zoe:FollowUpTask ;
+  rdfs:label "Follow-Up Completed"@en .
+
+# ── Events ──────────────────────────────────────────────────────────────────
+
+zoe:InitiateCareFollowUp a owl:Class ;
+  rdfs:subClassOf prov:Activity ;
+  rdfs:label "Initiate Follow-Up"@en .
+
+zoe:CompleteCareFollowUp a owl:Class ;
+  rdfs:subClassOf prov:Activity ;
+  rdfs:label "Complete Follow-Up"@en .
+
+# ── Consequences ────────────────────────────────────────────────────────────
+
+zoe:CareFollowUpConsequence a owl:Class ;
+  rdfs:subClassOf prov:Entity ;
+  rdfs:label "Follow-Up Consequence"@en ;
+  rdfs:comment "The documented outcome of a completed pastoral follow-up."@en .

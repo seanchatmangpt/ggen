@@ -1,0 +1,266 @@
+@prefix cns: <https://schema.chatman.ai/cns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+#################################################################
+# CNS Core Ontology - Telemetry Spans
+#################################################################
+
+# ============================================================================
+# TELEMETRY SPAN CLASS
+# ============================================================================
+
+cns:TelemetrySpan a rdfs:Class ;
+    rdfs:label "Telemetry Span" ;
+    rdfs:comment "A span represents a unit of work that can be instrumented for telemetry" .
+
+cns:providesFunction a rdf:Property ;
+    rdfs:label "provides function" ;
+    rdfs:comment "Links a telemetry span to the C function it instruments" ;
+    rdfs:domain cns:TelemetrySpan ;
+    rdfs:range cns:Function .
+
+# ============================================================================
+# SPARQL TELEMETRY SPANS
+# ============================================================================
+
+cns:spqlAskSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:spqlAsk ;
+    rdfs:label "SPARQL Ask Span" ;
+    rdfs:comment "Telemetry span for SPARQL ASK queries" .
+
+cns:spqlSelectSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:spqlSelect ;
+    rdfs:label "SPARQL Select Span" ;
+    rdfs:comment "Telemetry span for SPARQL SELECT queries" .
+
+cns:spqlConstructSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:spqlConstruct ;
+    rdfs:label "SPARQL Construct Span" ;
+    rdfs:comment "Telemetry span for SPARQL CONSTRUCT queries" .
+
+cns:spqlDescribeSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:spqlDescribe ;
+    rdfs:label "SPARQL Describe Span" ;
+    rdfs:comment "Telemetry span for SPARQL DESCRIBE queries" .
+
+cns:spqlAddSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:spqlAdd ;
+    rdfs:label "SPARQL Add Span" ;
+    rdfs:comment "Telemetry span for SPARQL ADD operations" .
+
+cns:spqlDeleteSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:spqlDelete ;
+    rdfs:label "SPARQL Delete Span" ;
+    rdfs:comment "Telemetry span for SPARQL DELETE operations" .
+
+# ============================================================================
+# JINJA TEMPLATE TELEMETRY SPANS
+# ============================================================================
+
+cns:jinjaExecSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:jinjaExec ;
+    rdfs:label "Jinja Exec Span" ;
+    rdfs:comment "Telemetry span for Jinja template execution" .
+
+cns:jinjaRenderSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:jinjaRender ;
+    rdfs:label "Jinja Render Span" ;
+    rdfs:comment "Telemetry span for Jinja template rendering" .
+
+cns:jinjaParseSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:jinjaParse ;
+    rdfs:label "Jinja Parse Span" ;
+    rdfs:comment "Telemetry span for Jinja template parsing" .
+
+# ============================================================================
+# SHACL VALIDATION TELEMETRY SPANS
+# ============================================================================
+
+cns:shaclValidateSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:shaclValidate ;
+    rdfs:label "SHACL Validate Span" ;
+    rdfs:comment "Telemetry span for SHACL validation" .
+
+cns:shaclShapeSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:shaclShape ;
+    rdfs:label "SHACL Shape Span" ;
+    rdfs:comment "Telemetry span for SHACL shape processing" .
+
+cns:shaclRuleSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:shaclRule ;
+    rdfs:label "SHACL Rule Span" ;
+    rdfs:comment "Telemetry span for SHACL rule execution" .
+
+# ============================================================================
+# GATEKEEPER TELEMETRY SPANS
+# ============================================================================
+
+cns:gatekeeperCorrectnessSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:gatekeeperCorrectness ;
+    rdfs:label "Gatekeeper Correctness Span" ;
+    rdfs:comment "Telemetry span for Gatekeeper correctness tests" .
+
+cns:gatekeeperCycleBudgetSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:gatekeeperCycleBudget ;
+    rdfs:label "Gatekeeper Cycle Budget Span" ;
+    rdfs:comment "Telemetry span for Gatekeeper cycle budget tests" .
+
+cns:gatekeeperThroughputSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:gatekeeperThroughput ;
+    rdfs:label "Gatekeeper Throughput Span" ;
+    rdfs:comment "Telemetry span for Gatekeeper throughput tests" .
+
+cns:gatekeeperOntologySpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:gatekeeperOntology ;
+    rdfs:label "Gatekeeper Ontology Span" ;
+    rdfs:comment "Telemetry span for Gatekeeper ontology parsing tests" .
+
+# ============================================================================
+# MEMORY MANAGEMENT TELEMETRY SPANS
+# ============================================================================
+
+cns:memoryAllocSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:memoryAlloc ;
+    rdfs:label "Memory Allocation Span" ;
+    rdfs:comment "Telemetry span for memory allocation operations" .
+
+cns:memoryFreeSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:memoryFree ;
+    rdfs:label "Memory Free Span" ;
+    rdfs:comment "Telemetry span for memory deallocation operations" .
+
+cns:slabAllocSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:slabAlloc ;
+    rdfs:label "Slab Allocation Span" ;
+    rdfs:comment "Telemetry span for slab allocator operations" .
+
+# ============================================================================
+# PATTERN TELEMETRY SPANS
+# ============================================================================
+
+cns:singletonSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:singletonGet ;
+    rdfs:label "Singleton Pattern Span" ;
+    rdfs:comment "Telemetry span for singleton pattern access" .
+
+cns:factorySpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:factoryCreate ;
+    rdfs:label "Factory Pattern Span" ;
+    rdfs:comment "Telemetry span for factory pattern object creation" .
+
+cns:strategySpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:strategyExecute ;
+    rdfs:label "Strategy Pattern Span" ;
+    rdfs:comment "Telemetry span for strategy pattern execution" .
+
+cns:stateSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:stateTransition ;
+    rdfs:label "State Pattern Span" ;
+    rdfs:comment "Telemetry span for state pattern transitions" .
+
+cns:observerSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:observerPublish ;
+    rdfs:label "Observer Pattern Span" ;
+    rdfs:comment "Telemetry span for observer pattern event publishing" .
+
+cns:commandSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:commandExecute ;
+    rdfs:label "Command Pattern Span" ;
+    rdfs:comment "Telemetry span for command pattern execution" .
+
+cns:pipelineSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:pipelineProcess ;
+    rdfs:label "Pipeline Pattern Span" ;
+    rdfs:comment "Telemetry span for pipeline pattern processing" .
+
+cns:flyweightSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:flyweightIntern ;
+    rdfs:label "Flyweight Pattern Span" ;
+    rdfs:comment "Telemetry span for flyweight pattern string interning" .
+
+cns:iteratorSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:iteratorNext ;
+    rdfs:label "Iterator Pattern Span" ;
+    rdfs:comment "Telemetry span for iterator pattern operations" .
+
+cns:visitorSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:visitorAccept ;
+    rdfs:label "Visitor Pattern Span" ;
+    rdfs:comment "Telemetry span for visitor pattern operations" .
+
+cns:templateSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:templateExecute ;
+    rdfs:label "Template Method Span" ;
+    rdfs:comment "Telemetry span for template method pattern execution" .
+
+cns:decoratorSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:decoratorAdd ;
+    rdfs:label "Decorator Pattern Span" ;
+    rdfs:comment "Telemetry span for decorator pattern operations" .
+
+cns:prototypeSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:prototypeClone ;
+    rdfs:label "Prototype Pattern Span" ;
+    rdfs:comment "Telemetry span for prototype pattern cloning" .
+
+# ============================================================================
+# PERFORMANCE TELEMETRY SPANS
+# ============================================================================
+
+cns:radixSortSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:radixSort ;
+    rdfs:label "Radix Sort Span" ;
+    rdfs:comment "Telemetry span for radix sort operations" .
+
+cns:cmdQueueSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:cmdQueuePush ;
+    rdfs:label "Command Queue Span" ;
+    rdfs:comment "Telemetry span for command queue operations" .
+
+cns:roaringBitsetSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:roaringBitsetAnd ;
+    rdfs:label "Roaring Bitset Span" ;
+    rdfs:comment "Telemetry span for roaring bitset operations" .
+
+cns:arenaSnapshotSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:arenaSnapshot ;
+    rdfs:label "Arena Snapshot Span" ;
+    rdfs:comment "Telemetry span for arena snapshot operations" .
+
+cns:histogramSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:histogramAdd ;
+    rdfs:label "Histogram Span" ;
+    rdfs:comment "Telemetry span for histogram operations" .
+
+cns:simdPrefixSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:simdPrefixSum ;
+    rdfs:label "SIMD Prefix Sum Span" ;
+    rdfs:comment "Telemetry span for SIMD prefix sum operations" .
+
+cns:schedulerSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:schedulerTick ;
+    rdfs:label "Scheduler Span" ;
+    rdfs:comment "Telemetry span for scheduler operations" .
+
+# ============================================================================
+# SHACL SHAPES FOR VALIDATION
+# ============================================================================
+
+cns:TelemetrySpanShape a sh:NodeShape ;
+    sh:targetClass cns:TelemetrySpan ;
+    sh:property [
+        sh:path cns:providesFunction ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every telemetry span must provide exactly one function" ;
+    ] ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every telemetry span must have a label" ;
+    ] . 

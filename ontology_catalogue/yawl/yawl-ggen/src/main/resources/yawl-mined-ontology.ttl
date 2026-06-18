@@ -1,0 +1,179 @@
+@prefix yawl-mined: <http://ggen.io/yawl-mined#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# YAWL Mined Process Ontology
+# Defines semantic model for discovered/mined business processes
+# ============================================================================
+
+# Core Classes
+yawl-mined:Process a rdfs:Class ;
+    rdfs:label "Business Process" ;
+    rdfs:comment "A discovered or mined business process model" ;
+    rdfs:isDefinedBy <http://ggen.io/yawl-mined> .
+
+yawl-mined:Place a rdfs:Class ;
+    rdfs:label "Place" ;
+    rdfs:comment "A state or condition in a Petri net (workflow state)" ;
+    rdfs:isDefinedBy <http://ggen.io/yawl-mined> .
+
+yawl-mined:InitialPlace a rdfs:Class ;
+    rdfs:subClassOf yawl-mined:Place ;
+    rdfs:label "Initial Place" ;
+    rdfs:comment "Starting state with initial marking" .
+
+yawl-mined:FinalPlace a rdfs:Class ;
+    rdfs:subClassOf yawl-mined:Place ;
+    rdfs:label "Final Place" ;
+    rdfs:comment "Ending state in process" .
+
+yawl-mined:Transition a rdfs:Class ;
+    rdfs:label "Transition" ;
+    rdfs:comment "An activity or event in the process" ;
+    rdfs:isDefinedBy <http://ggen.io/yawl-mined> .
+
+yawl-mined:StartTransition a rdfs:Class ;
+    rdfs:subClassOf yawl-mined:Transition ;
+    rdfs:label "Start Transition" ;
+    rdfs:comment "Process entry point with no prerequisites" .
+
+yawl-mined:EndTransition a rdfs:Class ;
+    rdfs:subClassOf yawl-mined:Transition ;
+    rdfs:label "End Transition" ;
+    rdfs:comment "Process exit point" .
+
+yawl-mined:SplitGateway a rdfs:Class ;
+    rdfs:subClassOf yawl-mined:Transition ;
+    rdfs:label "Split Gateway" ;
+    rdfs:comment "Divergence point (multiple outgoing flows)" .
+
+yawl-mined:JoinGateway a rdfs:Class ;
+    rdfs:subClassOf yawl-mined:Transition ;
+    rdfs:label "Join Gateway" ;
+    rdfs:comment "Convergence point (multiple incoming flows)" .
+
+yawl-mined:XorGateway a rdfs:Class ;
+    rdfs:subClassOf yawl-mined:SplitGateway ;
+    rdfs:label "XOR Gateway" ;
+    rdfs:comment "Exclusive choice (one path taken)" .
+
+yawl-mined:AndGateway a rdfs:Class ;
+    rdfs:subClassOf yawl-mined:SplitGateway ;
+    rdfs:label "AND Gateway" ;
+    rdfs:comment "Parallel split (all paths taken)" .
+
+yawl-mined:Arc a rdfs:Class ;
+    rdfs:label "Arc" ;
+    rdfs:comment "Control flow connection between places and transitions" ;
+    rdfs:isDefinedBy <http://ggen.io/yawl-mined> .
+
+yawl-mined:ConformanceScore a rdfs:Class ;
+    rdfs:label "Conformance Score" ;
+    rdfs:comment "Fitness, precision, generalization metrics for process model" .
+
+# Properties
+yawl-mined:hasName a rdf:Property ;
+    rdfs:domain yawl-mined:Process ;
+    rdfs:range xsd:string ;
+    rdfs:label "has name" .
+
+yawl-mined:hasDescription a rdf:Property ;
+    rdfs:domain yawl-mined:Process ;
+    rdfs:range xsd:string ;
+    rdfs:label "has description" .
+
+yawl-mined:hasPlace a rdf:Property ;
+    rdfs:domain yawl-mined:Process ;
+    rdfs:range yawl-mined:Place ;
+    rdfs:label "has place" .
+
+yawl-mined:hasTransition a rdf:Property ;
+    rdfs:domain yawl-mined:Process ;
+    rdfs:range yawl-mined:Transition ;
+    rdfs:label "has transition" .
+
+yawl-mined:hasArc a rdf:Property ;
+    rdfs:domain yawl-mined:Process ;
+    rdfs:range yawl-mined:Arc ;
+    rdfs:label "has arc" .
+
+yawl-mined:id a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:label "identifier" ;
+    rdfs:comment "Unique identifier within process" .
+
+yawl-mined:name a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:label "name" ;
+    rdfs:comment "Human-readable name" .
+
+yawl-mined:guard a rdf:Property ;
+    rdfs:domain yawl-mined:Transition ;
+    rdfs:range xsd:string ;
+    rdfs:label "guard condition" ;
+    rdfs:comment "Boolean condition for transition firing" .
+
+yawl-mined:initialMarking a rdf:Property ;
+    rdfs:domain yawl-mined:Place ;
+    rdfs:range xsd:int ;
+    rdfs:label "initial marking" ;
+    rdfs:comment "Number of tokens initially in place" .
+
+yawl-mined:source a rdf:Property ;
+    rdfs:domain yawl-mined:Arc ;
+    rdfs:range [ rdf:type rdfs:Class ; owl:unionOf (yawl-mined:Place yawl-mined:Transition) ] ;
+    rdfs:label "arc source" .
+
+yawl-mined:target a rdf:Property ;
+    rdfs:domain yawl-mined:Arc ;
+    rdfs:range [ rdf:type rdfs:Class ; owl:unionOf (yawl-mined:Place yawl-mined:Transition) ] ;
+    rdfs:label "arc target" .
+
+yawl-mined:multiplicity a rdf:Property ;
+    rdfs:domain yawl-mined:Arc ;
+    rdfs:range xsd:int ;
+    rdfs:label "arc multiplicity" ;
+    rdfs:comment "Number of tokens required for arc" .
+
+yawl-mined:branchCount a rdf:Property ;
+    rdfs:domain yawl-mined:SplitGateway ;
+    rdfs:range xsd:int ;
+    rdfs:label "branch count" ;
+    rdfs:comment "Number of outgoing branches" .
+
+yawl-mined:fitness a rdf:Property ;
+    rdfs:domain yawl-mined:ConformanceScore ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "fitness score" ;
+    rdfs:comment "Proportion of event log cases executed by the model (0.0-1.0)" .
+
+yawl-mined:precision a rdf:Property ;
+    rdfs:domain yawl-mined:ConformanceScore ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "precision score" ;
+    rdfs:comment "Proportion of model-generated traces in the event log (0.0-1.0)" .
+
+yawl-mined:generalization a rdf:Property ;
+    rdfs:domain yawl-mined:ConformanceScore ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "generalization score" ;
+    rdfs:comment "Degree to which the model generalizes beyond observed behavior (0.0-1.0)" .
+
+# Cardinality Rules (for validation)
+yawl-mined:Process_requirements
+    a rdfs:Resource ;
+    rdfs:comment "Process must have at least one place and one transition" .
+
+yawl-mined:Place_requirements
+    a rdfs:Resource ;
+    rdfs:comment "Place must have id and name" .
+
+yawl-mined:Transition_requirements
+    a rdfs:Resource ;
+    rdfs:comment "Transition must have id and name" .
+
+yawl-mined:Arc_requirements
+    a rdfs:Resource ;
+    rdfs:comment "Arc must have source, target, and non-zero multiplicity" .

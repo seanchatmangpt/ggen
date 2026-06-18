@@ -1,0 +1,58 @@
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix mcpp: <https://w3id.org/mcpp#> .
+@prefix mcpphc: <https://w3id.org/mcpp/skos/healthcare-andon-v1/> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# ----------------------------------------------------------------------
+# MCP+ Healthcare Andon ConceptScheme v1
+#
+# v26.5.17 Slice F (Healthcare ADE Reporting).
+#
+# Sister scheme of mcpp:AndonReasonScheme. NOT a skos:broader of the
+# closed mcpp: scheme — the mcpp: namespace remains closed at 19 codes,
+# and the six healthcare codes live in the extension/healthcare wire
+# namespace.
+# ----------------------------------------------------------------------
+
+mcpphc:Scheme a skos:ConceptScheme ;
+    skos:prefLabel "MCP+ Healthcare Andon Codes (v1)"@en ;
+    skos:notation  "mcpp-healthcare-andon-v1" ;
+    skos:definition "Six healthcare-specific refusal codes added in v26.5.17 Slice F. Lives in the extension/healthcare namespace; sister scheme of mcpp:AndonReasonScheme."@en .
+
+# ── Six healthcare Andon concepts ──────────────────────────────────────
+
+mcpphc:ConsentWithdrawn a skos:Concept ;
+    skos:inScheme  mcpphc:Scheme ;
+    skos:prefLabel "Consent Withdrawn"@en ;
+    skos:notation  "ConsentWithdrawn" ;
+    skos:definition "HIPAA: patient consent for this disclosure was withdrawn (or never granted) before the awareness timestamp."@en .
+
+mcpphc:AdvanceDirectiveProhibits a skos:Concept ;
+    skos:inScheme  mcpphc:Scheme ;
+    skos:prefLabel "Advance Directive Prohibits"@en ;
+    skos:notation  "AdvanceDirectiveProhibits" ;
+    skos:definition "HIPAA: an advance directive prohibits the disclosure form (e.g. post-mortem disclosure, psychotherapy notes, pharma marketing)."@en .
+
+mcpphc:CausalityImplausible a skos:Concept ;
+    skos:inScheme  mcpphc:Scheme ;
+    skos:prefLabel "Causality Implausible"@en ;
+    skos:notation  "CausalityImplausible" ;
+    skos:definition "Naranjo Adverse Drug Reaction Probability Scale returned Doubtful (score ≤ 0). Causality is not plausibly established."@en .
+
+mcpphc:RecallPatternDetected a skos:Concept ;
+    skos:inScheme  mcpphc:Scheme ;
+    skos:prefLabel "Recall Pattern Detected"@en ;
+    skos:notation  "RecallPatternDetected" ;
+    skos:definition "DSCSA / EPCIS lot chain matched against the FDA recall list: the dispensed lot is under active recall."@en .
+
+mcpphc:HipaaDisclosureViolation a skos:Concept ;
+    skos:inScheme  mcpphc:Scheme ;
+    skos:prefLabel "HIPAA Disclosure Violation"@en ;
+    skos:notation  "HipaaDisclosureViolation" ;
+    skos:definition "HIPAA ODRL prohibition fired: a re-disclosure / marketing / sale / psychotherapy-notes prohibition matched the proposed disclosure context."@en .
+
+mcpphc:FilingWindowClosed a skos:Concept ;
+    skos:inScheme  mcpphc:Scheme ;
+    skos:prefLabel "Filing Window Closed"@en ;
+    skos:notation  "FilingWindowClosed" ;
+    skos:definition "FDA MedWatch filing-window arithmetic: more than 15 calendar days have elapsed since the awareness timestamp; the FORM 3500A filing window is closed."@en .

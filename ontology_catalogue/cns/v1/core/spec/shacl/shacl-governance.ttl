@@ -1,0 +1,44 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix cns: <http://cns.io/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# SHACL Governance Layer for CNS v8.0
+# Enforces the "Continuity ≡ non-negotiable" principle
+
+cns:CNSSystemShape a sh:NodeShape ;
+    sh:targetClass cns:CNSSystem ;
+    sh:property [
+        sh:path cns:hasPerformanceMultiplier ;
+        sh:minInclusive 1.0 ;
+        sh:message "Performance multiplier must be >= 1.0" ;
+    ] ;
+    sh:property [
+        sh:path cns:hasContinuityGuarantee ;
+        sh:hasValue true ;
+        sh:message "Continuity guarantee is non-negotiable - must be true" ;
+    ] ;
+    sh:property [
+        sh:path cns:hasHealingCapability ;
+        sh:hasValue true ;
+        sh:message "Healing capability is required for all CNS systems" ;
+    ] .
+
+cns:PerformanceGovernance a sh:NodeShape ;
+    sh:targetClass cns:CNSSystem ;
+    sh:sparql [
+        sh:message "Performance multiplier must meet 26x minimum for CNS v8.0" ;
+        sh:select """
+            SELECT ?this WHERE {
+                ?this cns:hasPerformanceMultiplier ?perf .
+                FILTER (?perf < 26.0)
+            }
+        """ ;
+    ] .
+
+cns:AutonomyGovernance a sh:NodeShape ;
+    sh:targetClass cns:AutonomousOrchestrator ;
+    sh:property [
+        sh:path cns:hasAgentCount ;
+        sh:minInclusive 10 ;
+        sh:message "Minimum 10 parallel agents required for autonomous orchestration" ;
+    ] .

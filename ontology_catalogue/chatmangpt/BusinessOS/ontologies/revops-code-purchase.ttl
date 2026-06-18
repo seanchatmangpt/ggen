@@ -1,0 +1,259 @@
+# ============================================================================
+# REVOPS CODE MANUFACTURING PURCHASE INTEGRATION
+# ============================================================================
+# Defines RevOps purchasing workflow for CodeManufactory artifacts.
+# Connects code manufacturing pipeline to BusinessOS revenue operations.
+#
+# Integration: CodeManufactory → BusinessOS RevOps
+# Purpose: Automated deal creation for purchasing code artifacts
+# Compliance: SOC2, GDPR, SOX procurement controls
+#
+# Date: 2026-04-10
+# ============================================================================
+
+@prefix : <https://businessos.dev/revops/code-purchase/> .
+@prefix bos: <https://businessos.dev/> .
+@prefix cmf: <https://codemanufactory.dev/ontology/> .
+@prefix fibo-fnd: <https://spec.edmcouncil.org/fibo/ontology/FND/> .
+@prefix fibo-fbc: <https://spec.edmcouncil.org/fibo/ontology/FBC/> .
+@prefix fibo-be: <https://spec.edmcouncil.org/fibo/ontology/BE/> .
+@prefix schema: <http://schema.org/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+
+# ============================================================================
+# CODE MANUFACTURING ARTIFACT TYPES (For Purchase)
+# ============================================================================
+
+:CodeManufacturingArtifact a skos:Concept ;
+  skos:prefLabel "Code Manufacturing Artifact"@en ;
+  skos:notation "code-artifact" ;
+  skos:definition "Purchasable artifact from CodeManufactory pipeline"@en ;
+  dcterms:type :ArtifactType .
+
+:OntologyArtifact a skos:Concept ;
+  skos:prefLabel "Ontology Artifact"@en ;
+  skos:notation "ontology" ;
+  skos:broader :CodeManufacturingArtifact ;
+  skos:definition "Formal ontology (RDF/OWL/RDFS)"@en .
+
+:SchemaArtifact a skos:Concept ;
+  skos:prefLabel "Schema Artifact"@en ;
+  skos:notation "schema" ;
+  skos:broader :CodeManufacturingArtifact ;
+  skos:definition "Data schema definition"@en .
+
+:SourceCodeArtifact a skos:Concept ;
+  skos:prefLabel "Source Code Artifact"@en ;
+  skos:notation "source-code" ;
+  skos:broader :CodeManufacturingArtifact ;
+  skos:definition "Executable source code"@en .
+
+:PackageArtifact a skos:Concept ;
+  skos:prefLabel "Package Artifact"@en ;
+  skos:notation "package" ;
+  skos:broader :CodeManufacturingArtifact ;
+  skos:definition "Published package (NPM, PyPI, crates.io)"@en .
+
+:RepositoryArtifact a skos:Concept ;
+  skos:prefLabel "Repository Artifact"@en ;
+  skos:notation "repository" ;
+  skos:broader :CodeManufacturingArtifact ;
+  skos:definition "Complete repository snapshot"@en .
+
+:BenchmarkArtifact a skos:Concept ;
+  skos:prefLabel "Benchmark Artifact"@en ;
+  skos:notation "benchmark" ;
+  skos:broader :CodeManufacturingArtifact ;
+  skos:definition "Performance benchmark suite"@en .
+
+:ValidationArtifact a skos:Concept ;
+  skos:prefLabel "Validation Artifact"@en ;
+  skos:notation "validation" ;
+  skos:broader :CodeManufacturingArtifact ;
+  skos:definition "Validation/verification suite"@en .
+
+:DocumentationArtifact a skos:Concept ;
+  skos:prefLabel "Documentation Artifact"@en ;
+  skos:notation "documentation" ;
+  skos:broader :CodeManufacturingArtifact ;
+  skos:definition "Technical documentation"@en .
+
+:TestArtifact a skos:Concept ;
+  skos:prefLabel "Test Artifact"@en ;
+  skos:notation "test" ;
+  skos:broader :CodeManufacturingArtifact ;
+  skos:definition "Test suite coverage"@en .
+
+
+# ============================================================================
+# REVOPS PURCHASE WORKFLOW STAGES
+# ============================================================================
+
+:PurchaseWorkflow a skos:ConceptScheme ;
+  dcterms:title "CodeManufactory Purchase Workflow" ;
+  dcterms:description "RevOps stages for purchasing code artifacts"@en ;
+  skos:hasTopConcept :RequestStage .
+
+:RequestStage a skos:Concept ;
+  skos:prefLabel "Request Stage"@en ;
+  skos:notation "request" ;
+  skos:definition "Artifact purchase request initiated"@en ;
+  skos:inScheme :PurchaseWorkflow .
+
+:ApprovalStage a skos:Concept ;
+  skos:prefLabel "Approval Stage"@en ;
+  skos:notation "approval" ;
+  skos:definition "Manager/finance approval required"@en ;
+  skos:inScheme :PurchaseWorkflow .
+
+:ProcurementStage a skos:Concept ;
+  skos:prefLabel "Procurement Stage"@en ;
+  skos:notation "procurement" ;
+  skos:definition "CodeManufactory execution triggered"@en ;
+  skos:inScheme :PurchaseWorkflow .
+
+:DeliveryStage a skos:Concept ;
+  skos:prefLabel "Delivery Stage"@en ;
+  skos:notation "delivery" ;
+  skos:definition "Artifact delivered to requester"@en ;
+  skos:inScheme :PurchaseWorkflow .
+
+:AcceptanceStage a skos:Concept ;
+  skos:prefLabel "Acceptance Stage"@en ;
+  skos:notation "acceptance" ;
+  skos:definition "Quality gates verified, artifact accepted"@en ;
+  skos:inScheme :PurchaseWorkflow .
+
+:PaymentStage a skos:Concept ;
+  skos:prefLabel "Payment Stage"@en ;
+  skos:notation "payment" ;
+  skos:definition "Payment processed to CodeManufactory"@en ;
+  skos:inScheme :PurchaseWorkflow .
+
+
+# ============================================================================
+# PRICING MODEL (CodeManufactory → BusinessOS)
+# ============================================================================
+
+:PricingModel a skos:ConceptScheme ;
+  dcterms:title "Code Artifact Pricing" ;
+  dcterms:description "Pricing tiers for code manufacturing artifacts"@en ;
+  skos:hasTopConcept :StandardPricing .
+
+:StandardPricing a skos:Concept ;
+  skos:prefLabel "Standard Pricing"@en ;
+  skos:notation "standard" ;
+  skos:definition "Standard artifact pricing"@en ;
+  skos:inScheme :PricingModel ;
+  :basePriceUSD "5000"^^xsd:decimal ;
+  :perLineOfCodeUSD "0.05"^^xsd:decimal .
+
+:EnterprisePricing a skos:Concept ;
+  skos:prefLabel "Enterprise Pricing"@en ;
+  skos:notation "enterprise" ;
+  skos:definition "Enterprise artifact pricing with SLA"@en ;
+  skos:inScheme :PricingModel ;
+  :basePriceUSD "25000"^^xsd:decimal ;
+  :perLineOfCodeUSD "0.10"^^xsd:decimal ;
+  :slaResponseTimeHours "4"^^xsd:integer .
+
+:CustomPricing a skos:Concept ;
+  skos:prefLabel "Custom Pricing"@en ;
+  skos:notation "custom" ;
+  skos:definition "Custom engagement pricing"@en ;
+  skos:inScheme :PricingModel ;
+  :basePriceUSD "100000"^^xsd:decimal ;
+  :includesSourceAccess "true"^^xsd:boolean ;
+  :includesSupport "true"^^xsd:boolean .
+
+
+# ============================================================================
+# EXAMPLE DEAL: Ontology Purchase (SaaS)
+# ============================================================================
+
+<https://businessos.dev/id/deals/d-cmf-ontology-purchase-2026> a :Deal ;
+  a fibo-fnd:Agreement ;
+  a fibo-fbc:FinancialInstrument ;
+  :dealIdentifier "d-cmf-ontology-purchase-2026"^^xsd:string ;
+  :dealName "CodeManufactory Ontology Development"@en ;
+  :dealDescription "Purchase of formal ontology (RDF/OWL) for business domain modeling"@en ;
+  :dealStatus <#ApprovalStage> ;
+  :hasPrimaryBuyer <https://businessos.dev/id/parties/businessos-internal> ;
+  :hasPrimarySeller <https://businessos.dev/id/parties/codemanufactory> ;
+  :hasCounterparty <https://businessos.dev/id/parties/codemanufactory> ;
+  :dealAmount <https://businessos.dev/id/amounts/d-cmf-ontology-principal> ;
+  :dealCurrency "USD"^^xsd:string ;
+  :expectedCloseDate "2026-05-15T00:00:00Z"^^xsd:dateTime ;
+  :dealProbability "75"^^xsd:integer ;
+  :currentStage <#ApprovalStage> ;
+  :artifactType :OntologyArtifact ;
+  :pricingModel :StandardPricing ;
+  :codeManufacturingStage <#SeededStage> ;
+  :qualityGates :SchemaValid ;
+  schema:dateCreated "2026-04-10T14:30:00Z"^^xsd:dateTime ;
+  schema:creator "sean.chatman@businessos.dev" ;
+  :complianceFramework <https://businessos.dev/id/requirements/soc2-procurement> .
+
+<https://businessos.dev/id/amounts/d-cmf-ontology-principal> a :MonetaryAmount ;
+  a fibo-fnd:MonetaryAmount ;
+  :amount "15000"^^xsd:decimal ;
+  :currency "USD"^^xsd:string ;
+  rdfs:comment "Estimated cost for ontology artifact (3000 LOC × $0.05/LOC + $5000 base)"@en .
+
+<https://businessos.dev/id/parties/businessos-internal> a :BusinessOSParty ;
+  a :InternalParty ;
+  a fibo-be:LegalPerson ;
+  :partyIdentifier "businessos-internal"^^xsd:string ;
+  :legalName "BusinessOS, Inc."@en ;
+  :partyRole :Buyer ;
+  :department :Engineering ;
+  :costCenter "engineering-rd"^^xsd:string ;
+  :budgetCode "2026-q2-eng-001"^^xsd:string ;
+  :approvingManager "sean.chatman@businessos.dev" ;
+  schema:name "BusinessOS Internal" .
+
+<https://businessos.dev/id/parties/codemanufactory> a :BusinessOSParty ;
+  a :Counterparty ;
+  a fibo-be:LegalPerson ;
+  :partyIdentifier "codemanufactory"^^xsd:string ;
+  :legalName "CodeManufactory LLC"@en ;
+  :partyRole :Seller ;
+  :businessRegistrationNumber "12-3456789"^^xsd:string ;
+  :operatingJurisdiction "US"^^xsd:string ;
+  :hasKYCStatus :KYCVerified ;
+  :kycVerificationDate "2026-01-01T00:00:00Z"^^xsd:dateTime ;
+  :amlScreeningResult "NO_MATCH"^^xsd:string ;
+  schema:name "CodeManufactory" ;
+  schema:url "https://codemanufactory.dev"^^xsd:anyURI .
+
+<#SeededStage> a skos:Concept ;
+  skos:prefLabel "Seeded Stage"@en ;
+  skos:notation "seeded" ;
+  skos:definition "CodeManufactory stage: Ontology seeded with initial concepts"@en ;
+  cmf:stageOrder "1"^^xsd:integer .
+
+<#ApprovalStage> a skos:Concept ;
+  skos:prefLabel "Approval Stage"@en ;
+  skos:notation "approval" ;
+  skos:definition "Purchase workflow: Manager and finance approval required"@en ;
+  cmf:stageOrder "2"^^xsd:integer .
+
+:SchemaValid a skos:Concept ;
+  skos:prefLabel "Schema Valid"@en ;
+  skos:notation "schema-valid" ;
+  skos:definition "Quality gate: Artifact validates against schema"@en ;
+  cmf:proofGate "true"^^xsd:boolean .
+
+<https://businessos.dev/id/requirements/soc2-procurement> a :ComplianceRequirement ;
+  :framework "SOC2"^^xsd:string ;
+  :requirementId "CC6.1"^^xsd:string ;
+  :title "Logical Access Control"@en ;
+  :description "Procurement system must enforce role-based access controls"@en ;
+  :severity "critical"^^xsd:string ;
+  :status "pending"^^xsd:string .

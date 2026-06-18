@@ -1,0 +1,159 @@
+@prefix : <http://ggen.io/ontology/microservice/v1.0.0#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+<http://ggen.io/ontology/microservice/v1.0.0>
+    a owl:Ontology ;
+    dcterms:title "Microservice Architecture Ontology" ;
+    dcterms:description "Ontology for describing Rust microservice architecture components" ;
+    dcterms:version "1.0.0" ;
+    dcterms:created "2025-11-16"^^xsd:date .
+
+# Core Classes
+
+:Service a owl:Class ;
+    rdfs:label "Service" ;
+    rdfs:comment "A microservice instance with endpoints, handlers, and configuration" .
+
+:Endpoint a owl:Class ;
+    rdfs:label "Endpoint" ;
+    rdfs:comment "HTTP endpoint exposed by the service" .
+
+:Handler a owl:Class ;
+    rdfs:label "Handler" ;
+    rdfs:comment "Request handler function that processes endpoint requests" .
+
+:ErrorHandler a owl:Class ;
+    rdfs:label "ErrorHandler" ;
+    rdfs:comment "Specialized handler for error responses and recovery" .
+
+:Repository a owl:Class ;
+    rdfs:label "Repository" ;
+    rdfs:comment "Data access layer for database operations" .
+
+:Configuration a owl:Class ;
+    rdfs:label "Configuration" ;
+    rdfs:comment "Service configuration including environment variables and settings" .
+
+:HealthCheck a owl:Class ;
+    rdfs:label "HealthCheck" ;
+    rdfs:comment "Health monitoring endpoint for liveness and readiness probes" .
+
+:Middleware a owl:Class ;
+    rdfs:label "Middleware" ;
+    rdfs:comment "Request/response processing middleware (auth, logging, etc.)" .
+
+:Model a owl:Class ;
+    rdfs:label "Model" ;
+    rdfs:comment "Data model or entity representing business domain objects" .
+
+:ServiceError a owl:Class ;
+    rdfs:label "ServiceError" ;
+    rdfs:comment "Custom error type with HTTP status mapping" .
+
+:ObservabilityConfig a owl:Class ;
+    rdfs:label "ObservabilityConfig" ;
+    rdfs:comment "Configuration for metrics, logging, and tracing" .
+
+# Properties
+
+:hasEndpoint a owl:ObjectProperty ;
+    rdfs:label "hasEndpoint" ;
+    rdfs:domain :Service ;
+    rdfs:range :Endpoint ;
+    rdfs:comment "Service exposes this endpoint" .
+
+:handledBy a owl:ObjectProperty ;
+    rdfs:label "handledBy" ;
+    rdfs:domain :Endpoint ;
+    rdfs:range :Handler ;
+    rdfs:comment "Endpoint is handled by this handler function" .
+
+:usesRepository a owl:ObjectProperty ;
+    rdfs:label "usesRepository" ;
+    rdfs:domain :Handler ;
+    rdfs:range :Repository ;
+    rdfs:comment "Handler uses this repository for data access" .
+
+:hasErrorHandler a owl:ObjectProperty ;
+    rdfs:label "hasErrorHandler" ;
+    rdfs:domain :Service ;
+    rdfs:range :ErrorHandler ;
+    rdfs:comment "Service uses this error handler for error responses" .
+
+:hasConfiguration a owl:ObjectProperty ;
+    rdfs:label "hasConfiguration" ;
+    rdfs:domain :Service ;
+    rdfs:range :Configuration ;
+    rdfs:comment "Service is configured with these settings" .
+
+:hasMiddleware a owl:ObjectProperty ;
+    rdfs:label "hasMiddleware" ;
+    rdfs:domain :Service ;
+    rdfs:range :Middleware ;
+    rdfs:comment "Service applies this middleware to requests" .
+
+:producesModel a owl:ObjectProperty ;
+    rdfs:label "producesModel" ;
+    rdfs:domain :Endpoint ;
+    rdfs:range :Model ;
+    rdfs:comment "Endpoint returns this model type in responses" .
+
+:consumesModel a owl:ObjectProperty ;
+    rdfs:label "consumesModel" ;
+    rdfs:domain :Endpoint ;
+    rdfs:range :Model ;
+    rdfs:comment "Endpoint accepts this model type in requests" .
+
+# Data Properties
+
+:serviceName a owl:DatatypeProperty ;
+    rdfs:label "serviceName" ;
+    rdfs:domain :Service ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Name of the microservice" .
+
+:servicePort a owl:DatatypeProperty ;
+    rdfs:label "servicePort" ;
+    rdfs:domain :Service ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Port number the service listens on" .
+
+:httpMethod a owl:DatatypeProperty ;
+    rdfs:label "httpMethod" ;
+    rdfs:domain :Endpoint ;
+    rdfs:range xsd:string ;
+    rdfs:comment "HTTP method (GET, POST, PUT, DELETE, etc.)" .
+
+:endpointPath a owl:DatatypeProperty ;
+    rdfs:label "endpointPath" ;
+    rdfs:domain :Endpoint ;
+    rdfs:range xsd:string ;
+    rdfs:comment "URL path for the endpoint" .
+
+:statusCode a owl:DatatypeProperty ;
+    rdfs:label "statusCode" ;
+    rdfs:domain :ServiceError ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "HTTP status code for this error type" .
+
+:errorMessage a owl:DatatypeProperty ;
+    rdfs:label "errorMessage" ;
+    rdfs:domain :ServiceError ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Human-readable error message" .
+
+:requiresAuth a owl:DatatypeProperty ;
+    rdfs:label "requiresAuth" ;
+    rdfs:domain :Endpoint ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether the endpoint requires authentication" .
+
+:isHealthy a owl:DatatypeProperty ;
+    rdfs:label "isHealthy" ;
+    rdfs:domain :HealthCheck ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Current health status of the service" .

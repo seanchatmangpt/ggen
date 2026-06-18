@@ -1,0 +1,59 @@
+@prefix bos: <https://open-ontologies.org/bible-o-star#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Horse Gate = movement/deployment gate.
+# The Horse Gate controls rapid deployment: entry and exit of mission-critical actors
+# under speed pressure. The priests repaired the Horse Gate, each above their own house.
+# Deployment that is accountable is deployment that names the deployer.
+# A builder who repairs the gate above their own house has the highest stake in its integrity.
+
+bos:PriestsAboveTheirHouses a bos:Builder ;
+    rdfs:label "Priests above their own houses" ;
+    bos:hasCanonicalReference "Neh.3.28"^^xsd:string ;
+    bos:assignedToGate bos:HorseGate ;
+    rdfs:comment "A cohort of priests who each repaired the wall section above their own houses, at the Horse Gate. Named by role and proximity — their stake in the gate's integrity is direct." ;
+    bos:hasSource "Neh.3.28" ;
+    dcterms:created "2026-06-02"^^xsd:date .
+
+bos:ZadokSonOfImmer a bos:Builder ;
+    rdfs:label "Zadok son of Immer" ;
+    bos:hasCanonicalReference "Neh.3.29"^^xsd:string ;
+    bos:assignedToGate bos:HorseGate ;
+    rdfs:comment "Named priest who repaired the wall opposite his own house at the Horse Gate section. One of the individually named builders in the deployment zone." ;
+    bos:hasSource "Neh.3.29" .
+
+bos:HorseGateSection a bos:WallSection ;
+    rdfs:label "Horse Gate Section" ;
+    bos:hasCanonicalReference "Neh.3.28"^^xsd:string ;
+    rdfs:comment "The wall section at the Horse Gate. Repaired by priests, each above their own house. Zadok son of Immer repaired opposite his own house. Deployment boundary: builders assigned to the gate they live beside." ;
+    bos:assignedToGate bos:HorseGate ;
+    bos:hasBuilder bos:PriestsAboveTheirHouses ;
+    bos:hasBuilder bos:ZadokSonOfImmer ;
+    bos:hasSource "Neh.3.28" ;
+    bos:hasReceipt bos:HorseGateSectionReceipt .
+
+bos:HorseGateDeploymentRecord a bos:InspectionReceipt ;
+    rdfs:label "Horse Gate Deployment Record" ;
+    bos:hasCanonicalReference "Neh.3.28"^^xsd:string ;
+    rdfs:comment "Deployment record: Horse Gate section repaired by priests above their own houses (Neh.3.28). Zadok son of Immer repaired opposite his own house (Neh.3.29). Deployment accountability law: the builder at the Horse Gate is the one who lives there. Named, proximate, accountable. Section and receipt grounded." ;
+    bos:hasBuilder bos:PriestsAboveTheirHouses ;
+    bos:hasBuilder bos:ZadokSonOfImmer ;
+    bos:hasSource "Neh.3.28" ;
+    bos:assignedToGate bos:HorseGate ;
+    bos:hasVerdict bos:VerdictAlive ;
+    bos:hasReceipt bos:HorseGateSectionReceipt .
+
+bos:HorseGateSectionReceipt a bos:InspectionReceipt ;
+    rdfs:label "Horse Gate Section Receipt" ;
+    bos:hasCanonicalReference "Neh.3.28"^^xsd:string ;
+    bos:hasVerdict bos:VerdictAlive ;
+    bos:hasSource "Neh.3.28" ;
+    rdfs:comment "Section complete: Horse Gate repaired by priests above their own houses. Zadok son of Immer individually named. Deployment boundary secured. Builders with highest personal stake in gate integrity." .
+
+bos:VerdictAlive a bos:Verdict ;
+    rdfs:label "ALIVE" ;
+    rdfs:comment "Section validated: structure is sound, receipt is grounded, builder is named." .

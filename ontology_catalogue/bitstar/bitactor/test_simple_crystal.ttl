@@ -1,0 +1,32 @@
+@prefix bfc: <http://byteflow.org/crystal#> .
+@prefix bfr: <http://byteflow.org/roles#> .
+
+# Simple test crystal
+bfc:TestCrystal a bfc:Crystal .
+bfc:TestCrystal rdfs:label "Test Crystal" .
+bfc:TestCrystal qsem:workflowType "test-workflow" .
+
+# Test actors
+bfc:TestInitiator a bfc:ByteActor .
+bfc:TestProvider a bfc:ByteActor .
+bfc:TestFinalizer a bfc:ByteActor .
+
+bfc:TestInitiator bfc:register64 100 .
+bfc:TestProvider bfc:register64 200 .
+bfc:TestFinalizer bfc:register64 300 .
+
+bfc:TestInitiator bfc:tickBudget 2 .
+bfc:TestProvider bfc:tickBudget 3 .
+bfc:TestFinalizer bfc:tickBudget 1 .
+
+# Crystal has actors
+bfc:TestCrystal bfc:hasActor bfc:TestInitiator .
+bfc:TestCrystal bfc:hasActor bfc:TestProvider .
+bfc:TestCrystal bfc:hasActor bfc:TestFinalizer .
+
+# Test channel
+bfc:TestChannel a bfc:Channel .
+bfc:TestChannel bfc:from bfc:TestInitiator .
+bfc:TestChannel bfc:to bfc:TestFinalizer .
+
+bfc:TestCrystal bfc:hasChannel bfc:TestChannel .

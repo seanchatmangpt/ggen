@@ -1,0 +1,14 @@
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX pi: <https://process.intelligence/ontology/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# AUDIT: FAIL if checkpoint claims testing without cryptographic receipt evidence
+# Valid: ALIVE_CLAIM with pi:authoritySignature (Ed25519 or BLAKE3). Invalid: verdict without signature.
+SELECT ?checkpoint ?label
+WHERE {
+  ?checkpoint a pi:ALIVE_CLAIM ;
+              rdfs:label ?label .
+  FILTER (!BOUND(?signature))
+  OPTIONAL { ?checkpoint pi:authoritySignature ?signature }
+  FILTER (!BOUND(?signature))
+}

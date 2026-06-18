@@ -1,0 +1,592 @@
+# ontology-extensions.ttl
+# RDF/Turtle extensions for board-admissible M&A claims and Blue River governance
+# Authority: define_board-admissible_claim_requirements.md, MAPE_K_INTEGRATION.md
+# Namespace declarations follow wasm4pm-compat conventions
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ma: <https://process.intelligence/ma/> .
+@prefix lifecycle: <https://process.intelligence/lifecycle/> .
+@prefix compat: <https://process.intelligence/compat/> .
+@prefix wasm4pm: <https://process.intelligence/wasm4pm/> .
+
+# ============================================================================
+# M&A BOARD CLAIM ONTOLOGY
+# ============================================================================
+
+# Top-level abstract class for all M&A claims
+ma:BoardClaim
+  a owl:Class ;
+  rdfs:label "Board-Admissible Claim" ;
+  rdfs:comment "A process intelligence assertion that has passed board admissibility validation: fitness >= 95%, precision >= 90%, sound model, cryptographically backed." ;
+  owl:disjointUnionOf (
+    ma:SynergyProjection
+    ma:OperationalDebtClaim
+    ma:IntegrationRiskClaim
+    ma:ProcessAssetClaim
+    ma:ControlClaim
+  ) .
+
+# Synergy projections: operational savings or revenue uplift
+ma:SynergyProjection
+  a owl:Class ;
+  rdfs:subClassOf ma:BoardClaim ;
+  rdfs:label "Synergy Projection" ;
+  rdfs:comment "Quantified post-close cost savings or revenue synergy backed by process model fitness." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty ma:synergyType ;
+    owl:cardinality 1
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty ma:backedBy ;
+    owl:minCardinality 1
+  ] .
+
+ma:synergyType
+  a owl:ObjectProperty ;
+  rdfs:label "Synergy Type" ;
+  rdfs:range (
+    ma:CostReduction
+    ma:RevenueUplift
+    ma:EfficiencyGain
+  ) .
+
+ma:CostReduction a owl:Class ; rdfs:label "Cost Reduction" .
+ma:RevenueUplift a owl:Class ; rdfs:label "Revenue Uplift" .
+ma:EfficiencyGain a owl:Class ; rdfs:label "Efficiency Gain" .
+
+# Operational Debt: rework backlogs and technical issues
+ma:OperationalDebtClaim
+  a owl:Class ;
+  rdfs:subClassOf ma:BoardClaim ;
+  rdfs:label "Operational Debt Claim" ;
+  rdfs:comment "A claim that the target process carries unresolved rework, manual interventions, or deviations from the ideal model; requires remediation hours and cost." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty ma:debtCategory ;
+    owl:cardinality 1
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty ma:hasRemediationPath ;
+    owl:maxCardinality 1
+  ] .
+
+ma:debtCategory
+  a owl:ObjectProperty ;
+  rdfs:label "Debt Category" ;
+  rdfs:range (
+    ma:ProcessDebt
+    ma:ArchitecturalDebt
+    ma:ManualInterventionDebt
+  ) .
+
+ma:ProcessDebt a owl:Class ; rdfs:label "Process Debt" .
+ma:ArchitecturalDebt a owl:Class ; rdfs:label "Architectural Debt" .
+ma:ManualInterventionDebt a owl:Class ; rdfs:label "Manual Intervention Debt" .
+
+ma:hasRemediationPath
+  a owl:ObjectProperty ;
+  rdfs:label "Has Remediation Path" ;
+  rdfs:range ma:RemediationStrategy ;
+  rdfs:comment "A documented path to resolve the debt: redesign, system upgrade, training, etc." .
+
+ma:RemediationStrategy
+  a owl:Class ;
+  rdfs:label "Remediation Strategy" ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty ma:estimatedEffortHours ;
+    owl:cardinality 1
+  ] .
+
+ma:estimatedEffortHours
+  a owl:DatatypeProperty ;
+  rdfs:label "Estimated Effort (Hours)" ;
+  rdfs:range xsd:integer .
+
+# Integration Risk: post-close process hazards
+ma:IntegrationRiskClaim
+  a owl:Class ;
+  rdfs:subClassOf ma:BoardClaim ;
+  rdfs:label "Integration Risk Claim" ;
+  rdfs:comment "A claim that a specific process risk will arise post-close due to process incompatibility or control gaps; backed by conformance evidence." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty ma:riskSeverity ;
+    owl:cardinality 1
+  ] .
+
+ma:riskSeverity
+  a owl:ObjectProperty ;
+  rdfs:label "Risk Severity" ;
+  rdfs:range (
+    ma:RiskHigh
+    ma:RiskMedium
+    ma:RiskLow
+  ) .
+
+ma:RiskHigh a owl:Class ; rdfs:label "High Risk" .
+ma:RiskMedium a owl:Class ; rdfs:label "Medium Risk" .
+ma:RiskLow a owl:Class ; rdfs:label "Low Risk" .
+
+# Process Assets: positive capabilities that generate value
+ma:ProcessAssetClaim
+  a owl:Class ;
+  rdfs:subClassOf ma:BoardClaim ;
+  rdfs:label "Process Asset Claim" ;
+  rdfs:comment "A claim that the target operates a valuable process asset: automation, control framework, or operational excellence." .
+
+# Controls & Compliance
+ma:ControlClaim
+  a owl:Class ;
+  rdfs:subClassOf ma:BoardClaim ;
+  rdfs:label "Control Claim" ;
+  rdfs:comment "A claim that a specific control is operating effectively with documented conformance evidence." .
+
+# BACKING RELATIONSHIPS: All claims must be backed by conformance verdicts
+
+ma:backedBy
+  a owl:ObjectProperty ;
+  rdfs:label "Backed By" ;
+  rdfs:domain ma:BoardClaim ;
+  rdfs:range wasm4pm:ConformanceVerdict ;
+  rdfs:comment "A board claim is admissible only if backed by wasm4pm ConformanceVerdicts with fitness >= 0.95 and precision >= 0.90." ;
+  owl:minCardinality 1 .
+
+ma:supportedBy
+  a owl:ObjectProperty ;
+  rdfs:label "Supported By" ;
+  rdfs:domain ma:BoardClaim ;
+  rdfs:range wasm4pm:ReplayTrace ;
+  rdfs:comment "A claim is supported by one or more replay traces that show the claim holds in the event log." .
+
+ma:evidencedBy
+  a owl:ObjectProperty ;
+  rdfs:label "Evidenced By" ;
+  rdfs:domain ma:BoardClaim ;
+  rdfs:range wasm4pm:ConformanceVerdict .
+
+# Conformance verdict: the mathematical proof
+wasm4pm:ConformanceVerdict
+  a owl:Class ;
+  rdfs:label "Conformance Verdict" ;
+  rdfs:comment "Mathematical verdict from optimal alignment-based conformance checking: fitness, precision, generalization, simplicity." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty wasm4pm:fitness ;
+    owl:cardinality 1
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty wasm4pm:precision ;
+    owl:cardinality 1
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty wasm4pm:receipt ;
+    owl:cardinality 1
+  ] .
+
+wasm4pm:fitness
+  a owl:DatatypeProperty ;
+  rdfs:label "Fitness Score" ;
+  rdfs:range xsd:decimal ;
+  rdfs:comment "Fitness(L, N) = how much of observed log can be replayed by model N. Board threshold >= 0.95." .
+
+wasm4pm:precision
+  a owl:DatatypeProperty ;
+  rdfs:label "Precision Score" ;
+  rdfs:range xsd:decimal ;
+  rdfs:comment "Precision(L, N) = how much allowed behavior is observed in log. Board threshold >= 0.90." .
+
+wasm4pm:receipt
+  a owl:ObjectProperty ;
+  rdfs:label "Receipt" ;
+  rdfs:range wasm4pm:CryptographicReceipt ;
+  rdfs:comment "Cryptographic receipt proving the verdict was calculated by wasm4pm execution core." .
+
+wasm4pm:CryptographicReceipt
+  a owl:Class ;
+  rdfs:label "Cryptographic Receipt" ;
+  rdfs:comment "BLAKE3 hash chain receipt with system signature; enables audit repetition." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty wasm4pm:receiptHash ;
+    owl:cardinality 1
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty wasm4pm:timestamp ;
+    owl:cardinality 1
+  ] .
+
+wasm4pm:receiptHash
+  a owl:DatatypeProperty ;
+  rdfs:label "Receipt Hash (BLAKE3)" ;
+  rdfs:range xsd:string .
+
+wasm4pm:timestamp
+  a owl:DatatypeProperty ;
+  rdfs:label "Timestamp" ;
+  rdfs:range xsd:dateTime .
+
+# Replay traces: evidence that claim holds in the log
+wasm4pm:ReplayTrace
+  a owl:Class ;
+  rdfs:label "Replay Trace" ;
+  rdfs:comment "A trace from the event log replayed against the process model, showing deviations and alignment cost." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty wasm4pm:deviationCount ;
+    owl:cardinality 1
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty wasm4pm:gasToReturn ;
+    owl:cardinality 1
+  ] .
+
+wasm4pm:deviationCount
+  a owl:DatatypeProperty ;
+  rdfs:label "Deviation Count" ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Number of moves-on-log or model-only steps in optimal alignment." .
+
+wasm4pm:gasToReturn
+  a owl:DatatypeProperty ;
+  rdfs:label "Gas To Return" ;
+  rdfs:range xsd:decimal ;
+  rdfs:comment "Cost units (Adriansyah penalty model) to align trace against model." .
+
+wasm4pm:replayedAgainst
+  a owl:ObjectProperty ;
+  rdfs:label "Replayed Against" ;
+  rdfs:range compat:EventLog ;
+  rdfs:comment "The event log (OCEL 2.0 or XES) that was replayed." .
+
+# ============================================================================
+# BLUE RIVER LIFECYCLE STATE MACHINE ONTOLOGY
+# ============================================================================
+
+# Lifecycle states following the MAPE-K spectrum
+
+lifecycle:ProcessState
+  a owl:Class ;
+  rdfs:label "Process Lifecycle State" ;
+  rdfs:comment "A state in the process intelligence lifecycle: Design, Simulation, Validation, Monitoring, Optimization, Repair, Decommission." ;
+  owl:disjointUnionOf (
+    lifecycle:DesignState
+    lifecycle:SimulationState
+    lifecycle:ValidationState
+    lifecycle:MonitoringState
+    lifecycle:OptimizationState
+    lifecycle:RepairState
+    lifecycle:DecommissionState
+  ) ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty lifecycle:transitions ;
+    owl:minCardinality 1
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty lifecycle:phase ;
+    owl:cardinality 1
+  ] .
+
+lifecycle:DesignState a owl:Class ; rdfs:label "Design State" ; rdfs:comment "Initial process design and modeling phase." .
+lifecycle:SimulationState a owl:Class ; rdfs:label "Simulation State" ; rdfs:comment "Process model simulation and projection." .
+lifecycle:ValidationState a owl:Class ; rdfs:label "Validation State" ; rdfs:comment "Conformance validation against event logs." .
+lifecycle:MonitoringState a owl:Class ; rdfs:label "Monitoring State" ; rdfs:comment "Real-time process monitoring and metric collection." .
+lifecycle:OptimizationState a owl:Class ; rdfs:label "Optimization State" ; rdfs:comment "Continuous process optimization based on analytics." .
+lifecycle:RepairState a owl:Class ; rdfs:label "Repair State" ; rdfs:comment "Active remediation and deviation correction." .
+lifecycle:DecommissionState a owl:Class ; rdfs:label "Decommission State" ; rdfs:comment "Process retirement and legacy shutdown." .
+
+lifecycle:phase
+  a owl:ObjectProperty ;
+  rdfs:label "Lifecycle Phase" ;
+  rdfs:range (
+    lifecycle:DesignPhase
+    lifecycle:SimulationPhase
+    lifecycle:ValidationPhase
+    lifecycle:MonitoringPhase
+    lifecycle:OptimizationPhase
+    lifecycle:RepairPhase
+    lifecycle:DecommissionPhase
+  ) ;
+  owl:cardinality 1 .
+
+# State transitions with guards
+lifecycle:transitions
+  a owl:ObjectProperty ;
+  rdfs:label "Transitions To" ;
+  rdfs:range lifecycle:StateTransition ;
+  rdfs:comment "Allowed state transitions with guard conditions." .
+
+lifecycle:StateTransition
+  a owl:Class ;
+  rdfs:label "State Transition" ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty lifecycle:to ;
+    owl:cardinality 1
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty lifecycle:guard ;
+    owl:maxCardinality 1
+  ] .
+
+lifecycle:to
+  a owl:ObjectProperty ;
+  rdfs:label "Transitions To" ;
+  rdfs:range lifecycle:ProcessState ;
+  rdfs:comment "Target state of this transition." .
+
+lifecycle:guard
+  a owl:ObjectProperty ;
+  rdfs:label "Guard Condition" ;
+  rdfs:range lifecycle:TransitionGuard ;
+  rdfs:comment "Boolean condition that must be true to allow transition." .
+
+lifecycle:TransitionGuard
+  a owl:Class ;
+  rdfs:label "Transition Guard" ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty lifecycle:condition ;
+    owl:cardinality 1
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty lifecycle:expression ;
+    owl:cardinality 1
+  ] .
+
+lifecycle:condition
+  a owl:DatatypeProperty ;
+  rdfs:label "Guard Condition" ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Human-readable condition name (e.g., 'fitness >= 0.95')." .
+
+lifecycle:expression
+  a owl:DatatypeProperty ;
+  rdfs:label "Guard Expression" ;
+  rdfs:range xsd:string ;
+  rdfs:comment "SPARQL or CEP expression that evaluates the guard." .
+
+# ============================================================================
+# MAPE-K RULES EMBEDDED IN LIFECYCLE STATES
+# ============================================================================
+
+lifecycle:monitorRule
+  a owl:ObjectProperty ;
+  rdfs:label "Monitor Rule" ;
+  rdfs:domain lifecycle:ProcessState ;
+  rdfs:range lifecycle:MonitorRule ;
+  rdfs:comment "MAPE-K Monitor rules: what observations trigger the Analyze phase?" .
+
+lifecycle:MonitorRule
+  a owl:Class ;
+  rdfs:label "Monitor Rule" ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty lifecycle:observes ;
+    owl:cardinality 1
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty lifecycle:expression ;
+    owl:cardinality 1
+  ] .
+
+lifecycle:observes
+  a owl:ObjectProperty ;
+  rdfs:label "Observes Metric" ;
+  rdfs:comment "Which metric does this monitor watch?" .
+
+lifecycle:analyzeRule
+  a owl:ObjectProperty ;
+  rdfs:label "Analyze Rule" ;
+  rdfs:domain lifecycle:ProcessState ;
+  rdfs:range lifecycle:AnalyzeRule ;
+  rdfs:comment "MAPE-K Analyze rules: what patterns are detected?" .
+
+lifecycle:AnalyzeRule
+  a owl:Class ;
+  rdfs:label "Analyze Rule" ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty lifecycle:pattern ;
+    owl:cardinality 1
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty lifecycle:threshold ;
+    owl:cardinality 1
+  ] .
+
+lifecycle:pattern
+  a owl:DatatypeProperty ;
+  rdfs:label "Analysis Pattern" ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Pattern expression (SPARQL, SQL, CEP) to match against observations." .
+
+lifecycle:threshold
+  a owl:DatatypeProperty ;
+  rdfs:label "Analysis Threshold" ;
+  rdfs:range xsd:decimal ;
+  rdfs:comment "Threshold value; if metric crosses this, anomaly is detected." .
+
+lifecycle:planRule
+  a owl:ObjectProperty ;
+  rdfs:label "Plan Rule" ;
+  rdfs:domain lifecycle:ProcessState ;
+  rdfs:range lifecycle:PlanRule ;
+  rdfs:comment "MAPE-K Plan rules: what remediation policies apply?" .
+
+lifecycle:PlanRule
+  a owl:Class ;
+  rdfs:label "Plan Rule" ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty lifecycle:policy ;
+    owl:cardinality 1
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty lifecycle:outputShape ;
+    owl:cardinality 1
+  ] .
+
+lifecycle:policy
+  a owl:DatatypeProperty ;
+  rdfs:label "Policy Expression" ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Policy rule (e.g., 'if fitness < 0.85 then escalate')." .
+
+lifecycle:outputShape
+  a owl:DatatypeProperty ;
+  rdfs:label "Output Shape Type" ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Type of output produced by this plan rule (e.g., RemediationPlan)." .
+
+lifecycle:canExecute
+  a owl:ObjectProperty ;
+  rdfs:label "Can Execute Action" ;
+  rdfs:domain lifecycle:ProcessState ;
+  rdfs:range lifecycle:ExecuteAction ;
+  rdfs:comment "MAPE-K Execute actions: what interventions are allowed in this state?" .
+
+lifecycle:ExecuteAction
+  a owl:Class ;
+  rdfs:label "Execute Action" ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty lifecycle:auditedVia ;
+    owl:cardinality 1
+  ] .
+
+lifecycle:auditedVia
+  a owl:ObjectProperty ;
+  rdfs:label "Audited Via" ;
+  rdfs:range compat:EventLog ;
+  rdfs:comment "How this action's execution is recorded (typically OCEL)." .
+
+lifecycle:knowledgeSource
+  a owl:ObjectProperty ;
+  rdfs:label "Knowledge Source" ;
+  rdfs:domain lifecycle:ProcessState ;
+  rdfs:range lifecycle:KnowledgeAsset ;
+  rdfs:comment "MAPE-K Knowledge: learned models and patterns available in this state." .
+
+lifecycle:KnowledgeAsset
+  a owl:Class ;
+  rdfs:label "Knowledge Asset" ;
+  owl:disjointUnionOf (
+    lifecycle:ProcessModel
+    lifecycle:ConformancePattern
+    lifecycle:RemediationStrategy
+    lifecycle:PredictiveModel
+    lifecycle:AutonomicPolicy
+  ) ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty lifecycle:value ;
+    owl:cardinality 1
+  ] .
+
+lifecycle:ProcessModel a owl:Class ; rdfs:label "Process Model" .
+lifecycle:ConformancePattern a owl:Class ; rdfs:label "Conformance Pattern" .
+lifecycle:RemediationStrategy a owl:Class ; rdfs:label "Remediation Strategy" .
+lifecycle:PredictiveModel a owl:Class ; rdfs:label "Predictive Model" .
+lifecycle:AutonomicPolicy a owl:Class ; rdfs:label "Autonomic Policy" .
+
+lifecycle:value
+  a owl:DatatypeProperty ;
+  rdfs:label "Asset Value" ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Serialized representation of the knowledge asset (model, pattern, policy)." .
+
+# ============================================================================
+# CONFORMANCE EVIDENCE TYPE (from compat)
+# ============================================================================
+
+compat:Evidence
+  a owl:Class ;
+  rdfs:label "Evidence" ;
+  rdfs:comment "A type-safe evidence container: Evidence<T, State, W> carrying typed claims, state markers, and witness proof." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty compat:claimContent ;
+    owl:cardinality 1
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty compat:stateMarker ;
+    owl:cardinality 1
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty compat:witness ;
+    owl:cardinality 1
+  ] .
+
+compat:claimContent
+  a owl:ObjectProperty ;
+  rdfs:label "Claim Content" ;
+  rdfs:comment "The typed claim payload." .
+
+compat:stateMarker
+  a owl:DatatypeProperty ;
+  rdfs:label "State Marker" ;
+  rdfs:comment "The process state this evidence was generated in." .
+
+compat:witness
+  a owl:DatatypeProperty ;
+  rdfs:label "Witness Proof" ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Cryptographic witness (hash chain, signature, or proof artifact)." .
+
+# ============================================================================
+# INTEGRATION: Board Claims reference compat Evidence types
+# ============================================================================
+
+ma:BoardClaim
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty ma:evidenceContainer ;
+    owl:minCardinality 1
+  ] .
+
+ma:evidenceContainer
+  a owl:ObjectProperty ;
+  rdfs:label "Evidence Container" ;
+  rdfs:range compat:Evidence ;
+  rdfs:comment "Board claim is contained in a typed Evidence<BoardClaim, ProcessState, CryptographicWitness> structure." .

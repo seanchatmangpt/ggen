@@ -1,0 +1,209 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix osa: <http://example.com/osa/> .
+@prefix benchmark: <http://example.com/benchmark/> .
+
+# Benchmark Ontology for SPARQL Optimization
+# This ontology defines SPARQL operations and performance benchmarks
+
+benchmark:SPARQLOperation a rdfs:Class ;
+    rdfs:label "SPARQL Operation" ;
+    rdfs:comment "A SPARQL query or operation to be benchmarked" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty benchmark:operationName ;
+        owl:someValuesFrom xsd:string
+    ] .
+
+benchmark:operationName a rdf:Property ;
+    rdfs:label "operation name" ;
+    rdfs:domain benchmark:SPARQLOperation ;
+    rdfs:range xsd:string .
+
+benchmark:queryText a rdf:Property ;
+    rdfs:label "query text" ;
+    rdfs:domain benchmark:SPARQLOperation ;
+    rdfs:range xsd:string .
+
+benchmark:operationType a rdf:Property ;
+    rdfs:label "operation type" ;
+    rdfs:domain benchmark:SPARQLOperation ;
+    rdfs:range [
+        a rdfs:Datatype ;
+        owl:oneOf ("analyze" "rewrite" "cache_key" "determinism" "execute" "pipeline")
+    ] .
+
+benchmark:sloThresholdMs a rdf:Property ;
+    rdfs:label "SLO threshold in milliseconds" ;
+    rdfs:domain benchmark:SPARQLOperation ;
+    rdfs:range xsd:integer .
+
+benchmark:complexity a rdf:Property ;
+    rdfs:label "query complexity" ;
+    rdfs:domain benchmark:SPARQLOperation ;
+    rdfs:range [
+        a rdfs:Datatype ;
+        owl:oneOf ("simple" "medium" "complex")
+    ] .
+
+benchmark:TestCategory a rdfs:Class ;
+    rdfs:label "Test Category" ;
+    rdfs:comment "A category of benchmark tests" .
+
+benchmark:testName a rdf:Property ;
+    rdfs:label "test name" ;
+    rdfs:domain benchmark:TestCategory ;
+    rdfs:range xsd:string .
+
+benchmark:testDescription a rdf:Property ;
+    rdfs:label "test description" ;
+    rdfs:domain benchmark:TestCategory ;
+    rdfs:range xsd:string .
+
+benchmark:testsOperation a rdf:Property ;
+    rdfs:label "tests operation" ;
+    rdfs:domain benchmark:TestCategory ;
+    rdfs:range benchmark:SPARQLOperation .
+
+benchmark:expectedResult a rdf:Property ;
+    rdfs:label "expected result" ;
+    rdfs:domain benchmark:TestCategory ;
+    rdfs:range xsd:string .
+
+# SPARQL Operations to Benchmark
+
+osa:QueryFindAgents a benchmark:SPARQLOperation ;
+    benchmark:operationName "find_agents" ;
+    benchmark:queryText """
+    PREFIX osa: <http://example.com/osa/>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+    SELECT ?agent ?name WHERE {
+      ?agent a osa:Agent ;
+             rdfs:label ?name .
+    }
+    LIMIT 100
+    """ ;
+    benchmark:operationType "execute" ;
+    benchmark:sloThresholdMs 5 ;
+    benchmark:complexity "simple" .
+
+osa:QueryAgentTools a benchmark:SPARQLOperation ;
+    benchmark:operationName "agent_tools" ;
+    benchmark:queryText """
+    PREFIX osa: <http://example.com/osa/>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+    SELECT ?tool ?description WHERE {
+      ?agent a osa:Agent ;
+             osa:hasTool ?tool .
+      ?tool rdfs:comment ?description .
+    }
+    LIMIT 100
+    """ ;
+    benchmark:operationType "execute" ;
+    benchmark:sloThresholdMs 5 ;
+    benchmark:complexity "simple" .
+
+osa:QueryProcessPath a benchmark:SPARQLOperation ;
+    benchmark:operationName "process_path" ;
+    benchmark:queryText """
+    PREFIX osa: <http://example.com/osa/>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+    SELECT ?step ?next WHERE {
+      ?process a osa:Process ;
+               osa:hasStep ?step ;
+               osa:nextStep ?step ?next .
+    }
+    LIMIT 100
+    """ ;
+    benchmark:operationType "execute" ;
+    benchmark:sloThresholdMs 10 ;
+    benchmark:complexity "medium" .
+
+osa:QueryDeadlockDetection a benchmark:SPARQLOperation ;
+    benchmark:operationName "deadlock_detection_complex" ;
+    benchmark:queryText """
+    PREFIX osa: <http://example.com/osa/>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+    SELECT ?process ?lock1 ?lock2 WHERE {
+      {
+        ?process a osa:Process ;
+                 osa:holds ?lock1 ;
+                 osa:waits ?lock2 .
+        ?other a osa:Process ;
+               osa:holds ?lock2 ;
+               osa:waits ?lock1 .
+      }
+      UNION
+      {
+        ?process a osa:Process ;
+                 osa:holds ?lock1 .
+        ?lock1 osa:contends ?lock2 .
+        ?lock2 osa:contends ?lock1 .
+      }
+    }
+    LIMIT 1000
+    """ ;
+    benchmark:operationType "execute" ;
+    benchmark:sloThresholdMs 15 ;
+    benchmark:complexity "complex" .
+
+osa:QueryWithOptional a benchmark:SPARQLOperation ;
+    benchmark:operationName "with_optional" ;
+    benchmark:queryText """
+    PREFIX osa: <http://example.com/osa/>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+    SELECT ?agent ?name ?health WHERE {
+      ?agent a osa:Agent ;
+             rdfs:label ?name .
+      OPTIONAL {
+        ?agent osa:health ?health .
+      }
+      OPTIONAL {
+        ?agent osa:lastSeen ?seen .
+      }
+      OPTIONAL {
+        ?agent osa:errorCount ?errors .
+      }
+    }
+    LIMIT 100
+    """ ;
+    benchmark:operationType "execute" ;
+    benchmark:sloThresholdMs 10 ;
+    benchmark:complexity "medium" .
+
+# Test Categories
+
+benchmark:QueryAnalysisTests a benchmark:TestCategory ;
+    benchmark:testName "Query Analysis Performance" ;
+    benchmark:testDescription "Tests for SPARQL query analysis performance" ;
+    benchmark:testsOperation osa:QueryFindAgents ;
+    benchmark:testsOperation osa:QueryDeadlockDetection ;
+    benchmark:testsOperation osa:QueryWithOptional .
+
+benchmark:QueryRewritingTests a benchmark:TestCategory ;
+    benchmark:testName "Query Rewriting Performance" ;
+    benchmark:testDescription "Tests for SPARQL query rewriting performance" ;
+    benchmark:testsOperation osa:QueryFindAgents ;
+    benchmark:testsOperation osa:QueryDeadlockDetection .
+
+benchmark:CacheKeyTests a benchmark:TestCategory ;
+    benchmark:testName "Cache Key Generation" ;
+    benchmark:testDescription "Tests for cache key generation determinism" ;
+    benchmark:testsOperation osa:QueryFindAgents ;
+    benchmark:testsOperation osa:QueryAgentTools .
+
+benchmark:PipelineTests a benchmark:TestCategory ;
+    benchmark:testName "Full Optimization Pipeline" ;
+    benchmark:testDescription "Tests for complete optimization pipeline" ;
+    benchmark:testsOperation osa:QueryFindAgents ;
+    benchmark:testsOperation osa:QueryAgentTools ;
+    benchmark:testsOperation osa:QueryProcessPath ;
+    benchmark:testsOperation osa:QueryDeadlockDetection ;
+    benchmark:testsOperation osa:QueryWithOptional .

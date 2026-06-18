@@ -1,0 +1,232 @@
+@prefix mo:   <http://bitbizeco.dev/ontology/v3/meta#> .
+@prefix ba3:  <http://bitbizeco.dev/ontology/v3/byteactor#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+<http://bitbizeco.dev/ontology/v3/meta>
+  a owl:Ontology ;
+  rdfs:label   "ByteActor v3 Meta-Ontology" ;
+  rdfs:comment "Governs canons, pattern registries, proofs, admission policy, and AOT fabrication for ByteActor v3." .
+
+#################################################################
+# 1) Meta objects (what we manage about the canons)
+#################################################################
+
+mo:Ontology     a owl:Class ; rdfs:comment "Any domain ontology/canon package (e.g., governance, methods)." .
+mo:Module       a owl:Class ; rdfs:comment "A logical subgraph within an Ontology (e.g., shapes, patterns)." .
+mo:ShapeSet     a owl:Class ; rdfs:comment "SHACL set that validates a target domain model." .
+mo:Canon        a owl:Class ; rdfs:comment "Release-grade bundle: ontology + shapes + proofs + registry pin." .
+
+mo:PatternRegistry a owl:Class ; rdfs:comment "Authoritative catalog of canonical patterns (IDs 1..43)." .
+mo:Pattern      a owl:Class ; rdfs:comment "A canonical workflow topology." .
+mo:PatternByteSpec a owl:Class ; rdfs:comment "Rules mapping PB bytes to patterns and composition flags." .
+
+mo:ProofArtifact   a owl:Class ; rdfs:comment "Externalized proof payload (e.g., SAT certs, model checks)." .
+mo:SoundnessProof  a owl:Class ; rdfs:subClassOf mo:ProofArtifact .
+mo:LivenessProof   a owl:Class ; rdfs:subClassOf mo:ProofArtifact .
+
+mo:FabricationPlan a owl:Class ;
+  rdfs:comment "AOT transpilation & linking plan from shapes→kernels; no JIT/GC/syscalls." .
+mo:KernelSpec      a owl:Class ; rdfs:comment "Intended constant-time micro-kernels for ByteActor stages." .
+
+mo:GatePolicy      a owl:Class ; rdfs:comment "Admission rules: PB↔graph congruence, proof gates, budgets." .
+mo:ObserverPolicy  a owl:Class ; rdfs:comment "What off-path observers may emit/retain (telemetry/receipts)." .
+
+mo:Release         a owl:Class ; rdfs:comment "Immutable, content-addressed version of a Canon." .
+mo:ChangeSet       a owl:Class ; rdfs:comment "Delta metadata between releases." .
+
+#################################################################
+# 2) Identity, versioning, provenance
+#################################################################
+
+mo:name        a owl:DatatypeProperty ; rdfs:domain mo:Ontology ; rdfs:range xsd:string .
+mo:semver      a owl:DatatypeProperty ; rdfs:domain mo:Release  ; rdfs:range xsd:string .
+mo:contentHash a owl:DatatypeProperty ; rdfs:domain mo:Release  ; rdfs:range xsd:string .
+mo:createdAt   a owl:DatatypeProperty ; rdfs:domain mo:Release  ; rdfs:range xsd:dateTime .
+mo:supersedes  a owl:ObjectProperty   ; rdfs:domain mo:Release  ; rdfs:range mo:Release .
+mo:ofOntology  a owl:ObjectProperty   ; rdfs:domain mo:Release  ; rdfs:range mo:Ontology .
+
+#################################################################
+# 3) Structural relations
+#################################################################
+
+mo:hasModule     a owl:ObjectProperty ; rdfs:domain mo:Ontology ; rdfs:range mo:Module .
+mo:hasShapes     a owl:ObjectProperty ; rdfs:domain mo:Canon    ; rdfs:range mo:ShapeSet .
+mo:hasRegistry   a owl:ObjectProperty ; rdfs:domain mo:Canon    ; rdfs:range mo:PatternRegistry .
+mo:hasPBSpec     a owl:ObjectProperty ; rdfs:domain mo:Canon    ; rdfs:range mo:PatternByteSpec .
+mo:hasProof      a owl:ObjectProperty ; rdfs:domain mo:Canon    ; rdfs:range mo:ProofArtifact .
+mo:hasPlan       a owl:ObjectProperty ; rdfs:domain mo:Canon    ; rdfs:range mo:FabricationPlan .
+mo:targetsBA     a owl:ObjectProperty ; rdfs:domain mo:FabricationPlan ; rdfs:range ba3:Kernel .
+mo:governs       a owl:ObjectProperty ; rdfs:domain mo:Canon    ; rdfs:range mo:Ontology .
+mo:admissionRule a owl:ObjectProperty ; rdfs:domain mo:Canon    ; rdfs:range mo:GatePolicy .
+mo:observerRule  a owl:ObjectProperty ; rdfs:domain mo:Canon    ; rdfs:range mo:ObserverPolicy .
+
+#################################################################
+# 4) Pattern registry + PB mapping
+#################################################################
+
+mo:patternId    a owl:DatatypeProperty ; rdfs:domain mo:Pattern ; rdfs:range xsd:nonNegativeInteger .
+mo:label        a owl:DatatypeProperty ; rdfs:domain mo:Pattern ; rdfs:range xsd:string .
+
+mo:pbBits       a owl:DatatypeProperty ; rdfs:domain mo:PatternByteSpec ; rdfs:range xsd:string ;
+  rdfs:comment "Encoding doc for bits 0..5=patternId, 6..7=compositionFlag." .
+
+mo:mapsTo       a owl:ObjectProperty ; rdfs:domain mo:PatternByteSpec ; rdfs:range mo:Pattern ;
+  rdfs:comment "Declares which Pattern a given PB value denotes." .
+
+#################################################################
+# 5) Plan + kernel constraints (meta-level)
+#################################################################
+
+mo:noJIT        a owl:DatatypeProperty ; rdfs:domain mo:FabricationPlan ; rdfs:range xsd:boolean .
+mo:noGC         a owl:DatatypeProperty ; rdfs:domain mo:FabricationPlan ; rdfs:range xsd:boolean .
+mo:noSyscalls   a owl:DatatypeProperty ; rdfs:domain mo:FabricationPlan ; rdfs:range xsd:boolean .
+mo:constantTime a owl:DatatypeProperty ; rdfs:domain mo:KernelSpec      ; rdfs:range xsd:boolean .
+mo:branchFree   a owl:DatatypeProperty ; rdfs:domain mo:KernelSpec      ; rdfs:range xsd:boolean .
+
+#################################################################
+# 6) SHACL — governance of the governance
+#################################################################
+
+# A) Releases are immutable by semver (same semver ⇒ same contentHash)
+mo:ReleaseUniqueness a sh:NodeShape ;
+  sh:targetClass mo:Release ;
+  sh:sparql [
+    sh:select """
+      SELECT ?r WHERE {
+        ?r a mo:Release ; mo:semver ?v ; mo:contentHash ?h .
+        ?other a mo:Release ; mo:semver ?v ; mo:contentHash ?h2 .
+        FILTER(?r != ?other && ?h != ?h2)
+      }
+    """ ;
+    sh:message "Meta: A semver MUST map to exactly one contentHash (immutability)."
+  ] .
+
+# B) Pattern registry must cover IDs 1..43 exactly once
+mo:RegistryCoverage a sh:NodeShape ;
+  sh:targetClass mo:PatternRegistry ;
+  sh:sparql [
+    sh:select """
+      SELECT $this WHERE {
+        {
+          SELECT (COUNT(DISTINCT ?pid) AS ?c) WHERE {
+            ?p a mo:Pattern ; mo:patternId ?pid .
+            FILTER(?pid >= 1 && ?pid <= 43)
+          }
+        }
+        FILTER(?c != 43)
+      }
+    """ ;
+    sh:message "Meta: Registry MUST contain exactly one Pattern for each ID 1..43."
+  ] ;
+  sh:sparql [
+    sh:select """
+      SELECT $this WHERE {
+        ?p1 a mo:Pattern ; mo:patternId ?pid .
+        ?p2 a mo:Pattern ; mo:patternId ?pid .
+        FILTER(?p1 != ?p2)
+      }
+    """ ;
+    sh:message "Meta: No duplicate mo:patternId values permitted."
+  ] .
+
+# C) PB spec must be congruent with registry (no stray/missing mappings)
+mo:PBMapsKnownPatterns a sh:NodeShape ;
+  sh:targetClass mo:PatternByteSpec ;
+  sh:sparql [
+    sh:select """
+      SELECT $this WHERE {
+        $this mo:mapsTo ?pat .
+        FILTER NOT EXISTS { ?pat a mo:Pattern . }
+      }
+    """ ;
+    sh:message "Meta: PB maps only to registered Patterns."
+  ] .
+
+# D) Canon release gating: must have proofs and admission rule
+mo:CanonGateShape a sh:NodeShape ;
+  sh:targetClass mo:Canon ;
+  sh:property [ sh:path mo:hasRegistry ; sh:minCount 1 ; sh:maxCount 1 ;
+               sh:message "Meta: Canon MUST pin one PatternRegistry." ] ;
+  sh:property [ sh:path mo:hasPBSpec ; sh:minCount 1 ; sh:maxCount 1 ;
+               sh:message "Meta: Canon MUST include one PatternByteSpec." ] ;
+  sh:property [ sh:path mo:hasShapes ; sh:minCount 1 ;
+               sh:message "Meta: Canon MUST include SHACL shapes." ] ;
+  sh:property [ sh:path mo:hasProof ; sh:minCount 2 ;
+               sh:message "Meta: Canon MUST include Soundness and Liveness proofs." ] ;
+  sh:property [ sh:path mo:admissionRule ; sh:minCount 1 ;
+               sh:message "Meta: Canon MUST define GatePolicy." ] .
+
+# E) Fabrication plan must be AOT and target constant-time kernels only
+mo:FabricationDiscipline a sh:NodeShape ;
+  sh:targetClass mo:FabricationPlan ;
+  sh:property [ sh:path mo:noJIT ;      sh:hasValue true ] ;
+  sh:property [ sh:path mo:noGC ;       sh:hasValue true ] ;
+  sh:property [ sh:path mo:noSyscalls ; sh:hasValue true ] ;
+  sh:sparql [
+    sh:select """
+      SELECT $this WHERE {
+        $this mo:targetsBA ?k .
+        FILTER NOT EXISTS {
+          ?k a ba3:Kernel ; ba3:constantTime true ; ba3:branchFree true ;
+             ba3:usesSyscalls false ; ba3:usesGC false ; ba3:isDeterministic true .
+        }
+      }
+    """ ;
+    sh:message "Meta: Plan MUST target only O(1), branch-free, syscall-free, GC-free, deterministic kernels."
+  ] .
+
+# F) Gate policy must require PB↔graph congruence before admission
+mo:GateRequiresPBCongruence a sh:NodeShape ;
+  sh:targetClass mo:GatePolicy ;
+  sh:sparql [
+    sh:select """
+      SELECT $this WHERE {
+        # Declarative check: Canon using this GatePolicy must enforce ba3:pbCongruent=true at admission.
+        FILTER NOT EXISTS {
+          ?canon a mo:Canon ; mo:admissionRule $this .
+          ?gate a ba3:Gate .
+          # The policy's contract: Gate admits only flows with pbCongruent=true AND soundnessProved=true.
+          # Represented as requirement, not an executable join here.
+        }
+      }
+    """ ;
+    sh:message "Meta: GatePolicy MUST enforce PB↔graph congruence and proof gating pre-admission."
+  ] .
+
+#################################################################
+# 7) Minimal exemplars (illustrative)
+#################################################################
+
+mo:RegistryV1 a mo:PatternRegistry .
+mo:PBSpecV1   a mo:PatternByteSpec ; mo:pbBits "0..5=patternId; 6..7=compositionFlag" .
+
+# Example patterns (IDs 1..3 shown; real registry has 1..43 exactly once)
+mo:P01 a mo:Pattern ; mo:patternId 1 ; mo:label "Sequence" .
+mo:P02 a mo:Pattern ; mo:patternId 2 ; mo:label "AND-Split/AND-Join" .
+mo:P03 a mo:Pattern ; mo:patternId 3 ; mo:label "XOR-Discriminator" .
+
+# PBSpec maps PBs to patterns
+mo:PBSpecV1 mo:mapsTo mo:P01, mo:P02, mo:P03 .
+
+# A canon bundles the pieces and pins the registry/spec/shapes/proofs/plan/policies
+mo:CanonV1 a mo:Canon ;
+  mo:governs     [ a mo:Ontology ; mo:name "Governance Canon" ] ;
+  mo:hasRegistry mo:RegistryV1 ;
+  mo:hasPBSpec   mo:PBSpecV1 ;
+  mo:hasShapes   [ a mo:ShapeSet ] ;
+  mo:hasProof    [ a mo:SoundnessProof ] , [ a mo:LivenessProof ] ;
+  mo:hasPlan     [ a mo:FabricationPlan ; mo:noJIT true ; mo:noGC true ; mo:noSyscalls true ;
+                   mo:targetsBA [ a ba3:Kernel ] ] ;
+  mo:admissionRule [ a mo:GatePolicy ] ;
+  mo:observerRule  [ a mo:ObserverPolicy ] .
+
+# Immutable release record
+mo:CanonV1_R1 a mo:Release ;
+  mo:ofOntology mo:CanonV1 ;
+  mo:semver "1.0.0" ;
+  mo:contentHash "b3:deadbeef..." ;
+  mo:createdAt "2025-08-19T00:00:00Z"^^xsd:dateTime .

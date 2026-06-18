@@ -1,0 +1,849 @@
+@prefix gar: <https://bytestar.org/ontology/governance/automation#> .
+@prefix tip: <https://bytestar.org/ontology/governance/tip#> .
+@prefix ba-meta: <https://bytestar.io/ontology/meta/> .
+@prefix ov: <https://byteactor.org/ontology/versioning/> .
+@prefix dao: <http://bytestar.ethos/dao-governance#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix swrl: <http://www.w3.org/2003/11/swrl#> .
+@prefix swrlb: <http://www.w3.org/2003/11/swrlb#> .
+
+# ===================================================================
+# GOVERNANCE AUTOMATION RULES
+# Automated rules and workflows for TIP governance processes
+# ===================================================================
+
+<https://bytestar.org/ontology/governance/automation>
+    a owl:Ontology ;
+    dc:title "TIP Governance Automation Rules" ;
+    dc:description """Automated rules, workflows, and decision-making processes for 
+                      Type Introduction Proposal governance. Includes state transitions, 
+                      validation triggers, notification systems, and approval workflows.""" ;
+    dc:creator "ByteStar Governance Automation System" ;
+    dc:created "2025-08-23"^^xsd:date ;
+    dc:version "1.0.0" ;
+    owl:versionIRI <https://bytestar.org/ontology/governance/automation/1.0.0> ;
+    owl:imports <https://bytestar.org/ontology/governance/tip> ;
+    rdfs:seeAlso <https://bytestar.org/docs/governance-automation> .
+
+# ===================================================================
+# 1. AUTOMATION FRAMEWORK CLASSES
+# Core classes for governance automation infrastructure
+# ===================================================================
+
+## Automation Engine Classes
+
+gar:GovernanceAutomationEngine a owl:Class ;
+    rdfs:label "Governance Automation Engine" ;
+    rdfs:comment "Primary engine coordinating automated governance processes." ;
+    rdfs:subClassOf ba-meta:MetaProcess .
+
+gar:RuleEngine a owl:Class ;
+    rdfs:label "Rule Engine" ;
+    rdfs:comment "Engine for processing and executing governance rules." ;
+    rdfs:subClassOf gar:GovernanceAutomationEngine .
+
+gar:WorkflowEngine a owl:Class ;
+    rdfs:label "Workflow Engine" ;
+    rdfs:comment "Engine for managing governance workflow execution." ;
+    rdfs:subClassOf gar:GovernanceAutomationEngine .
+
+gar:StateTransitionEngine a owl:Class ;
+    rdfs:label "State Transition Engine" ;
+    rdfs:comment "Engine managing TIP state transitions according to rules." ;
+    rdfs:subClassOf gar:WorkflowEngine .
+
+## Automation Rule Classes
+
+gar:AutomationRule a owl:Class ;
+    rdfs:label "Automation Rule" ;
+    rdfs:comment "Base class for automated governance rules." ;
+    rdfs:subClassOf ba-meta:Rule .
+
+gar:StateTransitionRule a owl:Class ;
+    rdfs:label "State Transition Rule" ;
+    rdfs:comment "Rule governing automatic state transitions." ;
+    rdfs:subClassOf gar:AutomationRule .
+
+gar:ValidationRule a owl:Class ;
+    rdfs:label "Validation Rule" ;
+    rdfs:comment "Rule for automated validation processes." ;
+    rdfs:subClassOf gar:AutomationRule .
+
+gar:NotificationRule a owl:Class ;
+    rdfs:label "Notification Rule" ;
+    rdfs:comment "Rule for automated notification triggers." ;
+    rdfs:subClassOf gar:AutomationRule .
+
+gar:ApprovalRule a owl:Class ;
+    rdfs:label "Approval Rule" ;
+    rdfs:comment "Rule governing automatic approval conditions." ;
+    rdfs:subClassOf gar:AutomationRule .
+
+## Trigger and Event Classes
+
+gar:AutomationTrigger a owl:Class ;
+    rdfs:label "Automation Trigger" ;
+    rdfs:comment "Event or condition that triggers automated actions." ;
+    rdfs:subClassOf prov:Activity .
+
+gar:TimeTrigger a owl:Class ;
+    rdfs:label "Time Trigger" ;
+    rdfs:comment "Trigger based on time conditions (deadlines, schedules)." ;
+    rdfs:subClassOf gar:AutomationTrigger .
+
+gar:StateTrigger a owl:Class ;
+    rdfs:label "State Trigger" ;
+    rdfs:comment "Trigger based on TIP state changes." ;
+    rdfs:subClassOf gar:AutomationTrigger .
+
+gar:SignatureTrigger a owl:Class ;
+    rdfs:label "Signature Trigger" ;
+    rdfs:comment "Trigger based on signature collection events." ;
+    rdfs:subClassOf gar:AutomationTrigger .
+
+gar:VotingTrigger a owl:Class ;
+    rdfs:label "Voting Trigger" ;
+    rdfs:comment "Trigger based on voting events and thresholds." ;
+    rdfs:subClassOf gar:AutomationTrigger .
+
+## Action and Response Classes
+
+gar:AutomatedAction a owl:Class ;
+    rdfs:label "Automated Action" ;
+    rdfs:comment "Action performed automatically by governance system." ;
+    rdfs:subClassOf prov:Activity .
+
+gar:StateTransitionAction a owl:Class ;
+    rdfs:label "State Transition Action" ;
+    rdfs:comment "Action that transitions TIP to new state." ;
+    rdfs:subClassOf gar:AutomatedAction .
+
+gar:ValidationAction a owl:Class ;
+    rdfs:label "Validation Action" ;
+    rdfs:comment "Action that performs validation checks." ;
+    rdfs:subClassOf gar:AutomatedAction .
+
+gar:NotificationAction a owl:Class ;
+    rdfs:label "Notification Action" ;
+    rdfs:comment "Action that sends notifications to stakeholders." ;
+    rdfs:subClassOf gar:AutomatedAction .
+
+gar:EscalationAction a owl:Class ;
+    rdfs:label "Escalation Action" ;
+    rdfs:comment "Action that escalates issues to governance authorities." ;
+    rdfs:subClassOf gar:AutomatedAction .
+
+# ===================================================================
+# 2. WORKFLOW ORCHESTRATION CLASSES
+# Classes for orchestrating complex governance workflows
+# ===================================================================
+
+## Workflow Definition Classes
+
+gar:GovernanceWorkflow a owl:Class ;
+    rdfs:label "Governance Workflow" ;
+    rdfs:comment "Defined workflow for governance processes." ;
+    rdfs:subClassOf ba-meta:MetaProcess .
+
+gar:TIPLifecycleWorkflow a owl:Class ;
+    rdfs:label "TIP Lifecycle Workflow" ;
+    rdfs:comment "Complete lifecycle workflow for TIP proposals." ;
+    rdfs:subClassOf gar:GovernanceWorkflow .
+
+gar:ReviewWorkflow a owl:Class ;
+    rdfs:label "Review Workflow" ;
+    rdfs:comment "Workflow for reviewing TIP proposals." ;
+    rdfs:subClassOf gar:GovernanceWorkflow .
+
+gar:ApprovalWorkflow a owl:Class ;
+    rdfs:label "Approval Workflow" ;
+    rdfs:comment "Workflow for approving TIP proposals." ;
+    rdfs:subClassOf gar:GovernanceWorkflow .
+
+gar:ImplementationWorkflow a owl:Class ;
+    rdfs:label "Implementation Workflow" ;
+    rdfs:comment "Workflow for implementing approved TIPs." ;
+    rdfs:subClassOf gar:GovernanceWorkflow .
+
+## Workflow Step Classes
+
+gar:WorkflowStep a owl:Class ;
+    rdfs:label "Workflow Step" ;
+    rdfs:comment "Individual step in a governance workflow." ;
+    rdfs:subClassOf prov:Activity .
+
+gar:SequentialStep a owl:Class ;
+    rdfs:label "Sequential Step" ;
+    rdfs:comment "Step that must be completed before next step." ;
+    rdfs:subClassOf gar:WorkflowStep .
+
+gar:ParallelStep a owl:Class ;
+    rdfs:label "Parallel Step" ;
+    rdfs:comment "Step that can be executed in parallel with others." ;
+    rdfs:subClassOf gar:WorkflowStep .
+
+gar:ConditionalStep a owl:Class ;
+    rdfs:label "Conditional Step" ;
+    rdfs:comment "Step that is executed conditionally based on criteria." ;
+    rdfs:subClassOf gar:WorkflowStep .
+
+gar:ApprovalGate a owl:Class ;
+    rdfs:label "Approval Gate" ;
+    rdfs:comment "Step requiring explicit approval before proceeding." ;
+    rdfs:subClassOf gar:WorkflowStep .
+
+# ===================================================================
+# 3. AUTOMATED DECISION MAKING CLASSES
+# Classes for automated decision making in governance
+# ===================================================================
+
+## Decision Engine Classes
+
+gar:DecisionEngine a owl:Class ;
+    rdfs:label "Decision Engine" ;
+    rdfs:comment "Engine for making automated governance decisions." ;
+    rdfs:subClassOf ba-meta:MetaReasoner .
+
+gar:PolicyEngine a owl:Class ;
+    rdfs:label "Policy Engine" ;
+    rdfs:comment "Engine that applies governance policies automatically." ;
+    rdfs:subClassOf gar:DecisionEngine .
+
+gar:ConflictResolver a owl:Class ;
+    rdfs:label "Conflict Resolver" ;
+    rdfs:comment "Engine for resolving conflicts in governance decisions." ;
+    rdfs:subClassOf gar:DecisionEngine .
+
+## Decision Logic Classes
+
+gar:DecisionLogic a owl:Class ;
+    rdfs:label "Decision Logic" ;
+    rdfs:comment "Logic framework for automated decisions." ;
+    rdfs:subClassOf ba-meta:ReasoningStrategy .
+
+gar:RuleBasedLogic a owl:Class ;
+    rdfs:label "Rule-Based Logic" ;
+    rdfs:comment "Decision logic based on predefined rules." ;
+    rdfs:subClassOf gar:DecisionLogic .
+
+gar:ScoreBasedLogic a owl:Class ;
+    rdfs:label "Score-Based Logic" ;
+    rdfs:comment "Decision logic based on scoring mechanisms." ;
+    rdfs:subClassOf gar:DecisionLogic .
+
+gar:ThresholdLogic a owl:Class ;
+    rdfs:label "Threshold Logic" ;
+    rdfs:comment "Decision logic based on threshold comparisons." ;
+    rdfs:subClassOf gar:DecisionLogic .
+
+gar:ConsensusLogic a owl:Class ;
+    rdfs:label "Consensus Logic" ;
+    rdfs:comment "Decision logic requiring consensus mechanisms." ;
+    rdfs:subClassOf gar:DecisionLogic .
+
+# ===================================================================
+# 4. AUTOMATION RULE PROPERTIES
+# Properties for defining automation rule relationships
+# ===================================================================
+
+## Rule Definition Properties
+
+gar:appliesTo a owl:ObjectProperty ;
+    rdfs:label "applies to" ;
+    rdfs:comment "Specifies what entity the automation rule applies to." ;
+    rdfs:domain gar:AutomationRule ;
+    rdfs:range owl:Thing .
+
+gar:triggeredBy a owl:ObjectProperty ;
+    rdfs:label "triggered by" ;
+    rdfs:comment "Specifies the trigger that activates this rule." ;
+    rdfs:domain gar:AutomationRule ;
+    rdfs:range gar:AutomationTrigger .
+
+gar:executesAction a owl:ObjectProperty ;
+    rdfs:label "executes action" ;
+    rdfs:comment "Specifies the action executed when rule is triggered." ;
+    rdfs:domain gar:AutomationRule ;
+    rdfs:range gar:AutomatedAction .
+
+gar:hasCondition a owl:ObjectProperty ;
+    rdfs:label "has condition" ;
+    rdfs:comment "Specifies conditions that must be met for rule execution." ;
+    rdfs:domain gar:AutomationRule ;
+    rdfs:range gar:RuleCondition .
+
+## Workflow Properties
+
+gar:hasWorkflowStep a owl:ObjectProperty ;
+    rdfs:label "has workflow step" ;
+    rdfs:comment "Associates workflow with its constituent steps." ;
+    rdfs:domain gar:GovernanceWorkflow ;
+    rdfs:range gar:WorkflowStep .
+
+gar:nextStep a owl:ObjectProperty ;
+    rdfs:label "next step" ;
+    rdfs:comment "Specifies the next step in workflow sequence." ;
+    rdfs:domain gar:WorkflowStep ;
+    rdfs:range gar:WorkflowStep .
+
+gar:dependsOnStep a owl:ObjectProperty ;
+    rdfs:label "depends on step" ;
+    rdfs:comment "Specifies step dependencies." ;
+    rdfs:domain gar:WorkflowStep ;
+    rdfs:range gar:WorkflowStep .
+
+## Decision Properties
+
+gar:usesDecisionLogic a owl:ObjectProperty ;
+    rdfs:label "uses decision logic" ;
+    rdfs:comment "Specifies decision logic used by engine." ;
+    rdfs:domain gar:DecisionEngine ;
+    rdfs:range gar:DecisionLogic .
+
+gar:hasDecisionCriteria a owl:ObjectProperty ;
+    rdfs:label "has decision criteria" ;
+    rdfs:comment "Specifies criteria for automated decisions." ;
+    rdfs:domain gar:DecisionLogic ;
+    rdfs:range gar:DecisionCriteria .
+
+# ===================================================================
+# 5. SPECIFIC AUTOMATION RULES
+# Concrete automation rules for TIP governance
+# ===================================================================
+
+## State Transition Rules
+
+gar:DraftToReviewRule a gar:StateTransitionRule ;
+    rdfs:label "Draft to Review Transition Rule" ;
+    rdfs:comment "Automatically transitions TIP from Draft to Under Review when complete." ;
+    gar:appliesTo tip:TypeIntroductionProposal ;
+    gar:triggeredBy gar:CompleteDraftTrigger ;
+    gar:executesAction gar:TransitionToReviewAction .
+
+gar:ReviewToSignatureRule a gar:StateTransitionRule ;
+    rdfs:label "Review to Signature Collection Rule" ;
+    rdfs:comment "Transitions TIP to signature collection after successful review." ;
+    gar:appliesTo tip:TypeIntroductionProposal ;
+    gar:triggeredBy gar:ReviewCompleteTrigger ;
+    gar:executesAction gar:TransitionToSignatureAction .
+
+gar:SignatureToActiveRule a gar:StateTransitionRule ;
+    rdfs:label "Signature to Active Voting Rule" ;
+    rdfs:comment "Activates voting when quorum signatures are collected." ;
+    gar:appliesTo tip:TypeIntroductionProposal ;
+    gar:triggeredBy gar:QuorumMetTrigger ;
+    gar:executesAction gar:ActivateVotingAction .
+
+## Validation Rules
+
+gar:ImpactAssessmentValidationRule a gar:ValidationRule ;
+    rdfs:label "Impact Assessment Validation Rule" ;
+    rdfs:comment "Validates completeness and accuracy of impact assessments." ;
+    gar:appliesTo tip:ImpactAssessment ;
+    gar:triggeredBy gar:AssessmentSubmissionTrigger ;
+    gar:executesAction gar:ValidateAssessmentAction .
+
+gar:SignatureValidationRule a gar:ValidationRule ;
+    rdfs:label "Signature Validation Rule" ;
+    rdfs:comment "Validates cryptographic signatures from authorities." ;
+    gar:appliesTo tip:QuorumSignature ;
+    gar:triggeredBy gar:SignatureSubmissionTrigger ;
+    gar:executesAction gar:ValidateSignatureAction .
+
+## Notification Rules
+
+gar:DeadlineReminderRule a gar:NotificationRule ;
+    rdfs:label "Deadline Reminder Rule" ;
+    rdfs:comment "Sends reminders before important deadlines." ;
+    gar:appliesTo tip:TypeIntroductionProposal ;
+    gar:triggeredBy gar:DeadlineApproachingTrigger ;
+    gar:executesAction gar:SendReminderAction .
+
+gar:StatusChangeNotificationRule a gar:NotificationRule ;
+    rdfs:label "Status Change Notification Rule" ;
+    rdfs:comment "Notifies stakeholders of TIP status changes." ;
+    gar:appliesTo tip:TypeIntroductionProposal ;
+    gar:triggeredBy gar:StateChangeTrigger ;
+    gar:executesAction gar:SendNotificationAction .
+
+## Approval Rules
+
+gar:AutoApprovalRule a gar:ApprovalRule ;
+    rdfs:label "Automatic Approval Rule" ;
+    rdfs:comment "Automatically approves TIPs meeting all criteria." ;
+    gar:appliesTo tip:TypeIntroductionProposal ;
+    gar:triggeredBy gar:AllCriteriaMet ;
+    gar:executesAction gar:AutoApproveAction .
+
+gar:EscalationRule a gar:ApprovalRule ;
+    rdfs:label "Escalation Rule" ;
+    rdfs:comment "Escalates complex TIPs to human review." ;
+    gar:appliesTo tip:TypeIntroductionProposal ;
+    gar:triggeredBy gar:ComplexityThresholdTrigger ;
+    gar:executesAction gar:EscalateToHumanAction .
+
+# ===================================================================
+# 6. TRIGGER DEFINITIONS
+# Specific triggers for automation rules
+# ===================================================================
+
+## Time-Based Triggers
+
+gar:DeadlineApproachingTrigger a gar:TimeTrigger ;
+    rdfs:label "Deadline Approaching Trigger" ;
+    rdfs:comment "Triggers when deadline is approaching (24 hours before)." ;
+    gar:timeOffset "-P1D"^^xsd:duration .
+
+gar:DeadlinePassedTrigger a gar:TimeTrigger ;
+    rdfs:label "Deadline Passed Trigger" ;
+    rdfs:comment "Triggers when deadline has passed." ;
+    gar:timeOffset "PT0S"^^xsd:duration .
+
+## State-Based Triggers
+
+gar:StateChangeTrigger a gar:StateTrigger ;
+    rdfs:label "State Change Trigger" ;
+    rdfs:comment "Triggers on any TIP state change." .
+
+gar:CompleteDraftTrigger a gar:StateTrigger ;
+    rdfs:label "Complete Draft Trigger" ;
+    rdfs:comment "Triggers when draft TIP is complete and ready for review." ;
+    gar:requiresState tip:DraftTIP .
+
+gar:ReviewCompleteTrigger a gar:StateTrigger ;
+    rdfs:label "Review Complete Trigger" ;
+    rdfs:comment "Triggers when TIP review is completed successfully." ;
+    gar:requiresState tip:UnderReview .
+
+## Signature-Based Triggers
+
+gar:SignatureSubmissionTrigger a gar:SignatureTrigger ;
+    rdfs:label "Signature Submission Trigger" ;
+    rdfs:comment "Triggers when new quorum signature is submitted." .
+
+gar:QuorumMetTrigger a gar:SignatureTrigger ;
+    rdfs:label "Quorum Met Trigger" ;
+    rdfs:comment "Triggers when required quorum threshold is met." ;
+    gar:requiresSignatureCount 2 .
+
+## Voting-Based Triggers
+
+gar:VotingCompleteTrigger a gar:VotingTrigger ;
+    rdfs:label "Voting Complete Trigger" ;
+    rdfs:comment "Triggers when voting period ends." .
+
+gar:ConsensusReachedTrigger a gar:VotingTrigger ;
+    rdfs:label "Consensus Reached Trigger" ;
+    rdfs:comment "Triggers when voting consensus is reached early." .
+
+# ===================================================================
+# 7. ACTION DEFINITIONS
+# Specific actions executed by automation rules
+# ===================================================================
+
+## State Transition Actions
+
+gar:TransitionToReviewAction a gar:StateTransitionAction ;
+    rdfs:label "Transition to Review Action" ;
+    rdfs:comment "Transitions TIP state to Under Review." ;
+    gar:targetState tip:UnderReview .
+
+gar:TransitionToSignatureAction a gar:StateTransitionAction ;
+    rdfs:label "Transition to Signature Collection Action" ;
+    rdfs:comment "Transitions TIP to signature collection phase." ;
+    gar:targetState tip:AwaitingSignatures .
+
+gar:ActivateVotingAction a gar:StateTransitionAction ;
+    rdfs:label "Activate Voting Action" ;
+    rdfs:comment "Activates community voting on TIP." ;
+    gar:targetState tip:Active .
+
+## Validation Actions
+
+gar:ValidateAssessmentAction a gar:ValidationAction ;
+    rdfs:label "Validate Assessment Action" ;
+    rdfs:comment "Validates impact assessment completeness and accuracy." ;
+    gar:validationType "impact-assessment" .
+
+gar:ValidateSignatureAction a gar:ValidationAction ;
+    rdfs:label "Validate Signature Action" ;
+    rdfs:comment "Validates cryptographic signature authenticity." ;
+    gar:validationType "signature" .
+
+## Notification Actions
+
+gar:SendReminderAction a gar:NotificationAction ;
+    rdfs:label "Send Reminder Action" ;
+    rdfs:comment "Sends deadline reminder notifications." ;
+    gar:notificationType "reminder" .
+
+gar:SendNotificationAction a gar:NotificationAction ;
+    rdfs:label "Send Notification Action" ;
+    rdfs:comment "Sends status change notifications." ;
+    gar:notificationType "status-change" .
+
+## Approval Actions
+
+gar:AutoApproveAction a gar:StateTransitionAction ;
+    rdfs:label "Auto Approve Action" ;
+    rdfs:comment "Automatically approves TIP when all criteria are met." ;
+    gar:targetState tip:Approved .
+
+gar:EscalateToHumanAction a gar:EscalationAction ;
+    rdfs:label "Escalate to Human Action" ;
+    rdfs:comment "Escalates complex cases to human governance authorities." ;
+    gar:escalationLevel "human-review" .
+
+# ===================================================================
+# 8. WORKFLOW DEFINITIONS
+# Specific workflow implementations
+# ===================================================================
+
+## TIP Lifecycle Workflow
+
+gar:StandardTIPLifecycle a gar:TIPLifecycleWorkflow ;
+    rdfs:label "Standard TIP Lifecycle Workflow" ;
+    rdfs:comment "Standard workflow for processing TIP proposals." ;
+    gar:hasWorkflowStep gar:InitialValidationStep,
+                        gar:TechnicalReviewStep,
+                        gar:SecurityReviewStep,
+                        gar:ImpactAssessmentStep,
+                        gar:SignatureCollectionStep,
+                        gar:CommunityVotingStep,
+                        gar:ApprovalDecisionStep,
+                        gar:ImplementationStep .
+
+## Workflow Steps
+
+gar:InitialValidationStep a gar:SequentialStep ;
+    rdfs:label "Initial Validation Step" ;
+    rdfs:comment "Validates TIP format and completeness." ;
+    gar:nextStep gar:TechnicalReviewStep ;
+    gar:estimatedDuration "PT2H"^^xsd:duration .
+
+gar:TechnicalReviewStep a gar:ParallelStep ;
+    rdfs:label "Technical Review Step" ;
+    rdfs:comment "Technical review of TIP proposal." ;
+    gar:nextStep gar:ImpactAssessmentStep ;
+    gar:estimatedDuration "P3D"^^xsd:duration .
+
+gar:SecurityReviewStep a gar:ParallelStep ;
+    rdfs:label "Security Review Step" ;
+    rdfs:comment "Security review of TIP proposal." ;
+    gar:nextStep gar:ImpactAssessmentStep ;
+    gar:estimatedDuration "P2D"^^xsd:duration .
+
+gar:ImpactAssessmentStep a gar:SequentialStep ;
+    rdfs:label "Impact Assessment Step" ;
+    rdfs:comment "Comprehensive impact assessment." ;
+    gar:dependsOnStep gar:TechnicalReviewStep, gar:SecurityReviewStep ;
+    gar:nextStep gar:SignatureCollectionStep ;
+    gar:estimatedDuration "P1D"^^xsd:duration .
+
+gar:SignatureCollectionStep a gar:SequentialStep ;
+    rdfs:label "Signature Collection Step" ;
+    rdfs:comment "Collection of offline quorum signatures." ;
+    gar:nextStep gar:CommunityVotingStep ;
+    gar:estimatedDuration "P5D"^^xsd:duration .
+
+gar:CommunityVotingStep a gar:SequentialStep ;
+    rdfs:label "Community Voting Step" ;
+    rdfs:comment "Community voting on TIP proposal." ;
+    gar:nextStep gar:ApprovalDecisionStep ;
+    gar:estimatedDuration "P7D"^^xsd:duration .
+
+gar:ApprovalDecisionStep a gar:ApprovalGate ;
+    rdfs:label "Approval Decision Step" ;
+    rdfs:comment "Final approval decision based on votes and signatures." ;
+    gar:nextStep gar:ImplementationStep .
+
+gar:ImplementationStep a gar:ConditionalStep ;
+    rdfs:label "Implementation Step" ;
+    rdfs:comment "Implementation of approved TIP." ;
+    gar:condition "tip-approved" ;
+    gar:estimatedDuration "P14D"^^xsd:duration .
+
+# ===================================================================
+# 9. DECISION CRITERIA AND CONDITIONS
+# Criteria and conditions for automated decision making
+# ===================================================================
+
+## Decision Criteria Classes
+
+gar:DecisionCriteria a owl:Class ;
+    rdfs:label "Decision Criteria" ;
+    rdfs:comment "Criteria used for automated decision making." ;
+    rdfs:subClassOf owl:Thing .
+
+gar:ThresholdCriteria a owl:Class ;
+    rdfs:label "Threshold Criteria" ;
+    rdfs:comment "Criteria based on threshold values." ;
+    rdfs:subClassOf gar:DecisionCriteria .
+
+gar:ScoreCriteria a owl:Class ;
+    rdfs:label "Score Criteria" ;
+    rdfs:comment "Criteria based on scoring mechanisms." ;
+    rdfs:subClassOf gar:DecisionCriteria .
+
+gar:ConsensusCriteria a owl:Class ;
+    rdfs:label "Consensus Criteria" ;
+    rdfs:comment "Criteria requiring consensus agreement." ;
+    rdfs:subClassOf gar:DecisionCriteria .
+
+## Rule Condition Classes
+
+gar:RuleCondition a owl:Class ;
+    rdfs:label "Rule Condition" ;
+    rdfs:comment "Condition that must be satisfied for rule execution." ;
+    rdfs:subClassOf owl:Thing .
+
+gar:TimeCondition a owl:Class ;
+    rdfs:label "Time Condition" ;
+    rdfs:comment "Condition based on time constraints." ;
+    rdfs:subClassOf gar:RuleCondition .
+
+gar:StateCondition a owl:Class ;
+    rdfs:label "State Condition" ;
+    rdfs:comment "Condition based on entity states." ;
+    rdfs:subClassOf gar:RuleCondition .
+
+gar:SignatureCondition a owl:Class ;
+    rdfs:label "Signature Condition" ;
+    rdfs:comment "Condition based on signature requirements." ;
+    rdfs:subClassOf gar:RuleCondition .
+
+## Specific Decision Criteria
+
+gar:QuorumThresholdCriteria a gar:ThresholdCriteria ;
+    rdfs:label "Quorum Threshold Criteria" ;
+    rdfs:comment "Criteria requiring minimum quorum threshold." ;
+    gar:thresholdValue 2 ;
+    gar:thresholdType "signature-count" .
+
+gar:ApprovalRateCriteria a gar:ThresholdCriteria ;
+    rdfs:label "Approval Rate Criteria" ;
+    rdfs:comment "Criteria requiring minimum approval rate." ;
+    gar:thresholdValue "0.6"^^xsd:decimal ;
+    gar:thresholdType "approval-rate" .
+
+gar:ImpactScoreCriteria a gar:ScoreCriteria ;
+    rdfs:label "Impact Score Criteria" ;
+    rdfs:comment "Criteria based on impact assessment scores." ;
+    gar:maxAcceptableScore "75.0"^^xsd:decimal ;
+    gar:scoreType "impact-assessment" .
+
+# ===================================================================
+# 10. DATA PROPERTIES FOR AUTOMATION
+# Data properties for automation configuration and metrics
+# ===================================================================
+
+## Rule Configuration Properties
+
+gar:rulePriority a owl:DatatypeProperty ;
+    rdfs:label "rule priority" ;
+    rdfs:comment "Priority level for rule execution (higher number = higher priority)." ;
+    rdfs:domain gar:AutomationRule ;
+    rdfs:range xsd:integer .
+
+gar:isEnabled a owl:DatatypeProperty ;
+    rdfs:label "is enabled" ;
+    rdfs:comment "Whether the automation rule is currently enabled." ;
+    rdfs:domain gar:AutomationRule ;
+    rdfs:range xsd:boolean .
+
+gar:executionCount a owl:DatatypeProperty ;
+    rdfs:label "execution count" ;
+    rdfs:comment "Number of times the rule has been executed." ;
+    rdfs:domain gar:AutomationRule ;
+    rdfs:range xsd:nonNegativeInteger .
+
+gar:lastExecutionTime a owl:DatatypeProperty ;
+    rdfs:label "last execution time" ;
+    rdfs:comment "Timestamp of last rule execution." ;
+    rdfs:domain gar:AutomationRule ;
+    rdfs:range xsd:dateTime .
+
+## Trigger Configuration Properties
+
+gar:timeOffset a owl:DatatypeProperty ;
+    rdfs:label "time offset" ;
+    rdfs:comment "Time offset for time-based triggers." ;
+    rdfs:domain gar:TimeTrigger ;
+    rdfs:range xsd:duration .
+
+gar:requiresState a owl:ObjectProperty ;
+    rdfs:label "requires state" ;
+    rdfs:comment "State required for state-based triggers." ;
+    rdfs:domain gar:StateTrigger ;
+    rdfs:range tip:TIPStatus .
+
+gar:requiresSignatureCount a owl:DatatypeProperty ;
+    rdfs:label "requires signature count" ;
+    rdfs:comment "Number of signatures required for signature-based triggers." ;
+    rdfs:domain gar:SignatureTrigger ;
+    rdfs:range xsd:positiveInteger .
+
+## Action Configuration Properties
+
+gar:targetState a owl:ObjectProperty ;
+    rdfs:label "target state" ;
+    rdfs:comment "Target state for state transition actions." ;
+    rdfs:domain gar:StateTransitionAction ;
+    rdfs:range tip:TIPStatus .
+
+gar:notificationType a owl:DatatypeProperty ;
+    rdfs:label "notification type" ;
+    rdfs:comment "Type of notification for notification actions." ;
+    rdfs:domain gar:NotificationAction ;
+    rdfs:range xsd:string .
+
+gar:validationType a owl:DatatypeProperty ;
+    rdfs:label "validation type" ;
+    rdfs:comment "Type of validation for validation actions." ;
+    rdfs:domain gar:ValidationAction ;
+    rdfs:range xsd:string .
+
+gar:escalationLevel a owl:DatatypeProperty ;
+    rdfs:label "escalation level" ;
+    rdfs:comment "Level of escalation for escalation actions." ;
+    rdfs:domain gar:EscalationAction ;
+    rdfs:range xsd:string .
+
+## Workflow Properties
+
+gar:estimatedDuration a owl:DatatypeProperty ;
+    rdfs:label "estimated duration" ;
+    rdfs:comment "Estimated duration for workflow step completion." ;
+    rdfs:domain gar:WorkflowStep ;
+    rdfs:range xsd:duration .
+
+gar:condition a owl:DatatypeProperty ;
+    rdfs:label "condition" ;
+    rdfs:comment "Condition for conditional workflow steps." ;
+    rdfs:domain gar:ConditionalStep ;
+    rdfs:range xsd:string .
+
+## Decision Properties
+
+gar:thresholdValue a owl:DatatypeProperty ;
+    rdfs:label "threshold value" ;
+    rdfs:comment "Numeric threshold value for threshold-based criteria." ;
+    rdfs:domain gar:ThresholdCriteria ;
+    rdfs:range xsd:decimal .
+
+gar:thresholdType a owl:DatatypeProperty ;
+    rdfs:label "threshold type" ;
+    rdfs:comment "Type of threshold for threshold-based criteria." ;
+    rdfs:domain gar:ThresholdCriteria ;
+    rdfs:range xsd:string .
+
+gar:maxAcceptableScore a owl:DatatypeProperty ;
+    rdfs:label "max acceptable score" ;
+    rdfs:comment "Maximum acceptable score for score-based criteria." ;
+    rdfs:domain gar:ScoreCriteria ;
+    rdfs:range xsd:decimal .
+
+gar:scoreType a owl:DatatypeProperty ;
+    rdfs:label "score type" ;
+    rdfs:comment "Type of score for score-based criteria." ;
+    rdfs:domain gar:ScoreCriteria ;
+    rdfs:range xsd:string .
+
+# ===================================================================
+# 11. AUTOMATION RULE INSTANCES
+# Concrete instances of automation rules with configuration
+# ===================================================================
+
+## Configure Automation Rules
+
+gar:DraftToReviewRule
+    gar:rulePriority 100 ;
+    gar:isEnabled "true"^^xsd:boolean ;
+    gar:executionCount 0 .
+
+gar:ReviewToSignatureRule
+    gar:rulePriority 90 ;
+    gar:isEnabled "true"^^xsd:boolean ;
+    gar:executionCount 0 .
+
+gar:SignatureToActiveRule
+    gar:rulePriority 95 ;
+    gar:isEnabled "true"^^xsd:boolean ;
+    gar:executionCount 0 .
+
+gar:DeadlineReminderRule
+    gar:rulePriority 50 ;
+    gar:isEnabled "true"^^xsd:boolean ;
+    gar:executionCount 0 .
+
+## Configure Complex Triggers
+
+gar:AllCriteriaMet a gar:AutomationTrigger ;
+    rdfs:label "All Criteria Met Trigger" ;
+    rdfs:comment "Composite trigger activated when all approval criteria are satisfied." .
+
+gar:ComplexityThresholdTrigger a gar:AutomationTrigger ;
+    rdfs:label "Complexity Threshold Trigger" ;
+    rdfs:comment "Triggers when TIP complexity exceeds automation threshold." .
+
+gar:AssessmentSubmissionTrigger a gar:AutomationTrigger ;
+    rdfs:label "Assessment Submission Trigger" ;
+    rdfs:comment "Triggers when impact assessment is submitted." .
+
+# ===================================================================
+# 12. INTEGRATION WITH GOVERNANCE SYSTEMS
+# Integration points with external governance and notification systems
+# ===================================================================
+
+## External System Integration
+
+gar:ExternalSystemConnector a owl:Class ;
+    rdfs:label "External System Connector" ;
+    rdfs:comment "Connector for integrating with external systems." ;
+    rdfs:subClassOf owl:Thing .
+
+gar:NotificationService a owl:Class ;
+    rdfs:label "Notification Service" ;
+    rdfs:comment "Service for sending notifications to stakeholders." ;
+    rdfs:subClassOf gar:ExternalSystemConnector .
+
+gar:GovernanceDashboard a owl:Class ;
+    rdfs:label "Governance Dashboard" ;
+    rdfs:comment "Dashboard for monitoring governance processes." ;
+    rdfs:subClassOf gar:ExternalSystemConnector .
+
+gar:AuditLogger a owl:Class ;
+    rdfs:label "Audit Logger" ;
+    rdfs:comment "Logger for maintaining governance audit trails." ;
+    rdfs:subClassOf gar:ExternalSystemConnector .
+
+## Integration Properties
+
+gar:connectsTo a owl:ObjectProperty ;
+    rdfs:label "connects to" ;
+    rdfs:comment "Specifies external system connection." ;
+    rdfs:domain gar:ExternalSystemConnector ;
+    rdfs:range owl:Thing .
+
+gar:sendsNotificationTo a owl:ObjectProperty ;
+    rdfs:label "sends notification to" ;
+    rdfs:comment "Specifies notification recipients." ;
+    rdfs:domain gar:NotificationService ;
+    rdfs:range foaf:Agent .
+
+gar:logsTo a owl:ObjectProperty ;
+    rdfs:label "logs to" ;
+    rdfs:comment "Specifies audit log destination." ;
+    rdfs:domain gar:AuditLogger ;
+    rdfs:range tip:TransparencyLog .
+
+# ===================================================================
+# END OF GOVERNANCE AUTOMATION RULES ONTOLOGY
+# ===================================================================

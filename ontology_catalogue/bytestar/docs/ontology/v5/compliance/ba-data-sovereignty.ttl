@@ -1,0 +1,771 @@
+@prefix ba: <http://bytestar.org/ontology/> .
+@prefix bads: <http://bytestar.org/ontology/data-sovereignty/> .
+@prefix bapa: <http://bytestar.org/ontology/privacy-automation/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+# =============================================================================
+# ByteStar Data Sovereignty and Cross-Border Data Flow Control Ontology
+# Version: 5.0.0 - Phase 5
+# =============================================================================
+
+<http://bytestar.org/ontology/data-sovereignty> a owl:Ontology ;
+    owl:versionIRI <http://bytestar.org/ontology/data-sovereignty/5.0.0> ;
+    dct:title "ByteStar Data Sovereignty and Cross-Border Data Flow Control Ontology" ;
+    dct:description "Comprehensive framework for data sovereignty enforcement, geographic data residency control, cross-border transfer validation, jurisdictional compliance mapping, and automated data localization for crystal operations" ;
+    dct:creator "ByteStar Architecture Team" ;
+    dct:created "2025-01-23"^^xsd:date ;
+    dct:modified "2025-01-23"^^xsd:date ;
+    owl:imports <http://bytestar.org/ontology/core>,
+                <http://bytestar.org/ontology/privacy-automation>,
+                <http://bytestar.org/ontology/compliance>,
+                <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+
+# =============================================================================
+# DATA SOVEREIGNTY CORE FRAMEWORK
+# =============================================================================
+
+bads:DataSovereigntyFramework a owl:Class ;
+    rdfs:label "Data Sovereignty Framework" ;
+    rdfs:comment "Comprehensive framework for enforcing data sovereignty across jurisdictions" ;
+    rdfs:subClassOf ba:GovernanceFramework ;
+    bads:sovereigntyLevel "national,regional,organizational" ;
+    bads:enforcementMechanism "legal,technical,procedural" ;
+    bads:complianceScope "global" ;
+    ba:performanceRequirement "< 5ms sovereignty checks" .
+
+bads:SovereigntyController a owl:Class ;
+    rdfs:label "Sovereignty Controller" ;
+    rdfs:comment "Central controller for data sovereignty enforcement" ;
+    rdfs:subClassOf ba:Controller ;
+    bads:controlScope "data_creation,data_processing,data_transfer,data_deletion" ;
+    bads:enforcementMode "preventive,detective,corrective" ;
+    bads:automationLevel "full" ;
+    ba:realtimeEnforcement true .
+
+bads:JurisdictionalAuthority a owl:Class ;
+    rdfs:label "Jurisdictional Authority" ;
+    rdfs:comment "Legal authority having jurisdiction over data" ;
+    rdfs:subClassOf foaf:Organization ;
+    bads:jurisdictionType "national,state,regional,municipal,sector" ;
+    bads:legalFramework xsd:string ;
+    bads:enforcementPower xsd:string ;
+    bads:dataRights xsd:string .
+
+bads:DataSovereigntyPolicy a owl:Class ;
+    rdfs:label "Data Sovereignty Policy" ;
+    rdfs:comment "Policy defining data sovereignty requirements and constraints" ;
+    rdfs:subClassOf ba:Policy ;
+    bads:policyScope "data_type,geographic,temporal,entity" ;
+    bads:sovereigntyLevel xsd:string ;
+    bads:enforcementMechanism xsd:string ;
+    bads:exceptionHandling true .
+
+bads:SovereigntyViolation a owl:Class ;
+    rdfs:label "Sovereignty Violation" ;
+    rdfs:comment "Violation of data sovereignty requirements" ;
+    rdfs:subClassOf ba:ComplianceViolation ;
+    bads:violationType "unauthorized_transfer,illegal_processing,jurisdiction_breach" ;
+    bads:severityLevel "low,medium,high,critical" ;
+    bads:remediationRequired true ;
+    bads:legalConsequences true .
+
+# =============================================================================
+# GEOGRAPHIC DATA RESIDENCY
+# =============================================================================
+
+bads:GeographicDataController a owl:Class ;
+    rdfs:label "Geographic Data Controller" ;
+    rdfs:comment "Controls data placement based on geographic requirements" ;
+    rdfs:subClassOf bads:SovereigntyController ;
+    bads:residencyEnforcement "strict,flexible,conditional" ;
+    bads:geographicScope "global,regional,national,local" ;
+    bads:mappingAccuracy "> 99.99%" ;
+    ba:latencyRequirement "< 3ms" .
+
+bads:DataResidencyRequirement a owl:Class ;
+    rdfs:label "Data Residency Requirement" ;
+    rdfs:comment "Specific requirement for data to reside in particular geography" ;
+    rdfs:subClassOf ba:Requirement ;
+    bads:residencyType "mandatory,conditional,prohibited" ;
+    bads:geographicScope xsd:string ;
+    bads:temporalScope xsd:duration ;
+    bads:exceptionCriteria xsd:string .
+
+bads:GeographicBoundary a owl:Class ;
+    rdfs:label "Geographic Boundary" ;
+    rdfs:comment "Defined geographic boundary for data residency" ;
+    rdfs:subClassOf geo:SpatialThing ;
+    bads:boundaryType "political,administrative,economic,regulatory" ;
+    bads:boundaryDefinition "coordinates,administrative_units,legal_description" ;
+    bads:boundarySource "official_mapping,legal_documents" ;
+    bads:boundaryAccuracy xsd:double .
+
+bads:DataLocationTracker a owl:Class ;
+    rdfs:label "Data Location Tracker" ;
+    rdfs:comment "Tracks real-time location of data across systems" ;
+    rdfs:subClassOf ba:LocationTracker ;
+    bads:trackingGranularity "file,record,field,bit" ;
+    bads:trackingAccuracy "> 99.9%" ;
+    bads:realtimeTracking true ;
+    bads:locationHistory true .
+
+bads:ResidencyValidator a owl:Class ;
+    rdfs:label "Residency Validator" ;
+    rdfs:comment "Validates compliance with data residency requirements" ;
+    rdfs:subClassOf ba:Validator ;
+    bads:validationType "pre_storage,continuous,post_processing" ;
+    bads:validationFrequency "real_time,periodic,event_driven" ;
+    bads:violationDetection true ;
+    ba:validationLatency "< 2ms" .
+
+# =============================================================================
+# CROSS-BORDER DATA TRANSFER CONTROL
+# =============================================================================
+
+bads:CrossBorderTransferController a owl:Class ;
+    rdfs:label "Cross-Border Transfer Controller" ;
+    rdfs:comment "Controls and validates cross-border data transfers" ;
+    rdfs:subClassOf bads:SovereigntyController ;
+    bads:transferValidation "legal_basis,adequacy_decision,safeguards" ;
+    bads:blockingCapability true ;
+    bads:auditTrail true ;
+    bads:realtimeMonitoring true .
+
+bads:TransferMechanism a owl:Class ;
+    rdfs:label "Transfer Mechanism" ;
+    rdfs:comment "Legal or technical mechanism enabling cross-border data transfer" ;
+    rdfs:subClassOf ba:Mechanism ;
+    bads:mechanismType "adequacy_decision,safeguards,derogations,binding_corporate_rules" ;
+    bads:legalBasis xsd:string ;
+    bads:validityPeriod xsd:duration ;
+    bads:geographicScope xsd:string .
+
+bads:AdequacyDecision a owl:Class ;
+    rdfs:label "Adequacy Decision" ;
+    rdfs:comment "Official decision recognizing adequate level of data protection" ;
+    rdfs:subClassOf bads:TransferMechanism ;
+    bads:mechanismType "adequacy_decision" ;
+    bads:issuingAuthority xsd:string ;
+    bads:recognizedCountry xsd:string ;
+    bads:decisionStatus "active,suspended,revoked" ;
+    bads:validityDate xsd:date .
+
+bads:StandardContractualClauses a owl:Class ;
+    rdfs:label "Standard Contractual Clauses" ;
+    rdfs:comment "Standard contractual clauses for international data transfers" ;
+    rdfs:subClassOf bads:TransferMechanism ;
+    bads:mechanismType "safeguards" ;
+    bads:clauseVersion xsd:string ;
+    bads:contractingParties xsd:string ;
+    bads:additionalSafeguards true ;
+    bads:supervisoryAuthorityApproval true .
+
+bads:BindingCorporateRules a owl:Class ;
+    rdfs:label "Binding Corporate Rules" ;
+    rdfs:comment "Binding corporate rules for intra-group data transfers" ;
+    rdfs:subClassOf bads:TransferMechanism ;
+    bads:mechanismType "binding_corporate_rules" ;
+    bads:corporateGroup xsd:string ;
+    bads:approvalAuthority xsd:string ;
+    bads:transferScope "controller,processor" ;
+    bads:enforcementMechanism true .
+
+bads:TransferRiskAssessment a owl:Class ;
+    rdfs:label "Transfer Risk Assessment" ;
+    rdfs:comment "Risk assessment for cross-border data transfers" ;
+    rdfs:subClassOf ba:RiskAssessment ;
+    bads:riskFactors "legal_framework,surveillance_laws,enforcement_mechanisms" ;
+    bads:riskLevel "low,medium,high,prohibitive" ;
+    bads:mitigationMeasures xsd:string ;
+    bads:assessmentValidity xsd:duration .
+
+bads:TransferImpactAssessment a owl:Class ;
+    rdfs:label "Transfer Impact Assessment" ;
+    rdfs:comment "Impact assessment for high-risk data transfers" ;
+    rdfs:subClassOf ba:ImpactAssessment ;
+    bads:impactCategories "data_subject_rights,legal_protection,surveillance_risk" ;
+    bads:impactLevel "negligible,limited,significant,high" ;
+    bads:necessityTest true ;
+    bads:proportionalityTest true .
+
+# =============================================================================
+# JURISDICTIONAL COMPLIANCE MAPPING
+# =============================================================================
+
+bads:JurisdictionalMapper a owl:Class ;
+    rdfs:label "Jurisdictional Mapper" ;
+    rdfs:comment "Maps data operations to applicable legal jurisdictions" ;
+    rdfs:subClassOf ba:Mapper ;
+    bads:mappingCriteria "data_location,data_subject,controller_location,processing_location" ;
+    bads:mappingAccuracy "> 99.8%" ;
+    bads:conflictResolution "automatic,manual,escalation" ;
+    bads:mappingLatency "< 10ms" .
+
+bads:LegalFramework a owl:Class ;
+    rdfs:label "Legal Framework" ;
+    rdfs:comment "Legal framework governing data processing in jurisdiction" ;
+    rdfs:subClassOf ba:Framework ;
+    bads:frameworkType "data_protection,privacy,cybersecurity,sector_specific" ;
+    bads:jurisdiction xsd:string ;
+    bads:applicabilityScope xsd:string ;
+    bads:enforcementMechanism xsd:string ;
+    bads:penaltyFramework true .
+
+bads:JurisdictionalConflict a owl:Class ;
+    rdfs:label "Jurisdictional Conflict" ;
+    rdfs:comment "Conflict between requirements of different jurisdictions" ;
+    rdfs:subClassOf ba:Conflict ;
+    bads:conflictType "direct,indirect,practical" ;
+    bads:conflictingJurisdictions xsd:string ;
+    bads:resolutionMechanism "precedence,negotiation,avoidance" ;
+    bads:resolutionStatus "unresolved,pending,resolved" .
+
+bads:ComplianceMatrix a owl:Class ;
+    rdfs:label "Compliance Matrix" ;
+    rdfs:comment "Matrix mapping data operations to compliance requirements" ;
+    rdfs:subClassOf ba:ComplianceMapping ;
+    bads:matrixDimensions "jurisdiction,data_type,operation,entity" ;
+    bads:requirementMapping "mandatory,conditional,prohibited" ;
+    bads:conflictIdentification true ;
+    bads:gapAnalysis true .
+
+bads:MultiJurisdictionalCompliance a owl:Class ;
+    rdfs:label "Multi-Jurisdictional Compliance" ;
+    rdfs:comment "Compliance framework spanning multiple jurisdictions" ;
+    rdfs:subClassOf ba:ComplianceFramework ;
+    bads:jurisdictionCount xsd:nonNegativeInteger ;
+    bads:harmonizationLevel "high,medium,low" ;
+    bads:conflictResolution "automatic" ;
+    bads:complianceStrategy "maximum,intersection,contextual" .
+
+# =============================================================================
+# AUTOMATED DATA LOCALIZATION
+# =============================================================================
+
+bads:DataLocalizationEngine a owl:Class ;
+    rdfs:label "Data Localization Engine" ;
+    rdfs:comment "Automated engine for data localization based on requirements" ;
+    rdfs:subClassOf ba:AutomationEngine ;
+    bads:localizationStrategy "proactive,reactive,adaptive" ;
+    bads:migrationCapability true ;
+    bads:dataClassification true ;
+    bads:performanceOptimization true .
+
+bads:LocalizationRequirement a owl:Class ;
+    rdfs:label "Localization Requirement" ;
+    rdfs:comment "Requirement for data to be localized within specific boundaries" ;
+    rdfs:subClassOf ba:Requirement ;
+    bads:requirementType "mandatory,conditional,optional" ;
+    bads:localizationScope "storage,processing,backup,archive" ;
+    bads:geographicConstraints xsd:string ;
+    bads:temporalConstraints xsd:duration .
+
+bads:DataMigrationController a owl:Class ;
+    rdfs:label "Data Migration Controller" ;
+    rdfs:comment "Controls migration of data to comply with localization requirements" ;
+    rdfs:subClassOf ba:MigrationController ;
+    bads:migrationTriggers "regulatory_change,policy_update,violation_detection" ;
+    bads:migrationStrategy "immediate,scheduled,gradual" ;
+    bads:dataIntegrity true ;
+    bads:minimumDowntime true .
+
+bads:LocalizationValidator a owl:Class ;
+    rdfs:label "Localization Validator" ;
+    rdfs:comment "Validates compliance with data localization requirements" ;
+    rdfs:subClassOf ba:Validator ;
+    bads:validationScope "storage_location,processing_location,backup_location" ;
+    bads:validationFrequency "continuous" ;
+    bads:violationResponse "automatic_remediation" ;
+    ba:validationAccuracy "> 99.95%" .
+
+bads:GeographicDistribution a owl:Class ;
+    rdfs:label "Geographic Distribution" ;
+    rdfs:comment "Geographic distribution strategy for data and processing" ;
+    rdfs:subClassOf ba:DistributionStrategy ;
+    bads:distributionCriteria "sovereignty,latency,availability,cost" ;
+    bads:redundancyLevel xsd:nonNegativeInteger ;
+    bads:failoverCapability true ;
+    bads:loadBalancing true .
+
+# =============================================================================
+# CRYSTAL OPERATIONS SOVEREIGNTY
+# =============================================================================
+
+bads:CrystalSovereigntyInterface a owl:Class ;
+    rdfs:label "Crystal Sovereignty Interface" ;
+    rdfs:comment "Sovereignty interface for ByteStar crystal operations" ;
+    rdfs:subClassOf ba:CrystalInterface ;
+    bads:crystalSovereignty true ;
+    bads:quantumDataProtection true ;
+    bads:crystallineJurisdiction xsd:string ;
+    bads:quantumLocalization true .
+
+bads:CrystalDataClassifier a owl:Class ;
+    rdfs:label "Crystal Data Classifier" ;
+    rdfs:comment "Classifies crystal data for sovereignty purposes" ;
+    rdfs:subClassOf ba:DataClassifier ;
+    bads:crystalSensitivityLevels "public,internal,confidential,restricted,sovereign" ;
+    bads:quantumClassification true ;
+    bads:crystallineProperties "coherence,entanglement,superposition" ;
+    bads:classificationAccuracy "> 99.99%" .
+
+bads:QuantumSovereignty a owl:Class ;
+    rdfs:label "Quantum Sovereignty" ;
+    rdfs:comment "Sovereignty framework for quantum and crystal data" ;
+    rdfs:subClassOf bads:DataSovereigntyFramework ;
+    bads:quantumProtection true ;
+    bads:entanglementPreservation true ;
+    bads:coherenceProtection true ;
+    bads:quantumJurisdiction xsd:string .
+
+# =============================================================================
+# DATA PROPERTIES
+# =============================================================================
+
+## Geographic Properties
+bads:latitude a owl:DatatypeProperty ;
+    rdfs:label "latitude" ;
+    rdfs:comment "Latitude coordinate for data location" ;
+    rdfs:range xsd:double ;
+    rdfs:domain bads:DataLocationTracker .
+
+bads:longitude a owl:DatatypeProperty ;
+    rdfs:label "longitude" ;
+    rdfs:comment "Longitude coordinate for data location" ;
+    rdfs:range xsd:double ;
+    rdfs:domain bads:DataLocationTracker .
+
+bads:altitude a owl:DatatypeProperty ;
+    rdfs:label "altitude" ;
+    rdfs:comment "Altitude for data location (for 3D mapping)" ;
+    rdfs:range xsd:double ;
+    rdfs:domain bads:DataLocationTracker .
+
+bads:geographicAccuracy a owl:DatatypeProperty ;
+    rdfs:label "geographic accuracy" ;
+    rdfs:comment "Accuracy of geographic location determination in meters" ;
+    rdfs:range xsd:double ;
+    rdfs:domain bads:GeographicDataController .
+
+## Jurisdictional Properties
+bads:jurisdiction a owl:DatatypeProperty ;
+    rdfs:label "jurisdiction" ;
+    rdfs:comment "Legal jurisdiction name or identifier" ;
+    rdfs:range xsd:string ;
+    rdfs:domain bads:JurisdictionalAuthority .
+
+bads:jurisdictionLevel a owl:DatatypeProperty ;
+    rdfs:label "jurisdiction level" ;
+    rdfs:comment "Level of jurisdiction (national, state, regional, etc.)" ;
+    rdfs:range xsd:string ;
+    rdfs:domain bads:JurisdictionalAuthority .
+
+bads:legalFrameworkVersion a owl:DatatypeProperty ;
+    rdfs:label "legal framework version" ;
+    rdfs:comment "Version of the legal framework" ;
+    rdfs:range xsd:string ;
+    rdfs:domain bads:LegalFramework .
+
+bads:enforcementAuthority a owl:DatatypeProperty ;
+    rdfs:label "enforcement authority" ;
+    rdfs:comment "Authority responsible for enforcement" ;
+    rdfs:range xsd:string ;
+    rdfs:domain bads:JurisdictionalAuthority .
+
+## Transfer Properties
+bads:transferDate a owl:DatatypeProperty ;
+    rdfs:label "transfer date" ;
+    rdfs:comment "Date when cross-border transfer occurred" ;
+    rdfs:range xsd:dateTime ;
+    rdfs:domain bads:CrossBorderTransferController .
+
+bads:sourceCountry a owl:DatatypeProperty ;
+    rdfs:label "source country" ;
+    rdfs:comment "Source country for data transfer" ;
+    rdfs:range xsd:string ;
+    rdfs:domain bads:CrossBorderTransferController .
+
+bads:destinationCountry a owl:DatatypeProperty ;
+    rdfs:label "destination country" ;
+    rdfs:comment "Destination country for data transfer" ;
+    rdfs:range xsd:string ;
+    rdfs:domain bads:CrossBorderTransferController .
+
+bads:transferVolume a owl:DatatypeProperty ;
+    rdfs:label "transfer volume" ;
+    rdfs:comment "Volume of data transferred in bytes" ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:domain bads:CrossBorderTransferController .
+
+## Residency Properties
+bads:residencyDuration a owl:DatatypeProperty ;
+    rdfs:label "residency duration" ;
+    rdfs:comment "Required duration for data residency" ;
+    rdfs:range xsd:duration ;
+    rdfs:domain bads:DataResidencyRequirement .
+
+bads:residencyStatus a owl:DatatypeProperty ;
+    rdfs:label "residency status" ;
+    rdfs:comment "Current residency compliance status" ;
+    rdfs:range xsd:string ;
+    rdfs:domain bads:ResidencyValidator .
+
+bads:localizationLevel a owl:DatatypeProperty ;
+    rdfs:label "localization level" ;
+    rdfs:comment "Level of data localization (strict, moderate, flexible)" ;
+    rdfs:range xsd:string ;
+    rdfs:domain bads:LocalizationRequirement .
+
+## Performance Properties
+bads:validationLatency a owl:DatatypeProperty ;
+    rdfs:label "validation latency" ;
+    rdfs:comment "Time required for sovereignty validation in milliseconds" ;
+    rdfs:range xsd:decimal ;
+    rdfs:domain bads:SovereigntyController .
+
+bads:migrationTime a owl:DatatypeProperty ;
+    rdfs:label "migration time" ;
+    rdfs:comment "Time required for data migration in seconds" ;
+    rdfs:range xsd:decimal ;
+    rdfs:domain bads:DataMigrationController .
+
+bads:trackingAccuracy a owl:DatatypeProperty ;
+    rdfs:label "tracking accuracy" ;
+    rdfs:comment "Accuracy of data location tracking as percentage" ;
+    rdfs:range xsd:double ;
+    rdfs:domain bads:DataLocationTracker .
+
+# =============================================================================
+# OBJECT PROPERTIES
+# =============================================================================
+
+## Sovereignty Relationships
+bads:governedBy a owl:ObjectProperty ;
+    rdfs:label "governed by" ;
+    rdfs:comment "Data governed by specific jurisdictional authority" ;
+    rdfs:domain ba:Data ;
+    rdfs:range bads:JurisdictionalAuthority .
+
+bads:enforcedBy a owl:ObjectProperty ;
+    rdfs:label "enforced by" ;
+    rdfs:comment "Sovereignty requirement enforced by controller" ;
+    rdfs:domain bads:DataSovereigntyPolicy ;
+    rdfs:range bads:SovereigntyController .
+
+bads:appliesTo a owl:ObjectProperty ;
+    rdfs:label "applies to" ;
+    rdfs:comment "Legal framework applying to specific data or operations" ;
+    rdfs:domain bads:LegalFramework ;
+    rdfs:range ba:DataOperation .
+
+## Geographic Relationships  
+bads:locatedIn a owl:ObjectProperty ;
+    rdfs:label "located in" ;
+    rdfs:comment "Data located within specific geographic boundary" ;
+    rdfs:domain ba:Data ;
+    rdfs:range bads:GeographicBoundary .
+
+bads:trackedBy a owl:ObjectProperty ;
+    rdfs:label "tracked by" ;
+    rdfs:comment "Data location tracked by tracking system" ;
+    rdfs:domain ba:Data ;
+    rdfs:range bads:DataLocationTracker .
+
+bads:residesIn a owl:ObjectProperty ;
+    rdfs:label "resides in" ;
+    rdfs:comment "Data residing in specific jurisdiction" ;
+    rdfs:domain ba:Data ;
+    rdfs:range bads:JurisdictionalAuthority .
+
+## Transfer Relationships
+bads:transferredVia a owl:ObjectProperty ;
+    rdfs:label "transferred via" ;
+    rdfs:comment "Data transferred using specific mechanism" ;
+    rdfs:domain ba:DataTransfer ;
+    rdfs:range bads:TransferMechanism .
+
+bads:validatedBy a owl:ObjectProperty ;
+    rdfs:label "validated by" ;
+    rdfs:comment "Transfer validated by transfer controller" ;
+    rdfs:domain ba:DataTransfer ;
+    rdfs:range bads:CrossBorderTransferController .
+
+bads:blockedBy a owl:ObjectProperty ;
+    rdfs:label "blocked by" ;
+    rdfs:comment "Transfer blocked by sovereignty violation" ;
+    rdfs:domain ba:DataTransfer ;
+    rdfs:range bads:SovereigntyViolation .
+
+## Compliance Relationships
+bads:mappedBy a owl:ObjectProperty ;
+    rdfs:label "mapped by" ;
+    rdfs:comment "Jurisdictional requirements mapped by mapper" ;
+    rdfs:domain bads:LegalFramework ;
+    rdfs:range bads:JurisdictionalMapper .
+
+bads:conflictsWith a owl:ObjectProperty ;
+    rdfs:label "conflicts with" ;
+    rdfs:comment "Jurisdictional framework conflicting with another" ;
+    rdfs:domain bads:LegalFramework ;
+    rdfs:range bads:LegalFramework .
+
+bads:resolvedBy a owl:ObjectProperty ;
+    rdfs:label "resolved by" ;
+    rdfs:comment "Conflict resolved by resolution mechanism" ;
+    rdfs:domain bads:JurisdictionalConflict ;
+    rdfs:range ba:ConflictResolution .
+
+## Localization Relationships
+bads:localizedBy a owl:ObjectProperty ;
+    rdfs:label "localized by" ;
+    rdfs:comment "Data localized by localization engine" ;
+    rdfs:domain ba:Data ;
+    rdfs:range bads:DataLocalizationEngine .
+
+bads:migratedBy a owl:ObjectProperty ;
+    rdfs:label "migrated by" ;
+    rdfs:comment "Data migrated by migration controller" ;
+    rdfs:domain ba:Data ;
+    rdfs:range bads:DataMigrationController .
+
+bads:distributedAccording a owl:ObjectProperty ;
+    rdfs:label "distributed according to" ;
+    rdfs:comment "Data distributed according to distribution strategy" ;
+    rdfs:domain ba:Data ;
+    rdfs:range bads:GeographicDistribution .
+
+## Crystal Sovereignty
+bads:crystalGoverned a owl:ObjectProperty ;
+    rdfs:label "crystal governed" ;
+    rdfs:comment "Crystal operation governed by quantum sovereignty" ;
+    rdfs:domain ba:CrystalOperation ;
+    rdfs:range bads:QuantumSovereignty .
+
+bads:quantumClassified a owl:ObjectProperty ;
+    rdfs:label "quantum classified" ;
+    rdfs:comment "Crystal data classified by quantum classifier" ;
+    rdfs:domain ba:CrystalData ;
+    rdfs:range bads:CrystalDataClassifier .
+
+# =============================================================================
+# SHACL VALIDATION SHAPES
+# =============================================================================
+
+bads:DataSovereigntyShape a sh:NodeShape ;
+    sh:targetClass bads:DataSovereigntyFramework ;
+    sh:property [
+        sh:path bads:validationLatency ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 5.0 ;
+        sh:message "Sovereignty validation must be under 5ms" ;
+    ] .
+
+bads:GeographicAccuracyShape a sh:NodeShape ;
+    sh:targetClass bads:GeographicDataController ;
+    sh:property [
+        sh:path bads:geographicAccuracy ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Geographic accuracy must be between 0-100 meters" ;
+    ] .
+
+bads:TransferValidationShape a sh:NodeShape ;
+    sh:targetClass bads:CrossBorderTransferController ;
+    sh:property [
+        sh:path bads:sourceCountry ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Source country must be specified" ;
+    ] ;
+    sh:property [
+        sh:path bads:destinationCountry ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Destination country must be specified" ;
+    ] .
+
+bads:ResidencyComplianceShape a sh:NodeShape ;
+    sh:targetClass bads:DataResidencyRequirement ;
+    sh:property [
+        sh:path bads:residencyDuration ;
+        sh:datatype xsd:duration ;
+        sh:minCount 1 ;
+        sh:message "Residency duration must be specified" ;
+    ] .
+
+bads:JurisdictionalMappingShape a sh:NodeShape ;
+    sh:targetClass bads:JurisdictionalMapper ;
+    sh:property [
+        sh:path bads:mappingAccuracy ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 99.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Mapping accuracy must be >99%" ;
+    ] .
+
+# =============================================================================
+# SOVEREIGNTY INSTANCES
+# =============================================================================
+
+# Global Data Sovereignty Framework
+bads:GlobalSovereigntyFramework a bads:DataSovereigntyFramework ;
+    rdfs:label "Global Data Sovereignty Framework" ;
+    rdfs:comment "Global framework for ByteStar data sovereignty" ;
+    bads:sovereigntyLevel "global" ;
+    bads:enforcementMechanism "automated" ;
+    bads:complianceScope "universal" .
+
+# Major Jurisdiction Authorities
+bads:EuropeanUnion a bads:JurisdictionalAuthority ;
+    rdfs:label "European Union" ;
+    rdfs:comment "European Union data protection authority" ;
+    bads:jurisdiction "European Union" ;
+    bads:jurisdictionLevel "supranational" ;
+    bads:legalFramework "GDPR" ;
+    bads:enforcementAuthority "Data Protection Authorities" .
+
+bads:UnitedStates a bads:JurisdictionalAuthority ;
+    rdfs:label "United States" ;
+    rdfs:comment "United States federal data protection authority" ;
+    bads:jurisdiction "United States" ;
+    bads:jurisdictionLevel "national" ;
+    bads:legalFramework "Privacy Act,HIPAA,CCPA" ;
+    bads:enforcementAuthority "FTC,HHS,State AGs" .
+
+bads:Canada a bads:JurisdictionalAuthority ;
+    rdfs:label "Canada" ;
+    rdfs:comment "Canadian privacy authority" ;
+    bads:jurisdiction "Canada" ;
+    bads:jurisdictionLevel "national" ;
+    bads:legalFramework "PIPEDA" ;
+    bads:enforcementAuthority "Privacy Commissioner" .
+
+bads:UnitedKingdom a bads:JurisdictionalAuthority ;
+    rdfs:label "United Kingdom" ;
+    rdfs:comment "United Kingdom data protection authority" ;
+    bads:jurisdiction "United Kingdom" ;
+    bads:jurisdictionLevel "national" ;
+    bads:legalFramework "UK GDPR,DPA 2018" ;
+    bads:enforcementAuthority "ICO" .
+
+bads:Japan a bads:JurisdictionalAuthority ;
+    rdfs:label "Japan" ;
+    rdfs:comment "Japanese data protection authority" ;
+    bads:jurisdiction "Japan" ;
+    bads:jurisdictionLevel "national" ;
+    bads:legalFramework "APPI" ;
+    bads:enforcementAuthority "PPC" .
+
+bads:Australia a bads:JurisdictionalAuthority ;
+    rdfs:label "Australia" ;
+    rdfs:comment "Australian privacy authority" ;
+    bads:jurisdiction "Australia" ;
+    bads:jurisdictionLevel "national" ;
+    bads:legalFramework "Privacy Act 1988" ;
+    bads:enforcementAuthority "OAIC" .
+
+# Transfer Mechanisms
+bads:EUUSAdequacyDecision a bads:AdequacyDecision ;
+    rdfs:label "EU-US Adequacy Decision" ;
+    rdfs:comment "EU adequacy decision for US data transfers" ;
+    bads:issuingAuthority "European Commission" ;
+    bads:recognizedCountry "United States" ;
+    bads:decisionStatus "suspended" ;
+    bads:validityDate "2023-07-10"^^xsd:date .
+
+bads:StandardContractualClausesEU a bads:StandardContractualClauses ;
+    rdfs:label "EU Standard Contractual Clauses" ;
+    rdfs:comment "EU standard contractual clauses for international transfers" ;
+    bads:clauseVersion "2021/914" ;
+    bads:additionalSafeguards true ;
+    bads:supervisoryAuthorityApproval false .
+
+# Geographic Controllers
+bads:EuropeanDataController a bads:GeographicDataController ;
+    rdfs:label "European Data Controller" ;
+    rdfs:comment "Controller for European data residency" ;
+    bads:residencyEnforcement "strict" ;
+    bads:geographicScope "European Economic Area" ;
+    bads:mappingAccuracy 99.99 .
+
+bads:NorthAmericaDataController a bads:GeographicDataController ;
+    rdfs:label "North America Data Controller" ;
+    rdfs:comment "Controller for North American data residency" ;
+    bads:residencyEnforcement "flexible" ;
+    bads:geographicScope "United States,Canada" ;
+    bads:mappingAccuracy 99.95 .
+
+# Crystal Sovereignty Systems
+bads:CrystalQuantumSovereignty a bads:QuantumSovereignty ;
+    rdfs:label "Crystal Quantum Sovereignty" ;
+    rdfs:comment "Quantum sovereignty framework for crystal operations" ;
+    bads:quantumProtection true ;
+    bads:entanglementPreservation true ;
+    bads:coherenceProtection true ;
+    bads:quantumJurisdiction "quantum_realm" .
+
+# =============================================================================
+# SOVEREIGNTY METRICS AND KPIs
+# =============================================================================
+
+bads:SovereigntyComplianceRate a ba:ComplianceMetric ;
+    rdfs:label "Sovereignty Compliance Rate" ;
+    rdfs:comment "Percentage of data operations compliant with sovereignty requirements" ;
+    ba:targetValue 100.0 ;
+    ba:unit "percentage" ;
+    ba:calculationMethod "compliant_operations / total_operations * 100" .
+
+bads:CrossBorderTransferSuccessRate a ba:SuccessMetric ;
+    rdfs:label "Cross-Border Transfer Success Rate" ;
+    rdfs:comment "Percentage of cross-border transfers completed successfully" ;
+    ba:targetValue 99.9 ;
+    ba:unit "percentage" ;
+    ba:calculationMethod "successful_transfers / total_transfer_attempts * 100" .
+
+bads:DataLocalizationAccuracy a ba:AccuracyMetric ;
+    rdfs:label "Data Localization Accuracy" ;
+    rdfs:comment "Accuracy of automated data localization" ;
+    ba:targetValue 99.95 ;
+    ba:unit "percentage" ;
+    ba:calculationMethod "correct_localizations / total_localizations * 100" .
+
+bads:JurisdictionalMappingPrecision a ba:PrecisionMetric ;
+    rdfs:label "Jurisdictional Mapping Precision" ;
+    rdfs:comment "Precision of jurisdictional requirement mapping" ;
+    ba:targetValue 99.8 ;
+    ba:unit "percentage" ;
+    ba:calculationMethod "correct_mappings / total_mappings * 100" .
+
+bads:SovereigntyViolationResponseTime a ba:ResponseTimeMetric ;
+    rdfs:label "Sovereignty Violation Response Time" ;
+    rdfs:comment "Time to respond to sovereignty violations" ;
+    ba:targetValue 30.0 ;
+    ba:unit "seconds" ;
+    ba:calculationMethod "response_time_sum / violation_count" .
+
+# =============================================================================
+# INTEGRATION WITH EXISTING FRAMEWORKS
+# =============================================================================
+
+# Link to Privacy Automation
+bapa:ComplianceAutomationFramework bads:incorporates bads:DataSovereigntyFramework .
+bapa:DataResidencyController bads:enhancedBy bads:GeographicDataController .
+bapa:CrossBorderTransferValidator bads:implementedBy bads:CrossBorderTransferController .
+
+# Link to Core Ontology
+ba:DataGovernance bads:includes bads:DataSovereigntyFramework .
+ba:ComplianceFramework bads:supports bads:MultiJurisdictionalCompliance .
+
+# =============================================================================
+# End of Ontology
+# =============================================================================

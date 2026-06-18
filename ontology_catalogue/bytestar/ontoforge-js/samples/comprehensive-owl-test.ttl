@@ -1,0 +1,295 @@
+@prefix : <http://example.org/onto#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Ontology declaration
+<http://example.org/onto> a owl:Ontology ;
+    rdfs:label "Comprehensive OWL Test Ontology"@en ;
+    rdfs:comment "Testing ontology with rich semantic constructs for inference generation"@en .
+
+# ==========================================
+# CLASS HIERARCHY (should generate transitive subClassOf inferences)
+# ==========================================
+
+:Entity a owl:Class ;
+    rdfs:label "Entity"@en ;
+    rdfs:comment "Top-level entity class"@en .
+
+:LivingBeing a owl:Class ;
+    rdfs:subClassOf :Entity ;
+    rdfs:label "Living Being"@en .
+
+:Animal a owl:Class ;
+    rdfs:subClassOf :LivingBeing ;
+    rdfs:label "Animal"@en .
+
+:Mammal a owl:Class ;
+    rdfs:subClassOf :Animal ;
+    rdfs:label "Mammal"@en .
+
+:Carnivore a owl:Class ;
+    rdfs:subClassOf :Animal ;
+    rdfs:label "Carnivore"@en .
+
+:Dog a owl:Class ;
+    rdfs:subClassOf :Mammal ;
+    rdfs:label "Dog"@en .
+
+:Cat a owl:Class ;
+    rdfs:subClassOf :Mammal, :Carnivore ;
+    rdfs:label "Cat"@en .
+
+:Person a owl:Class ;
+    rdfs:subClassOf :Mammal ;
+    rdfs:label "Person"@en .
+
+:Plant a owl:Class ;
+    rdfs:subClassOf :LivingBeing ;
+    rdfs:label "Plant"@en .
+
+:Tree a owl:Class ;
+    rdfs:subClassOf :Plant ;
+    rdfs:label "Tree"@en .
+
+# ==========================================
+# INDIVIDUALS (should trigger type inference through class hierarchy)
+# ==========================================
+
+:buddy a :Dog ;
+    rdfs:label "Buddy"@en ;
+    rdfs:comment "A friendly dog"@en .
+
+:fluffy a :Cat ;
+    rdfs:label "Fluffy"@en ;
+    rdfs:comment "A fluffy cat"@en .
+
+:alice a :Person ;
+    rdfs:label "Alice"@en .
+
+:bob a :Person ;
+    rdfs:label "Bob"@en .
+
+:charlie a :Person ;
+    rdfs:label "Charlie"@en .
+
+:oak1 a :Tree ;
+    rdfs:label "Old Oak"@en .
+
+# ==========================================
+# PROPERTIES WITH DOMAIN/RANGE (should infer types)
+# ==========================================
+
+:hasOwner a owl:ObjectProperty ;
+    rdfs:label "has owner"@en ;
+    rdfs:domain :Animal ;
+    rdfs:range :Person ;
+    rdfs:comment "Relationship between an animal and its owner"@en .
+
+:hasParent a owl:ObjectProperty ;
+    rdfs:label "has parent"@en ;
+    rdfs:domain :LivingBeing ;
+    rdfs:range :LivingBeing .
+
+:livesIn a owl:ObjectProperty ;
+    rdfs:label "lives in"@en ;
+    rdfs:domain :LivingBeing ;
+    rdfs:range :Place .
+
+:Place a owl:Class ;
+    rdfs:label "Place"@en .
+
+:home a :Place ;
+    rdfs:label "Home"@en .
+
+# Property usage that should trigger domain/range inference
+:buddy :hasOwner :alice .
+:fluffy :hasOwner :bob .
+:buddy :livesIn :home .
+
+# ==========================================
+# TRANSITIVE PROPERTIES (should generate transitive inferences)
+# ==========================================
+
+:ancestorOf a owl:ObjectProperty, owl:TransitiveProperty ;
+    rdfs:label "ancestor of"@en ;
+    rdfs:domain :Person ;
+    rdfs:range :Person .
+
+:partOf a owl:ObjectProperty, owl:TransitiveProperty ;
+    rdfs:label "part of"@en ;
+    rdfs:comment "Transitive parthood relation"@en .
+
+:locatedIn a owl:ObjectProperty, owl:TransitiveProperty ;
+    rdfs:label "located in"@en .
+
+# Transitive chains that should generate inferences
+:alice :ancestorOf :bob .
+:bob :ancestorOf :charlie .
+# Should infer: alice ancestorOf charlie
+
+:finger :partOf :hand .
+:hand :partOf :body .
+:body :partOf :person .
+# Should infer: finger partOf body, finger partOf person, hand partOf person
+
+:room :locatedIn :house .
+:house :locatedIn :city .
+:city :locatedIn :country .
+# Should infer: room locatedIn city, room locatedIn country, house locatedIn country
+
+# ==========================================
+# SYMMETRIC PROPERTIES (should generate symmetric inferences)
+# ==========================================
+
+:marriedTo a owl:ObjectProperty, owl:SymmetricProperty ;
+    rdfs:label "married to"@en ;
+    rdfs:domain :Person ;
+    rdfs:range :Person .
+
+:neighborOf a owl:ObjectProperty, owl:SymmetricProperty ;
+    rdfs:label "neighbor of"@en .
+
+:siblingOf a owl:ObjectProperty, owl:SymmetricProperty ;
+    rdfs:label "sibling of"@en ;
+    rdfs:domain :Person ;
+    rdfs:range :Person .
+
+# Symmetric relations that should generate inferences
+:alice :marriedTo :bob .
+# Should infer: bob marriedTo alice
+
+:house1 :neighborOf :house2 .
+# Should infer: house2 neighborOf house1
+
+# ==========================================
+# INVERSE PROPERTIES (should generate inverse inferences)
+# ==========================================
+
+:owns a owl:ObjectProperty ;
+    rdfs:label "owns"@en ;
+    rdfs:domain :Person ;
+    rdfs:range :Animal ;
+    owl:inverseOf :hasOwner .
+
+:parentOf a owl:ObjectProperty ;
+    rdfs:label "parent of"@en ;
+    rdfs:domain :Person ;
+    rdfs:range :Person ;
+    owl:inverseOf :hasParent .
+
+:childOf a owl:ObjectProperty ;
+    rdfs:label "child of"@en ;
+    rdfs:domain :Person ;
+    rdfs:range :Person ;
+    owl:inverseOf :parentOf .
+
+# Relations that should generate inverse inferences
+:dave :parentOf :eve .
+# Should infer: eve hasParent dave, eve childOf dave
+
+# ==========================================
+# EQUIVALENT CLASSES (should share instances)
+# ==========================================
+
+:Human a owl:Class ;
+    rdfs:label "Human"@en ;
+    owl:equivalentClass :Person .
+
+:Canine a owl:Class ;
+    rdfs:label "Canine"@en ;
+    owl:equivalentClass :Dog .
+
+# These should make all Person instances also Human instances and vice versa
+
+# ==========================================
+# PROPERTY CHAINS (should generate chain inferences)
+# ==========================================
+
+:grandparentOf a owl:ObjectProperty ;
+    rdfs:label "grandparent of"@en ;
+    rdfs:domain :Person ;
+    rdfs:range :Person ;
+    owl:propertyChainAxiom ( :parentOf :parentOf ) .
+
+:uncleOf a owl:ObjectProperty ;
+    rdfs:label "uncle of"@en ;
+    owl:propertyChainAxiom ( :siblingOf :parentOf ) .
+
+# Chain examples
+:john :parentOf :mary .
+:mary :parentOf :tom .
+# Should infer: john grandparentOf tom
+
+:david :siblingOf :mary .
+# Should infer: david uncleOf tom
+
+# ==========================================
+# ADDITIONAL COMPLEX RELATIONSHIPS
+# ==========================================
+
+:feeds a owl:ObjectProperty ;
+    rdfs:label "feeds"@en ;
+    rdfs:domain :Person ;
+    rdfs:range :Animal .
+
+:protects a owl:ObjectProperty ;
+    rdfs:label "protects"@en ;
+    rdfs:domain :Animal ;
+    rdfs:range :Person .
+
+# Data properties
+:hasAge a owl:DatatypeProperty ;
+    rdfs:label "has age"@en ;
+    rdfs:domain :LivingBeing ;
+    rdfs:range xsd:integer .
+
+:hasName a owl:DatatypeProperty ;
+    rdfs:label "has name"@en ;
+    rdfs:domain :Entity ;
+    rdfs:range xsd:string .
+
+:buddy :hasAge 5 .
+:alice :hasAge 30 .
+:fluffy :hasName "Fluffy the Cat" .
+
+# ==========================================
+# EXPECTED INFERENCES SUMMARY:
+# 
+# Class Hierarchy (transitive subClassOf):
+# - Dog subClassOf Animal, LivingBeing, Entity
+# - Cat subClassOf Animal, LivingBeing, Entity  
+# - Person subClassOf Animal, LivingBeing, Entity
+# - Tree subClassOf LivingBeing, Entity
+#
+# Type Inferences from Class Hierarchy:
+# - buddy: Dog, Mammal, Animal, LivingBeing, Entity
+# - fluffy: Cat, Mammal, Carnivore, Animal, LivingBeing, Entity
+# - alice, bob, charlie: Person, Mammal, Animal, LivingBeing, Entity
+# - oak1: Tree, Plant, LivingBeing, Entity
+#
+# Domain/Range Inferences:
+# - home: Place (from buddy livesIn home)
+#
+# Transitive Inferences:
+# - alice ancestorOf charlie
+# - finger partOf body, finger partOf person, hand partOf person
+# - room locatedIn city, room locatedIn country, house locatedIn country
+#
+# Symmetric Inferences:
+# - bob marriedTo alice
+# - house2 neighborOf house1
+#
+# Inverse Inferences:  
+# - eve hasParent dave, eve childOf dave
+# - alice owns buddy, bob owns fluffy (from hasOwner inverses)
+#
+# Equivalent Class Inferences:
+# - alice, bob, charlie: Human (from Person equivalentClass Human)
+# - buddy: Canine (from Dog equivalentClass Canine)
+#
+# Property Chain Inferences:
+# - john grandparentOf tom (from parentOf chain)
+# - david uncleOf tom (from siblingOf + parentOf chain)
+# ==========================================

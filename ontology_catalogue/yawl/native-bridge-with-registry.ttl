@@ -1,0 +1,379 @@
+# YAWL Native Bridge Pattern Ontology
+# Defines the RDF vocabulary for the L2/L3 native bridge generation pattern.
+#
+# The native bridge pattern provides correctness-by-construction for polyglot FFI:
+#   L0: Native library (C, Rust, Erlang, WASM — outside JVM)
+#   L1: Generated bindings (Panama FFM handles, ei_h constants)
+#   L2: FFI transport (thin wrapper: MemorySegment, Arena, MethodHandle)
+#   L3: Domain API (pure Java types — String, List, Map, records)
+#
+# Compliance guarantees:
+#   - Every capability in the enum has L2 + L3 + test coverage
+#   - L2 classes: no business logic, only delegation to native handles
+#   - L3 classes: no Panama/FFI types in public signatures
+#   - CapabilityRegistry validates coverage at startup (fail-fast gate)
+#   - Generated code passes H-Guards: no TODO/mock/stub/fake/empty/lie/silent
+
+@prefix owl:         <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:        <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf:         <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:         <http://www.w3.org/2001/XMLSchema#> .
+@prefix yawl-bridge: <http://yawlfoundation.org/yawl/bridge#> .
+@prefix yawl:        <http://yawlfoundation.org/yawl#> .
+
+<http://yawlfoundation.org/yawl/bridge> a owl:Ontology ;
+    rdfs:label "YAWL Native Bridge Pattern Ontology" ;
+    rdfs:comment "RDF vocabulary for the L2/L3 native bridge generation pattern (WCP-NB-01..04)" ;
+    owl:versionInfo "1.0.0" .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Classes
+# ─────────────────────────────────────────────────────────────────────────────
+
+yawl-bridge:NativeBridge a owl:Class ;
+    rdfs:label "NativeBridge" ;
+    rdfs:comment "A named bridge to a specific native library. Root of the bridge pattern graph." .
+
+yawl-bridge:BridgeCapability a owl:Class ;
+    rdfs:label "BridgeCapability" ;
+    rdfs:comment "A single capability that crosses the JVM ↔ native boundary." .
+
+yawl-bridge:NativeFunction a owl:Class ;
+    rdfs:label "NativeFunction" ;
+    rdfs:comment "A native symbol in the library mapped to a Panama MethodHandle." .
+
+yawl-bridge:DomainOperation a owl:Class ;
+    rdfs:label "DomainOperation" ;
+    rdfs:comment "A domain-level method in L3 that uses only pure Java types." .
+
+yawl-bridge:FunctionParameter a owl:Class ;
+    rdfs:label "FunctionParameter" ;
+    rdfs:comment "A typed parameter for NativeFunction or DomainOperation." .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# NativeBridge properties
+# ─────────────────────────────────────────────────────────────────────────────
+
+yawl-bridge:bridgeName a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:NativeBridge ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "bridgeName" ;
+    rdfs:comment "Short identifier for the bridge (e.g. 'Erlang', 'Rust4PM'). Used as class name prefix." .
+
+yawl-bridge:packageName a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:NativeBridge ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "packageName" ;
+    rdfs:comment "Java package name for all generated bridge classes." .
+
+yawl-bridge:nativeLibrary a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:NativeBridge ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "nativeLibrary" ;
+    rdfs:comment "Shared library file name, e.g. 'libei.so', 'libyawl_rust4pm.so'." .
+
+yawl-bridge:libraryPathProp a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:NativeBridge ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "libraryPathProp" ;
+    rdfs:comment "Java system property key for the library path (e.g. 'erlang.library.path')." .
+
+yawl-bridge:domainDescription a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:NativeBridge ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "domainDescription" ;
+    rdfs:comment "Human-readable description used in L3 class Javadoc." .
+
+yawl-bridge:l2Class a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:NativeBridge ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "l2Class" ;
+    rdfs:comment "Simple name of the generated L2 transport class." .
+
+yawl-bridge:l3Class a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:NativeBridge ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "l3Class" ;
+    rdfs:comment "Simple name of the generated L3 domain API class." .
+
+yawl-bridge:testClass a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:NativeBridge ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "testClass" ;
+    rdfs:comment "Simple name of the capability test class." .
+
+yawl-bridge:hasCapability a owl:ObjectProperty ;
+    rdfs:domain yawl-bridge:NativeBridge ;
+    rdfs:range  yawl-bridge:BridgeCapability ;
+    rdfs:label  "hasCapability" ;
+    rdfs:comment "Links a bridge to its declared capabilities." .
+
+yawl-bridge:hasFunction a owl:ObjectProperty ;
+    rdfs:domain yawl-bridge:NativeBridge ;
+    rdfs:range  yawl-bridge:NativeFunction ;
+    rdfs:label  "hasFunction" ;
+    rdfs:comment "Links a bridge to its native function descriptors (L2 layer)." .
+
+yawl-bridge:hasDomainOperation a owl:ObjectProperty ;
+    rdfs:domain yawl-bridge:NativeBridge ;
+    rdfs:range  yawl-bridge:DomainOperation ;
+    rdfs:label  "hasDomainOperation" ;
+    rdfs:comment "Links a bridge to its domain operations (L3 layer)." .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# BridgeCapability properties
+# ─────────────────────────────────────────────────────────────────────────────
+
+yawl-bridge:capabilityName a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:BridgeCapability ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "capabilityName" ;
+    rdfs:comment "Enum constant name (UPPER_SNAKE_CASE), e.g. 'LAUNCH_CASE'." .
+
+yawl-bridge:capabilityDescription a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:BridgeCapability ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "capabilityDescription" ;
+    rdfs:comment "One-line Javadoc for the enum constant." .
+
+yawl-bridge:nativeTarget a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:BridgeCapability ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "nativeTarget" ;
+    rdfs:comment "Native call target, e.g. 'yawl_workflow:launch_case/1' or 'rust4pm_parse_ocel/2'." .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# NativeFunction properties (L2 layer)
+# ─────────────────────────────────────────────────────────────────────────────
+
+yawl-bridge:fnHandleName a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:NativeFunction ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "fnHandleName" ;
+    rdfs:comment "Java field name for the MethodHandle (camelCase)." .
+
+yawl-bridge:fnJavaName a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:NativeFunction ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "fnJavaName" ;
+    rdfs:comment "Java method name in the L2 class (camelCase)." .
+
+yawl-bridge:fnNativeSymbol a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:NativeFunction ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "fnNativeSymbol" ;
+    rdfs:comment "Native library symbol name (C linkage), e.g. 'ei_connect'." .
+
+yawl-bridge:fnReturnType a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:NativeFunction ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "fnReturnType" ;
+    rdfs:comment "Java return type, e.g. 'int', 'void', 'MemorySegment'." .
+
+yawl-bridge:fnDescriptor a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:NativeFunction ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "fnDescriptor" ;
+    rdfs:comment "FunctionDescriptor expression, e.g. 'FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS)'." .
+
+yawl-bridge:fnDescription a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:NativeFunction ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "fnDescription" ;
+    rdfs:comment "Short description of the native function for Javadoc." .
+
+yawl-bridge:fnReturnDoc a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:NativeFunction ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "fnReturnDoc" ;
+    rdfs:comment "@return Javadoc text." .
+
+yawl-bridge:hasParam a owl:ObjectProperty ;
+    rdfs:domain yawl-bridge:NativeFunction ;
+    rdfs:range  yawl-bridge:FunctionParameter ;
+    rdfs:label  "hasParam" ;
+    rdfs:comment "Ordered parameters of a native function." .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DomainOperation properties (L3 layer)
+# ─────────────────────────────────────────────────────────────────────────────
+
+yawl-bridge:opName a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:DomainOperation ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "opName" ;
+    rdfs:comment "Java method name in the L3 class (camelCase)." .
+
+yawl-bridge:opDescription a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:DomainOperation ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "opDescription" ;
+    rdfs:comment "Javadoc description for the domain operation." .
+
+yawl-bridge:opReturnType a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:DomainOperation ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "opReturnType" ;
+    rdfs:comment "Pure Java return type (no FFI types allowed), e.g. 'String', 'List<Map<String,Object>>'." .
+
+yawl-bridge:opReturnDoc a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:DomainOperation ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "opReturnDoc" ;
+    rdfs:comment "@return Javadoc text for the operation." .
+
+yawl-bridge:opExceptionType a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:DomainOperation ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "opExceptionType" ;
+    rdfs:comment "Checked exception thrown by the domain operation (fully qualified)." .
+
+yawl-bridge:opNativeException a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:DomainOperation ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "opNativeException" ;
+    rdfs:comment "Caught low-level exception wrapped by opExceptionType (e.g. Throwable, IOException)." .
+
+yawl-bridge:opImpl a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:DomainOperation ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "opImpl" ;
+    rdfs:comment "Template-safe body expression delegating to the L2 transport." .
+
+yawl-bridge:sdkCall a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:NativeFunction ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "sdkCall" ;
+    rdfs:comment "Short routing token identifying the SDK call pattern. Used by native-bridge-rust-ffi.tera to emit the correct SDK invocation body (e.g. 'import_odcs', 'export_odps', 'validate_bpmn')." .
+
+yawl-bridge:testFixture a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:DomainOperation ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "testFixture" ;
+    rdfs:comment "Name of the JSON fixture file (without extension) used in integration tests. Used by native-bridge-integration-test.tera. Loaded via JTBDTestSupport.loadFixture(name)." .
+
+yawl-bridge:opHasParam a owl:ObjectProperty ;
+    rdfs:domain yawl-bridge:DomainOperation ;
+    rdfs:range  yawl-bridge:FunctionParameter ;
+    rdfs:label  "opHasParam" ;
+    rdfs:comment "Ordered parameters of a domain operation." .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# FunctionParameter properties
+# ─────────────────────────────────────────────────────────────────────────────
+
+yawl-bridge:paramName a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:FunctionParameter ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "paramName" ;
+    rdfs:comment "Parameter name (camelCase)." .
+
+yawl-bridge:paramType a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:FunctionParameter ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "paramType" ;
+    rdfs:comment "Java type of the parameter." .
+
+yawl-bridge:paramDescription a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:FunctionParameter ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "paramDescription" ;
+    rdfs:comment "@param Javadoc text." .
+
+yawl-bridge:paramRequired a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:FunctionParameter ;
+    rdfs:range  xsd:boolean ;
+    rdfs:label  "paramRequired" ;
+    rdfs:comment "True if a null-check should be emitted (L3 domain operations only)." .
+
+yawl-bridge:paramOrder a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:FunctionParameter ;
+    rdfs:range  xsd:integer ;
+    rdfs:label  "paramOrder" ;
+    rdfs:comment "Zero-based parameter position." .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CapabilityRegistry properties (WCP-CR-02: CapabilityRegistry Pattern)
+# ─────────────────────────────────────────────────────────────────────────────
+
+yawl-bridge:registryKind a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:BridgeCapability ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "registryKind" ;
+    rdfs:comment "Registry entry type: CAPABILITY, PARAMETER, or HANDLE." .
+
+yawl-bridge:returnRegistryKind a owl:DatatypeProperty ;
+    rdfs:domain yawl-bridge:BridgeCapability ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "returnRegistryKind" ;
+    rdfs:comment "Return registry type: CAPABILITY, PARAMETER, or HANDLE." .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Example instances — Erlang/OTP native bridge (WCP-NB reference implementation)
+# ─────────────────────────────────────────────────────────────────────────────
+
+yawl-bridge:ErlangBridge a yawl-bridge:NativeBridge ;
+    yawl-bridge:bridgeName       "Erlang" ;
+    yawl-bridge:packageName      "org.yawlfoundation.yawl.erlang.bridge" ;
+    yawl-bridge:nativeLibrary    "libei.so" ;
+    yawl-bridge:libraryPathProp  "erlang.library.path" ;
+    yawl-bridge:domainDescription "Erlang/OTP workflow orchestration and process mining" ;
+    yawl-bridge:l2Class          "ErlangL2" ;
+    yawl-bridge:l3Class          "ErlangL3" ;
+    yawl-bridge:testClass        "ErlangCapabilityTest" ;
+    yawl-bridge:hasCapability    yawl-bridge:cap_LAUNCH_CASE ;
+    yawl-bridge:hasCapability    yawl-bridge:cap_CHECK_CONFORMANCE ;
+    yawl-bridge:hasCapability    yawl-bridge:cap_SUBSCRIBE_TO_EVENTS ;
+    yawl-bridge:hasCapability    yawl-bridge:cap_RELOAD_MODULE ;
+    yawl-bridge:hasCapability    yawl-bridge:cap_LOAD_BINARY_MODULE ;
+    yawl-bridge:hasCapability    yawl-bridge:cap_ROLLBACK_MODULE ;
+    yawl-bridge:hasCapability    yawl-bridge:cap_AS_RPC_CALLABLE .
+
+yawl-bridge:cap_LAUNCH_CASE a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "LAUNCH_CASE" ;
+    yawl-bridge:capabilityDescription "Launch a workflow case on the OTP node" ;
+    yawl-bridge:nativeTarget          "yawl_workflow:launch_case/1" ;
+    yawl-bridge:registryKind           "CAPABILITY" ;
+    yawl-bridge:returnRegistryKind     "CAPABILITY" .
+
+yawl-bridge:cap_CHECK_CONFORMANCE a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "CHECK_CONFORMANCE" ;
+    yawl-bridge:capabilityDescription "Check conformance of an event log via process mining" ;
+    yawl-bridge:nativeTarget          "yawl_process_mining:conformance/1" ;
+    yawl-bridge:registryKind           "CAPABILITY" ;
+    yawl-bridge:returnRegistryKind     "CAPABILITY" .
+
+yawl-bridge:cap_SUBSCRIBE_TO_EVENTS a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "SUBSCRIBE_TO_EVENTS" ;
+    yawl-bridge:capabilityDescription "Subscribe to workflow lifecycle events from the OTP event relay" ;
+    yawl-bridge:nativeTarget          "yawl_event_relay:subscribe/2" ;
+    yawl-bridge:registryKind           "CAPABILITY" ;
+    yawl-bridge:returnRegistryKind     "CAPABILITY" .
+
+yawl-bridge:cap_RELOAD_MODULE a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "RELOAD_MODULE" ;
+    yawl-bridge:capabilityDescription "Reload a module from file path via code:purge + code:load_file" ;
+    yawl-bridge:nativeTarget          "code:load_file/1" ;
+    yawl-bridge:registryKind           "CAPABILITY" ;
+    yawl-bridge:returnRegistryKind     "CAPABILITY" .
+
+yawl-bridge:cap_LOAD_BINARY_MODULE a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "LOAD_BINARY_MODULE" ;
+    yawl-bridge:capabilityDescription "Load a module from raw .beam bytecode via code:load_binary/3" ;
+    yawl-bridge:nativeTarget          "code:load_binary/3" ;
+    yawl-bridge:registryKind           "CAPABILITY" ;
+    yawl-bridge:returnRegistryKind     "CAPABILITY" .
+
+yawl-bridge:cap_ROLLBACK_MODULE a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "ROLLBACK_MODULE" ;
+    yawl-bridge:capabilityDescription "Roll back to the previous .beam version via code:load_binary/3" ;
+    yawl-bridge:nativeTarget          "code:load_binary/3" ;
+    yawl-bridge:registryKind           "CAPABILITY" ;
+    yawl-bridge:returnRegistryKind     "CAPABILITY" .
+
+yawl-bridge:cap_AS_RPC_CALLABLE a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "AS_RPC_CALLABLE" ;
+    yawl-bridge:capabilityDescription "Expose the bridge RPC channel as an ErlRpcCallable" ;
+    yawl-bridge:nativeTarget          "ei_rpc/7" ;
+    yawl-bridge:registryKind           "CAPABILITY" ;
+    yawl-bridge:returnRegistryKind     "CAPABILITY" .

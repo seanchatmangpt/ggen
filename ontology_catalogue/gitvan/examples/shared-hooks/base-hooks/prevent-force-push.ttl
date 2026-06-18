@@ -1,0 +1,41 @@
+@prefix gh: <http://example.org/git-hooks#> .
+@prefix git: <http://example.org/git#> .
+
+gh:PreventForcePush a gh:Hook ;
+  gh:name "Prevent Force Push" ;
+  gh:description "Block force push operations to prevent accidental history rewriting" ;
+  gh:version "1.0.0" ;
+  gh:maintainer "GitVan Community" ;
+
+  gh:trigger [
+    a git:PrePushEvent
+  ] ;
+
+  gh:condition [
+    a gh:CommandMatch ;
+    gh:command ".*--force.*" ;
+  ] ;
+
+  gh:action [
+    a gh:ShellAction ;
+    gh:script """
+      # Check if force push flag is present
+      FORCE_FLAG=$(echo "$*" | grep -c "\-\-force" || true)
+
+      if [ $FORCE_FLAG -gt 0 ]; then
+        echo ""
+        echo "⚠️  WARNING: Force push detected"
+        echo ""
+        echo "Force push is disabled to protect repository history."
+        echo ""
+        echo "If you absolutely must rewrite history:"
+        echo "  1. Contact repository administrator"
+        echo "  2. Verify this is necessary"
+        echo "  3. Use: git push --force-with-lease --no-verify"
+        echo ""
+        echo "Force-with-lease is safer because it rejects if remote changed."
+        echo ""
+        exit 1
+      fi
+    """
+  ] .

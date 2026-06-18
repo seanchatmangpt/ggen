@@ -1,0 +1,67 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix stpnt: <http://stewards.faith/ontology#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+# Stewardship Part: WelcomeOneAnotherPart
+# Scripture: "Welcome one another, therefore, as Christ has welcomed you, for the glory of God." (Romans 15:7)
+
+stpnt:WelcomeActivity a rdfs:Class ;
+    rdfs:label "Welcome Activity" ;
+    rdfs:comment "An activity where a steward welcomes a visitor." .
+
+stpnt:Steward a rdfs:Class ;
+    rdfs:label "Steward" .
+
+stpnt:Visitor a rdfs:Class ;
+    rdfs:label "Visitor" .
+
+stpnt:WelcomeOneAnotherPartShape
+    a sh:NodeShape ;
+    sh:targetClass stpnt:WelcomeActivity ;
+    sh:property [
+        sh:path prov:wasAssociatedWith ;
+        sh:class stpnt:Steward ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "Steward" ;
+        sh:description "The steward who performs the welcome." ;
+    ] ;
+    sh:property [
+        sh:path prov:used ;
+        sh:class stpnt:Visitor ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "Visitor" ;
+        sh:description "The visitor being welcomed." ;
+    ] ;
+    sh:property [
+        sh:path stpnt:scriptureBasis ;
+        sh:datatype xsd:string ;
+        sh:hasValue "Romans 15:7" ;
+        sh:minCount 1 ;
+        sh:name "Scripture Basis" ;
+    ] ;
+    sh:property [
+        sh:path stpnt:terminalState ;
+        sh:hasValue stpnt:ReceivedAndRemembered ;
+        sh:minCount 1 ;
+        sh:name "Terminal State" ;
+    ] .
+
+stpnt:VisitorShape
+    a sh:NodeShape ;
+    sh:targetClass stpnt:Visitor ;
+    sh:property [
+        sh:path stpnt:hasArrivalEvent ;
+        sh:minCount 1 ;
+        sh:name "Arrival Event" ;
+    ] ;
+    sh:property [
+        sh:path stpnt:status ;
+        sh:in (stpnt:Arrived stpnt:ReceivedAndRemembered) ;
+        sh:minCount 1 ;
+        sh:name "Visitor Status" ;
+    ] .

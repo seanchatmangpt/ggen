@@ -1,0 +1,282 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcat:    <http://www.w3.org/ns/dcat#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix schema:  <https://schema.org/> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix pi:      <https://process.intelligence/ontology/> .
+
+# ============================================================
+# pi-program.ttl — Top-Level PI Program Structure Ontology
+# Authority: Process Intelligence Research Foundry
+# Date: 2026-06-01
+# Checkpoint: PROCESS_INTELLIGENCE_ALIVE_001
+# ============================================================
+
+<https://process.intelligence/ontology/pi-program>
+    a owl:Ontology ;
+    dcterms:title "Process Intelligence Program Ontology" ;
+    dcterms:description "Top-level structural ontology for the full-lifecycle Process Intelligence research program. Classifies all discovered artifacts into their program roles per the unified PI program census." ;
+    dcterms:created "2026-06-01"^^xsd:date ;
+    dcterms:creator <https://process.intelligence/agent/research-foundry> ;
+    owl:versionInfo "1.0.0" ;
+    dcterms:license <https://creativecommons.org/licenses/by/4.0/> ;
+    dcterms:source <https://process.intelligence/checkpoints/PROCESS_INTELLIGENCE_ALIVE_001> .
+
+# ============================================================
+# SECTION 1: Core Program Role Classes
+# ============================================================
+
+pi:ProgramRole
+    a owl:Class ;
+    rdfs:label "Program Role" ;
+    rdfs:comment "The role an artifact plays in the PI research program." ;
+    skos:definition "A classification category that describes the structural or functional position of a system, component, or artifact within the Process Intelligence program." .
+
+pi:PROGRAM
+    a owl:Class ;
+    rdfs:subClassOf pi:ProgramRole ;
+    rdfs:label "PROGRAM" ;
+    skos:definition "The PI research program itself — the governing research foundry that produces evidence, verdicts, and downstream authorizations." ;
+    skos:example "process-intelligence repository at /Users/sac/process-intelligence" .
+
+pi:PROOF_CELL
+    a owl:Class ;
+    rdfs:subClassOf pi:ProgramRole ;
+    rdfs:label "PROOF_CELL" ;
+    skos:definition "A customer-domain application that demonstrates full-lifecycle process intelligence capability. Not a standalone product; a reference implementation validating program claims." ;
+    skos:example "ZOEapp (Zoe Community Church mobile application)" ;
+    skos:scopeNote "A PROOF_CELL produces OCEL 2.0 event logs, cryptographic receipts, and replay fixtures that serve as evidence for the research program." .
+
+pi:ENGINE
+    a owl:Class ;
+    rdfs:subClassOf pi:ProgramRole ;
+    rdfs:label "ENGINE" ;
+    skos:definition "The wasm4pm execution court — the Rust/WASM execution system that runs process discovery, conformance checking, replay, and receipt minting." ;
+    skos:scopeNote "Only the ENGINE may execute discovery algorithms, token replay, alignment computation, OCPQ queries, and cryptographic receipt minting." .
+
+pi:COMPATIBILITY_LAYER
+    a owl:Class ;
+    rdfs:subClassOf pi:ProgramRole ;
+    rdfs:label "COMPATIBILITY_LAYER" ;
+    skos:definition "The wasm4pm-compat type-law crate — structure-only, paper-grounded type system governing the one-way evidence lifecycle (Raw→Parsed→Admitted→{Projected|Exportable|Receipted})." ;
+    skos:scopeNote "Contains NO execution logic. All execution graduates to the ENGINE." .
+
+pi:MANUFACTURING_CELL
+    a owl:Class ;
+    rdfs:subClassOf pi:ProgramRole ;
+    rdfs:label "MANUFACTURING_CELL" ;
+    skos:definition "A ggen (Governance Generation Engine) surface that manufactures board-admissible artifacts via deterministic SPARQL→Tera→output pipelines." ;
+    skos:scopeNote "Two manufacturing cells exist: the primary M&A/lifecycle cell and the telemetry bridge cell." .
+
+pi:TELEMETRY_FEEDSTOCK
+    a owl:Class ;
+    rdfs:subClassOf pi:ProgramRole ;
+    rdfs:label "TELEMETRY_FEEDSTOCK" ;
+    skos:definition "The OTel Weaver integration layer — receives raw OpenTelemetry signals and validates them as schema-compliant feedstock before admission to the process evidence pipeline." ;
+    skos:scopeNote "Telemetry is feedstock, not process consequence. Weaver findings are NOT receipts. Schema diffs are NOT process drift." .
+
+pi:MOBILE_SUBSTRATE
+    a owl:Class ;
+    rdfs:subClassOf pi:ProgramRole ;
+    rdfs:label "MOBILE_SUBSTRATE" ;
+    skos:definition "The Expo/Supabase framework layer extracted from ZOEapp — reusable authentication, protected routing, RLS policies, Realtime CDC, and governance patterns." ;
+    skos:scopeNote "Extracted from PROOF_CELL; applicable to any domain requiring cryptographic route gating and mobile process instrumentation." .
+
+pi:WORKFLOW_SUBSTRATE
+    a owl:Class ;
+    rdfs:subClassOf pi:ProgramRole ;
+    rdfs:label "WORKFLOW_SUBSTRATE" ;
+    skos:definition "The Claude Code orchestration layer — phase-gated, receipt-bearing, adversarial audit loop governing sequential research phases via immutable checkpoint verdicts." ;
+    skos:scopeNote "12 sequential phases (0-11), 13 simultaneous gate criteria, 570+ commits. Not a dynamic agent system; a statically-ordered evidence-driven workflow." .
+
+pi:SOURCE_COURT
+    a owl:Class ;
+    rdfs:subClassOf pi:ProgramRole ;
+    rdfs:label "SOURCE_COURT" ;
+    skos:definition "The authoritative source of ontologies, type-law ground truth, and academic paper classifications that govern what process mining types and operations are lawful." ;
+    skos:example "sources/papers/, sources/pm4py/, sources/wasm4pm-compat/, standards/" .
+
+pi:EXECUTION_COURT
+    a owl:Class ;
+    rdfs:subClassOf pi:ProgramRole ;
+    rdfs:label "EXECUTION_COURT" ;
+    skos:definition "The runtime engine surfaces that perform actual process mining computation and emit cryptographically-signed proof artifacts." ;
+    skos:example "wasm4pm discovery/replay/conformance/OCPQ surfaces, Blue River Dam MAPE-K executor" .
+
+pi:AUTHORIZATION_COURT
+    a owl:Class ;
+    rdfs:subClassOf pi:ProgramRole ;
+    rdfs:label "AUTHORIZATION_COURT" ;
+    skos:definition "The admission/refusal/graduation gate system that determines what evidence is permitted to enter the execution pipeline and what is refused or graduated to a higher court." .
+
+pi:ADMISSION_SURFACE
+    a owl:Class ;
+    rdfs:subClassOf pi:AUTHORIZATION_COURT ;
+    rdfs:label "ADMISSION_SURFACE" ;
+    skos:definition "The set of gates that permit evidence to enter the next stage. Admission requires: timestamped, objectified, receipted, classified, traced, and disclaimed evidence." .
+
+pi:REFUSAL_SURFACE
+    a owl:Class ;
+    rdfs:subClassOf pi:AUTHORIZATION_COURT ;
+    rdfs:label "REFUSAL_SURFACE" ;
+    skos:definition "The set of named refusal laws and specific refusal codes that cause evidence to be rejected. Every refusal must name the violated law." .
+
+pi:RECEIPT_SURFACE
+    a owl:Class ;
+    rdfs:subClassOf pi:EXECUTION_COURT ;
+    rdfs:label "RECEIPT_SURFACE" ;
+    skos:definition "The surfaces that mint, verify, and carry cryptographic proof of lawful process execution. Receipts use BLAKE3 hashing and Ed25519 signatures." .
+
+pi:REPLAY_SURFACE
+    a owl:Class ;
+    rdfs:subClassOf pi:EXECUTION_COURT ;
+    rdfs:label "REPLAY_SURFACE" ;
+    skos:definition "The surfaces that enable deterministic re-execution of recorded process traces. Used for conformance verification, board-admissible proof regeneration, and audit trail replay." .
+
+pi:CONFORMANCE_SURFACE
+    a owl:Class ;
+    rdfs:subClassOf pi:EXECUTION_COURT ;
+    rdfs:label "CONFORMANCE_SURFACE" ;
+    skos:definition "The surfaces that compare discovered or declared process models against actual event log evidence. Produces fitness, precision, and generalization metrics." .
+
+pi:GRADUATION_SIGNAL
+    a owl:Class ;
+    rdfs:subClassOf pi:AUTHORIZATION_COURT ;
+    rdfs:label "GRADUATION_SIGNAL" ;
+    skos:definition "A reason to move evidence processing from the COMPATIBILITY_LAYER to the wasm4pm ENGINE. Five hard signals: NeedsDiscovery, NeedsConformanceExecution, NeedsReplay, NeedsObjectCentricQueryExecution, RebuildingProcessMiningLocally." .
+
+pi:RESEARCH_ARTIFACT
+    a owl:Class ;
+    rdfs:subClassOf pi:ProgramRole ;
+    rdfs:label "RESEARCH_ARTIFACT" ;
+    skos:definition "A finding, experiment, audit, or paper classification produced by the PI research program. Must cite a source (paper, experiment, or prior checkpoint) to be admitted as doctrine." .
+
+pi:CHECKPOINT
+    a owl:Class ;
+    rdfs:subClassOf pi:RESEARCH_ARTIFACT ;
+    rdfs:label "CHECKPOINT" ;
+    skos:definition "An immutable, cryptographically-anchored phase milestone verdict. Once issued, checkpoints stand as issued and may only be extended with dated addendums." .
+
+pi:ALIVE_CLAIM
+    a owl:Class ;
+    rdfs:subClassOf pi:CHECKPOINT ;
+    rdfs:label "ALIVE_CLAIM" ;
+    skos:definition "A checkpoint verdict where all gate criteria are simultaneously met. Authorizes downstream implementations." .
+
+pi:PARTIAL_CLAIM
+    a owl:Class ;
+    rdfs:subClassOf pi:CHECKPOINT ;
+    rdfs:label "PARTIAL_CLAIM" ;
+    skos:definition "A checkpoint verdict where some gate criteria are unmet or blocking gaps exist. Downstream implementations remain blocked pending remediation." .
+
+pi:FAILED_GATE
+    a owl:Class ;
+    rdfs:subClassOf pi:RESEARCH_ARTIFACT ;
+    rdfs:label "FAILED_GATE" ;
+    skos:definition "A specific gate criterion that failed during checkpoint evaluation. Must be documented in gaps/ directory with a remediation path. Model-vs-log mismatch is not a discrepancy — it is a defect." .
+
+pi:REMEDIATION_CANDIDATE
+    a owl:Class ;
+    rdfs:subClassOf pi:RESEARCH_ARTIFACT ;
+    rdfs:label "REMEDIATION_CANDIDATE" ;
+    skos:definition "Documented work required to fix a failed gate and advance a PARTIAL_CLAIM toward ALIVE status." .
+
+pi:FORBIDDEN_COLLAPSE
+    a owl:Class ;
+    rdfs:subClassOf pi:REFUSAL_SURFACE ;
+    rdfs:label "FORBIDDEN_COLLAPSE" ;
+    skos:definition "A DTO/JSON boundary violation where the type-law structure of Evidence<T, State, Witness> is flattened into an untyped JSON string, losing the lifecycle state typestate and witness lattice semantics." ;
+    skos:example "pub fn to_json_string(&self) -> String in wasm4pm-compat public API" .
+
+# ============================================================
+# SECTION 2: Core Program Properties
+# ============================================================
+
+pi:hasRole
+    a owl:ObjectProperty ;
+    rdfs:label "has role" ;
+    rdfs:domain prov:Entity ;
+    rdfs:range pi:ProgramRole ;
+    skos:definition "Assigns a program role classification to an artifact or system component." .
+
+pi:graduatesTo
+    a owl:ObjectProperty ;
+    rdfs:label "graduates to" ;
+    rdfs:domain pi:COMPATIBILITY_LAYER ;
+    rdfs:range pi:ENGINE ;
+    skos:definition "Declares that a type-law surface graduates its execution responsibility to the wasm4pm ENGINE." .
+
+pi:backedBy
+    a owl:ObjectProperty ;
+    rdfs:label "backed by" ;
+    rdfs:domain pi:ALIVE_CLAIM ;
+    rdfs:range pi:RECEIPT_SURFACE ;
+    skos:definition "Links an ALIVE claim to the cryptographic receipt chain that backs it." .
+
+pi:refusedBy
+    a owl:ObjectProperty ;
+    rdfs:label "refused by" ;
+    rdfs:domain prov:Entity ;
+    rdfs:range pi:REFUSAL_SURFACE ;
+    skos:definition "Documents that an artifact was refused by a named refusal surface with a specific law citation." .
+
+pi:admittedThrough
+    a owl:ObjectProperty ;
+    rdfs:label "admitted through" ;
+    rdfs:domain prov:Entity ;
+    rdfs:range pi:ADMISSION_SURFACE ;
+    skos:definition "Documents that an artifact was admitted through a specific admission gate." .
+
+pi:conformanceThreshold
+    a owl:DatatypeProperty ;
+    rdfs:label "conformance threshold" ;
+    rdfs:range xsd:decimal ;
+    skos:definition "The minimum fitness score required for board-admissible claims (0.95) or elastic repair threshold (0.85)." .
+
+pi:fitnessScore
+    a owl:DatatypeProperty ;
+    rdfs:label "fitness score" ;
+    rdfs:range xsd:decimal ;
+    skos:definition "The token-replay or alignment fitness score for a process conformance verdict, bounded [0.0, 1.0]." .
+
+# ============================================================
+# SECTION 3: SHACL Constraints
+# ============================================================
+
+pi:RefusalSurfaceShape
+    a sh:NodeShape ;
+    sh:targetClass pi:REFUSAL_SURFACE ;
+    sh:property [
+        sh:path dcterms:description ;
+        sh:minCount 1 ;
+        sh:message "Every refusal surface must have a description naming the violated law." ;
+    ] .
+
+pi:CheckpointShape
+    a sh:NodeShape ;
+    sh:targetClass pi:CHECKPOINT ;
+    sh:property [
+        sh:path dcterms:created ;
+        sh:minCount 1 ;
+        sh:datatype xsd:date ;
+        sh:message "Every checkpoint must have a creation date." ;
+    ] ;
+    sh:property [
+        sh:path prov:wasGeneratedBy ;
+        sh:minCount 1 ;
+        sh:message "Every checkpoint must identify the activity that generated it." ;
+    ] .
+
+pi:ForbiddenCollapseShape
+    a sh:NodeShape ;
+    sh:targetClass pi:FORBIDDEN_COLLAPSE ;
+    sh:property [
+        sh:path pi:hasRole ;
+        sh:hasValue pi:FORBIDDEN_COLLAPSE ;
+        sh:message "A FORBIDDEN_COLLAPSE must be classified as a refusal surface violation." ;
+    ] .

@@ -1,0 +1,127 @@
+# @name: domain_join_finance_operations
+# @category: federation
+# @description: SPARQL SELECT joining Finance + Operations datasets via organization ID
+# @join_key: organization_id (Finance.org_id = Operations.org_id)
+# @output_type: merged rows with all columns from both domains
+# @join_type: LEFT OUTER (using OPTIONAL for Operations data)
+# @timeout_ms: 20000
+# @version: 1.0
+# @stability: stable
+#
+# Purpose:
+#   Cross-domain federation query joining Finance and Operations datasets.
+#   Finance domain: revenue, expenses, forecasts, deals, contracts
+#   Operations domain: headcount, capacity, utilization, efficiency metrics
+#
+# Use Cases:
+#   1. "Show all organizations with finance and ops data"
+#   2. "Find orgs with revenue growth > 10% AND headcount growth > 5%"
+#   3. "Calculate revenue-per-employee across all orgs"
+#   4. "Identify orgs where ops is underutilized despite revenue"
+#
+# Input Parameters: None (all data from triple store)
+# Output Columns:
+#   ?organization_id - The shared organization identifier
+#   ?organization_name - Org name
+#   ?finance_total_revenue - Total annual revenue
+#   ?finance_total_expenses - Total annual expenses
+#   ?finance_margin - Gross margin % (100 * (revenue - expenses) / revenue)
+#   ?finance_forecast_next_quarter - Q1 forecast
+#   ?ops_total_headcount - Total employees
+#   ?ops_utilization_percent - Avg resource utilization
+#   ?ops_cost_per_employee - Annual cost per FTE
+#
+# Example:
+#   curl -H "Accept: application/sparql-results+json" \
+#     -G "http://localhost:7878/query" \
+#     --data-urlencode "query@-" < domain_join_finance_operations.rq
+
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dqv: <http://www.w3.org/ns/dqv#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX schema: <http://schema.org/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX finance: <https://ontology.chatmangpt.com/finance#>
+PREFIX operations: <https://ontology.chatmangpt.com/operations#>
+
+SELECT
+  ?organization_id
+  ?organization_name
+  ?finance_total_revenue
+  ?finance_total_expenses
+  ?finance_margin
+  ?finance_forecast_next_quarter
+  ?ops_total_headcount
+  ?ops_utilization_percent
+  ?ops_cost_per_employee
+
+WHERE {
+  # ========================================================================
+  # FINANCE DATASET (inner join — all rows must have finance data)
+  # ========================================================================
+
+  ?finance_record
+    a finance:FinanceDataset ;
+    finance:organization_id ?organization_id ;
+    finance:organization_name ?organization_name ;
+    finance:total_revenue ?finance_total_revenue ;
+    finance:total_expenses ?finance_total_expenses ;
+    prov:generatedAtTime ?finance_timestamp .
+
+  # Calculate margin as (revenue - expenses) / revenue * 100
+  BIND(
+    IF(
+      ?finance_total_revenue > 0,
+      ((xsd:double(?finance_total_revenue) - xsd:double(?finance_total_expenses)) / xsd:double(?finance_total_revenue)) * 100.0,
+      0.0
+    ) AS ?finance_margin
+  )
+
+  # Get forecast (optional, may not exist for all orgs)
+  OPTIONAL {
+    ?finance_record finance:forecast_next_quarter ?finance_forecast_next_quarter .
+  }
+  BIND(COALESCE(?finance_forecast_next_quarter, 0) AS ?finance_forecast_next_quarter)
+
+  # ========================================================================
+  # OPERATIONS DATASET (left outer join — may not exist)
+  # Operations data is OPTIONAL; if missing, columns show null/default
+  # ========================================================================
+
+  OPTIONAL {
+    ?ops_record
+      a operations:OperationsDataset ;
+      operations:organization_id ?organization_id ;
+      operations:total_headcount ?ops_total_headcount ;
+      operations:utilization_percent ?ops_utilization_percent ;
+      operations:cost_per_employee ?ops_cost_per_employee ;
+      prov:generatedAtTime ?ops_timestamp .
+  }
+
+  # Default to 0 if operations data missing (left outer join behavior)
+  BIND(COALESCE(?ops_total_headcount, 0) AS ?ops_total_headcount)
+  BIND(COALESCE(?ops_utilization_percent, 0.0) AS ?ops_utilization_percent)
+  BIND(COALESCE(?ops_cost_per_employee, 0) AS ?ops_cost_per_employee)
+
+  # ========================================================================
+  # JOIN QUALITY CHECKS
+  # ========================================================================
+
+  # Ensure finance data is recent (within 30 days)
+  BIND(NOW() AS ?now)
+  BIND(?now - "P30D"^^xsd:duration AS ?thirty_days_ago)
+  FILTER(?finance_timestamp >= ?thirty_days_ago)
+
+  # If operations data exists, ensure it's also recent
+  FILTER(
+    BOUND(?ops_timestamp) => ?ops_timestamp >= ?thirty_days_ago
+  )
+}
+
+# ============================================================================
+# RESULT ORDERING & LIMITS
+# ============================================================================
+
+ORDER BY ?organization_name
+LIMIT 10000

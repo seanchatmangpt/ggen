@@ -1,0 +1,4 @@
+@prefix res: <https://cns.dev/resilience#> .
+@prefix core: <https://cns.dev/core#> .
+
+[] a core:TestSpec ; core:targets res:Retry, res:CircuitBreaker, res:RateLimiter .

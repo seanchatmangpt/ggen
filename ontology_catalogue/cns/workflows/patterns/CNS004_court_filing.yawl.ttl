@@ -1,0 +1,133 @@
+# YAWL Pattern: Court Filing (Van der Aalst #47)
+# Pattern ID: CNS004  
+# Trinity Framework Compliant
+# TTL2DSpy Explorable
+# Generated: 2025-08-09T16:36:28.084241
+
+@prefix cns: <http://cns-litigation.org/ontology#> .
+@prefix yawl: <http://www.yawlsystem.com/yawlschema#> .
+@prefix dag: <http://directed-acyclic-graph.org/ontology#> .
+@prefix trinity: <http://cns.ultrathink/trinity#> .
+@prefix bitagent: <http://cns.ultrathink/bitagent#> .
+@prefix disc: <http://cns.ultrathink/disc#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+
+cns:CNS004 a yawl:YAWLSpecification ;
+    rdfs:label "Court Filing" ;
+    yawl:specVersion "4.0" ;
+    trinity:vanDerAalstIndex "47"^^xsd:integer ;
+    trinity:maxTicks "8"^^xsd:integer ;
+    trinity:deterministicState "true"^^xsd:boolean ;
+    trinity:complianceValidated "true"^^xsd:boolean ;
+    yawl:decomposesTo cns:CNS004_net .
+
+
+cns:CNS004_net a yawl:Net ;
+    rdfs:label "Court Filing Net" ;
+    yawl:inputCondition cns:CNS004_start ;
+    yawl:outputCondition cns:CNS004_end .
+
+cns:CNS004_CF_START a cns:FlowNode, yawl:StartNode ;
+    cns:hasNodeID "CF_START" ;
+    cns:hasNodeType cns:start ;
+    trinity:progressTick "0"^^xsd:integer ;
+    cns:hasProcessingTimeUs "0"^^xsd:integer ;
+    cns:hasPosition "0,0"  ;
+    dag:successors (cns:CNS004_CF_PREPARE) .
+
+cns:CNS004_CF_PREPARE a cns:FlowNode, yawl:TaskNode ;
+    cns:hasNodeID "CF_PREPARE" ;
+    cns:hasNodeType cns:task ;
+    trinity:progressTick "2"^^xsd:integer ;
+    cns:hasProcessingTimeUs "14400000000"^^xsd:integer ;
+    cns:hasPosition "1,0"  ;
+    dag:predecessors (cns:CNS004_CF_START) ;
+    dag:successors (cns:CNS004_CF_VALIDATE) .
+
+cns:CNS004_CF_VALIDATE a cns:FlowNode, yawl:TaskNode ;
+    cns:hasNodeID "CF_VALIDATE" ;
+    cns:hasNodeType cns:task ;
+    trinity:progressTick "4"^^xsd:integer ;
+    cns:hasProcessingTimeUs "7200000000"^^xsd:integer ;
+    cns:hasPosition "2,0"  ;
+    dag:predecessors (cns:CNS004_CF_PREPARE) ;
+    dag:successors (cns:CNS004_CF_EFILE) .
+
+cns:CNS004_CF_EFILE a cns:FlowNode, yawl:TaskNode ;
+    cns:hasNodeID "CF_EFILE" ;
+    cns:hasNodeType cns:task ;
+    trinity:progressTick "6"^^xsd:integer ;
+    cns:hasProcessingTimeUs "3600000000"^^xsd:integer ;
+    cns:hasPosition "3,0"  ;
+    dag:predecessors (cns:CNS004_CF_VALIDATE) ;
+    dag:successors (cns:CNS004_CF_CONFIRM) .
+
+cns:CNS004_CF_CONFIRM a cns:FlowNode, yawl:TaskNode ;
+    cns:hasNodeID "CF_CONFIRM" ;
+    cns:hasNodeType cns:task ;
+    trinity:progressTick "8"^^xsd:integer ;
+    cns:hasProcessingTimeUs "1800000000"^^xsd:integer ;
+    cns:hasPosition "4,0"  ;
+    dag:predecessors (cns:CNS004_CF_EFILE) ;
+    dag:successors (cns:CNS004_CF_END) .
+
+cns:CNS004_CF_END a cns:FlowNode, yawl:EndNode ;
+    cns:hasNodeID "CF_END" ;
+    cns:hasNodeType cns:end ;
+    trinity:progressTick "8"^^xsd:integer ;
+    cns:hasProcessingTimeUs "0"^^xsd:integer ;
+    cns:hasPosition "5,0"  ;
+    dag:predecessors (cns:CNS004_CF_CONFIRM) .
+
+# DAG Edge Definitions
+
+cns:edge_001 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:CF_START ;
+    dag:hasTarget cns:CF_PREPARE ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+cns:edge_002 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:CF_PREPARE ;
+    dag:hasTarget cns:CF_VALIDATE ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+cns:edge_003 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:CF_VALIDATE ;
+    dag:hasTarget cns:CF_EFILE ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+cns:edge_004 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:CF_EFILE ;
+    dag:hasTarget cns:CF_CONFIRM ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+cns:edge_005 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:CF_CONFIRM ;
+    dag:hasTarget cns:CF_END ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+# Trinity Framework Compliance Metadata
+cns:CNS004_compliance a trinity:ComplianceValidation ;
+    trinity:patternId "CNS004" ;
+    trinity:tickCompliance "true"^^xsd:boolean ;
+    trinity:hopCompliance "true"^^xsd:boolean ;
+    trinity:bitCompliance "true"^^xsd:boolean ;
+    trinity:deterministicCompliance "true"^^xsd:boolean ;
+    trinity:validatedAt "2025-08-09T16:36:28.084257"^^xsd:dateTime .
+
+
+# TTL2DSpy Exploration Metadata
+cns:CNS004_exploration a dag:ExplorationGraph ;
+    dag:graphType "directed_acyclic" ;
+    dag:nodeCount "6"^^xsd:integer ;
+    dag:explorable "true"^^xsd:boolean ;
+    dag:ttl2dspyCompatible "true"^^xsd:boolean .

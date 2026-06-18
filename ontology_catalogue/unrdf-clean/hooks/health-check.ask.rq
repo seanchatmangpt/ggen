@@ -1,0 +1,9 @@
+
+PREFIX ex: <http://example.org/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+ASK {
+  ?service rdf:type ex:Service .
+  ?service ex:status ?status .
+  FILTER(?status != "healthy")
+}

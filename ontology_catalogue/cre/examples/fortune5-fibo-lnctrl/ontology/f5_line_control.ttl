@@ -1,0 +1,227 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ln: <http://lnctrl.io/ontology#> .
+@prefix f5: <http://fortune5.lnctrl.io/ontology#> .
+@prefix fibo-fnd: <https://spec.edmcouncil.org/fibo/ontology/FND/> .
+@prefix fibo-be: <https://spec.edmcouncil.org/fibo/ontology/BE/> .
+@prefix fibo-loan: <https://spec.edmcouncil.org/fibo/ontology/LOAN/> .
+
+# =============================================================================
+# Fortune-5 FIBO LineController Factory - Control Ontology
+# Generates 300k+ LOC Erlang/OTP from FIBO patterns
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# CONNECTOR CATALOG (30+ connectors × 20 ops = 600 modules)
+# -----------------------------------------------------------------------------
+
+f5:CRMConnector a ln:Connector ;
+    ln:connectorId "crm" ;
+    ln:name "CRM Connector" ;
+    ln:operations (
+        f5:CreateLeadOp f5:UpdateLeadOp f5:GetLeadOp f5:ConvertLeadOp
+        f5:CreateAccountOp f5:UpdateAccountOp f5:GetAccountOp f5:ArchiveAccountOp
+        f5:CreateContactOp f5:UpdateContactOp f5:GetContactOp f5:MergeContactsOp
+        f5:CreateOpportunityOp f5:UpdateOpportunityOp f5:GetOpportunityOp f5:CloseOpportunityOp
+        f5:CreateNoteOp f5:GetNotesOp f5:SearchCRMOp f5:BulkExportOp
+    ) ;
+    ln:authScheme "oauth2" ;
+    ln:rateLimit "1000/min" .
+
+f5:KYCAMLConnector a ln:Connector ;
+    ln:connectorId "kyc_aml" ;
+    ln:name "KYC/AML Connector" ;
+    ln:operations (
+        f5:VerifyIdentityOp f5:CheckDocumentsOp f5:FacialRecognitionOp f5:LivenessCheckOp
+        f5:AMLScreeningOp f5:PEPScreeningOp f5:SanctionsCheckOp f5:AdverseMediaOp
+        f5:RiskScoringOp f5:GetVerificationStatusOp f5:UpdateVerificationOp f5:ArchiveVerificationOp
+        f5:GenerateReportOp f5:SubmitToRegulatorsOp f5:WebhookNotificationOp f5:BulkScreeningOp
+        f5:MonitorOngoingOp f5:FlagSuspiciousOp f5:FileRSAROp f5:GetComplianceHistoryOp
+    ) ;
+    ln:authScheme "api_key" ;
+    ln:rateLimit "500/min" .
+
+f5:CreditBureauConnector a ln:Connector ;
+    ln:connectorId "credit_bureau" ;
+    ln:name "Credit Bureau Connector" ;
+    ln:operations (
+        f5:PullCreditReportOp f5:MonitorScoreOp f5:DisputeReportOp f5:FreezeUnfreezeOp
+        f5:GetScoreHistoryOp f5:GetTradeLinesOp f5:GetInquiriesOp f5:GetPublicRecordsOp
+        f5:GetCollectionsOp f5:GetBankruptciesOp f5:GetForeclosuresOp f5:GetJudgmentsOp
+        f5:SoftPullOp f5:HardPullOp f5:TriMergeReportOp f5:RapidRescoreOp
+        f5:RentReportingOp f5:AlternativeDataOp f5:FraudAlertOp f5:IdentityVerificationOp
+    ) ;
+    ln:authScheme "mtls" ;
+    ln:rateLimit "200/min" .
+
+f5:DocumentConnector a ln:Connector ;
+    ln:connectorId "document" ;
+    ln:name "Document Management Connector" ;
+    ln:operations (
+        f5:UploadDocumentOp f5:GetDocumentOp f5:DeleteDocumentOp f5:UpdateMetadataOp
+        f5:GeneratePDFOp f5:SignDocumentOp f5:GetSignatureStatusOp f5:SendForSignatureOp
+        f5:DownloadSignedOp f5:VoidEnvelopeOp f5:GetAuditTrailOp f5:ArchiveDocumentOp
+        f5:OCRExtractionOp f5:ClassifyDocumentOp f5:ValidateDataOp f5:CompareVersionsOp
+        f5:WatermarkOp f5:EncryptOp f5:DecryptOp f5:ShareLinkOp
+    ) ;
+    ln:authScheme "oauth2" ;
+    ln:rateLimit "2000/min" .
+
+f5:CoreLedgerConnector a ln:Connector ;
+    ln:connectorId "core_ledger" ;
+    ln:name "Core Ledger Connector" ;
+    ln:operations (
+        f5:CreateAccountOp f5:GetAccountBalanceOp f5:PostTransactionOp f5:ReverseTransactionOp
+        f5:GetTransactionHistoryOp f5:ReconcileOp f5:GenerateStatementOp f5:ApplyInterestOp
+        f5:ApplyFeesOp f5:WaiveFeeOp f5:GetAccrualOp f5:SetACHLimitOp
+        f5:FreezeAccountOp f5:UnfreezeAccountOp f5:CloseAccountOp f5:ReopenAccountOp
+        f5:LinkAccountsOp f5:GetGLBalanceOp f5:PostGLEntryOp f5:GetTrialBalanceOp
+    ) ;
+    ln:authScheme "mtls" ;
+    ln:rateLimit "5000/min" .
+
+f5:TreasuryConnector a ln:Connector ;
+    ln:connectorId "treasury" ;
+    ln:name "Treasury/Payments Connector" ;
+    ln:operations (
+        f5:InitiateACHOp f5:InitiateWireOp f5:InitiateRTPOp f5:InitiateFedNowOp
+        f5:GetPaymentStatusOp f5:CancelPaymentOp f5:ReturnPaymentOp f5:GetBalanceOp
+        f5:FundAccountOp f5:WithdrawFundsOp f5:ReconcilePaymentsOp f5:GetSettlementOp
+        f5:CreatePaymentRailOp f5:UpdateRoutingOp f5:GetFeesOp f5:DisputePaymentOp
+        f5:GetPaymentHistoryOp f5:BulkPaymentOp f5:RecurringPaymentOp f5:WebhookPaymentOp
+    ) ;
+    ln:authScheme "oauth2" ;
+    ln:rateLimit "1000/min" .
+
+f5:CaseManagementConnector a ln:Connector ;
+    ln:connectorId "case_mgmt" ;
+    ln:name "Case Management Connector" ;
+    ln:operations (
+        f5:CreateCaseOp f5:UpdateCaseOp f5:GetCaseOp f5:CloseCaseOp
+        f5:AssignCaseOp f5:ReassignCaseOp f5:EscalateCaseOp f5:AddNoteOp
+        f5:AttachDocumentOp f5:SetPriorityOp f5:SetSLAOp f5:GetSLAStatusOp
+        f5:CreateTaskOp f5:CompleteTaskOp f5:SearchCasesOp f5:GetCaseHistoryOp
+        f5:LinkCasesOp f5:MergeCasesOp f5:SplitCaseOp f5:BulkUpdateOp
+    ) ;
+    ln:authScheme "api_key" ;
+    ln:rateLimit "3000/min" .
+
+f5:NotificationConnector a ln:Connector ;
+    ln:connectorId "notification" ;
+    ln:name "Notification Connector" ;
+    ln:operations (
+        f5:SendSMSOp f5:SendEmailOp f5:SendPushOp f5:SendInAppOp
+        f5:GetDeliveryStatusOp f5:GetOpenRateOp f5:GetClickRateOp f5:UnsubscribeOp
+        f5:CreateTemplateOp f5:UpdateTemplateOp f5:GetTemplateOp f5:RenderTemplateOp
+        f5:ScheduleNotificationOp f5:CancelNotificationOp f5:BulkSendOp f5:GetHistoryOp
+        f5:ManagePreferencesOp f5:ValidatePhoneOp f5:ValidateEmailOp f5:GetBouncesOp
+    ) ;
+    ln:authScheme "api_key" ;
+    ln:rateLimit "10000/min" .
+
+f5:DataWarehouseConnector a ln:Connector ;
+    ln:connectorId "data_warehouse" ;
+    ln:name "Data Warehouse Connector" ;
+    ln:operations (
+        f5:ExportToWarehouseOp f5:GetExportStatusOp f5:QueryWarehouseOp f5:GetDatasetOp
+        f5:CreateTableOp f5:UpdateSchemaOp f5:LoadDataOp f5:UnloadDataOp
+        f5:GetJobStatusOp f5:CancelJobOp f5:ScheduleJobOp f5:GetJobHistoryOp
+        f5:CreateViewOp f5:UpdateViewOp f5:GetViewOp f5:DeleteViewOp
+        f5:GetCostOp f5:OptimizeTableOp f5:VacuumTableOp f5:GetStatsOp
+    ) ;
+    ln:authScheme "oauth2" ;
+    ln:rateLimit "100/min" .
+
+f5:PolicyEngineConnector a ln:Connector ;
+    ln:connectorId "policy_engine" ;
+    ln:name "Policy Engine Connector" ;
+    ln:operations (
+        f5:EvaluatePolicyOp f5:GetDecisionOp f5:GetDecisionReasonOp f5:OverrideDecisionOp
+        f5:CreatePolicyOp f5:UpdatePolicyOp f5:GetPolicyOp f5:DeletePolicyOp
+        f5:TestPolicyOp f5:DeployPolicyOp f5:RollbackPolicyOp f5:GetPolicyVersionOp
+        f5:GetPolicyHistoryOp f5:ExplainDecisionOp f5:SimulatePolicyOp f5:BulkEvaluateOp
+        f5:GetPolicyStatsOp f5:AuditPolicyOp f5:ExportPolicyOp f5:ImportPolicyOp
+    ) ;
+    ln:authScheme "api_key" ;
+    ln:rateLimit "5000/min" .
+
+# ... (20 more connectors follow same pattern)
+
+# -----------------------------------------------------------------------------
+# LOAN INTAKE LINE (Base + 150 variants)
+# -----------------------------------------------------------------------------
+
+f5:LoanIntakeBaseLine a ln:Line ;
+    ln:lineId "loan_intake_base" ;
+    ln:name "Loan Intake - Base" ;
+    ln:nodes (
+        f5:ValidateBorrowerNode
+        f5:RunKYCAMLNode
+        f5:PullCreditNode
+        f5:CalculateAffordabilityNode
+        f5:DetermineProductNode
+        f5:GenerateDisclosuresNode
+        f5:SendForSignatureNode
+        f5:ConfirmApplicationNode
+    ) ;
+    ln:scopes ( f5:IntakeScope ) .
+
+f5:ValidateBorrowerNode a ln:TaskNode ;
+    ln:task f5:ValidateBorrowerTask ;
+    ln:next f5:RunKYCAMLNode .
+
+f5:ValidateBorrowerTask a ln:Task ;
+    ln:taskId "validate_borrower" ;
+    ln:connector f5:CRMConnector ;
+    ln:operation f5:GetAccountOp ;
+    ln:inputType fibo-loan:Borrower ;
+    ln:outputType fibo-fnd:Party ;
+    ln:scope f5:IntakeScope .
+
+f5:IntakeScope a ln:Scope ;
+    ln:scopeId "intake" ;
+    ln:receiptCategories ( "kyc_check" "credit_pull" "disclosure_sent" ) .
+
+# -----------------------------------------------------------------------------
+# GENERATION PATTERNS (Multipliers for 300k+ LOC)
+# -----------------------------------------------------------------------------
+
+f5:ConnectorPattern a ln:GenerationPattern ;
+    ln:patternType "connector" ;
+    ln:multiplier 30 ;
+    ln:operationsPerConnector 20 ;
+    ln:locPerOperation 150 ;
+    ln:expectedTotalLOC 90000 .
+
+f5:LineVariantPattern a ln:GenerationPattern ;
+    ln:patternType "line_variant" ;
+    ln:baseLine f5:LoanIntakeBaseLine ;
+    ln:productTypes ( "mortgage" "auto" "personal" "commercial" "student" ) ;
+    ln:jurisdictions ( "us_federal" "california" "new_york" "texas" "florida" "illinois" "pennsylvania" "ohio" "georgia" "north_carolina" ) ;
+    ln:automationLevels ( "manual" "semi_auto" "fully_auto" ) ;
+    ln:multiplier 150 ;
+    ln:locPerLine 300 ;
+    ln:expectedTotalLOC 45000 .
+
+f5:TaskPattern a ln:GenerationPattern ;
+    ln:patternType "task" ;
+    ln:fiboClasses (
+        "fibo-loan:Borrower" "fibo-loan:Loan" "fibo-loan:LoanContract"
+        "fibo-fnd:Party" "fibo-fnd:Agreement" "fibo-fnd:Account"
+        "fibo-be:LegalEntity" "fibo-be:FunctionalEntity"
+    ) ;
+    ln:operations ( "validate" "create" "update" "archive" "audit" ) ;
+    ln:scopes ( "pre_closing" "closing" "post_closing" "servicing" ) ;
+    ln:multiplier 1000 ;
+    ln:locPerTask 120 ;
+    ln:expectedTotalLOC 120000 .
+
+f5:TestPattern a ln:GenerationPattern ;
+    ln:patternType "test" ;
+    ln:eunitTestsPerTask 1 ;
+    ln:ctSuitesPerLine 1 ;
+    ln:locPerEunitTest 50 ;
+    ln:locPerCTSuite 200 ;
+    ln:expectedTotalLOC 60000 .

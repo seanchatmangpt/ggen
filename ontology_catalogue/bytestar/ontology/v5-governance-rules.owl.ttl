@@ -1,0 +1,121 @@
+@prefix : <https://bytestar.org/ontology/v5/governance-rules#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix core: <https://bytestar.org/ontology/v5/core#> .
+@prefix gov: <https://bytestar.org/ontology/v5/governance#> .
+
+<https://bytestar.org/ontology/v5/governance-rules>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/v5/governance> ;
+  rdfs:label "ByteStar v5 Governance Rules Ontology" ;
+  rdfs:comment "This ontology defines the specific, machine-enforceable rules and constraints that ByteEthos applies to ensure ethical, compliant, and secure system operation." ;
+  owl:versionInfo "5.0.0" .
+
+# #################################################################
+# I. Core Rule Types
+# #################################################################
+
+:Rule a owl:Class ;
+    rdfs:label "Governance Rule" ;
+    rdfs:comment "An abstract class for a specific, enforceable governance rule." .
+
+:ResourceConsumptionRule a :Rule ;
+    rdfs:label "Resource Consumption Rule" ;
+    rdfs:comment "A rule limiting the amount of computational resources an entity can consume." .
+
+:PrivacyRule a :Rule ;
+    rdfs:label "Privacy Rule" ;
+    rdfs:comment "A rule enforcing data privacy and access controls." .
+
+:FairnessRule a :Rule ;
+    rdfs:label "Fairness Rule" ;
+    rdfs:comment "A rule ensuring equitable distribution of resources or opportunities." .
+
+:SecurityRule a :Rule ;
+    rdfs:label "Security Rule" ;
+    rdfs:comment "A rule enforcing security policies and preventing vulnerabilities." .
+
+# #################################################################
+# II. Rule Properties
+# #################################################################
+
+:appliesToActor a owl:ObjectProperty ;
+    rdfs:domain :Rule ;
+    rdfs:range core:ByteActor ;
+    rdfs:comment "Specifies the ByteActor instance or type to which a rule applies." .
+
+:hasThreshold a owl:DatatypeProperty ;
+    rdfs:domain :Rule ;
+    rdfs:range xsd:float ;
+    rdfs:comment "A numerical threshold for a rule." .
+
+:hasUnit a owl:DatatypeProperty ;
+    rdfs:domain :Rule ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The unit of measurement for a rule's threshold (e.g., 'bytes', 'ms', 'percent')." .
+
+:requiresEncryption a owl:DatatypeProperty ;
+    rdfs:domain :PrivacyRule ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Specifies if encryption is required for data covered by this privacy rule." .
+
+# #################################################################
+# III. Specific Rule Definitions (Examples)
+# #################################################################
+
+# --- Resource Consumption Rules ---
+:MaxCPUTicksPerWorkflow a :ResourceConsumptionRule ;
+    rdfs:label "Maximum CPU Ticks Per Workflow" ;
+    :hasThreshold "8.0"^^xsd:float ;
+    :hasUnit "ticks" ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasThreshold ; owl:maxInclusive "8.0"^^xsd:float ] .
+
+:MaxMemoryUsagePerCrystal a :ResourceConsumptionRule ;
+    rdfs:label "Maximum Memory Usage Per Crystal" ;
+    :hasThreshold "512.0"^^xsd:float ;
+    :hasUnit "bytes" ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasThreshold ; owl:maxInclusive "512.0"^^xsd:float ] .
+
+# --- Privacy Rules ---
+:SensitiveDataEncryption a :PrivacyRule ;
+    rdfs:label "Sensitive Data Encryption" ;
+    :requiresEncryption "true"^^xsd:boolean ;
+    rdfs:comment "All data classified as sensitive must be encrypted." .
+
+:DataMinimization a :PrivacyRule ;
+    rdfs:label "Data Minimization" ;
+    rdfs:comment "Only essential data should be processed and stored." .
+
+# --- Fairness Rules ---
+:EquitableResourceDistribution a :FairnessRule ;
+    rdfs:label "Equitable Resource Distribution" ;
+    :hasThreshold "0.8"^^xsd:float ;
+    :hasUnit "gini_coefficient" ;
+    rdfs:comment "Ensures that resource allocation does not lead to extreme disparities (e.g., Gini coefficient below 0.8)." .
+
+# --- Security Rules ---
+:InputValidationRule a :SecurityRule ;
+    rdfs:label "Strict Input Validation" ;
+    rdfs:comment "All external inputs must undergo strict validation against defined schemas." .
+
+:ConstantTimeOperationRule a :SecurityRule ;
+    rdfs:label "Constant-Time Operation Enforcement" ;
+    rdfs:comment "All cryptographic and sensitive operations must execute in constant time." .
+
+# #################################################################
+# IV. Policy Definition
+# #################################################################
+
+:Policy a owl:Class ;
+    rdfs:label "Governance Policy" ;
+    rdfs:comment "A collection of governance rules applied to a specific context or subsystem." .
+
+:containsRule a owl:ObjectProperty ;
+    rdfs:domain :Policy ;
+    rdfs:range :Rule .
+
+# Example Policy: Production Security Policy
+:ProductionSecurityPolicy a :Policy ;
+    rdfs:label "Production Security Policy" ;
+    :containsRule :InputValidationRule, :ConstantTimeOperationRule, :SensitiveDataEncryption .

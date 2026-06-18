@@ -1,0 +1,10 @@
+PREFIX ostar: <https://chatmangpt.com/ontologies/o-star/>
+
+# Query: plugins_with_mcp
+# Returns: Plugins that provide MCP servers
+
+SELECT ?plugin ?version WHERE {
+  ?plugin ostar:pluginName ?name ;
+          ostar:hasVersion ?version .
+  ?version ostar:hasMcpServer "true"^^<http://www.w3.org/2001/XMLSchema#boolean> .
+}

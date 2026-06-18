@@ -1,0 +1,6 @@
+@prefix core: <https://cns.dev/core#> .
+@prefix stream: <https://cns.dev/stream#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+stream:Processor a rdfs:Class ; rdfs:subClassOf core:Primitive .
+stream:Window a rdfs:Class ; rdfs:subClassOf core:Primitive .

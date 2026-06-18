@@ -1,0 +1,68 @@
+@prefix dev: <https://gitvan.dev/developer#> .
+@prefix scrum: <https://gitvan.dev/scrum#> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+@prefix op: <https://gitvan.dev/op#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Sprint Planning Activation Hook
+dev:sprint-planning-hook rdf:type gh:Hook ;
+    gv:title "Sprint Planning Activation" ;
+    gh:hasPredicate dev:sprint-planning-predicate ;
+    gh:orderedPipelines dev:sprint-planning-pipeline .
+
+# Predicate: Check if sprint planning is needed
+dev:sprint-planning-predicate rdf:type gh:ASKPredicate ;
+    gh:queryText """
+        PREFIX scrum: <https://gitvan.dev/scrum#>
+        PREFIX dev: <https://gitvan.dev/developer#>
+        
+        ASK WHERE {
+            ?sprint rdf:type scrum:Sprint ;
+                    scrum:status "planning" .
+            ?developer rdf:type dev:Developer ;
+                       dev:currentSprint ?sprint .
+        }
+    """ ;
+    gh:description "Triggers when developer needs to start sprint planning" .
+
+# Sprint Planning Pipeline
+dev:sprint-planning-pipeline rdf:type op:Pipeline ;
+    op:steps dev:load-product-backlog, dev:estimate-items, dev:create-sprint-backlog .
+
+# Step 1: Load Product Backlog
+dev:load-product-backlog rdf:type gv:HttpStep ;
+    gv:httpUrl "https://api.scrum.com/product-backlog" ;
+    gv:httpMethod "GET" ;
+    gv:headers '{"Content-Type": "application/json"}' ;
+    gv:body """
+        {
+            "action": "load-product-backlog",
+            "sprint": "{{ sprint.id }}",
+            "team": "{{ team.id }}"
+        }
+    """ ;
+    gv:description "Load product backlog items for sprint planning" .
+
+# Step 2: Estimate Items
+dev:estimate-items rdf:type gv:ShellStep ;
+    gv:command "echo 'Estimating sprint items...'" ;
+    gv:description "Estimate effort for sprint backlog items" ;
+    gv:dependsOn dev:load-product-backlog .
+
+# Step 3: Create Sprint Backlog
+dev:create-sprint-backlog rdf:type gv:HttpStep ;
+    gv:httpUrl "https://api.scrum.com/sprint-backlog" ;
+    gv:httpMethod "POST" ;
+    gv:headers '{"Content-Type": "application/json"}' ;
+    gv:body """
+        {
+            "action": "create-sprint-backlog",
+            "sprint": "{{ sprint.id }}",
+            "team": "{{ team.id }}",
+            "items": "{{ estimatedItems }}"
+        }
+    """ ;
+    gv:description "Create sprint backlog from estimated items" ;
+    gv:dependsOn dev:estimate-items .
+

@@ -1,0 +1,5 @@
+<task:approve> a yawl:Task ;
+    yawl:name "Approve Order" ;
+    knhk:allocationPolicy knhk:FourEyes ;
+    knhk:requiredRole "approver" ;
+    knhk:exceptionWorklet <worklet:approval-failed> .

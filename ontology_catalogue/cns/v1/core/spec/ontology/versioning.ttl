@@ -1,0 +1,5 @@
+@prefix core: <https://cns.dev/core#> .
+@prefix ver: <https://cns.dev/version#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+ver:SemVer a rdfs:Class ; rdfs:subClassOf core:Primitive .

@@ -1,0 +1,787 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+
+@prefix ba: <https://bytestar.org/ontology/> .
+@prefix ba-val: <https://bytestar.org/ontology/validation/> .
+@prefix ba-metrics: <https://bytestar.org/ontology/metrics/> .
+@prefix ba-perf: <https://bytestar.org/ontology/performance/> .
+@prefix ba-core: <https://bytestar.org/ontology/core/> .
+
+# ============================================================================
+# BYTESTAR QUALITY METRICS FRAMEWORK
+# ============================================================================
+
+<https://bytestar.org/ontology/validation/quality-metrics>
+    a owl:Ontology ;
+    dcterms:title "ByteStar Quality Metrics Framework" ;
+    dcterms:description """
+    Comprehensive quality metrics framework for automated quality assessment
+    of SHACL validation results. Provides quantitative measures of correctness,
+    completeness, consistency, maintainability, usability, and performance
+    with real-time monitoring and trend analysis capabilities.
+    """ ;
+    dcterms:version "5.0.0" ;
+    dcterms:created "2025-01-23"^^xsd:date ;
+    dcterms:creator <https://bytestar.org> ;
+    owl:imports 
+        <https://bytestar.org/ontology/validation/> ,
+        <https://bytestar.org/ontology/metrics/> ,
+        <https://bytestar.org/ontology/performance/> ;
+    rdfs:seeAlso <https://bytestar.org/docs/quality-metrics> .
+
+# ============================================================================
+# QUALITY DIMENSIONS TAXONOMY
+# ============================================================================
+
+## Quality Dimension Hierarchy
+ba-val:QualityDimension
+    a owl:Class ;
+    rdfs:label "Quality Dimension" ;
+    rdfs:comment "Abstract base class for all quality assessment dimensions" ;
+    rdfs:subClassOf skos:Concept .
+
+## Correctness Dimension - Syntactic and semantic accuracy
+ba-val:CorrectnessDimension
+    a owl:Class ;
+    rdfs:label "Correctness Dimension" ;
+    rdfs:comment "Measures syntactic and semantic correctness of validated entities" ;
+    rdfs:subClassOf ba-val:QualityDimension .
+
+ba-val:SyntacticCorrectness
+    a ba-val:CorrectnessDimension ;
+    rdfs:label "Syntactic Correctness" ;
+    rdfs:comment "Measures RDF/OWL syntax compliance and well-formedness" ;
+    ba-val:measurementFormula "syntactic_errors / total_statements" ;
+    ba-val:weightFactor 0.25 ;
+    ba-val:targetScore 1.0 .
+
+ba-val:SemanticCorrectness  
+    a ba-val:CorrectnessDimension ;
+    rdfs:label "Semantic Correctness" ;
+    rdfs:comment "Measures logical consistency and semantic coherence" ;
+    ba-val:measurementFormula "semantic_violations / total_assertions" ;
+    ba-val:weightFactor 0.30 ;
+    ba-val:targetScore 1.0 .
+
+ba-val:ConstraintCorrectness
+    a ba-val:CorrectnessDimension ;
+    rdfs:label "Constraint Correctness" ;
+    rdfs:comment "Measures adherence to SHACL shape constraints" ;
+    ba-val:measurementFormula "constraint_violations / total_constraints" ;
+    ba-val:weightFactor 0.35 ;
+    ba-val:targetScore 1.0 .
+
+ba-val:TypeCorrectness
+    a ba-val:CorrectnessDimension ;
+    rdfs:label "Type Correctness" ;
+    rdfs:comment "Measures correct typing and instantiation" ;
+    ba-val:measurementFormula "type_errors / total_instances" ;
+    ba-val:weightFactor 0.10 ;
+    ba-val:targetScore 1.0 .
+
+## Completeness Dimension - Coverage of requirements
+ba-val:CompletenessDimension
+    a owl:Class ;
+    rdfs:label "Completeness Dimension" ;
+    rdfs:comment "Measures completeness of validation coverage" ;
+    rdfs:subClassOf ba-val:QualityDimension .
+
+ba-val:RequirementCoverage
+    a ba-val:CompletenessDimension ;
+    rdfs:label "Requirement Coverage" ;
+    rdfs:comment "Measures coverage of functional requirements" ;
+    ba-val:measurementFormula "validated_requirements / total_requirements" ;
+    ba-val:weightFactor 0.30 ;
+    ba-val:targetScore 1.0 .
+
+ba-val:ShapeCoverage
+    a ba-val:CompletenessDimension ;
+    rdfs:label "Shape Coverage" ;
+    rdfs:comment "Measures SHACL shape coverage of target classes" ;
+    ba-val:measurementFormula "covered_classes / total_target_classes" ;
+    ba-val:weightFactor 0.25 ;
+    ba-val:targetScore 1.0 .
+
+ba-val:PropertyCoverage
+    a ba-val:CompletenessDimension ;
+    rdfs:label "Property Coverage" ;
+    rdfs:comment "Measures validation coverage of RDF properties" ;
+    ba-val:measurementFormula "validated_properties / total_properties" ;
+    ba-val:weightFactor 0.20 ;
+    ba-val:targetScore 0.95 .
+
+ba-val:CrystalTypeCoverage
+    a ba-val:CompletenessDimension ;
+    rdfs:label "Crystal Type Coverage" ;
+    rdfs:comment "Measures validation coverage across all crystal types" ;
+    ba-val:measurementFormula "validated_crystal_types / total_crystal_types" ;
+    ba-val:weightFactor 0.25 ;
+    ba-val:targetScore 1.0 .
+
+## Consistency Dimension - Internal and cross-module consistency
+ba-val:ConsistencyDimension
+    a owl:Class ;
+    rdfs:label "Consistency Dimension" ;
+    rdfs:comment "Measures logical consistency and coherence" ;
+    rdfs:subClassOf ba-val:QualityDimension .
+
+ba-val:InternalConsistency
+    a ba-val:ConsistencyDimension ;
+    rdfs:label "Internal Consistency" ;
+    rdfs:comment "Measures consistency within individual ontologies" ;
+    ba-val:measurementFormula "consistency_violations / total_assertions" ;
+    ba-val:weightFactor 0.40 ;
+    ba-val:targetScore 1.0 .
+
+ba-val:CrossOntologyConsistency
+    a ba-val:ConsistencyDimension ;
+    rdfs:label "Cross-Ontology Consistency" ;
+    rdfs:comment "Measures consistency across multiple ontologies" ;
+    ba-val:measurementFormula "cross_violations / total_cross_references" ;
+    ba-val:weightFactor 0.35 ;
+    ba-val:targetScore 1.0 .
+
+ba-val:VersionConsistency
+    a ba-val:ConsistencyDimension ;
+    rdfs:label "Version Consistency" ;
+    rdfs:comment "Measures version synchronization across components" ;
+    ba-val:measurementFormula "version_mismatches / total_version_checks" ;
+    ba-val:weightFactor 0.15 ;
+    ba-val:targetScore 1.0 .
+
+ba-val:NamingConsistency
+    a ba-val:ConsistencyDimension ;
+    rdfs:label "Naming Consistency" ;
+    rdfs:comment "Measures consistency in naming conventions" ;
+    ba-val:measurementFormula "naming_violations / total_identifiers" ;
+    ba-val:weightFactor 0.10 ;
+    ba-val:targetScore 0.98 .
+
+## Maintainability Dimension - Ease of maintenance and evolution
+ba-val:MaintainabilityDimension
+    a owl:Class ;
+    rdfs:label "Maintainability Dimension" ;
+    rdfs:comment "Measures ease of maintenance and evolution" ;
+    rdfs:subClassOf ba-val:QualityDimension .
+
+ba-val:ValidationComplexity
+    a ba-val:MaintainabilityDimension ;
+    rdfs:label "Validation Complexity" ;
+    rdfs:comment "Measures complexity of validation rules and shapes" ;
+    ba-val:measurementFormula "complex_shapes / total_shapes" ;
+    ba-val:weightFactor 0.30 ;
+    ba-val:targetScore 0.20 ; # Lower is better
+    ba-val:invertScore true .
+
+ba-val:ShapeModularity
+    a ba-val:MaintainabilityDimension ;
+    rdfs:label "Shape Modularity" ;
+    rdfs:comment "Measures modularity and reusability of SHACL shapes" ;
+    ba-val:measurementFormula "reusable_shapes / total_shapes" ;
+    ba-val:weightFactor 0.25 ;
+    ba-val:targetScore 0.80 .
+
+ba-val:DocumentationQuality
+    a ba-val:MaintainabilityDimension ;
+    rdfs:label "Documentation Quality" ;
+    rdfs:comment "Measures quality and completeness of documentation" ;
+    ba-val:measurementFormula "documented_shapes / total_shapes" ;
+    ba-val:weightFactor 0.20 ;
+    ba-val:targetScore 0.95 .
+
+ba-val:ChangeImpactAnalysis
+    a ba-val:MaintainabilityDimension ;
+    rdfs:label "Change Impact Analysis" ;
+    rdfs:comment "Measures potential impact of changes" ;
+    ba-val:measurementFormula "high_impact_changes / total_changes" ;
+    ba-val:weightFactor 0.25 ;
+    ba-val:targetScore 0.10 ; # Lower is better
+    ba-val:invertScore true .
+
+## Usability Dimension - Ease of use and understanding
+ba-val:UsabilityDimension
+    a owl:Class ;
+    rdfs:label "Usability Dimension" ;
+    rdfs:comment "Measures ease of use and understanding" ;
+    rdfs:subClassOf ba-val:QualityDimension .
+
+ba-val:ErrorMessageClarity
+    a ba-val:UsabilityDimension ;
+    rdfs:label "Error Message Clarity" ;
+    rdfs:comment "Measures clarity and actionability of error messages" ;
+    ba-val:measurementFormula "clear_error_messages / total_error_messages" ;
+    ba-val:weightFactor 0.35 ;
+    ba-val:targetScore 0.90 .
+
+ba-val:ValidationFeedback
+    a ba-val:UsabilityDimension ;
+    rdfs:label "Validation Feedback" ;
+    rdfs:comment "Measures quality of validation feedback provided" ;
+    ba-val:measurementFormula "actionable_feedback / total_validations" ;
+    ba-val:weightFactor 0.30 ;
+    ba-val:targetScore 0.85 .
+
+ba-val:ToolIntegration
+    a ba-val:UsabilityDimension ;
+    rdfs:label "Tool Integration" ;
+    rdfs:comment "Measures integration with development tools" ;
+    ba-val:measurementFormula "integrated_tools / available_tools" ;
+    ba-val:weightFactor 0.20 ;
+    ba-val:targetScore 0.80 .
+
+ba-val:UserExperience
+    a ba-val:UsabilityDimension ;
+    rdfs:label "User Experience" ;
+    rdfs:comment "Measures overall user experience quality" ;
+    ba-val:measurementFormula "positive_feedback / total_feedback" ;
+    ba-val:weightFactor 0.15 ;
+    ba-val:targetScore 0.90 .
+
+## Performance Dimension - Query and reasoning performance  
+ba-val:PerformanceDimension
+    a owl:Class ;
+    rdfs:label "Performance Dimension" ;
+    rdfs:comment "Measures validation performance characteristics" ;
+    rdfs:subClassOf ba-val:QualityDimension .
+
+ba-val:ValidationSpeed
+    a ba-val:PerformanceDimension ;
+    rdfs:label "Validation Speed" ;
+    rdfs:comment "Measures speed of validation execution" ;
+    ba-val:measurementFormula "total_validations / total_execution_time" ;
+    ba-val:weightFactor 0.40 ;
+    ba-val:targetScore 1000.0 ; # validations per second
+    ba-val:unit "validations/second" .
+
+ba-val:MemoryEfficiency
+    a ba-val:PerformanceDimension ;
+    rdfs:label "Memory Efficiency" ;
+    rdfs:comment "Measures memory usage efficiency during validation" ;
+    ba-val:measurementFormula "baseline_memory / actual_memory_usage" ;
+    ba-val:weightFactor 0.25 ;
+    ba-val:targetScore 0.90 .
+
+ba-val:ScalabilityMetric
+    a ba-val:PerformanceDimension ;
+    rdfs:label "Scalability Metric" ;
+    rdfs:comment "Measures scalability with increasing data size" ;
+    ba-val:measurementFormula "linear_regression_r_squared" ;
+    ba-val:weightFactor 0.20 ;
+    ba-val:targetScore 0.98 .
+
+ba-val:TickCompliance
+    a ba-val:PerformanceDimension ;
+    rdfs:label "Tick Compliance" ;
+    rdfs:comment "Measures compliance with 8-tick performance guarantee" ;
+    ba-val:measurementFormula "sub_8_tick_validations / total_validations" ;
+    ba-val:weightFactor 0.15 ;
+    ba-val:targetScore 1.0 .
+
+# ============================================================================
+# QUALITY MEASUREMENT FRAMEWORK
+# ============================================================================
+
+## Quality Measurement
+ba-val:QualityMeasurement
+    a owl:Class ;
+    rdfs:label "Quality Measurement" ;
+    rdfs:comment "Specific measurement of a quality dimension" ;
+    rdfs:subClassOf ba-metrics:Measurement ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba-val:measuresDimension ;
+        owl:someValuesFrom ba-val:QualityDimension
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba-val:hasScore ;
+        owl:someValuesFrom xsd:decimal
+    ] .
+
+## Quality Assessment
+ba-val:QualityAssessment
+    a owl:Class ;
+    rdfs:label "Quality Assessment" ;
+    rdfs:comment "Complete quality assessment across all dimensions" ;
+    rdfs:subClassOf ba-val:ValidationResult ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba-val:hasMeasurement ;
+        owl:someValuesFrom ba-val:QualityMeasurement
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba-val:hasOverallScore ;
+        owl:someValuesFrom xsd:decimal
+    ] .
+
+## Quality Trend Analysis
+ba-val:QualityTrend
+    a owl:Class ;
+    rdfs:label "Quality Trend" ;
+    rdfs:comment "Trend analysis of quality metrics over time" ;
+    rdfs:subClassOf ba-metrics:TrendAnalysis ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba-val:tracksDimension ;
+        owl:someValuesFrom ba-val:QualityDimension
+    ] .
+
+## Quality Benchmark
+ba-val:QualityBenchmark
+    a owl:Class ;
+    rdfs:label "Quality Benchmark" ;
+    rdfs:comment "Benchmark baseline for quality comparisons" ;
+    rdfs:subClassOf ba-perf:Benchmark ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba-val:benchmarkDimension ;
+        owl:someValuesFrom ba-val:QualityDimension
+    ] .
+
+# ============================================================================
+# AUTOMATED QUALITY ASSESSMENT RULES
+# ============================================================================
+
+## Overall Quality Score Calculation Rule
+ba-val:OverallQualityScoreRule
+    a sh:SPARQLRule ;
+    rdfs:label "Overall Quality Score Calculation Rule" ;
+    rdfs:comment "Calculates weighted overall quality score" ;
+    sh:prefixes [
+        sh:declare [
+            sh:prefix "ba-val" ;
+            sh:namespace "https://bytestar.org/ontology/validation/"^^xsd:anyURI ;
+        ] ;
+    ] ;
+    sh:construct """
+        CONSTRUCT {
+            ?assessment ba-val:hasOverallScore ?overallScore .
+        }
+        WHERE {
+            ?assessment a ba-val:QualityAssessment ;
+                       ba-val:hasMeasurement ?measurement .
+            ?measurement ba-val:measuresDimension ?dimension ;
+                        ba-val:hasScore ?score .
+            ?dimension ba-val:weightFactor ?weight .
+            
+            {
+                SELECT ?assessment (SUM(?weightedScore) / SUM(?weight) AS ?overallScore)
+                WHERE {
+                    ?assessment ba-val:hasMeasurement ?m .
+                    ?m ba-val:measuresDimension ?d ;
+                       ba-val:hasScore ?s .
+                    ?d ba-val:weightFactor ?w .
+                    BIND(?s * ?w AS ?weightedScore)
+                }
+                GROUP BY ?assessment
+            }
+        }
+    """ .
+
+## Quality Regression Detection Rule
+ba-val:QualityRegressionRule
+    a sh:SPARQLRule ;
+    rdfs:label "Quality Regression Detection Rule" ;
+    rdfs:comment "Detects quality regressions compared to baseline" ;
+    sh:prefixes [
+        sh:declare [
+            sh:prefix "ba-val" ;
+            sh:namespace "https://bytestar.org/ontology/validation/"^^xsd:anyURI ;
+        ] ;
+    ] ;
+    sh:select """
+        SELECT ?assessment ?dimension ?currentScore ?baselineScore ?regression
+        WHERE {
+            ?assessment ba-val:hasMeasurement ?measurement .
+            ?measurement ba-val:measuresDimension ?dimension ;
+                        ba-val:hasScore ?currentScore .
+            
+            ?baseline a ba-val:QualityBenchmark ;
+                     ba-val:benchmarkDimension ?dimension ;
+                     ba-val:baselineScore ?baselineScore .
+            
+            BIND((?baselineScore - ?currentScore) / ?baselineScore * 100 AS ?regression)
+            
+            FILTER(?regression > 5.0) # More than 5% regression
+        }
+    """ ;
+    sh:message "Quality regression detected: {$dimension} score {$currentScore} vs baseline {$baselineScore} ({$regression}% degradation)" ;
+    sh:severity sh:Warning .
+
+## Quality Target Achievement Rule
+ba-val:QualityTargetRule
+    a sh:SPARQLRule ;
+    rdfs:label "Quality Target Achievement Rule" ;
+    rdfs:comment "Validates achievement of quality targets" ;
+    sh:prefixes [
+        sh:declare [
+            sh:prefix "ba-val" ;
+            sh:namespace "https://bytestar.org/ontology/validation/"^^xsd:anyURI ;
+        ] ;
+    ] ;
+    sh:select """
+        SELECT ?assessment ?dimension ?score ?target ?gap
+        WHERE {
+            ?assessment ba-val:hasMeasurement ?measurement .
+            ?measurement ba-val:measuresDimension ?dimension ;
+                        ba-val:hasScore ?score .
+            
+            ?dimension ba-val:targetScore ?target .
+            
+            BIND(ABS(?target - ?score) AS ?gap)
+            
+            FILTER(
+                (?dimension ba-val:invertScore false && ?score < ?target) ||
+                (?dimension ba-val:invertScore true && ?score > ?target)
+            )
+        }
+    """ ;
+    sh:message "Quality target not achieved: {$dimension} score {$score} vs target {$target} (gap: {$gap})" ;
+    sh:severity sh:Warning .
+
+# ============================================================================
+# QUALITY METRICS COLLECTION
+# ============================================================================
+
+## Metrics Collector
+ba-val:QualityMetricsCollector
+    a owl:Class ;
+    rdfs:label "Quality Metrics Collector" ;
+    rdfs:comment "Automated collector for quality metrics" ;
+    rdfs:subClassOf ba-metrics:MetricsCollector ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba-val:collectsDimension ;
+        owl:someValuesFrom ba-val:QualityDimension
+    ] .
+
+## Real-time Quality Monitor
+ba-val:QualityMonitor
+    a owl:Class ;
+    rdfs:label "Quality Monitor" ;
+    rdfs:comment "Real-time monitoring of quality metrics" ;
+    rdfs:subClassOf ba-perf:PerformanceMonitor ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba-val:monitorsAssessment ;
+        owl:someValuesFrom ba-val:QualityAssessment
+    ] .
+
+## Quality Dashboard
+ba-val:QualityDashboard
+    a owl:Class ;
+    rdfs:label "Quality Dashboard" ;
+    rdfs:comment "Dashboard for visualizing quality metrics" ;
+    rdfs:subClassOf ba-val:QualityMonitor ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba-val:displaysMetrics ;
+        owl:someValuesFrom ba-val:QualityMeasurement
+    ] .
+
+# ============================================================================
+# AUTOMATED QUALITY REPORTING
+# ============================================================================
+
+## Quality Report
+ba-val:QualityReport
+    a owl:Class ;
+    rdfs:label "Quality Report" ;
+    rdfs:comment "Automated quality assessment report" ;
+    rdfs:subClassOf ba-val:ValidationReport ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba-val:containsAssessment ;
+        owl:someValuesFrom ba-val:QualityAssessment
+    ] .
+
+## Executive Quality Summary
+ba-val:ExecutiveQualitySummary
+    a owl:Class ;
+    rdfs:label "Executive Quality Summary" ;
+    rdfs:comment "High-level executive summary of quality status" ;
+    rdfs:subClassOf ba-val:QualityReport ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba-val:hasExecutiveSummary ;
+        owl:someValuesFrom xsd:string
+    ] .
+
+## Quality Improvement Recommendations
+ba-val:QualityRecommendations
+    a owl:Class ;
+    rdfs:label "Quality Improvement Recommendations" ;
+    rdfs:comment "Automated recommendations for quality improvement" ;
+    rdfs:subClassOf ba-val:QualityReport ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba-val:hasRecommendation ;
+        owl:someValuesFrom ba-val:ImprovementRecommendation
+    ] .
+
+## Improvement Recommendation
+ba-val:ImprovementRecommendation
+    a owl:Class ;
+    rdfs:label "Improvement Recommendation" ;
+    rdfs:comment "Specific recommendation for quality improvement" ;
+    rdfs:subClassOf ba-core:Recommendation ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba-val:targetsDimension ;
+        owl:someValuesFrom ba-val:QualityDimension
+    ] .
+
+# ============================================================================
+# QUALITY PROPERTIES
+# ============================================================================
+
+## Core Quality Properties
+ba-val:measuresDimension
+    a owl:ObjectProperty ;
+    rdfs:label "measures dimension" ;
+    rdfs:comment "Relates measurement to quality dimension measured" ;
+    rdfs:domain ba-val:QualityMeasurement ;
+    rdfs:range ba-val:QualityDimension .
+
+ba-val:hasScore
+    a owl:DatatypeProperty ;
+    rdfs:label "has score" ;
+    rdfs:comment "Numeric score for quality measurement" ;
+    rdfs:domain ba-val:QualityMeasurement ;
+    rdfs:range xsd:decimal .
+
+ba-val:hasOverallScore
+    a owl:DatatypeProperty ;
+    rdfs:label "has overall score" ;
+    rdfs:comment "Overall weighted quality score" ;
+    rdfs:domain ba-val:QualityAssessment ;
+    rdfs:range xsd:decimal .
+
+ba-val:hasMeasurement
+    a owl:ObjectProperty ;
+    rdfs:label "has measurement" ;
+    rdfs:comment "Relates assessment to individual measurements" ;
+    rdfs:domain ba-val:QualityAssessment ;
+    rdfs:range ba-val:QualityMeasurement .
+
+## Dimension Configuration Properties
+ba-val:measurementFormula
+    a owl:DatatypeProperty ;
+    rdfs:label "measurement formula" ;
+    rdfs:comment "Formula for calculating dimension score" ;
+    rdfs:domain ba-val:QualityDimension ;
+    rdfs:range xsd:string .
+
+ba-val:weightFactor
+    a owl:DatatypeProperty ;
+    rdfs:label "weight factor" ;
+    rdfs:comment "Weight factor for dimension in overall score" ;
+    rdfs:domain ba-val:QualityDimension ;
+    rdfs:range xsd:decimal .
+
+ba-val:targetScore
+    a owl:DatatypeProperty ;
+    rdfs:label "target score" ;
+    rdfs:comment "Target score for quality dimension" ;
+    rdfs:domain ba-val:QualityDimension ;
+    rdfs:range xsd:decimal .
+
+ba-val:invertScore
+    a owl:DatatypeProperty ;
+    rdfs:label "invert score" ;
+    rdfs:comment "Whether lower values indicate better quality" ;
+    rdfs:domain ba-val:QualityDimension ;
+    rdfs:range xsd:boolean .
+
+ba-val:unit
+    a owl:DatatypeProperty ;
+    rdfs:label "unit" ;
+    rdfs:comment "Unit of measurement for quality metric" ;
+    rdfs:domain ba-val:QualityDimension ;
+    rdfs:range xsd:string .
+
+## Trend Analysis Properties
+ba-val:tracksDimension
+    a owl:ObjectProperty ;
+    rdfs:label "tracks dimension" ;
+    rdfs:comment "Relates trend analysis to tracked dimension" ;
+    rdfs:domain ba-val:QualityTrend ;
+    rdfs:range ba-val:QualityDimension .
+
+ba-val:trendDirection
+    a owl:DatatypeProperty ;
+    rdfs:label "trend direction" ;
+    rdfs:comment "Direction of quality trend (improving/declining/stable)" ;
+    rdfs:domain ba-val:QualityTrend ;
+    rdfs:range xsd:string .
+
+ba-val:trendSlope
+    a owl:DatatypeProperty ;
+    rdfs:label "trend slope" ;
+    rdfs:comment "Slope of quality trend line" ;
+    rdfs:domain ba-val:QualityTrend ;
+    rdfs:range xsd:decimal .
+
+## Benchmark Properties
+ba-val:benchmarkDimension
+    a owl:ObjectProperty ;
+    rdfs:label "benchmark dimension" ;
+    rdfs:comment "Quality dimension for benchmark" ;
+    rdfs:domain ba-val:QualityBenchmark ;
+    rdfs:range ba-val:QualityDimension .
+
+ba-val:baselineScore
+    a owl:DatatypeProperty ;
+    rdfs:label "baseline score" ;
+    rdfs:comment "Baseline score for benchmark comparison" ;
+    rdfs:domain ba-val:QualityBenchmark ;
+    rdfs:range xsd:decimal .
+
+## Monitoring Properties
+ba-val:collectsDimension
+    a owl:ObjectProperty ;
+    rdfs:label "collects dimension" ;
+    rdfs:comment "Quality dimension collected by collector" ;
+    rdfs:domain ba-val:QualityMetricsCollector ;
+    rdfs:range ba-val:QualityDimension .
+
+ba-val:monitorsAssessment
+    a owl:ObjectProperty ;
+    rdfs:label "monitors assessment" ;
+    rdfs:comment "Quality assessment monitored" ;
+    rdfs:domain ba-val:QualityMonitor ;
+    rdfs:range ba-val:QualityAssessment .
+
+ba-val:displaysMetrics
+    a owl:ObjectProperty ;
+    rdfs:label "displays metrics" ;
+    rdfs:comment "Quality metrics displayed on dashboard" ;
+    rdfs:domain ba-val:QualityDashboard ;
+    rdfs:range ba-val:QualityMeasurement .
+
+## Reporting Properties
+ba-val:containsAssessment
+    a owl:ObjectProperty ;
+    rdfs:label "contains assessment" ;
+    rdfs:comment "Quality assessment contained in report" ;
+    rdfs:domain ba-val:QualityReport ;
+    rdfs:range ba-val:QualityAssessment .
+
+ba-val:hasExecutiveSummary
+    a owl:DatatypeProperty ;
+    rdfs:label "has executive summary" ;
+    rdfs:comment "Executive summary text" ;
+    rdfs:domain ba-val:ExecutiveQualitySummary ;
+    rdfs:range xsd:string .
+
+ba-val:hasRecommendation
+    a owl:ObjectProperty ;
+    rdfs:label "has recommendation" ;
+    rdfs:comment "Improvement recommendation in report" ;
+    rdfs:domain ba-val:QualityRecommendations ;
+    rdfs:range ba-val:ImprovementRecommendation .
+
+ba-val:targetsDimension
+    a owl:ObjectProperty ;
+    rdfs:label "targets dimension" ;
+    rdfs:comment "Quality dimension targeted by recommendation" ;
+    rdfs:domain ba-val:ImprovementRecommendation ;
+    rdfs:range ba-val:QualityDimension .
+
+# ============================================================================
+# QUALITY METRICS INSTANCES
+# ============================================================================
+
+## Default Quality Assessment Framework
+ba-val:DefaultQualityFramework
+    a ba-val:QualityAssessment ;
+    rdfs:label "Default ByteStar Quality Assessment Framework" ;
+    rdfs:comment "Default quality assessment configuration for ByteStar validation" ;
+    ba-val:hasMeasurement 
+        ba-val:SyntacticCorrectnessM ,
+        ba-val:SemanticCorrectnessM ,
+        ba-val:ConstraintCorrectnessM ,
+        ba-val:RequirementCoverageM ,
+        ba-val:ShapeCoverageM ,
+        ba-val:InternalConsistencyM ,
+        ba-val:CrossOntologyConsistencyM ,
+        ba-val:ValidationComplexityM ,
+        ba-val:ErrorMessageClarityM ,
+        ba-val:ValidationSpeedM ,
+        ba-val:TickComplianceM .
+
+## Individual Quality Measurements
+ba-val:SyntacticCorrectnessM
+    a ba-val:QualityMeasurement ;
+    rdfs:label "Syntactic Correctness Measurement" ;
+    ba-val:measuresDimension ba-val:SyntacticCorrectness .
+
+ba-val:SemanticCorrectnessM
+    a ba-val:QualityMeasurement ;
+    rdfs:label "Semantic Correctness Measurement" ;
+    ba-val:measuresDimension ba-val:SemanticCorrectness .
+
+ba-val:ConstraintCorrectnessM
+    a ba-val:QualityMeasurement ;
+    rdfs:label "Constraint Correctness Measurement" ;
+    ba-val:measuresDimension ba-val:ConstraintCorrectness .
+
+ba-val:RequirementCoverageM
+    a ba-val:QualityMeasurement ;
+    rdfs:label "Requirement Coverage Measurement" ;
+    ba-val:measuresDimension ba-val:RequirementCoverage .
+
+ba-val:ShapeCoverageM
+    a ba-val:QualityMeasurement ;
+    rdfs:label "Shape Coverage Measurement" ;
+    ba-val:measuresDimension ba-val:ShapeCoverage .
+
+ba-val:InternalConsistencyM
+    a ba-val:QualityMeasurement ;
+    rdfs:label "Internal Consistency Measurement" ;
+    ba-val:measuresDimension ba-val:InternalConsistency .
+
+ba-val:CrossOntologyConsistencyM
+    a ba-val:QualityMeasurement ;
+    rdfs:label "Cross-Ontology Consistency Measurement" ;
+    ba-val:measuresDimension ba-val:CrossOntologyConsistency .
+
+ba-val:ValidationComplexityM
+    a ba-val:QualityMeasurement ;
+    rdfs:label "Validation Complexity Measurement" ;
+    ba-val:measuresDimension ba-val:ValidationComplexity .
+
+ba-val:ErrorMessageClarityM
+    a ba-val:QualityMeasurement ;
+    rdfs:label "Error Message Clarity Measurement" ;
+    ba-val:measuresDimension ba-val:ErrorMessageClarity .
+
+ba-val:ValidationSpeedM
+    a ba-val:QualityMeasurement ;
+    rdfs:label "Validation Speed Measurement" ;
+    ba-val:measuresDimension ba-val:ValidationSpeed .
+
+ba-val:TickComplianceM
+    a ba-val:QualityMeasurement ;
+    rdfs:label "Tick Compliance Measurement" ;
+    ba-val:measuresDimension ba-val:TickCompliance .
+
+## Production Quality Benchmarks
+ba-val:ProductionQualityBenchmark
+    a ba-val:QualityBenchmark ;
+    rdfs:label "Production Quality Benchmark" ;
+    rdfs:comment "Quality benchmark for production deployment" ;
+    ba-val:baselineScore 0.95 ;
+    dcterms:created "2025-01-23"^^xsd:date .
+
+# ============================================================================
+# END OF QUALITY METRICS FRAMEWORK
+# ============================================================================

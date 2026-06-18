@@ -1,0 +1,70 @@
+PREFIX ggen: <https://chatmangpt.com/ontologies/ggen/command-vocab#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Extract all verb specifications with their parameters and return types
+# Used by ggen to reverse-map RDF ontologies into CLI specifications
+# Output: CONSTRUCT result can be serialized to YAML/JSON for code generation
+
+CONSTRUCT {
+  ?verb
+    ggen:verbName ?verbName ;
+    ggen:verbDocstring ?verbDocstring ;
+    ggen:belongsToNoun ?noun ;
+    ggen:hasParameter ?param ;
+    ggen:returnsType ?outputType ;
+    ggen:canFail ?canFail .
+
+  ?noun
+    ggen:nounName ?nounName ;
+    ggen:nounDocstring ?nounDocstring .
+
+  ?param
+    ggen:paramName ?paramName ;
+    ggen:paramType ?paramType ;
+    ggen:isRequired ?isRequired ;
+    ggen:paramDocstring ?paramDocstring ;
+    ggen:shortForm ?shortForm ;
+    ggen:defaultValue ?defaultValue ;
+    ggen:validation ?validation .
+
+  ?outputType
+    ggen:outputName ?outputName ;
+    ggen:outputDescription ?outputDescription ;
+    ggen:hasField ?field .
+}
+WHERE {
+  # Query all verbs and their basic properties
+  ?verb rdf:type ggen:VerbSpec ;
+        ggen:verbName ?verbName ;
+        ggen:belongsToNoun ?noun .
+
+  # Optional: verb docstring
+  OPTIONAL { ?verb ggen:verbDocstring ?verbDocstring }
+
+  # Optional: can fail flag
+  OPTIONAL { ?verb ggen:canFail ?canFail }
+
+  # Query the parent noun
+  ?noun rdf:type ggen:NounSpec ;
+        ggen:nounName ?nounName .
+  OPTIONAL { ?noun ggen:nounDocstring ?nounDocstring }
+
+  # Optional: verb parameters
+  OPTIONAL {
+    ?verb ggen:hasParameter ?param .
+    ?param ggen:paramName ?paramName ;
+           ggen:paramType ?paramType .
+    OPTIONAL { ?param ggen:isRequired ?isRequired }
+    OPTIONAL { ?param ggen:paramDocstring ?paramDocstring }
+    OPTIONAL { ?param ggen:shortForm ?shortForm }
+    OPTIONAL { ?param ggen:defaultValue ?defaultValue }
+    OPTIONAL { ?param ggen:validation ?validation }
+  }
+
+  # Query the return type specification
+  ?verb ggen:returnsType ?outputType .
+  ?outputType ggen:outputName ?outputName .
+  OPTIONAL { ?outputType ggen:outputDescription ?outputDescription }
+  OPTIONAL { ?outputType ggen:hasField ?field }
+}

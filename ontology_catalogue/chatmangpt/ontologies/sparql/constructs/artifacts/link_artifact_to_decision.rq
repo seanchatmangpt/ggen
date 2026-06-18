@@ -1,0 +1,43 @@
+# @name: link_artifact_to_decision
+# @category: artifacts
+# @description: Link an artifact to an architectural decision record (ADR)
+# @params: ?artifactId, ?decision_id, ?relationship_type
+# @returns: prov:Entity linked to decision with prov:wasInformedBy relationship
+# @version: 1.0
+# @stability: stable
+#
+# Relationship types:
+#   - "informs" (prov:wasInformedBy) — artifact provides context for decision
+#   - "documents" (prov:wasDerivedFrom) — artifact documents the decision
+#   - "validates" (schema:about) — artifact validates the decision
+
+PREFIX bos: <http://businessos.dev/id/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX schema: <http://schema.org/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+CONSTRUCT {
+  ?artifact ?relationship ?decision .
+
+  ?artifact prov:wasRelatedTo ?decision .
+
+  ?decision prov:wasInformedBy ?artifact .
+}
+
+WHERE {
+  BIND(IRI(CONCAT("http://businessos.dev/id/artifacts/", STR(?artifactId))) AS ?artifact)
+  BIND(IRI(CONCAT("http://businessos.dev/id/decisions/", STR(?decision_id))) AS ?decision)
+
+  BIND(
+    IF(
+      STR(?relationship_type) = "informs",
+      prov:wasInformedBy,
+      IF(
+        STR(?relationship_type) = "documents",
+        prov:wasDerivedFrom,
+        schema:about
+      )
+    )
+    AS ?relationship
+  )
+}

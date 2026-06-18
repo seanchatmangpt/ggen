@@ -1,0 +1,316 @@
+@prefix dp: <http://bytepqc.org/ontology/deterministic-patterns#> .
+@prefix v5fab: <http://bytepqc.org/ontology/v5-fabrication#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Deterministic Patterns Ontology
+# Fabrication Patterns with Mathematical Determinism Guarantees
+# Author: BytePQC V5 Pattern Team
+# Version: 5.0.0-alpha
+
+dp: a owl:Ontology ;
+    dcterms:title "Deterministic Fabrication Patterns Ontology" ;
+    dcterms:description "Ontology defining fabrication patterns with mathematical determinism that makes non-determinism impossible" ;
+    v5fab:integratesWithOntology v5fab: ;
+    dcterms:version "5.0.0-alpha" .
+
+#############################################
+# DETERMINISTIC PATTERNS CORE CONCEPTS
+#############################################
+
+dp:DeterministicPattern a owl:Class ;
+    rdfs:subClassOf v5fab:FabricationProcess ;
+    rdfs:label "Deterministic Pattern" ;
+    rdfs:comment "Fabrication pattern with mathematical determinism guarantees" .
+
+dp:DeterminismInvariant a owl:Class ;
+    rdfs:subClassOf v5fab:ImpossibilityConstraint ;
+    rdfs:label "Determinism Invariant" ;
+    rdfs:comment "Mathematical invariant ensuring deterministic behavior" .
+
+dp:NonDeterminismImpossibility a owl:Class ;
+    rdfs:subClassOf v5fab:FailurePreventionMechanism ;
+    rdfs:label "Non-determinism Impossibility" ;
+    rdfs:comment "Mechanism making non-deterministic behavior mathematically impossible" .
+
+dp:DeterministicState a owl:Class ;
+    rdfs:label "Deterministic State" ;
+    rdfs:comment "System state with deterministic transitions" .
+
+dp:StateTransition a owl:Class ;
+    rdfs:label "State Transition" ;
+    rdfs:comment "Deterministic state transition" .
+
+#############################################
+# PATTERN CATEGORIES
+#############################################
+
+dp:PureFunctionPattern a owl:Class ;
+    rdfs:subClassOf dp:DeterministicPattern ;
+    rdfs:label "Pure Function Pattern" ;
+    rdfs:comment "Pattern ensuring all functions are mathematically pure" .
+
+dp:ImmutableDataPattern a owl:Class ;
+    rdfs:subClassOf dp:DeterministicPattern ;
+    rdfs:label "Immutable Data Pattern" ;
+    rdfs:comment "Pattern ensuring all data structures are immutable" .
+
+dp:LinearTypePattern a owl:Class ;
+    rdfs:subClassOf dp:DeterministicPattern ;
+    rdfs:label "Linear Type Pattern" ;
+    rdfs:comment "Pattern using linear types to ensure deterministic resource usage" .
+
+dp:MonadicPattern a owl:Class ;
+    rdfs:subClassOf dp:DeterministicPattern ;
+    rdfs:label "Monadic Pattern" ;
+    rdfs:comment "Pattern using monads to control side effects deterministically" .
+
+dp:ActorPattern a owl:Class ;
+    rdfs:subClassOf dp:DeterministicPattern ;
+    rdfs:label "Actor Pattern" ;
+    rdfs:comment "Deterministic actor pattern with guaranteed message ordering" .
+
+#############################################
+# DETERMINISM ENFORCEMENT MECHANISMS
+#############################################
+
+dp:DeterministicScheduler a owl:Class ;
+    rdfs:subClassOf dp:NonDeterminismImpossibility ;
+    rdfs:label "Deterministic Scheduler" ;
+    rdfs:comment "Scheduler that ensures deterministic execution ordering" .
+
+dp:PurenesEnforcer a owl:Class ;
+    rdfs:subClassOf dp:NonDeterminismImpossibility ;
+    rdfs:label "Pureness Enforcer" ;
+    rdfs:comment "Mechanism enforcing function purity" .
+
+dp:ImmutabilityGuard a owl:Class ;
+    rdfs:subClassOf dp:NonDeterminismImpossibility ;
+    rdfs:label "Immutability Guard" ;
+    rdfs:comment "Guard ensuring data immutability" .
+
+dp:LinearityChecker a owl:Class ;
+    rdfs:subClassOf dp:NonDeterminismImpossibility ;
+    rdfs:label "Linearity Checker" ;
+    rdfs:comment "Type system enforcing linear resource usage" .
+
+#############################################
+# PROPERTIES
+#############################################
+
+dp:hasDeterminismInvariant a owl:ObjectProperty ;
+    rdfs:label "has determinism invariant" ;
+    rdfs:comment "Links patterns to their determinism invariants" ;
+    rdfs:domain dp:DeterministicPattern ;
+    rdfs:range dp:DeterminismInvariant .
+
+dp:enforcedBy a owl:ObjectProperty ;
+    rdfs:label "enforced by" ;
+    rdfs:comment "Links patterns to enforcement mechanisms" ;
+    rdfs:domain dp:DeterministicPattern ;
+    rdfs:range dp:NonDeterminismImpossibility .
+
+dp:hasState a owl:ObjectProperty ;
+    rdfs:label "has state" ;
+    rdfs:comment "Links patterns to their deterministic states" ;
+    rdfs:domain dp:DeterministicPattern ;
+    rdfs:range dp:DeterministicState .
+
+dp:transitionsTo a owl:ObjectProperty ;
+    rdfs:label "transitions to" ;
+    rdfs:comment "Deterministic state transition relationship" ;
+    rdfs:domain dp:DeterministicState ;
+    rdfs:range dp:DeterministicState .
+
+dp:viaTransition a owl:ObjectProperty ;
+    rdfs:label "via transition" ;
+    rdfs:comment "Links state changes to their transition functions" ;
+    rdfs:domain dp:DeterministicState ;
+    rdfs:range dp:StateTransition .
+
+#############################################
+# DATA PROPERTIES
+#############################################
+
+dp:determinismLevel a owl:DatatypeProperty ;
+    rdfs:label "determinism level" ;
+    rdfs:comment "Level of determinism (1.0 = absolutely deterministic)" ;
+    rdfs:domain dp:DeterministicPattern ;
+    rdfs:range xsd:decimal ;
+    owl:hasValue "1.0"^^xsd:decimal .
+
+dp:nonDeterminismProbability a owl:DatatypeProperty ;
+    rdfs:label "non-determinism probability" ;
+    rdfs:comment "Probability of non-deterministic behavior (0.0 = impossible)" ;
+    rdfs:domain dp:DeterministicPattern ;
+    rdfs:range xsd:decimal ;
+    owl:hasValue "0.0"^^xsd:decimal .
+
+dp:invariantFormula a owl:DatatypeProperty ;
+    rdfs:label "invariant formula" ;
+    rdfs:comment "Mathematical formula defining determinism invariant" ;
+    rdfs:domain dp:DeterminismInvariant ;
+    rdfs:range xsd:string .
+
+dp:transitionFunction a owl:DatatypeProperty ;
+    rdfs:label "transition function" ;
+    rdfs:comment "Mathematical function defining state transition" ;
+    rdfs:domain dp:StateTransition ;
+    rdfs:range xsd:string .
+
+dp:stateSpace a owl:DatatypeProperty ;
+    rdfs:label "state space" ;
+    rdfs:comment "Mathematical definition of state space" ;
+    rdfs:domain dp:DeterministicState ;
+    rdfs:range xsd:string .
+
+#############################################
+# DETERMINISM AXIOMS
+#############################################
+
+# Axiom: All deterministic patterns must have determinism level 1.0
+dp:DeterministicPattern rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty dp:determinismLevel ;
+    owl:hasValue "1.0"^^xsd:decimal
+] .
+
+# Axiom: Non-determinism probability must be 0.0
+dp:DeterministicPattern rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty dp:nonDeterminismProbability ;
+    owl:hasValue "0.0"^^xsd:decimal
+] .
+
+# Axiom: Every pattern must have at least one determinism invariant
+dp:DeterministicPattern rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty dp:hasDeterminismInvariant ;
+    owl:someValuesFrom dp:DeterminismInvariant
+] .
+
+# Axiom: Every invariant must have mathematical formula
+dp:DeterminismInvariant rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty dp:invariantFormula ;
+    owl:someValuesFrom xsd:string
+] .
+
+# Axiom: State transitions must be functional (deterministic)
+dp:StateTransition rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty dp:transitionFunction ;
+    owl:someValuesFrom xsd:string
+] .
+
+#############################################
+# SPECIFIC PATTERN INSTANCES
+#############################################
+
+dp:KyberDeterministicPattern a dp:PureFunctionPattern ;
+    rdfs:label "Kyber Deterministic Pattern" ;
+    rdfs:comment "Deterministic pattern for Kyber implementation" ;
+    dp:determinismLevel "1.0"^^xsd:decimal ;
+    dp:nonDeterminismProbability "0.0"^^xsd:decimal .
+
+dp:MemoryDeterministicPattern a dp:LinearTypePattern ;
+    rdfs:label "Memory Deterministic Pattern" ;
+    rdfs:comment "Deterministic pattern for memory management" ;
+    dp:determinismLevel "1.0"^^xsd:decimal ;
+    dp:nonDeterminismProbability "0.0"^^xsd:decimal .
+
+dp:CryptographicDeterministicPattern a dp:ImmutableDataPattern ;
+    rdfs:label "Cryptographic Deterministic Pattern" ;
+    rdfs:comment "Deterministic pattern for cryptographic operations" ;
+    dp:determinismLevel "1.0"^^xsd:decimal ;
+    dp:nonDeterminismProbability "0.0"^^xsd:decimal .
+
+#############################################
+# DETERMINISM INVARIANTS
+#############################################
+
+dp:PurenesInvariant a dp:DeterminismInvariant ;
+    rdfs:label "Pureness Invariant" ;
+    rdfs:comment "Invariant ensuring all functions are pure" ;
+    dp:invariantFormula "∀ function f: pure(f) ∧ ∀ input i: f(i) = deterministic_result(i)" ;
+    v5fab:hasMathematicalProof "Function purity enforced by type system: no side effects, no global state access" .
+
+dp:ImmutabilityInvariant a dp:DeterminismInvariant ;
+    rdfs:label "Immutability Invariant" ;
+    rdfs:comment "Invariant ensuring all data is immutable" ;
+    dp:invariantFormula "∀ data_structure d: immutable(d) ∧ ∀ operation op: op(d) = new_structure" ;
+    v5fab:hasMathematicalProof "Immutability enforced by linear types: no in-place mutation allowed" .
+
+dp:LinearityInvariant a dp:DeterminismInvariant ;
+    rdfs:label "Linearity Invariant" ;
+    rdfs:comment "Invariant ensuring linear resource usage" ;
+    dp:invariantFormula "∀ resource r: use_count(r) = 1 ∧ ∀ transfer: ownership_unique(transfer)" ;
+    v5fab:hasMathematicalProof "Linear types ensure single ownership: no aliasing, no use-after-free" .
+
+dp:MessageOrderingInvariant a dp:DeterminismInvariant ;
+    rdfs:label "Message Ordering Invariant" ;
+    rdfs:comment "Invariant ensuring deterministic message ordering" ;
+    dp:invariantFormula "∀ messages M: order(M) = deterministic_order(M) ∧ ∀ delivery: causal_consistency(delivery)" ;
+    v5fab:hasMathematicalProof "Message ordering enforced by logical clocks: happens-before relation preserved" .
+
+#############################################
+# NON-DETERMINISM IMPOSSIBILITY MECHANISMS
+#############################################
+
+dp:TypeSystemEnforcer a dp:NonDeterminismImpossibility ;
+    rdfs:label "Type System Enforcer" ;
+    rdfs:comment "Type system that makes non-determinism impossible" ;
+    v5fab:hasMathematicalProof "Type system rules: (1) No unsafe operations (2) Linear resource tracking (3) Effect isolation" .
+
+dp:SchedulerDeterminizer a dp:NonDeterminismImpossibility ;
+    rdfs:label "Scheduler Determinizer" ;
+    rdfs:comment "Scheduler ensuring deterministic execution" ;
+    v5fab:hasMathematicalProof "Deterministic scheduling: (1) Fixed priority ordering (2) Deterministic tie-breaking (3) Reproducible execution" .
+
+dp:MemoryOrderingEnforcer a dp:NonDeterminismImpossibility ;
+    rdfs:label "Memory Ordering Enforcer" ;
+    rdfs:comment "Memory system ensuring deterministic ordering" ;
+    v5fab:hasMathematicalProof "Memory ordering: (1) Sequential consistency (2) No race conditions (3) Deterministic memory layout" .
+
+#############################################
+# STATE TRANSITION EXAMPLES
+#############################################
+
+dp:KyberKeyGenState a dp:DeterministicState ;
+    rdfs:label "Kyber Key Generation State" ;
+    rdfs:comment "Deterministic state for Kyber key generation" ;
+    dp:stateSpace "KeyGenState = {seed: [u8; 32], matrix: PolynomialMatrix, keys: Option<KeyPair>}" .
+
+dp:KyberEncryptionState a dp:DeterministicState ;
+    rdfs:label "Kyber Encryption State" ;
+    rdfs:comment "Deterministic state for Kyber encryption" ;
+    dp:stateSpace "EncryptionState = {public_key: PublicKey, message: PlaintextMessage, randomness: [u8; 32]}" .
+
+dp:KeyGenTransition a dp:StateTransition ;
+    rdfs:label "Key Generation Transition" ;
+    rdfs:comment "Deterministic transition for key generation" ;
+    dp:transitionFunction "transition(seed) = deterministic_keygen(seed) → {matrix, keys}" .
+
+dp:EncryptionTransition a dp:StateTransition ;
+    rdfs:label "Encryption Transition" ;
+    rdfs:comment "Deterministic transition for encryption" ;
+    dp:transitionFunction "transition(pub_key, message, rand) = deterministic_encrypt(pub_key, message, rand) → ciphertext" .
+
+#############################################
+# PATTERN RELATIONSHIPS
+#############################################
+
+# Link states and transitions
+dp:KyberKeyGenState dp:viaTransition dp:KeyGenTransition .
+dp:KyberEncryptionState dp:viaTransition dp:EncryptionTransition .
+
+# Link patterns to their states
+dp:KyberDeterministicPattern dp:hasState dp:KyberKeyGenState .
+dp:KyberDeterministicPattern dp:hasState dp:KyberEncryptionState .
+
+# Link patterns to invariants
+dp:KyberDeterministicPattern dp:hasDeterminismInvariant dp:PurenesInvariant .
+dp:MemoryDeterministicPattern dp:hasDeterminismInvariant dp:LinearityInvariant .
+dp:CryptographicDeterministicPattern dp:hasDeterminismInvariant dp:ImmutabilityInvariant .

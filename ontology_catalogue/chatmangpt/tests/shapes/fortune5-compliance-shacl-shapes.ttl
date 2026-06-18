@@ -1,0 +1,591 @@
+# =============================================================================
+# Fortune 5 Compliance SHACL Validation Shapes
+# =============================================================================
+#
+# Purpose: Define SHACL (Shapes Constraint Language) shapes for validating
+# RDF data conformance to compliance requirements
+#
+# Usage:
+#   shacl validate --shapes this-file.ttl --data test-data.ttl
+#
+# Frameworks:
+#   - SOC2: Financial data integrity, access control, audit trail
+#   - HIPAA: Patient data protection, de-identification, consent
+#   - GDPR: Consent management, data minimization
+#   - SOX: Financial reporting, change management
+#
+# =============================================================================
+
+PREFIX sh: <http://www.w3.org/ns/shacl#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX odrl: <http://www.w3.org/ns/odrl/2/>
+
+# Ontology namespaces
+PREFIX fibo-fbd: <https://spec.edmcouncil.org/fibo/ontology/FBD/>
+PREFIX fibo-fnd: <https://spec.edmcouncil.org/fibo/ontology/FND/>
+PREFIX hipaa: <https://chatmangpt.com/ontology/hipaa/>
+PREFIX sox: <https://chatmangpt.com/ontology/compliance/sox/>
+PREFIX gdpr: <https://chatmangpt.com/ontology/compliance/gdpr/>
+PREFIX bos: <https://chatmangpt.com/ontology/businessos/>
+
+# =============================================================================
+# SHAPE 1: FIBO Deal Validation (SOC2/SOX Compliance)
+# =============================================================================
+#
+# Requirement: Every deal must have:
+#   - Valid identifier (SOX-format: DEAL-YYYY-NNN)
+#   - Monetary amount with valid checksum
+#   - Identified parties (buyer/seller)
+#   - Audit trail (prov:wasGeneratedBy)
+#   - Financial controls metadata
+#
+# Violations: CRITICAL (blocks merge)
+#
+
+:FiboDealShape
+  sh:targetClass fibo-fbd:Deal ;
+  sh:name "FIBO Deal Validation" ;
+  sh:description "Validates financial deals with SOC2/SOX compliance" ;
+
+  # Must have deal identifier in SOX format
+  sh:property [
+    sh:path dcterms:identifier ;
+    sh:name "Deal Identifier" ;
+    sh:description "Unique deal identifier in SOX format (DEAL-YYYY-NNN)" ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:pattern "^DEAL-[0-9]{4}-[0-9]{3}$" ;
+  ] ;
+
+  # Must have monetary amount
+  sh:property [
+    sh:path fibo-fnd:hasMonetaryAmount ;
+    sh:name "Monetary Amount" ;
+    sh:description "Financial value of deal" ;
+    sh:minCount 1 ;
+    sh:node :MonetaryAmountShape ;
+  ] ;
+
+  # Must identify buyer (party)
+  sh:property [
+    sh:path fibo-fbd:hasBuyer ;
+    sh:name "Buyer Party" ;
+    sh:description "Purchasing organization" ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+  ] ;
+
+  # Must identify seller (party)
+  sh:property [
+    sh:path fibo-fbd:hasSeller ;
+    sh:name "Seller Party" ;
+    sh:description "Selling organization" ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+  ] ;
+
+  # Must have checksum (SOX data integrity requirement)
+  sh:property [
+    sh:path sox:checksumValue ;
+    sh:name "SOX Checksum" ;
+    sh:description "SHA256 checksum for data integrity verification" ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:pattern "^sha256-[a-f0-9]{64}$" ;
+    sh:message "SOX FDI-1 violation: missing or invalid checksum" ;
+  ] ;
+
+  # Must have audit trail (prov:wasGeneratedBy)
+  sh:property [
+    sh:path prov:wasGeneratedBy ;
+    sh:name "Provenance Activity" ;
+    sh:description "Link to audit activity (prov:Activity)" ;
+    sh:minCount 1 ;
+  ] ;
+
+  # Creation timestamp required
+  sh:property [
+    sh:path dcterms:created ;
+    sh:name "Creation Timestamp" ;
+    sh:description "When deal was created (ISO8601)" ;
+    sh:minCount 1 ;
+    sh:datatype xsd:dateTime ;
+  ] ;
+
+  # Must be marked as financial reporting affected (SOX)
+  sh:property [
+    sh:path sox:isFinancialReportingAffected ;
+    sh:name "Financial Reporting Impact" ;
+    sh:minCount 1 ;
+    sh:datatype xsd:boolean ;
+  ] ;
+
+  sh:severity sh:Violation ;
+  .
+
+# =============================================================================
+# SHAPE 2: Monetary Amount Validation
+# =============================================================================
+
+:MonetaryAmountShape
+  sh:targetClass fibo-fnd:MonetaryAmount ;
+  sh:name "Monetary Amount Validation" ;
+
+  # Amount must be positive
+  sh:property [
+    sh:path fibo-fnd:hasAmount ;
+    sh:name "Amount Value" ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 0.01 ;
+  ] ;
+
+  # Currency must be specified
+  sh:property [
+    sh:path fibo-fnd:hasCurrency ;
+    sh:name "Currency" ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+
+  sh:severity sh:Violation ;
+  .
+
+# =============================================================================
+# SHAPE 3: HIPAA Patient Record Validation
+# =============================================================================
+#
+# Requirement: Every PHI record must have:
+#   - De-identified patient ID (ANON-XXXXX format)
+#   - Data classification as PHI
+#   - Explicit consent reference
+#   - Access control designation
+#   - Audit log reference
+#   - Retention schedule
+#
+# Violations: CRITICAL (HIPAA AC-2, RP-2 violation)
+#
+
+:HipaaPatientRecordShape
+  sh:targetClass hipaa:PatientRecord ;
+  sh:name "HIPAA Patient Record Validation" ;
+  sh:description "Validates patient record de-identification and PHI designation" ;
+
+  # De-identified patient ID (HIPAA Safe Harbor)
+  sh:property [
+    sh:path hipaa:anonymousPatientId ;
+    sh:name "De-identified Patient ID" ;
+    sh:description "Sequential anonymous ID (ANON-XXXXX)" ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:pattern "^ANON-[0-9]{5}$" ;
+    sh:message "HIPAA RP-2 violation: patient not properly de-identified" ;
+  ] ;
+
+  # Hash of original ID (for audit trail, but original removed)
+  sh:property [
+    sh:path hipaa:originalPatientIdHash ;
+    sh:name "Original ID Hash" ;
+    sh:description "SHA256 hash of original identifier (irreversible)" ;
+    sh:minCount 1 ;
+    sh:pattern "^sha256-[a-f0-9]{64}$" ;
+  ] ;
+
+  # Must be classified as PHI
+  sh:property [
+    sh:path hipaa:dataClassification ;
+    sh:name "Data Classification" ;
+    sh:description "Must be marked as PHI" ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in (hipaa:PHI hipaa:Protected hipaa:Confidential) ;
+    sh:message "HIPAA AC-2 violation: data not classified as PHI" ;
+  ] ;
+
+  # Consent required
+  sh:property [
+    sh:path hipaa:requiresExplicitConsent ;
+    sh:name "Explicit Consent Required" ;
+    sh:minCount 1 ;
+    sh:datatype xsd:boolean ;
+  ] ;
+
+  # Consent document reference
+  sh:property [
+    sh:path hipaa:consentDocumentId ;
+    sh:name "Consent Document ID" ;
+    sh:minCount 1 ;
+    sh:nodeKind sh:IRI ;
+  ] ;
+
+  # Access control designation
+  sh:property [
+    sh:path hipaa:minimumAccessLevel ;
+    sh:name "Minimum Access Level" ;
+    sh:description "Who can access this record" ;
+    sh:minCount 1 ;
+    sh:in (
+      hipaa:ClinicalStaff
+      hipaa:Physician
+      hipaa:HealthInformationOfficer
+      hipaa:PatientOnly
+    ) ;
+  ] ;
+
+  # Access log reference
+  sh:property [
+    sh:path hipaa:accessLogId ;
+    sh:name "Access Log Reference" ;
+    sh:minCount 1 ;
+    sh:nodeKind sh:IRI ;
+  ] ;
+
+  # Retention schedule reference
+  sh:property [
+    sh:path hipaa:retentionScheduleId ;
+    sh:name "Retention Schedule" ;
+    sh:minCount 1 ;
+    sh:nodeKind sh:IRI ;
+  ] ;
+
+  sh:severity sh:Violation ;
+  .
+
+# =============================================================================
+# SHAPE 4: HIPAA Access Log Validation
+# =============================================================================
+#
+# Requirement: Every access must be logged with:
+#   - Timestamp, actor, action, reason
+#   - Authorization verification
+#   - Audit hash (immutable chain)
+#   - Previous hash (chain integrity)
+#
+# Violations: CRITICAL (HIPAA AS-1 violation)
+#
+
+:HipaaAccessLogShape
+  sh:targetClass hipaa:AccessLog ;
+  sh:name "HIPAA Access Log Validation" ;
+  sh:description "Validates access audit trail completeness" ;
+
+  # Timestamp required
+  sh:property [
+    sh:path dcterms:created ;
+    sh:name "Access Timestamp" ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:dateTime ;
+  ] ;
+
+  # Actor (clinician, staff) required
+  sh:property [
+    sh:path hipaa:accessedBy ;
+    sh:name "Accessed By (Actor)" ;
+    sh:minCount 1 ;
+    sh:nodeKind sh:IRI ;
+    sh:message "HIPAA AS-1 violation: access not attributed to actor" ;
+  ] ;
+
+  # Action (read, write, delete) required
+  sh:property [
+    sh:path hipaa:accessAction ;
+    sh:name "Access Action" ;
+    sh:minCount 1 ;
+    sh:in (read write delete execute) ;
+  ] ;
+
+  # Reason (treatment, operation, audit) required
+  sh:property [
+    sh:path hipaa:accessReason ;
+    sh:name "Access Reason" ;
+    sh:minCount 1 ;
+    sh:in (treatment operation audit legal_hold patient_request) ;
+    sh:message "HIPAA AS-1 violation: access reason not documented" ;
+  ] ;
+
+  # Authorization must be verified
+  sh:property [
+    sh:path hipaa:authorizationVerified ;
+    sh:name "Authorization Verified" ;
+    sh:minCount 1 ;
+    sh:datatype xsd:boolean ;
+    sh:message "HIPAA AC-2 violation: authorization not verified" ;
+  ] ;
+
+  # Checksum for immutable audit trail
+  sh:property [
+    sh:path hipaa:auditHashValue ;
+    sh:name "Audit Hash (Chain)" ;
+    sh:minCount 1 ;
+    sh:pattern "^sha256-[a-f0-9]{64}$" ;
+  ] ;
+
+  # Previous hash for integrity verification
+  sh:property [
+    sh:path hipaa:previousAuditHash ;
+    sh:name "Previous Hash (Integrity)" ;
+    sh:minCount 1 ;
+    sh:pattern "^sha256-[a-f0-9]{64}$" ;
+  ] ;
+
+  sh:severity sh:Violation ;
+  .
+
+# =============================================================================
+# SHAPE 5: GDPR Consent Validation (ODRL)
+# =============================================================================
+#
+# Requirement: Every consent policy must have:
+#   - Signed date, expiry date
+#   - Permissions and prohibitions defined (ODRL)
+#   - Revocation capability
+#   - Active status check
+#
+# Violations: HIGH (GDPR CM-1 violation)
+#
+
+:GdprConsentShape
+  sh:targetClass hipaa:ConsentDocument ;
+  sh:name "GDPR Consent Validation" ;
+  sh:description "Validates consent as per GDPR CM-1 requirements" ;
+
+  # Signed date
+  sh:property [
+    sh:path hipaa:consentSignedDate ;
+    sh:name "Consent Signed Date" ;
+    sh:minCount 1 ;
+    sh:datatype xsd:date ;
+  ] ;
+
+  # Expiry date
+  sh:property [
+    sh:path hipaa:consentExpiryDate ;
+    sh:name "Consent Expiry Date" ;
+    sh:minCount 1 ;
+    sh:datatype xsd:date ;
+  ] ;
+
+  # Active status
+  sh:property [
+    sh:path hipaa:consentIsActive ;
+    sh:name "Consent Active Status" ;
+    sh:minCount 1 ;
+    sh:datatype xsd:boolean ;
+    sh:message "GDPR CM-1 violation: consent expired or revoked" ;
+  ] ;
+
+  # At least one ODRL permission or prohibition
+  sh:property [
+    sh:path odrl:permission ;
+    sh:name "Permissions" ;
+    sh:minCount 1 ;
+  ] ;
+
+  # Revocation capability required
+  sh:property [
+    sh:path hipaa:consentCanBeRevokedAt ;
+    sh:name "Revocation Endpoint" ;
+    sh:minCount 1 ;
+    sh:nodeKind sh:IRI ;
+  ] ;
+
+  sh:severity sh:Warning ;
+  .
+
+# =============================================================================
+# SHAPE 6: PROV-O Audit Activity Validation
+# =============================================================================
+#
+# Requirement: Every provenance activity must have:
+#   - Start and end timestamps
+#   - Associated agent (actor)
+#   - Generated or used entity
+#   - Hash value for integrity
+#
+# Violations: CRITICAL (audit trail integrity)
+#
+
+:ProvAuditActivityShape
+  sh:targetClass prov:Activity ;
+  sh:name "PROV-O Audit Activity Validation" ;
+  sh:description "Validates provenance chain completeness" ;
+
+  # Activity title
+  sh:property [
+    sh:path dcterms:title ;
+    sh:name "Activity Title" ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+  ] ;
+
+  # Start time
+  sh:property [
+    sh:path prov:startedAtTime ;
+    sh:name "Start Time" ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:dateTime ;
+  ] ;
+
+  # End time
+  sh:property [
+    sh:path prov:endedAtTime ;
+    sh:name "End Time" ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:dateTime ;
+  ] ;
+
+  # Associated with (actor)
+  sh:property [
+    sh:path prov:wasAssociatedWith ;
+    sh:name "Associated Agent" ;
+    sh:minCount 1 ;
+    sh:nodeKind sh:IRI ;
+    sh:message "Audit trail integrity violation: activity not attributed to actor" ;
+  ] ;
+
+  # Generated entity
+  sh:property [
+    sh:path prov:generated ;
+    sh:name "Generated Entity" ;
+    sh:minCount 1 ;
+    sh:nodeKind sh:IRI ;
+  ] ;
+
+  sh:severity sh:Violation ;
+  .
+
+# =============================================================================
+# SHAPE 7: ODRL Policy Enforcement Validation
+# =============================================================================
+#
+# Requirement: Every ODRL policy must specify:
+#   - Action (read, write, execute, delete)
+#   - Target resource
+#   - Assignee (who can perform action)
+#   - Purpose (why access allowed)
+#   - Constraints (conditions)
+#
+# Violations: HIGH (policy enforcement failure)
+#
+
+:OdrlPolicyShape
+  sh:targetClass odrl:Permission ;
+  sh:name "ODRL Permission Validation" ;
+  sh:description "Validates policy enforcement rules" ;
+
+  # Action required
+  sh:property [
+    sh:path odrl:action ;
+    sh:name "Action" ;
+    sh:minCount 1 ;
+    sh:in (
+      odrl:read
+      odrl:write
+      odrl:execute
+      odrl:delete
+      odrl:use
+    ) ;
+  ] ;
+
+  # Target required
+  sh:property [
+    sh:path odrl:target ;
+    sh:name "Target Resource" ;
+    sh:minCount 1 ;
+    sh:nodeKind sh:IRI ;
+  ] ;
+
+  # Assignee required
+  sh:property [
+    sh:path odrl:assignee ;
+    sh:name "Assignee (Grantee)" ;
+    sh:minCount 1 ;
+    sh:nodeKind sh:IRI ;
+  ] ;
+
+  # Purpose helps with compliance
+  sh:property [
+    sh:path odrl:purpose ;
+    sh:name "Purpose" ;
+    sh:minCount 0 ;  # Optional but recommended
+    sh:in (
+      treatment
+      operation
+      audit
+      marketing
+      analytics
+      legal_hold
+      care_coordination
+    ) ;
+  ] ;
+
+  sh:severity sh:Warning ;
+  .
+
+# =============================================================================
+# SHAPE 8: Data Quality Measurement (DQV)
+# =============================================================================
+#
+# Requirement: Quality measurements must have:
+#   - Dimension (completeness, accuracy, consistency, timeliness)
+#   - Score (0-100)
+#   - Measurement date
+#   - Issues identified (if any)
+#
+# Violations: WARNING (quality tracking)
+#
+
+:DqvQualityMeasurementShape
+  sh:targetClass bos:QualityMeasurement ;
+  sh:name "Data Quality Measurement Validation" ;
+
+  # Score (0-100)
+  sh:property [
+    sh:path bos:qualityScore ;
+    sh:name "Quality Score" ;
+    sh:minCount 1 ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 0 ;
+    sh:maxInclusive 100 ;
+  ] ;
+
+  # Dimension
+  sh:property [
+    sh:path bos:qualityDimension ;
+    sh:name "Quality Dimension" ;
+    sh:minCount 1 ;
+    sh:in (
+      completeness
+      accuracy
+      consistency
+      timeliness
+      validity
+      uniqueness
+    ) ;
+  ] ;
+
+  # Measurement date
+  sh:property [
+    sh:path dcterms:issued ;
+    sh:name "Measurement Date" ;
+    sh:minCount 1 ;
+    sh:datatype xsd:dateTime ;
+  ] ;
+
+  sh:severity sh:Warning ;
+  .
+
+# =============================================================================
+# END OF SHACL SHAPES
+# =============================================================================

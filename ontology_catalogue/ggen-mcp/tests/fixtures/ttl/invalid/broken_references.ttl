@@ -1,0 +1,31 @@
+# Invalid TTL - Broken References
+# Tests undefined references and type mismatches
+
+@prefix ex: <http://example.org/> .
+@prefix ddd: <http://ggen-mcp.dev/ontology/ddd#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# Reference to undefined class
+ex:MyClass a owl:Class ;
+    rdfs:subClassOf ex:UndefinedParentClass ;
+    rdfs:label "My Class"@en .
+
+# Property with undefined domain
+ex:myProperty a owl:ObjectProperty ;
+    rdfs:domain ex:NonExistentClass ;
+    rdfs:range ex:AnotherNonExistentClass .
+
+# Repository for non-existent aggregate
+ex:BrokenRepository a owl:Class ;
+    rdfs:subClassOf ddd:Repository ;
+    rdfs:label "Broken Repository"@en ;
+    ddd:forAggregate ex:NonExistentAggregate .
+
+# Instance of undefined class
+ex:orphanInstance a ex:UndefinedClass ;
+    ex:someProperty "value" .
+
+# Property reference to undefined property
+ex:SomeClass a owl:Class ;
+    ddd:hasProperty ex:UndefinedProperty .

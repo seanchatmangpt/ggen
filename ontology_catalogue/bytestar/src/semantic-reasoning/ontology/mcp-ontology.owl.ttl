@@ -1,0 +1,222 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix mcp: <http://semantic-reasoning.bytestar.net/ontology/mcp#> .
+@prefix sr: <http://semantic-reasoning.bytestar.net/ontology/core#> .
+
+# MCP Resource Semantic Ontology
+<http://semantic-reasoning.bytestar.net/ontology/mcp>
+    rdf:type owl:Ontology ;
+    rdfs:label "MCP Resource Semantic Ontology" ;
+    rdfs:comment "Ontology for semantic reasoning over Model Context Protocol (MCP) resources" ;
+    owl:versionInfo "1.0.0" .
+
+#################################################################
+#    Classes
+#################################################################
+
+# Core MCP Classes
+mcp:Resource rdf:type owl:Class ;
+    rdfs:label "MCP Resource" ;
+    rdfs:comment "A resource available through MCP protocol" .
+
+mcp:Server rdf:type owl:Class ;
+    rdfs:label "MCP Server" ;
+    rdfs:comment "A server providing MCP resources" .
+
+mcp:Tool rdf:type owl:Class ;
+    rdfs:label "MCP Tool" ;
+    rdfs:comment "A tool/function available through MCP" ;
+    rdfs:subClassOf mcp:Resource .
+
+mcp:DataResource rdf:type owl:Class ;
+    rdfs:label "MCP Data Resource" ;
+    rdfs:comment "A data resource available through MCP" ;
+    rdfs:subClassOf mcp:Resource .
+
+# Semantic Reasoning Classes
+sr:InferenceEngine rdf:type owl:Class ;
+    rdfs:label "Inference Engine" ;
+    rdfs:comment "Engine for performing semantic inference" .
+
+sr:ReasoningRule rdf:type owl:Class ;
+    rdfs:label "Reasoning Rule" ;
+    rdfs:comment "Rule for semantic inference" .
+
+sr:Query rdf:type owl:Class ;
+    rdfs:label "Semantic Query" ;
+    rdfs:comment "SPARQL or semantic query" .
+
+sr:KnowledgeBase rdf:type owl:Class ;
+    rdfs:label "Knowledge Base" ;
+    rdfs:comment "Collection of semantic knowledge" .
+
+sr:ResourceCapability rdf:type owl:Class ;
+    rdfs:label "Resource Capability" ;
+    rdfs:comment "Capability or function provided by a resource" .
+
+# Inference Types
+sr:DeductiveInference rdf:type owl:Class ;
+    rdfs:subClassOf sr:InferenceEngine ;
+    rdfs:label "Deductive Inference" ;
+    rdfs:comment "Rule-based deductive reasoning" .
+
+sr:InductiveInference rdf:type owl:Class ;
+    rdfs:subClassOf sr:InferenceEngine ;
+    rdfs:label "Inductive Inference" ;
+    rdfs:comment "Pattern-based inductive reasoning" .
+
+sr:AbductiveInference rdf:type owl:Class ;
+    rdfs:subClassOf sr:InferenceEngine ;
+    rdfs:label "Abductive Inference" ;
+    rdfs:comment "Hypothesis-based abductive reasoning" .
+
+#################################################################
+#    Properties
+#################################################################
+
+# Resource Properties
+mcp:hasURI rdf:type owl:DatatypeProperty ;
+    rdfs:domain mcp:Resource ;
+    rdfs:range xsd:anyURI ;
+    rdfs:label "has URI" ;
+    rdfs:comment "URI identifier for the resource" .
+
+mcp:providedBy rdf:type owl:ObjectProperty ;
+    rdfs:domain mcp:Resource ;
+    rdfs:range mcp:Server ;
+    rdfs:label "provided by" ;
+    rdfs:comment "Server that provides this resource" .
+
+mcp:hasCapability rdf:type owl:ObjectProperty ;
+    rdfs:domain mcp:Resource ;
+    rdfs:range sr:ResourceCapability ;
+    rdfs:label "has capability" ;
+    rdfs:comment "Capability provided by the resource" .
+
+mcp:hasParameter rdf:type owl:DatatypeProperty ;
+    rdfs:domain mcp:Tool ;
+    rdfs:range xsd:string ;
+    rdfs:label "has parameter" ;
+    rdfs:comment "Parameter required by the tool" .
+
+# Semantic Properties
+sr:hasKnowledge rdf:type owl:ObjectProperty ;
+    rdfs:domain sr:KnowledgeBase ;
+    rdfs:range owl:Thing ;
+    rdfs:label "has knowledge" ;
+    rdfs:comment "Knowledge contained in the knowledge base" .
+
+sr:appliesRule rdf:type owl:ObjectProperty ;
+    rdfs:domain sr:InferenceEngine ;
+    rdfs:range sr:ReasoningRule ;
+    rdfs:label "applies rule" ;
+    rdfs:comment "Rule applied by the inference engine" .
+
+sr:inferredFrom rdf:type owl:ObjectProperty ;
+    rdfs:domain owl:Thing ;
+    rdfs:range owl:Thing ;
+    rdfs:label "inferred from" ;
+    rdfs:comment "Source of the inference" .
+
+sr:hasConfidence rdf:type owl:DatatypeProperty ;
+    rdfs:domain owl:Thing ;
+    rdfs:range xsd:double ;
+    rdfs:label "has confidence" ;
+    rdfs:comment "Confidence level of the inference (0.0-1.0)" .
+
+sr:hasPattern rdf:type owl:DatatypeProperty ;
+    rdfs:domain sr:ReasoningRule ;
+    rdfs:range xsd:string ;
+    rdfs:label "has pattern" ;
+    rdfs:comment "Pattern matched by the reasoning rule" .
+
+sr:hasConsequent rdf:type owl:DatatypeProperty ;
+    rdfs:domain sr:ReasoningRule ;
+    rdfs:range xsd:string ;
+    rdfs:label "has consequent" ;
+    rdfs:comment "Consequent/conclusion of the reasoning rule" .
+
+# Discovery Properties
+sr:semanticallySimilarTo rdf:type owl:ObjectProperty ;
+    rdf:type owl:SymmetricProperty ;
+    rdfs:domain mcp:Resource ;
+    rdfs:range mcp:Resource ;
+    rdfs:label "semantically similar to" ;
+    rdfs:comment "Resources that are semantically similar" .
+
+sr:functionallyEquivalentTo rdf:type owl:ObjectProperty ;
+    rdf:type owl:SymmetricProperty ;
+    rdfs:domain mcp:Resource ;
+    rdfs:range mcp:Resource ;
+    rdfs:label "functionally equivalent to" ;
+    rdfs:comment "Resources that are functionally equivalent" .
+
+sr:canSubstituteFor rdf:type owl:ObjectProperty ;
+    rdfs:domain mcp:Resource ;
+    rdfs:range mcp:Resource ;
+    rdfs:label "can substitute for" ;
+    rdfs:comment "Resource can substitute for another resource" .
+
+#################################################################
+#    Reasoning Rules as Classes
+#################################################################
+
+sr:CapabilityInferenceRule rdf:type owl:Class ;
+    rdfs:subClassOf sr:ReasoningRule ;
+    rdfs:label "Capability Inference Rule" ;
+    rdfs:comment "Rule for inferring resource capabilities" .
+
+sr:SimilarityInferenceRule rdf:type owl:Class ;
+    rdfs:subClassOf sr:ReasoningRule ;
+    rdfs:label "Similarity Inference Rule" ;
+    rdfs:comment "Rule for inferring resource similarity" .
+
+sr:SubstitutionRule rdf:type owl:Class ;
+    rdfs:subClassOf sr:ReasoningRule ;
+    rdfs:label "Substitution Rule" ;
+    rdfs:comment "Rule for resource substitution" .
+
+sr:CompositionRule rdf:type owl:Class ;
+    rdfs:subClassOf sr:ReasoningRule ;
+    rdfs:label "Composition Rule" ;
+    rdfs:comment "Rule for composing resources" .
+
+#################################################################
+#    Axioms and Constraints
+#################################################################
+
+# Every resource must have a URI
+mcp:Resource rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty mcp:hasURI ;
+    owl:minCardinality 1
+] .
+
+# Every resource must be provided by a server
+mcp:Resource rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty mcp:providedBy ;
+    owl:minCardinality 1
+] .
+
+# Inference engines must apply at least one rule
+sr:InferenceEngine rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty sr:appliesRule ;
+    owl:minCardinality 1
+] .
+
+# Reasoning rules must have patterns and consequents
+sr:ReasoningRule rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty sr:hasPattern ;
+    owl:minCardinality 1
+] .
+
+sr:ReasoningRule rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty sr:hasConsequent ;
+    owl:minCardinality 1
+] .

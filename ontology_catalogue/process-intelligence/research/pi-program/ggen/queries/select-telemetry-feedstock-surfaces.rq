@@ -1,0 +1,14 @@
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX pi: <https://process.intelligence/ontology/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+
+# SELECT all TELEMETRY_FEEDSTOCK surfaces
+SELECT ?feedstock ?label ?description
+WHERE {
+  ?feedstock a prov:Entity ;
+             pi:hasRole pi:TELEMETRY_FEEDSTOCK ;
+             rdfs:label ?label ;
+             dcterms:description ?description .
+}
+ORDER BY ?feedstock

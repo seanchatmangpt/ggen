@@ -1,0 +1,591 @@
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix compat: <https://wasm4pm-compat.rs/ontology#> .
+
+# ── Cognition witness markers — sourced from ~/Documents/Papers/AI_LLM/ ────────
+# These are the foundational paper witnesses for the 55 DISPATCHABLE cognition breeds.
+# paperCategory = "cognition" → rendered into src/witnesses_cognition.rs.
+# Each entry has an explicit witnessYear where known.
+
+compat:StripsPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "StripsPaper" ;
+    compat:witnessKey   "cognition/strips-1971" ;
+    compat:witnessTitle "STRIPS: A New Approach to the Application of Theorem Proving" ;
+    compat:witnessYear  1971 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "STRIPS — Fikes & Nilsson (1971): precondition/add/delete planning operators." .
+
+compat:GeneralProblemSolverPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "GeneralProblemSolverPaper" ;
+    compat:witnessKey   "cognition/gps-1961" ;
+    compat:witnessTitle "GPS: A Program That Simulates Human Thought" ;
+    compat:witnessYear  1961 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "General Problem Solver — Newell & Simon (1961): means-ends analysis." .
+
+compat:Shop2Paper
+    a compat:WitnessMarker ;
+    compat:rustType     "Shop2Paper" ;
+    compat:witnessKey   "cognition/shop2-2003" ;
+    compat:witnessTitle "SHOP2: An HTN Planning System" ;
+    compat:witnessYear  2003 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "SHOP2 HTN planning — Nau et al. (2003): hierarchical task network planning." .
+
+compat:PartialOrderPlanPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "PartialOrderPlanPaper" ;
+    compat:witnessKey   "cognition/partial-order-plan-1991" ;
+    compat:witnessTitle "Systematic Nonlinear Planning" ;
+    compat:witnessYear  1991 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "Partial-order planning — McAllester & Rosenblitt (1991)." .
+
+compat:ContingentPlanPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ContingentPlanPaper" ;
+    compat:witnessKey   "cognition/contingent-plan-2010" ;
+    compat:witnessTitle "Artificial Intelligence: A Modern Approach (3rd ed.)" ;
+    compat:witnessYear  2010 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "Contingent planning — Russell & Norvig (2010): planning under uncertainty." .
+
+compat:StableModelSemanticsPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "StableModelSemanticsPaper" ;
+    compat:witnessKey   "cognition/asp-1988" ;
+    compat:witnessTitle "The Stable Model Semantics for Logic Programming" ;
+    compat:witnessYear  1988 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "Answer Set Programming — Gelfond & Lifschitz (1988): stable model semantics." .
+
+compat:ConstraintLogicProgrammingPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ConstraintLogicProgrammingPaper" ;
+    compat:witnessKey   "cognition/clp-1987" ;
+    compat:witnessTitle "Constraint Logic Programming" ;
+    compat:witnessYear  1987 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "CLP — Jaffar & Lassez (1987): constraint satisfaction over logic programming." .
+
+compat:CircumscriptionPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "CircumscriptionPaper" ;
+    compat:witnessKey   "cognition/circumscription-1980" ;
+    compat:witnessTitle "Circumscription — A Form of Non-Monotonic Reasoning" ;
+    compat:witnessYear  1980 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "Circumscription — McCarthy (1980): minimizing predicate extensions." .
+
+compat:DefaultLogicPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "DefaultLogicPaper" ;
+    compat:witnessKey   "cognition/default-logic-1980" ;
+    compat:witnessTitle "A Logic for Default Reasoning" ;
+    compat:witnessYear  1980 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "Default Logic — Reiter (1980): non-monotonic reasoning with default rules." .
+
+compat:PrologPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "PrologPaper" ;
+    compat:witnessKey   "cognition/prolog-1974" ;
+    compat:witnessTitle "Predicate Logic as Programming Language" ;
+    compat:witnessYear  1974 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "Prolog — Kowalski (1974): logic programming via predicate calculus." .
+
+compat:AbductiveLpPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "AbductiveLpPaper" ;
+    compat:witnessKey   "cognition/abductive-lp-1992" ;
+    compat:witnessTitle "Abductive Logic Programming" ;
+    compat:witnessYear  1992 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "Abductive LP — Kakas, Kowalski & Toni (1992): abduction in logic programs." .
+
+compat:AbductiveIbePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "AbductiveIbePaper" ;
+    compat:witnessKey   "cognition/abductive-ibe-1965" ;
+    compat:witnessTitle "The Inference to the Best Explanation" ;
+    compat:witnessYear  1965 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "Abductive IBE — Harman (1965): inference to the best explanation." .
+
+compat:FramesInheritancePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "FramesInheritancePaper" ;
+    compat:witnessKey   "cognition/frames-1974" ;
+    compat:witnessTitle "A Framework for Representing Knowledge" ;
+    compat:witnessYear  1974 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "Frames — Minsky (1974): knowledge representation via frames and inheritance." .
+
+compat:ElEnvelopePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ElEnvelopePaper" ;
+    compat:witnessKey   "cognition/el-description-logic-2005" ;
+    compat:witnessTitle "Pushing the EL Envelope" ;
+    compat:witnessYear  2005 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "EL Description Logic — Baader, Brandt & Lutz (2005): tractable DL reasoning." .
+
+compat:ConstructionGrammarPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ConstructionGrammarPaper" ;
+    compat:witnessKey   "cognition/construction-grammar-1995" ;
+    compat:witnessTitle "Constructions: A Construction Grammar Approach to Argument Structure" ;
+    compat:witnessYear  1995 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "Construction Grammar — Goldberg (1995): form-meaning constructions." .
+
+compat:SituationCalculusPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "SituationCalculusPaper" ;
+    compat:witnessKey   "cognition/situation-calculus-1991" ;
+    compat:witnessTitle "A Logic for Default Reasoning (Situation Calculus)" ;
+    compat:witnessYear  1991 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "Situation Calculus — Reiter (1991): actions and change in first-order logic." .
+
+compat:EventCalculusPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "EventCalculusPaper" ;
+    compat:witnessKey   "cognition/event-calculus-1986" ;
+    compat:witnessTitle "A Logic-Based Calculus of Events" ;
+    compat:witnessYear  1986 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "Event Calculus — Kowalski & Sergot (1986): temporal reasoning over events." .
+
+compat:AllenTemporalIntervalsPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "AllenTemporalIntervalsPaper" ;
+    compat:witnessKey   "cognition/allen-temporal-1983" ;
+    compat:witnessTitle "Maintaining Knowledge about Temporal Intervals" ;
+    compat:witnessYear  1983 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "Allen interval algebra — Allen (1983): 13 interval relations for temporal reasoning." .
+
+compat:NaivePhysicsPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "NaivePhysicsPaper" ;
+    compat:witnessKey   "cognition/naive-physics-1979" ;
+    compat:witnessTitle "The Naive Physics Manifesto" ;
+    compat:witnessYear  1979 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "Naive Physics — Hayes (1979): commonsense physical reasoning." .
+
+compat:CtlModelCheckingPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "CtlModelCheckingPaper" ;
+    compat:witnessKey   "cognition/ctl-model-checking-1986" ;
+    compat:witnessTitle "Automatic Verification of Finite State Concurrent Systems" ;
+    compat:witnessYear  1986 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "CTL model checking — Clarke, Emerson & Sistla (1986): temporal logic verification." .
+
+compat:LtlRuntimeMonitoringPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "LtlRuntimeMonitoringPaper" ;
+    compat:witnessKey   "cognition/ltl-runtime-monitoring-2001" ;
+    compat:witnessTitle "Monitoring Programs Using Rewriting" ;
+    compat:witnessYear  2001 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "LTL runtime monitoring — Havelund & Rosu (2001): rewriting-based runtime verification." .
+
+compat:TableauxPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "TableauxPaper" ;
+    compat:witnessKey   "cognition/tableaux-1968" ;
+    compat:witnessTitle "First-Order Logic" ;
+    compat:witnessYear  1968 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "Tableaux — Smullyan (1968): analytic tableaux for first-order logic." .
+
+compat:CdclSatPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "CdclSatPaper" ;
+    compat:witnessKey   "cognition/cdcl-sat-1999" ;
+    compat:witnessTitle "GRASP: A Search Algorithm for Propositional Satisfiability" ;
+    compat:witnessYear  1999 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "CDCL SAT — Marques-Silva & Sakallah (1999): conflict-driven clause learning." .
+
+compat:BayesianNetworkPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "BayesianNetworkPaper" ;
+    compat:witnessKey   "cognition/bayesian-network-1988" ;
+    compat:witnessTitle "Probabilistic Reasoning in Intelligent Systems" ;
+    compat:witnessYear  1988 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "Bayesian Networks — Pearl (1988): probabilistic graphical models." .
+
+compat:DempsterShaferPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "DempsterShaferPaper" ;
+    compat:witnessKey   "cognition/dempster-shafer-1976" ;
+    compat:witnessTitle "A Mathematical Theory of Evidence" ;
+    compat:witnessYear  1976 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "Dempster-Shafer — Shafer (1976): belief functions and plausibility." .
+
+compat:MarkovLogicNetworksPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "MarkovLogicNetworksPaper" ;
+    compat:witnessKey   "cognition/markov-logic-2006" ;
+    compat:witnessTitle "Markov Logic Networks" ;
+    compat:witnessYear  2006 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "Markov Logic — Richardson & Domingos (2006): soft logic with Markov networks." .
+
+compat:ProblogPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ProblogPaper" ;
+    compat:witnessKey   "cognition/problog-2007" ;
+    compat:witnessTitle "ProbLog: A Probabilistic Prolog" ;
+    compat:witnessYear  2007 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "ProbLog — De Raedt, Kimmig & Toivonen (2007): probabilistic logic programs." .
+
+compat:PomdpPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "PomdpPaper" ;
+    compat:witnessKey   "cognition/pomdp-1998" ;
+    compat:witnessTitle "Planning and Acting in Partially Observable Stochastic Domains" ;
+    compat:witnessYear  1998 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "POMDP — Kaelbling, Littman & Cassandra (1998): planning under partial observability." .
+
+compat:BellmanMdpPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "BellmanMdpPaper" ;
+    compat:witnessKey   "cognition/bellman-mdp-1957" ;
+    compat:witnessTitle "A Markovian Decision Process" ;
+    compat:witnessYear  1957 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "MDP — Bellman (1957): Markovian decision processes and dynamic programming." .
+
+compat:ActRPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ActRPaper" ;
+    compat:witnessKey   "cognition/act-r-1998" ;
+    compat:witnessTitle "The Atomic Components of Thought" ;
+    compat:witnessYear  1998 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "ACT-R — Anderson & Lebiere (1998): cognitive architecture for human cognition." .
+
+compat:CbrFoundationsPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "CbrFoundationsPaper" ;
+    compat:witnessKey   "cognition/cbr-foundations-1994" ;
+    compat:witnessTitle "Case-Based Reasoning: Foundational Issues, Methodological Variations, and System Approaches" ;
+    compat:witnessYear  1994 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "CBR — Aamodt & Plaza (1994): case-based reasoning foundational framework." .
+
+compat:ExplanationBasedGeneralizationPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ExplanationBasedGeneralizationPaper" ;
+    compat:witnessKey   "cognition/ebl-1986" ;
+    compat:witnessTitle "Explanation-Based Generalization: A Unifying View" ;
+    compat:witnessYear  1986 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "EBG — Mitchell, Keller & Kedar-Cabelli (1986): explanation-based learning." .
+
+compat:InductiveLogicProgrammingPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "InductiveLogicProgrammingPaper" ;
+    compat:witnessKey   "cognition/ilp-1990" ;
+    compat:witnessTitle "Learning Logical Definitions from Relations" ;
+    compat:witnessYear  1990 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "ILP — Quinlan (1990): inductive logic programming from relational data." .
+
+compat:EpisodicMemoryPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "EpisodicMemoryPaper" ;
+    compat:witnessKey   "cognition/episodic-memory-1983" ;
+    compat:witnessTitle "Elements of Episodic Memory" ;
+    compat:witnessYear  1983 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "Episodic Memory — Tulving (1983): episodic vs semantic memory distinction." .
+
+compat:MetaReasoningPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "MetaReasoningPaper" ;
+    compat:witnessKey   "cognition/meta-reasoning-2011" ;
+    compat:witnessTitle "Metareasoning: Thinking about Thinking" ;
+    compat:witnessYear  2011 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "Meta-reasoning — Cox & Raja (2011): reasoning about one's own reasoning." .
+
+compat:VersionSpacePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "VersionSpacePaper" ;
+    compat:witnessKey   "cognition/version-space-1982" ;
+    compat:witnessTitle "Generalization as Search" ;
+    compat:witnessYear  1982 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "Version Space — Mitchell (1982): hypothesis generalization via boundary sets." .
+
+compat:QLearnPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "QLearnPaper" ;
+    compat:witnessKey   "cognition/q-learning-1992" ;
+    compat:witnessTitle "Q-Learning" ;
+    compat:witnessYear  1992 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "Q-Learning — Watkins & Dayan (1992): model-free reinforcement learning." .
+
+compat:ElizaPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ElizaPaper" ;
+    compat:witnessKey   "cognition/eliza-1966" ;
+    compat:witnessTitle "ELIZA: A Computer Program for the Study of Natural Language Communication" ;
+    compat:witnessYear  1966 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "ELIZA — Weizenbaum (1966): pattern-matching natural language processing." .
+
+compat:MycinPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "MycinPaper" ;
+    compat:witnessKey   "cognition/mycin-1975" ;
+    compat:witnessTitle "A Model of Inexact Reasoning in Medicine" ;
+    compat:witnessYear  1975 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "MYCIN — Shortliffe & Buchanan (1975): certainty-factor rule-based expert system." .
+
+compat:HearsayIiPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "HearsayIiPaper" ;
+    compat:witnessKey   "cognition/hearsay-ii-1980" ;
+    compat:witnessTitle "The Hearsay-II Speech-Understanding System" ;
+    compat:witnessYear  1980 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "Hearsay-II — Erman et al. (1980): blackboard architecture for speech understanding." .
+
+compat:DendralPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "DendralPaper" ;
+    compat:witnessKey   "cognition/dendral-1971" ;
+    compat:witnessTitle "Applications of Artificial Intelligence for Chemical Inference" ;
+    compat:witnessYear  1971 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "DENDRAL — Feigenbaum, Buchanan & Lederberg (1971): chemical structure expert system." .
+
+compat:StructureMappingEnginePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "StructureMappingEnginePaper" ;
+    compat:witnessKey   "cognition/sme-analogy-1989" ;
+    compat:witnessTitle "The Structure-Mapping Engine: Algorithm and Examples" ;
+    compat:witnessYear  1989 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "SME — Falkenhainer, Forbus & Gentner (1989): structural analogy mapping." .
+
+compat:Ac3Paper
+    a compat:WitnessMarker ;
+    compat:rustType     "Ac3Paper" ;
+    compat:witnessKey   "cognition/ac3-csp-1977" ;
+    compat:witnessTitle "Consistency in Networks of Relations" ;
+    compat:witnessYear  1977 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "AC-3 — Mackworth (1977): arc-consistency for constraint satisfaction." .
+
+compat:MamdaniFuzzyPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "MamdaniFuzzyPaper" ;
+    compat:witnessKey   "cognition/mamdani-fuzzy-1975" ;
+    compat:witnessTitle "An Experiment in Linguistic Synthesis with a Fuzzy Logic Controller" ;
+    compat:witnessYear  1975 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "Fuzzy Logic — Mamdani & Assilian (1975): linguistic fuzzy control." .
+
+compat:QualitativePhysicsPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "QualitativePhysicsPaper" ;
+    compat:witnessKey   "cognition/qualitative-physics-1984" ;
+    compat:witnessTitle "A Qualitative Physics Based on Confluences" ;
+    compat:witnessYear  1984 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "Qualitative Physics — de Kleer & Brown (1984): device-centred qualitative simulation." .
+
+compat:TrizPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "TrizPaper" ;
+    compat:witnessKey   "cognition/triz-1984" ;
+    compat:witnessTitle "Creativity as an Exact Science" ;
+    compat:witnessYear  1984 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "TRIZ — Altshuller (1984): theory of inventive problem solving." .
+
+compat:MorphologicalAnalysisPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "MorphologicalAnalysisPaper" ;
+    compat:witnessKey   "cognition/morphological-1969" ;
+    compat:witnessTitle "Discovery, Invention, Research Through the Morphological Approach" ;
+    compat:witnessYear  1969 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "Morphological Analysis — Zwicky (1969): systematic combinatorial problem exploration." .
+
+compat:SoarPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "SoarPaper" ;
+    compat:witnessKey   "cognition/soar-1987" ;
+    compat:witnessTitle "Soar: An Architecture for General Intelligence" ;
+    compat:witnessYear  1987 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "SOAR — Laird, Newell & Rosenbloom (1987): unified cognitive architecture." .
+
+compat:HackerLearningPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "HackerLearningPaper" ;
+    compat:witnessKey   "cognition/hacker-learning-1973" ;
+    compat:witnessTitle "A Computational Model of Skill Acquisition" ;
+    compat:witnessYear  1973 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "HACKER — Sussman (1973): procedural learning and skill acquisition." .
+
+compat:BodenCreativityPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "BodenCreativityPaper" ;
+    compat:witnessKey   "cognition/boden-creativity-1977" ;
+    compat:witnessTitle "Artificial Intelligence and Natural Man" ;
+    compat:witnessYear  1977 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "Boden (1977): AI creativity and neurosis models in natural intelligence." .
+
+compat:ConceptualDependencyPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ConceptualDependencyPaper" ;
+    compat:witnessKey   "cognition/conceptual-dependency-1972" ;
+    compat:witnessTitle "Conceptual Dependency: A Theory of Natural Language Understanding" ;
+    compat:witnessYear  1972 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "Conceptual Dependency — Schank (1972): semantic representation of NL meaning." .
+
+compat:MarrPoggioPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "MarrPoggioPaper" ;
+    compat:witnessKey   "cognition/marr-poggio-vision-1976" ;
+    compat:witnessTitle "Cooperative Computation of Stereo Disparity" ;
+    compat:witnessYear  1976 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "Marr & Poggio (1976): cooperative stereo disparity computation model." .
+
+compat:ScriptTheoryPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ScriptTheoryPaper" ;
+    compat:witnessKey   "cognition/script-sam-1977" ;
+    compat:witnessTitle "Scripts, Plans, Goals and Understanding" ;
+    compat:witnessYear  1977 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "Scripts/SAM — Schank & Abelson (1977): story understanding via event scripts." .
+
+compat:BeliefMergingPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "BeliefMergingPaper" ;
+    compat:witnessKey   "cognition/belief-merging-2002" ;
+    compat:witnessTitle "Merging Information Under Constraints: A Logical Framework" ;
+    compat:witnessYear  2002 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "Belief Merging — Konieczny & Pino Pérez (2002): logical belief base merging." .
+
+compat:OcpmRouteDiscovererPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "OcpmRouteDiscovererPaper" ;
+    compat:witnessKey   "cognition/ocpm-route-discoverer-2019" ;
+    compat:witnessTitle "Object-Centric Process Mining" ;
+    compat:witnessYear  2019 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "OC-PM route discovery — van der Aalst (2019): object-centric process mining framework." .
+
+# ── Modern AI/LLM papers from AI_LLM/ that are not cognition breeds ─────────
+# These 26 papers cover agent frameworks, LLM reasoning, hallucination, planning.
+# paperCategory = "cognition" to keep them in the same module (AI_LLM/ directory).
+
+compat:ClassicalAiFoundationsMd
+    a compat:WitnessMarker ;
+    compat:rustType     "ClassicalAiFoundationsMd" ;
+    compat:witnessKey   "cognition/classical-ai-foundations-overview" ;
+    compat:witnessTitle "Classical AI Foundations Overview" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "Classical AI foundations reference document covering symbolic AI history." .
+
+compat:RobinsonResolutionPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "RobinsonResolutionPaper" ;
+    compat:witnessKey   "cognition/robinson-resolution-1965" ;
+    compat:witnessTitle "A Machine-Oriented Logic Based on the Resolution Principle" ;
+    compat:witnessYear  1965 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "Resolution — Robinson (1965): unification-based automated theorem proving." .
+
+compat:PddlLlmPlanningPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "PddlLlmPlanningPaper" ;
+    compat:witnessKey   "cognition/pddl-llm-planning" ;
+    compat:witnessTitle "LLM Planning with PDDL" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "cognition" ;
+    compat:description  "LLM-guided PDDL planning: using language models for classical planning domains." .

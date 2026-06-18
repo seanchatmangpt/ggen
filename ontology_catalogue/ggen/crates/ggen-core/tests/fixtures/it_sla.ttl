@@ -1,0 +1,188 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix it: <http://example.org/it/sla#> .
+
+# ============================================================================
+# IT SLA (Service Level Agreement) Ontology
+# ============================================================================
+
+<http://example.org/it/sla> a owl:Ontology ;
+    rdfs:label "IT Service Level Agreement Ontology" ;
+    rdfs:comment "Ontology for defining IT service level agreements and metrics" ;
+    owl:versionInfo "1.0.0" .
+
+# ============================================================================
+# CORE CLASSES
+# ============================================================================
+
+it:ServiceLevelAgreement a owl:Class ;
+    rdfs:label "Service Level Agreement" ;
+    rdfs:comment "Contract defining service quality levels" ;
+    rdfs:subClassOf owl:Thing .
+
+it:Service a owl:Class ;
+    rdfs:label "Service" ;
+    rdfs:comment "IT service being monitored" ;
+    rdfs:subClassOf owl:Thing .
+
+it:ServiceMetric a owl:Class ;
+    rdfs:label "Service Metric" ;
+    rdfs:comment "Measurable service characteristic" ;
+    rdfs:subClassOf owl:Thing .
+
+it:Availability a owl:Class ;
+    rdfs:label "Availability" ;
+    rdfs:comment "System uptime metric" ;
+    rdfs:subClassOf it:ServiceMetric .
+
+it:Performance a owl:Class ;
+    rdfs:label "Performance" ;
+    rdfs:comment "System performance metric" ;
+    rdfs:subClassOf it:ServiceMetric .
+
+it:Threshold a owl:Class ;
+    rdfs:label "Threshold" ;
+    rdfs:comment "Target threshold for a metric" ;
+    rdfs:subClassOf owl:Thing .
+
+it:ResponseTime a owl:Class ;
+    rdfs:label "Response Time" ;
+    rdfs:comment "API or service response time" ;
+    rdfs:subClassOf it:Performance .
+
+# ============================================================================
+# OBJECT PROPERTIES
+# ============================================================================
+
+it:coversService a owl:ObjectProperty ;
+    rdfs:label "covers Service" ;
+    rdfs:comment "SLA covers this service" ;
+    rdfs:domain it:ServiceLevelAgreement ;
+    rdfs:range it:Service .
+
+it:definesMetric a owl:ObjectProperty ;
+    rdfs:label "defines Metric" ;
+    rdfs:comment "SLA defines this metric" ;
+    rdfs:domain it:ServiceLevelAgreement ;
+    rdfs:range it:ServiceMetric .
+
+it:hasThreshold a owl:ObjectProperty ;
+    rdfs:label "has Threshold" ;
+    rdfs:comment "Metric has target threshold" ;
+    rdfs:domain it:ServiceMetric ;
+    rdfs:range it:Threshold .
+
+it:measuresService a owl:ObjectProperty ;
+    rdfs:label "measures Service" ;
+    rdfs:comment "Metric measures this service" ;
+    rdfs:domain it:ServiceMetric ;
+    rdfs:range it:Service .
+
+# ============================================================================
+# DATATYPE PROPERTIES
+# ============================================================================
+
+it:serviceName a owl:DatatypeProperty ;
+    rdfs:label "service Name" ;
+    rdfs:comment "Name of the service" ;
+    rdfs:domain it:Service ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+it:slaId a owl:DatatypeProperty ;
+    rdfs:label "SLA ID" ;
+    rdfs:comment "Unique identifier for SLA" ;
+    rdfs:domain it:ServiceLevelAgreement ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+it:metricName a owl:DatatypeProperty ;
+    rdfs:label "metric Name" ;
+    rdfs:comment "Name of the service metric" ;
+    rdfs:domain it:ServiceMetric ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+it:unit a owl:DatatypeProperty ;
+    rdfs:label "unit" ;
+    rdfs:comment "Unit of measurement (percent, ms, count, etc)" ;
+    rdfs:domain it:ServiceMetric ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+it:targetValue a owl:DatatypeProperty ;
+    rdfs:label "target Value" ;
+    rdfs:comment "Target value for the threshold" ;
+    rdfs:domain it:Threshold ;
+    rdfs:range xsd:decimal ;
+    a owl:FunctionalProperty .
+
+it:availabilityPercentage a owl:DatatypeProperty ;
+    rdfs:label "availability Percentage" ;
+    rdfs:comment "Required uptime percentage (e.g., 99.99)" ;
+    rdfs:domain it:Availability ;
+    rdfs:range xsd:decimal ;
+    a owl:FunctionalProperty .
+
+it:responseTimeMs a owl:DatatypeProperty ;
+    rdfs:label "response Time Ms" ;
+    rdfs:comment "Maximum acceptable response time in milliseconds" ;
+    rdfs:domain it:ResponseTime ;
+    rdfs:range xsd:integer ;
+    a owl:FunctionalProperty .
+
+it:quarterlyReviewDate a owl:DatatypeProperty ;
+    rdfs:label "quarterly Review Date" ;
+    rdfs:comment "When SLA is reviewed quarterly" ;
+    rdfs:domain it:ServiceLevelAgreement ;
+    rdfs:range xsd:date .
+
+it:effectiveDate a owl:DatatypeProperty ;
+    rdfs:label "effective Date" ;
+    rdfs:comment "Date when SLA becomes effective" ;
+    rdfs:domain it:ServiceLevelAgreement ;
+    rdfs:range xsd:date ;
+    a owl:FunctionalProperty .
+
+it:expiryDate a owl:DatatypeProperty ;
+    rdfs:label "expiry Date" ;
+    rdfs:comment "Date when SLA expires" ;
+    rdfs:domain it:ServiceLevelAgreement ;
+    rdfs:range xsd:date .
+
+it:penalty a owl:DatatypeProperty ;
+    rdfs:label "penalty" ;
+    rdfs:comment "Penalty if threshold is breached (e.g., service credit)" ;
+    rdfs:domain it:ServiceLevelAgreement ;
+    rdfs:range xsd:string .
+
+# ============================================================================
+# CARDINALITY CONSTRAINTS
+# ============================================================================
+
+it:SLAConstraint1 a owl:Restriction ;
+    owl:onClass it:ServiceLevelAgreement ;
+    owl:onProperty it:coversService ;
+    owl:minCardinality 1 .
+
+it:SLAConstraint2 a owl:Restriction ;
+    owl:onClass it:ServiceLevelAgreement ;
+    owl:onProperty it:definesMetric ;
+    owl:minCardinality 1 .
+
+it:MetricConstraint1 a owl:Restriction ;
+    owl:onClass it:ServiceMetric ;
+    owl:onProperty it:metricName ;
+    owl:cardinality 1 .
+
+it:AvailabilityConstraint1 a owl:Restriction ;
+    owl:onClass it:Availability ;
+    owl:onProperty it:availabilityPercentage ;
+    owl:cardinality 1 .
+
+it:ResponseTimeConstraint1 a owl:Restriction ;
+    owl:onClass it:ResponseTime ;
+    owl:onProperty it:responseTimeMs ;
+    owl:cardinality 1 .

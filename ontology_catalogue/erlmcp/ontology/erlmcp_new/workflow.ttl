@@ -1,0 +1,224 @@
+# =============================================================================
+# erlmcp Workflow Engine Ontology
+# =============================================================================
+# Defines workflow orchestration for multi-step tool execution
+#
+# Features:
+#   - DAG-based workflow definitions
+#   - Conditional execution
+#   - Parallel execution
+#   - Error handling and retry
+#   - State persistence
+#   - Workflow composition
+# =============================================================================
+
+@prefix wf: <http://erlmcp.org/schema/workflow/> .
+@prefix otp: <http://erlang.org/otp/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# -----------------------------------------------------------------------------
+# Core Classes
+# -----------------------------------------------------------------------------
+
+wf:WorkflowEngine a rdfs:Class ;
+    rdfs:label "Workflow Engine" ;
+    rdfs:comment "Orchestrates multi-step workflows" ;
+    rdfs:subClassOf otp:GenServer .
+
+wf:Workflow a rdfs:Class ;
+    rdfs:label "Workflow" ;
+    rdfs:comment "Workflow definition" .
+
+wf:Step a rdfs:Class ;
+    rdfs:label "Step" ;
+    rdfs:comment "Single workflow step" .
+
+wf:Condition a rdfs:Class ;
+    rdfs:label "Condition" ;
+    rdfs:comment "Conditional execution logic" .
+
+wf:Transition a rdfs:Class ;
+    rdfs:label "Transition" ;
+    rdfs:comment "Edge between workflow steps" .
+
+wf:WorkflowExecution a rdfs:Class ;
+    rdfs:label "Workflow Execution" ;
+    rdfs:comment "Running workflow instance" .
+
+# -----------------------------------------------------------------------------
+# Step Types
+# -----------------------------------------------------------------------------
+
+wf:ToolStep a wf:Step ;
+    rdfs:label "Tool Step" ;
+    rdfs:comment "Execute a tool" .
+
+wf:ParallelStep a wf:Step ;
+    rdfs:label "Parallel Step" ;
+    rdfs:comment "Execute sub-steps in parallel" .
+
+wf:SequenceStep a wf:Step ;
+    rdfs:label "Sequence Step" ;
+    rdfs:comment "Execute sub-steps sequentially" .
+
+wf:ConditionalStep a wf:Step ;
+    rdfs:label "Conditional Step" ;
+    rdfs:comment "Branch based on condition" .
+
+wf:LoopStep a wf:Step ;
+    rdfs:label "Loop Step" ;
+    rdfs:comment "Repeat step until condition" .
+
+wf:DelayStep a wf:Step ;
+    rdfs:label "Delay Step" ;
+    rdfs:comment "Wait before proceeding" .
+
+# -----------------------------------------------------------------------------
+# Properties
+# -----------------------------------------------------------------------------
+
+wf:hasStep a rdf:Property ;
+    rdfs:domain wf:Workflow ;
+    rdfs:range wf:Step ;
+    rdfs:label "has step" .
+
+wf:stepId a rdf:Property ;
+    rdfs:domain wf:Step ;
+    rdfs:range xsd:string ;
+    rdfs:label "step ID" .
+
+wf:toolName a rdf:Property ;
+    rdfs:domain wf:ToolStep ;
+    rdfs:range xsd:string ;
+    rdfs:label "tool name" .
+
+wf:toolArguments a rdf:Property ;
+    rdfs:domain wf:ToolStep ;
+    rdfs:range xsd:string ;
+    rdfs:label "tool arguments (JSON)" .
+
+wf:hasTransition a rdf:Property ;
+    rdfs:domain wf:Step ;
+    rdfs:range wf:Transition ;
+    rdfs:label "has transition" .
+
+wf:fromStep a rdf:Property ;
+    rdfs:domain wf:Transition ;
+    rdfs:range wf:Step ;
+    rdfs:label "from step" .
+
+wf:toStep a rdf:Property ;
+    rdfs:domain wf:Transition ;
+    rdfs:range wf:Step ;
+    rdfs:label "to step" .
+
+wf:condition a rdf:Property ;
+    rdfs:domain wf:Transition ;
+    rdfs:range wf:Condition ;
+    rdfs:label "condition" .
+
+wf:hasChildStep a rdf:Property ;
+    rdfs:domain wf:Step ;
+    rdfs:range wf:Step ;
+    rdfs:label "has child step" .
+
+wf:maxRetries a rdf:Property ;
+    rdfs:domain wf:Step ;
+    rdfs:range xsd:integer ;
+    rdfs:label "max retries" .
+
+wf:retryBackoffMs a rdf:Property ;
+    rdfs:domain wf:Step ;
+    rdfs:range xsd:integer ;
+    rdfs:label "retry backoff ms" .
+
+wf:timeoutSec a rdf:Property ;
+    rdfs:domain wf:Step ;
+    rdfs:range xsd:integer ;
+    rdfs:label "timeout seconds" .
+
+wf:executionId a rdf:Property ;
+    rdfs:domain wf:WorkflowExecution ;
+    rdfs:range xsd:string ;
+    rdfs:label "execution ID" .
+
+wf:workflowId a rdf:Property ;
+    rdfs:domain wf:WorkflowExecution ;
+    rdfs:range xsd:string ;
+    rdfs:label "workflow ID" .
+
+wf:status a rdf:Property ;
+    rdfs:domain wf:WorkflowExecution ;
+    rdfs:range xsd:string ;
+    rdfs:label "status" .
+
+wf:startedAt a rdf:Property ;
+    rdfs:domain wf:WorkflowExecution ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "started at" .
+
+wf:completedAt a rdf:Property ;
+    rdfs:domain wf:WorkflowExecution ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "completed at" .
+
+wf:inputData a rdf:Property ;
+    rdfs:domain wf:WorkflowExecution ;
+    rdfs:range xsd:string ;
+    rdfs:label "input data" .
+
+wf:outputData a rdf:Property ;
+    rdfs:domain wf:WorkflowExecution ;
+    rdfs:range xsd:string ;
+    rdfs:label "output data" .
+
+wf:errorMessage a rdf:Property ;
+    rdfs:domain wf:WorkflowExecution ;
+    rdfs:range xsd:string ;
+    rdfs:label "error message" .
+
+# -----------------------------------------------------------------------------
+# Conditions
+# -----------------------------------------------------------------------------
+
+wf:SuccessCondition a wf:Condition ;
+    rdfs:label "Success Condition" ;
+    rdfs:comment "Step succeeded" .
+
+wf:FailureCondition a wf:Condition ;
+    rdfs:label "Failure Condition" ;
+    rdfs:comment "Step failed" .
+
+wf:ValueEqualsCondition a wf:Condition ;
+    rdfs:label "Value Equals Condition" ;
+    rdfs:comment "Output value equals" .
+
+wf:ExpressionCondition a wf:Condition ;
+    rdfs:label "Expression Condition" ;
+    rdfs:comment "Custom expression evaluation" .
+
+# -----------------------------------------------------------------------------
+# Status Values
+# -----------------------------------------------------------------------------
+
+wf:StatusPending a rdfs:Class ;
+    rdfs:label "Pending" ;
+    rdfs:comment "Workflow not started" .
+
+wf:StatusRunning a rdfs:Class ;
+    rdfs:label "Running" ;
+    rdfs:comment "Workflow in progress" .
+
+wf:StatusCompleted a rdfs:Class ;
+    rdfs:label "Completed" ;
+    rdfs:comment "Workflow finished successfully" .
+
+wf:StatusFailed a rdfs:Class ;
+    rdfs:label "Failed" ;
+    rdfs:comment "Workflow failed" .
+
+wf:StatusCancelled a rdfs:Class ;
+    rdfs:label "Cancelled" ;
+    rdfs:comment "Workflow was cancelled" .

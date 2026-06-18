@@ -1,0 +1,525 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix ethos: <https://bytestar.org/ontology/byteethos/ethos-framework#> .
+@prefix gov: <https://bytestar.org/ontology/byteethos/governance-specification#> .
+@prefix integration: <https://bytestar.org/ontology/bytecore-ethos-integration#> .
+
+# ============================================================================
+# ByteCore-ETHOS Integration SHACL Shapes
+# 
+# This file defines SHACL shapes for validating the integration between
+# ByteCore kernel execution semantics and ETHOS governance framework.
+# 
+# Ensures proper semantic alignment and compliance validation for:
+# - Kernel risk classifications
+# - Agent governance requirements
+# - Audit trail compliance
+# - Performance oversight
+# 
+# @author ByteCore Ontology Integration Specialist
+# @version 1.0.0
+# ============================================================================
+
+# Governance Kernel Validation Shape
+integration:GovernanceKernelShape
+    a sh:NodeShape ;
+    sh:targetClass integration:GovernanceKernel ;
+    rdfs:label "Governance Kernel Validation Shape" ;
+    rdfs:comment "Validates governance-aware kernels for proper risk classification and oversight requirements" ;
+    
+    # Must have risk classification
+    sh:property [
+        sh:path integration:hasRiskClassification ;
+        sh:name "Risk Classification" ;
+        sh:description "Required risk tier classification for governance" ;
+        sh:class gov:RiskTier ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Governance kernel must have exactly one risk classification" ;
+    ] ;
+    
+    # Must have risk score
+    sh:property [
+        sh:path integration:kernelRiskScore ;
+        sh:name "Kernel Risk Score" ;
+        sh:description "Numerical risk assessment score" ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 10.0 ;
+        sh:message "Kernel risk score must be between 0.0 and 10.0" ;
+    ] ;
+    
+    # Must specify oversight requirement
+    sh:property [
+        sh:path integration:oversightRequired ;
+        sh:name "Oversight Required" ;
+        sh:description "Boolean indicating if human oversight is required" ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Governance kernel must specify oversight requirement" ;
+    ] ;
+    
+    # Must specify audit trail requirement
+    sh:property [
+        sh:path integration:auditTrailRequired ;
+        sh:name "Audit Trail Required" ;
+        sh:description "Boolean indicating if audit trail is required" ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Governance kernel must specify audit trail requirement" ;
+    ] ;
+    
+    # High-risk kernels must require oversight
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "High-risk kernels must require oversight" ;
+        sh:select """
+            SELECT $this ?riskScore ?oversightRequired
+            WHERE {
+                $this integration:kernelRiskScore ?riskScore ;
+                      integration:oversightRequired ?oversightRequired .
+                FILTER (?riskScore >= 7.0 && ?oversightRequired = false)
+            }
+        """ ;
+    ] ;
+    
+    # High-risk kernels must require audit trail
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "High-risk kernels must require audit trail" ;
+        sh:select """
+            SELECT $this ?riskScore ?auditRequired
+            WHERE {
+                $this integration:kernelRiskScore ?riskScore ;
+                      integration:auditTrailRequired ?auditRequired .
+                FILTER (?riskScore >= 7.0 && ?auditRequired = false)
+            }
+        """ ;
+    ] .
+
+# Ethical Agent Validation Shape
+integration:EthicalAgentShape
+    a sh:NodeShape ;
+    sh:targetClass integration:EthicalAgent ;
+    rdfs:label "Ethical Agent Validation Shape" ;
+    rdfs:comment "Validates ethical AI agents for proper governance integration" ;
+    
+    # Must have identity crystal
+    sh:property [
+        sh:path integration:hasIdentityCrystal ;
+        sh:name "Identity Crystal" ;
+        sh:description "Non-transferable identity credential" ;
+        sh:class bcore:IdentityCrystal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Ethical agent must have exactly one identity crystal" ;
+    ] ;
+    
+    # Must have risk tier classification
+    sh:property [
+        sh:path integration:hasRiskTier ;
+        sh:name "Risk Tier" ;
+        sh:description "Agent risk tier classification" ;
+        sh:class gov:RiskTier ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Ethical agent must have risk tier classification" ;
+    ] ;
+    
+    # Must have kernel risk profile
+    sh:property [
+        sh:path integration:hasKernelRiskProfile ;
+        sh:name "Kernel Risk Profile" ;
+        sh:description "Risk profile based on kernel usage patterns" ;
+        sh:class integration:KernelRiskProfile ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Ethical agent must have kernel risk profile" ;
+    ] ;
+    
+    # Must have compliance score
+    sh:property [
+        sh:path integration:complianceScore ;
+        sh:name "Compliance Score" ;
+        sh:description "Agent compliance score based on kernel usage" ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Compliance score must be between 0.0 and 1.0" ;
+    ] ;
+    
+    # High-risk agents must have multiple oversight mechanisms
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "High-risk agents must have at least 2 oversight mechanisms" ;
+        sh:select """
+            SELECT $this (COUNT(?oversight) as ?oversightCount)
+            WHERE {
+                $this integration:hasRiskTier gov:HighRisk ;
+                      integration:subjectToOversight ?oversight .
+            }
+            GROUP BY $this
+            HAVING (?oversightCount < 2)
+        """ ;
+    ] ;
+    
+    # Agents using high-risk kernels must be classified as high-risk
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Agents using high-risk kernels must be classified as high-risk" ;
+        sh:select """
+            SELECT $this ?kernel ?agentRisk ?kernelRisk
+            WHERE {
+                $this integration:usesKernelPattern ?kernel ;
+                      integration:hasRiskTier ?agentRisk .
+                ?kernel integration:kernelRiskScore ?kernelRisk .
+                FILTER (?kernelRisk >= 7.0 && ?agentRisk != gov:HighRisk)
+            }
+        """ ;
+    ] .
+
+# Kernel Risk Profile Validation Shape
+integration:KernelRiskProfileShape
+    a sh:NodeShape ;
+    sh:targetClass integration:KernelRiskProfile ;
+    rdfs:label "Kernel Risk Profile Validation Shape" ;
+    rdfs:comment "Validates kernel usage risk profiles for agents" ;
+    
+    # Must have overall risk level
+    sh:property [
+        sh:path integration:executionRiskLevel ;
+        sh:name "Execution Risk Level" ;
+        sh:description "Overall risk level based on kernel patterns" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("minimal" "moderate" "high" "unacceptable") ;
+        sh:message "Execution risk level must be one of: minimal, moderate, high, unacceptable" ;
+    ] ;
+    
+    # Must reference at least one kernel pattern
+    sh:property [
+        sh:path integration:usesKernelPattern ;
+        sh:name "Kernel Pattern Usage" ;
+        sh:description "Kernel patterns used by the agent" ;
+        sh:class bcore:Pattern ;
+        sh:minCount 1 ;
+        sh:message "Risk profile must reference at least one kernel pattern" ;
+    ] ;
+    
+    # Must have performance metrics
+    sh:property [
+        sh:path integration:hasPerformanceMetric ;
+        sh:name "Performance Metrics" ;
+        sh:description "Kernel execution performance metrics" ;
+        sh:class integration:KernelPerformanceMetric ;
+        sh:minCount 1 ;
+        sh:message "Risk profile must include performance metrics" ;
+    ] .
+
+# Kernel Audit Entry Validation Shape
+integration:KernelAuditEntryShape
+    a sh:NodeShape ;
+    sh:targetClass integration:KernelAuditEntry ;
+    rdfs:label "Kernel Audit Entry Validation Shape" ;
+    rdfs:comment "Validates kernel execution audit entries for compliance" ;
+    
+    # Must reference executed kernel
+    sh:property [
+        sh:path integration:executedKernel ;
+        sh:name "Executed Kernel" ;
+        sh:description "Kernel that was executed" ;
+        sh:class bcore:Kernel ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Audit entry must reference exactly one executed kernel" ;
+    ] ;
+    
+    # Must have execution timestamp
+    sh:property [
+        sh:path integration:executionTimestamp ;
+        sh:name "Execution Timestamp" ;
+        sh:description "When the kernel was executed" ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Audit entry must have execution timestamp" ;
+    ] ;
+    
+    # Must have tick count
+    sh:property [
+        sh:path integration:kernelTickCount ;
+        sh:name "Kernel Tick Count" ;
+        sh:description "Number of ticks consumed" ;
+        sh:datatype xsd:integer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 8 ;  # Based on kernel ABI constraint
+        sh:message "Kernel tick count must be 1-8 ticks" ;
+    ] ;
+    
+    # Must have execution context for high-risk kernels
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "High-risk kernel executions must have execution context" ;
+        sh:select """
+            SELECT $this ?kernel
+            WHERE {
+                $this integration:executedKernel ?kernel .
+                ?kernel integration:kernelRiskScore ?score .
+                FILTER (?score >= 7.0)
+                FILTER NOT EXISTS { $this integration:executionContext ?context }
+            }
+        """ ;
+    ] .
+
+# Kernel Performance Metrics Validation Shape
+integration:KernelPerformanceMetricShape
+    a sh:NodeShape ;
+    sh:targetClass integration:KernelPerformanceMetric ;
+    rdfs:label "Kernel Performance Metrics Validation Shape" ;
+    rdfs:comment "Validates performance metrics for kernel execution monitoring" ;
+    
+    # Must have average ticks per execution
+    sh:property [
+        sh:path integration:averageTicksPerExecution ;
+        sh:name "Average Ticks Per Execution" ;
+        sh:description "Average computational cost per execution" ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1.0 ;
+        sh:maxInclusive 8.0 ;
+        sh:message "Average ticks must be between 1.0 and 8.0" ;
+    ] ;
+    
+    # Must have execution frequency
+    sh:property [
+        sh:path integration:executionFrequency ;
+        sh:name "Execution Frequency" ;
+        sh:description "Executions per second" ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:message "Execution frequency must be non-negative" ;
+    ] ;
+    
+    # Must have error rate
+    sh:property [
+        sh:path integration:errorRate ;
+        sh:name "Error Rate" ;
+        sh:description "Error rate for kernel execution" ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Error rate must be between 0.0 and 1.0" ;
+    ] .
+
+# Kernel Risk Mapping Validation Shape
+integration:KernelRiskMappingShape
+    a sh:NodeShape ;
+    sh:targetClass integration:KernelRiskMapping ;
+    rdfs:label "Kernel Risk Mapping Validation Shape" ;
+    rdfs:comment "Validates mappings between kernels and risk classifications" ;
+    
+    # Must map to a kernel
+    sh:property [
+        sh:path integration:mapsKernel ;
+        sh:name "Mapped Kernel" ;
+        sh:description "Kernel being classified" ;
+        sh:class bcore:Kernel ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Risk mapping must reference exactly one kernel" ;
+    ] ;
+    
+    # Must map to a risk tier
+    sh:property [
+        sh:path integration:toRiskTier ;
+        sh:name "Risk Tier" ;
+        sh:description "Assigned risk tier" ;
+        sh:class gov:RiskTier ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Risk mapping must assign exactly one risk tier" ;
+    ] ;
+    
+    # Must have risk score
+    sh:property [
+        sh:path integration:withRiskScore ;
+        sh:name "Risk Score" ;
+        sh:description "Numerical risk score" ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 10.0 ;
+        sh:message "Risk score must be between 0.0 and 10.0" ;
+    ] ;
+    
+    # Must have justification
+    sh:property [
+        sh:path integration:withJustification ;
+        sh:name "Risk Justification" ;
+        sh:description "Rationale for risk classification" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 10 ;
+        sh:maxLength 500 ;
+        sh:message "Risk justification must be 10-500 characters" ;
+    ] ;
+    
+    # Risk score must align with risk tier
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Risk score must align with assigned risk tier" ;
+        sh:select """
+            SELECT $this ?score ?tier
+            WHERE {
+                $this integration:withRiskScore ?score ;
+                      integration:toRiskTier ?tier .
+                FILTER (
+                    (?tier = gov:UnacceptableRisk && ?score < 9.0) ||
+                    (?tier = gov:HighRisk && (?score < 7.0 || ?score >= 9.0)) ||
+                    (?tier = gov:ModerateRisk && (?score < 3.0 || ?score >= 7.0)) ||
+                    (?tier = gov:MinimalRisk && ?score >= 3.0)
+                )
+            }
+        """ ;
+    ] .
+
+# Compliance Verification Integration Shape
+integration:ByteCoreComplianceVerificationShape
+    a sh:NodeShape ;
+    sh:targetClass integration:ByteCoreComplianceVerification ;
+    rdfs:label "ByteCore Compliance Verification Shape" ;
+    rdfs:comment "Validates compliance verification for ByteCore kernel execution" ;
+    
+    # Must reference kernel audit trail
+    sh:property [
+        sh:path integration:hasAuditTrail ;
+        sh:name "Audit Trail" ;
+        sh:description "Kernel execution audit trail" ;
+        sh:class ethos:AuditTrail ;
+        sh:minCount 1 ;
+        sh:message "Compliance verification must reference audit trail" ;
+    ] ;
+    
+    # Must have verification timestamp
+    sh:property [
+        sh:path integration:verificationTimestamp ;
+        sh:name "Verification Timestamp" ;
+        sh:description "When compliance was verified" ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Compliance verification must have timestamp" ;
+    ] ;
+    
+    # Must have compliance status
+    sh:property [
+        sh:path integration:complianceStatus ;
+        sh:name "Compliance Status" ;
+        sh:description "Result of compliance verification" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("compliant" "non_compliant" "partial_compliance" "under_review") ;
+        sh:message "Compliance status must be one of the defined values" ;
+    ] ;
+    
+    # Must reference verified agent
+    sh:property [
+        sh:path integration:verifiedAgent ;
+        sh:name "Verified Agent" ;
+        sh:description "Agent whose compliance was verified" ;
+        sh:class integration:EthicalAgent ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Compliance verification must reference verified agent" ;
+    ] .
+
+# High-Risk Agent Additional Constraints
+integration:HighRiskAgentShape
+    a sh:NodeShape ;
+    sh:targetClass integration:HighRiskAgent ;
+    rdfs:label "High-Risk Agent Validation Shape" ;
+    rdfs:comment "Additional validation constraints for high-risk agents" ;
+    
+    # Must have enhanced monitoring
+    sh:property [
+        sh:path integration:hasEnhancedMonitoring ;
+        sh:name "Enhanced Monitoring" ;
+        sh:description "Enhanced monitoring mechanisms" ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "High-risk agents must have enhanced monitoring" ;
+    ] ;
+    
+    # Must have regular compliance reviews
+    sh:property [
+        sh:path integration:reviewFrequency ;
+        sh:name "Review Frequency" ;
+        sh:description "Frequency of compliance reviews" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("daily" "weekly" "monthly") ;
+        sh:message "High-risk agents must have regular compliance reviews" ;
+    ] ;
+    
+    # Must have authorized operators
+    sh:property [
+        sh:path integration:hasAuthorizedOperator ;
+        sh:name "Authorized Operators" ;
+        sh:description "Authorized human operators" ;
+        sh:class bcore:Identity ;
+        sh:minCount 1 ;
+        sh:message "High-risk agents must have at least one authorized operator" ;
+    ] .
+
+# Integration Metadata Validation
+integration:IntegrationMetadataShape
+    a sh:NodeShape ;
+    sh:targetNode integration: ;
+    rdfs:label "Integration Metadata Validation Shape" ;
+    rdfs:comment "Validates integration ontology metadata" ;
+    
+    # Must have last updated timestamp
+    sh:property [
+        sh:path integration:lastUpdated ;
+        sh:name "Last Updated" ;
+        sh:description "Last update timestamp" ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Integration must have last updated timestamp" ;
+    ] ;
+    
+    # Must have version
+    sh:property [
+        sh:path integration:integrationVersion ;
+        sh:name "Integration Version" ;
+        sh:description "Version of integration mapping" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^\\d+\\.\\d+\\.\\d+$" ;
+        sh:message "Integration version must follow semantic versioning" ;
+    ] .

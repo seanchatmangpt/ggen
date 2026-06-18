@@ -1,0 +1,61 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix powl: <http://example.org/powl#> .
+
+powl: a owl:Ontology ;
+    rdfs:label "Partially Ordered Workflow Language (PoWL) v2 Ontology" ;
+    rdfs:comment "A formal semantic representation of the PoWL v2 constructs, enabling logic-driven process mining reasoning." .
+
+powl:Node a owl:Class ;
+    rdfs:label "PoWL Node" .
+
+powl:Transition a owl:Class ;
+    rdfs:subClassOf powl:Node ;
+    rdfs:label "Transition" ;
+    rdfs:comment "An atomic activity or silent transition (tau)." .
+
+powl:Operator a owl:Class ;
+    rdfs:subClassOf powl:Node ;
+    rdfs:label "Operator" ;
+    rdfs:comment "A control-flow operator routing execution." .
+
+powl:XOR a owl:Class ;
+    rdfs:subClassOf powl:Operator ;
+    rdfs:label "XOR Operator" .
+
+powl:Sequence a owl:Class ;
+    rdfs:subClassOf powl:Operator ;
+    rdfs:label "Sequence Operator" .
+
+powl:Parallel a owl:Class ;
+    rdfs:subClassOf powl:Operator ;
+    rdfs:label "Parallel (AND) Operator" .
+
+powl:Loop a owl:Class ;
+    rdfs:subClassOf powl:Operator ;
+    rdfs:label "Loop Operator" .
+
+powl:StrictPartialOrder a owl:Class ;
+    rdfs:subClassOf powl:Node ;
+    rdfs:label "Strict Partial Order (SPO)" .
+
+powl:DecisionGraph a owl:Class ;
+    rdfs:subClassOf powl:Node ;
+    rdfs:label "Decision Graph" ;
+    rdfs:comment "Represents non-block-structured choice." .
+
+powl:hasChild a owl:ObjectProperty ;
+    rdfs:domain powl:Node ;
+    rdfs:range powl:Node ;
+    rdfs:label "has child" .
+
+powl:hasEdge a owl:ObjectProperty ;
+    rdfs:domain [ owl:unionOf (powl:StrictPartialOrder powl:DecisionGraph) ] ;
+    rdfs:range powl:Node ;
+    rdfs:label "has edge" .
+
+powl:activityLabel a owl:DatatypeProperty ;
+    rdfs:domain powl:Transition ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "activity label" .

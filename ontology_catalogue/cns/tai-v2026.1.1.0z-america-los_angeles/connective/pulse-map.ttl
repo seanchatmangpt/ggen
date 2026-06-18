@@ -1,0 +1,104 @@
+# TAI v2026.1.1.0z Pulse Map - Temporal Attention Focus
+# Defines when substrates should focus attention and cognitive timing
+# Updated continuously based on emergent temporal patterns
+
+@prefix tai: <http://tai.cognitive-mesh.org/ontology#> .
+@prefix pulse: <http://tai.cognitive-mesh.org/pulse#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix temporal: <http://tai.cognitive-mesh.org/temporal#> .
+@prefix attention: <http://tai.cognitive-mesh.org/attention#> .
+@prefix focus: <http://tai.cognitive-mesh.org/focus#> .
+@prefix actor: <http://tai.cognitive-mesh.org/actor#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Primary Pulse Sequence - .0, .8, .16 Pattern
+
+pulse:Genesis_0_0 a tai:CognitivePulse ;
+    rdfs:label "Genesis Pulse - 0.0" ;
+    pulse:timing 0.0 ;
+    pulse:duration 0.050 ;  # 50ms
+    pulse:intensity 1.0 ;
+    pulse:phase 0.0 ;
+    temporal:purpose "initiation-coordination" ;
+    attention:primaryFocus "substrate-awakening" ;
+    attention:secondaryFocus "resource-allocation" ;
+    temporal:triggerCondition "cycle-start" .
+
+pulse:Consolidation_0_8 a tai:CognitivePulse ;
+    rdfs:label "Consolidation Pulse - 0.8" ;
+    pulse:timing 0.8 ;
+    pulse:duration 1.200 ;  # 1.2 seconds
+    pulse:intensity 0.85 ;
+    pulse:phase 0.8 ;
+    temporal:purpose "pattern-consolidation" ;
+    attention:primaryFocus "relationship-strengthening" ;
+    attention:secondaryFocus "memory-integration" ;
+    temporal:triggerCondition "initialization-complete" .
+
+pulse:Refinement_0_16 a tai:CognitivePulse ;
+    rdfs:label "Refinement Pulse - 0.16" ;
+    pulse:timing 0.16 ;
+    pulse:duration 0.160 ;  # 160ms
+    pulse:intensity 0.72 ;
+    pulse:phase 0.16 ;
+    temporal:purpose "precision-refinement" ;
+    attention:primaryFocus "detail-optimization" ;
+    attention:secondaryFocus "edge-case-handling" ;
+    temporal:triggerCondition "consolidation-stable" .
+
+# bit* Ecosystem Pulse Mappings
+
+pulse:BitActorMapping a pulse:PulseMapping ;
+    rdfs:label "BitActor Pulse Mapping" ;
+    pulse:targetSubstrate "bitactor-core" ;
+    pulse:primaryPulse pulse:Consolidation_0_8 ;
+    pulse:attentionPattern "memory-scope-management" ;
+    pulse:focusWindow 1.2 ;
+    pulse:phaseOffset 0.0 .
+
+pulse:BitFlowMapping a pulse:PulseMapping ;
+    rdfs:label "BitFlow Pulse Mapping" ;
+    pulse:targetSubstrate "bitflow-engine" ;
+    pulse:primaryPulse pulse:Genesis_0_0 ;
+    pulse:attentionPattern "edge-permission-coordination" ;
+    pulse:focusWindow 0.050 ;
+    pulse:phaseOffset 0.0 .
+
+pulse:TOSMapping a pulse:PulseMapping ;
+    rdfs:label "TOS Pulse Mapping" ;
+    pulse:targetSubstrate "tos-temporal-engine" ;
+    pulse:primaryPulse pulse:Refinement_0_16 ;
+    pulse:attentionPattern "timing-instruction" ;
+    pulse:focusWindow 0.160 ;
+    pulse:phaseOffset 0.0 .
+
+# Current Attention Focus Directives
+
+focus:CurrentConsolidationFocus a attention:AttentionFocus ;
+    rdfs:label "Current Consolidation Focus" ;
+    attention:activePulse pulse:Consolidation_0_8 ;
+    attention:focusTarget "relationship-strengthening", "memory-integration" ;
+    attention:focusWeight 0.85 ;
+    attention:focusType "consolidation" ;
+    attention:expectedDuration 1.200 ;
+    attention:activeUntil "2025-07-31T17:24:12Z"^^xsd:dateTime .
+
+# Weekly Pulse Rhythm - Monday Genesis to Sunday Forgetting
+
+weekly:MondayGenesis a temporal:WeeklyCycle ;
+    rdfs:label "Monday - Genesis of Intention" ;
+    weekly:dayOfWeek "Monday" ;
+    weekly:primaryPulse pulse:Genesis_0_0 ;
+    weekly:dominantIntensity 1.0 ;
+    weekly:attentionFocus "intention-formation" .
+
+weekly:SundayForgetting a temporal:WeeklyCycle ;
+    rdfs:label "Sunday - Forgetting Completion" ;
+    weekly:dayOfWeek "Sunday" ;
+    weekly:primaryPulse pulse:Refinement_0_16 ;
+    weekly:dominantIntensity 0.3 ;
+    weekly:attentionFocus "pattern-cleanup" .
+EOF < /dev/null

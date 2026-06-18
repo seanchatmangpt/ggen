@@ -1,0 +1,95 @@
+@prefix gov:  <http://bitbizeco.dev/ontology/v1/governance#> .
+@prefix tai:  <http://bitbizeco.dev/ontology/v1#> .
+@prefix op:   <http://bitbizeco.dev/ontology/v1/operational#> .
+@prefix dflss:<http://bitbizeco.dev/ontology/v1/dflss#> .
+@prefix rorn: <http://bitbizeco.dev/ontology/v1/rorn#> .
+@prefix sas:  <http://bitbizeco.dev/ontology/v1/sas#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+
+<http://bitbizeco.dev/ontology/v1/governance>
+  a owl:Ontology ;
+  rdfs:label "BitBizEco Governance Canon" ;
+  rdfs:comment "System-wide shapes, invariant queries, and goal templates for generative governance." .
+
+gov:generatesGoal a owl:AnnotationProperty .
+gov:goalTemplate  a owl:Class .
+
+# Example invariant query (certified)
+gov:InvariantQuery a owl:Class .
+gov:askQuery a owl:DatatypeProperty ; rdfs:domain gov:InvariantQuery ; rdfs:range xsd:string .
+gov:certifiedForRuntime a owl:DatatypeProperty ; rdfs:domain gov:InvariantQuery ; rdfs:range xsd:boolean .
+
+:Invariant_AllTeamsHavePO a gov:InvariantQuery ;
+  gov:askQuery "ASK WHERE { ?t a sas:ScrumTeam ; sas:hasProductOwner ?po }" ;
+  gov:certifiedForRuntime true .
+
+# Perception contract binding
+:Budget8 a op:TickBudget ; op:tickLimit 8 .
+:Perception_PO a op:PerceptionContract ;
+  op:perceives :Invariant_AllTeamsHavePO ;
+  op:hasBudget :Budget8 ;
+  op:emitsGoal :Goal_CreatePO .
+
+:Goal_CreatePO a op:Goal ; rdfs:comment "Create/assign a Product Owner for non-compliant teams" .
+
+# DfLSS generative gate → mitigation goal
+:Gate_DevelopReqRiskAndSelection a sh:NodeShape ;
+  sh:targetClass dflss:Project ;
+  sh:sparql [
+    sh:select """
+      SELECT $this WHERE {
+        $this dflss:hasPhase ?dev .
+        ?dev dflss:phaseType dflss:Develop .
+        FILTER NOT EXISTS {
+          $this dflss:hasPhase ?exp .
+          ?exp dflss:phaseType dflss:Explore ; dflss:utilizesTool ?fmea , ?select .
+          ?fmea dflss:mitigates dflss:Risk .
+          ?select dflss:selects dflss:Concept .
+        }
+      }
+    """ ;
+    sh:message "Develop requires Explore to complete FMEA and concept selection."
+  ] ;
+  gov:generatesGoal :Goal_MitigateCriticalRisk .
+
+:Goal_MitigateCriticalRisk a gov:goalTemplate .
+
+# RONR precedence enforcement (lower cannot be pending when higher pending)
+:PrecedenceBlockingShape a sh:NodeShape ;
+  sh:targetClass rorn:Assembly ;
+  sh:sparql [
+    sh:select """
+      SELECT $this WHERE {
+        $this rorn:hasPendingMotion ?low , ?high .
+        ?high rorn:precedes ?low .
+      }
+    """ ;
+    sh:message "RONR: lower-precedence motion pending while higher is pending"
+  ] ;
+  gov:generatesGoal :Goal_CorrectOrderOfBusiness .
+
+:Goal_CorrectOrderOfBusiness a gov:goalTemplate .
+
+# Self-referential certification: every class derives from primitives
+:OntologyIntegrityShape a sh:NodeShape ;
+  sh:targetNode <http://bitbizeco.dev/ontology/v1> ;
+  sh:sparql [
+    sh:select """
+      SELECT $this WHERE {
+        FILTER NOT EXISTS {
+          ?c a owl:Class .
+          FILTER(STRSTARTS(STR(?c), "http://bitbizeco.dev/ontology/v1/")) .
+          FILTER NOT EXISTS {
+            ?c rdfs:subClassOf* ?p .
+            VALUES ?p { tai:CoordinatedExecutionUnit tai:StateTransitionTrigger tai:IntentStore }
+          }
+        }
+      }
+    """ ;
+    sh:message "All classes must derive from canonical primitives"
+  ] .
+
+

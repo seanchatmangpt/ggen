@@ -1,0 +1,226 @@
+# GDPR (General Data Protection Regulation) Compliance Schema
+# Defines semantic rules for personal data protection and privacy
+
+@prefix gdpr: <http://compliance.enterprise.org/gdpr/> .
+@prefix compliance: <http://unjucks.dev/compliance/> .
+@prefix template: <http://unjucks.dev/template/> .
+@prefix privacy: <http://unjucks.dev/privacy/> .
+@prefix data: <http://unjucks.dev/data/> .
+@prefix consent: <http://unjucks.dev/consent/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+
+# GDPR Compliance Ontology
+gdpr:GdprCompliance a owl:Class ;
+    rdfs:label "GDPR Compliance Framework"@en ;
+    rdfs:comment "General Data Protection Regulation compliance requirements"@en ;
+    dc:description "Defines requirements for lawful processing of personal data in EU"@en .
+
+# Personal Data Categories
+data:PersonalData a owl:Class ;
+    rdfs:label "Personal Data"@en ;
+    rdfs:comment "Any information relating to an identified or identifiable natural person"@en .
+
+data:SensitivePersonalData a owl:Class ;
+    rdfs:subClassOf data:PersonalData ;
+    rdfs:label "Sensitive Personal Data"@en ;
+    rdfs:comment "Special categories of personal data requiring enhanced protection"@en .
+
+data:BiometricData a owl:Class ;
+    rdfs:subClassOf data:SensitivePersonalData ;
+    rdfs:label "Biometric Data"@en .
+
+data:HealthData a owl:Class ;
+    rdfs:subClassOf data:SensitivePersonalData ;
+    rdfs:label "Health Data"@en .
+
+data:GeneticData a owl:Class ;
+    rdfs:subClassOf data:SensitivePersonalData ;
+    rdfs:label "Genetic Data"@en .
+
+# Data Processing Activities
+data:Processing a owl:Class ;
+    rdfs:label "Data Processing"@en ;
+    rdfs:comment "Any operation performed on personal data"@en .
+
+data:Collection a owl:Class ;
+    rdfs:subClassOf data:Processing ;
+    rdfs:label "Data Collection"@en .
+
+data:Storage a owl:Class ;
+    rdfs:subClassOf data:Processing ;
+    rdfs:label "Data Storage"@en .
+
+data:Transfer a owl:Class ;
+    rdfs:subClassOf data:Processing ;
+    rdfs:label "Data Transfer"@en .
+
+# Legal Bases for Processing
+gdpr:LegalBasis a owl:Class ;
+    rdfs:label "Legal Basis for Processing"@en ;
+    rdfs:comment "Lawful basis for processing personal data under GDPR"@en .
+
+gdpr:Consent a owl:Class ;
+    rdfs:subClassOf gdpr:LegalBasis ;
+    rdfs:label "Consent"@en .
+
+gdpr:Contract a owl:Class ;
+    rdfs:subClassOf gdpr:LegalBasis ;
+    rdfs:label "Contract"@en .
+
+gdpr:LegalObligation a owl:Class ;
+    rdfs:subClassOf gdpr:LegalBasis ;
+    rdfs:label "Legal Obligation"@en .
+
+gdpr:LegitimateInterest a owl:Class ;
+    rdfs:subClassOf gdpr:LegalBasis ;
+    rdfs:label "Legitimate Interest"@en .
+
+# GDPR Rights
+gdpr:DataSubjectRights a owl:Class ;
+    rdfs:label "Data Subject Rights"@en ;
+    rdfs:comment "Rights of individuals under GDPR"@en .
+
+gdpr:RightOfAccess a owl:Class ;
+    rdfs:subClassOf gdpr:DataSubjectRights ;
+    rdfs:label "Right of Access"@en .
+
+gdpr:RightOfRectification a owl:Class ;
+    rdfs:subClassOf gdpr:DataSubjectRights ;
+    rdfs:label "Right of Rectification"@en .
+
+gdpr:RightToErasure a owl:Class ;
+    rdfs:subClassOf gdpr:DataSubjectRights ;
+    rdfs:label "Right to Erasure (Right to be Forgotten)"@en .
+
+gdpr:RightToPortability a owl:Class ;
+    rdfs:subClassOf gdpr:DataSubjectRights ;
+    rdfs:label "Right to Data Portability"@en .
+
+# GDPR Properties
+gdpr:processesPersonalData a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Processes Personal Data"@en .
+
+gdpr:processesSensitiveData a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Processes Sensitive Data"@en .
+
+gdpr:requiresConsent a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Requires Consent"@en .
+
+gdpr:requiresDpo a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Requires Data Protection Officer"@en .
+
+gdpr:requiresDpia a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Requires Data Protection Impact Assessment"@en .
+
+gdpr:dataRetentionMax a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:duration ;
+    rdfs:label "Maximum Data Retention Period"@en .
+
+gdpr:transfersToThirdCountry a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Transfers Data to Third Country"@en .
+
+gdpr:adequacyDecision a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:string ;
+    rdfs:label "Adequacy Decision Status"@en .
+
+# Privacy by Design Properties
+privacy:privacyByDesign a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Implements Privacy by Design"@en .
+
+privacy:dataMinimization a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Implements Data Minimization"@en .
+
+privacy:purposeLimitation a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Implements Purpose Limitation"@en .
+
+privacy:storageLimit a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Implements Storage Limitation"@en .
+
+# Consent Management Properties
+consent:consentMechanism a owl:ObjectProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range consent:ConsentManager ;
+    rdfs:label "Has Consent Mechanism"@en .
+
+consent:granularConsent a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Supports Granular Consent"@en .
+
+consent:consentWithdrawal a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Supports Consent Withdrawal"@en .
+
+# Data Subject Request Handling
+gdpr:supportsDsar a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Supports Data Subject Access Requests"@en .
+
+gdpr:supportsErasure a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Supports Data Erasure"@en .
+
+gdpr:supportsPortability a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Supports Data Portability"@en .
+
+gdpr:supportsRectification a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Supports Data Rectification"@en .
+
+# Sample GDPR compliance instances
+gdpr:UserProfileTemplate a template:Template ;
+    template:name "User Profile Management" ;
+    gdpr:processesPersonalData true ;
+    gdpr:requiresConsent true ;
+    gdpr:dataRetentionMax "P2Y"^^xsd:duration ;
+    privacy:dataMinimization true ;
+    privacy:purposeLimitation true ;
+    gdpr:supportsDsar true ;
+    gdpr:supportsErasure true ;
+    gdpr:supportsPortability true ;
+    consent:granularConsent true ;
+    consent:consentWithdrawal true .
+
+gdpr:HealthAppTemplate a template:Template ;
+    template:name "Health Data Application" ;
+    gdpr:processesPersonalData true ;
+    gdpr:processesSensitiveData true ;
+    data:dataCategory "health" ;
+    gdpr:requiresConsent true ;
+    gdpr:requiresDpo true ;
+    gdpr:requiresDpia true ;
+    gdpr:dataRetentionMax "P10Y"^^xsd:duration ;
+    privacy:privacyByDesign true ;
+    privacy:dataMinimization true .

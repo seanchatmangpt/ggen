@@ -1,0 +1,417 @@
+@prefix : <https://bytestar.org/ontology/byteethos/risk-classification#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/2002/07/rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix gov: <https://bytestar.org/ontology/byteethos/governance-specification#> .
+@prefix ethos: <https://bytestar.org/ontology/byteethos/ethos-framework#> .
+
+<https://bytestar.org/ontology/byteethos/risk-classification>
+    a owl:Ontology ;
+    rdfs:label "ETHOS Risk Classification System" ;
+    rdfs:comment """
+    Comprehensive risk classification system for AI agents based on the ETHOS framework.
+    
+    Implements the four-tier risk classification:
+    - Unacceptable Risk: Prohibited agents (warfare, mass surveillance)
+    - High Risk: Critical domain agents (healthcare, judicial, infrastructure)
+    - Moderate Risk: Sensitive area agents (workplace, education, personal data)
+    - Minimal Risk: Low-stakes agents (entertainment, basic assistance)
+    
+    Each tier has specific governance canons, oversight requirements, and compliance obligations.
+    """ ;
+    owl:imports <https://bytestar.org/ontology/bytestar-core> ,
+                <https://bytestar.org/ontology/byteethos/governance-specification> ,
+                <https://bytestar.org/ontology/byteethos/ethos-framework> ;
+    owl:versionInfo "1.0.0" ;
+    owl:versionIRI <https://bytestar.org/ontology/byteethos/risk-classification/1.0.0> .
+
+#################################################################
+# Risk Assessment Framework
+#################################################################
+
+:RiskClassifier a owl:Class ;
+    rdfs:label "Risk Classifier" ;
+    rdfs:comment "System responsible for classifying AI agents into risk tiers." .
+
+:RiskFactor a owl:Class ;
+    rdfs:label "Risk Factor" ;
+    rdfs:comment "Individual factor contributing to an agent's overall risk assessment." .
+
+:RiskCriteria a owl:Class ;
+    rdfs:label "Risk Criteria" ;
+    rdfs:comment "Specific criteria used to evaluate risk factors." .
+
+:RiskAssessmentReport a owl:Class ;
+    rdfs:label "Risk Assessment Report" ;
+    rdfs:comment "Comprehensive report documenting risk assessment results." .
+
+:RiskMitigation a owl:Class ;
+    rdfs:label "Risk Mitigation" ;
+    rdfs:comment "Measures taken to reduce identified risks." .
+
+#################################################################
+# Detailed Risk Factor Categories
+#################################################################
+
+# Impact-Based Risk Factors
+:ImpactRiskFactor a owl:Class ;
+    rdfs:subClassOf :RiskFactor ;
+    rdfs:label "Impact Risk Factor" ;
+    rdfs:comment "Risk factor based on potential societal or individual impact." .
+
+:HumanRightsImpact a :ImpactRiskFactor ;
+    rdfs:label "Human Rights Impact" ;
+    rdfs:comment "Potential impact on fundamental human rights." .
+
+:PrivacyImpact a :ImpactRiskFactor ;
+    rdfs:label "Privacy Impact" ;
+    rdfs:comment "Potential impact on individual privacy and data protection." .
+
+:SafetyImpact a :ImpactRiskFactor ;
+    rdfs:label "Safety Impact" ;
+    rdfs:comment "Potential impact on physical or psychological safety." .
+
+:EconomicImpact a :ImpactRiskFactor ;
+    rdfs:label "Economic Impact" ;
+    rdfs:comment "Potential economic consequences of agent actions." .
+
+:SocialImpact a :ImpactRiskFactor ;
+    rdfs:label "Social Impact" ;
+    rdfs:comment "Potential impact on social cohesion and community." .
+
+# Domain-Based Risk Factors
+:DomainRiskFactor a owl:Class ;
+    rdfs:subClassOf :RiskFactor ;
+    rdfs:label "Domain Risk Factor" ;
+    rdfs:comment "Risk factor based on application domain characteristics." .
+
+:HealthcareDomain a :DomainRiskFactor ;
+    rdfs:label "Healthcare Domain" ;
+    rdfs:comment "Risk factors specific to healthcare applications." .
+
+:JudicialDomain a :DomainRiskFactor ;
+    rdfs:label "Judicial Domain" ;
+    rdfs:comment "Risk factors specific to legal and judicial applications." .
+
+:FinancialDomain a :DomainRiskFactor ;
+    rdfs:label "Financial Domain" ;
+    rdfs:comment "Risk factors specific to financial services applications." .
+
+:EducationDomain a :DomainRiskFactor ;
+    rdfs:label "Education Domain" ;
+    rdfs:comment "Risk factors specific to educational applications." .
+
+:PublicSafetyDomain a :DomainRiskFactor ;
+    rdfs:label "Public Safety Domain" ;
+    rdfs:comment "Risk factors specific to public safety and security applications." .
+
+:DefenseDomain a :DomainRiskFactor ;
+    rdfs:label "Defense Domain" ;
+    rdfs:comment "Risk factors specific to defense and military applications." .
+
+# Technical Risk Factors
+:TechnicalRiskFactor a owl:Class ;
+    rdfs:subClassOf :RiskFactor ;
+    rdfs:label "Technical Risk Factor" ;
+    rdfs:comment "Risk factor based on technical characteristics and capabilities." .
+
+:AutonomyLevel a :TechnicalRiskFactor ;
+    rdfs:label "Autonomy Level" ;
+    rdfs:comment "Degree of autonomous decision-making capability." .
+
+:LearningCapability a :TechnicalRiskFactor ;
+    rdfs:label "Learning Capability" ;
+    rdfs:comment "Ability to learn and adapt behavior from data." .
+
+:DataAccess a :TechnicalRiskFactor ;
+    rdfs:label "Data Access" ;
+    rdfs:comment "Scope and sensitivity of data accessed by the agent." .
+
+:NetworkConnectivity a :TechnicalRiskFactor ;
+    rdfs:label "Network Connectivity" ;
+    rdfs:comment "Extent of network access and communication capabilities." .
+
+:Explainability a :TechnicalRiskFactor ;
+    rdfs:label "Explainability" ;
+    rdfs:comment "Degree to which agent decisions can be explained and understood." .
+
+#################################################################
+# Risk Tier Specific Requirements
+#################################################################
+
+# Unacceptable Risk Tier
+:UnacceptableRiskRequirements a owl:Class ;
+    rdfs:label "Unacceptable Risk Requirements" ;
+    rdfs:comment "Requirements for agents classified as unacceptable risk (prohibition)." .
+
+:ProhibitedUseCase a owl:Class ;
+    rdfs:label "Prohibited Use Case" ;
+    rdfs:comment "Use cases that are explicitly prohibited." .
+
+:AutonomousWeapons a :ProhibitedUseCase ;
+    rdfs:label "Autonomous Weapons" ;
+    rdfs:comment "AI agents designed for autonomous weapon systems." .
+
+:MassSurveillance a :ProhibitedUseCase ;
+    rdfs:label "Mass Surveillance" ;
+    rdfs:comment "AI agents for indiscriminate mass surveillance of populations." .
+
+:SocialScoring a :ProhibitedUseCase ;
+    rdfs:label "Social Scoring" ;
+    rdfs:comment "AI agents for comprehensive social credit scoring systems." .
+
+:BiometricCategorization a :ProhibitedUseCase ;
+    rdfs:label "Biometric Categorization" ;
+    rdfs:comment "AI agents for real-time biometric categorization in public spaces." .
+
+# High Risk Tier
+:HighRiskRequirements a owl:Class ;
+    rdfs:label "High Risk Requirements" ;
+    rdfs:comment "Specific requirements for high-risk AI agents." .
+
+:ConformityAssessment a :HighRiskRequirements ;
+    rdfs:label "Conformity Assessment" ;
+    rdfs:comment "Mandatory conformity assessment before market deployment." .
+
+:CEMarkingRequired a :HighRiskRequirements ;
+    rdfs:label "CE Marking Required" ;
+    rdfs:comment "CE marking requirement for market access in EU." .
+
+:HumanOversightRequired a :HighRiskRequirements ;
+    rdfs:label "Human Oversight Required" ;
+    rdfs:comment "Mandatory human oversight during operation." .
+
+:DataGovernanceFramework a :HighRiskRequirements ;
+    rdfs:label "Data Governance Framework" ;
+    rdfs:comment "Strict data governance and quality management." .
+
+:TransparencyObligations a :HighRiskRequirements ;
+    rdfs:label "Transparency Obligations" ;
+    rdfs:comment "Enhanced transparency and documentation requirements." .
+
+:AccuracyRequirements a :HighRiskRequirements ;
+    rdfs:label "Accuracy Requirements" ;
+    rdfs:comment "High accuracy and robustness standards." .
+
+:LoggingRequirements a :HighRiskRequirements ;
+    rdfs:label "Logging Requirements" ;
+    rdfs:comment "Comprehensive automatic logging of operations." .
+
+# Moderate Risk Tier
+:ModerateRiskRequirements a owl:Class ;
+    rdfs:label "Moderate Risk Requirements" ;
+    rdfs:comment "Requirements for moderate-risk AI agents." .
+
+:TransparencyNotification a :ModerateRiskRequirements ;
+    rdfs:label "Transparency Notification" ;
+    rdfs:comment "Users must be informed they are interacting with AI." .
+
+:BiasMonitoring a :ModerateRiskRequirements ;
+    rdfs:label "Bias Monitoring" ;
+    rdfs:comment "Regular monitoring for discriminatory bias." .
+
+:UserRights a :ModerateRiskRequirements ;
+    rdfs:label "User Rights" ;
+    rdfs:comment "Clear information about user rights and recourse mechanisms." .
+
+:PerformanceMonitoring a :ModerateRiskRequirements ;
+    rdfs:label "Performance Monitoring" ;
+    rdfs:comment "Continuous monitoring of system performance." .
+
+# Minimal Risk Tier
+:MinimalRiskRequirements a owl:Class ;
+    rdfs:label "Minimal Risk Requirements" ;
+    rdfs:comment "Basic requirements for minimal-risk AI agents." .
+
+:BasicTransparency a :MinimalRiskRequirements ;
+    rdfs:label "Basic Transparency" ;
+    rdfs:comment "Basic transparency about AI nature of the system." .
+
+:VoluntaryCompliance a :MinimalRiskRequirements ;
+    rdfs:label "Voluntary Compliance" ;
+    rdfs:comment "Voluntary adoption of best practices and codes of conduct." .
+
+#################################################################
+# Properties for Risk Assessment
+#################################################################
+
+:hasRiskFactor a owl:ObjectProperty ;
+    rdfs:label "has risk factor" ;
+    rdfs:domain ethos:EthicalAgent ;
+    rdfs:range :RiskFactor ;
+    rdfs:comment "Associates an agent with identified risk factors." .
+
+:evaluatedBy a owl:ObjectProperty ;
+    rdfs:label "evaluated by" ;
+    rdfs:domain :RiskFactor ;
+    rdfs:range :RiskCriteria ;
+    rdfs:comment "Links risk factors to evaluation criteria." .
+
+:mitigatedBy a owl:ObjectProperty ;
+    rdfs:label "mitigated by" ;
+    rdfs:domain :RiskFactor ;
+    rdfs:range :RiskMitigation ;
+    rdfs:comment "Links risk factors to mitigation measures." .
+
+:classifiedBy a owl:ObjectProperty ;
+    rdfs:label "classified by" ;
+    rdfs:domain ethos:EthicalAgent ;
+    rdfs:range :RiskClassifier ;
+    rdfs:comment "Indicates which classifier assigned the risk tier." .
+
+:documentedIn a owl:ObjectProperty ;
+    rdfs:label "documented in" ;
+    rdfs:domain :RiskAssessmentReport ;
+    rdfs:range ethos:EthicalAgent ;
+    rdfs:comment "Links assessment reports to the evaluated agents." .
+
+:requiresCompliance a owl:ObjectProperty ;
+    rdfs:label "requires compliance" ;
+    rdfs:domain gov:RiskTier ;
+    rdfs:range :HighRiskRequirements ;
+    rdfs:comment "Links risk tiers to their compliance requirements." .
+
+#################################################################
+# Data Properties for Risk Metrics
+#################################################################
+
+:riskScore a owl:DatatypeProperty ;
+    rdfs:label "risk score" ;
+    rdfs:domain :RiskFactor ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Numerical risk score (0.0-1.0) for the risk factor." .
+
+:impactScore a owl:DatatypeProperty ;
+    rdfs:label "impact score" ;
+    rdfs:domain :RiskFactor ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Potential impact score (0.0-1.0) of the risk factor." .
+
+:likelihoodScore a owl:DatatypeProperty ;
+    rdfs:label "likelihood score" ;
+    rdfs:domain :RiskFactor ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Likelihood score (0.0-1.0) of the risk materializing." .
+
+:confidenceLevel a owl:DatatypeProperty ;
+    rdfs:label "confidence level" ;
+    rdfs:domain :RiskAssessmentReport ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Confidence level (0.0-1.0) in the risk assessment." .
+
+:assessmentDate a owl:DatatypeProperty ;
+    rdfs:label "assessment date" ;
+    rdfs:domain :RiskAssessmentReport ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Date when the risk assessment was performed." .
+
+:reviewDate a owl:DatatypeProperty ;
+    rdfs:label "review date" ;
+    rdfs:domain :RiskAssessmentReport ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Date when the risk assessment should be reviewed." .
+
+:severityLevel a owl:DatatypeProperty ;
+    rdfs:label "severity level" ;
+    rdfs:domain :RiskFactor ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Qualitative severity level (LOW, MEDIUM, HIGH, CRITICAL)." .
+
+:mitigationCost a owl:DatatypeProperty ;
+    rdfs:label "mitigation cost" ;
+    rdfs:domain :RiskMitigation ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Estimated cost of implementing the risk mitigation measure." .
+
+:effectiveness a owl:DatatypeProperty ;
+    rdfs:label "effectiveness" ;
+    rdfs:domain :RiskMitigation ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Effectiveness score (0.0-1.0) of the mitigation measure." .
+
+#################################################################
+# Risk Classification Rules (SPARQL/SWRL)
+#################################################################
+
+# Rule: Healthcare + High Autonomy = High Risk
+:HealthcareHighAutonomyRule a owl:Class ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasRiskFactor ;
+        owl:someValuesFrom :HealthcareDomain
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasRiskFactor ;
+        owl:someValuesFrom :AutonomyLevel
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasRiskTier ;
+        owl:hasValue gov:HighRisk
+    ] ;
+    rdfs:comment "Agents in healthcare domain with high autonomy are classified as high risk." .
+
+# Rule: Defense Domain = Potential Unacceptable Risk
+:DefenseRiskRule a owl:Class ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasRiskFactor ;
+        owl:someValuesFrom :DefenseDomain
+    ] ;
+    rdfs:comment "Defense domain agents require special evaluation for unacceptable risk." .
+
+# Rule: Mass Surveillance Capability = Unacceptable Risk
+:MassSurveillanceRule a owl:Class ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasRiskFactor ;
+        owl:someValuesFrom :MassSurveillance
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasRiskTier ;
+        owl:hasValue gov:UnacceptableRisk
+    ] ;
+    rdfs:comment "Agents with mass surveillance capabilities are unacceptable risk." .
+
+# Rule: Entertainment + Minimal Data Access = Minimal Risk
+:EntertainmentMinimalRule a owl:Class ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasRiskFactor ;
+        owl:someValuesFrom :Entertainment Domain
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasRiskTier ;
+        owl:hasValue gov:MinimalRisk
+    ] ;
+    rdfs:comment "Entertainment agents with minimal data access are minimal risk." .
+
+#################################################################
+# Compliance Verification Rules
+#################################################################
+
+:ComplianceVerificationRule a owl:Class ;
+    rdfs:comment "Abstract class for compliance verification rules." .
+
+:HighRiskComplianceRule a owl:Class ;
+    rdfs:subClassOf :ComplianceVerificationRule ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ethos:hasRiskTier ;
+        owl:hasValue gov:HighRisk
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ethos:subjectToOversight ;
+        owl:minCardinality 3
+    ] ;
+    rdfs:comment "High-risk agents must have at least 3 oversight mechanisms." .
+
+:TransparencyRule a owl:Class ;
+    rdfs:subClassOf :ComplianceVerificationRule ;
+    rdfs:comment "All agents must meet transparency requirements for their risk tier." .

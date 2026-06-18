@@ -1,0 +1,32 @@
+PREFIX pcp: <http://example.org/pcp/>
+PREFIX synergy: <http://example.org/synergy/>
+PREFIX debt: <http://example.org/debt/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# GGEN_UNIFIED_RUN: Board Claims Extraction
+# Extracts M&A Synergy Claims and Operational Debt ledgers for the ZOEapp PCP Dashboard.
+
+SELECT ?claim ?type ?label ?value ?confidence ?status
+WHERE {
+  {
+    ?claim rdf:type synergy:SynergyClaim ;
+           rdfs:label ?label ;
+           synergy:impactValue ?value ;
+           synergy:confidenceScore ?confidence ;
+           pcp:status ?status .
+    BIND("Synergy" AS ?type)
+  }
+  UNION
+  {
+    ?claim rdf:type debt:OperationalDebt ;
+           rdfs:label ?label ;
+           debt:liabilityAmount ?value ;
+           debt:riskFactor ?confidence ;
+           pcp:status ?status .
+    BIND("Operational Debt" AS ?type)
+  }
+  FILTER(?confidence > 0.5)
+}
+ORDER BY DESC(?value)

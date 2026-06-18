@@ -1,0 +1,7 @@
+# The 64 Kernel individuals (A01..A64) with opcodes.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix bs: <urn:bs:> .
+
+<urn:bs:k/A01> a bs:Kernel ;
+    bs:opcode 0 .
+# ... up to A64

@@ -1,0 +1,519 @@
+# Chatman Equation Ontology
+# RDF/TURTLE representation of the chicago-tdd-tools framework and Chatman Equation
+#
+# This ontology serves as the single source of truth for:
+# - Framework concepts (Observations, Actions, Operators)
+# - Knowledge hooks and workflow patterns (43 YAWL patterns)
+# - Guard constraints (Legality, Budget, Chronology, Causality, Recursion)
+# - Test specifications and receipt schemas
+#
+# Used by ggen templates to auto-generate:
+# - Rust operator registry code
+# - LaTeX specification tables
+# - JSON configuration files
+# - CI validation rules
+#
+# Version: 1.0.0
+# Last Updated: 2025-11-16
+# Status: Phase 2 (Weeks 3-4)
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ce: <http://chatman-equation.org/core/> .
+@prefix op: <http://chatman-equation.org/operators/> .
+@prefix guard: <http://chatman-equation.org/guards/> .
+@prefix yawl: <http://workflow-patterns.org/yawl/> .
+
+# ============================================================================
+# ONTOLOGY METADATA
+# ============================================================================
+
+<http://chatman-equation.org/ontology/chatman-equation>
+  a rdf:Resource ;
+  rdfs:label "Chatman Equation Ontology" ;
+  rdfs:comment "Single source of truth for chicago-tdd-tools specification" ;
+  ce:version "1.0.0" ;
+  ce:lastUpdated "2025-11-16"^^xsd:date ;
+  ce:phase "Phase2" ;
+  ce:theoremCount 17 ;
+  ce:operatorCount 43 ;
+  ce:guardCount 5 .
+
+# ============================================================================
+# CLASS DEFINITIONS
+# ============================================================================
+
+ce:Observation
+  a rdfs:Class ;
+  rdfs:label "Observation" ;
+  rdfs:comment "An input observation: fixture, test data, or external state" ;
+  rdfs:subClassOf rdf:Resource .
+
+ce:Action
+  a rdfs:Class ;
+  rdfs:label "Action" ;
+  rdfs:comment "An output action: test result, assertion, or side effect" ;
+  rdfs:subClassOf rdf:Resource .
+
+ce:Operator
+  a rdfs:Class ;
+  rdfs:label "Operator" ;
+  rdfs:comment "A deterministic operator: O -> A (observation to action)" ;
+  rdfs:subClassOf rdf:Resource .
+
+ce:KnowledgeHook
+  a rdfs:Class ;
+  rdfs:label "Knowledge Hook" ;
+  rdfs:comment "Atomic unit of knowledge work: (trigger, check, act, receipt)" ;
+  rdfs:subClassOf rdf:Resource .
+
+ce:Guard
+  a rdfs:Class ;
+  rdfs:label "Guard" ;
+  rdfs:comment "Constraint that prevents invalid operator execution" ;
+  rdfs:subClassOf rdf:Resource .
+
+ce:Receipt
+  a rdfs:Class ;
+  rdfs:label "Receipt" ;
+  rdfs:comment "Cryptographic proof of spec conformance or task completion" ;
+  rdfs:subClassOf rdf:Resource .
+
+ce:YAWLPattern
+  a rdfs:Class ;
+  rdfs:label "YAWL Pattern" ;
+  rdfs:comment "One of 43 Van der Aalst workflow control patterns" ;
+  rdfs:subClassOf ce:Operator .
+
+ce:Guard_Type
+  a rdfs:Class ;
+  rdfs:label "Guard Type" ;
+  rdfs:comment "Classification of guard constraints" ;
+  rdfs:subClassOf rdf:Resource .
+
+# ============================================================================
+# PROPERTY DEFINITIONS
+# ============================================================================
+
+# Operator Properties
+ce:deterministic
+  a rdf:Property ;
+  rdfs:label "Deterministic" ;
+  rdfs:comment "If true, identical inputs always produce identical outputs" ;
+  rdfs:domain ce:Operator ;
+  rdfs:range xsd:boolean .
+
+ce:idempotent
+  a rdf:Property ;
+  rdfs:label "Idempotent" ;
+  rdfs:comment "If true, f(f(x)) = f(x)" ;
+  rdfs:domain ce:Operator ;
+  rdfs:range xsd:boolean .
+
+ce:typePreserving
+  a rdf:Property ;
+  rdfs:label "Type Preserving" ;
+  rdfs:comment "If true, input types are preserved through execution" ;
+  rdfs:domain ce:Operator ;
+  rdfs:range xsd:boolean .
+
+ce:bounded
+  a rdf:Property ;
+  rdfs:label "Bounded" ;
+  rdfs:comment "If true, execution time is measurable and bounded" ;
+  rdfs:domain ce:Operator ;
+  rdfs:range xsd:boolean .
+
+# Guard Properties
+ce:hasGuard
+  a rdf:Property ;
+  rdfs:label "Has Guard" ;
+  rdfs:comment "Guards that must be satisfied before operator execution" ;
+  rdfs:domain ce:Operator ;
+  rdfs:range ce:Guard .
+
+ce:guardType
+  a rdf:Property ;
+  rdfs:label "Guard Type" ;
+  rdfs:comment "Classification of guard (Legality, Budget, Chronology, etc.)" ;
+  rdfs:domain ce:Guard ;
+  rdfs:range ce:Guard_Type .
+
+# Receipt Properties
+ce:merkleRoot
+  a rdf:Property ;
+  rdfs:label "Merkle Root" ;
+  rdfs:comment "SHA256 merkle root for receipt integrity verification" ;
+  rdfs:domain ce:Receipt ;
+  rdfs:range xsd:string .
+
+ce:theoremsCovered
+  a rdf:Property ;
+  rdfs:label "Theorems Covered" ;
+  rdfs:comment "Number of theorems validated by receipt" ;
+  rdfs:domain ce:Receipt ;
+  rdfs:range xsd:integer .
+
+ce:testsPassing
+  a rdf:Property ;
+  rdfs:label "Tests Passing" ;
+  rdfs:comment "Number of tests that passed" ;
+  rdfs:domain ce:Receipt ;
+  rdfs:range xsd:integer .
+
+# Operator Metadata
+ce:hookId
+  a rdf:Property ;
+  rdfs:label "Hook ID" ;
+  rdfs:comment "Unique identifier for the knowledge hook" ;
+  rdfs:domain ce:Operator ;
+  rdfs:range xsd:string .
+
+ce:slo
+  a rdf:Property ;
+  rdfs:label "Service Level Objective" ;
+  rdfs:comment "Business-level performance target" ;
+  rdfs:domain ce:Operator ;
+  rdfs:range xsd:string .
+
+ce:maxLatencyNs
+  a rdf:Property ;
+  rdfs:label "Max Latency (nanoseconds)" ;
+  rdfs:comment "Maximum allowed execution time in nanoseconds" ;
+  rdfs:domain ce:Operator ;
+  rdfs:range xsd:long .
+
+ce:expectedResult
+  a rdf:Property ;
+  rdfs:label "Expected Result" ;
+  rdfs:comment "Expected outcome (Pass, Fail, Pending)" ;
+  rdfs:domain ce:Operator ;
+  rdfs:range xsd:string .
+
+# YAWL Pattern Properties
+yawl:patternNumber
+  a rdf:Property ;
+  rdfs:label "Pattern Number" ;
+  rdfs:comment "YAWL pattern number (1-43)" ;
+  rdfs:domain ce:YAWLPattern ;
+  rdfs:range xsd:integer .
+
+yawl:patternName
+  a rdf:Property ;
+  rdfs:label "Pattern Name" ;
+  rdfs:comment "Name of the workflow pattern" ;
+  rdfs:domain ce:YAWLPattern ;
+  rdfs:range xsd:string .
+
+yawl:patternCategory
+  a rdf:Property ;
+  rdfs:label "Pattern Category" ;
+  rdfs:comment "Category (Basic Control Flow, Advanced Branching, etc.)" ;
+  rdfs:domain ce:YAWLPattern ;
+  rdfs:range xsd:string .
+
+# ============================================================================
+# GUARD TYPES (5 Core Guard Types)
+# ============================================================================
+
+guard:Legality
+  a ce:Guard_Type ;
+  rdfs:label "Legality Guard" ;
+  rdfs:comment "Prevents illegal state transitions" .
+
+guard:Budget
+  a ce:Guard_Type ;
+  rdfs:label "Budget Guard" ;
+  rdfs:comment "Prevents exceeding resource limits (time, memory, iterations)" .
+
+guard:Chronology
+  a ce:Guard_Type ;
+  rdfs:label "Chronology Guard" ;
+  rdfs:comment "Enforces proper temporal ordering" .
+
+guard:Causality
+  a ce:Guard_Type ;
+  rdfs:label "Causality Guard" ;
+  rdfs:comment "Ensures causal dependencies are respected" .
+
+guard:Recursion
+  a ce:Guard_Type ;
+  rdfs:label "Recursion Guard" ;
+  rdfs:comment "Bounds recursion depth (Chatman Constant = 8)" .
+
+# ============================================================================
+# YAWL PATTERNS (43 Workflow Control Patterns)
+# ============================================================================
+
+# Basic Control Flow Patterns (1-6)
+
+op:YAWL_001_Sequence
+  a ce:YAWLPattern ;
+  rdfs:label "Sequence" ;
+  rdfs:comment "Two tasks executed sequentially" ;
+  yawl:patternNumber 1 ;
+  yawl:patternName "Sequence" ;
+  yawl:patternCategory "Basic Control Flow" ;
+  ce:deterministic true ;
+  ce:idempotent false ;
+  ce:typePreserving true ;
+  ce:bounded true ;
+  ce:maxLatencyNs 1000000000 ; # 1 second
+  ce:hasGuard guard:Chronology ;
+  ce:hookId "sequence_op" .
+
+op:YAWL_002_Parallel_Split
+  a ce:YAWLPattern ;
+  rdfs:label "Parallel Split" ;
+  rdfs:comment "Fork into multiple parallel tasks" ;
+  yawl:patternNumber 2 ;
+  yawl:patternName "Parallel Split" ;
+  yawl:patternCategory "Basic Control Flow" ;
+  ce:deterministic true ;
+  ce:idempotent false ;
+  ce:typePreserving true ;
+  ce:bounded true ;
+  ce:maxLatencyNs 5000000000 ; # 5 seconds
+  ce:hasGuard guard:Legality ;
+  ce:hasGuard guard:Causality ;
+  ce:hookId "parallel_split_op" .
+
+op:YAWL_003_Synchronization
+  a ce:YAWLPattern ;
+  rdfs:label "Synchronization" ;
+  rdfs:comment "Join parallel tasks at synchronization point" ;
+  yawl:patternNumber 3 ;
+  yawl:patternName "Synchronization" ;
+  yawl:patternCategory "Basic Control Flow" ;
+  ce:deterministic true ;
+  ce:idempotent false ;
+  ce:typePreserving true ;
+  ce:bounded true ;
+  ce:maxLatencyNs 5000000000 ;
+  ce:hasGuard guard:Causality ;
+  ce:hookId "synchronization_op" .
+
+op:YAWL_004_Exclusive_Choice
+  a ce:YAWLPattern ;
+  rdfs:label "Exclusive Choice" ;
+  rdfs:comment "One path chosen based on condition" ;
+  yawl:patternNumber 4 ;
+  yawl:patternName "Exclusive Choice" ;
+  yawl:patternCategory "Basic Control Flow" ;
+  ce:deterministic true ;
+  ce:idempotent false ;
+  ce:typePreserving true ;
+  ce:bounded true ;
+  ce:maxLatencyNs 1000000000 ;
+  ce:hasGuard guard:Legality ;
+  ce:hookId "exclusive_choice_op" .
+
+op:YAWL_005_Simple_Merge
+  a ce:YAWLPattern ;
+  rdfs:label "Simple Merge" ;
+  rdfs:comment "Merge two branches (uncontrolled)" ;
+  yawl:patternNumber 5 ;
+  yawl:patternName "Simple Merge" ;
+  yawl:patternCategory "Basic Control Flow" ;
+  ce:deterministic false ;
+  ce:idempotent false ;
+  ce:typePreserving true ;
+  ce:bounded true ;
+  ce:maxLatencyNs 1000000000 ;
+  ce:hasGuard guard:Legality ;
+  ce:hookId "simple_merge_op" .
+
+op:YAWL_006_Multiple_Choice
+  a ce:YAWLPattern ;
+  rdfs:label "Multiple Choice" ;
+  rdfs:comment "Multiple paths selected based on condition" ;
+  yawl:patternNumber 6 ;
+  yawl:patternName "Multiple Choice" ;
+  yawl:patternCategory "Basic Control Flow" ;
+  ce:deterministic true ;
+  ce:idempotent false ;
+  ce:typePreserving true ;
+  ce:bounded true ;
+  ce:maxLatencyNs 2000000000 ;
+  ce:hasGuard guard:Legality ;
+  ce:hookId "multiple_choice_op" .
+
+# Advanced Branching and Synchronization (7-15)
+# (Abbreviated for brevity; full ontology would have all 43)
+
+op:YAWL_007_Structured_Synchronizing_Merge
+  a ce:YAWLPattern ;
+  yawl:patternNumber 7 ;
+  yawl:patternName "Structured Synchronizing Merge" ;
+  yawl:patternCategory "Advanced Branching" ;
+  ce:deterministic true ;
+  ce:idempotent false ;
+  ce:typePreserving true ;
+  ce:bounded true ;
+  ce:maxLatencyNs 5000000000 ;
+  ce:hasGuard guard:Causality ;
+  ce:hasGuard guard:Chronology ;
+  ce:hookId "sync_merge_op" .
+
+op:YAWL_015_Deferred_Choice
+  a ce:YAWLPattern ;
+  yawl:patternNumber 15 ;
+  yawl:patternName "Deferred Choice" ;
+  yawl:patternCategory "Advanced Branching" ;
+  ce:deterministic false ;
+  ce:idempotent false ;
+  ce:typePreserving true ;
+  ce:bounded true ;
+  ce:maxLatencyNs 10000000000 ;
+  ce:hasGuard guard:Legality ;
+  ce:hasGuard guard:Budget ;
+  ce:hookId "deferred_choice_op" .
+
+# Structural Patterns (16-27)
+# (Representative sample)
+
+op:YAWL_020_Arbitrary_Cycles
+  a ce:YAWLPattern ;
+  yawl:patternNumber 20 ;
+  yawl:patternName "Arbitrary Cycles" ;
+  yawl:patternCategory "Structural" ;
+  ce:deterministic true ;
+  ce:idempotent false ;
+  ce:typePreserving true ;
+  ce:bounded true ;
+  ce:maxLatencyNs 30000000000 ;
+  ce:hasGuard guard:Recursion ;
+  ce:hasGuard guard:Budget ;
+  ce:hookId "cycles_op" .
+
+op:YAWL_025_Inclusive_Or_with_Multiple_Instance_Join
+  a ce:YAWLPattern ;
+  yawl:patternNumber 25 ;
+  yawl:patternName "Inclusive Or with Multiple Instance Join" ;
+  yawl:patternCategory "Structural" ;
+  ce:deterministic true ;
+  ce:idempotent false ;
+  ce:typePreserving true ;
+  ce:bounded true ;
+  ce:maxLatencyNs 10000000000 ;
+  ce:hasGuard guard:Legality ;
+  ce:hasGuard guard:Causality ;
+  ce:hookId "incl_or_join_op" .
+
+# Multiple Instance Patterns (28-32)
+
+op:YAWL_030_Multiple_Instance_Parallel
+  a ce:YAWLPattern ;
+  yawl:patternNumber 30 ;
+  yawl:patternName "Multiple Instance Parallel" ;
+  yawl:patternCategory "Multiple Instance" ;
+  ce:deterministic true ;
+  ce:idempotent false ;
+  ce:typePreserving true ;
+  ce:bounded true ;
+  ce:maxLatencyNs 50000000000 ;
+  ce:hasGuard guard:Budget ;
+  ce:hasGuard guard:Recursion ;
+  ce:hookId "multi_parallel_op" .
+
+# State-Based Patterns (33-38)
+
+op:YAWL_035_State_Based_Concurrency
+  a ce:YAWLPattern ;
+  yawl:patternNumber 35 ;
+  yawl:patternName "State-Based Concurrency" ;
+  yawl:patternCategory "State-Based" ;
+  ce:deterministic false ;
+  ce:idempotent false ;
+  ce:typePreserving true ;
+  ce:bounded false ;
+  ce:maxLatencyNs 0 ; # Unbounded
+  ce:hasGuard guard:Legality ;
+  ce:hasGuard guard:Chronology ;
+  ce:hookId "state_concurrency_op" .
+
+# Cancellation and Force Completion (39-43)
+
+op:YAWL_040_Cancellation_Region
+  a ce:YAWLPattern ;
+  yawl:patternNumber 40 ;
+  yawl:patternName "Cancellation Region" ;
+  yawl:patternCategory "Cancellation" ;
+  ce:deterministic true ;
+  ce:idempotent false ;
+  ce:typePreserving true ;
+  ce:bounded true ;
+  ce:maxLatencyNs 5000000000 ;
+  ce:hasGuard guard:Legality ;
+  ce:hasGuard guard:Budget ;
+  ce:hookId "cancel_region_op" .
+
+op:YAWL_043_Force_Completion
+  a ce:YAWLPattern ;
+  yawl:patternNumber 43 ;
+  yawl:patternName "Force Completion" ;
+  yawl:patternCategory "Cancellation" ;
+  ce:deterministic true ;
+  ce:idempotent false ;
+  ce:typePreserving true ;
+  ce:bounded true ;
+  ce:maxLatencyNs 1000000000 ;
+  ce:hasGuard guard:Legality ;
+  ce:hookId "force_complete_op" .
+
+# ============================================================================
+# SPECIFICATION EXAMPLES
+# ============================================================================
+
+# Spec Conformance Receipt Example
+<http://chatman-equation.org/receipts/phase1-complete>
+  a ce:Receipt ;
+  rdfs:label "Phase 1 Spec Conformance Receipt" ;
+  ce:theoremsCovered 17 ;
+  ce:testsPassing 23 ;
+  ce:merkleRoot "abc123def456..." ;
+  ce:version "ChatmanEquation-1.0" .
+
+# ============================================================================
+# GUARD SPECIFICATIONS
+# ============================================================================
+
+# Legality Guard: Prevents invalid state transitions
+<http://chatman-equation.org/guards/instance/legality_001>
+  a ce:Guard ;
+  rdfs:label "Valid AAA Sequence" ;
+  rdfs:comment "Ensures AAA pattern: Arrange -> Act -> Assert" ;
+  ce:guardType guard:Legality ;
+  ce:description "Prevents calling Act before Arrange or Assert before Act" .
+
+# Budget Guard: Prevents exceeding resource limits
+<http://chatman-equation.org/guards/instance/budget_001>
+  a ce:Guard ;
+  rdfs:label "Execution Time Limit" ;
+  rdfs:comment "Prevents test execution from exceeding time limit" ;
+  ce:guardType guard:Budget ;
+  ce:maxNanoseconds 1000000000 . # 1 second
+
+# Recursion Guard: Bounds recursion depth
+<http://chatman-equation.org/guards/instance/recursion_001>
+  a ce:Guard ;
+  rdfs:label "Chatman Constant Recursion Bound" ;
+  rdfs:comment "Limits recursion depth to Chatman Constant (8)" ;
+  ce:guardType guard:Recursion ;
+  ce:maxDepth 8 .
+
+# ============================================================================
+# END OF ONTOLOGY
+# ============================================================================
+# This ontology is the single source of truth for the Chatman Equation framework.
+# All code generation, documentation, and validation derives from this ontology.
+#
+# To regenerate code/docs:
+#   ggen project --ontology ontology/chatman-equation.ttl --template ontology/templates/*.j2
+#
+# To validate the ontology:
+#   rdflib validate ontology/chatman-equation.ttl
+#
+# Version: 1.0.0
+# Status: Phase 2 Implementation

@@ -1,0 +1,14 @@
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX pi: <https://process.intelligence/ontology/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# AUDIT: FAIL if compat COMPATIBILITY_LAYER contains execution logic (tool smuggling)
+# Valid: only structure, no algorithms. Invalid: discovery, replay, conformance execution in compat crate.
+SELECT ?compat ?violationType
+WHERE {
+  ?compat a prov:Entity ;
+          pi:hasRole pi:COMPATIBILITY_LAYER ;
+          rdfs:label ?label .
+  ?compat dcterms:description ?desc .
+  FILTER (REGEX(?desc, "discovery|conformance|replay|execution", "i") && !REGEX(?desc, "structure-only|type-only|paper-grounded", "i"))
+}

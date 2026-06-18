@@ -1,0 +1,37 @@
+@prefix : <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+:User a owl:Class ;
+  rdfs:label "User" .
+
+:Post a owl:Class ;
+  rdfs:label "Post" .
+
+:name a rdf:Property ;
+  rdfs:label "name" ;
+  rdfs:domain :User ;
+  rdfs:range xsd:string .
+
+:email a rdf:Property ;
+  rdfs:label "email" ;
+  rdfs:domain :User ;
+  rdfs:range xsd:string .
+
+:title a rdf:Property ;
+  rdfs:label "title" ;
+  rdfs:domain :Post ;
+  rdfs:range xsd:string .
+
+:body a rdf:Property ;
+  rdfs:label "body" ;
+  rdfs:domain :Post ;
+  rdfs:range xsd:string .
+
+:author a rdf:Property ;
+  rdfs:label "author" ;
+  rdfs:domain :Post ;
+  rdfs:range :User .
+

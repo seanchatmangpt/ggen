@@ -1,0 +1,96 @@
+# extract-diligence-claims.rq
+# SPARQL query to extract synergy, operational debt, and integration risk claims
+# for detailed M&A due diligence workbook
+# Authority: define_diligence_claim_taxonomy.md, define_operational_debt_taxonomy.md
+# Output: Detailed claims with replay traces, metrics, and remediation paths
+
+PREFIX ma: <https://process.intelligence/ma/>
+PREFIX compat: <https://process.intelligence/compat/>
+PREFIX wasm4pm: <https://process.intelligence/wasm4pm/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT
+  ?claim
+  ?claimLabel
+  ?claimCategory
+  ?claimDescription
+  ?synergyCategoryIfApplicable
+  ?operationalDebtIfApplicable
+  ?riskSeverity
+  ?quantifiedMetric
+  ?metricValue
+  ?metricUnit
+  ?replayTrace
+  ?traceDeviations
+  ?traceGasToReturn
+  ?remediationPath
+  ?remediationEffortHours
+  ?relatedActivity
+  ?activityName
+  ?activityBottleneck
+  ?evidenceLink
+  ?verdictFitness
+
+WHERE {
+  # Select diligence-level claims across all three categories
+  ?claim a ?claimCategory .
+  FILTER (?claimCategory IN (
+    ma:SynergyProjection,
+    ma:OperationalDebtInstance,
+    ma:IntegrationRiskAssertion
+  ))
+
+  ?claim rdfs:label ?claimLabel .
+  ?claim dcterms:description ?claimDescription .
+
+  # Synergy claims: cost reduction or revenue uplift
+  OPTIONAL {
+    ?claim a ma:SynergyProjection .
+    ?claim ma:synergyType ?synergyCategoryIfApplicable .
+  }
+
+  # Operational debt claims: technical or process rework backlogs
+  OPTIONAL {
+    ?claim a ma:OperationalDebtInstance .
+    ?claim ma:debtCategory ?operationalDebtIfApplicable .
+  }
+
+  # Integration risk claims: post-close hazards
+  OPTIONAL {
+    ?claim a ma:IntegrationRiskAssertion .
+    ?claim ma:riskSeverity ?riskSeverity .
+  }
+
+  # Quantified metrics (dollar value, hours, percentage)
+  ?claim ma:quantifies ?quantifiedMetric .
+  ?quantifiedMetric ma:value ?metricValue .
+  ?quantifiedMetric ma:unit ?metricUnit .
+
+  # Replay trace evidence: actual event log replayed against process model
+  ?claim wasm4pm:supportedBy ?replayTrace .
+  ?replayTrace a wasm4pm:ReplayTrace .
+  ?replayTrace wasm4pm:deviationCount ?traceDeviations .
+  ?replayTrace wasm4pm:gasToReturn ?traceGasToReturn .
+
+  # Remediation path: how to address the deviation (if claim is a risk/debt item)
+  OPTIONAL {
+    ?claim ma:hasRemediationPath ?remediationPath .
+    ?remediationPath ma:estimatedEffortHours ?remediationEffortHours .
+  }
+
+  # Related process activities (which steps in the process are affected)
+  ?claim ma:affectsActivity ?relatedActivity .
+  ?relatedActivity rdfs:label ?activityName .
+  OPTIONAL { ?relatedActivity ma:isBottleneck true . ?relatedActivity ma:label ?activityBottleneck . }
+
+  # Link back to conformance evidence
+  ?claim ma:evidencedBy ?verdictRef .
+  ?verdictRef a wasm4pm:ConformanceVerdict .
+  ?verdictRef wasm4pm:fitness ?verdictFitness .
+  ?verdictRef wasm4pm:receipt ?receiptRef .
+  ?receiptRef rdfs:seeAlso ?evidenceLink .
+
+}
+ORDER BY ?claimCategory DESC(?metricValue)

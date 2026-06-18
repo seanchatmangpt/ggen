@@ -1,0 +1,95 @@
+@prefix :       <http://bitbizeco.dev/ontology/v1#> .
+@prefix tai:    <http://bitbizeco.dev/ontology/v1#> .
+@prefix doctrine: <http://bitbizeco.dev/ontology/v1/doctrine#> .
+@prefix onto:   <http://bitbizeco.dev/ontology/v1/ontological#> .
+@prefix time:   <http://bitbizeco.dev/ontology/v1/temporal#> .
+@prefix op:     <http://bitbizeco.dev/ontology/v1/operational#> .
+@prefix gov:    <http://bitbizeco.dev/ontology/v1/governance#> .
+
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh:     <http://www.w3.org/ns/shacl#> .
+@prefix prov:   <http://www.w3.org/ns/prov#> .
+@prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
+
+<http://bitbizeco.dev/ontology/v1> a owl:Ontology ;
+  rdfs:label "BitBizEco Canon v1" ;
+  rdfs:comment "Single source of truth. Generative blueprint for AOT -> Erlang/C. Forbidden in runtime." .
+
+#################################################################
+# Core axioms (classes)
+#################################################################
+
+onto:AxiomaticPrimitive   a owl:Class ; rdfs:label "Ontological Primitive" .
+doctrine:Principle        a owl:Class ; rdfs:label "Doctrinal Principle" .
+time:TemporalConstruct    a owl:Class ; rdfs:label "Temporal Construct" .
+op:Mechanism              a owl:Class ; rdfs:label "Operational Mechanism" .
+gov:GovernanceConstruct   a owl:Class ; rdfs:label "Governance Construct" .
+
+tai:CoordinatedExecutionUnit a owl:Class , onto:AxiomaticPrimitive ;
+  rdfs:label "Coordinated Execution Unit" .
+
+tai:StateTransitionTrigger a owl:Class , onto:AxiomaticPrimitive ;
+  rdfs:label "State Transition Trigger" .
+
+tai:IntentStore a owl:Class , onto:AxiomaticPrimitive ;
+  rdfs:label "Intent Store" .
+
+#################################################################
+# Core properties
+#################################################################
+
+tai:hasCadence       a owl:DatatypeProperty ; rdfs:range xsd:duration .
+tai:hasProtocol      a owl:DatatypeProperty ; rdfs:range xsd:string .
+tai:hasMember        a owl:ObjectProperty   ; rdfs:domain tai:CoordinatedExecutionUnit .
+tai:hasIntentStore   a owl:ObjectProperty   ; rdfs:domain tai:CoordinatedExecutionUnit ; rdfs:range tai:IntentStore .
+tai:hasOwner         a owl:ObjectProperty   ; rdfs:domain tai:IntentStore .
+tai:hasItem          a owl:ObjectProperty   ; rdfs:domain tai:IntentStore .
+tai:orderIndex       a owl:DatatypeProperty ; rdfs:range xsd:nonNegativeInteger .
+tai:hasConfidence    a owl:DatatypeProperty ; rdfs:range xsd:float .
+
+#################################################################
+# Governance and runtime constructs
+#################################################################
+
+op:TickBudget a owl:Class .
+op:tickLimit  a owl:DatatypeProperty ; rdfs:domain op:TickBudget ; rdfs:range xsd:unsignedByte .
+
+gov:InvariantQuery a owl:Class .
+gov:askQuery a owl:DatatypeProperty ; rdfs:domain gov:InvariantQuery ; rdfs:range xsd:string .
+gov:certifiedForRuntime a owl:DatatypeProperty ; rdfs:domain gov:InvariantQuery ; rdfs:range xsd:boolean .
+
+op:Goal a owl:Class .
+
+op:PerceptionContract a owl:Class .
+op:perceives a owl:ObjectProperty ; rdfs:domain op:PerceptionContract ; rdfs:range gov:InvariantQuery .
+op:hasBudget a owl:ObjectProperty ; rdfs:domain op:PerceptionContract ; rdfs:range op:TickBudget .
+op:emitsGoal a owl:ObjectProperty ; rdfs:domain op:PerceptionContract ; rdfs:range op:Goal .
+
+#################################################################
+# Example invariant and contract
+#################################################################
+
+:Budget8 a op:TickBudget ; op:tickLimit 8 .
+
+:Invariant_Sanity a gov:InvariantQuery ;
+  gov:askQuery "ASK {}" ;
+  gov:certifiedForRuntime true .
+
+:Perception_Sanity a op:PerceptionContract ;
+  op:perceives :Invariant_Sanity ;
+  op:hasBudget :Budget8 ;
+  op:emitsGoal :Goal_NoOp .
+
+:Goal_NoOp a op:Goal ; rdfs:comment "Placeholder goal for wiring tests" .
+
+#################################################################
+# Self-declaration for dogfood
+#################################################################
+
+tai:ThisOntology a owl:Thing ; rdfs:label "BitBizEco Canon v1 Artifact" ; prov:wasGeneratedBy time:TemporalConstruct .
+
+
+

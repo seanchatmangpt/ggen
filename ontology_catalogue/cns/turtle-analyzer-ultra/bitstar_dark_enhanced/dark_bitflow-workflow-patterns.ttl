@@ -1,0 +1,3379 @@
+@prefix ns1: <http://bitflow.org/ontology/performance#> .
+@prefix ns2: <http://hyperintelligence.ai/patterns#> .
+@prefix ns3: <http://bitflow.org/ontology/workflow-patterns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ns1:LatencyMetric a owl:Class ;
+    rdfs:label "Latency Metric"@en ;
+    rdfs:comment "Response time measurement"@en ;
+    rdfs:subClassOf ns1:PerformanceMetric .
+
+ns1:MemoryMetric a owl:Class ;
+    rdfs:label "Memory Metric"@en ;
+    rdfs:comment "Memory usage measurement"@en ;
+    rdfs:subClassOf ns1:PerformanceMetric .
+
+ns1:ThroughputMetric a owl:Class ;
+    rdfs:label "Throughput Metric"@en ;
+    rdfs:comment "Operations per second measurement"@en ;
+    rdfs:subClassOf ns1:PerformanceMetric .
+
+ns1:estimatedLatency a owl:DatatypeProperty ;
+    rdfs:label "estimated latency"@en ;
+    rdfs:comment "Estimated execution latency in nanoseconds"@en ;
+    rdfs:domain ns3:WorkflowPattern ;
+    rdfs:range xsd:int .
+
+ns1:estimatedThroughput a owl:DatatypeProperty ;
+    rdfs:label "estimated throughput"@en ;
+    rdfs:comment "Estimated operations per second"@en ;
+    rdfs:domain ns3:WorkflowPattern ;
+    rdfs:range xsd:int .
+
+ns1:executionComplexity a owl:DatatypeProperty ;
+    rdfs:label "execution complexity"@en ;
+    rdfs:comment "Big-O notation for pattern execution complexity"@en ;
+    rdfs:domain ns3:WorkflowPattern ;
+    rdfs:range xsd:string .
+
+ns1:memoryFootprint a owl:DatatypeProperty ;
+    rdfs:label "memory footprint"@en ;
+    rdfs:comment "Memory usage in bytes for pattern execution"@en ;
+    rdfs:domain ns3:WorkflowPattern ;
+    rdfs:range xsd:int .
+
+<http://bitflow.org/ontology/workflow-patterns> a owl:Ontology ;
+    rdfs:label "BitFlow Workflow Patterns Ontology"@en ;
+    rdfs:comment """Comprehensive OWL ontology for 43 van der Aalst workflow patterns 
+                    implemented in BitFlow system. Addresses performance fraud issues 
+                    and provides semantic framework for missing patterns."""@en ;
+    rdfs:seeAlso <http://workflowpatterns.com>,
+        <https://github.com/bitflow-engine/bitflow> ;
+    owl:imports <http://www.yawlfoundation.org/ontology> ;
+    owl:versionIRI <http://bitflow.org/ontology/workflow-patterns/2.0> ;
+    owl:versionInfo "2.0.0" .
+
+ns3:AdaptiveLoadBalancing a ns3:HighPerformancePattern ;
+    rdfs:label "Adaptive Load Balancing (BF-43)"@en ;
+    ns1:estimatedLatency 40 ;
+    ns1:estimatedThroughput 2500000 ;
+    ns1:executionComplexity "O(log n)" ;
+    ns1:memoryFootprint 256 ;
+    ns3:bitflowImplemented false ;
+    ns3:criticalForPerformance true ;
+    ns3:patternId 43 ;
+    ns3:performanceImpact "CRITICAL" ;
+    ns3:vdaalstId "BF-43" ;
+    rdfs:comment "Dynamic work distribution based on system load"@en .
+
+ns3:ArbitraryTermination a ns3:StructuralPattern ;
+    rdfs:label "Arbitrary Cycles (WCP-10)"@en ;
+    ns1:estimatedLatency 2000 ;
+    ns1:estimatedThroughput 50000 ;
+    ns1:executionComplexity "O(k*n)" ;
+    ns1:memoryFootprint 512 ;
+    ns3:bitflowImplemented false ;
+    ns3:criticalForPerformance true ;
+    ns3:patternId 10 ;
+    ns3:performanceImpact "CRITICAL" ;
+    ns3:vdaalstId "WCP-10" ;
+    rdfs:comment "Ability to represent cycles in workflow with single entry/exit point"@en .
+
+ns3:BackpressureControl a ns3:StreamProcessingPattern ;
+    rdfs:label "Backpressure Control (BF-30)"@en ;
+    ns1:estimatedLatency 110 ;
+    ns1:estimatedThroughput 900000 ;
+    ns1:executionComplexity "O(1)" ;
+    ns1:memoryFootprint 128 ;
+    ns3:bitflowImplemented false ;
+    ns3:criticalForPerformance true ;
+    ns3:patternId 30 ;
+    ns3:performanceImpact "CRITICAL" ;
+    ns3:vdaalstId "BF-30" ;
+    rdfs:comment "Flow control to prevent memory exhaustion"@en .
+
+ns3:BitFlowPerformanceFraud a ns3:PerformanceFraudThreshold ;
+    rdfs:label "BitFlow Performance Fraud Detection"@en ;
+    ns3:memoryLeakThreshold 392167424 ;
+    ns3:performanceFraudFactor 52704.0 ;
+    rdfs:comment "Specific thresholds for BitFlow performance fraud detection"@en .
+
+ns3:BulkExecution a ns3:StreamProcessingPattern ;
+    rdfs:label "Bulk Execution (BF-26)"@en ;
+    ns1:estimatedLatency 50 ;
+    ns1:estimatedThroughput 2000000 ;
+    ns1:executionComplexity "O(n/k)" ;
+    ns1:memoryFootprint 1024 ;
+    ns3:bitflowImplemented false ;
+    ns3:criticalForPerformance true ;
+    ns3:patternId 26 ;
+    ns3:performanceImpact "CRITICAL" ;
+    ns3:vdaalstId "BF-26" ;
+    rdfs:comment "Execute multiple instances in vectorized batch - CRITICAL for 52,704x performance fraud fix"@en .
+
+ns3:CacheConsciousLayout a ns3:HighPerformancePattern ;
+    rdfs:label "Cache-Conscious Layout (BF-38)"@en ;
+    ns1:estimatedLatency 25 ;
+    ns1:estimatedThroughput 4000000 ;
+    ns1:executionComplexity "O(1)" ;
+    ns1:memoryFootprint 96 ;
+    ns3:bitflowImplemented false ;
+    ns3:criticalForPerformance true ;
+    ns3:patternId 38 ;
+    ns3:performanceImpact "HIGH" ;
+    ns3:vdaalstId "BF-38" ;
+    rdfs:comment "Cache-friendly data structure layout"@en .
+
+ns3:CancelCase a ns3:CancellationPattern ;
+    rdfs:label "Cancel Case (WCP-20)"@en ;
+    ns1:estimatedLatency 250 ;
+    ns1:estimatedThroughput 400000 ;
+    ns1:executionComplexity "O(n)" ;
+    ns1:memoryFootprint 128 ;
+    ns3:bitflowImplemented true ;
+    ns3:criticalForPerformance false ;
+    ns3:patternId 20 ;
+    ns3:performanceImpact "MEDIUM" ;
+    ns3:vdaalstId "WCP-20" ;
+    rdfs:comment "Ability to remove entire case from workflow"@en .
+
+ns3:CancelTask a ns3:CancellationPattern ;
+    rdfs:label "Cancel Task (WCP-19)"@en ;
+    ns1:estimatedLatency 120 ;
+    ns1:estimatedThroughput 850000 ;
+    ns1:executionComplexity "O(1)" ;
+    ns1:memoryFootprint 32 ;
+    ns3:bitflowImplemented true ;
+    ns3:criticalForPerformance false ;
+    ns3:patternId 19 ;
+    ns3:performanceImpact "LOW" ;
+    ns3:vdaalstId "WCP-19" ;
+    rdfs:comment "Ability to withdraw enabled task instance"@en .
+
+ns3:DeferredChoice a ns3:StateBasedPattern ;
+    rdfs:label "Deferred Choice (WCP-16)"@en ;
+    ns1:estimatedLatency 550 ;
+    ns1:estimatedThroughput 180000 ;
+    ns1:executionComplexity "O(n)" ;
+    ns1:memoryFootprint 160 ;
+    ns3:bitflowImplemented false ;
+    ns3:criticalForPerformance true ;
+    ns3:patternId 16 ;
+    ns3:performanceImpact "HIGH" ;
+    ns3:vdaalstId "WCP-16" ;
+    rdfs:comment "Choice between alternatives made by environment, not workflow"@en .
+
+ns3:ExclusiveChoice a ns3:BasicControlFlowPattern ;
+    rdfs:label "Exclusive Choice (WCP-4)"@en ;
+    ns1:estimatedLatency 150 ;
+    ns1:estimatedThroughput 800000 ;
+    ns1:executionComplexity "O(1)" ;
+    ns1:memoryFootprint 48 ;
+    ns3:bitflowImplemented true ;
+    ns3:criticalForPerformance false ;
+    ns3:mapsToYAWLConstruct <http://www.yawlfoundation.org/ontology#XORSplit> ;
+    ns3:patternId 4 ;
+    ns3:performanceImpact "MEDIUM" ;
+    ns3:requires ns3:SimpleMerge ;
+    ns3:vdaalstId "WCP-4" ;
+    rdfs:comment "Point where single thread chooses one of several alternatives"@en .
+
+ns3:GeneralizedSynchronizingMerge a ns3:AdvancedBranchingPattern ;
+    rdfs:label "Generalized Synchronizing Merge (WCP-23)"@en ;
+    ns1:estimatedLatency 1500 ;
+    ns1:estimatedThroughput 60000 ;
+    ns1:executionComplexity "O(2^n)" ;
+    ns1:memoryFootprint 512 ;
+    ns3:bitflowImplemented false ;
+    ns3:criticalForPerformance true ;
+    ns3:patternId 23 ;
+    ns3:performanceImpact "CRITICAL" ;
+    ns3:vdaalstId "WCP-23" ;
+    rdfs:comment "Merge that synchronizes based on runtime conditions"@en .
+
+ns3:ImplicitTermination a ns3:StructuralPattern ;
+    rdfs:label "Implicit Termination (WCP-11)"@en ;
+    ns1:estimatedLatency 110 ;
+    ns1:estimatedThroughput 900000 ;
+    ns1:executionComplexity "O(1)" ;
+    ns1:memoryFootprint 24 ;
+    ns3:bitflowImplemented true ;
+    ns3:criticalForPerformance false ;
+    ns3:patternId 11 ;
+    ns3:performanceImpact "LOW" ;
+    ns3:vdaalstId "WCP-11" ;
+    rdfs:comment "Workflow terminates when no more tasks can be activated"@en .
+
+ns3:InterleavedParallelRouting a ns3:StateBasedPattern ;
+    rdfs:label "Interleaved Parallel Routing (WCP-17)"@en ;
+    ns1:estimatedLatency 10000 ;
+    ns1:estimatedThroughput 10000 ;
+    ns1:executionComplexity "O(n!)" ;
+    ns1:memoryFootprint 1024 ;
+    ns3:bitflowImplemented false ;
+    ns3:criticalForPerformance true ;
+    ns3:patternId 17 ;
+    ns3:performanceImpact "CRITICAL" ;
+    ns3:vdaalstId "WCP-17" ;
+    rdfs:comment "Set of tasks executed in arbitrary order"@en .
+
+ns3:LockFreeCoordination a ns3:HighPerformancePattern ;
+    rdfs:label "Lock-Free Coordination (BF-36)"@en ;
+    ns1:estimatedLatency 20 ;
+    ns1:estimatedThroughput 5000000 ;
+    ns1:executionComplexity "O(1)" ;
+    ns1:memoryFootprint 64 ;
+    ns3:bitflowImplemented false ;
+    ns3:criticalForPerformance true ;
+    ns3:patternId 36 ;
+    ns3:performanceImpact "CRITICAL" ;
+    ns3:vdaalstId "BF-36" ;
+    rdfs:comment "Lock-free synchronization using atomic operations"@en .
+
+ns3:Milestone a ns3:StateBasedPattern ;
+    rdfs:label "Milestone (WCP-18)"@en ;
+    ns1:estimatedLatency 350 ;
+    ns1:estimatedThroughput 300000 ;
+    ns1:executionComplexity "O(n)" ;
+    ns1:memoryFootprint 144 ;
+    ns3:bitflowImplemented false ;
+    ns3:criticalForPerformance false ;
+    ns3:patternId 18 ;
+    ns3:performanceImpact "MEDIUM" ;
+    ns3:vdaalstId "WCP-18" ;
+    rdfs:comment "Task enabled when milestone is achieved and remains valid"@en .
+
+ns3:MultiChoice a ns3:AdvancedBranchingPattern ;
+    rdfs:label "Multi-Choice (WCP-6)"@en ;
+    ns1:estimatedLatency 1000 ;
+    ns1:estimatedThroughput 100000 ;
+    ns1:executionComplexity "O(2^n)" ;
+    ns1:memoryFootprint 128 ;
+    ns3:bitflowImplemented false ;
+    ns3:criticalForPerformance true ;
+    ns3:patternId 6 ;
+    ns3:performanceImpact "CRITICAL" ;
+    ns3:requires ns3:StructuredSynchronizingMerge ;
+    ns3:vdaalstId "WCP-6" ;
+    rdfs:comment "Point where one or more branches can be chosen based on decision"@en .
+
+ns3:MultiMerge a ns3:AdvancedBranchingPattern ;
+    rdfs:label "Multi-Merge (WCP-8)"@en ;
+    ns1:estimatedLatency 180 ;
+    ns1:estimatedThroughput 600000 ;
+    ns1:executionComplexity "O(1)" ;
+    ns1:memoryFootprint 72 ;
+    ns3:bitflowImplemented true ;
+    ns3:criticalForPerformance false ;
+    ns3:patternId 8 ;
+    ns3:performanceImpact "MEDIUM" ;
+    ns3:vdaalstId "WCP-8" ;
+    rdfs:comment "Merge point that converges multiple threads without synchronization"@en .
+
+ns3:MultipleInstancesWithAPrioriDesignTimeKnowledge a ns3:MultipleInstancePattern ;
+    rdfs:label "Multiple Instances with A Priori Design Time Knowledge (WCP-13)"@en ;
+    ns1:estimatedLatency 500 ;
+    ns1:estimatedThroughput 200000 ;
+    ns1:executionComplexity "O(n)" ;
+    ns1:memoryFootprint 256 ;
+    ns3:bitflowImplemented false ;
+    ns3:criticalForPerformance true ;
+    ns3:patternId 13 ;
+    ns3:performanceImpact "HIGH" ;
+    ns3:vdaalstId "WCP-13" ;
+    rdfs:comment "Multiple instances where number is known at design time"@en .
+
+ns3:MultipleInstancesWithAPrioriRuntimeKnowledge a ns3:MultipleInstancePattern ;
+    rdfs:label "Multiple Instances with A Priori Runtime Knowledge (WCP-14)"@en ;
+    ns1:estimatedLatency 750 ;
+    ns1:estimatedThroughput 120000 ;
+    ns1:executionComplexity "O(n)" ;
+    ns1:memoryFootprint 320 ;
+    ns3:bitflowImplemented false ;
+    ns3:criticalForPerformance true ;
+    ns3:patternId 14 ;
+    ns3:performanceImpact "CRITICAL" ;
+    ns3:vdaalstId "WCP-14" ;
+    rdfs:comment "Multiple instances where number is determined at runtime before activation"@en .
+
+ns3:MultipleInstancesWithoutAPrioriRuntimeKnowledge a ns3:MultipleInstancePattern ;
+    rdfs:label "Multiple Instances without A Priori Runtime Knowledge (WCP-15)"@en ;
+    ns1:estimatedLatency 2000 ;
+    ns1:estimatedThroughput 50000 ;
+    ns1:executionComplexity "O(n^2)" ;
+    ns1:memoryFootprint 768 ;
+    ns3:bitflowImplemented false ;
+    ns3:criticalForPerformance true ;
+    ns3:patternId 15 ;
+    ns3:performanceImpact "CRITICAL" ;
+    ns3:vdaalstId "WCP-15" ;
+    rdfs:comment "Multiple instances where number is not predetermined"@en .
+
+ns3:MultipleInstancesWithoutSynchronization a ns3:MultipleInstancePattern ;
+    rdfs:label "Multiple Instances without Synchronization (WCP-12)"@en ;
+    ns1:estimatedLatency 600 ;
+    ns1:estimatedThroughput 150000 ;
+    ns1:executionComplexity "O(n)" ;
+    ns1:memoryFootprint 384 ;
+    ns3:bitflowImplemented false ;
+    ns3:criticalForPerformance true ;
+    ns3:patternId 12 ;
+    ns3:performanceImpact "HIGH" ;
+    ns3:vdaalstId "WCP-12" ;
+    rdfs:comment "Multiple instances of task without synchronization"@en .
+
+ns3:NUMAAwareScheduling a ns3:HighPerformancePattern ;
+    rdfs:label "NUMA-Aware Scheduling (BF-37)"@en ;
+    ns1:estimatedLatency 35 ;
+    ns1:estimatedThroughput 3000000 ;
+    ns1:executionComplexity "O(log n)" ;
+    ns1:memoryFootprint 192 ;
+    ns3:bitflowImplemented false ;
+    ns3:criticalForPerformance true ;
+    ns3:patternId 37 ;
+    ns3:performanceImpact "CRITICAL" ;
+    ns3:vdaalstId "BF-37" ;
+    rdfs:comment "NUMA topology-aware task scheduling"@en .
+
+ns3:ParallelSplit a ns3:BasicControlFlowPattern ;
+    rdfs:label "Parallel Split (WCP-2)"@en ;
+    ns1:estimatedLatency 200 ;
+    ns1:estimatedThroughput 500000 ;
+    ns1:executionComplexity "O(n)" ;
+    ns1:memoryFootprint 64 ;
+    ns3:bitflowImplemented true ;
+    ns3:criticalForPerformance true ;
+    ns3:mapsToYAWLConstruct <http://www.yawlfoundation.org/ontology#ANDSplit> ;
+    ns3:patternId 2 ;
+    ns3:performanceImpact "HIGH" ;
+    ns3:requires ns3:Synchronization ;
+    ns3:vdaalstId "WCP-2" ;
+    rdfs:comment "Point where single thread splits into multiple parallel threads"@en .
+
+ns3:PersistentTrigger a ns3:StateBasedPattern ;
+    rdfs:label "Persistent Trigger (WCP-25)"@en ;
+    ns1:estimatedLatency 300 ;
+    ns1:estimatedThroughput 350000 ;
+    ns1:executionComplexity "O(1)" ;
+    ns1:memoryFootprint 128 ;
+    ns3:bitflowImplemented false ;
+    ns3:criticalForPerformance false ;
+    ns3:patternId 25 ;
+    ns3:performanceImpact "MEDIUM" ;
+    ns3:vdaalstId "WCP-25" ;
+    rdfs:comment "Task triggered by persistent external signal"@en .
+
+ns3:PipelinedExecution a ns3:StreamProcessingPattern ;
+    rdfs:label "Pipelined Execution (BF-27)"@en ;
+    ns1:estimatedLatency 75 ;
+    ns1:estimatedThroughput 1500000 ;
+    ns1:executionComplexity "O(n+k)" ;
+    ns1:memoryFootprint 512 ;
+    ns3:bitflowImplemented false ;
+    ns3:criticalForPerformance true ;
+    ns3:patternId 27 ;
+    ns3:performanceImpact "CRITICAL" ;
+    ns3:vdaalstId "BF-27" ;
+    rdfs:comment "Pipeline stages with overlapping execution - CRITICAL for 374MB memory leak fix"@en .
+
+ns3:Recursion a ns3:StructuralPattern ;
+    rdfs:label "Recursion (WCP-22)"@en ;
+    ns1:estimatedLatency 5000 ;
+    ns1:estimatedThroughput 20000 ;
+    ns1:executionComplexity "O(k^n)" ;
+    ns1:memoryFootprint 2048 ;
+    ns3:bitflowImplemented false ;
+    ns3:criticalForPerformance true ;
+    ns3:patternId 22 ;
+    ns3:performanceImpact "CRITICAL" ;
+    ns3:vdaalstId "WCP-22" ;
+    rdfs:comment "Ability for task to call itself recursively"@en .
+
+ns3:Sequence a ns3:BasicControlFlowPattern ;
+    rdfs:label "Sequence (WCP-1)"@en ;
+    ns1:estimatedLatency 100 ;
+    ns1:estimatedThroughput 1000000 ;
+    ns1:executionComplexity "O(1)" ;
+    ns1:memoryFootprint 32 ;
+    ns3:bitflowImplemented true ;
+    ns3:criticalForPerformance false ;
+    ns3:mapsToYAWLConstruct <http://www.yawlfoundation.org/ontology#SequenceTask> ;
+    ns3:patternId 1 ;
+    ns3:performanceImpact "LOW" ;
+    ns3:vdaalstId "WCP-1" ;
+    rdfs:comment "Task A followed by Task B in sequential order"@en .
+
+ns3:StreamAggregation a ns3:StreamProcessingPattern ;
+    rdfs:label "Stream Aggregation (BF-29)"@en ;
+    ns1:estimatedLatency 85 ;
+    ns1:estimatedThroughput 1200000 ;
+    ns1:executionComplexity "O(1)" ;
+    ns1:memoryFootprint 256 ;
+    ns3:bitflowImplemented false ;
+    ns3:criticalForPerformance true ;
+    ns3:patternId 29 ;
+    ns3:performanceImpact "HIGH" ;
+    ns3:vdaalstId "BF-29" ;
+    rdfs:comment "Incremental aggregation with state management"@en .
+
+ns3:StreamWindowing a ns3:StreamProcessingPattern ;
+    rdfs:label "Stream Windowing (BF-28)"@en ;
+    ns1:estimatedLatency 125 ;
+    ns1:estimatedThroughput 800000 ;
+    ns1:executionComplexity "O(w)" ;
+    ns1:memoryFootprint 768 ;
+    ns3:bitflowImplemented false ;
+    ns3:criticalForPerformance true ;
+    ns3:patternId 28 ;
+    ns3:performanceImpact "HIGH" ;
+    ns3:vdaalstId "BF-28" ;
+    rdfs:comment "Time-based and count-based windowing for stream processing"@en .
+
+ns3:StructuredDiscriminatorMerge a ns3:StructuralPattern ;
+    rdfs:label "Structured Discriminator (WCP-9)"@en ;
+    ns1:estimatedLatency 800 ;
+    ns1:estimatedThroughput 200000 ;
+    ns1:executionComplexity "O(n)" ;
+    ns1:memoryFootprint 192 ;
+    ns3:bitflowImplemented false ;
+    ns3:criticalForPerformance true ;
+    ns3:patternId 9 ;
+    ns3:performanceImpact "HIGH" ;
+    ns3:vdaalstId "WCP-9" ;
+    rdfs:comment "Merge that waits for first branch to complete, then continues"@en .
+
+ns3:StructuredLoop a ns3:StructuralPattern ;
+    rdfs:label "Structured Loop (WCP-21)"@en ;
+    ns1:estimatedLatency 1000 ;
+    ns1:estimatedThroughput 100000 ;
+    ns1:executionComplexity "O(k*n)" ;
+    ns1:memoryFootprint 256 ;
+    ns3:bitflowImplemented false ;
+    ns3:criticalForPerformance true ;
+    ns3:patternId 21 ;
+    ns3:performanceImpact "CRITICAL" ;
+    ns3:vdaalstId "WCP-21" ;
+    rdfs:comment "Ability to execute task/subprocess repeatedly"@en .
+
+ns3:TransientTrigger a ns3:StateBasedPattern ;
+    rdfs:label "Transient Trigger (WCP-24)"@en ;
+    ns1:estimatedLatency 250 ;
+    ns1:estimatedThroughput 400000 ;
+    ns1:executionComplexity "O(1)" ;
+    ns1:memoryFootprint 96 ;
+    ns3:bitflowImplemented false ;
+    ns3:criticalForPerformance false ;
+    ns3:patternId 24 ;
+    ns3:performanceImpact "MEDIUM" ;
+    ns3:vdaalstId "WCP-24" ;
+    rdfs:comment "Task triggered by transient external event"@en .
+
+ns3:bitflowImplemented a owl:DatatypeProperty ;
+    rdfs:label "BitFlow implemented"@en ;
+    rdfs:comment "Whether pattern is implemented in current BitFlow version"@en ;
+    rdfs:domain ns3:WorkflowPattern ;
+    rdfs:range xsd:boolean .
+
+ns3:criticalForPerformance a owl:DatatypeProperty ;
+    rdfs:label "critical for performance"@en ;
+    rdfs:comment "Whether pattern is critical for addressing performance issues"@en ;
+    rdfs:domain ns3:WorkflowPattern ;
+    rdfs:range xsd:boolean .
+
+ns3:memoryLeakThreshold a owl:DatatypeProperty ;
+    rdfs:label "memory leak threshold"@en ;
+    rdfs:comment "Memory usage threshold for leak detection (374MB)"@en ;
+    rdfs:domain ns3:PerformanceFraudThreshold ;
+    rdfs:range xsd:long .
+
+ns3:patternId a owl:DatatypeProperty ;
+    rdfs:label "pattern ID"@en ;
+    rdfs:comment "Numeric identifier for pattern"@en ;
+    rdfs:domain ns3:WorkflowPattern ;
+    rdfs:range xsd:int .
+
+ns3:performanceFraudFactor a owl:DatatypeProperty ;
+    rdfs:label "performance fraud factor"@en ;
+    rdfs:comment "Multiplier indicating performance degradation (52,704x)"@en ;
+    rdfs:domain ns3:PerformanceFraudThreshold ;
+    rdfs:range xsd:double .
+
+ns3:performanceImpact a owl:DatatypeProperty ;
+    rdfs:label "performance impact"@en ;
+    rdfs:comment "Level of performance impact (LOW, MEDIUM, HIGH, CRITICAL)"@en ;
+    rdfs:domain ns3:WorkflowPattern ;
+    rdfs:range [ owl:oneOf ( "LOW" "MEDIUM" "HIGH" "CRITICAL" ) ] .
+
+ns3:vdaalstId a owl:DatatypeProperty ;
+    rdfs:label "van der Aalst ID"@en ;
+    rdfs:comment "Original van der Aalst pattern identifier (e.g., WCP-1)"@en ;
+    rdfs:domain ns3:WorkflowPattern ;
+    rdfs:range xsd:string .
+
+<http://bitstar.ai/dark#DarkChain_00a7ad1312e0> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_044bc77fbfd3> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_04f30fd0de36> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_0c6627a2a491> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_0d3d36023728> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_105801c1deac> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_1178c123f555> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_176f76e81056> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_1b15ba2d4961> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_1c32ca651a60> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_1d9d95b8f933> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_213f91646e49> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_237eb560f483> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_23a9ff84921d> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_23c92cc0221b> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_24857c9c3f36> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_259da864403f> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_26eedb4adff0> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_29f2469c1614> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_2e58012d0ea2> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_2fa5f7c933d5> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_35084d05246d> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_3563187d8eb7> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_357a32cc4e95> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_35a881b5567e> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_366944339ee1> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_3ba62c984505> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_3bffa21dddf4> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_3d957735e1bc> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_40ede0c22803> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_4172ad33c5bb> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_426df85ed4a1> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_436c5492b4de> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_45305b999d3e> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_45cef75dfaab> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_4662df1058a4> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_4b2f9fb8e5aa> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_4e4e8200ffd3> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_5274a5042aca> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_52c3198ee309> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_54a99738e4fa> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_54f90bebd8c7> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_56265285724e> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_5632d15cfb4e> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_64e453baa4ae> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_652993de263b> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_65b84e0026da> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_79310b5af97c> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_7d9081bd298a> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_7df81ae44144> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_80254014b137> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_841de8d7b03a> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_894eebca9981> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_8b3ecfb07a6f> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_8f7eac6101e5> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_9105b874b054> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_929be8b7ba09> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_963c4758e553> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_9b80f23a5b1a> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_9bf50fa45e35> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_abc50d8a5246> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_acfecdd3b1fb> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_afba85a01d05> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_b2fb5244ec4c> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_b372ad243fe4> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_b5a7b1fbdd6f> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_b83940a9f517> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_b8c141b93278> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_bd504a63e748> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_be1547328d17> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_be5408e29f32> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_c14813492752> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_c2b8f8f11742> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_cc90eaa62821> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_cef1285e03ea> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_cf19a52370c8> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_cf8576ad4f23> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_d117558f4a6e> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_d1cfd980efc9> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_d27886e6482e> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_d324ba5da7bf> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_d380e29ade55> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_d696ad0492d4> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_d8f72e9ce10e> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_db4cc7023432> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_dd08465a1a13> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_debfb09b38e5> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_e0fca32c3102> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_e4d10424d6b7> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_ea13b83e811c> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_ea96fb5e4d88> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_ead297daad98> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_ec52da8f79fd> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_ed086313c583> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_ee2e622173a7> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_f4681ffc3f62> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_f56fcdc99df3> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_f7cbffc3de2a> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_faab2326a92a> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_fcddcdb7614b> ns2:hasComplexityLevel 7 .
+
+ns2:Dimension10Restriction_f80b473b7e56 a owl:Restriction ;
+    ns2:dimensions 10 ;
+    ns2:humanVisualizeable false .
+
+ns2:Dimension11Restriction_35b0f4a7bbe5 a owl:Restriction ;
+    ns2:dimensions 11 ;
+    ns2:humanVisualizeable false .
+
+ns2:Dimension12Restriction_80ff39a0b2be a owl:Restriction ;
+    ns2:dimensions 12 ;
+    ns2:humanVisualizeable false .
+
+ns2:Dimension3Restriction_0e7a51e0b82d a owl:Restriction ;
+    ns2:dimensions 3 ;
+    ns2:humanVisualizeable true .
+
+ns2:Dimension4Restriction_408e2827e5ff a owl:Restriction ;
+    ns2:dimensions 4 ;
+    ns2:humanVisualizeable false .
+
+ns2:Dimension5Restriction_234acc528fa9 a owl:Restriction ;
+    ns2:dimensions 5 ;
+    ns2:humanVisualizeable false .
+
+ns2:Dimension6Restriction_63444eebd0c5 a owl:Restriction ;
+    ns2:dimensions 6 ;
+    ns2:humanVisualizeable false .
+
+ns2:Dimension7Restriction_499113d1bfda a owl:Restriction ;
+    ns2:dimensions 7 ;
+    ns2:humanVisualizeable false .
+
+ns2:Dimension8Restriction_3307cbf3c22a a owl:Restriction ;
+    ns2:dimensions 8 ;
+    ns2:humanVisualizeable false .
+
+ns2:Dimension9Restriction_20dccbd6d9d8 a owl:Restriction ;
+    ns2:dimensions 9 ;
+    ns2:humanVisualizeable false .
+
+ns2:MetaCognitionRequired a ns2:ComprehensionBarrier ;
+    ns2:humanComprehensible false ;
+    ns2:minimumIntelligence "ARTIFICIAL_HYPER" .
+
+ns2:MetamorphicClass_2b33c7a6da85 a owl:Class ;
+    ns2:observationAltersStructure true ;
+    ns2:shapeShifts true .
+
+ns2:NonEuclidean_4db7eefdc77e a owl:ObjectProperty ;
+    ns2:geometry "HYPERBOLIC" ;
+    ns2:parallelLinesIntersect true .
+
+ns2:NotExistsCascade_0_e7ad3b07fc7e a sh:NodeShape ;
+    ns2:nestingDepth 1 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . } }" .
+
+ns2:NotExistsCascade_1_a755b6dc2807 a sh:NodeShape ;
+    ns2:nestingDepth 2 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . }} }" .
+
+ns2:NotExistsCascade_2_6ec6294932fc a sh:NodeShape ;
+    ns2:nestingDepth 3 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . }}} }" .
+
+ns2:NotExistsCascade_3_4d54512aff23 a sh:NodeShape ;
+    ns2:nestingDepth 4 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . }}}} }" .
+
+ns2:NotExistsCascade_4_049c8a0cf0a3 a sh:NodeShape ;
+    ns2:nestingDepth 5 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . }}}}} }" .
+
+ns2:NotExistsCascade_5_4fceed7d5157 a sh:NodeShape ;
+    ns2:nestingDepth 6 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . NOT EXISTS { ?this hyper:level5 ?val5 . }}}}}} }" .
+
+ns2:NotExistsCascade_6_6a163160dd32 a sh:NodeShape ;
+    ns2:nestingDepth 7 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . NOT EXISTS { ?this hyper:level5 ?val5 . NOT EXISTS { ?this hyper:level6 ?val6 . }}}}}}} }" .
+
+ns2:NotExistsCascade_7_f31b8c54f01f a sh:NodeShape ;
+    ns2:nestingDepth 8 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . NOT EXISTS { ?this hyper:level5 ?val5 . NOT EXISTS { ?this hyper:level6 ?val6 . NOT EXISTS { ?this hyper:level7 ?val7 . }}}}}}}} }" .
+
+ns2:NotExistsCascade_8_805c8b15e37a a sh:NodeShape ;
+    ns2:nestingDepth 9 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . NOT EXISTS { ?this hyper:level5 ?val5 . NOT EXISTS { ?this hyper:level6 ?val6 . NOT EXISTS { ?this hyper:level7 ?val7 . NOT EXISTS { ?this hyper:level8 ?val8 . }}}}}}}}} }" .
+
+ns2:NotExistsCascade_9_3fb4ce235f57 a sh:NodeShape ;
+    ns2:nestingDepth 10 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . NOT EXISTS { ?this hyper:level5 ?val5 . NOT EXISTS { ?this hyper:level6 ?val6 . NOT EXISTS { ?this hyper:level7 ?val7 . NOT EXISTS { ?this hyper:level8 ?val8 . NOT EXISTS { ?this hyper:level9 ?val9 . }}}}}}}}}} }" .
+
+ns2:QuantumShape_8328f9590851 a sh:NodeShape ;
+    ns2:existsInStates 1024 ;
+    ns2:observerEffect "COLLAPSES_ON_HUMAN_OBSERVATION" .
+
+ns3:SimpleMerge a ns3:BasicControlFlowPattern ;
+    rdfs:label "Simple Merge (WCP-5)"@en ;
+    ns1:estimatedLatency 125 ;
+    ns1:estimatedThroughput 750000 ;
+    ns1:executionComplexity "O(1)" ;
+    ns1:memoryFootprint 40 ;
+    ns3:bitflowImplemented true ;
+    ns3:criticalForPerformance false ;
+    ns3:mapsToYAWLConstruct <http://www.yawlfoundation.org/ontology#XORJoin> ;
+    ns3:patternId 5 ;
+    ns3:performanceImpact "MEDIUM" ;
+    ns3:vdaalstId "WCP-5" ;
+    rdfs:comment "Point where one of several alternative branches reconverges"@en .
+
+ns3:StructuredSynchronizingMerge a ns3:AdvancedBranchingPattern ;
+    rdfs:label "Structured Synchronizing Merge (WCP-7)"@en ;
+    ns1:estimatedLatency 1500 ;
+    ns1:estimatedThroughput 80000 ;
+    ns1:executionComplexity "O(n)" ;
+    ns1:memoryFootprint 256 ;
+    ns3:bitflowImplemented false ;
+    ns3:criticalForPerformance true ;
+    ns3:patternId 7 ;
+    ns3:performanceImpact "CRITICAL" ;
+    ns3:vdaalstId "WCP-7" ;
+    rdfs:comment "Merge pattern for multi-choice that waits for active branches"@en .
+
+ns3:Synchronization a ns3:BasicControlFlowPattern ;
+    rdfs:label "Synchronization (WCP-3)"@en ;
+    ns1:estimatedLatency 300 ;
+    ns1:estimatedThroughput 400000 ;
+    ns1:executionComplexity "O(n)" ;
+    ns1:memoryFootprint 96 ;
+    ns3:bitflowImplemented true ;
+    ns3:criticalForPerformance true ;
+    ns3:mapsToYAWLConstruct <http://www.yawlfoundation.org/ontology#ANDJoin> ;
+    ns3:patternId 3 ;
+    ns3:performanceImpact "HIGH" ;
+    ns3:vdaalstId "WCP-3" ;
+    rdfs:comment "Point where multiple parallel threads converge into single thread"@en .
+
+ns2:EmergentConsciousness_8285fd86f3f2 a ns2:ConsciousnessPattern ;
+    ns2:comprehendsItself ns2:EmergentConsciousness_8285fd86f3f2 ;
+    ns2:emergesFrom <http://bitstar.ai/dark#CollectiveComplexity> ;
+    ns2:selfAware true .
+
+ns2:RecursiveChain_48966548a72f ns2:recursionDepth "INFINITE" ;
+    owl:propertyChainAxiom ns2:RecursiveChain_48966548a72f .
+
+ns2:SelfModifyingAxiom_9697a77da012 a owl:Axiom ;
+    ns2:modificationRate "CONTINUOUS" ;
+    ns2:modifies ns2:SelfModifyingAxiom_9697a77da012 .
+
+ns3:CancellationPattern a owl:Class ;
+    rdfs:label "Cancellation Pattern"@en ;
+    rdfs:comment "Patterns for cancelling or removing tasks/instances"@en ;
+    rdfs:subClassOf ns3:ControlFlowPattern .
+
+ns2:InfiniteRegression_18102e26d750 a owl:Class ;
+    ns2:regressionDepth "∞" ;
+    rdfs:subClassOf ns2:InfiniteRegression_18102e26d750 ;
+    owl:equivalentClass ns2:InfiniteRegression_18102e26d750 .
+
+ns2:TemporalParadox_2385051d5294 a owl:Class ;
+    ns2:causedBy ns2:TemporalParadox_2385051d5294 ;
+    ns2:existsBefore ns2:TemporalParadox_2385051d5294 ;
+    ns2:paradoxLevel 10 .
+
+ns3:PerformanceFraudThreshold a owl:Class ;
+    rdfs:label "Performance Fraud Threshold"@en ;
+    rdfs:comment "Threshold for detecting 52,704x performance degradation"@en .
+
+ns1:PerformanceMetric a owl:Class ;
+    rdfs:label "Performance Metric"@en ;
+    rdfs:comment "Measurable performance characteristic"@en .
+
+ns3:HighPerformancePattern a owl:Class ;
+    rdfs:label "High Performance Pattern"@en ;
+    rdfs:comment "Patterns designed to address 52,704x performance fraud"@en ;
+    rdfs:subClassOf ns3:StreamProcessingPattern .
+
+ns3:StreamProcessingPattern a owl:Class ;
+    rdfs:label "Stream Processing Pattern"@en ;
+    rdfs:comment "BitFlow-specific patterns for high-performance stream processing"@en ;
+    rdfs:subClassOf ns3:ControlFlowPattern .
+
+ns3:AdvancedBranchingPattern a owl:Class ;
+    rdfs:label "Advanced Branching Pattern"@en ;
+    rdfs:comment "Complex branching and merging patterns (WCP 6-11)"@en ;
+    rdfs:subClassOf ns3:ControlFlowPattern .
+
+ns3:MultipleInstancePattern a owl:Class ;
+    rdfs:label "Multiple Instance Pattern"@en ;
+    rdfs:comment "Patterns involving multiple instances of tasks or subprocesses"@en ;
+    rdfs:subClassOf ns3:ControlFlowPattern .
+
+ns3:BasicControlFlowPattern a owl:Class ;
+    rdfs:label "Basic Control Flow Pattern"@en ;
+    rdfs:comment "Fundamental control flow patterns (WCP 1-5)"@en ;
+    rdfs:subClassOf ns3:ControlFlowPattern .
+
+ns3:StateBasedPattern a owl:Class ;
+    rdfs:label "State-based Pattern"@en ;
+    rdfs:comment "Patterns based on workflow state and conditions"@en ;
+    rdfs:subClassOf ns3:ControlFlowPattern .
+
+ns3:StructuralPattern a owl:Class ;
+    rdfs:label "Structural Pattern"@en ;
+    rdfs:comment "Patterns involving structural workflow elements"@en ;
+    rdfs:subClassOf ns3:ControlFlowPattern .
+
+ns3:ExceptionHandlingPattern a owl:Class ;
+    rdfs:label "Exception Handling Pattern"@en ;
+    rdfs:comment "Patterns for error handling and recovery"@en ;
+    rdfs:subClassOf ns3:WorkflowPattern .
+
+ns3:ResourcePattern a owl:Class ;
+    rdfs:label "Resource Pattern"@en ;
+    rdfs:comment "Patterns describing resource allocation and management"@en ;
+    rdfs:subClassOf ns3:WorkflowPattern .
+
+ns3:composedOf a owl:ObjectProperty ;
+    rdfs:label "composed of"@en ;
+    rdfs:comment "Complex pattern composed of simpler patterns"@en ;
+    rdfs:domain ns3:WorkflowPattern ;
+    rdfs:range ns3:WorkflowPattern .
+
+ns3:conflicts a owl:ObjectProperty ;
+    rdfs:label "conflicts"@en ;
+    rdfs:comment "Pattern A conflicts with Pattern B"@en ;
+    rdfs:domain ns3:WorkflowPattern ;
+    rdfs:range ns3:WorkflowPattern ;
+    owl:propertyDisjointWith ns3:requires .
+
+ns3:hasPerformanceCharacteristic a owl:ObjectProperty ;
+    rdfs:label "has performance characteristic"@en ;
+    rdfs:comment "Pattern has specific performance characteristics"@en ;
+    rdfs:domain ns3:WorkflowPattern ;
+    rdfs:range ns1:PerformanceMetric .
+
+ns3:mapsToYAWLConstruct a owl:ObjectProperty ;
+    rdfs:label "maps to YAWL construct"@en ;
+    rdfs:comment "Maps BitFlow pattern to equivalent YAWL construct"@en ;
+    rdfs:domain ns3:WorkflowPattern ;
+    rdfs:range <http://www.yawlfoundation.org/ontology#YAWLConstruct> .
+
+ns3:requires a owl:ObjectProperty ;
+    rdfs:label "requires"@en ;
+    rdfs:comment "Pattern A requires Pattern B for implementation"@en ;
+    rdfs:domain ns3:WorkflowPattern ;
+    rdfs:range ns3:WorkflowPattern .
+
+ns3:DataPattern a owl:Class ;
+    rdfs:label "Data Pattern"@en ;
+    rdfs:comment "Patterns describing data flow and transformation"@en ;
+    rdfs:subClassOf ns3:WorkflowPattern .
+
+ns3:ControlFlowPattern a owl:Class ;
+    rdfs:label "Control Flow Pattern"@en ;
+    rdfs:comment "Patterns describing task execution ordering and flow control"@en ;
+    rdfs:subClassOf ns3:WorkflowPattern .
+
+ns3:WorkflowPattern a owl:Class ;
+    rdfs:label "Workflow Pattern"@en ;
+    rdfs:comment "Abstract base class for all workflow patterns defined by van der Aalst et al."@en ;
+    owl:equivalentClass <http://workflowpatterns.com/patterns#Pattern> .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:DataPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ExceptionHandlingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:AdvancedBranchingPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:DataPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StructuralPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:composedOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:StateBasedPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:hasPerformanceCharacteristic ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:BasicControlFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:conflicts ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:MultipleInstancePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:mapsToYAWLConstruct ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns3:requires ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns3:WorkflowPattern ns3:ControlFlowPattern ns3:ResourcePattern ) ] .
+

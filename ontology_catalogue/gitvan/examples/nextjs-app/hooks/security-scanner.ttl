@@ -1,0 +1,90 @@
+@prefix gh: <http://example.org/git-hooks#> .
+@prefix git: <http://example.org/git#> .
+@prefix sec: <http://example.org/security#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Security Scanner Hook
+# Continuous security vulnerability detection and automated remediation
+
+gh:SecurityScanner a gh:Hook ;
+  gh:name "Security Scanner" ;
+  gh:description "Continuous security scanning with automated detection and remediation" ;
+  gh:priority 10 ;
+  gh:autoExecute true ;
+
+  gh:trigger [
+    a git:CommitEvent ;
+    gh:filter [
+      gh:files "*.{js,ts,py,rb,go,java}" ;
+      gh:addedLines "> 0"
+    ]
+  ] ;
+
+  gh:condition [
+    a gh:AlwaysTrue
+  ] ;
+
+  gh:action [
+    a gh:CompositeAction ;
+    gh:steps [
+      rdf:_1 [
+        a sec:ScanDependencies ;
+        gh:tools [ "npm audit" ; "pip audit" ; "cargo audit" ] ;
+        gh:fixLevel "minor" ;
+        gh:autoFix true
+      ] ;
+      rdf:_2 [
+        a sec:ScanCode ;
+        gh:patterns [
+          [ gh:name "hardcoded_secrets" ; gh:regex "password|secret|token|api.*key" ; gh:severity "critical" ] ;
+          [ gh:name "sql_injection" ; gh:regex "SELECT.*FROM.*WHERE.*\\+" ; gh:severity "high" ] ;
+          [ gh:name "xss" ; gh:regex "innerHTML|dangerouslySetInnerHTML" ; gh:severity "high" ] ;
+          [ gh:name "insecure_crypto" ; gh:regex "md5|sha1" ; gh:severity "medium" ]
+        ] ;
+        gh:autoFix true
+      ] ;
+      rdf:_3 [
+        a sec:CheckLicenses ;
+        gh:blockedLicenses [ "GPL-3.0" ; "AGPL-3.0" ] ;
+        gh:warnLicenses [ "SSPL" ; "Elastic" ]
+      ] ;
+      rdf:_4 [
+        a sec:AnalyzeBehavior ;
+        gh:checks [
+          "privilege_escalation" ;
+          "information_disclosure" ;
+          "denial_of_service" ;
+          "tampering"
+        ]
+      ] ;
+      rdf:_5 [
+        a sec:BlockIfCritical ;
+        gh:severities [ "critical" ] ;
+        gh:message "Critical security issue detected. Review and fix before pushing."
+      ] ;
+      rdf:_6 [
+        a sec:RemediateLow ;
+        gh:severities [ "low" ; "medium" ] ;
+        gh:autoCommit true ;
+        gh:messagePrefix "security: auto-remediate"
+      ] ;
+      rdf:_7 [
+        a sec:GenerateReport ;
+        gh:format "sarif" ;
+        gh:store "security-reports" ;
+        gh:upload [
+          gh:service "security-dashboard" ;
+          gh:endpoint "https://security.example.com/api/scan"
+        ]
+      ] ;
+      rdf:_8 [
+        a sec:NotifySecurityTeam ;
+        gh:severity ">= medium" ;
+        gh:channels [ "slack" ; "email" ] ;
+        gh:escalate [
+          gh:severity "critical" ;
+          gh:oncall true
+        ]
+      ]
+    ]
+  ] .

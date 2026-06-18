@@ -1,0 +1,55 @@
+@prefix : <https://bytestar.org/ontology/pqc-fabric/polymorphic-kernel#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix bactor: <https://bytestar.org/ontology/bytestar-byteactor#> .
+@prefix bflow: <https://bytestar.org/ontology/bytestar-byteflow#> .
+@prefix bethos: <https://bytestar.org/ontology/bytestar-byteethos#> .
+@prefix pqckernel: <https://bytestar.org/ontology/pqc-fabric/kernel-registry#> .
+
+<https://bytestar.org/ontology/pqc-fabric/polymorphic-kernel>
+  a owl:Ontology ;
+  rdfs:label "PQC Assimilation Canon: Polymorphic PQC Kernel" ;
+  rdfs:comment "Defines the 'Polymorphic' PQC Kernel for dynamic algorithm selection based on security policy." .
+
+### Core Components
+
+:k_pqc_polymorphic_verify a bcore:Kernel ;
+  rdfs:label "Polymorphic PQC Verifier" ;
+  rdfs:comment "A single ByteActor kernel capable of verifying multiple PQC signature algorithms based on input metadata." ;
+  bactor:hasTickCost "8"^^xsd:integer ;
+  bflow:readsFrom :MessageBytes, :SignatureBytes, :PublicKeyBytes, :AlgorithmID ;
+  bflow:writesTo :VerificationResult .
+
+:AlgorithmID a bcore:MemoryCrystal ;
+  rdfs:label "Algorithm ID" ;
+  rdfs:comment "A small integer or enum identifying the specific PQC algorithm to use (e.g., Dilithium3, Dilithium5, Falcon)." ;
+  rdfs:range xsd:integer .
+
+:SecurityLevelPolicy a bcore:GovernanceCanon ;
+  rdfs:label "Security Level Policy" ;
+  rdfs:comment "A ByteEthos-managed policy mapping security levels (e.g., Ephemeral, Transactional, GovernanceCritical) to specific PQC algorithms." .
+
+### Relationships and Workflows
+
+:governedBy a owl:ObjectProperty ;
+  rdfs:label "governed by" ;
+  rdfs:domain :k_pqc_polymorphic_verify ;
+  rdfs:range :SecurityLevelPolicy ;
+  rdfs:comment "Indicates that the behavior of the polymorphic kernel is determined by a security level policy." .
+
+:mapsToAlgorithm a owl:ObjectProperty ;
+  rdfs:label "maps to algorithm" ;
+  rdfs:domain bethos:SecurityLevel ;
+  rdfs:range bcore:PQCAlgorithm ;
+  rdfs:comment "Defines which PQC algorithm is selected for a given security level." .
+
+:PolymorphicVerificationWorkflow a bcore:Pattern ;
+  rdfs:label "Polymorphic PQC Verification Workflow" ;
+  bcore:hasHopCount "3"^^xsd:integer ;
+  bcore:hasKernelSequence (
+    pqckernel:k_pqc_polymorphic_verify
+    pqckernel:k_pqc_const_time_cmp # For final result comparison
+  ) ;
+  rdfs:comment "The workflow for dynamically verifying PQC signatures based on policy-driven algorithm selection." .

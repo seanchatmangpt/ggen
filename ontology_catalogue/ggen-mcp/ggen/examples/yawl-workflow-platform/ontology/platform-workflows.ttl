@@ -1,0 +1,778 @@
+@prefix yawl: <http://unrdf.org/yawl#> .
+@prefix yawl-case: <http://unrdf.org/yawl/case#> .
+@prefix yawl-task: <http://unrdf.org/yawl/task#> .
+@prefix yawl-work: <http://unrdf.org/yawl/workitem#> .
+@prefix yawl-servlet: <http://unrdf.org/yawl/servlet#> .
+@prefix yawl-worklet: <http://unrdf.org/yawl/worklet#> .
+@prefix yawl-gen: <http://unrdf.org/yawl/generation#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# =============================================================================
+# YAWL WORKFLOW PLATFORM - INSTANCE DATA
+# Complete workflow specifications with servlets, worklets, and generation metadata
+# =============================================================================
+
+# =============================================================================
+# WORKFLOW 1: Document Approval (XOR-Split Pattern)
+# Van der Aalst Pattern: WP4 (Exclusive Choice) + WP5 (Simple Merge)
+# =============================================================================
+
+<http://example.org/workflows/document-approval> a yawl:WorkflowSpec ;
+    yawl:specId "document-approval" ;
+    yawl:specName "Document Approval Workflow" ;
+    yawl:specVersion "1.0.0" ;
+    rdfs:comment "Standard document approval with review and decision branching" ;
+    yawl:inputCondition <#doc-approval-input> ;
+    yawl:outputCondition <#doc-approval-output> ;
+    yawl:hasTasks <#submit-document>, <#review-document>, <#approve-document>, <#reject-document>, <#notify-submitter> ;
+    yawl:hasFlows <#flow-submit-review>, <#flow-review-approve>, <#flow-review-reject>, <#flow-approve-notify>, <#flow-reject-notify> .
+
+<#doc-approval-input> a yawl:Condition ;
+    rdfs:label "Start" .
+
+<#doc-approval-output> a yawl:Condition ;
+    rdfs:label "End" .
+
+<#submit-document> a yawl:ManualTask ;
+    yawl:taskId "submit-document" ;
+    yawl:taskName "Submit Document" ;
+    yawl:taskKind "manual" ;
+    yawl:splitBehavior yawl:XOR_Split ;
+    yawl:joinBehavior yawl:XOR_Join ;
+    rdfs:comment "User submits document for approval" .
+
+<#review-document> a yawl:ManualTask ;
+    yawl:taskId "review-document" ;
+    yawl:taskName "Review Document" ;
+    yawl:taskKind "manual" ;
+    yawl:splitBehavior yawl:XOR_Split ;
+    yawl:joinBehavior yawl:XOR_Join ;
+    rdfs:comment "Reviewer examines submitted document" .
+
+<#approve-document> a yawl:AutomatedTask ;
+    yawl:taskId "approve-document" ;
+    yawl:taskName "Approve Document" ;
+    yawl:taskKind "automated" ;
+    yawl:splitBehavior yawl:XOR_Split ;
+    yawl:joinBehavior yawl:XOR_Join ;
+    rdfs:comment "System marks document as approved" .
+
+<#reject-document> a yawl:AutomatedTask ;
+    yawl:taskId "reject-document" ;
+    yawl:taskName "Reject Document" ;
+    yawl:taskKind "automated" ;
+    yawl:splitBehavior yawl:XOR_Split ;
+    yawl:joinBehavior yawl:XOR_Join ;
+    rdfs:comment "System marks document as rejected" .
+
+<#notify-submitter> a yawl:AutomatedTask ;
+    yawl:taskId "notify-submitter" ;
+    yawl:taskName "Notify Submitter" ;
+    yawl:taskKind "automated" ;
+    yawl:splitBehavior yawl:XOR_Split ;
+    yawl:joinBehavior yawl:XOR_Join ;
+    rdfs:comment "System sends notification to document submitter" .
+
+<#flow-submit-review> a yawl:Flow ;
+    yawl:sourceTask <#submit-document> ;
+    yawl:targetTask <#review-document> ;
+    yawl:flowPriority 1 ;
+    yawl:isDefaultFlow true .
+
+<#flow-review-approve> a yawl:Flow ;
+    yawl:sourceTask <#review-document> ;
+    yawl:targetTask <#approve-document> ;
+    yawl:flowCondition "decision == 'approved'" ;
+    yawl:flowPriority 1 ;
+    yawl:isDefaultFlow false .
+
+<#flow-review-reject> a yawl:Flow ;
+    yawl:sourceTask <#review-document> ;
+    yawl:targetTask <#reject-document> ;
+    yawl:flowCondition "decision == 'rejected'" ;
+    yawl:flowPriority 2 ;
+    yawl:isDefaultFlow true .
+
+<#flow-approve-notify> a yawl:Flow ;
+    yawl:sourceTask <#approve-document> ;
+    yawl:targetTask <#notify-submitter> ;
+    yawl:flowPriority 1 ;
+    yawl:isDefaultFlow true .
+
+<#flow-reject-notify> a yawl:Flow ;
+    yawl:sourceTask <#reject-document> ;
+    yawl:targetTask <#notify-submitter> ;
+    yawl:flowPriority 1 ;
+    yawl:isDefaultFlow true .
+
+# =============================================================================
+# WORKFLOW 2: Order Processing (AND-Split Pattern)
+# Van der Aalst Pattern: WP2 (Parallel Split) + WP3 (Synchronization)
+# =============================================================================
+
+<http://example.org/workflows/order-processing> a yawl:WorkflowSpec ;
+    yawl:specId "order-processing" ;
+    yawl:specName "Order Processing Workflow" ;
+    yawl:specVersion "1.0.0" ;
+    rdfs:comment "Order processing with parallel payment and inventory checks" ;
+    yawl:inputCondition <#order-input> ;
+    yawl:outputCondition <#order-output> ;
+    yawl:hasTasks <#receive-order>, <#verify-payment>, <#check-inventory>, <#fulfill-order>, <#ship-order> ;
+    yawl:hasFlows <#flow-receive-payment>, <#flow-receive-inventory>, <#flow-payment-fulfill>, <#flow-inventory-fulfill>, <#flow-fulfill-ship> .
+
+<#order-input> a yawl:Condition ;
+    rdfs:label "Order Received" .
+
+<#order-output> a yawl:Condition ;
+    rdfs:label "Order Shipped" .
+
+<#receive-order> a yawl:AutomatedTask ;
+    yawl:taskId "receive-order" ;
+    yawl:taskName "Receive Order" ;
+    yawl:taskKind "automated" ;
+    yawl:splitBehavior yawl:AND_Split ;
+    yawl:joinBehavior yawl:XOR_Join ;
+    rdfs:comment "System receives and validates order" .
+
+<#verify-payment> a yawl:AutomatedTask ;
+    yawl:taskId "verify-payment" ;
+    yawl:taskName "Verify Payment" ;
+    yawl:taskKind "automated" ;
+    yawl:splitBehavior yawl:XOR_Split ;
+    yawl:joinBehavior yawl:XOR_Join ;
+    rdfs:comment "Payment gateway verification" .
+
+<#check-inventory> a yawl:AutomatedTask ;
+    yawl:taskId "check-inventory" ;
+    yawl:taskName "Check Inventory" ;
+    yawl:taskKind "automated" ;
+    yawl:splitBehavior yawl:XOR_Split ;
+    yawl:joinBehavior yawl:XOR_Join ;
+    rdfs:comment "Warehouse inventory check" .
+
+<#fulfill-order> a yawl:ManualTask ;
+    yawl:taskId "fulfill-order" ;
+    yawl:taskName "Fulfill Order" ;
+    yawl:taskKind "manual" ;
+    yawl:splitBehavior yawl:XOR_Split ;
+    yawl:joinBehavior yawl:AND_Join ;
+    rdfs:comment "Warehouse picks and packs order" .
+
+<#ship-order> a yawl:AutomatedTask ;
+    yawl:taskId "ship-order" ;
+    yawl:taskName "Ship Order" ;
+    yawl:taskKind "automated" ;
+    yawl:splitBehavior yawl:XOR_Split ;
+    yawl:joinBehavior yawl:XOR_Join ;
+    rdfs:comment "Generate shipping label and dispatch" .
+
+<#flow-receive-payment> a yawl:Flow ;
+    yawl:sourceTask <#receive-order> ;
+    yawl:targetTask <#verify-payment> ;
+    yawl:flowPriority 1 ;
+    yawl:isDefaultFlow true .
+
+<#flow-receive-inventory> a yawl:Flow ;
+    yawl:sourceTask <#receive-order> ;
+    yawl:targetTask <#check-inventory> ;
+    yawl:flowPriority 1 ;
+    yawl:isDefaultFlow true .
+
+<#flow-payment-fulfill> a yawl:Flow ;
+    yawl:sourceTask <#verify-payment> ;
+    yawl:targetTask <#fulfill-order> ;
+    yawl:flowPriority 1 ;
+    yawl:isDefaultFlow true .
+
+<#flow-inventory-fulfill> a yawl:Flow ;
+    yawl:sourceTask <#check-inventory> ;
+    yawl:targetTask <#fulfill-order> ;
+    yawl:flowPriority 1 ;
+    yawl:isDefaultFlow true .
+
+<#flow-fulfill-ship> a yawl:Flow ;
+    yawl:sourceTask <#fulfill-order> ;
+    yawl:targetTask <#ship-order> ;
+    yawl:flowPriority 1 ;
+    yawl:isDefaultFlow true .
+
+# =============================================================================
+# WORKFLOW 3: HR Onboarding (Multiple Instance Pattern)
+# Van der Aalst Pattern: WP12-15 (Multiple Instance Patterns)
+# =============================================================================
+
+<http://example.org/workflows/hr-onboarding> a yawl:WorkflowSpec ;
+    yawl:specId "hr-onboarding" ;
+    yawl:specName "HR Onboarding Workflow" ;
+    yawl:specVersion "1.0.0" ;
+    rdfs:comment "Employee onboarding with multiple training modules" ;
+    yawl:inputCondition <#onboarding-input> ;
+    yawl:outputCondition <#onboarding-output> ;
+    yawl:hasTasks <#create-employee-record>, <#assign-training>, <#complete-training-module>, <#setup-workstation>, <#finalize-onboarding> ;
+    yawl:hasFlows <#flow-create-assign>, <#flow-assign-training>, <#flow-training-setup>, <#flow-setup-finalize> .
+
+<#onboarding-input> a yawl:Condition ;
+    rdfs:label "New Hire Start" .
+
+<#onboarding-output> a yawl:Condition ;
+    rdfs:label "Onboarding Complete" .
+
+<#create-employee-record> a yawl:AutomatedTask ;
+    yawl:taskId "create-employee-record" ;
+    yawl:taskName "Create Employee Record" ;
+    yawl:taskKind "automated" ;
+    yawl:splitBehavior yawl:XOR_Split ;
+    yawl:joinBehavior yawl:XOR_Join ;
+    rdfs:comment "Create employee in HR system" .
+
+<#assign-training> a yawl:AutomatedTask ;
+    yawl:taskId "assign-training" ;
+    yawl:taskName "Assign Training Modules" ;
+    yawl:taskKind "automated" ;
+    yawl:splitBehavior yawl:AND_Split ;
+    yawl:joinBehavior yawl:XOR_Join ;
+    rdfs:comment "Assign required training based on role" .
+
+<#complete-training-module> a yawl:MultipleInstanceTask ;
+    yawl:taskId "complete-training-module" ;
+    yawl:taskName "Complete Training Module" ;
+    yawl:taskKind "multiple-instance" ;
+    yawl:splitBehavior yawl:XOR_Split ;
+    yawl:joinBehavior yawl:AND_Join ;
+    yawl:miMinimum 1 ;
+    yawl:miMaximum 10 ;
+    yawl:miThreshold 3 ;
+    yawl:miCreationMode "dynamic" ;
+    rdfs:comment "Complete individual training module (multiple instances)" .
+
+<#setup-workstation> a yawl:ManualTask ;
+    yawl:taskId "setup-workstation" ;
+    yawl:taskName "Setup Workstation" ;
+    yawl:taskKind "manual" ;
+    yawl:splitBehavior yawl:XOR_Split ;
+    yawl:joinBehavior yawl:AND_Join ;
+    rdfs:comment "IT sets up employee workstation" .
+
+<#finalize-onboarding> a yawl:AutomatedTask ;
+    yawl:taskId "finalize-onboarding" ;
+    yawl:taskName "Finalize Onboarding" ;
+    yawl:taskKind "automated" ;
+    yawl:splitBehavior yawl:XOR_Split ;
+    yawl:joinBehavior yawl:AND_Join ;
+    rdfs:comment "Complete onboarding process" .
+
+<#flow-create-assign> a yawl:Flow ;
+    yawl:sourceTask <#create-employee-record> ;
+    yawl:targetTask <#assign-training> ;
+    yawl:flowPriority 1 ;
+    yawl:isDefaultFlow true .
+
+<#flow-assign-training> a yawl:Flow ;
+    yawl:sourceTask <#assign-training> ;
+    yawl:targetTask <#complete-training-module> ;
+    yawl:flowPriority 1 ;
+    yawl:isDefaultFlow true .
+
+<#flow-training-setup> a yawl:Flow ;
+    yawl:sourceTask <#complete-training-module> ;
+    yawl:targetTask <#setup-workstation> ;
+    yawl:flowPriority 1 ;
+    yawl:isDefaultFlow true .
+
+<#flow-setup-finalize> a yawl:Flow ;
+    yawl:sourceTask <#setup-workstation> ;
+    yawl:targetTask <#finalize-onboarding> ;
+    yawl:flowPriority 1 ;
+    yawl:isDefaultFlow true .
+
+# =============================================================================
+# WORKFLOW 4: Incident Management (Worklet Exception Handling)
+# Demonstrates worklet integration for exception scenarios
+# =============================================================================
+
+<http://example.org/workflows/incident-management> a yawl:WorkflowSpec ;
+    yawl:specId "incident-management" ;
+    yawl:specName "Incident Management Workflow" ;
+    yawl:specVersion "1.0.0" ;
+    rdfs:comment "IT incident management with worklet exception handlers" ;
+    yawl:inputCondition <#incident-input> ;
+    yawl:outputCondition <#incident-output> ;
+    yawl:hasTasks <#log-incident>, <#classify-incident>, <#assign-technician>, <#resolve-incident>, <#verify-resolution>, <#close-incident> ;
+    yawl:hasFlows <#flow-log-classify>, <#flow-classify-assign>, <#flow-assign-resolve>, <#flow-resolve-verify>, <#flow-verify-close> .
+
+<#incident-input> a yawl:Condition ;
+    rdfs:label "Incident Reported" .
+
+<#incident-output> a yawl:Condition ;
+    rdfs:label "Incident Closed" .
+
+<#log-incident> a yawl:AutomatedTask ;
+    yawl:taskId "log-incident" ;
+    yawl:taskName "Log Incident" ;
+    yawl:taskKind "automated" ;
+    yawl:splitBehavior yawl:XOR_Split ;
+    yawl:joinBehavior yawl:XOR_Join ;
+    rdfs:comment "Create incident ticket in system" .
+
+<#classify-incident> a yawl:AutomatedTask ;
+    yawl:taskId "classify-incident" ;
+    yawl:taskName "Classify Incident" ;
+    yawl:taskKind "automated" ;
+    yawl:splitBehavior yawl:XOR_Split ;
+    yawl:joinBehavior yawl:XOR_Join ;
+    rdfs:comment "Auto-classify incident severity and type" .
+
+<#assign-technician> a yawl:ManualTask ;
+    yawl:taskId "assign-technician" ;
+    yawl:taskName "Assign Technician" ;
+    yawl:taskKind "manual" ;
+    yawl:splitBehavior yawl:XOR_Split ;
+    yawl:joinBehavior yawl:XOR_Join ;
+    rdfs:comment "Assign available technician based on skills" .
+
+<#resolve-incident> a yawl:ManualTask ;
+    yawl:taskId "resolve-incident" ;
+    yawl:taskName "Resolve Incident" ;
+    yawl:taskKind "manual" ;
+    yawl:splitBehavior yawl:XOR_Split ;
+    yawl:joinBehavior yawl:XOR_Join ;
+    rdfs:comment "Technician resolves the incident" .
+
+<#verify-resolution> a yawl:ManualTask ;
+    yawl:taskId "verify-resolution" ;
+    yawl:taskName "Verify Resolution" ;
+    yawl:taskKind "manual" ;
+    yawl:splitBehavior yawl:XOR_Split ;
+    yawl:joinBehavior yawl:XOR_Join ;
+    rdfs:comment "User verifies incident is resolved" .
+
+<#close-incident> a yawl:AutomatedTask ;
+    yawl:taskId "close-incident" ;
+    yawl:taskName "Close Incident" ;
+    yawl:taskKind "automated" ;
+    yawl:splitBehavior yawl:XOR_Split ;
+    yawl:joinBehavior yawl:XOR_Join ;
+    rdfs:comment "System closes incident ticket" .
+
+<#flow-log-classify> a yawl:Flow ;
+    yawl:sourceTask <#log-incident> ;
+    yawl:targetTask <#classify-incident> ;
+    yawl:flowPriority 1 ;
+    yawl:isDefaultFlow true .
+
+<#flow-classify-assign> a yawl:Flow ;
+    yawl:sourceTask <#classify-incident> ;
+    yawl:targetTask <#assign-technician> ;
+    yawl:flowPriority 1 ;
+    yawl:isDefaultFlow true .
+
+<#flow-assign-resolve> a yawl:Flow ;
+    yawl:sourceTask <#assign-technician> ;
+    yawl:targetTask <#resolve-incident> ;
+    yawl:flowPriority 1 ;
+    yawl:isDefaultFlow true .
+
+<#flow-resolve-verify> a yawl:Flow ;
+    yawl:sourceTask <#resolve-incident> ;
+    yawl:targetTask <#verify-resolution> ;
+    yawl:flowPriority 1 ;
+    yawl:isDefaultFlow true .
+
+<#flow-verify-close> a yawl:Flow ;
+    yawl:sourceTask <#verify-resolution> ;
+    yawl:targetTask <#close-incident> ;
+    yawl:flowPriority 1 ;
+    yawl:isDefaultFlow true .
+
+# =============================================================================
+# WORKFLOW 5: CI/CD Pipeline (OR-Split Multi-Choice Pattern)
+# Van der Aalst Pattern: WP6 (Multi-Choice) + WP7 (Structured Synchronizing Merge)
+# =============================================================================
+
+<http://example.org/workflows/cicd-pipeline> a yawl:WorkflowSpec ;
+    yawl:specId "cicd-pipeline" ;
+    yawl:specName "CI/CD Pipeline Workflow" ;
+    yawl:specVersion "1.0.0" ;
+    rdfs:comment "Continuous integration pipeline with conditional testing" ;
+    yawl:inputCondition <#cicd-input> ;
+    yawl:outputCondition <#cicd-output> ;
+    yawl:hasTasks <#checkout-code>, <#build-project>, <#run-unit-tests>, <#run-integration-tests>, <#run-e2e-tests>, <#merge-results>, <#deploy> ;
+    yawl:hasFlows <#flow-checkout-build>, <#flow-build-unit>, <#flow-build-integration>, <#flow-build-e2e>, <#flow-unit-merge>, <#flow-integration-merge>, <#flow-e2e-merge>, <#flow-merge-deploy> .
+
+<#cicd-input> a yawl:Condition ;
+    rdfs:label "Code Pushed" .
+
+<#cicd-output> a yawl:Condition ;
+    rdfs:label "Deployed" .
+
+<#checkout-code> a yawl:AutomatedTask ;
+    yawl:taskId "checkout-code" ;
+    yawl:taskName "Checkout Code" ;
+    yawl:taskKind "automated" ;
+    yawl:splitBehavior yawl:XOR_Split ;
+    yawl:joinBehavior yawl:XOR_Join ;
+    rdfs:comment "Checkout source code from repository" .
+
+<#build-project> a yawl:AutomatedTask ;
+    yawl:taskId "build-project" ;
+    yawl:taskName "Build Project" ;
+    yawl:taskKind "automated" ;
+    yawl:splitBehavior yawl:OR_Split ;
+    yawl:joinBehavior yawl:XOR_Join ;
+    rdfs:comment "Compile and build the project" .
+
+<#run-unit-tests> a yawl:AutomatedTask ;
+    yawl:taskId "run-unit-tests" ;
+    yawl:taskName "Run Unit Tests" ;
+    yawl:taskKind "automated" ;
+    yawl:splitBehavior yawl:XOR_Split ;
+    yawl:joinBehavior yawl:XOR_Join ;
+    rdfs:comment "Execute unit test suite" .
+
+<#run-integration-tests> a yawl:AutomatedTask ;
+    yawl:taskId "run-integration-tests" ;
+    yawl:taskName "Run Integration Tests" ;
+    yawl:taskKind "automated" ;
+    yawl:splitBehavior yawl:XOR_Split ;
+    yawl:joinBehavior yawl:XOR_Join ;
+    rdfs:comment "Execute integration test suite" .
+
+<#run-e2e-tests> a yawl:AutomatedTask ;
+    yawl:taskId "run-e2e-tests" ;
+    yawl:taskName "Run E2E Tests" ;
+    yawl:taskKind "automated" ;
+    yawl:splitBehavior yawl:XOR_Split ;
+    yawl:joinBehavior yawl:XOR_Join ;
+    rdfs:comment "Execute end-to-end test suite" .
+
+<#merge-results> a yawl:AutomatedTask ;
+    yawl:taskId "merge-results" ;
+    yawl:taskName "Merge Test Results" ;
+    yawl:taskKind "automated" ;
+    yawl:splitBehavior yawl:XOR_Split ;
+    yawl:joinBehavior yawl:OR_Join ;
+    rdfs:comment "Aggregate test results from all suites" .
+
+<#deploy> a yawl:AutomatedTask ;
+    yawl:taskId "deploy" ;
+    yawl:taskName "Deploy to Environment" ;
+    yawl:taskKind "automated" ;
+    yawl:splitBehavior yawl:XOR_Split ;
+    yawl:joinBehavior yawl:XOR_Join ;
+    rdfs:comment "Deploy build to target environment" .
+
+<#flow-checkout-build> a yawl:Flow ;
+    yawl:sourceTask <#checkout-code> ;
+    yawl:targetTask <#build-project> ;
+    yawl:flowPriority 1 ;
+    yawl:isDefaultFlow true .
+
+<#flow-build-unit> a yawl:Flow ;
+    yawl:sourceTask <#build-project> ;
+    yawl:targetTask <#run-unit-tests> ;
+    yawl:flowCondition "testConfig.unit == true" ;
+    yawl:flowPriority 1 ;
+    yawl:isDefaultFlow true .
+
+<#flow-build-integration> a yawl:Flow ;
+    yawl:sourceTask <#build-project> ;
+    yawl:targetTask <#run-integration-tests> ;
+    yawl:flowCondition "testConfig.integration == true" ;
+    yawl:flowPriority 2 ;
+    yawl:isDefaultFlow false .
+
+<#flow-build-e2e> a yawl:Flow ;
+    yawl:sourceTask <#build-project> ;
+    yawl:targetTask <#run-e2e-tests> ;
+    yawl:flowCondition "testConfig.e2e == true" ;
+    yawl:flowPriority 3 ;
+    yawl:isDefaultFlow false .
+
+<#flow-unit-merge> a yawl:Flow ;
+    yawl:sourceTask <#run-unit-tests> ;
+    yawl:targetTask <#merge-results> ;
+    yawl:flowPriority 1 ;
+    yawl:isDefaultFlow true .
+
+<#flow-integration-merge> a yawl:Flow ;
+    yawl:sourceTask <#run-integration-tests> ;
+    yawl:targetTask <#merge-results> ;
+    yawl:flowPriority 1 ;
+    yawl:isDefaultFlow true .
+
+<#flow-e2e-merge> a yawl:Flow ;
+    yawl:sourceTask <#run-e2e-tests> ;
+    yawl:targetTask <#merge-results> ;
+    yawl:flowPriority 1 ;
+    yawl:isDefaultFlow true .
+
+<#flow-merge-deploy> a yawl:Flow ;
+    yawl:sourceTask <#merge-results> ;
+    yawl:targetTask <#deploy> ;
+    yawl:flowCondition "allTestsPassed == true" ;
+    yawl:flowPriority 1 ;
+    yawl:isDefaultFlow true .
+
+# =============================================================================
+# SERVLET DEFINITIONS
+# =============================================================================
+
+# Workflow Lifecycle Servlets
+<http://example.org/servlets/workflow-create> a yawl-servlet:WorkflowServlet ;
+    yawl-servlet:servletId "workflow-create" ;
+    yawl-servlet:servletName "CreateWorkflowServlet" ;
+    yawl-servlet:urlPattern "/api/workflows" ;
+    yawl-servlet:httpMethod "POST" ;
+    yawl-servlet:requiresAuth true ;
+    yawl-servlet:requestSchema """{
+        "type": "object",
+        "properties": {
+            "specId": { "type": "string" },
+            "name": { "type": "string" },
+            "version": { "type": "string" }
+        },
+        "required": ["specId", "name"]
+    }""" ;
+    yawl-servlet:responseSchema """{
+        "type": "object",
+        "properties": {
+            "workflowId": { "type": "string" },
+            "status": { "type": "string" }
+        }
+    }""" ;
+    yawl-servlet:outputPath "lib/servlets/WorkflowCreateServlet.ts" .
+
+<http://example.org/servlets/workflow-list> a yawl-servlet:WorkflowServlet ;
+    yawl-servlet:servletId "workflow-list" ;
+    yawl-servlet:servletName "ListWorkflowsServlet" ;
+    yawl-servlet:urlPattern "/api/workflows" ;
+    yawl-servlet:httpMethod "GET" ;
+    yawl-servlet:requiresAuth true ;
+    yawl-servlet:outputPath "lib/servlets/WorkflowListServlet.ts" .
+
+<http://example.org/servlets/workflow-get> a yawl-servlet:WorkflowServlet ;
+    yawl-servlet:servletId "workflow-get" ;
+    yawl-servlet:servletName "GetWorkflowServlet" ;
+    yawl-servlet:urlPattern "/api/workflows/:id" ;
+    yawl-servlet:httpMethod "GET" ;
+    yawl-servlet:requiresAuth true ;
+    yawl-servlet:outputPath "lib/servlets/WorkflowGetServlet.ts" .
+
+# Case Management Servlets
+<http://example.org/servlets/case-create> a yawl-servlet:CaseServlet ;
+    yawl-servlet:servletId "case-create" ;
+    yawl-servlet:servletName "CreateCaseServlet" ;
+    yawl-servlet:urlPattern "/api/cases" ;
+    yawl-servlet:httpMethod "POST" ;
+    yawl-servlet:requiresAuth true ;
+    yawl-servlet:requestSchema """{
+        "type": "object",
+        "properties": {
+            "workflowId": { "type": "string" },
+            "initialData": { "type": "object" }
+        },
+        "required": ["workflowId"]
+    }""" ;
+    yawl-servlet:outputPath "lib/servlets/CaseCreateServlet.ts" .
+
+<http://example.org/servlets/case-list> a yawl-servlet:CaseServlet ;
+    yawl-servlet:servletId "case-list" ;
+    yawl-servlet:servletName "ListCasesServlet" ;
+    yawl-servlet:urlPattern "/api/cases" ;
+    yawl-servlet:httpMethod "GET" ;
+    yawl-servlet:requiresAuth true ;
+    yawl-servlet:outputPath "lib/servlets/CaseListServlet.ts" .
+
+<http://example.org/servlets/case-get> a yawl-servlet:CaseServlet ;
+    yawl-servlet:servletId "case-get" ;
+    yawl-servlet:servletName "GetCaseServlet" ;
+    yawl-servlet:urlPattern "/api/cases/:id" ;
+    yawl-servlet:httpMethod "GET" ;
+    yawl-servlet:requiresAuth true ;
+    yawl-servlet:outputPath "lib/servlets/CaseGetServlet.ts" .
+
+<http://example.org/servlets/case-cancel> a yawl-servlet:CaseServlet ;
+    yawl-servlet:servletId "case-cancel" ;
+    yawl-servlet:servletName "CancelCaseServlet" ;
+    yawl-servlet:urlPattern "/api/cases/:id/cancel" ;
+    yawl-servlet:httpMethod "POST" ;
+    yawl-servlet:requiresAuth true ;
+    yawl-servlet:outputPath "lib/servlets/CaseCancelServlet.ts" .
+
+# Task Servlets
+<http://example.org/servlets/task-enable> a yawl-servlet:TaskServlet ;
+    yawl-servlet:servletId "task-enable" ;
+    yawl-servlet:servletName "EnableTaskServlet" ;
+    yawl-servlet:urlPattern "/api/tasks/:taskId/enable" ;
+    yawl-servlet:httpMethod "POST" ;
+    yawl-servlet:requiresAuth true ;
+    yawl-servlet:outputPath "lib/servlets/TaskEnableServlet.ts" .
+
+<http://example.org/servlets/task-start> a yawl-servlet:TaskServlet ;
+    yawl-servlet:servletId "task-start" ;
+    yawl-servlet:servletName "StartTaskServlet" ;
+    yawl-servlet:urlPattern "/api/tasks/:taskId/start" ;
+    yawl-servlet:httpMethod "POST" ;
+    yawl-servlet:requiresAuth true ;
+    yawl-servlet:outputPath "lib/servlets/TaskStartServlet.ts" .
+
+<http://example.org/servlets/task-complete> a yawl-servlet:TaskServlet ;
+    yawl-servlet:servletId "task-complete" ;
+    yawl-servlet:servletName "CompleteTaskServlet" ;
+    yawl-servlet:urlPattern "/api/tasks/:taskId/complete" ;
+    yawl-servlet:httpMethod "POST" ;
+    yawl-servlet:requiresAuth true ;
+    yawl-servlet:requestSchema """{
+        "type": "object",
+        "properties": {
+            "outputData": { "type": "object" }
+        }
+    }""" ;
+    yawl-servlet:outputPath "lib/servlets/TaskCompleteServlet.ts" .
+
+<http://example.org/servlets/workitem-list> a yawl-servlet:TaskServlet ;
+    yawl-servlet:servletId "workitem-list" ;
+    yawl-servlet:servletName "ListWorkItemsServlet" ;
+    yawl-servlet:urlPattern "/api/workitems" ;
+    yawl-servlet:httpMethod "GET" ;
+    yawl-servlet:requiresAuth true ;
+    yawl-servlet:outputPath "lib/servlets/WorkItemListServlet.ts" .
+
+# Admin Servlets
+<http://example.org/servlets/admin-metrics> a yawl-servlet:AdminServlet ;
+    yawl-servlet:servletId "admin-metrics" ;
+    yawl-servlet:servletName "MetricsServlet" ;
+    yawl-servlet:urlPattern "/api/admin/metrics" ;
+    yawl-servlet:httpMethod "GET" ;
+    yawl-servlet:requiresAuth true ;
+    yawl-servlet:outputPath "lib/servlets/MetricsServlet.ts" .
+
+<http://example.org/servlets/admin-replay> a yawl-servlet:AdminServlet ;
+    yawl-servlet:servletId "admin-replay" ;
+    yawl-servlet:servletName "ReplayCaseServlet" ;
+    yawl-servlet:urlPattern "/api/admin/cases/:id/replay" ;
+    yawl-servlet:httpMethod "POST" ;
+    yawl-servlet:requiresAuth true ;
+    yawl-servlet:requestSchema """{
+        "type": "object",
+        "properties": {
+            "toTimestamp": { "type": "string", "format": "date-time" }
+        }
+    }""" ;
+    yawl-servlet:outputPath "lib/servlets/ReplayCaseServlet.ts" .
+
+# =============================================================================
+# WORKLET DEFINITIONS
+# =============================================================================
+
+<http://example.org/worklets/timeout-handler> a yawl-worklet:ExceptionHandler ;
+    yawl-worklet:workletId "timeout-handler" ;
+    yawl-worklet:workletName "TimeoutExceptionHandler" ;
+    yawl-worklet:handlesException yawl-worklet:Timeout ;
+    yawl-worklet:compensationAction yawl-worklet:Retry ;
+    yawl-worklet:hasRuleSet <#timeout-rules> ;
+    yawl-worklet:outputPath "lib/worklets/TimeoutHandler.ts" .
+
+<#timeout-rules> a yawl-worklet:RuleSet ;
+    yawl-worklet:hasRules <#timeout-rule-1>, <#timeout-rule-2>, <#timeout-rule-3> .
+
+<#timeout-rule-1> a yawl-worklet:Rule ;
+    yawl-worklet:ruleCondition "ASK { ?workItem yawl:retryCount ?count . FILTER(?count < 3) }" ;
+    yawl-worklet:ruleAction "retry" ;
+    yawl-worklet:rulePriority 1 .
+
+<#timeout-rule-2> a yawl-worklet:Rule ;
+    yawl-worklet:ruleCondition "ASK { ?workItem yawl:retryCount ?count . FILTER(?count >= 3 && ?count < 5) }" ;
+    yawl-worklet:ruleAction "escalate" ;
+    yawl-worklet:rulePriority 2 .
+
+<#timeout-rule-3> a yawl-worklet:Rule ;
+    yawl-worklet:ruleCondition "ASK { ?workItem yawl:retryCount ?count . FILTER(?count >= 5) }" ;
+    yawl-worklet:ruleAction "fail" ;
+    yawl-worklet:rulePriority 3 .
+
+<http://example.org/worklets/resource-handler> a yawl-worklet:ExceptionHandler ;
+    yawl-worklet:workletId "resource-handler" ;
+    yawl-worklet:workletName "ResourceUnavailableHandler" ;
+    yawl-worklet:handlesException yawl-worklet:ResourceUnavailable ;
+    yawl-worklet:compensationAction yawl-worklet:Escalate ;
+    yawl-worklet:hasRuleSet <#resource-rules> ;
+    yawl-worklet:outputPath "lib/worklets/ResourceHandler.ts" .
+
+<#resource-rules> a yawl-worklet:RuleSet ;
+    yawl-worklet:hasRules <#resource-rule-1>, <#resource-rule-2> .
+
+<#resource-rule-1> a yawl-worklet:Rule ;
+    yawl-worklet:ruleCondition "ASK { ?task yawl:taskKind 'manual' }" ;
+    yawl-worklet:ruleAction "reassign" ;
+    yawl-worklet:rulePriority 1 .
+
+<#resource-rule-2> a yawl-worklet:Rule ;
+    yawl-worklet:ruleCondition "ASK { ?task yawl:taskKind 'automated' }" ;
+    yawl-worklet:ruleAction "retry_with_fallback" ;
+    yawl-worklet:rulePriority 2 .
+
+<http://example.org/worklets/validation-handler> a yawl-worklet:ExceptionHandler ;
+    yawl-worklet:workletId "validation-handler" ;
+    yawl-worklet:workletName "ValidationErrorHandler" ;
+    yawl-worklet:handlesException yawl-worklet:ValidationError ;
+    yawl-worklet:compensationAction yawl-worklet:Rollback ;
+    yawl-worklet:hasRuleSet <#validation-rules> ;
+    yawl-worklet:outputPath "lib/worklets/ValidationHandler.ts" .
+
+<#validation-rules> a yawl-worklet:RuleSet ;
+    yawl-worklet:hasRules <#validation-rule-1> .
+
+<#validation-rule-1> a yawl-worklet:Rule ;
+    yawl-worklet:ruleCondition "ASK { ?case yawl:status yawl:Case_Active }" ;
+    yawl-worklet:ruleAction "rollback_to_previous" ;
+    yawl-worklet:rulePriority 1 .
+
+<http://example.org/worklets/external-failure-handler> a yawl-worklet:ExceptionHandler ;
+    yawl-worklet:workletId "external-failure-handler" ;
+    yawl-worklet:workletName "ExternalFailureHandler" ;
+    yawl-worklet:handlesException yawl-worklet:ExternalFailure ;
+    yawl-worklet:compensationAction yawl-worklet:Skip ;
+    yawl-worklet:hasRuleSet <#external-rules> ;
+    yawl-worklet:outputPath "lib/worklets/ExternalFailureHandler.ts" .
+
+<#external-rules> a yawl-worklet:RuleSet ;
+    yawl-worklet:hasRules <#external-rule-1>, <#external-rule-2> .
+
+<#external-rule-1> a yawl-worklet:Rule ;
+    yawl-worklet:ruleCondition "ASK { ?task yawl:cancellationSet ?cancel . FILTER(BOUND(?cancel)) }" ;
+    yawl-worklet:ruleAction "cancel_region" ;
+    yawl-worklet:rulePriority 1 .
+
+<#external-rule-2> a yawl-worklet:Rule ;
+    yawl-worklet:ruleCondition "ASK { ?task a yawl:Task }" ;
+    yawl-worklet:ruleAction "skip_and_continue" ;
+    yawl-worklet:rulePriority 2 .
+
+<http://example.org/worklets/selection-worklet> a yawl-worklet:SelectionWorklet ;
+    yawl-worklet:workletId "dynamic-subprocess-selector" ;
+    yawl-worklet:workletName "DynamicSubprocessSelector" ;
+    yawl-worklet:forTask <#resolve-incident> ;
+    yawl-worklet:hasRuleSet <#selection-rules> ;
+    yawl-worklet:outputPath "lib/worklets/DynamicSubprocessSelector.ts" .
+
+<#selection-rules> a yawl-worklet:RuleSet ;
+    yawl-worklet:hasRules <#select-rule-1>, <#select-rule-2>, <#select-rule-3> .
+
+<#select-rule-1> a yawl-worklet:Rule ;
+    yawl-worklet:ruleCondition "ASK { ?incident yawl:caseData ?data . FILTER(CONTAINS(?data, '\"severity\":\"critical\"')) }" ;
+    yawl-worklet:ruleAction "subprocess:critical-incident-resolution" ;
+    yawl-worklet:rulePriority 1 .
+
+<#select-rule-2> a yawl-worklet:Rule ;
+    yawl-worklet:ruleCondition "ASK { ?incident yawl:caseData ?data . FILTER(CONTAINS(?data, '\"type\":\"hardware\"')) }" ;
+    yawl-worklet:ruleAction "subprocess:hardware-incident-resolution" ;
+    yawl-worklet:rulePriority 2 .
+
+<#select-rule-3> a yawl-worklet:Rule ;
+    yawl-worklet:ruleCondition "ASK { ?incident a yawl:WorkflowCase }" ;
+    yawl-worklet:ruleAction "subprocess:standard-incident-resolution" ;
+    yawl-worklet:rulePriority 3 .

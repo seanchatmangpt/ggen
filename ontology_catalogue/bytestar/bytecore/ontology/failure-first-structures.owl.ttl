@@ -1,0 +1,263 @@
+@prefix bc: <http://bytestar.org/bytecore#> .
+@prefix ffs: <http://bytestar.org/failure-first-structures#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Failure-First Data Structures - ByteCore Foundation
+# Data structures that succeed by being designed to fail gracefully
+
+ffs:FailureFirstStructure a owl:Class ;
+    rdfs:label "Failure-First Structure" ;
+    rdfs:comment "Data structure designed with failure as primary consideration" ;
+    bc:hasProperty [
+        bc:property "failure_tolerance" ;
+        bc:type "percentage" ;
+        bc:range "0.1 to 99.9"
+    ] ;
+    bc:hasProperty [
+        bc:property "degradation_strategy" ;
+        bc:type "enumerated" ;
+        bc:values "graceful, aggressive, oscillating, cascade"
+    ] .
+
+ffs:FragileHash a owl:Class ;
+    rdfs:label "Fragile Hash Table" ;
+    rdfs:comment "Hash table that breaks predictably under stress" ;
+    bc:inherits ffs:FailureFirstStructure ;
+    bc:hasProperty [
+        bc:property "break_threshold" ;
+        bc:type "load_factor" ;
+        bc:range "0.5 to 0.95"
+    ] ;
+    bc:hasProperty [
+        bc:property "failure_mode" ;
+        bc:type "enumerated" ;
+        bc:values "chain_break, bucket_overflow, rehash_failure"
+    ] .
+
+ffs:UnsafeStack a owl:Class ;
+    rdfs:label "Unsafe Stack" ;
+    rdfs:comment "Stack that deliberately allows controlled overflows" ;
+    bc:inherits ffs:FailureFirstStructure ;
+    bc:hasProperty [
+        bc:property "overflow_behavior" ;
+        bc:type "enumerated" ;
+        bc:values "circular_wrap, silent_drop, error_cascade"
+    ] ;
+    bc:hasProperty [
+        bc:property "safety_margin" ;
+        bc:type "count" ;
+        bc:range "0 to 10"
+    ] .
+
+ffs:ChaosTree a owl:Class ;
+    rdfs:label "Chaos Tree" ;
+    rdfs:comment "Tree structure that rebalances through controlled chaos" ;
+    bc:inherits ffs:FailureFirstStructure ;
+    bc:hasProperty [
+        bc:property "chaos_probability" ;
+        bc:type "percentage" ;
+        bc:range "0.01 to 0.20"
+    ] ;
+    bc:hasProperty [
+        bc:property "rebalance_trigger" ;
+        bc:type "enumerated" ;
+        bc:values "depth_limit, chaos_event, performance_degradation"
+    ] .
+
+ffs:ErrorAccumulator a owl:Class ;
+    rdfs:label "Error Accumulator" ;
+    rdfs:comment "Data structure that collects and amplifies errors for computation" ;
+    bc:inherits ffs:FailureFirstStructure ;
+    bc:hasProperty [
+        bc:property "error_capacity" ;
+        bc:type "count" ;
+        bc:minimum "1"
+    ] ;
+    bc:hasProperty [
+        bc:property "amplification_factor" ;
+        bc:type "multiplier" ;
+        bc:range "1.1 to 10.0"
+    ] .
+
+ffs:FailureQueue a owl:Class ;
+    rdfs:label "Failure Queue" ;
+    rdfs:comment "Queue that prioritizes failures over successes" ;
+    bc:inherits ffs:FailureFirstStructure ;
+    bc:hasProperty [
+        bc:property "failure_priority_boost" ;
+        bc:type "multiplier" ;
+        bc:range "2.0 to 100.0"
+    ] ;
+    bc:hasProperty [
+        bc:property "success_penalty" ;
+        bc:type "delay_ms" ;
+        bc:range "1 to 1000"
+    ] .
+
+ffs:DisagreementSet a owl:Class ;
+    rdfs:label "Disagreement Set" ;
+    rdfs:comment "Set structure that stores conflicting values as features" ;
+    bc:inherits ffs:FailureFirstStructure ;
+    bc:hasProperty [
+        bc:property "conflict_resolution" ;
+        bc:type "enumerated" ;
+        bc:values "store_all, amplify_conflict, cascade_disagreement"
+    ] ;
+    bc:hasProperty [
+        bc:property "consensus_threshold" ;
+        bc:type "percentage" ;
+        bc:range "10 to 90"
+    ] .
+
+ffs:AntiCache a owl:Class ;
+    rdfs:label "Anti-Cache" ;
+    rdfs:comment "Cache that deliberately evicts frequently used items" ;
+    bc:inherits ffs:FailureFirstStructure ;
+    bc:hasProperty [
+        bc:property "eviction_strategy" ;
+        bc:type "enumerated" ;
+        bc:values "most_used_first, random_chaos, heat_seeking"
+    ] ;
+    bc:hasProperty [
+        bc:property "miss_reward" ;
+        bc:type "score_multiplier" ;
+        bc:range "1.1 to 5.0"
+    ] .
+
+# Failure Propagation Patterns
+ffs:propagates_failure a owl:ObjectProperty ;
+    rdfs:domain ffs:FailureFirstStructure ;
+    rdfs:range ffs:FailureFirstStructure ;
+    rdfs:comment "One structure propagates failures to another" .
+
+ffs:amplifies_through a owl:ObjectProperty ;
+    rdfs:domain ffs:FailureFirstStructure ;
+    rdfs:range ffs:ErrorAccumulator ;
+    rdfs:comment "Structure amplifies errors through an accumulator" .
+
+ffs:degrades_to a owl:ObjectProperty ;
+    rdfs:domain ffs:FailureFirstStructure ;
+    rdfs:range ffs:FailureFirstStructure ;
+    rdfs:comment "Structure degrades to a simpler failure-resistant form" .
+
+# Failure Behavioral Patterns
+ffs:graceful_degradation a ffs:DegradationStrategy ;
+    rdfs:label "Graceful Degradation" ;
+    ffs:performance_curve "exponential_decay" ;
+    ffs:functionality_preservation "80%_at_2x_load" .
+
+ffs:aggressive_failure a ffs:DegradationStrategy ;
+    rdfs:label "Aggressive Failure" ;
+    ffs:performance_curve "cliff_edge" ;
+    ffs:functionality_preservation "fail_fast_at_threshold" .
+
+ffs:oscillating_instability a ffs:DegradationStrategy ;
+    rdfs:label "Oscillating Instability" ;
+    ffs:performance_curve "sine_wave" ;
+    ffs:functionality_preservation "periodic_availability" .
+
+ffs:cascade_collapse a ffs:DegradationStrategy ;
+    rdfs:label "Cascade Collapse" ;
+    ffs:performance_curve "avalanche" ;
+    ffs:functionality_preservation "controlled_system_failure" .
+
+# Structural Integrity Through Weakness
+ffs:StructuralWeakness a owl:Class ;
+    rdfs:label "Structural Weakness" ;
+    rdfs:comment "Deliberately introduced weakness that improves overall robustness" ;
+    bc:hasProperty [
+        bc:property "weakness_type" ;
+        bc:type "enumerated" ;
+        bc:values "capacity_limit, timing_vulnerability, consistency_gap"
+    ] ;
+    bc:hasProperty [
+        bc:property "strength_through_weakness" ;
+        bc:type "boolean"
+    ] .
+
+ffs:has_weakness a owl:ObjectProperty ;
+    rdfs:domain ffs:FailureFirstStructure ;
+    rdfs:range ffs:StructuralWeakness ;
+    rdfs:comment "Structure incorporates deliberate weakness for robustness" .
+
+# Error-Driven Operations
+ffs:ErrorDrivenOperation a owl:Class ;
+    rdfs:label "Error-Driven Operation" ;
+    rdfs:comment "Operation that uses errors as computational input" ;
+    bc:hasProperty [
+        bc:property "error_consumption_rate" ;
+        bc:type "errors_per_second" ;
+        bc:minimum "1"
+    ] ;
+    bc:hasProperty [
+        bc:property "output_quality" ;
+        bc:type "function_of_error_rate" ;
+        bc:formula "quality = error_rate * amplification_factor"
+    ] .
+
+ffs:supports_operation a owl:ObjectProperty ;
+    rdfs:domain ffs:FailureFirstStructure ;
+    rdfs:range ffs:ErrorDrivenOperation ;
+    rdfs:comment "Structure supports error-driven operations" .
+
+# Performance Anti-Patterns
+ffs:PerformanceAntiPattern a owl:Class ;
+    rdfs:label "Performance Anti-Pattern" ;
+    rdfs:comment "Pattern that achieves better performance through worse design" ;
+    bc:hasProperty [
+        bc:property "anti_optimization" ;
+        bc:type "enumerated" ;
+        bc:values "deliberate_cache_misses, intentional_branch_misprediction, strategic_memory_fragmentation"
+    ] ;
+    bc:hasProperty [
+        bc:property "paradox_factor" ;
+        bc:type "performance_multiplier" ;
+        bc:range "1.1 to 3.0"
+    ] .
+
+ffs:implements_anti_pattern a owl:ObjectProperty ;
+    rdfs:domain ffs:FailureFirstStructure ;
+    rdfs:range ffs:PerformanceAntiPattern ;
+    rdfs:comment "Structure implements performance anti-pattern" .
+
+# Failure Success Metrics
+ffs:FailureSuccessMetric a owl:Class ;
+    rdfs:label "Failure Success Metric" ;
+    rdfs:comment "Metric that measures success through failure characteristics" ;
+    bc:hasProperty [
+        bc:property "metric_type" ;
+        bc:type "enumerated" ;
+        bc:values "failure_elegance, error_productivity, chaos_effectiveness"
+    ] ;
+    bc:hasProperty [
+        bc:property "success_through_failure_score" ;
+        bc:type "percentage" ;
+        bc:range "0.0 to 100.0"
+    ] .
+
+ffs:measured_by a owl:ObjectProperty ;
+    rdfs:domain ffs:FailureFirstStructure ;
+    rdfs:range ffs:FailureSuccessMetric ;
+    rdfs:comment "Structure success is measured by specific failure metrics" .
+
+# Recovery Through Failure
+ffs:FailureRecoveryMechanism a owl:Class ;
+    rdfs:label "Failure Recovery Mechanism" ;
+    rdfs:comment "Mechanism that recovers by failing in a different way" ;
+    bc:hasProperty [
+        bc:property "recovery_strategy" ;
+        bc:type "enumerated" ;
+        bc:values "fail_differently, cascade_control, error_redirect"
+    ] ;
+    bc:hasProperty [
+        bc:property "recovery_success_rate" ;
+        bc:type "percentage" ;
+        bc:range "60.0 to 95.0"
+    ] .
+
+ffs:recovers_through a owl:ObjectProperty ;
+    rdfs:domain ffs:FailureFirstStructure ;
+    rdfs:range ffs:FailureRecoveryMechanism ;
+    rdfs:comment "Structure recovers through specific failure mechanisms" .

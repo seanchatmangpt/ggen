@@ -1,0 +1,38 @@
+@prefix cell8: <urn:cell8:gate:> .
+@prefix bos: <https://open-ontologies.org/bible-o-star#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+bos:Receipt_BibleOStar a cell8:Receipt ;
+    cell8:receiptHash "440dbbd6a4c0097bc2741ee1b4aed45b8cdc578b987c2462c4d37431177252bf" ;
+    cell8:hashAlgorithm "BLAKE3" ;
+    cell8:subjectPath "ontology/bible-o-star.ttl" ;
+    dcterms:created "2026-06-02T00:00:00Z"^^xsd:dateTime .
+
+bos:Receipt_Nehemiah52 a cell8:Receipt ;
+    cell8:receiptHash "8542c2705dc2fda203f6bb4626222d1fe5df6abab4ef4d960979acac7d5c833c" ;
+    cell8:previousReceipt bos:Receipt_BibleOStar ;
+    cell8:hashAlgorithm "BLAKE3" ;
+    cell8:subjectPath "ontology/nehemiah-52.ttl" ;
+    dcterms:created "2026-06-02T00:00:00Z"^^xsd:dateTime .
+
+bos:Receipt_Nehemiah52Shapes a cell8:Receipt ;
+    cell8:receiptHash "e7446f22a0aa571bb61d1efbcae0ba59e1c8e558dd7b3bd22853fd71e5ff8983" ;
+    cell8:previousReceipt bos:Receipt_Nehemiah52 ;
+    cell8:hashAlgorithm "BLAKE3" ;
+    cell8:subjectPath "ontology/nehemiah-52-shapes.ttl" ;
+    dcterms:created "2026-06-02T00:00:00Z"^^xsd:dateTime .
+
+bos:Receipt_SourceLedger a cell8:Receipt ;
+    cell8:receiptHash "37de03b9299a7dd6910213b5ab9e05bd9a0237504f477a4ea8b689c1aaa9700b" ;
+    cell8:previousReceipt bos:Receipt_Nehemiah52Shapes ;
+    cell8:hashAlgorithm "BLAKE3" ;
+    cell8:subjectPath "ontology/source-ledger.ttl" ;
+    dcterms:created "2026-06-02T00:00:00Z"^^xsd:dateTime .
+
+bos:SealAssertion a cell8:Seal ;
+    cell8:hasSignature "7a47e9cd8105f10dfb49e8a4aa0ae6ea8c89a1931c114bedac42da76cc4d41a7d927fb68f415d63d280d83fa18627a210343e1969b0a710fe6ee217cded1eb02" ;
+    cell8:signerPublicKey "477300eac25501eb3ce6923998b7595a16b19c5bc2df584090293528dcdf954c" ;
+    cell8:signatureAlgorithm "Ed25519" ;
+    cell8:signsReceipt bos:Receipt_SourceLedger ;
+    dcterms:created "2026-06-02T00:00:00Z"^^xsd:dateTime .

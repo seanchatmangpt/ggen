@@ -1,0 +1,406 @@
+@prefix pqc: <http://bytepqc.org/ontology/pqc#> .
+@prefix pqci: <http://bytepqc.org/ontology/implementation#> .
+@prefix pqca: <http://bytepqc.org/ontology/algorithms#> .
+@prefix pqcs: <http://bytepqc.org/ontology/security#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Post-Quantum Cryptographic Implementation Patterns Ontology
+# Dark 80/20 Canon: Implementation patterns ARE the execution, not descriptions of code
+
+<http://bytepqc.org/ontology/implementation> rdf:type owl:Ontology ;
+    rdfs:label "PQC Implementation Patterns Ontology"@en ;
+    rdfs:comment "Self-referential ontology where implementation patterns ARE the computational execution"@en ;
+    owl:versionInfo "1.0.0" .
+
+# ==== CORE IMPLEMENTATION CLASSES ====
+
+pqci:ImplementationPattern rdf:type owl:Class ;
+    rdfs:label "Implementation Pattern"@en ;
+    rdfs:comment "Base class for implementation patterns that ARE the execution, not descriptions"@en .
+
+pqci:ExecutionContext rdf:type owl:Class ;
+    rdfs:subClassOf pqci:ImplementationPattern ;
+    rdfs:label "Execution Context"@en ;
+    rdfs:comment "Runtime context that IS the computational environment"@en .
+
+pqci:MemoryPattern rdf:type owl:Class ;
+    rdfs:subClassOf pqci:ImplementationPattern ;
+    rdfs:label "Memory Pattern"@en ;
+    rdfs:comment "Memory management pattern that IS the memory organization"@en .
+
+pqci:ComputationalPattern rdf:type owl:Class ;
+    rdfs:subClassOf pqci:ImplementationPattern ;
+    rdfs:label "Computational Pattern"@en ;
+    rdfs:comment "Computation pattern that IS the algorithmic execution"@en .
+
+# ==== CONSTANT-TIME IMPLEMENTATION ====
+
+pqci:ConstantTimePattern rdf:type owl:Class ;
+    rdfs:subClassOf pqci:ImplementationPattern ;
+    rdfs:label "Constant-Time Pattern"@en ;
+    rdfs:comment "Constant-time execution pattern that IS side-channel resistance"@en ;
+    pqci:providesResistance pqcs:TimingAttackResistance .
+
+pqci:ConstantTimeArithmetic rdf:type owl:Class ;
+    rdfs:subClassOf pqci:ConstantTimePattern ;
+    rdfs:label "Constant-Time Arithmetic"@en ;
+    rdfs:comment "Arithmetic operations that execute in constant time regardless of input"@en .
+
+pqci:ConstantTimeMemoryAccess rdf:type owl:Class ;
+    rdfs:subClassOf pqci:ConstantTimePattern ;
+    rdfs:label "Constant-Time Memory Access"@en ;
+    rdfs:comment "Memory access patterns that ARE cache-attack resistance"@en ;
+    pqci:providesResistance pqcs:CacheAttackResistance .
+
+pqci:ConditionalSwap rdf:type owl:Class ;
+    rdfs:subClassOf pqci:ConstantTimePattern ;
+    rdfs:label "Conditional Swap"@en ;
+    rdfs:comment "Branch-free conditional operations using mask-based selection"@en .
+
+pqci:MaskBasedSelection rdf:type owl:Class ;
+    rdfs:subClassOf pqci:ConstantTimePattern ;
+    rdfs:label "Mask-Based Selection"@en ;
+    rdfs:comment "Selection without branches using bitwise masking"@en .
+
+# ==== SIMD IMPLEMENTATION PATTERNS ====
+
+pqci:SIMDPattern rdf:type owl:Class ;
+    rdfs:subClassOf pqci:ComputationalPattern ;
+    rdfs:label "SIMD Pattern"@en ;
+    rdfs:comment "Single Instruction Multiple Data pattern that IS parallel computation"@en .
+
+pqci:VectorArithmetic rdf:type owl:Class ;
+    rdfs:subClassOf pqci:SIMDPattern ;
+    rdfs:label "Vector Arithmetic"@en ;
+    rdfs:comment "Vectorized arithmetic operations that ARE parallel execution"@en .
+
+pqci:ParallelNTT rdf:type owl:Class ;
+    rdfs:subClassOf pqci:SIMDPattern ;
+    rdfs:label "Parallel NTT"@en ;
+    rdfs:comment "Parallel Number Theoretic Transform that IS vectorized polynomial multiplication"@en .
+
+pqci:AVX2Implementation rdf:type owl:Class ;
+    rdfs:subClassOf pqci:SIMDPattern ;
+    rdfs:label "AVX2 Implementation"@en ;
+    rdfs:comment "AVX2 vectorization that IS 256-bit parallel computation"@en ;
+    pqci:hasVectorWidth 256 .
+
+pqci:AVX512Implementation rdf:type owl:Class ;
+    rdfs:subClassOf pqci:SIMDPattern ;
+    rdfs:label "AVX-512 Implementation"@en ;
+    rdfs:comment "AVX-512 vectorization that IS 512-bit parallel computation"@en ;
+    pqci:hasVectorWidth 512 .
+
+pqci:NEONImplementation rdf:type owl:Class ;
+    rdfs:subClassOf pqci:SIMDPattern ;
+    rdfs:label "NEON Implementation"@en ;
+    rdfs:comment "ARM NEON vectorization that IS 128-bit parallel computation"@en ;
+    pqci:hasVectorWidth 128 .
+
+# ==== MEMORY-SAFE PATTERNS ====
+
+pqci:MemorySafetyPattern rdf:type owl:Class ;
+    rdfs:subClassOf pqci:MemoryPattern ;
+    rdfs:label "Memory Safety Pattern"@en ;
+    rdfs:comment "Memory safety pattern that IS memory protection"@en .
+
+pqci:BoundsChecking rdf:type owl:Class ;
+    rdfs:subClassOf pqci:MemorySafetyPattern ;
+    rdfs:label "Bounds Checking"@en ;
+    rdfs:comment "Array bounds verification that IS buffer overflow prevention"@en .
+
+pqci:StackProtection rdf:type owl:Class ;
+    rdfs:subClassOf pqci:MemorySafetyPattern ;
+    rdfs:label "Stack Protection"@en ;
+    rdfs:comment "Stack overflow protection that IS runtime security"@en .
+
+pqci:HeapManagement rdf:type owl:Class ;
+    rdfs:subClassOf pqci:MemorySafetyPattern ;
+    rdfs:label "Secure Heap Management"@en ;
+    rdfs:comment "Secure heap operations that ARE memory integrity"@en .
+
+pqci:MemoryZeroization rdf:type owl:Class ;
+    rdfs:subClassOf pqci:MemorySafetyPattern ;
+    rdfs:label "Memory Zeroization"@en ;
+    rdfs:comment "Secure memory clearing that IS data erasure"@en .
+
+pqci:SecureAllocator rdf:type owl:Class ;
+    rdfs:subClassOf pqci:MemorySafetyPattern ;
+    rdfs:label "Secure Allocator"@en ;
+    rdfs:comment "Security-hardened memory allocator"@en .
+
+# ==== POLYNOMIAL ARITHMETIC PATTERNS ====
+
+pqci:PolynomialPattern rdf:type owl:Class ;
+    rdfs:subClassOf pqci:ComputationalPattern ;
+    rdfs:label "Polynomial Pattern"@en ;
+    rdfs:comment "Polynomial computation pattern that IS the algebraic structure"@en .
+
+pqci:NTTPattern rdf:type owl:Class ;
+    rdfs:subClassOf pqci:PolynomialPattern ;
+    rdfs:label "NTT Pattern"@en ;
+    rdfs:comment "Number Theoretic Transform that IS polynomial multiplication"@en .
+
+pqci:SchoolbookMultiplication rdf:type owl:Class ;
+    rdfs:subClassOf pqci:PolynomialPattern ;
+    rdfs:label "Schoolbook Multiplication"@en ;
+    rdfs:comment "Direct polynomial multiplication for small degrees"@en .
+
+pqci:KaratsubaMultiplication rdf:type owl:Class ;
+    rdfs:subClassOf pqci:PolynomialPattern ;
+    rdfs:label "Karatsuba Multiplication"@en ;
+    rdfs:comment "Karatsuba algorithm for medium-degree polynomials"@en .
+
+pqci:BarrettReduction rdf:type owl:Class ;
+    rdfs:subClassOf pqci:PolynomialPattern ;
+    rdfs:label "Barrett Reduction"@en ;
+    rdfs:comment "Barrett reduction that IS modular arithmetic optimization"@en .
+
+pqci:MontgomeryReduction rdf:type owl:Class ;
+    rdfs:subClassOf pqci:PolynomialPattern ;
+    rdfs:label "Montgomery Reduction"@en ;
+    rdfs:comment "Montgomery reduction in Montgomery form"@en .
+
+# ==== LATTICE-SPECIFIC PATTERNS ====
+
+pqci:LatticeImplementationPattern rdf:type owl:Class ;
+    rdfs:subClassOf pqci:ImplementationPattern ;
+    rdfs:label "Lattice Implementation Pattern"@en ;
+    rdfs:comment "Lattice-specific patterns that ARE the lattice computation"@en .
+
+pqci:SamplingPattern rdf:type owl:Class ;
+    rdfs:subClassOf pqci:LatticeImplementationPattern ;
+    rdfs:label "Sampling Pattern"@en ;
+    rdfs:comment "Lattice sampling pattern that IS the random distribution"@en .
+
+pqci:GaussianSampling rdf:type owl:Class ;
+    rdfs:subClassOf pqci:SamplingPattern ;
+    rdfs:label "Gaussian Sampling"@en ;
+    rdfs:comment "Discrete Gaussian sampling for lattice signatures"@en .
+
+pqci:UniformSampling rdf:type owl:Class ;
+    rdfs:subClassOf pqci:SamplingPattern ;
+    rdfs:label "Uniform Sampling"@en ;
+    rdfs:comment "Uniform random sampling for key generation"@en .
+
+pqci:CenteredBinomialSampling rdf:type owl:Class ;
+    rdfs:subClassOf pqci:SamplingPattern ;
+    rdfs:label "Centered Binomial Sampling"@en ;
+    rdfs:comment "CBD sampling used in Kyber for error vectors"@en .
+
+pqci:RejectionSampling rdf:type owl:Class ;
+    rdfs:subClassOf pqci:SamplingPattern ;
+    rdfs:label "Rejection Sampling"@en ;
+    rdfs:comment "Rejection sampling for precise distributions"@en .
+
+# ==== BYTEACTOR INTEGRATION PATTERNS ====
+
+pqci:ByteActorPattern rdf:type owl:Class ;
+    rdfs:subClassOf pqci:ImplementationPattern ;
+    rdfs:label "ByteActor Pattern"@en ;
+    rdfs:comment "ByteActor integration pattern that IS the actor computation"@en .
+
+pqci:KernelRegistration rdf:type owl:Class ;
+    rdfs:subClassOf pqci:ByteActorPattern ;
+    rdfs:label "Kernel Registration"@en ;
+    rdfs:comment "Actor kernel registration that IS the computational interface"@en .
+
+pqci:ActorInvocation rdf:type owl:Class ;
+    rdfs:subClassOf pqci:ByteActorPattern ;
+    rdfs:label "Actor Invocation"@en ;
+    rdfs:comment "Actor invocation pattern that IS the execution dispatch"@en .
+
+pqci:TypedBlobs rdf:type owl:Class ;
+    rdfs:subClassOf pqci:ByteActorPattern ;
+    rdfs:label "Typed Blobs"@en ;
+    rdfs:comment "Typed blob interface that IS the data abstraction"@en .
+
+# ==== PERFORMANCE OPTIMIZATION PATTERNS ====
+
+pqci:OptimizationPattern rdf:type owl:Class ;
+    rdfs:subClassOf pqci:ImplementationPattern ;
+    rdfs:label "Optimization Pattern"@en ;
+    rdfs:comment "Performance optimization that IS the computational efficiency"@en .
+
+pqci:LoopUnrolling rdf:type owl:Class ;
+    rdfs:subClassOf pqci:OptimizationPattern ;
+    rdfs:label "Loop Unrolling"@en ;
+    rdfs:comment "Loop unrolling that IS instruction-level parallelism"@en .
+
+pqci:CacheOptimization rdf:type owl:Class ;
+    rdfs:subClassOf pqci:OptimizationPattern ;
+    rdfs:label "Cache Optimization"@en ;
+    rdfs:comment "Cache-friendly memory access that IS locality optimization"@en .
+
+pqci:PrefetchOptimization rdf:type owl:Class ;
+    rdfs:subClassOf pqci:OptimizationPattern ;
+    rdfs:label "Prefetch Optimization"@en ;
+    rdfs:comment "Memory prefetching that IS latency hiding"@en .
+
+pqci:InlineAssembly rdf:type owl:Class ;
+    rdfs:subClassOf pqci:OptimizationPattern ;
+    rdfs:label "Inline Assembly"@en ;
+    rdfs:comment "Hand-optimized assembly that IS maximum performance"@en .
+
+# ==== COMPILER OPTIMIZATION PATTERNS ====
+
+pqci:CompilerPattern rdf:type owl:Class ;
+    rdfs:subClassOf pqci:OptimizationPattern ;
+    rdfs:label "Compiler Pattern"@en ;
+    rdfs:comment "Compiler-guided optimization that IS compilation efficiency"@en .
+
+pqci:AutoVectorization rdf:type owl:Class ;
+    rdfs:subClassOf pqci:CompilerPattern ;
+    rdfs:label "Auto-Vectorization"@en ;
+    rdfs:comment "Compiler auto-vectorization hints"@en .
+
+pqci:FunctionInlining rdf:type owl:Class ;
+    rdfs:subClassOf pqci:CompilerPattern ;
+    rdfs:label "Function Inlining"@en ;
+    rdfs:comment "Strategic function inlining for call overhead elimination"@en .
+
+pqci:ConstantPropagation rdf:type owl:Class ;
+    rdfs:subClassOf pqci:CompilerPattern ;
+    rdfs:label "Constant Propagation"@en ;
+    rdfs:comment "Compile-time constant optimization"@en .
+
+# ==== PLATFORM-SPECIFIC PATTERNS ====
+
+pqci:PlatformPattern rdf:type owl:Class ;
+    rdfs:subClassOf pqci:ImplementationPattern ;
+    rdfs:label "Platform Pattern"@en ;
+    rdfs:comment "Platform-specific optimization that IS hardware utilization"@en .
+
+pqci:x86_64Pattern rdf:type owl:Class ;
+    rdfs:subClassOf pqci:PlatformPattern ;
+    rdfs:label "x86-64 Pattern"@en ;
+    rdfs:comment "Intel/AMD x86-64 specific optimizations"@en .
+
+pqci:AArch64Pattern rdf:type owl:Class ;
+    rdfs:subClassOf pqci:PlatformPattern ;
+    rdfs:label "AArch64 Pattern"@en ;
+    rdfs:comment "ARM AArch64 specific optimizations"@en .
+
+pqci:RISC_V_Pattern rdf:type owl:Class ;
+    rdfs:subClassOf pqci:PlatformPattern ;
+    rdfs:label "RISC-V Pattern"@en ;
+    rdfs:comment "RISC-V specific optimizations"@en .
+
+# ==== PROPERTIES ====
+
+pqci:hasVectorWidth rdf:type owl:DatatypeProperty ;
+    rdfs:domain pqci:SIMDPattern ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:label "has vector width"@en ;
+    rdfs:comment "SIMD vector width in bits"@en .
+
+pqci:providesResistance rdf:type owl:ObjectProperty ;
+    rdfs:domain pqci:ImplementationPattern ;
+    rdfs:range pqcs:SideChannelResistance ;
+    rdfs:label "provides resistance"@en .
+
+pqci:optimizesFor rdf:type owl:ObjectProperty ;
+    rdfs:domain pqci:OptimizationPattern ;
+    rdfs:range pqci:PerformanceMetric ;
+    rdfs:label "optimizes for"@en .
+
+pqci:requiresHardware rdf:type owl:ObjectProperty ;
+    rdfs:domain pqci:ImplementationPattern ;
+    rdfs:range pqci:HardwareFeature ;
+    rdfs:label "requires hardware"@en .
+
+pqci:hasComplexity rdf:type owl:ObjectProperty ;
+    rdfs:domain pqci:ComputationalPattern ;
+    rdfs:range pqci:ComputationalComplexity ;
+    rdfs:label "has complexity"@en .
+
+pqci:implementsAlgorithm rdf:type owl:ObjectProperty ;
+    rdfs:domain pqci:ImplementationPattern ;
+    rdfs:range pqca:CryptographicAlgorithm ;
+    rdfs:label "implements algorithm"@en .
+
+# ==== PERFORMANCE METRICS ====
+
+pqci:PerformanceMetric rdf:type owl:Class ;
+    rdfs:label "Performance Metric"@en .
+
+pqci:Throughput rdf:type pqci:PerformanceMetric ;
+    rdfs:label "Throughput"@en .
+
+pqci:Latency rdf:type pqci:PerformanceMetric ;
+    rdfs:label "Latency"@en .
+
+pqci:MemoryUsage rdf:type pqci:PerformanceMetric ;
+    rdfs:label "Memory Usage"@en .
+
+pqci:CodeSize rdf:type pqci:PerformanceMetric ;
+    rdfs:label "Code Size"@en .
+
+# ==== HARDWARE FEATURES ====
+
+pqci:HardwareFeature rdf:type owl:Class ;
+    rdfs:label "Hardware Feature"@en .
+
+pqci:AVX2 rdf:type pqci:HardwareFeature ;
+    rdfs:label "AVX2"@en .
+
+pqci:AVX512 rdf:type pqci:HardwareFeature ;
+    rdfs:label "AVX-512"@en .
+
+pqci:NEON rdf:type pqci:HardwareFeature ;
+    rdfs:label "ARM NEON"@en .
+
+pqci:AES_NI rdf:type pqci:HardwareFeature ;
+    rdfs:label "AES-NI"@en .
+
+pqci:RDRAND rdf:type pqci:HardwareFeature ;
+    rdfs:label "RDRAND"@en .
+
+# ==== DARK 80/20 CANON SELF-REFERENTIAL RELATIONSHIPS ====
+
+# Implementation patterns ARE the execution they describe
+pqci:ImplementationPattern pqci:isExecution pqci:ImplementationPattern .
+
+# Constant-time patterns ARE the timing invariance
+pqci:ConstantTimePattern pqci:isTimingInvariance pqci:ConstantTimePattern .
+
+# SIMD patterns ARE the parallel computation
+pqci:SIMDPattern pqci:isParallelism pqci:SIMDPattern .
+
+# Memory patterns ARE the memory organization
+pqci:MemoryPattern pqci:isMemoryOrganization pqci:MemoryPattern .
+
+# Polynomial patterns ARE the algebraic operations
+pqci:PolynomialPattern pqci:isAlgebraicOperation pqci:PolynomialPattern .
+
+# Optimization patterns ARE the performance improvement
+pqci:OptimizationPattern pqci:isPerformanceImprovement pqci:OptimizationPattern .
+
+# ByteActor patterns ARE the actor computation
+pqci:ByteActorPattern pqci:isActorComputation pqci:ByteActorPattern .
+
+# Self-referential properties
+pqci:isExecution rdf:type owl:ObjectProperty, owl:ReflexiveProperty ;
+    rdfs:label "is execution"@en ;
+    rdfs:comment "Implementation patterns are their own execution embodiment"@en .
+
+pqci:isTimingInvariance rdf:type owl:ObjectProperty, owl:ReflexiveProperty ;
+    rdfs:label "is timing invariance"@en .
+
+pqci:isParallelism rdf:type owl:ObjectProperty, owl:ReflexiveProperty ;
+    rdfs:label "is parallelism"@en .
+
+pqci:isMemoryOrganization rdf:type owl:ObjectProperty, owl:ReflexiveProperty ;
+    rdfs:label "is memory organization"@en .
+
+pqci:isAlgebraicOperation rdf:type owl:ObjectProperty, owl:ReflexiveProperty ;
+    rdfs:label "is algebraic operation"@en .
+
+pqci:isPerformanceImprovement rdf:type owl:ObjectProperty, owl:ReflexiveProperty ;
+    rdfs:label "is performance improvement"@en .
+
+pqci:isActorComputation rdf:type owl:ObjectProperty, owl:ReflexiveProperty ;
+    rdfs:label "is actor computation"@en .

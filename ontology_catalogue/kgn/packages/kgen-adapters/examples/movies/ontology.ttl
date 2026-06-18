@@ -1,0 +1,142 @@
+@prefix : <http://movies.example.org/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Classes
+:Movie a owl:Class ;
+    rdfs:label "Movie" ;
+    rdfs:comment "A motion picture film" .
+
+:Person a owl:Class ;
+    rdfs:label "Person" .
+
+:Actor rdfs:subClassOf :Person ;
+    rdfs:label "Actor" .
+
+:Director rdfs:subClassOf :Person ;
+    rdfs:label "Director" .
+
+:Genre a owl:Class ;
+    rdfs:label "Genre" ;
+    owl:oneOf (:Action :Drama :Comedy :SciFi :Thriller :Horror :Documentary) .
+
+:Studio a owl:Class ;
+    rdfs:label "Production Studio" .
+
+:Award a owl:Class ;
+    rdfs:label "Award" .
+
+:Oscar rdfs:subClassOf :Award .
+:GoldenGlobe rdfs:subClassOf :Award .
+
+# Object Properties
+:actedIn a owl:ObjectProperty ;
+    rdfs:domain :Actor ;
+    rdfs:range :Movie ;
+    owl:inverseOf :hasActor .
+
+:directed a owl:ObjectProperty ;
+    rdfs:domain :Director ;
+    rdfs:range :Movie ;
+    owl:inverseOf :hasDirector ;
+    rdfs:comment "Director directed a movie" .
+
+:hasActor a owl:ObjectProperty ;
+    rdfs:domain :Movie ;
+    rdfs:range :Actor .
+
+:hasDirector a owl:ObjectProperty, owl:FunctionalProperty ;
+    rdfs:domain :Movie ;
+    rdfs:range :Director ;
+    rdfs:comment "A movie has exactly one main director" .
+
+:hasGenre a owl:ObjectProperty ;
+    rdfs:domain :Movie ;
+    rdfs:range :Genre .
+
+:producedBy a owl:ObjectProperty ;
+    rdfs:domain :Movie ;
+    rdfs:range :Studio .
+
+:wonAward a owl:ObjectProperty ;
+    rdfs:domain [:unionOf (:Movie :Person)] ;
+    rdfs:range :Award .
+
+:hasSequel a owl:ObjectProperty, owl:TransitiveProperty ;
+    rdfs:domain :Movie ;
+    rdfs:range :Movie ;
+    rdfs:comment "Transitive property for movie sequels" .
+
+:collaboratedWith a owl:ObjectProperty, owl:SymmetricProperty ;
+    rdfs:domain :Person ;
+    rdfs:range :Person ;
+    rdfs:comment "Symmetric collaboration relationship" .
+
+# Datatype Properties
+:title a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:domain :Movie ;
+    rdfs:range xsd:string .
+
+:releaseDate a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:domain :Movie ;
+    rdfs:range xsd:date .
+
+:runtime a owl:DatatypeProperty ;
+    rdfs:domain :Movie ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Runtime in minutes" .
+
+:budget a owl:DatatypeProperty ;
+    rdfs:domain :Movie ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Budget in USD" .
+
+:boxOffice a owl:DatatypeProperty ;
+    rdfs:domain :Movie ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Box office revenue in USD" .
+
+:rating a owl:DatatypeProperty ;
+    rdfs:domain :Movie ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Rating from 0 to 10" .
+
+:name a owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:string .
+
+:birthDate a owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:date .
+
+# Complex Class Definitions
+:BlockbusterMovie owl:equivalentClass [
+    owl:intersectionOf (
+        :Movie
+        [ a owl:Restriction ;
+          owl:onProperty :boxOffice ;
+          owl:someValuesFrom [
+              a rdfs:Datatype ;
+              owl:onDatatype xsd:decimal ;
+              owl:withRestrictions ([xsd:minExclusive 100000000])
+          ]
+        ]
+    )
+] ;
+rdfs:comment "A movie with box office over $100M" .
+
+:OscarWinningActor owl:equivalentClass [
+    owl:intersectionOf (
+        :Actor
+        [ a owl:Restriction ;
+          owl:onProperty :wonAward ;
+          owl:someValuesFrom :Oscar
+        ]
+    )
+] .
+
+# Property Chain
+:workedWithDirector owl:propertyChainAxiom (:actedIn :hasDirector) ;
+    rdfs:comment "Actor worked with director through a movie" .

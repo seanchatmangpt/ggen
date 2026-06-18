@@ -1,0 +1,243 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix dspy: <http://dspy.ai/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# ============================================================================
+# SHACL Shapes for DSPy Signature Validation
+# ============================================================================
+
+# Shape for validating DSPy Signatures
+dspy:SignatureShape a sh:NodeShape ;
+    sh:targetClass dspy:Signature ;
+    rdfs:label "DSPy Signature Validation Shape" ;
+    sh:property [
+        sh:path dspy:hasInputField ;
+        sh:minCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:class dspy:InputField ;
+        sh:name "Input Fields" ;
+        sh:message "A signature must have at least one input field" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path dspy:hasOutputField ;
+        sh:minCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:class dspy:OutputField ;
+        sh:name "Output Fields" ;
+        sh:message "A signature must have at least one output field" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path dspy:hasInstruction ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:maxLength 1000 ;
+        sh:name "Instructions" ;
+        sh:message "A signature can have at most one instruction (max 1000 chars)" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:name "Signature Label" ;
+        sh:message "A signature must have exactly one label" ;
+        sh:severity sh:Warning
+    ] .
+
+# Shape for validating Fields (both Input and Output)
+dspy:FieldShape a sh:NodeShape ;
+    sh:targetClass dspy:Field ;
+    rdfs:label "DSPy Field Validation Shape" ;
+    sh:property [
+        sh:path dspy:hasFieldName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-zA-Z_][a-zA-Z0-9_]*$" ;
+        sh:maxLength 64 ;
+        sh:name "Field Name" ;
+        sh:message "Field must have exactly one valid Python identifier name (max 64 chars)" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path dspy:hasFieldType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ("str" "int" "float" "bool" "list" "dict") ;
+        sh:name "Field Type" ;
+        sh:message "Field must have exactly one valid Python type" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path dspy:hasDescription ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:maxLength 500 ;
+        sh:name "Field Description" ;
+        sh:message "Field description must not exceed 500 characters" ;
+        sh:severity sh:Warning
+    ] .
+
+# Memory-bound constraints for 7-tick compliance
+dspy:MemoryBoundSignatureShape a sh:NodeShape ;
+    sh:targetClass dspy:Signature ;
+    rdfs:label "Memory-Bound Signature Shape" ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:select """
+            PREFIX dspy: <http://dspy.ai/ontology#>
+            SELECT $this (COUNT(DISTINCT ?field) AS ?fieldCount)
+            WHERE {
+                $this (dspy:hasInputField|dspy:hasOutputField) ?field .
+            }
+            GROUP BY $this
+            HAVING (?fieldCount > 10)
+        """ ;
+        sh:message "Total field count exceeds memory-bound limit of 10 fields" ;
+        sh:severity sh:Violation
+    ] .
+
+# Ensure unique field names within a signature
+dspy:UniqueFieldNamesShape a sh:NodeShape ;
+    sh:targetClass dspy:Signature ;
+    rdfs:label "Unique Field Names Shape" ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:select """
+            PREFIX dspy: <http://dspy.ai/ontology#>
+            SELECT $this ?name (COUNT(DISTINCT ?field) AS ?count)
+            WHERE {
+                $this (dspy:hasInputField|dspy:hasOutputField) ?field .
+                ?field dspy:hasFieldName ?name .
+            }
+            GROUP BY $this ?name
+            HAVING (?count > 1)
+        """ ;
+        sh:message "Field names must be unique within a signature" ;
+        sh:severity sh:Violation
+    ] .
+
+# Validate semantic field names (avoid non-descriptive names)
+dspy:SemanticFieldNameShape a sh:NodeShape ;
+    sh:targetClass dspy:Field ;
+    rdfs:label "Semantic Field Name Shape" ;
+    sh:property [
+        sh:path dspy:hasFieldName ;
+        sh:pattern "^(?!.*(foo|bar|test|temp|tmp|var[0-9]+|field[0-9]+))" ;
+        sh:flags "i" ;
+        sh:message "Field names should be semantically meaningful (avoid foo, bar, test, temp, etc.)" ;
+        sh:severity sh:Warning
+    ] .
+
+# Ensure consistent field types across module signatures
+dspy:ModuleFieldConsistencyShape a sh:NodeShape ;
+    sh:targetClass dspy:Module ;
+    rdfs:label "Module Field Consistency Shape" ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:select """
+            PREFIX dspy: <http://dspy.ai/ontology#>
+            SELECT $this ?fieldName ?type1 ?type2
+            WHERE {
+                $this dspy:hasSignature ?sig1, ?sig2 .
+                ?sig1 (dspy:hasInputField|dspy:hasOutputField) ?field1 .
+                ?sig2 (dspy:hasInputField|dspy:hasOutputField) ?field2 .
+                ?field1 dspy:hasFieldName ?fieldName .
+                ?field2 dspy:hasFieldName ?fieldName .
+                ?field1 dspy:hasFieldType ?type1 .
+                ?field2 dspy:hasFieldType ?type2 .
+                FILTER(?sig1 != ?sig2 && ?type1 != ?type2)
+            }
+        """ ;
+        sh:message "Fields with the same name must have consistent types across signatures" ;
+        sh:severity sh:Violation
+    ] .
+
+# Validate instruction quality
+dspy:InstructionQualityShape a sh:NodeShape ;
+    sh:targetClass dspy:Signature ;
+    rdfs:label "Instruction Quality Shape" ;
+    sh:property [
+        sh:path dspy:hasInstruction ;
+        sh:minLength 10 ;
+        sh:pattern ".*[.!?]$" ;
+        sh:message "Instructions should be complete sentences (min 10 chars, end with punctuation)" ;
+        sh:severity sh:Warning
+    ] .
+
+# Validate proper input/output field balance
+dspy:FieldBalanceShape a sh:NodeShape ;
+    sh:targetClass dspy:Signature ;
+    rdfs:label "Field Balance Shape" ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:select """
+            PREFIX dspy: <http://dspy.ai/ontology#>
+            SELECT $this ?inputCount ?outputCount
+            WHERE {
+                {
+                    SELECT $this (COUNT(DISTINCT ?input) AS ?inputCount)
+                    WHERE { $this dspy:hasInputField ?input }
+                    GROUP BY $this
+                }
+                {
+                    SELECT $this (COUNT(DISTINCT ?output) AS ?outputCount)
+                    WHERE { $this dspy:hasOutputField ?output }
+                    GROUP BY $this
+                }
+                FILTER(?inputCount > 5 || ?outputCount > 5)
+            }
+        """ ;
+        sh:message "Signatures should not have more than 5 input or output fields for optimal performance" ;
+        sh:severity sh:Warning
+    ] .
+
+# Validate field descriptions are provided
+dspy:FieldDescriptionShape a sh:NodeShape ;
+    sh:targetClass dspy:Field ;
+    rdfs:label "Field Description Shape" ;
+    sh:property [
+        sh:path dspy:hasDescription ;
+        sh:minCount 1 ;
+        sh:minLength 10 ;
+        sh:message "Fields should have meaningful descriptions (min 10 chars)" ;
+        sh:severity sh:Info
+    ] .
+
+# Performance-oriented constraint for 7-tick compliance
+dspy:SevenTickComplianceShape a sh:NodeShape ;
+    sh:targetClass dspy:Signature ;
+    rdfs:label "Seven Tick Compliance Shape" ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:maxLength 100 ;
+        sh:message "Signature labels should be concise for 7-tick processing (max 100 chars)" ;
+        sh:severity sh:Warning
+    ] ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:select """
+            PREFIX dspy: <http://dspy.ai/ontology#>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT $this (SUM(STRLEN(?text)) AS ?totalChars)
+            WHERE {
+                {
+                    $this dspy:hasInstruction ?inst .
+                    BIND(?inst AS ?text)
+                } UNION {
+                    $this (dspy:hasInputField|dspy:hasOutputField) ?field .
+                    ?field dspy:hasDescription ?desc .
+                    BIND(?desc AS ?text)
+                }
+            }
+            GROUP BY $this
+            HAVING (?totalChars > 2000)
+        """ ;
+        sh:message "Total text content exceeds 2000 chars - may impact 7-tick compliance" ;
+        sh:severity sh:Warning
+    ] .

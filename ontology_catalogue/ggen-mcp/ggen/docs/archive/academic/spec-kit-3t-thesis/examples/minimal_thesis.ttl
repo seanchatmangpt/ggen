@@ -1,0 +1,117 @@
+@prefix thesis: <http://github.com/seanchatmangpt/spec-kit-3t/thesis#> .
+@prefix : <http://github.com/seanchatmangpt/spec-kit-3t/content#> .
+
+#==============================================================================
+# Minimal Thesis Example
+# Demonstrates the minimum required RDF structure for thesis generation
+#==============================================================================
+
+# Thesis metadata
+:minimal-thesis a thesis:PhDThesis ;
+    thesis:hasTitle "A Minimal Thesis Example" ;
+    thesis:hasSubtitle "Demonstrating RDF-First Thesis Generation" ;
+    thesis:hasYear "2025" ;
+    thesis:hasAbstract :minimal-abstract ;
+    thesis:dedication "To students learning RDF-based documentation systems." ;
+    thesis:acknowledgments "Thanks to the Semantic Web community for inspiration." ;
+    thesis:keywords "RDF, Ontology, Thesis, Documentation" .
+
+# Abstract content
+:minimal-abstract thesis:hasContent """
+This minimal thesis demonstrates the basic RDF structure required for generating
+a complete PhD thesis using the Spec-Kit-3T framework. The constitutional equation
+docs = μ(ontology.ttl) ensures deterministic generation from semantic knowledge.
+""" .
+
+# Author information
+:author-example a thesis:Author ;
+    thesis:hasName "Example Author" .
+
+# Chapter 1: Introduction
+:chapter-01 a thesis:Chapter ;
+    thesis:chapterNumber 1 ;
+    thesis:chapterTitle "Introduction" ;
+    thesis:hasSection :ch1-sec1, :ch1-sec2, :ch1-sec3 .
+
+:ch1-sec1 a thesis:Section ;
+    thesis:sectionNumber 1 ;
+    thesis:sectionTitle "Background" ;
+    thesis:sectionContent """
+This section provides background on RDF-based thesis generation.
+The Spec-Kit-3T framework uses Turtle ontologies as the source of truth.
+""" .
+
+:ch1-sec2 a thesis:Section ;
+    thesis:sectionNumber 2 ;
+    thesis:sectionTitle "Motivation" ;
+    thesis:sectionContent """
+Traditional thesis writing suffers from format inconsistencies and manual duplication.
+By treating documentation as a projection of knowledge graphs, we achieve guaranteed consistency.
+""" .
+
+:ch1-sec3 a thesis:Section ;
+    thesis:sectionNumber 3 ;
+    thesis:sectionTitle "Research Questions" ;
+    thesis:sectionContent """
+1. Can RDF ontologies serve as the single source of truth for academic writing?
+2. Does the constitutional equation ensure deterministic generation?
+3. What are the benefits compared to traditional LaTeX workflows?
+""" .
+
+# Chapter 2: Literature Review
+:chapter-02 a thesis:Chapter ;
+    thesis:chapterNumber 2 ;
+    thesis:chapterTitle "Literature Review" ;
+    thesis:hasSection :ch2-sec1, :ch2-sec2 .
+
+:ch2-sec1 a thesis:Section ;
+    thesis:sectionNumber 1 ;
+    thesis:sectionTitle "Semantic Web Foundations" ;
+    thesis:sectionContent """
+The Semantic Web provides a framework for knowledge representation using RDF triples.
+SPARQL queries enable structured extraction of information from these graphs.
+""" .
+
+:ch2-sec2 a thesis:Section ;
+    thesis:sectionNumber 2 ;
+    thesis:sectionTitle "Template-Based Generation" ;
+    thesis:sectionContent """
+Template engines like Tera and Jinja2 project structured data into various formats.
+Combined with SHACL validation, this ensures data quality before generation.
+""" .
+
+# Chapter 3: Methodology
+:chapter-03 a thesis:Chapter ;
+    thesis:chapterNumber 3 ;
+    thesis:chapterTitle "Methodology" ;
+    thesis:hasSection :ch3-sec1, :ch3-sec2, :ch3-sec3 .
+
+:ch3-sec1 a thesis:Section ;
+    thesis:sectionNumber 1 ;
+    thesis:sectionTitle "The 3T Methodology" ;
+    thesis:sectionContent """
+The 3T methodology combines:
+1. TOML - Configuration management
+2. Tera - Template rendering
+3. Turtle - Knowledge representation
+""" .
+
+:ch3-sec2 a thesis:Section ;
+    thesis:sectionNumber 2 ;
+    thesis:sectionTitle "Pipeline Architecture" ;
+    thesis:sectionContent """
+The generation pipeline consists of five stages (μ₁-μ₅):
+- μ₁: Load RDF and validate with SHACL
+- μ₂: Extract data via SPARQL queries
+- μ₃: Render templates
+- μ₄: Write output files
+- μ₅: Generate cryptographic receipts
+""" .
+
+:ch3-sec3 a thesis:Section ;
+    thesis:sectionNumber 3 ;
+    thesis:sectionTitle "Validation Strategy" ;
+    thesis:sectionContent """
+SHACL shapes enforce constraints on the RDF data before generation.
+This prevents malformed output and ensures template compatibility.
+""" .

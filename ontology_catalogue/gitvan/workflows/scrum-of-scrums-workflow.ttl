@@ -1,0 +1,99 @@
+@prefix ex: <http://example.org/> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+@prefix op: <https://gitvan.dev/op#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix scrum: <https://bytestar.org/ontology/ethos/canon/scrum-at-scale#> .
+
+# Scrum of Scrums Workflow with Multi-Team Coordination
+# This workflow manages coordination between multiple Scrum teams at scale
+
+ex:scrum-of-scrums-workflow rdf:type gh:Hook ;
+    gv:title "Scrum of Scrums Multi-Team Coordination" ;
+    gh:hasPredicate ex:scrumOfScrumsWorkflow ;
+    gh:orderedPipelines ex:scrum-of-scrums-pipeline .
+
+ex:scrum-of-scrums-pipeline rdf:type op:Pipeline ;
+    op:steps ex:team-coordination-step ;
+    op:steps ex:dependency-analysis-step ;
+    op:steps ex:scrum-of-scrums-meeting-step ;
+    op:steps ex:cursor-multi-team-analysis-step .
+
+# Step 1: Team Coordination Analysis
+ex:team-coordination-step rdf:type gv:SparqlStep ;
+    gv:text """
+        PREFIX scrum: <https://bytestar.org/ontology/ethos/canon/scrum-at-scale#>
+        PREFIX ex: <http://example.org/>
+        
+        SELECT ?team ?master ?owner ?sprint ?goal WHERE {
+            ?team a scrum:TeamMember .
+            ?master a scrum:ScrumOfScrumsMaster ;
+                scrum:manages ?team .
+            ?owner a scrum:ChiefProductOwner ;
+                scrum:manages ?team .
+            ?sprint a scrum:Sprint ;
+                scrum:hasSprintGoal ?goal .
+            ?team scrum:participatesIn ?sprint .
+        }
+    """ ;
+    gv:outputMapping '{"teams": "results", "coordination": "data"}' .
+
+# Step 2: Cross-Team Dependency Analysis
+ex:dependency-analysis-step rdf:type gv:TemplateStep ;
+    gv:template """
+# Scrum of Scrums - Cross-Team Dependency Analysis
+
+## Team Coordination Matrix
+{% for team in teams %}
+### Team {{ loop.index }}
+- **Scrum Master**: {{ team.master }}
+- **Product Owner**: {{ team.owner }}
+- **Sprint Goal**: {{ team.goal }}
+
+#### Dependencies
+- [ ] Input dependencies from other teams
+- [ ] Output dependencies to other teams
+- [ ] Shared resources and infrastructure
+- [ ] Cross-team communication needs
+
+#### Risks and Blockers
+- [ ] Identified risks
+- [ ] Current blockers
+- [ ] Mitigation strategies
+
+---
+{% endfor %}
+
+## Cross-Team Coordination
+- [ ] Shared sprint goals alignment
+- [ ] Integration points between teams
+- [ ] Communication protocols
+- [ ] Escalation procedures
+
+## Action Items
+- [ ] Resolve cross-team dependencies
+- [ ] Establish communication channels
+- [ ] Schedule integration checkpoints
+- [ ] Define escalation paths
+    """ ;
+    gv:outputPath "scrum-reports/scrum-of-scrums-{{ date }}.md" .
+
+# Step 3: Scrum of Scrums Meeting Facilitation
+ex:scrum-of-scrums-meeting-step rdf:type gv:HttpStep ;
+    gv:url "https://api.scrum-tools.com/scrum-of-scrums" ;
+    gv:method "POST" ;
+    gv:headers "{\"Content-Type\": \"application/json\", \"Authorization\": \"Bearer {{ SCRUM_API_TOKEN }}\"}" ;
+    gv:body "{\"meeting_type\": \"scrum_of_scrums\", \"teams\": \"{{ teams }}\", \"agenda\": [\"Cross-team dependencies\", \"Impediment resolution\", \"Sprint goal alignment\", \"Integration planning\"], \"duration_minutes\": 30, \"facilitator\": \"Scrum of Scrums Master\"}" ;
+    gv:outputPath "scrum-reports/scrum-of-scrums-meeting-{{ date }}.json" .
+
+# Step 4: Cursor CLI Multi-Team Analysis
+ex:cursor-multi-team-analysis-step rdf:type gv:CliStep ;
+    gv:command "cursor-agent" ;
+    gv:args "-p" ;
+    gv:args "Analyze this Scrum of Scrums multi-team coordination workflow. Review the team coordination matrix, cross-team dependencies, and meeting facilitation processes. Provide recommendations for improving coordination between multiple Scrum teams, reducing dependencies, and enhancing communication. Focus on Scrum at Scale best practices for large organizations and suggest process improvements for better team alignment and delivery efficiency." ;
+    gv:args "--model" ;
+    gv:args "gpt-4" ;
+    gv:args "--output-format" ;
+    gv:args "text" ;
+    gv:outputPath "scrum-reports/cursor-multi-team-analysis-{{ date }}.txt" .

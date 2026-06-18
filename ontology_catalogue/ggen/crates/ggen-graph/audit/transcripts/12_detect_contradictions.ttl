@@ -1,0 +1,30 @@
+@base <http://example.org/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix spdx: <http://spdx.org/rdf/terms#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<#activity_12_detect_contradictions> a prov:Activity ;
+    dcterms:identifier "12_detect_contradictions" ;
+    prov:startedAtTime "2026-05-27T04:22:01.817Z" ; 
+    prov:endedAtTime "2026-05-27T04:22:01.847Z" ;
+    prov:value 0 
+    ; prov:wasInformedBy _:aa6e93bf1365351a116e481f3a48e260 .
+
+<#stdout_12_detect_contradictions> a prov:Entity ;
+    prov:wasGeneratedBy <#activity_12_detect_contradictions> ;
+    dcterms:title "12_detect_contradictions.stdout" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "7641f4886bf3ab5839da479ee1dedff4977e253e19217a657e5db7de46fef474"
+    ] .
+
+<#stderr_12_detect_contradictions> a prov:Entity ;
+    prov:wasGeneratedBy <#activity_12_detect_contradictions> ;
+    dcterms:title "12_detect_contradictions.stderr" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    ] .

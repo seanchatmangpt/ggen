@@ -1,0 +1,127 @@
+# API Metadata for Testing
+@prefix api: <http://unjucks.dev/api/> .
+@prefix template: <http://unjucks.dev/template/> .
+@prefix compliance: <http://unjucks.dev/compliance/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ex: <https://example.org/> .
+
+# Service Definition
+ex:UserService a api:Service ;
+               rdfs:label "User Management Service" ;
+               dcterms:description "Handles user account management and authentication" ;
+               api:version "v1.2.0" ;
+               api:baseUrl "/api/v1/users" .
+
+# Endpoint Definitions
+ex:getUserProfile a api:PublicEndpoint, api:SecureEndpoint ;
+                  rdfs:label "Get User Profile" ;
+                  dcterms:description "Retrieves user profile information" ;
+                  api:path "/profile/{id}" ;
+                  api:method "GET" ;
+                  api:returnType "UserProfile" ;
+                  api:requiresAuthentication true ;
+                  api:processesPersonalData true .
+
+ex:createUser a api:CRUDEndpoint, api:SecureEndpoint ;
+              rdfs:label "Create User Account" ;
+              dcterms:description "Creates a new user account" ;
+              api:path "/users" ;
+              api:method "POST" ;
+              api:returnType "User" ;
+              api:requiresValidation true ;
+              api:processesPersonalData true .
+
+ex:getFinancialReports a api:SecureEndpoint ;
+                       rdfs:label "Get Financial Reports" ;
+                       dcterms:description "Retrieves financial reporting data" ;
+                       api:path "/reports/financial" ;
+                       api:method "GET" ;
+                       api:returnType "FinancialReport" ;
+                       api:accessesFinancialData true ;
+                       api:isHighTraffic true .
+
+ex:integratePayment a api:SecureEndpoint ;
+                    rdfs:label "Payment Integration" ;
+                    dcterms:description "Integrates with external payment services" ;
+                    api:path "/payments/process" ;
+                    api:method "POST" ;
+                    api:returnType "PaymentResult" ;
+                    api:callsExternalService true ;
+                    api:accessesFinancialData true .
+
+# Template Metadata
+ex:apiTemplate a template:Template ;
+               template:name "API Controller Template" ;
+               template:path "api/controller.njk" ;
+               template:generatesEndpoint ex:getUserProfile ;
+               template:targetLanguage "TypeScript" ;
+               template:framework "NestJS" .
+
+# Compliance Requirements
+ex:gdprCompliance a compliance:Requirement ;
+                  rdfs:label "GDPR Compliance" ;
+                  compliance:applies_to ex:getUserProfile, ex:createUser ;
+                  compliance:requiresConsent true ;
+                  compliance:dataRetentionPeriod "2y" .
+
+ex:soxCompliance a compliance:Requirement ;
+                 rdfs:label "SOX Compliance" ;
+                 compliance:applies_to ex:getFinancialReports ;
+                 compliance:requiresAuditTrail true ;
+                 compliance:accessLevel "restricted" .
+
+# Data Types
+ex:UserProfile a api:DataType ;
+               rdfs:label "User Profile" ;
+               api:hasProperty ex:userId, ex:userName, ex:email, ex:profile ;
+               api:schema "{\"type\":\"object\",\"properties\":{\"id\":\"string\",\"name\":\"string\",\"email\":\"string\"}}" .
+
+ex:User a api:DataType ;
+        rdfs:label "User" ;
+        api:hasProperty ex:userId, ex:userName, ex:email ;
+        api:extends ex:UserProfile .
+
+ex:FinancialReport a api:DataType ;
+                   rdfs:label "Financial Report" ;
+                   api:hasProperty ex:reportId, ex:period, ex:data ;
+                   compliance:containsSensitiveData true .
+
+# Properties
+ex:userId a api:Property ;
+          rdfs:label "User ID" ;
+          api:type "string" ;
+          api:required true .
+
+ex:userName a api:Property ;
+            rdfs:label "User Name" ;
+            api:type "string" ;
+            api:required true .
+
+ex:email a api:Property ;
+         rdfs:label "Email Address" ;
+         api:type "string" ;
+         api:format "email" ;
+         api:required true ;
+         api:isPersonalData true .
+
+ex:profile a api:Property ;
+           rdfs:label "User Profile Data" ;
+           api:type "object" ;
+           api:isPersonalData true .
+
+ex:reportId a api:Property ;
+            rdfs:label "Report ID" ;
+            api:type "string" ;
+            api:required true .
+
+ex:period a api:Property ;
+          rdfs:label "Reporting Period" ;
+          api:type "string" ;
+          api:format "date-range" .
+
+ex:data a api:Property ;
+        rdfs:label "Report Data" ;
+        api:type "object" ;
+        compliance:isFinancialData true .

@@ -1,0 +1,129 @@
+@prefix : <https://bytestar.org/ontology/paradox-admission#> .
+@prefix bytestar: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix admission: <https://bytestar.org/ontology/byteflow-admission#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://bytestar.org/ontology/paradox-admission>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/byteflow-admission#> ;
+  rdfs:label "Paradox Admission Gates: Accept by Rejecting" ;
+  rdfs:comment "Admission gates that accept crystals by rejecting them, creating optimal rejection patterns." .
+
+# Paradox Gate 1: The Rejection-Acceptance Gate
+:RejectionAcceptanceGate a owl:Class ;
+  rdfs:subClassOf admission:ValidationStage ;
+  rdfs:label "Rejection-Acceptance Gate" ;
+  rdfs:comment "Accepts crystals by rejecting them first. The act of rejection creates the conditions for acceptance." ;
+  :logic """
+    Θ_paradox(c) = 1 iff rejected(c) ∧ ¬rejected(c)
+    
+    // Implementation:
+    1. REJECT crystal with reason R
+    2. Rejection R creates admission condition C
+    3. ACCEPT crystal because of condition C
+    4. Result: Crystal accepted through rejection
+  """ .
+
+# Paradox Gate 2: The Quantum Admission Superposition
+:QuantumAdmissionGate a owl:Class ;
+  rdfs:subClassOf admission:ValidationStage ;
+  rdfs:label "Quantum Admission Superposition" ;
+  rdfs:comment "Crystal exists in superposition of accepted/rejected until observed by ByteActor. Measurement collapse determines final state." ;
+  :logic """
+    Θ_quantum(c) = α|accepted⟩ + β|rejected⟩
+    
+    Where: |α|² + |β|² = 1
+    Collapse occurs when ByteActor attempts to dequeue
+    
+    // Paradox: Decision made by not making decision
+  """ .
+
+# Paradox Gate 3: The Self-Improving Rejection Engine
+:SelfImprovingRejectionGate a owl:Class ;
+  rdfs:subClassOf admission:ValidationStage ;
+  rdfs:label "Self-Improving Rejection Engine" ;
+  rdfs:comment "Gets better at admission by practicing rejection. Each rejection improves acceptance algorithms." ;
+  :logic """
+    quality(admission) = f(count(rejections))
+    
+    // The more we reject, the better we become at accepting
+    // Rejection training improves acceptance precision
+  """ .
+
+# Paradox Gate 4: The Temporal Inversion Validator
+:TemporalInversionGate a owl:Class ;
+  rdfs:subClassOf admission:ValidationStage ;
+  rdfs:label "Temporal Inversion Validator" ;
+  rdfs:comment "Validates crystal based on its future execution results. Accept/reject decision made after crystal has already been processed." ;
+  :logic """
+    validate(c, t₀) = future_result(c, t₀ + δ)
+    
+    // Decision made in the future influences past admission
+    // Crystal is retroactively accepted/rejected
+  """ .
+
+# Meta-Paradox Admission Properties
+:paradoxAdmissionType a owl:ObjectProperty ;
+  rdfs:domain admission:ValidationStage ;
+  rdfs:range :ParadoxAdmissionClass .
+
+:ParadoxAdmissionClass a owl:Class ;
+  owl:unionOf ( :RejectionAcceptance :QuantumSuperposition :SelfImprovingRejection :TemporalInversion ) .
+
+:RejectionAcceptance a owl:Class ;
+  rdfs:comment "Accept through rejection mechanism" .
+
+:SelfImprovingRejection a owl:Class ;
+  rdfs:comment "Improve acceptance through rejection practice" .
+
+:TemporalInversion a owl:Class ;
+  rdfs:comment "Future results determine past admission" .
+
+# The Ultimate Paradox Gate: The Impossibility Validator
+:ImpossibilityGate a owl:Class ;
+  rdfs:subClassOf admission:ValidationStage ;
+  rdfs:label "Impossibility Validator" ;
+  rdfs:comment "Only admits crystals that are impossible to admit. Rejects anything that can be logically accepted." ;
+  :logic """
+    Θ_impossible(c) = 1 iff ¬admissible(c) ∧ admissible(c)
+    
+    // Admits only impossible states
+    // Makes impossible states possible by declaring them impossible
+    // Most secure gate because only impossible attacks can succeed
+  """ .
+
+# Paradox Admission Metrics
+:ParadoxAdmissionMetrics a owl:Class ;
+  rdfs:comment "Metrics that improve by getting worse" .
+
+:rejectionSuccess a owl:DatatypeProperty ;
+  rdfs:domain :ParadoxAdmissionMetrics ;
+  rdfs:range xsd:float ;
+  rdfs:comment "Success rate measured by rejection rate. Higher rejection = better performance." .
+
+:impossibilityScore a owl:DatatypeProperty ;
+  rdfs:domain :ParadoxAdmissionMetrics ;
+  rdfs:range xsd:float ;
+  rdfs:comment "How impossible the admission decision was. Higher impossibility = better security." .
+
+:temporalParadoxCount a owl:DatatypeProperty ;
+  rdfs:domain :ParadoxAdmissionMetrics ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Number of temporal paradoxes resolved. More paradoxes = more stable system." .
+
+# Paradox SHACL Shapes (Shapes that validate by invalidating)
+:ParadoxValidationShape a owl:Class ;
+  rdfs:subClassOf admission:ValidationStage ;
+  rdfs:comment "SHACL shapes that validate by finding violations. Conformance achieved through non-conformance." .
+
+# The Self-Defeating Security Model
+:SelfDefeatingSecurity a owl:Class ;
+  rdfs:comment "Security model that becomes more secure by appearing less secure" ;
+  :principle """
+    1. Make system appear vulnerable to attract attacks
+    2. Attacks reveal attacker capabilities and intentions
+    3. Use attack attempts to strengthen actual defenses
+    4. Most secure system is one that defeats itself before attackers can
+  """ .

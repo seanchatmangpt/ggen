@@ -1,0 +1,263 @@
+@prefix ex: <http://example.org/> .
+@prefix test: <http://test.example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <http://schema.org/> .
+
+# ==================================================
+# VALID TEST DATA - Should pass all SHACL constraints
+# ==================================================
+
+# 1. Valid Person data (PersonRequiredPropsShape)
+ex:person1 a ex:Person ;
+    ex:name "John Smith" ;
+    ex:email "john.smith@example.com" ;
+    ex:birthDate "1985-06-15"^^xsd:date .
+
+ex:person2 a ex:Person ;
+    ex:name "Jane Doe" ;
+    ex:email "jane.doe@company.org" .
+
+# 2. Valid DataType test data (DatatypeValidationShape)
+ex:datatype1 a ex:DataTypeTest ;
+    ex:integerValue "42"^^xsd:integer ;
+    ex:decimalValue "3.14159"^^xsd:decimal ;
+    ex:booleanValue "true"^^xsd:boolean ;
+    ex:dateTimeValue "2023-12-01T10:30:00Z"^^xsd:dateTime ;
+    ex:stringValue "Hello World" .
+
+ex:datatype2 a ex:DataTypeTest ;
+    ex:integerValue "-100"^^xsd:integer ;
+    ex:decimalValue "0.0"^^xsd:decimal ;
+    ex:booleanValue "false"^^xsd:boolean ;
+    ex:dateTimeValue "2024-01-15T14:45:30.123Z"^^xsd:dateTime ;
+    ex:stringValue "" .
+
+# 3. Valid Cardinality test data (CardinalityConstraintsShape)
+ex:cardinality1 a ex:CardinalityTest ;
+    ex:exactlyOne "single value" ;
+    ex:atLeastTwo "first value", "second value" ;
+    ex:atMostThree "one", "two" ;
+    ex:optional "optional value" .
+
+ex:cardinality2 a ex:CardinalityTest ;
+    ex:exactlyOne "another single value" ;
+    ex:atLeastTwo "value 1", "value 2", "value 3" ;
+    ex:atMostThree "alpha", "beta", "gamma" .
+
+# 4. Valid Range test data (ValueRangeShape)
+ex:range1 a ex:RangeTest ;
+    ex:percentage "85.5"^^xsd:decimal ;
+    ex:positiveInteger "100"^^xsd:integer ;
+    ex:ageRange "35"^^xsd:integer ;
+    ex:temperature "22.5"^^xsd:decimal .
+
+ex:range2 a ex:RangeTest ;
+    ex:percentage "0.0"^^xsd:decimal ;
+    ex:positiveInteger "1"^^xsd:integer ;
+    ex:ageRange "0"^^xsd:integer ;
+    ex:temperature "-200.0"^^xsd:decimal .
+
+ex:range3 a ex:RangeTest ;
+    ex:percentage "100.0"^^xsd:decimal ;
+    ex:positiveInteger "999999"^^xsd:integer ;
+    ex:ageRange "150"^^xsd:integer ;
+    ex:temperature "1000.0"^^xsd:decimal .
+
+# 5. Valid Pattern test data (PatternValidationShape)
+ex:pattern1 a ex:PatternTest ;
+    ex:phoneNumber "+1234567890" ;
+    ex:zipCode "12345" ;
+    ex:hexColor "#FF5733" ;
+    ex:ipAddress "192.168.1.1" .
+
+ex:pattern2 a ex:PatternTest ;
+    ex:phoneNumber "15551234567" ;
+    ex:zipCode "90210-1234" ;
+    ex:hexColor "#000000" ;
+    ex:ipAddress "10.0.0.1" .
+
+ex:pattern3 a ex:PatternTest ;
+    ex:phoneNumber "+442071838750" ;
+    ex:zipCode "54321" ;
+    ex:hexColor "#ffffff" ;
+    ex:ipAddress "255.255.255.255" .
+
+# 6. Valid String Length test data (StringLengthShape)
+ex:stringLength1 a ex:StringLengthTest ;
+    ex:shortString "hello" ;
+    ex:longDescription "This is a valid description that is under 500 characters long." ;
+    ex:nonEmptyString "x" .
+
+ex:stringLength2 a ex:StringLengthTest ;
+    ex:shortString "test12345" ;
+    ex:longDescription "Another valid description with proper length constraints that demonstrates the validation is working correctly for maximum length limits." ;
+    ex:nonEmptyString "Valid non-empty string" .
+
+# 7. Valid NodeKind test data (NodeKindShape)
+ex:nodeKind1 a ex:NodeKindTest ;
+    ex:iriProperty ex:someIRI ;
+    ex:literalProperty "This is a literal" ;
+    ex:blankNodeProperty _:blankNode1 .
+
+_:blankNode1 ex:someProperty "blank node property" .
+
+ex:nodeKind2 a ex:NodeKindTest ;
+    ex:iriProperty <http://example.org/anotherIRI> ;
+    ex:literalProperty "42"^^xsd:integer ;
+    ex:blankNodeProperty _:blankNode2 .
+
+_:blankNode2 ex:anotherProperty "another blank node" .
+
+# 8. Valid Value Set test data (ValueSetShape)
+ex:valueSet1 a ex:ValueSetTest ;
+    ex:status "active" ;
+    ex:priority "1"^^xsd:integer ;
+    ex:category ex:CategoryA .
+
+ex:valueSet2 a ex:ValueSetTest ;
+    ex:status "pending" ;
+    ex:priority "3"^^xsd:integer ;
+    ex:category ex:CategoryC .
+
+ex:valueSet3 a ex:ValueSetTest ;
+    ex:status "inactive" ;
+    ex:priority "5"^^xsd:integer ;
+    ex:category ex:CategoryB .
+
+# 9. Valid Class Constraint test data (ClassConstraintShape)
+# First define the required classes
+ex:manager1 a ex:Person ;
+    ex:name "Alice Manager" ;
+    ex:email "alice@example.com" .
+
+ex:address1 a ex:Address ;
+    ex:street "123 Main St" ;
+    ex:city "Springfield" .
+
+ex:classConstraint1 a ex:ClassConstraintTest ;
+    ex:hasManager ex:manager1 ;
+    ex:hasAddress ex:address1 .
+
+# 10. Valid Logical test data (LogicalConstraintsShape)
+ex:logical1 a ex:LogicalTest ;
+    ex:flexibleDate "2023-12-01"^^xsd:date ;
+    ex:requiredStringOrNumber "valid string" .
+
+ex:logical2 a ex:LogicalTest ;
+    ex:flexibleDate "2023-12-01T10:30:00Z"^^xsd:dateTime ;
+    ex:requiredStringOrNumber "100"^^xsd:integer .
+
+ex:logical3 a ex:LogicalTest ;
+    ex:flexibleDate "2023"^^xsd:gYear ;
+    ex:requiredStringOrNumber "0"^^xsd:integer .
+
+# 11. Valid Qualified Value test data (QualifiedValueShape)
+ex:contact1 a ex:Contact ;
+    ex:contactType "primary" ;
+    ex:contactInfo "primary-contact@example.com" .
+
+ex:contact2 a ex:Contact ;
+    ex:contactType "secondary" ;
+    ex:contactInfo "secondary-contact@example.com" .
+
+ex:qualified1 a ex:QualifiedTest ;
+    ex:hasContact ex:contact1, ex:contact2 ;
+    ex:hasPhone "+1234567890", "+0987654321" .
+
+# 12. Valid SPARQL test data (SPARQLConstraintShape)
+ex:manager2 a ex:Person ;
+    ex:name "Bob Manager" ;
+    ex:email "bob@example.com" .
+
+ex:sparql1 a ex:SPARQLTest ;
+    ex:startDate "2023-01-01"^^xsd:date ;
+    ex:endDate "2023-12-31"^^xsd:date .
+
+ex:sparql2 a ex:SPARQLTest ;
+    ex:startDate "2023-06-01T09:00:00Z"^^xsd:dateTime ;
+    ex:endDate "2023-06-01T17:00:00Z"^^xsd:dateTime .
+
+# 13. Valid Business Rule test data (BusinessRuleShape)
+ex:department1 a ex:Department ;
+    ex:name "Engineering" .
+
+ex:department2 a ex:Department ;
+    ex:name "Sales" .
+
+ex:employee1 a ex:Employee ;
+    ex:name "John Engineer" ;
+    ex:email "john.engineer@example.com" ;
+    ex:salary "75000.00"^^xsd:decimal ;
+    ex:department ex:department1 ;
+    ex:hasManager ex:employee2 .
+
+ex:employee2 a ex:Employee ;
+    ex:name "Sarah Manager" ;
+    ex:email "sarah.manager@example.com" ;
+    ex:salary "95000.00"^^xsd:decimal ;
+    ex:department ex:department1 .
+
+# 14. Valid Severity test data (SeverityTestShape)
+ex:severity1 a ex:SeverityTest ;
+    ex:criticalField "This is critical data" ;
+    ex:warningField "Properly capitalized" ;
+    ex:infoField "Short info" .
+
+ex:severity2 a ex:SeverityTest ;
+    ex:criticalField "Another critical field" ;
+    ex:warningField "Also Capitalized" ;
+    ex:infoField "This is a longer info field but still under the 100 character limit for readability" .
+
+# 15. Valid Edge Case test data (EdgeCaseShape)
+ex:edgeCase1 a ex:EdgeCaseTest ;
+    ex:unicodeString "Hello 世界! ñoñó 123 #@$%^&*()" ;
+    ex:largeNumber "9223372036854775807"^^xsd:integer ;
+    ex:preciseDecimal "123.45"^^xsd:decimal .
+
+ex:edgeCase2 a ex:EdgeCaseTest ;
+    ex:unicodeString "Café résumé naïve 漢字 🚀" ;
+    ex:largeNumber "1000000"^^xsd:integer ;
+    ex:preciseDecimal "0.1"^^xsd:decimal .
+
+# 16. Valid Performance test data (for large graph testing)
+ex:perf1 a ex:PerformanceTest ;
+    ex:id "1"^^xsd:integer ;
+    ex:label "Test Item 1" .
+
+ex:perf2 a ex:PerformanceTest ;
+    ex:id "2"^^xsd:integer ;
+    ex:label "Test Item 2" .
+
+ex:perf3 a ex:PerformanceTest ;
+    ex:id "3"^^xsd:integer ;
+    ex:label "Test Item 3" .
+
+ex:perf4 a ex:PerformanceTest ;
+    ex:id "4"^^xsd:integer ;
+    ex:label "Test Item 4" .
+
+ex:perf5 a ex:PerformanceTest ;
+    ex:id "5"^^xsd:integer ;
+    ex:label "Test Item 5" .
+
+# Additional valid instances for comprehensive testing
+ex:perf6 a ex:PerformanceTest ;
+    ex:id "6"^^xsd:integer ;
+    ex:label "Performance Test Item Six" .
+
+ex:perf7 a ex:PerformanceTest ;
+    ex:id "7"^^xsd:integer ;
+    ex:label "Valid Label Seven" .
+
+ex:perf8 a ex:PerformanceTest ;
+    ex:id "8"^^xsd:integer ;
+    ex:label "Item 8" .
+
+ex:perf9 a ex:PerformanceTest ;
+    ex:id "9"^^xsd:integer ;
+    ex:label "Testing Performance 9" .
+
+ex:perf10 a ex:PerformanceTest ;
+    ex:id "10"^^xsd:integer ;
+    ex:label "Final Test Item" .

@@ -1,0 +1,20 @@
+@prefix opt: <http://yawl.org/optimization/>.
+
+opt:OptimizationCycle_1 a opt:OptimizationPhase ;
+  opt:cycle 1 ;
+  opt:improvements_proposed 2 ;
+  opt:timestamp "2026-02-22T01:37:00Z" .
+
+opt:Improvement_1 a opt:Improvement ;
+  opt:issue "Task naming inconsistency" ;
+  opt:severity "low" ;
+  opt:recommendation "Standardize task name format" ;
+  opt:priority 2 ;
+  opt:cycle 1 .
+
+opt:Improvement_2 a opt:Improvement ;
+  opt:issue "Missing documentation" ;
+  opt:severity "medium" ;
+  opt:recommendation "Add task documentation" ;
+  opt:priority 1 ;
+  opt:cycle 1 .

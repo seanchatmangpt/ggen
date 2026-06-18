@@ -1,0 +1,270 @@
+@prefix ex: <http://example.org/> .
+@prefix test: <http://test.example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <http://schema.org/> .
+
+# ==================================================
+# INVALID TEST DATA - Should generate SHACL violations
+# Each instance designed to trigger specific constraint failures
+# ==================================================
+
+# 1. Invalid Person data - violates PersonRequiredPropsShape
+ex:invalidPerson1 a ex:Person .
+# VIOLATIONS: Missing required name and email
+
+ex:invalidPerson2 a ex:Person ;
+    ex:name "A" ;  # Too short (< 2 chars)
+    ex:email "invalid-email" .  # Invalid email pattern
+# VIOLATIONS: name too short, invalid email format
+
+ex:invalidPerson3 a ex:Person ;
+    ex:name "This name is way too long and exceeds the maximum length of 100 characters which should trigger a violation according to the SHACL shape constraints that we have defined" ;  # Too long (> 100 chars)
+    ex:email "valid@example.com" ;
+    ex:name "Second Name" .  # Multiple names (maxCount 1)
+# VIOLATIONS: name too long, multiple names
+
+ex:invalidPerson4 a ex:Person ;
+    ex:name "Valid Name" ;
+    ex:email "first@example.com", "second@example.com" .  # Multiple emails (maxCount 1)
+# VIOLATIONS: multiple email addresses
+
+# 2. Invalid DataType test data - violates DatatypeValidationShape  
+ex:invalidDatatype1 a ex:DataTypeTest ;
+    ex:integerValue "not-an-integer" ;  # Invalid integer
+    ex:decimalValue "not-a-decimal" ;   # Invalid decimal
+    ex:booleanValue "maybe" ;           # Invalid boolean
+    ex:dateTimeValue "not-a-datetime" ; # Invalid dateTime
+    ex:stringValue "123"^^xsd:integer . # Wrong datatype for string
+# VIOLATIONS: All datatype mismatches
+
+ex:invalidDatatype2 a ex:DataTypeTest ;
+    ex:integerValue "3.14" ;            # Decimal when integer expected
+    ex:decimalValue "abc" ;             # String when decimal expected
+    ex:booleanValue "1" ;               # Number when boolean expected
+    ex:dateTimeValue "2023-13-45" ;     # Invalid date components
+    ex:stringValue <http://example.org/notAString> . # IRI when string expected
+# VIOLATIONS: All datatype violations
+
+# 3. Invalid Cardinality test data - violates CardinalityConstraintsShape
+ex:invalidCardinality1 a ex:CardinalityTest .
+# VIOLATIONS: Missing exactlyOne (minCount 1), missing atLeastTwo (minCount 2)
+
+ex:invalidCardinality2 a ex:CardinalityTest ;
+    ex:exactlyOne "first", "second" ;   # Too many (maxCount 1)
+    ex:atLeastTwo "only-one" ;          # Too few (minCount 2)
+    ex:atMostThree "one", "two", "three", "four" .  # Too many (maxCount 3)
+# VIOLATIONS: cardinality violations on all properties
+
+ex:invalidCardinality3 a ex:CardinalityTest ;
+    ex:exactlyOne "valid-single-value" ;
+    ex:atLeastTwo "first-value" ;       # Still too few (minCount 2)
+    ex:optional "first", "second" .     # Too many optional (maxCount 1)
+# VIOLATIONS: atLeastTwo insufficient, optional too many
+
+# 4. Invalid Range test data - violates ValueRangeShape
+ex:invalidRange1 a ex:RangeTest ;
+    ex:percentage "-10.5"^^xsd:decimal ;    # Below minInclusive (0.0)
+    ex:positiveInteger "0"^^xsd:integer ;   # Not greater than 0 (minExclusive)
+    ex:ageRange "-5"^^xsd:integer ;         # Below minInclusive (0)
+    ex:temperature "-300.0"^^xsd:decimal .  # Below minExclusive (-273.15)
+# VIOLATIONS: All values below minimum ranges
+
+ex:invalidRange2 a ex:RangeTest ;
+    ex:percentage "150.0"^^xsd:decimal ;    # Above maxInclusive (100.0)
+    ex:positiveInteger "999999999"^^xsd:integer ; # Valid (no upper bound)
+    ex:ageRange "200"^^xsd:integer ;        # Above maxInclusive (150)
+    ex:temperature "2000.0"^^xsd:decimal .  # Above maxInclusive (1000.0)
+# VIOLATIONS: percentage, ageRange, temperature above maximum
+
+# 5. Invalid Pattern test data - violates PatternValidationShape
+ex:invalidPattern1 a ex:PatternTest ;
+    ex:phoneNumber "123-abc-defg" ;     # Invalid E.164 pattern
+    ex:zipCode "ABCDE" ;                # Invalid ZIP pattern
+    ex:hexColor "notahex" ;             # Invalid hex color pattern
+    ex:ipAddress "999.999.999.999" .   # Invalid IP address pattern
+# VIOLATIONS: All pattern mismatches
+
+ex:invalidPattern2 a ex:PatternTest ;
+    ex:phoneNumber "+0123456789" ;      # Starts with 0 (invalid E.164)
+    ex:zipCode "123456789" ;            # Too long for ZIP
+    ex:hexColor "#GGGGGG" ;             # Invalid hex characters
+    ex:ipAddress "192.168.1" .          # Incomplete IP address
+# VIOLATIONS: All pattern violations
+
+# 6. Invalid String Length test data - violates StringLengthShape
+ex:invalidStringLength1 a ex:StringLengthTest ;
+    ex:shortString "hi" ;               # Too short (< 5 chars)
+    ex:longDescription "This is an extremely long description that definitely exceeds the 500 character limit set by the SHACL shape constraint and should therefore trigger a validation violation when processed by the SHACL engine. This description keeps going and going to ensure it surpasses the maximum allowed length. We're adding even more text here to be absolutely certain that this string will violate the maxLength constraint of 500 characters that has been defined in the SHACL shape for testing purposes." ; # Too long (> 500 chars)
+    ex:nonEmptyString "" .              # Empty string (minLength 1)
+# VIOLATIONS: All length constraint violations
+
+ex:invalidStringLength2 a ex:StringLengthTest ;
+    ex:shortString "ThisStringIsTooLong" ; # Too long (> 10 chars)
+    ex:longDescription "Valid length description" ;
+    ex:nonEmptyString "" .              # Empty string
+# VIOLATIONS: shortString too long, nonEmptyString empty
+
+# 7. Invalid NodeKind test data - violates NodeKindShape
+ex:invalidNodeKind1 a ex:NodeKindTest ;
+    ex:iriProperty "not-an-iri" ;       # Literal when IRI expected
+    ex:literalProperty ex:notALiteral ; # IRI when literal expected
+    ex:blankNodeProperty ex:notBlankNode . # IRI when blank node expected
+# VIOLATIONS: All nodeKind mismatches
+
+# 8. Invalid Value Set test data - violates ValueSetShape
+ex:invalidValueSet1 a ex:ValueSetTest ;
+    ex:status "unknown" ;               # Not in allowed set
+    ex:priority "10"^^xsd:integer ;     # Not in allowed set (1-5)
+    ex:category ex:CategoryD .          # Not in allowed set
+# VIOLATIONS: All values outside allowed sets
+
+ex:invalidValueSet2 a ex:ValueSetTest ;
+    ex:status "disabled" ;              # Not in allowed set
+    ex:priority "0"^^xsd:integer ;      # Not in allowed set
+    ex:category ex:InvalidCategory .    # Not in allowed set
+# VIOLATIONS: All invalid values
+
+# 9. Invalid Class Constraint test data - violates ClassConstraintShape
+ex:notAPerson a ex:Organization ;      # Not a Person
+    ex:name "Some Organization" .
+
+ex:notAnAddress a ex:Building ;        # Not an Address
+    ex:name "Some Building" .
+
+ex:invalidClassConstraint1 a ex:ClassConstraintTest ;
+    ex:hasManager ex:notAPerson ;      # Manager is not a Person
+    ex:hasAddress ex:notAnAddress .    # Address is not an Address
+# VIOLATIONS: Wrong classes for manager and address
+
+ex:invalidClassConstraint2 a ex:ClassConstraintTest ;
+    ex:hasManager "string-not-person" ; # Literal when Person expected
+    ex:hasAddress ex:address1, ex:address2 . # Multiple addresses (maxCount 1)
+# VIOLATIONS: Wrong type for manager, too many addresses
+
+# 10. Invalid Logical test data - violates LogicalConstraintsShape
+ex:invalidLogical1 a ex:LogicalTest ;
+    ex:flexibleDate "not-a-date" ;     # Not date, dateTime, or year
+    ex:forbiddenCombination "forbidden" . # Triggers NOT constraint
+# VIOLATIONS: flexibleDate wrong type, forbidden combination
+
+ex:invalidLogical2 a ex:LogicalTest .
+# VIOLATIONS: Missing requiredStringOrNumber (minCount 1)
+
+ex:invalidLogical3 a ex:LogicalTest ;
+    ex:flexibleDate "123.45"^^xsd:decimal ; # Wrong datatype
+    ex:requiredStringOrNumber "" ;      # Empty string (fails minLength 1)
+    ex:forbiddenCombination "forbidden" . # Forbidden value
+# VIOLATIONS: Wrong date type, empty string, forbidden combination
+
+# 11. Invalid Qualified Value test data - violates QualifiedValueShape
+ex:invalidQualified1 a ex:QualifiedTest ;
+    ex:hasContact _:contactWithoutPrimary ; # No primary contact
+    ex:hasPhone "invalid-phone" .       # Invalid phone pattern
+# VIOLATIONS: No primary contact, invalid phone
+
+_:contactWithoutPrimary ex:contactType "secondary" .
+
+ex:invalidQualified2 a ex:QualifiedTest ;
+    ex:hasContact _:contact1, _:contact2 ; # Two primary contacts (violates qualifiedMaxCount 1)
+    ex:hasPhone "not-a-phone", "also-invalid" . # No valid phone numbers
+# VIOLATIONS: Too many primary contacts, no valid phones
+
+_:contact1 ex:contactType "primary" .
+_:contact2 ex:contactType "primary" .
+
+# 12. Invalid SPARQL test data - violates SPARQLConstraintShape
+ex:invalidSparql1 a ex:SPARQLTest ;
+    ex:startDate "2023-12-31"^^xsd:date ;
+    ex:endDate "2023-01-01"^^xsd:date . # End before start
+# VIOLATIONS: End date before start date
+
+ex:selfManager a ex:Person, ex:SPARQLTest ;
+    ex:name "Self Manager" ;
+    ex:email "self@example.com" ;
+    ex:hasManager ex:selfManager .      # Person is their own manager
+# VIOLATIONS: Self-management
+
+# 13. Invalid Business Rule test data - violates BusinessRuleShape
+ex:invalidEmployee1 a ex:Employee ;
+    ex:name "Poor Employee" ;
+    ex:email "poor@example.com" ;
+    ex:salary "-1000.00"^^xsd:decimal . # Negative salary
+# VIOLATIONS: Negative salary, no department
+
+ex:invalidEmployee2 a ex:Employee ;
+    ex:name "Multi Department Employee" ;
+    ex:email "multi@example.com" ;
+    ex:salary "50000.00"^^xsd:decimal ;
+    ex:department ex:department1, ex:department2 . # Multiple departments
+# VIOLATIONS: Multiple departments (maxCount 1)
+
+ex:badManager a ex:Employee ;
+    ex:name "Bad Manager" ;
+    ex:email "bad.manager@example.com" ;
+    ex:salary "60000.00"^^xsd:decimal ; # Less than subordinate
+    ex:department ex:department1 .
+
+ex:higherPaidSubordinate a ex:Employee ;
+    ex:name "Rich Subordinate" ;
+    ex:email "rich@example.com" ;
+    ex:salary "80000.00"^^xsd:decimal ; # More than manager
+    ex:department ex:department1 ;
+    ex:hasManager ex:badManager .
+# VIOLATIONS: Subordinate earns more than manager
+
+# 14. Invalid Severity test data - violates SeverityTestShape
+ex:invalidSeverity1 a ex:SeverityTest .
+# VIOLATIONS: Missing criticalField (Violation level)
+
+ex:invalidSeverity2 a ex:SeverityTest ;
+    ex:criticalField "Present" ;
+    ex:warningField "lowercase warning" ; # Should start with uppercase
+    ex:infoField "This is a very long info field that exceeds the 100 character limit and should trigger an info-level violation message according to our SHACL shape definition for comprehensive testing" . # Too long (>100 chars)
+# VIOLATIONS: Warning (case), Info (length)
+
+# 15. Invalid Edge Case test data - violates EdgeCaseShape
+ex:invalidEdgeCase1 a ex:EdgeCaseTest ;
+    ex:unicodeString "Invalid \u0000 null character" ; # Contains null character
+    ex:largeNumber "9223372036854775808"^^xsd:integer ; # Exceeds max long
+    ex:preciseDecimal "123.456"^^xsd:decimal . # Too many decimal places
+# VIOLATIONS: Invalid Unicode, number too large, wrong decimal precision
+
+ex:invalidEdgeCase2 a ex:EdgeCaseTest ;
+    ex:unicodeString "Contains \uD800 unpaired surrogate" ; # Invalid Unicode surrogate
+    ex:largeNumber "-9223372036854775809"^^xsd:integer ; # Below minimum
+    ex:preciseDecimal "123"^^xsd:decimal . # No decimal places (pattern requires 1-2)
+# VIOLATIONS: Invalid Unicode, number out of range, decimal format
+
+# 16. Invalid Performance test data - violates PerformanceTestShape
+ex:invalidPerf1 a ex:PerformanceTest .
+# VIOLATIONS: Missing required id
+
+ex:invalidPerf2 a ex:PerformanceTest ;
+    ex:id "1"^^xsd:integer, "2"^^xsd:integer . # Multiple IDs (maxCount 1)
+# VIOLATIONS: Multiple id values
+
+ex:invalidPerf3 a ex:PerformanceTest ;
+    ex:id "100"^^xsd:integer ;
+    ex:label "" .                       # Empty label (minLength 1)
+# VIOLATIONS: Empty label
+
+ex:invalidPerf4 a ex:PerformanceTest ;
+    ex:id "200"^^xsd:integer ;
+    ex:label "This label is way too long and exceeds the maximum length of 50 characters that is defined in the performance test SHACL shape" . # Too long (>50 chars)
+# VIOLATIONS: Label too long
+
+# Additional complex invalid cases for thorough testing
+ex:complexInvalid1 a ex:Person, ex:DataTypeTest, ex:CardinalityTest ;
+    ex:name "MultiClass Test" ;         # Valid for Person
+    ex:email "invalid-email-format" ;  # Invalid for Person
+    ex:integerValue "not-integer" ;     # Invalid for DataTypeTest
+    ex:exactlyOne "first", "second" .   # Invalid cardinality
+# VIOLATIONS: Multiple constraint violations across different shapes
+
+ex:complexInvalid2 a ex:RangeTest, ex:PatternTest ;
+    ex:percentage "200.0"^^xsd:decimal ; # Above max range
+    ex:phoneNumber "invalid-phone" ;    # Invalid pattern
+    ex:temperature "-500.0"^^xsd:decimal ; # Below absolute zero
+    ex:hexColor "not-hex-color" .       # Invalid hex pattern
+# VIOLATIONS: Multiple violations in range and pattern constraints

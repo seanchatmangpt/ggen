@@ -1,0 +1,191 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix a2a: <https://a2a.com/schema/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# Kubernetes Deployment Patterns
+
+# Web Server Deployment Pattern
+:nginx_deployment_pattern a a2a:deployment ;
+    a2a:app_label "nginx" ;
+    a2a:component_label "webserver" ;
+    a2a:version_label "1.25.2" ;
+    a2a:managed_by "a2a" ;
+    a2a:namespace "production" ;
+    a2a:replicas 3 ;
+    a2a:container_port 80 ;
+    a2a:container_port 443 ;
+    a2a:resource_request_cpu "50m" ;
+    a2a:resource_request_memory "64Mi" ;
+    a2a:resource_limit_cpu "100m" ;
+    a2a:resource_limit_memory "128Mi" ;
+    a2a:liveness_probe_path "/health" ;
+    a2a:readiness_probe_path "/ready" ;
+    a2a:health_check_port 80 ;
+    a2a:image_pull_policy "IfNotPresent" ;
+    a2a:service_account_name "nginx-sa" ;
+    a2a:tolerations "env=staging:NoExecute" ;
+    a2a:node_selector "role=web" ;
+    a2a:affinity "node-role.kubernetes.io/web" .
+
+# Database StatefulSet Pattern
+:postgres_statefulset a a2a:statefulset ;
+    a2a:app_label "postgres" ;
+    a2a:component_label "database" ;
+    a2a:version_label "14.7" ;
+    a2a:managed_by "a2a" ;
+    a2a:namespace "production" ;
+    a2a:replicas 3 ;
+    a2a:container_port 5432 ;
+    a2a:resource_request_cpu "250m" ;
+    a2a:resource_request_memory "512Mi" ;
+    a2a:resource_limit_cpu "500m" ;
+    a2a:resource_limit_memory "1Gi" ;
+    a2a:liveness_probe_path "/health" ;
+    a2a:readiness_probe_path "/ready" ;
+    a2a:health_check_port 5432 ;
+    a2a:persistent_volume_claim "postgres-data" ;
+    a2a:service_name "postgres-service" ;
+    a2a:volume_claim_template "postgres-pvc" ;
+    a2a:headless_service true .
+
+# Monitoring DaemonSet Pattern
+:prometheus_daemonset a a2a:daemonset ;
+    a2a:app_label "monitoring" ;
+    a2a:component_label "prometheus" ;
+    a2a:version_label "2.43.0" ;
+    a2a:managed_by "a2a" ;
+    a2a:namespace "monitoring" ;
+    a2a:container_port 9090 ;
+    a2a:container_port 8080 ;
+    a2a:resource_request_cpu "100m" ;
+    a2a:resource_request_memory "256Mi" ;
+    a2a:resource_limit_cpu "500m" ;
+    a2a:resource_limit_memory "1Gi" ;
+    a2a:node_selector "role=node" ;
+    a2a:tolerations "node-role.kubernetes.io/control-plane:NoSchedule" ;
+    a2a:tolerations "node-role.kubernetes.io/master:NoSchedule" .
+
+# Job Pattern for Data Processing
+:data_processing_job a a2a:job ;
+    a2a:app_label "data-processing" ;
+    a2a:component_label "batch" ;
+    a2a:version_label "1.2.0" ;
+    a2a:managed_by "a2a" ;
+    a2a:namespace "batch" ;
+    a2a:container_port 8080 ;
+    a2a:resource_request_cpu "500m" ;
+    a2a:resource_request_memory "1Gi" ;
+    a2a:resource_limit_cpu "1" ;
+    a2a:resource_limit_memory "2Gi" ;
+    a2a:completion_mode "NonIndexed" ;
+    a2a:backoff_limit 3 ;
+    a2a:ttl_seconds_after_finished 3600 .
+
+# CronJob Pattern for Scheduled Tasks
+:nightly_report_job a a2a:cronjob ;
+    a2a:app_label "reporting" ;
+    a2a:component_label "scheduled" ;
+    a2a:version_label "3.1.0" ;
+    a2a:managed_by "a2a" ;
+    a2a:namespace "batch" ;
+    a2a:container_port 8080 ;
+    a2a:resource_request_cpu "100m" ;
+    a2a:resource_request_memory "256Mi" ;
+    a2a:resource_limit_cpu "200m" ;
+    a2a:resource_limit_memory "512Mi" ;
+    a2a:schedule "0 2 * * *" ;
+    a2a:concurrency_policy "Forbid" ;
+    a2a:starting_deadline_seconds 600 ;
+    a2a:timezone "America/New_York" .
+
+# Kubernetes Service Patterns
+:external_api_service a a2a:service ;
+    a2a:app_label "api" ;
+    a2a:component_label "external" ;
+    a2a:version_label "2.5.0" ;
+    a2a:managed_by "a2a" ;
+    a2a:namespace "production" ;
+    a2a:service_type "LoadBalancer" ;
+    a2a:external_traffic_policy "Local" ;
+    a2a:session_affinity "ClientIP" ;
+    a2a:session_affinity_config "timeoutSeconds: 3600" .
+
+:internal_service a a2a:service ;
+    a2a:app_label "api" ;
+    a2a:component_label "internal" ;
+    a2a:version_label "2.5.0" ;
+    a2a:managed_by "a2a" ;
+    a2a:namespace "production" ;
+    a2a:service_type "ClusterIP" ;
+    a2a:session_affinity "None" ;
+    a2a:publish_not_ready_addresses true .
+
+# ConfigMap Patterns
+:app_config a a2a:configmap ;
+    a2a:app_label "app" ;
+    a2a:component_label "config" ;
+    a2a:version_label "1.0.0" ;
+    a2a:managed_by "a2a" ;
+    a2a:namespace "production" ;
+    a2a:data "app.config" "application.properties\ndatabase.url=jdbc:postgresql://postgres:5432/mydb\nfeatures.new=true" ;
+    a2a:data "logging.config" "logging.level.root=INFO\nlogging.level.com.example=DEBUG" ;
+    a2a:data "feature.flags" "{\n  \"new_feature\": true,\n  \"beta_feature\": false\n}" .
+
+:nginx_config a a2a:configmap ;
+    a2a:app_label "nginx" ;
+    a2a:component_label "config" ;
+    a2a:version_label "1.25.2" ;
+    a2a:managed_by "a2a" ;
+    a2a:namespace "production" ;
+    a2a:data "nginx.conf" "user nginx;\nworker_processes auto;\nerror_log /var/log/nginx/error.log;\npid /var/run/nginx.pid;" ;
+    a2a:data "mime.types" "types {\n  text/html html htm;\n  text/css css;\n  application/json json;\n}" .
+
+# Secret Patterns
+:db_credentials a a2a:secret ;
+    a2a:app_label "database" ;
+    a2a:component_label "credentials" ;
+    a2a:version_label "1.0.0" ;
+    a2a:managed_by "a2a" ;
+    a2a:namespace "production" ;
+    a2a:type "Opaque" ;
+    a2a:data "username" "YWRtaW4=" ;  # admin (base64)
+    a2a:data "password" "MWYyZDFlMmU2N2Rm" ;  # 1f2d1e2e67df (base64)
+    a2a:data "database" "dG9rZW5z" ;  # togres (base64)
+    a2a:data "host" "cG9zdGdyZXNxbDpleGFtcGxlLmNvbQ==" ;  # postgresexample.com (base64)
+
+:tls_secret a a2a:secret ;
+    a2a:app_label "tls" ;
+    a2a:component_label "certificates" ;
+    a2a:version_label "1.0.0" ;
+    a2a:managed_by "a2a" ;
+    a2a:namespace "production" ;
+    a2a:type "kubernetes.io/tls" ;
+    a2a:data "tls.crt" "-----BEGIN CERTIFICATE-----\nMIIDXTCCAkWgAwIBAgIJAKK1hiqZkxNiMA0GCSqGSIb3DQEBCwUAMEUxCzAJBgNV\n-----END CERTIFICATE-----\n" ;
+    a2a:data "tls.key" "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQD-----END PRIVATE KEY-----\n" .
+
+# Network Policy Patterns
+:network_policy_web a a2a:network_policy ;
+    a2a:app_label "web" ;
+    a2a:component_label "network" ;
+    a2a:version_label "1.0.0" ;
+    a2a:managed_by "a2a" ;
+    a2a:namespace "production" ;
+    a2a:pod_selector "app=nginx" ;
+    a2a:ingress_allow "port: 80\nprotocol: TCP" ;
+    a2a:ingress_allow "port: 443\nprotocol: TCP" ;
+    a2a:egress_allow "port: 53\nprotocol: UDP" ;
+    a2a:egress_allow "port: 443\nprotocol: TCP" .
+
+:network_policy_database a a2a:network_policy ;
+    a2a:app_label "database" ;
+    a2a:component_label "network" ;
+    a2a:version_label "1.0.0" ;
+    a2a:managed_by "a2a" ;
+    a2a:namespace "production" ;
+    a2a:pod_selector "app=postgres" ;
+    a2a:ingress_allow "from: pods\nnamespace: production\nports: 5432" ;
+    a2a:ingress_allow "from: services\nnamespace: monitoring\nports: 9187" ;
+    a2a:egress_allow "to: 10.0.0.0/24\nports: 53, 80, 443" .

@@ -1,0 +1,139 @@
+# @name: fibo_deal_create
+# @category: fibo-deals
+# @description: SPARQL CONSTRUCT creating FIBO-compliant deal triples from deal data
+# @params: ?deal_id, ?deal_name, ?amount, ?currency, ?buyer_id, ?buyer_name, ?seller_id, ?seller_name, ?expected_close_date
+# @returns: fibo-fnd:Deal instance with MonetaryAmount, Parties, and basic contractual terms
+# @version: 1.0
+# @stability: stable
+# @requires_parameters: true
+# @timeout_seconds: 5
+#
+# Purpose:
+#   Transforms BusinessOS CRM deal data into FIBO semantic representation.
+#   Creates a Deal entity (subclass of fibo-fnd:Agreement) with associated
+#   monetary amounts, parties (buyer/seller), and placeholder contractual terms.
+#
+# Validates:
+#   - Currency must be valid 3-letter ISO 4217 code (USD, EUR, GBP, etc.)
+#   - Amount must be positive decimal
+#   - Both buyer and seller must be provided
+#
+# Usage Example:
+#   registry.lookup("fibo_deal_create")
+#     .bind({
+#       deal_id: "d-001",
+#       deal_name: "Enterprise SaaS Contract",
+#       amount: "250000",
+#       currency: "USD",
+#       buyer_id: "party-acme",
+#       buyer_name: "Acme Corporation",
+#       seller_id: "party-cloudtech",
+#       seller_name: "CloudTech Inc",
+#       expected_close_date: "2026-06-30T00:00:00Z"
+#     })
+#     .execute()
+#
+# Output Triples (approximate RDF graph size: 200-250 triples):
+#   - 1x Deal (with fibo-fnd:Agreement, fibo-fbc:FinancialInstrument types)
+#   - 1x MonetaryAmount
+#   - 2x Parties (buyer + seller)
+#   - 3x ContractualTerms (pricing, payment, liability placeholders)
+
+PREFIX fibo-fnd: <https://spec.edmcouncil.org/fibo/ontology/FND/>
+PREFIX fibo-fbc: <https://spec.edmcouncil.org/fibo/ontology/FBC/>
+PREFIX fibo-be: <https://spec.edmcouncil.org/fibo/ontology/BE/>
+PREFIX : <https://ontology.businessos.dev/fibo-deals/>
+PREFIX schema: <http://schema.org/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+CONSTRUCT {
+  ?deal_uri a :Deal ;
+    a fibo-fnd:Agreement ;
+    a fibo-fbc:FinancialInstrument ;
+    schema:identifier ?deal_id ;
+    rdfs:label ?deal_name ;
+    schema:description ?deal_name ;
+    :dealStatus :DealNegotiation ;
+    :hasPrimaryBuyer ?buyer_uri ;
+    :hasPrimarySeller ?seller_uri ;
+    :dealAmount ?amount_uri ;
+    :dealCurrency ?currency ;
+    :expectedCloseDate ?close_date_typed ;
+    schema:dateCreated ?created_now ;
+    schema:dateModified ?created_now ;
+    :currentStage :NegotiationStage ;
+    :stageTransitionDate ?created_now ;
+    :hasContractualTerm ?pricing_term ;
+    :hasContractualTerm ?payment_term ;
+    :hasContractualTerm ?liability_term .
+
+  ?amount_uri a :MonetaryAmount ;
+    a fibo-fnd:MonetaryAmount ;
+    :amount ?amount_decimal ;
+    :currency ?currency ;
+    schema:priceCurrency ?currency ;
+    schema:price ?amount_display .
+
+  ?buyer_uri a :BusinessOSParty ;
+    a :InternalParty ;
+    a fibo-be:LegalPerson ;
+    a fibo-fnd:Party ;
+    schema:identifier ?buyer_id ;
+    rdfs:label ?buyer_name ;
+    :legalName ?buyer_name ;
+    :partyRole :BuyerRole ;
+    schema:name ?buyer_name ;
+    :hasKYCStatus :KYCPending ;
+    :operatingJurisdiction "US" .
+
+  ?seller_uri a :BusinessOSParty ;
+    a fibo-be:LegalPerson ;
+    a fibo-fnd:Party ;
+    schema:identifier ?seller_id ;
+    rdfs:label ?seller_name ;
+    :legalName ?seller_name ;
+    :partyRole :SellerRole ;
+    schema:name ?seller_name ;
+    :hasKYCStatus :KYCPending ;
+    :operatingJurisdiction "US" .
+
+  ?pricing_term a :PricingTerm ;
+    a fibo-fnd:ContractualDefinition ;
+    :termDescription "Principal pricing term specifying deal amount and currency"@en ;
+    schema:priceSpecification ?amount_uri .
+
+  ?payment_term a :PaymentTerm ;
+    a fibo-fnd:PaymentObligation ;
+    :termDescription "Payment terms to be negotiated"@en ;
+    :termCondition "Upon receipt of invoice" .
+
+  ?liability_term a :LiabilityTerm ;
+    a fibo-fnd:ContractualDefinition ;
+    :termDescription "Liability limitations and indemnification"@en ;
+    :termCondition "Standard commercial terms" .
+}
+
+WHERE {
+  # Bind parameters to typed values
+  BIND(xsd:decimal(?amount) AS ?amount_decimal)
+  BIND(STR(?amount) AS ?amount_display)
+  BIND(STRDT(?expected_close_date, xsd:dateTime) AS ?close_date_typed)
+  BIND(NOW() AS ?created_now)
+
+  # Validate currency is ISO 4217 (3-letter code)
+  FILTER(STRLEN(?currency) = 3)
+  FILTER(REGEX(?currency, "^[A-Z]{3}$"))
+
+  # Validate amount is positive
+  FILTER(?amount_decimal > 0)
+
+  # Bind IRIs for all entities
+  BIND(IRI(CONCAT("https://businessos.dev/id/deals/", STR(?deal_id))) AS ?deal_uri)
+  BIND(IRI(CONCAT("https://businessos.dev/id/amounts/", STR(?deal_id), "-principal")) AS ?amount_uri)
+  BIND(IRI(CONCAT("https://businessos.dev/id/parties/", STR(?buyer_id))) AS ?buyer_uri)
+  BIND(IRI(CONCAT("https://businessos.dev/id/parties/", STR(?seller_id))) AS ?seller_uri)
+  BIND(IRI(CONCAT("https://businessos.dev/id/terms/", STR(?deal_id), "-pricing")) AS ?pricing_term)
+  BIND(IRI(CONCAT("https://businessos.dev/id/terms/", STR(?deal_id), "-payment")) AS ?payment_term)
+  BIND(IRI(CONCAT("https://businessos.dev/id/terms/", STR(?deal_id), "-liability")) AS ?liability_term)
+}

@@ -1,0 +1,359 @@
+@prefix : <http://dark-matter.ai/ontology/> .
+@prefix tel: <http://dark-matter.ai/ontology/telemetry/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Telemetry Ontology - Observability, metrics, logs, and traces
+
+tel:TelemetryOntology a owl:Ontology ;
+  rdfs:label "Dark Matter 2026 Telemetry Ontology" ;
+  owl:versionInfo "1.0.0" .
+
+# === TELEMETRY CLASSES ===
+
+tel:Metric a rdfs:Class ;
+  rdfs:label "Metric" ;
+  rdfs:comment "A quantitative measurement of system behavior" .
+
+tel:Counter a rdfs:Class ;
+  rdfs:subClassOf tel:Metric ;
+  rdfs:label "Counter" ;
+  rdfs:comment "A metric that only increases" .
+
+tel:Gauge a rdfs:Class ;
+  rdfs:subClassOf tel:Metric ;
+  rdfs:label "Gauge" ;
+  rdfs:comment "A metric that can increase or decrease" .
+
+tel:Histogram a rdfs:Class ;
+  rdfs:subClassOf tel:Metric ;
+  rdfs:label "Histogram" ;
+  rdfs:comment "A metric that samples observations and counts them in buckets" .
+
+tel:LogEvent a rdfs:Class ;
+  rdfs:label "Log Event" ;
+  rdfs:comment "A structured log event with metadata" .
+
+tel:TraceSpan a rdfs:Class ;
+  rdfs:label "Trace Span" ;
+  rdfs:comment "A unit of work within a distributed trace" .
+
+tel:Trace a rdfs:Class ;
+  rdfs:label "Trace" ;
+  rdfs:comment "A collection of spans representing a request flow" .
+
+tel:Alert a rdfs:Class ;
+  rdfs:label "Alert" ;
+  rdfs:comment "An alert triggered by telemetry data" .
+
+tel:Dashboard a rdfs:Class ;
+  rdfs:label "Dashboard" ;
+  rdfs:comment "A collection of visualizations for telemetry data" .
+
+tel:Instrument a rdfs:Class ;
+  rdfs:label "Instrument" ;
+  rdfs:comment "A telemetry instrument that produces measurements" .
+
+# === TELEMETRY PROPERTIES ===
+
+tel:hasMetric a owl:ObjectProperty ;
+  rdfs:domain :Service ;
+  rdfs:range tel:Metric ;
+  rdfs:label "has metric" .
+
+tel:hasInstrument a owl:ObjectProperty ;
+  rdfs:domain :Service ;
+  rdfs:range tel:Instrument ;
+  rdfs:label "has instrument" .
+
+tel:producesSpan a owl:ObjectProperty ;
+  rdfs:domain :Service ;
+  rdfs:range tel:TraceSpan ;
+  rdfs:label "produces span" .
+
+tel:emitsEvent a owl:ObjectProperty ;
+  rdfs:domain :Service ;
+  rdfs:range tel:LogEvent ;
+  rdfs:label "emits event" .
+
+tel:triggersAlert a owl:ObjectProperty ;
+  rdfs:domain tel:Metric ;
+  rdfs:range tel:Alert ;
+  rdfs:label "triggers alert" .
+
+tel:parentSpan a owl:ObjectProperty ;
+  rdfs:domain tel:TraceSpan ;
+  rdfs:range tel:TraceSpan ;
+  rdfs:label "parent span" .
+
+tel:belongsToTrace a owl:ObjectProperty ;
+  rdfs:domain tel:TraceSpan ;
+  rdfs:range tel:Trace ;
+  rdfs:label "belongs to trace" .
+
+tel:metricName a owl:DatatypeProperty ;
+  rdfs:domain tel:Metric ;
+  rdfs:range xsd:string ;
+  rdfs:label "metric name" .
+
+tel:metricType a owl:DatatypeProperty ;
+  rdfs:domain tel:Metric ;
+  rdfs:range xsd:string ;
+  rdfs:label "metric type" .
+
+tel:metricUnit a owl:DatatypeProperty ;
+  rdfs:domain tel:Metric ;
+  rdfs:range xsd:string ;
+  rdfs:label "metric unit" .
+
+tel:logLevel a owl:DatatypeProperty ;
+  rdfs:domain tel:LogEvent ;
+  rdfs:range xsd:string ;
+  rdfs:label "log level" .
+
+tel:logMessage a owl:DatatypeProperty ;
+  rdfs:domain tel:LogEvent ;
+  rdfs:range xsd:string ;
+  rdfs:label "log message" .
+
+tel:spanName a owl:DatatypeProperty ;
+  rdfs:domain tel:TraceSpan ;
+  rdfs:range xsd:string ;
+  rdfs:label "span name" .
+
+tel:spanKind a owl:DatatypeProperty ;
+  rdfs:domain tel:TraceSpan ;
+  rdfs:range xsd:string ;
+  rdfs:label "span kind" .
+
+tel:duration a owl:DatatypeProperty ;
+  rdfs:domain tel:TraceSpan ;
+  rdfs:range xsd:duration ;
+  rdfs:label "duration" .
+
+tel:traceId a owl:DatatypeProperty ;
+  rdfs:domain tel:Trace ;
+  rdfs:range xsd:string ;
+  rdfs:label "trace ID" .
+
+tel:spanId a owl:DatatypeProperty ;
+  rdfs:domain tel:TraceSpan ;
+  rdfs:range xsd:string ;
+  rdfs:label "span ID" .
+
+tel:timestamp a owl:DatatypeProperty ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "timestamp" .
+
+tel:value a owl:DatatypeProperty ;
+  rdfs:domain tel:Metric ;
+  rdfs:range xsd:double ;
+  rdfs:label "value" .
+
+tel:severity a owl:DatatypeProperty ;
+  rdfs:domain tel:Alert ;
+  rdfs:range xsd:string ;
+  rdfs:label "severity" .
+
+tel:threshold a owl:DatatypeProperty ;
+  rdfs:domain tel:Alert ;
+  rdfs:range xsd:double ;
+  rdfs:label "threshold" .
+
+# === SYSTEM METRICS ===
+
+tel:RequestCount a tel:Counter ;
+  tel:metricName "http_requests_total" ;
+  tel:metricType "counter" ;
+  tel:metricUnit "requests" ;
+  :name "HTTP Request Count" ;
+  :description "Total number of HTTP requests" .
+
+tel:ResponseTime a tel:Histogram ;
+  tel:metricName "http_request_duration_seconds" ;
+  tel:metricType "histogram" ;
+  tel:metricUnit "seconds" ;
+  :name "HTTP Response Time" ;
+  :description "HTTP request duration in seconds" .
+
+tel:ErrorRate a tel:Gauge ;
+  tel:metricName "error_rate" ;
+  tel:metricType "gauge" ;
+  tel:metricUnit "percentage" ;
+  :name "Error Rate" ;
+  :description "Percentage of failed requests" .
+
+tel:CPUUsage a tel:Gauge ;
+  tel:metricName "cpu_usage_percent" ;
+  tel:metricType "gauge" ;
+  tel:metricUnit "percentage" ;
+  :name "CPU Usage" ;
+  :description "CPU utilization percentage" .
+
+tel:MemoryUsage a tel:Gauge ;
+  tel:metricName "memory_usage_bytes" ;
+  tel:metricType "gauge" ;
+  tel:metricUnit "bytes" ;
+  :name "Memory Usage" ;
+  :description "Memory usage in bytes" .
+
+tel:DatabaseConnections a tel:Gauge ;
+  tel:metricName "db_connections_active" ;
+  tel:metricType "gauge" ;
+  tel:metricUnit "connections" ;
+  :name "Database Connections" ;
+  :description "Number of active database connections" .
+
+tel:QueueDepth a tel:Gauge ;
+  tel:metricName "queue_depth" ;
+  tel:metricType "gauge" ;
+  tel:metricUnit "items" ;
+  :name "Queue Depth" ;
+  :description "Number of items in queue" .
+
+# === DOMAIN-SPECIFIC METRICS ===
+
+tel:PolicyEvaluations a tel:Counter ;
+  tel:metricName "policy_evaluations_total" ;
+  tel:metricType "counter" ;
+  tel:metricUnit "evaluations" ;
+  :name "Policy Evaluations" ;
+  :description "Total number of policy evaluations" .
+
+tel:GenerationRequests a tel:Counter ;
+  tel:metricName "generation_requests_total" ;
+  tel:metricType "counter" ;
+  tel:metricUnit "requests" ;
+  :name "Generation Requests" ;
+  :description "Total number of code generation requests" .
+
+tel:AuditEvents a tel:Counter ;
+  tel:metricName "audit_events_total" ;
+  tel:metricType "counter" ;
+  tel:metricUnit "events" ;
+  :name "Audit Events" ;
+  :description "Total number of audit events" .
+
+tel:SecurityViolations a tel:Counter ;
+  tel:metricName "security_violations_total" ;
+  tel:metricType "counter" ;
+  tel:metricUnit "violations" ;
+  :name "Security Violations" ;
+  :description "Total number of security violations" .
+
+tel:DataSubjectRequests a tel:Counter ;
+  tel:metricName "data_subject_requests_total" ;
+  tel:metricType "counter" ;
+  tel:metricUnit "requests" ;
+  :name "Data Subject Requests" ;
+  :description "Total number of data subject requests" .
+
+# === LOG EVENT TYPES ===
+
+tel:InfoEvent a tel:LogEvent ;
+  tel:logLevel "info" ;
+  :name "Info Event" ;
+  :description "Informational log event" .
+
+tel:WarningEvent a tel:LogEvent ;
+  tel:logLevel "warn" ;
+  :name "Warning Event" ;
+  :description "Warning log event" .
+
+tel:ErrorEvent a tel:LogEvent ;
+  tel:logLevel "error" ;
+  :name "Error Event" ;
+  :description "Error log event" .
+
+tel:DebugEvent a tel:LogEvent ;
+  tel:logLevel "debug" ;
+  :name "Debug Event" ;
+  :description "Debug log event" .
+
+tel:SecurityEvent a tel:LogEvent ;
+  tel:logLevel "warn" ;
+  :name "Security Event" ;
+  :description "Security-related log event" .
+
+tel:AuditEvent a tel:LogEvent ;
+  tel:logLevel "info" ;
+  :name "Audit Event" ;
+  :description "Audit trail log event" .
+
+# === SPAN TYPES ===
+
+tel:HTTPSpan a tel:TraceSpan ;
+  tel:spanKind "server" ;
+  :name "HTTP Span" ;
+  :description "HTTP request span" .
+
+tel:DatabaseSpan a tel:TraceSpan ;
+  tel:spanKind "client" ;
+  :name "Database Span" ;
+  :description "Database operation span" .
+
+tel:CacheSpan a tel:TraceSpan ;
+  tel:spanKind "client" ;
+  :name "Cache Span" ;
+  :description "Cache operation span" .
+
+tel:ProcessingSpan a tel:TraceSpan ;
+  tel:spanKind "internal" ;
+  :name "Processing Span" ;
+  :description "Internal processing span" .
+
+tel:AuthenticationSpan a tel:TraceSpan ;
+  tel:spanKind "internal" ;
+  :name "Authentication Span" ;
+  :description "Authentication process span" .
+
+tel:ValidationSpan a tel:TraceSpan ;
+  tel:spanKind "internal" ;
+  :name "Validation Span" ;
+  :description "Data validation span" .
+
+# === ALERTS ===
+
+tel:HighErrorRate a tel:Alert ;
+  :name "High Error Rate Alert" ;
+  :description "Alert for high error rate" ;
+  tel:severity "critical" ;
+  tel:threshold 5.0 .
+
+tel:HighResponseTime a tel:Alert ;
+  :name "High Response Time Alert" ;
+  :description "Alert for high response times" ;
+  tel:severity "warning" ;
+  tel:threshold 1.0 .
+
+tel:HighCPUUsage a tel:Alert ;
+  :name "High CPU Usage Alert" ;
+  :description "Alert for high CPU usage" ;
+  tel:severity "warning" ;
+  tel:threshold 80.0 .
+
+tel:HighMemoryUsage a tel:Alert ;
+  :name "High Memory Usage Alert" ;
+  :description "Alert for high memory usage" ;
+  tel:severity "critical" ;
+  tel:threshold 90.0 .
+
+tel:SecurityViolationAlert a tel:Alert ;
+  :name "Security Violation Alert" ;
+  :description "Alert for security violations" ;
+  tel:severity "critical" ;
+  tel:threshold 1.0 .
+
+# === SERVICE TELEMETRY MAPPINGS ===
+
+:WeaveService tel:hasMetric tel:GenerationRequests,
+                           tel:RequestCount,
+                           tel:ResponseTime .
+
+:GovernService tel:hasMetric tel:PolicyEvaluations,
+                            tel:AuditEvents .
+
+:MonitorService tel:hasMetric tel:CPUUsage,
+                             tel:MemoryUsage,
+                             tel:DatabaseConnections .

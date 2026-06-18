@@ -1,0 +1,159 @@
+# @name: fibo_deal_lineage
+# @category: fibo-deals
+# @description: SPARQL SELECT querying deal provenance, lineage, and audit trail
+# @params: ?deal_uri
+# @returns: Creator, creation date, all modifications, PROV-O lineage triples
+# @version: 1.0
+# @stability: stable
+# @requires_parameters: true
+# @timeout_seconds: 5
+#
+# Purpose:
+#   Retrieves complete provenance and audit trail for a financial deal.
+#   Uses PROV-O (W3C Provenance Ontology) to track:
+#   - Deal creator and creation timestamp
+#   - All modifications (who changed what, when)
+#   - Status transitions with reasons
+#   - Activities and entities related to the deal
+#   - Chain of custody for sensitive data
+#
+# Validates:
+#   - Deal URI must be non-empty and well-formed
+#   - Results include only PROV-O triples
+#
+# Returns (SELECT):
+#   - ?creator (Agent who created the deal)
+#   - ?createdAt (xsd:dateTime of creation)
+#   - ?creatorEmail (Contact for creator)
+#   - ?modification_count (How many times modified)
+#   - ?lastModifier (Most recent modifier)
+#   - ?lastModifiedAt (Most recent modification timestamp)
+#   - ?status_transitions (Count of status changes)
+#   - ?earliest_activity (First recorded activity)
+#   - ?latest_activity (Most recent activity)
+#   - ?related_documents (Count of related contracts/amendments)
+#
+# Usage Example:
+#   registry.lookup("fibo_deal_lineage")
+#     .bind({
+#       deal_uri: "https://businessos.dev/id/deals/d-001"
+#     })
+#     .execute()
+#
+# Output Format (SELECT query):
+#   ?creator | ?createdAt | ?creatorEmail | ?modification_count | ?lastModifier | ...
+#   "john.smith@..." | 2026-01-15T10:30:00Z | "john.smith@businessos.dev" | 5 | ...
+#
+# Uses PROV-O Properties:
+#   - prov:wasAttributedTo (what agent created/modified)
+#   - prov:wasGeneratedBy (what activity produced changes)
+#   - prov:startedAtTime / prov:endedAtTime (when)
+#   - prov:wasDerivedFrom (predecessor versions)
+#   - prov:wasInformedBy (dependency chain)
+
+PREFIX : <https://ontology.businessos.dev/fibo-deals/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX schema: <http://schema.org/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT
+  ?creator
+  ?createdAt
+  ?creatorEmail
+  ?modification_count
+  ?lastModifier
+  ?lastModifiedAt
+  ?lastModifierEmail
+  ?status_transitions
+  ?earliest_activity_date
+  ?latest_activity_date
+  ?related_documents_count
+  ?current_status
+  ?audit_trail_summary
+
+WHERE {
+  # Query the deal's provenance chain
+  ?deal_uri a :Deal ;
+    schema:dateCreated ?createdAt ;
+    schema:creator ?creator ;
+    schema:dateModified ?lastModifiedAt ;
+    :currentStage ?current_status .
+
+  # Get creator details (OPTIONAL)
+  OPTIONAL {
+    ?creator a prov:Agent ;
+      schema:email ?creatorEmail .
+  }
+
+  # Get modifier details if different from creator
+  OPTIONAL {
+    ?modify_activity prov:wasAssociatedWith ?lastModifier ;
+      prov:endedAtTime ?lastModifiedAt .
+    ?lastModifier schema:email ?lastModifierEmail .
+  }
+  FILTER(BOUND(?lastModifier) || ?lastModifier = ?creator)
+
+  # Count modifications (prov:Activities that used this deal)
+  {
+    SELECT ?deal_uri (COUNT(?modify_activity) AS ?modification_count)
+    WHERE {
+      ?modify_activity a prov:Activity ;
+        prov:used ?deal_uri .
+    }
+    GROUP BY ?deal_uri
+  }
+
+  # Count status transitions (stage changes)
+  {
+    SELECT ?deal_uri (COUNT(?transition) AS ?status_transitions)
+    WHERE {
+      ?transition a :DealStatusTransition ;
+        :deal ?deal_uri .
+    }
+    GROUP BY ?deal_uri
+  }
+
+  # Get earliest activity timestamp
+  {
+    SELECT ?deal_uri (MIN(?activity_start) AS ?earliest_activity_date)
+    WHERE {
+      ?activity a prov:Activity ;
+        prov:used ?deal_uri ;
+        prov:startedAtTime ?activity_start .
+    }
+    GROUP BY ?deal_uri
+  }
+
+  # Get latest activity timestamp
+  {
+    SELECT ?deal_uri (MAX(?activity_end) AS ?latest_activity_date)
+    WHERE {
+      ?activity a prov:Activity ;
+        prov:used ?deal_uri ;
+        prov:endedAtTime ?activity_end .
+    }
+    GROUP BY ?deal_uri
+  }
+
+  # Count related documents (contracts, amendments, etc.)
+  {
+    SELECT ?deal_uri (COUNT(?document) AS ?related_documents_count)
+    WHERE {
+      ?document a :Contract ;
+        :associatedDeal ?deal_uri .
+    }
+    GROUP BY ?deal_uri
+  }
+
+  # Build audit trail summary as a concatenated string
+  BIND(CONCAT(
+    "Deal created by ", STR(?creator), " on ", STR(?createdAt), ". ",
+    "Modified ", STR(?modification_count), " times. ",
+    "Last change: ", STR(?lastModifiedAt), ". ",
+    "Status transitions: ", STR(?status_transitions), ". ",
+    "Related documents: ", STR(?related_documents_count)
+  ) AS ?audit_trail_summary)
+}
+ORDER BY DESC(?lastModifiedAt)
+LIMIT 1

@@ -1,0 +1,17 @@
+
+PREFIX proj: <https://chatmangpt.com/ontologies/o-star/proj:>
+PREFIX ostar: <https://chatmangpt.com/ontologies/o-star/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?capabilityName ?strategy ?module ?restart ?shutdown
+WHERE {
+  ?cap a ostar:Capability ;
+       rdfs:label ?capabilityName .
+
+  OPTIONAL { ?cap ostar:supervisionStrategy ?strategy }
+  OPTIONAL { ?cap ostar:implementationModule ?module }
+  OPTIONAL { ?cap ostar:restartPolicy ?restart }
+  OPTIONAL { ?cap ostar:shutdownTimeout ?shutdown }
+}
+ORDER BY ?capabilityName

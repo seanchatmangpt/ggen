@@ -1,0 +1,199 @@
+# FactoryPaaS - Affiliate Marketing Platform Bounded Context
+# Domain: SEO-Driven Affiliate Site Generation & Revenue Attribution
+
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix ddd:   <https://ggen.io/ontology/ddd#> .
+@prefix fpaa:  <https://factorypaaS.io/ontology#> .
+@prefix sys:   <https://ggen.io/ontology/system#> .
+
+# ============================================================================
+# BOUNDED CONTEXT
+# ============================================================================
+
+fpaa:FactoryPaaSContext a ddd:BoundedContext ;
+  ddd:name "FactoryPaaS" ;
+  rdfs:comment "AI-Powered Affiliate Marketing Platform with SEO-First Content Generation" ;
+  ddd:version "2.0.0" ;
+  ddd:language "rust" ;
+  ddd:framework "axum" ;
+
+  # Aggregates
+  ddd:hasAggregate fpaa:SiteAggregate ;
+  ddd:hasAggregate fpaa:ContentAggregate ;
+  ddd:hasAggregate fpaa:RevenueAggregate ;
+  ddd:hasAggregate fpaa:SEOAggregate ;
+  ddd:hasAggregate fpaa:DeploymentAggregate ;
+
+  # Commands
+  ddd:hasCommand fpaa:CreateSite ;
+  ddd:hasCommand fpaa:PublishPage ;
+  ddd:hasCommand fpaa:GenerateContent ;
+  ddd:hasCommand fpaa:DeployToGCP ;
+  ddd:hasCommand fpaa:TrackOutboundClick ;
+  ddd:hasCommand fpaa:OptimizeKeywords ;
+  ddd:hasCommand fpaa:BuildInternalLinks ;
+  ddd:hasCommand fpaa:ScheduleContentGeneration ;
+
+  # Events
+  ddd:hasEvent fpaa:SiteCreated ;
+  ddd:hasEvent fpaa:PagePublished ;
+  ddd:hasEvent fpaa:SiteDeployed ;
+  ddd:hasEvent fpaa:ClickTracked ;
+  ddd:hasEvent fpaa:CommissionRecorded ;
+  ddd:hasEvent fpaa:SaaSSubscriptionCreated ;
+  ddd:hasEvent fpaa:ContentGenerated ;
+  ddd:hasEvent fpaa:KeywordsOptimized ;
+  ddd:hasEvent fpaa:InternalLinksBuilt ;
+
+  # Policies
+  ddd:hasPolicy fpaa:KeywordTargetingPolicy ;
+  ddd:hasPolicy fpaa:InternalLinkingPolicy ;
+  ddd:hasPolicy fpaa:ConversionFlowPolicy ;
+  ddd:hasPolicy fpaa:SEOOptimizationPolicy ;
+  ddd:hasPolicy fpaa:ContentFreshnessPolicy ;
+  ddd:hasPolicy fpaa:RevenueAttributionPolicy ;
+
+  # Projections
+  ddd:hasProjection fpaa:SiteAnalyticsProjection ;
+  ddd:hasProjection fpaa:RevenueProjection ;
+  ddd:hasProjection fpaa:SEORankingProjection ;
+  ddd:hasProjection fpaa:ConversionFunnelProjection .
+
+# ============================================================================
+# UBIQUITOUS LANGUAGE
+# ============================================================================
+
+fpaa:Site a ddd:ConceptDefinition ;
+  rdfs:label "Site" ;
+  rdfs:comment "Affiliate marketing website with SEO-optimized content targeting specific niche" .
+
+fpaa:NichePage a ddd:ConceptDefinition ;
+  rdfs:label "NichePage" ;
+  rdfs:comment "Individual content page targeting specific long-tail keywords with affiliate links" .
+
+fpaa:SideWaysKeyword a ddd:ConceptDefinition ;
+  rdfs:label "SideWaysKeyword" ;
+  rdfs:comment "Low-competition, high-intent keyword for sideways SEO strategy" .
+
+fpaa:AffiliateLinkRoute a ddd:ConceptDefinition ;
+  rdfs:label "AffiliateLinkRoute" ;
+  rdfs:comment "Tracked URL route for affiliate link clicks with attribution metadata" .
+
+fpaa:ConversionFlow a ddd:ConceptDefinition ;
+  rdfs:label "ConversionFlow" ;
+  rdfs:comment "User journey path from landing page through internal links to affiliate conversion" .
+
+fpaa:InternalLinkGraph a ddd:ConceptDefinition ;
+  rdfs:label "InternalLinkGraph" ;
+  rdfs:comment "Network of contextual internal links building topical authority" .
+
+fpaa:ContentCluster a ddd:ConceptDefinition ;
+  rdfs:label "ContentCluster" ;
+  rdfs:comment "Group of related pages around pillar content for SEO topical authority" .
+
+fpaa:RevenueAttribution a ddd:ConceptDefinition ;
+  rdfs:label "RevenueAttribution" ;
+  rdfs:comment "Credit assignment for affiliate commission to specific page, keyword, and link" .
+
+# ============================================================================
+# DOMAIN INVARIANTS
+# ============================================================================
+
+fpaa:Invariant_UniqueSlug a ddd:Invariant ;
+  ddd:name "UniqueSlug" ;
+  rdfs:comment "Page slugs must be unique within a site" ;
+  ddd:rule "UNIQUE(page.slug) PER site.id" ;
+  ddd:scope fpaa:SiteAggregate .
+
+fpaa:Invariant_ValidAffiliateLinkFormat a ddd:Invariant ;
+  ddd:name "ValidAffiliateLinkFormat" ;
+  rdfs:comment "Affiliate links must contain valid tracking parameters" ;
+  ddd:rule "affiliate_link.url MATCHES /^https?:\\/\\/.*[?&](ref|aff|tag)=.*$/" ;
+  ddd:scope fpaa:ContentAggregate .
+
+fpaa:Invariant_MinimumContentLength a ddd:Invariant ;
+  ddd:name "MinimumContentLength" ;
+  rdfs:comment "Published pages must have minimum 800 words for SEO effectiveness" ;
+  ddd:rule "page.content.word_count >= 800" ;
+  ddd:scope fpaa:ContentAggregate .
+
+fpaa:Invariant_KeywordDensity a ddd:Invariant ;
+  ddd:name "KeywordDensity" ;
+  rdfs:comment "Primary keyword density must be between 0.5% and 2.5%" ;
+  ddd:rule "0.005 <= keyword_density(page.content, page.primary_keyword) <= 0.025" ;
+  ddd:scope fpaa:SEOAggregate .
+
+fpaa:Invariant_PositiveCommission a ddd:Invariant ;
+  ddd:name "PositiveCommission" ;
+  rdfs:comment "Commission amounts must be positive" ;
+  ddd:rule "commission.amount > 0" ;
+  ddd:scope fpaa:RevenueAggregate .
+
+fpaa:Invariant_InternalLinkDepth a ddd:Invariant ;
+  ddd:name "InternalLinkDepth" ;
+  rdfs:comment "Maximum internal link depth from homepage is 3 clicks" ;
+  ddd:rule "internal_link_depth(page) <= 3" ;
+  ddd:scope fpaa:SEOAggregate .
+
+fpaa:Invariant_UniqueClickTracking a ddd:Invariant ;
+  ddd:name "UniqueClickTracking" ;
+  rdfs:comment "Each outbound click must have unique tracking ID" ;
+  ddd:rule "UNIQUE(click.tracking_id)" ;
+  ddd:scope fpaa:RevenueAggregate .
+
+fpaa:Invariant_ContentFreshness a ddd:Invariant ;
+  ddd:name "ContentFreshness" ;
+  rdfs:comment "Pages must be updated at least every 90 days" ;
+  ddd:rule "page.last_updated >= now() - 90 days" ;
+  ddd:scope fpaa:ContentAggregate .
+
+fpaa:Invariant_DeploymentIdempotency a ddd:Invariant ;
+  ddd:name "DeploymentIdempotency" ;
+  rdfs:comment "Deployments with same content hash are idempotent" ;
+  ddd:rule "deployment.content_hash => UNIQUE(deployment.id)" ;
+  ddd:scope fpaa:DeploymentAggregate .
+
+fpaa:Invariant_SiteActiveStatus a ddd:Invariant ;
+  ddd:name "SiteActiveStatus" ;
+  rdfs:comment "Only active sites can receive new content or clicks" ;
+  ddd:rule "site.status = 'active' WHEN (publish OR click_tracked)" ;
+  ddd:scope fpaa:SiteAggregate .
+
+# ============================================================================
+# DOMAIN BUSINESS RULES
+# ============================================================================
+
+fpaa:Rule_SideWaysKeywordSelection a ddd:Rule ;
+  ddd:name "SideWaysKeywordSelection" ;
+  rdfs:comment "Select keywords with difficulty < 30 and search volume > 100" ;
+  ddd:expression "keyword.difficulty < 30 AND keyword.monthly_searches > 100" .
+
+fpaa:Rule_AffiliateDisclosure a ddd:Rule ;
+  ddd:name "AffiliateDisclosure" ;
+  rdfs:comment "All pages with affiliate links must include FTC disclosure" ;
+  ddd:expression "HAS_AFFILIATE_LINK(page) => CONTAINS(page.content, 'affiliate disclosure')" .
+
+fpaa:Rule_CanonicalURL a ddd:Rule ;
+  ddd:name "CanonicalURL" ;
+  rdfs:comment "Each page must have canonical URL meta tag" ;
+  ddd:expression "page.meta.canonical = site.domain + page.slug" .
+
+# ============================================================================
+# CONTEXT METADATA
+# ============================================================================
+
+fpaa:FactoryPaaSContext
+  sys:servicePort "8080" ;
+  sys:healthPath "/health" ;
+  sys:metricsPath "/metrics" ;
+  sys:receiptsPath "/receipts" ;
+  sys:runtime "tokio" ;
+  sys:persistence "postgresql" ;
+  sys:cache "redis" ;
+  sys:messageQueue "cloud-pubsub" ;
+  sys:storage "gcs" ;
+  sys:cdn "cloud-cdn" ;
+  sys:monitoring "cloud-monitoring" ;
+  sys:tracing "opentelemetry" .

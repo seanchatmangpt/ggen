@@ -1,0 +1,80 @@
+@prefix : <https://bytestar.org/ontology/pqc-fabric/precognitive-pipeline#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix bflow: <https://bytestar.org/ontology/bytestar-byteflow#> .
+@prefix bactor: <https://bytestar.org/ontology/bytestar-byteactor#> .
+@prefix pqckernel: <https://bytestar.org/ontology/pqc-fabric/kernel-registry#> .
+
+<https://bytestar.org/ontology/pqc-fabric/precognitive-pipeline>
+  a owl:Ontology ;
+  rdfs:label "PQC Assimilation Canon: Pre-Cognitive PQC Pipeline" ;
+  rdfs:comment "Defines the 'Pre-Cognitive' PQC Proving Ground for pre-calculating cryptographic assets to reduce hot-path latency." .
+
+### Core Components
+
+:PQCProvingGround a bcore:Subsystem ;
+  rdfs:comment "A dedicated, isolated set of cores that continuously generates cryptographic assets (keypairs, pre-signed vouchers)." .
+
+:CryptographicVoucher a bcore:MemoryCrystal ;
+  rdfs:label "Cryptographic Voucher" ;
+  rdfs:comment "A pre-signed, single-use structure containing a fresh public key and a signature over a canonical placeholder message." ;
+  bcore:hasProperty :voucherPublicKey, :voucherSignature, :voucherPlaceholderHash .
+
+:voucherPublicKey a owl:DatatypeProperty ;
+  rdfs:label "voucher public key" ;
+  rdfs:domain :CryptographicVoucher ;
+  rdfs:range xsd:base64Binary .
+
+:voucherSignature a owl:DatatypeProperty ;
+  rdfs:label "voucher signature" ;
+  rdfs:domain :CryptographicVoucher ;
+  rdfs:range xsd:base64Binary .
+
+:voucherPlaceholderHash a owl:DatatypeProperty ;
+  rdfs:label "voucher placeholder hash" ;
+  rdfs:domain :CryptographicVoucher ;
+  rdfs:range xsd:base64Binary .
+
+:KeypairPool a bcore:MemoryCrystal ;
+  rdfs:label "Keypair Pool" ;
+  rdfs:comment "A pool of pre-generated PQC keypairs (public and private) for various algorithms." .
+
+### Relationships and Workflows
+
+:generatesVoucher a owl:ObjectProperty ;
+  rdfs:label "generates voucher" ;
+  rdfs:domain :PQCProvingGround ;
+  rdfs:range :CryptographicVoucher .
+
+:requestsVoucher a owl:ObjectProperty ;
+  rdfs:label "requests voucher" ;
+  rdfs:domain bactor:ByteActorCore ;
+  rdfs:range :CryptographicVoucher .
+
+:precomputesFor a owl:ObjectProperty ;
+  rdfs:label "precomputes for" ;
+  rdfs:domain :PQCProvingGround ;
+  rdfs:range bactor:ByteActorCore ;
+  rdfs:comment "The proving ground pre-computes cryptographic assets for anticipated ByteActor needs." .
+
+:PQCProvingGroundWorkflow a bcore:Pattern ;
+  rdfs:label "PQC Proving Ground Generation Workflow" ;
+  bcore:hasHopCount "5"^^xsd:integer ;
+  bcore:hasKernelSequence (
+    pqckernel:k_pqc_kyber_keygen
+    pqckernel:k_pqc_dilithium_keygen
+    pqckernel:k_pqc_shake_msg # To hash placeholder
+    pqckernel:k_pqc_dilithium_sign # To sign voucher
+    pqckernel:k_pqc_precog_voucher_gen # To assemble voucher
+  ) .
+
+:PQCProvingGroundRedemptionWorkflow a bcore:Pattern ;
+  rdfs:label "PQC Proving Ground Redemption Workflow" ;
+  bcore:hasHopCount "3"^^xsd:integer ;
+  bcore:hasKernelSequence (
+    pqckernel:k_pqc_precog_voucher_redeem # To retrieve pre-computed asset
+    pqckernel:k_pqc_shake_msg # To hash actual message with voucher pubkey
+    pqckernel:k_pqc_const_time_cmp # To compare hashes
+  ) .

@@ -1,0 +1,1567 @@
+# =============================================================================
+# dm-bridge.ttl — DataModelling Bridge Ontology
+# data-modelling-sdk v2.3.0: Native FFM Bridge definition
+#
+# Vocabulary: yawl-bridge: (from .specify/patterns/native-bridge.ttl)
+# Bridge: DataModelling — 55 capabilities, uniform char*→char* C ABI
+#
+# Compile invariant: edit this file → ggen sync → 7 Java artifacts regenerated
+# =============================================================================
+
+@prefix rdf:         <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:        <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:         <http://www.w3.org/2001/XMLSchema#> .
+@prefix yawl-bridge: <http://yawlfoundation.org/yawl/bridge#> .
+@prefix dm:          <http://yawlfoundation.org/yawl/datamodelling/bridge#> .
+
+# =============================================================================
+# BRIDGE INSTANCE
+# =============================================================================
+
+dm:DataModellingBridge
+    a yawl-bridge:NativeBridge ;
+    yawl-bridge:bridgeName      "DataModelling" ;
+    yawl-bridge:packageName     "org.yawlfoundation.yawl.datamodelling.bridge" ;
+    yawl-bridge:nativeLibrary   "libdatamodelling.so" ;
+    yawl-bridge:libraryPathProp "yawl.datamodelling.lib" ;
+    yawl-bridge:l2Class         "DataModellingL2" ;
+    yawl-bridge:l3Class         "DataModellingL3" ;
+    yawl-bridge:testClass       "DataModellingIntegrationTest" ;
+    yawl-bridge:hasCapability                                dm:Cap_IMPORT_ODCS_SCHEMA
+                            ,                             dm:Cap_IMPORT_ODPS_SCHEMA
+                            ,                             dm:Cap_IMPORT_CADS_SCHEMA
+                            ,                             dm:Cap_IMPORT_OPENAPI_SCHEMA
+                            ,                             dm:Cap_IMPORT_BPMN_PROCESS
+                            ,                             dm:Cap_IMPORT_DMN_DECISION
+                            ,                             dm:Cap_IMPORT_DECISION_RECORD
+                            ,                             dm:Cap_IMPORT_KNOWLEDGE_BASE
+                            ,                             dm:Cap_IMPORT_SKETCH
+                            ,                             dm:Cap_IMPORT_DOMAIN_ORG
+                            ,                             dm:Cap_IMPORT_TEMPLATE
+                            ,                             dm:Cap_IMPORT_CONFIGURATION
+                            ,                             dm:Cap_IMPORT_VOCABULARY
+                            ,                             dm:Cap_IMPORT_CONSTRAINT_SET
+                            ,                             dm:Cap_EXPORT_ODCS_SCHEMA
+                            ,                             dm:Cap_EXPORT_ODPS_SCHEMA
+                            ,                             dm:Cap_EXPORT_CADS_SCHEMA
+                            ,                             dm:Cap_EXPORT_OPENAPI_SCHEMA
+                            ,                             dm:Cap_EXPORT_BPMN_PROCESS
+                            ,                             dm:Cap_EXPORT_DMN_DECISION
+                            ,                             dm:Cap_EXPORT_DECISION_RECORD
+                            ,                             dm:Cap_EXPORT_KNOWLEDGE_BASE
+                            ,                             dm:Cap_EXPORT_SKETCH
+                            ,                             dm:Cap_EXPORT_DOMAIN_ORG
+                            ,                             dm:Cap_EXPORT_TEMPLATE
+                            ,                             dm:Cap_EXPORT_CONFIGURATION
+                            ,                             dm:Cap_EXPORT_VOCABULARY
+                            ,                             dm:Cap_EXPORT_CONSTRAINT_SET
+                            ,                             dm:Cap_VALIDATE_ODCS_SCHEMA
+                            ,                             dm:Cap_VALIDATE_ODPS_SCHEMA
+                            ,                             dm:Cap_VALIDATE_CADS_SCHEMA
+                            ,                             dm:Cap_VALIDATE_OPENAPI_SCHEMA
+                            ,                             dm:Cap_VALIDATE_BPMN_PROCESS
+                            ,                             dm:Cap_VALIDATE_DMN_DECISION
+                            ,                             dm:Cap_VALIDATE_DECISION_RECORD
+                            ,                             dm:Cap_VALIDATE_KNOWLEDGE_BASE
+                            ,                             dm:Cap_VALIDATE_SKETCH
+                            ,                             dm:Cap_VALIDATE_DOMAIN_ORG
+                            ,                             dm:Cap_VALIDATE_CONFIGURATION
+                            ,                             dm:Cap_VALIDATE_CONSTRAINT_SET
+                            ,                             dm:Cap_CONVERT_ODCS_TO_ODPS
+                            ,                             dm:Cap_CONVERT_ODCS_TO_OPENAPI
+                            ,                             dm:Cap_CONVERT_BPMN_TO_DMN
+                            ,                             dm:Cap_CONVERT_SCHEMA_TO_TEMPLATE
+                            ,                             dm:Cap_CONVERT_VOCABULARY_TO_ODCS
+                            ,                             dm:Cap_INFER_CONSTRAINTS
+                            ,                             dm:Cap_INFER_VOCABULARY
+                            ,                             dm:Cap_INFER_DOMAIN_ORG
+                            ,                             dm:Cap_INFER_SCHEMA_RECOMMENDATIONS
+                            ,                             dm:Cap_INFER_DECISION_RULES
+                            ,                             dm:Cap_INFER_KNOWLEDGE_GAPS
+                            ,                             dm:Cap_MAP_SCHEMAS
+                            ,                             dm:Cap_MAP_VOCABULARIES
+                            ,                             dm:Cap_MAP_BPMN_TO_SCHEMA
+                            ,                             dm:Cap_MAP_DOMAIN_TO_SCHEMA ;
+    yawl-bridge:hasFunction                                  dm:Fn_import_odcs_schema
+                            ,                             dm:Fn_import_odps_schema
+                            ,                             dm:Fn_import_cads_schema
+                            ,                             dm:Fn_import_openapi_schema
+                            ,                             dm:Fn_import_bpmn_process
+                            ,                             dm:Fn_import_dmn_decision
+                            ,                             dm:Fn_import_decision_record
+                            ,                             dm:Fn_import_knowledge_base
+                            ,                             dm:Fn_import_sketch
+                            ,                             dm:Fn_import_domain_org
+                            ,                             dm:Fn_import_template
+                            ,                             dm:Fn_import_configuration
+                            ,                             dm:Fn_import_vocabulary
+                            ,                             dm:Fn_import_constraint_set
+                            ,                             dm:Fn_export_odcs_schema
+                            ,                             dm:Fn_export_odps_schema
+                            ,                             dm:Fn_export_cads_schema
+                            ,                             dm:Fn_export_openapi_schema
+                            ,                             dm:Fn_export_bpmn_process
+                            ,                             dm:Fn_export_dmn_decision
+                            ,                             dm:Fn_export_decision_record
+                            ,                             dm:Fn_export_knowledge_base
+                            ,                             dm:Fn_export_sketch
+                            ,                             dm:Fn_export_domain_org
+                            ,                             dm:Fn_export_template
+                            ,                             dm:Fn_export_configuration
+                            ,                             dm:Fn_export_vocabulary
+                            ,                             dm:Fn_export_constraint_set
+                            ,                             dm:Fn_validate_odcs_schema
+                            ,                             dm:Fn_validate_odps_schema
+                            ,                             dm:Fn_validate_cads_schema
+                            ,                             dm:Fn_validate_openapi_schema
+                            ,                             dm:Fn_validate_bpmn_process
+                            ,                             dm:Fn_validate_dmn_decision
+                            ,                             dm:Fn_validate_decision_record
+                            ,                             dm:Fn_validate_knowledge_base
+                            ,                             dm:Fn_validate_sketch
+                            ,                             dm:Fn_validate_domain_org
+                            ,                             dm:Fn_validate_configuration
+                            ,                             dm:Fn_validate_constraint_set
+                            ,                             dm:Fn_convert_odcs_to_odps
+                            ,                             dm:Fn_convert_odcs_to_openapi
+                            ,                             dm:Fn_convert_bpmn_to_dmn
+                            ,                             dm:Fn_convert_schema_to_template
+                            ,                             dm:Fn_convert_vocabulary_to_odcs
+                            ,                             dm:Fn_infer_constraints
+                            ,                             dm:Fn_infer_vocabulary
+                            ,                             dm:Fn_infer_domain_org
+                            ,                             dm:Fn_infer_schema_recommendations
+                            ,                             dm:Fn_infer_decision_rules
+                            ,                             dm:Fn_infer_knowledge_gaps
+                            ,                             dm:Fn_map_schemas
+                            ,                             dm:Fn_map_vocabularies
+                            ,                             dm:Fn_map_bpmn_to_schema
+                            ,                             dm:Fn_map_domain_to_schema ;
+    yawl-bridge:hasDomainOperation                              dm:Op_importOdcsSchema
+                            ,                             dm:Op_importOdpsSchema
+                            ,                             dm:Op_importCadsSchema
+                            ,                             dm:Op_importOpenapiSchema
+                            ,                             dm:Op_importBpmnProcess
+                            ,                             dm:Op_importDmnDecision
+                            ,                             dm:Op_importDecisionRecord
+                            ,                             dm:Op_importKnowledgeBase
+                            ,                             dm:Op_importSketch
+                            ,                             dm:Op_importDomainOrg
+                            ,                             dm:Op_importTemplate
+                            ,                             dm:Op_importConfiguration
+                            ,                             dm:Op_importVocabulary
+                            ,                             dm:Op_importConstraintSet
+                            ,                             dm:Op_exportOdcsSchema
+                            ,                             dm:Op_exportOdpsSchema
+                            ,                             dm:Op_exportCadsSchema
+                            ,                             dm:Op_exportOpenapiSchema
+                            ,                             dm:Op_exportBpmnProcess
+                            ,                             dm:Op_exportDmnDecision
+                            ,                             dm:Op_exportDecisionRecord
+                            ,                             dm:Op_exportKnowledgeBase
+                            ,                             dm:Op_exportSketch
+                            ,                             dm:Op_exportDomainOrg
+                            ,                             dm:Op_exportTemplate
+                            ,                             dm:Op_exportConfiguration
+                            ,                             dm:Op_exportVocabulary
+                            ,                             dm:Op_exportConstraintSet
+                            ,                             dm:Op_validateOdcsSchema
+                            ,                             dm:Op_validateOdpsSchema
+                            ,                             dm:Op_validateCadsSchema
+                            ,                             dm:Op_validateOpenapiSchema
+                            ,                             dm:Op_validateBpmnProcess
+                            ,                             dm:Op_validateDmnDecision
+                            ,                             dm:Op_validateDecisionRecord
+                            ,                             dm:Op_validateKnowledgeBase
+                            ,                             dm:Op_validateSketch
+                            ,                             dm:Op_validateDomainOrg
+                            ,                             dm:Op_validateConfiguration
+                            ,                             dm:Op_validateConstraintSet
+                            ,                             dm:Op_convertOdcsToOdps
+                            ,                             dm:Op_convertOdcsToOpenapi
+                            ,                             dm:Op_convertBpmnToDmn
+                            ,                             dm:Op_convertSchemaToTemplate
+                            ,                             dm:Op_convertVocabularyToOdcs
+                            ,                             dm:Op_inferConstraints
+                            ,                             dm:Op_inferVocabulary
+                            ,                             dm:Op_inferDomainOrg
+                            ,                             dm:Op_inferSchemaRecommendations
+                            ,                             dm:Op_inferDecisionRules
+                            ,                             dm:Op_inferKnowledgeGaps
+                            ,                             dm:Op_mapSchemas
+                            ,                             dm:Op_mapVocabularies
+                            ,                             dm:Op_mapBpmnToSchema
+                            ,                             dm:Op_mapDomainToSchema .
+
+# =============================================================================
+# BRIDGE CAPABILITIES (55)
+# Groups: IMPORT(14) EXPORT(14) VALIDATE(12) CONVERT(5) INFER(6) MAP(4)
+# =============================================================================
+
+# --- IMPORT ---
+
+dm:Cap_IMPORT_ODCS_SCHEMA
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "IMPORT_ODCS_SCHEMA" ;
+    yawl-bridge:capabilityDescription "Import ODCS (Open Data Contract Standard) schema into the repository" ;
+    yawl-bridge:nativeTarget          "dm_import_odcs_schema" .
+
+dm:Cap_IMPORT_ODPS_SCHEMA
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "IMPORT_ODPS_SCHEMA" ;
+    yawl-bridge:capabilityDescription "Import ODPS (Open Data Product Standard) schema into the repository" ;
+    yawl-bridge:nativeTarget          "dm_import_odps_schema" .
+
+dm:Cap_IMPORT_CADS_SCHEMA
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "IMPORT_CADS_SCHEMA" ;
+    yawl-bridge:capabilityDescription "Import CADS (Canonical Abstract Data Schema) schema into the repository" ;
+    yawl-bridge:nativeTarget          "dm_import_cads_schema" .
+
+dm:Cap_IMPORT_OPENAPI_SCHEMA
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "IMPORT_OPENAPI_SCHEMA" ;
+    yawl-bridge:capabilityDescription "Import OpenAPI schema definition into the repository" ;
+    yawl-bridge:nativeTarget          "dm_import_openapi_schema" .
+
+dm:Cap_IMPORT_BPMN_PROCESS
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "IMPORT_BPMN_PROCESS" ;
+    yawl-bridge:capabilityDescription "Import BPMN 2.0 process definition into the repository" ;
+    yawl-bridge:nativeTarget          "dm_import_bpmn_process" .
+
+dm:Cap_IMPORT_DMN_DECISION
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "IMPORT_DMN_DECISION" ;
+    yawl-bridge:capabilityDescription "Import DMN (Decision Model and Notation) decision table into the repository" ;
+    yawl-bridge:nativeTarget          "dm_import_dmn_decision" .
+
+dm:Cap_IMPORT_DECISION_RECORD
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "IMPORT_DECISION_RECORD" ;
+    yawl-bridge:capabilityDescription "Import MADR (Markdown Architectural Decision Record) into the repository" ;
+    yawl-bridge:nativeTarget          "dm_import_decision_record" .
+
+dm:Cap_IMPORT_KNOWLEDGE_BASE
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "IMPORT_KNOWLEDGE_BASE" ;
+    yawl-bridge:capabilityDescription "Import knowledge base entries into the repository" ;
+    yawl-bridge:nativeTarget          "dm_import_knowledge_base" .
+
+dm:Cap_IMPORT_SKETCH
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "IMPORT_SKETCH" ;
+    yawl-bridge:capabilityDescription "Import a domain sketch or concept diagram into the repository" ;
+    yawl-bridge:nativeTarget          "dm_import_sketch" .
+
+dm:Cap_IMPORT_DOMAIN_ORG
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "IMPORT_DOMAIN_ORG" ;
+    yawl-bridge:capabilityDescription "Import domain organisation structure into the repository" ;
+    yawl-bridge:nativeTarget          "dm_import_domain_org" .
+
+dm:Cap_IMPORT_TEMPLATE
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "IMPORT_TEMPLATE" ;
+    yawl-bridge:capabilityDescription "Import a data model template into the repository" ;
+    yawl-bridge:nativeTarget          "dm_import_template" .
+
+dm:Cap_IMPORT_CONFIGURATION
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "IMPORT_CONFIGURATION" ;
+    yawl-bridge:capabilityDescription "Import SDK configuration settings into the repository" ;
+    yawl-bridge:nativeTarget          "dm_import_configuration" .
+
+dm:Cap_IMPORT_VOCABULARY
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "IMPORT_VOCABULARY" ;
+    yawl-bridge:capabilityDescription "Import domain vocabulary definitions into the repository" ;
+    yawl-bridge:nativeTarget          "dm_import_vocabulary" .
+
+dm:Cap_IMPORT_CONSTRAINT_SET
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "IMPORT_CONSTRAINT_SET" ;
+    yawl-bridge:capabilityDescription "Import a set of data validation constraints into the repository" ;
+    yawl-bridge:nativeTarget          "dm_import_constraint_set" .
+
+# --- EXPORT ---
+
+dm:Cap_EXPORT_ODCS_SCHEMA
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "EXPORT_ODCS_SCHEMA" ;
+    yawl-bridge:capabilityDescription "Export schema as ODCS (Open Data Contract Standard) format" ;
+    yawl-bridge:nativeTarget          "dm_export_odcs_schema" .
+
+dm:Cap_EXPORT_ODPS_SCHEMA
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "EXPORT_ODPS_SCHEMA" ;
+    yawl-bridge:capabilityDescription "Export schema as ODPS (Open Data Product Standard) format" ;
+    yawl-bridge:nativeTarget          "dm_export_odps_schema" .
+
+dm:Cap_EXPORT_CADS_SCHEMA
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "EXPORT_CADS_SCHEMA" ;
+    yawl-bridge:capabilityDescription "Export schema as CADS (Canonical Abstract Data Schema) format" ;
+    yawl-bridge:nativeTarget          "dm_export_cads_schema" .
+
+dm:Cap_EXPORT_OPENAPI_SCHEMA
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "EXPORT_OPENAPI_SCHEMA" ;
+    yawl-bridge:capabilityDescription "Export schema as OpenAPI definition format" ;
+    yawl-bridge:nativeTarget          "dm_export_openapi_schema" .
+
+dm:Cap_EXPORT_BPMN_PROCESS
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "EXPORT_BPMN_PROCESS" ;
+    yawl-bridge:capabilityDescription "Export process definition as BPMN 2.0 format" ;
+    yawl-bridge:nativeTarget          "dm_export_bpmn_process" .
+
+dm:Cap_EXPORT_DMN_DECISION
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "EXPORT_DMN_DECISION" ;
+    yawl-bridge:capabilityDescription "Export decision table as DMN (Decision Model and Notation) format" ;
+    yawl-bridge:nativeTarget          "dm_export_dmn_decision" .
+
+dm:Cap_EXPORT_DECISION_RECORD
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "EXPORT_DECISION_RECORD" ;
+    yawl-bridge:capabilityDescription "Export architectural decision as MADR format" ;
+    yawl-bridge:nativeTarget          "dm_export_decision_record" .
+
+dm:Cap_EXPORT_KNOWLEDGE_BASE
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "EXPORT_KNOWLEDGE_BASE" ;
+    yawl-bridge:capabilityDescription "Export knowledge base entries in structured format" ;
+    yawl-bridge:nativeTarget          "dm_export_knowledge_base" .
+
+dm:Cap_EXPORT_SKETCH
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "EXPORT_SKETCH" ;
+    yawl-bridge:capabilityDescription "Export domain sketch or concept diagram" ;
+    yawl-bridge:nativeTarget          "dm_export_sketch" .
+
+dm:Cap_EXPORT_DOMAIN_ORG
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "EXPORT_DOMAIN_ORG" ;
+    yawl-bridge:capabilityDescription "Export domain organisation structure" ;
+    yawl-bridge:nativeTarget          "dm_export_domain_org" .
+
+dm:Cap_EXPORT_TEMPLATE
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "EXPORT_TEMPLATE" ;
+    yawl-bridge:capabilityDescription "Export data model template" ;
+    yawl-bridge:nativeTarget          "dm_export_template" .
+
+dm:Cap_EXPORT_CONFIGURATION
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "EXPORT_CONFIGURATION" ;
+    yawl-bridge:capabilityDescription "Export SDK configuration settings" ;
+    yawl-bridge:nativeTarget          "dm_export_configuration" .
+
+dm:Cap_EXPORT_VOCABULARY
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "EXPORT_VOCABULARY" ;
+    yawl-bridge:capabilityDescription "Export domain vocabulary definitions" ;
+    yawl-bridge:nativeTarget          "dm_export_vocabulary" .
+
+dm:Cap_EXPORT_CONSTRAINT_SET
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "EXPORT_CONSTRAINT_SET" ;
+    yawl-bridge:capabilityDescription "Export data validation constraints" ;
+    yawl-bridge:nativeTarget          "dm_export_constraint_set" .
+
+# --- VALIDATE ---
+
+dm:Cap_VALIDATE_ODCS_SCHEMA
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "VALIDATE_ODCS_SCHEMA" ;
+    yawl-bridge:capabilityDescription "Validate an ODCS schema against the data-modelling-sdk specification" ;
+    yawl-bridge:nativeTarget          "dm_validate_odcs_schema" .
+
+dm:Cap_VALIDATE_ODPS_SCHEMA
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "VALIDATE_ODPS_SCHEMA" ;
+    yawl-bridge:capabilityDescription "Validate an ODPS schema against the data-modelling-sdk specification" ;
+    yawl-bridge:nativeTarget          "dm_validate_odps_schema" .
+
+dm:Cap_VALIDATE_CADS_SCHEMA
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "VALIDATE_CADS_SCHEMA" ;
+    yawl-bridge:capabilityDescription "Validate a CADS schema against the data-modelling-sdk specification" ;
+    yawl-bridge:nativeTarget          "dm_validate_cads_schema" .
+
+dm:Cap_VALIDATE_OPENAPI_SCHEMA
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "VALIDATE_OPENAPI_SCHEMA" ;
+    yawl-bridge:capabilityDescription "Validate an OpenAPI schema against the data-modelling-sdk specification" ;
+    yawl-bridge:nativeTarget          "dm_validate_openapi_schema" .
+
+dm:Cap_VALIDATE_BPMN_PROCESS
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "VALIDATE_BPMN_PROCESS" ;
+    yawl-bridge:capabilityDescription "Validate a BPMN process against the data-modelling-sdk specification" ;
+    yawl-bridge:nativeTarget          "dm_validate_bpmn_process" .
+
+dm:Cap_VALIDATE_DMN_DECISION
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "VALIDATE_DMN_DECISION" ;
+    yawl-bridge:capabilityDescription "Validate a DMN decision table against the data-modelling-sdk specification" ;
+    yawl-bridge:nativeTarget          "dm_validate_dmn_decision" .
+
+dm:Cap_VALIDATE_DECISION_RECORD
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "VALIDATE_DECISION_RECORD" ;
+    yawl-bridge:capabilityDescription "Validate a decision record against the MADR format specification" ;
+    yawl-bridge:nativeTarget          "dm_validate_decision_record" .
+
+dm:Cap_VALIDATE_KNOWLEDGE_BASE
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "VALIDATE_KNOWLEDGE_BASE" ;
+    yawl-bridge:capabilityDescription "Validate knowledge base entries against the schema" ;
+    yawl-bridge:nativeTarget          "dm_validate_knowledge_base" .
+
+dm:Cap_VALIDATE_SKETCH
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "VALIDATE_SKETCH" ;
+    yawl-bridge:capabilityDescription "Validate a domain sketch against the modelling conventions" ;
+    yawl-bridge:nativeTarget          "dm_validate_sketch" .
+
+dm:Cap_VALIDATE_DOMAIN_ORG
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "VALIDATE_DOMAIN_ORG" ;
+    yawl-bridge:capabilityDescription "Validate a domain organisation structure against the specification" ;
+    yawl-bridge:nativeTarget          "dm_validate_domain_org" .
+
+dm:Cap_VALIDATE_CONFIGURATION
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "VALIDATE_CONFIGURATION" ;
+    yawl-bridge:capabilityDescription "Validate SDK configuration settings for correctness" ;
+    yawl-bridge:nativeTarget          "dm_validate_configuration" .
+
+dm:Cap_VALIDATE_CONSTRAINT_SET
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "VALIDATE_CONSTRAINT_SET" ;
+    yawl-bridge:capabilityDescription "Validate a set of data constraints for consistency and completeness" ;
+    yawl-bridge:nativeTarget          "dm_validate_constraint_set" .
+
+# --- CONVERT ---
+
+dm:Cap_CONVERT_ODCS_TO_ODPS
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "CONVERT_ODCS_TO_ODPS" ;
+    yawl-bridge:capabilityDescription "Convert an ODCS schema to ODPS (Open Data Product Standard) format" ;
+    yawl-bridge:nativeTarget          "dm_convert_odcs_to_odps" .
+
+dm:Cap_CONVERT_ODCS_TO_OPENAPI
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "CONVERT_ODCS_TO_OPENAPI" ;
+    yawl-bridge:capabilityDescription "Convert an ODCS schema to OpenAPI definition format" ;
+    yawl-bridge:nativeTarget          "dm_convert_odcs_to_openapi" .
+
+dm:Cap_CONVERT_BPMN_TO_DMN
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "CONVERT_BPMN_TO_DMN" ;
+    yawl-bridge:capabilityDescription "Convert a BPMN process to a DMN decision table" ;
+    yawl-bridge:nativeTarget          "dm_convert_bpmn_to_dmn" .
+
+dm:Cap_CONVERT_SCHEMA_TO_TEMPLATE
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "CONVERT_SCHEMA_TO_TEMPLATE" ;
+    yawl-bridge:capabilityDescription "Convert a schema definition to a reusable template" ;
+    yawl-bridge:nativeTarget          "dm_convert_schema_to_template" .
+
+dm:Cap_CONVERT_VOCABULARY_TO_ODCS
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "CONVERT_VOCABULARY_TO_ODCS" ;
+    yawl-bridge:capabilityDescription "Convert a domain vocabulary to ODCS schema format" ;
+    yawl-bridge:nativeTarget          "dm_convert_vocabulary_to_odcs" .
+
+# --- INFER ---
+
+dm:Cap_INFER_CONSTRAINTS
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "INFER_CONSTRAINTS" ;
+    yawl-bridge:capabilityDescription "Infer data validation constraints from an existing schema" ;
+    yawl-bridge:nativeTarget          "dm_infer_constraints" .
+
+dm:Cap_INFER_VOCABULARY
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "INFER_VOCABULARY" ;
+    yawl-bridge:capabilityDescription "Infer domain vocabulary terms from schema and data patterns" ;
+    yawl-bridge:nativeTarget          "dm_infer_vocabulary" .
+
+dm:Cap_INFER_DOMAIN_ORG
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "INFER_DOMAIN_ORG" ;
+    yawl-bridge:capabilityDescription "Infer domain organisation structure from schemas and relationships" ;
+    yawl-bridge:nativeTarget          "dm_infer_domain_org" .
+
+dm:Cap_INFER_SCHEMA_RECOMMENDATIONS
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "INFER_SCHEMA_RECOMMENDATIONS" ;
+    yawl-bridge:capabilityDescription "Infer schema improvement recommendations from data quality analysis" ;
+    yawl-bridge:nativeTarget          "dm_infer_schema_recommendations" .
+
+dm:Cap_INFER_DECISION_RULES
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "INFER_DECISION_RULES" ;
+    yawl-bridge:capabilityDescription "Infer decision rules from existing decision records and patterns" ;
+    yawl-bridge:nativeTarget          "dm_infer_decision_rules" .
+
+dm:Cap_INFER_KNOWLEDGE_GAPS
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "INFER_KNOWLEDGE_GAPS" ;
+    yawl-bridge:capabilityDescription "Infer knowledge gaps from the current knowledge base coverage" ;
+    yawl-bridge:nativeTarget          "dm_infer_knowledge_gaps" .
+
+# --- MAP ---
+
+dm:Cap_MAP_SCHEMAS
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "MAP_SCHEMAS" ;
+    yawl-bridge:capabilityDescription "Map fields between two schema definitions" ;
+    yawl-bridge:nativeTarget          "dm_map_schemas" .
+
+dm:Cap_MAP_VOCABULARIES
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "MAP_VOCABULARIES" ;
+    yawl-bridge:capabilityDescription "Map terms between two domain vocabularies" ;
+    yawl-bridge:nativeTarget          "dm_map_vocabularies" .
+
+dm:Cap_MAP_BPMN_TO_SCHEMA
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "MAP_BPMN_TO_SCHEMA" ;
+    yawl-bridge:capabilityDescription "Map BPMN process data objects to schema definitions" ;
+    yawl-bridge:nativeTarget          "dm_map_bpmn_to_schema" .
+
+dm:Cap_MAP_DOMAIN_TO_SCHEMA
+    a yawl-bridge:BridgeCapability ;
+    yawl-bridge:capabilityName        "MAP_DOMAIN_TO_SCHEMA" ;
+    yawl-bridge:capabilityDescription "Map domain organisation concepts to schema entities" ;
+    yawl-bridge:nativeTarget          "dm_map_domain_to_schema" .
+
+# =============================================================================
+# NATIVE FUNCTIONS (55)
+# All functions: char* → char* (uniform JSON-in JSON-out C ABI)
+# FunctionDescriptor: FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)
+# =============================================================================
+
+# --- IMPORT ---
+
+dm:Fn_import_odcs_schema
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_import_odcs_schema" ;
+    yawl-bridge:fnJavaName     "importOdcsSchema" ;
+    yawl-bridge:fnNativeSymbol "dm_import_odcs_schema" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "import_odcs" ;
+    yawl-bridge:forCapability  dm:Cap_IMPORT_ODCS_SCHEMA .
+
+dm:Fn_import_odps_schema
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_import_odps_schema" ;
+    yawl-bridge:fnJavaName     "importOdpsSchema" ;
+    yawl-bridge:fnNativeSymbol "dm_import_odps_schema" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "import_odps" ;
+    yawl-bridge:forCapability  dm:Cap_IMPORT_ODPS_SCHEMA .
+
+dm:Fn_import_cads_schema
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_import_cads_schema" ;
+    yawl-bridge:fnJavaName     "importCadsSchema" ;
+    yawl-bridge:fnNativeSymbol "dm_import_cads_schema" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "import_cads" ;
+    yawl-bridge:forCapability  dm:Cap_IMPORT_CADS_SCHEMA .
+
+dm:Fn_import_openapi_schema
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_import_openapi_schema" ;
+    yawl-bridge:fnJavaName     "importOpenapiSchema" ;
+    yawl-bridge:fnNativeSymbol "dm_import_openapi_schema" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "import_openapi" ;
+    yawl-bridge:forCapability  dm:Cap_IMPORT_OPENAPI_SCHEMA .
+
+dm:Fn_import_bpmn_process
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_import_bpmn_process" ;
+    yawl-bridge:fnJavaName     "importBpmnProcess" ;
+    yawl-bridge:fnNativeSymbol "dm_import_bpmn_process" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "import_bpmn" ;
+    yawl-bridge:forCapability  dm:Cap_IMPORT_BPMN_PROCESS .
+
+dm:Fn_import_dmn_decision
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_import_dmn_decision" ;
+    yawl-bridge:fnJavaName     "importDmnDecision" ;
+    yawl-bridge:fnNativeSymbol "dm_import_dmn_decision" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "import_dmn" ;
+    yawl-bridge:forCapability  dm:Cap_IMPORT_DMN_DECISION .
+
+dm:Fn_import_decision_record
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_import_decision_record" ;
+    yawl-bridge:fnJavaName     "importDecisionRecord" ;
+    yawl-bridge:fnNativeSymbol "dm_import_decision_record" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "import_decision" ;
+    yawl-bridge:forCapability  dm:Cap_IMPORT_DECISION_RECORD .
+
+dm:Fn_import_knowledge_base
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_import_knowledge_base" ;
+    yawl-bridge:fnJavaName     "importKnowledgeBase" ;
+    yawl-bridge:fnNativeSymbol "dm_import_knowledge_base" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "import_knowledge" ;
+    yawl-bridge:forCapability  dm:Cap_IMPORT_KNOWLEDGE_BASE .
+
+dm:Fn_import_sketch
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_import_sketch" ;
+    yawl-bridge:fnJavaName     "importSketch" ;
+    yawl-bridge:fnNativeSymbol "dm_import_sketch" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "import_sketch" ;
+    yawl-bridge:forCapability  dm:Cap_IMPORT_SKETCH .
+
+dm:Fn_import_domain_org
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_import_domain_org" ;
+    yawl-bridge:fnJavaName     "importDomainOrg" ;
+    yawl-bridge:fnNativeSymbol "dm_import_domain_org" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "import_domain" ;
+    yawl-bridge:forCapability  dm:Cap_IMPORT_DOMAIN_ORG .
+
+dm:Fn_import_template
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_import_template" ;
+    yawl-bridge:fnJavaName     "importTemplate" ;
+    yawl-bridge:fnNativeSymbol "dm_import_template" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "import_odcs" ;
+    yawl-bridge:forCapability  dm:Cap_IMPORT_TEMPLATE .
+
+dm:Fn_import_configuration
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_import_configuration" ;
+    yawl-bridge:fnJavaName     "importConfiguration" ;
+    yawl-bridge:fnNativeSymbol "dm_import_configuration" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "import_json_schema" ;
+    yawl-bridge:forCapability  dm:Cap_IMPORT_CONFIGURATION .
+
+dm:Fn_import_vocabulary
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_import_vocabulary" ;
+    yawl-bridge:fnJavaName     "importVocabulary" ;
+    yawl-bridge:fnNativeSymbol "dm_import_vocabulary" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "import_odcs" ;
+    yawl-bridge:forCapability  dm:Cap_IMPORT_VOCABULARY .
+
+dm:Fn_import_constraint_set
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_import_constraint_set" ;
+    yawl-bridge:fnJavaName     "importConstraintSet" ;
+    yawl-bridge:fnNativeSymbol "dm_import_constraint_set" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "import_odcs" ;
+    yawl-bridge:forCapability  dm:Cap_IMPORT_CONSTRAINT_SET .
+
+# --- EXPORT ---
+
+dm:Fn_export_odcs_schema
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_export_odcs_schema" ;
+    yawl-bridge:fnJavaName     "exportOdcsSchema" ;
+    yawl-bridge:fnNativeSymbol "dm_export_odcs_schema" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "export_odcs" ;
+    yawl-bridge:forCapability  dm:Cap_EXPORT_ODCS_SCHEMA .
+
+dm:Fn_export_odps_schema
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_export_odps_schema" ;
+    yawl-bridge:fnJavaName     "exportOdpsSchema" ;
+    yawl-bridge:fnNativeSymbol "dm_export_odps_schema" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "export_odps" ;
+    yawl-bridge:forCapability  dm:Cap_EXPORT_ODPS_SCHEMA .
+
+dm:Fn_export_cads_schema
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_export_cads_schema" ;
+    yawl-bridge:fnJavaName     "exportCadsSchema" ;
+    yawl-bridge:fnNativeSymbol "dm_export_cads_schema" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "export_cads" ;
+    yawl-bridge:forCapability  dm:Cap_EXPORT_CADS_SCHEMA .
+
+dm:Fn_export_openapi_schema
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_export_openapi_schema" ;
+    yawl-bridge:fnJavaName     "exportOpenapiSchema" ;
+    yawl-bridge:fnNativeSymbol "dm_export_openapi_schema" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "export_openapi" ;
+    yawl-bridge:forCapability  dm:Cap_EXPORT_OPENAPI_SCHEMA .
+
+dm:Fn_export_bpmn_process
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_export_bpmn_process" ;
+    yawl-bridge:fnJavaName     "exportBpmnProcess" ;
+    yawl-bridge:fnNativeSymbol "dm_export_bpmn_process" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "export_bpmn" ;
+    yawl-bridge:forCapability  dm:Cap_EXPORT_BPMN_PROCESS .
+
+dm:Fn_export_dmn_decision
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_export_dmn_decision" ;
+    yawl-bridge:fnJavaName     "exportDmnDecision" ;
+    yawl-bridge:fnNativeSymbol "dm_export_dmn_decision" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "export_dmn" ;
+    yawl-bridge:forCapability  dm:Cap_EXPORT_DMN_DECISION .
+
+dm:Fn_export_decision_record
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_export_decision_record" ;
+    yawl-bridge:fnJavaName     "exportDecisionRecord" ;
+    yawl-bridge:fnNativeSymbol "dm_export_decision_record" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "export_decision" ;
+    yawl-bridge:forCapability  dm:Cap_EXPORT_DECISION_RECORD .
+
+dm:Fn_export_knowledge_base
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_export_knowledge_base" ;
+    yawl-bridge:fnJavaName     "exportKnowledgeBase" ;
+    yawl-bridge:fnNativeSymbol "dm_export_knowledge_base" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "export_knowledge" ;
+    yawl-bridge:forCapability  dm:Cap_EXPORT_KNOWLEDGE_BASE .
+
+dm:Fn_export_sketch
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_export_sketch" ;
+    yawl-bridge:fnJavaName     "exportSketch" ;
+    yawl-bridge:fnNativeSymbol "dm_export_sketch" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "export_sketch" ;
+    yawl-bridge:forCapability  dm:Cap_EXPORT_SKETCH .
+
+dm:Fn_export_domain_org
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_export_domain_org" ;
+    yawl-bridge:fnJavaName     "exportDomainOrg" ;
+    yawl-bridge:fnNativeSymbol "dm_export_domain_org" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "export_domain" ;
+    yawl-bridge:forCapability  dm:Cap_EXPORT_DOMAIN_ORG .
+
+dm:Fn_export_template
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_export_template" ;
+    yawl-bridge:fnJavaName     "exportTemplate" ;
+    yawl-bridge:fnNativeSymbol "dm_export_template" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "export_odcs" ;
+    yawl-bridge:forCapability  dm:Cap_EXPORT_TEMPLATE .
+
+dm:Fn_export_configuration
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_export_configuration" ;
+    yawl-bridge:fnJavaName     "exportConfiguration" ;
+    yawl-bridge:fnNativeSymbol "dm_export_configuration" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "export_json_schema" ;
+    yawl-bridge:forCapability  dm:Cap_EXPORT_CONFIGURATION .
+
+dm:Fn_export_vocabulary
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_export_vocabulary" ;
+    yawl-bridge:fnJavaName     "exportVocabulary" ;
+    yawl-bridge:fnNativeSymbol "dm_export_vocabulary" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "export_odcs" ;
+    yawl-bridge:forCapability  dm:Cap_EXPORT_VOCABULARY .
+
+dm:Fn_export_constraint_set
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_export_constraint_set" ;
+    yawl-bridge:fnJavaName     "exportConstraintSet" ;
+    yawl-bridge:fnNativeSymbol "dm_export_constraint_set" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "export_odcs" ;
+    yawl-bridge:forCapability  dm:Cap_EXPORT_CONSTRAINT_SET .
+
+# --- VALIDATE ---
+
+dm:Fn_validate_odcs_schema
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_validate_odcs_schema" ;
+    yawl-bridge:fnJavaName     "validateOdcsSchema" ;
+    yawl-bridge:fnNativeSymbol "dm_validate_odcs_schema" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "validate_odcs" ;
+    yawl-bridge:forCapability  dm:Cap_VALIDATE_ODCS_SCHEMA .
+
+dm:Fn_validate_odps_schema
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_validate_odps_schema" ;
+    yawl-bridge:fnJavaName     "validateOdpsSchema" ;
+    yawl-bridge:fnNativeSymbol "dm_validate_odps_schema" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "validate_odps" ;
+    yawl-bridge:forCapability  dm:Cap_VALIDATE_ODPS_SCHEMA .
+
+dm:Fn_validate_cads_schema
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_validate_cads_schema" ;
+    yawl-bridge:fnJavaName     "validateCadsSchema" ;
+    yawl-bridge:fnNativeSymbol "dm_validate_cads_schema" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "validate_cads" ;
+    yawl-bridge:forCapability  dm:Cap_VALIDATE_CADS_SCHEMA .
+
+dm:Fn_validate_openapi_schema
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_validate_openapi_schema" ;
+    yawl-bridge:fnJavaName     "validateOpenapiSchema" ;
+    yawl-bridge:fnNativeSymbol "dm_validate_openapi_schema" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "validate_openapi" ;
+    yawl-bridge:forCapability  dm:Cap_VALIDATE_OPENAPI_SCHEMA .
+
+dm:Fn_validate_bpmn_process
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_validate_bpmn_process" ;
+    yawl-bridge:fnJavaName     "validateBpmnProcess" ;
+    yawl-bridge:fnNativeSymbol "dm_validate_bpmn_process" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "validate_bpmn" ;
+    yawl-bridge:forCapability  dm:Cap_VALIDATE_BPMN_PROCESS .
+
+dm:Fn_validate_dmn_decision
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_validate_dmn_decision" ;
+    yawl-bridge:fnJavaName     "validateDmnDecision" ;
+    yawl-bridge:fnNativeSymbol "dm_validate_dmn_decision" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "validate_dmn" ;
+    yawl-bridge:forCapability  dm:Cap_VALIDATE_DMN_DECISION .
+
+dm:Fn_validate_decision_record
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_validate_decision_record" ;
+    yawl-bridge:fnJavaName     "validateDecisionRecord" ;
+    yawl-bridge:fnNativeSymbol "dm_validate_decision_record" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "validate_decision" ;
+    yawl-bridge:forCapability  dm:Cap_VALIDATE_DECISION_RECORD .
+
+dm:Fn_validate_knowledge_base
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_validate_knowledge_base" ;
+    yawl-bridge:fnJavaName     "validateKnowledgeBase" ;
+    yawl-bridge:fnNativeSymbol "dm_validate_knowledge_base" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "validate_knowledge" ;
+    yawl-bridge:forCapability  dm:Cap_VALIDATE_KNOWLEDGE_BASE .
+
+dm:Fn_validate_sketch
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_validate_sketch" ;
+    yawl-bridge:fnJavaName     "validateSketch" ;
+    yawl-bridge:fnNativeSymbol "dm_validate_sketch" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "validate_sketch" ;
+    yawl-bridge:forCapability  dm:Cap_VALIDATE_SKETCH .
+
+dm:Fn_validate_domain_org
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_validate_domain_org" ;
+    yawl-bridge:fnJavaName     "validateDomainOrg" ;
+    yawl-bridge:fnNativeSymbol "dm_validate_domain_org" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "validate_domain" ;
+    yawl-bridge:forCapability  dm:Cap_VALIDATE_DOMAIN_ORG .
+
+dm:Fn_validate_configuration
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_validate_configuration" ;
+    yawl-bridge:fnJavaName     "validateConfiguration" ;
+    yawl-bridge:fnNativeSymbol "dm_validate_configuration" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "validate_json_schema" ;
+    yawl-bridge:forCapability  dm:Cap_VALIDATE_CONFIGURATION .
+
+dm:Fn_validate_constraint_set
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_validate_constraint_set" ;
+    yawl-bridge:fnJavaName     "validateConstraintSet" ;
+    yawl-bridge:fnNativeSymbol "dm_validate_constraint_set" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "validate_odcs" ;
+    yawl-bridge:forCapability  dm:Cap_VALIDATE_CONSTRAINT_SET .
+
+# --- CONVERT ---
+
+dm:Fn_convert_odcs_to_odps
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_convert_odcs_to_odps" ;
+    yawl-bridge:fnJavaName     "convertOdcsToOdps" ;
+    yawl-bridge:fnNativeSymbol "dm_convert_odcs_to_odps" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "convert_odcs_odps" ;
+    yawl-bridge:forCapability  dm:Cap_CONVERT_ODCS_TO_ODPS .
+
+dm:Fn_convert_odcs_to_openapi
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_convert_odcs_to_openapi" ;
+    yawl-bridge:fnJavaName     "convertOdcsToOpenapi" ;
+    yawl-bridge:fnNativeSymbol "dm_convert_odcs_to_openapi" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "convert_odcs_openapi" ;
+    yawl-bridge:forCapability  dm:Cap_CONVERT_ODCS_TO_OPENAPI .
+
+dm:Fn_convert_bpmn_to_dmn
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_convert_bpmn_to_dmn" ;
+    yawl-bridge:fnJavaName     "convertBpmnToDmn" ;
+    yawl-bridge:fnNativeSymbol "dm_convert_bpmn_to_dmn" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "convert_bpmn_dmn" ;
+    yawl-bridge:forCapability  dm:Cap_CONVERT_BPMN_TO_DMN .
+
+dm:Fn_convert_schema_to_template
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_convert_schema_to_template" ;
+    yawl-bridge:fnJavaName     "convertSchemaToTemplate" ;
+    yawl-bridge:fnNativeSymbol "dm_convert_schema_to_template" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "convert_schema_template" ;
+    yawl-bridge:forCapability  dm:Cap_CONVERT_SCHEMA_TO_TEMPLATE .
+
+dm:Fn_convert_vocabulary_to_odcs
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_convert_vocabulary_to_odcs" ;
+    yawl-bridge:fnJavaName     "convertVocabularyToOdcs" ;
+    yawl-bridge:fnNativeSymbol "dm_convert_vocabulary_to_odcs" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "convert_to_odcs" ;
+    yawl-bridge:forCapability  dm:Cap_CONVERT_VOCABULARY_TO_ODCS .
+
+# --- INFER ---
+
+dm:Fn_infer_constraints
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_infer_constraints" ;
+    yawl-bridge:fnJavaName     "inferConstraints" ;
+    yawl-bridge:fnNativeSymbol "dm_infer_constraints" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "infer_constraints" ;
+    yawl-bridge:forCapability  dm:Cap_INFER_CONSTRAINTS .
+
+dm:Fn_infer_vocabulary
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_infer_vocabulary" ;
+    yawl-bridge:fnJavaName     "inferVocabulary" ;
+    yawl-bridge:fnNativeSymbol "dm_infer_vocabulary" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "infer_vocabulary" ;
+    yawl-bridge:forCapability  dm:Cap_INFER_VOCABULARY .
+
+dm:Fn_infer_domain_org
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_infer_domain_org" ;
+    yawl-bridge:fnJavaName     "inferDomainOrg" ;
+    yawl-bridge:fnNativeSymbol "dm_infer_domain_org" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "infer_domain" ;
+    yawl-bridge:forCapability  dm:Cap_INFER_DOMAIN_ORG .
+
+dm:Fn_infer_schema_recommendations
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_infer_schema_recommendations" ;
+    yawl-bridge:fnJavaName     "inferSchemaRecommendations" ;
+    yawl-bridge:fnNativeSymbol "dm_infer_schema_recommendations" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "infer_schema" ;
+    yawl-bridge:forCapability  dm:Cap_INFER_SCHEMA_RECOMMENDATIONS .
+
+dm:Fn_infer_decision_rules
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_infer_decision_rules" ;
+    yawl-bridge:fnJavaName     "inferDecisionRules" ;
+    yawl-bridge:fnNativeSymbol "dm_infer_decision_rules" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "infer_rules" ;
+    yawl-bridge:forCapability  dm:Cap_INFER_DECISION_RULES .
+
+dm:Fn_infer_knowledge_gaps
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_infer_knowledge_gaps" ;
+    yawl-bridge:fnJavaName     "inferKnowledgeGaps" ;
+    yawl-bridge:fnNativeSymbol "dm_infer_knowledge_gaps" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "infer_knowledge_gaps" ;
+    yawl-bridge:forCapability  dm:Cap_INFER_KNOWLEDGE_GAPS .
+
+# --- MAP ---
+
+dm:Fn_map_schemas
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_map_schemas" ;
+    yawl-bridge:fnJavaName     "mapSchemas" ;
+    yawl-bridge:fnNativeSymbol "dm_map_schemas" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "map_schemas" ;
+    yawl-bridge:forCapability  dm:Cap_MAP_SCHEMAS .
+
+dm:Fn_map_vocabularies
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_map_vocabularies" ;
+    yawl-bridge:fnJavaName     "mapVocabularies" ;
+    yawl-bridge:fnNativeSymbol "dm_map_vocabularies" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "map_vocabularies" ;
+    yawl-bridge:forCapability  dm:Cap_MAP_VOCABULARIES .
+
+dm:Fn_map_bpmn_to_schema
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_map_bpmn_to_schema" ;
+    yawl-bridge:fnJavaName     "mapBpmnToSchema" ;
+    yawl-bridge:fnNativeSymbol "dm_map_bpmn_to_schema" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "map_bpmn_schema" ;
+    yawl-bridge:forCapability  dm:Cap_MAP_BPMN_TO_SCHEMA .
+
+dm:Fn_map_domain_to_schema
+    a yawl-bridge:NativeFunction ;
+    yawl-bridge:fnHandleName   "mh$dm_map_domain_to_schema" ;
+    yawl-bridge:fnJavaName     "mapDomainToSchema" ;
+    yawl-bridge:fnNativeSymbol "dm_map_domain_to_schema" ;
+    yawl-bridge:fnReturnType   "MemorySegment" ;
+    yawl-bridge:fnDescriptor   "FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS)" ;
+    yawl-bridge:sdkCall         "map_domain_schema" ;
+    yawl-bridge:forCapability  dm:Cap_MAP_DOMAIN_TO_SCHEMA .
+
+# =============================================================================
+# DOMAIN OPERATIONS (55)
+# All operations: String request → String response (no FFM types at call site)
+# opL2JavaName == opName (L3 delegates to same-named L2 method)
+# =============================================================================
+
+# --- IMPORT ---
+
+dm:Op_importOdcsSchema
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "importOdcsSchema" ;
+    yawl-bridge:opL2JavaName  "importOdcsSchema" ;
+    yawl-bridge:opDescription "Import ODCS (Open Data Contract Standard) schema into the repository" ;
+    yawl-bridge:testFixture   "odcs-schema" ;
+    yawl-bridge:forCapability dm:Cap_IMPORT_ODCS_SCHEMA .
+
+dm:Op_importOdpsSchema
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "importOdpsSchema" ;
+    yawl-bridge:opL2JavaName  "importOdpsSchema" ;
+    yawl-bridge:opDescription "Import ODPS (Open Data Product Standard) schema into the repository" ;
+    yawl-bridge:testFixture   "odps-schema" ;
+    yawl-bridge:forCapability dm:Cap_IMPORT_ODPS_SCHEMA .
+
+dm:Op_importCadsSchema
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "importCadsSchema" ;
+    yawl-bridge:opL2JavaName  "importCadsSchema" ;
+    yawl-bridge:opDescription "Import CADS (Canonical Abstract Data Schema) schema into the repository" ;
+    yawl-bridge:testFixture   "cads-schema" ;
+    yawl-bridge:forCapability dm:Cap_IMPORT_CADS_SCHEMA .
+
+dm:Op_importOpenapiSchema
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "importOpenapiSchema" ;
+    yawl-bridge:opL2JavaName  "importOpenapiSchema" ;
+    yawl-bridge:opDescription "Import OpenAPI schema definition into the repository" ;
+    yawl-bridge:testFixture   "openapi-schema" ;
+    yawl-bridge:forCapability dm:Cap_IMPORT_OPENAPI_SCHEMA .
+
+dm:Op_importBpmnProcess
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "importBpmnProcess" ;
+    yawl-bridge:opL2JavaName  "importBpmnProcess" ;
+    yawl-bridge:opDescription "Import BPMN 2.0 process definition into the repository" ;
+    yawl-bridge:testFixture   "bpmn-process" ;
+    yawl-bridge:forCapability dm:Cap_IMPORT_BPMN_PROCESS .
+
+dm:Op_importDmnDecision
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "importDmnDecision" ;
+    yawl-bridge:opL2JavaName  "importDmnDecision" ;
+    yawl-bridge:opDescription "Import DMN (Decision Model and Notation) decision table into the repository" ;
+    yawl-bridge:testFixture   "dmn-decision" ;
+    yawl-bridge:forCapability dm:Cap_IMPORT_DMN_DECISION .
+
+dm:Op_importDecisionRecord
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "importDecisionRecord" ;
+    yawl-bridge:opL2JavaName  "importDecisionRecord" ;
+    yawl-bridge:opDescription "Import MADR (Markdown Architectural Decision Record) into the repository" ;
+    yawl-bridge:testFixture   "decision-record" ;
+    yawl-bridge:forCapability dm:Cap_IMPORT_DECISION_RECORD .
+
+dm:Op_importKnowledgeBase
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "importKnowledgeBase" ;
+    yawl-bridge:opL2JavaName  "importKnowledgeBase" ;
+    yawl-bridge:opDescription "Import knowledge base entries into the repository" ;
+    yawl-bridge:testFixture   "knowledge-base" ;
+    yawl-bridge:forCapability dm:Cap_IMPORT_KNOWLEDGE_BASE .
+
+dm:Op_importSketch
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "importSketch" ;
+    yawl-bridge:opL2JavaName  "importSketch" ;
+    yawl-bridge:opDescription "Import a domain sketch or concept diagram into the repository" ;
+    yawl-bridge:testFixture   "sketch" ;
+    yawl-bridge:forCapability dm:Cap_IMPORT_SKETCH .
+
+dm:Op_importDomainOrg
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "importDomainOrg" ;
+    yawl-bridge:opL2JavaName  "importDomainOrg" ;
+    yawl-bridge:opDescription "Import domain organisation structure into the repository" ;
+    yawl-bridge:testFixture   "domain-org" ;
+    yawl-bridge:forCapability dm:Cap_IMPORT_DOMAIN_ORG .
+
+dm:Op_importTemplate
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "importTemplate" ;
+    yawl-bridge:opL2JavaName  "importTemplate" ;
+    yawl-bridge:opDescription "Import a data model template into the repository" ;
+    yawl-bridge:testFixture   "odcs-schema" ;
+    yawl-bridge:forCapability dm:Cap_IMPORT_TEMPLATE .
+
+dm:Op_importConfiguration
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "importConfiguration" ;
+    yawl-bridge:opL2JavaName  "importConfiguration" ;
+    yawl-bridge:opDescription "Import SDK configuration settings into the repository" ;
+    yawl-bridge:testFixture   "config-schema" ;
+    yawl-bridge:forCapability dm:Cap_IMPORT_CONFIGURATION .
+
+dm:Op_importVocabulary
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "importVocabulary" ;
+    yawl-bridge:opL2JavaName  "importVocabulary" ;
+    yawl-bridge:opDescription "Import domain vocabulary definitions into the repository" ;
+    yawl-bridge:testFixture   "odcs-schema" ;
+    yawl-bridge:forCapability dm:Cap_IMPORT_VOCABULARY .
+
+dm:Op_importConstraintSet
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "importConstraintSet" ;
+    yawl-bridge:opL2JavaName  "importConstraintSet" ;
+    yawl-bridge:opDescription "Import a set of data validation constraints into the repository" ;
+    yawl-bridge:testFixture   "odcs-schema" ;
+    yawl-bridge:forCapability dm:Cap_IMPORT_CONSTRAINT_SET .
+
+# --- EXPORT ---
+
+dm:Op_exportOdcsSchema
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "exportOdcsSchema" ;
+    yawl-bridge:opL2JavaName  "exportOdcsSchema" ;
+    yawl-bridge:opDescription "Export schema as ODCS (Open Data Contract Standard) format" ;
+    yawl-bridge:testFixture   "workspace-simple" ;
+    yawl-bridge:forCapability dm:Cap_EXPORT_ODCS_SCHEMA .
+
+dm:Op_exportOdpsSchema
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "exportOdpsSchema" ;
+    yawl-bridge:opL2JavaName  "exportOdpsSchema" ;
+    yawl-bridge:opDescription "Export schema as ODPS (Open Data Product Standard) format" ;
+    yawl-bridge:testFixture   "odps-product" ;
+    yawl-bridge:forCapability dm:Cap_EXPORT_ODPS_SCHEMA .
+
+dm:Op_exportCadsSchema
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "exportCadsSchema" ;
+    yawl-bridge:opL2JavaName  "exportCadsSchema" ;
+    yawl-bridge:opDescription "Export schema as CADS (Canonical Abstract Data Schema) format" ;
+    yawl-bridge:testFixture   "cads-asset" ;
+    yawl-bridge:forCapability dm:Cap_EXPORT_CADS_SCHEMA .
+
+dm:Op_exportOpenapiSchema
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "exportOpenapiSchema" ;
+    yawl-bridge:opL2JavaName  "exportOpenapiSchema" ;
+    yawl-bridge:opDescription "Export schema as OpenAPI definition format" ;
+    yawl-bridge:testFixture   "workspace-simple" ;
+    yawl-bridge:forCapability dm:Cap_EXPORT_OPENAPI_SCHEMA .
+
+dm:Op_exportBpmnProcess
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "exportBpmnProcess" ;
+    yawl-bridge:opL2JavaName  "exportBpmnProcess" ;
+    yawl-bridge:opDescription "Export process definition as BPMN 2.0 format" ;
+    yawl-bridge:testFixture   "bpmn-model" ;
+    yawl-bridge:forCapability dm:Cap_EXPORT_BPMN_PROCESS .
+
+dm:Op_exportDmnDecision
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "exportDmnDecision" ;
+    yawl-bridge:opL2JavaName  "exportDmnDecision" ;
+    yawl-bridge:opDescription "Export decision table as DMN (Decision Model and Notation) format" ;
+    yawl-bridge:testFixture   "dmn-model" ;
+    yawl-bridge:forCapability dm:Cap_EXPORT_DMN_DECISION .
+
+dm:Op_exportDecisionRecord
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "exportDecisionRecord" ;
+    yawl-bridge:opL2JavaName  "exportDecisionRecord" ;
+    yawl-bridge:opDescription "Export architectural decision as MADR format" ;
+    yawl-bridge:testFixture   "decision-record-export" ;
+    yawl-bridge:forCapability dm:Cap_EXPORT_DECISION_RECORD .
+
+dm:Op_exportKnowledgeBase
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "exportKnowledgeBase" ;
+    yawl-bridge:opL2JavaName  "exportKnowledgeBase" ;
+    yawl-bridge:opDescription "Export knowledge base entries in structured format" ;
+    yawl-bridge:testFixture   "knowledge-article" ;
+    yawl-bridge:forCapability dm:Cap_EXPORT_KNOWLEDGE_BASE .
+
+dm:Op_exportSketch
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "exportSketch" ;
+    yawl-bridge:opL2JavaName  "exportSketch" ;
+    yawl-bridge:opDescription "Export domain sketch or concept diagram" ;
+    yawl-bridge:testFixture   "sketch-export" ;
+    yawl-bridge:forCapability dm:Cap_EXPORT_SKETCH .
+
+dm:Op_exportDomainOrg
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "exportDomainOrg" ;
+    yawl-bridge:opL2JavaName  "exportDomainOrg" ;
+    yawl-bridge:opDescription "Export domain organisation structure" ;
+    yawl-bridge:testFixture   "domain-export" ;
+    yawl-bridge:forCapability dm:Cap_EXPORT_DOMAIN_ORG .
+
+dm:Op_exportTemplate
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "exportTemplate" ;
+    yawl-bridge:opL2JavaName  "exportTemplate" ;
+    yawl-bridge:opDescription "Export data model template" ;
+    yawl-bridge:testFixture   "workspace-simple" ;
+    yawl-bridge:forCapability dm:Cap_EXPORT_TEMPLATE .
+
+dm:Op_exportConfiguration
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "exportConfiguration" ;
+    yawl-bridge:opL2JavaName  "exportConfiguration" ;
+    yawl-bridge:opDescription "Export SDK configuration settings" ;
+    yawl-bridge:testFixture   "workspace-simple" ;
+    yawl-bridge:forCapability dm:Cap_EXPORT_CONFIGURATION .
+
+dm:Op_exportVocabulary
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "exportVocabulary" ;
+    yawl-bridge:opL2JavaName  "exportVocabulary" ;
+    yawl-bridge:opDescription "Export domain vocabulary definitions" ;
+    yawl-bridge:testFixture   "workspace-simple" ;
+    yawl-bridge:forCapability dm:Cap_EXPORT_VOCABULARY .
+
+dm:Op_exportConstraintSet
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "exportConstraintSet" ;
+    yawl-bridge:opL2JavaName  "exportConstraintSet" ;
+    yawl-bridge:opDescription "Export data validation constraints" ;
+    yawl-bridge:testFixture   "workspace-simple" ;
+    yawl-bridge:forCapability dm:Cap_EXPORT_CONSTRAINT_SET .
+
+# --- VALIDATE ---
+
+dm:Op_validateOdcsSchema
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "validateOdcsSchema" ;
+    yawl-bridge:opL2JavaName  "validateOdcsSchema" ;
+    yawl-bridge:opDescription "Validate an ODCS schema against the data-modelling-sdk specification" ;
+    yawl-bridge:testFixture   "odcs-schema" ;
+    yawl-bridge:forCapability dm:Cap_VALIDATE_ODCS_SCHEMA .
+
+dm:Op_validateOdpsSchema
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "validateOdpsSchema" ;
+    yawl-bridge:opL2JavaName  "validateOdpsSchema" ;
+    yawl-bridge:opDescription "Validate an ODPS schema against the data-modelling-sdk specification" ;
+    yawl-bridge:testFixture   "odps-schema" ;
+    yawl-bridge:forCapability dm:Cap_VALIDATE_ODPS_SCHEMA .
+
+dm:Op_validateCadsSchema
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "validateCadsSchema" ;
+    yawl-bridge:opL2JavaName  "validateCadsSchema" ;
+    yawl-bridge:opDescription "Validate a CADS schema against the data-modelling-sdk specification" ;
+    yawl-bridge:testFixture   "cads-schema" ;
+    yawl-bridge:forCapability dm:Cap_VALIDATE_CADS_SCHEMA .
+
+dm:Op_validateOpenapiSchema
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "validateOpenapiSchema" ;
+    yawl-bridge:opL2JavaName  "validateOpenapiSchema" ;
+    yawl-bridge:opDescription "Validate an OpenAPI schema against the data-modelling-sdk specification" ;
+    yawl-bridge:testFixture   "openapi-schema" ;
+    yawl-bridge:forCapability dm:Cap_VALIDATE_OPENAPI_SCHEMA .
+
+dm:Op_validateBpmnProcess
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "validateBpmnProcess" ;
+    yawl-bridge:opL2JavaName  "validateBpmnProcess" ;
+    yawl-bridge:opDescription "Validate a BPMN process against the data-modelling-sdk specification" ;
+    yawl-bridge:testFixture   "bpmn-process" ;
+    yawl-bridge:forCapability dm:Cap_VALIDATE_BPMN_PROCESS .
+
+dm:Op_validateDmnDecision
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "validateDmnDecision" ;
+    yawl-bridge:opL2JavaName  "validateDmnDecision" ;
+    yawl-bridge:opDescription "Validate a DMN decision table against the data-modelling-sdk specification" ;
+    yawl-bridge:testFixture   "dmn-decision" ;
+    yawl-bridge:forCapability dm:Cap_VALIDATE_DMN_DECISION .
+
+dm:Op_validateDecisionRecord
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "validateDecisionRecord" ;
+    yawl-bridge:opL2JavaName  "validateDecisionRecord" ;
+    yawl-bridge:opDescription "Validate a decision record against the MADR format specification" ;
+    yawl-bridge:testFixture   "decision-record" ;
+    yawl-bridge:forCapability dm:Cap_VALIDATE_DECISION_RECORD .
+
+dm:Op_validateKnowledgeBase
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "validateKnowledgeBase" ;
+    yawl-bridge:opL2JavaName  "validateKnowledgeBase" ;
+    yawl-bridge:opDescription "Validate knowledge base entries against the schema" ;
+    yawl-bridge:testFixture   "knowledge-base" ;
+    yawl-bridge:forCapability dm:Cap_VALIDATE_KNOWLEDGE_BASE .
+
+dm:Op_validateSketch
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "validateSketch" ;
+    yawl-bridge:opL2JavaName  "validateSketch" ;
+    yawl-bridge:opDescription "Validate a domain sketch against the modelling conventions" ;
+    yawl-bridge:testFixture   "sketch" ;
+    yawl-bridge:forCapability dm:Cap_VALIDATE_SKETCH .
+
+dm:Op_validateDomainOrg
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "validateDomainOrg" ;
+    yawl-bridge:opL2JavaName  "validateDomainOrg" ;
+    yawl-bridge:opDescription "Validate a domain organisation structure against the specification" ;
+    yawl-bridge:testFixture   "domain-org" ;
+    yawl-bridge:forCapability dm:Cap_VALIDATE_DOMAIN_ORG .
+
+dm:Op_validateConfiguration
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "validateConfiguration" ;
+    yawl-bridge:opL2JavaName  "validateConfiguration" ;
+    yawl-bridge:opDescription "Validate SDK configuration settings for correctness" ;
+    yawl-bridge:testFixture   "config-schema" ;
+    yawl-bridge:forCapability dm:Cap_VALIDATE_CONFIGURATION .
+
+dm:Op_validateConstraintSet
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "validateConstraintSet" ;
+    yawl-bridge:opL2JavaName  "validateConstraintSet" ;
+    yawl-bridge:opDescription "Validate a set of data constraints for consistency and completeness" ;
+    yawl-bridge:testFixture   "odcs-schema" ;
+    yawl-bridge:forCapability dm:Cap_VALIDATE_CONSTRAINT_SET .
+
+# --- CONVERT ---
+
+dm:Op_convertOdcsToOdps
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "convertOdcsToOdps" ;
+    yawl-bridge:opL2JavaName  "convertOdcsToOdps" ;
+    yawl-bridge:opDescription "Convert an ODCS schema to ODPS (Open Data Product Standard) format" ;
+    yawl-bridge:testFixture   "odcs-schema" ;
+    yawl-bridge:forCapability dm:Cap_CONVERT_ODCS_TO_ODPS .
+
+dm:Op_convertOdcsToOpenapi
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "convertOdcsToOpenapi" ;
+    yawl-bridge:opL2JavaName  "convertOdcsToOpenapi" ;
+    yawl-bridge:opDescription "Convert an ODCS schema to OpenAPI definition format" ;
+    yawl-bridge:testFixture   "odcs-schema" ;
+    yawl-bridge:forCapability dm:Cap_CONVERT_ODCS_TO_OPENAPI .
+
+dm:Op_convertBpmnToDmn
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "convertBpmnToDmn" ;
+    yawl-bridge:opL2JavaName  "convertBpmnToDmn" ;
+    yawl-bridge:opDescription "Convert a BPMN process to a DMN decision table" ;
+    yawl-bridge:testFixture   "bpmn-process" ;
+    yawl-bridge:forCapability dm:Cap_CONVERT_BPMN_TO_DMN .
+
+dm:Op_convertSchemaToTemplate
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "convertSchemaToTemplate" ;
+    yawl-bridge:opL2JavaName  "convertSchemaToTemplate" ;
+    yawl-bridge:opDescription "Convert a schema definition to a reusable template" ;
+    yawl-bridge:testFixture   "workspace-simple" ;
+    yawl-bridge:forCapability dm:Cap_CONVERT_SCHEMA_TO_TEMPLATE .
+
+dm:Op_convertVocabularyToOdcs
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "convertVocabularyToOdcs" ;
+    yawl-bridge:opL2JavaName  "convertVocabularyToOdcs" ;
+    yawl-bridge:opDescription "Convert a domain vocabulary to ODCS schema format" ;
+    yawl-bridge:testFixture   "odcs-schema" ;
+    yawl-bridge:forCapability dm:Cap_CONVERT_VOCABULARY_TO_ODCS .
+
+# --- INFER ---
+
+dm:Op_inferConstraints
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "inferConstraints" ;
+    yawl-bridge:opL2JavaName  "inferConstraints" ;
+    yawl-bridge:opDescription "Infer data validation constraints from an existing schema" ;
+    yawl-bridge:testFixture   "workspace-simple" ;
+    yawl-bridge:forCapability dm:Cap_INFER_CONSTRAINTS .
+
+dm:Op_inferVocabulary
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "inferVocabulary" ;
+    yawl-bridge:opL2JavaName  "inferVocabulary" ;
+    yawl-bridge:opDescription "Infer domain vocabulary terms from schema and data patterns" ;
+    yawl-bridge:testFixture   "workspace-simple" ;
+    yawl-bridge:forCapability dm:Cap_INFER_VOCABULARY .
+
+dm:Op_inferDomainOrg
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "inferDomainOrg" ;
+    yawl-bridge:opL2JavaName  "inferDomainOrg" ;
+    yawl-bridge:opDescription "Infer domain organisation structure from schemas and relationships" ;
+    yawl-bridge:testFixture   "workspace-simple" ;
+    yawl-bridge:forCapability dm:Cap_INFER_DOMAIN_ORG .
+
+dm:Op_inferSchemaRecommendations
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "inferSchemaRecommendations" ;
+    yawl-bridge:opL2JavaName  "inferSchemaRecommendations" ;
+    yawl-bridge:opDescription "Infer schema improvement recommendations from data quality analysis" ;
+    yawl-bridge:testFixture   "workspace-simple" ;
+    yawl-bridge:forCapability dm:Cap_INFER_SCHEMA_RECOMMENDATIONS .
+
+dm:Op_inferDecisionRules
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "inferDecisionRules" ;
+    yawl-bridge:opL2JavaName  "inferDecisionRules" ;
+    yawl-bridge:opDescription "Infer decision rules from existing decision records and patterns" ;
+    yawl-bridge:testFixture   "workspace-simple" ;
+    yawl-bridge:forCapability dm:Cap_INFER_DECISION_RULES .
+
+dm:Op_inferKnowledgeGaps
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "inferKnowledgeGaps" ;
+    yawl-bridge:opL2JavaName  "inferKnowledgeGaps" ;
+    yawl-bridge:opDescription "Infer knowledge gaps from the current knowledge base coverage" ;
+    yawl-bridge:testFixture   "workspace-simple" ;
+    yawl-bridge:forCapability dm:Cap_INFER_KNOWLEDGE_GAPS .
+
+# --- MAP ---
+
+dm:Op_mapSchemas
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "mapSchemas" ;
+    yawl-bridge:opL2JavaName  "mapSchemas" ;
+    yawl-bridge:opDescription "Map fields between two schema definitions" ;
+    yawl-bridge:testFixture   "workspace-simple" ;
+    yawl-bridge:forCapability dm:Cap_MAP_SCHEMAS .
+
+dm:Op_mapVocabularies
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "mapVocabularies" ;
+    yawl-bridge:opL2JavaName  "mapVocabularies" ;
+    yawl-bridge:opDescription "Map terms between two domain vocabularies" ;
+    yawl-bridge:testFixture   "workspace-simple" ;
+    yawl-bridge:forCapability dm:Cap_MAP_VOCABULARIES .
+
+dm:Op_mapBpmnToSchema
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "mapBpmnToSchema" ;
+    yawl-bridge:opL2JavaName  "mapBpmnToSchema" ;
+    yawl-bridge:opDescription "Map BPMN process data objects to schema definitions" ;
+    yawl-bridge:testFixture   "bpmn-process" ;
+    yawl-bridge:forCapability dm:Cap_MAP_BPMN_TO_SCHEMA .
+
+dm:Op_mapDomainToSchema
+    a yawl-bridge:DomainOperation ;
+    yawl-bridge:opName        "mapDomainToSchema" ;
+    yawl-bridge:opL2JavaName  "mapDomainToSchema" ;
+    yawl-bridge:opDescription "Map domain organisation concepts to schema entities" ;
+    yawl-bridge:testFixture   "domain-org" ;
+    yawl-bridge:forCapability dm:Cap_MAP_DOMAIN_TO_SCHEMA .

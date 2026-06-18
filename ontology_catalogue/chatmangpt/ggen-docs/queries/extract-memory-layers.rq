@@ -1,0 +1,18 @@
+# Extract OSA memory layers
+PREFIX osa: <https://chatmangpt.com/osa#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?layer ?label ?storage ?retention ?hotReloadable ?versioning ?path ?compression ?index ?updates
+WHERE {
+  ?layer a osa:MemoryLayer ;
+         rdfs:label ?label ;
+         osa:storage ?storage ;
+         osa:retention ?retention .
+  OPTIONAL { ?layer osa:hotReloadable ?hotReloadable }
+  OPTIONAL { ?layer osa:versioning ?versioning }
+  OPTIONAL { ?layer osa:path ?path }
+  OPTIONAL { ?layer osa:compression ?compression }
+  OPTIONAL { ?layer osa:index ?index }
+  OPTIONAL { ?layer osa:updates ?updates }
+}
+ORDER BY ?label

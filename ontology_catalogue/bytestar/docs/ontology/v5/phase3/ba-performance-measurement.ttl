@@ -1,0 +1,745 @@
+@prefix ba: <https://bytestar.org/ontology/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+
+# ByteStar Performance Measurement Ontology
+# Defines comprehensive performance measurement systems for sub-8-tick guarantees
+# Version: 5.0.0 - Phase 3
+# Domain: Ultra-high performance distributed consensus with quantum-resistant cryptography
+
+# Core Performance Measurement Classes
+
+ba:PerformanceMeasurement a owl:Class ;
+    rdfs:label "Performance Measurement" ;
+    rdfs:comment "Root class for all performance measurement concepts in ByteStar system" ;
+    rdfs:subClassOf ba:SystemMetric .
+
+ba:PerformanceMetric a owl:Class ;
+    rdfs:label "Performance Metric" ;
+    rdfs:comment "Quantifiable measure of system performance characteristics" ;
+    rdfs:subClassOf ba:PerformanceMeasurement .
+
+ba:PerformanceMeasurementUnit a owl:Class ;
+    rdfs:label "Performance Measurement Unit" ;
+    rdfs:comment "Units for measuring performance characteristics" ;
+    rdfs:subClassOf qudt:Unit .
+
+# Temporal Performance Units
+
+ba:Tick a ba:PerformanceMeasurementUnit ;
+    rdfs:label "Tick" ;
+    rdfs:comment "Fundamental time unit in ByteStar consensus - single atomic operation cycle" ;
+    ba:hasNanosecondEquivalent "125.0"^^xsd:decimal ;  # 8 GHz base frequency
+    ba:isAtomicTimeUnit true .
+
+ba:CpuCycle a ba:PerformanceMeasurementUnit ;
+    rdfs:label "CPU Cycle" ;
+    rdfs:comment "Single processor cycle" ;
+    ba:hasTickRatio "1.0"^^xsd:decimal .
+
+ba:Nanosecond a ba:PerformanceMeasurementUnit ;
+    rdfs:label "Nanosecond" ;
+    rdfs:comment "Nanosecond time measurement" ;
+    ba:hasTickEquivalent "0.008"^^xsd:decimal .
+
+ba:Microsecond a ba:PerformanceMeasurementUnit ;
+    rdfs:label "Microsecond" ;
+    rdfs:comment "Microsecond time measurement" ;
+    ba:hasTickEquivalent "8.0"^^xsd:decimal .
+
+# Performance Metric Types
+
+ba:LatencyMetric a owl:Class ;
+    rdfs:label "Latency Metric" ;
+    rdfs:comment "Measures response time and processing delays" ;
+    rdfs:subClassOf ba:PerformanceMetric .
+
+ba:ThroughputMetric a owl:Class ;
+    rdfs:label "Throughput Metric" ;
+    rdfs:comment "Measures processing rate and capacity" ;
+    rdfs:subClassOf ba:PerformanceMetric .
+
+ba:ResourceUtilizationMetric a owl:Class ;
+    rdfs:label "Resource Utilization Metric" ;
+    rdfs:comment "Measures system resource consumption" ;
+    rdfs:subClassOf ba:PerformanceMetric .
+
+ba:EfficiencyMetric a owl:Class ;
+    rdfs:label "Efficiency Metric" ;
+    rdfs:comment "Measures performance per resource unit" ;
+    rdfs:subClassOf ba:PerformanceMetric .
+
+# Specific Performance Measurements
+
+ba:ExecutionTime a ba:LatencyMetric ;
+    rdfs:label "Execution Time" ;
+    rdfs:comment "Time required to complete an operation" ;
+    ba:hasMaximumThreshold "8"^^xsd:int ;
+    ba:hasUnit ba:Tick .
+
+ba:WaitTime a ba:LatencyMetric ;
+    rdfs:label "Wait Time" ;
+    rdfs:comment "Time spent waiting for resources or synchronization" ;
+    ba:hasMaximumThreshold "2"^^xsd:int ;
+    ba:hasUnit ba:Tick .
+
+ba:ProcessingLatency a ba:LatencyMetric ;
+    rdfs:label "Processing Latency" ;
+    rdfs:comment "End-to-end processing delay" ;
+    ba:hasMaximumThreshold "6"^^xsd:int ;
+    ba:hasUnit ba:Tick .
+
+ba:ConsensusLatency a ba:LatencyMetric ;
+    rdfs:label "Consensus Latency" ;
+    rdfs:comment "Time to reach consensus decision" ;
+    ba:hasMaximumThreshold "5"^^xsd:int ;
+    ba:hasUnit ba:Tick .
+
+ba:CryptographicLatency a ba:LatencyMetric ;
+    rdfs:label "Cryptographic Latency" ;
+    rdfs:comment "Time for cryptographic operations" ;
+    ba:hasMaximumThreshold "3"^^xsd:int ;
+    ba:hasUnit ba:Tick .
+
+ba:TransactionThroughput a ba:ThroughputMetric ;
+    rdfs:label "Transaction Throughput" ;
+    rdfs:comment "Transactions processed per time unit" ;
+    ba:hasMinimumThreshold "1000000"^^xsd:int ;
+    ba:hasUnit ba:TransactionsPerSecond .
+
+ba:MessageThroughput a ba:ThroughputMetric ;
+    rdfs:label "Message Throughput" ;
+    rdfs:comment "Messages processed per time unit" ;
+    ba:hasMinimumThreshold "10000000"^^xsd:int ;
+    ba:hasUnit ba:MessagesPerSecond .
+
+# Real-time Performance Monitoring
+
+ba:PerformanceMonitor a owl:Class ;
+    rdfs:label "Performance Monitor" ;
+    rdfs:comment "Real-time performance monitoring system" ;
+    rdfs:subClassOf ba:SystemComponent .
+
+ba:RealTimeProfiler a owl:Class ;
+    rdfs:label "Real-time Profiler" ;
+    rdfs:comment "Continuous performance profiling with minimal overhead" ;
+    rdfs:subClassOf ba:PerformanceMonitor .
+
+ba:PerformanceCollector a owl:Class ;
+    rdfs:label "Performance Collector" ;
+    rdfs:comment "Collects performance metrics from system components" ;
+    rdfs:subClassOf ba:PerformanceMonitor .
+
+ba:MetricAggregator a owl:Class ;
+    rdfs:label "Metric Aggregator" ;
+    rdfs:comment "Aggregates and processes performance metrics" ;
+    rdfs:subClassOf ba:PerformanceMonitor .
+
+# Performance Budgets and Allocation
+
+ba:PerformanceBudget a owl:Class ;
+    rdfs:label "Performance Budget" ;
+    rdfs:comment "Allocated performance resources for operations" ;
+    rdfs:subClassOf ba:PerformanceMeasurement .
+
+ba:TickBudget a ba:PerformanceBudget ;
+    rdfs:label "Tick Budget" ;
+    rdfs:comment "Allocated tick count for operation completion" ;
+    ba:hasMaximumAllocation "8"^^xsd:int ;
+    ba:hasUnit ba:Tick .
+
+ba:CpuBudget a ba:PerformanceBudget ;
+    rdfs:label "CPU Budget" ;
+    rdfs:comment "Allocated CPU resources" ;
+    ba:hasMaximumUtilization "0.95"^^xsd:decimal .
+
+ba:MemoryBudget a ba:PerformanceBudget ;
+    rdfs:label "Memory Budget" ;
+    rdfs:comment "Allocated memory resources" ;
+    ba:hasMaximumUtilization "0.90"^^xsd:decimal .
+
+ba:NetworkBudget a ba:PerformanceBudget ;
+    rdfs:label "Network Budget" ;
+    rdfs:comment "Allocated network bandwidth" ;
+    ba:hasMaximumUtilization "0.85"^^xsd:decimal .
+
+# Worst-Case Execution Time (WCET) Analysis
+
+ba:WCETAnalysis a owl:Class ;
+    rdfs:label "WCET Analysis" ;
+    rdfs:comment "Worst-case execution time analysis framework" ;
+    rdfs:subClassOf ba:PerformanceMeasurement .
+
+ba:StaticWCET a ba:WCETAnalysis ;
+    rdfs:label "Static WCET" ;
+    rdfs:comment "Static analysis of worst-case execution time" ;
+    ba:hasAnalysisMethod "static-path-analysis" ;
+    ba:hasConfidenceLevel "0.99"^^xsd:decimal .
+
+ba:DynamicWCET a ba:WCETAnalysis ;
+    rdfs:label "Dynamic WCET" ;
+    rdfs:comment "Runtime measurement of worst-case execution time" ;
+    ba:hasAnalysisMethod "dynamic-measurement" ;
+    ba:hasConfidenceLevel "0.95"^^xsd:decimal .
+
+ba:HybridWCET a ba:WCETAnalysis ;
+    rdfs:label "Hybrid WCET" ;
+    rdfs:comment "Combined static and dynamic WCET analysis" ;
+    ba:hasAnalysisMethod "hybrid-analysis" ;
+    ba:hasConfidenceLevel "0.999"^^xsd:decimal .
+
+# Performance Validation and Compliance
+
+ba:PerformanceValidator a owl:Class ;
+    rdfs:label "Performance Validator" ;
+    rdfs:comment "Validates performance against requirements" ;
+    rdfs:subClassOf ba:SystemComponent .
+
+ba:ComplianceChecker a owl:Class ;
+    rdfs:label "Compliance Checker" ;
+    rdfs:comment "Checks compliance with performance constraints" ;
+    rdfs:subClassOf ba:PerformanceValidator .
+
+ba:PerformanceAssertion a owl:Class ;
+    rdfs:label "Performance Assertion" ;
+    rdfs:comment "Assertion about expected performance characteristics" ;
+    rdfs:subClassOf ba:SystemAssertion .
+
+ba:TickConstraintAssertion a ba:PerformanceAssertion ;
+    rdfs:label "Tick Constraint Assertion" ;
+    rdfs:comment "Assertion that operation completes within tick limit" ;
+    ba:hasTickLimit "8"^^xsd:int ;
+    ba:isCriticalAssertion true .
+
+# Resource Utilization Tracking
+
+ba:ResourceTracker a owl:Class ;
+    rdfs:label "Resource Tracker" ;
+    rdfs:comment "Tracks system resource utilization" ;
+    rdfs:subClassOf ba:PerformanceMonitor .
+
+ba:CpuUtilizationTracker a ba:ResourceTracker ;
+    rdfs:label "CPU Utilization Tracker" ;
+    rdfs:comment "Tracks CPU utilization patterns" ;
+    ba:hasTrackingGranularity ba:Tick .
+
+ba:MemoryUtilizationTracker a ba:ResourceTracker ;
+    rdfs:label "Memory Utilization Tracker" ;
+    rdfs:comment "Tracks memory utilization patterns" ;
+    ba:hasTrackingInterval "1"^^xsd:int .
+
+ba:CacheUtilizationTracker a ba:ResourceTracker ;
+    rdfs:label "Cache Utilization Tracker" ;
+    rdfs:comment "Tracks cache hit/miss patterns" ;
+    ba:hasTrackingGranularity ba:CpuCycle .
+
+# Performance Optimization
+
+ba:PerformanceOptimizer a owl:Class ;
+    rdfs:label "Performance Optimizer" ;
+    rdfs:comment "Optimizes system performance" ;
+    rdfs:subClassOf ba:SystemComponent .
+
+ba:AdaptiveOptimizer a ba:PerformanceOptimizer ;
+    rdfs:label "Adaptive Optimizer" ;
+    rdfs:comment "Dynamically optimizes performance based on runtime conditions" ;
+    ba:hasOptimizationTarget ba:ExecutionTime .
+
+ba:PreemptiveOptimizer a ba:PerformanceOptimizer ;
+    rdfs:label "Preemptive Optimizer" ;
+    rdfs:comment "Proactively optimizes based on predicted performance issues" ;
+    ba:hasOptimizationStrategy "predictive" .
+
+# Performance Baselines and Benchmarking
+
+ba:PerformanceBaseline a owl:Class ;
+    rdfs:label "Performance Baseline" ;
+    rdfs:comment "Reference performance measurements" ;
+    rdfs:subClassOf ba:PerformanceMeasurement .
+
+ba:BenchmarkSuite a owl:Class ;
+    rdfs:label "Benchmark Suite" ;
+    rdfs:comment "Collection of performance benchmarks" ;
+    rdfs:subClassOf ba:PerformanceBaseline .
+
+ba:Microbenchmark a ba:BenchmarkSuite ;
+    rdfs:label "Microbenchmark" ;
+    rdfs:comment "Fine-grained performance benchmark" ;
+    ba:hasGranularity ba:Tick .
+
+ba:Macrobenchmark a ba:BenchmarkSuite ;
+    rdfs:label "Macrobenchmark" ;
+    rdfs:comment "System-level performance benchmark" ;
+    ba:hasGranularity ba:Microsecond .
+
+ba:RegressionBenchmark a ba:BenchmarkSuite ;
+    rdfs:label "Regression Benchmark" ;
+    rdfs:comment "Performance regression detection benchmark" ;
+    ba:hasRegressionThreshold "0.05"^^xsd:decimal .
+
+# Performance Degradation Detection
+
+ba:DegradationDetector a owl:Class ;
+    rdfs:label "Degradation Detector" ;
+    rdfs:comment "Detects performance degradation" ;
+    rdfs:subClassOf ba:PerformanceMonitor .
+
+ba:AnomalyDetector a ba:DegradationDetector ;
+    rdfs:label "Anomaly Detector" ;
+    rdfs:comment "Detects performance anomalies" ;
+    ba:hasSensitivity "0.01"^^xsd:decimal .
+
+ba:TrendAnalyzer a ba:DegradationDetector ;
+    rdfs:label "Trend Analyzer" ;
+    rdfs:comment "Analyzes performance trends" ;
+    ba:hasAnalysisWindow "1000"^^xsd:int .
+
+# Performance Alerting System
+
+ba:PerformanceAlert a owl:Class ;
+    rdfs:label "Performance Alert" ;
+    rdfs:comment "Alert for performance issues" ;
+    rdfs:subClassOf ba:SystemAlert .
+
+ba:CriticalPerformanceAlert a ba:PerformanceAlert ;
+    rdfs:label "Critical Performance Alert" ;
+    rdfs:comment "Critical performance violation alert" ;
+    ba:hasUrgency "critical" ;
+    ba:hasResponseTime "1"^^xsd:int .
+
+ba:WarningPerformanceAlert a ba:PerformanceAlert ;
+    rdfs:label "Warning Performance Alert" ;
+    rdfs:comment "Performance warning alert" ;
+    ba:hasUrgency "warning" ;
+    ba:hasResponseTime "5"^^xsd:int .
+
+# Service Level Agreements (SLA)
+
+ba:PerformanceSLA a owl:Class ;
+    rdfs:label "Performance SLA" ;
+    rdfs:comment "Service Level Agreement for performance" ;
+    rdfs:subClassOf ba:SystemContract .
+
+ba:LatencySLA a ba:PerformanceSLA ;
+    rdfs:label "Latency SLA" ;
+    rdfs:comment "SLA for latency requirements" ;
+    ba:hasMaxLatency "8"^^xsd:int ;
+    ba:hasUnit ba:Tick ;
+    ba:hasAvailability "0.99999"^^xsd:decimal .
+
+ba:ThroughputSLA a ba:PerformanceSLA ;
+    rdfs:label "Throughput SLA" ;
+    rdfs:comment "SLA for throughput requirements" ;
+    ba:hasMinThroughput "1000000"^^xsd:int ;
+    ba:hasUnit ba:TransactionsPerSecond .
+
+ba:AvailabilitySLA a ba:PerformanceSLA ;
+    rdfs:label "Availability SLA" ;
+    rdfs:comment "SLA for system availability" ;
+    ba:hasAvailability "0.99999"^^xsd:decimal ;
+    ba:hasDowntimeLimit "5.26"^^xsd:decimal . # minutes per year
+
+# Multi-dimensional Performance Analysis
+
+ba:MultiDimensionalAnalysis a owl:Class ;
+    rdfs:label "Multi-dimensional Performance Analysis" ;
+    rdfs:comment "Analysis across multiple performance dimensions" ;
+    rdfs:subClassOf ba:PerformanceMeasurement .
+
+ba:LatencyThroughputAnalysis a ba:MultiDimensionalAnalysis ;
+    rdfs:label "Latency-Throughput Analysis" ;
+    rdfs:comment "Combined analysis of latency and throughput" ;
+    ba:analyzesDimension ba:LatencyMetric , ba:ThroughputMetric .
+
+ba:ResourceEfficiencyAnalysis a ba:MultiDimensionalAnalysis ;
+    rdfs:label "Resource-Efficiency Analysis" ;
+    rdfs:comment "Analysis of resource usage vs efficiency" ;
+    ba:analyzesDimension ba:ResourceUtilizationMetric , ba:EfficiencyMetric .
+
+ba:ScalabilityAnalysis a ba:MultiDimensionalAnalysis ;
+    rdfs:label "Scalability Analysis" ;
+    rdfs:comment "Analysis of performance under varying load" ;
+    ba:hasScalabilityFactor "linear" .
+
+# Performance Data Model
+
+ba:PerformanceDataPoint a owl:Class ;
+    rdfs:label "Performance Data Point" ;
+    rdfs:comment "Single performance measurement data point" ;
+    rdfs:subClassOf ba:MeasurementData .
+
+ba:PerformanceTimeSeries a owl:Class ;
+    rdfs:label "Performance Time Series" ;
+    rdfs:comment "Time series of performance measurements" ;
+    rdfs:subClassOf ba:TimeSeriesData .
+
+ba:PerformanceHistogram a owl:Class ;
+    rdfs:label "Performance Histogram" ;
+    rdfs:comment "Histogram of performance measurements" ;
+    rdfs:subClassOf ba:StatisticalData .
+
+# Properties
+
+# Measurement Properties
+ba:hasMeasuredValue a owl:DatatypeProperty ;
+    rdfs:label "has measured value" ;
+    rdfs:comment "The measured value of a performance metric" ;
+    rdfs:domain ba:PerformanceMetric ;
+    rdfs:range xsd:decimal .
+
+ba:hasTimestamp a owl:DatatypeProperty ;
+    rdfs:label "has timestamp" ;
+    rdfs:comment "Timestamp of performance measurement" ;
+    rdfs:domain ba:PerformanceDataPoint ;
+    rdfs:range xsd:dateTime .
+
+ba:hasUnit a owl:ObjectProperty ;
+    rdfs:label "has unit" ;
+    rdfs:comment "Unit of measurement for performance metric" ;
+    rdfs:domain ba:PerformanceMetric ;
+    rdfs:range ba:PerformanceMeasurementUnit .
+
+# Threshold Properties
+ba:hasMaximumThreshold a owl:DatatypeProperty ;
+    rdfs:label "has maximum threshold" ;
+    rdfs:comment "Maximum allowed value for performance metric" ;
+    rdfs:domain ba:PerformanceMetric ;
+    rdfs:range xsd:decimal .
+
+ba:hasMinimumThreshold a owl:DatatypeProperty ;
+    rdfs:label "has minimum threshold" ;
+    rdfs:comment "Minimum required value for performance metric" ;
+    rdfs:domain ba:PerformanceMetric ;
+    rdfs:range xsd:decimal .
+
+ba:hasTargetValue a owl:DatatypeProperty ;
+    rdfs:label "has target value" ;
+    rdfs:comment "Target value for performance metric" ;
+    rdfs:domain ba:PerformanceMetric ;
+    rdfs:range xsd:decimal .
+
+# Budget Properties
+ba:hasAllocatedBudget a owl:ObjectProperty ;
+    rdfs:label "has allocated budget" ;
+    rdfs:comment "Performance budget allocated to component" ;
+    rdfs:domain ba:SystemComponent ;
+    rdfs:range ba:PerformanceBudget .
+
+ba:hasRemainingBudget a owl:DatatypeProperty ;
+    rdfs:label "has remaining budget" ;
+    rdfs:comment "Remaining performance budget" ;
+    rdfs:domain ba:PerformanceBudget ;
+    rdfs:range xsd:decimal .
+
+ba:hasUtilizedBudget a owl:DatatypeProperty ;
+    rdfs:label "has utilized budget" ;
+    rdfs:comment "Utilized performance budget" ;
+    rdfs:domain ba:PerformanceBudget ;
+    rdfs:range xsd:decimal .
+
+# Analysis Properties
+ba:hasWCETBound a owl:DatatypeProperty ;
+    rdfs:label "has WCET bound" ;
+    rdfs:comment "Worst-case execution time bound" ;
+    rdfs:domain ba:WCETAnalysis ;
+    rdfs:range xsd:int .
+
+ba:hasConfidenceLevel a owl:DatatypeProperty ;
+    rdfs:label "has confidence level" ;
+    rdfs:comment "Confidence level of analysis" ;
+    rdfs:domain ba:WCETAnalysis ;
+    rdfs:range xsd:decimal .
+
+ba:analyzesDimension a owl:ObjectProperty ;
+    rdfs:label "analyzes dimension" ;
+    rdfs:comment "Performance dimension analyzed" ;
+    rdfs:domain ba:MultiDimensionalAnalysis ;
+    rdfs:range ba:PerformanceMetric .
+
+# Monitoring Properties
+ba:hasMonitoringInterval a owl:DatatypeProperty ;
+    rdfs:label "has monitoring interval" ;
+    rdfs:comment "Interval for performance monitoring" ;
+    rdfs:domain ba:PerformanceMonitor ;
+    rdfs:range xsd:int .
+
+ba:hasTrackingGranularity a owl:ObjectProperty ;
+    rdfs:label "has tracking granularity" ;
+    rdfs:comment "Granularity of performance tracking" ;
+    rdfs:domain ba:ResourceTracker ;
+    rdfs:range ba:PerformanceMeasurementUnit .
+
+# Alert Properties
+ba:hasUrgency a owl:DatatypeProperty ;
+    rdfs:label "has urgency" ;
+    rdfs:comment "Urgency level of performance alert" ;
+    rdfs:domain ba:PerformanceAlert ;
+    rdfs:range xsd:string .
+
+ba:hasResponseTime a owl:DatatypeProperty ;
+    rdfs:label "has response time" ;
+    rdfs:comment "Required response time for alert" ;
+    rdfs:domain ba:PerformanceAlert ;
+    rdfs:range xsd:int .
+
+# Integration with Doctrine of 8
+ba:adheresToDoctrineOf8 a owl:ObjectProperty ;
+    rdfs:label "adheres to Doctrine of 8" ;
+    rdfs:comment "Component adheres to 8-tick constraint" ;
+    rdfs:domain ba:SystemComponent ;
+    rdfs:range ba:DoctrineOf8Constraint .
+
+ba:hasTickConstraint a owl:DatatypeProperty ;
+    rdfs:label "has tick constraint" ;
+    rdfs:comment "Maximum tick count constraint" ;
+    rdfs:domain ba:SystemComponent ;
+    rdfs:range xsd:int .
+
+ba:isTickCompliant a owl:DatatypeProperty ;
+    rdfs:label "is tick compliant" ;
+    rdfs:comment "Whether component meets tick constraints" ;
+    rdfs:domain ba:SystemComponent ;
+    rdfs:range xsd:boolean .
+
+# SHACL Validation Shapes for Performance Properties
+
+ba:PerformanceMetricShape a sh:NodeShape ;
+    sh:targetClass ba:PerformanceMetric ;
+    sh:property [
+        sh:path ba:hasMeasuredValue ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:message "Performance metric must have exactly one measured value"
+    ] ;
+    sh:property [
+        sh:path ba:hasUnit ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class ba:PerformanceMeasurementUnit ;
+        sh:message "Performance metric must have exactly one unit"
+    ] .
+
+ba:LatencyMetricShape a sh:NodeShape ;
+    sh:targetClass ba:LatencyMetric ;
+    sh:property [
+        sh:path ba:hasMaximumThreshold ;
+        sh:maxInclusive 8 ;
+        sh:message "Latency metric maximum threshold must not exceed 8 ticks"
+    ] ;
+    sh:property [
+        sh:path ba:hasUnit ;
+        sh:in ( ba:Tick ba:CpuCycle ba:Nanosecond ) ;
+        sh:message "Latency metric must use temporal units"
+    ] .
+
+ba:PerformanceBudgetShape a sh:NodeShape ;
+    sh:targetClass ba:PerformanceBudget ;
+    sh:property [
+        sh:path ba:hasRemainingBudget ;
+        sh:minInclusive 0.0 ;
+        sh:message "Remaining budget cannot be negative"
+    ] ;
+    sh:property [
+        sh:path ba:hasUtilizedBudget ;
+        sh:minInclusive 0.0 ;
+        sh:message "Utilized budget cannot be negative"
+    ] .
+
+ba:TickBudgetShape a sh:NodeShape ;
+    sh:targetClass ba:TickBudget ;
+    sh:property [
+        sh:path ba:hasMaximumAllocation ;
+        sh:maxInclusive 8 ;
+        sh:message "Tick budget allocation cannot exceed 8 ticks"
+    ] .
+
+ba:WCETAnalysisShape a sh:NodeShape ;
+    sh:targetClass ba:WCETAnalysis ;
+    sh:property [
+        sh:path ba:hasWCETBound ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:maxInclusive 8 ;
+        sh:message "WCET bound must not exceed 8 ticks"
+    ] ;
+    sh:property [
+        sh:path ba:hasConfidenceLevel ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Confidence level must be between 0.0 and 1.0"
+    ] .
+
+ba:PerformanceSLAShape a sh:NodeShape ;
+    sh:targetClass ba:PerformanceSLA ;
+    sh:property [
+        sh:path ba:hasAvailability ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Availability must be between 0.0 and 1.0"
+    ] .
+
+ba:SystemComponentPerformanceShape a sh:NodeShape ;
+    sh:targetClass ba:SystemComponent ;
+    sh:property [
+        sh:path ba:hasTickConstraint ;
+        sh:maxInclusive 8 ;
+        sh:message "System component tick constraint cannot exceed 8"
+    ] ;
+    sh:property [
+        sh:path ba:isTickCompliant ;
+        sh:hasValue true ;
+        sh:message "All system components must be tick compliant"
+    ] .
+
+# Performance Measurement Units and Conversions
+ba:TransactionsPerSecond a ba:PerformanceMeasurementUnit ;
+    rdfs:label "Transactions Per Second" ;
+    rdfs:comment "Rate of transaction processing" .
+
+ba:MessagesPerSecond a ba:PerformanceMeasurementUnit ;
+    rdfs:label "Messages Per Second" ;
+    rdfs:comment "Rate of message processing" .
+
+ba:OperationsPerTick a ba:PerformanceMeasurementUnit ;
+    rdfs:label "Operations Per Tick" ;
+    rdfs:comment "Operations completed per tick" .
+
+ba:BytesPerSecond a ba:PerformanceMeasurementUnit ;
+    rdfs:label "Bytes Per Second" ;
+    rdfs:comment "Data transfer rate" .
+
+# Unit Conversion Properties
+ba:hasNanosecondEquivalent a owl:DatatypeProperty ;
+    rdfs:label "has nanosecond equivalent" ;
+    rdfs:comment "Equivalent value in nanoseconds" ;
+    rdfs:domain ba:PerformanceMeasurementUnit ;
+    rdfs:range xsd:decimal .
+
+ba:hasTickRatio a owl:DatatypeProperty ;
+    rdfs:label "has tick ratio" ;
+    rdfs:comment "Ratio to tick units" ;
+    rdfs:domain ba:PerformanceMeasurementUnit ;
+    rdfs:range xsd:decimal .
+
+ba:hasTickEquivalent a owl:DatatypeProperty ;
+    rdfs:label "has tick equivalent" ;
+    rdfs:comment "Equivalent value in ticks" ;
+    rdfs:domain ba:PerformanceMeasurementUnit ;
+    rdfs:range xsd:decimal .
+
+# Special Performance Constraints
+ba:isAtomicTimeUnit a owl:DatatypeProperty ;
+    rdfs:label "is atomic time unit" ;
+    rdfs:comment "Whether this is an atomic time measurement unit" ;
+    rdfs:domain ba:PerformanceMeasurementUnit ;
+    rdfs:range xsd:boolean .
+
+ba:isCriticalAssertion a owl:DatatypeProperty ;
+    rdfs:label "is critical assertion" ;
+    rdfs:comment "Whether this is a critical performance assertion" ;
+    rdfs:domain ba:PerformanceAssertion ;
+    rdfs:range xsd:boolean .
+
+ba:hasOptimizationTarget a owl:ObjectProperty ;
+    rdfs:label "has optimization target" ;
+    rdfs:comment "Performance metric targeted for optimization" ;
+    rdfs:domain ba:PerformanceOptimizer ;
+    rdfs:range ba:PerformanceMetric .
+
+ba:hasOptimizationStrategy a owl:DatatypeProperty ;
+    rdfs:label "has optimization strategy" ;
+    rdfs:comment "Strategy used for performance optimization" ;
+    rdfs:domain ba:PerformanceOptimizer ;
+    rdfs:range xsd:string .
+
+# Performance Analysis Methods
+ba:hasAnalysisMethod a owl:DatatypeProperty ;
+    rdfs:label "has analysis method" ;
+    rdfs:comment "Method used for performance analysis" ;
+    rdfs:domain ba:WCETAnalysis ;
+    rdfs:range xsd:string .
+
+ba:hasGranularity a owl:ObjectProperty ;
+    rdfs:label "has granularity" ;
+    rdfs:comment "Granularity of measurement or analysis" ;
+    rdfs:domain ba:BenchmarkSuite ;
+    rdfs:range ba:PerformanceMeasurementUnit .
+
+ba:hasRegressionThreshold a owl:DatatypeProperty ;
+    rdfs:label "has regression threshold" ;
+    rdfs:comment "Threshold for detecting performance regression" ;
+    rdfs:domain ba:RegressionBenchmark ;
+    rdfs:range xsd:decimal .
+
+ba:hasSensitivity a owl:DatatypeProperty ;
+    rdfs:label "has sensitivity" ;
+    rdfs:comment "Sensitivity level for anomaly detection" ;
+    rdfs:domain ba:AnomalyDetector ;
+    rdfs:range xsd:decimal .
+
+ba:hasAnalysisWindow a owl:DatatypeProperty ;
+    rdfs:label "has analysis window" ;
+    rdfs:comment "Time window for trend analysis" ;
+    rdfs:domain ba:TrendAnalyzer ;
+    rdfs:range xsd:int .
+
+ba:hasScalabilityFactor a owl:DatatypeProperty ;
+    rdfs:label "has scalability factor" ;
+    rdfs:comment "Scalability characteristic (linear, logarithmic, etc.)" ;
+    rdfs:domain ba:ScalabilityAnalysis ;
+    rdfs:range xsd:string .
+
+# Performance Measurement Constraints (Doctrine of 8 Integration)
+ba:hasTickLimit a owl:DatatypeProperty ;
+    rdfs:label "has tick limit" ;
+    rdfs:comment "Maximum tick count allowed" ;
+    rdfs:domain ba:TickConstraintAssertion ;
+    rdfs:range xsd:int .
+
+ba:hasMaxLatency a owl:DatatypeProperty ;
+    rdfs:label "has max latency" ;
+    rdfs:comment "Maximum allowed latency" ;
+    rdfs:domain ba:LatencySLA ;
+    rdfs:range xsd:int .
+
+ba:hasMinThroughput a owl:DatatypeProperty ;
+    rdfs:label "has min throughput" ;
+    rdfs:comment "Minimum required throughput" ;
+    rdfs:domain ba:ThroughputSLA ;
+    rdfs:range xsd:int .
+
+ba:hasAvailability a owl:DatatypeProperty ;
+    rdfs:label "has availability" ;
+    rdfs:comment "Required availability percentage" ;
+    rdfs:domain ba:PerformanceSLA ;
+    rdfs:range xsd:decimal .
+
+ba:hasDowntimeLimit a owl:DatatypeProperty ;
+    rdfs:label "has downtime limit" ;
+    rdfs:comment "Maximum allowed downtime" ;
+    rdfs:domain ba:AvailabilitySLA ;
+    rdfs:range xsd:decimal .
+
+ba:hasMaximumUtilization a owl:DatatypeProperty ;
+    rdfs:label "has maximum utilization" ;
+    rdfs:comment "Maximum resource utilization allowed" ;
+    rdfs:domain ba:PerformanceBudget ;
+    rdfs:range xsd:decimal .
+
+ba:hasMaximumAllocation a owl:DatatypeProperty ;
+    rdfs:label "has maximum allocation" ;
+    rdfs:comment "Maximum resource allocation" ;
+    rdfs:domain ba:PerformanceBudget ;
+    rdfs:range xsd:int .
+
+ba:hasTrackingInterval a owl:DatatypeProperty ;
+    rdfs:label "has tracking interval" ;
+    rdfs:comment "Interval for resource tracking" ;
+    rdfs:domain ba:ResourceTracker ;
+    rdfs:range xsd:int .

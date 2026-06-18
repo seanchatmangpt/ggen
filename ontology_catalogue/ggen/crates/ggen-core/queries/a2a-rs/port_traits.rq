@@ -1,0 +1,69 @@
+# SPARQL Query to extract port traits and their methods from A2A ontology
+# This query extracts all port traits and their associated operations
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX a2a: <https://ggen.dev/ontology/a2a#>
+PREFIX sh: <http://www.w3.org/ns/shacl#>
+
+# Query to extract port traits and their operations
+SELECT DISTINCT ?trait ?traitLabel ?traitComment ?method ?methodLabel ?parameter ?paramLabel ?returnType ?operationType WHERE {
+    # Extract port traits
+    ?trait a owl:Class .
+    ?trait rdfs:label ?traitLabel .
+    ?trait rdfs:subClassOf a2a:Port .
+    OPTIONAL { ?trait rdfs:comment ?traitComment }
+
+    # Extract properties that define operations
+    {
+        ?property a owl:ObjectProperty .
+        ?property rdfs:label ?methodLabel .
+        ?property rdfs:domain ?trait .
+        ?property rdfs:range ?returnType .
+
+        # Map properties to operation types based on naming patterns
+        BIND(
+            IF(STRENDS(?methodLabel, "can"), "capability",
+            IF(STRENDS(?methodLabel, "has"), "property",
+            IF(STRENDS(?methodLabel, "get"), "getter",
+            IF(STRENDS(?methodLabel, "set"), "setter",
+            IF(STRENDS(?methodLabel, "create"), "creator",
+            IF(STRENDS(?methodLabel, "update"), "updater",
+            IF(STRENDS(?methodLabel, "delete"), "deleter",
+            IF(STRENDS(?methodLabel, "list"), "lister",
+            IF(STRENDS(?methodLabel, "start"), "starter",
+            IF(STRENDS(?methodLabel, "stop"), "stopper",
+            IF(STRENDS(?methodLabel, "send"), "sender",
+            IF(STRENDS(?methodLabel, "receive"), "receiver",
+            IF(STRENDS(?methodLabel, "handle"), "handler",
+            IF(STRENDS(?methodLabel, "schedule"), "scheduler",
+            IF(STRENDS(?methodLabel, "cancel"), "canceler",
+            IF(STRENDS(?methodLabel, "execute"), "executor",
+            IF(STRENDS(?methodLabel, "monitor"), "monitor",
+            IF(STRENDS(?methodLabel, "config"), "configurator",
+            "operation"
+            ))))))))))))))))))) AS ?operationType
+        }
+
+        # Generate method signature
+        BIND(IRI(CONCAT(STR(?property), "/signature")) AS ?signature)
+
+        # Extract parameters (inverse properties that lead to this one)
+        OPTIONAL {
+            ?parameter a owl:ObjectProperty .
+            ?parameter rdfs:inverseOf ?property .
+            ?parameter rdfs:label ?paramLabel .
+        }
+    }
+    UNION
+    # Extract data type properties
+    {
+        ?property a owl:DatatypeProperty .
+        ?property rdfs:label ?methodLabel .
+        ?property rdfs:domain ?trait .
+        BIND("property" AS ?operationType)
+    }
+}
+ORDER BY ?trait ?traitLabel ?method ?methodLabel

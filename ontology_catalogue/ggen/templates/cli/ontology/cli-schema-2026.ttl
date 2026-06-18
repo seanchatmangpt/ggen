@@ -1,0 +1,344 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix cli: <http://ggen.dev/schema/cli#> .
+@prefix cnv: <http://ggen.dev/schema/clap-noun-verb#> .
+
+# ============================================================================
+# CLI ONTOLOGY SCHEMA 2026 - Extended for Domain Separation
+# ============================================================================
+#
+# This schema extends the base CLI schema with support for:
+# - Domain function references (stable interface contracts)
+# - Workspace crate structure (CLI crate + domain crate)
+# - 2026 best practices for CLI/domain separation
+#
+
+# Ontology Definition
+cli:CliOntology a owl:Ontology ;
+    rdfs:label "CLI Project Schema for clap-noun-verb (2026)" ;
+    rdfs:comment "RDF schema for defining complete CLI projects using clap-noun-verb architecture with domain separation" ;
+    owl:versionInfo "2026.1.0" .
+
+# ============================================================================
+# CORE CLASSES (from base schema)
+# ============================================================================
+
+cli:CliProject a owl:Class ;
+    rdfs:label "CLI Project" ;
+    rdfs:comment "A complete CLI application project definition with workspace structure" .
+
+cnv:Noun a owl:Class ;
+    rdfs:label "Noun" ;
+    rdfs:comment "A noun in the noun-verb command structure (e.g., 'template', 'project')" .
+
+cnv:Verb a owl:Class ;
+    rdfs:label "Verb" ;
+    rdfs:comment "A verb action for a noun (e.g., 'generate', 'list', 'delete')" .
+
+cnv:Argument a owl:Class ;
+    rdfs:label "Argument" ;
+    rdfs:comment "Command-line argument (flag or positional)" .
+
+cnv:ArgumentType a owl:Class ;
+    rdfs:label "Argument Type" ;
+    rdfs:comment "Type constraint for arguments" .
+
+cnv:Validation a owl:Class ;
+    rdfs:label "Validation Rule" ;
+    rdfs:comment "Validation rule for argument values" .
+
+cnv:Dependency a owl:Class ;
+    rdfs:label "Dependency" ;
+    rdfs:comment "Cargo dependency specification" .
+
+# ============================================================================
+# PROJECT PROPERTIES (Extended)
+# ============================================================================
+
+cli:hasName a owl:DatatypeProperty ;
+    rdfs:domain cli:CliProject ;
+    rdfs:range xsd:string ;
+    rdfs:label "has name" ;
+    rdfs:comment "Project name (workspace root package name)" .
+
+cli:hasVersion a owl:DatatypeProperty ;
+    rdfs:domain cli:CliProject ;
+    rdfs:range xsd:string ;
+    rdfs:label "has version" ;
+    rdfs:comment "Semantic version (e.g., '0.1.0')" .
+
+cli:hasDescription a owl:DatatypeProperty ;
+    rdfs:domain cli:CliProject ;
+    rdfs:range xsd:string ;
+    rdfs:label "has description" ;
+    rdfs:comment "Project description" .
+
+cli:hasAuthors a owl:DatatypeProperty ;
+    rdfs:domain cli:CliProject ;
+    rdfs:range xsd:string ;
+    rdfs:label "has authors" ;
+    rdfs:comment "Project authors (can be multiple)" .
+
+cli:hasEdition a owl:DatatypeProperty ;
+    rdfs:domain cli:CliProject ;
+    rdfs:range xsd:string ;
+    rdfs:label "has Rust edition" ;
+    rdfs:comment "Rust edition (e.g., '2021', '2024')" .
+
+cli:hasLicense a owl:DatatypeProperty ;
+    rdfs:domain cli:CliProject ;
+    rdfs:range xsd:string ;
+    rdfs:label "has license" ;
+    rdfs:comment "Software license (e.g., 'MIT', 'Apache-2.0')" .
+
+cli:hasNoun a owl:ObjectProperty ;
+    rdfs:domain cli:CliProject ;
+    rdfs:range cnv:Noun ;
+    rdfs:label "has noun" ;
+    rdfs:comment "Project contains this noun" .
+
+cli:hasDependency a owl:ObjectProperty ;
+    rdfs:domain cli:CliProject ;
+    rdfs:range cnv:Dependency ;
+    rdfs:label "has dependency" ;
+    rdfs:comment "Workspace-level Cargo dependency" .
+
+# ============================================================================
+# WORKSPACE STRUCTURE PROPERTIES (NEW in 2026)
+# ============================================================================
+
+cli:hasCliCrate a owl:DatatypeProperty ;
+    rdfs:domain cli:CliProject ;
+    rdfs:range xsd:string ;
+    rdfs:label "CLI crate name" ;
+    rdfs:comment "Name of the CLI presentation crate (e.g., 'my-cli')" .
+
+cli:hasDomainCrate a owl:DatatypeProperty ;
+    rdfs:domain cli:CliProject ;
+    rdfs:range xsd:string ;
+    rdfs:label "domain crate name" ;
+    rdfs:comment "Name of the domain logic crate (e.g., 'my-core')" .
+
+cli:hasWorkspaceResolver a owl:DatatypeProperty ;
+    rdfs:domain cli:CliProject ;
+    rdfs:range xsd:string ;
+    rdfs:label "workspace resolver" ;
+    rdfs:comment "Cargo workspace resolver version (default: '2')" ;
+    rdfs:seeAlso <https://doc.rust-lang.org/cargo/reference/resolver.html> .
+
+# ============================================================================
+# NOUN PROPERTIES
+# ============================================================================
+
+cnv:nounName a owl:DatatypeProperty ;
+    rdfs:domain cnv:Noun ;
+    rdfs:range xsd:string ;
+    rdfs:label "noun name" ;
+    rdfs:comment "Noun identifier (e.g., 'template', 'project')" .
+
+cnv:nounDescription a owl:DatatypeProperty ;
+    rdfs:domain cnv:Noun ;
+    rdfs:range xsd:string ;
+    rdfs:label "noun description" ;
+    rdfs:comment "Human-readable description" .
+
+cnv:nounModulePath a owl:DatatypeProperty ;
+    rdfs:domain cnv:Noun ;
+    rdfs:range xsd:string ;
+    rdfs:label "module path" ;
+    rdfs:comment "Module path in CLI crate (e.g., 'cmds::template')" .
+
+cnv:hasVerb a owl:ObjectProperty ;
+    rdfs:domain cnv:Noun ;
+    rdfs:range cnv:Verb ;
+    rdfs:label "has verb" ;
+    rdfs:comment "Noun supports this verb action" .
+
+# ============================================================================
+# VERB PROPERTIES (Extended with domain function reference)
+# ============================================================================
+
+cnv:verbName a owl:DatatypeProperty ;
+    rdfs:domain cnv:Verb ;
+    rdfs:range xsd:string ;
+    rdfs:label "verb name" ;
+    rdfs:comment "Verb identifier (e.g., 'generate', 'list')" .
+
+cnv:verbDescription a owl:DatatypeProperty ;
+    rdfs:domain cnv:Verb ;
+    rdfs:range xsd:string ;
+    rdfs:label "verb description" ;
+    rdfs:comment "Human-readable description" .
+
+cnv:verbAlias a owl:DatatypeProperty ;
+    rdfs:domain cnv:Verb ;
+    rdfs:range xsd:string ;
+    rdfs:label "verb alias" ;
+    rdfs:comment "Short alias (e.g., 'gen' for 'generate')" .
+
+cnv:hasArgument a owl:ObjectProperty ;
+    rdfs:domain cnv:Verb ;
+    rdfs:range cnv:Argument ;
+    rdfs:label "has argument" ;
+    rdfs:comment "Verb accepts this argument" .
+
+cnv:hasValidation a owl:ObjectProperty ;
+    rdfs:domain cnv:Verb ;
+    rdfs:range cnv:Validation ;
+    rdfs:label "has validation" ;
+    rdfs:comment "Validation rule for this verb" .
+
+# ============================================================================
+# DOMAIN FUNCTION REFERENCE (NEW in 2026)
+# ============================================================================
+#
+# This property establishes a stable contract between CLI and domain layers.
+# The CLI references domain functions via this path, allowing domain to evolve
+# independently as long as the function signature remains stable.
+#
+
+cnv:domainFunction a owl:DatatypeProperty ;
+    rdfs:domain cnv:Verb ;
+    rdfs:range xsd:string ;
+    rdfs:label "domain function path" ;
+    rdfs:comment "Path to domain function in domain crate (e.g., 'my_core::user::create_user'). This is a stable interface contract that doesn't change when domain logic evolves internally." ;
+    rdfs:seeAlso <https://doc.rust-lang.org/book/ch07-03-paths-for-referring-to-an-item-in-the-module-tree.html> .
+
+cnv:domainModule a owl:DatatypeProperty ;
+    rdfs:domain cnv:Verb ;
+    rdfs:range xsd:string ;
+    rdfs:label "domain module" ;
+    rdfs:comment "Domain module path within domain crate (e.g., 'user', 'template')" .
+
+# ============================================================================
+# ARGUMENT PROPERTIES
+# ============================================================================
+
+cnv:argName a owl:DatatypeProperty ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:string ;
+    rdfs:label "argument name" ;
+    rdfs:comment "Argument name (e.g., 'output', 'force')" .
+
+cnv:argLong a owl:DatatypeProperty ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:string ;
+    rdfs:label "long flag" ;
+    rdfs:comment "Long flag (e.g., '--output')" .
+
+cnv:argShort a owl:DatatypeProperty ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:string ;
+    rdfs:label "short flag" ;
+    rdfs:comment "Short flag (e.g., '-o')" .
+
+cnv:argHelp a owl:DatatypeProperty ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:string ;
+    rdfs:label "help text" ;
+    rdfs:comment "Help text for --help" .
+
+cnv:argRequired a owl:DatatypeProperty ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "required" ;
+    rdfs:comment "Whether argument is required" .
+
+cnv:argDefault a owl:DatatypeProperty ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:string ;
+    rdfs:label "default value" ;
+    rdfs:comment "Default value if not provided" .
+
+cnv:argValueName a owl:DatatypeProperty ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:string ;
+    rdfs:label "value name" ;
+    rdfs:comment "Value placeholder (e.g., 'PATH', 'NAME')" .
+
+cnv:argPosition a owl:DatatypeProperty ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:integer ;
+    rdfs:label "positional index" ;
+    rdfs:comment "Position for positional arguments (0-indexed)" .
+
+cnv:hasType a owl:ObjectProperty ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range cnv:ArgumentType ;
+    rdfs:label "has type" ;
+    rdfs:comment "Type constraint for argument" .
+
+# ============================================================================
+# ARGUMENT TYPE PROPERTIES
+# ============================================================================
+
+cnv:typeName a owl:DatatypeProperty ;
+    rdfs:domain cnv:ArgumentType ;
+    rdfs:range xsd:string ;
+    rdfs:label "type name" ;
+    rdfs:comment "Rust type (e.g., 'String', 'PathBuf', 'bool', 'u32', 'Option<String>')" .
+
+cnv:typeParser a owl:DatatypeProperty ;
+    rdfs:domain cnv:ArgumentType ;
+    rdfs:range xsd:string ;
+    rdfs:label "type parser" ;
+    rdfs:comment "Custom parser function if needed" .
+
+# ============================================================================
+# VALIDATION PROPERTIES
+# ============================================================================
+
+cnv:validationRule a owl:DatatypeProperty ;
+    rdfs:domain cnv:Validation ;
+    rdfs:range xsd:string ;
+    rdfs:label "validation rule" ;
+    rdfs:comment "Validation rule type (e.g., 'file_exists', 'path_valid', 'regex')" .
+
+cnv:validationPattern a owl:DatatypeProperty ;
+    rdfs:domain cnv:Validation ;
+    rdfs:range xsd:string ;
+    rdfs:label "validation pattern" ;
+    rdfs:comment "Pattern for validation (e.g., regex pattern)" .
+
+cnv:validationMessage a owl:DatatypeProperty ;
+    rdfs:domain cnv:Validation ;
+    rdfs:range xsd:string ;
+    rdfs:label "error message" ;
+    rdfs:comment "Error message on validation failure" .
+
+# ============================================================================
+# DEPENDENCY PROPERTIES
+# ============================================================================
+
+cnv:depName a owl:DatatypeProperty ;
+    rdfs:domain cnv:Dependency ;
+    rdfs:range xsd:string ;
+    rdfs:label "dependency name" ;
+    rdfs:comment "Crate name" .
+
+cnv:depVersion a owl:DatatypeProperty ;
+    rdfs:domain cnv:Dependency ;
+    rdfs:range xsd:string ;
+    rdfs:label "version" ;
+    rdfs:comment "Version constraint (e.g., '4.0', '1.0')" .
+
+cnv:depFeatures a owl:DatatypeProperty ;
+    rdfs:domain cnv:Dependency ;
+    rdfs:range xsd:string ;
+    rdfs:label "features" ;
+    rdfs:comment "Cargo features to enable (comma-separated)" .
+
+cnv:depOptional a owl:DatatypeProperty ;
+    rdfs:domain cnv:Dependency ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "optional" ;
+    rdfs:comment "Whether dependency is optional" .
+
+cnv:depWorkspace a owl:DatatypeProperty ;
+    rdfs:domain cnv:Dependency ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "workspace dependency" ;
+    rdfs:comment "Whether this is a workspace member dependency" .
+

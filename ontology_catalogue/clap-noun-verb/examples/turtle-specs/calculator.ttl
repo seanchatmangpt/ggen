@@ -1,0 +1,89 @@
+# Calculator CLI - Basic Arithmetic Operations
+# Demonstrates simple noun-verb command structure with typed arguments
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix clap: <http://clap-noun-verb.io/ontology#> .
+@prefix calc: <http://example.org/calculator#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# CLI Application Definition
+calc:CalculatorApp a clap:CliApplication ;
+    clap:name "calculator" ;
+    clap:version "1.0.0" ;
+    clap:author "Example CLI Developer" ;
+    clap:about "A command-line calculator for basic arithmetic operations" ;
+    clap:nouns (calc:CalcNoun calc:MathNoun) .
+
+# Noun: calc
+calc:CalcNoun a clap:Noun ;
+    clap:name "calc" ;
+    clap:about "Calculator operations" ;
+    clap:verbs (calc:AddVerb calc:SubtractVerb calc:MultiplyVerb calc:DivideVerb) .
+
+# Noun: math
+calc:MathNoun a clap:Noun ;
+    clap:name "math" ;
+    clap:about "Mathematical operations (alias for calc)" ;
+    clap:verbs (calc:AddVerb calc:SubtractVerb calc:MultiplyVerb calc:DivideVerb) .
+
+# Verb: add
+# Usage: calculator calc add --left 5 --right 3
+calc:AddVerb a clap:Verb ;
+    clap:name "add" ;
+    clap:about "Add two numbers together" ;
+    clap:arguments (calc:LeftArg calc:RightArg) ;
+    clap:returnType xsd:integer ;
+    clap:example "calculator calc add --left 5 --right 3" .
+
+# Verb: subtract
+# Usage: calculator calc subtract --left 10 --right 4
+calc:SubtractVerb a clap:Verb ;
+    clap:name "subtract" ;
+    clap:about "Subtract right number from left number" ;
+    clap:arguments (calc:LeftArg calc:RightArg) ;
+    clap:returnType xsd:integer ;
+    clap:example "calculator calc subtract --left 10 --right 4" .
+
+# Verb: multiply
+# Usage: calculator calc multiply --left 6 --right 7
+calc:MultiplyVerb a clap:Verb ;
+    clap:name "multiply" ;
+    clap:about "Multiply two numbers" ;
+    clap:arguments (calc:LeftArg calc:RightArg) ;
+    clap:returnType xsd:integer ;
+    clap:example "calculator calc multiply --left 6 --right 7" .
+
+# Verb: divide
+# Usage: calculator calc divide --left 20 --right 4
+calc:DivideVerb a clap:Verb ;
+    clap:name "divide" ;
+    clap:about "Divide left number by right number" ;
+    clap:arguments (calc:LeftArg calc:RightArg) ;
+    clap:returnType xsd:integer ;
+    clap:example "calculator calc divide --left 20 --right 4" ;
+    clap:validation calc:NonZeroDivisor .
+
+# Argument: left (required)
+calc:LeftArg a clap:Argument ;
+    clap:name "left" ;
+    clap:shortName "l" ;
+    clap:about "Left operand" ;
+    clap:valueType xsd:integer ;
+    clap:required true ;
+    clap:position 1 .
+
+# Argument: right (required)
+calc:RightArg a clap:Argument ;
+    clap:name "right" ;
+    clap:shortName "r" ;
+    clap:about "Right operand" ;
+    clap:valueType xsd:integer ;
+    clap:required true ;
+    clap:position 2 .
+
+# Validation: Ensure divisor is not zero
+calc:NonZeroDivisor a clap:Validation ;
+    clap:field "right" ;
+    clap:constraint "value != 0" ;
+    clap:errorMessage "Divisor cannot be zero" .

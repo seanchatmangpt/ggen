@@ -1,0 +1,219 @@
+@prefix bsreg:  <https://bytestar.org/ontology/bytestar-registry.owl.ttl#> .
+@prefix bs:     <https://bytestar.org/ontology/bytestar-core.owl.ttl#> .
+@prefix bsds:   <https://bytestar.org/ontology/bytestar-datastruct.owl.ttl#> .
+@prefix bsalgo: <https://bytestar.org/ontology/bytestar-algos.owl.ttl#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://bytestar.org/ontology/bytestar-registry.owl.ttl> a owl:Ontology ;
+  rdfs:label "ByteStar Registry: Kernels (64) & Patterns (43)" ;
+  owl:imports
+      <https://bytestar.org/ontology/bytestar-core.owl.ttl> ,
+      <https://bytestar.org/ontology/bytestar-datastruct.owl.ttl> .
+
+##########
+# KERNELS
+##########
+
+# NOTE:
+# - opcode: 0..63 (unique)
+# - tickCost: cycles 1..8 (≤8 per doctrine)
+# - callingConvention: single stable string for K-ABI v1
+# - constantTime: true (branch-free / mask-select)
+# - implementsAlgorithm: link to your existing A01..A64
+
+# Helper comments for categories:
+#   • MPHF/dispatch: K01,K09,K17,K25,K33,K41,K49,K57
+#   • LOUDS/trie    : K02,K10,K18,K26,K34,K42,K50,K58
+#   • XOR filter    : K03,K11,K19,K27,K35,K43,K51,K59
+#   • Envelope IO   : K04,K12,K20,K28,K36,K44,K52,K60
+#   • BLAKE3/receipt: K05,K13,K21,K29,K37,K45,K53,K61
+#   • SPSC/Ring     : K06,K14,K22,K30,K38,K46,K54,K62
+#   • Mask/select   : K07,K15,K23,K31,K39,K47,K55,K63
+#   • Misc/core     : K08,K16,K24,K32,K40,K48,K56,K64
+
+bsreg:K01 a bs:Kernel ;
+  rdfs:label "K01 MPHF_DISPATCH" ;
+  bsds:opcode 0 ; bsds:mnemonic "MPHF_DISPATCH" ;
+  bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ;
+  bsds:constantTime true ; bsds:tickCost 1 ;
+  bsds:implementsAlgorithm bsalgo:A01 ;
+  bsds:uses bsds:MPHFTable .
+
+bsreg:K02 a bs:Kernel ;
+  rdfs:label "K02 LOUDS_SELECT" ;
+  bsds:opcode 1 ; bsds:mnemonic "LOUDS_SELECT" ;
+  bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ;
+  bsds:constantTime true ; bsds:tickCost 2 ;
+  bsds:implementsAlgorithm bsalgo:A02 ;
+  bsds:uses bsds:LOUDSTrie .
+
+bsreg:K03 a bs:Kernel ;
+  rdfs:label "K03 XOR_PROBE" ;
+  bsds:opcode 2 ; bsds:mnemonic "XOR_PROBE" ;
+  bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ;
+  bsds:constantTime true ; bsds:tickCost 3 ;
+  bsds:implementsAlgorithm bsalgo:A03 ;
+  bsds:uses bsds:XORFilter .
+
+bsreg:K04 a bs:Kernel ;
+  rdfs:label "K04 ENVELOPE_LOAD" ;
+  bsds:opcode 3 ; bsds:mnemonic "ENVELOPE_LOAD" ;
+  bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ;
+  bsds:constantTime true ; bsds:tickCost 4 ;
+  bsds:implementsAlgorithm bsalgo:A04 .
+
+bsreg:K05 a bs:Kernel ;
+  rdfs:label "K05 BLAKE3_MIX" ;
+  bsds:opcode 4 ; bsds:mnemonic "BLAKE3_MIX" ;
+  bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ;
+  bsds:constantTime true ; bsds:tickCost 5 ;
+  bsds:implementsAlgorithm bsalgo:A05 .
+
+bsreg:K06 a bs:Kernel ;
+  rdfs:label "K06 SPSC_DEQUEUE" ;
+  bsds:opcode 5 ; bsds:mnemonic "SPSC_DEQUEUE" ;
+  bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ;
+  bsds:constantTime true ; bsds:tickCost 6 ;
+  bsds:implementsAlgorithm bsalgo:A06 .
+
+bsreg:K07 a bs:Kernel ;
+  rdfs:label "K07 MASK_SELECT" ;
+  bsds:opcode 6 ; bsds:mnemonic "MASK_SELECT" ;
+  bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ;
+  bsds:constantTime true ; bsds:tickCost 7 ;
+  bsds:implementsAlgorithm bsalgo:A07 .
+
+bsreg:K08 a bs:Kernel ;
+  rdfs:label "K08 CORE_MISC" ;
+  bsds:opcode 7 ; bsds:mnemonic "CORE_MISC" ;
+  bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ;
+  bsds:constantTime true ; bsds:tickCost 8 ;
+  bsds:implementsAlgorithm bsalgo:A08 .
+
+# …repeat pattern; tickCost cycles 1..8; opcodes increment; algorithms map A09..A64…
+
+bsreg:K09  a bs:Kernel ; rdfs:label "K09 MPHF_DISPATCH";  bsds:opcode 8 ;  bsds:mnemonic "MPHF_DISPATCH" ;  bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 1 ; bsds:implementsAlgorithm bsalgo:A09 ;  bsds:uses bsds:MPHFTable .
+bsreg:K10  a bs:Kernel ; rdfs:label "K10 LOUDS_SELECT";   bsds:opcode 9 ;  bsds:mnemonic "LOUDS_SELECT" ;   bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 2 ; bsds:implementsAlgorithm bsalgo:A10 ;  bsds:uses bsds:LOUDSTrie .
+bsreg:K11  a bs:Kernel ; rdfs:label "K11 XOR_PROBE";      bsds:opcode 10 ; bsds:mnemonic "XOR_PROBE" ;      bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 3 ; bsds:implementsAlgorithm bsalgo:A11 ;  bsds:uses bsds:XORFilter .
+bsreg:K12  a bs:Kernel ; rdfs:label "K12 ENVELOPE_LOAD";  bsds:opcode 11 ; bsds:mnemonic "ENVELOPE_LOAD" ;  bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 4 ; bsds:implementsAlgorithm bsalgo:A12 .
+bsreg:K13  a bs:Kernel ; rdfs:label "K13 BLAKE3_MIX";     bsds:opcode 12 ; bsds:mnemonic "BLAKE3_MIX" ;     bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 5 ; bsds:implementsAlgorithm bsalgo:A13 .
+bsreg:K14  a bs:Kernel ; rdfs:label "K14 SPSC_DEQUEUE";   bsds:opcode 13 ; bsds:mnemonic "SPSC_DEQUEUE" ;   bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 6 ; bsds:implementsAlgorithm bsalgo:A14 .
+bsreg:K15  a bs:Kernel ; rdfs:label "K15 MASK_SELECT";    bsds:opcode 14 ; bsds:mnemonic "MASK_SELECT" ;    bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 7 ; bsds:implementsAlgorithm bsalgo:A15 .
+bsreg:K16  a bs:Kernel ; rdfs:label "K16 CORE_MISC";      bsds:opcode 15 ; bsds:mnemonic "CORE_MISC" ;      bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 8 ; bsds:implementsAlgorithm bsalgo:A16 .
+bsreg:K17  a bs:Kernel ; rdfs:label "K17 MPHF_DISPATCH";  bsds:opcode 16 ; bsds:mnemonic "MPHF_DISPATCH" ;  bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 1 ; bsds:implementsAlgorithm bsalgo:A17 ;  bsds:uses bsds:MPHFTable .
+bsreg:K18  a bs:Kernel ; rdfs:label "K18 LOUDS_SELECT";   bsds:opcode 17 ; bsds:mnemonic "LOUDS_SELECT" ;   bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 2 ; bsds:implementsAlgorithm bsalgo:A18 ;  bsds:uses bsds:LOUDSTrie .
+bsreg:K19  a bs:Kernel ; rdfs:label "K19 XOR_PROBE";      bsds:opcode 18 ; bsds:mnemonic "XOR_PROBE" ;      bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 3 ; bsds:implementsAlgorithm bsalgo:A19 ;  bsds:uses bsds:XORFilter .
+bsreg:K20  a bs:Kernel ; rdfs:label "K20 ENVELOPE_LOAD";  bsds:opcode 19 ; bsds:mnemonic "ENVELOPE_LOAD" ;  bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 4 ; bsds:implementsAlgorithm bsalgo:A20 .
+bsreg:K21  a bs:Kernel ; rdfs:label "K21 BLAKE3_MIX";     bsds:opcode 20 ; bsds:mnemonic "BLAKE3_MIX" ;     bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 5 ; bsds:implementsAlgorithm bsalgo:A21 .
+bsreg:K22  a bs:Kernel ; rdfs:label "K22 SPSC_DEQUEUE";   bsds:opcode 21 ; bsds:mnemonic "SPSC_DEQUEUE" ;   bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 6 ; bsds:implementsAlgorithm bsalgo:A22 .
+bsreg:K23  a bs:Kernel ; rdfs:label "K23 MASK_SELECT";    bsds:opcode 22 ; bsds:mnemonic "MASK_SELECT" ;    bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 7 ; bsds:implementsAlgorithm bsalgo:A23 .
+bsreg:K24  a bs:Kernel ; rdfs:label "K24 CORE_MISC";      bsds:opcode 23 ; bsds:mnemonic "CORE_MISC" ;      bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 8 ; bsds:implementsAlgorithm bsalgo:A24 .
+bsreg:K25  a bs:Kernel ; rdfs:label "K25 MPHF_DISPATCH";  bsds:opcode 24 ; bsds:mnemonic "MPHF_DISPATCH" ;  bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 1 ; bsds:implementsAlgorithm bsalgo:A25 ;  bsds:uses bsds:MPHFTable .
+bsreg:K26  a bs:Kernel ; rdfs:label "K26 LOUDS_SELECT";   bsds:opcode 25 ; bsds:mnemonic "LOUDS_SELECT" ;   bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 2 ; bsds:implementsAlgorithm bsalgo:A26 ;  bsds:uses bsds:LOUDSTrie .
+bsreg:K27  a bs:Kernel ; rdfs:label "K27 XOR_PROBE";      bsds:opcode 26 ; bsds:mnemonic "XOR_PROBE" ;      bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 3 ; bsds:implementsAlgorithm bsalgo:A27 ;  bsds:uses bsds:XORFilter .
+bsreg:K28  a bs:Kernel ; rdfs:label "K28 ENVELOPE_LOAD";  bsds:opcode 27 ; bsds:mnemonic "ENVELOPE_LOAD" ;  bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 4 ; bsds:implementsAlgorithm bsalgo:A28 .
+bsreg:K29  a bs:Kernel ; rdfs:label "K29 BLAKE3_MIX";     bsds:opcode 28 ; bsds:mnemonic "BLAKE3_MIX" ;     bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 5 ; bsds:implementsAlgorithm bsalgo:A29 .
+bsreg:K30  a bs:Kernel ; rdfs:label "K30 SPSC_DEQUEUE";   bsds:opcode 29 ; bsds:mnemonic "SPSC_DEQUEUE" ;   bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 6 ; bsds:implementsAlgorithm bsalgo:A30 .
+bsreg:K31  a bs:Kernel ; rdfs:label "K31 MASK_SELECT";    bsds:opcode 30 ; bsds:mnemonic "MASK_SELECT" ;    bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 7 ; bsds:implementsAlgorithm bsalgo:A31 .
+bsreg:K32  a bs:Kernel ; rdfs:label "K32 CORE_MISC";      bsds:opcode 31 ; bsds:mnemonic "CORE_MISC" ;      bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 8 ; bsds:implementsAlgorithm bsalgo:A32 .
+bsreg:K33  a bs:Kernel ; rdfs:label "K33 MPHF_DISPATCH";  bsds:opcode 32 ; bsds:mnemonic "MPHF_DISPATCH" ;  bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 1 ; bsds:implementsAlgorithm bsalgo:A33 ;  bsds:uses bsds:MPHFTable .
+bsreg:K34  a bs:Kernel ; rdfs:label "K34 LOUDS_SELECT";   bsds:opcode 33 ; bsds:mnemonic "LOUDS_SELECT" ;   bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 2 ; bsds:implementsAlgorithm bsalgo:A34 ;  bsds:uses bsds:LOUDSTrie .
+bsreg:K35  a bs:Kernel ; rdfs:label "K35 XOR_PROBE";      bsds:opcode 34 ; bsds:mnemonic "XOR_PROBE" ;      bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 3 ; bsds:implementsAlgorithm bsalgo:A35 ;  bsds:uses bsds:XORFilter .
+bsreg:K36  a bs:Kernel ; rdfs:label "K36 ENVELOPE_LOAD";  bsds:opcode 35 ; bsds:mnemonic "ENVELOPE_LOAD" ;  bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 4 ; bsds:implementsAlgorithm bsalgo:A36 .
+bsreg:K37  a bs:Kernel ; rdfs:label "K37 BLAKE3_MIX";     bsds:opcode 36 ; bsds:mnemonic "BLAKE3_MIX" ;     bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 5 ; bsds:implementsAlgorithm bsalgo:A37 .
+bsreg:K38  a bs:Kernel ; rdfs:label "K38 SPSC_DEQUEUE";   bsds:opcode 37 ; bsds:mnemonic "SPSC_DEQUEUE" ;   bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 6 ; bsds:implementsAlgorithm bsalgo:A38 .
+bsreg:K39  a bs:Kernel ; rdfs:label "K39 MASK_SELECT";    bsds:opcode 38 ; bsds:mnemonic "MASK_SELECT" ;    bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 7 ; bsds:implementsAlgorithm bsalgo:A39 .
+bsreg:K40  a bs:Kernel ; rdfs:label "K40 CORE_MISC";      bsds:opcode 39 ; bsds:mnemonic "CORE_MISC" ;      bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 8 ; bsds:implementsAlgorithm bsalgo:A40 .
+bsreg:K41  a bs:Kernel ; rdfs:label "K41 MPHF_DISPATCH";  bsds:opcode 40 ; bsds:mnemonic "MPHF_DISPATCH" ;  bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 1 ; bsds:implementsAlgorithm bsalgo:A41 ;  bsds:uses bsds:MPHFTable .
+bsreg:K42  a bs:Kernel ; rdfs:label "K42 LOUDS_SELECT";   bsds:opcode 41 ; bsds:mnemonic "LOUDS_SELECT" ;   bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 2 ; bsds:implementsAlgorithm bsalgo:A42 ;  bsds:uses bsds:LOUDSTrie .
+bsreg:K43  a bs:Kernel ; rdfs:label "K43 XOR_PROBE";      bsds:opcode 42 ; bsds:mnemonic "XOR_PROBE" ;      bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 3 ; bsds:implementsAlgorithm bsalgo:A43 ;  bsds:uses bsds:XORFilter .
+bsreg:K44  a bs:Kernel ; rdfs:label "K44 ENVELOPE_LOAD";  bsds:opcode 43 ; bsds:mnemonic "ENVELOPE_LOAD" ;  bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 4 ; bsds:implementsAlgorithm bsalgo:A44 .
+bsreg:K45  a bs:Kernel ; rdfs:label "K45 BLAKE3_MIX";     bsds:opcode 44 ; bsds:mnemonic "BLAKE3_MIX" ;     bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 5 ; bsds:implementsAlgorithm bsalgo:A45 .
+bsreg:K46  a bs:Kernel ; rdfs:label "K46 SPSC_DEQUEUE";   bsds:opcode 45 ; bsds:mnemonic "SPSC_DEQUEUE" ;   bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 6 ; bsds:implementsAlgorithm bsalgo:A46 .
+bsreg:K47  a bs:Kernel ; rdfs:label "K47 MASK_SELECT";    bsds:opcode 46 ; bsds:mnemonic "MASK_SELECT" ;    bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 7 ; bsds:implementsAlgorithm bsalgo:A47 .
+bsreg:K48  a bs:Kernel ; rdfs:label "K48 CORE_MISC";      bsds:opcode 47 ; bsds:mnemonic "CORE_MISC" ;      bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 8 ; bsds:implementsAlgorithm bsalgo:A48 .
+bsreg:K49  a bs:Kernel ; rdfs:label "K49 MPHF_DISPATCH";  bsds:opcode 48 ; bsds:mnemonic "MPHF_DISPATCH" ;  bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 1 ; bsds:implementsAlgorithm bsalgo:A49 ;  bsds:uses bsds:MPHFTable .
+bsreg:K50  a bs:Kernel ; rdfs:label "K50 LOUDS_SELECT";   bsds:opcode 49 ; bsds:mnemonic "LOUDS_SELECT" ;   bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 2 ; bsds:implementsAlgorithm bsalgo:A50 ;  bsds:uses bsds:LOUDSTrie .
+bsreg:K51  a bs:Kernel ; rdfs:label "K51 XOR_PROBE";      bsds:opcode 50 ; bsds:mnemonic "XOR_PROBE" ;      bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 3 ; bsds:implementsAlgorithm bsalgo:A51 ;  bsds:uses bsds:XORFilter .
+bsreg:K52  a bs:Kernel ; rdfs:label "K52 ENVELOPE_LOAD";  bsds:opcode 51 ; bsds:mnemonic "ENVELOPE_LOAD" ;  bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 4 ; bsds:implementsAlgorithm bsalgo:A52 .
+bsreg:K53  a bs:Kernel ; rdfs:label "K53 BLAKE3_MIX";     bsds:opcode 52 ; bsds:mnemonic "BLAKE3_MIX" ;     bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 5 ; bsds:implementsAlgorithm bsalgo:A53 .
+bsreg:K54  a bs:Kernel ; rdfs:label "K54 SPSC_DEQUEUE";   bsds:opcode 53 ; bsds:mnemonic "SPSC_DEQUEUE" ;   bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 6 ; bsds:implementsAlgorithm bsalgo:A54 .
+bsreg:K55  a bs:Kernel ; rdfs:label "K55 MASK_SELECT";    bsds:opcode 54 ; bsds:mnemonic "MASK_SELECT" ;    bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 7 ; bsds:implementsAlgorithm bsalgo:A55 .
+bsreg:K56  a bs:Kernel ; rdfs:label "K56 CORE_MISC";      bsds:opcode 55 ; bsds:mnemonic "CORE_MISC" ;      bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 8 ; bsds:implementsAlgorithm bsalgo:A56 .
+bsreg:K57  a bs:Kernel ; rdfs:label "K57 MPHF_DISPATCH";  bsds:opcode 56 ; bsds:mnemonic "MPHF_DISPATCH" ;  bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 1 ; bsds:implementsAlgorithm bsalgo:A57 ;  bsds:uses bsds:MPHFTable .
+bsreg:K58  a bs:Kernel ; rdfs:label "K58 LOUDS_SELECT";   bsds:opcode 57 ; bsds:mnemonic "LOUDS_SELECT" ;   bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 2 ; bsds:implementsAlgorithm bsalgo:A58 ;  bsds:uses bsds:LOUDSTrie .
+bsreg:K59  a bs:Kernel ; rdfs:label "K59 XOR_PROBE";      bsds:opcode 58 ; bsds:mnemonic "XOR_PROBE" ;      bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 3 ; bsds:implementsAlgorithm bsalgo:A59 ;  bsds:uses bsds:XORFilter .
+bsreg:K60  a bs:Kernel ; rdfs:label "K60 ENVELOPE_LOAD";  bsds:opcode 59 ; bsds:mnemonic "ENVELOPE_LOAD" ;  bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 4 ; bsds:implementsAlgorithm bsalgo:A60 .
+bsreg:K61  a bs:Kernel ; rdfs:label "K61 BLAKE3_MIX";     bsds:opcode 60 ; bsds:mnemonic "BLAKE3_MIX" ;     bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 5 ; bsds:implementsAlgorithm bsalgo:A61 .
+bsreg:K62  a bs:Kernel ; rdfs:label "K62 SPSC_DEQUEUE";   bsds:opcode 61 ; bsds:mnemonic "SPSC_DEQUEUE" ;   bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 6 ; bsds:implementsAlgorithm bsalgo:A62 .
+bsreg:K63  a bs:Kernel ; rdfs:label "K63 MASK_SELECT";    bsds:opcode 62 ; bsds:mnemonic "MASK_SELECT" ;    bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 7 ; bsds:implementsAlgorithm bsalgo:A63 .
+bsreg:K64  a bs:Kernel ; rdfs:label "K64 CORE_MISC";      bsds:opcode 63 ; bsds:mnemonic "CORE_MISC" ;      bsds:abiVersion "1.0.0" ; bsds:callingConvention "bs/kcall/v1" ; bsds:constantTime true ; bsds:tickCost 8 ; bsds:implementsAlgorithm bsalgo:A64 .
+
+############
+# PATTERNS
+############
+
+# • 43 workflow patterns P01..P43
+# • pbMask: unique xsd:hexBinary (01..2B)
+# • microOpsFixed: true; maxHops ≤ 8
+# • hasOpSeq: RDF list of kernels (non-empty)
+
+bsreg:P01 a bs:Pattern ;
+  rdfs:label "Pattern P01" ;
+  bsds:patternId "PAT-01" ;
+  bsds:pbMask "01"^^xsd:hexBinary ;
+  bsds:microOpsFixed true ;
+  bsds:maxHops 8 ;
+  bsds:hasOpSeq ( bsreg:K01 bsreg:K17 bsreg:K33 bsreg:K49 ) .
+
+bsreg:P02 a bs:Pattern ;
+  rdfs:label "Pattern P02" ;
+  bsds:patternId "PAT-02" ;
+  bsds:pbMask "02"^^xsd:hexBinary ;
+  bsds:microOpsFixed true ;
+  bsds:maxHops 8 ;
+  bsds:hasOpSeq ( bsreg:K02 bsreg:K18 bsreg:K34 bsreg:K50 ) .
+
+bsreg:P03 a bs:Pattern ; rdfs:label "Pattern P03" ; bsds:patternId "PAT-03" ; bsds:pbMask "03"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K03 bsreg:K19 bsreg:K35 bsreg:K51 ) .
+bsreg:P04 a bs:Pattern ; rdfs:label "Pattern P04" ; bsds:patternId "PAT-04" ; bsds:pbMask "04"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K04 bsreg:K20 bsreg:K36 bsreg:K52 ) .
+bsreg:P05 a bs:Pattern ; rdfs:label "Pattern P05" ; bsds:patternId "PAT-05" ; bsds:pbMask "05"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K05 bsreg:K21 bsreg:K37 bsreg:K53 ) .
+bsreg:P06 a bs:Pattern ; rdfs:label "Pattern P06" ; bsds:patternId "PAT-06" ; bsds:pbMask "06"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K06 bsreg:K22 bsreg:K38 bsreg:K54 ) .
+bsreg:P07 a bs:Pattern ; rdfs:label "Pattern P07" ; bsds:patternId "PAT-07" ; bsds:pbMask "07"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K07 bsreg:K23 bsreg:K39 bsreg:K55 ) .
+bsreg:P08 a bs:Pattern ; rdfs:label "Pattern P08" ; bsds:patternId "PAT-08" ; bsds:pbMask "08"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K08 bsreg:K24 bsreg:K40 bsreg:K56 ) .
+bsreg:P09 a bs:Pattern ; rdfs:label "Pattern P09" ; bsds:patternId "PAT-09" ; bsds:pbMask "09"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K09 bsreg:K25 bsreg:K41 bsreg:K57 ) .
+bsreg:P10 a bs:Pattern ; rdfs:label "Pattern P10" ; bsds:patternId "PAT-10" ; bsds:pbMask "0A"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K10 bsreg:K26 bsreg:K42 bsreg:K58 ) .
+bsreg:P11 a bs:Pattern ; rdfs:label "Pattern P11" ; bsds:patternId "PAT-11" ; bsds:pbMask "0B"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K11 bsreg:K27 bsreg:K43 bsreg:K59 ) .
+bsreg:P12 a bs:Pattern ; rdfs:label "Pattern P12" ; bsds:patternId "PAT-12" ; bsds:pbMask "0C"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K12 bsreg:K28 bsreg:K44 bsreg:K60 ) .
+bsreg:P13 a bs:Pattern ; rdfs:label "Pattern P13" ; bsds:patternId "PAT-13" ; bsds:pbMask "0D"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K13 bsreg:K29 bsreg:K45 bsreg:K61 ) .
+bsreg:P14 a bs:Pattern ; rdfs:label "Pattern P14" ; bsds:patternId "PAT-14" ; bsds:pbMask "0E"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K14 bsreg:K30 bsreg:K46 bsreg:K62 ) .
+bsreg:P15 a bs:Pattern ; rdfs:label "Pattern P15" ; bsds:patternId "PAT-15" ; bsds:pbMask "0F"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K15 bsreg:K31 bsreg:K47 bsreg:K63 ) .
+bsreg:P16 a bs:Pattern ; rdfs:label "Pattern P16" ; bsds:patternId "PAT-16" ; bsds:pbMask "10"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K16 bsreg:K32 bsreg:K48 bsreg:K64 ) .
+bsreg:P17 a bs:Pattern ; rdfs:label "Pattern P17" ; bsds:patternId "PAT-17" ; bsds:pbMask "11"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K01 bsreg:K18 bsreg:K35 bsreg:K52 ) .
+bsreg:P18 a bs:Pattern ; rdfs:label "Pattern P18" ; bsds:patternId "PAT-18" ; bsds:pbMask "12"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K02 bsreg:K19 bsreg:K36 bsreg:K53 ) .
+bsreg:P19 a bs:Pattern ; rdfs:label "Pattern P19" ; bsds:patternId "PAT-19" ; bsds:pbMask "13"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K03 bsreg:K20 bsreg:K37 bsreg:K54 ) .
+bsreg:P20 a bs:Pattern ; rdfs:label "Pattern P20" ; bsds:patternId "PAT-20" ; bsds:pbMask "14"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K04 bsreg:K21 bsreg:K38 bsreg:K55 ) .
+bsreg:P21 a bs:Pattern ; rdfs:label "Pattern P21" ; bsds:patternId "PAT-21" ; bsds:pbMask "15"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K05 bsreg:K22 bsreg:K39 bsreg:K56 ) .
+bsreg:P22 a bs:Pattern ; rdfs:label "Pattern P22" ; bsds:patternId "PAT-22" ; bsds:pbMask "16"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K06 bsreg:K23 bsreg:K40 bsreg:K57 ) .
+bsreg:P23 a bs:Pattern ; rdfs:label "Pattern P23" ; bsds:patternId "PAT-23" ; bsds:pbMask "17"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K07 bsreg:K24 bsreg:K41 bsreg:K58 ) .
+bsreg:P24 a bs:Pattern ; rdfs:label "Pattern P24" ; bsds:patternId "PAT-24" ; bsds:pbMask "18"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K08 bsreg:K25 bsreg:K42 bsreg:K59 ) .
+bsreg:P25 a bs:Pattern ; rdfs:label "Pattern P25" ; bsds:patternId "PAT-25" ; bsds:pbMask "19"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K09 bsreg:K26 bsreg:K43 bsreg:K60 ) .
+bsreg:P26 a bs:Pattern ; rdfs:label "Pattern P26" ; bsds:patternId "PAT-26" ; bsds:pbMask "1A"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K10 bsreg:K27 bsreg:K44 bsreg:K61 ) .
+bsreg:P27 a bs:Pattern ; rdfs:label "Pattern P27" ; bsds:patternId "PAT-27" ; bsds:pbMask "1B"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K11 bsreg:K28 bsreg:K45 bsreg:K62 ) .
+bsreg:P28 a bs:Pattern ; rdfs:label "Pattern P28" ; bsds:patternId "PAT-28" ; bsds:pbMask "1C"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K12 bsreg:K29 bsreg:K46 bsreg:K63 ) .
+bsreg:P29 a bs:Pattern ; rdfs:label "Pattern P29" ; bsds:patternId "PAT-29" ; bsds:pbMask "1D"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K13 bsreg:K30 bsreg:K47 bsreg:K64 ) .
+bsreg:P30 a bs:Pattern ; rdfs:label "Pattern P30" ; bsds:patternId "PAT-30" ; bsds:pbMask "1E"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K14 bsreg:K31 bsreg:K48 bsreg:K01 ) .
+bsreg:P31 a bs:Pattern ; rdfs:label "Pattern P31" ; bsds:patternId "PAT-31" ; bsds:pbMask "1F"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K15 bsreg:K32 bsreg:K49 bsreg:K02 ) .
+bsreg:P32 a bs:Pattern ; rdfs:label "Pattern P32" ; bsds:patternId "PAT-32" ; bsds:pbMask "20"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K16 bsreg:K33 bsreg:K50 bsreg:K03 ) .
+bsreg:P33 a bs:Pattern ; rdfs:label "Pattern P33" ; bsds:patternId "PAT-33" ; bsds:pbMask "21"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K01 bsreg:K17 bsreg:K34 bsreg:K51 ) .
+bsreg:P34 a bs:Pattern ; rdfs:label "Pattern P34" ; bsds:patternId "PAT-34" ; bsds:pbMask "22"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K02 bsreg:K18 bsreg:K35 bsreg:K52 ) .
+bsreg:P35 a bs:Pattern ; rdfs:label "Pattern P35" ; bsds:patternId "PAT-35" ; bsds:pbMask "23"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K03 bsreg:K19 bsreg:K36 bsreg:K53 ) .
+bsreg:P36 a bs:Pattern ; rdfs:label "Pattern P36" ; bsds:patternId "PAT-36" ; bsds:pbMask "24"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K04 bsreg:K20 bsreg:K37 bsreg:K54 ) .
+bsreg:P37 a bs:Pattern ; rdfs:label "Pattern P37" ; bsds:patternId "PAT-37" ; bsds:pbMask "25"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K05 bsreg:K21 bsreg:K38 bsreg:K55 ) .
+bsreg:P38 a bs:Pattern ; rdfs:label "Pattern P38" ; bsds:patternId "PAT-38" ; bsds:pbMask "26"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K06 bsreg:K22 bsreg:K39 bsreg:K56 ) .
+bsreg:P39 a bs:Pattern ; rdfs:label "Pattern P39" ; bsds:patternId "PAT-39" ; bsds:pbMask "27"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K07 bsreg:K23 bsreg:K40 bsreg:K57 ) .
+bsreg:P40 a bs:Pattern ; rdfs:label "Pattern P40" ; bsds:patternId "PAT-40" ; bsds:pbMask "28"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K08 bsreg:K24 bsreg:K41 bsreg:K58 ) .
+bsreg:P41 a bs:Pattern ; rdfs:label "Pattern P41" ; bsds:patternId "PAT-41" ; bsds:pbMask "29"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K09 bsreg:K25 bsreg:K42 bsreg:K59 ) .
+bsreg:P42 a bs:Pattern ; rdfs:label "Pattern P42" ; bsds:patternId "PAT-42" ; bsds:pbMask "2A"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K10 bsreg:K26 bsreg:K43 bsreg:K60 ) .
+bsreg:P43 a bs:Pattern ; rdfs:label "Pattern P43" ; bsds:patternId "PAT-43" ; bsds:pbMask "2B"^^xsd:hexBinary ; bsds:microOpsFixed true ; bsds:maxHops 8 ; bsds:hasOpSeq ( bsreg:K11 bsreg:K27 bsreg:K44 bsreg:K61 ) .

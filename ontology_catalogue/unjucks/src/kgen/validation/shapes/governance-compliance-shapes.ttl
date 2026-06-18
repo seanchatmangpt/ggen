@@ -1,0 +1,500 @@
+# KGEN Governance Compliance SHACL Shapes
+# Comprehensive rule library for common compliance patterns
+# Dark-Matter Governance: Executable organizational rules that prevent "reviewer forgot"
+
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix kgen: <https://kgen.io/ontology#> .
+@prefix gov: <https://kgen.io/governance#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dash: <http://datashapes.org/dash#> .
+
+# Governance Shapes Graph Declaration
+<https://kgen.io/shapes/governance> a sh:ShapesGraph ;
+    rdfs:label "KGEN Governance Compliance Shapes"@en ;
+    rdfs:comment "Machine-executable organizational rules for automated governance"@en ;
+    dcterms:creator "KGEN Dark-Matter Integration" ;
+    dcterms:created "2024-09-12"^^xsd:date ;
+    sh:declare [
+        sh:prefix "kgen" ;
+        sh:namespace "https://kgen.io/ontology#" ;
+    ] ;
+    sh:declare [
+        sh:prefix "gov" ;
+        sh:namespace "https://kgen.io/governance#" ;
+    ] .
+
+#################################################################
+#    Security Compliance Shapes - Enforce Security Standards
+#################################################################
+
+:SecurityComplianceShape a sh:NodeShape ;
+    sh:targetClass kgen:Artifact ;
+    rdfs:label "Security Compliance Shape"@en ;
+    rdfs:comment "Enforces security standards for all artifacts"@en ;
+    sh:severity sh:Violation ;
+    
+    # All artifacts must have security attestation
+    sh:property [
+        sh:path gov:hasSecurityAttestation ;
+        sh:name "Security Attestation"@en ;
+        sh:description "All artifacts must have security attestation"@en ;
+        sh:class gov:SecurityAttestation ;
+        sh:minCount 1 ;
+        sh:message "SECURITY VIOLATION: Artifact missing required security attestation"@en ;
+    ] ;
+    
+    # No hardcoded secrets allowed
+    sh:sparql [
+        sh:message "SECURITY VIOLATION: Hardcoded secrets detected in artifact content"@en ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX kgen: <https://kgen.io/ontology#>
+            SELECT ?this ?content
+            WHERE {
+                ?this kgen:hasContent ?content .
+                FILTER(
+                    CONTAINS(LCASE(?content), "password=") ||
+                    CONTAINS(LCASE(?content), "api_key=") ||
+                    CONTAINS(LCASE(?content), "secret=") ||
+                    CONTAINS(LCASE(?content), "token=") ||
+                    REGEX(?content, "(pk_|sk_)[a-zA-Z0-9_]{20,}")
+                )
+            }
+        """ ;
+    ] ;
+    
+    # Require cryptographic signature for production artifacts
+    sh:property [
+        sh:path gov:hasSignature ;
+        sh:name "Cryptographic Signature"@en ;
+        sh:description "Production artifacts must be cryptographically signed"@en ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:pattern "^[a-fA-F0-9]{128,}$" ; # Minimum signature length
+        sh:message "SECURITY VIOLATION: Production artifact must be cryptographically signed"@en ;
+    ] .
+
+:TemplateSecurityShape a sh:NodeShape ;
+    sh:targetClass kgen:Template ;
+    rdfs:label "Template Security Shape"@en ;
+    sh:severity sh:Violation ;
+    
+    # Templates cannot execute shell commands
+    sh:sparql [
+        sh:message "SECURITY VIOLATION: Template contains shell command execution"@en ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX kgen: <https://kgen.io/ontology#>
+            SELECT ?this ?content
+            WHERE {
+                ?this kgen:hasContent ?content .
+                FILTER(
+                    CONTAINS(?content, "exec(") ||
+                    CONTAINS(?content, "eval(") ||
+                    CONTAINS(?content, "shell(") ||
+                    CONTAINS(?content, "system(") ||
+                    CONTAINS(?content, "subprocess") ||
+                    CONTAINS(?content, "os.system") ||
+                    CONTAINS(?content, "child_process")
+                )
+            }
+        """ ;
+    ] ;
+    
+    # Templates must not access file system directly
+    sh:sparql [
+        sh:message "SECURITY VIOLATION: Template contains direct file system access"@en ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX kgen: <https://kgen.io/ontology#>
+            SELECT ?this ?content
+            WHERE {
+                ?this kgen:hasContent ?content .
+                FILTER(
+                    CONTAINS(?content, "readFile") ||
+                    CONTAINS(?content, "writeFile") ||
+                    CONTAINS(?content, "fs.") ||
+                    CONTAINS(?content, "path.") ||
+                    REGEX(?content, "\\.\\.[\\/\\\\]") ||
+                    CONTAINS(?content, "/etc/") ||
+                    CONTAINS(?content, "/proc/")
+                )
+            }
+        """ ;
+    ] .
+
+#################################################################
+#    Data Governance Shapes - Enforce Data Quality Standards
+#################################################################
+
+:DataQualityShape a sh:NodeShape ;
+    sh:targetClass kgen:DataArtifact ;
+    rdfs:label "Data Quality Shape"@en ;
+    sh:severity sh:Violation ;
+    
+    # All data artifacts must have schema validation
+    sh:property [
+        sh:path gov:hasSchemaValidation ;
+        sh:name "Schema Validation"@en ;
+        sh:class gov:SchemaValidation ;
+        sh:minCount 1 ;
+        sh:message "DATA GOVERNANCE: Data artifact missing schema validation"@en ;
+    ] ;
+    
+    # Data retention policy required
+    sh:property [
+        sh:path gov:hasRetentionPolicy ;
+        sh:name "Data Retention Policy"@en ;
+        sh:class gov:RetentionPolicy ;
+        sh:minCount 1 ;
+        sh:message "DATA GOVERNANCE: Data artifact missing retention policy"@en ;
+    ] ;
+    
+    # PII must be identified and protected
+    sh:sparql [
+        sh:message "DATA GOVERNANCE: Potential PII detected without protection"@en ;
+        sh:severity sh:Warning ;
+        sh:select """
+            PREFIX kgen: <https://kgen.io/ontology#>
+            PREFIX gov: <https://kgen.io/governance#>
+            SELECT ?this ?content
+            WHERE {
+                ?this kgen:hasContent ?content .
+                ?this a kgen:DataArtifact .
+                FILTER(
+                    REGEX(?content, "\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\\b") ||
+                    REGEX(?content, "\\b\\d{3}-\\d{2}-\\d{4}\\b") ||
+                    REGEX(?content, "\\b\\d{4}[\\s-]?\\d{4}[\\s-]?\\d{4}[\\s-]?\\d{4}\\b")
+                )
+                FILTER NOT EXISTS { ?this gov:hasPIIProtection ?protection }
+            }
+        """ ;
+    ] .
+
+#################################################################
+#    Compliance Audit Shapes - Regulatory Compliance
+#################################################################
+
+:ComplianceAuditShape a sh:NodeShape ;
+    sh:targetClass prov:Activity ;
+    rdfs:label "Compliance Audit Shape"@en ;
+    sh:severity sh:Violation ;
+    
+    # All activities must have audit trail
+    sh:property [
+        sh:path gov:hasAuditTrail ;
+        sh:name "Audit Trail"@en ;
+        sh:class gov:AuditTrail ;
+        sh:minCount 1 ;
+        sh:message "COMPLIANCE: Activity missing required audit trail"@en ;
+    ] ;
+    
+    # Activities must be associated with authorized agents
+    sh:property [
+        sh:path prov:wasAssociatedWith ;
+        sh:name "Authorized Agent"@en ;
+        sh:class prov:Agent ;
+        sh:minCount 1 ;
+        sh:message "COMPLIANCE: Activity must be associated with authorized agent"@en ;
+    ] ;
+    
+    # High-risk activities require approval
+    sh:sparql [
+        sh:message "COMPLIANCE: High-risk activity requires explicit approval"@en ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX prov: <http://www.w3.org/ns/prov#>
+            PREFIX gov: <https://kgen.io/governance#>
+            SELECT ?this
+            WHERE {
+                ?this gov:hasRiskLevel "HIGH" .
+                FILTER NOT EXISTS { ?this gov:hasApproval ?approval }
+            }
+        """ ;
+    ] .
+
+:ChangeManagementShape a sh:NodeShape ;
+    sh:targetClass gov:ChangeRequest ;
+    rdfs:label "Change Management Shape"@en ;
+    sh:severity sh:Violation ;
+    
+    # Change requests must have impact assessment
+    sh:property [
+        sh:path gov:hasImpactAssessment ;
+        sh:name "Impact Assessment"@en ;
+        sh:class gov:ImpactAssessment ;
+        sh:minCount 1 ;
+        sh:message "CHANGE MANAGEMENT: Change request missing impact assessment"@en ;
+    ] ;
+    
+    # Production changes require approval workflow
+    sh:sparql [
+        sh:message "CHANGE MANAGEMENT: Production changes require approval workflow"@en ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX gov: <https://kgen.io/governance#>
+            SELECT ?this
+            WHERE {
+                ?this gov:targetEnvironment "PRODUCTION" .
+                FILTER NOT EXISTS { 
+                    ?this gov:hasApprovalWorkflow ?workflow .
+                    ?workflow gov:isComplete true .
+                }
+            }
+        """ ;
+    ] .
+
+#################################################################
+#    Access Control Shapes - Enforce Authorization
+#################################################################
+
+:AccessControlShape a sh:NodeShape ;
+    sh:targetClass prov:Agent ;
+    rdfs:label "Access Control Shape"@en ;
+    sh:severity sh:Violation ;
+    
+    # Agents must have valid roles
+    sh:property [
+        sh:path gov:hasRole ;
+        sh:name "Agent Role"@en ;
+        sh:class gov:Role ;
+        sh:minCount 1 ;
+        sh:message "ACCESS CONTROL: Agent must have at least one valid role"@en ;
+    ] ;
+    
+    # Role-based access control validation
+    sh:sparql [
+        sh:message "ACCESS CONTROL: Agent lacks required permissions for operation"@en ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX prov: <http://www.w3.org/ns/prov#>
+            PREFIX gov: <https://kgen.io/governance#>
+            SELECT ?this ?operation
+            WHERE {
+                ?this prov:wasAssociatedWith ?activity .
+                ?activity gov:requiresPermission ?permission .
+                ?this gov:hasRole ?role .
+                FILTER NOT EXISTS { ?role gov:hasPermission ?permission }
+            }
+        """ ;
+    ] .
+
+#################################################################
+#    Quality Assurance Shapes - Enforce Quality Standards
+#################################################################
+
+:QualityAssuranceShape a sh:NodeShape ;
+    sh:targetClass kgen:Artifact ;
+    rdfs:label "Quality Assurance Shape"@en ;
+    sh:severity sh:Violation ;
+    
+    # Code coverage requirements
+    sh:property [
+        sh:path gov:hasCodeCoverage ;
+        sh:name "Code Coverage"@en ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.8 ; # 80% minimum coverage
+        sh:maxInclusive 1.0 ;
+        sh:message "QUALITY: Code coverage below 80% threshold"@en ;
+    ] ;
+    
+    # Artifacts must pass all quality gates
+    sh:sparql [
+        sh:message "QUALITY: Artifact failed required quality gates"@en ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX kgen: <https://kgen.io/ontology#>
+            PREFIX gov: <https://kgen.io/governance#>
+            SELECT ?this ?gate
+            WHERE {
+                ?this gov:wasValidatedBy ?gate .
+                ?gate gov:hasResult "FAIL" .
+                ?gate gov:isRequired true .
+            }
+        """ ;
+    ] ;
+    
+    # Performance requirements
+    sh:property [
+        sh:path gov:hasPerformanceScore ;
+        sh:name "Performance Score"@en ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.7 ; # 70% minimum performance
+        sh:message "QUALITY: Performance score below acceptable threshold"@en ;
+    ] .
+
+#################################################################
+#    Dependency Management Shapes - Supply Chain Security
+#################################################################
+
+:DependencySecurityShape a sh:NodeShape ;
+    sh:targetClass gov:Dependency ;
+    rdfs:label "Dependency Security Shape"@en ;
+    sh:severity sh:Violation ;
+    
+    # Dependencies must be from approved sources
+    sh:property [
+        sh:path gov:hasSource ;
+        sh:name "Dependency Source"@en ;
+        sh:class gov:ApprovedSource ;
+        sh:minCount 1 ;
+        sh:message "SECURITY: Dependency from unapproved source"@en ;
+    ] ;
+    
+    # Dependencies must have vulnerability scan
+    sh:property [
+        sh:path gov:hasVulnerabilityScan ;
+        sh:name "Vulnerability Scan"@en ;
+        sh:class gov:VulnerabilityScan ;
+        sh:minCount 1 ;
+        sh:message "SECURITY: Dependency missing vulnerability scan"@en ;
+    ] ;
+    
+    # Check for known vulnerabilities
+    sh:sparql [
+        sh:message "SECURITY: Dependency has known critical vulnerabilities"@en ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX gov: <https://kgen.io/governance#>
+            SELECT ?this ?vulnerability
+            WHERE {
+                ?this gov:hasVulnerabilityScan ?scan .
+                ?scan gov:hasVulnerability ?vulnerability .
+                ?vulnerability gov:severity "CRITICAL" .
+            }
+        """ ;
+    ] .
+
+#################################################################
+#    Environmental Compliance Shapes - Environment-Specific Rules
+#################################################################
+
+:ProductionComplianceShape a sh:NodeShape ;
+    sh:targetClass kgen:Artifact ;
+    rdfs:label "Production Compliance Shape"@en ;
+    sh:severity sh:Violation ;
+    
+    # Production artifacts require additional validation
+    sh:sparql [
+        sh:message "PRODUCTION: Artifact deployed to production requires enhanced validation"@en ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX kgen: <https://kgen.io/ontology#>
+            PREFIX gov: <https://kgen.io/governance#>
+            SELECT ?this
+            WHERE {
+                ?this gov:targetEnvironment "PRODUCTION" .
+                FILTER NOT EXISTS {
+                    ?this gov:hasEnhancedValidation ?validation .
+                    ?validation gov:isComplete true .
+                }
+            }
+        """ ;
+    ] ;
+    
+    # Production requires immutable audit trail
+    sh:property [
+        sh:path gov:hasImmutableAuditTrail ;
+        sh:name "Immutable Audit Trail"@en ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "PRODUCTION: Immutable audit trail required for production deployment"@en ;
+    ] .
+
+#################################################################
+#    Monitoring and Alerting Shapes - Operational Governance
+#################################################################
+
+:MonitoringComplianceShape a sh:NodeShape ;
+    sh:targetClass kgen:Artifact ;
+    rdfs:label "Monitoring Compliance Shape"@en ;
+    sh:severity sh:Warning ;
+    
+    # Services must have health checks
+    sh:sparql [
+        sh:message "MONITORING: Service missing required health check endpoints"@en ;
+        sh:severity sh:Warning ;
+        sh:select """
+            PREFIX kgen: <https://kgen.io/ontology#>
+            PREFIX gov: <https://kgen.io/governance#>
+            SELECT ?this
+            WHERE {
+                ?this a kgen:ServiceArtifact .
+                FILTER NOT EXISTS { ?this gov:hasHealthCheck ?healthCheck }
+            }
+        """ ;
+    ] ;
+    
+    # Critical services require SLA monitoring
+    sh:sparql [
+        sh:message "MONITORING: Critical service missing SLA monitoring"@en ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX kgen: <https://kgen.io/ontology#>
+            PREFIX gov: <https://kgen.io/governance#>
+            SELECT ?this
+            WHERE {
+                ?this gov:criticalityLevel "CRITICAL" .
+                FILTER NOT EXISTS { ?this gov:hasSLAMonitoring ?sla }
+            }
+        """ ;
+    ] .
+
+#################################################################
+#    Custom Governance Functions - Complex Business Rules
+#################################################################
+
+:validateBusinessRule a sh:SPARQLFunction ;
+    rdfs:label "Validate Business Rule"@en ;
+    rdfs:comment "Validates complex business rules using SPARQL logic"@en ;
+    sh:parameter [
+        sh:path :artifact ;
+        sh:class kgen:Artifact ;
+    ] ;
+    sh:parameter [
+        sh:path :ruleId ;
+        sh:datatype xsd:string ;
+    ] ;
+    sh:returnType xsd:boolean ;
+    sh:select """
+        SELECT ?result
+        WHERE {
+            # Custom business rule validation logic
+            # This would be customized per organization
+            BIND(true AS ?result)
+        }
+    """ .
+
+:calculateGovernanceScore a sh:SPARQLFunction ;
+    rdfs:label "Calculate Governance Score"@en ;
+    rdfs:comment "Calculates overall governance compliance score"@en ;
+    sh:parameter [
+        sh:path :artifact ;
+        sh:class kgen:Artifact ;
+    ] ;
+    sh:returnType xsd:decimal ;
+    sh:select """
+        SELECT ?score
+        WHERE {
+            ?artifact gov:hasSecurityAttestation ?security .
+            ?artifact gov:hasQualityScore ?quality .
+            ?artifact gov:hasComplianceStatus ?compliance .
+            
+            # Weighted governance score calculation
+            BIND((
+                (?security * 0.4) + 
+                (?quality * 0.4) + 
+                (?compliance * 0.2)
+            ) AS ?score)
+        }
+    """ .
+
+# End of KGEN Governance Compliance SHACL Shapes
+# Total shapes: 12+ governance shapes covering security, data quality, compliance, access control
+# Enforcement level: Automated blocking for violations, warnings for best practices
+# Integration: Compatible with SHACL gates and policy resolver systems

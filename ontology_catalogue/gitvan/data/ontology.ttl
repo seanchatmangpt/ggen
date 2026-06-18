@@ -1,0 +1,39 @@
+@prefix ex: <https://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+ex:Person rdf:type rdfs:Class ;
+    rdfs:label "Person" .
+
+ex:Department rdf:type rdfs:Class ;
+    rdfs:label "Department" .
+
+ex:name rdf:type rdf:Property ;
+    rdfs:label "name" ;
+    rdfs:domain ex:Person ;
+    rdfs:range rdfs:Literal .
+
+ex:age rdf:type rdf:Property ;
+    rdfs:label "age" ;
+    rdfs:domain ex:Person ;
+    rdfs:range xsd:integer .
+
+ex:city rdf:type rdf:Property ;
+    rdfs:label "city" ;
+    rdfs:domain ex:Person ;
+    rdfs:range rdfs:Literal .
+
+ex:department rdf:type rdf:Property ;
+    rdfs:label "department" ;
+    rdfs:domain ex:Person ;
+    rdfs:range ex:Department .
+
+ex:salary rdf:type rdf:Property ;
+    rdfs:label "salary" ;
+    rdfs:domain ex:Person ;
+    rdfs:range xsd:integer .
+
+
+
+
+

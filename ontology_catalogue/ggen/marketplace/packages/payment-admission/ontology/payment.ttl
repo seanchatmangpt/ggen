@@ -1,0 +1,29 @@
+@prefix sos: <https://ggen.io/semantic-os/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://ggen.io/laws/payment-release> a sos:Law ;
+    sos:lawId "payment-release" ;
+    sos:name "PaymentRelease" ;
+    sos:description "Admission law for domestic and international payments" ;
+    sos:fieldType "u8" ;
+    sos:conditionType "PaymentCondition" ;
+    sos:hasTransition <https://ggen.io/laws/payment-release/t1> ,
+                   <https://ggen.io/laws/payment-release/t2> ,
+                   <https://ggen.io/laws/payment-release/t3> .
+
+<https://ggen.io/laws/payment-release/t1> a sos:Transition ;
+    sos:inputValue 1 ;
+    sos:selectCondition "Admissible" ;
+    sos:description "Domestic payment within standard limits" .
+
+<https://ggen.io/laws/payment-release/t2> a sos:Transition ;
+    sos:inputValue 2 ;
+    sos:selectCondition "ReviewRequired" ;
+    sos:description "International payment or amount exceeds threshold" .
+
+<https://ggen.io/laws/payment-release/t3> a sos:Transition ;
+    sos:inputValue 4 ;
+    sos:selectCondition "Denied" ;
+    sos:description "Sanctioned country or blacklisted entity" .

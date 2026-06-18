@@ -1,0 +1,4 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix dd: <https://cns.dev/dedupe#> .
+
+dd:DedupeShape a sh:NodeShape ; sh:targetClass dd:Dedupe .

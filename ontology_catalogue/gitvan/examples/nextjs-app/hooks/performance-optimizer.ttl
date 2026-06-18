@@ -1,0 +1,85 @@
+@prefix gh: <http://example.org/git-hooks#> .
+@prefix git: <http://example.org/git#> .
+@prefix perf: <http://example.org/performance#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Performance Optimizer Hook
+# Continuously monitors hook and system performance, auto-optimizing slow operations
+
+gh:PerformanceOptimizer a gh:Hook ;
+  gh:name "Performance Optimizer" ;
+  gh:description "Continuously optimize performance by detecting and fixing slow operations" ;
+  gh:priority 8 ;
+  gh:autoExecute true ;
+
+  gh:trigger [
+    a perf:PerformanceEvent ;
+    gh:pollInterval "60s" ;
+    gh:metrics [ "latency" ; "throughput" ; "memory" ; "cpu" ]
+  ] ;
+
+  gh:condition [
+    a gh:PerformanceThreshold ;
+    gh:latencyP99 "> 500ms" ;
+    gh:memoryUsage "> 80%" ;
+    gh:cpuUsage "> 75%"
+  ] ;
+
+  gh:action [
+    a gh:CompositeAction ;
+    gh:steps [
+      rdf:_1 [
+        a gh:ProfilePerformance ;
+        gh:query """
+          SELECT ?component (AVG(?latency) as ?avgLatency) (MAX(?latency) as ?maxLatency) WHERE {
+            ?event a perf:OperationEvent ;
+              perf:component ?component ;
+              perf:latency ?latency ;
+              perf:timestamp ?ts .
+            FILTER (?ts > (NOW() - "5m"^^xsd:duration))
+          }
+          GROUP BY ?component
+          HAVING (AVG(?latency) > 100)
+          ORDER BY DESC(?avgLatency)
+        """
+      ] ;
+      rdf:_2 [
+        a gh:IdentifyBottlenecks ;
+        gh:thresholds [
+          gh:latency "500ms" ;
+          gh:memory "80%" ;
+          gh:cpu "75%"
+        ]
+      ] ;
+      rdf:_3 [
+        a gh:ApplyOptimizations ;
+        gh:strategies [
+          [ gh:type "caching" ; gh:ttl "5m" ] ;
+          [ gh:type "parallelization" ; gh:workers 4 ] ;
+          [ gh:type "batch-processing" ; gh:batchSize 100 ] ;
+          [ gh:type "lazy-loading" ; gh:threshold "1000" ]
+        ]
+      ] ;
+      rdf:_4 [
+        a gh:MeasureImprovement ;
+        gh:beforeAfter true ;
+        gh:metrics [ "latency" ; "throughput" ; "resources" ]
+      ] ;
+      rdf:_5 [
+        a gh:UpdateConfiguration ;
+        gh:apply "auto" ;
+        gh:rollbackOnFailure true ;
+        gh:rollbackThreshold 1.1
+      ] ;
+      rdf:_6 [
+        a gh:LogOptimization ;
+        gh:level "info" ;
+        gh:store "metrics" ;
+        gh:details [
+          gh:component "${component}" ;
+          gh:improvement "${improvement}%" ;
+          gh:strategy "${strategy}"
+        ]
+      ]
+    ]
+  ] .

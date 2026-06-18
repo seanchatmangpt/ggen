@@ -1,0 +1,15 @@
+
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+ex:OpenTelemetry rdf:type ex:Observability ;
+    rdfs:label "OpenTelemetry Tracing" ;
+    ex:component "kgen-tracer" ;
+    ex:performance "5ms-p95" ;
+    ex:coverage "90-percent" .
+
+ex:JSONLAudit rdf:type ex:AuditSystem ;
+    rdfs:label "JSONL Audit Bus" ;
+    ex:format "structured-logging" ;
+    ex:compliance "SLSA-L2" .

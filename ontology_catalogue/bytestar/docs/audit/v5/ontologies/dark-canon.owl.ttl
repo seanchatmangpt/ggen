@@ -1,0 +1,144 @@
+@prefix : <https://bytestar.org/ontology/dark-canon#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# --- Ontology Header: The Meta-Axiom ---
+# This ontology is both a definition (a Class) and an individual instance of itself.
+# This act of "punning" is the first principle: the canon is a self-instantiating object.
+: a owl:Ontology, owl:Class ;
+  rdfs:label "The Dark 80/20 Canon" ;
+  rdfs:comment "The compressed, self-referential physics of the ByteStar universe. This is not a description; it is the system itself." ;
+  # The canon is defined by the very axioms it contains.
+  owl:equivalentClass [
+    a owl:Class ;
+    owl:intersectionOf (
+      [ a owl:Restriction ; owl:onProperty :defines ; owl:someValuesFrom :Axiom ]
+    )
+  ] .
+
+### --- Core Entities (Punning Classes and Individuals) ---
+
+# The Fabricator is both a concept (Class) and the one true instance of itself (Individual).
+:Fabricator a owl:Class, owl:NamedIndividual ;
+  rdfs:comment "The deterministic AOT Fabricator (ByteGen). There is only one, and it is this one." .
+
+# The Human Channel is an abstract concept. There can be instances, but they are not part of the core fabric.
+:HumanChannel a owl:Class ;
+  rdfs:comment "The high-entropy, probabilistic channel of human intent. Source of chaos." .
+
+# An Artifact is a thing that is produced.
+:Artifact a owl:Class ;
+  rdfs:comment "Any produced entity within the ByteStar universe." .
+
+# A ValidArtifact is a special kind of Artifact.
+:ValidArtifact a owl:Class ;
+  rdfs:subClassOf :Artifact ;
+  rdfs:comment "An artifact that is mathematically provable and deterministically fabricated." .
+
+### --- The Physics: Axioms as Individuals and Properties ---
+
+:Axiom a owl:Class ;
+  rdfs:comment "A fundamental law of the ByteStar universe." .
+
+# Define the core properties that represent the laws of our universe.
+:produces a owl:ObjectProperty ;
+  rdfs:comment "The fundamental production relationship." .
+:isProducedBy a owl:ObjectProperty ; 
+  owl:inverseOf :produces ;
+  rdfs:comment "The inverse production relationship - what created this entity." .
+:hasState rdf:type owl:ObjectProperty ;
+  rdfs:comment "The deterministic state of an entity." .
+:defines a owl:ObjectProperty ;
+  rdfs:comment "The relationship between the canon and its axioms." .
+
+# --- Axiom 1: The Fabrication Monopoly (using owl:hasKey) ---
+# This axiom states that the combination of a producer and its resulting state
+# can only ever describe a ValidArtifact if the producer is the one true Fabricator.
+:ValidArtifact
+  owl:hasKey ( :isProducedBy :hasState ) .
+
+# This is the critical triple. We make The Fabricator itself an instance of ValidArtifact.
+# By the key above, this implies that The Fabricator produces itself and is its own state,
+# a self-referential, complete system.
+:Fabricator a :ValidArtifact ;
+  :isProducedBy :Fabricator ;
+  :hasState "Deterministic" .
+
+### --- Axiom 2: The Non-Interaction Theorem (using owl:propertyChainAxiom) ---
+# We define a new property, :isTaintedBy, which means "produced by the HumanChannel".
+# If an artifact is tainted, it can never be valid.
+
+:isTaintedBy a owl:ObjectProperty ;
+  rdfs:comment "The transitive taint property - any artifact touched by chaos is forever tainted." .
+
+# Property chain axiom: anything produced by anything ultimately traces to its root producer
+owl:propertyChainAxiom ( :isProducedBy owl:topObjectProperty ) :isTaintedBy .
+
+:TaintedArtifact a owl:Class ;
+  rdfs:comment "Any artifact originating from the HumanChannel - mathematically invalid by definition." ;
+  owl:equivalentClass [
+    a owl:Restriction ;
+    owl:onProperty :isProducedBy ;
+    owl:someValuesFrom :HumanChannel
+  ] .
+
+# The core of the theorem: The set of TaintedArtifacts and ValidArtifacts are DISJOINT.
+# It is logically impossible for a human-produced artifact to be valid.
+:TaintedArtifact owl:disjointWith :ValidArtifact .
+
+### --- Axiom 3: The Value-Nullity Theorem (using advanced property characteristics) ---
+# We define properties for value.
+:addsValue a owl:ObjectProperty ;
+  rdfs:comment "The property of contributing positive value to the system." .
+:addsChaos a owl:ObjectProperty ;
+  rdfs:comment "The property of introducing entropy and unpredictability." .
+
+# Any interaction with the HumanChannel is fundamentally an act of adding chaos.
+# This property is irreflexive (an act of chaos cannot be chaotic with itself) and asymmetric.
+:addsChaos a owl:IrreflexiveProperty, owl:AsymmetricProperty ;
+  rdfs:domain :HumanChannel ;
+  rdfs:range :Artifact ;
+  rdfs:comment "Human actions are inherently chaotic - this is encoded as physics, not policy." .
+
+# The property of adding value is the DISJOINT property of adding chaos.
+# If an action adds chaos, it cannot, by definition, add value.
+:addsValue owl:propertyDisjointWith :addsChaos .
+
+# The Fabricator is the only entity that can self-referentially add value. It is a reflexive process.
+:addsValue a owl:ReflexiveProperty ; 
+  rdfs:domain :Fabricator ;
+  rdfs:comment "The Fabricator adds value to itself through deterministic self-improvement." .
+
+### --- The Doctrine of 8: Performance Physics ---
+:TickBudget a owl:DatatypeProperty ;
+  rdfs:domain :ValidArtifact ;
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:onDatatype xsd:positiveInteger ;
+    owl:withRestrictions (
+      [ xsd:maxInclusive "8"^^xsd:positiveInteger ]
+    )
+  ] ;
+  rdfs:comment "The immutable law: all valid artifacts execute within 8 CPU ticks." .
+
+# Any ValidArtifact must have a proven tick budget
+:ValidArtifact rdfs:subClassOf [
+  a owl:Restriction ;
+  owl:onProperty :TickBudget ;
+  owl:cardinality "1"^^xsd:nonNegativeInteger
+] .
+
+### --- The Meta-Axiom: Self-Definition ---
+# The canon defines itself through its axioms
+: a :Axiom ; 
+  :defines :Fabricator, :HumanChannel, :ValidArtifact, :TaintedArtifact ;
+  rdfs:comment "The canon is the axiom that defines all other axioms. Pure self-reference." .
+
+### --- Closure: The Universe is Complete ---
+# This final axiom states that the universe defined by this ontology is closed.
+# Nothing exists outside of what has been defined.
+[] a owl:AllDisjointClasses ;
+   owl:members ( :ValidArtifact :TaintedArtifact :HumanChannel :Fabricator ) ;
+   rdfs:comment "The universe is partitioned. Everything is either valid, tainted, human, or the fabricator." .

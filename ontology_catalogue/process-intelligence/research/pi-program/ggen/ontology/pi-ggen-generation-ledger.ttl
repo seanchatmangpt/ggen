@@ -1,0 +1,390 @@
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
+@prefix pi:     <https://process.intelligence/ontology/> .
+@prefix gen:    <https://process.intelligence/generation-rule/> .
+
+# Generation Ledger — All Generation Rules from 3 ggen.toml Files
+# Date: 2026-06-01
+# Authority: PI Research Program — ggen-manifest-census.md
+
+# File 1: process-intelligence-ggen (ggen/ggen.toml)
+gen:PROJECT_001 a owl:NamedIndividual, pi:GenerationProgram ;
+    dcterms:title "process-intelligence-ggen" ;
+    dcterms:description "Generate board-admissible M&A assets and autonomic governance engines from process intelligence" ;
+    pi:version "0.1.0" ;
+    pi:handCoding "false" ;
+    pi:evidenceSources "../receipts, ../checkpoints" ;
+    pi:ruleCount 2 ;
+    pi:activeRules 2 ;
+    pi:inactiveRules 2 ;
+    .
+
+gen:RULE_001 a owl:NamedIndividual, pi:GenerationRule ;
+    dcterms:title "blue-river-orchestrator" ;
+    dcterms:description "Autonomic MAPE-K governance engine with lifecycle state transitions" ;
+    pi:program gen:PROJECT_001 ;
+    pi:ontology "ontology-extensions.ttl" ;
+    pi:query "queries/extract-lifecycle-governance.rq" ;
+    pi:template "templates/blue-river.tera" ;
+    pi:outputFile "../blue_river_dam/src/lib.rs" ;
+    pi:outputMode "Overwrite" ;
+    pi:targetFormat "Rust" ;
+    pi:audience "Process Intelligence Runtime" ;
+    pi:compliance "MAPE-K autonomic loop" ;
+    pi:evidence "lifecycle state machine + governance rule enforcement" ;
+    pi:status "READY" ;
+    .
+
+gen:RULE_002 a owl:NamedIndividual, pi:GenerationRule ;
+    dcterms:title "visualizer-dashboard-nextjs" ;
+    dcterms:description "Generate NextJS visualizer dashboard pages with conformance-backed claims" ;
+    pi:program gen:PROJECT_001 ;
+    pi:query "queries/extract-visualizer-data.rq" ;
+    pi:template "templates/visualizer-dashboard.tsx.tera" ;
+    pi:outputFile "../experiments/visualizer-nextjs/src/app/page.tsx" ;
+    pi:outputMode "Overwrite" ;
+    pi:status "READY" ;
+    .
+
+gen:RULE_003_INACTIVE a owl:NamedIndividual, pi:GenerationRule ;
+    dcterms:title "ma-deck" ;
+    dcterms:description "M&A pitch deck generation from board claims" ;
+    pi:program gen:PROJECT_001 ;
+    pi:query "queries/extract-board-claims.rq" ;
+    pi:template "templates/ma-deck.tera" ;
+    pi:status "DEACTIVATED" ;
+    pi:note "Template artifact exists but generation rule is disabled (commented in ggen.toml)" ;
+    .
+
+gen:RULE_004_INACTIVE a owl:NamedIndividual, pi:GenerationRule ;
+    dcterms:title "ma-diligence" ;
+    dcterms:description "M&A diligence workbook generation from operational debt claims" ;
+    pi:program gen:PROJECT_001 ;
+    pi:query "queries/extract-diligence-claims.rq" ;
+    pi:template "templates/ma-diligence.tera" ;
+    pi:status "DEACTIVATED" ;
+    pi:note "Template artifact exists but generation rule is disabled (commented in ggen.toml)" ;
+    .
+
+# File 2: PI_RESEARCH_PROGRAM_INTEL_001 (research/pi-program/ggen/ggen.toml)
+gen:PROJECT_002 a owl:NamedIndividual, pi:GenerationProgram ;
+    dcterms:title "PI_RESEARCH_PROGRAM_INTEL_001" ;
+    dcterms:description "Research program reconciliation analyzer with audit and selection query subsystems" ;
+    pi:version "unversioned" ;
+    pi:mode "research_program_reconciliation" ;
+    pi:ruleCount 0 ;
+    pi:queryCount 32 ;
+    pi:auditQueries 17 ;
+    pi:selectionQueries 15 ;
+    pi:activeGenerationRules "NONE (query-only, no generation rules)" ;
+    pi:note "Research mode: queries available for programmatic analysis; no code generation configured" ;
+    .
+
+gen:QUERY_SET_AUDIT a owl:NamedIndividual, pi:QuerySet ;
+    dcterms:title "Audit Query Set (PI_RESEARCH_PROGRAM_INTEL_001)" ;
+    dcterms:description "17 audit queries validating research program integrity constraints" ;
+    pi:program gen:PROJECT_002 ;
+    pi:queryCount 17 ;
+    pi:queries "audit-checkpoint-has-receipts", "audit-closure-invariant", "audit-commitment-integrity", "audit-compliance-ledger", "audit-evidence-traceability", "audit-gates-complete", "audit-no-client-only-auth", "audit-no-dashboard-truth", "audit-no-dto-flattening", "audit-no-forced-alive", "audit-no-invalid-ggen-extension", "audit-no-realtime-as-evidence", "audit-no-telemetry-as-receipt", "audit-no-tool-smuggling", "audit-no-unsigned-verdicts", "audit-partial-has-gaps", "audit-source-court-citations" ;
+    pi:status "AVAILABLE (not in generation rules)" ;
+    .
+
+gen:QUERY_SET_SELECTION a owl:NamedIndividual, pi:QuerySet ;
+    dcterms:title "Selection Query Set (PI_RESEARCH_PROGRAM_INTEL_001)" ;
+    dcterms:description "15 selection queries for filtering and enumeration across all PI artifacts" ;
+    pi:program gen:PROJECT_002 ;
+    pi:queryCount 15 ;
+    pi:queries "select-alive-claims", "select-all-projects", "select-checkpoints", "select-compatibility-surfaces", "select-engine-surfaces", "select-failed-gates", "select-forbidden-collapses", "select-manufacturing-surfaces", "select-mobile-substrate-surfaces", "select-next-workflows", "select-partial-claims", "select-proof-cells", "select-remediation-candidates", "select-telemetry-feedstock-surfaces", "select-workflow-substrate-surfaces" ;
+    pi:status "AVAILABLE (not in generation rules)" ;
+    .
+
+# File 3: prompt-manufactory (research/prompt-manufactory/ggen/ggen.toml)
+gen:PROJECT_003 a owl:NamedIndividual, pi:GenerationProgram ;
+    dcterms:title "prompt-manufactory" ;
+    dcterms:description "Post-cyberpunk layer: research warrants manufactured from law" ;
+    pi:version "0.1.0" ;
+    pi:ruleCount 8 ;
+    pi:status "CRITICAL_BLOCKING_ISSUE: All 8 rules blocked (6 missing templates, 6 missing queries)" ;
+    pi:note "prompt-manufactory program is non-functional pending asset implementation" ;
+    .
+
+gen:RULE_005 a owl:NamedIndividual, pi:GenerationRule ;
+    dcterms:title "research-program-prompt" ;
+    pi:program gen:PROJECT_003 ;
+    pi:query "select-research-programs.rq" ;
+    pi:template "MISSING" ;
+    pi:status "BLOCKED" ;
+    pi:blockingIssue "Template not implemented" ;
+    .
+
+gen:RULE_006 a owl:NamedIndividual, pi:GenerationRule ;
+    dcterms:title "workflow-prompt" ;
+    pi:program gen:PROJECT_003 ;
+    pi:query "MISSING" ;
+    pi:template "MISSING" ;
+    pi:status "BLOCKED" ;
+    pi:blockingIssue "Query and template not implemented" ;
+    .
+
+gen:RULE_007 a owl:NamedIndividual, pi:GenerationRule ;
+    dcterms:title "checkpoint-prompt" ;
+    pi:program gen:PROJECT_003 ;
+    pi:query "MISSING" ;
+    pi:template "MISSING" ;
+    pi:status "BLOCKED" ;
+    pi:blockingIssue "Query and template not implemented" ;
+    .
+
+gen:RULE_008 a owl:NamedIndividual, pi:GenerationRule ;
+    dcterms:title "hook-policy-prompt" ;
+    pi:program gen:PROJECT_003 ;
+    pi:query "MISSING" ;
+    pi:template "MISSING" ;
+    pi:status "BLOCKED" ;
+    pi:blockingIssue "Query and template not implemented" ;
+    .
+
+gen:RULE_009 a owl:NamedIndividual, pi:GenerationRule ;
+    dcterms:title "skill-definition-prompt" ;
+    pi:program gen:PROJECT_003 ;
+    pi:query "MISSING" ;
+    pi:template "MISSING" ;
+    pi:status "BLOCKED" ;
+    pi:blockingIssue "Query and template not implemented" ;
+    .
+
+gen:RULE_010 a owl:NamedIndividual, pi:GenerationRule ;
+    dcterms:title "subagent-role-prompt" ;
+    pi:program gen:PROJECT_003 ;
+    pi:query "MISSING" ;
+    pi:template "MISSING" ;
+    pi:status "BLOCKED" ;
+    pi:blockingIssue "Query and template not implemented" ;
+    .
+
+gen:RULE_011 a owl:NamedIndividual, pi:GenerationRule ;
+    dcterms:title "forbidden-collapse-law-prompt" ;
+    pi:program gen:PROJECT_003 ;
+    pi:query "MISSING" ;
+    pi:template "MISSING" ;
+    pi:status "BLOCKED" ;
+    pi:blockingIssue "Query and template not implemented" ;
+    .
+
+gen:RULE_012 a owl:NamedIndividual, pi:GenerationRule ;
+    dcterms:title "research-warrant-emit" ;
+    pi:program gen:PROJECT_003 ;
+    pi:query "MISSING" ;
+    pi:template "MISSING" ;
+    pi:status "BLOCKED" ;
+    pi:blockingIssue "Query and template not implemented" ;
+    .
+
+# Summary Statistics
+gen:SUMMARY a owl:NamedIndividual, pi:GenerationStatistics ;
+    dcterms:title "Generation Rule Census Summary" ;
+    pi:tomlFiles 3 ;
+    pi:programs 3 ;
+    pi:totalRules 15 ;
+    pi:activeRules 2 ;
+    pi:inactiveRules 2 ;
+    pi:blockedRules 8 ;
+    pi:blockedRuleNote "prompt-manufactory: 8 rules blocked, 6 missing templates, 6 missing queries" ;
+    pi:totalQueries 34 ;
+    pi:auditQueries 17 ;
+    pi:selectionQueries 15 ;
+    pi:generationQueries 2 ;
+    pi:functionalGenerationRules 2 ;
+    pi:functionalProgramsPercentage "33.3%" ;
+    pi:functionalRulesPercentage "13.3%" ;
+    .
+
+# Vocabulary Classes
+pi:GenerationProgram a owl:Class ;
+    rdfs:label "Generation Program" ;
+    skos:definition "A ggen.toml program definition with generation rules and configuration" ;
+    .
+
+pi:GenerationRule a owl:Class ;
+    rdfs:label "Generation Rule" ;
+    skos:definition "Individual code/document generation rule within a generation program" ;
+    .
+
+pi:QuerySet a owl:Class ;
+    rdfs:label "Query Set" ;
+    skos:definition "Grouped collection of SPARQL queries for research or generation" ;
+    .
+
+pi:GenerationStatistics a owl:Class ;
+    rdfs:label "Generation Statistics" ;
+    skos:definition "Aggregate metrics across all generation programs" ;
+    .
+
+# Vocabulary Properties
+pi:program a owl:ObjectProperty ;
+    rdfs:label "program" ;
+    skos:definition "The generation program containing this rule" ;
+    .
+
+pi:handCoding a owl:DatatypeProperty ;
+    rdfs:label "hand coding" ;
+    rdfs:range xsd:boolean ;
+    .
+
+pi:evidenceSources a owl:DatatypeProperty ;
+    rdfs:label "evidence sources" ;
+    rdfs:range xsd:string ;
+    skos:definition "Paths to receipt/checkpoint directories containing evidence" ;
+    .
+
+pi:ruleCount a owl:DatatypeProperty ;
+    rdfs:label "rule count" ;
+    rdfs:range xsd:integer ;
+    .
+
+pi:activeRules a owl:DatatypeProperty ;
+    rdfs:label "active rules" ;
+    rdfs:range xsd:integer ;
+    .
+
+pi:inactiveRules a owl:DatatypeProperty ;
+    rdfs:label "inactive rules" ;
+    rdfs:range xsd:integer ;
+    .
+
+pi:blockedRules a owl:DatatypeProperty ;
+    rdfs:label "blocked rules" ;
+    rdfs:range xsd:integer ;
+    .
+
+pi:mode a owl:DatatypeProperty ;
+    rdfs:label "mode" ;
+    rdfs:range xsd:string ;
+    .
+
+pi:queryCount a owl:DatatypeProperty ;
+    rdfs:label "query count" ;
+    rdfs:range xsd:integer ;
+    .
+
+pi:auditQueries a owl:DatatypeProperty ;
+    rdfs:label "audit queries" ;
+    rdfs:range xsd:integer ;
+    .
+
+pi:selectionQueries a owl:DatatypeProperty ;
+    rdfs:label "selection queries" ;
+    rdfs:range xsd:integer ;
+    .
+
+pi:ontology a owl:DatatypeProperty ;
+    rdfs:label "ontology" ;
+    rdfs:range xsd:string ;
+    skos:definition "Input TTL ontology file path" ;
+    .
+
+pi:query a owl:DatatypeProperty ;
+    rdfs:label "query" ;
+    rdfs:range xsd:string ;
+    skos:definition "Input SPARQL query file path" ;
+    .
+
+pi:template a owl:DatatypeProperty ;
+    rdfs:label "template" ;
+    rdfs:range xsd:string ;
+    skos:definition "Tera template file path for rendering" ;
+    .
+
+pi:outputFile a owl:DatatypeProperty ;
+    rdfs:label "output file" ;
+    rdfs:range xsd:string ;
+    skos:definition "Destination file path for generated artifact" ;
+    .
+
+pi:outputMode a owl:DatatypeProperty ;
+    rdfs:label "output mode" ;
+    rdfs:range xsd:string ;
+    skos:definition "Write mode: Overwrite, Append, or Merge" ;
+    .
+
+pi:targetFormat a owl:DatatypeProperty ;
+    rdfs:label "target format" ;
+    rdfs:range xsd:string ;
+    skos:definition "Language or format of output: Rust, TypeScript, Python, etc." ;
+    .
+
+pi:audience a owl:DatatypeProperty ;
+    rdfs:label "audience" ;
+    rdfs:range xsd:string ;
+    skos:definition "Intended consumer of the generated artifact" ;
+    .
+
+pi:compliance a owl:DatatypeProperty ;
+    rdfs:label "compliance" ;
+    rdfs:range xsd:string ;
+    skos:definition "Specification or standard this rule generates from" ;
+    .
+
+pi:evidence a owl:DatatypeProperty ;
+    rdfs:label "evidence" ;
+    rdfs:range xsd:string ;
+    skos:definition "Source evidence backing this generation rule" ;
+    .
+
+pi:status a owl:DatatypeProperty ;
+    rdfs:label "status" ;
+    rdfs:range xsd:string ;
+    skos:definition "READY, DEACTIVATED, BLOCKED, or AVAILABLE" ;
+    .
+
+pi:note a owl:DatatypeProperty ;
+    rdfs:label "note" ;
+    rdfs:range xsd:string ;
+    skos:definition "Additional context or status notes" ;
+    .
+
+pi:blockingIssue a owl:DatatypeProperty ;
+    rdfs:label "blocking issue" ;
+    rdfs:range xsd:string ;
+    skos:definition "Describes why this rule is blocked" ;
+    .
+
+pi:queries a owl:DatatypeProperty ;
+    rdfs:label "queries" ;
+    rdfs:range xsd:string ;
+    skos:definition "Comma-separated list of query names in this set" ;
+    .
+
+pi:blockedRuleNote a owl:DatatypeProperty ;
+    rdfs:label "blocked rule note" ;
+    rdfs:range xsd:string ;
+    .
+
+pi:totalQueries a owl:DatatypeProperty ;
+    rdfs:label "total queries" ;
+    rdfs:range xsd:integer ;
+    .
+
+pi:generationQueries a owl:DatatypeProperty ;
+    rdfs:label "generation queries" ;
+    rdfs:range xsd:integer ;
+    .
+
+pi:functionalGenerationRules a owl:DatatypeProperty ;
+    rdfs:label "functional generation rules" ;
+    rdfs:range xsd:integer ;
+    .
+
+pi:functionalProgramsPercentage a owl:DatatypeProperty ;
+    rdfs:label "functional programs percentage" ;
+    rdfs:range xsd:string ;
+    .
+
+pi:functionalRulesPercentage a owl:DatatypeProperty ;
+    rdfs:label "functional rules percentage" ;
+    rdfs:range xsd:string ;
+    .

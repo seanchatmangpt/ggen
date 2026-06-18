@@ -1,0 +1,8 @@
+PREFIX log: <http://bitstar.ai/core/log#>
+ASK WHERE {
+  ?e a log:Event ; log:level ?lvl ; log:message ?m .
+}
+
+
+
+

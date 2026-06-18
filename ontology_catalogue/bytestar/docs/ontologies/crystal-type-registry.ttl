@@ -1,0 +1,381 @@
+@prefix ethos: <http://bytestar.ai/ethos#> .
+@prefix crystal: <http://bytestar.ai/crystal#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# Crystal Type Registry v5 - Complete Definitive Set
+# Generated: 2025-08-23
+# Status: Crystal-Definitive
+
+crystal:Registry a owl:Ontology ;
+    rdfs:label "ByteStar v5 Crystal Type Registry" ;
+    rdfs:comment "Complete, closed, and definitive crystal type catalog with CTIDs" ;
+    owl:versionInfo "5.0.0" ;
+    crystal:status "DEFINITIVE" ;
+    crystal:doctrine "8-space-compliant" .
+
+# Base Crystal Class
+ethos:Crystal a owl:Class ;
+    rdfs:label "Crystal Base Type" ;
+    rdfs:comment "Universal parent of all ByteStar crystal types" ;
+    crystal:immutable true ;
+    crystal:pqcSealed true .
+
+# Domain: Governance & Ontology
+crystal:OntologyPackage a owl:Class ;
+    rdfs:subClassOf ethos:Crystal ;
+    rdfs:label "Ontology Package Crystal" ;
+    crystal:extension ".opc" ;
+    crystal:ctid "0x7f3d4e8a91b2c5d6e7f8091a2b3c4d5e6f7081929394a5b6c7d8e9fa0b1c2d3e4f" ;
+    crystal:encoding "SSZ" ;
+    crystal:abis "Wire,Storage" ;
+    crystal:hops "1,3,6,8" ;
+    crystal:fields [
+        crystal:field [ 
+            crystal:name "ontologies" ;
+            crystal:type "bytes32[]" ;
+            crystal:maxLength 256
+        ] ;
+        crystal:field [
+            crystal:name "c14n_digest" ;
+            crystal:type "bytes32"
+        ] ;
+        crystal:field [
+            crystal:name "version" ;
+            crystal:type "uint32"
+        ]
+    ] .
+
+crystal:SHACLPackage a owl:Class ;
+    rdfs:subClassOf ethos:Crystal ;
+    rdfs:label "SHACL Package Crystal" ;
+    crystal:extension ".spc" ;
+    crystal:ctid "0x8e4d5f6a02c3d7e8f9001b2c3d4e5f60718293a4b5c6d7e8f901a2b3c4d5e6f7" ;
+    crystal:encoding "SSZ" ;
+    crystal:abis "Wire,Storage" ;
+    crystal:hops "1,3,6,8" ;
+    crystal:fields [
+        crystal:field [
+            crystal:name "shapes" ;
+            crystal:type "bytes32[]" ;
+            crystal:maxLength 512
+        ] ;
+        crystal:field [
+            crystal:name "validation_rules" ;
+            crystal:type "bytes32"
+        ]
+    ] .
+
+crystal:CanonCrystal a owl:Class ;
+    rdfs:subClassOf ethos:Crystal ;
+    rdfs:label "Canon Crystal" ;
+    crystal:extension ".canon" ;
+    crystal:ctid "0x9f5e6f7a13d4e8f90a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f7081" ;
+    crystal:encoding "SSZ" ;
+    crystal:abis "Wire,Storage,Capability" ;
+    crystal:hops "1,3,6,7" ;
+    crystal:fullerCompliant true .
+
+crystal:PatternRegistry a owl:Class ;
+    rdfs:subClassOf ethos:Crystal ;
+    rdfs:label "Pattern Registry Crystal" ;
+    crystal:extension ".prc" ;
+    crystal:ctid "0xa06f7081924e5f6b7c8d9ea0b1c2d3e4f5667788990aabbccddeeff0011223344" ;
+    crystal:encoding "SSZ" ;
+    crystal:abis "Wire,Storage" ;
+    crystal:hops "3,5,6" ;
+    crystal:patterns 43 .
+
+# Domain: Identity & Policy  
+crystal:OrgBinding a owl:Class ;
+    rdfs:subClassOf ethos:Crystal ;
+    rdfs:label "Organization Binding Crystal" ;
+    crystal:extension ".orgbind" ;
+    crystal:ctid "0xb17081929e6f7a8b9ca0b1c2d3e4f5667788990aabbccddeeff00112233445566" ;
+    crystal:encoding "SSZ" ;
+    crystal:abis "Wire,Storage,Capability" ;
+    crystal:hops "2,4,6" .
+
+crystal:Revocation a owl:Class ;
+    rdfs:subClassOf ethos:Crystal ;
+    rdfs:label "Revocation Crystal" ;
+    crystal:extension ".revoke" ;
+    crystal:ctid "0xc281939f7a8b9ca0dbe4f5667788990aabbccddeeff00112233445566778899aa" ;
+    crystal:encoding "SSZ" ;
+    crystal:abis "Wire,Storage,Capability" ;
+    crystal:hops "6,7" ;
+    crystal:immediate true .
+
+# Domain: Blueprint & Workflow
+crystal:PolycrystalLattice a owl:Class ;
+    rdfs:subClassOf ethos:Crystal ;
+    rdfs:label "Polycrystal Lattice" ;
+    crystal:extension ".pcl" ;
+    crystal:ctid "0xd392a4b06f7a8b9ca0dbe4f5667788990aabbccddeeff00112233445566778899" ;
+    crystal:encoding "dCBOR" ;
+    crystal:abis "Storage" ;
+    crystal:hops "5,6" ;
+    crystal:fabricated true .
+
+# Domain: Build & Transparency
+crystal:BuildProvenance a owl:Class ;
+    rdfs:subClassOf ethos:Crystal ;
+    rdfs:label "Build Provenance Crystal" ;
+    crystal:extension ".prov" ;
+    crystal:ctid "0xe4a3b5c607819a0b1c2d3e4f5667788990aabbccddeeff001122334455667788" ;
+    crystal:encoding "SSZ" ;
+    crystal:abis "Storage" ;
+    crystal:hops "6" ;
+    crystal:slsaLevel 3 .
+
+crystal:BinaryTransparencyEntry a owl:Class ;
+    rdfs:subClassOf ethos:Crystal ;
+    rdfs:label "Binary Transparency Entry" ;
+    crystal:extension ".bte" ;
+    crystal:ctid "0xf5b4c6d7e89fa0b1c2d3e4f5667788990aabbccddeeff00112233445566778899" ;
+    crystal:encoding "SSZ" ;
+    crystal:abis "Wire,Storage" ;
+    crystal:hops "6,7" ;
+    crystal:publicAnchored true .
+
+# Domain: Data / Views / Privacy
+crystal:DatasetCrystal a owl:Class ;
+    rdfs:subClassOf ethos:Crystal ;
+    rdfs:label "Dataset Crystal" ;
+    crystal:extension ".dsc" ;
+    crystal:ctid "0x06c5d7e8f901a2b3c4d5e6f7788990aabbccddeeff0011223344556677889900a" ;
+    crystal:encoding "dCBOR" ;
+    crystal:abis "Wire,Storage" ;
+    crystal:hops "4,6,7" ;
+    crystal:lineageTracked true .
+
+crystal:ViewCrystal a owl:Class ;
+    rdfs:subClassOf ethos:Crystal ;
+    rdfs:label "View Crystal" ;
+    crystal:extension ".view" ;
+    crystal:ctid "0x17d6e8f90ab3c4d5e6f7788990aabbccddeeff0011223344556677889900aabb" ;
+    crystal:encoding "dCBOR" ;
+    crystal:abis "Storage" ;
+    crystal:hops "5,6,7" ;
+    crystal:materialized true ;
+    crystal:private true .
+
+crystal:PublicMirror a owl:Class ;
+    rdfs:subClassOf ethos:Crystal ;
+    rdfs:label "Public Mirror Crystal" ;
+    crystal:extension ".pmc" ;
+    crystal:ctid "0x28e7f901bc4d5e6f7788990aabbccddeeff0011223344556677889900aabbccdd" ;
+    crystal:encoding "SSZ" ;
+    crystal:abis "Wire,Storage" ;
+    crystal:hops "7" ;
+    crystal:sanitized true .
+
+crystal:DPBudgetToken a owl:Class ;
+    rdfs:subClassOf ethos:Crystal ;
+    rdfs:label "Differential Privacy Budget Token" ;
+    crystal:extension ".dpb" ;
+    crystal:ctid "0x39f8012cd5e6f7788990aabbccddeeff0011223344556677889900aabbccddeeff" ;
+    crystal:encoding "SSZ" ;
+    crystal:abis "Wire,Storage,Capability" ;
+    crystal:hops "4,5,6" ;
+    crystal:spendable true .
+
+crystal:RedactionProof a owl:Class ;
+    rdfs:subClassOf ethos:Crystal ;
+    rdfs:label "Redaction Proof Receipt" ;
+    crystal:extension ".redact.rct" ;
+    crystal:ctid "0x4a09123de6f7788990aabbccddeeff0011223344556677889900aabbccddeeff00" ;
+    crystal:encoding "SSZ" ;
+    crystal:abis "Wire,Storage" ;
+    crystal:hops "7,8" ;
+    crystal:piiCompliant true .
+
+# Domain: Marketplace (N-dimensional)
+crystal:AssetDescriptor a owl:Class ;
+    rdfs:subClassOf ethos:Crystal ;
+    rdfs:label "Asset Descriptor Crystal" ;
+    crystal:extension ".asset" ;
+    crystal:ctid "0x5b1a234ef7788990aabbccddeeff0011223344556677889900aabbccddeeff0011" ;
+    crystal:encoding "dCBOR" ;
+    crystal:abis "Wire,Storage" ;
+    crystal:hops "1,4,5,6" ;
+    crystal:dimensions [
+        "asset_type", "qty_minor", "currency", "region",
+        "privacy_level", "latency_slo", "carbon_kg", "license_tier"
+    ] .
+
+crystal:Offer a owl:Class ;
+    rdfs:subClassOf ethos:Crystal ;
+    rdfs:label "Market Offer Crystal" ;
+    crystal:extension ".offer" ;
+    crystal:ctid "0x6c2b345f08899a0bbccddeeff0011223344556677889900aabbccddeeff001122" ;
+    crystal:encoding "dCBOR" ;
+    crystal:abis "Wire,Storage,Capability" ;
+    crystal:hops "5,6" .
+
+crystal:Order a owl:Class ;
+    rdfs:subClassOf ethos:Crystal ;
+    rdfs:label "Market Order Crystal" ;
+    crystal:extension ".order" ;
+    crystal:ctid "0x7d3c456019aabbccddeeff0011223344556677889900aabbccddeeff00112233" ;
+    crystal:encoding "dCBOR" ;
+    crystal:abis "Wire,Storage,Capability" ;
+    crystal:hops "5,6" ;
+    crystal:binding true .
+
+crystal:Settlement a owl:Class ;
+    rdfs:subClassOf ethos:Crystal ;
+    rdfs:label "Settlement Crystal" ;
+    crystal:extension ".settle" ;
+    crystal:ctid "0x8e4d5671abccddeeff0011223344556677889900aabbccddeeff001122334455" ;
+    crystal:encoding "SSZ" ;
+    crystal:abis "Wire,Storage" ;
+    crystal:hops "6,7" ;
+    crystal:conservationProof true .
+
+crystal:PriceFeed a owl:Class ;
+    rdfs:subClassOf ethos:Crystal ;
+    rdfs:label "Price Feed Crystal" ;
+    crystal:extension ".px" ;
+    crystal:ctid "0x9f5e6782bccddeeff0011223344556677889900aabbccddeeff00112233445566" ;
+    crystal:encoding "SSZ" ;
+    crystal:abis "Wire,Storage" ;
+    crystal:hops "5,6,7" ;
+    crystal:signed true .
+
+crystal:UsageMetering a owl:Class ;
+    rdfs:subClassOf ethos:Crystal ;
+    rdfs:label "Usage Metering Crystal" ;
+    crystal:extension ".usage" ;
+    crystal:ctid "0xa06f7893cddeeff0011223344556677889900aabbccddeeff0011223344556677" ;
+    crystal:encoding "SSZ" ;
+    crystal:abis "Wire,Storage" ;
+    crystal:hops "5,6,7,8" .
+
+crystal:SLA a owl:Class ;
+    rdfs:subClassOf ethos:Crystal ;
+    rdfs:label "Service Level Agreement Crystal" ;
+    crystal:extension ".sla" ;
+    crystal:ctid "0xb17089a4deeff0011223344556677889900aabbccddeeff001122334455667788" ;
+    crystal:encoding "dCBOR" ;
+    crystal:abis "Wire,Storage,Capability" ;
+    crystal:hops "1,4,6" ;
+    crystal:enforceable true .
+
+# Domain: Cross-Org Bridge
+crystal:BridgeProof a owl:Class ;
+    rdfs:subClassOf ethos:Crystal ;
+    rdfs:label "Bridge Proof Receipt" ;
+    crystal:extension ".bridge.rct" ;
+    crystal:ctid "0xc2819ab5eff0011223344556677889900aabbccddeeff00112233445566778899" ;
+    crystal:encoding "SSZ" ;
+    crystal:abis "Wire,Storage" ;
+    crystal:hops "6,7" ;
+    crystal:crossLedger true .
+
+# Domain: Streaming & Operations
+crystal:StreamSegment a owl:Class ;
+    rdfs:subClassOf ethos:Crystal ;
+    rdfs:label "Stream Segment Crystal" ;
+    crystal:extension ".seg" ;
+    crystal:ctid "0xd392abc6f0011223344556677889900aabbccddeeff00112233445566778899aa" ;
+    crystal:encoding "SSZ" ;
+    crystal:abis "Wire,Storage" ;
+    crystal:hops "5,6" ;
+    crystal:appendOnly true ;
+    crystal:merkleSeal true .
+
+crystal:Alert a owl:Class ;
+    rdfs:subClassOf ethos:Crystal ;
+    rdfs:label "Alert/Incident Crystal" ;
+    crystal:extension ".alert" ;
+    crystal:ctid "0xe4a3bcd711223344556677889900aabbccddeeff00112233445566778899aabb" ;
+    crystal:encoding "SSZ" ;
+    crystal:abis "Wire,Storage" ;
+    crystal:hops "6,7,8" ;
+    crystal:priority ["low", "medium", "high", "critical"] .
+
+# Domain: Evidence & External
+crystal:EvidenceCrystal a owl:Class ;
+    rdfs:subClassOf ethos:Crystal ;
+    rdfs:label "Evidence Crystal" ;
+    crystal:extension ".evd" ;
+    crystal:ctid "0xf5b4cde823344556677889900aabbccddeeff00112233445566778899aabbccdd" ;
+    crystal:encoding "dCBOR" ;
+    crystal:abis "Wire,Storage" ;
+    crystal:hops "1,6,8" ;
+    crystal:chainOfCustody true .
+
+# Domain: Test & QA
+crystal:FuzzCorpus a owl:Class ;
+    rdfs:subClassOf ethos:Crystal ;
+    rdfs:label "Fuzz Corpus Crystal" ;
+    crystal:extension ".fuzz" ;
+    crystal:ctid "0x06c5def934556677889900aabbccddeeff00112233445566778899aabbccddeeff" ;
+    crystal:encoding "dCBOR" ;
+    crystal:abis "Storage" ;
+    crystal:hops "3,5" ;
+    crystal:generated true .
+
+crystal:FixtureBundle a owl:Class ;
+    rdfs:subClassOf ethos:Crystal ;
+    rdfs:label "Fixture Bundle Crystal" ;
+    crystal:extension ".fixture" ;
+    crystal:ctid "0x17d6efa456677889900aabbccddeeff00112233445566778899aabbccddeeff00" ;
+    crystal:encoding "dCBOR" ;
+    crystal:abis "Storage" ;
+    crystal:hops "3,5,6" ;
+    crystal:e2e true .
+
+# Disjointness Declarations
+[ a owl:AllDisjointClasses ;
+    owl:members (
+        crystal:OntologyPackage crystal:SHACLPackage crystal:CanonCrystal
+        crystal:PatternRegistry crystal:OrgBinding crystal:Revocation
+        crystal:PolycrystalLattice crystal:BuildProvenance crystal:BinaryTransparencyEntry
+        crystal:DatasetCrystal crystal:ViewCrystal crystal:PublicMirror
+        crystal:DPBudgetToken crystal:RedactionProof crystal:AssetDescriptor
+        crystal:Offer crystal:Order crystal:Settlement crystal:PriceFeed
+        crystal:UsageMetering crystal:SLA crystal:BridgeProof
+        crystal:StreamSegment crystal:Alert crystal:EvidenceCrystal
+        crystal:FuzzCorpus crystal:FixtureBundle
+    )
+] .
+
+# Coverage Axiom
+ethos:Crystal owl:equivalentClass [
+    a owl:Class ;
+    owl:unionOf (
+        crystal:OntologyPackage crystal:SHACLPackage crystal:CanonCrystal
+        crystal:PatternRegistry crystal:OrgBinding crystal:Revocation
+        crystal:PolycrystalLattice crystal:BuildProvenance crystal:BinaryTransparencyEntry
+        crystal:DatasetCrystal crystal:ViewCrystal crystal:PublicMirror
+        crystal:DPBudgetToken crystal:RedactionProof crystal:AssetDescriptor
+        crystal:Offer crystal:Order crystal:Settlement crystal:PriceFeed
+        crystal:UsageMetering crystal:SLA crystal:BridgeProof
+        crystal:StreamSegment crystal:Alert crystal:EvidenceCrystal
+        crystal:FuzzCorpus crystal:FixtureBundle
+        # Include existing crystals
+        crystal:IdentityCrystal crystal:CapabilityCrystal
+        crystal:MissionBlueprint crystal:PatternByte
+        crystal:AdmissionReceipt crystal:AttestationReceipt
+        crystal:CanonReceipt crystal:SovereigntyReceipt
+        crystal:TransformReceipt crystal:CommitReceipt
+        crystal:PublicationReceipt crystal:TransparencyBundle
+        crystal:ABISpec crystal:NIFSecurityReceipt crystal:ABIOKReceipt
+        crystal:OracleSet crystal:HealthCapsule
+    )
+] .
+
+# Version and Status Metadata
+crystal:Registry crystal:version "5.0.0" ;
+    crystal:status "DEFINITIVE" ;
+    crystal:totalTypes 44 ;
+    crystal:newTypes 24 ;
+    crystal:doctrine8Compliant true ;
+    crystal:fullerCanonCompliant true ;
+    crystal:closureProven true ;
+    crystal:disjointnessProven true ;
+    crystal:bijectionRequired true .

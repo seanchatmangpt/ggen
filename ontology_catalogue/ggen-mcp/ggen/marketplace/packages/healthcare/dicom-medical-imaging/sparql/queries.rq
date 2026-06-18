@@ -1,0 +1,317 @@
+# DICOM Medical Imaging SPARQL Queries
+# Queries for DICOM metadata extraction, PACS integration, WADO-RS
+
+PREFIX dicom: <http://dicom.nema.org/>
+PREFIX dicom-ontology: <http://ggen.io/ontology/dicom#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# ============================================================================
+# Query 1: Extract DICOM Study Metadata
+# ============================================================================
+# TEMPLATE: study-metadata
+# DESCRIPTION: Retrieve complete study information
+
+SELECT ?studyUID ?patientName ?patientID ?studyDate ?studyDescription ?modality ?seriesCount ?imageCount
+WHERE {
+  ?study a dicom-ontology:Study ;
+         dicom-ontology:studyInstanceUID ?studyUID ;
+         dicom-ontology:studyDate ?studyDate ;
+         dicom-ontology:studyDescription ?studyDescription ;
+         dicom-ontology:numberOfStudyRelatedSeries ?seriesCount ;
+         dicom-ontology:numberOfStudyRelatedInstances ?imageCount .
+
+  ?patient dicom-ontology:hasStudy ?study ;
+           dicom-ontology:patientName ?patientName ;
+           dicom-ontology:patientID ?patientID .
+
+  # Get primary modality
+  {
+    SELECT ?study (SAMPLE(?mod) AS ?modality)
+    WHERE {
+      ?study dicom-ontology:hasSeries ?series .
+      ?series dicom-ontology:modality ?mod .
+    }
+    GROUP BY ?study
+  }
+}
+ORDER BY DESC(?studyDate)
+
+# ============================================================================
+# Query 2: Generate WADO-RS Retrieval Query
+# ============================================================================
+# TEMPLATE: wado-rs-query
+# DESCRIPTION: Construct WADO-RS URL for image retrieval
+
+SELECT ?wadoUrl
+WHERE {
+  ?instance a dicom-ontology:Instance ;
+            dicom-ontology:sopInstanceUID ?instanceUID .
+
+  ?series dicom-ontology:hasInstance ?instance ;
+          dicom-ontology:seriesInstanceUID ?seriesUID .
+
+  ?study dicom-ontology:hasSeries ?series ;
+         dicom-ontology:studyInstanceUID ?studyUID .
+
+  FILTER(?instanceUID = "{{INSTANCE_UID}}")
+
+  # Construct WADO-RS URL
+  BIND(CONCAT(
+    "{{BASE_URL}}/studies/", ?studyUID,
+    "/series/", ?seriesUID,
+    "/instances/", ?instanceUID
+  ) AS ?wadoUrl)
+}
+
+# ============================================================================
+# Query 3: Study/Series Search (QIDO-RS)
+# ============================================================================
+# TEMPLATE: qido-search
+# DESCRIPTION: Search studies by patient, date, modality
+
+SELECT ?studyUID ?patientID ?patientName ?studyDate ?modality ?accessionNumber
+WHERE {
+  ?study a dicom-ontology:Study ;
+         dicom-ontology:studyInstanceUID ?studyUID ;
+         dicom-ontology:studyDate ?studyDate ;
+         dicom-ontology:accessionNumber ?accessionNumber .
+
+  ?patient dicom-ontology:hasStudy ?study ;
+           dicom-ontology:patientID ?patientID ;
+           dicom-ontology:patientName ?patientName .
+
+  # Optional modality filter
+  OPTIONAL {
+    ?study dicom-ontology:hasSeries ?series .
+    ?series dicom-ontology:modality ?modality .
+    FILTER(?modality = "{{MODALITY}}")
+  }
+
+  # Date range filter
+  FILTER(?studyDate >= "{{START_DATE}}"^^xsd:date && ?studyDate <= "{{END_DATE}}"^^xsd:date)
+
+  # Patient filter
+  FILTER(REGEX(?patientName, "{{PATIENT_NAME}}", "i") || ?patientID = "{{PATIENT_ID}}")
+}
+ORDER BY DESC(?studyDate)
+
+# ============================================================================
+# Query 4: Series-Level Query
+# ============================================================================
+# TEMPLATE: series-query
+# DESCRIPTION: Get all series in a study with details
+
+SELECT ?seriesUID ?seriesNumber ?modality ?seriesDescription ?imageCount ?bodyPart
+WHERE {
+  ?study dicom-ontology:studyInstanceUID "{{STUDY_UID}}" ;
+         dicom-ontology:hasSeries ?series .
+
+  ?series dicom-ontology:seriesInstanceUID ?seriesUID ;
+          dicom-ontology:seriesNumber ?seriesNumber ;
+          dicom-ontology:modality ?modality ;
+          dicom-ontology:numberOfSeriesRelatedInstances ?imageCount .
+
+  OPTIONAL {
+    ?series dicom-ontology:seriesDescription ?seriesDescription .
+  }
+
+  OPTIONAL {
+    ?series dicom-ontology:bodyPartExamined ?bodyPart .
+  }
+}
+ORDER BY ?seriesNumber
+
+# ============================================================================
+# Query 5: PACS Integration - Modality Worklist
+# ============================================================================
+# TEMPLATE: modality-worklist
+# DESCRIPTION: Generate modality worklist for scheduled procedures
+
+SELECT ?accessionNumber ?patientID ?patientName ?scheduledProcedure ?modality ?scheduledDateTime
+WHERE {
+  ?study a dicom-ontology:Study ;
+         dicom-ontology:accessionNumber ?accessionNumber ;
+         dicom-ontology:studyDescription ?scheduledProcedure .
+
+  ?patient dicom-ontology:hasStudy ?study ;
+           dicom-ontology:patientID ?patientID ;
+           dicom-ontology:patientName ?patientName .
+
+  ?study dicom-ontology:hasSeries ?series .
+  ?series dicom-ontology:modality ?modality ;
+          dicom-ontology:seriesDate ?scheduledDate ;
+          dicom-ontology:seriesTime ?scheduledTime .
+
+  BIND(CONCAT(STR(?scheduledDate), "T", STR(?scheduledTime)) AS ?scheduledDateTime)
+
+  # Filter for upcoming procedures
+  FILTER(?scheduledDate >= CURRENT_DATE())
+}
+ORDER BY ?scheduledDateTime
+
+# ============================================================================
+# Query 6: CT-Specific Metadata Extraction
+# ============================================================================
+# TEMPLATE: ct-metadata
+# DESCRIPTION: Extract CT-specific imaging parameters
+
+SELECT ?studyUID ?seriesUID ?instanceNumber ?sliceThickness ?kvp ?exposureTime ?pixelSpacing
+WHERE {
+  ?study dicom-ontology:studyInstanceUID "{{STUDY_UID}}" ;
+         dicom-ontology:hasSeries ?series .
+
+  ?series a dicom-ontology:CTModality ;
+          dicom-ontology:seriesInstanceUID ?seriesUID ;
+          dicom-ontology:kvp ?kvp ;
+          dicom-ontology:exposureTime ?exposureTime ;
+          dicom-ontology:hasInstance ?instance .
+
+  ?instance dicom-ontology:instanceNumber ?instanceNumber ;
+            dicom-ontology:sliceThickness ?sliceThickness ;
+            dicom-ontology:pixelSpacing ?pixelSpacing .
+}
+ORDER BY ?seriesUID ?instanceNumber
+
+# ============================================================================
+# Query 7: MR-Specific Metadata Extraction
+# ============================================================================
+# TEMPLATE: mr-metadata
+# DESCRIPTION: Extract MR-specific imaging parameters
+
+SELECT ?studyUID ?seriesUID ?seriesDescription ?magneticField ?scanningSequence ?echoTime ?repetitionTime
+WHERE {
+  ?study dicom-ontology:studyInstanceUID "{{STUDY_UID}}" ;
+         dicom-ontology:hasSeries ?series .
+
+  ?series a dicom-ontology:MRModality ;
+          dicom-ontology:seriesInstanceUID ?seriesUID ;
+          dicom-ontology:seriesDescription ?seriesDescription ;
+          dicom-ontology:magneticFieldStrength ?magneticField ;
+          dicom-ontology:scanningSequence ?scanningSequence ;
+          dicom-ontology:echoTime ?echoTime ;
+          dicom-ontology:repetitionTime ?repetitionTime .
+}
+ORDER BY ?seriesUID
+
+# ============================================================================
+# Query 8: Image Pixel Data Properties
+# ============================================================================
+# TEMPLATE: image-properties
+# DESCRIPTION: Get image dimensions and pixel data properties
+
+SELECT ?instanceUID ?rows ?columns ?bitsAllocated ?samplesPerPixel ?photometric ?pixelSpacing
+WHERE {
+  ?series dicom-ontology:seriesInstanceUID "{{SERIES_UID}}" ;
+          dicom-ontology:hasInstance ?instance .
+
+  ?instance dicom-ontology:sopInstanceUID ?instanceUID ;
+            dicom-ontology:rows ?rows ;
+            dicom-ontology:columns ?columns ;
+            dicom-ontology:bitsAllocated ?bitsAllocated ;
+            dicom-ontology:samplesPerPixel ?samplesPerPixel ;
+            dicom-ontology:photometricInterpretation ?photometric .
+
+  OPTIONAL {
+    ?instance dicom-ontology:pixelSpacing ?pixelSpacing .
+  }
+}
+ORDER BY ?instanceUID
+
+# ============================================================================
+# Query 9: Patient Study Summary
+# ============================================================================
+# TEMPLATE: patient-study-summary
+# DESCRIPTION: Comprehensive patient imaging history
+
+SELECT ?patientID ?patientName ?studyDate ?modality ?studyDescription ?imageCount
+WHERE {
+  ?patient dicom-ontology:patientID "{{PATIENT_ID}}" ;
+           dicom-ontology:patientName ?patientName ;
+           dicom-ontology:hasStudy ?study .
+
+  ?study dicom-ontology:studyDate ?studyDate ;
+         dicom-ontology:studyDescription ?studyDescription ;
+         dicom-ontology:numberOfStudyRelatedInstances ?imageCount .
+
+  BIND("{{PATIENT_ID}}" AS ?patientID)
+
+  # Get modalities in study
+  {
+    SELECT ?study (GROUP_CONCAT(DISTINCT ?mod; separator=", ") AS ?modality)
+    WHERE {
+      ?study dicom-ontology:hasSeries ?series .
+      ?series dicom-ontology:modality ?mod .
+    }
+    GROUP BY ?study
+  }
+}
+ORDER BY DESC(?studyDate)
+
+# ============================================================================
+# Query 10: DICOM SOP Class Distribution
+# ============================================================================
+# TEMPLATE: sop-class-distribution
+# DESCRIPTION: Analyze SOP class usage
+
+SELECT ?sopClassUID ?sopClassName ?instanceCount
+WHERE {
+  {
+    SELECT ?sopClassUID (COUNT(*) AS ?instanceCount)
+    WHERE {
+      ?instance a dicom-ontology:Instance ;
+                dicom-ontology:sopClassUID ?sopClassUID .
+    }
+    GROUP BY ?sopClassUID
+  }
+
+  # Map SOP Class UID to name
+  OPTIONAL {
+    ?sopClass dicom-ontology:sopClassUID ?sopClassUID ;
+              rdfs:label ?sopClassName .
+  }
+}
+ORDER BY DESC(?instanceCount)
+
+# ============================================================================
+# Query 11: DICOM Web Endpoint Configuration
+# ============================================================================
+# TEMPLATE: dicomweb-endpoints
+# DESCRIPTION: Generate DICOMweb endpoint URLs
+
+SELECT ?wadoUrl ?qidoUrl ?stowUrl
+WHERE {
+  ?endpoint a dicom-ontology:WADOEndpoint ;
+            dicom-ontology:baseUrl ?baseUrl .
+
+  BIND(CONCAT(?baseUrl, "/studies/{studyUID}/series/{seriesUID}/instances/{instanceUID}") AS ?wadoUrl)
+  BIND(CONCAT(?baseUrl, "/studies") AS ?qidoUrl)
+  BIND(CONCAT(?baseUrl, "/studies/{studyUID}") AS ?stowUrl)
+}
+
+# ============================================================================
+# Query 12: Multi-Modality Study Detection
+# ============================================================================
+# TEMPLATE: multi-modality-studies
+# DESCRIPTION: Find studies with multiple imaging modalities
+
+SELECT ?studyUID ?patientID ?studyDate ?modalities ?modalityCount
+WHERE {
+  {
+    SELECT ?studyUID (GROUP_CONCAT(DISTINCT ?mod; separator=", ") AS ?modalities) (COUNT(DISTINCT ?mod) AS ?modalityCount)
+    WHERE {
+      ?study dicom-ontology:studyInstanceUID ?studyUID ;
+             dicom-ontology:hasSeries ?series .
+      ?series dicom-ontology:modality ?mod .
+    }
+    GROUP BY ?studyUID
+    HAVING (?modalityCount > 1)
+  }
+
+  ?study dicom-ontology:studyInstanceUID ?studyUID ;
+         dicom-ontology:studyDate ?studyDate .
+
+  ?patient dicom-ontology:hasStudy ?study ;
+           dicom-ontology:patientID ?patientID .
+}
+ORDER BY DESC(?modalityCount) DESC(?studyDate)

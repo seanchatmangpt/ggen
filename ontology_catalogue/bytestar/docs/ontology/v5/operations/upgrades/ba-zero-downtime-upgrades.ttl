@@ -1,0 +1,733 @@
+@prefix ba: <http://bytestar.ai/ontology/> .
+@prefix upg: <http://bytestar.ai/ontology/upgrades/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix doe: <http://bytestar.ai/ontology/doctrine-of-8/> .
+
+# ============================================
+# ByteStar Zero-Downtime Upgrades Ontology
+# ============================================
+# Comprehensive upgrade orchestration framework ensuring zero-downtime
+# operations during system upgrades, patches, and maintenance
+# Reuses and extends ba-deployment-pipeline.ttl patterns
+
+upg:zero-downtime-upgrades-ontology a owl:Ontology ;
+    dct:title "ByteStar Zero-Downtime Upgrades Ontology" ;
+    dct:description "Comprehensive upgrade orchestration framework providing zero-downtime system upgrades with safety guarantees and automated rollback capabilities" ;
+    dct:version "5.0.0" ;
+    dct:created "2025-01-XX"^^xsd:date ;
+    dct:creator "ByteStar Operations Team" ;
+    owl:versionInfo "Phase 5 - Operations Framework" ;
+    dct:subject "Zero-Downtime, Upgrades, Deployment, Rollback" ;
+    owl:imports ba:deployment-pipeline-ontology ,
+                ba:bytecore-hardware ,
+                ba:performance-measurement ,
+                ba:audit-system .
+
+# ============================================
+# CORE UPGRADE ORCHESTRATION CLASSES
+# ============================================
+
+# Main Upgrade Architecture
+upg:UpgradeOrchestrator a owl:Class ;
+    rdfs:label "Upgrade Orchestrator" ;
+    rdfs:comment "Central orchestration system for zero-downtime upgrades" ;
+    rdfs:subClassOf ba:OrchestrationEngine ;
+    skos:definition "Upgrade orchestrator coordinates complex upgrade procedures across distributed systems without service interruption" .
+
+upg:ZeroDowntimeUpgrade a owl:Class ;
+    rdfs:label "Zero-Downtime Upgrade" ;
+    rdfs:comment "Upgrade procedure maintaining service availability throughout" ;
+    rdfs:subClassOf ba:UpgradeProcess ;
+    skos:definition "Zero-downtime upgrade ensures continuous service availability during system updates and maintenance" .
+
+upg:UpgradeStrategy a owl:Class ;
+    rdfs:label "Upgrade Strategy" ;
+    rdfs:comment "Strategy defining approach for system upgrades" ;
+    rdfs:subClassOf ba:Strategy ;
+    skos:definition "Upgrade strategy defines the methodology and sequence for performing system upgrades" .
+
+upg:UpgradePlan a owl:Class ;
+    rdfs:label "Upgrade Plan" ;
+    rdfs:comment "Detailed plan for executing system upgrade" ;
+    rdfs:subClassOf ba:Plan ;
+    skos:definition "Upgrade plan specifies the steps, dependencies, and procedures for system upgrade execution" .
+
+upg:UpgradeWindow a owl:Class ;
+    rdfs:label "Upgrade Window" ;
+    rdfs:comment "Scheduled time window for upgrade operations" ;
+    rdfs:subClassOf ba:TimeWindow ;
+    skos:definition "Upgrade window defines the scheduled time period for performing upgrade operations" .
+
+# ============================================
+# UPGRADE STRATEGIES AND PATTERNS
+# ============================================
+
+upg:BlueGreenUpgrade a owl:Class ;
+    rdfs:label "Blue-Green Upgrade" ;
+    rdfs:comment "Upgrade using parallel environment switching" ;
+    rdfs:subClassOf upg:UpgradeStrategy ;
+    skos:definition "Blue-green upgrade uses two identical environments to enable instant switching between versions" .
+
+upg:RollingUpgrade a owl:Class ;
+    rdfs:label "Rolling Upgrade" ;
+    rdfs:comment "Gradual upgrade of instances in sequence" ;
+    rdfs:subClassOf upg:UpgradeStrategy ;
+    skos:definition "Rolling upgrade updates system instances incrementally while maintaining overall service availability" .
+
+upg:CanaryUpgrade a owl:Class ;
+    rdfs:label "Canary Upgrade" ;
+    rdfs:comment "Gradual upgrade testing with subset of traffic" ;
+    rdfs:subClassOf upg:UpgradeStrategy ;
+    skos:definition "Canary upgrade deploys new version to small subset of instances to validate before full rollout" .
+
+upg:A_B_TestingUpgrade a owl:Class ;
+    rdfs:label "A/B Testing Upgrade" ;
+    rdfs:comment "Comparative upgrade testing with traffic splitting" ;
+    rdfs:subClassOf upg:UpgradeStrategy ;
+    skos:definition "A/B testing upgrade runs multiple versions simultaneously to compare performance and user experience" .
+
+upg:ImmutableUpgrade a owl:Class ;
+    rdfs:label "Immutable Upgrade" ;
+    rdfs:comment "Replace entire infrastructure with new immutable version" ;
+    rdfs:subClassOf upg:UpgradeStrategy ;
+    skos:definition "Immutable upgrade creates entirely new infrastructure and switches traffic atomically" .
+
+upg:FeatureFlagUpgrade a owl:Class ;
+    rdfs:label "Feature Flag Upgrade" ;
+    rdfs:comment "Upgrade using feature flags for controlled rollout" ;
+    rdfs:subClassOf upg:UpgradeStrategy ;
+    skos:definition "Feature flag upgrade enables new functionality through runtime configuration without deployment" .
+
+# ============================================
+# UPGRADE VALIDATION AND SAFETY
+# ============================================
+
+upg:UpgradeValidation a owl:Class ;
+    rdfs:label "Upgrade Validation" ;
+    rdfs:comment "Validation system ensuring upgrade safety and correctness" ;
+    rdfs:subClassOf ba:ValidationSystem ;
+    skos:definition "Upgrade validation performs safety checks and validates system state before, during, and after upgrades" .
+
+upg:PreUpgradeValidation a owl:Class ;
+    rdfs:label "Pre-Upgrade Validation" ;
+    rdfs:comment "Validation performed before upgrade execution" ;
+    rdfs:subClassOf upg:UpgradeValidation ;
+    skos:definition "Pre-upgrade validation ensures system readiness and validates preconditions for safe upgrade" .
+
+upg:PostUpgradeValidation a owl:Class ;
+    rdfs:label "Post-Upgrade Validation" ;
+    rdfs:comment "Validation performed after upgrade completion" ;
+    rdfs:subClassOf upg:UpgradeValidation ;
+    skos:definition "Post-upgrade validation verifies upgrade success and system health after completion" .
+
+upg:HealthCheck a owl:Class ;
+    rdfs:label "Upgrade Health Check" ;
+    rdfs:comment "Health verification during upgrade process" ;
+    rdfs:subClassOf ba:HealthCheck ;
+    skos:definition "Upgrade health check monitors system health continuously during upgrade execution" .
+
+upg:SmokeTest a owl:Class ;
+    rdfs:label "Smoke Test" ;
+    rdfs:comment "Basic functionality test after upgrade" ;
+    rdfs:subClassOf ba:Test ;
+    skos:definition "Smoke test verifies basic system functionality immediately after upgrade deployment" .
+
+upg:IntegrationTest a owl:Class ;
+    rdfs:label "Integration Test" ;
+    rdfs:comment "Comprehensive integration testing post-upgrade" ;
+    rdfs:subClassOf ba:Test ;
+    skos:definition "Integration test validates system integration and functionality after upgrade completion" .
+
+upg:PerformanceTest a owl:Class ;
+    rdfs:label "Performance Test" ;
+    rdfs:comment "Performance validation ensuring upgrade maintains SLA" ;
+    rdfs:subClassOf ba:PerformanceTest ;
+    skos:definition "Performance test validates that upgrade maintains required performance characteristics" .
+
+# ============================================
+# ROLLBACK AND RECOVERY MECHANISMS
+# ============================================
+
+upg:RollbackMechanism a owl:Class ;
+    rdfs:label "Rollback Mechanism" ;
+    rdfs:comment "System for reverting upgrades when issues occur" ;
+    rdfs:subClassOf ba:RecoveryMechanism ;
+    skos:definition "Rollback mechanism provides fast reversion to previous system state when upgrade issues are detected" .
+
+upg:AutomaticRollback a owl:Class ;
+    rdfs:label "Automatic Rollback" ;
+    rdfs:comment "Automated rollback triggered by failure conditions" ;
+    rdfs:subClassOf upg:RollbackMechanism ;
+    skos:definition "Automatic rollback triggers reversion without human intervention when predefined failure conditions occur" .
+
+upg:ManualRollback a owl:Class ;
+    rdfs:label "Manual Rollback" ;
+    rdfs:comment "Human-initiated rollback process" ;
+    rdfs:subClassOf upg:RollbackMechanism ;
+    skos:definition "Manual rollback requires human decision and intervention to initiate upgrade reversion" .
+
+upg:GracefulRollback a owl:Class ;
+    rdfs:label "Graceful Rollback" ;
+    rdfs:comment "Coordinated rollback minimizing service disruption" ;
+    rdfs:subClassOf upg:RollbackMechanism ;
+    skos:definition "Graceful rollback coordinates orderly reversion to minimize service disruption during rollback" .
+
+upg:EmergencyRollback a owl:Class ;
+    rdfs:label "Emergency Rollback" ;
+    rdfs:comment "Immediate rollback for critical failures" ;
+    rdfs:subClassOf upg:AutomaticRollback ;
+    skos:definition "Emergency rollback provides immediate reversion when critical system failures are detected" .
+
+upg:RollbackValidation a owl:Class ;
+    rdfs:label "Rollback Validation" ;
+    rdfs:comment "Validation system for rollback operations" ;
+    rdfs:subClassOf upg:UpgradeValidation ;
+    skos:definition "Rollback validation ensures rollback operations complete successfully and system returns to stable state" .
+
+# ============================================
+# TRAFFIC MANAGEMENT AND LOAD BALANCING
+# ============================================
+
+upg:TrafficManager a owl:Class ;
+    rdfs:label "Traffic Manager" ;
+    rdfs:comment "System managing traffic routing during upgrades" ;
+    rdfs:subClassOf ba:TrafficManagement ;
+    skos:definition "Traffic manager controls request routing between different system versions during upgrades" .
+
+upg:LoadBalancer a owl:Class ;
+    rdfs:label "Upgrade Load Balancer" ;
+    rdfs:comment "Load balancer with upgrade-aware routing" ;
+    rdfs:subClassOf ba:LoadBalancer ;
+    skos:definition "Upgrade load balancer provides intelligent traffic distribution during upgrade operations" .
+
+upg:TrafficSplitting a owl:Class ;
+    rdfs:label "Traffic Splitting" ;
+    rdfs:comment "Mechanism for splitting traffic between versions" ;
+    rdfs:subClassOf upg:TrafficManager ;
+    skos:definition "Traffic splitting divides requests between different system versions according to configured ratios" .
+
+upg:GradualTrafficShift a owl:Class ;
+    rdfs:label "Gradual Traffic Shift" ;
+    rdfs:comment "Progressive shifting of traffic to new version" ;
+    rdfs:subClassOf upg:TrafficSplitting ;
+    skos:definition "Gradual traffic shift incrementally moves traffic from old to new version over time" .
+
+upg:CircuitBreaker a owl:Class ;
+    rdfs:label "Circuit Breaker" ;
+    rdfs:comment "Circuit breaker protecting during upgrades" ;
+    rdfs:subClassOf ba:CircuitBreaker ;
+    skos:definition "Circuit breaker prevents cascading failures during upgrade operations by isolating failed components" .
+
+# ============================================
+# DATABASE AND STATE MANAGEMENT
+# ============================================
+
+upg:DatabaseUpgrade a owl:Class ;
+    rdfs:label "Database Upgrade" ;
+    rdfs:comment "Database schema and data upgrade procedures" ;
+    rdfs:subClassOf upg:ZeroDowntimeUpgrade ;
+    skos:definition "Database upgrade manages schema evolution and data migration without service interruption" .
+
+upg:SchemaMigration a owl:Class ;
+    rdfs:label "Schema Migration" ;
+    rdfs:comment "Database schema migration during upgrade" ;
+    rdfs:subClassOf upg:DatabaseUpgrade ;
+    skos:definition "Schema migration evolves database structure while maintaining compatibility with running applications" .
+
+upg:DataMigration a owl:Class ;
+    rdfs:label "Data Migration" ;
+    rdfs:comment "Data migration and transformation during upgrade" ;
+    rdfs:subClassOf upg:DatabaseUpgrade ;
+    skos:definition "Data migration transforms and moves data to new formats or locations during system upgrades" .
+
+upg:OnlineSchemaChange a owl:Class ;
+    rdfs:label "Online Schema Change" ;
+    rdfs:comment "Schema changes without locking database" ;
+    rdfs:subClassOf upg:SchemaMigration ;
+    skos:definition "Online schema change modifies database structure without blocking read/write operations" .
+
+upg:BackwardCompatibility a owl:Class ;
+    rdfs:label "Backward Compatibility" ;
+    rdfs:comment "Maintaining compatibility with previous versions" ;
+    rdfs:subClassOf ba:CompatibilityLayer ;
+    skos:definition "Backward compatibility ensures new versions can interoperate with previous system versions" .
+
+upg:StateManagement a owl:Class ;
+    rdfs:label "State Management" ;
+    rdfs:comment "Managing application state during upgrades" ;
+    rdfs:subClassOf ba:StateManager ;
+    skos:definition "State management preserves application state consistency during upgrade transitions" .
+
+# ============================================
+# MONITORING AND OBSERVABILITY
+# ============================================
+
+upg:UpgradeMonitoring a owl:Class ;
+    rdfs:label "Upgrade Monitoring" ;
+    rdfs:comment "Specialized monitoring for upgrade operations" ;
+    rdfs:subClassOf ba:MonitoringSystem ;
+    skos:definition "Upgrade monitoring tracks upgrade progress and system health during upgrade operations" .
+
+upg:UpgradeMetrics a owl:Class ;
+    rdfs:label "Upgrade Metrics" ;
+    rdfs:comment "Metrics specific to upgrade operations" ;
+    rdfs:subClassOf ba:Metrics ;
+    skos:definition "Upgrade metrics measure upgrade performance, success rates, and impact on system operations" .
+
+upg:ProgressTracking a owl:Class ;
+    rdfs:label "Progress Tracking" ;
+    rdfs:comment "System tracking upgrade progress and completion" ;
+    rdfs:subClassOf upg:UpgradeMonitoring ;
+    skos:definition "Progress tracking monitors upgrade advancement through planned stages and validates completion" .
+
+upg:ImpactAnalysis a owl:Class ;
+    rdfs:label "Impact Analysis" ;
+    rdfs:comment "Analysis of upgrade impact on system performance" ;
+    rdfs:subClassOf ba:ImpactAnalysis ;
+    skos:definition "Impact analysis measures upgrade effects on system performance, availability, and user experience" .
+
+upg:RealTimeMonitoring a owl:Class ;
+    rdfs:label "Real-Time Monitoring" ;
+    rdfs:comment "Live monitoring during upgrade execution" ;
+    rdfs:subClassOf upg:UpgradeMonitoring ;
+    skos:definition "Real-time monitoring provides immediate feedback on system health during upgrade operations" .
+
+# ============================================
+# AUTOMATION AND ORCHESTRATION
+# ============================================
+
+upg:UpgradeAutomation a owl:Class ;
+    rdfs:label "Upgrade Automation" ;
+    rdfs:comment "Automation framework for upgrade operations" ;
+    rdfs:subClassOf ba:AutomationFramework ;
+    skos:definition "Upgrade automation executes upgrade procedures with minimal human intervention while maintaining safety" .
+
+upg:Workflow a owl:Class ;
+    rdfs:label "Upgrade Workflow" ;
+    rdfs:comment "Structured workflow for upgrade execution" ;
+    rdfs:subClassOf ba:Workflow ;
+    skos:definition "Upgrade workflow defines the sequence of steps and dependencies for safe upgrade execution" .
+
+upg:DependencyManager a owl:Class ;
+    rdfs:label "Dependency Manager" ;
+    rdfs:comment "System managing upgrade dependencies and ordering" ;
+    rdfs:subClassOf ba:DependencyManager ;
+    skos:definition "Dependency manager ensures upgrade components are updated in correct order based on dependencies" .
+
+upg:ConcurrentUpgrade a owl:Class ;
+    rdfs:label "Concurrent Upgrade" ;
+    rdfs:comment "Parallel execution of independent upgrade operations" ;
+    rdfs:subClassOf upg:UpgradeAutomation ;
+    skos:definition "Concurrent upgrade executes independent upgrade operations in parallel to reduce total upgrade time" .
+
+upg:StageGating a owl:Class ;
+    rdfs:label "Stage Gating" ;
+    rdfs:comment "Validation gates between upgrade stages" ;
+    rdfs:subClassOf upg:UpgradeValidation ;
+    skos:definition "Stage gating requires validation success before proceeding to next upgrade stage" .
+
+# ============================================
+# CORE PROPERTIES
+# ============================================
+
+# Upgrade Execution Properties
+upg:upgradeVersion a owl:DatatypeProperty ;
+    rdfs:label "upgrade version" ;
+    rdfs:comment "Target version for upgrade operation" ;
+    rdfs:domain upg:ZeroDowntimeUpgrade ;
+    rdfs:range xsd:string .
+
+upg:currentVersion a owl:DatatypeProperty ;
+    rdfs:label "current version" ;
+    rdfs:comment "Current system version before upgrade" ;
+    rdfs:domain upg:ZeroDowntimeUpgrade ;
+    rdfs:range xsd:string .
+
+upg:upgradeStatus a owl:DatatypeProperty ;
+    rdfs:label "upgrade status" ;
+    rdfs:comment "Current status of upgrade operation" ;
+    rdfs:domain upg:ZeroDowntimeUpgrade ;
+    rdfs:range xsd:string .
+
+upg:startTime a owl:DatatypeProperty ;
+    rdfs:label "start time" ;
+    rdfs:comment "Upgrade start timestamp" ;
+    rdfs:domain upg:ZeroDowntimeUpgrade ;
+    rdfs:range xsd:dateTime .
+
+upg:completionTime a owl:DatatypeProperty ;
+    rdfs:label "completion time" ;
+    rdfs:comment "Upgrade completion timestamp" ;
+    rdfs:domain upg:ZeroDowntimeUpgrade ;
+    rdfs:range xsd:dateTime .
+
+upg:duration a owl:DatatypeProperty ;
+    rdfs:label "upgrade duration" ;
+    rdfs:comment "Total time for upgrade completion" ;
+    rdfs:domain upg:ZeroDowntimeUpgrade ;
+    rdfs:range xsd:duration .
+
+# Traffic Management Properties
+upg:trafficRatio a owl:DatatypeProperty ;
+    rdfs:label "traffic ratio" ;
+    rdfs:comment "Percentage of traffic directed to new version" ;
+    rdfs:domain upg:TrafficSplitting ;
+    rdfs:range xsd:decimal .
+
+upg:shiftRate a owl:DatatypeProperty ;
+    rdfs:label "shift rate" ;
+    rdfs:comment "Rate of traffic shifting to new version" ;
+    rdfs:domain upg:GradualTrafficShift ;
+    rdfs:range xsd:decimal .
+
+upg:maxConcurrentUpgrades a owl:DatatypeProperty ;
+    rdfs:label "max concurrent upgrades" ;
+    rdfs:comment "Maximum number of simultaneous instance upgrades" ;
+    rdfs:domain upg:RollingUpgrade ;
+    rdfs:range xsd:int .
+
+# Rollback Properties
+upg:rollbackTrigger a owl:DatatypeProperty ;
+    rdfs:label "rollback trigger" ;
+    rdfs:comment "Condition triggering automatic rollback" ;
+    rdfs:domain upg:AutomaticRollback ;
+    rdfs:range xsd:string .
+
+upg:rollbackDuration a owl:DatatypeProperty ;
+    rdfs:label "rollback duration" ;
+    rdfs:comment "Time required to complete rollback" ;
+    rdfs:domain upg:RollbackMechanism ;
+    rdfs:range xsd:duration .
+
+upg:rollbackWindow a owl:DatatypeProperty ;
+    rdfs:label "rollback window" ;
+    rdfs:comment "Time window during which rollback is possible" ;
+    rdfs:domain upg:RollbackMechanism ;
+    rdfs:range xsd:duration .
+
+# Validation Properties
+upg:validationTimeout a owl:DatatypeProperty ;
+    rdfs:label "validation timeout" ;
+    rdfs:comment "Maximum time allowed for validation" ;
+    rdfs:domain upg:UpgradeValidation ;
+    rdfs:range xsd:duration .
+
+upg:healthCheckInterval a owl:DatatypeProperty ;
+    rdfs:label "health check interval" ;
+    rdfs:comment "Interval for performing health checks" ;
+    rdfs:domain upg:HealthCheck ;
+    rdfs:range xsd:duration .
+
+upg:successThreshold a owl:DatatypeProperty ;
+    rdfs:label "success threshold" ;
+    rdfs:comment "Threshold for considering validation successful" ;
+    rdfs:domain upg:UpgradeValidation ;
+    rdfs:range xsd:decimal .
+
+# Performance Properties
+upg:performanceImpact a owl:DatatypeProperty ;
+    rdfs:label "performance impact" ;
+    rdfs:comment "Measured performance impact during upgrade" ;
+    rdfs:domain upg:ZeroDowntimeUpgrade ;
+    rdfs:range xsd:decimal .
+
+upg:availabilityImpact a owl:DatatypeProperty ;
+    rdfs:label "availability impact" ;
+    rdfs:comment "Impact on system availability during upgrade" ;
+    rdfs:domain upg:ZeroDowntimeUpgrade ;
+    rdfs:range xsd:decimal .
+
+upg:errorRateIncrease a owl:DatatypeProperty ;
+    rdfs:label "error rate increase" ;
+    rdfs:comment "Increase in error rate during upgrade" ;
+    rdfs:domain upg:ZeroDowntimeUpgrade ;
+    rdfs:range xsd:decimal .
+
+# Database Upgrade Properties
+upg:migrationScript a owl:DatatypeProperty ;
+    rdfs:label "migration script" ;
+    rdfs:comment "Database migration script path or content" ;
+    rdfs:domain upg:SchemaMigration ;
+    rdfs:range xsd:string .
+
+upg:lockDuration a owl:DatatypeProperty ;
+    rdfs:label "lock duration" ;
+    rdfs:comment "Duration of database locks during migration" ;
+    rdfs:domain upg:DataMigration ;
+    rdfs:range xsd:duration .
+
+upg:batchSize a owl:DatatypeProperty ;
+    rdfs:label "batch size" ;
+    rdfs:comment "Batch size for data migration operations" ;
+    rdfs:domain upg:DataMigration ;
+    rdfs:range xsd:int .
+
+# ============================================
+# OBJECT PROPERTIES
+# ============================================
+
+# Upgrade Relationships
+upg:orchestrates a owl:ObjectProperty ;
+    rdfs:label "orchestrates" ;
+    rdfs:comment "Upgrade orchestrated by orchestrator" ;
+    rdfs:domain upg:UpgradeOrchestrator ;
+    rdfs:range upg:ZeroDowntimeUpgrade .
+
+upg:implementsStrategy a owl:ObjectProperty ;
+    rdfs:label "implements strategy" ;
+    rdfs:comment "Strategy implemented by upgrade" ;
+    rdfs:domain upg:ZeroDowntimeUpgrade ;
+    rdfs:range upg:UpgradeStrategy .
+
+upg:followsPlan a owl:ObjectProperty ;
+    rdfs:label "follows plan" ;
+    rdfs:comment "Plan followed by upgrade execution" ;
+    rdfs:domain upg:ZeroDowntimeUpgrade ;
+    rdfs:range upg:UpgradePlan .
+
+# Validation Relationships
+upg:validates a owl:ObjectProperty ;
+    rdfs:label "validates" ;
+    rdfs:comment "Upgrade validated by validation system" ;
+    rdfs:domain upg:UpgradeValidation ;
+    rdfs:range upg:ZeroDowntimeUpgrade .
+
+upg:performsHealthCheck a owl:ObjectProperty ;
+    rdfs:label "performs health check" ;
+    rdfs:comment "Health check performed during upgrade" ;
+    rdfs:domain upg:ZeroDowntimeUpgrade ;
+    rdfs:range upg:HealthCheck .
+
+upg:requiresValidation a owl:ObjectProperty ;
+    rdfs:label "requires validation" ;
+    rdfs:comment "Validation required for upgrade stage" ;
+    rdfs:domain upg:ZeroDowntimeUpgrade ;
+    rdfs:range upg:UpgradeValidation .
+
+# Rollback Relationships
+upg:hasRollbackMechanism a owl:ObjectProperty ;
+    rdfs:label "has rollback mechanism" ;
+    rdfs:comment "Rollback mechanism available for upgrade" ;
+    rdfs:domain upg:ZeroDowntimeUpgrade ;
+    rdfs:range upg:RollbackMechanism .
+
+upg:triggersRollback a owl:ObjectProperty ;
+    rdfs:label "triggers rollback" ;
+    rdfs:comment "Condition that triggers rollback" ;
+    rdfs:domain ba:Condition ;
+    rdfs:range upg:AutomaticRollback .
+
+# Traffic Management Relationships
+upg:managedBy a owl:ObjectProperty ;
+    rdfs:label "managed by" ;
+    rdfs:comment "Traffic managed by traffic manager" ;
+    rdfs:domain ba:Traffic ;
+    rdfs:range upg:TrafficManager .
+
+upg:routesTraffic a owl:ObjectProperty ;
+    rdfs:label "routes traffic" ;
+    rdfs:comment "Traffic routing performed by load balancer" ;
+    rdfs:domain upg:LoadBalancer ;
+    rdfs:range ba:Traffic .
+
+# Monitoring Relationships
+upg:monitors a owl:ObjectProperty ;
+    rdfs:label "monitors" ;
+    rdfs:comment "Upgrade monitored by monitoring system" ;
+    rdfs:domain upg:UpgradeMonitoring ;
+    rdfs:range upg:ZeroDowntimeUpgrade .
+
+upg:tracks a owl:ObjectProperty ;
+    rdfs:label "tracks" ;
+    rdfs:comment "Progress tracked by tracking system" ;
+    rdfs:domain upg:ProgressTracking ;
+    rdfs:range upg:ZeroDowntimeUpgrade .
+
+# Dependency Relationships
+upg:dependsOn a owl:ObjectProperty ;
+    rdfs:label "depends on" ;
+    rdfs:comment "Upgrade dependency relationship" ;
+    rdfs:domain upg:ZeroDowntimeUpgrade ;
+    rdfs:range upg:ZeroDowntimeUpgrade .
+
+upg:manages a owl:ObjectProperty ;
+    rdfs:label "manages" ;
+    rdfs:comment "Dependencies managed by dependency manager" ;
+    rdfs:domain upg:DependencyManager ;
+    rdfs:range upg:ZeroDowntimeUpgrade .
+
+# ============================================
+# SHACL VALIDATION SHAPES
+# ============================================
+
+upg:ZeroDowntimeUpgradeShape a sh:NodeShape ;
+    sh:targetClass upg:ZeroDowntimeUpgrade ;
+    rdfs:label "Zero-Downtime Upgrade Validation" ;
+    rdfs:comment "Validates zero-downtime upgrade configuration" ;
+    sh:property [
+        sh:path upg:upgradeVersion ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[0-9]+\\.[0-9]+\\.[0-9]+.*$" ;
+        sh:message "Upgrade must specify valid semantic version"
+    ] ;
+    sh:property [
+        sh:path upg:implementsStrategy ;
+        sh:class upg:UpgradeStrategy ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Upgrade must implement exactly one strategy"
+    ] ;
+    sh:property [
+        sh:path upg:hasRollbackMechanism ;
+        sh:class upg:RollbackMechanism ;
+        sh:minCount 1 ;
+        sh:message "Zero-downtime upgrade must have rollback mechanism"
+    ] .
+
+upg:TrafficSplittingShape a sh:NodeShape ;
+    sh:targetClass upg:TrafficSplitting ;
+    rdfs:label "Traffic Splitting Validation" ;
+    rdfs:comment "Validates traffic splitting configuration" ;
+    sh:property [
+        sh:path upg:trafficRatio ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Traffic ratio must be between 0% and 100%"
+    ] .
+
+upg:RollbackMechanismShape a sh:NodeShape ;
+    sh:targetClass upg:RollbackMechanism ;
+    rdfs:label "Rollback Mechanism Validation" ;
+    rdfs:comment "Validates rollback mechanism configuration" ;
+    sh:property [
+        sh:path upg:rollbackDuration ;
+        sh:datatype xsd:duration ;
+        sh:maxInclusive "PT8M"^^xsd:duration ; # 8 minutes max under Doctrine of 8
+        sh:message "Rollback must complete within 8 minutes (Doctrine of 8)"
+    ] ;
+    sh:property [
+        sh:path upg:rollbackWindow ;
+        sh:datatype xsd:duration ;
+        sh:minInclusive "PT1H"^^xsd:duration ;
+        sh:message "Rollback window must be at least 1 hour"
+    ] .
+
+upg:UpgradeValidationShape a sh:NodeShape ;
+    sh:targetClass upg:UpgradeValidation ;
+    rdfs:label "Upgrade Validation Configuration" ;
+    rdfs:comment "Validates upgrade validation configuration" ;
+    sh:property [
+        sh:path upg:validationTimeout ;
+        sh:datatype xsd:duration ;
+        sh:maxInclusive "PT30M"^^xsd:duration ;
+        sh:message "Validation timeout must not exceed 30 minutes"
+    ] ;
+    sh:property [
+        sh:path upg:successThreshold ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.8 ; # Minimum 80% success rate
+        sh:maxInclusive 1.0 ;
+        sh:message "Success threshold must be between 80% and 100%"
+    ] .
+
+upg:PerformanceImpactShape a sh:NodeShape ;
+    sh:targetClass upg:ZeroDowntimeUpgrade ;
+    rdfs:label "Performance Impact Validation" ;
+    rdfs:comment "Validates upgrade maintains performance standards" ;
+    sh:property [
+        sh:path upg:performanceImpact ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 0.1 ; # Maximum 10% performance degradation
+        sh:message "Performance impact must not exceed 10%"
+    ] ;
+    sh:property [
+        sh:path upg:availabilityImpact ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 0.01 ; # Maximum 1% availability impact
+        sh:message "Availability impact must not exceed 1%"
+    ] ;
+    sh:property [
+        sh:path upg:errorRateIncrease ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 0.05 ; # Maximum 5% error rate increase
+        sh:message "Error rate increase must not exceed 5%"
+    ] .
+
+# ============================================
+# INSTANCES AND EXAMPLES
+# ============================================
+
+# Main ByteStar Upgrade Orchestrator
+upg:ByteStarUpgradeOrchestrator a upg:UpgradeOrchestrator ;
+    rdfs:label "ByteStar Upgrade Orchestrator" ;
+    rdfs:comment "Central orchestrator for all ByteStar system upgrades" ;
+    ba:operationalStatus "ACTIVE" .
+
+# Blue-Green Upgrade Example
+upg:ByteStarBlueGreenUpgrade a upg:BlueGreenUpgrade ;
+    rdfs:label "ByteStar Blue-Green Upgrade Strategy" ;
+    rdfs:comment "Blue-green upgrade strategy for ByteStar platform" ;
+    upg:trafficRatio 0.0 ; # Start with 0% traffic to new version
+    upg:shiftRate 25.0 . # Shift 25% traffic increments
+
+# Rolling Upgrade Example
+upg:ByteStarRollingUpgrade a upg:RollingUpgrade ;
+    rdfs:label "ByteStar Rolling Upgrade Strategy" ;
+    rdfs:comment "Rolling upgrade strategy for service instances" ;
+    upg:maxConcurrentUpgrades 2 ;
+    upg:healthCheckInterval "PT30S"^^xsd:duration .
+
+# Automatic Rollback Configuration
+upg:ByteStarAutoRollback a upg:AutomaticRollback ;
+    rdfs:label "ByteStar Automatic Rollback" ;
+    rdfs:comment "Automatic rollback for failed upgrades" ;
+    upg:rollbackTrigger "error_rate > 0.05 OR latency_p95 > 8000ms" ;
+    upg:rollbackDuration "PT5M"^^xsd:duration ;
+    upg:rollbackWindow "PT24H"^^xsd:duration .
+
+# Traffic Manager Configuration
+upg:ByteStarTrafficManager a upg:TrafficManager ;
+    rdfs:label "ByteStar Traffic Manager" ;
+    rdfs:comment "Traffic management during upgrades" ;
+    upg:routesTraffic upg:ByteStarTrafficSplitting .
+
+upg:ByteStarTrafficSplitting a upg:GradualTrafficShift ;
+    rdfs:label "ByteStar Traffic Splitting" ;
+    rdfs:comment "Gradual traffic shift to new version" ;
+    upg:trafficRatio 0.0 ;
+    upg:shiftRate 10.0 . # 10% increments
+
+# Validation Configuration
+upg:ByteStarPreUpgradeValidation a upg:PreUpgradeValidation ;
+    rdfs:label "ByteStar Pre-Upgrade Validation" ;
+    rdfs:comment "Pre-upgrade safety checks" ;
+    upg:validationTimeout "PT10M"^^xsd:duration ;
+    upg:successThreshold 1.0 .
+
+upg:ByteStarPostUpgradeValidation a upg:PostUpgradeValidation ;
+    rdfs:label "ByteStar Post-Upgrade Validation" ;
+    rdfs:comment "Post-upgrade verification" ;
+    upg:validationTimeout "PT15M"^^xsd:duration ;
+    upg:successThreshold 0.95 .
+
+# Example Complete Upgrade
+upg:ByteStarPlatformUpgrade a upg:ZeroDowntimeUpgrade ;
+    rdfs:label "ByteStar Platform Upgrade v5.1.0" ;
+    rdfs:comment "Platform upgrade to version 5.1.0" ;
+    upg:currentVersion "5.0.0" ;
+    upg:upgradeVersion "5.1.0" ;
+    upg:upgradeStatus "PLANNED" ;
+    upg:implementsStrategy upg:ByteStarBlueGreenUpgrade ;
+    upg:hasRollbackMechanism upg:ByteStarAutoRollback ;
+    upg:requiresValidation upg:ByteStarPreUpgradeValidation, upg:ByteStarPostUpgradeValidation ;
+    upg:orchestrates upg:ByteStarUpgradeOrchestrator .

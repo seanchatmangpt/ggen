@@ -1,0 +1,468 @@
+@prefix : <http://bytestar.org/ontology/oracle-network#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ethos: <http://bytestar.org/ontology/ethos#> .
+@prefix security: <http://bytestar.org/ontology/security#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+
+<http://bytestar.org/ontology/oracle-network> rdf:type owl:Ontology ;
+    rdfs:label "ByteStar Oracle Network Ontology"@en ;
+    rdfs:comment "Formal specification of the oracle network system for off-chain data bridging in ByteStar ETHOS"@en ;
+    owl:versionInfo "1.0.0" ;
+    owl:imports <http://bytestar.org/ontology/ethos> ,
+                <http://bytestar.org/ontology/security> .
+
+#################################################################
+#    Oracle Network Core Classes
+#################################################################
+
+:OracleNetwork rdf:type owl:Class ;
+    rdfs:label "Oracle Network"@en ;
+    rdfs:comment "A decentralized network of oracles providing off-chain data"@en ;
+    rdfs:subClassOf ethos:DistributedSystem .
+
+:Oracle rdf:type owl:Class ;
+    rdfs:label "Oracle"@en ;
+    rdfs:comment "An individual oracle node that provides off-chain data"@en ;
+    rdfs:subClassOf ethos:NetworkNode .
+
+:DataFeed rdf:type owl:Class ;
+    rdfs:label "Data Feed"@en ;
+    rdfs:comment "A type of off-chain data provided by oracles"@en ;
+    rdfs:subClassOf ethos:DataType .
+
+:DataRequest rdf:type owl:Class ;
+    rdfs:label "Data Request"@en ;
+    rdfs:comment "A request for off-chain data from the oracle network"@en ;
+    rdfs:subClassOf ethos:SystemRequest .
+
+:DataSubmission rdf:type owl:Class ;
+    rdfs:label "Data Submission"@en ;
+    rdfs:comment "A data response submitted by an oracle"@en ;
+    rdfs:subClassOf ethos:SystemResponse .
+
+:AggregationResult rdf:type owl:Class ;
+    rdfs:label "Aggregation Result"@en ;
+    rdfs:comment "The final aggregated result from multiple oracle submissions"@en ;
+    rdfs:subClassOf ethos:SystemOutput .
+
+#################################################################
+#    Oracle Management Classes
+#################################################################
+
+:OracleRegistration rdf:type owl:Class ;
+    rdfs:label "Oracle Registration"@en ;
+    rdfs:comment "The process and record of registering an oracle"@en ;
+    rdfs:subClassOf ethos:RegistrationProcess .
+
+:OracleStake rdf:type owl:Class ;
+    rdfs:label "Oracle Stake"@en ;
+    rdfs:comment "Economic stake committed by an oracle"@en ;
+    rdfs:subClassOf ethos:EconomicIncentive .
+
+:ReputationScore rdf:type owl:Class ;
+    rdfs:label "Reputation Score"@en ;
+    rdfs:comment "Performance-based reputation score of an oracle"@en ;
+    rdfs:subClassOf ethos:PerformanceMetric .
+
+:OracleStatus rdf:type owl:Class ;
+    rdfs:label "Oracle Status"@en ;
+    rdfs:comment "Current operational status of an oracle"@en ;
+    rdfs:subClassOf ethos:SystemStatus .
+
+#################################################################
+#    Validation and Aggregation Classes
+#################################################################
+
+:ValidationSchema rdf:type owl:Class ;
+    rdfs:label "Validation Schema"@en ;
+    rdfs:comment "Schema defining validation rules for oracle data"@en ;
+    rdfs:subClassOf ethos:ValidationRule .
+
+:AnomalyDetector rdf:type owl:Class ;
+    rdfs:label "Anomaly Detector"@en ;
+    rdfs:comment "Algorithm for detecting anomalous oracle data"@en ;
+    rdfs:subClassOf ethos:ValidationAlgorithm .
+
+:AggregationMethod rdf:type owl:Class ;
+    rdfs:label "Aggregation Method"@en ;
+    rdfs:comment "Algorithm for aggregating multiple oracle submissions"@en ;
+    rdfs:subClassOf ethos:ProcessingAlgorithm .
+
+:ConsensusAlgorithm rdf:type owl:Class ;
+    rdfs:label "Consensus Algorithm"@en ;
+    rdfs:comment "Algorithm for reaching consensus among oracle submissions"@en ;
+    rdfs:subClassOf ethos:ConsensusProtocol .
+
+#################################################################
+#    Security and Integrity Classes
+#################################################################
+
+:DataIntegrityCheck rdf:type owl:Class ;
+    rdfs:label "Data Integrity Check"@en ;
+    rdfs:comment "Cryptographic verification of data integrity"@en ;
+    rdfs:subClassOf security:IntegrityVerification .
+
+:OracleSlashing rdf:type owl:Class ;
+    rdfs:label "Oracle Slashing"@en ;
+    rdfs:comment "Penalty mechanism for malicious oracle behavior"@en ;
+    rdfs:subClassOf ethos:PenaltyMechanism .
+
+:SignatureVerification rdf:type owl:Class ;
+    rdfs:label "Signature Verification"@en ;
+    rdfs:comment "Cryptographic verification of oracle data signatures"@en ;
+    rdfs:subClassOf security:CryptographicVerification .
+
+#################################################################
+#    Oracle Network Properties
+#################################################################
+
+:hasOracle rdf:type owl:ObjectProperty ;
+    rdfs:label "has oracle"@en ;
+    rdfs:domain :OracleNetwork ;
+    rdfs:range :Oracle .
+
+:providesDataFeed rdf:type owl:ObjectProperty ;
+    rdfs:label "provides data feed"@en ;
+    rdfs:domain :Oracle ;
+    rdfs:range :DataFeed .
+
+:submitsData rdf:type owl:ObjectProperty ;
+    rdfs:label "submits data"@en ;
+    rdfs:domain :Oracle ;
+    rdfs:range :DataSubmission .
+
+:requestsData rdf:type owl:ObjectProperty ;
+    rdfs:label "requests data"@en ;
+    rdfs:domain ethos:SystemActor ;
+    rdfs:range :DataRequest .
+
+:aggregates rdf:type owl:ObjectProperty ;
+    rdfs:label "aggregates"@en ;
+    rdfs:domain :AggregationMethod ;
+    rdfs:range :DataSubmission .
+
+:validates rdf:type owl:ObjectProperty ;
+    rdfs:label "validates"@en ;
+    rdfs:domain :ValidationSchema ;
+    rdfs:range :DataSubmission .
+
+#################################################################
+#    Oracle Properties
+#################################################################
+
+:hasStake rdf:type owl:ObjectProperty ;
+    rdfs:label "has stake"@en ;
+    rdfs:domain :Oracle ;
+    rdfs:range :OracleStake .
+
+:hasReputation rdf:type owl:ObjectProperty ;
+    rdfs:label "has reputation"@en ;
+    rdfs:domain :Oracle ;
+    rdfs:range :ReputationScore .
+
+:hasStatus rdf:type owl:ObjectProperty ;
+    rdfs:label "has status"@en ;
+    rdfs:domain :Oracle ;
+    rdfs:range :OracleStatus .
+
+:registeredAt rdf:type owl:ObjectProperty ;
+    rdfs:label "registered at"@en ;
+    rdfs:domain :Oracle ;
+    rdfs:range time:Instant .
+
+:lastHeartbeat rdf:type owl:ObjectProperty ;
+    rdfs:label "last heartbeat"@en ;
+    rdfs:domain :Oracle ;
+    rdfs:range time:Instant .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+:oracleId rdf:type owl:DatatypeProperty ;
+    rdfs:label "oracle ID"@en ;
+    rdfs:domain :Oracle ;
+    rdfs:range xsd:string .
+
+:endpoint rdf:type owl:DatatypeProperty ;
+    rdfs:label "endpoint"@en ;
+    rdfs:domain :Oracle ;
+    rdfs:range xsd:anyURI .
+
+:stakeAmount rdf:type owl:DatatypeProperty ;
+    rdfs:label "stake amount"@en ;
+    rdfs:domain :OracleStake ;
+    rdfs:range xsd:decimal .
+
+:reputationValue rdf:type owl:DatatypeProperty ;
+    rdfs:label "reputation value"@en ;
+    rdfs:domain :ReputationScore ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Reputation score between 0.0 and 1.0"@en .
+
+:feedType rdf:type owl:DatatypeProperty ;
+    rdfs:label "feed type"@en ;
+    rdfs:domain :DataFeed ;
+    rdfs:range xsd:string .
+
+:dataValue rdf:type owl:DatatypeProperty ;
+    rdfs:label "data value"@en ;
+    rdfs:domain :DataSubmission ;
+    rdfs:range rdfs:Literal .
+
+:timestamp rdf:type owl:DatatypeProperty ;
+    rdfs:label "timestamp"@en ;
+    rdfs:domain [ owl:unionOf ( :DataSubmission :DataRequest :AggregationResult ) ] ;
+    rdfs:range xsd:dateTime .
+
+:confidenceScore rdf:type owl:DatatypeProperty ;
+    rdfs:label "confidence score"@en ;
+    rdfs:domain :AggregationResult ;
+    rdfs:range xsd:decimal .
+
+:consensusRatio rdf:type owl:DatatypeProperty ;
+    rdfs:label "consensus ratio"@en ;
+    rdfs:domain :AggregationResult ;
+    rdfs:range xsd:decimal .
+
+:weight rdf:type owl:DatatypeProperty ;
+    rdfs:label "weight"@en ;
+    rdfs:domain :DataSubmission ;
+    rdfs:range xsd:decimal .
+
+#################################################################
+#    Oracle Status Enumeration
+#################################################################
+
+:OracleStatusType rdf:type owl:Class ;
+    rdfs:label "Oracle Status Type"@en ;
+    rdfs:comment "Enumeration of possible oracle status values"@en ;
+    owl:equivalentClass [ rdf:type owl:Class ;
+                         owl:oneOf ( :Active :Suspended :Slashed :Inactive ) ] .
+
+:Active rdf:type :OracleStatusType ;
+    rdfs:label "Active"@en ;
+    rdfs:comment "Oracle is active and operational"@en .
+
+:Suspended rdf:type :OracleStatusType ;
+    rdfs:label "Suspended"@en ;
+    rdfs:comment "Oracle is temporarily suspended"@en .
+
+:Slashed rdf:type :OracleStatusType ;
+    rdfs:label "Slashed"@en ;
+    rdfs:comment "Oracle has been penalized for malicious behavior"@en .
+
+:Inactive rdf:type :OracleStatusType ;
+    rdfs:label "Inactive"@en ;
+    rdfs:comment "Oracle is not currently operational"@en .
+
+#################################################################
+#    Aggregation Method Types
+#################################################################
+
+:AggregationMethodType rdf:type owl:Class ;
+    rdfs:label "Aggregation Method Type"@en ;
+    rdfs:comment "Enumeration of aggregation methods"@en ;
+    owl:equivalentClass [ rdf:type owl:Class ;
+                         owl:oneOf ( :Median :Mean :Mode :TrimmedMean :WeightedMean :ByzantineFaultTolerant ) ] .
+
+:Median rdf:type :AggregationMethodType ;
+    rdfs:label "Median"@en ;
+    rdfs:comment "Use median value of submissions"@en .
+
+:Mean rdf:type :AggregationMethodType ;
+    rdfs:label "Mean"@en ;
+    rdfs:comment "Use arithmetic mean of submissions"@en .
+
+:Mode rdf:type :AggregationMethodType ;
+    rdfs:label "Mode"@en ;
+    rdfs:comment "Use most frequent value"@en .
+
+:TrimmedMean rdf:type :AggregationMethodType ;
+    rdfs:label "Trimmed Mean"@en ;
+    rdfs:comment "Use mean after removing outliers"@en .
+
+:WeightedMean rdf:type :AggregationMethodType ;
+    rdfs:label "Weighted Mean"@en ;
+    rdfs:comment "Use weighted average based on oracle reputation/stake"@en .
+
+:ByzantineFaultTolerant rdf:type :AggregationMethodType ;
+    rdfs:label "Byzantine Fault Tolerant"@en ;
+    rdfs:comment "Use Byzantine consensus algorithm"@en .
+
+#################################################################
+#    Feed Type Classifications
+#################################################################
+
+:FeedType rdf:type owl:Class ;
+    rdfs:label "Feed Type"@en ;
+    rdfs:comment "Classification of oracle data feeds"@en ;
+    owl:equivalentClass [ rdf:type owl:Class ;
+                         owl:oneOf ( :PriceFeed :WeatherData :SportsResults :RandomBeacon ) ] .
+
+:PriceFeed rdf:type :FeedType ;
+    rdfs:label "Price Feed"@en ;
+    rdfs:comment "Cryptocurrency and asset price data"@en .
+
+:WeatherData rdf:type :FeedType ;
+    rdfs:label "Weather Data"@en ;
+    rdfs:comment "Weather and climate information"@en .
+
+:SportsResults rdf:type :FeedType ;
+    rdfs:label "Sports Results"@en ;
+    rdfs:comment "Sports scores and outcomes"@en .
+
+:RandomBeacon rdf:type :FeedType ;
+    rdfs:label "Random Beacon"@en ;
+    rdfs:comment "Verifiable random number generation"@en .
+
+#################################################################
+#    Validation Rules
+#################################################################
+
+:ValidationRule rdf:type owl:Class ;
+    rdfs:label "Validation Rule"@en ;
+    rdfs:comment "Rule for validating oracle data"@en ;
+    rdfs:subClassOf ethos:BusinessRule .
+
+:RangeCheck rdf:type :ValidationRule ;
+    rdfs:label "Range Check"@en ;
+    rdfs:comment "Validate that numeric values are within acceptable range"@en .
+
+:FormatCheck rdf:type :ValidationRule ;
+    rdfs:label "Format Check"@en ;
+    rdfs:comment "Validate data format against pattern"@en .
+
+:ContextCheck rdf:type :ValidationRule ;
+    rdfs:label "Context Check"@en ;
+    rdfs:comment "Validate data against contextual requirements"@en .
+
+:CustomValidator rdf:type :ValidationRule ;
+    rdfs:label "Custom Validator"@en ;
+    rdfs:comment "Custom validation function"@en .
+
+#################################################################
+#    Constraints and Axioms
+#################################################################
+
+# Oracle must have a positive stake
+:Oracle rdfs:subClassOf [ rdf:type owl:Restriction ;
+                         owl:onProperty :hasStake ;
+                         owl:someValuesFrom [ rdf:type owl:Restriction ;
+                                             owl:onProperty :stakeAmount ;
+                                             owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                                                owl:onDatatype xsd:decimal ;
+                                                                owl:withRestrictions ( [ xsd:minExclusive "0"^^xsd:decimal ] ) ] ] ] .
+
+# Reputation score must be between 0 and 1
+:ReputationScore rdfs:subClassOf [ rdf:type owl:Restriction ;
+                                  owl:onProperty :reputationValue ;
+                                  owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                                      owl:onDatatype xsd:decimal ;
+                                                      owl:withRestrictions ( [ xsd:minInclusive "0.0"^^xsd:decimal ]
+                                                                           [ xsd:maxInclusive "1.0"^^xsd:decimal ] ) ] ] .
+
+# Data request must specify feed type
+:DataRequest rdfs:subClassOf [ rdf:type owl:Restriction ;
+                              owl:onProperty :feedType ;
+                              owl:cardinality "1"^^xsd:nonNegativeInteger ] .
+
+# Aggregation result must have confidence score
+:AggregationResult rdfs:subClassOf [ rdf:type owl:Restriction ;
+                                    owl:onProperty :confidenceScore ;
+                                    owl:cardinality "1"^^xsd:nonNegativeInteger ] .
+
+# Oracle network must have at least one oracle
+:OracleNetwork rdfs:subClassOf [ rdf:type owl:Restriction ;
+                                owl:onProperty :hasOracle ;
+                                owl:minCardinality "1"^^xsd:nonNegativeInteger ] .
+
+#################################################################
+#    Security Constraints
+#################################################################
+
+# Data submissions must be signed
+:DataSubmission rdfs:subClassOf [ rdf:type owl:Restriction ;
+                                 owl:onProperty security:hasSignature ;
+                                 owl:cardinality "1"^^xsd:nonNegativeInteger ] .
+
+# Oracle registration requires stake
+:OracleRegistration rdfs:subClassOf [ rdf:type owl:Restriction ;
+                                     owl:onProperty :hasStake ;
+                                     owl:cardinality "1"^^xsd:nonNegativeInteger ] .
+
+# Active oracles must have recent heartbeat
+:Oracle rdfs:subClassOf [ rdf:type owl:Restriction ;
+                         owl:onProperty :hasStatus ;
+                         owl:hasValue :Active ;
+                         owl:onProperty :lastHeartbeat ;
+                         owl:someValuesFrom time:Instant ] .
+
+#################################################################
+#    Performance Metrics
+#################################################################
+
+:PerformanceMetrics rdf:type owl:Class ;
+    rdfs:label "Performance Metrics"@en ;
+    rdfs:comment "Performance metrics for oracle evaluation"@en ;
+    rdfs:subClassOf ethos:Metrics .
+
+:ResponseTime rdf:type owl:DatatypeProperty ;
+    rdfs:label "response time"@en ;
+    rdfs:domain :PerformanceMetrics ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Average response time in milliseconds"@en .
+
+:UptimePercentage rdf:type owl:DatatypeProperty ;
+    rdfs:label "uptime percentage"@en ;
+    rdfs:domain :PerformanceMetrics ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Uptime percentage (0-100)"@en .
+
+:SuccessfulSubmissions rdf:type owl:DatatypeProperty ;
+    rdfs:label "successful submissions"@en ;
+    rdfs:domain :PerformanceMetrics ;
+    rdfs:range xsd:nonNegativeInteger .
+
+:FailedSubmissions rdf:type owl:DatatypeProperty ;
+    rdfs:label "failed submissions"@en ;
+    rdfs:domain :PerformanceMetrics ;
+    rdfs:range xsd:nonNegativeInteger .
+
+#################################################################
+#    Economic Incentives
+#################################################################
+
+:IncentiveMechanism rdf:type owl:Class ;
+    rdfs:label "Incentive Mechanism"@en ;
+    rdfs:comment "Economic incentive structure for oracles"@en ;
+    rdfs:subClassOf ethos:EconomicMechanism .
+
+:RewardDistribution rdf:type owl:Class ;
+    rdfs:label "Reward Distribution"@en ;
+    rdfs:comment "Distribution of rewards to participating oracles"@en ;
+    rdfs:subClassOf :IncentiveMechanism .
+
+:SlashingPenalty rdf:type owl:Class ;
+    rdfs:label "Slashing Penalty"@en ;
+    rdfs:comment "Economic penalty for malicious behavior"@en ;
+    rdfs:subClassOf :IncentiveMechanism .
+
+:rewardAmount rdf:type owl:DatatypeProperty ;
+    rdfs:label "reward amount"@en ;
+    rdfs:domain :RewardDistribution ;
+    rdfs:range xsd:decimal .
+
+:penaltyAmount rdf:type owl:DatatypeProperty ;
+    rdfs:label "penalty amount"@en ;
+    rdfs:domain :SlashingPenalty ;
+    rdfs:range xsd:decimal .
+
+:slashingReason rdf:type owl:DatatypeProperty ;
+    rdfs:label "slashing reason"@en ;
+    rdfs:domain :SlashingPenalty ;
+    rdfs:range xsd:string .

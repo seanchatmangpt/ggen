@@ -1,0 +1,32 @@
+@prefix bos: <http://bible.o.star/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<urn:ostar:false-report-record> a bos:WallSection ;
+    bos:gateAssignment bos:ValleyGate ;
+    bos:builderName bos:Sanballat ;
+    bos:provenance bos:Nehemiah_6_6 ;
+    bos:verdict bos:Verdict_Rejected ;
+    bos:receiptRelation <urn:ostar:receipt:rejection-001> .
+
+bos:ValleyGate a bos:Gate ;
+    rdfs:label "Valley Gate" .
+
+bos:Sanballat a bos:Mocker ;
+    rdfs:label "Sanballat the Horonite" .
+
+bos:Nehemiah_6_6 a bos:NationsLedger ;
+    rdfs:label "Nehemiah 6:6 (The Rumor of the Nations)" .
+
+bos:Verdict_Rejected a bos:InspectionVerdict ;
+    rdfs:label "Rejected as Falsehood" .
+
+<urn:ostar:receipt:rejection-001> a bos:Receipt ;
+    rdfs:label "Rejection Receipt #001" .
+
+<urn:ostar:false-report-payload> a bos:FalseReport ;
+    bos:carriedBy bos:Courier_Geshem ;
+    bos:content "It is reported among the nations... that you and the Jews intend to rebel." .
+
+bos:Courier_Geshem a bos:Courier ;
+    rdfs:label "Geshem the Arab" .

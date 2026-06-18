@@ -1,0 +1,404 @@
+@prefix escalation: <http://cns-litigation.org/escalation#> .
+@prefix vanderaalst: <http://www.vanderaalst.org/patterns#> .
+@prefix yawl: <http://www.yawlframework.org/ontology#> .
+@prefix bar: <http://cns-litigation.org/bar#> .
+@prefix legal: <http://cns-litigation.org/legal#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Complaint Escalation Workflow using Van der Aalst Patterns
+# Strategic escalation pathways for bar disciplinary complaints
+
+escalation:EscalationWorkflowOntology a owl:Ontology ;
+    rdfs:label "Bar Complaint Escalation Workflow System" ;
+    rdfs:comment "Van der Aalst workflow patterns for strategic complaint escalation" ;
+    owl:versionInfo "2.0" ;
+    owl:created "2025-07-29T22:43:00Z" .
+
+# Escalation Trigger Patterns
+escalation:EscalationTrigger a owl:Class ;
+    rdfs:label "Escalation Trigger" ;
+    rdfs:comment "Conditions that trigger complaint escalation" .
+
+escalation:TimeBasedTrigger a owl:Class ;
+    rdfs:subClassOf escalation:EscalationTrigger ;
+    rdfs:label "Time-Based Escalation Trigger" ;
+    escalation:triggerCondition "time_elapsed > threshold" ;
+    escalation:defaultThreshold "90 days"^^xsd:duration .
+
+escalation:ResponseBasedTrigger a owl:Class ;
+    rdfs:subClassOf escalation:EscalationTrigger ;
+    rdfs:label "Response-Based Escalation Trigger" ;
+    escalation:triggerCondition "inadequate_response OR dismissal_without_investigation" .
+
+escalation:EvidenceBasedTrigger a owl:Class ;
+    rdfs:subClassOf escalation:EscalationTrigger ;
+    rdfs:label "Evidence-Based Escalation Trigger" ;
+    escalation:triggerCondition "new_evidence_discovered OR evidence_quality_threshold_met" ;
+    escalation:evidenceThreshold 0.85 .
+
+escalation:SeverityBasedTrigger a owl:Class ;
+    rdfs:subClassOf escalation:EscalationTrigger ;
+    rdfs:label "Severity-Based Escalation Trigger" ;
+    escalation:triggerCondition "misconduct_severity = critical OR public_safety_risk" .
+
+# Main Escalation Workflow (Van der Aalst Pattern Implementation)
+escalation:EscalationWorkflow a yawl:Specification ;
+    rdfs:label "Bar Complaint Strategic Escalation Workflow" ;
+    rdfs:comment "Multi-level escalation workflow using Van der Aalst patterns" ;
+    yawl:version "2.0" ;
+    vanderaalst:implementsPatterns (
+        vanderaalst:SequencePattern
+        vanderaalst:ParallelSplitPattern
+        vanderaalst:ExclusiveChoicePattern
+        vanderaalst:DeferredChoicePattern
+        vanderaalst:MilestonePattern
+        vanderaalst:CancelActivityPattern
+        vanderaalst:MultipleInstancesWithAPrioriRuntimeKnowledgePattern
+    ) .
+
+# Level 1: Internal Review Escalation
+escalation:InternalReviewEscalation a yawl:Task ;
+    rdfs:label "Internal Review Escalation" ;
+    yawl:decompositionType yawl:atomic ;
+    vanderaalst:implementsPattern vanderaalst:SequencePattern ;
+    escalation:escalationLevel 1 ;
+    escalation:targetAuthority "Bar Internal Review Committee" ;
+    escalation:requiredDocuments (
+        "Original Complaint"
+        "Initial Response"
+        "Escalation Request"
+        "Additional Evidence"
+    ) ;
+    escalation:timeframe "30 days" ;
+    yawl:inputCondition escalation:InitialResponseInadequate ;
+    yawl:outputCondition escalation:InternalReviewInitiated .
+
+# Level 2: Administrative Review Escalation  
+escalation:AdministrativeReviewEscalation a yawl:Task ;
+    rdfs:label "Administrative Review Escalation" ;
+    yawl:decompositionType yawl:atomic ;
+    vanderaalst:implementsPattern vanderaalst:ExclusiveChoicePattern ;
+    escalation:escalationLevel 2 ;
+    escalation:targetAuthority "State Bar Chief Trial Counsel" ;
+    escalation:requiredDocuments (
+        "Complete Case File"
+        "Internal Review Decision"
+        "Administrative Appeal Brief"
+        "Supporting Legal Authorities"
+    ) ;
+    escalation:timeframe "45 days" ;
+    yawl:inputCondition escalation:InternalReviewDenied ;
+    yawl:outputConditions (
+        escalation:AdministrativeReviewGranted
+        escalation:AdministrativeReviewDenied
+        escalation:RemandToInternalReview
+    ) .
+
+# Level 3: Parallel Multi-Jurisdiction Filing (Van der Aalst Pattern 2)
+escalation:MultiJurisdictionEscalation a yawl:Task ;
+    rdfs:label "Multi-Jurisdiction Escalation" ;
+    yawl:decompositionType yawl:composite ;
+    vanderaalst:implementsPattern vanderaalst:ParallelSplitPattern ;
+    escalation:escalationLevel 3 ;
+    yawl:subtasks (
+        escalation:StateBarComplaint
+        escalation:FederalBarComplaint
+        escalation:SpecialtyBarComplaint
+        escalation:ReciprocalJurisdictionComplaint
+    ) ;
+    yawl:joinType yawl:xor ;
+    escalation:minimumSuccessfulFilings 1 ;
+    escalation:timeframe "60 days" .
+
+# Level 4: Regulatory Agency Escalation
+escalation:RegulatoryAgencyEscalation a yawl:Task ;
+    rdfs:label "Regulatory Agency Escalation" ;
+    yawl:decompositionType yawl:composite ;
+    vanderaalst:implementsPattern vanderaalst:MultipleInstancesWithAPrioriRuntimeKnowledgePattern ;
+    escalation:escalationLevel 4 ;
+    escalation:targetAgencies (
+        escalation:StateAttorneyGeneral
+        escalation:FederalTradeCommission
+        escalation:SecuritiesExchangeCommission
+        escalation:FinancialCrimesEnforcementNetwork
+    ) ;
+    escalation:instanceCreation "runtime_knowledge" ;
+    escalation:maxInstances 10 ;
+    escalation:timeframe "90 days" .
+
+# Level 5: Judicial Escalation
+escalation:JudicialEscalation a yawl:Task ;
+    rdfs:label "Judicial Review Escalation" ;
+    yawl:decompositionType yawl:atomic ;
+    vanderaalst:implementsPattern vanderaalst:DeferredChoicePattern ;
+    escalation:escalationLevel 5 ;
+    escalation:targetCourts (
+        escalation:StateSupremeCourt
+        escalation:FederalDistrictCourt
+        escalation:AppellateCourt
+    ) ;
+    yawl:inputConditions (
+        escalation:RegulatoryFailure
+        escalation:ConstitutionalIssue
+        escalation:ProcedualViolation
+    ) ;
+    yawl:outputConditions (
+        escalation:WritOfMandamus
+        escalation:ConstitutionalChallenge
+        escalation:AdministrativeReview
+    ) ;
+    escalation:timeframe "120 days" .
+
+# Level 6: Legislative/Media Escalation
+escalation:PublicPressureEscalation a yawl:Task ;
+    rdfs:label "Public Pressure Escalation" ;
+    yawl:decompositionType yawl:composite ;
+    vanderaalst:implementsPattern vanderaalst:ParallelSplitPattern ;
+    escalation:escalationLevel 6 ;
+    yawl:subtasks (
+        escalation:LegislativeNotification
+        escalation:MediaOutreach
+        escalation:BarAssociationPressure
+        escalation:PublicInterestAdvocacy
+    ) ;
+    yawl:joinType yawl:and ;
+    escalation:publicityRisk "high" ;
+    escalation:reputationalImpact "significant" ;
+    escalation:timeframe "30 days" .
+
+# Milestone Pattern for Escalation Progress (Van der Aalst Pattern 18)
+escalation:EscalationMilestone a yawl:Task ;
+    rdfs:label "Escalation Progress Milestone" ;
+    vanderaalst:implementsPattern vanderaalst:MilestonePattern ;
+    escalation:milestoneConditions (
+        "evidence_threshold_maintained"
+        "jurisdictional_requirements_met"
+        "resource_availability_confirmed"
+        "strategic_advantage_present"
+    ) ;
+    yawl:enabledWhen escalation:MilestoneConditionsMet ;
+    escalation:evaluationFrequency "weekly" .
+
+# Strategic Withdrawal Pattern (Van der Aalst Pattern 19)
+escalation:StrategicWithdrawal a yawl:Task ;
+    rdfs:label "Strategic Escalation Withdrawal" ;
+    vanderaalst:implementsPattern vanderaalst:CancelActivityPattern ;
+    yawl:decompositionType yawl:atomic ;
+    escalation:withdrawalConditions (
+        escalation:SettlementOffered
+        escalation:EvidenceCompromised
+        escalation:CostBenefitNegative
+        escalation:AlternativeRemedyAvailable
+    ) ;
+    yawl:cancelsCase false ;
+    escalation:preservesFutureOptions true .
+
+# Escalation Decision Matrix
+escalation:EscalationDecisionMatrix a owl:Class ;
+    rdfs:label "Escalation Decision Matrix" ;
+    rdfs:comment "Decision matrix for escalation pathway selection" .
+
+escalation:EvidenceQualityMatrix a escalation:EscalationDecisionMatrix ;
+    rdfs:label "Evidence Quality Decision Matrix" ;
+    escalation:decisionCriteria [
+        escalation:evidenceStrength "high" ;
+        escalation:recommendedLevel 3 ;
+        escalation:successProbability 0.85
+    ] , [
+        escalation:evidenceStrength "medium" ;
+        escalation:recommendedLevel 2 ;
+        escalation:successProbability 0.65
+    ] , [
+        escalation:evidenceStrength "low" ;
+        escalation:recommendedLevel 1 ;
+        escalation:successProbability 0.35
+    ] .
+
+escalation:SeverityMatrix a escalation:EscalationDecisionMatrix ;
+    rdfs:label "Misconduct Severity Decision Matrix" ;
+    escalation:decisionCriteria [
+        escalation:misconductSeverity "critical" ;
+        escalation:recommendedLevel 5 ;
+        escalation:parallelFiling true
+    ] , [
+        escalation:misconductSeverity "high" ;
+        escalation:recommendedLevel 3 ;
+        escalation:parallelFiling false
+    ] , [
+        escalation:misconductSeverity "medium" ;
+        escalation:recommendedLevel 2 ;
+        escalation:parallelFiling false
+    ] .
+
+escalation:ResourceMatrix a escalation:EscalationDecisionMatrix ;
+    rdfs:label "Resource Availability Decision Matrix" ;
+    escalation:decisionCriteria [
+        escalation:resourceAvailability "high" ;
+        escalation:maxEscalationLevel 6 ;
+        escalation:parallelPathways true
+    ] , [
+        escalation:resourceAvailability "medium" ;
+        escalation:maxEscalationLevel 4 ;
+        escalation:parallelPathways false
+    ] , [
+        escalation:resourceAvailability "low" ;
+        escalation:maxEscalationLevel 2 ;
+        escalation:parallelPathways false
+    ] .
+
+# Escalation Tactics Library
+escalation:EscalationTactic a owl:Class ;
+    rdfs:label "Escalation Tactic" ;
+    rdfs:comment "Specific tactical approaches for escalation" .
+
+escalation:DocumentationBlitz a escalation:EscalationTactic ;
+    rdfs:label "Documentation Blitz Tactic" ;
+    escalation:description "Overwhelming documentation submission strategy" ;
+    escalation:applicableLevel "1-3" ;
+    escalation:effectivenessRating 0.75 ;
+    escalation:requiredResources "High documentation capacity" ;
+    escalation:timeframe "2-4 weeks" .
+
+escalation:MediaPressure a escalation:EscalationTactic ;
+    rdfs:label "Strategic Media Pressure" ;
+    escalation:description "Coordinated media campaign for public pressure" ;
+    escalation:applicableLevel "6" ;
+    escalation:effectivenessRating 0.82 ;
+    escalation:requiredResources "Media relations expertise" ;
+    escalation:riskLevel "high" ;
+    escalation:timeframe "1-2 weeks" .
+
+escalation:LegalAuthorityCitation a escalation:EscalationTactic ;
+    rdfs:label "Comprehensive Legal Authority Citation" ;
+    escalation:description "Exhaustive legal research and citation strategy" ;
+    escalation:applicableLevel "2-5" ;
+    escalation:effectivenessRating 0.68 ;
+    escalation:requiredResources "Legal research capacity" ;
+    escalation:timeframe "3-6 weeks" .
+
+escalation:CoalitionBuilding a escalation:EscalationTactic ;
+    rdfs:label "Stakeholder Coalition Building" ;
+    escalation:description "Building coalition of affected parties and advocates" ;
+    escalation:applicableLevel "4-6" ;
+    escalation:effectivenessRating 0.79 ;
+    escalation:requiredResources "Advocacy and organizing capacity" ;
+    escalation:timeframe "4-8 weeks" .
+
+# Escalation Success Metrics
+escalation:SuccessMetrics a owl:Class ;
+    rdfs:label "Escalation Success Metrics" ;
+    escalation:levelOneSuccessRate 0.42 ;
+    escalation:levelTwoSuccessRate 0.58 ;
+    escalation:levelThreeSuccessRate 0.73 ;
+    escalation:levelFourSuccessRate 0.65 ;
+    escalation:levelFiveSuccessRate 0.81 ;
+    escalation:levelSixSuccessRate 0.89 ;
+    escalation:averageResolutionTime [
+        escalation:level1 "45 days" ;
+        escalation:level2 "75 days" ;
+        escalation:level3 "120 days" ;
+        escalation:level4 "180 days" ;
+        escalation:level5 "240 days" ;
+        escalation:level6 "90 days"
+    ] .
+
+# Risk Assessment Framework
+escalation:RiskAssessment a owl:Class ;
+    rdfs:label "Escalation Risk Assessment" ;
+    rdfs:comment "Framework for assessing escalation risks and benefits" .
+
+escalation:ReputationalRisk a escalation:RiskAssessment ;
+    rdfs:label "Reputational Risk Assessment" ;
+    escalation:riskFactors (
+        "public_visibility"
+        "media_interest"
+        "stakeholder_impact"
+        "professional_relationships"
+    ) ;
+    escalation:riskMitigation (
+        "controlled_messaging"
+        "stakeholder_preparation"
+        "media_strategy"
+        "relationship_management"
+    ) .
+
+escalation:CostBenefitRisk a escalation:RiskAssessment ;
+    rdfs:label "Cost-Benefit Risk Assessment" ;
+    escalation:costFactors (
+        "legal_fees"
+        "time_investment"
+        "opportunity_cost"
+        "relationship_damage"
+    ) ;
+    escalation:benefitFactors (
+        "disciplinary_action_probability"
+        "precedent_value"
+        "deterrent_effect"
+        "client_vindication"
+    ) .
+
+# Escalation Workflow Control Flow
+escalation:EscalationControlFlow a yawl:ControlFlow ;
+    yawl:flowsFrom escalation:InternalReviewEscalation ;
+    yawl:flowsTo escalation:AdministrativeReviewEscalation ;
+    yawl:condition "internal_review_unsuccessful AND evidence_threshold_met" .
+
+escalation:MultiJurisdictionFlow a yawl:ControlFlow ;
+    yawl:flowsFrom escalation:AdministrativeReviewEscalation ;
+    yawl:flowsTo escalation:MultiJurisdictionEscalation ;
+    yawl:condition "administrative_review_denied AND multi_jurisdiction_viable" .
+
+escalation:RegulatoryFlow a yawl:ControlFlow ;
+    yawl:flowsFrom escalation:MultiJurisdictionEscalation ;
+    yawl:flowsTo escalation:RegulatoryAgencyEscalation ;
+    yawl:condition "bar_remedies_exhausted AND regulatory_nexus_exists" .
+
+escalation:JudicialFlow a yawl:ControlFlow ;
+    yawl:flowsFrom escalation:RegulatoryAgencyEscalation ;
+    yawl:flowsTo escalation:JudicialEscalation ;
+    yawl:condition "regulatory_failure AND legal_grounds_exist" .
+
+escalation:PublicPressureFlow a yawl:ControlFlow ;
+    yawl:flowsFrom escalation:JudicialEscalation ;
+    yawl:flowsTo escalation:PublicPressureEscalation ;
+    yawl:condition "all_legal_remedies_exhausted AND public_interest_present" .
+
+# Properties for Escalation Framework
+escalation:escalationLevel a owl:DatatypeProperty ;
+    rdfs:domain escalation:EscalationTactic ;
+    rdfs:range xsd:integer .
+
+escalation:targetAuthority a owl:DatatypeProperty ;
+    rdfs:domain yawl:Task ;
+    rdfs:range xsd:string .
+
+escalation:timeframe a owl:DatatypeProperty ;
+    rdfs:domain yawl:Task ;
+    rdfs:range xsd:string .
+
+escalation:successProbability a owl:DatatypeProperty ;
+    rdfs:domain escalation:EscalationDecisionMatrix ;
+    rdfs:range xsd:decimal .
+
+escalation:effectivenessRating a owl:DatatypeProperty ;
+    rdfs:domain escalation:EscalationTactic ;
+    rdfs:range xsd:decimal .
+
+escalation:riskLevel a owl:DatatypeProperty ;
+    rdfs:domain escalation:EscalationTactic ;
+    rdfs:range xsd:string .
+
+escalation:requiredResources a owl:DatatypeProperty ;
+    rdfs:domain escalation:EscalationTactic ;
+    rdfs:range xsd:string .
+
+escalation:triggerCondition a owl:DatatypeProperty ;
+    rdfs:domain escalation:EscalationTrigger ;
+    rdfs:range xsd:string .
+
+escalation:evidenceThreshold a owl:DatatypeProperty ;
+    rdfs:domain escalation:EscalationTrigger ;
+    rdfs:range xsd:decimal .

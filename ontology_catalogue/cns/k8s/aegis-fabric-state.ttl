@@ -1,0 +1,52 @@
+@prefix cns: <http://cns.io/forge#> .
+@prefix aegis: <http://cns.io/aegis/fabric#> .
+@prefix k8s: <http://kubernetes.io/api#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Aegis Fabric Real-time State
+aegis:fabric_mesh a aegis:SecurityMesh ;
+    cns:componentType "security_mesh" ;
+    cns:status "active" ;
+    aegis:node_count "5"^^xsd:int ;
+    aegis:gossip_active "true"^^xsd:boolean ;
+    cns:lastUpdated "2025-07-25T03:55:30Z"^^xsd:dateTime .
+
+# Individual Nodes
+aegis:node_01 a aegis:EnforcementPoint ;
+    cns:status "healthy" ;
+    aegis:pod_name "aegis-enforcement-point-0" ;
+    k8s:namespace "aegis-fabric" ;
+    cns:hasMetric aegis:gossip_metric_01 ;
+    aegis:threats_detected "0"^^xsd:int ;
+    aegis:last_heartbeat "2025-07-25T03:55:25Z"^^xsd:dateTime .
+
+aegis:node_02 a aegis:EnforcementPoint ;
+    cns:status "healthy" ;
+    aegis:pod_name "aegis-enforcement-point-1" ;
+    k8s:namespace "aegis-fabric" ;
+    cns:hasMetric aegis:gossip_metric_02 ;
+    aegis:threats_detected "0"^^xsd:int ;
+    aegis:last_heartbeat "2025-07-25T03:55:28Z"^^xsd:dateTime .
+
+# Gossip Protocol Metrics
+aegis:gossip_metric_01 a cns:NetworkMetric ;
+    aegis:propagation_latency_ms "0.8"^^xsd:decimal ;
+    aegis:messages_sent "1250"^^xsd:long ;
+    aegis:messages_received "1189"^^xsd:long ;
+    aegis:fanout "3"^^xsd:int ;
+    cns:timestamp "2025-07-25T03:55:30Z"^^xsd:dateTime .
+
+aegis:gossip_metric_02 a cns:NetworkMetric ;
+    aegis:propagation_latency_ms "0.9"^^xsd:decimal ;
+    aegis:messages_sent "1198"^^xsd:long ;
+    aegis:messages_received "1245"^^xsd:long ;
+    aegis:fanout "3"^^xsd:int ;
+    cns:timestamp "2025-07-25T03:55:30Z"^^xsd:dateTime .
+
+# Security Events
+aegis:security_status a aegis:SecurityStatus ;
+    aegis:threat_level "green" ;
+    aegis:active_threats "0"^^xsd:int ;
+    aegis:neutralized_threats "15"^^xsd:int ;
+    aegis:encryption_status "active" ;
+    cns:alert "none" .

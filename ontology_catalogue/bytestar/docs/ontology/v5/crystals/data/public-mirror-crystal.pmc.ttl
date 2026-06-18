@@ -1,0 +1,800 @@
+@prefix ba: <http://bytestar.org/ontology/> .
+@prefix bac: <http://bytestar.org/ontology/compliance/> .
+@prefix baac: <http://bytestar.org/ontology/access-control/> .
+@prefix baa: <http://bytestar.org/ontology/audit/> .
+@prefix dsc: <http://bytestar.org/ontology/crystals/dataset/> .
+@prefix view: <http://bytestar.org/ontology/crystals/view/> .
+@prefix pmc: <http://bytestar.org/ontology/crystals/public-mirror/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+# =============================================================================
+# ByteStar Public Mirror Crystal Ontology (.pmc)
+# Version: 5.0.0 - Data/Privacy Domain
+# =============================================================================
+
+<http://bytestar.org/ontology/crystals/public-mirror> a owl:Ontology ;
+    owl:versionIRI <http://bytestar.org/ontology/crystals/public-mirror/5.0.0> ;
+    dct:title "ByteStar Public Mirror Crystal Ontology" ;
+    dct:description "Public mirror crystal with comprehensive sanitization, privacy cleansing, and safe public data exposure while maintaining statistical utility" ;
+    dct:creator "ByteStar Architecture Team" ;
+    dct:created "2025-01-23"^^xsd:date ;
+    dct:modified "2025-01-23"^^xsd:date ;
+    owl:imports <http://bytestar.org/ontology/crystals/dataset>,
+                <http://bytestar.org/ontology/crystals/view>,
+                <http://bytestar.org/ontology/compliance-framework>,
+                <http://bytestar.org/ontology/access-control>,
+                <http://bytestar.org/ontology/audit-system>,
+                <http://bytestar.org/ontology/core>,
+                <http://www.w3.org/ns/prov#> ;
+    ba:crystalType "Public Mirror Crystal" ;
+    ba:publiclyAccessible true ;
+    ba:privacySanitized true ;
+    ba:performanceTarget "< 8ms sanitization" .
+
+# =============================================================================
+# CORE PUBLIC MIRROR CLASSES
+# =============================================================================
+
+pmc:PublicMirrorCrystal a owl:Class ;
+    rdfs:label "Public Mirror Crystal"@en ;
+    rdfs:comment "Sanitized mirror of private data safe for public consumption with statistical utility preservation"@en ;
+    rdfs:subClassOf ba:Crystal ;
+    ba:publicAccess true ;
+    ba:privacyGuaranteed true ;
+    ba:sanitized true ;
+    ba:statisticallyValid true .
+
+pmc:SanitizedDataset a owl:Class ;
+    rdfs:label "Sanitized Dataset"@en ;
+    rdfs:comment "Dataset that has undergone comprehensive privacy sanitization"@en ;
+    rdfs:subClassOf pmc:PublicMirrorCrystal ;
+    ba:sanitizationComplete true ;
+    ba:privacyRisk "MINIMAL" ;
+    ba:utilityPreserved true .
+
+pmc:AnonymizedDataset a owl:Class ;
+    rdfs:label "Anonymized Dataset"@en ;
+    rdfs:comment "Dataset with k-anonymity and l-diversity guarantees"@en ;
+    rdfs:subClassOf pmc:SanitizedDataset ;
+    ba:kAnonymous true ;
+    ba:lDiverse true ;
+    ba:tCloseness true .
+
+pmc:SyntheticDataset a owl:Class ;
+    rdfs:label "Synthetic Dataset"@en ;
+    rdfs:comment "Artificially generated dataset preserving statistical properties"@en ;
+    rdfs:subClassOf pmc:SanitizedDataset ;
+    ba:artificial true ;
+    ba:statisticalFidelity xsd:double ;
+    ba:privacyRisk "NONE" .
+
+pmc:AggregatedDataset a owl:Class ;
+    rdfs:label "Aggregated Dataset"@en ;
+    rdfs:comment "Dataset containing only aggregated statistics with differential privacy"@en ;
+    rdfs:subClassOf pmc:SanitizedDataset ;
+    ba:aggregationOnly true ;
+    ba:differentiallyPrivate true ;
+    ba:individualDataHidden true .
+
+# =============================================================================
+# SANITIZATION PROCESSES
+# =============================================================================
+
+pmc:SanitizationEngine a owl:Class ;
+    rdfs:label "Sanitization Engine"@en ;
+    rdfs:comment "Comprehensive engine for data sanitization and privacy cleansing"@en ;
+    rdfs:subClassOf ba:ProcessingEngine ;
+    ba:multiStageProcessing true ;
+    ba:qualityAssured true ;
+    ba:configurable true .
+
+pmc:SanitizationPipeline a owl:Class ;
+    rdfs:label "Sanitization Pipeline"@en ;
+    rdfs:comment "Multi-stage pipeline for systematic data sanitization"@en ;
+    rdfs:subClassOf ba:Pipeline ;
+    ba:stages xsd:int ;
+    ba:qualityGates true ;
+    ba:rollbackCapable true .
+
+pmc:SanitizationStage a owl:Class ;
+    rdfs:label "Sanitization Stage"@en ;
+    rdfs:comment "Individual stage in the sanitization pipeline"@en ;
+    rdfs:subClassOf ba:ProcessingStage ;
+    ba:stageType xsd:string ;
+    ba:qualityMetrics xsd:string ;
+    ba:processingTime xsd:duration .
+
+pmc:DataCleansing a owl:Class ;
+    rdfs:label "Data Cleansing"@en ;
+    rdfs:comment "Removal of identifying information and sensitive data"@en ;
+    rdfs:subClassOf pmc:SanitizationStage ;
+    ba:identifierRemoval true ;
+    ba:sensitiveDataRemoval true ;
+    ba:qualityPreserved true .
+
+pmc:PrivacyTransformation a owl:Class ;
+    rdfs:label "Privacy Transformation"@en ;
+    rdfs:comment "Privacy-preserving transformations maintaining utility"@en ;
+    rdfs:subClassOf pmc:SanitizationStage ;
+    ba:utilityPreserving true ;
+    ba:privacyEnhancing true ;
+    ba:reversibilityControlled true .
+
+# =============================================================================
+# ANONYMIZATION TECHNIQUES
+# =============================================================================
+
+pmc:KAnonymization a owl:Class ;
+    rdfs:label "K-Anonymization"@en ;
+    rdfs:comment "K-anonymity technique ensuring group indistinguishability"@en ;
+    rdfs:subClassOf pmc:PrivacyTransformation ;
+    ba:kValue xsd:int ;
+    ba:suppressionUsed true ;
+    ba:generalizationUsed true .
+
+pmc:LDiversification a owl:Class ;
+    rdfs:label "L-Diversification"@en ;
+    rdfs:comment "L-diversity technique ensuring sensitive attribute diversity"@en ;
+    rdfs:subClassOf pmc:PrivacyTransformation ;
+    ba:lValue xsd:int ;
+    ba:sensitiveAttributeDiverse true ;
+    ba:homogeneityAttackPrevented true .
+
+pmc:TCloseness a owl:Class ;
+    rdfs:label "T-Closeness"@en ;
+    rdfs:comment "T-closeness technique controlling attribute disclosure"@en ;
+    rdfs:subClassOf pmc:PrivacyTransformation ;
+    ba:tValue xsd:double ;
+    ba:distributionPreserved true ;
+    ba:skewnessAttackPrevented true .
+
+pmc:Suppression a owl:Class ;
+    rdfs:label "Suppression"@en ;
+    rdfs:comment "Selective removal of data values for privacy protection"@en ;
+    rdfs:subClassOf pmc:PrivacyTransformation ;
+    ba:suppressionRate xsd:double ;
+    ba:valueRemoval true ;
+    ba:utilityImpact xsd:double .
+
+pmc:Generalization a owl:Class ;
+    rdfs:label "Generalization"@en ;
+    rdfs:comment "Value generalization for privacy protection"@en ;
+    rdfs:subClassOf pmc:PrivacyTransformation ;
+    ba:generalizationLevel xsd:int ;
+    ba:hierarchyBased true ;
+    ba:precisionLoss xsd:double .
+
+# =============================================================================
+# SYNTHETIC DATA GENERATION
+# =============================================================================
+
+pmc:SyntheticDataGenerator a owl:Class ;
+    rdfs:label "Synthetic Data Generator"@en ;
+    rdfs:comment "AI-powered generator for privacy-preserving synthetic data"@en ;
+    rdfs:subClassOf ba:Generator ;
+    ba:modelBased true ;
+    ba:privacyPreserving true ;
+    ba:statisticalFidelity xsd:double .
+
+pmc:GenerativeModel a owl:Class ;
+    rdfs:label "Generative Model"@en ;
+    rdfs:comment "Machine learning model for synthetic data generation"@en ;
+    rdfs:subClassOf ba:Model ;
+    ba:modelType xsd:string ;
+    ba:trainingPrivate true ;
+    ba:differentiallyPrivateTrained true .
+
+pmc:GANModel a owl:Class ;
+    rdfs:label "GAN Model"@en ;
+    rdfs:comment "Generative Adversarial Network for synthetic data"@en ;
+    rdfs:subClassOf pmc:GenerativeModel ;
+    ba:modelType "GAN" ;
+    ba:discriminatorTrained true ;
+    ba:convergenceAchieved true .
+
+pmc:VAEModel a owl:Class ;
+    rdfs:label "VAE Model"@en ;
+    rdfs:comment "Variational Autoencoder for synthetic data generation"@en ;
+    rdfs:subClassOf pmc:GenerativeModel ;
+    ba:modelType "VAE" ;
+    ba:latentSpaceLearned true ;
+    ba:reconstructionAccuracy xsd:double .
+
+pmc:DPGANModel a owl:Class ;
+    rdfs:label "DP-GAN Model"@en ;
+    rdfs:comment "Differentially Private GAN for privacy-preserving synthesis"@en ;
+    rdfs:subClassOf pmc:GANModel ;
+    ba:differentiallyPrivate true ;
+    ba:privacyBudget xsd:double ;
+    ba:utilityPreserved true .
+
+# =============================================================================
+# QUALITY AND UTILITY ASSESSMENT
+# =============================================================================
+
+pmc:UtilityMeasurement a owl:Class ;
+    rdfs:label "Utility Measurement"@en ;
+    rdfs:comment "Comprehensive measurement of sanitized data utility"@en ;
+    rdfs:subClassOf ba:Measurement ;
+    ba:statisticalMeasures true ;
+    ba:utilityScore xsd:double ;
+    ba:informationLoss xsd:double .
+
+pmc:StatisticalFidelity a owl:Class ;
+    rdfs:label "Statistical Fidelity"@en ;
+    rdfs:comment "Assessment of statistical property preservation"@en ;
+    rdfs:subClassOf pmc:UtilityMeasurement ;
+    ba:distributionSimilarity xsd:double ;
+    ba:correlationPreservation xsd:double ;
+    ba:momentPreservation xsd:double .
+
+pmc:MachineLearningUtility a owl:Class ;
+    rdfs:label "Machine Learning Utility"@en ;
+    rdfs:comment "Assessment of utility for machine learning tasks"@en ;
+    rdfs:subClassOf pmc:UtilityMeasurement ;
+    ba:modelAccuracy xsd:double ;
+    ba:featureImportance xsd:double ;
+    ba:predictivePerformance xsd:double .
+
+pmc:QueryUtility a owl:Class ;
+    rdfs:label "Query Utility"@en ;
+    rdfs:comment "Assessment of utility for analytical queries"@en ;
+    rdfs:subClassOf pmc:UtilityMeasurement ;
+    ba:queryAccuracy xsd:double ;
+    ba:aggregationError xsd:double ;
+    ba:countingError xsd:double .
+
+pmc:QualityAssurance a owl:Class ;
+    rdfs:label "Quality Assurance"@en ;
+    rdfs:comment "Quality assurance framework for sanitized data"@en ;
+    rdfs:subClassOf ba:QualityFramework ;
+    ba:privacyTests true ;
+    ba:utilityTests true ;
+    ba:consistencyChecks true .
+
+# =============================================================================
+# PRIVACY RISK ASSESSMENT
+# =============================================================================
+
+pmc:PrivacyRiskAssessment a owl:Class ;
+    rdfs:label "Privacy Risk Assessment"@en ;
+    rdfs:comment "Comprehensive assessment of privacy risks in public mirror"@en ;
+    rdfs:subClassOf ba:RiskAssessment ;
+    ba:reidentificationRisk xsd:double ;
+    ba:attributeDisclosureRisk xsd:double ;
+    ba:membershipInferenceRisk xsd:double .
+
+pmc:ReidentificationTest a owl:Class ;
+    rdfs:label "Reidentification Test"@en ;
+    rdfs:comment "Test for potential reidentification vulnerabilities"@en ;
+    rdfs:subClassOf ba:SecurityTest ;
+    ba:attackModel xsd:string ;
+    ba:successRate xsd:double ;
+    ba:confidenceLevel xsd:double .
+
+pmc:AttributeDisclosureTest a owl:Class ;
+    rdfs:label "Attribute Disclosure Test"@en ;
+    rdfs:comment "Test for sensitive attribute disclosure risks"@en ;
+    rdfs:subClassOf ba:SecurityTest ;
+    ba:disclosureRate xsd:double ;
+    ba:sensitiveAttributes xsd:string ;
+    ba:disclosureConfidence xsd:double .
+
+pmc:MembershipInferenceTest a owl:Class ;
+    rdfs:label "Membership Inference Test"@en ;
+    rdfs:comment "Test for membership inference attack vulnerabilities"@en ;
+    rdfs:subClassOf ba:SecurityTest ;
+    ba:inferenceAccuracy xsd:double ;
+    ba:attackSuccess xsd:double ;
+    ba:membershipConfidence xsd:double .
+
+pmc:LinkageAttackTest a owl:Class ;
+    rdfs:label "Linkage Attack Test"@en ;
+    rdfs:comment "Test for vulnerability to external data linkage"@en ;
+    rdfs:subClassOf ba:SecurityTest ;
+    ba:linkageRate xsd:double ;
+    ba:externalDataSources xsd:string ;
+    ba:linkageConfidence xsd:double .
+
+# =============================================================================
+# PUBLIC ACCESS AND DISTRIBUTION
+# =============================================================================
+
+pmc:PublicAccessInterface a owl:Class ;
+    rdfs:label "Public Access Interface"@en ;
+    rdfs:comment "Interface for safe public access to sanitized data"@en ;
+    rdfs:subClassOf ba:Interface ;
+    ba:rateLimited true ;
+    ba:queryLogged true ;
+    ba:accessControlled true .
+
+pmc:DataCatalog a owl:Class ;
+    rdfs:label "Data Catalog"@en ;
+    rdfs:comment "Catalog of publicly available sanitized datasets"@en ;
+    rdfs:subClassOf ba:Catalog ;
+    ba:searchable true ;
+    ba:metadata true ;
+    ba:privacyInformation true .
+
+pmc:DownloadService a owl:Class ;
+    rdfs:label "Download Service"@en ;
+    rdfs:comment "Service for downloading sanitized datasets"@en ;
+    rdfs:subClassOf ba:Service ;
+    ba:authentication true ;
+    ba:downloadTracked true ;
+    ba:checksumProvided true .
+
+pmc:APIEndpoint a owl:Class ;
+    rdfs:label "API Endpoint"@en ;
+    rdfs:comment "API endpoint for programmatic access to public data"@en ;
+    rdfs:subClassOf ba:Endpoint ;
+    ba:restful true ;
+    ba:rateLimited true ;
+    ba:documentationProvided true .
+
+pmc:QueryService a owl:Class ;
+    rdfs:label "Query Service"@en ;
+    rdfs:comment "Service for querying public sanitized data"@en ;
+    rdfs:subClassOf ba:Service ;
+    ba:sqlSupported true ;
+    ba:privacyPreserving true ;
+    ba:resultSanitized true .
+
+# =============================================================================
+# COMPLIANCE AND GOVERNANCE
+# =============================================================================
+
+pmc:PublicDataGovernance a owl:Class ;
+    rdfs:label "Public Data Governance"@en ;
+    rdfs:comment "Governance framework for public data release"@en ;
+    rdfs:subClassOf ba:GovernanceFramework ;
+    ba:releaseApproval true ;
+    ba:privacyReview true ;
+    ba:qualityAssurance true .
+
+pmc:DataReleasePolicy a owl:Class ;
+    rdfs:label "Data Release Policy"@en ;
+    rdfs:comment "Policy governing public data release and access"@en ;
+    rdfs:subClassOf ba:Policy ;
+    ba:releaseProcessDefined true ;
+    ba:accessConditions xsd:string ;
+    ba:usageRestrictions xsd:string .
+
+pmc:PrivacyNotice a owl:Class ;
+    rdfs:label "Privacy Notice"@en ;
+    rdfs:comment "Notice describing privacy protections in public data"@en ;
+    rdfs:subClassOf ba:Notice ;
+    ba:sanitizationDescribed true ;
+    ba:risksDisclosed true ;
+    ba:usageGuidance true .
+
+pmc:EthicalReview a owl:Class ;
+    rdfs:label "Ethical Review"@en ;
+    rdfs:comment "Ethical review of public data release"@en ;
+    rdfs:subClassOf ba:Review ;
+    ba:ethicalConsiderations true ;
+    ba:socialImpact true ;
+    ba:approvalRequired true .
+
+# =============================================================================
+# DATA PROPERTIES
+# =============================================================================
+
+# Sanitization Properties
+pmc:sanitizationLevel a owl:DatatypeProperty ;
+    rdfs:label "sanitization level"@en ;
+    rdfs:domain pmc:SanitizedDataset ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Level of sanitization: BASIC, INTERMEDIATE, ADVANCED, EXTREME" .
+
+pmc:privacyRiskScore a owl:DatatypeProperty ;
+    rdfs:label "privacy risk score"@en ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Overall privacy risk score (0-1, lower is better)" .
+
+pmc:utilityScore a owl:DatatypeProperty ;
+    rdfs:label "utility score"@en ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Data utility score (0-1, higher is better)" .
+
+pmc:informationLoss a owl:DatatypeProperty ;
+    rdfs:label "information loss"@en ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Information loss from sanitization (0-1)" .
+
+# Anonymization Properties
+pmc:kParameter a owl:DatatypeProperty ;
+    rdfs:label "k parameter"@en ;
+    rdfs:domain pmc:KAnonymization ;
+    rdfs:range xsd:int ;
+    rdfs:comment "K-anonymity parameter value" .
+
+pmc:lParameter a owl:DatatypeProperty ;
+    rdfs:label "l parameter"@en ;
+    rdfs:domain pmc:LDiversification ;
+    rdfs:range xsd:int ;
+    rdfs:comment "L-diversity parameter value" .
+
+pmc:tParameter a owl:DatatypeProperty ;
+    rdfs:label "t parameter"@en ;
+    rdfs:domain pmc:TCloseness ;
+    rdfs:range xsd:double ;
+    rdfs:comment "T-closeness parameter value" .
+
+pmc:suppressionRate a owl:DatatypeProperty ;
+    rdfs:label "suppression rate"@en ;
+    rdfs:domain pmc:Suppression ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Percentage of values suppressed (0-1)" .
+
+pmc:generalizationLevel a owl:DatatypeProperty ;
+    rdfs:label "generalization level"@en ;
+    rdfs:domain pmc:Generalization ;
+    rdfs:range xsd:int ;
+    rdfs:comment "Level of generalization applied" .
+
+# Synthetic Data Properties
+pmc:syntheticRatio a owl:DatatypeProperty ;
+    rdfs:label "synthetic ratio"@en ;
+    rdfs:domain pmc:SyntheticDataset ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Ratio of synthetic to real records (0-1)" .
+
+pmc:modelFidelity a owl:DatatypeProperty ;
+    rdfs:label "model fidelity"@en ;
+    rdfs:domain pmc:GenerativeModel ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Fidelity of generative model (0-1)" .
+
+pmc:convergenceScore a owl:DatatypeProperty ;
+    rdfs:label "convergence score"@en ;
+    rdfs:domain pmc:GANModel ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Training convergence score (0-1)" .
+
+# Quality Properties
+pmc:distributionSimilarity a owl:DatatypeProperty ;
+    rdfs:label "distribution similarity"@en ;
+    rdfs:domain pmc:StatisticalFidelity ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Similarity to original distribution (0-1)" .
+
+pmc:correlationPreservation a owl:DatatypeProperty ;
+    rdfs:label "correlation preservation"@en ;
+    rdfs:domain pmc:StatisticalFidelity ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Preservation of correlations (0-1)" .
+
+pmc:queryAccuracy a owl:DatatypeProperty ;
+    rdfs:label "query accuracy"@en ;
+    rdfs:domain pmc:QueryUtility ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Accuracy of query results (0-1)" .
+
+# Risk Assessment Properties
+pmc:reidentificationRisk a owl:DatatypeProperty ;
+    rdfs:label "reidentification risk"@en ;
+    rdfs:domain pmc:PrivacyRiskAssessment ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Risk of reidentification (0-1)" .
+
+pmc:attributeDisclosureRisk a owl:DatatypeProperty ;
+    rdfs:label "attribute disclosure risk"@en ;
+    rdfs:domain pmc:PrivacyRiskAssessment ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Risk of attribute disclosure (0-1)" .
+
+pmc:membershipInferenceRisk a owl:DatatypeProperty ;
+    rdfs:label "membership inference risk"@en ;
+    rdfs:domain pmc:PrivacyRiskAssessment ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Risk of membership inference (0-1)" .
+
+# Access Properties
+pmc:downloadCount a owl:DatatypeProperty ;
+    rdfs:label "download count"@en ;
+    rdfs:range xsd:int ;
+    rdfs:comment "Number of times dataset downloaded" .
+
+pmc:accessFrequency a owl:DatatypeProperty ;
+    rdfs:label "access frequency"@en ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Access frequency (requests/day)" .
+
+pmc:rateLimit a owl:DatatypeProperty ;
+    rdfs:label "rate limit"@en ;
+    rdfs:domain pmc:PublicAccessInterface ;
+    rdfs:range xsd:int ;
+    rdfs:comment "Maximum requests per time period" .
+
+# =============================================================================
+# OBJECT PROPERTIES
+# =============================================================================
+
+# Sanitization Relationships
+pmc:sanitizedFrom a owl:ObjectProperty ;
+    rdfs:label "sanitized from"@en ;
+    rdfs:domain pmc:SanitizedDataset ;
+    rdfs:range dsc:DatasetCrystal ;
+    rdfs:comment "Original dataset this was sanitized from" .
+
+pmc:processedBy a owl:ObjectProperty ;
+    rdfs:label "processed by"@en ;
+    rdfs:domain pmc:SanitizedDataset ;
+    rdfs:range pmc:SanitizationEngine ;
+    rdfs:comment "Sanitization engine that processed this dataset" .
+
+pmc:appliesTransformation a owl:ObjectProperty ;
+    rdfs:label "applies transformation"@en ;
+    rdfs:domain pmc:SanitizationEngine ;
+    rdfs:range pmc:PrivacyTransformation ;
+    rdfs:comment "Privacy transformation applied" .
+
+pmc:hasStage a owl:ObjectProperty ;
+    rdfs:label "has stage"@en ;
+    rdfs:domain pmc:SanitizationPipeline ;
+    rdfs:range pmc:SanitizationStage ;
+    rdfs:comment "Stage in the sanitization pipeline" .
+
+# Generation Relationships
+pmc:generatedBy a owl:ObjectProperty ;
+    rdfs:label "generated by"@en ;
+    rdfs:domain pmc:SyntheticDataset ;
+    rdfs:range pmc:SyntheticDataGenerator ;
+    rdfs:comment "Generator that created synthetic dataset" .
+
+pmc:usesModel a owl:ObjectProperty ;
+    rdfs:label "uses model"@en ;
+    rdfs:domain pmc:SyntheticDataGenerator ;
+    rdfs:range pmc:GenerativeModel ;
+    rdfs:comment "Generative model used for synthesis" .
+
+pmc:trainedOn a owl:ObjectProperty ;
+    rdfs:label "trained on"@en ;
+    rdfs:domain pmc:GenerativeModel ;
+    rdfs:range dsc:DatasetCrystal ;
+    rdfs:comment "Dataset used for training the model" .
+
+# Quality Relationships
+pmc:hasUtilityMeasurement a owl:ObjectProperty ;
+    rdfs:label "has utility measurement"@en ;
+    rdfs:domain pmc:SanitizedDataset ;
+    rdfs:range pmc:UtilityMeasurement ;
+    rdfs:comment "Utility measurement for this dataset" .
+
+pmc:hasRiskAssessment a owl:ObjectProperty ;
+    rdfs:label "has risk assessment"@en ;
+    rdfs:domain pmc:SanitizedDataset ;
+    rdfs:range pmc:PrivacyRiskAssessment ;
+    rdfs:comment "Privacy risk assessment" .
+
+pmc:testedBy a owl:ObjectProperty ;
+    rdfs:label "tested by"@en ;
+    rdfs:range ba:SecurityTest ;
+    rdfs:comment "Security test applied" .
+
+# Access Relationships
+pmc:accessibleVia a owl:ObjectProperty ;
+    rdfs:label "accessible via"@en ;
+    rdfs:domain pmc:SanitizedDataset ;
+    rdfs:range pmc:PublicAccessInterface ;
+    rdfs:comment "Interface for accessing dataset" .
+
+pmc:catalogedIn a owl:ObjectProperty ;
+    rdfs:label "cataloged in"@en ;
+    rdfs:domain pmc:SanitizedDataset ;
+    rdfs:range pmc:DataCatalog ;
+    rdfs:comment "Catalog containing this dataset" .
+
+pmc:providesService a owl:ObjectProperty ;
+    rdfs:label "provides service"@en ;
+    rdfs:domain pmc:PublicAccessInterface ;
+    rdfs:range ba:Service ;
+    rdfs:comment "Service provided by interface" .
+
+# Governance Relationships
+pmc:governedBy a owl:ObjectProperty ;
+    rdfs:label "governed by"@en ;
+    rdfs:domain pmc:SanitizedDataset ;
+    rdfs:range pmc:PublicDataGovernance ;
+    rdfs:comment "Governance framework" .
+
+pmc:subjectTo a owl:ObjectProperty ;
+    rdfs:label "subject to"@en ;
+    rdfs:domain pmc:SanitizedDataset ;
+    rdfs:range pmc:DataReleasePolicy ;
+    rdfs:comment "Policy governing dataset release" .
+
+pmc:reviewedBy a owl:ObjectProperty ;
+    rdfs:label "reviewed by"@en ;
+    rdfs:domain pmc:SanitizedDataset ;
+    rdfs:range pmc:EthicalReview ;
+    rdfs:comment "Ethical review conducted" .
+
+# Audit Integration
+pmc:auditedBy a owl:ObjectProperty ;
+    rdfs:label "audited by"@en ;
+    rdfs:domain pmc:PublicMirrorCrystal ;
+    rdfs:range baa:AuditSystem ;
+    rdfs:comment "Audit system monitoring public mirror" .
+
+# =============================================================================
+# SHACL VALIDATION SHAPES
+# =============================================================================
+
+pmc:PublicMirrorCrystalShape a sh:NodeShape ;
+    sh:targetClass pmc:PublicMirrorCrystal ;
+    sh:property [
+        sh:path pmc:sanitizedFrom ;
+        sh:minCount 1 ;
+        sh:message "Public mirror must be sanitized from source dataset" ;
+    ] ;
+    sh:property [
+        sh:path pmc:hasRiskAssessment ;
+        sh:minCount 1 ;
+        sh:message "Public mirror must have privacy risk assessment" ;
+    ] ;
+    sh:property [
+        sh:path pmc:hasUtilityMeasurement ;
+        sh:minCount 1 ;
+        sh:message "Public mirror must have utility measurement" ;
+    ] .
+
+pmc:SanitizedDatasetShape a sh:NodeShape ;
+    sh:targetClass pmc:SanitizedDataset ;
+    sh:property [
+        sh:path pmc:sanitizationLevel ;
+        sh:in ("BASIC" "INTERMEDIATE" "ADVANCED" "EXTREME") ;
+        sh:message "Must specify valid sanitization level" ;
+    ] ;
+    sh:property [
+        sh:path pmc:privacyRiskScore ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Privacy risk score must be between 0 and 1" ;
+    ] ;
+    sh:property [
+        sh:path pmc:utilityScore ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Utility score must be between 0 and 1" ;
+    ] .
+
+pmc:KAnonymizationShape a sh:NodeShape ;
+    sh:targetClass pmc:KAnonymization ;
+    sh:property [
+        sh:path pmc:kParameter ;
+        sh:minInclusive 2 ;
+        sh:message "K parameter must be at least 2" ;
+    ] .
+
+pmc:PrivacyRiskAssessmentShape a sh:NodeShape ;
+    sh:targetClass pmc:PrivacyRiskAssessment ;
+    sh:property [
+        sh:path pmc:reidentificationRisk ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Reidentification risk must be between 0 and 1" ;
+    ] ;
+    sh:property [
+        sh:path pmc:attributeDisclosureRisk ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Attribute disclosure risk must be between 0 and 1" ;
+    ] .
+
+pmc:PublicAccessShape a sh:NodeShape ;
+    sh:targetClass pmc:SanitizedDataset ;
+    sh:property [
+        sh:path pmc:governedBy ;
+        sh:minCount 1 ;
+        sh:message "Public dataset must have governance framework" ;
+    ] ;
+    sh:property [
+        sh:path pmc:reviewedBy ;
+        sh:minCount 1 ;
+        sh:message "Public dataset must have ethical review" ;
+    ] .
+
+# =============================================================================
+# PERFORMANCE REQUIREMENTS (DOCTRINE OF 8)
+# =============================================================================
+
+pmc:PublicMirrorPerformance a ba:PerformanceSpecification ;
+    rdfs:label "Public Mirror Crystal Performance Requirements" ;
+    rdfs:comment "Performance requirements under Doctrine of 8" ;
+    ba:sanitizationLatency "< 8ms"^^xsd:duration ;
+    ba:riskAssessmentTime "< 5ms"^^xsd:duration ;
+    ba:qualityCheckTime "< 3ms"^^xsd:duration ;
+    ba:accessResponseTime "< 2ms"^^xsd:duration ;
+    ba:downloadLatency "< 1ms startup"^^xsd:duration ;
+    ba:throughputTarget "25K access requests/sec"^^xsd:string .
+
+# =============================================================================
+# INTEGRATION INSTANCES
+# =============================================================================
+
+# Standard Sanitization Levels
+pmc:BasicSanitization a pmc:SanitizationPipeline ;
+    rdfs:label "Basic Sanitization Pipeline" ;
+    rdfs:comment "Basic privacy sanitization for low-risk data" ;
+    pmc:sanitizationLevel "BASIC" ;
+    ba:stages "3"^^xsd:int ;
+    pmc:privacyRiskScore 0.3 .
+
+pmc:AdvancedSanitization a pmc:SanitizationPipeline ;
+    rdfs:label "Advanced Sanitization Pipeline" ;
+    rdfs:comment "Advanced privacy sanitization for high-risk data" ;
+    pmc:sanitizationLevel "ADVANCED" ;
+    ba:stages "7"^^xsd:int ;
+    pmc:privacyRiskScore 0.05 .
+
+# Standard K-Anonymity Configurations
+pmc:K5Anonymization a pmc:KAnonymization ;
+    rdfs:label "5-Anonymity" ;
+    rdfs:comment "Standard 5-anonymity for moderate privacy" ;
+    pmc:kParameter "5"^^xsd:int ;
+    pmc:utilityScore 0.85 .
+
+pmc:K10Anonymization a pmc:KAnonymization ;
+    rdfs:label "10-Anonymity" ;
+    rdfs:comment "High 10-anonymity for strong privacy" ;
+    pmc:kParameter "10"^^xsd:int ;
+    pmc:utilityScore 0.75 .
+
+# Synthetic Data Templates
+pmc:HighFidelitySynthetic a pmc:SyntheticDataset ;
+    rdfs:label "High Fidelity Synthetic Dataset" ;
+    rdfs:comment "Synthetic dataset with high statistical fidelity" ;
+    pmc:syntheticRatio 1.0 ;
+    pmc:utilityScore 0.9 ;
+    pmc:privacyRiskScore 0.0 .
+
+# Public Access Configurations
+pmc:StandardPublicAPI a pmc:APIEndpoint ;
+    rdfs:label "Standard Public API" ;
+    rdfs:comment "Standard API for public data access" ;
+    pmc:rateLimit "1000"^^xsd:int ;
+    ba:authentication true ;
+    ba:queryLogged true .
+
+pmc:HighVolumeAPI a pmc:APIEndpoint ;
+    rdfs:label "High Volume Public API" ;
+    rdfs:comment "High-volume API for bulk data access" ;
+    pmc:rateLimit "10000"^^xsd:int ;
+    ba:authentication true ;
+    ba:rateLimited true .
+
+# Governance Templates
+pmc:StandardDataGovernance a pmc:PublicDataGovernance ;
+    rdfs:label "Standard Public Data Governance" ;
+    rdfs:comment "Standard governance for public data release" ;
+    ba:releaseApproval true ;
+    ba:privacyReview true ;
+    ba:qualityAssurance true .
+
+# Audit Integration
+pmc:PublicMirrorAuditEvent a baa:DataAuditEvent ;
+    rdfs:label "Public Mirror Audit Event" ;
+    baa:eventCategory "PUBLIC_DATA_ACCESS" ;
+    baa:eventSeverity "LOW" ;
+    pmc:auditTarget pmc:PublicMirrorCrystal .
+
+pmc:SanitizationAuditEvent a baa:SecurityAuditEvent ;
+    rdfs:label "Sanitization Audit Event" ;
+    baa:eventCategory "DATA_SANITIZATION" ;
+    baa:eventSeverity "MEDIUM" ;
+    pmc:auditTarget pmc:SanitizationEngine .
+
+# =============================================================================
+# End of Public Mirror Crystal Ontology
+# =============================================================================

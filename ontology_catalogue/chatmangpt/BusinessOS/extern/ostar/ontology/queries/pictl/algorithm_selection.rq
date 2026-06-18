@@ -1,0 +1,188 @@
+# PICTL Algorithm Selection
+# Recommends the best process mining algorithm based on log characteristics
+# Considers log size, complexity, OCEL support, and performance tier requirements
+
+PREFIX pictl: <https://chatmangpt.com/ontologies/pictl#>
+PREFIX pm: <http://purl.org/pm/ontology#>
+PREFIX ocel: <http://www.ocel-standard.org/ocel#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+CONSTRUCT {
+  # Algorithm Recommendation
+  ?recommendation a pictl:AlgorithmRecommendation ;
+    rdfs:label ?recommendation_label ;
+    pictl:recommendedAlgorithm ?algorithm_iri ;
+    pictl:logCharacteristics ?log_chars ;
+    pictl:recommendationReason ?reason ;
+    pictl:confidenceScore ?confidence ;
+    pictl:expectedDuration ?expected_duration ;
+    pictl:expectedQuality ?expected_quality ;
+    prov:generatedAtTime ?timestamp .
+
+  # Log Characteristics Profile
+  ?log_chars a pictl:LogCharacteristics ;
+    pictl:eventCount ?event_count ;
+    pictl:traceCount ?trace_count ;
+    pictl:activityCount ?activity_count ;
+    pictl:objectTypeCount ?object_type_count ;
+    pictl:avgTraceLength ?avg_trace_length ;
+    pictl:traceLengthVariance ?trace_variance ;
+    pictl:sparsity ?sparsity ;
+    pictl:complexity ?complexity ;
+    pictl:hasOCEL ?has_ocel .
+
+  # Quality Prediction
+  ?expected_quality a pictl:QualityPrediction ;
+    pictl:predictedFitness ?fitness_pred ;
+    pictl:predictedPrecision ?precision_pred ;
+    pictl:predictedGeneralization ?generalization_pred ;
+    pictl:predictedSimplicity ?simplicity_pred ;
+    pictl:overallQuality ?overall_quality .
+}
+WHERE {
+  # Analyze log characteristics
+  {
+    SELECT
+      (IRI("http://pictl.org/log/chars-001") AS ?log_chars)
+      COUNT(DISTINCT ?event) AS ?event_count
+      COUNT(DISTINCT ?trace_id) AS ?trace_count
+      COUNT(DISTINCT ?activity) AS ?activity_count
+      COUNT(DISTINCT ?object_type) AS ?object_type_count
+      AVG(?trace_length) AS ?avg_trace_length
+      (STDDEV(?trace_length) AS ?trace_variance)
+      (1.0 - (COUNT(DISTINCT ?event) * 1.0 /
+              (COUNT(DISTINCT ?trace_id) * COUNT(DISTINCT ?activity))) AS ?sparsity)
+      (COUNT(DISTINCT ?activity) * 1.0 / COUNT(DISTINCT ?trace_id) AS ?complexity)
+    WHERE {
+      ?event a ocel:Event ;
+        ocel:activity ?activity ;
+        ocel:traceId ?trace_id .
+      OPTIONAL { ?event ocel:object-type ?object_type . }
+
+      {
+        SELECT ?trace_id COUNT(?e) AS ?trace_length
+        WHERE {
+          ?e a ocel:Event ; ocel:traceId ?trace_id .
+        }
+        GROUP BY ?trace_id
+      }
+    }
+  }
+
+  # Determine if OCEL log
+  BIND(IF(BOUND(?object_type) && ?object_type_count > 0, true, false) AS ?has_ocel)
+
+  # Algorithm selection rules (ordered by priority)
+  {
+    SELECT DISTINCT
+      ?algorithm_iri
+      ?algorithm_label
+      ?reason
+      ?confidence
+      ?expected_duration
+      ?tier
+    WHERE {
+      {
+        # Rule 1: Large logs (>100K events) -> Fast Tier algorithms
+        FILTER(?event_count > 100000)
+        ?algorithm_iri a pictl:RustModule ;
+          pictl:performanceTier pictl:FastTier ;
+          pictl:moduleCategory pictl:DiscoveryModule .
+        ?algorithm_iri rdfs:label ?algorithm_label .
+        BIND("Large log: requires fast algorithm" AS ?reason)
+        BIND(0.95 AS ?confidence)
+        BIND(10.0 AS ?expected_duration)
+        BIND("fast" AS ?tier)
+      } UNION {
+        # Rule 2: OCEL log -> OCEL-enabled algorithms
+        FILTER(?has_ocel)
+        ?algorithm_iri a pictl:RustModule ;
+          pictl:supportsOCEL "true"^^xsd:boolean ;
+          pictl:moduleCategory pictl:OCELModule .
+        ?algorithm_iri rdfs:label ?algorithm_label .
+        BIND("OCEL log: requires OCEL-enabled algorithm" AS ?reason)
+        BIND(0.98 AS ?confidence)
+        BIND(15.0 AS ?expected_duration)
+        BIND("ocel" AS ?tier)
+      } UNION {
+        # Rule 3: High complexity (>5 activities per trace) -> Advanced discovery
+        FILTER(?complexity > 5.0)
+        ?algorithm_iri a pictl:RustModule ;
+          pictl:moduleCategory pictl:DiscoveryModule ;
+          pictl:performanceTier pictl:MediumTier .
+        ?algorithm_iri rdfs:label ?algorithm_label .
+        BIND("Complex process: requires advanced discovery" AS ?reason)
+        BIND(0.85 AS ?confidence)
+        BIND(50.0 AS ?expected_duration)
+        BIND("medium" AS ?tier)
+      } UNION {
+        # Rule 4: Low sparsity (>0.8) -> Heuristic miner
+        FILTER(?sparsity > 0.8)
+        ?algorithm_iri a pictl:RustModule ;
+          pictl:moduleName "heuristic_miner" ;
+          pictl:moduleName ?algorithm_label .
+        BIND("Dense log: heuristic miner recommended" AS ?reason)
+        BIND(0.80 AS ?confidence)
+        BIND(20.0 AS ?expected_duration)
+        BIND("medium" AS ?tier)
+      } UNION {
+        # Rule 5: Default -> Inductive miner (balanced)
+        ?algorithm_iri a pictl:RustModule ;
+          pictl:moduleName "inductive_miner" ;
+          pictl:moduleName ?algorithm_label .
+        BIND("Default: balanced discovery algorithm" AS ?reason)
+        BIND(0.75 AS ?confidence)
+        BIND(25.0 AS ?expected_duration)
+        BIND("medium" AS ?tier)
+      }
+    }
+    LIMIT 1
+  }
+
+  # Create recommendation
+  BIND(IRI(CONCAT("http://pictl.org/recommendation/",
+                 SUBSTR(SHA1(CONCAT(STR(?log_chars), STR(?algorithm_iri))), 1, 8))) AS ?recommendation)
+  BIND(CONCAT("Use ", ?algorithm_label, " for this log") AS ?recommendation_label)
+  BIND(NOW() AS ?timestamp)
+
+  # Predict quality based on algorithm and log characteristics
+  BIND(
+    CASE
+      WHEN ?tier = "fast" THEN 0.85
+      WHEN ?tier = "medium" THEN 0.90
+      WHEN ?tier = "ocel" THEN 0.92
+      ELSE 0.80
+    END AS ?fitness_pred
+  )
+
+  BIND(
+    CASE
+      WHEN ?sparsity > 0.8 THEN 0.75
+      WHEN ?sparsity > 0.5 THEN 0.85
+      ELSE 0.90
+    END AS ?precision_pred
+  )
+
+  BIND(
+    CASE
+      WHEN ?event_count > 50000 THEN 0.95
+      WHEN ?event_count > 10000 THEN 0.90
+      ELSE 0.85
+    END AS ?generalization_pred
+  )
+
+  BIND(
+    CASE
+      WHEN ?complexity > 5.0 THEN 0.70
+      WHEN ?complexity > 3.0 THEN 0.80
+      ELSE 0.90
+    END AS ?simplicity_pred
+  )
+
+  BIND((?fitness_pred + ?precision_pred + ?generalization_pred + ?simplicity_pred) / 4.0 AS ?overall_quality)
+
+  BIND(IRI(CONCAT(STR(?recommendation), "/quality")) AS ?expected_quality)
+}

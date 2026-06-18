@@ -1,0 +1,213 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcterms_type: <http://purl.org/dc/dcmitype/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix org: <http://www.w3.org/ns/org#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dqv: <http://www.w3.org/ns/dqv#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+@prefix bfo: <http://purl.obolibrary.org/obo/BFO_> .
+@prefix iao: <http://purl.obolibrary.org/obo/IAO_> .
+@prefix dul: <http://www.loa.istc.cnr.it/ontologies/DUL.owl#> .
+@prefix chatman: <https://ontology.chatmangpt.com/core#> .
+
+###############################################################################
+# CHATMANGPT CORE ONTOLOGY
+#
+# Foundational ontology for Fortune 500-grade AI systems with AGI-level
+# cross-project connections.
+#
+# IRI: https://ontology.chatmangpt.com/core
+# Module: chatman-core.ttl
+#
+# This ontology imports and harmonizes Tier 1 (W3C standards) and Tier 2
+# (domain foundation) ontologies to provide a unified semantic foundation
+# for the ChatmanGPT ecosystem: BusinessOS, Canopy, OSA, pm4py-rust.
+###############################################################################
+
+<https://ontology.chatmangpt.com/core>
+  a owl:Ontology ;
+  dcterms:title "ChatmanGPT Core Ontology"@en ;
+  dcterms:description "Foundational ontology for Fortune 500-grade AI systems. Integrates W3C standards (PROV-O, OWL, OWL-Time, SKOS, ORG, DCAT 3, DQV, ODRL, SHACL) with domain foundations (BFO 2020, IAO, DUL) to enable semantic interoperability across BusinessOS, Canopy, OSA, and pm4py-rust."@en ;
+  dcterms:issued "2026-03-25"^^xsd:date ;
+  dcterms:created "2026-03-25T00:00:00Z"^^xsd:dateTime ;
+  dcterms:creator "Sean Chatman"@en ;
+  dcterms:contributor "MIOSA (miosa.ai)"@en ;
+  dcterms:license <https://creativecommons.org/licenses/by-sa/4.0/> ;
+  dcterms:isPartOf <https://ontology.chatmangpt.com/> ;
+  owl:versionIRI <https://ontology.chatmangpt.com/core/1.0> ;
+  owl:versionInfo "1.0"^^xsd:string ;
+  dcterms:language "en"@en ;
+
+  # Tier 1: W3C Standards for RDF/OWL semantics
+  owl:imports <http://www.w3.org/ns/prov#> ;       # Provenance (PROV-O)
+  owl:imports <http://www.w3.org/2002/07/owl#> ;   # OWL 2 meta-ontology
+  owl:imports <http://www.w3.org/2006/time#> ;     # OWL-Time temporal ontology
+  owl:imports <http://www.w3.org/2004/02/skos/core#> ;  # SKOS (controlled vocabularies)
+  owl:imports <http://www.w3.org/ns/org#> ;        # W3C ORG (organizational structures)
+  owl:imports <http://www.w3.org/ns/dcat#> ;       # DCAT 3 (data catalog)
+  owl:imports <http://www.w3.org/ns/dqv#> ;        # DQV (data quality)
+  owl:imports <http://www.w3.org/ns/odrl/2/> ;     # ODRL 2 (usage rights/licensing)
+  owl:imports <http://www.w3.org/ns/shacl#> ;      # SHACL (shape constraints)
+
+  # Tier 2: Domain Foundation Ontologies
+  owl:imports <http://purl.obolibrary.org/obo/bfo.owl> ;  # BFO 2020 (upper ontology)
+  owl:imports <http://purl.obolibrary.org/obo/iao.owl> ;  # IAO (information/data artifacts)
+  owl:imports <http://www.loa.istc.cnr.it/ontologies/DUL.owl> ;  # DUL (description logic upper level)
+
+  rdfs:comment "This ontology serves as the foundation for all semantic models in ChatmanGPT. It re-exports core W3C standards (PROV-O for provenance, OWL for logic, OWL-Time for temporal reasoning, SKOS for concept schemes, W3C ORG for organizational modeling, DCAT 3 for data cataloging, DQV for quality assertions, ODRL for policies, SHACL for validation) and domain foundations (BFO 2020 for upper-level category distinctions, IAO for information objects, DUL for fine-grained entity modeling). Use chatman:* URIs only for ChatmanGPT-specific extensions beyond these foundations."@en ;
+
+  dcterms:hasPart chatman:WhyImportsWC3 ;
+  dcterms:hasPart chatman:WhyImportsBFO ;
+  dcterms:hasPart chatman:WhyImportsDUL ;
+  .
+
+###############################################################################
+# CHATMANGPT NAMESPACE DOCUMENTATION
+###############################################################################
+
+chatman:
+  a owl:Ontology ;
+  rdfs:label "chatman namespace"@en ;
+  rdfs:comment "The chatman: namespace is reserved for ChatmanGPT-specific concept and property extensions. Application-level classes and properties should use this namespace only when they do not fit the W3C standards (PROV-O, OWL, SKOS, ORG, DCAT, DQV, ODRL, SHACL) or domain foundations (BFO 2020, IAO, DUL). Most enterprise concepts map naturally to existing standards: use prov:Activity for operations, org:Organization for companies, dcat:Dataset for data resources, dqv:QualityMeasurement for metrics, odrl:Policy for permissions, shacl:Shape for validation, dul:InformationObject for documents. Reserve chatman:* for true ChatmanGPT innovations only."@en ;
+  .
+
+###############################################################################
+# DOCUMENTATION: WHY W3C STANDARDS
+###############################################################################
+
+chatman:WhyImportsWC3
+  a owl:Class ;
+  rdfs:label "W3C Standards Import Rationale"@en ;
+  rdfs:comment """
+The ChatmanGPT ontology imports eight W3C standards for these reasons:
+
+1. PROV-O (http://www.w3.org/ns/prov#) — Provenance standard
+   Use: Track who did what, when, and why. Document data lineage, decisions, transformations.
+   ChatmanGPT use: Trace agent operations, decision records, artifact origins.
+
+2. OWL 2 (http://www.w3.org/2002/07/owl#) — Web Ontology Language meta-ontology
+   Use: Define classes, properties, restrictions, and logical rules.
+   ChatmanGPT use: Foundation for all semantic reasoning.
+
+3. OWL-Time (http://www.w3.org/2006/time#) — Temporal reasoning
+   Use: Model time points, intervals, durations, recurring events.
+   ChatmanGPT use: Schedule operations, versioning, historical tracking.
+
+4. SKOS (http://www.w3.org/2004/02/skos/core#) — Simple Knowledge Organization System
+   Use: Organize concept hierarchies, thesauri, taxonomies without full OWL semantics.
+   ChatmanGPT use: Agent capability hierarchies, service taxonomies, skill levels.
+
+5. W3C ORG (http://www.w3.org/ns/org#) — Organizational structures
+   Use: Model organizations, organizational units, roles, reporting relationships.
+   ChatmanGPT use: BusinessOS company structures, team hierarchies, role assignments.
+
+6. DCAT 3 (http://www.w3.org/ns/dcat#) — Data Catalog Vocabulary
+   Use: Describe datasets, distributions, data quality, access.
+   ChatmanGPT use: Catalog datasets in BusinessOS, describe pm4py-rust process models.
+
+7. DQV (http://www.w3.org/ns/dqv#) — Data Quality Vocabulary
+   Use: Measure and document data quality, fitness for use.
+   ChatmanGPT use: Assert quality metrics (confidence, completeness, accuracy) on healing diagnoses.
+
+8. ODRL 2 (http://www.w3.org/ns/odrl/2/) — Open Digital Rights Language
+   Use: Express permissions, prohibitions, obligations on resources.
+   ChatmanGPT use: Enforce SOC2 compliance rules, license policies, data usage policies.
+
+9. SHACL (http://www.w3.org/ns/shacl#) — Shapes Constraint Language
+   Use: Define and validate RDF graph shapes, data constraints.
+   ChatmanGPT use: Validate signal structure, agent message shapes, data conformance.
+  """@en ;
+  .
+
+###############################################################################
+# DOCUMENTATION: WHY BFO 2020
+###############################################################################
+
+chatman:WhyImportsBFO
+  a owl:Class ;
+  rdfs:label "BFO 2020 Import Rationale"@en ;
+  rdfs:comment """
+The ChatmanGPT ontology imports BFO 2020 (Basic Formal Ontology) for domain-level entity categorization.
+
+BFO 2020 provides the upper-level (top) ontology, defining what kinds of things exist:
+
+1. Continuants (things that persist through time)
+   - Independents: Objects (e.g., a laptop, a process log file)
+   - Dependents: Qualities (colors, temperatures), Realizable entities (capabilities, roles)
+
+2. Occurrents (things that happen in time)
+   - Processes (operations, agent executions)
+   - Temporal regions (time intervals)
+
+3. Boundaries (spatial/temporal regions, time points)
+
+ChatmanGPT mapping:
+- An agent execution is a bfo:Process
+- A dataset is a bfo:Object (physical or digital)
+- "Deadlock detection capability" is a bfo:RealizableEntity
+- A healing diagnosis is a bfo:Process that generates a bfo:Object (report)
+
+BFO is the de-facto standard for biomedical and large-scale enterprise ontologies (FIBO, financial ontology, uses BFO as foundation).
+"""@en ;
+  .
+
+###############################################################################
+# DOCUMENTATION: WHY DUL (Description Logic Upper Level)
+###############################################################################
+
+chatman:WhyImportsDUL
+  a owl:Class ;
+  rdfs:label "DUL Import Rationale"@en ;
+  rdfs:comment """
+The ChatmanGPT ontology imports DUL (Description Logic Upper Level, http://www.loa.istc.cnr.it/ontologies/DUL.owl) for lightweight object-to-metadata mapping.
+
+DUL complements BFO by providing:
+
+1. InformationObject — things that carry meaning (documents, specifications, models, ontologies)
+2. Concept — semantic units (meanings, intentions)
+3. Description — semantic content (labels, definitions)
+4. Entity — abstract "thing" category that unifies continuants, occurrents, and abstract entities
+
+Key DUL distinctions:
+- dul:InformationObject: A document (e.g., decision record) vs. the real thing (e.g., actual decision)
+- dul:hasDataValue: The literal "2026-03-25" vs. the actual temporal point
+- dul:hasMeaning: The document's intended semantic content
+- dul:classifies: A type/concept vs. instances
+
+ChatmanGPT use cases:
+- Signal theory (S=(M,G,T,F,W)) maps to dul:Description (meaning) and dul:InformationObject (artifact)
+- YAWL 43 patterns are dul:Concepts (abstract patterns) vs. dul:InformationObject (pattern documentation)
+- Decision records are dul:InformationObject instances carrying dul:hasMeaning (the decision's intent)
+- Agent messages are dul:InformationObject with semantic content about operations
+
+DUL is lighter than full BFO but richer than pure OWL, making it ideal for information-centric systems.
+"""@en ;
+  .
+
+###############################################################################
+# COMPATIBILITY NOTE: TIER 1 vs TIER 2
+###############################################################################
+
+chatman:CompatibilityNote
+  rdfs:comment """
+Tier 1 (W3C) ontologies and Tier 2 (domain foundation) ontologies can be layered:
+
+- W3C standards (PROV-O, OWL, SKOS, etc.) are lightweight and designed for broad interoperability.
+- BFO 2020 and DUL provide formal upper-level categories that W3C standards don't specify.
+- These are NOT in conflict. BFO is orthogonal to PROV-O; they model different aspects.
+
+For example:
+- prov:Activity describes "who did what" (high-level causality)
+- bfo:Process describes "what kind of continuant-changing-event" (formal ontology classification)
+- Both can apply to the same operation: an agent healing operation is both prov:Activity AND bfo:Process.
+
+This multi-layer approach is used in FIBO (financial ontology), biomedical ontologies (NCI, CHEBI), and modern enterprise systems.
+"""@en ;
+  .

@@ -1,0 +1,77 @@
+@prefix : <https://bytestar.org/ontology/byteflow/orchestration#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix arch: <https://bytestar.org/ontology/architecture#> .
+@prefix doctrines: <https://bytestar.org/ontology/doctrines#> .
+@prefix spr: <http://bytestar.net/ontology/spr_calculus#> .
+
+<https://bytestar.org/ontology/byteflow/orchestration>
+    rdf:type owl:Ontology ;
+    owl:versionIRI <https://bytestar.org/ontology/byteflow/orchestration/v1.0> ;
+    rdfs:comment "Ontology formalizing the orchestration of 8-hop workflows and inter-realm communication within the ByteFlow realm." ;
+    owl:imports arch: ,
+                doctrines: ,
+                spr: .
+
+#################################################################
+#    Classes
+#################################################################
+
+:WorkflowOrchestration rdf:type owl:Class ;
+    rdfs:comment "The process of coordinating and managing workflows across the ByteStar ecosystem." .
+
+:EightHopWorkflow rdf:type owl:Class ;
+    rdfs:subClassOf spr:Realization ;
+    rdfs:comment "A workflow strictly adhering to the 8-hop envelope." .
+
+:InterRealmCommunication rdf:type owl:Class ;
+    rdfs:comment "Communication and coordination between different ByteStar realms." .
+
+:WorkflowPatternApplication rdf:type owl:Class ;
+    rdfs:comment "The application of van der Aalst workflow patterns within a hop." .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+:orchestratesWorkflow rdf:type owl:ObjectProperty ;
+    rdfs:domain arch:ByteFlow ;
+    rdfs:range :EightHopWorkflow ;
+    rdfs:comment "ByteFlow orchestrates 8-hop workflows." .
+
+:communicatesWith rdf:type owl:ObjectProperty ;
+    rdfs:domain arch:Realm ;
+    rdfs:range arch:Realm ;
+    rdfs:comment "Indicates communication between two realms." .
+
+:appliesPattern rdf:type owl:ObjectProperty ;
+    rdfs:domain spr:Hop ;
+    rdfs:range spr:Pattern ;
+    rdfs:comment "A hop applies a specific workflow pattern." .
+
+:coordinatesVia rdf:type owl:ObjectProperty ;
+    rdfs:domain :InterRealmCommunication ;
+    rdfs:range rdfs:Resource ;
+    rdfs:comment "Inter-realm communication is coordinated via a specific mechanism." .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+:hasWorkflowId rdf:type owl:DatatypeProperty ;
+    rdfs:domain :EightHopWorkflow ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The unique identifier for an 8-hop workflow." .
+
+:hasCurrentHopNumber rdf:type owl:DatatypeProperty ;
+    rdfs:domain :EightHopWorkflow ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "The current hop number of an executing workflow." .
+
+:hasCommunicationProtocol rdf:type owl:DatatypeProperty ;
+    rdfs:domain :InterRealmCommunication ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The protocol used for inter-realm communication." .
+

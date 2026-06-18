@@ -1,0 +1,832 @@
+@prefix ba: <http://bytestar.org/ontology/> .
+@prefix bac: <http://bytestar.org/ontology/compliance/> .
+@prefix baac: <http://bytestar.org/ontology/access-control/> .
+@prefix baa: <http://bytestar.org/ontology/audit/> .
+@prefix dsc: <http://bytestar.org/ontology/crystals/dataset/> .
+@prefix view: <http://bytestar.org/ontology/crystals/view/> .
+@prefix pmc: <http://bytestar.org/ontology/crystals/public-mirror/> .
+@prefix dpb: <http://bytestar.org/ontology/crystals/dp-budget/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+# =============================================================================
+# ByteStar Differential Privacy Budget Token Ontology (.dpb)
+# Version: 5.0.0 - Data/Privacy Domain
+# =============================================================================
+
+<http://bytestar.org/ontology/crystals/dp-budget> a owl:Ontology ;
+    owl:versionIRI <http://bytestar.org/ontology/crystals/dp-budget/5.0.0> ;
+    dct:title "ByteStar Differential Privacy Budget Token Ontology" ;
+    dct:description "Spendable differential privacy budget tokens with mathematical guarantees, composition theorems, and advanced budget management for privacy-preserving computations" ;
+    dct:creator "ByteStar Architecture Team" ;
+    dct:created "2025-01-23"^^xsd:date ;
+    dct:modified "2025-01-23"^^xsd:date ;
+    owl:imports <http://bytestar.org/ontology/crystals/dataset>,
+                <http://bytestar.org/ontology/crystals/view>,
+                <http://bytestar.org/ontology/crystals/public-mirror>,
+                <http://bytestar.org/ontology/compliance-framework>,
+                <http://bytestar.org/ontology/access-control>,
+                <http://bytestar.org/ontology/audit-system>,
+                <http://bytestar.org/ontology/core>,
+                <http://www.w3.org/ns/prov#> ;
+    ba:crystalType "DP Budget Token" ;
+    ba:spendable true ;
+    ba:mathematicallyGuaranteed true ;
+    ba:performanceTarget "< 8ms budget operations" .
+
+# =============================================================================
+# CORE DP BUDGET CLASSES
+# =============================================================================
+
+dpb:DPBudgetToken a owl:Class ;
+    rdfs:label "DP Budget Token"@en ;
+    rdfs:comment "Spendable token representing differential privacy budget with mathematical guarantees"@en ;
+    rdfs:subClassOf ba:Crystal ;
+    ba:spendable true ;
+    ba:mathematicallyBound true ;
+    ba:nonReplenishable true ;
+    ba:cryptographicallySecured true .
+
+dpb:BudgetAllocation a owl:Class ;
+    rdfs:label "Budget Allocation"@en ;
+    rdfs:comment "Strategic allocation of privacy budget across queries and operations"@en ;
+    rdfs:subClassOf ba:Allocation ;
+    ba:optimal true ;
+    ba:utilityMaximizing true ;
+    ba:fairnessConsidering true .
+
+dpb:BudgetAccount a owl:Class ;
+    rdfs:label "Budget Account"@en ;
+    rdfs:comment "Account managing privacy budget for a specific principal or dataset"@en ;
+    rdfs:subClassOf ba:Account ;
+    ba:balance xsd:double ;
+    ba:credited true ;
+    ba:debited true ;
+    ba:auditTrail true .
+
+dpb:BudgetTransaction a owl:Class ;
+    rdfs:label "Budget Transaction"@en ;
+    rdfs:comment "Atomic transaction spending or transferring privacy budget"@en ;
+    rdfs:subClassOf ba:Transaction ;
+    ba:atomic true ;
+    ba:immutable true ;
+    ba:auditLogged true ;
+    ba:mathematicallyVerified true .
+
+dpb:BudgetReserve a owl:Class ;
+    rdfs:label "Budget Reserve"@en ;
+    rdfs:comment "Reserved budget pool for critical operations and emergency use"@en ;
+    rdfs:subClassOf ba:Reserve ;
+    ba:critical true ;
+    ba:emergency true ;
+    ba:accessRestricted true .
+
+# =============================================================================
+# MATHEMATICAL FOUNDATIONS
+# =============================================================================
+
+dpb:CompositionTheorem a owl:Class ;
+    rdfs:label "Composition Theorem"@en ;
+    rdfs:comment "Mathematical theorem governing privacy budget composition"@en ;
+    rdfs:subClassOf ba:MathematicalTheorem ;
+    ba:theoremType xsd:string ;
+    ba:compositionRule xsd:string ;
+    ba:privacyGuarantee xsd:string .
+
+dpb:BasicComposition a owl:Class ;
+    rdfs:label "Basic Composition"@en ;
+    rdfs:comment "Basic composition theorem for sequential privacy mechanisms"@en ;
+    rdfs:subClassOf dpb:CompositionTheorem ;
+    ba:theoremType "BASIC" ;
+    ba:epsilonSum true ;
+    ba:deltaSum true .
+
+dpb:AdvancedComposition a owl:Class ;
+    rdfs:label "Advanced Composition"@en ;
+    rdfs:comment "Advanced composition theorem with improved bounds"@en ;
+    rdfs:subClassOf dpb:CompositionTheorem ;
+    ba:theoremType "ADVANCED" ;
+    ba:improvedBounds true ;
+    ba:logarithmicDependence true .
+
+dpb:ZeroConcentratedDP a owl:Class ;
+    rdfs:label "Zero Concentrated DP"@en ;
+    rdfs:comment "Zero-concentrated differential privacy for optimal composition"@en ;
+    rdfs:subClassOf dpb:CompositionTheorem ;
+    ba:theoremType "ZCDP" ;
+    ba:optimalComposition true ;
+    ba:renyiDivergence true .
+
+dpb:RenyiDP a owl:Class ;
+    rdfs:label "Renyi DP"@en ;
+    rdfs:comment "Renyi differential privacy with order parameter"@en ;
+    rdfs:subClassOf dpb:CompositionTheorem ;
+    ba:theoremType "RDP" ;
+    ba:orderParameter xsd:double ;
+    ba:subsampling true .
+
+# =============================================================================
+# BUDGET MANAGEMENT SYSTEM
+# =============================================================================
+
+dpb:BudgetManager a owl:Class ;
+    rdfs:label "Budget Manager"@en ;
+    rdfs:comment "Central system for managing differential privacy budgets"@en ;
+    rdfs:subClassOf ba:ManagementSystem ;
+    ba:centralizedControl true ;
+    ba:distributedAccounting true ;
+    ba:realTimeTracking true .
+
+dpb:BudgetAllocator a owl:Class ;
+    rdfs:label "Budget Allocator"@en ;
+    rdfs:comment "AI-powered system for optimal budget allocation"@en ;
+    rdfs:subClassOf ba:Allocator ;
+    ba:aiPowered true ;
+    ba:utilityOptimized true ;
+    ba:fairnessAware true ;
+    ba:dynamicAllocation true .
+
+dpb:BudgetTracker a owl:Class ;
+    rdfs:label "Budget Tracker"@en ;
+    rdfs:comment "Real-time tracker for budget consumption and availability"@en ;
+    rdfs:subClassOf ba:Tracker ;
+    ba:realTime true ;
+    ba:precisionAccounting true ;
+    ba:alerting true .
+
+dpb:BudgetValidator a owl:Class ;
+    rdfs:label "Budget Validator"@en ;
+    rdfs:comment "Validator ensuring mathematical correctness of budget operations"@en ;
+    rdfs:subClassOf ba:Validator ;
+    ba:mathematicalVerification true ;
+    ba:theoremChecking true ;
+    ba:proofValidation true .
+
+dpb:BudgetOptimizer a owl:Class ;
+    rdfs:label "Budget Optimizer"@en ;
+    rdfs:comment "Optimizer for maximizing utility under privacy constraints"@en ;
+    rdfs:subClassOf ba:Optimizer ;
+    ba:utilityMaximization true ;
+    ba:constraintSatisfaction true ;
+    ba:paretoOptimal true .
+
+# =============================================================================
+# QUERY PLANNING AND EXECUTION
+# =============================================================================
+
+dpb:PrivacyQuery a owl:Class ;
+    rdfs:label "Privacy Query"@en ;
+    rdfs:comment "Query with differential privacy budget requirements"@en ;
+    rdfs:subClassOf ba:Query ;
+    ba:budgetRequired xsd:double ;
+    ba:privacyMechanism xsd:string ;
+    ba:utilityExpected xsd:double .
+
+dpb:QueryPlanner a owl:Class ;
+    rdfs:label "Query Planner"@en ;
+    rdfs:comment "Planner optimizing queries for minimal budget consumption"@en ;
+    rdfs:subClassOf ba:Planner ;
+    ba:budgetOptimized true ;
+    ba:utilityPreserving true ;
+    ba:compositionAware true .
+
+dpb:BudgetEstimator a owl:Class ;
+    rdfs:label "Budget Estimator"@en ;
+    rdfs:comment "Estimator for query privacy budget requirements"@en ;
+    rdfs:subClassOf ba:Estimator ;
+    ba:accurateEstimation true ;
+    ba:sensitivityAnalysis true ;
+    ba:mechanismSelection true .
+
+dpb:QueryExecutor a owl:Class ;
+    rdfs:label "Query Executor"@en ;
+    rdfs:comment "Executor ensuring budget constraints during query execution"@en ;
+    rdfs:subClassOf ba:Executor ;
+    ba:budgetEnforced true ;
+    ba:atomicExecution true ;
+    ba:rollbackCapable true .
+
+dpb:ResultValidator a owl:Class ;
+    rdfs:label "Result Validator"@en ;
+    rdfs:comment "Validator ensuring query results meet privacy guarantees"@en ;
+    rdfs:subClassOf ba:Validator ;
+    ba:privacyGuaranteed true ;
+    ba:utilityAssessed true ;
+    ba:mathematicallySound true .
+
+# =============================================================================
+# ADVANCED BUDGET MECHANISMS
+# =============================================================================
+
+dpb:AdaptiveBudget a owl:Class ;
+    rdfs:label "Adaptive Budget"@en ;
+    rdfs:comment "Budget system adapting to query workloads and utility requirements"@en ;
+    rdfs:subClassOf dpb:DPBudgetToken ;
+    ba:adaptive true ;
+    ba:workloadAware true ;
+    ba:learningEnabled true .
+
+dpb:HierarchicalBudget a owl:Class ;
+    rdfs:label "Hierarchical Budget"@en ;
+    rdfs:comment "Hierarchical budget structure for multi-level access control"@en ;
+    rdfs:subClassOf dpb:DPBudgetToken ;
+    ba:hierarchical true ;
+    ba:inheritance true ;
+    ba:delegation true .
+
+dpb:TemporalBudget a owl:Class ;
+    rdfs:label "Temporal Budget"@en ;
+    rdfs:comment "Budget with temporal windows and renewal mechanisms"@en ;
+    rdfs:subClassOf dpb:DPBudgetToken ;
+    ba:temporal true ;
+    ba:windowed true ;
+    ba:renewable true .
+
+dpb:ConditionalBudget a owl:Class ;
+    rdfs:label "Conditional Budget"@en ;
+    rdfs:comment "Budget with conditional spending based on context"@en ;
+    rdfs:subClassOf dpb:DPBudgetToken ;
+    ba:conditional true ;
+    ba:contextAware true ;
+    ba:smartContracts true .
+
+dpb:SharedBudget a owl:Class ;
+    rdfs:label "Shared Budget"@en ;
+    rdfs:comment "Budget shared across multiple principals with fair allocation"@en ;
+    rdfs:subClassOf dpb:DPBudgetToken ;
+    ba:shared true ;
+    ba:fairSharing true ;
+    ba:collaborativeAccess true .
+
+# =============================================================================
+# UTILITY OPTIMIZATION
+# =============================================================================
+
+dpb:UtilityFunction a owl:Class ;
+    rdfs:label "Utility Function"@en ;
+    rdfs:comment "Mathematical function measuring query result utility"@en ;
+    rdfs:subClassOf ba:MathematicalFunction ;
+    ba:utilityMeasure true ;
+    ba:differentiable true ;
+    ba:convex true .
+
+dpb:UtilityOptimizer a owl:Class ;
+    rdfs:label "Utility Optimizer"@en ;
+    rdfs:comment "Optimizer maximizing utility under privacy budget constraints"@en ;
+    rdfs:subClassOf ba:Optimizer ;
+    ba:constrainedOptimization true ;
+    ba:paretoFrontier true ;
+    ba:tradeoffAnalysis true .
+
+dpb:NoiseCalibrator a owl:Class ;
+    rdfs:label "Noise Calibrator"@en ;
+    rdfs:comment "System calibrating noise for optimal utility-privacy tradeoff"@en ;
+    rdfs:subClassOf ba:Calibrator ;
+    ba:optimalNoise true ;
+    ba:sensitivityAnalysis true ;
+    ba:mechanismSelection true .
+
+dpb:AccuracyMetric a owl:Class ;
+    rdfs:label "Accuracy Metric"@en ;
+    rdfs:comment "Metric measuring accuracy of privacy-preserving results"@en ;
+    rdfs:subClassOf ba:Metric ;
+    ba:accuracyMeasure true ;
+    ba:errorBounds true ;
+    ba:confidenceIntervals true .
+
+dpb:UtilityAnalyzer a owl:Class ;
+    rdfs:label "Utility Analyzer"@en ;
+    rdfs:comment "Analyzer assessing utility impact of privacy mechanisms"@en ;
+    rdfs:subClassOf ba:Analyzer ;
+    ba:utilityAssessment true ;
+    ba:tradeoffAnalysis true ;
+    ba:recommendationEngine true .
+
+# =============================================================================
+# PRIVACY ACCOUNTING
+# =============================================================================
+
+dpb:PrivacyAccountant a owl:Class ;
+    rdfs:label "Privacy Accountant"@en ;
+    rdfs:comment "System maintaining precise privacy accounting across operations"@en ;
+    rdfs:subClassOf ba:Accountant ;
+    ba:preciseAccounting true ;
+    ba:compositionTracking true ;
+    ba:mathematicalGuarantees true .
+
+dpb:MomentsAccountant a owl:Class ;
+    rdfs:label "Moments Accountant"@en ;
+    rdfs:comment "Accountant using moments method for tight privacy bounds"@en ;
+    rdfs:subClassOf dpb:PrivacyAccountant ;
+    ba:momentsMethod true ;
+    ba:tightBounds true ;
+    ba:subsampling true .
+
+dpb:RenyiAccountant a owl:Class ;
+    rdfs:label "Renyi Accountant"@en ;
+    rdfs:comment "Accountant using Renyi differential privacy for composition"@en ;
+    rdfs:subClassOf dpb:PrivacyAccountant ;
+    ba:renyiDP true ;
+    ba:orderParameter xsd:double ;
+    ba:optimalComposition true .
+
+dpb:PrivacyLedger a owl:Class ;
+    rdfs:label "Privacy Ledger"@en ;
+    rdfs:comment "Immutable ledger recording all privacy budget transactions"@en ;
+    rdfs:subClassOf ba:Ledger ;
+    ba:immutable true ;
+    ba:cryptographicallySecured true ;
+    ba:auditTrail true .
+
+dpb:PrivacyAudit a owl:Class ;
+    rdfs:label "Privacy Audit"@en ;
+    rdfs:comment "Audit system verifying privacy budget correctness"@en ;
+    rdfs:subClassOf ba:Audit ;
+    ba:mathematicalVerification true ;
+    ba:compositionValidation true ;
+    ba:theoremChecking true .
+
+# =============================================================================
+# DATA PROPERTIES
+# =============================================================================
+
+# Budget Properties
+dpb:epsilonValue a owl:DatatypeProperty ;
+    rdfs:label "epsilon value"@en ;
+    rdfs:domain dpb:DPBudgetToken ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Epsilon parameter of differential privacy budget" .
+
+dpb:deltaValue a owl:DatatypeProperty ;
+    rdfs:label "delta value"@en ;
+    rdfs:domain dpb:DPBudgetToken ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Delta parameter of differential privacy budget" .
+
+dpb:budgetBalance a owl:DatatypeProperty ;
+    rdfs:label "budget balance"@en ;
+    rdfs:domain dpb:BudgetAccount ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Current privacy budget balance" .
+
+dpb:initialBudget a owl:DatatypeProperty ;
+    rdfs:label "initial budget"@en ;
+    rdfs:domain dpb:BudgetAccount ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Initial privacy budget allocation" .
+
+dpb:spentBudget a owl:DatatypeProperty ;
+    rdfs:label "spent budget"@en ;
+    rdfs:domain dpb:BudgetAccount ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Total privacy budget spent" .
+
+dpb:reservedBudget a owl:DatatypeProperty ;
+    rdfs:label "reserved budget"@en ;
+    rdfs:domain dpb:BudgetAccount ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Privacy budget reserved for pending operations" .
+
+# Transaction Properties
+dpb:transactionAmount a owl:DatatypeProperty ;
+    rdfs:label "transaction amount"@en ;
+    rdfs:domain dpb:BudgetTransaction ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Amount of privacy budget in transaction" .
+
+dpb:transactionType a owl:DatatypeProperty ;
+    rdfs:label "transaction type"@en ;
+    rdfs:domain dpb:BudgetTransaction ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type: SPEND, TRANSFER, RESERVE, RELEASE" .
+
+dpb:transactionTimestamp a owl:DatatypeProperty ;
+    rdfs:label "transaction timestamp"@en ;
+    rdfs:domain dpb:BudgetTransaction ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Timestamp of budget transaction" .
+
+dpb:transactionHash a owl:DatatypeProperty ;
+    rdfs:label "transaction hash"@en ;
+    rdfs:domain dpb:BudgetTransaction ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Cryptographic hash of transaction" .
+
+# Mathematical Properties
+dpb:compositionType a owl:DatatypeProperty ;
+    rdfs:label "composition type"@en ;
+    rdfs:domain dpb:CompositionTheorem ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type: BASIC, ADVANCED, ZCDP, RDP" .
+
+dpb:orderParameter a owl:DatatypeProperty ;
+    rdfs:label "order parameter"@en ;
+    rdfs:domain dpb:RenyiDP ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Order parameter for Renyi DP (α > 1)" .
+
+dpb:concentrationParameter a owl:DatatypeProperty ;
+    rdfs:label "concentration parameter"@en ;
+    rdfs:domain dpb:ZeroConcentratedDP ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Concentration parameter for zCDP (ρ)" .
+
+# Query Properties
+dpb:queryBudgetRequired a owl:DatatypeProperty ;
+    rdfs:label "query budget required"@en ;
+    rdfs:domain dpb:PrivacyQuery ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Privacy budget required for query" .
+
+dpb:queryUtility a owl:DatatypeProperty ;
+    rdfs:label "query utility"@en ;
+    rdfs:domain dpb:PrivacyQuery ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Expected utility of query result" .
+
+dpb:querySensitivity a owl:DatatypeProperty ;
+    rdfs:label "query sensitivity"@en ;
+    rdfs:domain dpb:PrivacyQuery ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Global sensitivity of query function" .
+
+# Utility Properties
+dpb:utilityScore a owl:DatatypeProperty ;
+    rdfs:label "utility score"@en ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Measured utility score (0-1)" .
+
+dpb:accuracyScore a owl:DatatypeProperty ;
+    rdfs:label "accuracy score"@en ;
+    rdfs:domain dpb:AccuracyMetric ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Accuracy score of privacy-preserving result" .
+
+dpb:errorBound a owl:DatatypeProperty ;
+    rdfs:label "error bound"@en ;
+    rdfs:domain dpb:AccuracyMetric ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Statistical error bound" .
+
+dpb:confidenceLevel a owl:DatatypeProperty ;
+    rdfs:label "confidence level"@en ;
+    rdfs:domain dpb:AccuracyMetric ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Statistical confidence level" .
+
+# Temporal Properties
+dpb:budgetWindow a owl:DatatypeProperty ;
+    rdfs:label "budget window"@en ;
+    rdfs:domain dpb:TemporalBudget ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Time window for budget validity" .
+
+dpb:renewalPeriod a owl:DatatypeProperty ;
+    rdfs:label "renewal period"@en ;
+    rdfs:domain dpb:TemporalBudget ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Period for budget renewal" .
+
+dpb:expirationTime a owl:DatatypeProperty ;
+    rdfs:label "expiration time"@en ;
+    rdfs:domain dpb:DPBudgetToken ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Time when budget token expires" .
+
+# =============================================================================
+# OBJECT PROPERTIES
+# =============================================================================
+
+# Budget Relationships
+dpb:hasAccount a owl:ObjectProperty ;
+    rdfs:label "has account"@en ;
+    rdfs:domain baac:Principal ;
+    rdfs:range dpb:BudgetAccount ;
+    rdfs:comment "Budget account owned by principal" .
+
+dpb:allocatedTo a owl:ObjectProperty ;
+    rdfs:label "allocated to"@en ;
+    rdfs:domain dpb:BudgetAllocation ;
+    rdfs:range dpb:BudgetAccount ;
+    rdfs:comment "Account receiving budget allocation" .
+
+dpb:managedBy a owl:ObjectProperty ;
+    rdfs:label "managed by"@en ;
+    rdfs:domain dpb:BudgetAccount ;
+    rdfs:range dpb:BudgetManager ;
+    rdfs:comment "Manager responsible for budget account" .
+
+dpb:hasTransaction a owl:ObjectProperty ;
+    rdfs:label "has transaction"@en ;
+    rdfs:domain dpb:BudgetAccount ;
+    rdfs:range dpb:BudgetTransaction ;
+    rdfs:comment "Transaction affecting this account" .
+
+# Query Relationships
+dpb:requiresBudget a owl:ObjectProperty ;
+    rdfs:label "requires budget"@en ;
+    rdfs:domain dpb:PrivacyQuery ;
+    rdfs:range dpb:DPBudgetToken ;
+    rdfs:comment "Budget token required for query" .
+
+dpb:plannedBy a owl:ObjectProperty ;
+    rdfs:label "planned by"@en ;
+    rdfs:domain dpb:PrivacyQuery ;
+    rdfs:range dpb:QueryPlanner ;
+    rdfs:comment "Planner optimizing query budget" .
+
+dpb:executedBy a owl:ObjectProperty ;
+    rdfs:label "executed by"@en ;
+    rdfs:domain dpb:PrivacyQuery ;
+    rdfs:range dpb:QueryExecutor ;
+    rdfs:comment "Executor running privacy query" .
+
+# Mathematical Relationships
+dpb:appliesTheorem a owl:ObjectProperty ;
+    rdfs:label "applies theorem"@en ;
+    rdfs:domain dpb:BudgetManager ;
+    rdfs:range dpb:CompositionTheorem ;
+    rdfs:comment "Composition theorem applied" .
+
+dpb:validates a owl:ObjectProperty ;
+    rdfs:label "validates"@en ;
+    rdfs:domain dpb:BudgetValidator ;
+    rdfs:range dpb:BudgetTransaction ;
+    rdfs:comment "Transaction validated by this validator" .
+
+dpb:optimizedBy a owl:ObjectProperty ;
+    rdfs:label "optimized by"@en ;
+    rdfs:domain dpb:BudgetAllocation ;
+    rdfs:range dpb:BudgetOptimizer ;
+    rdfs:comment "Optimizer determining allocation" .
+
+# Accounting Relationships
+dpb:accountedBy a owl:ObjectProperty ;
+    rdfs:label "accounted by"@en ;
+    rdfs:domain dpb:BudgetTransaction ;
+    rdfs:range dpb:PrivacyAccountant ;
+    rdfs:comment "Accountant tracking this transaction" .
+
+dpb:recordedIn a owl:ObjectProperty ;
+    rdfs:label "recorded in"@en ;
+    rdfs:domain dpb:BudgetTransaction ;
+    rdfs:range dpb:PrivacyLedger ;
+    rdfs:comment "Ledger recording transaction" .
+
+dpb:auditedBy a owl:ObjectProperty ;
+    rdfs:label "audited by"@en ;
+    rdfs:domain dpb:BudgetAccount ;
+    rdfs:range dpb:PrivacyAudit ;
+    rdfs:comment "Audit system verifying account" .
+
+# Utility Relationships
+dpb:hasUtilityFunction a owl:ObjectProperty ;
+    rdfs:label "has utility function"@en ;
+    rdfs:domain dpb:PrivacyQuery ;
+    rdfs:range dpb:UtilityFunction ;
+    rdfs:comment "Utility function for query" .
+
+dpb:measuredBy a owl:ObjectProperty ;
+    rdfs:label "measured by"@en ;
+    rdfs:range dpb:AccuracyMetric ;
+    rdfs:comment "Metric measuring accuracy/utility" .
+
+dpb:calibratedBy a owl:ObjectProperty ;
+    rdfs:label "calibrated by"@en ;
+    rdfs:domain dpb:PrivacyQuery ;
+    rdfs:range dpb:NoiseCalibrator ;
+    rdfs:comment "Calibrator determining noise parameters" .
+
+# Integration Relationships
+dpb:consumedBy a owl:ObjectProperty ;
+    rdfs:label "consumed by"@en ;
+    rdfs:domain dpb:DPBudgetToken ;
+    rdfs:range view:PrivacyPreservingAggregation ;
+    rdfs:comment "Aggregation consuming this budget" .
+
+dpb:allocatedFor a owl:ObjectProperty ;
+    rdfs:label "allocated for"@en ;
+    rdfs:domain dpb:BudgetAllocation ;
+    rdfs:range dsc:DatasetCrystal ;
+    rdfs:comment "Dataset this budget is allocated for" .
+
+# =============================================================================
+# SHACL VALIDATION SHAPES
+# =============================================================================
+
+dpb:DPBudgetTokenShape a sh:NodeShape ;
+    sh:targetClass dpb:DPBudgetToken ;
+    sh:property [
+        sh:path dpb:epsilonValue ;
+        sh:minInclusive 0.0 ;
+        sh:message "Epsilon must be non-negative" ;
+    ] ;
+    sh:property [
+        sh:path dpb:deltaValue ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Delta must be between 0 and 1" ;
+    ] ;
+    sh:property [
+        sh:path dpb:budgetBalance ;
+        sh:minInclusive 0.0 ;
+        sh:message "Budget balance cannot be negative" ;
+    ] .
+
+dpb:BudgetTransactionShape a sh:NodeShape ;
+    sh:targetClass dpb:BudgetTransaction ;
+    sh:property [
+        sh:path dpb:transactionAmount ;
+        sh:minInclusive 0.0 ;
+        sh:message "Transaction amount must be positive" ;
+    ] ;
+    sh:property [
+        sh:path dpb:transactionType ;
+        sh:in ("SPEND" "TRANSFER" "RESERVE" "RELEASE" "ALLOCATE") ;
+        sh:message "Must specify valid transaction type" ;
+    ] ;
+    sh:property [
+        sh:path dpb:transactionHash ;
+        sh:pattern "^[a-fA-F0-9]{64}$" ;
+        sh:message "Transaction hash must be valid SHA-256" ;
+    ] .
+
+dpb:CompositionTheoremShape a sh:NodeShape ;
+    sh:targetClass dpb:CompositionTheorem ;
+    sh:property [
+        sh:path dpb:compositionType ;
+        sh:in ("BASIC" "ADVANCED" "ZCDP" "RDP") ;
+        sh:message "Must specify valid composition theorem type" ;
+    ] .
+
+dpb:RenyiDPShape a sh:NodeShape ;
+    sh:targetClass dpb:RenyiDP ;
+    sh:property [
+        sh:path dpb:orderParameter ;
+        sh:minInclusive 1.0 ;
+        sh:message "Order parameter must be greater than 1" ;
+    ] .
+
+dpb:PrivacyQueryShape a sh:NodeShape ;
+    sh:targetClass dpb:PrivacyQuery ;
+    sh:property [
+        sh:path dpb:queryBudgetRequired ;
+        sh:minInclusive 0.0 ;
+        sh:message "Query budget requirement must be non-negative" ;
+    ] ;
+    sh:property [
+        sh:path dpb:querySensitivity ;
+        sh:minInclusive 0.0 ;
+        sh:message "Query sensitivity must be non-negative" ;
+    ] .
+
+dpb:BudgetAccountBalanceConstraint a sh:NodeShape ;
+    sh:targetClass dpb:BudgetAccount ;
+    sh:sparql [
+        sh:message "Budget balance must equal initial minus spent plus credited" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this dpb:budgetBalance ?balance .
+                $this dpb:initialBudget ?initial .
+                $this dpb:spentBudget ?spent .
+                OPTIONAL { $this dpb:creditedBudget ?credited }
+                BIND(COALESCE(?credited, 0) as ?creditedAmount)
+                FILTER(?balance != (?initial - ?spent + ?creditedAmount))
+            }
+        """ ;
+    ] .
+
+# =============================================================================
+# PERFORMANCE REQUIREMENTS (DOCTRINE OF 8)
+# =============================================================================
+
+dpb:DPBudgetPerformance a ba:PerformanceSpecification ;
+    rdfs:label "DP Budget Token Performance Requirements" ;
+    rdfs:comment "Performance requirements under Doctrine of 8" ;
+    ba:budgetOperationLatency "< 8ms"^^xsd:duration ;
+    ba:transactionProcessingTime "< 5ms"^^xsd:duration ;
+    ba:accountBalanceQueryTime "< 2ms"^^xsd:duration ;
+    ba:compositionValidationTime "< 3ms"^^xsd:duration ;
+    ba:allocationOptimizationTime "< 10ms"^^xsd:duration ;
+    ba:throughputTarget "100K budget ops/sec"^^xsd:string .
+
+# =============================================================================
+# MATHEMATICAL FORMULAS AND CONSTANTS
+# =============================================================================
+
+dpb:MathematicalConstants a owl:Class ;
+    rdfs:label "Mathematical Constants" ;
+    rdfs:comment "Constants used in differential privacy computations" ;
+    rdfs:subClassOf ba:Constants ;
+    dpb:eulerConstant "2.71828182845904523536"^^xsd:double ;
+    dpb:naturalLogBase "2.71828182845904523536"^^xsd:double ;
+    dpb:pi "3.14159265358979323846"^^xsd:double .
+
+dpb:CompositionFormula a owl:Class ;
+    rdfs:label "Composition Formula" ;
+    rdfs:comment "Mathematical formulas for privacy budget composition" ;
+    rdfs:subClassOf ba:Formula ;
+    ba:formulaType xsd:string ;
+    ba:expression xsd:string ;
+    ba:variables xsd:string .
+
+# Basic composition: ε = Σεᵢ, δ = Σδᵢ
+dpb:BasicCompositionFormula a dpb:CompositionFormula ;
+    rdfs:label "Basic Composition Formula" ;
+    ba:formulaType "BASIC_COMPOSITION" ;
+    ba:expression "ε_total = Σεᵢ, δ_total = Σδᵢ" ;
+    ba:variables "εᵢ: individual epsilon, δᵢ: individual delta" .
+
+# Advanced composition with improved bounds
+dpb:AdvancedCompositionFormula a dpb:CompositionFormula ;
+    rdfs:label "Advanced Composition Formula" ;
+    ba:formulaType "ADVANCED_COMPOSITION" ;
+    ba:expression "ε_total ≤ √(2k ln(1/δ')) ε + kε(e^ε - 1)" ;
+    ba:variables "k: number of queries, δ': target delta, ε: individual epsilon" .
+
+# =============================================================================
+# INTEGRATION INSTANCES
+# =============================================================================
+
+# Standard Budget Allocations
+dpb:LowPrivacyBudget a dpb:DPBudgetToken ;
+    rdfs:label "Low Privacy Budget" ;
+    rdfs:comment "Budget for low-sensitivity queries" ;
+    dpb:epsilonValue 1.0 ;
+    dpb:deltaValue 0.00001 ;
+    ba:riskLevel "LOW" .
+
+dpb:MediumPrivacyBudget a dpb:DPBudgetToken ;
+    rdfs:label "Medium Privacy Budget" ;
+    rdfs:comment "Budget for medium-sensitivity queries" ;
+    dpb:epsilonValue 0.5 ;
+    dpb:deltaValue 0.000001 ;
+    ba:riskLevel "MEDIUM" .
+
+dpb:HighPrivacyBudget a dpb:DPBudgetToken ;
+    rdfs:label "High Privacy Budget" ;
+    rdfs:comment "Budget for high-sensitivity queries" ;
+    dpb:epsilonValue 0.1 ;
+    dpb:deltaValue 0.0000001 ;
+    ba:riskLevel "HIGH" .
+
+# Standard Account Types
+dpb:UserAccount a dpb:BudgetAccount ;
+    rdfs:label "User Budget Account" ;
+    rdfs:comment "Personal privacy budget account for individual users" ;
+    dpb:initialBudget 10.0 ;
+    ba:accountType "USER" ;
+    ba:renewable true .
+
+dpb:ServiceAccount a dpb:BudgetAccount ;
+    rdfs:label "Service Budget Account" ;
+    rdfs:comment "Budget account for automated services" ;
+    dpb:initialBudget 100.0 ;
+    ba:accountType "SERVICE" ;
+    ba:renewable true .
+
+dpb:ResearchAccount a dpb:BudgetAccount ;
+    rdfs:label "Research Budget Account" ;
+    rdfs:comment "Budget account for research projects" ;
+    dpb:initialBudget 50.0 ;
+    ba:accountType "RESEARCH" ;
+    ba:renewable false .
+
+# Composition Theorem Instances
+dpb:StandardBasicComposition a dpb:BasicComposition ;
+    rdfs:label "Standard Basic Composition" ;
+    rdfs:comment "Standard basic composition for sequential queries" ;
+    ba:compositionRule "additive" ;
+    ba:privacyGuarantee "(ε_total, δ_total)-differential privacy" .
+
+dpb:OptimalAdvancedComposition a dpb:AdvancedComposition ;
+    rdfs:label "Optimal Advanced Composition" ;
+    rdfs:comment "Optimal advanced composition with tight bounds" ;
+    ba:compositionRule "square-root-improvement" ;
+    ba:privacyGuarantee "improved (ε, δ)-DP bounds" .
+
+# Audit Integration
+dpb:BudgetAuditEvent a baa:SecurityAuditEvent ;
+    rdfs:label "Budget Audit Event" ;
+    baa:eventCategory "PRIVACY_BUDGET_OPERATION" ;
+    baa:eventSeverity "HIGH" ;
+    dpb:auditTarget dpb:BudgetTransaction .
+
+dpb:CompositionAuditEvent a baa:ComplianceAuditEvent ;
+    rdfs:label "Composition Audit Event" ;
+    baa:eventCategory "COMPOSITION_VALIDATION" ;
+    baa:eventSeverity "CRITICAL" ;
+    dpb:auditTarget dpb:CompositionTheorem .
+
+# =============================================================================
+# End of DP Budget Token Ontology
+# =============================================================================

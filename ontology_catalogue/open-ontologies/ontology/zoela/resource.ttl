@@ -1,0 +1,290 @@
+@prefix zoe:     <https://zoela.org/ontology/> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix schema:  <https://schema.org/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+
+# ============================================================================
+# ZOE LA Mobile — Resource Ontology
+# ============================================================================
+# Models tangible and intangible resources, inventory batches, and
+# need-to-resource match records in the ZOE LA combinatorial service graph.
+#
+# Design alignment:
+#   zoe:Resource           → schema:Product (a describable service resource)
+#   zoe:InventoryBatch     → prov:Entity (auditable batch with provenance)
+#   zoe:ResourceNeedMatch  → owl:Thing (bridge object: need ↔ resource)
+#   zoe:ResourceCategoryScheme → skos:ConceptScheme (resource categories)
+# ============================================================================
+
+zoe:ResourceOntology a owl:Ontology ;
+  rdfs:label   "ZOE LA Mobile — Resource Ontology"@en ;
+  rdfs:comment "Resource, inventory, and need-match ontology for the ZOE LA Mobile manufacturing pipeline."@en ;
+  dcterms:creator  "Sean Chatman" ;
+  dcterms:created  "2026-05-17"^^xsd:date ;
+  dcterms:license  <https://opensource.org/licenses/MIT> ;
+  owl:versionInfo  "1.0.0" .
+
+# ── Class: Resource ───────────────────────────────────────────────────────────
+
+zoe:Resource a owl:Class ;
+  rdfs:subClassOf schema:Product ;
+  rdfs:label   "Resource"@en ;
+  rdfs:comment "A tangible or intangible resource managed by ZOE LA for distribution to community members. Resources may be physical goods, financial instruments, volunteer time, or partner capacities."@en ;
+  skos:notation "resource" .
+
+zoe:resourceCode a owl:DatatypeProperty ;
+  rdfs:domain  zoe:Resource ;
+  rdfs:range   xsd:string ;
+  rdfs:label   "Resource Code"@en ;
+  rdfs:comment "Short unique code identifying this resource type across all campuses (e.g. 'FOOD-DRY-GOODS')."@en ;
+  skos:notation "resource_code" .
+
+zoe:resourceCategory a owl:ObjectProperty ;
+  rdfs:domain  zoe:Resource ;
+  rdfs:range   zoe:ResourceCategoryTerm ;
+  rdfs:label   "Resource Category"@en ;
+  rdfs:comment "Controlled-vocabulary category classifying this resource type for routing and reporting."@en ;
+  skos:notation "resource_category" .
+
+zoe:unit a owl:DatatypeProperty ;
+  rdfs:domain  zoe:Resource ;
+  rdfs:range   xsd:string ;
+  rdfs:label   "Unit"@en ;
+  rdfs:comment "Unit of measure for this resource (lbs, items, hours, dollars). Used for quantity calculations in batch and match records."@en ;
+  skos:notation "unit" .
+
+zoe:isPerishable a owl:DatatypeProperty ;
+  rdfs:domain  zoe:Resource ;
+  rdfs:range   xsd:boolean ;
+  rdfs:label   "Is Perishable"@en ;
+  rdfs:comment "When true, inventory batches of this resource have a meaningful expiry date that must be tracked."@en ;
+  skos:notation "is_perishable" .
+
+zoe:minimumAge a owl:DatatypeProperty ;
+  rdfs:domain  zoe:Resource ;
+  rdfs:range   xsd:integer ;
+  rdfs:label   "Minimum Age"@en ;
+  rdfs:comment "Minimum recipient age in years required to receive this resource (e.g. 18 for financial disbursements). Zero means no restriction."@en ;
+  skos:notation "minimum_age" .
+
+zoe:resourceRequiresConsent a owl:DatatypeProperty ;
+  rdfs:domain  zoe:Resource ;
+  rdfs:range   xsd:boolean ;
+  rdfs:label   "Requires Consent"@en ;
+  rdfs:comment "When true, the recipient must have a current signed consent record before this resource may be distributed."@en ;
+  skos:notation "requires_consent" .
+
+zoe:supplierPartner a owl:DatatypeProperty ;
+  rdfs:domain  zoe:Resource ;
+  rdfs:range   xsd:string ;
+  rdfs:label   "Supplier Partner"@en ;
+  rdfs:comment "Name or identifier of the external partner or donor organization that supplies this resource type."@en ;
+  skos:notation "supplier_partner" .
+
+# ── Class: InventoryBatch ─────────────────────────────────────────────────────
+
+zoe:InventoryBatch a owl:Class ;
+  rdfs:subClassOf prov:Entity ;
+  rdfs:label   "Inventory Batch"@en ;
+  rdfs:comment "A specific received lot of a resource type at a campus. Tracks quantities received, available, and distributed with provenance."@en ;
+  skos:notation "inventory_batch" .
+
+zoe:batchId a owl:DatatypeProperty ;
+  rdfs:domain  zoe:InventoryBatch ;
+  rdfs:range   xsd:string ;
+  rdfs:label   "Batch ID"@en ;
+  rdfs:comment "UUID primary key uniquely identifying this inventory batch."@en ;
+  skos:notation "batch_id" .
+
+zoe:batchResourceCode a owl:DatatypeProperty ;
+  rdfs:domain  zoe:InventoryBatch ;
+  rdfs:range   xsd:string ;
+  rdfs:label   "Resource Code"@en ;
+  rdfs:comment "Code of the resource type contained in this batch. Foreign key to zoe:Resource."@en ;
+  skos:notation "resource_code" .
+
+zoe:quantityReceived a owl:DatatypeProperty ;
+  rdfs:domain  zoe:InventoryBatch ;
+  rdfs:range   xsd:decimal ;
+  rdfs:label   "Quantity Received"@en ;
+  rdfs:comment "Total quantity (in resource units) received when this batch was logged."@en ;
+  skos:notation "quantity_received" .
+
+zoe:quantityAvailable a owl:DatatypeProperty ;
+  rdfs:domain  zoe:InventoryBatch ;
+  rdfs:range   xsd:decimal ;
+  rdfs:label   "Quantity Available"@en ;
+  rdfs:comment "Current quantity remaining in this batch available for distribution."@en ;
+  skos:notation "quantity_available" .
+
+zoe:quantityDistributed a owl:DatatypeProperty ;
+  rdfs:domain  zoe:InventoryBatch ;
+  rdfs:range   xsd:decimal ;
+  rdfs:label   "Quantity Distributed"@en ;
+  rdfs:comment "Cumulative quantity of this batch that has been distributed to community members."@en ;
+  skos:notation "quantity_distributed" .
+
+zoe:receivedAt a owl:DatatypeProperty ;
+  rdfs:domain  zoe:InventoryBatch ;
+  rdfs:range   xsd:dateTime ;
+  rdfs:label   "Received At"@en ;
+  rdfs:comment "ISO-8601 timestamp when this inventory batch was received and logged."@en ;
+  skos:notation "received_at" .
+
+zoe:expiresAt a owl:DatatypeProperty ;
+  rdfs:domain  zoe:InventoryBatch ;
+  rdfs:range   xsd:dateTime ;
+  rdfs:label   "Expires At"@en ;
+  rdfs:comment "ISO-8601 timestamp when this batch expires. Relevant only when zoe:isPerishable is true on the resource type."@en ;
+  skos:notation "expires_at" .
+
+zoe:campusId a owl:DatatypeProperty ;
+  rdfs:domain  zoe:InventoryBatch ;
+  rdfs:range   xsd:string ;
+  rdfs:label   "Campus ID"@en ;
+  rdfs:comment "Identifier of the ZOE LA campus where this inventory batch is stored."@en ;
+  skos:notation "campus_id" .
+
+zoe:donorId a owl:DatatypeProperty ;
+  rdfs:domain  zoe:InventoryBatch ;
+  rdfs:range   xsd:string ;
+  rdfs:label   "Donor ID"@en ;
+  rdfs:comment "Identifier of the individual or partner donor who contributed this batch."@en ;
+  skos:notation "donor_id" .
+
+# ── Class: ResourceNeedMatch ──────────────────────────────────────────────────
+
+zoe:ResourceNeedMatch a owl:Class ;
+  rdfs:subClassOf prov:Activity ;
+  rdfs:label   "Resource Need Match"@en ;
+  rdfs:comment "A bridge object recording a lawful many-to-many relationship between a service need and a matching resource allocation. Carries match quantity, status, and routing metadata."@en ;
+  skos:notation "resource_need_match" .
+
+zoe:matchId a owl:DatatypeProperty ;
+  rdfs:domain  zoe:ResourceNeedMatch ;
+  rdfs:range   xsd:string ;
+  rdfs:label   "Match ID"@en ;
+  rdfs:comment "UUID primary key uniquely identifying this need-resource match record."@en ;
+  skos:notation "match_id" .
+
+zoe:needId a owl:DatatypeProperty ;
+  rdfs:domain  zoe:ResourceNeedMatch ;
+  rdfs:range   xsd:string ;
+  rdfs:label   "Need ID"@en ;
+  rdfs:comment "Identifier of the service need being matched. Foreign key to the need domain."@en ;
+  skos:notation "need_id" .
+
+zoe:matchResourceCode a owl:DatatypeProperty ;
+  rdfs:domain  zoe:ResourceNeedMatch ;
+  rdfs:range   xsd:string ;
+  rdfs:label   "Resource Code"@en ;
+  rdfs:comment "Code of the resource type allocated to satisfy this need. Foreign key to zoe:Resource."@en ;
+  skos:notation "resource_code" .
+
+zoe:quantityMatched a owl:DatatypeProperty ;
+  rdfs:domain  zoe:ResourceNeedMatch ;
+  rdfs:range   xsd:decimal ;
+  rdfs:label   "Quantity Matched"@en ;
+  rdfs:comment "Quantity of the resource (in resource units) allocated to this need match."@en ;
+  skos:notation "quantity_matched" .
+
+zoe:matchedAt a owl:DatatypeProperty ;
+  rdfs:domain  zoe:ResourceNeedMatch ;
+  rdfs:range   xsd:dateTime ;
+  rdfs:label   "Matched At"@en ;
+  rdfs:comment "ISO-8601 timestamp when this need-resource match was created."@en ;
+  skos:notation "matched_at" .
+
+zoe:matchStatus a owl:ObjectProperty ;
+  rdfs:domain  zoe:ResourceNeedMatch ;
+  rdfs:range   skos:Concept ;
+  rdfs:label   "Match Status"@en ;
+  rdfs:comment "Current lifecycle state of this match from a SKOS controlled vocabulary."@en ;
+  skos:notation "match_status" .
+
+zoe:substituteAllowed a owl:DatatypeProperty ;
+  rdfs:domain  zoe:ResourceNeedMatch ;
+  rdfs:range   xsd:boolean ;
+  rdfs:label   "Substitute Allowed"@en ;
+  rdfs:comment "When true, the routing engine may fulfill this match with a resource from an equivalent substitute category."@en ;
+  skos:notation "substitute_allowed" .
+
+zoe:partnerRelayAllowed a owl:DatatypeProperty ;
+  rdfs:domain  zoe:ResourceNeedMatch ;
+  rdfs:range   xsd:boolean ;
+  rdfs:label   "Partner Relay Allowed"@en ;
+  rdfs:comment "When true, fulfillment of this match may be relayed to an external partner organization's capacity."@en ;
+  skos:notation "partner_relay_allowed" .
+
+# ── SKOS ConceptScheme: ResourceCategory ──────────────────────────────────────
+
+zoe:ResourceCategoryScheme a skos:ConceptScheme ;
+  rdfs:label   "Resource Category Scheme"@en ;
+  rdfs:comment "Controlled vocabulary of resource categories for inventory, routing, and reporting."@en ;
+  dcterms:title "ZOE LA Resource Categories" .
+
+zoe:ResourceCategoryTerm a owl:Class ;
+  rdfs:subClassOf skos:Concept ;
+  rdfs:label   "Resource Category Term"@en ;
+  rdfs:comment "An individual category term within the ResourceCategory controlled vocabulary."@en .
+
+zoe:FoodResource a zoe:ResourceCategoryTerm ;
+  skos:inScheme  zoe:ResourceCategoryScheme ;
+  skos:prefLabel "Food Resource"@en ;
+  rdfs:label     "Food Resource"@en ;
+  rdfs:comment   "Edible goods including dry goods, fresh produce, and prepared meals."@en ;
+  skos:notation  "FOOD" .
+
+zoe:ClothingResource a zoe:ResourceCategoryTerm ;
+  skos:inScheme  zoe:ResourceCategoryScheme ;
+  skos:prefLabel "Clothing Resource"@en ;
+  rdfs:label     "Clothing Resource"@en ;
+  rdfs:comment   "Clothing donations including seasonal wear, professional attire, and footwear."@en ;
+  skos:notation  "CLOTH" .
+
+zoe:BenevolenceFund a zoe:ResourceCategoryTerm ;
+  skos:inScheme  zoe:ResourceCategoryScheme ;
+  skos:prefLabel "Benevolence Fund"@en ;
+  rdfs:label     "Benevolence Fund"@en ;
+  rdfs:comment   "Financial assistance resources including bill payment, rent support, and emergency cash."@en ;
+  skos:notation  "BENEV" .
+
+zoe:VolunteerTimeResource a zoe:ResourceCategoryTerm ;
+  skos:inScheme  zoe:ResourceCategoryScheme ;
+  skos:prefLabel "Volunteer Time Resource"@en ;
+  rdfs:label     "Volunteer Time Resource"@en ;
+  rdfs:comment   "Volunteer hours as a resource unit, used when matching serve capacity to care requests."@en ;
+  skos:notation  "VOL-TIME" .
+
+zoe:RoomResource a zoe:ResourceCategoryTerm ;
+  skos:inScheme  zoe:ResourceCategoryScheme ;
+  skos:prefLabel "Room Resource"@en ;
+  rdfs:label     "Room Resource"@en ;
+  rdfs:comment   "Campus room or facility space available for community use, counseling, or events."@en ;
+  skos:notation  "ROOM" .
+
+zoe:VehicleResource a zoe:ResourceCategoryTerm ;
+  skos:inScheme  zoe:ResourceCategoryScheme ;
+  skos:prefLabel "Vehicle Resource"@en ;
+  rdfs:label     "Vehicle Resource"@en ;
+  rdfs:comment   "Church or partner-owned vehicles available for transportation assistance."@en ;
+  skos:notation  "VEH" .
+
+zoe:PartnerCapacity a zoe:ResourceCategoryTerm ;
+  skos:inScheme  zoe:ResourceCategoryScheme ;
+  skos:prefLabel "Partner Capacity"@en ;
+  rdfs:label     "Partner Capacity"@en ;
+  rdfs:comment   "Service capacity offered by an external partner organization that can fulfill relayed needs."@en ;
+  skos:notation  "PART-CAP" .
+
+zoe:TrainingResource a zoe:ResourceCategoryTerm ;
+  skos:inScheme  zoe:ResourceCategoryScheme ;
+  skos:prefLabel "Training Resource"@en ;
+  rdfs:label     "Training Resource"@en ;
+  rdfs:comment   "Educational or training materials, workshops, and sessions available for volunteers and community members."@en ;
+  skos:notation  "TRAIN" .

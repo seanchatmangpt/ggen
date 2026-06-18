@@ -1,0 +1,65 @@
+@prefix ggen: <https://ggen.ai/graph/v1#> .
+@prefix kh: <https://chatmangpt.com/kgc/hooks#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://ggen.ai/graph/v1> a owl:Ontology ;
+    rdfs:label "ggen Graph Vocabulary" ;
+    owl:versionInfo "0.1.0" ;
+    owl:imports <https://chatmangpt.com/kgc/hooks#> .
+
+# Classes
+ggen:Hook a rdfs:Class ;
+    rdfs:label "Hook" ;
+    owl:sameAs kh:Hook .
+
+ggen:KnowledgeHook a rdfs:Class ;
+    rdfs:label "Knowledge Hook" ;
+    owl:sameAs kh:KnowledgeHook .
+
+ggen:SparqlTrigger a rdfs:Class ;
+    rdfs:label "SPARQL Trigger" ;
+    owl:sameAs kh:SparqlTrigger .
+
+ggen:SparqlConstructAction a rdfs:Class ;
+    rdfs:label "SPARQL Construct Action" ;
+    owl:sameAs kh:SparqlConstructAction .
+
+# Properties
+ggen:hookId a rdf:Property ;
+    rdfs:label "hook ID" ;
+    owl:sameAs kh:hookId .
+
+ggen:phase a rdf:Property ;
+    rdfs:label "phase" ;
+    owl:sameAs kh:phase .
+
+ggen:event a rdf:Property ;
+    rdfs:label "event" ;
+    owl:sameAs kh:event .
+
+ggen:trigger a rdf:Property ;
+    rdfs:label "trigger" ;
+    owl:sameAs kh:trigger .
+
+ggen:action a rdf:Property ;
+    rdfs:label "action" ;
+    owl:sameAs kh:action .
+
+ggen:priority a rdf:Property ;
+    rdfs:label "priority" ;
+    owl:sameAs kh:priority .
+
+ggen:askQuery a rdf:Property ;
+    rdfs:label "ASK query" ;
+    owl:sameAs kh:askQuery .
+
+ggen:constructQuery a rdf:Property ;
+    rdfs:label "CONSTRUCT query" ;
+    owl:sameAs kh:constructQuery .
+
+ggen:text a rdf:Property ;
+    rdfs:label "text" ;
+    owl:sameAs kh:text .

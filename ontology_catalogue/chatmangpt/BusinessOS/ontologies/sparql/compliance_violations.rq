@@ -1,0 +1,65 @@
+# ============================================================================
+# COMPLIANCE VIOLATIONS DISCOVERY
+# ============================================================================
+# SPARQL SELECT query finding compliance violations in the audit trail.
+#
+# Input parameters (via BIND or VALUES):
+#   - framework: compliance framework (SOC2, GDPR, HIPAA, SOX)
+#   - lookback_days: optional days to look back (default: 30)
+#
+# Output columns:
+#   - violationId: unique violation identifier
+#   - ruleId: compliance rule ID (e.g., soc2.cc6.1)
+#   - severity: critical, high, medium, low
+#   - controlName: human-readable control name
+#   - description: violation description
+#   - detectedAt: ISO8601 timestamp when violation was detected
+#   - affectedEntity: entity ID that failed the control (user, service, data)
+#   - remediationUrl: link to remediation procedure
+#
+# Timeout: 10 seconds max
+# ============================================================================
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX bos: <https://chatmangpt.com/ontology/businessos/>
+PREFIX comp: <https://chatmangpt.com/ontology/compliance/>
+
+SELECT ?violationId ?ruleId ?severity ?controlName ?description ?detectedAt ?affectedEntity ?remediationUrl
+WHERE {
+  # Input: Framework filter
+  BIND("SOC2" AS ?framework)  # Parameterize: replace with VALUES or BIND
+  BIND(30 AS ?lookbackDays)   # Look back N days
+
+  # Calculate cutoff date (now - lookback_days)
+  BIND(NOW() AS ?now)
+  BIND(xsd:dateTime(STR(xsd:dateTime(?now) - xsd:dayTimeDuration("PT" + STR(?lookbackDays) + "D"))) AS ?cutoffDate)
+
+  # Find audit entries (violation events)
+  ?auditEntry a bos:AuditEntry ;
+    bos:auditType "control_check"^^xsd:string ;
+    bos:checkFramework ?framework ;
+    bos:checkResult "FAILED"^^xsd:string ;
+    dcterms:issued ?detectedAt ;
+    bos:affectedEntity ?affectedEntity ;
+    bos:ruleId ?ruleId ;
+    bos:ruleName ?controlName ;
+    rdfs:comment ?description ;
+    bos:severity ?severity .
+
+  # Filter: only recent violations
+  FILTER (?detectedAt >= ?cutoffDate)
+
+  # Generate violation ID from audit entry
+  BIND(CONCAT("vio-", SUBSTR(STR(?auditEntry), 40), "-", SUBSTR(STR(?detectedAt), 1, 10)) AS ?violationId)
+
+  # Link to remediation (optional: lookup from rule registry)
+  BIND(CONCAT("https://chatmangpt.com/api/compliance/remediation/", ?ruleId) AS ?remediationUrl)
+
+  # Order by severity and date
+}
+ORDER BY DESC(?severity) DESC(?detectedAt)
+LIMIT 1000

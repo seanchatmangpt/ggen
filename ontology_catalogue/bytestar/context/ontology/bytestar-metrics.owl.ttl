@@ -1,0 +1,36 @@
+@prefix : <https://bytestar.org/ontology/bytestar-metrics#> .
+@prefix bytestar: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix obs: <https://bytestar.org/ontology/bytestar-observability#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://bytestar.org/ontology/bytestar-metrics>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core> ,
+              <https://bytestar.org/ontology/bytestar-observability> ;
+  rdfs:label "ByteStar Metrics & SLOs" ;
+  rdfs:comment "CTQs, SLO constraints, determinism counters, schedule invariance." .
+
+:Metric a owl:Class .
+:CTQ a owl:Class ; rdfs:subClassOf :Metric .
+:SLO a owl:Class ; rdfs:subClassOf :Metric .
+
+:measures a owl:ObjectProperty ; rdfs:domain :Metric ; rdfs:range bytestar:Subsystem .
+:value    a owl:DatatypeProperty ; rdfs:domain :Metric ; rdfs:range xsd:decimal .
+:percentile a owl:DatatypeProperty ; rdfs:domain :Metric ; rdfs:range xsd:decimal .
+:units    a owl:DatatypeProperty ; rdfs:domain :Metric ; rdfs:range xsd:string .
+
+### Canonical CTQs
+:CTQ_TickBound a :CTQ ; rdfs:comment "P99.999 kernel ticks ≤ 8." .
+:CTQ_HopBound  a :CTQ ; rdfs:comment "P99.9 end-to-end hops ≤ 8." .
+:CTQ_ConstTimeProof a :CTQ ; rdfs:comment "Constant-time proof availability." .
+:CTQ_LinearThroughput a :CTQ ; rdfs:comment "Linear scaling with actor cores until orchestration bound." .
+:CTQ_ZeroTickReject a :CTQ ; rdfs:comment "Rejects do not consume hot ticks." .
+
+### Determinism & schedule invariance
+:DeterminismViolationCount a :Metric .
+:ScheduleVariance a :Metric .  # should be 0 at steady state
+
+### Link to pulses
+:derivedFrom a owl:ObjectProperty ; rdfs:domain :Metric ; rdfs:range obs:Telemetry .

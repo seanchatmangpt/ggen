@@ -1,0 +1,5 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix fsm: <https://cns.dev/fsm#> .
+
+fsm:StateShape a sh:NodeShape ; sh:targetClass fsm:State .
+fsm:TransitionShape a sh:NodeShape ; sh:targetClass fsm:Transition .

@@ -1,0 +1,402 @@
+@prefix arch: <http://bytestar.io/ontology/architecture#> .
+@prefix simd: <http://bytestar.io/ontology/simd#> .
+@prefix mem: <http://bytestar.io/ontology/memory#> .
+@prefix perf: <http://bytestar.io/ontology/performance#> .
+@prefix batch: <http://bytestar.io/ontology/batch#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Architecture-Specific Optimization Ontology
+# Defines optimization strategies for different CPU architectures and cryptographic algorithms
+
+# Base Classes
+arch:Architecture a owl:Class ;
+    rdfs:label "CPU Architecture" ;
+    rdfs:comment "A specific CPU architecture with unique characteristics" .
+
+arch:OptimizationStrategy a owl:Class ;
+    rdfs:label "Optimization Strategy" ;
+    rdfs:comment "A strategy for optimizing performance on a specific architecture" .
+
+arch:CompilerOptimization a owl:Class ;
+    rdfs:label "Compiler Optimization" ;
+    rdfs:comment "Compiler-level optimization technique" .
+
+arch:AlgorithmOptimization a owl:Class ;
+    rdfs:label "Algorithm Optimization" ;
+    rdfs:comment "Algorithm-level optimization technique" .
+
+arch:MicroarchitecturalFeature a owl:Class ;
+    rdfs:label "Microarchitectural Feature" ;
+    rdfs:comment "Specific microarchitectural feature that affects performance" .
+
+# Properties
+arch:hasOptimization a owl:ObjectProperty ;
+    rdfs:domain arch:Architecture ;
+    rdfs:range arch:OptimizationStrategy .
+
+arch:supportedInstructionSet a owl:ObjectProperty ;
+    rdfs:domain arch:Architecture ;
+    rdfs:range simd:InstructionSet .
+
+arch:hasFeature a owl:ObjectProperty ;
+    rdfs:domain arch:Architecture ;
+    rdfs:range arch:MicroarchitecturalFeature .
+
+arch:optimizationLevel a owl:DatatypeProperty ;
+    rdfs:domain arch:OptimizationStrategy ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Optimization aggressiveness level (0-3)" .
+
+arch:expectedSpeedup a owl:DatatypeProperty ;
+    rdfs:domain arch:OptimizationStrategy ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Expected performance improvement factor" .
+
+arch:implementationComplexity a owl:DatatypeProperty ;
+    rdfs:domain arch:OptimizationStrategy ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Implementation complexity: low, medium, high" .
+
+# Intel Architectures
+arch:IntelSkylake a arch:Architecture ;
+    rdfs:label "Intel Skylake" ;
+    arch:supportedInstructionSet simd:AVX2 ;
+    rdfs:comment "Intel Skylake microarchitecture" .
+
+arch:IntelIceLake a arch:Architecture ;
+    rdfs:label "Intel Ice Lake" ;
+    arch:supportedInstructionSet simd:AVX512 ;
+    rdfs:comment "Intel Ice Lake microarchitecture with AVX-512" .
+
+arch:IntelAlderLake a arch:Architecture ;
+    rdfs:label "Intel Alder Lake" ;
+    arch:supportedInstructionSet simd:AVX2 ;
+    rdfs:comment "Intel Alder Lake hybrid architecture" .
+
+arch:IntelSapphireRapids a arch:Architecture ;
+    rdfs:label "Intel Sapphire Rapids" ;
+    arch:supportedInstructionSet simd:AVX512 ;
+    rdfs:comment "Intel Sapphire Rapids server architecture" .
+
+# AMD Architectures
+arch:AMDZen3 a arch:Architecture ;
+    rdfs:label "AMD Zen 3" ;
+    arch:supportedInstructionSet simd:AVX2 ;
+    rdfs:comment "AMD Zen 3 microarchitecture" .
+
+arch:AMDZen4 a arch:Architecture ;
+    rdfs:label "AMD Zen 4" ;
+    arch:supportedInstructionSet simd:AVX512 ;
+    rdfs:comment "AMD Zen 4 microarchitecture with AVX-512" .
+
+# ARM Architectures
+arch:ARMCortexA78 a arch:Architecture ;
+    rdfs:label "ARM Cortex-A78" ;
+    arch:supportedInstructionSet simd:NEON ;
+    rdfs:comment "ARM Cortex-A78 architecture" .
+
+arch:ARMCortexX1 a arch:Architecture ;
+    rdfs:label "ARM Cortex-X1" ;
+    arch:supportedInstructionSet simd:NEON ;
+    rdfs:comment "ARM Cortex-X1 performance core" .
+
+arch:ARMNeoverseV1 a arch:Architecture ;
+    rdfs:label "ARM Neoverse V1" ;
+    arch:supportedInstructionSet simd:SVE ;
+    rdfs:comment "ARM Neoverse V1 with SVE support" .
+
+# Microarchitectural Features
+arch:OutOfOrderExecution a arch:MicroarchitecturalFeature ;
+    rdfs:label "Out-of-Order Execution" ;
+    rdfs:comment "Capability to execute instructions out of program order" .
+
+arch:SuperscalarExecution a arch:MicroarchitecturalFeature ;
+    rdfs:label "Superscalar Execution" ;
+    rdfs:comment "Multiple instructions executed per cycle" .
+
+arch:BranchPrediction a arch:MicroarchitecturalFeature ;
+    rdfs:label "Branch Prediction" ;
+    rdfs:comment "Hardware branch prediction capability" .
+
+arch:HardwarePrefetching a arch:MicroarchitecturalFeature ;
+    rdfs:label "Hardware Prefetching" ;
+    rdfs:comment "Automatic data prefetching capability" .
+
+arch:VectorExecution a arch:MicroarchitecturalFeature ;
+    rdfs:label "Vector Execution Unit" ;
+    rdfs:comment "Dedicated vector/SIMD execution units" .
+
+# Architecture Feature Associations
+arch:IntelSkylake arch:hasFeature arch:OutOfOrderExecution, arch:SuperscalarExecution, 
+                                   arch:BranchPrediction, arch:HardwarePrefetching, 
+                                   arch:VectorExecution .
+
+arch:AMDZen3 arch:hasFeature arch:OutOfOrderExecution, arch:SuperscalarExecution,
+                              arch:BranchPrediction, arch:HardwarePrefetching,
+                              arch:VectorExecution .
+
+arch:ARMCortexA78 arch:hasFeature arch:OutOfOrderExecution, arch:SuperscalarExecution,
+                                   arch:BranchPrediction, arch:VectorExecution .
+
+# Optimization Strategies by Architecture
+
+# Intel Skylake Optimizations
+arch:SkylakeAVX2Optimization a arch:OptimizationStrategy ;
+    rdfs:label "Skylake AVX2 Optimization" ;
+    arch:optimizationLevel "2"^^xsd:integer ;
+    arch:expectedSpeedup "4.0"^^xsd:decimal ;
+    arch:implementationComplexity "medium" ;
+    rdfs:comment "AVX2-specific optimizations for Skylake" .
+
+arch:SkylakeCacheOptimization a arch:OptimizationStrategy ;
+    rdfs:label "Skylake Cache Optimization" ;
+    arch:optimizationLevel "1"^^xsd:integer ;
+    arch:expectedSpeedup "1.5"^^xsd:decimal ;
+    arch:implementationComplexity "low" ;
+    rdfs:comment "Cache-aware optimizations for Skylake" .
+
+arch:IntelSkylake arch:hasOptimization arch:SkylakeAVX2Optimization, arch:SkylakeCacheOptimization .
+
+# Intel Ice Lake Optimizations
+arch:IceLakeAVX512Optimization a arch:OptimizationStrategy ;
+    rdfs:label "Ice Lake AVX-512 Optimization" ;
+    arch:optimizationLevel "3"^^xsd:integer ;
+    arch:expectedSpeedup "8.0"^^xsd:decimal ;
+    arch:implementationComplexity "high" ;
+    rdfs:comment "AVX-512 optimizations for Ice Lake" .
+
+arch:IceLakeVNNIOptimization a arch:OptimizationStrategy ;
+    rdfs:label "Ice Lake VNNI Optimization" ;
+    arch:optimizationLevel "2"^^xsd:integer ;
+    arch:expectedSpeedup "2.0"^^xsd:decimal ;
+    arch:implementationComplexity "medium" ;
+    rdfs:comment "Vector Neural Network Instructions optimization" .
+
+arch:IntelIceLake arch:hasOptimization arch:IceLakeAVX512Optimization, arch:IceLakeVNNIOptimization .
+
+# AMD Zen 3 Optimizations
+arch:Zen3AVX2Optimization a arch:OptimizationStrategy ;
+    rdfs:label "Zen 3 AVX2 Optimization" ;
+    arch:optimizationLevel "2"^^xsd:integer ;
+    arch:expectedSpeedup "3.5"^^xsd:decimal ;
+    arch:implementationComplexity "medium" ;
+    rdfs:comment "AVX2 optimizations tuned for Zen 3" .
+
+arch:Zen3L3CacheOptimization a arch:OptimizationStrategy ;
+    rdfs:label "Zen 3 L3 Cache Optimization" ;
+    arch:optimizationLevel "1"^^xsd:integer ;
+    arch:expectedSpeedup "1.8"^^xsd:decimal ;
+    arch:implementationComplexity "low" ;
+    rdfs:comment "Large L3 cache optimization for Zen 3" .
+
+arch:AMDZen3 arch:hasOptimization arch:Zen3AVX2Optimization, arch:Zen3L3CacheOptimization .
+
+# ARM Optimizations
+arch:NEONOptimization a arch:OptimizationStrategy ;
+    rdfs:label "NEON SIMD Optimization" ;
+    arch:optimizationLevel "2"^^xsd:integer ;
+    arch:expectedSpeedup "4.0"^^xsd:decimal ;
+    arch:implementationComplexity "medium" ;
+    rdfs:comment "ARM NEON SIMD optimizations" .
+
+arch:ARMCortexA78 arch:hasOptimization arch:NEONOptimization .
+
+arch:SVEOptimization a arch:OptimizationStrategy ;
+    rdfs:label "SVE Scalable Vector Optimization" ;
+    arch:optimizationLevel "3"^^xsd:integer ;
+    arch:expectedSpeedup "6.0"^^xsd:decimal ;
+    arch:implementationComplexity "high" ;
+    rdfs:comment "ARM SVE scalable vector optimizations" .
+
+arch:ARMNeoverseV1 arch:hasOptimization arch:SVEOptimization .
+
+# Compiler Optimization Strategies
+arch:AutoVectorization a arch:CompilerOptimization ;
+    rdfs:label "Auto Vectorization" ;
+    rdfs:comment "Compiler automatic vectorization" .
+
+arch:LoopUnrolling a arch:CompilerOptimization ;
+    rdfs:label "Loop Unrolling" ;
+    rdfs:comment "Compiler loop unrolling optimization" .
+
+arch:FunctionInlining a arch:CompilerOptimization ;
+    rdfs:label "Function Inlining" ;
+    rdfs:comment "Inline function call optimization" .
+
+arch:ConstantPropagation a arch:CompilerOptimization ;
+    rdfs:label "Constant Propagation" ;
+    rdfs:comment "Compile-time constant propagation" .
+
+# Algorithm-Level Optimizations
+arch:PolynomialOptimization a arch:AlgorithmOptimization ;
+    rdfs:label "Polynomial Arithmetic Optimization" ;
+    rdfs:comment "Optimized polynomial arithmetic algorithms" .
+
+arch:NTTOptimization a arch:AlgorithmOptimization ;
+    rdfs:label "Number Theoretic Transform Optimization" ;
+    rdfs:comment "Optimized NTT algorithms" .
+
+arch:MatrixOptimization a arch:AlgorithmOptimization ;
+    rdfs:label "Matrix Operation Optimization" ;
+    rdfs:comment "Optimized matrix arithmetic algorithms" .
+
+arch:ModularArithmeticOptimization a arch:AlgorithmOptimization ;
+    rdfs:label "Modular Arithmetic Optimization" ;
+    rdfs:comment "Optimized modular reduction algorithms" .
+
+# Cryptographic Algorithm Specific Optimizations
+arch:CryptographicOptimization a arch:OptimizationStrategy ;
+    rdfs:label "Cryptographic Optimization" ;
+    rdfs:comment "Optimization specific to cryptographic algorithms" .
+
+arch:KyberOptimization a arch:CryptographicOptimization ;
+    rdfs:label "Kyber KEM Optimization" ;
+    arch:expectedSpeedup "5.0"^^xsd:decimal ;
+    rdfs:comment "Optimizations specific to Kyber KEM" .
+
+arch:DilithiumOptimization a arch:CryptographicOptimization ;
+    rdfs:label "Dilithium Signature Optimization" ;
+    arch:expectedSpeedup "3.5"^^xsd:decimal ;
+    rdfs:comment "Optimizations specific to Dilithium signatures" .
+
+# Optimization Target Mapping
+arch:optimizesAlgorithm a owl:ObjectProperty ;
+    rdfs:domain arch:OptimizationStrategy ;
+    rdfs:range arch:AlgorithmOptimization .
+
+arch:KyberOptimization arch:optimizesAlgorithm arch:PolynomialOptimization, arch:NTTOptimization .
+arch:DilithiumOptimization arch:optimizesAlgorithm arch:MatrixOptimization, arch:ModularArithmeticOptimization .
+
+# Performance Tuning Parameters
+arch:TuningParameter a owl:Class ;
+    rdfs:label "Tuning Parameter" ;
+    rdfs:comment "Parameter that can be tuned for optimization" .
+
+arch:VectorWidth a arch:TuningParameter ;
+    rdfs:label "Vector Width" ;
+    rdfs:comment "SIMD vector width selection" .
+
+arch:UnrollFactor a arch:TuningParameter ;
+    rdfs:label "Loop Unroll Factor" ;
+    rdfs:comment "Number of loop iterations to unroll" .
+
+arch:BlockSize a arch:TuningParameter ;
+    rdfs:label "Cache Block Size" ;
+    rdfs:comment "Data block size for cache optimization" .
+
+arch:PrefetchDistance a arch:TuningParameter ;
+    rdfs:label "Prefetch Distance" ;
+    rdfs:comment "Distance ahead to prefetch data" .
+
+arch:hasTuningParameter a owl:ObjectProperty ;
+    rdfs:domain arch:OptimizationStrategy ;
+    rdfs:range arch:TuningParameter .
+
+arch:parameterValue a owl:DatatypeProperty ;
+    rdfs:domain arch:TuningParameter ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Recommended parameter value" .
+
+# Architecture-Specific Parameter Values
+arch:SkylakeVectorWidth a arch:VectorWidth ;
+    arch:parameterValue "256" ;
+    rdfs:comment "Optimal vector width for Skylake AVX2" .
+
+arch:IceLakeVectorWidth a arch:VectorWidth ;
+    arch:parameterValue "512" ;
+    rdfs:comment "Optimal vector width for Ice Lake AVX-512" .
+
+arch:NEONVectorWidth a arch:VectorWidth ;
+    arch:parameterValue "128" ;
+    rdfs:comment "Vector width for ARM NEON" .
+
+# Optimization Constraints
+arch:OptimizationConstraint a owl:Class ;
+    rdfs:label "Optimization Constraint" ;
+    rdfs:comment "Constraint that limits optimization choices" .
+
+arch:PowerConstraint a arch:OptimizationConstraint ;
+    rdfs:label "Power Constraint" ;
+    rdfs:comment "Optimization limited by power consumption" .
+
+arch:ThermalConstraint a arch:OptimizationConstraint ;
+    rdfs:label "Thermal Constraint" ;
+    rdfs:comment "Optimization limited by thermal characteristics" .
+
+arch:MemoryConstraint a arch:OptimizationConstraint ;
+    rdfs:label "Memory Constraint" ;
+    rdfs:comment "Optimization limited by memory capacity" .
+
+arch:LatencyConstraint a arch:OptimizationConstraint ;
+    rdfs:label "Latency Constraint" ;
+    rdfs:comment "Optimization must meet latency requirements" .
+
+arch:hasConstraint a owl:ObjectProperty ;
+    rdfs:domain arch:OptimizationStrategy ;
+    rdfs:range arch:OptimizationConstraint .
+
+# Mobile and Embedded Architecture Optimizations
+arch:MobileOptimization a arch:OptimizationStrategy ;
+    rdfs:label "Mobile Architecture Optimization" ;
+    arch:expectedSpeedup "2.5"^^xsd:decimal ;
+    arch:implementationComplexity "medium" ;
+    rdfs:comment "Optimizations for mobile/embedded architectures" .
+
+arch:MobileOptimization arch:hasConstraint arch:PowerConstraint, arch:ThermalConstraint .
+
+# Server Architecture Optimizations
+arch:ServerOptimization a arch:OptimizationStrategy ;
+    rdfs:label "Server Architecture Optimization" ;
+    arch:expectedSpeedup "6.0"^^xsd:decimal ;
+    arch:implementationComplexity "high" ;
+    rdfs:comment "Optimizations for server architectures" .
+
+arch:IntelSapphireRapids arch:hasOptimization arch:ServerOptimization .
+
+# Cross-Architecture Optimization
+arch:PortableOptimization a arch:OptimizationStrategy ;
+    rdfs:label "Portable Optimization" ;
+    arch:expectedSpeedup "2.0"^^xsd:decimal ;
+    arch:implementationComplexity "low" ;
+    rdfs:comment "Optimizations that work across multiple architectures" .
+
+# Optimization Selection Rules
+arch:OptimizationRule a owl:Class ;
+    rdfs:label "Optimization Selection Rule" ;
+    rdfs:comment "Rule for selecting appropriate optimizations" .
+
+arch:ArchitectureBasedRule a arch:OptimizationRule ;
+    rdfs:label "Architecture-Based Selection" ;
+    rdfs:comment "Select optimization based on target architecture" .
+
+arch:WorkloadBasedRule a arch:OptimizationRule ;
+    rdfs:label "Workload-Based Selection" ;
+    rdfs:comment "Select optimization based on workload characteristics" .
+
+arch:PerformanceBasedRule a arch:OptimizationRule ;
+    rdfs:label "Performance-Based Selection" ;
+    rdfs:comment "Select optimization based on performance targets" .
+
+# Optimization Effectiveness Metrics
+arch:OptimizationEffectiveness a owl:Class ;
+    rdfs:label "Optimization Effectiveness" ;
+    rdfs:comment "Measure of optimization effectiveness" .
+
+arch:SpeedupFactor a arch:OptimizationEffectiveness ;
+    rdfs:label "Speedup Factor" ;
+    rdfs:comment "Performance improvement ratio" .
+
+arch:EnergyEfficiency a arch:OptimizationEffectiveness ;
+    rdfs:label "Energy Efficiency" ;
+    rdfs:comment "Energy consumption improvement" .
+
+arch:CodeSize a arch:OptimizationEffectiveness ;
+    rdfs:label "Code Size Impact" ;
+    rdfs:comment "Effect on compiled code size" .
+
+arch:CompileTime a arch:OptimizationEffectiveness ;
+    rdfs:label "Compile Time Impact" ;
+    rdfs:comment "Effect on compilation time" .

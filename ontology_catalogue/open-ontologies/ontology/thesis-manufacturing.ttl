@@ -1,0 +1,362 @@
+@prefix tm:     <https://ggen.io/onto/thesis-manufacturing/> .
+@prefix req:    <https://ggen.io/onto/requirements/> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms:<http://purl.org/dc/terms/> .
+@prefix prov:   <http://www.w3.org/ns/prov#> .
+@prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
+@prefix earl:   <http://www.w3.org/ns/earl#> .
+@prefix schema: <https://schema.org/> .
+@prefix bibo:   <http://purl.org/ontology/bibo/> .
+@prefix doco:   <http://purl.org/spar/doco/> .
+@prefix cito:   <http://purl.org/spar/cito/> .
+@prefix nanopub:<http://purl.org/nanopub/> .
+
+# ============================================================================
+# Thesis Manufacturing Ontology
+# ============================================================================
+#
+# Domain ontology for the ThesisMaker manufacturing pipeline. Mirrors the
+# recursive admission pattern: every claim (thesis, evidence, defect, law)
+# flows through a deterministic admission gate to earn authority through
+# receipt-bearing lifecycle.
+#
+#   ResearchQuestion -> CandidateClaim -> AdmittedClaim
+#                    -> Evidence -> VerifiedEvidence
+#                    -> Defect -> ResolvedDefect
+#                    -> Law -> EnforcedLaw
+#
+# This ontology is the schema for OCEL events emitted by the ThesisMaker
+# workflow and the RDF projection of the receipt chain. Authority is
+# granted only through (1) deterministic admission gates, (2) receipt emission,
+# (3) evidence binding (prov:wasDerivedFrom), and (4) conformance to
+# admission gates via SHACL shapes.
+#
+# Source of truth: admission gate logic in the ThesisMaker workflow and the
+# DefectClass taxonomy. This file documents the *types* carried in the event
+# log; admission semantics live in code.
+# ============================================================================
+
+tm:Ontology a owl:Ontology ;
+  rdfs:label    "Thesis Manufacturing"@en ;
+  rdfs:comment  "Domain ontology for the ThesisMaker manufacturing pipeline. Models claims, evidence, defects, and laws in the thesis development lifecycle."@en ;
+  dcterms:creator "Sean Chatman" ;
+  dcterms:license <https://opensource.org/licenses/MIT> ;
+  owl:versionInfo "1.0.0" ;
+  owl:imports <http://www.w3.org/ns/prov#Ontology> ;
+  owl:imports <http://purl.org/dc/terms/> ;
+  owl:imports <http://www.w3.org/2004/02/skos/core#> ;
+  owl:imports <http://www.w3.org/ns/earl#> ;
+  owl:imports <http://purl.org/ontology/bibo/> ;
+  owl:imports <http://purl.org/spar/doco/> ;
+  owl:imports <http://purl.org/spar/cito/> ;
+  owl:imports <http://purl.org/nanopub/> .
+
+# ── Core classes ────────────────────────────────────────────────────────────
+
+tm:ResearchQuestion a owl:Class ;
+  rdfs:label   "Research Question"@en ;
+  rdfs:comment "A research question that frames a thesis domain. Origin of all claims and evidence collection."@en .
+
+tm:Claim a owl:Class ;
+  rdfs:label   "Claim"@en ;
+  rdfs:comment "A factual proposition made by a thesis. Not authoritative until admitted through deterministic gate."@en ;
+  rdfs:subClassOf req:CandidateCtq ;
+  rdfs:comment "Extends requirements CTQ pattern: claims require evidence binding, support status, and scope. No authority from LLM assertion alone."@en .
+
+tm:AdmittedClaim a owl:Class ;
+  rdfs:label   "Admitted Claim"@en ;
+  rdfs:comment "A claim that passed the deterministic admission gate. Carries a Receipt and is bound to a support status, domain, and scope."@en .
+
+tm:Evidence a owl:Class ;
+  rdfs:label   "Evidence"@en ;
+  rdfs:comment "An empirical artifact, measurement, or citation supporting a claim. Must trace to published or reproducible source."@en ;
+  rdfs:subClassOf prov:Entity ;
+  rdfs:comment "Every evidence entity carries provenance (prov:wasDerivedFrom). Authority is NOT admitted from LLM synthesis alone."@en .
+
+tm:VerifiedEvidence a owl:Class ;
+  rdfs:label   "Verified Evidence"@en ;
+  rdfs:comment "Evidence that passed verification gates: source validation, measurement conformance, citation resolution, reproducibility check."@en ;
+  rdfs:subClassOf tm:Evidence .
+
+tm:Defect a owl:Class ;
+  rdfs:label   "Defect"@en ;
+  rdfs:comment "A structural or substantive defect found in a claim, evidence, or thesis. Blocks admission until resolved."@en ;
+  rdfs:subClassOf earl:TestResult ;
+  rdfs:comment "Mirrors EARL test result pattern: defect class, severity, target claim, resolution status."@en .
+
+tm:Law a owl:Class ;
+  rdfs:label   "Law"@en ;
+  rdfs:comment "An enforced constraint or principle within the thesis. Must be derived from admitted claims and evidence."@en ;
+  rdfs:subClassOf skos:Concept ;
+  rdfs:comment "Laws are enumerated in a SKOS concept scheme and enforce patterns (e.g., no unsupported claims in an admitted chapter)."@en .
+
+tm:Chapter a owl:Class ;
+  rdfs:label   "Chapter"@en ;
+  rdfs:comment "A section of the thesis organizing claims, evidence, and laws around a research question or topic."@en ;
+  rdfs:subClassOf doco:Chapter ;
+  rdfs:comment "Chapters carry metadata: research question, claim coverage, law enforcement status."@en .
+
+tm:Projection a owl:Class ;
+  rdfs:label   "Projection"@en ;
+  rdfs:comment "An LLM-projected or derived summary of evidence. Authority is NOT granted; projections are provisional and require admission gates."@en ;
+  rdfs:subClassOf prov:Entity ;
+  rdfs:comment "Projections must be bounded: they may only cite admitted evidence and claims. Unproven claims in a projection trigger a defect."@en .
+
+tm:ArtifactRef a owl:Class ;
+  rdfs:label   "Artifact Reference"@en ;
+  rdfs:comment "A reference to an external artifact (paper, dataset, code, simulation). Carries locator, checksum, and access timestamp."@en ;
+  rdfs:subClassOf req:Artifact .
+
+# ── Support Status Scheme ────────────────────────────────────────────────────
+
+tm:SupportStatusScheme a skos:ConceptScheme ;
+  dcterms:title "Thesis Claim Support Status"@en ;
+  dcterms:description "Enumeration of support status labels for thesis claims."@en ;
+  skos:prefLabel "tm:support_status_scheme"@en ;
+  skos:hasTopConcept tm:Supported ;
+  skos:hasTopConcept tm:PartiallySupportedStatus ;
+  skos:hasTopConcept tm:UnprovenStatus ;
+  skos:hasTopConcept tm:OverclaimedStatus ;
+  skos:hasTopConcept tm:ContradictedStatus ;
+  skos:hasTopConcept tm:ProjectionOnlyStatus .
+
+tm:Supported a skos:Concept ;
+  skos:prefLabel "supported"@en ;
+  skos:definition "Claim is fully supported by admitted evidence."@en ;
+  skos:inScheme tm:SupportStatusScheme .
+
+tm:PartiallySupportedStatus a skos:Concept ;
+  skos:prefLabel "partially-supported"@en ;
+  skos:definition "Claim is partially supported. Evidence gap or scope limitation documented."@en ;
+  skos:inScheme tm:SupportStatusScheme .
+
+tm:UnprovenStatus a skos:Concept ;
+  skos:prefLabel "unproven"@en ;
+  skos:definition "Claim lacks evidence. May be plausible but requires verification."@en ;
+  skos:inScheme tm:SupportStatusScheme .
+
+tm:OverclaimedStatus a skos:Concept ;
+  skos:prefLabel "overclaimed"@en ;
+  skos:definition "Claim scope exceeds supporting evidence. Evidence gap is material."@en ;
+  skos:inScheme tm:SupportStatusScheme .
+
+tm:ContradictedStatus a skos:Concept ;
+  skos:prefLabel "contradicted"@en ;
+  skos:definition "Claim is contradicted by admitted evidence."@en ;
+  skos:inScheme tm:SupportStatusScheme .
+
+tm:ProjectionOnlyStatus a skos:Concept ;
+  skos:prefLabel "projection-only"@en ;
+  skos:definition "Claim derives only from LLM projection, not admitted evidence. Not admittable as fact."@en ;
+  skos:inScheme tm:SupportStatusScheme .
+
+# ── Defect Class Scheme ──────────────────────────────────────────────────────
+
+tm:DefectClassScheme a skos:ConceptScheme ;
+  dcterms:title "Thesis Defect Classes"@en ;
+  dcterms:description "Enumeration of structural and substantive defect classes in thesis claims, evidence, and chapters."@en ;
+  skos:prefLabel "tm:defect_class_scheme"@en ;
+  skos:hasTopConcept tm:ProjectionSubstitutedForProof ;
+  skos:hasTopConcept tm:BenchmarkClaimWithoutMeasurement ;
+  skos:hasTopConcept tm:CitationMissing ;
+  skos:hasTopConcept tm:EvidenceMissing ;
+  skos:hasTopConcept tm:LLMAuthorityLeak ;
+  skos:hasTopConcept tm:OverbroadNoveltyClaim ;
+  skos:hasTopConcept tm:DefenseUnready ;
+  skos:hasTopConcept tm:CircularDependency ;
+  skos:hasTopConcept tm:UnreproducibleEvidence ;
+  skos:hasTopConcept tm:ScopeCreep ;
+  skos:hasTopConcept tm:ArtifactLocatorBroken ;
+  skos:hasTopConcept tm:MeasurementUnitMismatch .
+
+tm:ProjectionSubstitutedForProof a skos:Concept ;
+  skos:prefLabel "ProjectionSubstitutedForProof"@en ;
+  skos:definition "Claim or evidence derives only from LLM projection without admitted ground evidence. Blocks admission."@en ;
+  skos:inScheme tm:DefectClassScheme .
+
+tm:BenchmarkClaimWithoutMeasurement a skos:Concept ;
+  skos:prefLabel "BenchmarkClaimWithoutMeasurement"@en ;
+  skos:definition "Claim references a benchmark or metric but no measurement data or baseline is provided."@en ;
+  skos:inScheme tm:DefectClassScheme .
+
+tm:CitationMissing a skos:Concept ;
+  skos:prefLabel "CitationMissing"@en ;
+  skos:definition "Claim or evidence asserts a fact but does not cite the source publication or artifact."@en ;
+  skos:inScheme tm:DefectClassScheme .
+
+tm:EvidenceMissing a skos:Concept ;
+  skos:prefLabel "EvidenceMissing"@en ;
+  skos:definition "Claim has no supporting evidence (admitted or provisional). Evidence gap is material."@en ;
+  skos:inScheme tm:DefectClassScheme .
+
+tm:LLMAuthorityLeak a skos:Concept ;
+  skos:prefLabel "LLMAuthorityLeak"@en ;
+  skos:definition "Claim is presented as fact but authority derives from LLM generation, not admitted evidence or published source."@en ;
+  skos:inScheme tm:DefectClassScheme .
+
+tm:OverbroadNoveltyClaim a skos:Concept ;
+  skos:prefLabel "OverbroadNoveltyClaim"@en ;
+  skos:definition "Claim asserts broad novelty or primacy but scope exceeds evidence or prior art is not addressed."@en ;
+  skos:inScheme tm:DefectClassScheme .
+
+tm:DefenseUnready a skos:Concept ;
+  skos:prefLabel "DefenseUnready"@en ;
+  skos:definition "Claim is admittable but thesis defense is not ready: counterfactual, alternative explanation, or adversarial case missing."@en ;
+  skos:inScheme tm:DefectClassScheme .
+
+tm:CircularDependency a skos:Concept ;
+  skos:prefLabel "CircularDependency"@en ;
+  skos:definition "Claim A depends on claim B which depends (directly or indirectly) on claim A. Cycles block admission."@en ;
+  skos:inScheme tm:DefectClassScheme .
+
+tm:UnreproducibleEvidence a skos:Concept ;
+  skos:prefLabel "UnreproducibleEvidence"@en ;
+  skos:definition "Evidence derives from a simulation, code, or dataset that is not accessible, documented, or reproducible."@en ;
+  skos:inScheme tm:DefectClassScheme .
+
+tm:ScopeCreep a skos:Concept ;
+  skos:prefLabel "ScopeCreep"@en ;
+  skos:definition "Claim scope has expanded beyond the thesis boundaries or declared research questions."@en ;
+  skos:inScheme tm:DefectClassScheme .
+
+tm:ArtifactLocatorBroken a skos:Concept ;
+  skos:prefLabel "ArtifactLocatorBroken"@en ;
+  skos:definition "Evidence references an external artifact (URL, DOI, dataset) that is not accessible or locator is malformed."@en ;
+  skos:inScheme tm:DefectClassScheme .
+
+tm:MeasurementUnitMismatch a skos:Concept ;
+  skos:prefLabel "MeasurementUnitMismatch"@en ;
+  skos:definition "Evidence measurement units do not match claim units or comparison baseline. Measurement is invalid."@en ;
+  skos:inScheme tm:DefectClassScheme .
+
+# ── Properties ──────────────────────────────────────────────────────────────
+
+tm:hasResearchQuestion a owl:ObjectProperty ;
+  rdfs:label "has research question"@en ;
+  rdfs:domain tm:Chapter ;
+  rdfs:range tm:ResearchQuestion ;
+  rdfs:comment "Links a chapter to its guiding research question."@en .
+
+tm:supportStatus a owl:ObjectProperty ;
+  rdfs:label "support status"@en ;
+  rdfs:domain tm:Claim ;
+  rdfs:range skos:Concept ;
+  rdfs:comment "One of: supported, partially-supported, unproven, overclaimed, contradicted, projection-only. Required for admission."@en .
+
+tm:scope a owl:DatatypeProperty ;
+  rdfs:label "scope"@en ;
+  rdfs:domain tm:Claim ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Textual description of the claim scope: what is asserted and what is not."@en .
+
+tm:domain a owl:DatatypeProperty ;
+  rdfs:label "domain"@en ;
+  rdfs:domain tm:Claim ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Domain or field (e.g., 'machine learning', 'manufacturing', 'ontology engineering'). Required for admission."@en .
+
+tm:claimText a owl:DatatypeProperty ;
+  rdfs:label "claim text"@en ;
+  rdfs:domain tm:Claim ;
+  rdfs:range xsd:string ;
+  rdfs:comment "The full text of the claim proposition."@en .
+
+tm:supportedByClaim a owl:ObjectProperty ;
+  rdfs:label "supported by claim"@en ;
+  rdfs:domain tm:Evidence ;
+  rdfs:range tm:Claim ;
+  rdfs:comment "Links evidence to the specific claim it supports."@en .
+
+tm:wasDerivedFromPublication a owl:ObjectProperty ;
+  rdfs:label "was derived from publication"@en ;
+  rdfs:domain tm:Evidence ;
+  rdfs:range tm:ArtifactRef ;
+  rdfs:comment "Evidence traces to a published paper, dataset, or code artifact. Required for verification."@en ;
+  rdfs:subPropertyOf prov:wasDerivedFrom .
+
+tm:evidenceType a owl:DatatypeProperty ;
+  rdfs:label "evidence type"@en ;
+  rdfs:domain tm:Evidence ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Type of evidence: empirical-data, measurement, simulation, citation, code, dataset, etc."@en .
+
+tm:defectClass a owl:ObjectProperty ;
+  rdfs:label "defect class"@en ;
+  rdfs:domain tm:Defect ;
+  rdfs:range skos:Concept ;
+  rdfs:comment "Classification of the defect (ProjectionSubstitutedForProof, EvidenceMissing, etc.). Must be in DefectClassScheme."@en .
+
+tm:targetClaim a owl:ObjectProperty ;
+  rdfs:label "target claim"@en ;
+  rdfs:domain tm:Defect ;
+  rdfs:range tm:Claim ;
+  rdfs:comment "The claim that the defect targets."@en .
+
+tm:severity a owl:DatatypeProperty ;
+  rdfs:label "severity"@en ;
+  rdfs:domain tm:Defect ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Defect severity: red (blocking admission), orange (requires resolution), yellow (advisory)."@en .
+
+tm:defectDescription a owl:DatatypeProperty ;
+  rdfs:label "defect description"@en ;
+  rdfs:domain tm:Defect ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Narrative explanation of the defect and remediation guidance."@en .
+
+tm:researchQuestionText a owl:DatatypeProperty ;
+  rdfs:label "research question text"@en ;
+  rdfs:domain tm:ResearchQuestion ;
+  rdfs:range xsd:string ;
+  rdfs:comment "The textual statement of the research question."@en .
+
+tm:claimCoverage a owl:DatatypeProperty ;
+  rdfs:label "claim coverage"@en ;
+  rdfs:domain tm:Chapter ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Number of admitted claims in the chapter."@en .
+
+tm:unsupportedClaimCount a owl:DatatypeProperty ;
+  rdfs:label "unsupported claim count"@en ;
+  rdfs:domain tm:Projection ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Number of unproven or projection-only claims in the projection. Must be 0 for admitted projections."@en .
+
+tm:projectionBoundary a owl:DatatypeProperty ;
+  rdfs:label "projection boundary"@en ;
+  rdfs:domain tm:Projection ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Description of what admitted claims and evidence the projection cites. Required for verification."@en .
+
+tm:artifactLocator a owl:DatatypeProperty ;
+  rdfs:label "artifact locator"@en ;
+  rdfs:domain tm:ArtifactRef ;
+  rdfs:range xsd:string ;
+  rdfs:comment "URL, DOI, file path, or other locator for the artifact."@en .
+
+tm:artifactChecksum a owl:DatatypeProperty ;
+  rdfs:label "artifact checksum"@en ;
+  rdfs:domain tm:ArtifactRef ;
+  rdfs:range xsd:string ;
+  rdfs:comment "BLAKE3 or SHA256 hash of the artifact for integrity verification."@en .
+
+tm:accessedAt a owl:DatatypeProperty ;
+  rdfs:label "accessed at"@en ;
+  rdfs:domain tm:ArtifactRef ;
+  rdfs:range xsd:dateTime ;
+  rdfs:comment "Timestamp when the artifact was last accessed/verified."@en .
+
+tm:derivesFromLaws a owl:ObjectProperty ;
+  rdfs:label "derives from laws"@en ;
+  rdfs:domain tm:Claim ;
+  rdfs:range tm:Law ;
+  rdfs:comment "Laws that constrain or enforce properties of this claim."@en .
+
+tm:enforcedBy a owl:ObjectProperty ;
+  rdfs:label "enforced by"@en ;
+  rdfs:domain tm:Law ;
+  rdfs:range tm:Defect ;
+  rdfs:comment "Defects that trigger enforcement of this law."@en .

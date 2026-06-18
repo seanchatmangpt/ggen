@@ -1,0 +1,564 @@
+@prefix bitactor: <http://cns.ai/ontology/bitactor#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix qudt: <http://qudt.org/schema/qudt#> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+
+# ============================================================================
+# BitActor v2 System Ontology - Machine-Executable Performance Contracts
+# ============================================================================
+
+# Base Ontology Definition
+bitactor:BitActorOntology
+    rdf:type owl:Ontology ;
+    rdfs:label "BitActor v2 System Ontology" ;
+    rdfs:comment "Machine-executable specification for BitActor v2 with 8-Space Manifesto compliance" ;
+    owl:versionInfo "2.0.0" .
+
+# ============================================================================
+# Core System Components
+# ============================================================================
+
+# BitActor System Class
+bitactor:BitActorSystem
+    rdf:type owl:Class ;
+    rdfs:label "BitActor System" ;
+    rdfs:comment "Complete BitActor v2 system with C execution realm and Erlang supervision realm" .
+
+# C Execution Realm
+bitactor:CExecutionRealm
+    rdf:type owl:Class ;
+    rdfs:subClassOf bitactor:BitActorSystem ;
+    rdfs:label "C Execution Realm" ;
+    rdfs:comment "High-performance C execution engine with fiber scheduling" .
+
+# Erlang Supervision Realm  
+bitactor:ErlangSupervisionRealm
+    rdf:type owl:Class ;
+    rdfs:subClassOf bitactor:BitActorSystem ;
+    rdfs:label "Erlang Supervision Realm" ;
+    rdfs:comment "Fault-tolerant Erlang/OTP supervision and monitoring" .
+
+# ============================================================================
+# Fiber Scheduling Components
+# ============================================================================
+
+# Fiber Scheduler Class
+bitactor:FiberScheduler
+    rdf:type owl:Class ;
+    rdfs:subClassOf bitactor:CExecutionRealm ;
+    rdfs:label "Fiber Scheduler" ;
+    rdfs:comment "Lock-free cooperative fiber scheduler" .
+
+# Fiber Class
+bitactor:Fiber
+    rdf:type owl:Class ;
+    rdfs:label "Fiber" ;
+    rdfs:comment "Lightweight cooperative execution unit" .
+
+# Fiber States
+bitactor:FiberState
+    rdf:type owl:Class ;
+    rdfs:label "Fiber State" ;
+    rdfs:comment "Execution state of fiber" .
+
+bitactor:FiberStateCreated rdf:type bitactor:FiberState ;
+    rdfs:label "Created" ;
+    rdfs:comment "Fiber created but not scheduled" .
+
+bitactor:FiberStateReady rdf:type bitactor:FiberState ;
+    rdfs:label "Ready" ;
+    rdfs:comment "Fiber ready for execution" .
+
+bitactor:FiberStateRunning rdf:type bitactor:FiberState ;
+    rdfs:label "Running" ;
+    rdfs:comment "Fiber currently executing" .
+
+bitactor:FiberStateYielded rdf:type bitactor:FiberState ;
+    rdfs:label "Yielded" ;
+    rdfs:comment "Fiber yielded control cooperatively" .
+
+bitactor:FiberStateBlocked rdf:type bitactor:FiberState ;
+    rdfs:label "Blocked" ;
+    rdfs:comment "Fiber blocked waiting for resource" .
+
+bitactor:FiberStateCompleted rdf:type bitactor:FiberState ;
+    rdfs:label "Completed" ;
+    rdfs:comment "Fiber execution completed" .
+
+# Fiber Priority Levels
+bitactor:FiberPriority
+    rdf:type owl:Class ;
+    rdfs:label "Fiber Priority" ;
+    rdfs:comment "Execution priority level" .
+
+bitactor:PriorityRealtime rdf:type bitactor:FiberPriority ;
+    rdfs:label "Realtime Priority" ;
+    rdfs:comment "Highest priority - 1 tick quantum" ;
+    bitactor:hasTickQuanta 1 .
+
+bitactor:PriorityHigh rdf:type bitactor:FiberPriority ;
+    rdfs:label "High Priority" ;
+    rdfs:comment "High priority - 4 tick quantum" ;
+    bitactor:hasTickQuanta 4 .
+
+bitactor:PriorityNormal rdf:type bitactor:FiberPriority ;
+    rdfs:label "Normal Priority" ;
+    rdfs:comment "Normal priority - 8 tick quantum" ;
+    bitactor:hasTickQuanta 8 .
+
+bitactor:PriorityLow rdf:type bitactor:FiberPriority ;
+    rdfs:label "Low Priority" ;
+    rdfs:comment "Low priority - 16 tick quantum" ;
+    bitactor:hasTickQuanta 16 .
+
+# ============================================================================
+# Ring Buffer Communication
+# ============================================================================
+
+# Ring Buffer Class
+bitactor:RingBuffer
+    rdf:type owl:Class ;
+    rdfs:label "Ring Buffer" ;
+    rdfs:comment "High-performance circular buffer for message passing" .
+
+# LMAX Disruptor Ring Buffer
+bitactor:LMAXDisruptorRingBuffer
+    rdf:type owl:Class ;
+    rdfs:subClassOf bitactor:RingBuffer ;
+    rdfs:label "LMAX Disruptor Ring Buffer" ;
+    rdfs:comment "LMAX Disruptor pattern implementation for ultra-low latency" .
+
+# Wait Strategies
+bitactor:WaitStrategy
+    rdf:type owl:Class ;
+    rdfs:label "Wait Strategy" ;
+    rdfs:comment "Strategy for waiting on ring buffer sequences" .
+
+bitactor:BusySpinWaitStrategy rdf:type bitactor:WaitStrategy ;
+    rdfs:label "Busy Spin" ;
+    rdfs:comment "Busy spin waiting - lowest latency, high CPU" ;
+    bitactor:hasLatencyNanoseconds 10 ;
+    bitactor:hasCPUUsage "HIGH" .
+
+bitactor:YieldWaitStrategy rdf:type bitactor:WaitStrategy ;
+    rdfs:label "Yield" ;
+    rdfs:comment "Yield CPU - moderate latency and CPU" ;
+    bitactor:hasLatencyNanoseconds 100 ;
+    bitactor:hasCPUUsage "MEDIUM" .
+
+bitactor:SleepingWaitStrategy rdf:type bitactor:WaitStrategy ;
+    rdfs:label "Sleeping" ;
+    rdfs:comment "Sleep waiting - higher latency, low CPU" ;
+    bitactor:hasLatencyNanoseconds 1000 ;
+    bitactor:hasCPUUsage "LOW" .
+
+# ============================================================================
+# BITALGOS Kernel Integration
+# ============================================================================
+
+# BITALGOS Kernel Class
+bitactor:BITALGOSKernel
+    rdf:type owl:Class ;
+    rdfs:label "BITALGOS Kernel" ;
+    rdfs:comment "Deterministic algorithm kernel with performance contract" .
+
+# Essential Kernels for BitActor v2
+bitactor:BitBayesKernel rdf:type bitactor:BITALGOSKernel ;
+    rdfs:label "BitBayes Kernel" ;
+    rdfs:comment "Bayesian inference for fraud detection" ;
+    bitactor:hasExpectedTicks 6 ;
+    bitactor:hasPerformanceNanoseconds 6.1 ;
+    bitactor:requiresSIMD "AVX2" .
+
+bitactor:BitLinearKernel rdf:type bitactor:BITALGOSKernel ;
+    rdfs:label "BitLinear Kernel" ;
+    rdfs:comment "Linear regression for compliance scoring" ;
+    bitactor:hasExpectedTicks 2 ;
+    bitactor:hasPerformanceNanoseconds 1.8 ;
+    bitactor:requiresSIMD "NONE" .
+
+bitactor:BitTreeKernel rdf:type bitactor:BITALGOSKernel ;
+    rdfs:label "BitTree Kernel" ;
+    rdfs:comment "Decision tree and ensemble methods" ;
+    bitactor:hasExpectedTicks 3 ;
+    bitactor:hasPerformanceNanoseconds 2.17 ;
+    bitactor:requiresSIMD "AVX2" .
+
+bitactor:BitLOUDSKernel rdf:type bitactor:BITALGOSKernel ;
+    rdfs:label "BitLOUDS Kernel" ;
+    rdfs:comment "Succinct trie navigation" ;
+    bitactor:hasExpectedTicks 4 ;
+    bitactor:hasPerformanceNanoseconds 3.2 ;
+    bitactor:requiresSIMD "NEON" .
+
+bitactor:BitMPHFKernel rdf:type bitactor:BITALGOSKernel ;
+    rdfs:label "BitMPHF Kernel" ;
+    rdfs:comment "Minimal perfect hash functions" ;
+    bitactor:hasExpectedTicks 1 ;
+    bitactor:hasPerformanceNanoseconds 0.8 ;
+    bitactor:requiresSIMD "NONE" .
+
+# ============================================================================
+# 8-Space Manifesto Compliance Constraints
+# ============================================================================
+
+# Performance Contract Class
+bitactor:PerformanceContract
+    rdf:type owl:Class ;
+    rdfs:label "Performance Contract" ;
+    rdfs:comment "8-Space Manifesto compliance contract" .
+
+# 8-Space Constraints
+bitactor:EightSpaceConstraints rdf:type bitactor:PerformanceContract ;
+    rdfs:label "8-Space Manifesto Constraints" ;
+    rdfs:comment "Core performance requirements" ;
+    bitactor:maxHotPathTicks 8 ;
+    bitactor:maxDispatchLatencyNanoseconds 100 ;
+    bitactor:minThroughputOpsPerSecond 97660000000 ;
+    bitactor:requiresZeroAllocation true ;
+    bitactor:targetUptimePercent 99.99 .
+
+# ============================================================================
+# NIF Bridge Specification  
+# ============================================================================
+
+# NIF Bridge Class
+bitactor:NIFBridge
+    rdf:type owl:Class ;
+    rdfs:label "NIF Bridge" ;
+    rdfs:comment "Zero-copy bridge between C and Erlang realms" .
+
+# Message Format
+bitactor:BridgeMessage
+    rdf:type owl:Class ;
+    rdfs:label "Bridge Message" ;
+    rdfs:comment "Zero-copy message format for NIF bridge" .
+
+# Message Protocol
+bitactor:BridgeProtocol
+    rdf:type owl:Class ;
+    rdfs:label "Bridge Protocol" ;
+    rdfs:comment "Communication protocol between realms" ;
+    bitactor:hasMagicNumber "0xB17AC70200000000"^^xsd:hexBinary ;
+    bitactor:hasMaxLatencyNanoseconds 100 ;
+    bitactor:supportsZeroCopy true .
+
+# ============================================================================
+# Supervision Architecture
+# ============================================================================
+
+# Supervision Tree
+bitactor:SupervisionTree
+    rdf:type owl:Class ;
+    rdfs:subClassOf bitactor:ErlangSupervisionRealm ;
+    rdfs:label "Supervision Tree" ;
+    rdfs:comment "Erlang/OTP supervision hierarchy" .
+
+# Supervisor Strategies
+bitactor:SupervisorStrategy
+    rdf:type owl:Class ;
+    rdfs:label "Supervisor Strategy" .
+
+bitactor:OneForOneStrategy rdf:type bitactor:SupervisorStrategy ;
+    rdfs:label "One For One" ;
+    rdfs:comment "Restart only failed child" ;
+    bitactor:hasMaxRestarts 5 ;
+    bitactor:hasMaxTimePeriodSeconds 10 .
+
+bitactor:OneForAllStrategy rdf:type bitactor:SupervisorStrategy ;
+    rdfs:label "One For All" ;
+    rdfs:comment "Restart all children when one fails" ;
+    bitactor:hasMaxRestarts 3 ;
+    bitactor:hasMaxTimePeriodSeconds 30 .
+
+# ============================================================================
+# Performance Metrics and Telemetry
+# ============================================================================
+
+# Performance Metric Class
+bitactor:PerformanceMetric
+    rdf:type owl:Class ;
+    rdfs:label "Performance Metric" ;
+    rdfs:comment "System performance measurement" .
+
+# Core Metrics
+bitactor:ContextSwitchMetric rdf:type bitactor:PerformanceMetric ;
+    rdfs:label "Context Switches" ;
+    rdfs:comment "Total fiber context switches" ;
+    bitactor:hasUnit "count" .
+
+bitactor:TickUsageMetric rdf:type bitactor:PerformanceMetric ;
+    rdfs:label "Tick Usage" ;
+    rdfs:comment "CPU ticks consumed" ;
+    bitactor:hasUnit "ticks" ;
+    bitactor:hasThreshold 8 .
+
+bitactor:ThroughputMetric rdf:type bitactor:PerformanceMetric ;
+    rdfs:label "Throughput" ;
+    rdfs:comment "Operations per second" ;
+    bitactor:hasUnit "ops/sec" ;
+    bitactor:hasTarget 97660000000 .
+
+bitactor:LatencyMetric rdf:type bitactor:PerformanceMetric ;
+    rdfs:label "Latency" ;
+    rdfs:comment "Operation latency" ;
+    bitactor:hasUnit "nanoseconds" ;
+    bitactor:hasMaxThreshold 100 .
+
+# ============================================================================
+# Memory Management
+# ============================================================================
+
+# Memory Pool Class
+bitactor:MemoryPool
+    rdf:type owl:Class ;
+    rdfs:label "Memory Pool" ;
+    rdfs:comment "Pre-allocated memory pool" .
+
+# Pool Types
+bitactor:FiberMemoryPool rdf:type bitactor:MemoryPool ;
+    rdfs:label "Fiber Memory Pool" ;
+    rdfs:comment "Memory pool for fiber allocation" ;
+    bitactor:hasPoolSize 4096 ;
+    bitactor:hasAlignment 64 ;
+    bitactor:isLockFree true .
+
+bitactor:MessageMemoryPool rdf:type bitactor:MemoryPool ;
+    rdfs:label "Message Memory Pool" ;
+    rdfs:comment "Memory pool for message buffers" ;
+    bitactor:hasPoolSize 65536 ;
+    bitactor:hasAlignment 32 ;
+    bitactor:isZeroCopy true .
+
+# ============================================================================
+# System Properties and Constraints
+# ============================================================================
+
+# Properties
+bitactor:hasTickQuanta
+    rdf:type owl:DatatypeProperty ;
+    rdfs:domain bitactor:FiberPriority ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:label "Tick Quota" ;
+    rdfs:comment "Maximum ticks allocated per scheduling quantum" .
+
+bitactor:hasExpectedTicks
+    rdf:type owl:DatatypeProperty ;
+    rdfs:domain bitactor:BITALGOSKernel ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:label "Expected Ticks" ;
+    rdfs:comment "Expected CPU ticks for kernel execution" .
+
+bitactor:hasPerformanceNanoseconds
+    rdf:type owl:DatatypeProperty ;
+    rdfs:domain bitactor:BITALGOSKernel ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Performance (ns)" ;
+    rdfs:comment "Expected execution time in nanoseconds" .
+
+bitactor:requiresSIMD
+    rdf:type owl:DatatypeProperty ;
+    rdfs:domain bitactor:BITALGOSKernel ;
+    rdfs:range xsd:string ;
+    rdfs:label "SIMD Requirements" ;
+    rdfs:comment "Required SIMD instruction set (AVX2, NEON, NONE)" .
+
+bitactor:maxHotPathTicks
+    rdf:type owl:DatatypeProperty ;
+    rdfs:domain bitactor:PerformanceContract ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:label "Max Hot Path Ticks" ;
+    rdfs:comment "Maximum CPU ticks allowed in hot path" .
+
+bitactor:maxDispatchLatencyNanoseconds
+    rdf:type owl:DatatypeProperty ;
+    rdfs:domain bitactor:PerformanceContract ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:label "Max Dispatch Latency (ns)" ;
+    rdfs:comment "Maximum dispatch latency in nanoseconds" .
+
+bitactor:minThroughputOpsPerSecond
+    rdf:type owl:DatatypeProperty ;
+    rdfs:domain bitactor:PerformanceContract ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:label "Min Throughput (ops/sec)" ;
+    rdfs:comment "Minimum required throughput in operations per second" .
+
+bitactor:requiresZeroAllocation
+    rdf:type owl:DatatypeProperty ;
+    rdfs:domain bitactor:PerformanceContract ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Zero Allocation Required" ;
+    rdfs:comment "Whether zero allocation is required in hot path" .
+
+# ============================================================================
+# Validation Rules (SHACL)
+# ============================================================================
+
+# 8-Space Compliance Validation Shape
+bitactor:EightSpaceComplianceShape
+    rdf:type shacl:NodeShape ;
+    shacl:targetClass bitactor:PerformanceContract ;
+    rdfs:label "8-Space Compliance Validation" ;
+    rdfs:comment "Validates 8-Space Manifesto compliance" ;
+    
+    # Hot path must be ≤8 ticks
+    shacl:property [
+        shacl:path bitactor:maxHotPathTicks ;
+        shacl:maxInclusive 8 ;
+        shacl:severity shacl:Violation ;
+        shacl:message "Hot path execution must be ≤8 CPU ticks"
+    ] ;
+    
+    # Dispatch latency must be ≤100ns
+    shacl:property [
+        shacl:path bitactor:maxDispatchLatencyNanoseconds ;
+        shacl:maxInclusive 100 ;
+        shacl:severity shacl:Violation ;
+        shacl:message "Dispatch latency must be ≤100 nanoseconds"
+    ] ;
+    
+    # Throughput must be ≥97.66B ops/sec
+    shacl:property [
+        shacl:path bitactor:minThroughputOpsPerSecond ;
+        shacl:minInclusive 97660000000 ;
+        shacl:severity shacl:Violation ;
+        shacl:message "Throughput must be ≥97.66 billion operations per second"
+    ] ;
+    
+    # Zero allocation required in hot path
+    shacl:property [
+        shacl:path bitactor:requiresZeroAllocation ;
+        shacl:hasValue true ;
+        shacl:severity shacl:Violation ;
+        shacl:message "Zero allocation required in hot path"
+    ] .
+
+# BITALGOS Kernel Validation Shape
+bitactor:BITALGOSKernelShape
+    rdf:type shacl:NodeShape ;
+    shacl:targetClass bitactor:BITALGOSKernel ;
+    rdfs:label "BITALGOS Kernel Validation" ;
+    rdfs:comment "Validates BITALGOS kernel performance contracts" ;
+    
+    # Expected ticks must be ≤8 for hot path kernels
+    shacl:property [
+        shacl:path bitactor:hasExpectedTicks ;
+        shacl:maxInclusive 8 ;
+        shacl:severity shacl:Warning ;
+        shacl:message "Kernel execution should be ≤8 ticks for hot path compliance"
+    ] ;
+    
+    # Performance must be specified in nanoseconds
+    shacl:property [
+        shacl:path bitactor:hasPerformanceNanoseconds ;
+        shacl:minInclusive 0.1 ;
+        shacl:maxInclusive 1000.0 ;
+        shacl:severity shacl:Info ;
+        shacl:message "Kernel performance should be between 0.1ns and 1000ns"
+    ] .
+
+# Fiber Priority Validation Shape
+bitactor:FiberPriorityShape
+    rdf:type shacl:NodeShape ;
+    shacl:targetClass bitactor:FiberPriority ;
+    rdfs:label "Fiber Priority Validation" ;
+    rdfs:comment "Validates fiber priority quantum allocation" ;
+    
+    # Tick quota must align with 8-Space constraints
+    shacl:property [
+        shacl:path bitactor:hasTickQuanta ;
+        shacl:in ( 1 4 8 16 ) ;
+        shacl:severity shacl:Violation ;
+        shacl:message "Fiber priority quantum must be 1, 4, 8, or 16 ticks"
+    ] .
+
+# ============================================================================
+# System Configuration
+# ============================================================================
+
+# Default BitActor v2 System Instance
+bitactor:DefaultBitActorV2System
+    rdf:type bitactor:BitActorSystem ;
+    rdfs:label "Default BitActor v2 System" ;
+    rdfs:comment "Default configuration for BitActor v2" ;
+    
+    # C Execution Realm Configuration
+    bitactor:hasCExecutionRealm [
+        rdf:type bitactor:CExecutionRealm ;
+        bitactor:hasFiberScheduler [
+            rdf:type bitactor:FiberScheduler ;
+            bitactor:hasMaxFibers 4096 ;
+            bitactor:usesLockFreeAlgorithms true ;
+            bitactor:hasMemoryPool [
+                rdf:type bitactor:FiberMemoryPool ;
+                bitactor:hasPoolSize 4096 ;
+                bitactor:hasAlignment 64
+            ]
+        ] ;
+        bitactor:hasRingBuffer [
+            rdf:type bitactor:LMAXDisruptorRingBuffer ;
+            bitactor:hasBufferSize 65536 ;
+            bitactor:hasWaitStrategy bitactor:BusySpinWaitStrategy ;
+            bitactor:hasCacheLineAlignment 64
+        ]
+    ] ;
+    
+    # Erlang Supervision Realm Configuration  
+    bitactor:hasErlangSupervisionRealm [
+        rdf:type bitactor:ErlangSupervisionRealm ;
+        bitactor:hasSupervisionTree [
+            rdf:type bitactor:SupervisionTree ;
+            bitactor:hasStrategy bitactor:OneForOneStrategy ;
+            bitactor:hasMaxRestarts 5 ;
+            bitactor:hasRestartPeriodSeconds 10
+        ] ;
+        bitactor:hasNIFBridge [
+            rdf:type bitactor:NIFBridge ;
+            bitactor:hasProtocol bitactor:BridgeProtocol ;
+            bitactor:hasMaxLatency 100 ;
+            bitactor:supportsZeroCopy true
+        ]
+    ] ;
+    
+    # Performance Contract
+    bitactor:hasPerformanceContract bitactor:EightSpaceConstraints ;
+    
+    # BITALGOS Integration
+    bitactor:integratesKernel bitactor:BitBayesKernel ;
+    bitactor:integratesKernel bitactor:BitLinearKernel ;
+    bitactor:integratesKernel bitactor:BitTreeKernel ;
+    bitactor:integratesKernel bitactor:BitLOUDSKernel ;
+    bitactor:integratesKernel bitactor:BitMPHFKernel .
+
+# ============================================================================
+# Executable Queries for System Validation
+# ============================================================================
+
+# Query: Find all kernels that exceed 8-tick budget
+# SELECT ?kernel ?ticks WHERE {
+#   ?kernel rdf:type bitactor:BITALGOSKernel .
+#   ?kernel bitactor:hasExpectedTicks ?ticks .
+#   FILTER(?ticks > 8)
+# }
+
+# Query: Validate 8-Space compliance for system
+# SELECT ?system ?compliant WHERE {
+#   ?system rdf:type bitactor:BitActorSystem .
+#   ?system bitactor:hasPerformanceContract ?contract .
+#   ?contract bitactor:maxHotPathTicks ?ticks .
+#   ?contract bitactor:maxDispatchLatencyNanoseconds ?latency .
+#   ?contract bitactor:minThroughputOpsPerSecond ?throughput .
+#   BIND((?ticks <= 8 && ?latency <= 100 && ?throughput >= 97660000000) AS ?compliant)
+# }
+
+# Query: Find optimal wait strategy for latency target
+# SELECT ?strategy ?latency WHERE {
+#   ?strategy rdf:type bitactor:WaitStrategy .
+#   ?strategy bitactor:hasLatencyNanoseconds ?latency .
+#   FILTER(?latency <= 50)
+# }
+# ORDER BY ?latency

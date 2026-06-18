@@ -1,0 +1,93 @@
+# SPARQL SELECT Query: Extract A2A Agents with Skills and Input Params (one row per agent-skill pair)
+#
+# Returns one row per (agent, skill) pair. Skills and their input params are
+# aggregated as pipe-delimited strings. Template parses these to reconstruct arrays.
+#
+# ggen pipeline: renders template ONCE PER ROW. Each row = one skill of one agent.
+# sparql_results contains ALL rows for the full agent module generation.
+#
+# Pipeline: mcp-a2a-protocol.ttl + mcp-a2a-protocol-example.ttl -> this query -> agent.rs.tera
+
+PREFIX a2a: <https://ggen.dev/ontology/a2a#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT DISTINCT
+  ?agent_name
+  ?agent_description
+  ?agent_version
+  ?agent_url
+  ?skill_name
+  ?skill_description
+  ?rust_return_type
+  ?ts_return_type
+  ?elixir_return_type
+  ?go_return_type
+  ?java_return_type
+  ?streaming
+  ?timeout_ms
+  ?retry_policy
+  (GROUP_CONCAT(DISTINCT ?param_name;             SEPARATOR="||") AS ?param_names)
+  (GROUP_CONCAT(DISTINCT ?param_description;      SEPARATOR="||") AS ?param_descriptions)
+  (GROUP_CONCAT(DISTINCT ?param_type;             SEPARATOR="||") AS ?param_types)
+  (GROUP_CONCAT(DISTINCT ?param_required;          SEPARATOR="||") AS ?param_requireds)
+  (GROUP_CONCAT(DISTINCT ?param_default_value;    SEPARATOR="||") AS ?param_default_values)
+  (GROUP_CONCAT(DISTINCT ?param_rust_type;        SEPARATOR="||") AS ?param_rust_types)
+  (GROUP_CONCAT(DISTINCT ?param_ts_type;          SEPARATOR="||") AS ?param_ts_types)
+  (GROUP_CONCAT(DISTINCT ?param_go_type;          SEPARATOR="||") AS ?param_go_types)
+  (GROUP_CONCAT(DISTINCT ?param_elixir_type;      SEPARATOR="||") AS ?param_elixir_types)
+  (GROUP_CONCAT(DISTINCT ?param_java_type;        SEPARATOR="||") AS ?param_java_types)
+WHERE {
+  # Agent data
+  ?agent a a2a:Agent ;
+    a2a:agentName ?agent_name .
+
+  OPTIONAL { ?agent a2a:agentDescription ?agent_description . }
+  OPTIONAL { ?agent a2a:agentVersion ?agent_version . }
+  OPTIONAL { ?agent a2a:agentUrl ?agent_url . }
+
+  # Skill data from triple-term annotations
+  << ?agent a2a:hasSkill ?skill >> a2a:rustReturnType ?rust_return_type .
+
+  OPTIONAL { << ?agent a2a:hasSkill ?skill >> a2a:skillName ?skill_name . }
+  OPTIONAL { << ?agent a2a:hasSkill ?skill >> a2a:skillDescription ?skill_description . }
+  OPTIONAL { << ?agent a2a:hasSkill ?skill >> a2a:tsReturnType ?ts_return_type . }
+  OPTIONAL { << ?agent a2a:hasSkill ?skill >> a2a:goReturnType ?go_return_type . }
+  OPTIONAL { << ?agent a2a:hasSkill ?skill >> a2a:elixirReturnType ?elixir_return_type . }
+  OPTIONAL { << ?agent a2a:hasSkill ?skill >> a2a:javaReturnType ?java_return_type . }
+  OPTIONAL { << ?agent a2a:hasSkill ?skill >> a2a:streaming ?streaming . }
+  OPTIONAL { << ?agent a2a:hasSkill ?skill >> a2a:timeout_ms ?timeout_ms . }
+  OPTIONAL { << ?agent a2a:hasSkill ?skill >> a2a:retryPolicy ?retry_policy . }
+
+  # Defaults
+  BIND(COALESCE(?skill_name, STRAFTER(STR(?skill), "#")) AS ?skill_name_resolved)
+  BIND(COALESCE(?streaming, "false") AS ?streaming_resolved)
+  BIND(COALESCE(?timeout_ms, "30000") AS ?timeout_ms_resolved)
+
+  # Skill input parameters
+  OPTIONAL {
+    << ?agent a2a:hasSkill ?skill >> a2a:hasInputParam ?param .
+    ?param a2a:inputParamName ?param_name .
+
+    OPTIONAL { ?param a2a:inputParamDescription ?param_desc_raw . }
+    BIND(COALESCE(?param_desc_raw, "") AS ?param_description)
+
+    OPTIONAL { ?param a2a:inputParamType ?param_type . }
+    OPTIONAL { ?param a2a:inputParamRequired ?param_req . }
+    BIND(COALESCE(?param_req, "false") AS ?param_required)
+
+    OPTIONAL { ?param a2a:inputParamDefaultValue ?param_dv . }
+    BIND(COALESCE(?param_dv, "") AS ?param_default_value)
+
+    # Multi-language type mappings from triple-term annotations on params
+    OPTIONAL { << ?param a2a:inputParamName ?any_name >> a2a:rustType ?param_rust_type . }
+    OPTIONAL { << ?param a2a:inputParamName ?any_name >> a2a:tsType ?param_ts_type . }
+    OPTIONAL { << ?param a2a:inputParamName ?any_name >> a2a:goType ?param_go_type . }
+    OPTIONAL { << ?param a2a:inputParamName ?any_name >> a2a:elixirType ?param_elixir_type . }
+    OPTIONAL { << ?param a2a:inputParamName ?any_name >> a2a:javaType ?param_java_type . }
+  }
+}
+GROUP BY ?agent_name ?agent_description ?agent_version ?agent_url
+         ?skill_name ?skill_description
+         ?rust_return_type ?ts_return_type ?elixir_return_type ?go_return_type ?java_return_type
+         ?streaming ?timeout_ms ?retry_policy
+ORDER BY ?agent_name ?skill_name_resolved

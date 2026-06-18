@@ -1,0 +1,323 @@
+@prefix j25:  <http://yawl.io/java/pattern/java25#> .
+@prefix java: <http://yawl.io/java#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+# =============================================================================
+# Java 25 Pattern Vocabulary
+# Named patterns representing idiomatic Java 25 target code constructs.
+# These are the migration targets derived via SPARQL CONSTRUCT from Java 11 sources.
+# =============================================================================
+
+j25: a owl:Ontology ;
+    rdfs:label "Java 25 Pattern Vocabulary" ;
+    rdfs:comment "Named patterns for idiomatic Java 25 code. Each pattern is a migration target produced by the CONSTRUCT pipeline from Java 11 source patterns." ;
+    owl:imports <http://yawl.io/java#> ;
+    owl:versionInfo "1.0.0" .
+
+# ---------------------------------------------------------------------------
+# Abstract base
+# ---------------------------------------------------------------------------
+
+j25:Pattern a owl:Class ;
+    rdfs:label "Java 25 Pattern" ;
+    rdfs:comment "Abstract base for all Java 25 migration target patterns." .
+
+j25:derivedFrom a owl:ObjectProperty ;
+    rdfs:label "derived from" ;
+    rdfs:comment "Links a Java 25 pattern instance to the Java 11 pattern instance it was derived from." ;
+    rdfs:domain j25:Pattern .
+
+j25:templateFile a owl:DatatypeProperty ;
+    rdfs:label "template file" ;
+    rdfs:comment "Path to the Tera template that renders this Java 25 pattern." ;
+    rdfs:domain j25:Pattern ;
+    rdfs:range xsd:string .
+
+j25:targetFile a owl:DatatypeProperty ;
+    rdfs:label "target file" ;
+    rdfs:comment "Output file path where the rendered Java 25 code will be written." ;
+    rdfs:domain j25:Pattern ;
+    rdfs:range xsd:string .
+
+j25:targetLine a owl:DatatypeProperty ;
+    rdfs:label "target line" ;
+    rdfs:comment "Line number in the target file where the replacement begins." ;
+    rdfs:domain j25:Pattern ;
+    rdfs:range xsd:integer .
+
+j25:renderedCode a owl:DatatypeProperty ;
+    rdfs:label "rendered code" ;
+    rdfs:comment "The rendered Java 25 replacement code snippet." ;
+    rdfs:domain j25:Pattern ;
+    rdfs:range xsd:string .
+
+j25:requiresImport a owl:DatatypeProperty ;
+    rdfs:label "requires import" ;
+    rdfs:comment "Fully qualified class names that must be imported for the Java 25 replacement." ;
+    rdfs:domain j25:Pattern ;
+    rdfs:range xsd:string .
+
+# ---------------------------------------------------------------------------
+# Virtual Threads (Java 21+)
+# ---------------------------------------------------------------------------
+
+j25:VirtualThreadPattern a owl:Class ;
+    rdfs:subClassOf j25:Pattern ;
+    rdfs:label "Virtual Thread Pattern" ;
+    rdfs:comment "Thread.ofVirtual().start(runnable) replacing new Thread(runnable).start(). Virtual threads are JVM-managed, lightweight, blocking-I/O friendly." ;
+    skos:example "Thread.ofVirtual().name(\"yawl-worker\").start(() -> processWorkItem(item));" ;
+    j25:templateFile "templates/java25-migration/virtual-thread.tera" .
+
+j25:VirtualThreadExecutorPattern a owl:Class ;
+    rdfs:subClassOf j25:Pattern ;
+    rdfs:label "Virtual Thread Executor Pattern" ;
+    rdfs:comment "Executors.newVirtualThreadPerTaskExecutor() replacing fixed/cached thread pools for I/O-bound workloads." ;
+    skos:example "ExecutorService exec = Executors.newVirtualThreadPerTaskExecutor();" ;
+    j25:templateFile "templates/java25-migration/virtual-thread.tera" .
+
+j25:StructuredTaskScopePattern a owl:Class ;
+    rdfs:subClassOf j25:Pattern ;
+    rdfs:label "Structured Task Scope Pattern" ;
+    rdfs:comment "java.util.concurrent.StructuredTaskScope replacing manual thread coordination. Ensures all forked tasks complete before the scope exits." ;
+    skos:example """try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
+    var taskA = scope.fork(() -> executeTask(a));
+    var taskB = scope.fork(() -> executeTask(b));
+    scope.join().throwIfFailed();
+    return Results.of(taskA.get(), taskB.get());
+}""" ;
+    j25:templateFile "templates/java25-migration/structured-concurrency.tera" .
+
+j25:ScopedValuePattern a owl:Class ;
+    rdfs:subClassOf j25:Pattern ;
+    rdfs:label "Scoped Value Pattern" ;
+    rdfs:comment "ScopedValue<T> replacing ThreadLocal<T> for context propagation in virtual thread environments. Safe with carrier threads and fork/join." ;
+    skos:example """private static final ScopedValue<UserContext> USER_CTX = ScopedValue.newInstance();
+
+ScopedValue.runWhere(USER_CTX, context, () -> processRequest());""" ;
+    j25:templateFile "templates/java25-migration/scoped-value.tera" .
+
+# ---------------------------------------------------------------------------
+# Records (Java 16+)
+# ---------------------------------------------------------------------------
+
+j25:RecordPattern a owl:Class ;
+    rdfs:subClassOf j25:Pattern ;
+    rdfs:label "Record Pattern" ;
+    rdfs:comment "Java record declaration replacing mutable POJO with getters/setters. Records provide compact constructor, equals, hashCode, toString, and accessor methods automatically." ;
+    skos:example "record WorkItemData(String id, String status, Instant startTime) {}" ;
+    j25:templateFile "templates/java25-migration/record.tera" .
+
+j25:RecordWithValidationPattern a owl:Class ;
+    rdfs:subClassOf j25:RecordPattern ;
+    rdfs:label "Record With Validation Pattern" ;
+    rdfs:comment "Record with compact constructor performing validation. Replaces POJO constructor with validation logic." ;
+    skos:example """record CaseId(String value) {
+    CaseId {
+        Objects.requireNonNull(value, "caseId must not be null");
+        if (value.isBlank()) throw new IllegalArgumentException("caseId must not be blank");
+    }
+}""" ;
+    j25:templateFile "templates/java25-migration/record.tera" .
+
+# ---------------------------------------------------------------------------
+# Pattern Matching (Java 16+ instanceof, Java 21+ switch)
+# ---------------------------------------------------------------------------
+
+j25:PatternMatchingInstanceofPattern a owl:Class ;
+    rdfs:subClassOf j25:Pattern ;
+    rdfs:label "Pattern Matching Instanceof Pattern" ;
+    rdfs:comment "Java 16+ 'x instanceof Foo f' replacing two-step instanceof + cast. Binding variable f is in scope after the test." ;
+    skos:example "if (element instanceof YTask t) { t.fire(caseData); }" ;
+    j25:templateFile "templates/java25-migration/pattern-matching.tera" .
+
+j25:SwitchPatternMatchingPattern a owl:Class ;
+    rdfs:subClassOf j25:Pattern ;
+    rdfs:label "Switch Pattern Matching Pattern" ;
+    rdfs:comment "Java 21+ switch(x) with type patterns, replacing chained instanceof chains. Supports guards (when clauses) and sealed class exhaustiveness." ;
+    skos:example """return switch (element) {
+    case YTask t when t.isEnabled()  -> t.fire(caseData);
+    case YCondition c                -> c.add(caseData);
+    case YFlow f                     -> f.transfer(caseData);
+    default                          -> throw new IllegalStateException("Unknown element: " + element);
+};""" ;
+    j25:templateFile "templates/java25-migration/pattern-matching.tera" .
+
+# ---------------------------------------------------------------------------
+# Switch Expressions (Java 14+)
+# ---------------------------------------------------------------------------
+
+j25:SwitchExpressionPattern a owl:Class ;
+    rdfs:subClassOf j25:Pattern ;
+    rdfs:label "Switch Expression Pattern" ;
+    rdfs:comment "Java 14+ switch expression with arrow cases (->). Eliminates break statements, requires exhaustiveness (compiler-verified), can be assigned to a variable." ;
+    skos:example """TaskState next = switch (current) {
+    case ENABLED    -> TaskState.EXECUTING;
+    case EXECUTING  -> TaskState.COMPLETED;
+    case COMPLETED  -> throw new IllegalStateException("Already complete");
+};""" ;
+    j25:templateFile "templates/java25-migration/switch-expression.tera" .
+
+j25:SwitchExpressionYieldPattern a owl:Class ;
+    rdfs:subClassOf j25:SwitchExpressionPattern ;
+    rdfs:label "Switch Expression Yield Pattern" ;
+    rdfs:comment "Switch expression with block cases using 'yield' for complex multi-statement case bodies." ;
+    skos:example """int code = switch (type) {
+    case XOR -> 1;
+    case AND -> {
+        log.debug("AND split evaluated");
+        yield 2;
+    }
+    case OR  -> 3;
+};""" ;
+    j25:templateFile "templates/java25-migration/switch-expression.tera" .
+
+# ---------------------------------------------------------------------------
+# Text Blocks (Java 15+)
+# ---------------------------------------------------------------------------
+
+j25:TextBlockPattern a owl:Class ;
+    rdfs:subClassOf j25:Pattern ;
+    rdfs:label "Text Block Pattern" ;
+    rdfs:comment "Java 15+ triple-quoted text block replacing multi-line string concatenation or String.format with embedded newlines." ;
+    skos:example """String xml = \"\"\"
+    <specificationSet version="4.0">
+      <specification uri="%s">
+        <name>%s</name>
+      </specification>
+    </specificationSet>
+    \"\"\".formatted(uri, name);""" ;
+    j25:templateFile "templates/java25-migration/text-block.tera" .
+
+j25:FormattedTextBlockPattern a owl:Class ;
+    rdfs:subClassOf j25:TextBlockPattern ;
+    rdfs:label "Formatted Text Block Pattern" ;
+    rdfs:comment "Text block with .formatted() replacing String.format(). More readable for multi-line template strings." ;
+    skos:example "String body = \"\"\"\n    Case %s started at %s.\n    \"\"\".formatted(caseId, startTime);" ;
+    j25:templateFile "templates/java25-migration/text-block.tera" .
+
+# ---------------------------------------------------------------------------
+# java.time API (Java 8+, mature in 11+)
+# ---------------------------------------------------------------------------
+
+j25:InstantPattern a owl:Class ;
+    rdfs:subClassOf j25:Pattern ;
+    rdfs:label "Instant Pattern" ;
+    rdfs:comment "java.time.Instant replacing java.util.Date for point-in-time values. Immutable, thread-safe, ISO 8601 compatible." ;
+    skos:example "Instant startTime = Instant.now();" ;
+    j25:templateFile "templates/java25-migration/java-time.tera" .
+
+j25:LocalDateTimePattern a owl:Class ;
+    rdfs:subClassOf j25:Pattern ;
+    rdfs:label "LocalDateTime Pattern" ;
+    rdfs:comment "java.time.LocalDateTime replacing java.util.Calendar for local date-time arithmetic." ;
+    skos:example "LocalDateTime deadline = LocalDateTime.now().plusDays(3);" ;
+    j25:templateFile "templates/java25-migration/java-time.tera" .
+
+j25:DateTimeFormatterPattern a owl:Class ;
+    rdfs:subClassOf j25:Pattern ;
+    rdfs:label "DateTimeFormatter Pattern" ;
+    rdfs:comment "DateTimeFormatter (immutable, thread-safe) replacing SimpleDateFormat. Can be stored as static final." ;
+    skos:example "private static final DateTimeFormatter ISO = DateTimeFormatter.ISO_DATE_TIME;" ;
+    j25:templateFile "templates/java25-migration/java-time.tera" .
+
+j25:DurationPattern a owl:Class ;
+    rdfs:subClassOf j25:Pattern ;
+    rdfs:label "Duration Pattern" ;
+    rdfs:comment "java.time.Duration for elapsed time calculation, replacing manual millis arithmetic." ;
+    skos:example "Duration elapsed = Duration.between(startTime, Instant.now());" ;
+    j25:templateFile "templates/java25-migration/java-time.tera" .
+
+# ---------------------------------------------------------------------------
+# Modern Collections (Java 9+)
+# ---------------------------------------------------------------------------
+
+j25:ImmutableCollectionPattern a owl:Class ;
+    rdfs:subClassOf j25:Pattern ;
+    rdfs:label "Immutable Collection Pattern" ;
+    rdfs:comment "List.of(), Map.of(), Set.of() replacing mutable collection initialization with Arrays.asList or new ArrayList<>(Arrays.asList(...))." ;
+    skos:example "List<String> states = List.of(\"ENABLED\", \"EXECUTING\", \"COMPLETED\");" ;
+    j25:templateFile "templates/java25-migration/collections.tera" .
+
+j25:MapOfEntriesPattern a owl:Class ;
+    rdfs:subClassOf j25:ImmutableCollectionPattern ;
+    rdfs:label "Map.ofEntries Pattern" ;
+    rdfs:comment "Map.ofEntries(Map.entry(k,v), ...) replacing Hashtable or manual put() chaining for initialization." ;
+    skos:example "Map<String,Integer> splitCodes = Map.ofEntries(Map.entry(\"XOR\",0), Map.entry(\"AND\",1), Map.entry(\"OR\",2));" ;
+    j25:templateFile "templates/java25-migration/collections.tera" .
+
+# ---------------------------------------------------------------------------
+# Sealed Classes / Interfaces (Java 17+)
+# ---------------------------------------------------------------------------
+
+j25:SealedHierarchyPattern a owl:Class ;
+    rdfs:subClassOf j25:Pattern ;
+    rdfs:label "Sealed Hierarchy Pattern" ;
+    rdfs:comment "Sealed interface or class with explicit permitted subclasses. Enables exhaustive switch pattern matching and encapsulates type hierarchies." ;
+    skos:example """sealed interface NetElement permits YTask, YCondition, YFlow {}
+record YTask(String id, TaskState state) implements NetElement {}
+record YCondition(String id) implements NetElement {}
+record YFlow(String id, NetElement source, NetElement target) implements NetElement {}""" ;
+    j25:templateFile "templates/java25-migration/sealed-hierarchy.tera" .
+
+# ---------------------------------------------------------------------------
+# Lambda / Method Reference (Java 8+, refinements in 11+)
+# ---------------------------------------------------------------------------
+
+j25:LambdaPattern a owl:Class ;
+    rdfs:subClassOf j25:Pattern ;
+    rdfs:label "Lambda Pattern" ;
+    rdfs:comment "Lambda expression replacing single-method anonymous class." ;
+    skos:example "executor.submit(() -> processWorkItem(item));" ;
+    j25:templateFile "templates/java25-migration/lambda.tera" .
+
+j25:MethodReferencePattern a owl:Class ;
+    rdfs:subClassOf j25:LambdaPattern ;
+    rdfs:label "Method Reference Pattern" ;
+    rdfs:comment "Method reference (Type::method) replacing lambda that just calls a single method." ;
+    skos:example "tasks.forEach(this::processTask);" ;
+    j25:templateFile "templates/java25-migration/lambda.tera" .
+
+# ---------------------------------------------------------------------------
+# Try-with-resources improvements
+# ---------------------------------------------------------------------------
+
+j25:TryWithResourcesPattern a owl:Class ;
+    rdfs:subClassOf j25:Pattern ;
+    rdfs:label "Try-With-Resources Pattern" ;
+    rdfs:comment "Java 7+ try-with-resources for AutoCloseable resources. Also covers Java 9+ effectively-final variable in try header." ;
+    skos:example "try (var conn = dataSource.getConnection(); var stmt = conn.prepareStatement(sql)) { ... }" ;
+    j25:templateFile "templates/java25-migration/try-resources.tera" .
+
+# ---------------------------------------------------------------------------
+# YAWL-specific Java 25 patterns
+# ---------------------------------------------------------------------------
+
+j25:YawlVirtualEnginePattern a owl:Class ;
+    rdfs:subClassOf j25:StructuredTaskScopePattern ;
+    rdfs:label "YAWL Virtual Engine Pattern" ;
+    rdfs:comment "YAWL engine using StructuredTaskScope for concurrent task execution across work items. Eliminates synchronized engine lock with virtual thread safety." ;
+    skos:example """try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
+    enabledTasks.stream()
+        .map(t -> scope.fork(() -> t.execute(caseData)))
+        .toList();
+    scope.join().throwIfFailed();
+}""" ;
+    j25:templateFile "templates/java25-migration/structured-concurrency.tera" .
+
+j25:YawlWorkItemRecordPattern a owl:Class ;
+    rdfs:subClassOf j25:RecordPattern ;
+    rdfs:label "YAWL WorkItem Record Pattern" ;
+    rdfs:comment "YWorkItem data carrier as a sealed record hierarchy. Immutable work item state transitions expressed as record pattern matching." ;
+    skos:example "record WorkItem(String id, String caseId, TaskState state, Instant created, Instant updated) {}" ;
+    j25:templateFile "templates/java25-migration/record.tera" .
+
+j25:YawlCaseTimestampPattern a owl:Class ;
+    rdfs:subClassOf j25:InstantPattern ;
+    rdfs:label "YAWL Case Timestamp Pattern" ;
+    rdfs:comment "YAWL case start/complete timestamps as java.time.Instant replacing java.util.Date." ;
+    skos:example "this.startTime = Instant.now();" ;
+    j25:templateFile "templates/java25-migration/java-time.tera" .

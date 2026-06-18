@@ -1,0 +1,113 @@
+@prefix : <https://bytestar.org/ontology/pqc-fabric/kyber-kem#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix bactor: <https://bytestar.org/ontology/bytestar-byteactor#> .
+@prefix bflow: <https://bytestar.org/ontology/bytestar-byteflow#> .
+@prefix pqckernel: <https://bytestar.org/ontology/pqc-fabric/kernel-registry#> .
+
+<https://bytestar.org/ontology/pqc-fabric/kyber-kem>
+  owl:imports <https://bytestar.org/ontology/bytestar-core> ,
+              <https://bytestar.org/ontology/bytestar-byteactor> ,
+              <https://bytestar.org/ontology/bytestar-byteflow> .
+
+<https://bytestar.org/ontology/pqc-fabric/kyber-kem>
+  a owl:Ontology ;
+  rdfs:label "PQC Assimilation Canon: Kyber KEM Fabric" ;
+  rdfs:comment "The formal blueprint for fabricating the ml-kem (Kyber) key encapsulation mechanism as a native ByteStar workflow." .
+
+### Data Structures (Memory Arena Layout)
+
+:KyberPublicKeyBytes a bcore:MemoryCrystal .
+:KyberSecretKeyBytes a bcore:MemoryCrystal .
+:KyberCiphertextBytes a bcore:MemoryCrystal .
+:KyberSharedSecretBytes a bcore:MemoryCrystal .
+:Polyveck a bcore:MemoryCrystal ; rdfs:comment "A vector of polynomials." .
+:Seed a bcore:MemoryCrystal .
+
+### Kernel Definitions
+
+:k_pqc_kyber_keygen a bcore:Kernel ;
+  rdfs:label "k_pqc_kyber_keygen" ;
+  bactor:hasTickCost "8"^^xsd:integer ;
+  bflow:writesTo :KyberPublicKeyBytes, :KyberSecretKeyBytes .
+
+:k_pqc_kyber_encap a bcore:Kernel ;
+  rdfs:label "k_pqc_kyber_encap" ;
+  bactor:hasTickCost "8"^^xsd:integer ;
+  bflow:readsFrom :KyberPublicKeyBytes, :Seed ;
+  bflow:writesTo :KyberCiphertextBytes, :KyberSharedSecretBytes .
+
+:k_pqc_kyber_decap a bcore:Kernel ;
+  rdfs:label "k_pqc_kyber_decap" ;
+  bactor:hasTickCost "8"^^xsd:integer ;
+  bflow:readsFrom :KyberSecretKeyBytes, :KyberCiphertextBytes ;
+  bflow:writesTo :KyberSharedSecretBytes .
+
+:k_pqc_kyber_poly_uniform a bcore:Kernel ;
+  rdfs:label "k_pqc_kyber_poly_uniform" ;
+  bactor:hasTickCost "7"^^xsd:integer ;
+  bflow:readsFrom :Seed ;
+  bflow:writesTo :Polyveck .
+
+:k_pqc_kyber_cbd a bcore:Kernel ;
+  rdfs:label "k_pqc_kyber_cbd" ;
+  bactor:hasTickCost "6"^^xsd:integer ;
+  bflow:readsFrom :Seed ;
+  bflow:writesTo :Polyveck .
+
+:k_pqc_kyber_ntt a bcore:Kernel ;
+  rdfs:label "k_pqc_kyber_ntt" ;
+  bactor:hasTickCost "8"^^xsd:integer ;
+  bflow:readsFrom :Polyveck ;
+  bflow:writesTo :Polyveck .
+
+:k_pqc_kyber_invntt a bcore:Kernel ;
+  rdfs:label "k_pqc_kyber_invntt" ;
+  bactor:hasTickCost "8"^^xsd:integer ;
+  bflow:readsFrom :Polyveck ;
+  bflow:writesTo :Polyveck .
+
+:k_pqc_kyber_basemul a bcore:Kernel ;
+  rdfs:label "k_pqc_kyber_basemul" ;
+  bactor:hasTickCost "8"^^xsd:integer ;
+  bflow:readsFrom :Polyveck, :Polyveck ;
+  bflow:writesTo :Polyveck .
+
+:k_pqc_kyber_poly_compress a bcore:Kernel ;
+  rdfs:label "k_pqc_kyber_poly_compress" ;
+  bactor:hasTickCost "5"^^xsd:integer ;
+  bflow:readsFrom :Polyveck ;
+  bflow:writesTo :KyberCiphertextBytes .
+
+:k_pqc_kyber_poly_decompress a bcore:Kernel ;
+  rdfs:label "k_pqc_kyber_poly_decompress" ;
+  bactor:hasTickCost "5"^^xsd:integer ;
+  bflow:readsFrom :KyberCiphertextBytes ;
+  bflow:writesTo :Polyveck .
+
+### Orchestration Flow (as a formal RDF List)
+
+:KyberKemWorkflow a bcore:Pattern ;
+  rdfs:label "PQC Kyber KEM Workflow" ;
+  bcore:hasHopCount "7"^^xsd:integer ;
+  bcore:hasKernelSequence (
+    pqckernel:k_pqc_kyber_keygen
+    pqckernel:k_pqc_kyber_poly_uniform
+    pqckernel:k_pqc_kyber_cbd
+    pqckernel:k_pqc_kyber_ntt
+    pqckernel:k_pqc_kyber_basemul
+    pqckernel:k_pqc_kyber_poly_compress
+    pqckernel:k_pqc_kyber_encap
+  ) .
+
+:KyberDecapWorkflow a bcore:Pattern ;
+  rdfs:label "PQC Kyber Decapsulation Workflow" ;
+  bcore:hasHopCount "4"^^xsd:integer ;
+  bcore:hasKernelSequence (
+    pqckernel:k_pqc_kyber_poly_decompress
+    pqckernel:k_pqc_kyber_invntt
+    pqckernel:k_pqc_kyber_basemul
+    pqckernel:k_pqc_kyber_decap
+  ) .

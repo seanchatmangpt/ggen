@@ -1,0 +1,7 @@
+@prefix knhk: <https://knhk.io/covenant#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+knhk:C2_InvariantsAreLaw a owl:Class ;
+    rdfs:label "C2 — Invariants Are Law" ;
+    rdfs:comment "All runtime invariants are machine-checkable via SHACL shapes. No invariant exists that is not encoded in shapes.ttl." .

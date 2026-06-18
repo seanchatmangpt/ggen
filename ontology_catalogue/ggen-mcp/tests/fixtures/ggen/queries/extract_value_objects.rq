@@ -1,0 +1,17 @@
+PREFIX test: <http://test.example.org/>
+PREFIX ddd: <http://ggen-mcp.dev/ontology/ddd#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Query to extract all value objects
+SELECT ?valueObject ?label ?property ?propertyType ?propertyRange
+WHERE {
+    ?valueObject rdfs:subClassOf ddd:ValueObject ;
+                 rdfs:label ?label .
+
+    OPTIONAL {
+        ?valueObject ddd:hasProperty ?property .
+        ?property a ?propertyType .
+        OPTIONAL { ?property rdfs:range ?propertyRange }
+    }
+}
+ORDER BY ?valueObject ?property

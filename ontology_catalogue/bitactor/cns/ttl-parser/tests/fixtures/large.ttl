@@ -1,0 +1,16 @@
+# Large TTL file for performance testing
+@prefix ex: <http://example.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Generate many similar triples for performance testing
+ex:person0 a foaf:Person ; foaf:name "Person 0" ; foaf:age 0 .
+ex:person1 a foaf:Person ; foaf:name "Person 1" ; foaf:age 1 .
+ex:person2 a foaf:Person ; foaf:name "Person 2" ; foaf:age 2 .
+ex:person3 a foaf:Person ; foaf:name "Person 3" ; foaf:age 3 .
+ex:person4 a foaf:Person ; foaf:name "Person 4" ; foaf:age 4 .
+ex:person5 a foaf:Person ; foaf:name "Person 5" ; foaf:age 5 .
+ex:person6 a foaf:Person ; foaf:name "Person 6" ; foaf:age 6 .
+ex:person7 a foaf:Person ; foaf:name "Person 7" ; foaf:age 7 .
+ex:person8 a foaf:Person ; foaf:name "Person 8" ; foaf:age 8 .
+ex:person9 a foaf:Person ; foaf:name "Person 9" ; foaf:age 9 .

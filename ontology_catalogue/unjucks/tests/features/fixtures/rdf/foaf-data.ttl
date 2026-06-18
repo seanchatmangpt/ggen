@@ -1,0 +1,64 @@
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://example.org/people/> .
+
+# Person 1
+ex:alice a foaf:Person ;
+    foaf:name "Alice Johnson" ;
+    foaf:givenName "Alice" ;
+    foaf:familyName "Johnson" ;
+    foaf:nick "alice" ;
+    foaf:mbox <mailto:alice@example.org> ;
+    foaf:homepage <http://alice.example.org> ;
+    foaf:age 28 ;
+    foaf:gender "female" ;
+    foaf:knows ex:bob, ex:charlie ;
+    foaf:interest <http://dbpedia.org/resource/Machine_learning>,
+                  <http://dbpedia.org/resource/Artificial_intelligence> .
+
+# Person 2
+ex:bob a foaf:Person ;
+    foaf:name "Robert Smith" ;
+    foaf:givenName "Robert" ;
+    foaf:familyName "Smith" ;
+    foaf:nick "bob" ;
+    foaf:mbox <mailto:bob@example.org> ;
+    foaf:homepage <http://bob.example.org> ;
+    foaf:age 32 ;
+    foaf:gender "male" ;
+    foaf:knows ex:alice, ex:diana ;
+    foaf:interest <http://dbpedia.org/resource/Software_engineering>,
+                  <http://dbpedia.org/resource/Web_development> .
+
+# Person 3
+ex:charlie a foaf:Person ;
+    foaf:name "Charles Brown" ;
+    foaf:givenName "Charles" ;
+    foaf:familyName "Brown" ;
+    foaf:nick "charlie" ;
+    foaf:mbox <mailto:charlie@example.org> ;
+    foaf:age 26 ;
+    foaf:gender "male" ;
+    foaf:knows ex:alice, ex:diana ;
+    foaf:interest <http://dbpedia.org/resource/Data_science>,
+                  <http://dbpedia.org/resource/Statistics> .
+
+# Person 4
+ex:diana a foaf:Person ;
+    foaf:name "Diana Prince" ;
+    foaf:givenName "Diana" ;
+    foaf:familyName "Prince" ;
+    foaf:mbox <mailto:diana@example.org> ;
+    foaf:age 29 ;
+    foaf:gender "female" ;
+    foaf:knows ex:bob, ex:charlie ;
+    foaf:interest <http://dbpedia.org/resource/Computer_science>,
+                  <http://dbpedia.org/resource/Research> .
+
+# Group
+ex:research-group a foaf:Group ;
+    foaf:name "AI Research Group" ;
+    rdfs:comment "A group of researchers working on AI projects" ;
+    foaf:member ex:alice, ex:bob, ex:charlie, ex:diana .

@@ -1,0 +1,794 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix health: <http://cns.ai/ontology/healthcare#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+
+# Healthcare Monitoring and Patient Safety Ontology
+# Ultra-fast patient monitoring and clinical decision support
+# Target: Sub-millisecond response times with BitActor integration
+
+health:HealthcareOntology rdf:type owl:Ontology ;
+    rdfs:label "Real-time Healthcare Monitoring System"@en ;
+    rdfs:comment "Semantic model for ultra-fast patient monitoring and clinical decision support"@en ;
+    owl:versionInfo "1.0" .
+
+#####################################################################
+# Core Patient and Healthcare Provider Classes
+#####################################################################
+
+health:Patient rdf:type owl:Class ;
+    rdfs:label "Patient"@en ;
+    rdfs:comment "Individual receiving medical care and monitoring"@en .
+
+health:HealthcareProvider rdf:type owl:Class ;
+    rdfs:label "Healthcare Provider"@en ;
+    rdfs:comment "Medical professional providing patient care"@en .
+
+health:Physician rdf:type owl:Class ;
+    rdfs:subClassOf health:HealthcareProvider ;
+    rdfs:label "Physician"@en .
+
+health:Nurse rdf:type owl:Class ;
+    rdfs:subClassOf health:HealthcareProvider ;
+    rdfs:label "Nurse"@en .
+
+health:Specialist rdf:type owl:Class ;
+    rdfs:subClassOf health:Physician ;
+    rdfs:label "Medical Specialist"@en .
+
+health:Technician rdf:type owl:Class ;
+    rdfs:subClassOf health:HealthcareProvider ;
+    rdfs:label "Medical Technician"@en .
+
+#####################################################################
+# Medical Device and Equipment Classes
+#####################################################################
+
+health:MedicalDevice rdf:type owl:Class ;
+    rdfs:label "Medical Device"@en ;
+    rdfs:comment "Equipment used for patient monitoring, diagnosis, or treatment"@en .
+
+health:MonitoringDevice rdf:type owl:Class ;
+    rdfs:subClassOf health:MedicalDevice ;
+    rdfs:label "Patient Monitoring Device"@en .
+
+health:ECGMonitor rdf:type owl:Class ;
+    rdfs:subClassOf health:MonitoringDevice ;
+    rdfs:label "Electrocardiogram Monitor"@en .
+
+health:VitalSignsMonitor rdf:type owl:Class ;
+    rdfs:subClassOf health:MonitoringDevice ;
+    rdfs:label "Vital Signs Monitor"@en .
+
+health:PulseOximeter rdf:type owl:Class ;
+    rdfs:subClassOf health:MonitoringDevice ;
+    rdfs:label "Pulse Oximeter"@en .
+
+health:BloodPressureMonitor rdf:type owl:Class ;
+    rdfs:subClassOf health:MonitoringDevice ;
+    rdfs:label "Blood Pressure Monitor"@en .
+
+health:RespiratoryMonitor rdf:type owl:Class ;
+    rdfs:subClassOf health:MonitoringDevice ;
+    rdfs:label "Respiratory Monitor"@en .
+
+health:TemperatureMonitor rdf:type owl:Class ;
+    rdfs:subClassOf health:MonitoringDevice ;
+    rdfs:label "Body Temperature Monitor"@en .
+
+health:GlucoseMonitor rdf:type owl:Class ;
+    rdfs:subClassOf health:MonitoringDevice ;
+    rdfs:label "Blood Glucose Monitor"@en .
+
+health:InfusionPump rdf:type owl:Class ;
+    rdfs:subClassOf health:MedicalDevice ;
+    rdfs:label "Infusion Pump"@en .
+
+health:Ventilator rdf:type owl:Class ;
+    rdfs:subClassOf health:MedicalDevice ;
+    rdfs:label "Mechanical Ventilator"@en .
+
+health:Defibrillator rdf:type owl:Class ;
+    rdfs:subClassOf health:MedicalDevice ;
+    rdfs:label "Automated External Defibrillator"@en .
+
+#####################################################################
+# Vital Signs and Physiological Measurements
+#####################################################################
+
+health:VitalSign rdf:type owl:Class ;
+    rdfs:label "Vital Sign"@en ;
+    rdfs:comment "Essential physiological measurement indicating life functions"@en .
+
+health:HeartRate rdf:type owl:Class ;
+    rdfs:subClassOf health:VitalSign ;
+    rdfs:label "Heart Rate"@en .
+
+health:BloodPressure rdf:type owl:Class ;
+    rdfs:subClassOf health:VitalSign ;
+    rdfs:label "Blood Pressure"@en .
+
+health:RespiratoryRate rdf:type owl:Class ;
+    rdfs:subClassOf health:VitalSign ;
+    rdfs:label "Respiratory Rate"@en .
+
+health:BodyTemperature rdf:type owl:Class ;
+    rdfs:subClassOf health:VitalSign ;
+    rdfs:label "Body Temperature"@en .
+
+health:OxygenSaturation rdf:type owl:Class ;
+    rdfs:subClassOf health:VitalSign ;
+    rdfs:label "Oxygen Saturation (SpO2)"@en .
+
+health:BloodGlucose rdf:type owl:Class ;
+    rdfs:subClassOf health:VitalSign ;
+    rdfs:label "Blood Glucose Level"@en .
+
+health:PainLevel rdf:type owl:Class ;
+    rdfs:subClassOf health:VitalSign ;
+    rdfs:label "Pain Assessment Level"@en .
+
+#####################################################################
+# Medical Conditions and Diagnoses
+#####################################################################
+
+health:MedicalCondition rdf:type owl:Class ;
+    rdfs:label "Medical Condition"@en ;
+    rdfs:comment "Disease, disorder, or health condition affecting a patient"@en .
+
+health:ChronicCondition rdf:type owl:Class ;
+    rdfs:subClassOf health:MedicalCondition ;
+    rdfs:label "Chronic Medical Condition"@en .
+
+health:AcuteCondition rdf:type owl:Class ;
+    rdfs:subClassOf health:MedicalCondition ;
+    rdfs:label "Acute Medical Condition"@en .
+
+health:CardiacCondition rdf:type owl:Class ;
+    rdfs:subClassOf health:MedicalCondition ;
+    rdfs:label "Cardiac Condition"@en .
+
+health:RespiratoryCondition rdf:type owl:Class ;
+    rdfs:subClassOf health:MedicalCondition ;
+    rdfs:label "Respiratory Condition"@en .
+
+health:Diabetes rdf:type owl:Class ;
+    rdfs:subClassOf health:ChronicCondition ;
+    rdfs:label "Diabetes Mellitus"@en .
+
+health:Hypertension rdf:type owl:Class ;
+    rdfs:subClassOf health:ChronicCondition ;
+    rdfs:label "Hypertension"@en .
+
+health:Arrhythmia rdf:type owl:Class ;
+    rdfs:subClassOf health:CardiacCondition ;
+    rdfs:label "Cardiac Arrhythmia"@en .
+
+health:COPD rdf:type owl:Class ;
+    rdfs:subClassOf health:RespiratoryCondition ;
+    rdfs:label "Chronic Obstructive Pulmonary Disease"@en .
+
+#####################################################################
+# Medications and Treatments
+#####################################################################
+
+health:Medication rdf:type owl:Class ;
+    rdfs:label "Medication"@en ;
+    rdfs:comment "Pharmaceutical substance used for treatment or prevention"@en .
+
+health:Prescription rdf:type owl:Class ;
+    rdfs:label "Medical Prescription"@en ;
+    rdfs:comment "Healthcare provider's order for medication or treatment"@en .
+
+health:Dosage rdf:type owl:Class ;
+    rdfs:label "Medication Dosage"@en ;
+    rdfs:comment "Prescribed amount and frequency of medication administration"@en .
+
+health:Treatment rdf:type owl:Class ;
+    rdfs:label "Medical Treatment"@en ;
+    rdfs:comment "Medical intervention or therapy provided to patient"@en .
+
+health:Therapy rdf:type owl:Class ;
+    rdfs:subClassOf health:Treatment ;
+    rdfs:label "Medical Therapy"@en .
+
+health:Surgery rdf:type owl:Class ;
+    rdfs:subClassOf health:Treatment ;
+    rdfs:label "Surgical Procedure"@en .
+
+#####################################################################
+# Clinical Events and Alerts
+#####################################################################
+
+health:ClinicalEvent rdf:type owl:Class ;
+    rdfs:label "Clinical Event"@en ;
+    rdfs:comment "Significant occurrence in patient care or monitoring"@en .
+
+health:MedicalAlert rdf:type owl:Class ;
+    rdfs:label "Medical Alert"@en ;
+    rdfs:comment "Urgent notification requiring immediate medical attention"@en .
+
+health:CriticalAlert rdf:type owl:Class ;
+    rdfs:subClassOf health:MedicalAlert ;
+    rdfs:label "Critical Medical Alert"@en .
+
+health:VitalSignAlert rdf:type owl:Class ;
+    rdfs:subClassOf health:MedicalAlert ;
+    rdfs:label "Vital Sign Alert"@en .
+
+health:MedicationAlert rdf:type owl:Class ;
+    rdfs:subClassOf health:MedicalAlert ;
+    rdfs:label "Medication Alert"@en .
+
+health:DeviceAlert rdf:type owl:Class ;
+    rdfs:subClassOf health:MedicalAlert ;
+    rdfs:label "Medical Device Alert"@en .
+
+health:PatientDeteriorationAlert rdf:type owl:Class ;
+    rdfs:subClassOf health:CriticalAlert ;
+    rdfs:label "Patient Deterioration Alert"@en .
+
+health:CodeBlue rdf:type owl:Class ;
+    rdfs:subClassOf health:CriticalAlert ;
+    rdfs:label "Code Blue Emergency"@en .
+
+#####################################################################
+# Healthcare Facilities and Units
+#####################################################################
+
+health:HealthcareFacility rdf:type owl:Class ;
+    rdfs:label "Healthcare Facility"@en ;
+    rdfs:comment "Medical institution providing patient care"@en .
+
+health:Hospital rdf:type owl:Class ;
+    rdfs:subClassOf health:HealthcareFacility ;
+    rdfs:label "Hospital"@en .
+
+health:Clinic rdf:type owl:Class ;
+    rdfs:subClassOf health:HealthcareFacility ;
+    rdfs:label "Medical Clinic"@en .
+
+health:MedicalUnit rdf:type owl:Class ;
+    rdfs:label "Medical Unit"@en ;
+    rdfs:comment "Specialized department or ward within healthcare facility"@en .
+
+health:ICU rdf:type owl:Class ;
+    rdfs:subClassOf health:MedicalUnit ;
+    rdfs:label "Intensive Care Unit"@en .
+
+health:EmergencyDepartment rdf:type owl:Class ;
+    rdfs:subClassOf health:MedicalUnit ;
+    rdfs:label "Emergency Department"@en .
+
+health:MedicalSurgicalUnit rdf:type owl:Class ;
+    rdfs:subClassOf health:MedicalUnit ;
+    rdfs:label "Medical-Surgical Unit"@en .
+
+health:CardiologyUnit rdf:type owl:Class ;
+    rdfs:subClassOf health:MedicalUnit ;
+    rdfs:label "Cardiology Unit"@en .
+
+health:NICU rdf:type owl:Class ;
+    rdfs:subClassOf health:MedicalUnit ;
+    rdfs:label "Neonatal Intensive Care Unit"@en .
+
+#####################################################################
+# Core Properties - Patient Identification
+#####################################################################
+
+health:patientID rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:Patient ;
+    rdfs:range xsd:string ;
+    rdfs:label "Patient Identifier"@en .
+
+health:medicalRecordNumber rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:Patient ;
+    rdfs:range xsd:string ;
+    rdfs:label "Medical Record Number"@en .
+
+health:dateOfBirth rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:Patient ;
+    rdfs:range xsd:date ;
+    rdfs:label "Date of Birth"@en .
+
+health:gender rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:Patient ;
+    rdfs:range xsd:string ;
+    rdfs:label "Gender"@en .
+
+health:age rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:Patient ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Age (years)"@en .
+
+health:weight rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:Patient ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Body Weight (kg)"@en .
+
+health:height rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:Patient ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Height (cm)"@en .
+
+health:admissionDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:Patient ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Hospital Admission Date"@en .
+
+health:dischargeDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:Patient ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Hospital Discharge Date"@en .
+
+health:acuityLevel rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:Patient ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Patient Acuity Level (1-5)"@en .
+
+#####################################################################
+# Vital Sign Properties
+#####################################################################
+
+health:measurementValue rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:VitalSign ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Measurement Value"@en .
+
+health:measurementUnit rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:VitalSign ;
+    rdfs:range xsd:string ;
+    rdfs:label "Unit of Measurement"@en .
+
+health:measurementTimestamp rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:VitalSign ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Measurement Timestamp"@en .
+
+health:normalRangeLow rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:VitalSign ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Normal Range Lower Bound"@en .
+
+health:normalRangeHigh rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:VitalSign ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Normal Range Upper Bound"@en .
+
+health:criticalRangeLow rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:VitalSign ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Critical Range Lower Bound"@en .
+
+health:criticalRangeHigh rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:VitalSign ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Critical Range Upper Bound"@en .
+
+# Specific vital sign properties
+health:systolicPressure rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:BloodPressure ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Systolic Blood Pressure (mmHg)"@en .
+
+health:diastolicPressure rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:BloodPressure ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Diastolic Blood Pressure (mmHg)"@en .
+
+health:meanArterialPressure rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:BloodPressure ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Mean Arterial Pressure (mmHg)"@en .
+
+health:beatsPerMinute rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:HeartRate ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Heart Rate (beats per minute)"@en .
+
+health:breathsPerMinute rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:RespiratoryRate ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Respiratory Rate (breaths per minute)"@en .
+
+health:temperatureCelsius rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:BodyTemperature ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Body Temperature (°C)"@en .
+
+health:oxygenSaturationPercent rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:OxygenSaturation ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Oxygen Saturation (%)"@en .
+
+health:glucoseMgDl rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:BloodGlucose ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Blood Glucose (mg/dL)"@en .
+
+health:painScore rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:PainLevel ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Pain Score (0-10)"@en .
+
+#####################################################################
+# Medical Device Properties
+#####################################################################
+
+health:deviceID rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:MedicalDevice ;
+    rdfs:range xsd:string ;
+    rdfs:label "Medical Device Identifier"@en .
+
+health:deviceManufacturer rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:MedicalDevice ;
+    rdfs:range xsd:string ;
+    rdfs:label "Device Manufacturer"@en .
+
+health:deviceModel rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:MedicalDevice ;
+    rdfs:range xsd:string ;
+    rdfs:label "Device Model"@en .
+
+health:serialNumber rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:MedicalDevice ;
+    rdfs:range xsd:string ;
+    rdfs:label "Device Serial Number"@en .
+
+health:deviceStatus rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:MedicalDevice ;
+    rdfs:range xsd:string ;
+    rdfs:label "Device Operational Status"@en .
+
+health:lastCalibrationDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:MedicalDevice ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Last Calibration Date"@en .
+
+health:nextMaintenanceDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:MedicalDevice ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Next Scheduled Maintenance"@en .
+
+health:measurementAccuracy rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:MonitoringDevice ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Measurement Accuracy (%)"@en .
+
+health:samplingRate rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:MonitoringDevice ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Sampling Rate (Hz)"@en .
+
+health:alertThresholdHigh rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:MonitoringDevice ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "High Alert Threshold"@en .
+
+health:alertThresholdLow rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:MonitoringDevice ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Low Alert Threshold"@en .
+
+#####################################################################
+# Medication Properties
+#####################################################################
+
+health:medicationName rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:Medication ;
+    rdfs:range xsd:string ;
+    rdfs:label "Medication Name"@en .
+
+health:genericName rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:Medication ;
+    rdfs:range xsd:string ;
+    rdfs:label "Generic Medication Name"@en .
+
+health:dosageAmount rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:Dosage ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Dosage Amount"@en .
+
+health:dosageUnit rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:Dosage ;
+    rdfs:range xsd:string ;
+    rdfs:label "Dosage Unit"@en .
+
+health:frequency rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:Dosage ;
+    rdfs:range xsd:string ;
+    rdfs:label "Administration Frequency"@en .
+
+health:route rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:Dosage ;
+    rdfs:range xsd:string ;
+    rdfs:label "Route of Administration"@en .
+
+health:prescriptionDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:Prescription ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Prescription Date"@en .
+
+health:administrationTime rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:Dosage ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Medication Administration Time"@en .
+
+#####################################################################
+# Alert Properties
+#####################################################################
+
+health:alertID rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:MedicalAlert ;
+    rdfs:range xsd:string ;
+    rdfs:label "Alert Identifier"@en .
+
+health:alertType rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:MedicalAlert ;
+    rdfs:range xsd:string ;
+    rdfs:label "Alert Type"@en .
+
+health:alertSeverity rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:MedicalAlert ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Alert Severity (1-5)"@en .
+
+health:alertTimestamp rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:MedicalAlert ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Alert Timestamp"@en .
+
+health:alertMessage rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:MedicalAlert ;
+    rdfs:range xsd:string ;
+    rdfs:label "Alert Message"@en .
+
+health:alertStatus rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:MedicalAlert ;
+    rdfs:range xsd:string ;
+    rdfs:label "Alert Status"@en .
+
+health:acknowledgedBy rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:MedicalAlert ;
+    rdfs:range xsd:string ;
+    rdfs:label "Alert Acknowledged By"@en .
+
+health:acknowledgmentTime rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:MedicalAlert ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Alert Acknowledgment Time"@en .
+
+#####################################################################
+# Clinical Assessment Properties
+#####################################################################
+
+health:riskScore rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:Patient ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Clinical Risk Score"@en .
+
+health:earlyWarningScore rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:Patient ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Early Warning Score"@en .
+
+health:fallRisk rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:Patient ;
+    rdfs:range xsd:string ;
+    rdfs:label "Fall Risk Assessment"@en .
+
+health:mobilityLevel rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:Patient ;
+    rdfs:range xsd:string ;
+    rdfs:label "Patient Mobility Level"@en .
+
+health:consciousnessLevel rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:Patient ;
+    rdfs:range xsd:string ;
+    rdfs:label "Level of Consciousness"@en .
+
+#####################################################################
+# BitActor Integration Properties
+#####################################################################
+
+health:bitactorID rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:MedicalDevice ;
+    rdfs:range xsd:string ;
+    rdfs:label "BitActor Instance ID"@en .
+
+health:processingLatency rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:VitalSign ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Processing Latency (nanoseconds)"@en .
+
+health:ticksUsed rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:VitalSign ;
+    rdfs:range xsd:integer ;
+    rdfs:label "CPU Ticks Used"@en .
+
+health:realTimeMonitoring rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:MonitoringDevice ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Real-time Monitoring Enabled"@en .
+
+health:alertResponseTime rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:MedicalAlert ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Alert Response Time (milliseconds)"@en .
+
+health:simdOptimized rdf:type owl:DatatypeProperty ;
+    rdfs:domain health:MonitoringDevice ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "SIMD Optimized Processing"@en .
+
+#####################################################################
+# Relationship Properties
+#####################################################################
+
+health:assignedTo rdf:type owl:ObjectProperty ;
+    rdfs:domain health:Patient ;
+    rdfs:range health:HealthcareProvider ;
+    rdfs:label "Assigned To Provider"@en .
+
+health:locatedIn rdf:type owl:ObjectProperty ;
+    rdfs:domain health:Patient ;
+    rdfs:range health:MedicalUnit ;
+    rdfs:label "Located In Unit"@en .
+
+health:monitoredBy rdf:type owl:ObjectProperty ;
+    rdfs:domain health:Patient ;
+    rdfs:range health:MonitoringDevice ;
+    rdfs:label "Monitored By Device"@en .
+
+health:measurementOf rdf:type owl:ObjectProperty ;
+    rdfs:domain health:VitalSign ;
+    rdfs:range health:Patient ;
+    rdfs:label "Measurement Of Patient"@en .
+
+health:generatedBy rdf:type owl:ObjectProperty ;
+    rdfs:domain health:VitalSign ;
+    rdfs:range health:MonitoringDevice ;
+    rdfs:label "Generated By Device"@en .
+
+health:triggeredBy rdf:type owl:ObjectProperty ;
+    rdfs:domain health:MedicalAlert ;
+    rdfs:range health:VitalSign ;
+    rdfs:label "Triggered By Vital Sign"@en .
+
+health:prescribedFor rdf:type owl:ObjectProperty ;
+    rdfs:domain health:Prescription ;
+    rdfs:range health:Patient ;
+    rdfs:label "Prescribed For Patient"@en .
+
+health:prescribedBy rdf:type owl:ObjectProperty ;
+    rdfs:domain health:Prescription ;
+    rdfs:range health:HealthcareProvider ;
+    rdfs:label "Prescribed By Provider"@en .
+
+health:administeredBy rdf:type owl:ObjectProperty ;
+    rdfs:domain health:Dosage ;
+    rdfs:range health:HealthcareProvider ;
+    rdfs:label "Administered By Provider"@en .
+
+health:diagnosedWith rdf:type owl:ObjectProperty ;
+    rdfs:domain health:Patient ;
+    rdfs:range health:MedicalCondition ;
+    rdfs:label "Diagnosed With Condition"@en .
+
+health:treatedWith rdf:type owl:ObjectProperty ;
+    rdfs:domain health:Patient ;
+    rdfs:range health:Treatment ;
+    rdfs:label "Treated With"@en .
+
+health:relatedTo rdf:type owl:ObjectProperty ;
+    rdfs:domain health:MedicalAlert ;
+    rdfs:range health:Patient ;
+    rdfs:label "Alert Related To Patient"@en .
+
+#####################################################################
+# Instances - Common Medical Equipment
+#####################################################################
+
+health:PhilipsIntelliVue rdf:type health:VitalSignsMonitor ;
+    health:deviceManufacturer "Philips Healthcare" ;
+    health:deviceModel "IntelliVue MX800" ;
+    health:measurementAccuracy 98.5 ;
+    health:samplingRate 125.0 ;
+    health:realTimeMonitoring true ;
+    health:simdOptimized true .
+
+health:MasimoPulseOx rdf:type health:PulseOximeter ;
+    health:deviceManufacturer "Masimo Corporation" ;
+    health:deviceModel "Radical-7" ;
+    health:measurementAccuracy 99.2 ;
+    health:samplingRate 50.0 ;
+    health:realTimeMonitoring true .
+
+health:WelchAllynVitalSigns rdf:type health:VitalSignsMonitor ;
+    health:deviceManufacturer "Welch Allyn" ;
+    health:deviceModel "Connex VSM 6000" ;
+    health:measurementAccuracy 97.8 ;
+    health:realTimeMonitoring true .
+
+health:BaxterInfusionPump rdf:type health:InfusionPump ;
+    health:deviceManufacturer "Baxter International" ;
+    health:deviceModel "SIGMA Spectrum" ;
+    health:deviceStatus "operational" .
+
+#####################################################################
+# Instances - Normal Vital Sign Ranges (Adult)
+#####################################################################
+
+health:NormalHeartRate rdf:type health:HeartRate ;
+    health:normalRangeLow 60.0 ;
+    health:normalRangeHigh 100.0 ;
+    health:criticalRangeLow 40.0 ;
+    health:criticalRangeHigh 150.0 ;
+    health:measurementUnit "bpm" .
+
+health:NormalBloodPressure rdf:type health:BloodPressure ;
+    health:normalRangeLow 90.0 ; # Systolic
+    health:normalRangeHigh 140.0 ;
+    health:criticalRangeLow 70.0 ;
+    health:criticalRangeHigh 180.0 ;
+    health:measurementUnit "mmHg" .
+
+health:NormalRespiratoryRate rdf:type health:RespiratoryRate ;
+    health:normalRangeLow 12.0 ;
+    health:normalRangeHigh 20.0 ;
+    health:criticalRangeLow 8.0 ;
+    health:criticalRangeHigh 30.0 ;
+    health:measurementUnit "breaths/min" .
+
+health:NormalBodyTemperature rdf:type health:BodyTemperature ;
+    health:normalRangeLow 36.1 ;
+    health:normalRangeHigh 37.2 ;
+    health:criticalRangeLow 35.0 ;
+    health:criticalRangeHigh 40.0 ;
+    health:measurementUnit "°C" .
+
+health:NormalOxygenSaturation rdf:type health:OxygenSaturation ;
+    health:normalRangeLow 95.0 ;
+    health:normalRangeHigh 100.0 ;
+    health:criticalRangeLow 88.0 ;
+    health:criticalRangeHigh 100.0 ;
+    health:measurementUnit "%" .
+
+health:NormalBloodGlucose rdf:type health:BloodGlucose ;
+    health:normalRangeLow 70.0 ;
+    health:normalRangeHigh 140.0 ;
+    health:criticalRangeLow 50.0 ;
+    health:criticalRangeHigh 400.0 ;
+    health:measurementUnit "mg/dL" .
+
+#####################################################################
+# Instances - Common Medical Conditions
+#####################################################################
+
+health:Type2Diabetes rdf:type health:Diabetes ;
+    rdfs:label "Type 2 Diabetes Mellitus" .
+
+health:EssentialHypertension rdf:type health:Hypertension ;
+    rdfs:label "Essential Hypertension" .
+
+health:AtrialFibrillation rdf:type health:Arrhythmia ;
+    rdfs:label "Atrial Fibrillation" .
+
+health:ChronicCOPD rdf:type health:COPD ;
+    rdfs:label "Chronic COPD" .
+
+#####################################################################
+# Instances - Healthcare Providers
+#####################################################################
+
+health:Cardiologist rdf:type health:Specialist ;
+    rdfs:label "Cardiologist" .
+
+health:ICUNurse rdf:type health:Nurse ;
+    rdfs:label "ICU Nurse" .
+
+health:RespiratoryTherapist rdf:type health:Technician ;
+    rdfs:label "Respiratory Therapist" .

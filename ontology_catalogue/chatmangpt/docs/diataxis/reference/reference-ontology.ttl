@@ -1,0 +1,1112 @@
+# =============================================================================
+# ChatmanGPT Reference Ontology
+# RDF model for YAWL 43 patterns, API endpoints, and port map
+# Generated from existing reference documentation via ggen Tera + RDF pipeline
+# =============================================================================
+
+@prefix ref: <https://chatmangpt.com/reference/> .
+@prefix doc: <https://ggen.dev/ontology/documentation#> .
+@prefix yawl: <http://unrdf.org/yawl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# Extension Classes
+# =============================================================================
+
+ref:YAWLPattern a rdfs:Class ;
+    rdfs:subClassOf doc:Reference ;
+    rdfs:label "YAWL Workflow Pattern" ;
+    rdfs:comment "One of the 43 YAWL workflow patterns from van der Aalst" .
+
+ref:APIEndpoint a rdfs:Class ;
+    rdfs:subClassOf doc:Reference ;
+    rdfs:label "API Endpoint" ;
+    rdfs:comment "An HTTP API endpoint across ChatmanGPT services" .
+
+ref:PortMapping a rdfs:Class ;
+    rdfs:subClassOf doc:Reference ;
+    rdfs:label "Port Mapping" ;
+    rdfs:comment "A service-to-port mapping in the ChatmanGPT stack" .
+
+# =============================================================================
+# Extension Properties
+# =============================================================================
+
+ref:patternId a rdf:Property ;
+    rdfs:domain ref:YAWLPattern ;
+    rdfs:range xsd:string ;
+    rdfs:label "patternId" ;
+    rdfs:comment "Canonical pattern identifier (e.g. '1.1')" .
+
+ref:category a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:label "category" ;
+    rdfs:comment "Pattern or endpoint category" .
+
+ref:implementationStatus a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:label "implementationStatus" ;
+    rdfs:comment "implemented, partial, planned" .
+
+ref:yawlNetStructure a rdf:Property ;
+    rdfs:domain ref:YAWLPattern ;
+    rdfs:range xsd:string ;
+    rdfs:label "yawlNetStructure" ;
+    rdfs:comment "YAWL net structure description" .
+
+ref:agentMapping a rdf:Property ;
+    rdfs:domain ref:YAWLPattern ;
+    rdfs:range xsd:string ;
+    rdfs:label "agentMapping" ;
+    rdfs:comment "How pattern maps to agent coordination" .
+
+ref:usedIn a rdf:Property ;
+    rdfs:domain ref:YAWLPattern ;
+    rdfs:range xsd:string ;
+    rdfs:label "usedIn" ;
+    rdfs:comment "Projects where pattern is used" .
+
+ref:relatedPattern a rdf:Property ;
+    rdfs:domain ref:YAWLPattern ;
+    rdfs:range ref:YAWLPattern ;
+    rdfs:label "relatedPattern" ;
+    rdfs:comment "Related YAWL pattern" .
+
+ref:httpMethod a rdf:Property ;
+    rdfs:domain ref:APIEndpoint ;
+    rdfs:range xsd:string ;
+    rdfs:label "httpMethod" ;
+    rdfs:comment "HTTP method: GET, POST, PUT, DELETE" .
+
+ref:basePath a rdf:Property ;
+    rdfs:domain ref:APIEndpoint ;
+    rdfs:range xsd:string ;
+    rdfs:label "basePath" ;
+    rdfs:comment "Base URL path for the service" .
+
+ref:path a rdf:Property ;
+    rdfs:domain ref:APIEndpoint ;
+    rdfs:range xsd:string ;
+    rdfs:label "path" ;
+    rdfs:comment "Endpoint path" .
+
+ref:auth a rdf:Property ;
+    rdfs:domain ref:APIEndpoint ;
+    rdfs:range xsd:string ;
+    rdfs:label "auth" ;
+    rdfs:comment "Authentication requirement" .
+
+ref:service a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:label "service" ;
+    rdfs:comment "Service name" .
+
+ref:port a rdf:Property ;
+    rdfs:domain ref:PortMapping ;
+    rdfs:range xsd:integer ;
+    rdfs:label "port" ;
+    rdfs:comment "Port number" .
+
+ref:protocol a rdf:Property ;
+    rdfs:domain ref:PortMapping ;
+    rdfs:range xsd:string ;
+    rdfs:label "protocol" ;
+    rdfs:comment "Protocol: HTTP, WebSocket, gRPC, PostgreSQL, Redis" .
+
+ref:healthEndpoint a rdf:Property ;
+    rdfs:domain ref:PortMapping ;
+    rdfs:range xsd:string ;
+    rdfs:label "healthEndpoint" ;
+    rdfs:comment "Health check URL" .
+
+ref:portRange a rdf:Property ;
+    rdfs:domain ref:PortMapping ;
+    rdfs:range xsd:string ;
+    rdfs:label "portRange" ;
+    rdfs:comment "Port allocation range description" .
+
+ref:codeExample a rdf:Property ;
+    rdfs:domain ref:APIEndpoint ;
+    rdfs:range xsd:string ;
+    rdfs:label "codeExample" ;
+    rdfs:comment "curl example for the endpoint" .
+
+# =============================================================================
+# YAWL 43 PATTERNS
+# =============================================================================
+
+# --- Category 1: Control Flow (20 patterns) ---
+
+ref:pattern-1-1 a ref:YAWLPattern ;
+    doc:title "Sequence" ;
+    doc:description "Tasks execute in order. One completes, next starts." ;
+    ref:patternId "1.1" ;
+    ref:category "Control Flow" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: tasks: [task1, task2, task3]; flow: sequence" ;
+    ref:agentMapping "Single agent with sequential steps, or handoffs between agents." ;
+    ref:usedIn "All feature workflows, deployment pipelines" ;
+    ref:relatedPattern ref:pattern-2-5 .
+
+ref:pattern-1-2 a ref:YAWLPattern ;
+    doc:title "Parallel Split" ;
+    doc:description "One task completes, multiple tasks start concurrently." ;
+    ref:patternId "1.2" ;
+    ref:category "Control Flow" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: split: { type: and, tasks: [task_a, task_b, task_c] }" ;
+    ref:agentMapping "Dispatcher activates multiple agents in parallel." ;
+    ref:usedIn "Code review (backend + frontend + security review in parallel)" ;
+    ref:relatedPattern ref:pattern-1-3 .
+
+ref:pattern-1-3 a ref:YAWLPattern ;
+    doc:title "Synchronization" ;
+    doc:description "Multiple concurrent tasks must all complete before next task starts." ;
+    ref:patternId "1.3" ;
+    ref:category "Control Flow" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: join: { type: and, tasks: [task_a, task_b, task_c], wait_for: all }" ;
+    ref:agentMapping "Coordinator waits for all agent confirmations." ;
+    ref:usedIn "QA approval (requires dev + QA + security approval)" ;
+    ref:relatedPattern ref:pattern-1-2 .
+
+ref:pattern-1-4 a ref:YAWLPattern ;
+    doc:title "Exclusive Choice (XOR Split)" ;
+    doc:description "One task completes, exactly one of multiple branches executes based on condition." ;
+    ref:patternId "1.4" ;
+    ref:category "Control Flow" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: split: { type: xor, branches: [{condition: priority == 'high', task: urgent_handler}, ...] }" ;
+    ref:agentMapping "Router activates one agent based on signal classification." ;
+    ref:usedIn "Signal routing (different agents for different signal types)" ;
+    ref:relatedPattern ref:pattern-1-5 .
+
+ref:pattern-1-5 a ref:YAWLPattern ;
+    doc:title "Simple Merge" ;
+    doc:description "Multiple branches converge without synchronization. First to arrive continues." ;
+    ref:patternId "1.5" ;
+    ref:category "Control Flow" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: join: { type: xor, tasks: [task_a, task_b], wait_for: first }" ;
+    ref:agentMapping "First agent to complete hands off to next phase." ;
+    ref:usedIn "Competitive task execution (first response wins)" ;
+    ref:relatedPattern ref:pattern-1-4 .
+
+ref:pattern-1-6 a ref:YAWLPattern ;
+    doc:title "Multi-Choice (OR Split)" ;
+    doc:description "One task completes, multiple (possibly all) branches execute based on conditions." ;
+    ref:patternId "1.6" ;
+    ref:category "Control Flow" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: split: { type: or, branches: [{condition: has_security_implications, task: security_review}, ...] }" ;
+    ref:agentMapping "Dispatcher activates agents based on multiple conditions." ;
+    ref:usedIn "Code review (only required reviewers activate)" ;
+    ref:relatedPattern ref:pattern-2-2 .
+
+ref:pattern-1-7 a ref:YAWLPattern ;
+    doc:title "Synchronizing Merge (OR Join)" ;
+    doc:description "Multiple branches converge. Wait for all active branches to complete." ;
+    ref:patternId "1.7" ;
+    ref:category "Control Flow" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: join: { type: or, wait_for: active }" ;
+    ref:agentMapping "Coordinator waits for all activated agents." ;
+    ref:usedIn "Dynamic review panels (all reviewers must approve)" ;
+    ref:relatedPattern ref:pattern-1-6 .
+
+ref:pattern-1-8 a ref:YAWLPattern ;
+    doc:title "Multi-Merge (N-out-of-M Join)" ;
+    doc:description "Multiple branches converge. Continue when M of N branches complete." ;
+    ref:patternId "1.8" ;
+    ref:category "Control Flow" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: join: { type: n_of_m, threshold: 2, of: 3 }" ;
+    ref:agentMapping "Continue when quorum reached." ;
+    ref:usedIn "Approval workflows (2 of 3 approvals required)" ;
+    ref:relatedPattern ref:pattern-1-7 .
+
+ref:pattern-1-9 a ref:YAWLPattern ;
+    doc:title "Discriminator" ;
+    doc:description "Wait for first N of M branches to complete, then ignore remaining." ;
+    ref:patternId "1.9" ;
+    ref:category "Control Flow" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: join: { type: discriminator, wait_for: first, count: 1, ignore_rest: true }" ;
+    ref:agentMapping "First responder wins, others cancelled." ;
+    ref:usedIn "Competitive bidding, parallel research" ;
+    ref:relatedPattern ref:pattern-1-8 .
+
+ref:pattern-1-10 a ref:YAWLPattern ;
+    doc:title "Arbitrary Cycles" ;
+    doc:description "Tasks can loop back to earlier tasks (with soundness guarantees)." ;
+    ref:patternId "1.10" ;
+    ref:category "Control Flow" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: loop: { while: not_approved, do: review_and_fix, max_iterations: 3 }" ;
+    ref:agentMapping "Retry loop with escalation." ;
+    ref:usedIn "QA rejection cycles (max 3 retries)" ;
+    ref:relatedPattern ref:pattern-1-1 .
+
+ref:pattern-1-11 a ref:YAWLPattern ;
+    doc:title "Implicit Termination" ;
+    doc:description "Workflow terminates when no tasks are active or enabled." ;
+    ref:patternId "1.11" ;
+    ref:category "Control Flow" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: termination: implicit, when: no_active_tasks" ;
+    ref:agentMapping "Operation completes when all work done." ;
+    ref:usedIn "Background processing, batch jobs" ;
+    ref:relatedPattern ref:pattern-1-10 .
+
+ref:pattern-1-12 a ref:YAWLPattern ;
+    doc:title "Multiple Instances (Without Synchronization)" ;
+    doc:description "Create multiple instances of a task. No synchronization needed." ;
+    ref:patternId "1.12" ;
+    ref:category "Control Flow" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: task: { type: multiple_instances, create: for_each_item, sync: none }" ;
+    ref:agentMapping "Spawn agents for each item, no coordination." ;
+    ref:usedIn "Bulk processing (generate docs for 10 projects)" ;
+    ref:relatedPattern ref:pattern-4-1 .
+
+ref:pattern-1-13 a ref:YAWLPattern ;
+    doc:title "Multiple Instances (With Prior Synchronization)" ;
+    doc:description "Create multiple instances after synchronizing a prior join." ;
+    ref:patternId "1.13" ;
+    ref:category "Control Flow" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: join: { type: and }, then: { type: multiple_instances, create: for_each_item }" ;
+    ref:agentMapping "Synchronize first, then spawn parallel agents." ;
+    ref:usedIn "Post-approval parallel processing" ;
+    ref:relatedPattern ref:pattern-1-12 .
+
+ref:pattern-1-14 a ref:YAWLPattern ;
+    doc:title "Multiple Instances (With Post-Synchronization)" ;
+    doc:description "Synchronize after multiple instances complete." ;
+    ref:patternId "1.14" ;
+    ref:category "Control Flow" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: { type: multiple_instances, sync: all }" ;
+    ref:agentMapping "Spawn agents, wait for all to complete." ;
+    ref:usedIn "Parallel test execution (wait for all tests)" ;
+    ref:relatedPattern ref:pattern-4-4 .
+
+ref:pattern-1-15 a ref:YAWLPattern ;
+    doc:title "Multiple Instances (With Prior and Post-Synchronization)" ;
+    doc:description "Synchronize before and after multiple instances." ;
+    ref:patternId "1.15" ;
+    ref:category "Control Flow" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: join: { type: and }, then: { type: multiple_instances }, sync: all" ;
+    ref:agentMapping "Synchronize, spawn, synchronize again." ;
+    ref:usedIn "Structured parallel review cycles" ;
+    ref:relatedPattern ref:pattern-1-13 .
+
+ref:pattern-1-16 a ref:YAWLPattern ;
+    doc:title "Deferred Choice" ;
+    doc:description "Multiple tasks are enabled. Choice is made at runtime based on which task completes first or external event." ;
+    ref:patternId "1.16" ;
+    ref:category "Control Flow" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: choice: { type: deferred, options: [{task: manual_review, trigger: human_intervention}, {task: auto_approve, trigger: timeout}] }" ;
+    ref:agentMapping "System chooses path based on events." ;
+    ref:usedIn "Approval workflows (auto-approve if no objection in 24h)" ;
+    ref:relatedPattern ref:pattern-5-1 .
+
+ref:pattern-1-17 a ref:YAWLPattern ;
+    doc:title "Interleaved Parallel Routing" ;
+    doc:description "Multiple instances of a task execute in parallel with interleaving." ;
+    ref:patternId "1.17" ;
+    ref:category "Control Flow" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: parallel: { type: interleaved, instances: [instance_a, instance_b, instance_c] }" ;
+    ref:agentMapping "Agents work in parallel, can take turns." ;
+    ref:usedIn "Round-robin task distribution" ;
+    ref:relatedPattern ref:pattern-3-1 .
+
+ref:pattern-1-18 a ref:YAWLPattern ;
+    doc:title "Milestone" ;
+    doc:description "Task can only execute if milestone reached. Once milestone passed, task can no longer execute." ;
+    ref:patternId "1.18" ;
+    ref:category "Control Flow" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: milestone: { after: phase_1_complete, enables: [task_a, task_b], disables_after: phase_2_starts }" ;
+    ref:agentMapping "Tasks only available in certain phases." ;
+    ref:usedIn "Feature windows (bugs only accepted in freeze period)" ;
+    ref:relatedPattern ref:pattern-1-16 .
+
+ref:pattern-1-19 a ref:YAWLPattern ;
+    doc:title "Cancel Activity" ;
+    doc:description "Running task can be cancelled by external event." ;
+    ref:patternId "1.19" ;
+    ref:category "Control Flow" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: task: { cancellable: true, on_cancel: cleanup }" ;
+    ref:agentMapping "Agent can be interrupted and cleaned up." ;
+    ref:usedIn "Emergency stops, cancelled deployments" ;
+    ref:relatedPattern ref:pattern-5-3 .
+
+ref:pattern-1-20 a ref:YAWLPattern ;
+    doc:title "Close Multiple Instances" ;
+    doc:description "Complete or cancel all remaining instances of a multiple-instance task." ;
+    ref:patternId "1.20" ;
+    ref:category "Control Flow" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: instances: { close_remaining_when: condition_met }" ;
+    ref:agentMapping "Signal all agents to complete or cancel." ;
+    ref:usedIn "Early completion of parallel reviews" ;
+    ref:relatedPattern ref:pattern-5-2 .
+
+# --- Category 2: Advanced Branching and Synchronization (7 patterns) ---
+
+ref:pattern-2-1 a ref:YAWLPattern ;
+    doc:title "Structured Discriminator" ;
+    doc:description "Discriminator within a structured block (soundness-preserving)." ;
+    ref:patternId "2.1" ;
+    ref:category "Advanced Branching" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: join: { type: discriminator, within: structured_block, count: 1 }" ;
+    ref:agentMapping "First agent completes within a bounded scope, others cancelled." ;
+    ref:usedIn "Structured competitive task execution" ;
+    ref:relatedPattern ref:pattern-1-9 .
+
+ref:pattern-2-2 a ref:YAWLPattern ;
+    doc:title "Cancelling Discriminator" ;
+    doc:description "Discriminator that cancels remaining branches on first completion." ;
+    ref:patternId "2.2" ;
+    ref:category "Advanced Branching" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: join: { type: discriminator, cancel_rest: true }" ;
+    ref:agentMapping "First responder wins, remaining agents terminated." ;
+    ref:usedIn "Priority-based routing with cancellation" ;
+    ref:relatedPattern ref:pattern-2-1 .
+
+ref:pattern-2-3 a ref:YAWLPattern ;
+    doc:title "Cancelling Partial Join" ;
+    doc:description "N-of-M join that cancels remaining branches when threshold reached." ;
+    ref:patternId "2.3" ;
+    ref:category "Advanced Branching" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: join: { type: n_of_m, threshold: 2, of: 3, cancel_rest: true }" ;
+    ref:agentMapping "Quorum reached, remaining agents cancelled." ;
+    ref:usedIn "Distributed voting with early termination" ;
+    ref:relatedPattern ref:pattern-1-8 .
+
+ref:pattern-2-4 a ref:YAWLPattern ;
+    doc:title "Generalized AND-Join (OR-Join)" ;
+    doc:description "Join that synchronizes on the set of active branches at runtime." ;
+    ref:patternId "2.4" ;
+    ref:category "Advanced Branching" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: join: { type: or_join, wait_for: active_branches }" ;
+    ref:agentMapping "Coordinator tracks which branches were activated and waits." ;
+    ref:usedIn "Dynamic multi-path synchronization" ;
+    ref:relatedPattern ref:pattern-1-7 .
+
+ref:pattern-2-5 a ref:YAWLPattern ;
+    doc:title "Recurring Sequence" ;
+    doc:description "Sequence of tasks that repeats on a schedule or trigger." ;
+    ref:patternId "2.5" ;
+    ref:category "Advanced Branching" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: sequence: { tasks: [task1, task2, task3], repeat: { every: '24h', until: cancelled } }" ;
+    ref:agentMapping "Agent loop with scheduled repetition." ;
+    ref:usedIn "Nightly builds, periodic health checks" ;
+    ref:relatedPattern ref:pattern-1-10 .
+
+ref:pattern-2-6 a ref:YAWLPattern ;
+    doc:title "Recurring Parallel" ;
+    doc:description "Parallel split that repeats on a schedule." ;
+    ref:patternId "2.6" ;
+    ref:category "Advanced Branching" ;
+    ref:implementationStatus "partial" ;
+    ref:yawlNetStructure "workflow: split: { type: and, tasks: [task_a, task_b], repeat: { every: '1h' } }" ;
+    ref:agentMapping "Periodic parallel agent dispatch." ;
+    ref:usedIn "Hourly multi-system health probes" ;
+    ref:relatedPattern ref:pattern-2-5 .
+
+ref:pattern-2-7 a ref:YAWLPattern ;
+    doc:title "Recurring Discriminator" ;
+    doc:description "Discriminator pattern that repeats on a schedule." ;
+    ref:patternId "2.7" ;
+    ref:category "Advanced Branching" ;
+    ref:implementationStatus "partial" ;
+    ref:yawlNetStructure "workflow: join: { type: discriminator, repeat: { every: '30m' } }" ;
+    ref:agentMapping "Periodic first-responder-wins dispatch." ;
+    ref:usedIn "Load balancing with periodic reassignment" ;
+    ref:relatedPattern ref:pattern-2-1 .
+
+# --- Category 3: Structural Patterns (5 patterns) ---
+
+ref:pattern-3-1 a ref:YAWLPattern ;
+    doc:title "Arbitrary Interleaving" ;
+    doc:description "Tasks from different branches can interleave arbitrarily." ;
+    ref:patternId "3.1" ;
+    ref:category "Structural" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: branches: [{branch_a: [task_a1, task_a2]}, {branch_b: [task_b1, task_b2]}]; interleaving: arbitrary" ;
+    ref:agentMapping "Agents work independently, no order constraint." ;
+    ref:usedIn "Research + implementation in parallel" ;
+    ref:relatedPattern ref:pattern-1-17 .
+
+ref:pattern-3-2 a ref:YAWLPattern ;
+    doc:title "Structured Partial Join" ;
+    doc:description "Partial join within a structured block (soundness-preserving)." ;
+    ref:patternId "3.2" ;
+    ref:category "Structural" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: join: { type: n_of_m, within: structured_block, threshold: 2, of: 3 }" ;
+    ref:agentMapping "Quorum within a bounded scope." ;
+    ref:usedIn "Partial approvals within a phase" ;
+    ref:relatedPattern ref:pattern-2-3 .
+
+ref:pattern-3-3 a ref:YAWLPattern ;
+    doc:title "Structured OR-Join" ;
+    doc:description "OR-Join within a structured block." ;
+    ref:patternId "3.3" ;
+    ref:category "Structural" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: join: { type: or_join, within: structured_block }" ;
+    ref:agentMapping "Dynamic synchronization within bounded scope." ;
+    ref:usedIn "Phase-gated multi-path workflows" ;
+    ref:relatedPattern ref:pattern-2-4 .
+
+ref:pattern-3-4 a ref:YAWLPattern ;
+    doc:title "Structured Loop Region" ;
+    doc:description "Loop within a structured block with guaranteed termination." ;
+    ref:patternId "3.4" ;
+    ref:category "Structural" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: loop: { while: condition, do: [task_a, task_b], max_iterations: 10, within: structured_block }" ;
+    ref:agentMapping "Bounded retry within a workflow phase." ;
+    ref:usedIn "Iterative refinement loops" ;
+    ref:relatedPattern ref:pattern-1-10 .
+
+ref:pattern-3-5 a ref:YAWLPattern ;
+    doc:title "Thread Split" ;
+    doc:description "Single thread splits into multiple independent threads." ;
+    ref:patternId "3.5" ;
+    ref:category "Structural" ;
+    ref:implementationStatus "partial" ;
+    ref:yawlNetStructure "workflow: split: { type: thread, threads: [thread_a, thread_b, thread_c] }" ;
+    ref:agentMapping "Spawn independent agent threads." ;
+    ref:usedIn "Long-running independent processes" ;
+    ref:relatedPattern ref:pattern-1-2 .
+
+# --- Category 4: Multiple Instance Patterns (6 patterns) ---
+
+ref:pattern-4-1 a ref:YAWLPattern ;
+    doc:title "Multiple Instances (With Design Time Knowledge)" ;
+    doc:description "Number of instances known at design time." ;
+    ref:patternId "4.1" ;
+    ref:category "Multiple Instance" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: instances: { count: 3, tasks: [task_a, task_b, task_c] }" ;
+    ref:agentMapping "Fixed number of agents for known tasks." ;
+    ref:usedIn "Three-stage review (dev, QA, security)" ;
+    ref:relatedPattern ref:pattern-4-2 .
+
+ref:pattern-4-2 a ref:YAWLPattern ;
+    doc:title "Multiple Instances (With Runtime Knowledge)" ;
+    doc:description "Number of instances known at runtime." ;
+    ref:patternId "4.2" ;
+    ref:category "Multiple Instance" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: instances: { count: from_data, source: num_reviewers }" ;
+    ref:agentMapping "Dynamic number of agents based on data." ;
+    ref:usedIn "Review panel size based on PR complexity" ;
+    ref:relatedPattern ref:pattern-4-3 .
+
+ref:pattern-4-3 a ref:YAWLPattern ;
+    doc:title "Multiple Instances (Without Runtime Knowledge)" ;
+    doc:description "Create instances until condition met." ;
+    ref:patternId "4.3" ;
+    ref:category "Multiple Instance" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: instances: { create: until, condition: all_items_processed }" ;
+    ref:agentMapping "Spawn agents as needed until work done." ;
+    ref:usedIn "Queue processing, crawling" ;
+    ref:relatedPattern ref:pattern-4-2 .
+
+ref:pattern-4-4 a ref:YAWLPattern ;
+    doc:title "Synchronizing Multiple Instances" ;
+    doc:description "Wait for all instances to complete." ;
+    ref:patternId "4.4" ;
+    ref:category "Multiple Instance" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: instances: { sync: all }" ;
+    ref:agentMapping "Coordinator waits for all agents." ;
+    ref:usedIn "Parallel test execution (wait for all tests)" ;
+    ref:relatedPattern ref:pattern-4-5 .
+
+ref:pattern-4-5 a ref:YAWLPattern ;
+    doc:title "Partial Synchronization of Multiple Instances" ;
+    doc:description "Continue when quorum of instances complete." ;
+    ref:patternId "4.5" ;
+    ref:category "Multiple Instance" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: instances: { sync: quorum, threshold: 0.6 }" ;
+    ref:agentMapping "Continue when majority done." ;
+    ref:usedIn "Distributed consensus, voting" ;
+    ref:relatedPattern ref:pattern-4-4 .
+
+ref:pattern-4-6 a ref:YAWLPattern ;
+    doc:title "Multiple Instances With Priori Design Time Knowledge" ;
+    doc:description "Instances created at design time with static configuration." ;
+    ref:patternId "4.6" ;
+    ref:category "Multiple Instance" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: instances: { type: static, configs: [{id: inst_a, config: config_a}, {id: inst_b, config: config_b}] }" ;
+    ref:agentMapping "Pre-configured agents for known roles." ;
+    ref:usedIn "Fixed team structure (architect, builder, reviewer)" ;
+    ref:relatedPattern ref:pattern-4-1 .
+
+# --- Category 5: State-Based Patterns (5 patterns) ---
+
+ref:pattern-5-1 a ref:YAWLPattern ;
+    doc:title "Deferred Choice with State" ;
+    doc:description "Choice deferred until state condition met." ;
+    ref:patternId "5.1" ;
+    ref:category "State-Based" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: choice: { type: state_based, conditions: [{state: approval_granted, task: proceed}, {state: approval_denied, task: terminate}] }" ;
+    ref:agentMapping "Router checks state before activating agent." ;
+    ref:usedIn "Approval workflows (wait for board decision)" ;
+    ref:relatedPattern ref:pattern-1-16 .
+
+ref:pattern-5-2 a ref:YAWLPattern ;
+    doc:title "Cancelling Multiple Instances" ;
+    doc:description "Cancel all instances when condition met." ;
+    ref:patternId "5.2" ;
+    ref:category "State-Based" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: instances: { cancel_all_when: emergency_stop }" ;
+    ref:agentMapping "Emergency stop terminates all agents." ;
+    ref:usedIn "Incident response, rollbacks" ;
+    ref:relatedPattern ref:pattern-5-3 .
+
+ref:pattern-5-3 a ref:YAWLPattern ;
+    doc:title "Cancel Region" ;
+    doc:description "Cancel all tasks in a region." ;
+    ref:patternId "5.3" ;
+    ref:category "State-Based" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: region: { id: deployment_region, tasks: [task_a, task_b, task_c], cancel_when: deployment_failed }" ;
+    ref:agentMapping "Region failure cancels all related agents." ;
+    ref:usedIn "Deployment pipelines (failed stage stops all)" ;
+    ref:relatedPattern ref:pattern-5-4 .
+
+ref:pattern-5-4 a ref:YAWLPattern ;
+    doc:title "Cancel Case" ;
+    doc:description "Cancel entire workflow case." ;
+    ref:patternId "5.4" ;
+    ref:category "State-Based" ;
+    ref:implementationStatus "implemented" ;
+    ref:yawlNetStructure "workflow: cancel_case_when: critical_failure" ;
+    ref:agentMapping "Critical failure terminates entire operation." ;
+    ref:usedIn "Transaction rollback, failed operations" ;
+    ref:relatedPattern ref:pattern-5-3 .
+
+ref:pattern-5-5 a ref:YAWLPattern ;
+    doc:title "Recursion" ;
+    doc:description "Workflow can invoke itself." ;
+    ref:patternId "5.5" ;
+    ref:category "State-Based" ;
+    ref:implementationStatus "partial" ;
+    ref:yawlNetStructure "workflow: recursive: { call: self, until: base_condition }" ;
+    ref:agentMapping "Agent invokes workflow recursively." ;
+    ref:usedIn "Hierarchical processing, tree traversal" ;
+    ref:relatedPattern ref:pattern-1-10 .
+
+# =============================================================================
+# PORT MAP
+# =============================================================================
+
+ref:port-pm4py-rust a ref:PortMapping ;
+    doc:title "pm4py-rust" ;
+    doc:description "Process mining engine (Rust core, PyO3 bindings)" ;
+    ref:service "pm4py-rust" ;
+    ref:port 8090 ;
+    ref:protocol "HTTP" ;
+    ref:healthEndpoint "http://localhost:8090/health" ;
+    ref:portRange "8000-8099 (API services)" ;
+    ref:usedIn "Process mining API, algorithm execution" .
+
+ref:port-businessos-backend a ref:PortMapping ;
+    doc:title "BusinessOS Backend" ;
+    doc:description "REST API, compliance rule engine, A2A coordination hub" ;
+    ref:service "BusinessOS" ;
+    ref:port 8001 ;
+    ref:protocol "HTTP (Go/Gin)" ;
+    ref:healthEndpoint "http://localhost:8001/health" ;
+    ref:portRange "8000-8099 (API services)" ;
+    ref:usedIn "REST API, compliance rules, A2A coordination" .
+
+ref:port-businessos-frontend a ref:PortMapping ;
+    doc:title "BusinessOS Frontend" ;
+    doc:description "Web UI (dev mode only; prod uses Electron)" ;
+    ref:service "BusinessOS" ;
+    ref:port 5173 ;
+    ref:protocol "HTTP (SvelteKit dev)" ;
+    ref:portRange "5000-5299 (Frontend dev servers)" ;
+    ref:usedIn "Web UI development" .
+
+ref:port-postgresql a ref:PortMapping ;
+    doc:title "BusinessOS PostgreSQL" ;
+    doc:description "Transactional data (users, deals, logs)" ;
+    ref:service "BusinessOS" ;
+    ref:port 5432 ;
+    ref:protocol "PostgreSQL" ;
+    ref:healthEndpoint "psql postgres://localhost:5432/businessos" ;
+    ref:portRange "5400-5499 (Databases)" ;
+    ref:usedIn "Transactional storage" .
+
+ref:port-redis a ref:PortMapping ;
+    doc:title "BusinessOS Redis" ;
+    doc:description "Caching layer for BusinessOS" ;
+    ref:service "BusinessOS" ;
+    ref:port 6379 ;
+    ref:protocol "Redis" ;
+    ref:healthEndpoint "redis-cli -p 6379 PING" ;
+    ref:portRange "6300-6399 (Caches)" ;
+    ref:usedIn "Session cache, deal cache, compliance cache" .
+
+ref:port-canopy-backend a ref:PortMapping ;
+    doc:title "Canopy Backend" ;
+    doc:description "Workspace protocol, heartbeat dispatch, agent templates" ;
+    ref:service "Canopy" ;
+    ref:port 9089 ;
+    ref:protocol "HTTP (Phoenix)" ;
+    ref:healthEndpoint "http://localhost:9089/api/health" ;
+    ref:portRange "9000-9099 (Workspace services)" ;
+    ref:usedIn "Workspace protocol, heartbeat dispatch, A2A sender" .
+
+ref:port-canopy-desktop a ref:PortMapping ;
+    doc:title "Canopy Desktop" ;
+    doc:description "Desktop workspace UI (dev mode; prod uses Tauri)" ;
+    ref:service "Canopy" ;
+    ref:port 5200 ;
+    ref:protocol "HTTP (SvelteKit dev)" ;
+    ref:portRange "5000-5299 (Frontend dev servers)" ;
+    ref:usedIn "Desktop UI development" .
+
+ref:port-osa a ref:PortMapping ;
+    doc:title "OSA" ;
+    doc:description "Multi-agent orchestration, healing diagnosis, A2A receiver" ;
+    ref:service "OSA" ;
+    ref:port 8089 ;
+    ref:protocol "HTTP + WebSocket" ;
+    ref:healthEndpoint "http://localhost:8089/health" ;
+    ref:portRange "8000-8099 (API services)" ;
+    ref:usedIn "Multi-agent orchestration, healing, A2A receiver" .
+
+ref:port-jaeger-ui a ref:PortMapping ;
+    doc:title "Jaeger Tracing UI" ;
+    doc:description "OTEL span visualization (read-only)" ;
+    ref:service "Jaeger" ;
+    ref:port 16686 ;
+    ref:protocol "HTTP (UI)" ;
+    ref:healthEndpoint "http://localhost:16686/api/services" ;
+    ref:portRange "16000+ (Observability)" ;
+    ref:usedIn "OTEL span visualization, Evidence-Based Verification" .
+
+ref:port-jaeger-collector a ref:PortMapping ;
+    doc:title "Jaeger Collector" ;
+    doc:description "OTEL span ingestion (internal)" ;
+    ref:service "Jaeger" ;
+    ref:port 4317 ;
+    ref:protocol "gRPC" ;
+    ref:portRange "16000+ (Observability)" ;
+    ref:usedIn "OTEL span ingestion from all services" .
+
+ref:port-yawl-engine a ref:PortMapping ;
+    doc:title "YAWL v6 Engine" ;
+    doc:description "YAWL workflow engine (Tomcat WAR)" ;
+    ref:service "YAWL" ;
+    ref:port 8080 ;
+    ref:protocol "HTTP (Java/Tomcat)" ;
+    ref:healthEndpoint "http://localhost:8080/yawl/health.jsp" ;
+    ref:portRange "8000-8099 (API services)" ;
+    ref:usedIn "YAWL workflow execution, WCP pattern mining" .
+
+# =============================================================================
+# API ENDPOINTS (OSA)
+# =============================================================================
+
+ref:osa-orchestrate a ref:APIEndpoint ;
+    doc:title "POST /orchestrate" ;
+    doc:description "Send message to agent loop" ;
+    ref:service "OSA" ;
+    ref:httpMethod "POST" ;
+    ref:basePath "http://localhost:8089/api/v1" ;
+    ref:path "/orchestrate" ;
+    ref:auth "Optional" ;
+    ref:category "Orchestration" ;
+    doc:hasSignature "POST /api/v1/orchestrate { input, session_id, working_dir }" ;
+    doc:hasReturnValue "202 Accepted: { status, session_id, message }" ;
+    ref:codeExample "curl -s -X POST http://localhost:8089/api/v1/orchestrate -H 'Content-Type: application/json' -d '{\"input\": \"Build a REST API\", \"session_id\": \"session-123\"}'" .
+
+ref:osa-orchestrate-complex a ref:APIEndpoint ;
+    doc:title "POST /orchestrate/complex" ;
+    doc:description "Multi-agent orchestration" ;
+    ref:service "OSA" ;
+    ref:httpMethod "POST" ;
+    ref:basePath "http://localhost:8089/api/v1" ;
+    ref:path "/orchestrate/complex" ;
+    ref:auth "Optional" ;
+    ref:category "Orchestration" ;
+    doc:hasSignature "POST /api/v1/orchestrate/complex { task, pattern, session_id }" ;
+    doc:hasReturnValue "202 Accepted: { status, session_id }" ;
+    ref:codeExample "curl -s -X POST http://localhost:8089/api/v1/orchestrate/complex -H 'Content-Type: application/json' -d '{\"task\": \"Analyze codebase\", \"pattern\": \"parallel\"}'" .
+
+ref:osa-swarm-launch a ref:APIEndpoint ;
+    doc:title "POST /swarm/launch" ;
+    doc:description "Launch a swarm of agents" ;
+    ref:service "OSA" ;
+    ref:httpMethod "POST" ;
+    ref:basePath "http://localhost:8089/api/v1" ;
+    ref:path "/swarm/launch" ;
+    ref:auth "Optional" ;
+    ref:category "Swarm" ;
+    doc:hasSignature "POST /api/v1/swarm/launch { task, pattern, session_id }" ;
+    doc:hasReturnValue "202 Accepted: { swarm_id, status }" ;
+    ref:codeExample "curl -s -X POST http://localhost:8089/api/v1/swarm/launch -H 'Content-Type: application/json' -d '{\"task\": \"Security audit\", \"pattern\": \"parallel\"}'" .
+
+ref:osa-sessions-list a ref:APIEndpoint ;
+    doc:title "GET /sessions" ;
+    doc:description "List sessions (paginated)" ;
+    ref:service "OSA" ;
+    ref:httpMethod "GET" ;
+    ref:basePath "http://localhost:8089/api/v1" ;
+    ref:path "/sessions" ;
+    ref:auth "Optional" ;
+    ref:category "Sessions" ;
+    doc:hasSignature "GET /api/v1/sessions" ;
+    doc:hasReturnValue "200 OK: { sessions: [...] }" ;
+    ref:codeExample "curl -s http://localhost:8089/api/v1/sessions" .
+
+ref:osa-session-create a ref:APIEndpoint ;
+    doc:title "POST /sessions" ;
+    doc:description "Create a new session" ;
+    ref:service "OSA" ;
+    ref:httpMethod "POST" ;
+    ref:basePath "http://localhost:8089/api/v1" ;
+    ref:path "/sessions" ;
+    ref:auth "Optional" ;
+    ref:category "Sessions" ;
+    doc:hasSignature "POST /api/v1/sessions" ;
+    doc:hasReturnValue "201 Created: { id, session }" ;
+    ref:codeExample "curl -s -X POST http://localhost:8089/api/v1/sessions -H 'Content-Type: application/json' -d '{}'" .
+
+ref:osa-session-stream a ref:APIEndpoint ;
+    doc:title "GET /sessions/:id/stream" ;
+    doc:description "SSE event stream for session" ;
+    ref:service "OSA" ;
+    ref:httpMethod "GET" ;
+    ref:basePath "http://localhost:8089/api/v1" ;
+    ref:path "/sessions/:id/stream" ;
+    ref:auth "Optional" ;
+    ref:category "Streaming" ;
+    doc:hasSignature "GET /api/v1/sessions/:id/stream" ;
+    doc:hasReturnValue "200 OK: text/event-stream" ;
+    ref:codeExample "curl -s http://localhost:8089/api/v1/sessions/session-123/stream" .
+
+ref:osa-a2a-agent-card a ref:APIEndpoint ;
+    doc:title "GET /a2a/agent-card" ;
+    doc:description "OSA's A2A agent capability card" ;
+    ref:service "OSA" ;
+    ref:httpMethod "GET" ;
+    ref:basePath "http://localhost:8089/api/v1" ;
+    ref:path "/a2a/agent-card" ;
+    ref:auth "None" ;
+    ref:category "A2A" ;
+    doc:hasSignature "GET /api/v1/a2a/agent-card" ;
+    doc:hasReturnValue "200 OK: { name, capabilities, input_schema }" ;
+    ref:codeExample "curl -s http://localhost:8089/api/v1/a2a/agent-card" .
+
+ref:osa-a2a-post a ref:APIEndpoint ;
+    doc:title "POST /a2a" ;
+    doc:description "A2A JSON-RPC endpoint (task creation or method call)" ;
+    ref:service "OSA" ;
+    ref:httpMethod "POST" ;
+    ref:basePath "http://localhost:8089/api/v1" ;
+    ref:path "/a2a" ;
+    ref:auth "None" ;
+    ref:category "A2A" ;
+    doc:hasSignature "POST /api/v1/a2a { message, context?, priority? } or { jsonrpc, id, method, params }" ;
+    doc:hasReturnValue "202 Accepted: { task_id, status, stream_url }" ;
+    ref:codeExample "curl -s -X POST http://localhost:8089/api/v1/a2a -H 'Content-Type: application/json' -d '{\"message\": \"Analyze performance\"}'" .
+
+ref:osa-a2a-tools a ref:APIEndpoint ;
+    doc:title "GET /a2a/tools" ;
+    doc:description "List all tools available via A2A (built-in + MCP)" ;
+    ref:service "OSA" ;
+    ref:httpMethod "GET" ;
+    ref:basePath "http://localhost:8089/api/v1" ;
+    ref:path "/a2a/tools" ;
+    ref:auth "None" ;
+    ref:category "A2A" ;
+    doc:hasSignature "GET /api/v1/a2a/tools" ;
+    doc:hasReturnValue "200 OK: { tools: [...] }" ;
+    ref:codeExample "curl -s http://localhost:8089/api/v1/a2a/tools" .
+
+ref:osa-a2a-servers a ref:APIEndpoint ;
+    doc:title "GET /a2a/servers" ;
+    doc:description "List connected MCP servers and their tools" ;
+    ref:service "OSA" ;
+    ref:httpMethod "GET" ;
+    ref:basePath "http://localhost:8089/api/v1" ;
+    ref:path "/a2a/servers" ;
+    ref:auth "None" ;
+    ref:category "A2A" ;
+    doc:hasSignature "GET /api/v1/a2a/servers" ;
+    doc:hasReturnValue "200 OK: { servers: [...] }" ;
+    ref:codeExample "curl -s http://localhost:8089/api/v1/a2a/servers" .
+
+ref:osa-process-fingerprint a ref:APIEndpoint ;
+    doc:title "POST /process/fingerprint" ;
+    doc:description "Extract process fingerprint from event log" ;
+    ref:service "OSA" ;
+    ref:httpMethod "POST" ;
+    ref:basePath "http://localhost:8089/api/v1" ;
+    ref:path "/process/fingerprint" ;
+    ref:auth "Optional" ;
+    ref:category "Process Intelligence" ;
+    doc:hasSignature "POST /api/v1/process/fingerprint { event_log }" ;
+    doc:hasReturnValue "200 OK: { fingerprint_id, patterns, metrics }" ;
+    ref:codeExample "curl -s -X POST http://localhost:8089/api/v1/process/fingerprint -H 'Content-Type: application/json' -d '{\"event_log\": [...]}'" .
+
+ref:osa-marketplace-publish a ref:APIEndpoint ;
+    doc:title "POST /marketplace/publish" ;
+    doc:description "Publish a skill to the marketplace" ;
+    ref:service "OSA" ;
+    ref:httpMethod "POST" ;
+    ref:basePath "http://localhost:8089/api/v1" ;
+    ref:path "/marketplace/publish" ;
+    ref:auth "Optional" ;
+    ref:category "Marketplace" ;
+    doc:hasSignature "POST /api/v1/marketplace/publish { skill }" ;
+    doc:hasReturnValue "201 Created: { skill_id, status }" ;
+    ref:codeExample "curl -s -X POST http://localhost:8089/api/v1/marketplace/publish -H 'Content-Type: application/json' -d '{\"skill\": {...}}'" .
+
+ref:osa-verify-workflow a ref:APIEndpoint ;
+    doc:title "POST /verify/workflow" ;
+    doc:description "Verify a single workflow (YAWL, BPMN, markdown)" ;
+    ref:service "OSA" ;
+    ref:httpMethod "POST" ;
+    ref:basePath "http://localhost:8089/api/v1" ;
+    ref:path "/verify/workflow" ;
+    ref:auth "Optional" ;
+    ref:category "Verification" ;
+    doc:hasSignature "POST /api/v1/verify/workflow { workflow, format }" ;
+    doc:hasReturnValue "200 OK: { certificate_id, sound, valid }" ;
+    ref:codeExample "curl -s -X POST http://localhost:8089/api/v1/verify/workflow -H 'Content-Type: application/json' -d '{\"workflow\": \"...\", \"format\": \"yawl\"}'" .
+
+ref:osa-audit-trail a ref:APIEndpoint ;
+    doc:title "GET /audit-trail/:session_id" ;
+    doc:description "Full hash chain for session" ;
+    ref:service "OSA" ;
+    ref:httpMethod "GET" ;
+    ref:basePath "http://localhost:8089/api/v1" ;
+    ref:path "/audit-trail/:session_id" ;
+    ref:auth "Optional" ;
+    ref:category "Audit" ;
+    doc:hasSignature "GET /api/v1/audit-trail/:session_id" ;
+    doc:hasReturnValue "200 OK: { chain: [...], merkle_root }" ;
+    ref:codeExample "curl -s http://localhost:8089/api/v1/audit-trail/session-123" .
+
+# =============================================================================
+# API ENDPOINTS (BusinessOS)
+# =============================================================================
+
+ref:bos-a2a-agents a ref:APIEndpoint ;
+    doc:title "GET /integrations/a2a/agents" ;
+    doc:description "List connected A2A agents" ;
+    ref:service "BusinessOS" ;
+    ref:httpMethod "GET" ;
+    ref:basePath "http://localhost:8001/api" ;
+    ref:path "/integrations/a2a/agents" ;
+    ref:auth "JWT" ;
+    ref:category "A2A" ;
+    doc:hasSignature "GET /api/integrations/a2a/agents" ;
+    doc:hasReturnValue "200 OK: { agents: [...] }" ;
+    ref:codeExample "curl -s http://localhost:8001/api/integrations/a2a/agents -H 'Authorization: Bearer TOKEN'" .
+
+ref:bos-a2a-discover a ref:APIEndpoint ;
+    doc:title "POST /integrations/a2a/agents/discover" ;
+    doc:description "Discover a remote A2A agent and cache its card" ;
+    ref:service "BusinessOS" ;
+    ref:httpMethod "POST" ;
+    ref:basePath "http://localhost:8001/api" ;
+    ref:path "/integrations/a2a/agents/discover" ;
+    ref:auth "JWT" ;
+    ref:category "A2A" ;
+    doc:hasSignature "POST /api/integrations/a2a/agents/discover { agent_url }" ;
+    doc:hasReturnValue "200 OK: { agent_card }" ;
+    ref:codeExample "curl -s -X POST http://localhost:8001/api/integrations/a2a/agents/discover -H 'Content-Type: application/json' -d '{\"agent_url\": \"http://localhost:8089/api/v1/a2a/agent-card\"}'" .
+
+ref:bos-a2a-call a ref:APIEndpoint ;
+    doc:title "POST /integrations/a2a/agents/call" ;
+    doc:description "Create a task on a remote A2A agent" ;
+    ref:service "BusinessOS" ;
+    ref:httpMethod "POST" ;
+    ref:basePath "http://localhost:8001/api" ;
+    ref:path "/integrations/a2a/agents/call" ;
+    ref:auth "JWT" ;
+    ref:category "A2A" ;
+    doc:hasSignature "POST /api/integrations/a2a/agents/call { agent_url, message, context? }" ;
+    doc:hasReturnValue "202 Accepted: { task_id, status, agent }" ;
+    ref:codeExample "curl -s -X POST http://localhost:8001/api/integrations/a2a/agents/call -H 'Content-Type: application/json' -d '{\"agent_url\": \"http://localhost:8089/api/v1/a2a\", \"message\": \"Analyze code\"}'" .
+
+ref:bos-compliance-reload a ref:APIEndpoint ;
+    doc:title "POST /api/compliance/reload-rules" ;
+    doc:description "Hot-reload compliance rules from YAML" ;
+    ref:service "BusinessOS" ;
+    ref:httpMethod "POST" ;
+    ref:basePath "http://localhost:8001/api" ;
+    ref:path "/compliance/reload-rules" ;
+    ref:auth "None" ;
+    ref:category "Compliance" ;
+    doc:hasSignature "POST /api/compliance/reload-rules" ;
+    doc:hasReturnValue "200 OK: { rules_loaded: 42 }" ;
+    ref:codeExample "curl -s -X POST http://localhost:8001/api/compliance/reload-rules" .
+
+ref:bos-compliance-check a ref:APIEndpoint ;
+    doc:title "POST /api/compliance/check" ;
+    doc:description "Evaluate a compliance rule against data" ;
+    ref:service "BusinessOS" ;
+    ref:httpMethod "POST" ;
+    ref:basePath "http://localhost:8001/api" ;
+    ref:path "/compliance/check" ;
+    ref:auth "None" ;
+    ref:category "Compliance" ;
+    doc:hasSignature "POST /api/compliance/check { rule_id, data }" ;
+    doc:hasReturnValue "200 OK: { passed: true, violations: [] }" ;
+    ref:codeExample "curl -s -X POST http://localhost:8001/api/compliance/check -H 'Content-Type: application/json' -d '{\"rule_id\": \"soc2.cc6.1\", \"data\": {...}}'" .
+
+ref:bos-modules-create a ref:APIEndpoint ;
+    doc:title "POST /modules" ;
+    doc:description "Create a custom module" ;
+    ref:service "BusinessOS" ;
+    ref:httpMethod "POST" ;
+    ref:basePath "http://localhost:8001/api" ;
+    ref:path "/modules" ;
+    ref:auth "JWT" ;
+    ref:category "Modules" ;
+    doc:hasSignature "POST /api/modules { name, description, config }" ;
+    doc:hasReturnValue "201 Created: { id, module }" ;
+    ref:codeExample "curl -s -X POST http://localhost:8001/api/modules -H 'Content-Type: application/json' -d '{\"name\": \"custom-module\"}'" .
+
+ref:bos-osa-generate a ref:APIEndpoint ;
+    doc:title "POST /osa/generate" ;
+    doc:description "Generate an app via OSA integration" ;
+    ref:service "BusinessOS" ;
+    ref:httpMethod "POST" ;
+    ref:basePath "http://localhost:8001/api" ;
+    ref:path "/osa/generate" ;
+    ref:auth "JWT" ;
+    ref:category "OSA Integration" ;
+    doc:hasSignature "POST /api/osa/generate { spec, template }" ;
+    doc:hasReturnValue "202 Accepted: { app_id, status }" ;
+    ref:codeExample "curl -s -X POST http://localhost:8001/api/osa/generate -H 'Content-Type: application/json' -d '{\"spec\": \"REST API with auth\"}'" .
+
+# =============================================================================
+# API ENDPOINTS (Canopy)
+# =============================================================================
+
+ref:canopy-health a ref:APIEndpoint ;
+    doc:title "GET /api/health" ;
+    doc:description "Canopy backend health check" ;
+    ref:service "Canopy" ;
+    ref:httpMethod "GET" ;
+    ref:basePath "http://localhost:9089/api" ;
+    ref:path "/health" ;
+    ref:auth "None" ;
+    ref:category "Health" ;
+    doc:hasSignature "GET /api/health" ;
+    doc:hasReturnValue "200 OK: { status: ok }" ;
+    ref:codeExample "curl -s http://localhost:9089/api/health" .
+
+ref:canopy-agents-dispatch a ref:APIEndpoint ;
+    doc:title "POST /api/agents/dispatch" ;
+    doc:description "Dispatch task to a Canopy agent" ;
+    ref:service "Canopy" ;
+    ref:httpMethod "POST" ;
+    ref:basePath "http://localhost:9089/api" ;
+    ref:path "/agents/dispatch" ;
+    ref:auth "None" ;
+    ref:category "Agents" ;
+    doc:hasSignature "POST /api/agents/dispatch { agent_id, task, context? }" ;
+    doc:hasReturnValue "202 Accepted: { dispatch_id, status }" ;
+    ref:codeExample "curl -s -X POST http://localhost:9089/api/agents/dispatch -H 'Content-Type: application/json' -d '{\"agent_id\": \"reviewer\", \"task\": \"Review PR\"}'" .
+
+ref:canopy-agents-list a ref:APIEndpoint ;
+    doc:title "GET /api/agents" ;
+    doc:description "List available Canopy agents" ;
+    ref:service "Canopy" ;
+    ref:httpMethod "GET" ;
+    ref:basePath "http://localhost:9089/api" ;
+    ref:path "/agents" ;
+    ref:auth "None" ;
+    ref:category "Agents" ;
+    doc:hasSignature "GET /api/agents" ;
+    doc:hasReturnValue "200 OK: { agents: [...] }" ;
+    ref:codeExample "curl -s http://localhost:9089/api/agents" .
+
+# =============================================================================
+# API ENDPOINTS (pm4py-rust)
+# =============================================================================
+
+ref:pm4py-health a ref:APIEndpoint ;
+    doc:title "GET /health" ;
+    doc:description "pm4py-rust health check" ;
+    ref:service "pm4py-rust" ;
+    ref:httpMethod "GET" ;
+    ref:basePath "http://localhost:8090" ;
+    ref:path "/health" ;
+    ref:auth "None" ;
+    ref:category "Health" ;
+    doc:hasSignature "GET /health" ;
+    doc:hasReturnValue "200 OK: { status: ok }" ;
+    ref:codeExample "curl -s http://localhost:8090/health" .
+
+ref:pm4py-discover a ref:APIEndpoint ;
+    doc:title "POST /discover" ;
+    doc:description "Discover process model from event log" ;
+    ref:service "pm4py-rust" ;
+    ref:httpMethod "POST" ;
+    ref:basePath "http://localhost:8090" ;
+    ref:path "/discover" ;
+    ref:auth "None" ;
+    ref:category "Process Mining" ;
+    doc:hasSignature "POST /discover { event_log, algorithm? }" ;
+    doc:hasReturnValue "200 OK: { model, metrics }" ;
+    ref:codeExample "curl -s -X POST http://localhost:8090/discover -H 'Content-Type: application/json' -d '{\"event_log\": [...]}'" .
+
+ref:pm4py-conformance a ref:APIEndpoint ;
+    doc:title "POST /conformance" ;
+    doc:description "Check event log conformance to model" ;
+    ref:service "pm4py-rust" ;
+    ref:httpMethod "POST" ;
+    ref:basePath "http://localhost:8090" ;
+    ref:path "/conformance" ;
+    ref:auth "None" ;
+    ref:category "Process Mining" ;
+    doc:hasSignature "POST /conformance { event_log, model }" ;
+    doc:hasReturnValue "200 OK: { fitness, precision, generalization }" ;
+    ref:codeExample "curl -s -X POST http://localhost:8090/conformance -H 'Content-Type: application/json' -d '{\"event_log\": [...], \"model\": \"...\"}'" .
+
+ref:pm4py-analyze a ref:APIEndpoint ;
+    doc:title "POST /analyze" ;
+    doc:description "Analyze process metrics from event log" ;
+    ref:service "pm4py-rust" ;
+    ref:httpMethod "POST" ;
+    ref:basePath "http://localhost:8090" ;
+    ref:path "/analyze" ;
+    ref:auth "None" ;
+    ref:category "Process Mining" ;
+    doc:hasSignature "POST /analyze { event_log, metrics? }" ;
+    doc:hasReturnValue "200 OK: { metrics: { cycle_time, bottleneck, throughput } }" ;
+    ref:codeExample "curl -s -X POST http://localhost:8090/analyze -H 'Content-Type: application/json' -d '{\"event_log\": [...]}\'" .

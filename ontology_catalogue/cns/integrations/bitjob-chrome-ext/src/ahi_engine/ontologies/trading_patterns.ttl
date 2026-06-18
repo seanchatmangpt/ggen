@@ -1,0 +1,248 @@
+@prefix bf: <http://bitflow.ai/ontology/trading#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# BitFlow Trading Pattern Ontology - 8-Space Compliant
+# Defines 15 patterns with lens requirements and execution constraints
+
+bf:TradingPattern a owl:Class ;
+    rdfs:label "Trading Pattern" ;
+    rdfs:comment "8-Space compliant trading pattern with bounded execution" .
+
+bf:Lens a owl:Class ;
+    rdfs:label "Signal Lens" ;
+    rdfs:comment "Independent signal source with reliability tracking" .
+
+# === PATTERN DEFINITIONS ===
+
+bf:MicroImpulse a bf:TradingPattern ;
+    rdfs:label "Micro Impulse Long/Short" ;
+    bf:patternId "0"^^xsd:integer ;
+    bf:requiredLenses ( bf:OrderBookPressure bf:CrossAssetMotion ) ;
+    bf:entryTimeoutMs "2000"^^xsd:integer ;
+    bf:maxSlippageBps "120"^^xsd:integer ;
+    bf:stopGridBps "1000"^^xsd:integer ;
+    bf:takeProfitBps "800"^^xsd:integer ;
+    bf:description "USD/JPY micro-impulse based on order book imbalance + cross-asset concurrence" ;
+    bf:example "Order-book imbalance >1.8σ for 400ms + DXY↓ + ES↑ within 250ms" .
+
+bf:CrossAssetMomentum a bf:TradingPattern ;
+    rdfs:label "Cross Asset Momentum" ;
+    bf:patternId "1"^^xsd:integer ;
+    bf:requiredLenses ( bf:CrossAssetMotion bf:VolatilityRegime bf:MacroHeadlineDelta ) ;
+    bf:entryTimeoutMs "1500"^^xsd:integer ;
+    bf:maxSlippageBps "150"^^xsd:integer ;
+    bf:stopGridBps "1200"^^xsd:integer ;
+    bf:takeProfitBps "1000"^^xsd:integer ;
+    bf:description "Multi-asset momentum alignment with macro catalyst" .
+
+bf:NewsDeltaFade a bf:TradingPattern ;
+    rdfs:label "News Delta Fade" ;
+    bf:patternId "2"^^xsd:integer ;
+    bf:requiredLenses ( bf:MacroHeadlineDelta bf:VolatilityRegime ) ;
+    bf:entryTimeoutMs "500"^^xsd:integer ;
+    bf:maxSlippageBps "200"^^xsd:integer ;
+    bf:stopGridBps "800"^^xsd:integer ;
+    bf:takeProfitBps "600"^^xsd:integer ;
+    bf:description "Fade initial news reaction when volatility regime supports mean reversion" .
+
+bf:VolatilityBreakout a bf:TradingPattern ;
+    rdfs:label "Volatility Breakout" ;
+    bf:patternId "3"^^xsd:integer ;
+    bf:requiredLenses ( bf:VolatilityRegime bf:LiquidityState bf:OrderBookPressure ) ;
+    bf:entryTimeoutMs "3000"^^xsd:integer ;
+    bf:maxSlippageBps "180"^^xsd:integer ;
+    bf:stopGridBps "1500"^^xsd:integer ;
+    bf:takeProfitBps "1200"^^xsd:integer ;
+    bf:description "Low volatility compression leading to directional breakout" .
+
+bf:LiquidityVoid a bf:TradingPattern ;
+    rdfs:label "Liquidity Void Exploitation" ;
+    bf:patternId "4"^^xsd:integer ;
+    bf:requiredLenses ( bf:LiquidityState bf:OrderBookPressure ) ;
+    bf:entryTimeoutMs "800"^^xsd:integer ;
+    bf:maxSlippageBps "300"^^xsd:integer ;
+    bf:stopGridBps "1000"^^xsd:integer ;
+    bf:takeProfitBps "800"^^xsd:integer ;
+    bf:description "Exploit temporary liquidity gaps for favorable fills" .
+
+bf:SpreadCompression a bf:TradingPattern ;
+    rdfs:label "Spread Compression" ;
+    bf:patternId "5"^^xsd:integer ;
+    bf:requiredLenses ( bf:LiquidityState bf:VolatilityRegime ) ;
+    bf:entryTimeoutMs "1200"^^xsd:integer ;
+    bf:maxSlippageBps "100"^^xsd:integer ;
+    bf:stopGridBps "600"^^xsd:integer ;
+    bf:takeProfitBps "400"^^xsd:integer ;
+    bf:description "Scalp tight spreads during high liquidity periods" .
+
+bf:OrderBookImbalance a bf:TradingPattern ;
+    rdfs:label "Order Book Imbalance" ;
+    bf:patternId "6"^^xsd:integer ;
+    bf:requiredLenses ( bf:OrderBookPressure bf:LiquidityState ) ;
+    bf:entryTimeoutMs "600"^^xsd:integer ;
+    bf:maxSlippageBps "140"^^xsd:integer ;
+    bf:stopGridBps "800"^^xsd:integer ;
+    bf:takeProfitBps "600"^^xsd:integer ;
+    bf:description "Trade significant order book imbalances before they correct" .
+
+bf:MacroHeadlineDelta a bf:TradingPattern ;
+    rdfs:label "Macro Headline Delta" ;
+    bf:patternId "7"^^xsd:integer ;
+    bf:requiredLenses ( bf:MacroHeadlineDelta bf:CrossAssetMotion bf:VolatilityRegime ) ;
+    bf:entryTimeoutMs "1000"^^xsd:integer ;
+    bf:maxSlippageBps "250"^^xsd:integer ;
+    bf:stopGridBps "1200"^^xsd:integer ;
+    bf:takeProfitBps "1000"^^xsd:integer ;
+    bf:description "Trade directional moves from non-LLM parsed macro headlines" .
+
+bf:CrossCurrencyArbitrage a bf:TradingPattern ;
+    rdfs:label "Cross Currency Arbitrage" ;
+    bf:patternId "8"^^xsd:integer ;
+    bf:requiredLenses ( bf:CrossAssetMotion bf:LiquidityState ) ;
+    bf:entryTimeoutMs "400"^^xsd:integer ;
+    bf:maxSlippageBps "80"^^xsd:integer ;
+    bf:stopGridBps "500"^^xsd:integer ;
+    bf:takeProfitBps "300"^^xsd:integer ;
+    bf:description "Exploit temporary cross-currency pricing inefficiencies" .
+
+bf:RegimeTransition a bf:TradingPattern ;
+    rdfs:label "Regime Transition" ;
+    bf:patternId "9"^^xsd:integer ;
+    bf:requiredLenses ( bf:VolatilityRegime bf:MacroHeadlineDelta bf:CrossAssetMotion ) ;
+    bf:entryTimeoutMs "5000"^^xsd:integer ;
+    bf:maxSlippageBps "200"^^xsd:integer ;
+    bf:stopGridBps "2000"^^xsd:integer ;
+    bf:takeProfitBps "1500"^^xsd:integer ;
+    bf:description "Trade volatility regime transitions with multi-asset confirmation" .
+
+bf:MicrostructureEdge a bf:TradingPattern ;
+    rdfs:label "Microstructure Edge" ;
+    bf:patternId "10"^^xsd:integer ;
+    bf:requiredLenses ( bf:OrderBookPressure bf:LiquidityState ) ;
+    bf:entryTimeoutMs "300"^^xsd:integer ;
+    bf:maxSlippageBps "60"^^xsd:integer ;
+    bf:stopGridBps "400"^^xsd:integer ;
+    bf:takeProfitBps "250"^^xsd:integer ;
+    bf:description "Sub-second microstructure inefficiencies" .
+
+bf:SentimentReversal a bf:TradingPattern ;
+    rdfs:label "Sentiment Reversal" ;
+    bf:patternId "11"^^xsd:integer ;
+    bf:requiredLenses ( bf:MacroHeadlineDelta bf:VolatilityRegime ) ;
+    bf:entryTimeoutMs "2500"^^xsd:integer ;
+    bf:maxSlippageBps "180"^^xsd:integer ;
+    bf:stopGridBps "1000"^^xsd:integer ;
+    bf:takeProfitBps "800"^^xsd:integer ;
+    bf:description "Counter-trend moves when sentiment reaches extremes" .
+
+bf:CorrelationBreakdown a bf:TradingPattern ;
+    rdfs:label "Correlation Breakdown" ;
+    bf:patternId "12"^^xsd:integer ;
+    bf:requiredLenses ( bf:CrossAssetMotion bf:VolatilityRegime ) ;
+    bf:entryTimeoutMs "1800"^^xsd:integer ;
+    bf:maxSlippageBps "220"^^xsd:integer ;
+    bf:stopGridBps "1200"^^xsd:integer ;
+    bf:takeProfitBps "1000"^^xsd:integer ;
+    bf:description "Trade when historical correlations break down" .
+
+bf:VolatilitySkew a bf:TradingPattern ;
+    rdfs:label "Volatility Skew" ;
+    bf:patternId "13"^^xsd:integer ;
+    bf:requiredLenses ( bf:VolatilityRegime bf:CrossAssetMotion ) ;
+    bf:entryTimeoutMs "2000"^^xsd:integer ;
+    bf:maxSlippageBps "160"^^xsd:integer ;
+    bf:stopGridBps "1100"^^xsd:integer ;
+    bf:takeProfitBps "900"^^xsd:integer ;
+    bf:description "Exploit volatility skew inefficiencies" .
+
+bf:LiquidityShock a bf:TradingPattern ;
+    rdfs:label "Liquidity Shock" ;
+    bf:patternId "14"^^xsd:integer ;
+    bf:requiredLenses ( bf:LiquidityState bf:VolatilityRegime bf:OrderBookPressure ) ;
+    bf:entryTimeoutMs "1000"^^xsd:integer ;
+    bf:maxSlippageBps "400"^^xsd:integer ;
+    bf:stopGridBps "1500"^^xsd:integer ;
+    bf:takeProfitBps "1200"^^xsd:integer ;
+    bf:description "Trade around sudden liquidity shocks" .
+
+# === LENS DEFINITIONS ===
+
+bf:OrderBookPressure a bf:Lens ;
+    rdfs:label "Order Book Pressure" ;
+    bf:lensId "0"^^xsd:integer ;
+    bf:updateFrequencyMs "100"^^xsd:integer ;
+    bf:signalRange "-10000 to +10000"^^xsd:string ;
+    bf:reliability "8500"^^xsd:integer ;
+    bf:description "Bid/ask pressure and depth analysis" .
+
+bf:MacroHeadlineDelta a bf:Lens ;
+    rdfs:label "Macro Headline Delta" ;
+    bf:lensId "1"^^xsd:integer ;
+    bf:updateFrequencyMs "1000"^^xsd:integer ;
+    bf:signalRange "-10000 to +10000"^^xsd:string ;
+    bf:reliability "7200"^^xsd:integer ;
+    bf:description "Non-LLM macro news sentiment analysis" .
+
+bf:CrossAssetMotion a bf:Lens ;
+    rdfs:label "Cross Asset Motion" ;
+    bf:lensId "2"^^xsd:integer ;
+    bf:updateFrequencyMs "250"^^xsd:integer ;
+    bf:signalRange "-10000 to +10000"^^xsd:string ;
+    bf:reliability "8800"^^xsd:integer ;
+    bf:description "Multi-asset correlation and momentum" .
+
+bf:VolatilityRegime a bf:Lens ;
+    rdfs:label "Volatility Regime" ;
+    bf:lensId "3"^^xsd:integer ;
+    bf:updateFrequencyMs "500"^^xsd:integer ;
+    bf:signalRange "0 to 10000"^^xsd:string ;
+    bf:reliability "9100"^^xsd:integer ;
+    bf:description "Current volatility regime classification" .
+
+bf:LiquidityState a bf:Lens ;
+    rdfs:label "Liquidity State" ;
+    bf:lensId "4"^^xsd:integer ;
+    bf:updateFrequencyMs "200"^^xsd:integer ;
+    bf:signalRange "0 to 10000"^^xsd:string ;
+    bf:reliability "8700"^^xsd:integer ;
+    bf:description "Market liquidity and spread analysis" .
+
+# === PATTERN THRESHOLDS ===
+
+bf:MicroImpulse 
+    bf:orderBookThreshold "1800"^^xsd:integer ;    # 1.8σ
+    bf:crossAssetThreshold "1500"^^xsd:integer ;   # Concurrence strength
+    bf:minReliability "8000"^^xsd:integer .        # 80% minimum
+
+bf:CrossAssetMomentum 
+    bf:crossAssetThreshold "2000"^^xsd:integer ;
+    bf:volatilityThreshold "6000"^^xsd:integer ;   # 60th percentile+
+    bf:headlineThreshold "1200"^^xsd:integer ;
+    bf:minReliability "7500"^^xsd:integer .
+
+# Additional threshold specifications for all patterns...
+# (Pattern-specific thresholds for precise lens calibration)
+
+# === 8-SPACE CONSTRAINTS ===
+
+bf:EightSpaceConstraints a owl:Class ;
+    rdfs:label "8-Space Performance Constraints" ;
+    bf:maxTicks "8"^^xsd:integer ;
+    bf:maxHops "8"^^xsd:integer ;
+    bf:maxMemoryKB "1024"^^xsd:integer ;
+    bf:zeroAllocation "true"^^xsd:boolean .
+
+# === EXECUTION TEMPLATES ===
+
+bf:ExecutionTemplate a owl:Class ;
+    rdfs:label "Bounded Execution Template" .
+
+bf:StandardExecution a bf:ExecutionTemplate ;
+    rdfs:label "Standard 50x Execution" ;
+    bf:leverage "50"^^xsd:integer ;
+    bf:maxTimeInMarketMs "30000"^^xsd:integer ;    # 30 seconds max
+    bf:killSwitchEnabled "true"^^xsd:boolean ;
+    bf:exitOnAnyLensRed "true"^^xsd:boolean ;
+    bf:maxAdverseExcursionBps "900"^^xsd:integer . # 9 bps hard stop

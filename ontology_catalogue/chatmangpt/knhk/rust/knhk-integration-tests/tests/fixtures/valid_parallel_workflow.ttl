@@ -1,0 +1,92 @@
+@prefix yawl: <http://bitflow.ai/ontology/yawl/v2#> .
+@prefix yawl-exec: <http://bitflow.ai/ontology/yawl/execution/v1#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Valid parallel workflow (Pattern 2-3: Parallel Split + Synchronization)
+
+<http://example.org/test/parallel-workflow> a yawl:WorkflowSpecification ;
+    rdfs:label "Valid Parallel Workflow" ;
+    rdfs:comment "Demonstrates AND-AND pattern (parallel split with synchronization)" ;
+
+    yawl:hasStartCondition <#start> ;
+    yawl:hasEndCondition <#end> ;
+
+    yawl:hasTask <#split>,
+                  <#branch-a>,
+                  <#branch-b>,
+                  <#branch-c>,
+                  <#sync> ;
+
+    yawl:hasCondition <#start>,
+                      <#c1>, <#c2>, <#c3>,
+                      <#c4>,
+                      <#end> .
+
+<#start> a yawl:StartCondition ;
+    rdfs:label "Start" ;
+    yawl:initialMarking 1 ;
+    yawl:hasOutgoingFlow <#split> .
+
+<#split> a yawl:Task ;
+    rdfs:label "Parallel Split" ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:XOR ;
+    yawl-exec:executionMode yawl-exec:Asynchronous ;
+    yawl:hasOutgoingFlow <#c1>, <#c2>, <#c3> .
+
+<#c1> a yawl:Condition ;
+    rdfs:label "Branch A Start" ;
+    yawl:initialMarking 0 ;
+    yawl:hasIncomingFlow <#split> ;
+    yawl:hasOutgoingFlow <#branch-a> .
+
+<#c2> a yawl:Condition ;
+    rdfs:label "Branch B Start" ;
+    yawl:initialMarking 0 ;
+    yawl:hasIncomingFlow <#split> ;
+    yawl:hasOutgoingFlow <#branch-b> .
+
+<#c3> a yawl:Condition ;
+    rdfs:label "Branch C Start" ;
+    yawl:initialMarking 0 ;
+    yawl:hasIncomingFlow <#split> ;
+    yawl:hasOutgoingFlow <#branch-c> .
+
+<#branch-a> a yawl:Task ;
+    rdfs:label "Branch A Task" ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+    yawl-exec:executionMode yawl-exec:Asynchronous ;
+    yawl:hasOutgoingFlow <#c4> .
+
+<#branch-b> a yawl:Task ;
+    rdfs:label "Branch B Task" ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+    yawl-exec:executionMode yawl-exec:Asynchronous ;
+    yawl:hasOutgoingFlow <#c4> .
+
+<#branch-c> a yawl:Task ;
+    rdfs:label "Branch C Task" ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+    yawl-exec:executionMode yawl-exec:Asynchronous ;
+    yawl:hasOutgoingFlow <#c4> .
+
+<#c4> a yawl:Condition ;
+    rdfs:label "Sync Point" ;
+    yawl:initialMarking 0 ;
+    yawl:hasIncomingFlow <#branch-a>, <#branch-b>, <#branch-c> ;
+    yawl:hasOutgoingFlow <#sync> .
+
+<#sync> a yawl:Task ;
+    rdfs:label "Synchronization" ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:AND ;
+    yawl-exec:executionMode yawl-exec:Synchronous ;
+    yawl:hasOutgoingFlow <#end> .
+
+<#end> a yawl:EndCondition ;
+    rdfs:label "End" ;
+    yawl:initialMarking 0 ;
+    yawl:hasIncomingFlow <#sync> .

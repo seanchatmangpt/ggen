@@ -1,0 +1,38 @@
+# docs-explanation.rq
+# Purpose : Drive explanation document generation for cargo-cicd v26.6.2.
+# Returns : doc_id, title, design_decision, capabilities_explained
+# Source  : diataxis.ttl — cross-cutting concern nodes linked to cc:Explanation
+
+PREFIX rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl:     <http://www.w3.org/2002/07/owl#>
+PREFIX skos:    <http://www.w3.org/2004/02/skos/core#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX xsd:     <http://www.w3.org/2001/XMLSchema#>
+PREFIX cc:      <https://cargo-cicd.rs/ontology/>
+
+SELECT
+    ?doc_id
+    ?title
+    ?design_decision
+    ?capabilities_explained
+WHERE {
+    # Explanation nodes are cross-cutting concern concepts in DiataxisScheme
+    # that are linked to cc:Explanation.
+    ?concern a skos:Concept ;
+             skos:inScheme       cc:DiataxisScheme ;
+             cc:coveredByDocType cc:Explanation ;
+             skos:prefLabel      ?title ;
+             dcterms:description ?design_decision .
+
+    BIND(STRAFTER(STR(?concern), "https://cargo-cicd.rs/ontology/") AS ?doc_id)
+
+    # capabilities_explained: all commands covered by any explanation doc.
+    # For cross-cutting concerns the scope is all 9 public commands — express
+    # that as a constant; individual doc renderers may refine.
+    BIND("All 9 public commands: status show, target show, target prune, test changed, trybuild changed, git status, git close, publish run, workspace doctor" AS ?capabilities_explained)
+
+    FILTER(lang(?title)            = "en" || lang(?title)            = "")
+    FILTER(lang(?design_decision)  = "en" || lang(?design_decision)  = "")
+}
+ORDER BY ?doc_id

@@ -1,0 +1,346 @@
+# Chatman Equation Examples
+# Concrete RDF instances demonstrating market dynamics, blue ocean formation,
+# and disruption arithmetic using the Chatman Equation ontology
+#
+# Version: 1.0.0
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix chatman: <urn:chatman:> .
+@prefix ce: <urn:chatman:equation:> .
+@prefix ex: <urn:chatman:examples:> .
+
+# =============================================================================
+# EXAMPLE 1: MARKET DYNAMICS - STREAMING VIDEO CONSOLIDATION
+# =============================================================================
+
+# Artifacts: Market Players
+ex:Netflix2015 a ce:Artifact ;
+    ce:artifactType "market_player" ;
+    ce:artifactName "Netflix (2015)" ;
+    ce:artifactDescription "Streaming video pioneer with original content strategy" ;
+    ce:inDomain ce:MarketDomain ;
+    ce:createdAt "2015-01-01T00:00:00Z"^^xsd:dateTime ;
+    ce:valueCurvePosition """{"content_quality": 0.8, "price": 0.6, "user_experience": 0.9,
+    "catalog_size": 0.7, "exclusive_content": 0.5}""" .
+
+ex:Hulu2015 a ce:Artifact ;
+    ce:artifactType "market_player" ;
+    ce:artifactName "Hulu (2015)" ;
+    ce:artifactDescription "Ad-supported streaming with TV network partnerships" ;
+    ce:inDomain ce:MarketDomain ;
+    ce:createdAt "2015-01-01T00:00:00Z"^^xsd:dateTime ;
+    ce:valueCurvePosition """{"content_quality": 0.6, "price": 0.8, "user_experience": 0.5,
+    "catalog_size": 0.8, "exclusive_content": 0.3}""" .
+
+ex:AmazonPrime2015 a ce:Artifact ;
+    ce:artifactType "market_player" ;
+    ce:artifactName "Amazon Prime Video (2015)" ;
+    ce:artifactDescription "Bundled streaming service with e-commerce benefits" ;
+    ce:inDomain ce:MarketDomain ;
+    ce:createdAt "2015-01-01T00:00:00Z"^^xsd:dateTime ;
+    ce:valueCurvePosition """{"content_quality": 0.5, "price": 0.7, "user_experience": 0.6,
+    "catalog_size": 0.6, "exclusive_content": 0.2}""" .
+
+# Observations: Market Metrics
+ex:NetflixMarketShare2015 a ce:Observation ;
+    ce:observes ex:Netflix2015 ;
+    ce:observedProperty "market_share" ;
+    ce:observedValue "36.0"^^xsd:decimal ;
+    ce:observedAt "2015-12-31T23:59:59Z"^^xsd:dateTime ;
+    ce:observer ex:MarketAnalyst .
+
+ex:HuluMarketShare2015 a ce:Observation ;
+    ce:observes ex:Hulu2015 ;
+    ce:observedProperty "market_share" ;
+    ce:observedValue "12.0"^^xsd:decimal ;
+    ce:observedAt "2015-12-31T23:59:59Z"^^xsd:dateTime ;
+    ce:observer ex:MarketAnalyst .
+
+ex:StreamingMarketDensity2015 a ce:Observation ;
+    ce:observedProperty "competitive_density" ;
+    ce:observedValue "0.65"^^xsd:decimal ;
+    ce:observedAt "2015-12-31T23:59:59Z"^^xsd:dateTime ;
+    ce:observer ex:MarketAnalyst ;
+    rdfs:comment "High competition in red ocean market" .
+
+# Closure Operator: Market Consolidation
+ex:StreamingConsolidation2020 a ce:UnificationOperator ;
+    rdfs:label "Streaming Market Consolidation (2015-2020)" ;
+    ce:appliesTo ce:MarketDomain ;
+    ce:consumes ex:Netflix2015, ex:Hulu2015, ex:AmazonPrime2015 ;
+    ce:produces ex:ConsolidatedMarket2020 ;
+    ce:isExtensive true ;
+    ce:isMonotonic true ;
+    ce:isIdempotent true ;
+    ce:valueCreated "42.5"^^xsd:decimal ;
+    ce:convergenceProperty "Oligopoly with 3-4 dominant players" .
+
+# Output Artifact
+ex:ConsolidatedMarket2020 a ce:Artifact ;
+    ce:artifactType "market_state" ;
+    ce:artifactName "Consolidated Streaming Market (2020)" ;
+    ce:artifactDescription "Market after Netflix, Disney+, HBO Max consolidation" ;
+    ce:inDomain ce:MarketDomain ;
+    ce:derivedFrom ex:Netflix2015, ex:Hulu2015, ex:AmazonPrime2015 ;
+    ce:createdAt "2020-12-31T23:59:59Z"^^xsd:dateTime .
+
+ex:StreamingMarketDensity2020 a ce:Observation ;
+    ce:observedProperty "competitive_density" ;
+    ce:observedValue "0.45"^^xsd:decimal ;
+    ce:observedAt "2020-12-31T23:59:59Z"^^xsd:dateTime ;
+    ce:observer ex:MarketAnalyst ;
+    rdfs:comment "Reduced competition after consolidation" .
+
+# =============================================================================
+# EXAMPLE 2: BLUE OCEAN FORMATION - CIRQUE DU SOLEIL
+# =============================================================================
+
+# Traditional Circus Artifacts
+ex:TraditionalCircus a ce:Artifact ;
+    ce:artifactType "entertainment_offering" ;
+    ce:artifactName "Traditional Circus" ;
+    ce:artifactDescription "Classic circus with animals, clowns, acrobats" ;
+    ce:inDomain ce:MarketDomain ;
+    ce:valueCurvePosition """{"star_performers": 0.7, "animal_shows": 0.9, "thrills_danger": 0.8,
+    "humor": 0.6, "artistic_refinement": 0.3, "price": 0.5, "unique_venue": 0.4}""" .
+
+ex:TheaterProduction a ce:Artifact ;
+    ce:artifactType "entertainment_offering" ;
+    ce:artifactName "Theater Production" ;
+    ce:artifactDescription "High-end theatrical performances" ;
+    ce:inDomain ce:MarketDomain ;
+    ce:valueCurvePosition """{"star_performers": 0.5, "animal_shows": 0.0, "thrills_danger": 0.2,
+    "humor": 0.4, "artistic_refinement": 0.9, "price": 0.8, "unique_venue": 0.7}""" .
+
+# Blue Ocean Operator: Cirque du Soleil Creation
+ex:CirqueCreation a ce:BlueOceanOperator ;
+    rdfs:label "Cirque du Soleil Blue Ocean Strategy" ;
+    ce:appliesTo ce:MarketDomain ;
+    ce:consumes ex:TraditionalCircus, ex:TheaterProduction ;
+    ce:produces ex:CirqueDuSoleil ;
+    ce:isExtensive true ;
+    ce:isMonotonic true ;
+    ce:isIdempotent true ;
+    ce:disruptionIndex 0.9 ;
+    ce:valueCreated "150.0"^^xsd:decimal ;
+    ce:convergenceProperty "Unique entertainment category with no direct competition" ;
+    rdfs:comment """Eliminated: Animal shows, star performers, multiple show arenas
+    Reduced: Humor and thrills
+    Raised: Artistic refinement, unique venue
+    Created: Theme, refined environment, multiple productions, artistic music/dance""" .
+
+# Output Artifact: Cirque du Soleil
+ex:CirqueDuSoleil a ce:Artifact ;
+    ce:artifactType "entertainment_offering" ;
+    ce:artifactName "Cirque du Soleil" ;
+    ce:artifactDescription "Artistic circus without animals, high-end entertainment experience" ;
+    ce:inDomain ce:MarketDomain ;
+    ce:derivedFrom ex:TraditionalCircus, ex:TheaterProduction ;
+    ce:createdAt "1984-06-16T00:00:00Z"^^xsd:dateTime ;
+    ce:valueCurvePosition """{"star_performers": 0.0, "animal_shows": 0.0, "thrills_danger": 0.9,
+    "humor": 0.3, "artistic_refinement": 1.0, "price": 0.9, "unique_venue": 1.0,
+    "theme": 1.0, "multiple_productions": 1.0}""" .
+
+# Observations: Blue Ocean Success
+ex:CirqueCompetitiveDensity a ce:Observation ;
+    ce:observes ex:CirqueDuSoleil ;
+    ce:observedProperty "competitive_density" ;
+    ce:observedValue "0.05"^^xsd:decimal ;
+    ce:observedAt "1990-12-31T23:59:59Z"^^xsd:dateTime ;
+    ce:observer ex:StrategyConsultant ;
+    rdfs:comment "Near-zero competition in newly created blue ocean" .
+
+ex:CirqueRevenue2019 a ce:Observation ;
+    ce:observes ex:CirqueDuSoleil ;
+    ce:observedProperty "annual_revenue" ;
+    ce:observedValue "1000000000"^^xsd:decimal ;
+    ce:observedAt "2019-12-31T23:59:59Z"^^xsd:dateTime ;
+    ce:observer ex:FinancialAnalyst ;
+    rdfs:comment "Approximately $1B annual revenue before COVID-19" .
+
+# =============================================================================
+# EXAMPLE 3: DISRUPTION ARITHMETIC - SMARTPHONE REVOLUTION
+# =============================================================================
+
+# Pre-disruption Artifacts
+ex:FeaturePhone2006 a ce:Artifact ;
+    ce:artifactType "mobile_device" ;
+    ce:artifactName "Feature Phone (2006)" ;
+    ce:artifactDescription "Mobile phone with basic features (calls, SMS, simple apps)" ;
+    ce:inDomain ce:TechnologyDomain ;
+    ce:createdAt "2006-01-01T00:00:00Z"^^xsd:dateTime ;
+    ce:valueCurvePosition """{"call_quality": 0.8, "sms": 0.9, "apps": 0.3, "internet": 0.2,
+    "screen_size": 0.3, "battery_life": 0.9, "price": 0.7}""" .
+
+ex:PDA2006 a ce:Artifact ;
+    ce:artifactType "mobile_device" ;
+    ce:artifactName "Personal Digital Assistant (2006)" ;
+    ce:artifactDescription "PDA with calendar, contacts, basic productivity apps" ;
+    ce:inDomain ce:TechnologyDomain ;
+    ce:createdAt "2006-01-01T00:00:00Z"^^xsd:dateTime ;
+    ce:valueCurvePosition """{"call_quality": 0.0, "sms": 0.0, "apps": 0.7, "internet": 0.4,
+    "screen_size": 0.6, "battery_life": 0.5, "price": 0.4}""" .
+
+ex:iPod2006 a ce:Artifact ;
+    ce:artifactType "mobile_device" ;
+    ce:artifactName "iPod (2006)" ;
+    ce:artifactDescription "Portable music player" ;
+    ce:inDomain ce:TechnologyDomain ;
+    ce:createdAt "2006-01-01T00:00:00Z"^^xsd:dateTime ;
+    ce:valueCurvePosition """{"call_quality": 0.0, "sms": 0.0, "apps": 0.2, "internet": 0.0,
+    "screen_size": 0.4, "battery_life": 0.8, "price": 0.6, "music_experience": 1.0}""" .
+
+# Disruption Operator: iPhone Launch
+ex:iPhoneDisruption a ce:DisruptionOperator ;
+    rdfs:label "iPhone Disruptive Innovation (2007)" ;
+    ce:appliesTo ce:TechnologyDomain, ce:MarketDomain ;
+    ce:consumes ex:FeaturePhone2006, ex:PDA2006, ex:iPod2006 ;
+    ce:produces ex:iPhone2007 ;
+    ce:isExtensive true ;
+    ce:isMonotonic true ;
+    ce:isIdempotent true ;
+    ce:disruptionIndex 0.95 ;
+    ce:valueCreated "500.0"^^xsd:decimal ;
+    ce:convergenceProperty "Unified mobile computing platform displacing all predecessors" ;
+    rdfs:comment "Combined phone, PDA, iPod into single touchscreen device with App Store ecosystem" .
+
+# Output Artifact: iPhone
+ex:iPhone2007 a ce:Artifact ;
+    ce:artifactType "mobile_device" ;
+    ce:artifactName "iPhone (2007)" ;
+    ce:artifactDescription "Touchscreen smartphone with full internet and app ecosystem" ;
+    ce:inDomain ce:TechnologyDomain ;
+    ce:derivedFrom ex:FeaturePhone2006, ex:PDA2006, ex:iPod2006 ;
+    ce:createdAt "2007-06-29T00:00:00Z"^^xsd:dateTime ;
+    ce:version "1.0" ;
+    ce:valueCurvePosition """{"call_quality": 0.7, "sms": 0.8, "apps": 1.0, "internet": 0.9,
+    "screen_size": 0.8, "battery_life": 0.6, "price": 0.3, "music_experience": 0.9,
+    "touchscreen": 1.0, "ecosystem": 1.0}""" .
+
+# Observations: Market Disruption
+ex:SmartphoneMarketShare2007 a ce:Observation ;
+    ce:observedProperty "smartphone_market_share" ;
+    ce:observedValue "3.0"^^xsd:decimal ;
+    ce:observedAt "2007-12-31T23:59:59Z"^^xsd:dateTime ;
+    ce:observer ex:TechAnalyst ;
+    rdfs:comment "iPhone initial market share" .
+
+ex:SmartphoneMarketShare2012 a ce:Observation ;
+    ce:observedProperty "smartphone_market_share" ;
+    ce:observedValue "23.0"^^xsd:decimal ;
+    ce:observedAt "2012-12-31T23:59:59Z"^^xsd:dateTime ;
+    ce:observer ex:TechAnalyst ;
+    rdfs:comment "iPhone peak market share after ecosystem maturity" .
+
+ex:FeaturePhoneMarketShare2007 a ce:Observation ;
+    ce:observedProperty "feature_phone_market_share" ;
+    ce:observedValue "85.0"^^xsd:decimal ;
+    ce:observedAt "2007-12-31T23:59:59Z"^^xsd:dateTime ;
+    ce:observer ex:TechAnalyst .
+
+ex:FeaturePhoneMarketShare2012 a ce:Observation ;
+    ce:observedProperty "feature_phone_market_share" ;
+    ce:observedValue "35.0"^^xsd:decimal ;
+    ce:observedAt "2012-12-31T23:59:59Z"^^xsd:dateTime ;
+    ce:observer ex:TechAnalyst ;
+    rdfs:comment "Massive decline due to smartphone disruption" .
+
+# Disruption Impact
+ex:iPhoneDisruptionImpact a ce:Observation ;
+    ce:observes ex:iPhoneDisruption ;
+    ce:observedProperty "market_cap_created" ;
+    ce:observedValue "2000000000000"^^xsd:decimal ;
+    ce:observedAt "2020-01-01T00:00:00Z"^^xsd:dateTime ;
+    ce:observer ex:FinancialAnalyst ;
+    rdfs:comment "Apple reached $2T market cap, largely driven by iPhone ecosystem" .
+
+# =============================================================================
+# EXAMPLE 4: STRATEGIC PIVOT - NETFLIX DVD TO STREAMING
+# =============================================================================
+
+# Pre-pivot Artifact
+ex:NetflixDVD2007 a ce:Artifact ;
+    ce:artifactType "business_model" ;
+    ce:artifactName "Netflix DVD-by-Mail (2007)" ;
+    ce:artifactDescription "DVD rental by mail subscription service" ;
+    ce:inDomain ce:OrganizationalDomain, ce:MarketDomain ;
+    ce:createdAt "2007-01-01T00:00:00Z"^^xsd:dateTime ;
+    ce:valueCurvePosition """{"convenience": 0.7, "selection": 0.9, "price": 0.8,
+    "delivery_speed": 0.6, "instant_access": 0.0}""" .
+
+# Strategic Pivot Operator
+ex:NetflixStreamingPivot a ce:StrategicPivotOperator ;
+    rdfs:label "Netflix Pivot to Streaming (2007-2013)" ;
+    ce:appliesTo ce:OrganizationalDomain, ce:TechnologyDomain ;
+    ce:consumes ex:NetflixDVD2007 ;
+    ce:produces ex:NetflixStreaming2013 ;
+    ce:isExtensive false ;
+    ce:isMonotonic false ;
+    ce:isIdempotent true ;
+    ce:valueCreated "200.0"^^xsd:decimal ;
+    ce:convergenceProperty "Pure-play streaming platform with original content" ;
+    rdfs:comment "Pivoted from DVD-by-mail to streaming while preserving subscriber relationships and content licensing expertise" .
+
+# Post-pivot Artifact
+ex:NetflixStreaming2013 a ce:Artifact ;
+    ce:artifactType "business_model" ;
+    ce:artifactName "Netflix Streaming (2013)" ;
+    ce:artifactDescription "Streaming video subscription with original content (House of Cards era)" ;
+    ce:inDomain ce:OrganizationalDomain, ce:MarketDomain ;
+    ce:derivedFrom ex:NetflixDVD2007 ;
+    ce:createdAt "2013-01-01T00:00:00Z"^^xsd:dateTime ;
+    ce:valueCurvePosition """{"convenience": 1.0, "selection": 0.8, "price": 0.8,
+    "delivery_speed": 1.0, "instant_access": 1.0, "original_content": 0.7}""" .
+
+# Observations: Pivot Success
+ex:NetflixSubscribers2007 a ce:Observation ;
+    ce:observes ex:NetflixDVD2007 ;
+    ce:observedProperty "subscriber_count" ;
+    ce:observedValue "7500000"^^xsd:decimal ;
+    ce:observedAt "2007-12-31T23:59:59Z"^^xsd:dateTime ;
+    ce:observer ex:BusinessAnalyst .
+
+ex:NetflixSubscribers2013 a ce:Observation ;
+    ce:observes ex:NetflixStreaming2013 ;
+    ce:observedProperty "subscriber_count" ;
+    ce:observedValue "44000000"^^xsd:decimal ;
+    ce:observedAt "2013-12-31T23:59:59Z"^^xsd:dateTime ;
+    ce:observer ex:BusinessAnalyst ;
+    rdfs:comment "6x subscriber growth through strategic pivot" .
+
+ex:NetflixMarketCap2013 a ce:Observation ;
+    ce:observes ex:NetflixStreaming2013 ;
+    ce:observedProperty "market_capitalization" ;
+    ce:observedValue "24000000000"^^xsd:decimal ;
+    ce:observedAt "2013-12-31T23:59:59Z"^^xsd:dateTime ;
+    ce:observer ex:FinancialAnalyst ;
+    rdfs:comment "$24B market cap after successful pivot" .
+
+# =============================================================================
+# AGENTS AND OBSERVERS
+# =============================================================================
+
+ex:MarketAnalyst a prov:Agent ;
+    rdfs:label "Market Research Analyst" ;
+    rdfs:comment "Agent specializing in market dynamics and competitive analysis" .
+
+ex:StrategyConsultant a prov:Agent ;
+    rdfs:label "Strategy Consultant" ;
+    rdfs:comment "Agent specializing in blue ocean strategy and innovation" .
+
+ex:FinancialAnalyst a prov:Agent ;
+    rdfs:label "Financial Analyst" ;
+    rdfs:comment "Agent specializing in financial metrics and valuation" .
+
+ex:TechAnalyst a prov:Agent ;
+    rdfs:label "Technology Analyst" ;
+    rdfs:comment "Agent specializing in technology market analysis" .
+
+ex:BusinessAnalyst a prov:Agent ;
+    rdfs:label "Business Analyst" ;
+    rdfs:comment "Agent specializing in business model and operational analysis" .
+
+# End of Examples

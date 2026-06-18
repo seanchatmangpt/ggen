@@ -1,0 +1,23 @@
+@prefix : <https://bytestar.org/ontology/bytestar-pqc#> .
+@prefix bytestar: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://bytestar.org/ontology/bytestar-pqc>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core> ;
+  rdfs:label "ByteStar PQC Ontology" ;
+  rdfs:comment "PQC tiering (hot/warm/cold) and operations." .
+
+:PathTier a owl:Class ; owl:oneOf ( :HOT :WARM :COLD ) .
+:pathTier a owl:ObjectProperty ; rdfs:domain bytestar:Subsystem ; rdfs:range :PathTier .
+
+:Verify, :Sign, :Keygen a owl:Class ; rdfs:subClassOf bytestar:PQCOperation .
+
+# Admission requires Verify true (warm), hot path does not sign/keygen
+:requiredForAdmission a owl:ObjectProperty ; rdfs:domain bytestar:ByteFlow ; rdfs:range :Verify .
+
+# Annotations linking doctrine (non-normative timing hints)
+:targetLatencyNs a owl:DatatypeProperty ; rdfs:domain :Verify ; rdfs:range xsd:decimal .
+:batchThroughput a owl:DatatypeProperty ; rdfs:domain :Sign ; rdfs:range xsd:decimal .

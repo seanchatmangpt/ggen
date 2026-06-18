@@ -1,0 +1,260 @@
+@prefix zoe:        <https://zoela.org/ontology/> .
+@prefix owl:        <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:       <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms:    <http://purl.org/dc/terms/> .
+@prefix time:       <http://www.w3.org/2006/time#> .
+@prefix geo:        <http://www.opengis.net/ont/geosparql#> .
+@prefix sf:         <http://www.opengis.net/ont/sf#> .
+
+<https://zoela.org/ontology/storehouse>
+    a owl:Ontology ;
+    rdfs:label "ZOE LA Storehouse Taxonomy and Inventory Ontology"@en ;
+    rdfs:comment "Ontology for physical storehouses, storage units, and assets using OWL-Time, GeoSPARQL, and SKOS."@en ;
+    dcterms:created "2026-05-26"^^xsd:date ;
+    dcterms:description "Definitions of Storehouse Units, Storage Units, and Storehouse Assets."@en ;
+    owl:versionInfo "1.0.0" .
+
+# ============================================================================
+# § 1 Classes
+# ============================================================================
+
+# 1.1 Storehouse Facility
+zoe:Storehouse
+    a owl:Class ;
+    rdfs:subClassOf geo:Feature ;
+    rdfs:label "Storehouse"@en ;
+    rdfs:comment "A physical storehouse facility operated by ZOE LA for storing and managing assets and resources."@en ;
+    skos:notation "storehouse" .
+
+# 1.2 Storage Unit within a Storehouse
+zoe:StorageUnit
+    a owl:Class ;
+    rdfs:subClassOf geo:Feature ;
+    rdfs:label "Storage Unit"@en ;
+    rdfs:comment "A specific physical compartment, shelf, bin, rack, or designated zone within a Storehouse."@en ;
+    skos:notation "storage_unit" .
+
+# 1.3 Storehouse Asset
+zoe:StorehouseAsset
+    a owl:Class ;
+    rdfs:label "Storehouse Asset"@en ;
+    rdfs:comment "Any physical asset or inventory item stored or tracked within a ZOE LA Storehouse."@en ;
+    skos:notation "storehouse_asset" .
+
+# ============================================================================
+# § 2 Object and Datatype Properties
+# ============================================================================
+
+# 2.1 Spatial Relationships (GeoSPARQL)
+
+zoe:storehousePoint
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:Storehouse ;
+    rdfs:range sf:Point ;
+    rdfs:label "storehouse point"@en ;
+    rdfs:comment "The spatial point location of the Storehouse."@en .
+
+zoe:storageUnitGeometry
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:StorageUnit ;
+    rdfs:range geo:Geometry ;
+    rdfs:label "storage unit geometry"@en ;
+    rdfs:comment "The precise spatial footprint or geometry of a storage unit."@en .
+
+# 2.2 Storehouse Structural Relationships
+
+zoe:belongsToStorehouse
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:StorageUnit ;
+    rdfs:range zoe:Storehouse ;
+    rdfs:label "belongs to storehouse"@en ;
+    rdfs:comment "Links a storage unit to its parent storehouse facility."@en ;
+    skos:notation "belongs_to_storehouse" .
+
+zoe:storedInUnit
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:StorehouseAsset ;
+    rdfs:range zoe:StorageUnit ;
+    rdfs:label "stored in unit"@en ;
+    rdfs:comment "Links an asset to the specific storage unit where it is currently placed."@en ;
+    skos:notation "stored_in_unit" .
+
+# 2.3 Temporal Relationships (OWL-Time)
+
+zoe:assetAcquisitionInstant
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:StorehouseAsset ;
+    rdfs:range time:Instant ;
+    rdfs:label "asset acquisition instant"@en ;
+    rdfs:comment "The precise point in time when the asset was acquired by the storehouse."@en .
+
+zoe:assetStorageInterval
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:StorehouseAsset ;
+    rdfs:range time:Interval ;
+    rdfs:label "asset storage interval"@en ;
+    rdfs:comment "The time interval during which the asset is designated to remain stored."@en .
+
+zoe:lastAuditedInstant
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:StorehouseAsset ;
+    rdfs:range time:Instant ;
+    rdfs:label "last audited instant"@en ;
+    rdfs:comment "The point in time when this asset was last physically verified/audited."@en .
+
+# 2.4 Controlled Vocabularies & Metadata (SKOS)
+
+zoe:assetCategory
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:StorehouseAsset ;
+    rdfs:range skos:Concept ;
+    rdfs:label "asset category"@en ;
+    rdfs:comment "SKOS classification of the asset type (e.g. IT Equipment, Vehicle, Medical Supply)."@en ;
+    skos:notation "asset_category" .
+
+zoe:storageUnitStatus
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:StorageUnit ;
+    rdfs:range skos:Concept ;
+    rdfs:label "storage unit status"@en ;
+    rdfs:comment "SKOS term representing the occupancy or availability status of the storage unit."@en ;
+    skos:notation "storage_unit_status" .
+
+zoe:assetSerialNum
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:StorehouseAsset ;
+    rdfs:range xsd:string ;
+    rdfs:label "asset serial number"@en ;
+    rdfs:comment "A unique serial number or manufacturer identifier for the asset."@en ;
+    skos:notation "asset_serial_num" .
+
+# ============================================================================
+# § 3 Taxonomies / SKOS Concepts
+# ============================================================================
+
+# 3.1 Storehouse Asset Type Taxonomy
+
+zoe:StorehouseAssetTypeScheme
+    a skos:ConceptScheme ;
+    rdfs:label "Storehouse Asset Type Scheme"@en ;
+    rdfs:comment "Controlled vocabulary of classification types for assets stored in ZOE LA storehouses."@en ;
+    dcterms:title "ZOE LA Storehouse Asset Taxonomy" .
+
+zoe:InfrastructureAsset
+    a skos:Concept ;
+    skos:inScheme zoe:StorehouseAssetTypeScheme ;
+    skos:prefLabel "Infrastructure Asset"@en ;
+    skos:definition "Assets forming the physical base of storehouse operations, e.g. shelving units, forklifts."@en ;
+    skos:notation "INFRA" .
+
+zoe:LogisticsVehicleAsset
+    a skos:Concept ;
+    skos:inScheme zoe:StorehouseAssetTypeScheme ;
+    skos:prefLabel "Logistics Vehicle Asset"@en ;
+    skos:definition "Vehicles used for transporting materials and resources between campuses and storehouses."@en ;
+    skos:notation "VEHICLE" .
+
+zoe:ITHardwareAsset
+    a skos:Concept ;
+    skos:inScheme zoe:StorehouseAssetTypeScheme ;
+    skos:prefLabel "IT Hardware Asset"@en ;
+    skos:definition "Computers, network gear, barcode scanners, and other technology assets used in storehouse administration."@en ;
+    skos:notation "IT" .
+
+zoe:SupplyResourceAsset
+    a skos:Concept ;
+    skos:inScheme zoe:StorehouseAssetTypeScheme ;
+    skos:prefLabel "Supply Resource Asset"@en ;
+    skos:definition "High-value bulk resources stored in the storehouse before allocation (e.g. generators, emergency shelter kits)."@en ;
+    skos:notation "SUPPLY" .
+
+# 3.2 Storage Unit Status Taxonomy
+
+zoe:StorageUnitStatusScheme
+    a skos:ConceptScheme ;
+    rdfs:label "Storage Unit Status Scheme"@en ;
+    rdfs:comment "Controlled vocabulary of status values for storage units."@en ;
+    dcterms:title "ZOE LA Storage Unit Statuses" .
+
+zoe:StatusAvailable
+    a skos:Concept ;
+    skos:inScheme zoe:StorageUnitStatusScheme ;
+    skos:prefLabel "Available"@en ;
+    skos:definition "The storage unit is empty and ready to accept assets."@en ;
+    skos:notation "AVAILABLE" .
+
+zoe:StatusOccupied
+    a skos:Concept ;
+    skos:inScheme zoe:StorageUnitStatusScheme ;
+    skos:prefLabel "Occupied"@en ;
+    skos:definition "The storage unit is at capacity with stored assets."@en ;
+    skos:notation "OCCUPIED" .
+
+zoe:StatusReserved
+    a skos:Concept ;
+    skos:inScheme zoe:StorageUnitStatusScheme ;
+    skos:prefLabel "Reserved"@en ;
+    skos:definition "The storage unit is reserved for incoming shipments."@en ;
+    skos:notation "RESERVED" .
+
+zoe:StatusMaintenance
+    a skos:Concept ;
+    skos:inScheme zoe:StorageUnitStatusScheme ;
+    skos:prefLabel "Under Maintenance"@en ;
+    skos:definition "The storage unit is undergoing repairs or safety inspection and cannot be used."@en ;
+    skos:notation "MAINTENANCE" .
+
+# ============================================================================
+# § 4 Exemplar Individuals
+# ============================================================================
+
+# Highland Park Central Storehouse Facility (GeoSPARQL Feature)
+zoe:HighlandParkStorehouse
+    a zoe:Storehouse ;
+    rdfs:label "Highland Park Central Storehouse"@en ;
+    zoe:storehousePoint zoe:HLPStorehousePoint .
+
+# The spatial coordinates for the Storehouse (sf:Point with geo:asWKT)
+zoe:HLPStorehousePoint
+    a sf:Point ;
+    rdfs:label "HLP Storehouse Location Coordinates"@en ;
+    geo:asWKT "POINT(-118.1905 34.1130)"^^geo:wktLiteral .
+
+# Storage Rack Zone A (Sub-unit within the Storehouse)
+zoe:HLPRackZoneA
+    a zoe:StorageUnit ;
+    rdfs:label "Highland Park Storehouse Rack Zone A"@en ;
+    zoe:belongsToStorehouse zoe:HighlandParkStorehouse ;
+    zoe:storageUnitStatus zoe:StatusAvailable .
+
+# Storehouse Asset: Main Server Cabinet (IT Hardware Asset)
+zoe:AssetServerCabinet001
+    a zoe:StorehouseAsset ;
+    rdfs:label "Main Server Cabinet 001"@en ;
+    zoe:storedInUnit zoe:HLPRackZoneA ;
+    zoe:assetCategory zoe:ITHardwareAsset ;
+    zoe:assetSerialNum "SRV-HLP-0001928" ;
+    zoe:assetAcquisitionInstant zoe:InstantServerAcquisition ;
+    zoe:assetStorageInterval zoe:IntervalServerExpectedStorage .
+
+# Instant of Acquisition (OWL-Time)
+zoe:InstantServerAcquisition
+    a time:Instant ;
+    rdfs:label "Server Acquisition Time Instant"@en ;
+    time:inXSDDateTime "2026-05-15T09:00:00-07:00"^^xsd:dateTime .
+
+# Expected Storage Interval (OWL-Time)
+zoe:IntervalServerExpectedStorage
+    a time:Interval ;
+    rdfs:label "Server Expected Storage Interval"@en ;
+    time:hasBeginning zoe:InstantServerAcquisition ;
+    time:hasEnd zoe:InstantServerEnd .
+
+# Instant representing end of expected storage
+zoe:InstantServerEnd
+    a time:Instant ;
+    rdfs:label "Server End of Expected Storage Time Instant"@en ;
+    time:inXSDDateTime "2031-05-15T09:00:00-07:00"^^xsd:dateTime .

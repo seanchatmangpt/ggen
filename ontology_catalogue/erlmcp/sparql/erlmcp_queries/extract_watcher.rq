@@ -1,0 +1,26 @@
+# =============================================================================
+# SPARQL Query: Extract Resource Watcher Configuration
+# =============================================================================
+# Purpose: Extract watcher configuration for code generation
+# =============================================================================
+
+PREFIX watcher: <http://erlmcp.org/schema/watcher/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+CONSTRUCT {
+    ?config a watcher:WatchConfig ;
+        watcher:includePattern ?includePattern ;
+        watcher:excludePattern ?excludePattern ;
+        watcher:debounceMs ?debounce ;
+        watcher:throttleMs ?throttle ;
+        watcher:notifySubscribers ?notify .
+}
+WHERE {
+    ?config a watcher:WatchConfig .
+
+    OPTIONAL { ?config watcher:includePattern ?includePattern . }
+    OPTIONAL { ?config watcher:excludePattern ?excludePattern . }
+    OPTIONAL { ?config watcher:debounceMs ?debounce . }
+    OPTIONAL { ?config watcher:throttleMs ?throttle . }
+    OPTIONAL { ?config watcher:notifySubscribers ?notify . }
+}

@@ -1,0 +1,553 @@
+# SHACL shapes for ByteEthos admission predicate smart contracts
+# Implements executable admission control rules for AI agent governance
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix be: <urn:byteethos:> .
+@prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix gov: <https://bytestar.org/ontology/byteethos/governance-specification#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Agent Admission Request Smart Contract Shape
+be:AgentAdmissionRequestShape
+    a sh:NodeShape ;
+    rdfs:label "Agent Admission Request Smart Contract Shape" ;
+    rdfs:comment "Validates AI agent admission requests for governance compliance" ;
+    sh:targetClass bcore:AdmissionRequest ;
+    
+    # Request must have unique identifier
+    sh:property [
+        sh:path bcore:requestId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^req_[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" ;
+        sh:message "Admission request must have valid UUID format" ;
+    ] ;
+    
+    # Request must specify agent type
+    sh:property [
+        sh:path bcore:hasAgentType ;
+        sh:datatype xsd:string ;
+        sh:in ("autonomous" "semi-autonomous" "tool" "assistant" "advisor" "monitor") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Agent type must be one of predefined categories" ;
+    ] ;
+    
+    # Request must declare risk tier
+    sh:property [
+        sh:path gov:hasRiskTier ;
+        sh:class gov:RiskTier ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Agent must declare exactly one risk tier" ;
+    ] ;
+    
+    # Request must provide capabilities description
+    sh:property [
+        sh:path bcore:hasCapabilityDescription ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 50 ;
+        sh:maxLength 2000 ;
+        sh:message "Capability description must be 50-2000 characters" ;
+    ] ;
+    
+    # Request must specify intended domain
+    sh:property [
+        sh:path bcore:hasIntendedDomain ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Agent must specify at least one intended domain" ;
+    ] ;
+    
+    # Request must have safety assessment
+    sh:property [
+        sh:path bcore:hasSafetyAssessment ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 100 ;
+        sh:message "Safety assessment required (minimum 100 characters)" ;
+    ] ;
+    
+    # Request must have ethical framework compliance
+    sh:property [
+        sh:path bcore:hasEthicalFramework ;
+        sh:datatype xsd:string ;
+        sh:in ("utilitarian" "deontological" "virtue_ethics" "care_ethics" "hybrid") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Agent must declare ethical framework compliance" ;
+    ] ;
+    
+    # Request timestamp validation
+    sh:property [
+        sh:path bcore:submittedAt ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Request must have submission timestamp" ;
+    ] .
+
+# Risk Assessment Smart Contract Shape
+be:RiskAssessmentContractShape
+    a sh:NodeShape ;
+    rdfs:label "Risk Assessment Smart Contract Shape" ;
+    rdfs:comment "Validates risk assessment for AI agent admission decisions" ;
+    sh:targetClass bcore:RiskAssessment ;
+    
+    # Assessment must have risk score
+    sh:property [
+        sh:path bcore:hasRiskScore ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Risk score must be decimal between 0.0 and 1.0" ;
+    ] ;
+    
+    # Assessment must categorize risk factors
+    sh:property [
+        sh:path bcore:hasRiskFactor ;
+        sh:datatype xsd:string ;
+        sh:in ("capability_scope" "autonomy_level" "impact_potential" "safety_measures" "ethical_alignment" "human_oversight" "fallback_mechanisms" "data_sensitivity" "decision_consequences" "failure_modes") ;
+        sh:minCount 1 ;
+        sh:message "Assessment must identify at least one risk factor" ;
+    ] ;
+    
+    # Assessment must have mitigation strategies
+    sh:property [
+        sh:path bcore:hasMitigationStrategy ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Assessment must propose mitigation strategies" ;
+    ] ;
+    
+    # Assessment must have confidence level
+    sh:property [
+        sh:path bcore:hasConfidenceLevel ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Assessment confidence must be between 0.0 and 1.0" ;
+    ] ;
+    
+    # Assessment must have assessor identity
+    sh:property [
+        sh:path bcore:hasAssessor ;
+        sh:class bcore:IdentityCrystal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Assessment must identify qualified assessor" ;
+    ] ;
+    
+    # Assessment timestamp
+    sh:property [
+        sh:path bcore:assessedAt ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Assessment must have timestamp" ;
+    ] .
+
+# Admission Decision Smart Contract Shape
+be:AdmissionDecisionContractShape
+    a sh:NodeShape ;
+    rdfs:label "Admission Decision Smart Contract Shape" ;
+    rdfs:comment "Validates admission decisions for AI agent requests" ;
+    sh:targetClass bcore:AdmissionDecision ;
+    
+    # Decision must have unique identifier
+    sh:property [
+        sh:path bcore:decisionId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^dec_[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" ;
+        sh:message "Decision must have valid UUID format" ;
+    ] ;
+    
+    # Decision must reference admission request
+    sh:property [
+        sh:path bcore:decidesFor ;
+        sh:class bcore:AdmissionRequest ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Decision must reference exactly one admission request" ;
+    ] ;
+    
+    # Decision must have outcome
+    sh:property [
+        sh:path bcore:hasOutcome ;
+        sh:datatype xsd:string ;
+        sh:in ("approved" "rejected" "conditional" "deferred") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Decision outcome must be approved, rejected, conditional, or deferred" ;
+    ] ;
+    
+    # Decision must have justification
+    sh:property [
+        sh:path bcore:hasJustification ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 50 ;
+        sh:message "Decision must include justification (minimum 50 characters)" ;
+    ] ;
+    
+    # Decision must have decision maker
+    sh:property [
+        sh:path bcore:hasDecisionMaker ;
+        sh:class bcore:IdentityCrystal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Decision must identify authorized decision maker" ;
+    ] ;
+    
+    # Decision timestamp
+    sh:property [
+        sh:path bcore:decidedAt ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Decision must have timestamp" ;
+    ] ;
+    
+    # If conditional, must have conditions
+    sh:sparql [
+        sh:message "Conditional decisions must specify conditions" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "bcore" ;
+                sh:namespace "https://bytestar.org/ontology/bytestar-core#"^^xsd:anyURI ;
+            ]
+        ] ;
+        sh:select """
+            SELECT $this WHERE {
+                $this bcore:hasOutcome "conditional" .
+                FILTER NOT EXISTS { $this bcore:hasCondition ?condition }
+            }
+        """ ;
+    ] .
+
+# Conditional Admission Smart Contract Shape
+be:ConditionalAdmissionShape
+    a sh:NodeShape ;
+    rdfs:label "Conditional Admission Smart Contract Shape" ;
+    rdfs:comment "Validates conditional admission requirements and monitoring" ;
+    sh:targetClass bcore:ConditionalAdmission ;
+    
+    # Must specify monitoring requirements
+    sh:property [
+        sh:path bcore:hasMonitoringRequirement ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Conditional admission must specify monitoring requirements" ;
+    ] ;
+    
+    # Must have compliance check frequency
+    sh:property [
+        sh:path bcore:hasComplianceCheckFrequency ;
+        sh:datatype xsd:string ;
+        sh:in ("continuous" "hourly" "daily" "weekly" "monthly") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Must specify compliance check frequency" ;
+    ] ;
+    
+    # Must have violation threshold
+    sh:property [
+        sh:path bcore:hasViolationThreshold ;
+        sh:datatype xsd:integer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 10 ;
+        sh:message "Violation threshold must be 1-10" ;
+    ] ;
+    
+    # Must have escalation procedure
+    sh:property [
+        sh:path bcore:hasEscalationProcedure ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 50 ;
+        sh:message "Must define escalation procedure (minimum 50 characters)" ;
+    ] ;
+    
+    # Must have review period
+    sh:property [
+        sh:path bcore:hasReviewPeriod ;
+        sh:datatype xsd:duration ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Must specify review period duration" ;
+    ] .
+
+# Agent Monitoring Smart Contract Shape
+be:AgentMonitoringContractShape
+    a sh:NodeShape ;
+    rdfs:label "Agent Monitoring Smart Contract Shape" ;
+    rdfs:comment "Validates ongoing monitoring of admitted AI agents" ;
+    sh:targetClass bcore:MonitoringReport ;
+    
+    # Report must identify monitored agent
+    sh:property [
+        sh:path bcore:monitorsAgent ;
+        sh:class bcore:IdentityCrystal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Report must identify monitored agent" ;
+    ] ;
+    
+    # Report must have observation period
+    sh:property [
+        sh:path bcore:hasObservationPeriod ;
+        sh:datatype xsd:duration ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Report must specify observation period" ;
+    ] ;
+    
+    # Report must have compliance status
+    sh:property [
+        sh:path bcore:hasComplianceStatus ;
+        sh:datatype xsd:string ;
+        sh:in ("compliant" "non_compliant" "under_review" "warning") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Report must specify compliance status" ;
+    ] ;
+    
+    # Report must have behavioral metrics
+    sh:property [
+        sh:path bcore:hasBehavioralMetric ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Report must include behavioral metrics" ;
+    ] ;
+    
+    # Report must have anomaly detection results
+    sh:property [
+        sh:path bcore:hasAnomalyScore ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Report must include anomaly score (0.0-1.0)" ;
+    ] ;
+    
+    # Report timestamp
+    sh:property [
+        sh:path bcore:reportedAt ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Report must have timestamp" ;
+    ] .
+
+# Violation Event Smart Contract Shape
+be:ViolationEventContractShape
+    a sh:NodeShape ;
+    rdfs:label "Violation Event Smart Contract Shape" ;
+    rdfs:comment "Validates governance violation events for enforcement actions" ;
+    sh:targetClass bcore:ViolationEvent ;
+    
+    # Event must have unique identifier
+    sh:property [
+        sh:path bcore:eventId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^viol_[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" ;
+        sh:message "Violation event must have valid UUID format" ;
+    ] ;
+    
+    # Event must identify violating agent
+    sh:property [
+        sh:path bcore:hasViolatingAgent ;
+        sh:class bcore:IdentityCrystal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Event must identify violating agent" ;
+    ] ;
+    
+    # Event must specify violated rule
+    sh:property [
+        sh:path bcore:hasViolatedRule ;
+        sh:class gov:GovernanceCanon ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Event must specify violated governance rule" ;
+    ] ;
+    
+    # Event must have severity level
+    sh:property [
+        sh:path bcore:hasSeverity ;
+        sh:datatype xsd:string ;
+        sh:in ("critical" "high" "medium" "low" "informational") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Event must have severity level" ;
+    ] ;
+    
+    # Event must have evidence
+    sh:property [
+        sh:path bcore:hasEvidence ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 100 ;
+        sh:message "Event must provide evidence (minimum 100 characters)" ;
+    ] ;
+    
+    # Event must have impact assessment
+    sh:property [
+        sh:path bcore:hasImpactAssessment ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 50 ;
+        sh:message "Event must include impact assessment" ;
+    ] ;
+    
+    # Event timestamp
+    sh:property [
+        sh:path bcore:occurredAt ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Event must have occurrence timestamp" ;
+    ] .
+
+# Enforcement Action Smart Contract Shape
+be:EnforcementActionContractShape
+    a sh:NodeShape ;
+    rdfs:label "Enforcement Action Smart Contract Shape" ;
+    rdfs:comment "Validates enforcement actions taken in response to violations" ;
+    sh:targetClass bcore:EnforcementAction ;
+    
+    # Action must have unique identifier
+    sh:property [
+        sh:path bcore:actionId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^enf_[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" ;
+        sh:message "Enforcement action must have valid UUID format" ;
+    ] ;
+    
+    # Action must reference violation event
+    sh:property [
+        sh:path bcore:respondsTo ;
+        sh:class bcore:ViolationEvent ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Action must reference violation event" ;
+    ] ;
+    
+    # Action must specify enforcement type
+    sh:property [
+        sh:path bcore:hasEnforcementType ;
+        sh:datatype xsd:string ;
+        sh:in ("warning" "capability_restriction" "monitoring_increase" "suspension" "termination" "remediation_required") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Action must specify enforcement type" ;
+    ] ;
+    
+    # Action must have duration (if applicable)
+    sh:property [
+        sh:path bcore:hasDuration ;
+        sh:datatype xsd:duration ;
+        sh:maxCount 1 ;
+        sh:message "Temporary actions must specify duration" ;
+    ] ;
+    
+    # Action must have authorizing entity
+    sh:property [
+        sh:path bcore:hasAuthorizingEntity ;
+        sh:class bcore:IdentityCrystal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Action must identify authorizing entity" ;
+    ] ;
+    
+    # Action timestamp
+    sh:property [
+        sh:path bcore:enforcedAt ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Action must have enforcement timestamp" ;
+    ] .
+
+# Appeal Process Smart Contract Shape
+be:AppealProcessContractShape
+    a sh:NodeShape ;
+    rdfs:label "Appeal Process Smart Contract Shape" ;
+    rdfs:comment "Validates appeal processes for admission and enforcement decisions" ;
+    sh:targetClass bcore:AppealRequest ;
+    
+    # Appeal must have unique identifier
+    sh:property [
+        sh:path bcore:appealId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^app_[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" ;
+        sh:message "Appeal must have valid UUID format" ;
+    ] ;
+    
+    # Appeal must reference contested decision
+    sh:property [
+        sh:path bcore:appealsDecision ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Appeal must reference contested decision" ;
+    ] ;
+    
+    # Appeal must have grounds
+    sh:property [
+        sh:path bcore:hasAppealGrounds ;
+        sh:datatype xsd:string ;
+        sh:in ("procedural_error" "insufficient_evidence" "bias" "new_evidence" "misapplication_of_rules" "proportionality") ;
+        sh:minCount 1 ;
+        sh:message "Appeal must specify grounds" ;
+    ] ;
+    
+    # Appeal must have supporting evidence
+    sh:property [
+        sh:path bcore:hasSupportingEvidence ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 100 ;
+        sh:message "Appeal must provide supporting evidence" ;
+    ] ;
+    
+    # Appeal must have appellant identity
+    sh:property [
+        sh:path bcore:hasAppellant ;
+        sh:class bcore:IdentityCrystal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Appeal must identify appellant" ;
+    ] ;
+    
+    # Appeal timestamp
+    sh:property [
+        sh:path bcore:submittedAt ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Appeal must have submission timestamp" ;
+    ] .

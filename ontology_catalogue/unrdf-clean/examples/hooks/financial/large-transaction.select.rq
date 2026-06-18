@@ -1,0 +1,30 @@
+# Large Transaction Monitor - SPARQL SELECT Query
+# This query identifies transactions that exceed a specified threshold
+# and returns details for monitoring and audit purposes
+
+PREFIX fibo: <https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/FinancialInstruments/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX ex: <http://example.org/>
+
+SELECT ?transaction ?amount ?currency ?timestamp ?initiator ?recipient WHERE {
+  # Find transactions in the delta (newly added)
+  ?transaction a fibo:FinancialTransaction .
+  ?transaction fibo:hasAmount ?amountValue .
+  ?transaction fibo:hasCurrency ?currency .
+  ?transaction prov:startedAtTime ?timestamp .
+  ?transaction fibo:hasInitiator ?initiator .
+  ?transaction fibo:hasRecipient ?recipient .
+  
+  # Extract numeric amount for comparison
+  BIND(xsd:decimal(?amountValue) AS ?amount)
+  
+  # Filter for large transactions (threshold will be set by the hook)
+  # This is a placeholder - the actual threshold will be injected by the hook
+  FILTER(?amount > 10000)
+  
+  # Ensure all required fields are present
+  FILTER(BOUND(?amount) && BOUND(?currency) && BOUND(?timestamp))
+  FILTER(BOUND(?initiator) && BOUND(?recipient))
+}
+ORDER BY DESC(?amount)
+LIMIT 100

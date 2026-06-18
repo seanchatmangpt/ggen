@@ -1,0 +1,185 @@
+@prefix : <https://bytestar.org/ontology/v5/abi-definitions#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix core: <https://bytestar.org/ontology/v5/core#> .
+@prefix arch: <https://bytestar.org/ontology/v5/architecture#> .
+
+<https://bytestar.org/ontology/v5/abi-definitions>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/v5/architecture> ;
+  rdfs:label "ByteStar v5 ABI Definitions Ontology" ;
+  rdfs:comment "This ontology formally defines the precise memory layouts, sizes, alignments, and function signatures that constitute the ByteStar ABI. It serves as the machine-readable contract for inter-realm communication." ;
+  owl:versionInfo "5.0.0" .
+
+# #################################################################
+# I. Core ABI Data Structures
+# #################################################################
+
+:hasSizeInBytes a owl:DatatypeProperty ;
+    rdfs:label "has size in bytes" ;
+    rdfs:range xsd:integer .
+
+:hasAlignmentInBytes a owl:DatatypeProperty ;
+    rdfs:label "has alignment in bytes" ;
+    rdfs:range xsd:integer .
+
+:hasField a owl:ObjectProperty ;
+    rdfs:label "has field" ;
+    rdfs:range :ABI_Field .
+
+:ABI_Field a owl:Class ;
+    rdfs:label "ABI Field" .
+
+:fieldName a owl:DatatypeProperty ;
+    rdfs:domain :ABI_Field ;
+    rdfs:range xsd:string .
+
+:fieldOffset a owl:DatatypeProperty ;
+    rdfs:domain :ABI_Field ;
+    rdfs:range xsd:integer .
+
+:fieldSize a owl:DatatypeProperty ;
+    rdfs:domain :ABI_Field ;
+    rdfs:range xsd:integer .
+
+:fieldType a owl:DatatypeProperty ;
+    rdfs:domain :ABI_Field ;
+    rdfs:range xsd:string .
+
+# --- Envelope (64 bytes) ---
+:Envelope64 a owl:Class ;
+    rdfs:label "Envelope (64 bytes)" ;
+    rdfs:subClassOf arch:ABI ;
+    :hasSizeInBytes "64"^^xsd:integer ;
+    :hasAlignmentInBytes "64"^^xsd:integer ;
+    :hasField [ a :ABI_Field ; :fieldName "magic" ; :fieldOffset "0" ; :fieldSize "2" ; :fieldType "uint16_t" ] ,
+              [ a :ABI_Field ; :fieldName "version" ; :fieldOffset "2" ; :fieldSize "1" ; :fieldType "uint8_t" ] ,
+              [ a :ABI_Field ; :fieldName "pattern_byte" ; :fieldOffset "3" ; :fieldSize "1" ; :fieldType "uint8_t" ] ,
+              [ a :ABI_Field ; :fieldName "in_cid" ; :fieldOffset "8" ; :fieldSize "16" ; :fieldType "uint8_t[16]" ] .
+
+# --- Result Crystal (64 bytes) ---
+:ResultCrystal64 a owl:Class ;
+    rdfs:label "Result Crystal (64 bytes)" ;
+    rdfs:subClassOf arch:ABI ;
+    :hasSizeInBytes "64"^^xsd:integer ;
+    :hasAlignmentInBytes "64"^^xsd:integer ;
+    :hasField [ a :ABI_Field ; :fieldName "magic" ; :fieldOffset "0" ; :fieldSize "2" ; :fieldType "uint16_t" ] ,
+              [ a :ABI_Field ; :fieldName "version" ; :fieldOffset "2" ; :fieldSize "1" ; :fieldType "uint8_t" ] ,
+              [ a :ABI_Field ; :fieldName "in_cid" ; :fieldOffset "4" ; :fieldSize "16" ; :fieldType "uint8_t[16]" ] ,
+              [ a :ABI_Field ; :fieldName "out_cid" ; :fieldOffset "20" ; :fieldSize "16" ; :fieldType "uint8_t[16]" ] ,
+              [ a :ABI_Field ; :fieldName "pattern_byte" ; :fieldOffset "36" ; :fieldSize "1" ; :fieldType "uint8_t" ] ,
+              [ a :ABI_Field ; :fieldName "ticks_consumed" ; :fieldOffset "37" ; :fieldSize "1" ; :fieldType "uint8_t" ] .
+
+# --- Result Crystal (256 bytes) ---
+:ResultCrystal256 a owl:Class ;
+    rdfs:label "Result Crystal (256 bytes)" ;
+    rdfs:subClassOf arch:ABI ;
+    :hasSizeInBytes "256"^^xsd:integer ;
+    :hasAlignmentInBytes "64"^^xsd:integer ;
+    :hasField [ a :ABI_Field ; :fieldName "head" ; :fieldOffset "0" ; :fieldSize "64" ; :fieldType "ResultCrystal64" ] ,
+              [ a :ABI_Field ; :fieldName "witness_data" ; :fieldOffset "64" ; :fieldSize "160" ; :fieldType "uint8_t[160]" ] ,
+              [ a :ABI_Field ; :fieldName "seal" ; :fieldOffset "224" ; :fieldSize "32" ; :fieldType "uint8_t[32]" ] .
+
+# --- PQC Key and Signature Structures ---
+:PQC_PublicKey a owl:Class ;
+    rdfs:label "PQC Public Key" ;
+    rdfs:subClassOf arch:ABI ;
+    :hasSizeInBytes "1568"^^xsd:integer ; # Kyber1024 Public Key Size
+    :hasAlignmentInBytes "64"^^xsd:integer .
+
+:PQC_SecretKey a owl:Class ;
+    rdfs:label "PQC Secret Key" ;
+    rdfs:subClassOf arch:ABI ;
+    :hasSizeInBytes "3168"^^xsd:integer ; # Kyber1024 Secret Key Size
+    :hasAlignmentInBytes "64"^^xsd:integer .
+
+:PQC_Signature a owl:Class ;
+    rdfs:label "PQC Signature" ;
+    rdfs:subClassOf arch:ABI ;
+    :hasSizeInBytes "3293"^^xsd:integer ; # Dilithium3 Signature Size
+    :hasAlignmentInBytes "64"^^xsd:integer .
+
+:PQC_Ciphertext a owl:Class ;
+    rdfs:label "PQC Ciphertext" ;
+    rdfs:subClassOf arch:ABI ;
+    :hasSizeInBytes "1568"^^xsd:integer ; # Kyber1024 Ciphertext Size
+    :hasAlignmentInBytes "64"^^xsd:integer .
+
+:PQC_SharedSecret a owl:Class ;
+    rdfs:label "PQC Shared Secret" ;
+    rdfs:subClassOf arch:ABI ;
+    :hasSizeInBytes "32"^^xsd:integer ; # Kyber1024 Shared Secret Size
+    :hasAlignmentInBytes "32"^^xsd:integer .
+
+# #################################################################
+# II. Core ABI Functions
+# #################################################################
+
+:ABIFunction a owl:Class ;
+    rdfs:label "ABI Function" .
+
+:isConstantTime a owl:DatatypeProperty ;
+    rdfs:label "is constant time" ;
+    rdfs:domain :ABIFunction ;
+    rdfs:range xsd:boolean .
+
+:hasInputType a owl:ObjectProperty ;
+    rdfs:domain :ABIFunction ;
+    rdfs:range arch:ABI .
+
+:hasOutputType a owl:ObjectProperty ;
+    rdfs:domain :ABIFunction ;
+    rdfs:range arch:ABI .
+
+# --- PQC ABI Functions (as defined in bytecore/abi/pqc.h) ---
+:bs_pqc_verify_safe a :ABIFunction ;
+    rdfs:label "bs_pqc_verify_safe" ;
+    :isConstantTime "true"^^xsd:boolean ;
+    :hasInputType :PQC_Signature, :PQC_PublicKey ;
+    :hasOutputType :VerificationResult .
+
+:bs_kem_decap_safe a :ABIFunction ;
+    rdfs:label "bs_kem_decap_safe" ;
+    :isConstantTime "true"^^xsd:boolean ;
+    :hasInputType :PQC_SecretKey, :PQC_Ciphertext ;
+    :hasOutputType :PQC_SharedSecret .
+
+# --- ABI Helper Functions (as defined in bytecore/abi/memory_safety.h) ---
+:bs_stack_arena_init a :ABIFunction ;
+    rdfs:label "bs_stack_arena_init" ;
+    :isConstantTime "true"^^xsd:boolean ;
+    :hasInputType :MemoryBuffer ;
+    :hasOutputType :StackArenaHandle .
+
+:bs_stack_alloc a :ABIFunction ;
+    rdfs:label "bs_stack_alloc" ;
+    :isConstantTime "true"^^xsd:boolean ;
+    :hasInputType :StackArenaHandle, :SizeInBytes, :AlignmentInBytes ;
+    :hasOutputType :MemoryPointer .
+
+# #################################################################
+# III. Axiomatic Enforcement of ABI Properties
+# #################################################################
+
+# Axiom: All ABI structures must have their size and alignment properties defined.
+arch:ABI rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasSizeInBytes ; owl:minCardinality "1"^^xsd:nonNegativeInteger ] ,
+                        [ a owl:Restriction ; owl:onProperty :hasAlignmentInBytes ; owl:minCardinality "1"^^xsd:nonNegativeInteger ] .
+
+# Axiom: All ABI functions must be constant-time.
+:ABIFunction rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :isConstantTime ; owl:hasValue "true"^^xsd:boolean ] .
+
+# Axiom: The ethos_cid_t must be exactly 128 bytes (fixing the previous build error).
+# This is a specific instance of a general rule that all ABI structs must match their specified size.
+:EthosCID a owl:Class ;
+    rdfs:label "Ethos Content ID" ;
+    rdfs:subClassOf arch:ABI ;
+    :hasSizeInBytes "128"^^xsd:integer ;
+    :hasAlignmentInBytes "64"^^xsd:integer .
+
+# Axiom: The ethos_identity_addr_t must be exactly 160 bytes (fixing the previous build error).
+:EthosIdentityAddr a owl:Class ;
+    rdfs:label "Ethos Identity Address" ;
+    rdfs:subClassOf arch:ABI ;
+    :hasSizeInBytes "160"^^xsd:integer ;
+    :hasAlignmentInBytes "64"^^xsd:integer .

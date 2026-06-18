@@ -1,0 +1,40 @@
+# Extract all platform services across OSA, BusinessOS, Canopy, pm4py-mcp
+PREFIX osa: <https://chatmangpt.com/osa#>
+PREFIX bos: <https://chatmangpt.com/businessos#>
+PREFIX canopy: <https://chatmangpt.com/canopy#>
+PREFIX pm: <https://chatmangpt.com/pm4py#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?service ?label ?port ?protocol ?language ?framework ?prefix
+WHERE {
+  {
+    ?service a osa:Service .
+    BIND("osa" AS ?prefix)
+    OPTIONAL { ?service osa:port ?port }
+    OPTIONAL { ?service osa:protocol ?protocol }
+    OPTIONAL { ?service osa:language ?language }
+    OPTIONAL { ?service osa:framework ?framework }
+  } UNION {
+    ?service a bos:Service .
+    BIND("bos" AS ?prefix)
+    OPTIONAL { ?service bos:port ?port }
+    OPTIONAL { ?service bos:protocol ?protocol }
+    OPTIONAL { ?service bos:language ?language }
+    OPTIONAL { ?service bos:framework ?framework }
+  } UNION {
+    ?service a canopy:Service .
+    BIND("canopy" AS ?prefix)
+    OPTIONAL { ?service canopy:port ?port }
+    OPTIONAL { ?service canopy:protocol ?protocol }
+    OPTIONAL { ?service canopy:language ?language }
+    OPTIONAL { ?service canopy:framework ?framework }
+  } UNION {
+    ?service a pm:Infrastructure .
+    BIND("pm4py" AS ?prefix)
+    OPTIONAL { ?service pm:servicePort ?port }
+    OPTIONAL { ?service pm:language ?language }
+    OPTIONAL { ?service pm:framework ?framework }
+  }
+  ?service rdfs:label ?label .
+}
+ORDER BY ?prefix ?port

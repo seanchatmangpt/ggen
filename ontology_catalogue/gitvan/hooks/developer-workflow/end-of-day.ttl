@@ -1,0 +1,60 @@
+@prefix dev: <https://gitvan.dev/developer#> .
+@prefix scrum: <https://gitvan.dev/scrum#> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+@prefix op: <https://gitvan.dev/op#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# End of Day - Sprint Progress Reflection Hook
+dev:end-of-day-hook rdf:type gh:Hook ;
+    gv:title "End of Day - Sprint Progress Reflection" ;
+    gh:hasPredicate dev:end-of-day-predicate ;
+    gh:orderedPipelines dev:end-of-day-pipeline .
+
+# Predicate: Check if developer is ending work
+dev:end-of-day-predicate rdf:type gh:ASKPredicate ;
+    gh:queryText """
+        PREFIX dev: <https://gitvan.dev/developer#>
+        PREFIX scrum: <https://gitvan.dev/scrum#>
+        
+        ASK WHERE {
+            ?developer rdf:type dev:Developer ;
+                       dev:workStatus "ending" .
+            ?developer dev:currentSprint ?sprint .
+            ?sprint scrum:status "active" .
+        }
+    """ ;
+    gh:description "Triggers when developer ends their work day" .
+
+# End of Day Pipeline
+dev:end-of-day-pipeline rdf:type op:Pipeline ;
+    op:steps dev:reflect-sprint-progress, dev:update-burndown, dev:prepare-next-day .
+
+# Step 1: Reflect Sprint Progress
+dev:reflect-sprint-progress rdf:type gv:ShellStep ;
+    gv:command "echo 'Reflecting on sprint progress...'" ;
+    gv:description "Review day's accomplishments and challenges" .
+
+# Step 2: Update Sprint Burndown
+dev:update-burndown rdf:type gv:HttpStep ;
+    gv:httpUrl "https://api.scrum.com/sprint-burndown" ;
+    gv:httpMethod "PUT" ;
+    gv:headers '{"Content-Type": "application/json"}' ;
+    gv:body """
+        {
+            "action": "update-burndown",
+            "sprint": "{{ sprint.id }}",
+            "developer": "{{ developer.id }}",
+            "completedItems": "{{ completedItems }}",
+            "remainingWork": "{{ remainingWork }}"
+        }
+    """ ;
+    gv:description "Update sprint burndown chart" ;
+    gv:dependsOn dev:reflect-sprint-progress .
+
+# Step 3: Prepare Next Day
+dev:prepare-next-day rdf:type gv:ShellStep ;
+    gv:command "echo 'Preparing for next day...'" ;
+    gv:description "Plan and prepare for tomorrow's work" ;
+    gv:dependsOn dev:update-burndown .
+

@@ -1,0 +1,172 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+@prefix gitv: <https://gitvan.dev/ontology/git#> .
+
+# ============================================================================
+# Hook Configuration SHACL Shapes
+# ============================================================================
+
+# Shape for Knowledge Hook configuration
+gh:HookConfigShape a sh:NodeShape ;
+    sh:targetClass gh:Hook ;
+    sh:name "Hook Configuration Shape" ;
+    sh:description "Validates that hooks are properly configured with required predicates and actions" ;
+    sh:property [
+        sh:path dct:identifier ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:pattern "^[a-zA-Z0-9_-]+$" ;
+        sh:message "Hook identifier must be alphanumeric with underscores and hyphens only" ;
+    ] ;
+    sh:property [
+        sh:path dct:title ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Hook must have a descriptive title" ;
+    ] ;
+    sh:property [
+        sh:path dct:description ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Hook must have a description explaining its purpose" ;
+    ] ;
+    sh:property [
+        sh:path gh:hasPredicate ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Hook must have exactly one trigger predicate" ;
+    ] ;
+    sh:property [
+        sh:path gh:hasAction ;
+        sh:minCount 1 ;
+        sh:message "Hook must have at least one action to execute" ;
+    ] ;
+    sh:property [
+        sh:path gh:enabled ;
+        sh:datatype xsd:boolean ;
+        sh:message "Hook enabled flag must be a boolean value if present" ;
+    ] ;
+    sh:property [
+        sh:path dct:created ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Hook creation timestamp must be in ISO 8601 format if present" ;
+    ] .
+
+# Shape for Predicate definition in hooks
+gh:PredicateDefinitionShape a sh:NodeShape ;
+    sh:targetClass gh:Predicate ;
+    sh:name "Predicate Definition Shape" ;
+    sh:description "Validates that hook predicates have required properties" ;
+    sh:property [
+        sh:path dct:identifier ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Predicate must have an identifier" ;
+    ] ;
+    sh:property [
+        sh:path gh:predicateType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:pattern "(ask|selectThreshold|resultDelta|shaclAllConform|construct|describe|federated|temporal|n3Rule|composite)" ;
+        sh:message "Predicate must have a valid type: ask, selectThreshold, resultDelta, shaclAllConform, construct, describe, federated, temporal, n3Rule, or composite" ;
+    ] ;
+    sh:property [
+        sh:path gh:hasDefinition ;
+        sh:minCount 1 ;
+        sh:message "Predicate must have a definition object containing query or configuration" ;
+    ] .
+
+# Shape for Action execution definition
+gh:ActionExecutionShape a sh:NodeShape ;
+    sh:targetClass gh:Action ;
+    sh:name "Action Execution Shape" ;
+    sh:description "Validates that hook actions are properly configured for execution" ;
+    sh:property [
+        sh:path dct:identifier ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Action must have an identifier" ;
+    ] ;
+    sh:property [
+        sh:path dct:title ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Action must have a title" ;
+    ] ;
+    sh:property [
+        sh:path gh:actionType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:pattern "(exec|script|workflow|query|construct|mutation)" ;
+        sh:message "Action must have a valid type: exec, script, workflow, query, construct, or mutation" ;
+    ] ;
+    sh:property [
+        sh:path gh:hasActionDefinition ;
+        sh:minCount 1 ;
+        sh:message "Action must have a definition with execution parameters" ;
+    ] ;
+    sh:property [
+        sh:path gh:actionTimeout ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:message "Action timeout must be a non-negative integer (milliseconds)" ;
+    ] .
+
+# Shape for Hook trigger event
+gh:TriggerEventShape a sh:NodeShape ;
+    sh:targetClass gh:TriggerEvent ;
+    sh:name "Trigger Event Shape" ;
+    sh:description "Validates that trigger events are properly recorded" ;
+    sh:property [
+        sh:path dct:identifier ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Trigger event must have an identifier" ;
+    ] ;
+    sh:property [
+        sh:path gh:eventType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:pattern "(pre-commit|post-commit|pre-push|post-push|post-checkout|post-merge|post-rewrite|post-update|prepare-commit-msg|commit-msg)" ;
+        sh:message "Event type must be a valid Git hook event (pre-commit, post-commit, pre-push, post-push, post-checkout, post-merge, post-rewrite, post-update, prepare-commit-msg, or commit-msg)" ;
+    ] ;
+    sh:property [
+        sh:path prov:atTime ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:message "Trigger event must have a timestamp in ISO 8601 format" ;
+    ] .
+
+# Shape for Hook execution result
+gh:ExecutionResultShape a sh:NodeShape ;
+    sh:targetClass gh:ExecutionResult ;
+    sh:name "Execution Result Shape" ;
+    sh:description "Validates that hook execution results are properly recorded" ;
+    sh:property [
+        sh:path dct:identifier ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Execution result must have an identifier" ;
+    ] ;
+    sh:property [
+        sh:path gh:resultStatus ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:pattern "(success|failure|timeout|error)" ;
+        sh:message "Result status must be one of: success, failure, timeout, or error" ;
+    ] ;
+    sh:property [
+        sh:path gh:resultTimestamp ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:message "Result timestamp must be in ISO 8601 format" ;
+    ] ;
+    sh:property [
+        sh:path gh:resultMessage ;
+        sh:datatype xsd:string ;
+        sh:message "Result message should contain execution details or error information" ;
+    ] .

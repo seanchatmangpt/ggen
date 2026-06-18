@@ -1,0 +1,22 @@
+# SPARQL Query: Extract Source Modules from wasm4pm-compat ontology
+# Purpose: Enumerate all canon modules with their Rust types, source paths, and graduation flags
+# Usage: ggen query extract-source-modules.rq --format json
+
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+PREFIX compat: <https://wasm4pm-compat.rs/ontology#>
+
+SELECT ?moduleName ?rustType ?sourceFile ?graduatesToWasm4pm
+       (GROUP_CONCAT(DISTINCT ?law; SEPARATOR=",") AS ?laws)
+WHERE {
+  ?module a compat:SourceModule ;
+          compat:moduleName ?moduleName ;
+          compat:sourceFile ?sourceFile .
+
+  OPTIONAL { ?module compat:rustType ?rustType . }
+  OPTIONAL { ?module compat:graduatesToWasm4pm ?graduatesToWasm4pm . }
+  OPTIONAL { ?module compat:satisfiesLaw ?lawNode . ?lawNode compat:lawName ?law . }
+}
+GROUP BY ?moduleName ?rustType ?sourceFile ?graduatesToWasm4pm
+ORDER BY ?moduleName

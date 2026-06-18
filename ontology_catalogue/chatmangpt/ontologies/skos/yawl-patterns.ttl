@@ -1,0 +1,519 @@
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix yawl: <http://chatmangpt.com/ontology/yawl#> .
+
+yawl:YAWLPatternScheme
+  a skos:ConceptScheme ;
+  dcterms:title "YAWL Workflow Control Flow Patterns"@en ;
+  dcterms:description "SKOS ConceptScheme for all 43 YAWL (Yet Another Workflow Language) workflow control flow patterns and advanced branching patterns."@en ;
+  dcterms:created "2026-03-25"^^xsd:date ;
+  dcterms:creator "ChatmanGPT"@en ;
+  dcterms:references "http://www.yawlfoundation.org/patterns/"@en ;
+  dcterms:language "en" ;
+  skos:hasTopConcept
+    yawl:ControlFlowPatterns,
+    yawl:AdvancedBranchingPatterns,
+    yawl:StructuralPatterns,
+    yawl:MultiInstancePatterns,
+    yawl:StateBasedPatterns ;
+  .
+
+# PATTERN CATEGORIES (Top Concepts)
+
+yawl:ControlFlowPatterns
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Control Flow Patterns"@en ;
+  skos:definition "Basic control flow patterns for sequence, split, join, and decision."@en ;
+  skos:notation "CF"@en ;
+  skos:narrower
+    yawl:WCP1, yawl:WCP2, yawl:WCP3, yawl:WCP4, yawl:WCP5,
+    yawl:WCP6, yawl:WCP7, yawl:WCP8, yawl:WCP9, yawl:WCP10,
+    yawl:WCP11, yawl:WCP12, yawl:WCP13, yawl:WCP14, yawl:WCP15,
+    yawl:WCP16, yawl:WCP17, yawl:WCP18, yawl:WCP19, yawl:WCP20 ;
+  .
+
+yawl:AdvancedBranchingPatterns
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Advanced Branching Patterns"@en ;
+  skos:definition "Advanced patterns for complex conditional branching and synchronization."@en ;
+  skos:notation "AB"@en ;
+  skos:narrower
+    yawl:WCP21, yawl:WCP22, yawl:WCP23, yawl:WCP24, yawl:WCP25,
+    yawl:WCP26, yawl:WCP27 ;
+  .
+
+yawl:StructuralPatterns
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Structural Patterns"@en ;
+  skos:definition "Patterns for sub-processes, atomicity, and workflow composition."@en ;
+  skos:notation "SP"@en ;
+  skos:narrower
+    yawl:WCP28, yawl:WCP29, yawl:WCP30, yawl:WCP31, yawl:WCP32 ;
+  .
+
+yawl:MultiInstancePatterns
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Multiple Instance Patterns"@en ;
+  skos:definition "Patterns for parallel, sequential, and dynamic instantiation."@en ;
+  skos:notation "MI"@en ;
+  skos:narrower
+    yawl:WCP33, yawl:WCP34, yawl:WCP35, yawl:WCP36, yawl:WCP37,
+    yawl:WCP38 ;
+  .
+
+yawl:StateBasedPatterns
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "State-Based Patterns"@en ;
+  skos:definition "Patterns using state-based execution and deferred choice."@en ;
+  skos:notation "SB"@en ;
+  skos:narrower
+    yawl:WCP39, yawl:WCP40, yawl:WCP41, yawl:WCP42, yawl:WCP43 ;
+  .
+
+# CONTROL FLOW PATTERNS (WCP 1-20)
+
+yawl:WCP1
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Sequence"@en ;
+  skos:notation "WCP-1"@en ;
+  skos:definition "Activity A is followed by activity B in strict sequential order."@en ;
+  skos:example "User registration followed by email confirmation."@en ;
+  skos:broader yawl:ControlFlowPatterns ;
+  .
+
+yawl:WCP2
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Parallel Split"@en ;
+  skos:notation "WCP-2"@en ;
+  skos:definition "Single activity splits into multiple independent activities executing in parallel."@en ;
+  skos:example "Order processing splits into shipping and invoice generation."@en ;
+  skos:broader yawl:ControlFlowPatterns ;
+  .
+
+yawl:WCP3
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Synchronization"@en ;
+  skos:notation "WCP-3"@en ;
+  skos:definition "Multiple parallel activities join and synchronize before next activity."@en ;
+  skos:example "All approvals collected before proceeding to payment."@en ;
+  skos:broader yawl:ControlFlowPatterns ;
+  .
+
+yawl:WCP4
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Exclusive Choice"@en ;
+  skos:notation "WCP-4"@en ;
+  skos:definition "Based on condition, one of several mutually exclusive paths is chosen."@en ;
+  skos:example "Route order to express or standard shipping based on priority."@en ;
+  skos:broader yawl:ControlFlowPatterns ;
+  .
+
+yawl:WCP5
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Simple Merge"@en ;
+  skos:notation "WCP-5"@en ;
+  skos:definition "Multiple exclusive paths converge into a single path without synchronization."@en ;
+  skos:example "Approval granted or rejected paths converge to next activity."@en ;
+  skos:broader yawl:ControlFlowPatterns ;
+  .
+
+yawl:WCP6
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Multiple Choice"@en ;
+  skos:notation "WCP-6"@en ;
+  skos:definition "Based on condition, any number of paths can be chosen."@en ;
+  skos:example "Select multiple departments for budget allocation."@en ;
+  skos:broader yawl:ControlFlowPatterns ;
+  .
+
+yawl:WCP7
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Structured Synchronizing Merge"@en ;
+  skos:notation "WCP-7"@en ;
+  skos:definition "Multiple choice paths converge with synchronization of selected paths."@en ;
+  skos:example "Variable number of approval paths converge before processing."@en ;
+  skos:broader yawl:ControlFlowPatterns ;
+  .
+
+yawl:WCP8
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Multi-Merge"@en ;
+  skos:notation "WCP-8"@en ;
+  skos:definition "Multiple independent paths converge without synchronization."@en ;
+  skos:example "Any approval trigger next step without waiting for others."@en ;
+  skos:broader yawl:ControlFlowPatterns ;
+  .
+
+yawl:WCP9
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Structured Loop"@en ;
+  skos:notation "WCP-9"@en ;
+  skos:definition "Activity repeats based on condition with clear loop condition and exit."@en ;
+  skos:example "Request revision loop until approved."@en ;
+  skos:broader yawl:ControlFlowPatterns ;
+  .
+
+yawl:WCP10
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Arbitrary Cycles"@en ;
+  skos:notation "WCP-10"@en ;
+  skos:definition "Arbitrary cycles in the workflow graph, not necessarily structured loops."@en ;
+  skos:example "Back-edge from later activity to earlier activity for rework."@en ;
+  skos:broader yawl:ControlFlowPatterns ;
+  .
+
+yawl:WCP11
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Implicit Termination"@en ;
+  skos:notation "WCP-11"@en ;
+  skos:definition "Multiple end points, no explicit end activity."@en ;
+  skos:example "Process can end at approval, rejection, or escalation."@en ;
+  skos:broader yawl:ControlFlowPatterns ;
+  .
+
+yawl:WCP12
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Multiple Instances without Synchronization"@en ;
+  skos:notation "WCP-12"@en ;
+  skos:definition "Single activity with multiple concurrent instances, no join."@en ;
+  skos:example "Parallel notifications sent without waiting for replies."@en ;
+  skos:broader yawl:ControlFlowPatterns ;
+  .
+
+yawl:WCP13
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Multiple Instances with Synchronization"@en ;
+  skos:notation "WCP-13"@en ;
+  skos:definition "Single activity with multiple concurrent instances that synchronize."@en ;
+  skos:example "Parallel reviews with all required before approval."@en ;
+  skos:broader yawl:ControlFlowPatterns ;
+  .
+
+yawl:WCP14
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Explicit Termination"@en ;
+  skos:notation "WCP-14"@en ;
+  skos:definition "Single explicit end activity."@en ;
+  skos:example "Complete order workflow ends at order archived activity."@en ;
+  skos:broader yawl:ControlFlowPatterns ;
+  .
+
+yawl:WCP15
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Deferred Choice"@en ;
+  skos:notation "WCP-15"@en ;
+  skos:definition "Choice based on external event, not explicit condition."@en ;
+  skos:example "Process waits for either payment received or timeout."@en ;
+  skos:broader yawl:ControlFlowPatterns ;
+  .
+
+yawl:WCP16
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Interleaved Parallel Routing"@en ;
+  skos:notation "WCP-16"@en ;
+  skos:definition "Partial synchronization of parallel activities with interleaving."@en ;
+  skos:example "Some reviews can proceed without all being completed first."@en ;
+  skos:broader yawl:ControlFlowPatterns ;
+  .
+
+yawl:WCP17
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Milestone"@en ;
+  skos:notation "WCP-17"@en ;
+  skos:definition "Activity only executes if preceding condition met."@en ;
+  skos:example "Quality check only runs if initial inspection passed."@en ;
+  skos:broader yawl:ControlFlowPatterns ;
+  .
+
+yawl:WCP18
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Cancel Activity"@en ;
+  skos:notation "WCP-18"@en ;
+  skos:definition "Activity can be cancelled based on external event."@en ;
+  skos:example "Order shipment cancelled when customer requests."@en ;
+  skos:broader yawl:ControlFlowPatterns ;
+  .
+
+yawl:WCP19
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Cancel Case"@en ;
+  skos:notation "WCP-19"@en ;
+  skos:definition "Entire workflow instance cancelled and terminated."@en ;
+  skos:example "Order cancelled at customer request, all steps cease."@en ;
+  skos:broader yawl:ControlFlowPatterns ;
+  .
+
+yawl:WCP20
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Suspend/Resume"@en ;
+  skos:notation "WCP-20"@en ;
+  skos:definition "Activity or workflow suspended then resumed."@en ;
+  skos:example "Process paused for stakeholder decision then resumed."@en ;
+  skos:broader yawl:ControlFlowPatterns ;
+  .
+
+# ADVANCED BRANCHING PATTERNS (WCP 21-27)
+
+yawl:WCP21
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Structured Partial Join"@en ;
+  skos:notation "WCP-21"@en ;
+  skos:definition "Synchronize subset of parallel branches in structured manner."@en ;
+  skos:example "Wait for 2 of 3 reviews before proceeding."@en ;
+  skos:broader yawl:AdvancedBranchingPatterns ;
+  .
+
+yawl:WCP22
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Blocking Partial Join"@en ;
+  skos:notation "WCP-22"@en ;
+  skos:definition "Synchronize with blocking until threshold branches complete."@en ;
+  skos:example "Block other processes until majority votes cast."@en ;
+  skos:broader yawl:AdvancedBranchingPatterns ;
+  .
+
+yawl:WCP23
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Exclusive Blocking Merge"@en ;
+  skos:notation "WCP-23"@en ;
+  skos:definition "Blocking merge with exclusive choice from multiple paths."@en ;
+  skos:example "Wait for first approval from multiple approvers, others cancel."@en ;
+  skos:broader yawl:AdvancedBranchingPatterns ;
+  .
+
+yawl:WCP24
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Cancelling Discriminator"@en ;
+  skos:notation "WCP-24"@en ;
+  skos:definition "First branch completes, cancel all others."@en ;
+  skos:example "First shipping option available, cancel others."@en ;
+  skos:broader yawl:AdvancedBranchingPatterns ;
+  .
+
+yawl:WCP25
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Structured Synchronizing Merge with Multiple Instances"@en ;
+  skos:notation "WCP-25"@en ;
+  skos:definition "Synchronize dynamically created multiple instances."@en ;
+  skos:example "Dynamic task creation with synchronization on all instances."@en ;
+  skos:broader yawl:AdvancedBranchingPatterns ;
+  .
+
+yawl:WCP26
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Blocking Discriminator"@en ;
+  skos:notation "WCP-26"@en ;
+  skos:definition "First branch completes, continue (others eventually complete)."@en ;
+  skos:example "First payment method succeeds, proceed while others complete."@en ;
+  skos:broader yawl:AdvancedBranchingPatterns ;
+  .
+
+yawl:WCP27
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Structured Loop with Multiple Instances"@en ;
+  skos:notation "WCP-27"@en ;
+  skos:definition "Structured loop applied to multiple instances."@en ;
+  skos:example "Repeat validation for each item in collection."@en ;
+  skos:broader yawl:AdvancedBranchingPatterns ;
+  .
+
+# STRUCTURAL PATTERNS (WCP 28-32)
+
+yawl:WCP28
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Arbitrary Cycles with Multiple Instances"@en ;
+  skos:notation "WCP-28"@en ;
+  skos:definition "Arbitrary cycles within multiple instance regions."@en ;
+  skos:example "Rework loops for multiple concurrent tasks."@en ;
+  skos:broader yawl:StructuralPatterns ;
+  .
+
+yawl:WCP29
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Structured Loop with Separate Condition"@en ;
+  skos:notation "WCP-29"@en ;
+  skos:definition "Loop with condition evaluated separately from body."@en ;
+  skos:example "Do-while pattern with condition after iteration."@en ;
+  skos:broader yawl:StructuralPatterns ;
+  .
+
+yawl:WCP30
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Terminator"@en ;
+  skos:notation "WCP-30"@en ;
+  skos:definition "Explicit end task or terminator node."@en ;
+  skos:example "Final archival task explicitly terminates process."@en ;
+  skos:broader yawl:StructuralPatterns ;
+  .
+
+yawl:WCP31
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Atomic Transaction"@en ;
+  skos:notation "WCP-31"@en ;
+  skos:definition "Group of activities executed atomically."@en ;
+  skos:example "Payment + order confirmation as atomic operation."@en ;
+  skos:broader yawl:StructuralPatterns ;
+  .
+
+yawl:WCP32
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Interleaved Structured Loop with Alternative"@en ;
+  skos:notation "WCP-32"@en ;
+  skos:definition "Loop with interleaved alternative paths."@en ;
+  skos:example "Process with alternative handling during loop iteration."@en ;
+  skos:broader yawl:StructuralPatterns ;
+  .
+
+# MULTIPLE INSTANCE PATTERNS (WCP 33-38)
+
+yawl:WCP33
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Static Parallel Multiple Instances"@en ;
+  skos:notation "WCP-33"@en ;
+  skos:definition "Fixed number of parallel instances known at design time."@en ;
+  skos:example "Assign task to 5 predefined departments in parallel."@en ;
+  skos:broader yawl:MultiInstancePatterns ;
+  .
+
+yawl:WCP34
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Static Sequential Multiple Instances"@en ;
+  skos:notation "WCP-34"@en ;
+  skos:definition "Fixed number of sequential instances known at design time."@en ;
+  skos:example "Review document sequentially with 3 reviewers."@en ;
+  skos:broader yawl:MultiInstancePatterns ;
+  .
+
+yawl:WCP35
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Dynamic Parallel Multiple Instances"@en ;
+  skos:notation "WCP-35"@en ;
+  skos:definition "Number of parallel instances determined at runtime."@en ;
+  skos:example "Create approval task for each reviewer in list."@en ;
+  skos:broader yawl:MultiInstancePatterns ;
+  .
+
+yawl:WCP36
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Dynamic Sequential Multiple Instances"@en ;
+  skos:notation "WCP-36"@en ;
+  skos:definition "Number of sequential instances determined at runtime."@en ;
+  skos:example "Process items from variable-length list sequentially."@en ;
+  skos:broader yawl:MultiInstancePatterns ;
+  .
+
+yawl:WCP37
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Synchronizing Multiple Instances"@en ;
+  skos:notation "WCP-37"@en ;
+  skos:definition "Multiple instances with explicit synchronization."@en ;
+  skos:example "All dynamic approvals collected before proceeding."@en ;
+  skos:broader yawl:MultiInstancePatterns ;
+  .
+
+yawl:WCP38
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Nested Loop Multiple Instances"@en ;
+  skos:notation "WCP-38"@en ;
+  skos:definition "Multiple instances with nested loop structure."@en ;
+  skos:example "Iterate through outer list, for each iterate through inner list."@en ;
+  skos:broader yawl:MultiInstancePatterns ;
+  .
+
+# STATE-BASED PATTERNS (WCP 39-43)
+
+yawl:WCP39
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "State-Based Routing"@en ;
+  skos:notation "WCP-39"@en ;
+  skos:definition "Path determined by document state."@en ;
+  skos:example "Route document based on approval state."@en ;
+  skos:broader yawl:StateBasedPatterns ;
+  .
+
+yawl:WCP40
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "External Choice"@en ;
+  skos:notation "WCP-40"@en ;
+  skos:definition "Choice determined by external event timing."@en ;
+  skos:example "Route based on whether approval received first or timeout."@en ;
+  skos:broader yawl:StateBasedPatterns ;
+  .
+
+yawl:WCP41
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Event-Based Routing"@en ;
+  skos:notation "WCP-41"@en ;
+  skos:definition "Route based on event occurrence."@en ;
+  skos:example "Order routed based on payment event received."@en ;
+  skos:broader yawl:StateBasedPatterns ;
+  .
+
+yawl:WCP42
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Deferred Synchronizing Merge"@en ;
+  skos:notation "WCP-42"@en ;
+  skos:definition "Synchronization based on deferred choice and state."@en ;
+  skos:example "Merge paths based on which events occurred."@en ;
+  skos:broader yawl:StateBasedPatterns ;
+  .
+
+yawl:WCP43
+  a skos:Concept ;
+  skos:inScheme yawl:YAWLPatternScheme ;
+  skos:prefLabel "Interleaved Routing"@en ;
+  skos:notation "WCP-43"@en ;
+  skos:definition "Activities can interleave during execution."@en ;
+  skos:example "Approval and documentation activities can occur in any order."@en ;
+  skos:broader yawl:StateBasedPatterns ;
+  .

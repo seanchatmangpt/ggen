@@ -1,0 +1,169 @@
+@prefix kgc: <https://unrdf.org/kgc/probe#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# =============================================================================
+# KGC Probe Vocabulary
+# =============================================================================
+#
+# This vocabulary defines the core terms used by KGC Probe for representing
+# runtime observations, derived capabilities, and detected constraints.
+#
+# Design principles:
+# - Minimal: Only essential terms, no overengineering
+# - Provenance-focused: Every claim links to evidence (observations)
+# - RDFS/OWL compatible: Standard semantics for tooling integration
+#
+# Version: 0.1.0
+# Author: KGC Probe Agent 10 (Reporter & RDF Modeler)
+# License: MIT
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Ontology Metadata
+# -----------------------------------------------------------------------------
+
+<https://unrdf.org/kgc/probe#> a owl:Ontology ;
+    dcterms:title "KGC Probe Vocabulary" ;
+    dcterms:description "Vocabulary for runtime environment probing and knowledge graph construction" ;
+    dcterms:creator "KGC Probe Multi-Agent System" ;
+    dcterms:created "2025-12-27"^^xsd:date ;
+    rdfs:label "KGC Probe Vocabulary" ;
+    rdfs:comment "Defines terms for observations, capabilities, and constraints in runtime environments" .
+
+# -----------------------------------------------------------------------------
+# Classes
+# -----------------------------------------------------------------------------
+
+kgc:Observation a owl:Class ;
+    rdfs:label "Observation" ;
+    rdfs:comment "An atomic unit of knowledge extracted from runtime environment probing" ;
+    rdfs:isDefinedBy <https://unrdf.org/kgc/probe#> .
+
+kgc:Capability a owl:Class ;
+    rdfs:label "Capability" ;
+    rdfs:comment "A feature or resource available in the runtime environment (derived from observations)" ;
+    rdfs:isDefinedBy <https://unrdf.org/kgc/probe#> .
+
+kgc:Constraint a owl:Class ;
+    rdfs:label "Constraint" ;
+    rdfs:comment "A limitation or boundary detected in the runtime environment (derived from observations)" ;
+    rdfs:isDefinedBy <https://unrdf.org/kgc/probe#> .
+
+# -----------------------------------------------------------------------------
+# Properties - Core
+# -----------------------------------------------------------------------------
+
+kgc:domain a owl:DatatypeProperty ;
+    rdfs:label "domain" ;
+    rdfs:comment "The domain/category of the observation (e.g., 'runtime', 'filesystem', 'concurrency')" ;
+    rdfs:domain kgc:Observation ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://unrdf.org/kgc/probe#> .
+
+kgc:method a owl:DatatypeProperty ;
+    rdfs:label "method" ;
+    rdfs:comment "The probe method that generated this observation (e.g., 'runtime.node-version')" ;
+    rdfs:domain kgc:Observation ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://unrdf.org/kgc/probe#> .
+
+kgc:timestamp a owl:DatatypeProperty ;
+    rdfs:label "timestamp" ;
+    rdfs:comment "ISO 8601 timestamp when the observation was recorded" ;
+    rdfs:domain kgc:Observation ;
+    rdfs:range xsd:dateTime ;
+    rdfs:isDefinedBy <https://unrdf.org/kgc/probe#> .
+
+kgc:hash a owl:DatatypeProperty ;
+    rdfs:label "hash" ;
+    rdfs:comment "Deterministic SHA-256 hash of observation content for provenance tracking" ;
+    rdfs:domain kgc:Observation ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://unrdf.org/kgc/probe#> .
+
+kgc:outputs a owl:DatatypeProperty ;
+    rdfs:label "outputs" ;
+    rdfs:comment "JSON-serialized outputs/data from the probe method" ;
+    rdfs:domain kgc:Observation ;
+    rdfs:range rdf:JSON ;
+    rdfs:isDefinedBy <https://unrdf.org/kgc/probe#> .
+
+# -----------------------------------------------------------------------------
+# Properties - Optional Observation Metadata
+# -----------------------------------------------------------------------------
+
+kgc:guardDecision a owl:DatatypeProperty ;
+    rdfs:label "guard decision" ;
+    rdfs:comment "Security guard decision: 'allowed' or 'denied'" ;
+    rdfs:domain kgc:Observation ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://unrdf.org/kgc/probe#> .
+
+kgc:error a owl:DatatypeProperty ;
+    rdfs:label "error" ;
+    rdfs:comment "Error message if the probe method failed or encountered a limit" ;
+    rdfs:domain kgc:Observation ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://unrdf.org/kgc/probe#> .
+
+kgc:severity a owl:DatatypeProperty ;
+    rdfs:label "severity" ;
+    rdfs:comment "Observation severity level (trace, debug, info, warn, error, fatal)" ;
+    rdfs:domain kgc:Observation ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://unrdf.org/kgc/probe#> .
+
+# -----------------------------------------------------------------------------
+# Properties - Capabilities
+# -----------------------------------------------------------------------------
+
+kgc:name a owl:DatatypeProperty ;
+    rdfs:label "name" ;
+    rdfs:comment "Capability name (e.g., 'concurrency.worker_threads')" ;
+    rdfs:domain kgc:Capability ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://unrdf.org/kgc/probe#> .
+
+kgc:available a owl:DatatypeProperty ;
+    rdfs:label "available" ;
+    rdfs:comment "Boolean indicating if the capability is available in the runtime" ;
+    rdfs:domain kgc:Capability ;
+    rdfs:range xsd:boolean ;
+    rdfs:isDefinedBy <https://unrdf.org/kgc/probe#> .
+
+# -----------------------------------------------------------------------------
+# Properties - Constraints
+# -----------------------------------------------------------------------------
+
+kgc:constraintType a owl:DatatypeProperty ;
+    rdfs:label "constraint type" ;
+    rdfs:comment "Type of constraint (e.g., 'guard-denial', 'memory-limit', 'stack-depth-limit')" ;
+    rdfs:domain kgc:Constraint ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://unrdf.org/kgc/probe#> .
+
+kgc:description a owl:DatatypeProperty ;
+    rdfs:label "description" ;
+    rdfs:comment "Human-readable description of the constraint" ;
+    rdfs:domain kgc:Constraint ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://unrdf.org/kgc/probe#> .
+
+# -----------------------------------------------------------------------------
+# Properties - Provenance
+# -----------------------------------------------------------------------------
+
+kgc:derivedFrom a owl:ObjectProperty ;
+    rdfs:label "derived from" ;
+    rdfs:comment "Links a derived claim (Capability or Constraint) to the observation(s) that support it" ;
+    rdfs:domain [ a owl:Class ; owl:unionOf ( kgc:Capability kgc:Constraint ) ] ;
+    rdfs:range kgc:Observation ;
+    rdfs:isDefinedBy <https://unrdf.org/kgc/probe#> .
+
+# -----------------------------------------------------------------------------
+# End of Vocabulary
+# -----------------------------------------------------------------------------

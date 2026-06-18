@@ -1,0 +1,156 @@
+@prefix ex:     <http://example.org/image/> .
+@prefix schema: <http://schema.org/> .
+@prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+
+# ── Image node ──────────────────────────────────────────────────────
+ex:img_9
+    rdf:type            schema:ImageObject ;
+    rdfs:label          "Close-up of a cat's nose and muzzle" ;
+    schema:description  "Extreme macro close-up photograph of a domestic cat's nose, muzzle, and surrounding facial fur showing tabby markings." ;
+    schema:contentUrl   "img_9.jpg" ;
+    ex:hasObject        ex:img9_obj_1 ,
+                        ex:img9_obj_2 ,
+                        ex:img9_obj_3 ,
+                        ex:img9_obj_4 ,
+                        ex:img9_obj_5 ,
+                        ex:img9_obj_6 ,
+                        ex:img9_obj_7 ,
+                        ex:img9_obj_8 ,
+                        ex:img9_obj_9 ,
+                        ex:img9_obj_10 ,
+                        ex:img9_obj_11 ,
+                        ex:img9_obj_12 ,
+                        ex:img9_obj_13 ,
+                        ex:img9_obj_14 .
+
+# ── General objects ─────────────────────────────────────────────────
+ex:img9_obj_1
+    rdf:type            ex:Object ;
+    rdfs:label          "cat" ;
+    skos:altLabel       "domestic cat" , "feline" , "house cat" , "Felis catus" ;
+    schema:category     "animal" ;
+    ex:confidence       "0.99"^^xsd:float ;
+    ex:partOf           ex:img_9 .
+
+ex:img9_obj_2
+    rdf:type            ex:Object ;
+    rdfs:label          "cat face" ;
+    skos:altLabel       "feline face" , "cat head" , "muzzle area" ;
+    schema:category     "animal body part" ;
+    ex:confidence       "0.98"^^xsd:float ;
+    ex:partOf           ex:img9_obj_1 .
+
+# ── Specific objects ────────────────────────────────────────────────
+ex:img9_obj_3
+    rdf:type            ex:Object ;
+    rdfs:label          "nose" ;
+    skos:altLabel       "cat nose" , "nose leather" , "rhinarium" ;
+    schema:category     "animal body part" ;
+    ex:confidence       "0.99"^^xsd:float ;
+    ex:color            "pinkish-brown" ;
+    ex:partOf           ex:img9_obj_2 .
+
+ex:img9_obj_4
+    rdf:type            ex:Object ;
+    rdfs:label          "left nostril" ;
+    skos:altLabel       "nostril" , "naris" , "nasal opening" ;
+    schema:category     "animal body part" ;
+    ex:confidence       "0.97"^^xsd:float ;
+    ex:partOf           ex:img9_obj_3 .
+
+ex:img9_obj_5
+    rdf:type            ex:Object ;
+    rdfs:label          "right nostril" ;
+    skos:altLabel       "nostril" , "naris" , "nasal opening" ;
+    schema:category     "animal body part" ;
+    ex:confidence       "0.97"^^xsd:float ;
+    ex:partOf           ex:img9_obj_3 .
+
+ex:img9_obj_6
+    rdf:type            ex:Object ;
+    rdfs:label          "philtrum" ;
+    skos:altLabel       "nasal groove" , "medial cleft" , "lip groove" ;
+    schema:category     "animal body part" ;
+    ex:confidence       "0.95"^^xsd:float ;
+    ex:partOf           ex:img9_obj_2 .
+
+ex:img9_obj_7
+    rdf:type            ex:Object ;
+    rdfs:label          "muzzle" ;
+    skos:altLabel       "snout" , "cat muzzle" , "whisker pads area" ;
+    schema:category     "animal body part" ;
+    ex:confidence       "0.97"^^xsd:float ;
+    ex:partOf           ex:img9_obj_2 .
+
+ex:img9_obj_8
+    rdf:type            ex:Object ;
+    rdfs:label          "whisker pads" ;
+    skos:altLabel       "whisker beds" , "mystacial pads" , "vibrissae pads" ;
+    schema:category     "animal body part" ;
+    ex:confidence       "0.94"^^xsd:float ;
+    ex:partOf           ex:img9_obj_7 .
+
+ex:img9_obj_9
+    rdf:type            ex:Object ;
+    rdfs:label          "whisker follicles" ;
+    skos:altLabel       "whisker roots" , "vibrissae follicles" , "whisker spots" ;
+    schema:category     "animal body part" ;
+    ex:confidence       "0.90"^^xsd:float ;
+    ex:partOf           ex:img9_obj_8 .
+
+ex:img9_obj_10
+    rdf:type            ex:Object ;
+    rdfs:label          "fur" ;
+    skos:altLabel       "cat fur" , "coat" , "pelage" , "hair" ;
+    schema:category     "animal covering" ;
+    ex:confidence       "0.99"^^xsd:float ;
+    ex:partOf           ex:img9_obj_1 .
+
+ex:img9_obj_11
+    rdf:type            ex:Object ;
+    rdfs:label          "tabby markings" ;
+    skos:altLabel       "tabby pattern" , "striped markings" , "mackerel pattern" ;
+    schema:category     "animal pattern" ;
+    ex:confidence       "0.93"^^xsd:float ;
+    ex:partOf           ex:img9_obj_10 .
+
+ex:img9_obj_12
+    rdf:type            ex:Object ;
+    rdfs:label          "upper lip" ;
+    skos:altLabel       "cat lip" , "mouth edge" , "labium" ;
+    schema:category     "animal body part" ;
+    ex:confidence       "0.92"^^xsd:float ;
+    ex:partOf           ex:img9_obj_7 .
+
+ex:img9_obj_13
+    rdf:type            ex:Object ;
+    rdfs:label          "nose bridge" ;
+    skos:altLabel       "nasal bridge" , "dorsum of nose" , "top of nose" ;
+    schema:category     "animal body part" ;
+    ex:confidence       "0.95"^^xsd:float ;
+    ex:partOf           ex:img9_obj_3 .
+
+ex:img9_obj_14
+    rdf:type            ex:Object ;
+    rdfs:label          "nose texture" ;
+    skos:altLabel       "nose pad texture" , "dermal ridges" , "nose print" ;
+    schema:category     "surface feature" ;
+    ex:confidence       "0.88"^^xsd:float ;
+    ex:partOf           ex:img9_obj_3 .
+
+# ── Spatial relationships ───────────────────────────────────────────
+ex:img9_obj_3   ex:centralIn    ex:img9_obj_2 .
+ex:img9_obj_4   ex:toLeftOf     ex:img9_obj_5 .
+ex:img9_obj_5   ex:toRightOf    ex:img9_obj_4 .
+ex:img9_obj_6   ex:below        ex:img9_obj_3 .
+ex:img9_obj_7   ex:surrounds    ex:img9_obj_3 .
+ex:img9_obj_8   ex:adjacentTo   ex:img9_obj_3 .
+ex:img9_obj_9   ex:embeddedIn   ex:img9_obj_8 .
+ex:img9_obj_10  ex:covers       ex:img9_obj_2 .
+ex:img9_obj_11  ex:visibleOn    ex:img9_obj_10 .
+ex:img9_obj_12  ex:below        ex:img9_obj_6 .
+ex:img9_obj_13  ex:above        ex:img9_obj_3 .
+ex:img9_obj_14  ex:surfaceOf    ex:img9_obj_3 .

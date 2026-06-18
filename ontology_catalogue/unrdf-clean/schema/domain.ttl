@@ -1,0 +1,235 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix unrdf: <https://unrdf.io/ns#> .
+
+# UNRDF Domain Ontology
+# Defines core concepts for RDF Knowledge Graph Substrate Platform
+
+<https://unrdf.io/> a owl:Ontology ;
+    rdfs:label "UNRDF Domain Ontology" ;
+    dcterms:title "RDF Knowledge Graph Substrate Platform Ontology" ;
+    dcterms:description "Ontology for UNRDF v6.0.0 Knowledge Graph substrate platform" ;
+    dcterms:version "6.0.0-rc.1" ;
+    dcterms:issued "2025-01-01"^^xsd:date ;
+    dcterms:license <https://spdx.org/licenses/Apache-2.0> ;
+    owl:versionIRI <https://unrdf.io/6.0.0-rc.1> .
+
+# Core Entities
+
+unrdf:Package a rdfs:Class ;
+    rdfs:label "Package" ;
+    rdfs:comment "A software package in the UNRDF monorepo" ;
+    rdfs:isDefinedBy <https://unrdf.io/> .
+
+unrdf:Tier a rdfs:Class ;
+    rdfs:label "Package Tier" ;
+    rdfs:comment "Classification tier for packages (Essential, Extended, Optional)" ;
+    rdfs:isDefinedBy <https://unrdf.io/> .
+
+unrdf:Module a rdfs:Class ;
+    rdfs:label "Module" ;
+    rdfs:comment "A JavaScript ESM module (.mjs file)" ;
+    rdfs:isDefinedBy <https://unrdf.io/> .
+
+unrdf:KnowledgeGraph a rdfs:Class ;
+    rdfs:label "Knowledge Graph" ;
+    rdfs:comment "An RDF knowledge graph instance" ;
+    rdfs:isDefinedBy <https://unrdf.io/> .
+
+unrdf:Hook a rdfs:Class ;
+    rdfs:label "Hook" ;
+    rdfs:comment "A policy hook for event-driven execution" ;
+    rdfs:isDefinedBy <https://unrdf.io/> .
+
+unrdf:Receipt a rdfs:Class ;
+    rdfs:label "Receipt" ;
+    rdfs:comment "Cryptographic receipt for transaction verification" ;
+    rdfs:isDefinedBy <https://unrdf.io/> .
+
+unrdf:Delta a rdfs:Class ;
+    rdfs:label "Delta" ;
+    rdfs:comment "A change delta in the knowledge graph" ;
+    rdfs:isDefinedBy <https://unrdf.io/> .
+
+# Properties
+
+unrdf:packageName a rdf:Property ;
+    rdfs:label "package name" ;
+    rdfs:domain unrdf:Package ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The name of the package" ;
+    rdfs:isDefinedBy <https://unrdf.io/> .
+
+unrdf:packageVersion a rdf:Property ;
+    rdfs:label "package version" ;
+    rdfs:domain unrdf:Package ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The semantic version of the package" ;
+    rdfs:isDefinedBy <https://unrdf.io/> .
+
+unrdf:packageDescription a rdf:Property ;
+    rdfs:label "package description" ;
+    rdfs:domain unrdf:Package ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Description of the package's purpose and features" ;
+    rdfs:isDefinedBy <https://unrdf.io/> .
+
+unrdf:hasTier a rdf:Property ;
+    rdfs:label "has tier" ;
+    rdfs:domain unrdf:Package ;
+    rdfs:range unrdf:Tier ;
+    rdfs:comment "The package's tier classification" ;
+    rdfs:isDefinedBy <https://unrdf.io/> .
+
+unrdf:tierName a rdf:Property ;
+    rdfs:label "tier name" ;
+    rdfs:domain unrdf:Tier ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Name of the tier (Essential, Extended, Optional, Internal)" ;
+    rdfs:isDefinedBy <https://unrdf.io/> .
+
+unrdf:hasDependency a rdf:Property ;
+    rdfs:label "has dependency" ;
+    rdfs:domain unrdf:Package ;
+    rdfs:range unrdf:Package ;
+    rdfs:comment "Package dependency relationship" ;
+    rdfs:isDefinedBy <https://unrdf.io/> .
+
+unrdf:moduleName a rdf:Property ;
+    rdfs:label "module name" ;
+    rdfs:domain unrdf:Module ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The name of the module file" ;
+    rdfs:isDefinedBy <https://unrdf.io/> .
+
+unrdf:moduleExports a rdf:Property ;
+    rdfs:label "module exports" ;
+    rdfs:domain unrdf:Module ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Comma-separated list of exported symbols" ;
+    rdfs:isDefinedBy <https://unrdf.io/> .
+
+unrdf:graphTripleCount a rdf:Property ;
+    rdfs:label "graph triple count" ;
+    rdfs:domain unrdf:KnowledgeGraph ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Number of RDF triples in the graph" ;
+    rdfs:isDefinedBy <https://unrdf.io/> .
+
+unrdf:receiptHash a rdf:Property ;
+    rdfs:label "receipt hash" ;
+    rdfs:domain unrdf:Receipt ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Cryptographic hash of the receipt" ;
+    rdfs:isDefinedBy <https://unrdf.io/> .
+
+unrdf:deltaTimestamp a rdf:Property ;
+    rdfs:label "delta timestamp" ;
+    rdfs:domain unrdf:Delta ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "When the delta was created" ;
+    rdfs:isDefinedBy <https://unrdf.io/> .
+
+# Instance Data
+
+unrdf:EssentialTier a unrdf:Tier ;
+    unrdf:tierName "Essential" ;
+    rdfs:comment "Core packages always needed for UNRDF operation" .
+
+unrdf:ExtendedTier a unrdf:Tier ;
+    unrdf:tierName "Extended" ;
+    rdfs:comment "Commonly used packages for typical use cases" .
+
+unrdf:OptionalTier a unrdf:Tier ;
+    unrdf:tierName "Optional" ;
+    rdfs:comment "Performance and optional feature packages" .
+
+unrdf:InternalTier a unrdf:Tier ;
+    unrdf:tierName "Internal" ;
+    rdfs:comment "Internal testing and validation packages" .
+
+# Core Packages (Essential Tier)
+
+unrdf:CorePackage a unrdf:Package ;
+    unrdf:packageName "@unrdf/core" ;
+    unrdf:packageVersion "6.0.0-rc.1" ;
+    unrdf:packageDescription "RDF Graph Operations, SPARQL, Foundational Substrate" ;
+    unrdf:hasTier unrdf:EssentialTier .
+
+unrdf:OxigraphPackage a unrdf:Package ;
+    unrdf:packageName "@unrdf/oxigraph" ;
+    unrdf:packageVersion "6.0.0-rc.1" ;
+    unrdf:packageDescription "Oxigraph SPARQL engine binding (10-100x faster than N3)" ;
+    unrdf:hasTier unrdf:EssentialTier ;
+    unrdf:hasDependency unrdf:CorePackage .
+
+unrdf:KGCPackage a unrdf:Package ;
+    unrdf:packageName "@unrdf/kgc-4d" ;
+    unrdf:packageVersion "6.0.0-rc.1" ;
+    unrdf:packageDescription "KGC 4D Datum & Universe Freeze Engine" ;
+    unrdf:hasTier unrdf:EssentialTier ;
+    unrdf:hasDependency unrdf:CorePackage .
+
+unrdf:HooksPackage a unrdf:Package ;
+    unrdf:packageName "@unrdf/hooks" ;
+    unrdf:packageVersion "6.0.0-rc.1" ;
+    unrdf:packageDescription "Policy Definition and Execution Framework" ;
+    unrdf:hasTier unrdf:EssentialTier ;
+    unrdf:hasDependency unrdf:CorePackage .
+
+unrdf:StreamingPackage a unrdf:Package ;
+    unrdf:packageName "@unrdf/streaming" ;
+    unrdf:packageVersion "6.0.0-rc.1" ;
+    unrdf:packageDescription "Change Feeds and Real-time Synchronization" ;
+    unrdf:hasTier unrdf:EssentialTier ;
+    unrdf:hasDependency unrdf:CorePackage .
+
+unrdf:V6CorePackage a unrdf:Package ;
+    unrdf:packageName "@unrdf/v6-core" ;
+    unrdf:packageVersion "6.0.0-rc.1" ;
+    unrdf:packageDescription "ΔGate control plane, unified receipts, delta contracts" ;
+    unrdf:hasTier unrdf:EssentialTier ;
+    unrdf:hasDependency unrdf:CorePackage .
+
+# Extended Tier Packages
+
+unrdf:FederationPackage a unrdf:Package ;
+    unrdf:packageName "@unrdf/federation" ;
+    unrdf:packageVersion "6.0.0-rc.1" ;
+    unrdf:packageDescription "Distributed RDF Query with RAFT Consensus" ;
+    unrdf:hasTier unrdf:ExtendedTier ;
+    unrdf:hasDependency unrdf:CorePackage .
+
+unrdf:KnowledgeEnginePackage a unrdf:Package ;
+    unrdf:packageName "@unrdf/knowledge-engine" ;
+    unrdf:packageVersion "6.0.0-rc.1" ;
+    unrdf:packageDescription "Rule Engine, Inference, Pattern Matching" ;
+    unrdf:hasTier unrdf:ExtendedTier ;
+    unrdf:hasDependency unrdf:CorePackage ;
+    unrdf:hasDependency unrdf:OxigraphPackage .
+
+unrdf:CLIPackage a unrdf:Package ;
+    unrdf:packageName "@unrdf/cli" ;
+    unrdf:packageVersion "6.0.0-rc.1" ;
+    unrdf:packageDescription "Command-line Tools for Graph Operations" ;
+    unrdf:hasTier unrdf:ExtendedTier ;
+    unrdf:hasDependency unrdf:CorePackage .
+
+unrdf:ReceiptsPackage a unrdf:Package ;
+    unrdf:packageName "@unrdf/receipts" ;
+    unrdf:packageVersion "6.0.0-rc.1" ;
+    unrdf:packageDescription "Batch receipt generation with Merkle trees" ;
+    unrdf:hasTier unrdf:ExtendedTier ;
+    unrdf:hasDependency unrdf:CorePackage .
+
+unrdf:ConsensusPackage a unrdf:Package ;
+    unrdf:packageName "@unrdf/consensus" ;
+    unrdf:packageVersion "6.0.0-rc.1" ;
+    unrdf:packageDescription "Production-grade Raft consensus" ;
+    unrdf:hasTier unrdf:ExtendedTier ;
+    unrdf:hasDependency unrdf:CorePackage ;
+    unrdf:hasDependency unrdf:FederationPackage .

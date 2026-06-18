@@ -1,0 +1,150 @@
+# ============================================================================
+# Dependency Analysis Queries
+# ============================================================================
+
+# Query 1: Find all dependencies for a specific feature
+PREFIX knowd: <http://knowd.io/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX feature: <http://knowd.io/features#>
+
+SELECT ?dependency ?depName ?depStatus ?depCompleteness
+WHERE {
+  feature:SPARQLEngine knowd:dependsOn ?dependency .
+  ?dependency rdfs:label ?depName ;
+              knowd:status ?depStatus ;
+              knowd:completeness ?depCompleteness .
+}
+
+# Query 2: Find all features that depend on a given feature
+PREFIX knowd: <http://knowd.io/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX feature: <http://knowd.io/features#>
+
+SELECT ?dependent ?depName ?priority
+WHERE {
+  ?dependent knowd:dependsOn feature:QueryPlanCaching ;
+             rdfs:label ?depName ;
+             knowd:priority ?priority .
+}
+ORDER BY ?priority
+
+# Query 3: Find transitive dependencies (depth 2)
+PREFIX knowd: <http://knowd.io/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX feature: <http://knowd.io/features#>
+
+SELECT DISTINCT ?dep ?depName
+WHERE {
+  {
+    feature:AutonomicHooks knowd:dependsOn ?dep .
+  } UNION {
+    feature:AutonomicHooks knowd:dependsOn ?intermediate .
+    ?intermediate knowd:dependsOn ?dep .
+  }
+  ?dep rdfs:label ?depName .
+}
+
+# Query 4: Find circular dependencies (potential issues)
+PREFIX knowd: <http://knowd.io/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?feature1 ?name1 ?feature2 ?name2
+WHERE {
+  ?feature1 knowd:dependsOn ?feature2 .
+  ?feature2 knowd:dependsOn ?feature1 .
+  ?feature1 rdfs:label ?name1 .
+  ?feature2 rdfs:label ?name2 .
+  FILTER (?feature1 != ?feature2)
+}
+
+# Query 5: Impact analysis - what breaks if feature X is incomplete?
+PREFIX knowd: <http://knowd.io/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX feature: <http://knowd.io/features#>
+
+SELECT ?affected ?affectedName ?priority
+WHERE {
+  ?affected knowd:dependsOn+ feature:MutualTLS ;
+            rdfs:label ?affectedName ;
+            knowd:priority ?priority .
+}
+ORDER BY ?priority
+
+# Query 6: Find features with most dependencies (coupling analysis)
+PREFIX knowd: <http://knowd.io/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?feature ?name (COUNT(?dep) AS ?depCount)
+WHERE {
+  ?feature a knowd:ProductionFeature ;
+           rdfs:label ?name ;
+           knowd:dependsOn ?dep .
+}
+GROUP BY ?feature ?name
+ORDER BY DESC(?depCount)
+
+# Query 7: Find features depended on by most others (critical features)
+PREFIX knowd: <http://knowd.io/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?dependency ?depName (COUNT(?dependent) AS ?dependentCount)
+WHERE {
+  ?dependent knowd:dependsOn ?dependency .
+  ?dependency rdfs:label ?depName .
+}
+GROUP BY ?dependency ?depName
+ORDER BY DESC(?dependentCount)
+
+# Query 8: Dependency chain depth analysis
+PREFIX knowd: <http://knowd.io/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?feature ?name
+       (COUNT(?dep1) AS ?directDeps)
+       (COUNT(?dep2) AS ?indirectDeps)
+WHERE {
+  ?feature a knowd:ProductionFeature ;
+           rdfs:label ?name .
+  OPTIONAL { ?feature knowd:dependsOn ?dep1 }
+  OPTIONAL {
+    ?feature knowd:dependsOn ?intermediate .
+    ?intermediate knowd:dependsOn ?dep2
+  }
+}
+GROUP BY ?feature ?name
+ORDER BY DESC(?directDeps)
+
+# Query 9: Find violation of dependency priority rule
+PREFIX knowd: <http://knowd.io/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?feature ?featureName ?featurePriority ?dep ?depName ?depPriority
+WHERE {
+  ?feature knowd:priority ?featurePriority ;
+           rdfs:label ?featureName ;
+           knowd:dependsOn ?dep .
+  ?dep knowd:priority ?depPriority ;
+       rdfs:label ?depName .
+  FILTER (
+    (?featurePriority = "P0" && ?depPriority IN ("P1", "P2", "P3")) ||
+    (?featurePriority = "P1" && ?depPriority IN ("P2", "P3"))
+  )
+}
+
+# Query 10: Construct dependency graph for visualization
+PREFIX knowd: <http://knowd.io/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+CONSTRUCT {
+  ?feature rdfs:label ?name ;
+           knowd:dependsOn ?dep .
+  ?dep rdfs:label ?depName .
+}
+WHERE {
+  ?feature a knowd:ProductionFeature ;
+           rdfs:label ?name .
+  OPTIONAL {
+    ?feature knowd:dependsOn ?dep .
+    ?dep rdfs:label ?depName .
+  }
+}

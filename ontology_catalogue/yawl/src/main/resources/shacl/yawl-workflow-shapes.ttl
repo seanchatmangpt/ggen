@@ -1,0 +1,171 @@
+# YAWL Workflow Shapes
+# Defines SHACL constraints for YAWL workflow-specific elements
+
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix yawl:    <http://www.yawlfoundation.org/yawl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex:      <http://example.org/yawl-shapes#> .
+
+# Shape for Process Tasks
+ex:ProcessTaskShape a sh:NodeShape ;
+    rdfs:comment "Process task in YAWL workflow" ;
+    sh:targetClass yawl:ProcessTask ;
+    sh:subClassOf ex:YAWLTaskShape ;
+    sh:property [
+        sh:path yawl:hasServiceModel ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Process task must specify a service model" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasParameter ;
+        sh:minCount 0 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:qualifiedValueShapes [
+            sh:node ex:ParametersShape ;
+        ] ;
+        sh:message "Process task can have parameters" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasInputFlow ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:qualifiedValueShapes [
+            sh:node ex:InputFlowShape ;
+        ] ;
+        sh:message "Process task must have exactly one input flow" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasOutputFlow ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:qualifiedValueShapes [
+            sh:node ex:OutputFlowShape ;
+        ] ;
+        sh:message "Process task must have exactly one output flow" ;
+    ] .
+
+# Shape for Service Tasks
+ex:ServiceTaskShape a sh:NodeShape ;
+    rdfs:comment "Service task in YAWL workflow" ;
+    sh:targetClass yawl:ServiceTask ;
+    sh:subClassOf ex:YAWLTaskShape ;
+    sh:property [
+        sh:path yawl:hasServiceName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Service task must specify a service name" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasServiceInterface ;
+        sh:datatype xsd:anyURI ;
+        sh:minCount 1 ;
+        sh:message "Service task must specify a service interface" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasInputFlow ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:qualifiedValueShapes [
+            sh:node ex:InputFlowShape ;
+        ] ;
+        sh:message "Service task must have exactly one input flow" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasOutputFlow ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:qualifiedValueShapes [
+            sh:node ex:OutputFlowShape ;
+        ] ;
+        sh:message "Service task must have exactly one output flow" ;
+    ] .
+
+# Shape for Human Tasks
+ex:HumanTaskShape a sh:NodeShape ;
+    rdfs:comment "Human task in YAWL workflow" ;
+    sh:targetClass yawl:HumanTask ;
+    sh:subClassOf ex:YAWLTaskShape ;
+    sh:property [
+        sh:path yawl:hasRole ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Human task must specify a role" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasDeadline ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:message "Human task can have a deadline" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasInputFlow ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:qualifiedValueShapes [
+            sh:node ex:InputFlowShape ;
+        ] ;
+        sh:message "Human task must have exactly one input flow" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasOutputFlow ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:qualifiedValueShapes [
+            sh:node ex:OutputFlowShape ;
+        ] ;
+        sh:message "Human task must have exactly one output flow" ;
+    ] .
+
+# Shape for Parameters
+ex:ParametersShape a sh:NodeShape ;
+    rdfs:comment "Parameters for a task" ;
+    sh:targetClass yawl:Parameters ;
+    sh:property [
+        sh:path yawl:hasParameter ;
+        sh:node ex:ParameterShape ;
+        sh:minCount 1 ;
+        sh:message "Parameters must have at least one parameter" ;
+    ] .
+
+# Shape for individual parameters
+ex:ParameterShape a sh:NodeShape ;
+    rdfs:comment "Individual parameter" ;
+    sh:targetClass yawl:Parameter ;
+    sh:property [
+        sh:path yawl:hasName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Parameter must have a name" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Parameter must have a type" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasValue ;
+        sh:datatype xsd:string ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:message "Parameter can have a default value" ;
+    ] .
+
+# Shape for flow conditions
+ex:FlowConditionShape a sh:NodeShape ;
+    rdfs:comment "Condition on a flow" ;
+    sh:targetClass yawl:FlowCondition ;
+    sh:property [
+        sh:path yawl:hasExpression ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Flow condition must have an expression" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasConditionType ;
+        sh:hasValue "xor" ;
+        sh:message "Flow condition must be of type 'xor'" ;
+    ] .

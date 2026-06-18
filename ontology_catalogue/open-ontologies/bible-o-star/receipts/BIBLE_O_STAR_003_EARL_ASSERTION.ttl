@@ -1,0 +1,188 @@
+@prefix earl:  <http://www.w3.org/ns/earl#> .
+@prefix cell8: <urn:cell8:gate:> .
+@prefix bos:   <https://open-ontologies.org/bible-o-star#> .
+@prefix dct:   <http://purl.org/dc/terms/> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov:  <http://www.w3.org/ns/prov#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+
+# =============================================================================
+# BIBLE_O_STAR_003 — EARL External Attestation
+# Gate: A13 (Inspection Gate / Nehemiah 6:16 pattern)
+# Seal public key: e7b658b116c78c50f970a9c894780f2923744f27cfa68337275ddeb33a71e65b
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# Test Subject
+# ---------------------------------------------------------------------------
+bos:BibleOStarPackage a earl:TestSubject ;
+    rdfs:label "Bible O* Package — bible-o-star 003" ;
+    dct:identifier "BIBLE_O_STAR_003" ;
+    dct:created "2026-06-02T00:00:00Z"^^xsd:dateTime .
+
+# ---------------------------------------------------------------------------
+# External Assertor (A13 — Nehemiah 6:16 pattern)
+# ---------------------------------------------------------------------------
+bos:InspectionGateWitness a earl:Assertor ;
+    rdfs:label "Nehemiah / Inspection Gate — external witness per Nehemiah 6:16" ;
+    prov:actedOnBehalfOf bos:TheInspectionGate .
+
+# ---------------------------------------------------------------------------
+# A1 — Artifact identity declared
+# ---------------------------------------------------------------------------
+[] a earl:Assertion ;
+   earl:subject bos:BibleOStarPackage ;
+   earl:test cell8:GateA1 ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T00:00:00Z"^^xsd:dateTime
+   ] .
+
+# ---------------------------------------------------------------------------
+# A2 — Provenance chain present
+# ---------------------------------------------------------------------------
+[] a earl:Assertion ;
+   earl:subject bos:BibleOStarPackage ;
+   earl:test cell8:GateA2 ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T00:00:00Z"^^xsd:dateTime
+   ] .
+
+# ---------------------------------------------------------------------------
+# A3 — License policy declared
+# ---------------------------------------------------------------------------
+[] a earl:Assertion ;
+   earl:subject bos:BibleOStarPackage ;
+   earl:test cell8:GateA3 ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T00:00:00Z"^^xsd:dateTime
+   ] .
+
+# ---------------------------------------------------------------------------
+# A4 — SHACL conformance validated
+# ---------------------------------------------------------------------------
+[] a earl:Assertion ;
+   earl:subject bos:BibleOStarPackage ;
+   earl:test cell8:GateA4 ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T00:00:00Z"^^xsd:dateTime
+   ] .
+
+# ---------------------------------------------------------------------------
+# A5 — Receipt chain linked
+# ---------------------------------------------------------------------------
+[] a earl:Assertion ;
+   earl:subject bos:BibleOStarPackage ;
+   earl:test cell8:GateA5 ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T00:00:00Z"^^xsd:dateTime
+   ] .
+
+# ---------------------------------------------------------------------------
+# A6 — BLAKE3 seal signed
+# ---------------------------------------------------------------------------
+[] a earl:Assertion ;
+   earl:subject bos:BibleOStarPackage ;
+   earl:test cell8:GateA6 ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T00:00:00Z"^^xsd:dateTime
+   ] .
+
+# ---------------------------------------------------------------------------
+# A7 — Distribution manifest present
+# ---------------------------------------------------------------------------
+[] a earl:Assertion ;
+   earl:subject bos:BibleOStarPackage ;
+   earl:test cell8:GateA7 ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T00:00:00Z"^^xsd:dateTime
+   ] .
+
+# ---------------------------------------------------------------------------
+# A8 — Ontology catalogue entry present
+# ---------------------------------------------------------------------------
+[] a earl:Assertion ;
+   earl:subject bos:BibleOStarPackage ;
+   earl:test cell8:GateA8 ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T00:00:00Z"^^xsd:dateTime
+   ] .
+
+# ---------------------------------------------------------------------------
+# A9 — SPARQL query surface verified
+# ---------------------------------------------------------------------------
+[] a earl:Assertion ;
+   earl:subject bos:BibleOStarPackage ;
+   earl:test cell8:GateA9 ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T00:00:00Z"^^xsd:dateTime
+   ] .
+
+# ---------------------------------------------------------------------------
+# A10 — Adversarial review passed
+# ---------------------------------------------------------------------------
+[] a earl:Assertion ;
+   earl:subject bos:BibleOStarPackage ;
+   earl:test cell8:GateA10 ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T00:00:00Z"^^xsd:dateTime
+   ] .
+
+# ---------------------------------------------------------------------------
+# A11 — IP audit clear
+# ---------------------------------------------------------------------------
+[] a earl:Assertion ;
+   earl:subject bos:BibleOStarPackage ;
+   earl:test cell8:GateA11 ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T00:00:00Z"^^xsd:dateTime
+   ] .
+
+# ---------------------------------------------------------------------------
+# A12 — Cell8 admission shape conforms
+# ---------------------------------------------------------------------------
+[] a earl:Assertion ;
+   earl:subject bos:BibleOStarPackage ;
+   earl:test cell8:GateA12 ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T00:00:00Z"^^xsd:dateTime
+   ] .
+
+# ---------------------------------------------------------------------------
+# A13 — External witness / Inspection Gate (Nehemiah 6:16)
+# ---------------------------------------------------------------------------
+[] a earl:Assertion ;
+   earl:assertedBy bos:InspectionGateWitness ;
+   earl:subject bos:BibleOStarPackage ;
+   earl:test cell8:GateA13 ;
+   cell8:signerPublicKey "e7b658b116c78c50f970a9c894780f2923744f27cfa68337275ddeb33a71e65b" ;
+   cell8:hasSignature "7766fb661faeda618a83e253968085b4767818b50adbf18f25edaa2460be06e3cae9e0028fbbd46bb6eca3ede2bd1d83e2fddf1020aca6d9c430b0fe6b809507" ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T00:00:00Z"^^xsd:dateTime ;
+     rdfs:comment "Inspection Gate external witness: wall is complete (Neh. 6:16 pattern)"
+   ] .

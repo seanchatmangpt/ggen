@@ -1,0 +1,272 @@
+@prefix feat: <http://knowd.io/features#> .
+@prefix knowd: <http://knowd.io/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Feature Ontology for Production Readiness Tracking
+
+# Feature classes
+feat:ProductionFeature a owl:Class ;
+    rdfs:label "Production Feature" ;
+    rdfs:comment "A feature required for production deployment" .
+
+feat:SecurityFeature rdfs:subClassOf feat:ProductionFeature ;
+    rdfs:label "Security Feature" ;
+    rdfs:comment "Security-related feature (encryption, auth, etc.)" .
+
+feat:PerformanceFeature rdfs:subClassOf feat:ProductionFeature ;
+    rdfs:label "Performance Feature" ;
+    rdfs:comment "Performance optimization feature" .
+
+feat:ComplianceFeature rdfs:subClassOf feat:ProductionFeature ;
+    rdfs:label "Compliance Feature" ;
+    rdfs:comment "Regulatory compliance feature (GDPR, etc.)" .
+
+feat:ObservabilityFeature rdfs:subClassOf feat:ProductionFeature ;
+    rdfs:label "Observability Feature" ;
+    rdfs:comment "Monitoring, logging, and tracing features" .
+
+# Status class
+feat:Status a owl:Class ;
+    rdfs:label "Feature Status" .
+
+# Properties
+feat:status a owl:ObjectProperty ;
+    rdfs:label "has status" ;
+    rdfs:domain feat:ProductionFeature ;
+    rdfs:range feat:Status .
+
+feat:priority a owl:DatatypeProperty ;
+    rdfs:label "priority level" ;
+    rdfs:domain feat:ProductionFeature ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Priority: P0 (critical), P1 (important), P2 (nice-to-have)" .
+
+feat:completeness a owl:DatatypeProperty ;
+    rdfs:label "completeness score" ;
+    rdfs:domain feat:ProductionFeature ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Completeness from 0.0 to 1.0" .
+
+feat:blocksProduction a owl:ObjectProperty ;
+    rdfs:label "blocks production" ;
+    rdfs:domain feat:ProductionFeature ;
+    rdfs:range feat:ProductionFeature ;
+    rdfs:comment "This feature blocks another feature from production" .
+
+feat:jiraTicket a owl:DatatypeProperty ;
+    rdfs:label "JIRA ticket" ;
+    rdfs:domain feat:ProductionFeature ;
+    rdfs:range xsd:string .
+
+feat:implementedIn a owl:DatatypeProperty ;
+    rdfs:label "implemented in" ;
+    rdfs:domain feat:ProductionFeature ;
+    rdfs:range xsd:string ;
+    rdfs:comment "File path where feature is implemented" .
+
+feat:testCoverage a owl:DatatypeProperty ;
+    rdfs:label "test coverage" ;
+    rdfs:domain feat:ProductionFeature ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Test coverage from 0.0 to 1.0" .
+
+feat:performanceImprovement a owl:DatatypeProperty ;
+    rdfs:label "performance improvement" ;
+    rdfs:domain feat:PerformanceFeature ;
+    rdfs:range xsd:string .
+
+feat:cacheHitRate a owl:DatatypeProperty ;
+    rdfs:label "cache hit rate" ;
+    rdfs:domain feat:PerformanceFeature ;
+    rdfs:range xsd:decimal .
+
+feat:requiresLLM a owl:DatatypeProperty ;
+    rdfs:label "requires LLM" ;
+    rdfs:domain feat:ProductionFeature ;
+    rdfs:range xsd:boolean .
+
+feat:validates a owl:ObjectProperty ;
+    rdfs:label "validates" ;
+    rdfs:domain feat:ProductionFeature ;
+    rdfs:range feat:ProductionFeature ;
+    rdfs:comment "This feature validates another feature" .
+
+# Status instances
+feat:NotStarted a feat:Status ;
+    rdfs:label "Not Started" .
+
+feat:InProgress a feat:Status ;
+    rdfs:label "In Progress" .
+
+feat:Implemented a feat:Status ;
+    rdfs:label "Implemented" .
+
+feat:Tested a feat:Status ;
+    rdfs:label "Tested" .
+
+feat:Deployed a feat:Status ;
+    rdfs:label "Deployed" .
+
+# ============================================================================
+# ACTUAL PRODUCTION FEATURES FROM VALIDATION CHECKLIST
+# ============================================================================
+
+# P0 - Critical Security Features
+feat:EncryptionAtRest a feat:SecurityFeature ;
+    rdfs:label "Encryption at Rest" ;
+    feat:status feat:Implemented ;
+    feat:priority "P0" ;
+    feat:completeness 1.0 ;
+    feat:jiraTicket "KNOW-001" ;
+    feat:implementedIn "internal/crypto/encryption.go" ;
+    feat:testCoverage 0.95 ;
+    rdfs:comment "AES-256-GCM encryption for all stored data" .
+
+feat:mTLSAuthentication a feat:SecurityFeature ;
+    rdfs:label "mTLS Authentication" ;
+    feat:status feat:Implemented ;
+    feat:priority "P0" ;
+    feat:completeness 1.0 ;
+    feat:jiraTicket "KNOW-002" ;
+    feat:implementedIn "internal/auth/mtls.go" ;
+    feat:testCoverage 0.92 ;
+    rdfs:comment "Mutual TLS certificate-based authentication" .
+
+feat:AccessControl a feat:SecurityFeature ;
+    rdfs:label "Role-Based Access Control" ;
+    feat:status feat:Implemented ;
+    feat:priority "P0" ;
+    feat:completeness 1.0 ;
+    feat:jiraTicket "KNOW-003" ;
+    feat:implementedIn "internal/auth/rbac.go" ;
+    feat:testCoverage 0.88 ;
+    rdfs:comment "RBAC with namespace-level permissions" .
+
+# P0 - Observability Features
+feat:PrometheusMetrics a feat:ObservabilityFeature ;
+    rdfs:label "Prometheus Metrics" ;
+    feat:status feat:Implemented ;
+    feat:priority "P0" ;
+    feat:completeness 1.0 ;
+    feat:implementedIn "internal/telemetry/prometheus.go" ;
+    feat:testCoverage 0.92 ;
+    rdfs:comment "Comprehensive Prometheus metrics for all operations" .
+
+feat:OpenTelemetryTracing a feat:ObservabilityFeature ;
+    rdfs:label "OpenTelemetry Tracing" ;
+    feat:status feat:Implemented ;
+    feat:priority "P0" ;
+    feat:completeness 1.0 ;
+    feat:implementedIn "internal/telemetry/tracing.go" ;
+    feat:testCoverage 0.90 ;
+    rdfs:comment "Distributed tracing with OpenTelemetry" .
+
+feat:StructuredLogging a feat:ObservabilityFeature ;
+    rdfs:label "Structured Logging" ;
+    feat:status feat:Implemented ;
+    feat:priority "P0" ;
+    feat:completeness 1.0 ;
+    feat:implementedIn "internal/telemetry/logging.go" ;
+    feat:testCoverage 0.85 ;
+    rdfs:comment "JSON-formatted structured logging" .
+
+# P0 - Compliance Features
+feat:GDPRCompliance a feat:ComplianceFeature ;
+    rdfs:label "GDPR Compliance" ;
+    feat:status feat:Implemented ;
+    feat:priority "P0" ;
+    feat:completeness 1.0 ;
+    feat:implementedIn "internal/gdpr/rights.go" ;
+    feat:testCoverage 0.90 ;
+    rdfs:comment "Right to erasure, access, and data portability" .
+
+feat:AuditLogging a feat:ComplianceFeature ;
+    rdfs:label "Audit Logging" ;
+    feat:status feat:Implemented ;
+    feat:priority "P0" ;
+    feat:completeness 1.0 ;
+    feat:implementedIn "internal/audit/logger.go" ;
+    feat:testCoverage 0.88 ;
+    rdfs:comment "Immutable audit trail for all operations" .
+
+# P0 - Performance Testing
+feat:LoadTesting a feat:PerformanceFeature ;
+    rdfs:label "Load Testing Suite" ;
+    feat:status feat:Implemented ;
+    feat:priority "P0" ;
+    feat:completeness 1.0 ;
+    feat:implementedIn "loadtest/k6/" ;
+    feat:validates feat:PrometheusMetrics ;
+    rdfs:comment "K6-based load testing for production scenarios" .
+
+# P1 - Performance Optimizations
+feat:ConnectionPooling a feat:PerformanceFeature ;
+    rdfs:label "Connection Pooling" ;
+    feat:status feat:Implemented ;
+    feat:priority "P1" ;
+    feat:completeness 1.0 ;
+    feat:implementedIn "internal/store/disk/pool.go" ;
+    feat:performanceImprovement "30x" ;
+    feat:testCoverage 0.94 ;
+    rdfs:comment "Connection pooling for disk store backend" .
+
+feat:DistributedCaching a feat:PerformanceFeature ;
+    rdfs:label "Distributed Caching" ;
+    feat:status feat:Implemented ;
+    feat:priority "P1" ;
+    feat:completeness 1.0 ;
+    feat:implementedIn "internal/cache/redis.go" ;
+    feat:cacheHitRate 0.50 ;
+    feat:testCoverage 0.89 ;
+    rdfs:comment "Redis-based distributed caching layer" .
+
+feat:QueryOptimization a feat:PerformanceFeature ;
+    rdfs:label "SPARQL Query Optimization" ;
+    feat:status feat:Implemented ;
+    feat:priority "P1" ;
+    feat:completeness 1.0 ;
+    feat:implementedIn "internal/sparql/optimizer.go" ;
+    feat:testCoverage 0.91 ;
+    rdfs:comment "Query plan optimization and caching" .
+
+# P1 - High Availability
+feat:ReplicationCluster a feat:PerformanceFeature ;
+    rdfs:label "Replication Cluster" ;
+    feat:status feat:Implemented ;
+    feat:priority "P1" ;
+    feat:completeness 1.0 ;
+    feat:implementedIn "internal/cluster/replication.go" ;
+    feat:testCoverage 0.87 ;
+    rdfs:comment "Leader-follower replication with automatic failover" .
+
+# P2 - Advanced Features
+feat:InterviewCoach a feat:ProductionFeature ;
+    rdfs:label "Interview Coach" ;
+    feat:status feat:Implemented ;
+    feat:priority "P2" ;
+    feat:completeness 0.80 ;
+    feat:implementedIn "internal/interview/coach.go" ;
+    feat:requiresLLM true ;
+    feat:testCoverage 0.75 ;
+    rdfs:comment "AI-powered technical interview preparation" .
+
+feat:GraphVisualization a feat:ProductionFeature ;
+    rdfs:label "Graph Visualization" ;
+    feat:status feat:InProgress ;
+    feat:priority "P2" ;
+    feat:completeness 0.60 ;
+    feat:implementedIn "internal/viz/graph.go" ;
+    feat:testCoverage 0.65 ;
+    rdfs:comment "Interactive RDF graph visualization" .
+
+feat:TimeTravel a feat:ProductionFeature ;
+    rdfs:label "Time Travel Queries" ;
+    feat:status feat:Implemented ;
+    feat:priority "P2" ;
+    feat:completeness 1.0 ;
+    feat:implementedIn "internal/timetravel/query.go" ;
+    feat:testCoverage 0.93 ;
+    rdfs:comment "Point-in-time and temporal SPARQL queries" .

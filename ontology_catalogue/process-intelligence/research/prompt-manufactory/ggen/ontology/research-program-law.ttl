@@ -1,0 +1,137 @@
+@prefix pm:   <https://pi-research.dev/ontology/prompt-manufactory#> .
+@prefix dct:  <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# ============================================================================
+# RESEARCH PROGRAM LAW — 7 SEED INSTANCES
+# ============================================================================
+# Known programs encoded as RDF instances with mission, scope, prompt class.
+# Seed data sourced from checkpoints and census files.
+# ============================================================================
+
+# --- Program 1: PI_RESEARCH_PROGRAM_INTEL_001 ---
+
+<https://pi-research.dev/programs#PI_RESEARCH_PROGRAM_INTEL_001>
+  a pm:ResearchProgram ;
+  pm:programId "PI_RESEARCH_PROGRAM_INTEL_001" ;
+  dct:identifier "PI_RESEARCH_PROGRAM_INTEL_001" ;
+  dct:description "Full research-program reconciliation: census all projects, classify into RDF ontology, emit ggen surfaces, audit conformance, produce program map" ;
+  pm:mission "Full research-program reconciliation: census all projects, classify into RDF ontology, emit ggen surfaces, audit conformance, produce program map" ;
+  pm:hasPromptClass pm:INTEL ;
+  pm:hasWorkflow <https://pi-research.dev/workflows#INTEL_WORKFLOW> ;
+  dct:issued "2026-06-01"^^xsd:dateTime ;
+  rdfs:comment "Discovers program topology across wasm4pm, compat, ggen, Blue River, ZOEapp, OTel Weaver, Expo/Supabase, Claude Code" .
+
+# --- Program 2: GGEN_ECOSYSTEM_INTEL_001 ---
+
+<https://pi-research.dev/programs#GGEN_ECOSYSTEM_INTEL_001>
+  a pm:ResearchProgram ;
+  pm:programId "GGEN_ECOSYSTEM_INTEL_001" ;
+  dct:identifier "GGEN_ECOSYSTEM_INTEL_001" ;
+  dct:description "Gather ecosystem intelligence for wasm4pm-compat projections; Van der Aalst conformance-driven ggen manufacturing" ;
+  pm:mission "Gather ecosystem intelligence for wasm4pm-compat projections; Van der Aalst conformance-driven ggen manufacturing" ;
+  pm:hasPromptClass pm:INTEL ;
+  pm:hasWorkflow <https://pi-research.dev/workflows#INTEL_WORKFLOW> ;
+  dct:issued "2026-06-01"^^xsd:dateTime ;
+  rdfs:comment "Census Cargo, rustdoc, Specta, tsify, wasm-bindgen, WIT, Component Model; classify surfaces; create manifests; emit ggen rules/templates" .
+
+# --- Program 3: GGEN_OTEL_WEAVER_PI_INTEL_001 ---
+
+<https://pi-research.dev/programs#GGEN_OTEL_WEAVER_PI_INTEL_001>
+  a pm:ResearchProgram ;
+  pm:programId "GGEN_OTEL_WEAVER_PI_INTEL_001" ;
+  dct:identifier "GGEN_OTEL_WEAVER_PI_INTEL_001" ;
+  dct:description "OTel Weaver research: telemetry feedstock, registry model, witness mappings (NOT evidence)" ;
+  pm:mission "OTel Weaver research: telemetry feedstock, registry model, witness mappings (NOT evidence)" ;
+  pm:hasPromptClass pm:INTEL ;
+  pm:hasWorkflow <https://pi-research.dev/workflows#INTEL_WORKFLOW> ;
+  dct:issued "2026-06-01"^^xsd:dateTime ;
+  rdfs:comment "Classify Weaver artifacts as telemetry feedstock, not PI evidence; establish witness boundaries" .
+
+# --- Program 4: ZOEAPP_RESEARCH_PROGRAM_INTEL_001 ---
+
+<https://pi-research.dev/programs#ZOEAPP_RESEARCH_PROGRAM_INTEL_001>
+  a pm:ResearchProgram ;
+  pm:programId "ZOEAPP_RESEARCH_PROGRAM_INTEL_001" ;
+  dct:identifier "ZOEAPP_RESEARCH_PROGRAM_INTEL_001" ;
+  dct:description "ZOEapp proof cell: Expo, Supabase, livestream, on-device inference, Jest receipts" ;
+  pm:mission "ZOEapp proof cell: Expo, Supabase, livestream, on-device inference, Jest receipts" ;
+  pm:hasPromptClass pm:INTEL ;
+  pm:hasWorkflow <https://pi-research.dev/workflows#INTEL_WORKFLOW> ;
+  dct:issued "2026-06-01"^^xsd:dateTime ;
+  rdfs:comment "Classify ZOEapp as proof cell; map Expo/Supabase to framework extraction; verify event stream boundaries" .
+
+# --- Program 5: GGEN_EXPO_SUPABASE_FRAMEWORK_INTEL_001 ---
+
+<https://pi-research.dev/programs#GGEN_EXPO_SUPABASE_FRAMEWORK_INTEL_001>
+  a pm:ResearchProgram ;
+  pm:programId "GGEN_EXPO_SUPABASE_FRAMEWORK_INTEL_001" ;
+  dct:identifier "GGEN_EXPO_SUPABASE_FRAMEWORK_INTEL_001" ;
+  dct:description "Framework extraction: Expo Router law, RLS policies, Realtime contracts" ;
+  pm:mission "Framework extraction: Expo Router law, RLS policies, Realtime contracts" ;
+  pm:hasPromptClass pm:INTEL ;
+  pm:hasWorkflow <https://pi-research.dev/workflows#INTEL_WORKFLOW> ;
+  dct:issued "2026-06-01"^^xsd:dateTime ;
+  rdfs:comment "Extract reusable mobile substrate from ZOEapp; publish as separate research artifact" .
+
+# --- Program 6: GGEN_CLAUDE_WORKFLOW_INTEL_001 ---
+
+<https://pi-research.dev/programs#GGEN_CLAUDE_WORKFLOW_INTEL_001>
+  a pm:ResearchProgram ;
+  pm:programId "GGEN_CLAUDE_WORKFLOW_INTEL_001" ;
+  dct:identifier "GGEN_CLAUDE_WORKFLOW_INTEL_001" ;
+  dct:description "Claude Code dynamic workflow orchestration: phases, subagent topology, audit gates, checkpoints" ;
+  pm:mission "Claude Code dynamic workflow orchestration: phases, subagent topology, audit gates, checkpoints" ;
+  pm:hasPromptClass pm:INTEL ;
+  pm:hasWorkflow <https://pi-research.dev/workflows#INTEL_WORKFLOW> ;
+  dct:issued "2026-06-01"^^xsd:dateTime ;
+  rdfs:comment "Classify Claude Code workflows as orchestration substrate; document subagent coordination patterns" .
+
+# --- Program 7: WASM4PM_COMPAT_PROJECTION_REMEDIATE_001 ---
+
+<https://pi-research.dev/programs#WASM4PM_COMPAT_PROJECTION_REMEDIATE_001>
+  a pm:ResearchProgram ;
+  pm:programId "WASM4PM_COMPAT_PROJECTION_REMEDIATE_001" ;
+  dct:identifier "WASM4PM_COMPAT_PROJECTION_REMEDIATE_001" ;
+  dct:description "Remediate DTO flattening violation: move JSON serialization from compat → wasm4pm engine" ;
+  pm:mission "Remediate DTO flattening violation: move JSON serialization from compat → wasm4pm engine" ;
+  pm:hasPromptClass pm:REMEDIATE ;
+  pm:hasWorkflow <https://pi-research.dev/workflows#REMEDIATE_WORKFLOW> ;
+  dct:issued "2026-06-01"^^xsd:dateTime ;
+  rdfs:comment "Fix blocking gate from GGEN_ECOSYSTEM_INTEL_001; move to_json_string() and receipt_json() out of compat boundary; re-audit to PASS" .
+
+# --- Prompt Classes (enumeration values) ---
+
+pm:INTEL a pm:PromptClass ;
+  rdfs:label "INTEL" ;
+  rdfs:comment "Census, classify, map existing work" .
+
+pm:RECONCILE a pm:PromptClass ;
+  rdfs:label "RECONCILE" ;
+  rdfs:comment "Unify checkpoints, resolve contradictions" .
+
+pm:REMEDIATE a pm:PromptClass ;
+  rdfs:label "REMEDIATE" ;
+  rdfs:comment "Route failed gates without broad implementation" .
+
+pm:SYNC a pm:PromptClass ;
+  rdfs:label "SYNC" ;
+  rdfs:comment "Run ggen sync from known-good graph" .
+
+pm:AUDIT a pm:PromptClass ;
+  rdfs:label "AUDIT" ;
+  rdfs:comment "Inspect for forbidden collapses" .
+
+pm:CHECKPOINT a pm:PromptClass ;
+  rdfs:label "CHECKPOINT" ;
+  rdfs:comment "Emit ALIVE/PARTIAL verdict" .
+
+pm:SPR a pm:PromptClass ;
+  rdfs:label "SPR" ;
+  rdfs:comment "Compress program state for cold-load" .
+
+pm:LIVESTREAM a pm:PromptClass ;
+  rdfs:label "LIVESTREAM" ;
+  rdfs:comment "Turn workflow into public narration" .

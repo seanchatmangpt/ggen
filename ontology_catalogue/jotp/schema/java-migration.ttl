@@ -1,0 +1,334 @@
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix java:  <https://jgen.dev/ontology/java#> .
+@prefix jmig:  <https://jgen.dev/ontology/java/migration#> .
+
+# =============================================================================
+# Java Migration Rules Ontology
+# Maps legacy Java patterns to modern Java 26 equivalents
+# =============================================================================
+
+jmig:Ontology a owl:Ontology ;
+    rdfs:label "Java Migration Rules" ;
+    rdfs:comment "Rules mapping legacy Java patterns to modern Java 26 equivalents" ;
+    owl:versionInfo "1.0.0" ;
+    owl:imports <https://jgen.dev/ontology/java#> .
+
+# =============================================================================
+# Migration Rule Structure
+# =============================================================================
+
+jmig:MigrationRule a owl:Class ;
+    rdfs:label "Migration Rule" ;
+    rdfs:comment "A rule mapping a legacy pattern to a modern equivalent" .
+
+jmig:hasSource a owl:DatatypeProperty ;
+    rdfs:domain jmig:MigrationRule ;
+    rdfs:range xsd:string ;
+    rdfs:label "source pattern" ;
+    rdfs:comment "Description or AST pattern of the legacy code" .
+
+jmig:hasTarget a owl:DatatypeProperty ;
+    rdfs:domain jmig:MigrationRule ;
+    rdfs:range xsd:string ;
+    rdfs:label "target pattern" ;
+    rdfs:comment "Template name for the modern replacement" .
+
+jmig:hasMinSourceVersion a owl:ObjectProperty ;
+    rdfs:domain jmig:MigrationRule ;
+    rdfs:range java:JavaVersion ;
+    rdfs:label "minimum source version" .
+
+jmig:hasTargetVersion a owl:ObjectProperty ;
+    rdfs:domain jmig:MigrationRule ;
+    rdfs:range java:JavaVersion ;
+    rdfs:label "target version" .
+
+jmig:hasCategory a owl:DatatypeProperty ;
+    rdfs:domain jmig:MigrationRule ;
+    rdfs:range xsd:string .
+
+jmig:hasPriority a owl:DatatypeProperty ;
+    rdfs:domain jmig:MigrationRule ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "1=highest priority, 10=lowest" .
+
+jmig:isBreaking a owl:DatatypeProperty ;
+    rdfs:domain jmig:MigrationRule ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether this migration changes public API" .
+
+# =============================================================================
+# Language Feature Migrations
+# =============================================================================
+
+jmig:POJOToRecord a jmig:MigrationRule ;
+    rdfs:label "POJO → Record" ;
+    jmig:hasSource "Class with fields + getters + equals + hashCode + toString" ;
+    jmig:hasTarget "core/record.tera" ;
+    jmig:hasCategory "language" ;
+    jmig:hasPriority 1 ;
+    jmig:isBreaking true ;
+    jmig:hasTargetVersion <https://jgen.dev/ontology/java/core#Java16> .
+
+jmig:AnonymousClassToLambda a jmig:MigrationRule ;
+    rdfs:label "Anonymous Class → Lambda" ;
+    jmig:hasSource "Anonymous inner class implementing functional interface" ;
+    jmig:hasTarget "core/lambda-conversion.tera" ;
+    jmig:hasCategory "language" ;
+    jmig:hasPriority 1 ;
+    jmig:isBreaking false ;
+    jmig:hasTargetVersion <https://jgen.dev/ontology/java/core#Java8> .
+
+jmig:LambdaToMethodRef a jmig:MigrationRule ;
+    rdfs:label "Lambda → Method Reference" ;
+    jmig:hasSource "Lambda expression that only calls a single method" ;
+    jmig:hasTarget "core/method-reference.tera" ;
+    jmig:hasCategory "language" ;
+    jmig:hasPriority 3 ;
+    jmig:isBreaking false ;
+    jmig:hasTargetVersion <https://jgen.dev/ontology/java/core#Java8> .
+
+jmig:InstanceofCastToPattern a jmig:MigrationRule ;
+    rdfs:label "instanceof + Cast → Pattern Matching" ;
+    jmig:hasSource "if (x instanceof Foo) { Foo f = (Foo) x; ... }" ;
+    jmig:hasTarget "core/instanceof-pattern.tera" ;
+    jmig:hasCategory "language" ;
+    jmig:hasPriority 1 ;
+    jmig:isBreaking false ;
+    jmig:hasTargetVersion <https://jgen.dev/ontology/java/core#Java16> .
+
+jmig:IfElseChainToSwitch a jmig:MigrationRule ;
+    rdfs:label "if/else Chain → Switch Expression" ;
+    jmig:hasSource "if/else chain dispatching on type or value" ;
+    jmig:hasTarget "core/pattern-matching-switch.tera" ;
+    jmig:hasCategory "language" ;
+    jmig:hasPriority 2 ;
+    jmig:isBreaking false ;
+    jmig:hasTargetVersion <https://jgen.dev/ontology/java/core#Java21> .
+
+jmig:StringConcatToTextBlock a jmig:MigrationRule ;
+    rdfs:label "String Concatenation → Text Block" ;
+    jmig:hasSource "Multi-line string with + concatenation or \\n" ;
+    jmig:hasTarget "core/text-block.tera" ;
+    jmig:hasCategory "language" ;
+    jmig:hasPriority 2 ;
+    jmig:isBreaking false ;
+    jmig:hasTargetVersion <https://jgen.dev/ontology/java/core#Java15> .
+
+jmig:ExplicitTypeToVar a jmig:MigrationRule ;
+    rdfs:label "Explicit Type → var" ;
+    jmig:hasSource "Fully qualified type on left-hand side of local variable" ;
+    jmig:hasTarget "core/var-inference.tera" ;
+    jmig:hasCategory "language" ;
+    jmig:hasPriority 3 ;
+    jmig:isBreaking false ;
+    jmig:hasTargetVersion <https://jgen.dev/ontology/java/core#Java10> .
+
+jmig:OpenHierarchyToSealed a jmig:MigrationRule ;
+    rdfs:label "Open Hierarchy → Sealed" ;
+    jmig:hasSource "Interface/class with known set of implementations" ;
+    jmig:hasTarget "core/sealed-interface.tera" ;
+    jmig:hasCategory "language" ;
+    jmig:hasPriority 2 ;
+    jmig:isBreaking true ;
+    jmig:hasTargetVersion <https://jgen.dev/ontology/java/core#Java17> .
+
+jmig:ForLoopToStream a jmig:MigrationRule ;
+    rdfs:label "For Loop → Stream Pipeline" ;
+    jmig:hasSource "Traditional for loop with filter/map/collect" ;
+    jmig:hasTarget "core/stream-pipeline.tera" ;
+    jmig:hasCategory "language" ;
+    jmig:hasPriority 2 ;
+    jmig:isBreaking false ;
+    jmig:hasTargetVersion <https://jgen.dev/ontology/java/core#Java8> .
+
+jmig:NullCheckToOptional a jmig:MigrationRule ;
+    rdfs:label "Null Check → Optional" ;
+    jmig:hasSource "if (x != null) chains, ternary null checks" ;
+    jmig:hasTarget "core/optional-chain.tera" ;
+    jmig:hasCategory "language" ;
+    jmig:hasPriority 2 ;
+    jmig:isBreaking true ;
+    jmig:hasTargetVersion <https://jgen.dev/ontology/java/core#Java8> .
+
+jmig:TraditionalConstructorToFlexible a jmig:MigrationRule ;
+    rdfs:label "Traditional Constructor → Flexible Constructor Body" ;
+    jmig:hasSource "Constructor with validation after super() call" ;
+    jmig:hasTarget "core/flexible-constructor.tera" ;
+    jmig:hasCategory "language" ;
+    jmig:hasPriority 3 ;
+    jmig:isBreaking false ;
+    jmig:hasTargetVersion <https://jgen.dev/ontology/java/core#Java26> .
+
+# =============================================================================
+# Concurrency Migrations
+# =============================================================================
+
+jmig:PlatformThreadToVirtual a jmig:MigrationRule ;
+    rdfs:label "Platform Thread → Virtual Thread" ;
+    jmig:hasSource "new Thread(runnable).start(), Thread subclass" ;
+    jmig:hasTarget "concurrency/virtual-thread.tera" ;
+    jmig:hasCategory "concurrency" ;
+    jmig:hasPriority 1 ;
+    jmig:isBreaking false ;
+    jmig:hasTargetVersion <https://jgen.dev/ontology/java/core#Java21> .
+
+jmig:ThreadPoolToVirtualExecutor a jmig:MigrationRule ;
+    rdfs:label "Thread Pool → Virtual Thread Executor" ;
+    jmig:hasSource "Executors.newFixedThreadPool(n)" ;
+    jmig:hasTarget "concurrency/virtual-thread-executor.tera" ;
+    jmig:hasCategory "concurrency" ;
+    jmig:hasPriority 1 ;
+    jmig:isBreaking false ;
+    jmig:hasTargetVersion <https://jgen.dev/ontology/java/core#Java21> .
+
+jmig:FutureGetToStructured a jmig:MigrationRule ;
+    rdfs:label "Future.get() → StructuredTaskScope" ;
+    jmig:hasSource "Submit tasks, collect futures, call get() in loop" ;
+    jmig:hasTarget "concurrency/structured-task-scope.tera" ;
+    jmig:hasCategory "concurrency" ;
+    jmig:hasPriority 1 ;
+    jmig:isBreaking true ;
+    jmig:hasTargetVersion <https://jgen.dev/ontology/java/core#Java26> .
+
+jmig:ThreadLocalToScopedValue a jmig:MigrationRule ;
+    rdfs:label "ThreadLocal → ScopedValue" ;
+    jmig:hasSource "ThreadLocal<T> with set/get/remove" ;
+    jmig:hasTarget "concurrency/scoped-value.tera" ;
+    jmig:hasCategory "concurrency" ;
+    jmig:hasPriority 2 ;
+    jmig:isBreaking true ;
+    jmig:hasTargetVersion <https://jgen.dev/ontology/java/core#Java26> .
+
+jmig:ParallelStreamToGatherer a jmig:MigrationRule ;
+    rdfs:label "parallelStream() → Gatherers.mapConcurrent()" ;
+    jmig:hasSource "collection.parallelStream().map(fn)" ;
+    jmig:hasTarget "concurrency/concurrent-gatherer.tera" ;
+    jmig:hasCategory "concurrency" ;
+    jmig:hasPriority 2 ;
+    jmig:isBreaking false ;
+    jmig:hasTargetVersion <https://jgen.dev/ontology/java/core#Java25> .
+
+# =============================================================================
+# API Migrations
+# =============================================================================
+
+jmig:HttpURLConnectionToHttpClient a jmig:MigrationRule ;
+    rdfs:label "HttpURLConnection → HttpClient" ;
+    jmig:hasSource "java.net.HttpURLConnection usage" ;
+    jmig:hasTarget "api/http-client.tera" ;
+    jmig:hasCategory "api" ;
+    jmig:hasPriority 1 ;
+    jmig:isBreaking true ;
+    jmig:hasTargetVersion <https://jgen.dev/ontology/java/core#Java11> .
+
+jmig:DateCalendarToJavaTime a jmig:MigrationRule ;
+    rdfs:label "Date/Calendar → java.time" ;
+    jmig:hasSource "java.util.Date, java.util.Calendar usage" ;
+    jmig:hasTarget "api/java-time.tera" ;
+    jmig:hasCategory "api" ;
+    jmig:hasPriority 1 ;
+    jmig:isBreaking true ;
+    jmig:hasTargetVersion <https://jgen.dev/ontology/java/core#Java8> .
+
+jmig:FileIOToNIO2 a jmig:MigrationRule ;
+    rdfs:label "java.io.File → java.nio.file" ;
+    jmig:hasSource "java.io.File, FileInputStream, FileOutputStream" ;
+    jmig:hasTarget "api/nio2-files.tera" ;
+    jmig:hasCategory "api" ;
+    jmig:hasPriority 2 ;
+    jmig:isBreaking true ;
+    jmig:hasTargetVersion <https://jgen.dev/ontology/java/core#Java8> .
+
+jmig:CollectionsUnmodifiableToFactory a jmig:MigrationRule ;
+    rdfs:label "Collections.unmodifiable*() → factory methods" ;
+    jmig:hasSource "Collections.unmodifiableList(), new ArrayList<>(Arrays.asList(...))" ;
+    jmig:hasTarget "api/collection-factories.tera" ;
+    jmig:hasCategory "api" ;
+    jmig:hasPriority 2 ;
+    jmig:isBreaking false ;
+    jmig:hasTargetVersion <https://jgen.dev/ontology/java/core#Java9> .
+
+jmig:RuntimeExecToProcessBuilder a jmig:MigrationRule ;
+    rdfs:label "Runtime.exec() → ProcessBuilder" ;
+    jmig:hasSource "Runtime.getRuntime().exec(cmd)" ;
+    jmig:hasTarget "api/process-builder.tera" ;
+    jmig:hasCategory "api" ;
+    jmig:hasPriority 3 ;
+    jmig:isBreaking true ;
+    jmig:hasTargetVersion <https://jgen.dev/ontology/java/core#Java9> .
+
+jmig:LegacyCollectionsToModern a jmig:MigrationRule ;
+    rdfs:label "Vector/Hashtable/Stack → modern collections" ;
+    jmig:hasSource "java.util.Vector, Hashtable, Stack" ;
+    jmig:hasTarget "api/collection-factories.tera" ;
+    jmig:hasCategory "api" ;
+    jmig:hasPriority 1 ;
+    jmig:isBreaking true ;
+    jmig:hasTargetVersion <https://jgen.dev/ontology/java/core#Java8> .
+
+# =============================================================================
+# Testing Migrations
+# =============================================================================
+
+jmig:JUnit3ToJUnit5 a jmig:MigrationRule ;
+    rdfs:label "JUnit 3 → JUnit 5" ;
+    jmig:hasSource "extends TestCase, test methods named testXxx" ;
+    jmig:hasTarget "testing/junit5-test.tera" ;
+    jmig:hasCategory "testing" ;
+    jmig:hasPriority 1 ;
+    jmig:isBreaking true .
+
+jmig:JUnit4ToJUnit5 a jmig:MigrationRule ;
+    rdfs:label "JUnit 4 → JUnit 5" ;
+    jmig:hasSource "@org.junit.Test, @RunWith, @Rule" ;
+    jmig:hasTarget "testing/junit5-test.tera" ;
+    jmig:hasCategory "testing" ;
+    jmig:hasPriority 1 ;
+    jmig:isBreaking true .
+
+jmig:AssertionsToAssertJ a jmig:MigrationRule ;
+    rdfs:label "JUnit assertions → AssertJ" ;
+    jmig:hasSource "assertEquals, assertTrue, assertNotNull" ;
+    jmig:hasTarget "testing/assertj-assertions.tera" ;
+    jmig:hasCategory "testing" ;
+    jmig:hasPriority 2 ;
+    jmig:isBreaking false .
+
+# =============================================================================
+# Build Migrations
+# =============================================================================
+
+jmig:JavaEEToJakarta a jmig:MigrationRule ;
+    rdfs:label "javax.* → jakarta.*" ;
+    jmig:hasSource "javax.servlet, javax.persistence, javax.annotation" ;
+    jmig:hasTarget "security/jakarta-migration.tera" ;
+    jmig:hasCategory "migration" ;
+    jmig:hasPriority 1 ;
+    jmig:isBreaking true ;
+    jmig:hasTargetVersion <https://jgen.dev/ontology/java/core#Java17> .
+
+# =============================================================================
+# Error Handling Migrations
+# =============================================================================
+
+jmig:CheckedExceptionsToResult a jmig:MigrationRule ;
+    rdfs:label "Checked Exceptions → Result<T,E>" ;
+    jmig:hasSource "throws clause, try-catch with rethrow" ;
+    jmig:hasTarget "error-handling/result-railway.tera" ;
+    jmig:hasCategory "error-handling" ;
+    jmig:hasPriority 2 ;
+    jmig:isBreaking true ;
+    jmig:hasTargetVersion <https://jgen.dev/ontology/java/core#Java17> .
+
+jmig:NullReturnToOptional a jmig:MigrationRule ;
+    rdfs:label "Null Returns → Optional<T>" ;
+    jmig:hasSource "Methods returning null to indicate absence" ;
+    jmig:hasTarget "error-handling/optional-result.tera" ;
+    jmig:hasCategory "error-handling" ;
+    jmig:hasPriority 1 ;
+    jmig:isBreaking true ;
+    jmig:hasTargetVersion <https://jgen.dev/ontology/java/core#Java8> .

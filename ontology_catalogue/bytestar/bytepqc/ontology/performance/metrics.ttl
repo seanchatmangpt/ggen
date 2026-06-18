@@ -1,0 +1,357 @@
+@prefix perf: <http://bytestar.io/ontology/performance#> .
+@prefix simd: <http://bytestar.io/ontology/simd#> .
+@prefix mem: <http://bytestar.io/ontology/memory#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+
+# Performance Measurement Ontology
+# Defines metrics for cycles, throughput, latency, and optimization targets
+
+# Base Classes
+perf:PerformanceMetric a owl:Class ;
+    rdfs:label "Performance Metric" ;
+    rdfs:comment "A measurable performance characteristic" .
+
+perf:TimingMetric a owl:Class ;
+    rdfs:subClassOf perf:PerformanceMetric ;
+    rdfs:label "Timing Metric" ;
+    rdfs:comment "Time-based performance measurement" .
+
+perf:ThroughputMetric a owl:Class ;
+    rdfs:subClassOf perf:PerformanceMetric ;
+    rdfs:label "Throughput Metric" ;
+    rdfs:comment "Throughput-based performance measurement" .
+
+perf:UtilizationMetric a owl:Class ;
+    rdfs:subClassOf perf:PerformanceMetric ;
+    rdfs:label "Resource Utilization Metric" ;
+    rdfs:comment "Resource usage efficiency measurement" .
+
+perf:EnergyMetric a owl:Class ;
+    rdfs:subClassOf perf:PerformanceMetric ;
+    rdfs:label "Energy Consumption Metric" ;
+    rdfs:comment "Energy consumption measurement" .
+
+perf:PerformanceTarget a owl:Class ;
+    rdfs:label "Performance Target" ;
+    rdfs:comment "Desired performance objective" .
+
+# Properties
+perf:hasMetric a owl:ObjectProperty ;
+    rdfs:domain perf:PerformanceTarget ;
+    rdfs:range perf:PerformanceMetric .
+
+perf:metricValue a owl:DatatypeProperty ;
+    rdfs:domain perf:PerformanceMetric ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Numeric value of the metric" .
+
+perf:unit a owl:DatatypeProperty ;
+    rdfs:domain perf:PerformanceMetric ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Unit of measurement" .
+
+perf:measurementContext a owl:DatatypeProperty ;
+    rdfs:domain perf:PerformanceMetric ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Context in which measurement was taken" .
+
+perf:confidence a owl:DatatypeProperty ;
+    rdfs:domain perf:PerformanceMetric ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Confidence level of measurement (0-1)" .
+
+# Timing Metrics
+perf:Latency a perf:TimingMetric ;
+    rdfs:label "Latency" ;
+    perf:unit "nanoseconds" ;
+    rdfs:comment "Time delay for operation completion" .
+
+perf:ExecutionTime a perf:TimingMetric ;
+    rdfs:label "Execution Time" ;
+    perf:unit "microseconds" ;
+    rdfs:comment "Total time to execute operation" .
+
+perf:CycleCount a perf:TimingMetric ;
+    rdfs:label "Cycle Count" ;
+    perf:unit "cycles" ;
+    rdfs:comment "Number of CPU cycles consumed" .
+
+perf:WallClockTime a perf:TimingMetric ;
+    rdfs:label "Wall Clock Time" ;
+    perf:unit "milliseconds" ;
+    rdfs:comment "Real-world elapsed time" .
+
+# Throughput Metrics
+perf:OperationsPerSecond a perf:ThroughputMetric ;
+    rdfs:label "Operations Per Second" ;
+    perf:unit "ops/sec" ;
+    rdfs:comment "Number of operations completed per second" .
+
+perf:BytesPerSecond a perf:ThroughputMetric ;
+    rdfs:label "Bytes Per Second" ;
+    perf:unit "bytes/sec" ;
+    rdfs:comment "Data processing throughput" .
+
+perf:InstructionsPerCycle a perf:ThroughputMetric ;
+    rdfs:label "Instructions Per Cycle" ;
+    perf:unit "instructions/cycle" ;
+    rdfs:comment "Instruction-level parallelism metric" .
+
+perf:VectorUtilization a perf:ThroughputMetric ;
+    rdfs:label "Vector Utilization" ;
+    perf:unit "percentage" ;
+    rdfs:comment "SIMD vector lane utilization" .
+
+# Utilization Metrics
+perf:CPUUtilization a perf:UtilizationMetric ;
+    rdfs:label "CPU Utilization" ;
+    perf:unit "percentage" ;
+    rdfs:comment "CPU core utilization" .
+
+perf:CacheHitRate a perf:UtilizationMetric ;
+    rdfs:label "Cache Hit Rate" ;
+    perf:unit "percentage" ;
+    rdfs:comment "Cache hit ratio" .
+
+perf:MemoryBandwidthUtilization a perf:UtilizationMetric ;
+    rdfs:label "Memory Bandwidth Utilization" ;
+    perf:unit "percentage" ;
+    rdfs:comment "Memory bandwidth usage efficiency" .
+
+perf:RegisterPressure a perf:UtilizationMetric ;
+    rdfs:label "Register Pressure" ;
+    perf:unit "percentage" ;
+    rdfs:comment "Vector register usage pressure" .
+
+# Energy Metrics
+perf:PowerConsumption a perf:EnergyMetric ;
+    rdfs:label "Power Consumption" ;
+    perf:unit "watts" ;
+    rdfs:comment "Instantaneous power consumption" .
+
+perf:EnergyPerOperation a perf:EnergyMetric ;
+    rdfs:label "Energy Per Operation" ;
+    perf:unit "joules/operation" ;
+    rdfs:comment "Energy efficiency metric" .
+
+perf:ThermalDesignPower a perf:EnergyMetric ;
+    rdfs:label "Thermal Design Power" ;
+    perf:unit "watts" ;
+    rdfs:comment "Maximum sustained power consumption" .
+
+# Cryptographic Operation Metrics
+perf:CryptoMetric a owl:Class ;
+    rdfs:subClassOf perf:PerformanceMetric ;
+    rdfs:label "Cryptographic Performance Metric" ;
+    rdfs:comment "Performance metric specific to cryptographic operations" .
+
+perf:KeyGenerationRate a perf:CryptoMetric ;
+    rdfs:label "Key Generation Rate" ;
+    perf:unit "keys/sec" ;
+    rdfs:comment "Key generation operations per second" .
+
+perf:EncryptionRate a perf:CryptoMetric ;
+    rdfs:label "Encryption Rate" ;
+    perf:unit "encryptions/sec" ;
+    rdfs:comment "Encryption operations per second" .
+
+perf:DecryptionRate a perf:CryptoMetric ;
+    rdfs:label "Decryption Rate" ;
+    perf:unit "decryptions/sec" ;
+    rdfs:comment "Decryption operations per second" .
+
+perf:SignatureRate a perf:CryptoMetric ;
+    rdfs:label "Signature Generation Rate" ;
+    perf:unit "signatures/sec" ;
+    rdfs:comment "Digital signature generation rate" .
+
+perf:VerificationRate a perf:CryptoMetric ;
+    rdfs:label "Signature Verification Rate" ;
+    perf:unit "verifications/sec" ;
+    rdfs:comment "Digital signature verification rate" .
+
+# Specific Algorithm Metrics
+perf:KyberKeygen a perf:CryptoMetric ;
+    rdfs:label "Kyber Key Generation" ;
+    perf:unit "keygens/sec" ;
+    rdfs:comment "Kyber key generation performance" .
+
+perf:KyberEncaps a perf:CryptoMetric ;
+    rdfs:label "Kyber Encapsulation" ;
+    perf:unit "encaps/sec" ;
+    rdfs:comment "Kyber encapsulation performance" .
+
+perf:KyberDecaps a perf:CryptoMetric ;
+    rdfs:label "Kyber Decapsulation" ;
+    perf:unit "decaps/sec" ;
+    rdfs:comment "Kyber decapsulation performance" .
+
+perf:DilithiumKeygen a perf:CryptoMetric ;
+    rdfs:label "Dilithium Key Generation" ;
+    perf:unit "keygens/sec" ;
+    rdfs:comment "Dilithium key generation performance" .
+
+perf:DilithiumSign a perf:CryptoMetric ;
+    rdfs:label "Dilithium Signing" ;
+    perf:unit "signs/sec" ;
+    rdfs:comment "Dilithium signature generation performance" .
+
+perf:DilithiumVerify a perf:CryptoMetric ;
+    rdfs:label "Dilithium Verification" ;
+    perf:unit "verifies/sec" ;
+    rdfs:comment "Dilithium signature verification performance" .
+
+# Performance Targets for Optimization
+perf:OptimizationTarget a perf:PerformanceTarget ;
+    rdfs:label "Optimization Target" ;
+    rdfs:comment "Target performance level for optimization" .
+
+perf:HighThroughputTarget a perf:OptimizationTarget ;
+    rdfs:label "High Throughput Target" ;
+    rdfs:comment "Optimize for maximum throughput" .
+
+perf:LowLatencyTarget a perf:OptimizationTarget ;
+    rdfs:label "Low Latency Target" ;
+    rdfs:comment "Optimize for minimum latency" .
+
+perf:EnergyEfficientTarget a perf:OptimizationTarget ;
+    rdfs:label "Energy Efficient Target" ;
+    rdfs:comment "Optimize for energy efficiency" .
+
+perf:BalancedTarget a perf:OptimizationTarget ;
+    rdfs:label "Balanced Target" ;
+    rdfs:comment "Balance throughput, latency, and energy" .
+
+# Target specifications with concrete values
+perf:KyberThroughputTarget a perf:OptimizationTarget ;
+    rdfs:label "Kyber Throughput Target" ;
+    perf:hasMetric perf:KyberEncapsTarget, perf:KyberDecapsTarget .
+
+perf:KyberEncapsTarget a perf:CryptoMetric ;
+    rdfs:label "Kyber Encapsulation Target" ;
+    perf:metricValue "100000"^^xsd:decimal ;
+    perf:unit "encaps/sec" ;
+    perf:confidence "0.95"^^xsd:decimal .
+
+perf:KyberDecapsTarget a perf:CryptoMetric ;
+    rdfs:label "Kyber Decapsulation Target" ;
+    perf:metricValue "80000"^^xsd:decimal ;
+    perf:unit "decaps/sec" ;
+    perf:confidence "0.95"^^xsd:decimal .
+
+# Benchmarking and Measurement Context
+perf:BenchmarkContext a owl:Class ;
+    rdfs:label "Benchmark Context" ;
+    rdfs:comment "Context and environment for performance benchmarking" .
+
+perf:hasContext a owl:ObjectProperty ;
+    rdfs:domain perf:PerformanceMetric ;
+    rdfs:range perf:BenchmarkContext .
+
+perf:SingleThreaded a perf:BenchmarkContext ;
+    rdfs:label "Single-Threaded Benchmark" ;
+    rdfs:comment "Performance measured in single-threaded context" .
+
+perf:MultiThreaded a perf:BenchmarkContext ;
+    rdfs:label "Multi-Threaded Benchmark" ;
+    rdfs:comment "Performance measured with multiple threads" .
+
+perf:SIMDOptimized a perf:BenchmarkContext ;
+    rdfs:label "SIMD-Optimized Benchmark" ;
+    rdfs:comment "Performance measured with SIMD optimizations" .
+
+perf:CacheOptimized a perf:BenchmarkContext ;
+    rdfs:label "Cache-Optimized Benchmark" ;
+    rdfs:comment "Performance measured with cache optimizations" .
+
+# Statistical Metrics
+perf:StatisticalMetric a owl:Class ;
+    rdfs:subClassOf perf:PerformanceMetric ;
+    rdfs:label "Statistical Performance Metric" ;
+    rdfs:comment "Statistical analysis of performance measurements" .
+
+perf:AverageValue a perf:StatisticalMetric ;
+    rdfs:label "Average Value" ;
+    rdfs:comment "Mean value of measurements" .
+
+perf:MedianValue a perf:StatisticalMetric ;
+    rdfs:label "Median Value" ;
+    rdfs:comment "Median value of measurements" .
+
+perf:PercentileValue a perf:StatisticalMetric ;
+    rdfs:label "Percentile Value" ;
+    rdfs:comment "Percentile value of measurements" .
+
+perf:StandardDeviation a perf:StatisticalMetric ;
+    rdfs:label "Standard Deviation" ;
+    rdfs:comment "Standard deviation of measurements" .
+
+perf:percentile a owl:DatatypeProperty ;
+    rdfs:domain perf:PercentileValue ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Percentile level (0-100)" .
+
+# Performance Regression and Comparison
+perf:PerformanceComparison a owl:Class ;
+    rdfs:label "Performance Comparison" ;
+    rdfs:comment "Comparison between performance measurements" .
+
+perf:baselineMetric a owl:ObjectProperty ;
+    rdfs:domain perf:PerformanceComparison ;
+    rdfs:range perf:PerformanceMetric .
+
+perf:comparedMetric a owl:ObjectProperty ;
+    rdfs:domain perf:PerformanceComparison ;
+    rdfs:range perf:PerformanceMetric .
+
+perf:improvementFactor a owl:DatatypeProperty ;
+    rdfs:domain perf:PerformanceComparison ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Performance improvement factor (speedup)" .
+
+perf:regressionTolerance a owl:DatatypeProperty ;
+    rdfs:domain perf:PerformanceComparison ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Acceptable performance regression threshold" .
+
+# Performance Profiling
+perf:ProfilingData a owl:Class ;
+    rdfs:label "Profiling Data" ;
+    rdfs:comment "Detailed performance profiling information" .
+
+perf:hasProfilingData a owl:ObjectProperty ;
+    rdfs:domain perf:PerformanceMetric ;
+    rdfs:range perf:ProfilingData .
+
+perf:InstructionProfile a perf:ProfilingData ;
+    rdfs:label "Instruction Profile" ;
+    rdfs:comment "Per-instruction performance profiling" .
+
+perf:MemoryProfile a perf:ProfilingData ;
+    rdfs:label "Memory Profile" ;
+    rdfs:comment "Memory access pattern profiling" .
+
+perf:CacheProfile a perf:ProfilingData ;
+    rdfs:label "Cache Profile" ;
+    rdfs:comment "Cache behavior profiling" .
+
+# Metric Relationships
+perf:correlatedWith a owl:ObjectProperty ;
+    rdfs:domain perf:PerformanceMetric ;
+    rdfs:range perf:PerformanceMetric ;
+    rdfs:comment "Metrics that are correlated" .
+
+perf:inverselyCorrelatedWith a owl:ObjectProperty ;
+    rdfs:domain perf:PerformanceMetric ;
+    rdfs:range perf:PerformanceMetric ;
+    rdfs:comment "Metrics that are inversely correlated" .
+
+# Example correlations
+perf:Latency perf:inverselyCorrelatedWith perf:OperationsPerSecond .
+perf:CacheHitRate perf:correlatedWith perf:OperationsPerSecond .
+perf:PowerConsumption perf:correlatedWith perf:OperationsPerSecond .
+perf:VectorUtilization perf:correlatedWith perf:ThroughputMetric .

@@ -1,0 +1,125 @@
+# SPARQL Query: Open Ontologies Bridge with Federation
+# Purpose: Master federation query that joins wasm4pm-compat.ttl (local) with
+# open-ontologies SPARQL endpoint (remote). Enables live querying of external standards
+# without pre-loading all open-ontologies data.
+#
+# DEPLOYMENT NOTE:
+# - Set $LOCAL_ENDPOINT and $REMOTE_ENDPOINT environment variables
+# - Or update SERVICE URIs below to point to actual SPARQL endpoints
+# - Example: SERVICE <http://sparql.open-ontologies.org/query> { ... }
+#
+# Usage:
+#   ggen query open-ontologies-bridge-federation.rq \
+#     --local-endpoint http://localhost:3030/compat/query \
+#     --remote-endpoint http://sparql.open-ontologies.org/query
+#
+#   Or: curl -H "Accept: application/sparql-results+json" \
+#     --data-urlencode query=@open-ontologies-bridge-federation.rq \
+#     http://localhost:3030/compat/query
+
+PREFIX rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:       <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:        <http://www.w3.org/2001/XMLSchema#>
+PREFIX owl:        <http://www.w3.org/2002/07/owl#>
+PREFIX skos:       <http://www.w3.org/2004/02/skos/core#>
+PREFIX compat:     <https://wasm4pm-compat.rs/ontology#>
+PREFIX paper:      <https://wasm4pm-compat.rs/paper#>
+PREFIX ocel:       <https://open-ontologies.org/ocel#>
+PREFIX bpmn:       <https://open-ontologies.org/bpmn#>
+PREFIX petri:      <https://open-ontologies.org/petri#>
+PREFIX pm4py:      <https://open-ontologies.org/pm4py#>
+PREFIX dcterms:    <http://purl.org/dc/terms/>
+PREFIX prov:       <http://www.w3.org/ns/prov#>
+
+SELECT DISTINCT
+  ?compatForm
+  ?compatRustType
+  ?witnessKey
+  ?externalURI
+  ?externalLabel
+  ?alignmentClass
+  ?isAligned
+  ?alignmentDistance
+WHERE {
+  # ========== LOCAL: wasm4pm-compat forms ==========
+  ?compatForm
+    a compat:ProcessForm ;
+    compat:rustType ?compatRustType ;
+    compat:sourceFile ?compatSourceFile .
+
+  OPTIONAL {
+    ?compatForm compat:admittedAgainst ?witness .
+    ?witness compat:witnessKey ?witnessKey .
+  }
+
+  # ========== FEDERATION: Query open-ontologies remote endpoint ==========
+  # This SERVICE block executes against the remote SPARQL endpoint.
+  # Adjust URI to match your deployment.
+
+  OPTIONAL {
+    SERVICE <http://sparql.open-ontologies.org/query> {
+      # OCEL 2.0 federation
+      {
+        ?externalURI
+          a ocel:Component ;
+          rdfs:label ?externalLabel ;
+          rdf:type ?alignmentClass .
+
+        FILTER (?witnessKey = 'ocel-2.0')
+        BIND ('ocel-2.0' AS ?alignmentClass)
+        BIND (true AS ?isAligned)
+        BIND (0 AS ?alignmentDistance)
+      }
+      UNION
+      # BPMN 2.0 federation
+      {
+        ?externalURI
+          a bpmn:Element ;
+          rdfs:label ?externalLabel ;
+          rdf:type ?alignmentClass .
+
+        FILTER (?witnessKey = 'bpmn-2.0')
+        BIND ('bpmn-2.0' AS ?alignmentClass)
+        BIND (true AS ?isAligned)
+        BIND (0 AS ?alignmentDistance)
+      }
+      UNION
+      # Petri Net federation
+      {
+        ?externalURI
+          a petri:Component ;
+          rdfs:label ?externalLabel ;
+          rdf:type ?alignmentClass .
+
+        FILTER (?witnessKey = 'petri-net')
+        BIND ('petri-net' AS ?alignmentClass)
+        BIND (true AS ?isAligned)
+        BIND (0 AS ?alignmentDistance)
+      }
+      UNION
+      # Fuzzy matching: labels and comments
+      {
+        ?externalURI
+          rdfs:label ?externalLabel ;
+          rdfs:comment ?externalComment .
+
+        # Compute fuzzy alignment: check if compat rustType appears in external label/comment
+        BIND (
+          IF(
+            CONTAINS(LCASE(?externalLabel), LCASE(?compatRustType)) ||
+            CONTAINS(LCASE(?externalComment), LCASE(?compatRustType)),
+            1,
+            0
+          )
+          AS ?fuzzyMatch
+        )
+
+        FILTER (?fuzzyMatch = 1)
+        BIND ('fuzzy-match-label' AS ?alignmentClass)
+        BIND (false AS ?isAligned)
+        BIND (1 AS ?alignmentDistance)
+      }
+    }
+  }
+}
+ORDER BY ?compatRustType ?isAligned DESC(?alignmentDistance)

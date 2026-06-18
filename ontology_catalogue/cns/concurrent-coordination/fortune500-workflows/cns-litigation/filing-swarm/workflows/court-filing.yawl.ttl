@@ -1,0 +1,297 @@
+@prefix cf: <http://cns-litigation.com/court-filing#> .
+@prefix fs: <http://cns-litigation.com/filing-swarm#> .
+@prefix yawl: <http://www.yawlfoundation.org/yawlschema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ba: <http://cns-litigation.com/bitactor#> .
+@prefix vda: <http://van-der-aalst.com/patterns#> .
+@prefix legal: <http://cns-litigation.com/legal-templates#> .
+
+# Court Filing Specific Workflow DAG
+# Implements Van der Aalst's Workflow Patterns for Court Document Processing
+
+cf:CourtFilingWorkflow a yawl:Specification ;
+    rdfs:label "Court Document Filing Workflow" ;
+    yawl:version "2.0" ;
+    yawl:description "Specialized court filing process with ECF integration" ;
+    vda:pattern vda:SequencePattern, vda:ConditionalPattern, vda:LoopPattern ;
+    ba:messagingMode ba:ZeroTick ;
+    cf:supportedCourts cf:FederalCourt, cf:StateCourt, cf:AppellateCourt .
+
+# Document Type Classification
+cf:ClassifyCourtDocument a yawl:AtomicTask ;
+    rdfs:label "Classify Court Document Type" ;
+    yawl:flowsInto cf:DocumentTypeRouter ;
+    ba:tickDelay 0 ;
+    cf:classification [
+        cf:motionTypes cf:Motion, cf:Pleading, cf:Brief, cf:Order, cf:Notice, cf:Discovery ;
+        cf:urgencyLevels cf:Emergency, cf:Expedited, cf:Standard, cf:Routine
+    ] .
+
+# Document Type Router (Exclusive Choice Pattern)
+cf:DocumentTypeRouter a yawl:AtomicTask ;
+    rdfs:label "Route by Document Type" ;
+    vda:pattern vda:ExclusiveChoicePattern ;
+    ba:tickDelay 0 ;
+    yawl:flowsInto cf:MotionProcess, cf:PleadingProcess, cf:BriefProcess, cf:DiscoveryProcess ;
+    ba:routingLogic [
+        cf:condition "docType == 'MOTION'" ;
+        cf:target cf:MotionProcess
+    ], [
+        cf:condition "docType == 'PLEADING'" ;
+        cf:target cf:PleadingProcess
+    ], [
+        cf:condition "docType == 'BRIEF'" ;
+        cf:target cf:BriefProcess
+    ], [
+        cf:condition "docType == 'DISCOVERY'" ;
+        cf:target cf:DiscoveryProcess
+    ] .
+
+# Motion Filing Process
+cf:MotionProcess a yawl:CompositeTask ;
+    rdfs:label "Motion Filing Process" ;
+    yawl:flowsInto cf:JurisdictionalValidation ;
+    ba:tickDelay 0 ;
+    cf:subTasks [
+        cf:PrepareMotionHeader ;
+        cf:ValidateMotionContent ;
+        cf:CheckNoticeRequirements ;
+        cf:PrepareProposedOrder
+    ] .
+
+cf:PrepareMotionHeader a yawl:AtomicTask ;
+    rdfs:label "Prepare Motion Header and Caption" ;
+    ba:tickDelay 0 ;
+    legal:template legal:MotionHeader ;
+    cf:requiredFields cf:CaseNumber, cf:CourtName, cf:PartyNames, cf:MotionTitle ;
+    cf:formatting cf:CourtRules, cf:LocalRules .
+
+cf:ValidateMotionContent a yawl:AtomicTask ;
+    rdfs:label "Validate Motion Legal Content" ;
+    ba:tickDelay 0 ;
+    cf:validation cf:LegalCitations, cf:FactualBasis, cf:LegalStandard, cf:Relief ;
+    cf:requirements cf:PageLimits, cf:FontRequirements, cf:MarginRequirements .
+
+cf:CheckNoticeRequirements a yawl:AtomicTask ;
+    rdfs:label "Check Notice and Service Requirements" ;
+    ba:tickDelay 0 ;
+    cf:noticeRules cf:LocalRule, cf:FederalRule, cf:StateRule ;
+    cf:serviceMethod cf:Electronic, cf:Personal, cf:Certified ;
+    cf:noticeParties cf:OpposingCounsel, cf:ProSeLitigants, cf:ThirdParties .
+
+# Pleading Process
+cf:PleadingProcess a yawl:CompositeTask ;
+    rdfs:label "Pleading Filing Process" ;
+    yawl:flowsInto cf:JurisdictionalValidation ;
+    ba:tickDelay 0 ;
+    cf:pleadingTypes cf:Complaint, cf:Answer, cf:Reply, cf:Counterclaim, cf:Crossclaim .
+
+# Brief Process
+cf:BriefProcess a yawl:CompositeTask ;
+    rdfs:label "Brief Filing Process" ;
+    yawl:flowsInto cf:JurisdictionalValidation ;
+    ba:tickDelay 0 ;
+    cf:briefTypes cf:MotionBrief, cf:AppellateBrief, cf:TrialBrief, cf:SummaryJudgmentBrief .
+
+# Discovery Process
+cf:DiscoveryProcess a yawl:CompositeTask ;
+    rdfs:label "Discovery Filing Process" ;
+    yawl:flowsInto cf:JurisdictionalValidation ;
+    ba:tickDelay 0 ;
+    cf:discoveryTypes cf:Interrogatories, cf:RequestsForProduction, cf:RequestsForAdmission, cf:Depositions .
+
+# Jurisdictional Validation (Critical Path)
+cf:JurisdictionalValidation a yawl:AtomicTask ;
+    rdfs:label "Validate Jurisdictional Requirements" ;
+    yawl:flowsInto cf:FilingFeeCalculation ;
+    ba:tickDelay 0 ;
+    ba:priority ba:Critical ;
+    cf:validations [
+        cf:venueCheck cf:ProperVenue ;
+        cf:jurisdictionCheck cf:SubjectMatterJurisdiction, cf:PersonalJurisdiction ;
+        cf:standingCheck cf:PartyStanding ;
+        cf:timelinessCheck cf:StatuteOfLimitations, cf:FilingDeadlines
+    ] .
+
+# Filing Fee Calculation and Payment
+cf:FilingFeeCalculation a yawl:AtomicTask ;
+    rdfs:label "Calculate and Process Filing Fees" ;
+    yawl:flowsInto cf:PaymentProcessing ;
+    ba:tickDelay 0 ;
+    cf:feeSchedule cf:CourtFeeSchedule ;
+    cf:calculations cf:BaseFee, cf:AdditionalPartyFees, cf:ServiceFees, cf:ExpeditedFees ;
+    cf:exemptions cf:InFormaSuperisForms, cf:GovernmentExemptions .
+
+cf:PaymentProcessing a yawl:AtomicTask ;
+    rdfs:label "Process Filing Fee Payment" ;
+    yawl:flowsInto cf:DocumentFormatting ;
+    ba:tickDelay 0 ;
+    cf:paymentMethods cf:CreditCard, cf:ACH, cf:Check, cf:CashierCheck ;
+    cf:paymentValidation cf:AuthorizationCheck, cf:FundsVerification ;
+    cf:receiptGeneration cf:ElectronicReceipt, cf:TransactionId .
+
+# Document Formatting and Compliance
+cf:DocumentFormatting a yawl:AtomicTask ;
+    rdfs:label "Format Document for Court Filing" ;
+    yawl:flowsInto cf:ComplianceChecking ;
+    ba:tickDelay 0 ;
+    cf:formatting [
+        cf:pageFormat cf:LetterSize, cf:A4 ;
+        cf:margins cf:OneInchMargins ;
+        cf:font cf:TimesNewRoman12pt, cf:Arial11pt ;
+        cf:lineSpacing cf:DoubleSpaced, cf:OneAndHalfSpaced ;
+        cf:pageNumbers cf:BottomCenter, cf:TopRight
+    ] .
+
+cf:ComplianceChecking a yawl:AtomicTask ;
+    rdfs:label "Court Rule Compliance Verification" ;
+    yawl:flowsInto cf:DigitalSigning ;
+    ba:tickDelay 0 ;
+    ba:validation [
+        cf:localRules cf:CourtSpecificRules ;
+        cf:federalRules cf:FRCP, cf:FRE, cf:FRAP ;
+        cf:stateRules cf:StateSpecificRules ;
+        cf:formatting cf:ECFRequirements
+    ] .
+
+# Digital Signing and Authentication
+cf:DigitalSigning a yawl:AtomicTask ;
+    rdfs:label "Apply Digital Signatures" ;
+    yawl:flowsInto cf:ECFSubmission ;
+    ba:tickDelay 0 ;
+    cf:signatureTypes cf:AttorneySignature, cf:ClientSignature, cf:NotarySignature ;
+    cf:authentication cf:TwoFactorAuth, cf:BiometricAuth, cf:TokenAuth ;
+    cf:certificates cf:X509Certificate, cf:ECFCertificate .
+
+# ECF (Electronic Case Filing) Submission
+cf:ECFSubmission a yawl:AtomicTask ;
+    rdfs:label "Submit to Electronic Case Filing System" ;
+    yawl:flowsInto cf:SubmissionValidation ;
+    ba:tickDelay 0 ;
+    ba:priority ba:Critical ;
+    cf:ecfSystems cf:PAcerECF, cf:StateECF, cf:ProprietaryECF ;
+    cf:submission [
+        cf:batchUpload cf:MultipleDocuments ;
+        cf:metadata cf:CaseInfo, cf:DocumentType, cf:PartyInfo ;
+        cf:attachments cf:Exhibits, cf:Certificates, cf:ProofOfService
+    ] .
+
+# Submission Validation and Error Handling
+cf:SubmissionValidation a yawl:AtomicTask ;
+    rdfs:label "Validate ECF Submission" ;
+    yawl:flowsInto cf:ConfirmationReceived, cf:ErrorHandling ;
+    vda:pattern vda:ExclusiveChoicePattern ;
+    ba:tickDelay 0 ;
+    ba:validation [
+        cf:successCondition "ecfResponse.status == 'ACCEPTED'" ;
+        cf:errorCondition "ecfResponse.status == 'REJECTED'" ;
+        cf:pendingCondition "ecfResponse.status == 'PENDING'"
+    ] .
+
+# Success Path - Confirmation Received
+cf:ConfirmationReceived a yawl:AtomicTask ;
+    rdfs:label "Process Filing Confirmation" ;
+    yawl:flowsInto cf:ServiceOfProcess ;
+    ba:tickDelay 0 ;
+    cf:confirmation [
+        cf:receiptNumber xsd:string ;
+        cf:timeStamp xsd:dateTime ;
+        cf:documentNumbers rdf:List ;
+        cf:docketEntry cf:AutoGeneratedEntry
+    ] .
+
+# Error Handling Path
+cf:ErrorHandling a yawl:AtomicTask ;
+    rdfs:label "Handle Filing Errors" ;
+    yawl:flowsInto cf:ErrorCorrection, cf:ManualIntervention ;
+    vda:pattern vda:ExclusiveChoicePattern ;
+    ba:tickDelay 0 ;
+    cf:errorTypes [
+        cf:technicalErrors cf:SystemDown, cf:NetworkError, cf:AuthenticationFailure ;
+        cf:contentErrors cf:MissingSignature, cf:InvalidFormat, cf:RuleViolation ;
+        cf:administrativeErrors cf:InsufficientFees, cf:MissingParties, cf:JurisdictionError
+    ] .
+
+cf:ErrorCorrection a yawl:AtomicTask ;
+    rdfs:label "Automatic Error Correction" ;
+    yawl:flowsInto cf:ResubmissionAttempt ;
+    ba:tickDelay 0 ;
+    cf:corrections [
+        cf:formatCorrection cf:AutoFormat ;
+        cf:feeCorrection cf:AdditionalPayment ;
+        cf:signatureCorrection cf:ReapplySignature
+    ] .
+
+cf:ResubmissionAttempt a yawl:AtomicTask ;
+    rdfs:label "Resubmit Corrected Document" ;
+    yawl:flowsInto cf:ECFSubmission ;
+    ba:tickDelay 0 ;
+    vda:pattern vda:LoopPattern ;
+    cf:maxRetries 3 ;
+    cf:retryDelay "PT5M"^^xsd:duration .
+
+# Service of Process
+cf:ServiceOfProcess a yawl:AtomicTask ;
+    rdfs:label "Serve Filed Documents" ;
+    yawl:flowsInto cf:ProofOfService ;
+    ba:tickDelay 0 ;
+    cf:serviceRules cf:AutomaticECFService, cf:ManualService, cf:CertifiedMail ;
+    cf:serviceList cf:CounselOfRecord, cf:ProSeParties, cf:ThirdParties .
+
+cf:ProofOfService a yawl:AtomicTask ;
+    rdfs:label "Generate Proof of Service" ;
+    yawl:flowsInto cf:DocketingComplete ;
+    ba:tickDelay 0 ;
+    cf:proofTypes cf:CertificateOfService, cf:ECFServiceLog, cf:DeliveryReceipt ;
+    legal:template legal:ProofOfServiceCertificate .
+
+# Completion and Record Keeping
+cf:DocketingComplete a yawl:AtomicTask ;
+    rdfs:label "Court Filing Process Complete" ;
+    ba:tickDelay 0 ;
+    cf:finalTasks [
+        cf:updateCaseManagement cf:CaseStatus, cf:DocumentIndex ;
+        cf:notifyStakeholders cf:Client, cf:Attorneys, cf:Staff ;
+        cf:scheduleTasks cf:ResponseDeadlines, cf:HearingDates ;
+        cf:generateReports cf:FilingReport, cf:ComplianceReport
+    ] .
+
+# Court-Specific Data and Variables
+cf:CourtFilingData a yawl:DataVariable ;
+    cf:courtIdentifier xsd:string ;
+    cf:caseNumber xsd:string ;
+    cf:documentType xsd:string ;
+    cf:filingParty xsd:string ;
+    cf:emergencyFiling xsd:boolean ;
+    cf:sealedDocument xsd:boolean ;
+    cf:serviceRequired xsd:boolean ;
+    cf:hearingRequested xsd:boolean ;
+    cf:expeditedReview xsd:boolean .
+
+# Legal Templates Integration
+legal:MotionHeader a legal:DocumentTemplate ;
+    legal:jurisdiction legal:Federal, legal:State ;
+    legal:fields [
+        legal:courtName xsd:string ;
+        legal:caseCaption xsd:string ;
+        legal:caseNumber xsd:string ;
+        legal:motionTitle xsd:string ;
+        legal:filingParty xsd:string ;
+        legal:dateField xsd:date
+    ] ;
+    legal:formatting [
+        legal:headerAlignment legal:Center ;
+        legal:fontWeight legal:Bold ;
+        legal:fontSize "14pt" ;
+        legal:spacing legal:SingleSpaced
+    ] .
+
+# Performance Metrics for Court Filing
+cf:CourtFilingMetrics a cf:WorkflowMetrics ;
+    cf:averageFilingTime "PT12M"^^xsd:duration ;
+    cf:ecfSuccessRate "0.96"^^xsd:decimal ;
+    cf:errorCorrectionRate "0.85"^^xsd:decimal ;
+    cf:complianceScore "0.98"^^xsd:decimal ;
+    cf:serviceCompletionRate "0.94"^^xsd:decimal .

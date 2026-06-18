@@ -1,0 +1,107 @@
+@prefix : <https://bytestar.org/ontology/v5/execution#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix core: <https://bytestar.org/ontology/v5/core#> .
+@prefix arch: <https://bytestar.org/ontology/v5/architecture#> .
+
+<https://bytestar.org/ontology/v5/execution>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/v5/architecture> ;
+  rdfs:label "ByteStar v5 Execution Ontology - The Engine Physics" ;
+  rdfs:comment "This ontology defines the concrete execution model of ByteActor, including the complete kernel instruction set and performance physics like L1-residency." ;
+  owl:versionInfo "5.0.0" .
+
+# #################################################################
+# I. The Kernel Instruction Set
+# #################################################################
+
+:KernelSet a owl:Class ;
+    rdfs:label "Kernel Set" ;
+    rdfs:comment "The complete, closed set of 64 atomic kernels that constitute the ByteActor instruction set." .
+
+:hasOpcode a owl:DatatypeProperty ;
+    rdfs:domain core:Kernel ;
+    rdfs:range xsd:hexBinary .
+
+# Define all 64 kernels as individuals. Each is a member of the core:Kernel class.
+# The full file would contain all 64 definitions.
+
+:K01 a core:Kernel ;
+    rdfs:label "K01_SPSC_Dequeue" ;
+    :hasOpcode "0x01"^^xsd:hexBinary ;
+    core:hasTickCost "2"^^xsd:integer .
+
+:K02 a core:Kernel ;
+    rdfs:label "K02_Envelope_Decode" ;
+    :hasOpcode "0x02"^^xsd:hexBinary ;
+    core:hasTickCost "3"^^xsd:integer .
+
+:K03 a core:Kernel ;
+    rdfs:label "K03_Admission_Budget_Check" ;
+    rdfs:opcode "0x03"^^xsd:hexBinary ;
+    core:hasTickCost "1"^^xsd:integer .
+
+:K04 a core:Kernel ;
+    rdfs:label "K04_MPHF_Dispatch" ;
+    rdfs:opcode "0x04"^^xsd:hexBinary ;
+    core:hasTickCost "1"^^xsd:integer .
+
+# ... and so on for K05 through K64 ...
+
+:K64 a core:Kernel ;
+    rdfs:label "K64_Terminate_Clean" ;
+    rdfs:opcode "0x40"^^xsd:hexBinary ;
+    core:hasTickCost "2"^^xsd:integer .
+
+# #################################################################
+# II. The Hot Path Execution Environment
+# #################################################################
+
+:L1Residency a owl:Class ;
+    rdfs:label "L1 Cache Residency" ;
+    rdfs:comment "A state in which the hot set of execution components (kernels, dispatch tables, active envelope) are guaranteed to be resident in the L1 cache of the executing core." .
+
+:MPHFTable a owl:Class ;
+    rdfs:label "MPHF Dispatch Table" ;
+    rdfs:comment "A minimal perfect hash function table used for O(1) kernel dispatch." .
+
+:hotSet a owl:ObjectProperty ;
+    rdfs:label "hot set" ;
+    rdfs:comment "The set of components that must be L1-resident for the Doctrine of 8 to hold true." ;
+    rdfs:domain :L1Residency .
+
+# Axiom: The L1Residency hot set is composed of the KernelSet, the MPHFTable, and the active Envelope.
+:L1Residency rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hotSet ;
+    owl:hasValue :KernelSet, :MPHFTable, core:Envelope
+] .
+
+# #################################################################
+# III. Communication Fabric
+# #################################################################
+
+:SPSCRingBuffer a owl:Class ;
+    rdfs:label "SPSC Ring Buffer" ;
+    rdfs:comment "A single-producer, single-consumer lock-free ring buffer used for communication between ByteFlow and ByteActor." .
+
+:isLockFree a owl:DatatypeProperty ;
+    rdfs:domain :SPSCRingBuffer ;
+    rdfs:range xsd:boolean .
+
+:isWaitFree a owl:DatatypeProperty ;
+    rdfs:domain :SPSCRingBuffer ;
+    rdfs:range xsd:boolean .
+
+# Axiom: All SPSC Ring Buffers in the system must be lock-free and wait-free.
+:SPSCRingBuffer rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :isLockFree ;
+    owl:hasValue true
+] .
+
+:SPSCRingBuffer rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :isWaitFree ;
+    owl:hasValue true
+] .

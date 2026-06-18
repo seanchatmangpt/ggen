@@ -1,0 +1,120 @@
+@prefix knhk: <http://knhk.io/ontology#> .
+@prefix sk: <http://github.com/github/spec-kit#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix : <http://knhk.io/capabilities/CAP-002#> .
+
+# =============================================================================
+# Capability: Test Automation for RDF-First Workflow
+# =============================================================================
+
+:test-automation a knhk:Capability ;
+    knhk:capabilityId "CAP-002-TEST-AUTOMATION" ;
+    knhk:covenantNumber 3 ;  # Covenant 3: Chicago TDD
+    knhk:doctrinePrinciple "Q" ;  # Q = Hard Invariants
+    knhk:overlayPath "warm" ;
+    knhk:requiresWeaverValidation true ;
+    knhk:tickBudget 50 ;  # Warm path allows more time
+    knhk:patternNumber 1 ;  # Sequence pattern
+
+    sk:featureName "Test Automation for RDF-First Workflow" ;
+    sk:featureDescription "Validate that ggen sync automation works correctly for RDF-first capabilities" ;
+    sk:status "testing" ;
+
+    sk:hasUserStory :us-001, :us-002 ;
+    sk:hasFunctionalRequirement :fr-001, :fr-002 ;
+    sk:hasSuccessCriterion :sc-001, :sc-002 ;
+
+    knhk:antiPattern "Don't skip ggen sync validation" ,
+                     "Don't generate markdown manually" ,
+                     "Don't commit TTL without running ggen sync" ;
+
+    knhk:validationChecklist "Does TTL validate with SHACL?" ,
+                            "Does ggen sync generate correct markdown?" ,
+                            "Are all sections populated?" ,
+                            "Does Weaver validation pass?" .
+
+# =============================================================================
+# User Stories
+# =============================================================================
+
+:us-001 a sk:UserStory ;
+    sk:storyIndex 1 ;
+    sk:title "Developer can create RDF-first capability" ;
+    sk:priority "P1" ;
+    sk:description "As a developer, I want to create a capability using TTL ontologies so that the specification is machine-readable and validated." ;
+    sk:priorityRationale "Critical for RDF-first architecture adoption" ;
+    sk:independentTest "Developer creates capability.ttl and runs ggen sync successfully" ;
+    sk:hasAcceptanceScenario :us-001-as-001, :us-001-as-002 .
+
+:us-001-as-001 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 1 ;
+    sk:given "Developer has spec-kit installed with ggen" ;
+    sk:when "Developer creates capability.ttl with valid KNHK ontology" ;
+    sk:then "SHACL validation passes with zero errors" .
+
+:us-001-as-002 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 2 ;
+    sk:given "Valid capability.ttl exists" ;
+    sk:when "Developer runs ggen sync" ;
+    sk:then "Markdown is generated in generated/capability.md" .
+
+:us-002 a sk:UserStory ;
+    sk:storyIndex 2 ;
+    sk:title "ggen sync automation runs transparently" ;
+    sk:priority "P1" ;
+    sk:description "As a developer, I want ggen sync to run automatically after TTL modifications so that markdown stays synchronized." ;
+    sk:priorityRationale "Eliminates manual synchronization errors" ;
+    sk:independentTest "Developer modifies TTL, markdown updates automatically" ;
+    sk:hasAcceptanceScenario :us-002-as-001 .
+
+:us-002-as-001 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 1 ;
+    sk:given "RDF-first capability exists" ;
+    sk:when "Developer runs setup-plan.sh or create-new-feature.sh" ;
+    sk:then "ggen sync executes automatically and generates markdown" .
+
+# =============================================================================
+# Functional Requirements
+# =============================================================================
+
+:fr-001 a sk:FunctionalRequirement ;
+    sk:requirementId "FR-001" ;
+    sk:reqDescription "System MUST detect RDF-first features by presence of ontology/ directory and ggen.toml" ;
+    sk:category "Functional" ;
+    sk:priority "P1" .
+
+:fr-002 a sk:FunctionalRequirement ;
+    sk:requirementId "FR-002" ;
+    sk:reqDescription "System MUST execute ggen sync automatically when RDF-first feature is detected" ;
+    sk:category "Functional" ;
+    sk:priority "P1" .
+
+# =============================================================================
+# Success Criteria
+# =============================================================================
+
+:sc-001 a sk:SuccessCriterion ;
+    sk:criterionId "SC-001" ;
+    sk:scDescription "ggen sync automation executes successfully" ;
+    sk:measurable true ;
+    sk:metric "Exit code from ggen-sync-wrapper.sh" ;
+    sk:target "0 (success)" .
+
+:sc-002 a sk:SuccessCriterion ;
+    sk:criterionId "SC-002" ;
+    sk:scDescription "Generated markdown contains all RDF data" ;
+    sk:measurable true ;
+    sk:metric "Sections populated in generated markdown" ;
+    sk:target "100% of TTL data appears in markdown" .
+
+# =============================================================================
+# DOCTRINE Alignment
+# =============================================================================
+
+:doctrine-alignment a knhk:DoctrineAlignment ;
+    knhk:principle "Q (Hard Invariants)" ;
+    knhk:covenant "Covenant 3: Chicago TDD" ;
+    knhk:reasoning "Test automation ensures quality is enforced automatically, not manually verified" ;
+    knhk:antiPatternExplanation "Skipping validation creates false positives in documentation generation" ;
+    knhk:weaverIntegration "OTEL spans track ggen sync execution and validation results" .

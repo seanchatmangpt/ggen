@@ -1,0 +1,36 @@
+# Hidden Privilege Check: Every executable privilege must trace to:
+# 1. Public concept (SKOS or standard class)
+# 2. Public grant/credential (VC/DID)
+# 3. Public policy/constraint (ODRL/SHACL)
+# 4. Public evidence path (PROV receipt chain)
+#
+# Strategy: Find agents that appear to exercise capabilities without
+# a corresponding CapabilityGrant activity.
+#
+# Expected: 0 results (all capabilities exercised have public grants).
+
+PREFIX capability: <https://chatmangpt.com/ontologies/capability/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+SELECT ?agent ?capability ?issue
+WHERE {
+  # Agent uses a capability (appears in some activity)
+  ?activity prov:wasAssociatedWith ?agent .
+  ?activity prov:type ?capability .
+  ?capability a skos:Concept .
+
+  # But no CapabilityGrant exists for this agent+capability
+  FILTER NOT EXISTS {
+    ?grant a capability:CapabilityGrant .
+    ?grant prov:generated ?grant_entity .
+    ?grant prov:startedAtTime ?grant_time .
+    ?grant_entity capability:grantsCapability ?capability .
+    ?grant_entity capability:grantsTo ?agent .
+    ?grant_entity capability:hasStatus ?status .
+    ?status skos:prefLabel "Active"@en .
+  }
+
+  BIND("No public grant found for capability" AS ?issue)
+}
+ORDER BY ?agent ?capability

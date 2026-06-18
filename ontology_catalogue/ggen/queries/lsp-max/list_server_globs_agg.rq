@@ -1,0 +1,14 @@
+PREFIX lsp: <http://ggen.io/ontology/lsp#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# One row per server with all file globs comma-concatenated.
+# Used by workspace.rs.tera to compile FILE_GLOBS into the binary.
+
+SELECT ?server_name (GROUP_CONCAT(?glob; SEPARATOR=",") AS ?file_globs)
+WHERE {
+    ?server a lsp:Server ;
+            lsp:serverName ?server_name ;
+            lsp:fileGlob ?glob .
+}
+GROUP BY ?server_name
+ORDER BY ?server_name

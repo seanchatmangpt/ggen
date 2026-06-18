@@ -1,0 +1,41 @@
+@prefix : <http://iot.example.org/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Classes
+:Sensor a owl:Class .
+:Reading a owl:Class .
+:Location a owl:Class .
+:Anomaly a owl:Class .
+:Building a owl:Class ;
+    rdfs:subClassOf :Location .
+
+# Properties
+:hasReading a owl:ObjectProperty ;
+    rdfs:domain :Sensor ;
+    rdfs:range :Reading .
+
+:locatedAt a owl:ObjectProperty ;
+    rdfs:domain :Sensor ;
+    rdfs:range :Location .
+
+:timestamp a owl:DatatypeProperty ;
+    rdfs:domain :Reading ;
+    rdfs:range xsd:dateTime .
+
+:temperature a owl:DatatypeProperty ;
+    rdfs:domain :Reading ;
+    rdfs:range xsd:decimal .
+
+:humidity a owl:DatatypeProperty ;
+    rdfs:domain :Reading ;
+    rdfs:range xsd:decimal .
+
+:pressure a owl:DatatypeProperty ;
+    rdfs:domain :Reading ;
+    rdfs:range xsd:decimal .
+
+:battery a owl:DatatypeProperty ;
+    rdfs:domain :Reading ;
+    rdfs:range xsd:integer .

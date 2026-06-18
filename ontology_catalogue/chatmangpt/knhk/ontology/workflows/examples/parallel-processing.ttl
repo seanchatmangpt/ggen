@@ -1,0 +1,256 @@
+@prefix yawl: <http://www.yawlfoundation.org/yawlschema#> .
+@prefix mapek: <http://knhk.ai/ontology/mape-k#> .
+@prefix pattern: <http://knhk.ai/ontology/workflow-patterns#> .
+@prefix knhk: <urn:knhk:ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# ============================================================================
+# Parallel Processing Workflow with MAPE-K Autonomic Features
+# ============================================================================
+#
+# Patterns: Parallel Split (Pattern 2), Synchronization (Pattern 3)
+# Use Case: Parallel task execution with join synchronization
+# MAPE-K: Monitor parallel branch performance, adapt if imbalance detected
+#
+# Structure:
+#   Start → Split → [Task A || Task B || Task C] → Sync → End
+# ============================================================================
+
+<http://knhk.ai/workflows/examples/parallel-processing> a mapek:SelfExecutingWorkflow ;
+    rdfs:label "Parallel Processing Workflow" ;
+    rdfs:comment "Parallel workflow with autonomic load balancing" ;
+    yawl:specName "Parallel Processing" ;
+    yawl:version "1.0" ;
+    yawl:hasInputCondition <http://knhk.ai/workflows/examples/parallel/start> ;
+    yawl:hasOutputCondition <http://knhk.ai/workflows/examples/parallel/end> ;
+
+    # Tasks
+    yawl:hasTask <http://knhk.ai/workflows/examples/parallel/split_task> ;
+    yawl:hasTask <http://knhk.ai/workflows/examples/parallel/task_a> ;
+    yawl:hasTask <http://knhk.ai/workflows/examples/parallel/task_b> ;
+    yawl:hasTask <http://knhk.ai/workflows/examples/parallel/task_c> ;
+    yawl:hasTask <http://knhk.ai/workflows/examples/parallel/sync_task> ;
+
+    # Conditions (for parallel branches)
+    yawl:hasCondition <http://knhk.ai/workflows/examples/parallel/branch_a_cond> ;
+    yawl:hasCondition <http://knhk.ai/workflows/examples/parallel/branch_b_cond> ;
+    yawl:hasCondition <http://knhk.ai/workflows/examples/parallel/branch_c_cond> ;
+
+    # Flows
+    yawl:hasFlow <http://knhk.ai/workflows/examples/parallel/flow_start_split> ;
+    yawl:hasFlow <http://knhk.ai/workflows/examples/parallel/flow_split_a> ;
+    yawl:hasFlow <http://knhk.ai/workflows/examples/parallel/flow_split_b> ;
+    yawl:hasFlow <http://knhk.ai/workflows/examples/parallel/flow_split_c> ;
+    yawl:hasFlow <http://knhk.ai/workflows/examples/parallel/flow_a_sync> ;
+    yawl:hasFlow <http://knhk.ai/workflows/examples/parallel/flow_b_sync> ;
+    yawl:hasFlow <http://knhk.ai/workflows/examples/parallel/flow_c_sync> ;
+    yawl:hasFlow <http://knhk.ai/workflows/examples/parallel/flow_sync_end> ;
+
+    # MAPE-K Components
+    mapek:hasMonitor <http://knhk.ai/workflows/examples/parallel/monitor> ;
+    mapek:hasAnalyzer <http://knhk.ai/workflows/examples/parallel/analyzer> ;
+    mapek:hasPlanner <http://knhk.ai/workflows/examples/parallel/planner> ;
+    mapek:hasExecutor <http://knhk.ai/workflows/examples/parallel/executor> ;
+    mapek:hasKnowledge <http://knhk.ai/workflows/examples/parallel/knowledge> ;
+
+    # Constraints
+    mapek:hasConstraint mapek:ChatmanConstant ;
+    mapek:hasInvariant <http://knhk.ai/workflows/examples/parallel/invariant-sync> .
+
+# ============================================================================
+# Input/Output Conditions
+# ============================================================================
+
+<http://knhk.ai/workflows/examples/parallel/start> a yawl:InputCondition ;
+    yawl:conditionName "Start" .
+
+<http://knhk.ai/workflows/examples/parallel/end> a yawl:OutputCondition ;
+    yawl:conditionName "End" .
+
+# ============================================================================
+# Intermediate Conditions (Parallel Branches)
+# ============================================================================
+
+<http://knhk.ai/workflows/examples/parallel/branch_a_cond> a yawl:Condition ;
+    yawl:conditionName "Branch A Condition" .
+
+<http://knhk.ai/workflows/examples/parallel/branch_b_cond> a yawl:Condition ;
+    yawl:conditionName "Branch B Condition" .
+
+<http://knhk.ai/workflows/examples/parallel/branch_c_cond> a yawl:Condition ;
+    yawl:conditionName "Branch C Condition" .
+
+# ============================================================================
+# Tasks
+# ============================================================================
+
+<http://knhk.ai/workflows/examples/parallel/split_task> a mapek:AutonomicTask , yawl:AtomicTask ;
+    yawl:taskName "Split Task" ;
+    rdfs:comment "AND-split: activates all parallel branches" ;
+    yawl:join yawl:ControlTypeXor ;
+    yawl:split yawl:ControlTypeAnd ;  # Pattern 2: Parallel Split
+    pattern:implementsPattern pattern:Pattern2_ParallelSplit ;
+    mapek:hasConstraint mapek:ChatmanConstant .
+
+<http://knhk.ai/workflows/examples/parallel/task_a> a mapek:AutonomicTask , yawl:AtomicTask ;
+    yawl:taskName "Task A (Parallel Branch)" ;
+    rdfs:comment "Executes in parallel with B and C" ;
+    yawl:join yawl:ControlTypeXor ;
+    yawl:split yawl:ControlTypeXor ;
+    mapek:hasConstraint mapek:ChatmanConstant ;
+    yawl:hasInputParameter [
+        yawl:paramName "input_a" ;
+        yawl:paramType "string"
+    ] ;
+    yawl:hasOutputParameter [
+        yawl:paramName "result_a" ;
+        yawl:paramType "string"
+    ] .
+
+<http://knhk.ai/workflows/examples/parallel/task_b> a mapek:AutonomicTask , yawl:AtomicTask ;
+    yawl:taskName "Task B (Parallel Branch)" ;
+    rdfs:comment "Executes in parallel with A and C" ;
+    yawl:join yawl:ControlTypeXor ;
+    yawl:split yawl:ControlTypeXor ;
+    mapek:hasConstraint mapek:ChatmanConstant ;
+    yawl:hasInputParameter [
+        yawl:paramName "input_b" ;
+        yawl:paramType "string"
+    ] ;
+    yawl:hasOutputParameter [
+        yawl:paramName "result_b" ;
+        yawl:paramType "string"
+    ] .
+
+<http://knhk.ai/workflows/examples/parallel/task_c> a mapek:AutonomicTask , yawl:AtomicTask ;
+    yawl:taskName "Task C (Parallel Branch)" ;
+    rdfs:comment "Executes in parallel with A and B" ;
+    yawl:join yawl:ControlTypeXor ;
+    yawl:split yawl:ControlTypeXor ;
+    mapek:hasConstraint mapek:ChatmanConstant ;
+    yawl:hasInputParameter [
+        yawl:paramName "input_c" ;
+        yawl:paramType "string"
+    ] ;
+    yawl:hasOutputParameter [
+        yawl:paramName "result_c" ;
+        yawl:paramType "string"
+    ] .
+
+<http://knhk.ai/workflows/examples/parallel/sync_task> a mapek:AutonomicTask , yawl:AtomicTask ;
+    yawl:taskName "Synchronization Task" ;
+    rdfs:comment "AND-join: waits for all parallel branches to complete" ;
+    yawl:join yawl:ControlTypeAnd ;  # Pattern 3: Synchronization
+    yawl:split yawl:ControlTypeXor ;
+    pattern:implementsPattern pattern:Pattern3_Synchronization ;
+    mapek:hasConstraint mapek:ChatmanConstant ;
+    yawl:hasInputParameter [
+        yawl:paramName "result_a" ;
+        yawl:paramType "string"
+    ] ;
+    yawl:hasInputParameter [
+        yawl:paramName "result_b" ;
+        yawl:paramType "string"
+    ] ;
+    yawl:hasInputParameter [
+        yawl:paramName "result_c" ;
+        yawl:paramType "string"
+    ] ;
+    yawl:hasOutputParameter [
+        yawl:paramName "merged_result" ;
+        yawl:paramType "string"
+    ] .
+
+# ============================================================================
+# Flows
+# ============================================================================
+
+<http://knhk.ai/workflows/examples/parallel/flow_start_split> a yawl:Flow ;
+    yawl:flowsFrom <http://knhk.ai/workflows/examples/parallel/start> ;
+    yawl:flowsInto <http://knhk.ai/workflows/examples/parallel/split_task> .
+
+<http://knhk.ai/workflows/examples/parallel/flow_split_a> a yawl:Flow ;
+    yawl:flowsFrom <http://knhk.ai/workflows/examples/parallel/split_task> ;
+    yawl:flowsInto <http://knhk.ai/workflows/examples/parallel/task_a> .
+
+<http://knhk.ai/workflows/examples/parallel/flow_split_b> a yawl:Flow ;
+    yawl:flowsFrom <http://knhk.ai/workflows/examples/parallel/split_task> ;
+    yawl:flowsInto <http://knhk.ai/workflows/examples/parallel/task_b> .
+
+<http://knhk.ai/workflows/examples/parallel/flow_split_c> a yawl:Flow ;
+    yawl:flowsFrom <http://knhk.ai/workflows/examples/parallel/split_task> ;
+    yawl:flowsInto <http://knhk.ai/workflows/examples/parallel/task_c> .
+
+<http://knhk.ai/workflows/examples/parallel/flow_a_sync> a yawl:Flow ;
+    yawl:flowsFrom <http://knhk.ai/workflows/examples/parallel/task_a> ;
+    yawl:flowsInto <http://knhk.ai/workflows/examples/parallel/sync_task> .
+
+<http://knhk.ai/workflows/examples/parallel/flow_b_sync> a yawl:Flow ;
+    yawl:flowsFrom <http://knhk.ai/workflows/examples/parallel/task_b> ;
+    yawl:flowsInto <http://knhk.ai/workflows/examples/parallel/sync_task> .
+
+<http://knhk.ai/workflows/examples/parallel/flow_c_sync> a yawl:Flow ;
+    yawl:flowsFrom <http://knhk.ai/workflows/examples/parallel/task_c> ;
+    yawl:flowsInto <http://knhk.ai/workflows/examples/parallel/sync_task> .
+
+<http://knhk.ai/workflows/examples/parallel/flow_sync_end> a yawl:Flow ;
+    yawl:flowsFrom <http://knhk.ai/workflows/examples/parallel/sync_task> ;
+    yawl:flowsInto <http://knhk.ai/workflows/examples/parallel/end> .
+
+# ============================================================================
+# MAPE-K Components
+# ============================================================================
+
+<http://knhk.ai/workflows/examples/parallel/monitor> a mapek:Monitor ;
+    rdfs:comment "Monitors parallel branch execution times" ;
+    mapek:monitors <http://knhk.ai/workflows/examples/parallel> ;
+    mapek:hasSensor <http://knhk.ai/workflows/examples/parallel/branch-a-sensor> ;
+    mapek:hasSensor <http://knhk.ai/workflows/examples/parallel/branch-b-sensor> ;
+    mapek:hasSensor <http://knhk.ai/workflows/examples/parallel/branch-c-sensor> .
+
+<http://knhk.ai/workflows/examples/parallel/branch-a-sensor> a mapek:Sensor ;
+    rdfs:comment "Measures Branch A latency" ;
+    mapek:collects mapek:LatencyMetric ;
+    mapek:metricValue 4 .  # 4 ticks
+
+<http://knhk.ai/workflows/examples/parallel/branch-b-sensor> a mapek:Sensor ;
+    rdfs:comment "Measures Branch B latency" ;
+    mapek:collects mapek:LatencyMetric ;
+    mapek:metricValue 3 .  # 3 ticks
+
+<http://knhk.ai/workflows/examples/parallel/branch-c-sensor> a mapek:Sensor ;
+    rdfs:comment "Measures Branch C latency" ;
+    mapek:collects mapek:LatencyMetric ;
+    mapek:metricValue 5 .  # 5 ticks (slowest branch)
+
+<http://knhk.ai/workflows/examples/parallel/analyzer> a mapek:Analyzer ;
+    rdfs:comment "Analyzes parallel branch imbalance" ;
+    mapek:analyzesSymptom mapek:PerformanceDegradation .
+
+<http://knhk.ai/workflows/examples/parallel/planner> a mapek:Planner ;
+    rdfs:comment "Plans load balancing adaptations" ;
+    mapek:generatesAdaptationPlan <http://knhk.ai/workflows/examples/parallel/load-balance-plan> .
+
+<http://knhk.ai/workflows/examples/parallel/load-balance-plan> a mapek:AdaptationPlan ;
+    rdfs:comment "Rebalance work across parallel branches" ;
+    mapek:hasAdaptationGoal mapek:ImprovePerformance ;
+    mapek:containsAction <http://knhk.ai/workflows/examples/parallel/scale-action> .
+
+<http://knhk.ai/workflows/examples/parallel/scale-action> a mapek:ScaleAction ;
+    rdfs:comment "Scale slowest branch (C) with additional resources" .
+
+<http://knhk.ai/workflows/examples/parallel/executor> a mapek:Executor ;
+    rdfs:comment "Executes load balancing plan" ;
+    mapek:usesStrategy mapek:GradualRollout .
+
+<http://knhk.ai/workflows/examples/parallel/knowledge> a mapek:Knowledge ;
+    rdfs:comment "Stores parallel execution patterns" .
+
+# ============================================================================
+# Runtime Invariant
+# ============================================================================
+
+<http://knhk.ai/workflows/examples/parallel/invariant-sync> a mapek:RuntimeInvariant ;
+    rdfs:comment "Synchronization invariant: all parallel branches must complete before proceeding" ;
+    rdfs:label "AND-join Synchronization Invariant" .

@@ -1,0 +1,371 @@
+@prefix :       <http://bitstar.dev/ontology/dflss/quality#> .
+@prefix qa:     <http://bitstar.dev/ontology/dflss/quality#> .
+@prefix dflss:  <http://bitbizeco.dev/ontology/v1/dflss#> .
+@prefix bit:    <http://bitstar.dev/ontology/core#> .
+@prefix e8:     <http://bitstar.dev/ontology/8space#> .
+@prefix test:   <http://bitstar.dev/ontology/testing#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:     <http://www.w3.org/ns/shacl#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+
+<http://bitstar.dev/ontology/dflss/quality>
+  a owl:Ontology ;
+  rdfs:label "DFLSS Quality Assurance Sub-Ontology for BitStar" ;
+  rdfs:comment "Six Sigma quality framework integrated with BitStar testing and validation" ;
+  owl:imports <http://bitbizeco.dev/ontology/v1/dflss> .
+
+#################################################################
+# Quality Assurance Classes
+#################################################################
+
+qa:QualitySystem a owl:Class ;
+  rdfs:subClassOf dflss:Project ;
+  rdfs:label "Six Sigma Quality System" ;
+  rdfs:comment "Quality management system targeting 3.4 DPMO" .
+
+qa:SigmaLevel a owl:Class ;
+  rdfs:label "Sigma Level" ;
+  rdfs:comment "Statistical measure of process quality" .
+
+qa:DefectMode a owl:Class ;
+  rdfs:subClassOf dflss:Risk ;
+  rdfs:label "Defect Mode" ;
+  rdfs:comment "Specific failure mode in system" .
+
+qa:QualityGate a owl:Class ;
+  rdfs:subClassOf dflss:Tool ;
+  rdfs:label "Quality Gate" ;
+  rdfs:comment "Checkpoint ensuring quality standards" .
+
+qa:ValidationTest a owl:Class ;
+  rdfs:label "Validation Test" ;
+  rdfs:comment "Test validating system quality" .
+
+qa:PerformanceMetric a owl:Class ;
+  rdfs:subClassOf dflss:Metric ;
+  rdfs:label "Performance Metric" ;
+  rdfs:comment "Quantifiable performance measure" .
+
+#################################################################
+# Test Framework Integration Classes
+#################################################################
+
+qa:PermutationValidation a qa:ValidationTest ;
+  rdfs:label "Permutation Test Validation" ;
+  qa:testCoverage 1.00 ;  # 100% coverage
+  qa:passRate 1.00 ;      # 100% pass rate
+  qa:executionTime 40.1 ; # seconds
+  qa:sigmaLevel qa:SixSigma .
+
+qa:StressValidation a qa:ValidationTest ;
+  rdfs:label "Stress Test Validation" ;
+  qa:breakingPointIdentified true ;
+  qa:recoveryTime 0.3 ;  # seconds
+  qa:successUnderStress 0.95 ;  # 95%
+  qa:sigmaLevel qa:FiveSigma .
+
+qa:AdversarialValidation a qa:ValidationTest ;
+  rdfs:label "Adversarial Test Validation" ;
+  qa:attackVectorsTestd 50 ;
+  qa:mitigationSuccess 0.98 ;
+  qa:sigmaLevel qa:FiveSigma .
+
+qa:BenchmarkValidation a qa:ValidationTest ;
+  rdfs:label "Performance Benchmark Validation" ;
+  qa:performanceImprovement 4.5 ;  # 450%
+  qa:reliabilityScore 0.994 ;     # 99.4%
+  qa:sigmaLevel qa:SixSigma .
+
+#################################################################
+# BitStar Component Quality Classes
+#################################################################
+
+qa:BitJobQuality a qa:QualitySystem ;
+  rdfs:label "BitJob Quality System" ;
+  qa:componentName "BitJob Talent Matching" ;
+  qa:sigmaLevel qa:FiveSigma ;
+  qa:dpmo 233 ;  # Defects per million opportunities
+  qa:availability 0.994 ;
+  qa:matchingAccuracy 0.92 .
+
+qa:BitMarketQuality a qa:QualitySystem ;
+  rdfs:label "BitMarket Quality System" ;
+  qa:componentName "BitMarket Commerce Platform" ;
+  qa:sigmaLevel qa:SixSigma ;
+  qa:dpmo 3.4 ;
+  qa:transactionSuccess 0.997 ;
+  qa:throughput 10000000 .  # transactions/month
+
+qa:BitFlowQuality a qa:QualitySystem ;
+  rdfs:label "BitFlow Quality System" ;
+  qa:componentName "BitFlow Workflow Engine" ;
+  qa:sigmaLevel qa:FiveSigma ;
+  qa:dpmo 233 ;
+  qa:automationSuccess 0.989 ;
+  qa:errorRecovery 0.998 .
+
+qa:BitActorQuality a qa:QualitySystem ;
+  rdfs:label "BitActor Quality System" ;
+  qa:componentName "BitActor Messaging System" ;
+  qa:sigmaLevel qa:SixSigma ;
+  qa:dpmo 3.4 ;
+  qa:messageReliability 0.997 ;
+  qa:latency 8.7 .  # milliseconds
+
+#################################################################
+# Sigma Level Individuals
+#################################################################
+
+qa:ThreeSigma a qa:SigmaLevel ;
+  rdfs:label "3 Sigma" ;
+  qa:dpmo 66807 ;
+  qa:yield 0.9332 .
+
+qa:FourSigma a qa:SigmaLevel ;
+  rdfs:label "4 Sigma" ;
+  qa:dpmo 6210 ;
+  qa:yield 0.9938 .
+
+qa:FiveSigma a qa:SigmaLevel ;
+  rdfs:label "5 Sigma" ;
+  qa:dpmo 233 ;
+  qa:yield 0.9998 .
+
+qa:SixSigma a qa:SigmaLevel ;
+  rdfs:label "6 Sigma" ;
+  qa:dpmo 3.4 ;
+  qa:yield 0.9999966 .
+
+#################################################################
+# Quality Properties
+#################################################################
+
+qa:hasSigmaLevel a owl:ObjectProperty ;
+  rdfs:domain qa:QualitySystem ;
+  rdfs:range qa:SigmaLevel ;
+  rdfs:comment "Links quality system to sigma level" .
+
+qa:identifiesDefect a owl:ObjectProperty ;
+  rdfs:domain qa:ValidationTest ;
+  rdfs:range qa:DefectMode ;
+  rdfs:comment "Test identifies specific defect mode" .
+
+qa:passesGate a owl:ObjectProperty ;
+  rdfs:domain qa:QualitySystem ;
+  rdfs:range qa:QualityGate ;
+  rdfs:comment "System passes quality gate" .
+
+qa:measuresPerformance a owl:ObjectProperty ;
+  rdfs:domain qa:QualitySystem ;
+  rdfs:range qa:PerformanceMetric ;
+  rdfs:comment "System measures performance metric" .
+
+#################################################################
+# Quality Data Properties
+#################################################################
+
+qa:dpmo a owl:DatatypeProperty ;
+  rdfs:domain qa:QualitySystem ;
+  rdfs:range xsd:decimal ;
+  rdfs:comment "Defects Per Million Opportunities" .
+
+qa:yield a owl:DatatypeProperty ;
+  rdfs:domain qa:SigmaLevel ;
+  rdfs:range xsd:decimal ;
+  rdfs:comment "Process yield percentage" .
+
+qa:cpk a owl:DatatypeProperty ;
+  rdfs:domain qa:QualitySystem ;
+  rdfs:range xsd:decimal ;
+  rdfs:comment "Process Capability Index" .
+
+qa:availability a owl:DatatypeProperty ;
+  rdfs:domain qa:QualitySystem ;
+  rdfs:range xsd:decimal ;
+  rdfs:comment "System availability percentage" .
+
+qa:mtbf a owl:DatatypeProperty ;
+  rdfs:domain qa:QualitySystem ;
+  rdfs:range xsd:decimal ;
+  rdfs:comment "Mean Time Between Failures (hours)" .
+
+qa:mttr a owl:DatatypeProperty ;
+  rdfs:domain qa:QualitySystem ;
+  rdfs:range xsd:decimal ;
+  rdfs:comment "Mean Time To Recovery (seconds)" .
+
+#################################################################
+# Quality Gates and Controls
+#################################################################
+
+qa:DefineGate a qa:QualityGate ;
+  rdfs:label "Define Phase Quality Gate" ;
+  dflss:allowedInPhaseType dflss:Define ;
+  qa:criteria "Problem statement validated" ;
+  qa:threshold 0.95 .
+
+qa:MeasureGate a qa:QualityGate ;
+  rdfs:label "Measure Phase Quality Gate" ;
+  dflss:allowedInPhaseType dflss:Measure ;
+  qa:criteria "CTQs identified and measurable" ;
+  qa:threshold 1.00 .
+
+qa:ExploreGate a qa:QualityGate ;
+  rdfs:label "Explore Phase Quality Gate" ;
+  dflss:allowedInPhaseType dflss:Explore ;
+  qa:criteria "Concepts validated against CTQs" ;
+  qa:threshold 0.90 .
+
+qa:DevelopGate a qa:QualityGate ;
+  rdfs:label "Develop Phase Quality Gate" ;
+  dflss:allowedInPhaseType dflss:Develop ;
+  qa:criteria "Design optimized to 5+ Sigma" ;
+  qa:threshold 0.9998 .
+
+qa:ImplementGate a qa:QualityGate ;
+  rdfs:label "Implement Phase Quality Gate" ;
+  dflss:allowedInPhaseType dflss:Implement ;
+  qa:criteria "Pilot achieves target performance" ;
+  qa:threshold 0.95 .
+
+#################################################################
+# Performance Metrics
+#################################################################
+
+qa:Throughput a qa:PerformanceMetric ;
+  rdfs:label "System Throughput" ;
+  qa:unit "operations/second" ;
+  qa:target 5000 ;
+  qa:actual 5847 ;
+  qa:improvement 1.169 .  # 116.9% of target
+
+qa:Latency a qa:PerformanceMetric ;
+  rdfs:label "Response Latency" ;
+  qa:unit "milliseconds" ;
+  qa:target 100 ;
+  qa:actual 14.2 ;
+  qa:improvement 7.04 .  # 704% better than target
+
+qa:ErrorRate a qa:PerformanceMetric ;
+  rdfs:label "Error Rate" ;
+  qa:unit "percentage" ;
+  qa:target 0.01 ;  # 1%
+  qa:actual 0.006 ; # 0.6%
+  qa:improvement 1.67 .  # 67% better
+
+qa:Reliability a qa:PerformanceMetric ;
+  rdfs:label "System Reliability" ;
+  qa:unit "percentage" ;
+  qa:target 99.0 ;
+  qa:actual 99.4 ;
+  qa:improvement 1.004 .
+
+#################################################################
+# Defect Modes and Mitigation
+#################################################################
+
+qa:MemoryLeak a qa:DefectMode ;
+  rdfs:label "Memory Leak Defect" ;
+  qa:severity "High" ;
+  qa:probability 0.02 ;
+  qa:detection 0.95 ;
+  qa:rpn 6 .  # Risk Priority Number
+
+qa:RaceCondition a qa:DefectMode ;
+  rdfs:label "Race Condition Defect" ;
+  qa:severity "Critical" ;
+  qa:probability 0.01 ;
+  qa:detection 0.90 ;
+  qa:rpn 9 .
+
+qa:NetworkTimeout a qa:DefectMode ;
+  rdfs:label "Network Timeout Defect" ;
+  qa:severity "Medium" ;
+  qa:probability 0.05 ;
+  qa:detection 0.99 ;
+  qa:rpn 3 .
+
+qa:DataCorruption a qa:DefectMode ;
+  rdfs:label "Data Corruption Defect" ;
+  qa:severity "Critical" ;
+  qa:probability 0.001 ;
+  qa:detection 0.999 ;
+  qa:rpn 10 .
+
+#################################################################
+# SHACL Quality Validation Rules
+#################################################################
+
+qa:SigmaLevelShape a sh:NodeShape ;
+  sh:targetClass qa:QualitySystem ;
+  sh:property [
+    sh:path qa:dpmo ;
+    sh:maxInclusive 6210 ;
+    sh:message "System must achieve at least 4 Sigma quality (6210 DPMO)"
+  ] ;
+  sh:property [
+    sh:path qa:availability ;
+    sh:minInclusive 0.99 ;
+    sh:message "System must achieve 99%+ availability"
+  ] .
+
+qa:TestCoverageShape a sh:NodeShape ;
+  sh:targetClass qa:ValidationTest ;
+  sh:property [
+    sh:path qa:testCoverage ;
+    sh:minInclusive 0.80 ;
+    sh:message "Test coverage must be at least 80%"
+  ] ;
+  sh:property [
+    sh:path qa:passRate ;
+    sh:minInclusive 0.95 ;
+    sh:message "Test pass rate must be at least 95%"
+  ] .
+
+qa:DefectMitigationShape a sh:NodeShape ;
+  sh:targetClass qa:DefectMode ;
+  sh:sparql [
+    sh:select """
+      SELECT $this WHERE {
+        $this qa:rpn ?rpn .
+        FILTER (?rpn > 100)
+        FILTER NOT EXISTS {
+          ?mitigation qa:mitigates $this .
+        }
+      }
+    """ ;
+    sh:message "High RPN defects must have mitigation strategies"
+  ] .
+
+qa:PerformanceTargetShape a sh:NodeShape ;
+  sh:targetClass qa:PerformanceMetric ;
+  sh:property [
+    sh:path qa:actual ;
+    sh:sparql [
+      sh:select """
+        SELECT $this WHERE {
+          $this qa:target ?target ;
+                qa:actual ?actual .
+          FILTER (?actual < ?target * 0.90)
+        }
+      """ ;
+      sh:message "Performance must be within 90% of target"
+    ]
+  ] .
+
+#################################################################
+# Quality Achievement Examples
+#################################################################
+
+qa:BitStarQualityAchievement a qa:QualitySystem ;
+  rdfs:label "BitStar Overall Quality Achievement" ;
+  qa:hasSigmaLevel qa:FiveSigma ;
+  qa:dpmo 233 ;
+  qa:availability 0.994 ;
+  qa:cpk 1.67 ;
+  qa:mtbf 720 ;  # 30 days
+  qa:mttr 0.3 ;  # 0.3 seconds
+  qa:measuresPerformance qa:Throughput, qa:Latency, qa:ErrorRate, qa:Reliability ;
+  qa:passesGate qa:DefineGate, qa:MeasureGate, qa:ExploreGate, qa:DevelopGate, qa:ImplementGate .

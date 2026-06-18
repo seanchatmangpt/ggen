@@ -1,0 +1,16 @@
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ggen: <https://ggen.dev/ns/admissibility#> .
+
+# No-private-namespace policy.
+# Subjects must not be minted under private/opaque namespaces such as
+# `urn:ethos:` or `urn:private:` — law surfaces must use resolvable public IRIs.
+ggen:NoPrivateNamespaceShape
+    a sh:NodeShape ;
+    rdfs:label "No private namespace policy" ;
+    sh:targetSubjectsOf rdfs:label ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^(?!urn:(ethos|private|internal):).*$" ;
+    sh:flags "i" ;
+    sh:severity sh:Violation ;
+    sh:message "Private namespace IRI detected — use a resolvable public namespace." .

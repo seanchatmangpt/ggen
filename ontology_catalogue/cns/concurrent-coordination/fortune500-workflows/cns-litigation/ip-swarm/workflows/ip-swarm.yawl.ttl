@@ -1,0 +1,230 @@
+@prefix yawl: <http://www.yawlfoundation.org/yawlschema/> .
+@prefix ip: <http://cns-litigation.org/ip-ontology#> .
+@prefix emp: <http://cns-litigation.org/employment-ontology#> .
+@prefix legal: <http://cns-litigation.org/legal-ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# IP/Employment Contradiction Analysis Workflow (YAWL-TTL)
+
+ip:IPSwarmWorkflow a yawl:Specification ;
+    rdfs:label "IP/Employment Contradiction Analysis Swarm" ;
+    rdfs:comment "Comprehensive workflow for detecting contradictions between employment agreements, IP assignments, and actual work performed" ;
+    yawl:version "1.0.0" ;
+    yawl:rootNet ip:MainAnalysisNet ;
+    legal:jurisdiction "US Federal, State Employment Law, Patent Law" ;
+    legal:complianceFramework "Export Administration Regulations (EAR), ITAR" .
+
+ip:MainAnalysisNet a yawl:NetElement ;
+    rdfs:label "Main IP Analysis Network" ;
+    yawl:localVariable [
+        yawl:name "employmentAgreement" ;
+        yawl:type "EmploymentContract" ;
+        yawl:initialValue "null"
+    ] , [
+        yawl:name "ipAssignments" ;
+        yawl:type "IPAssignmentCollection" ;
+        yawl:initialValue "[]"
+    ] , [
+        yawl:name "actualWorkPerformed" ;
+        yawl:type "WorkRecordCollection" ;
+        yawl:initialValue "[]"
+    ] , [
+        yawl:name "contradictionReport" ;
+        yawl:type "ContradictionAnalysisReport" ;
+        yawl:initialValue "null"
+    ] .
+
+# Task 1: Document Ingestion and Classification
+ip:DocumentIngestionTask a yawl:AtomicTask ;
+    rdfs:label "Ingest and Classify Legal Documents" ;
+    yawl:documentation "Extract and classify employment agreements, IP assignments, work records, and invention disclosures" ;
+    yawl:join "XOR" ;
+    yawl:split "AND" ;
+    ip:processingRules [
+        ip:extractEmploymentTerms "true"^^xsd:boolean ;
+        ip:identifyIPClauses "true"^^xsd:boolean ;
+        ip:parseWorkRecords "true"^^xsd:boolean ;
+        ip:detectExportControlItems "true"^^xsd:boolean
+    ] ;
+    ip:outputValidation [
+        ip:requiresEmploymentAgreement "true"^^xsd:boolean ;
+        ip:requiresIPAssignment "true"^^xsd:boolean ;
+        ip:requiresWorkEvidence "true"^^xsd:boolean
+    ] .
+
+# Task 2: Employment Agreement Analysis
+ip:EmploymentAnalysisTask a yawl:AtomicTask ;
+    rdfs:label "Analyze Employment Agreement Terms" ;
+    yawl:documentation "Deep analysis of employment terms, IP assignment clauses, and work-for-hire provisions" ;
+    yawl:join "XOR" ;
+    yawl:split "AND" ;
+    emp:analysisScope [
+        emp:workForHireClause "analyze" ;
+        emp:ipAssignmentClause "analyze" ;
+        emp:inventionDisclosureRequirement "analyze" ;
+        emp:competingWorkRestriction "analyze" ;
+        emp:confidentialityProvision "analyze" ;
+        emp:terminationIPProvision "analyze"
+    ] ;
+    emp:contradictionChecks [
+        emp:checkIPOwnershipClaims "true"^^xsd:boolean ;
+        emp:checkWorkScopeDefinition "true"^^xsd:boolean ;
+        emp:checkTimeBasedRestrictions "true"^^xsd:boolean
+    ] .
+
+# Task 3: IP Assignment Evaluation
+ip:IPAssignmentEvaluationTask a yawl:AtomicTask ;
+    rdfs:label "Evaluate IP Assignment Validity" ;
+    yawl:documentation "Analyze IP assignments for legal validity, scope, and potential conflicts" ;
+    yawl:join "XOR" ;
+    yawl:split "AND" ;
+    ip:evaluationCriteria [
+        ip:assignmentScope "broad|specific|conditional" ;
+        ip:temporalCoverage "past|present|future" ;
+        ip:geographicScope "analyze" ;
+        ip:considerationAnalysis "adequate|inadequate|questionable" ;
+        ip:executionValidation "proper|defective|missing"
+    ] ;
+    ip:conflictDetection [
+        ip:priorAssignmentConflict "check" ;
+        ip:retainedRightsConflict "check" ;
+        ip:thirdPartyRightsConflict "check"
+    ] .
+
+# Task 4: Work Performance Analysis
+ip:WorkPerformanceAnalysisTask a yawl:AtomicTask ;
+    rdfs:label "Analyze Actual Work Performed" ;
+    yawl:documentation "Evaluate actual work performed against employment terms and IP assignments" ;
+    yawl:join "XOR" ;
+    yawl:split "AND" ;
+    emp:workAnalysis [
+        emp:timeTrackingAnalysis "required" ;
+        emp:projectScopeAnalysis "required" ;
+        emp:resourceUtilizationAnalysis "required" ;
+        emp:collaborationPatternAnalysis "optional" ;
+        emp:deliverableAnalysis "required"
+    ] ;
+    ip:inventiveWorkDetection [
+        ip:noveltyAssessment "required" ;
+        ip:nonObviousnessIndicators "analyze" ;
+        ip:industrialApplicability "assess" ;
+        ip:priorArtComparison "perform"
+    ] .
+
+# Task 5: Contradiction Detection Engine
+ip:ContradictionDetectionTask a yawl:AtomicTask ;
+    rdfs:label "Detect IP/Employment Contradictions" ;
+    yawl:documentation "Identify contradictions between agreements, assignments, and actual work" ;
+    yawl:join "AND" ;
+    yawl:split "XOR" ;
+    ip:contradictionTypes [
+        ip:ownershipContradiction "detect" ;
+        ip:scopeContradiction "detect" ;
+        ip:timingContradiction "detect" ;
+        ip:considerationContradiction "detect" ;
+        ip:disclosureContradiction "detect" ;
+        ip:competingWorkContradiction "detect"
+    ] ;
+    ip:severityAssessment [
+        ip:legalRisk "high|medium|low" ;
+        ip:financialRisk "quantify" ;
+        ip:reputationalRisk "assess" ;
+        ip:operationalRisk "evaluate"
+    ] .
+
+# Task 6: Inventor Rights Analysis
+ip:InventorRightsAnalysisTask a yawl:AtomicTask ;
+    rdfs:label "Analyze Inventor Rights and Claims" ;
+    yawl:documentation "Evaluate inventor rights, moral rights, and attribution claims" ;
+    yawl:join "XOR" ;
+    yawl:split "AND" ;
+    ip:inventorRights [
+        ip:attributionRights "analyze" ;
+        ip:moralRights "check_jurisdiction" ;
+        ip:compensationRights "evaluate" ;
+        ip:continuationRights "assess" ;
+        ip:foreignFilingRights "check"
+    ] ;
+    ip:inventorshipAnalysis [
+        ip:soloInventor "determine" ;
+        ip:jointInventor "identify_all" ;
+        ip:contributionLevel "quantify" ;
+        ip:inventiveContribution "validate"
+    ] .
+
+# Task 7: Export Control Compliance
+ip:ExportControlComplianceTask a yawl:AtomicTask ;
+    rdfs:label "Export Control Compliance Analysis" ;
+    yawl:documentation "Analyze IP for export control compliance and ITAR/EAR implications" ;
+    yawl:join "XOR" ;
+    yawl:split "AND" ;
+    ip:exportControlAnalysis [
+        ip:technologyClassification "perform" ;
+        ip:dualUseAssessment "required" ;
+        ip:militaryApplicationAssessment "required" ;
+        ip:controlledTechnologyIdentification "required" ;
+        ip:licensingRequirementAnalysis "required"
+    ] ;
+    ip:complianceRisks [
+        ip:unauthorizedTransfer "assess" ;
+        ip:foreignNationalAccess "evaluate" ;
+        ip:publicationRisk "analyze" ;
+        ip:collaborationRisk "assess"
+    ] .
+
+# Task 8: Report Generation and Recommendations
+ip:ReportGenerationTask a yawl:AtomicTask ;
+    rdfs:label "Generate Analysis Report and Recommendations" ;
+    yawl:documentation "Generate comprehensive report with findings and recommendations" ;
+    yawl:join "XOR" ;
+    yawl:split "OR" ;
+    ip:reportComponents [
+        ip:executiveSummary "required" ;
+        ip:contradictionFindings "detailed" ;
+        ip:riskAssessment "quantified" ;
+        ip:legalRecommendations "actionable" ;
+        ip:remediationSteps "prioritized" ;
+        ip:complianceGuidance "specific"
+    ] ;
+    ip:reportFormats [
+        ip:executiveFormat "pdf" ;
+        ip:technicalFormat "html" ;
+        ip:dataFormat "json" ;
+        ip:workingFormat "ttl"
+    ] .
+
+# Workflow Control Flow
+ip:DocumentIngestionTask yawl:flowsTo ip:EmploymentAnalysisTask .
+ip:DocumentIngestionTask yawl:flowsTo ip:IPAssignmentEvaluationTask .
+ip:DocumentIngestionTask yawl:flowsTo ip:WorkPerformanceAnalysisTask .
+
+ip:EmploymentAnalysisTask yawl:flowsTo ip:ContradictionDetectionTask .
+ip:IPAssignmentEvaluationTask yawl:flowsTo ip:ContradictionDetectionTask .
+ip:WorkPerformanceAnalysisTask yawl:flowsTo ip:ContradictionDetectionTask .
+
+ip:ContradictionDetectionTask yawl:flowsTo ip:InventorRightsAnalysisTask .
+ip:ContradictionDetectionTask yawl:flowsTo ip:ExportControlComplianceTask .
+
+ip:InventorRightsAnalysisTask yawl:flowsTo ip:ReportGenerationTask .
+ip:ExportControlComplianceTask yawl:flowsTo ip:ReportGenerationTask .
+
+# Performance Metrics and Monitoring
+ip:IPSwarmWorkflow yawl:performanceMetrics [
+    yawl:metric [
+        yawl:name "documentProcessingTime" ;
+        yawl:unit "seconds" ;
+        yawl:target "< 300"^^xsd:int
+    ] ,
+    yawl:metric [
+        yawl:name "contradictionDetectionAccuracy" ;
+        yawl:unit "percentage" ;
+        yawl:target "> 95"^^xsd:int
+    ] ,
+    yawl:metric [
+        yawl:name "falsePositiveRate" ;
+        yawl:unit "percentage" ;
+        yawl:target "< 5"^^xsd:int
+    ]
+] .

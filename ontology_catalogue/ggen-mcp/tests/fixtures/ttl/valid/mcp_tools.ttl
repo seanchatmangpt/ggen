@@ -1,0 +1,121 @@
+# Valid MCP Tools Ontology
+# Demonstrates MCP tool definitions with proper structure
+
+@prefix mcp: <http://ggen-mcp.dev/ontology/mcp#> .
+@prefix ddd: <http://ggen-mcp.dev/ontology/ddd#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# =============================================================================
+# TOOL DEFINITIONS
+# =============================================================================
+
+mcp:ReadFileTool a mcp:Tool ;
+    rdfs:label "read_file"@en ;
+    mcp:toolName "read_file" ;
+    mcp:toolDescription "Read contents of a file" ;
+    mcp:inputSchema [
+        a mcp:JsonSchema ;
+        rdfs:label "ReadFileInput" ;
+        mcp:schemaJson "{\"type\":\"object\",\"properties\":{\"path\":{\"type\":\"string\"}},\"required\":[\"path\"]}"
+    ] .
+
+mcp:WriteFileTool a mcp:Tool ;
+    rdfs:label "write_file"@en ;
+    mcp:toolName "write_file" ;
+    mcp:toolDescription "Write contents to a file" ;
+    mcp:inputSchema [
+        a mcp:JsonSchema ;
+        rdfs:label "WriteFileInput" ;
+        mcp:schemaJson "{\"type\":\"object\",\"properties\":{\"path\":{\"type\":\"string\"},\"content\":{\"type\":\"string\"}},\"required\":[\"path\",\"content\"]}"
+    ] .
+
+mcp:ListDirectoryTool a mcp:Tool ;
+    rdfs:label "list_directory"@en ;
+    mcp:toolName "list_directory" ;
+    mcp:toolDescription "List contents of a directory" ;
+    mcp:inputSchema [
+        a mcp:JsonSchema ;
+        rdfs:label "ListDirectoryInput" ;
+        mcp:schemaJson "{\"type\":\"object\",\"properties\":{\"path\":{\"type\":\"string\"}},\"required\":[\"path\"]}"
+    ] .
+
+mcp:SearchFilesTool a mcp:Tool ;
+    rdfs:label "search_files"@en ;
+    mcp:toolName "search_files" ;
+    mcp:toolDescription "Search for files matching pattern" ;
+    mcp:inputSchema [
+        a mcp:JsonSchema ;
+        rdfs:label "SearchFilesInput" ;
+        mcp:schemaJson "{\"type\":\"object\",\"properties\":{\"pattern\":{\"type\":\"string\"},\"directory\":{\"type\":\"string\"}},\"required\":[\"pattern\"]}"
+    ] .
+
+# =============================================================================
+# RESOURCE DEFINITIONS
+# =============================================================================
+
+mcp:FileResource a mcp:Resource ;
+    rdfs:label "file"@en ;
+    mcp:resourceUri "file:///{path}" ;
+    mcp:resourceName "file" ;
+    mcp:resourceDescription "File system resource" ;
+    mcp:mimeType "application/octet-stream" .
+
+mcp:DirectoryResource a mcp:Resource ;
+    rdfs:label "directory"@en ;
+    mcp:resourceUri "file:///{path}/" ;
+    mcp:resourceName "directory" ;
+    mcp:resourceDescription "Directory resource" ;
+    mcp:mimeType "application/x-directory" .
+
+# =============================================================================
+# PROMPT DEFINITIONS
+# =============================================================================
+
+mcp:CodeReviewPrompt a mcp:Prompt ;
+    rdfs:label "code_review"@en ;
+    mcp:promptName "code_review" ;
+    mcp:promptDescription "Review code for best practices" ;
+    mcp:promptArguments [
+        a mcp:PromptArgument ;
+        rdfs:label "code" ;
+        mcp:argumentName "code" ;
+        mcp:argumentDescription "Code to review" ;
+        mcp:argumentRequired true
+    ] ;
+    mcp:promptArguments [
+        a mcp:PromptArgument ;
+        rdfs:label "language" ;
+        mcp:argumentName "language" ;
+        mcp:argumentDescription "Programming language" ;
+        mcp:argumentRequired true
+    ] .
+
+# =============================================================================
+# SHACL VALIDATION
+# =============================================================================
+
+mcp:ToolValidationShape a sh:NodeShape ;
+    sh:targetClass mcp:Tool ;
+    sh:property [
+        sh:path mcp:toolName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-z][a-z0-9_]*$"
+    ] ;
+    sh:property [
+        sh:path mcp:toolDescription ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path mcp:inputSchema ;
+        sh:class mcp:JsonSchema ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] .

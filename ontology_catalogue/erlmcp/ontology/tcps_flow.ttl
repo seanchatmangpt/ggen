@@ -1,0 +1,811 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix tcps: <http://erlmcp.org/ontology/tcps#> .
+@prefix tcps-core: <http://erlmcp.org/ontology/tcps/core#> .
+@prefix tcps-quality: <http://erlmcp.org/ontology/tcps/quality#> .
+@prefix tcps-flow: <http://erlmcp.org/ontology/tcps/flow#> .
+
+<http://erlmcp.org/ontology/tcps/flow>
+    a owl:Ontology ;
+    dcterms:title "Toyota Code Production System - Flow Ontology"@en ;
+    dcterms:description """
+        Flow ontology for the Toyota Code Production System (TCPS).
+        Defines Kanban (pull signals and WIP limits), Heijunka (production
+        leveling across reliability/security/cost/compliance buckets),
+        and pull system mechanisms.
+
+        Core principles:
+        - Pull production (demand-driven)
+        - Limit work-in-progress (prevent overload)
+        - Level production (smooth flow)
+        - Minimize waste (muda, muri, mura)
+        - Continuous flow (single-piece flow)
+    """@en ;
+    dcterms:created "2026-01-26"^^xsd:date ;
+    dcterms:creator "TCPS Development Team"@en ;
+    owl:versionInfo "1.0.0" ;
+    owl:imports <http://erlmcp.org/ontology/tcps/core> ,
+                <http://erlmcp.org/ontology/tcps/quality> ;
+    rdfs:seeAlso <http://erlmcp.org/ontology/tcps/core> .
+
+###############################################################################
+# Kanban - Visual Pull Signal and WIP Control
+###############################################################################
+
+tcps-flow:Kanban
+    a owl:Class ;
+    rdfs:label "Kanban"@en ;
+    rdfs:comment """
+        A Kanban (看板) is a visual signal card that authorizes production or
+        movement of work in a pull system. In TCPS, Kanbans control the flow
+        of WorkOrders through ProductionStages.
+
+        Key functions:
+        1. Authorization: Only work with a Kanban can be started
+        2. WIP Limiting: Number of active Kanbans = WIP limit
+        3. Pull Signal: Kanban returned to upstream when work is pulled
+        4. Visual Management: Board shows all Kanban states
+        5. Flow Control: Prevents overproduction and overload
+
+        Kanban states:
+        - AVAILABLE: Ready to authorize new work
+        - ACTIVE: Currently authorizing work in progress
+        - BLOCKED: Waiting for dependency or issue resolution
+        - RETIRED: Completed work, returned to pool
+
+        Example flow:
+        1. TEST stage has capacity (Kanban available)
+        2. TEST pulls from COMPILE (activates Kanban)
+        3. Work moves to TEST (Kanban becomes active)
+        4. Work completes TEST (Kanban returns to available)
+    """@en ;
+    skos:example """
+        Kanban-TEST-001:
+          Stage: TEST
+          Status: ACTIVE
+          WorkOrder: WO-2026-001
+          Activated: 2026-01-26T10:30:00Z
+    """@en .
+
+tcps-flow:kanbanId
+    a owl:DatatypeProperty ;
+    rdfs:label "kanban ID"@en ;
+    rdfs:comment "Unique identifier for this Kanban card"@en ;
+    rdfs:domain tcps-flow:Kanban ;
+    rdfs:range xsd:string .
+
+tcps-flow:controlsStage
+    a owl:ObjectProperty ;
+    rdfs:label "controls stage"@en ;
+    rdfs:comment "The ProductionStage that this Kanban controls"@en ;
+    rdfs:domain tcps-flow:Kanban ;
+    rdfs:range tcps-core:ProductionStage .
+
+tcps-flow:kanbanStatus
+    a owl:DatatypeProperty ;
+    rdfs:label "kanban status"@en ;
+    rdfs:comment """
+        Current status of the Kanban:
+        - AVAILABLE: Ready to authorize new work
+        - ACTIVE: Currently authorizing work in progress
+        - BLOCKED: Waiting for dependency or issue resolution
+        - RETIRED: Completed, returned to pool
+    """@en ;
+    rdfs:domain tcps-flow:Kanban ;
+    rdfs:range xsd:string .
+
+tcps-flow:authorizesWorkOrder
+    a owl:ObjectProperty ;
+    rdfs:label "authorizes work order"@en ;
+    rdfs:comment "The WorkOrder that this Kanban is currently authorizing (null if AVAILABLE)"@en ;
+    rdfs:domain tcps-flow:Kanban ;
+    rdfs:range tcps-core:WorkOrder .
+
+tcps-flow:activatedAt
+    a owl:DatatypeProperty ;
+    rdfs:label "activated at"@en ;
+    rdfs:comment "Timestamp when this Kanban was activated (transitioned to ACTIVE)"@en ;
+    rdfs:domain tcps-flow:Kanban ;
+    rdfs:range xsd:dateTime .
+
+tcps-flow:retiredAt
+    a owl:DatatypeProperty ;
+    rdfs:label "retired at"@en ;
+    rdfs:comment "Timestamp when this Kanban was retired (work completed)"@en ;
+    rdfs:domain tcps-flow:Kanban ;
+    rdfs:range xsd:dateTime .
+
+tcps-flow:cycleTime
+    a owl:DatatypeProperty ;
+    rdfs:label "cycle time"@en ;
+    rdfs:comment """
+        Duration (in minutes) this Kanban was active.
+        Calculated as: retiredAt - activatedAt.
+        Used for flow metrics and improvement.
+    """@en ;
+    rdfs:domain tcps-flow:Kanban ;
+    rdfs:range xsd:decimal .
+
+###############################################################################
+# WIP Limit - Work-In-Progress Constraint
+###############################################################################
+
+tcps-flow:WIPLimit
+    a owl:Class ;
+    rdfs:label "WIP Limit"@en ;
+    rdfs:comment """
+        A WIP (Work-In-Progress) Limit constrains the maximum number of
+        WorkOrders that can be simultaneously active in a ProductionStage.
+
+        Benefits of WIP limits:
+        1. Prevent overload and context switching
+        2. Expose bottlenecks and flow issues
+        3. Reduce lead time and increase throughput
+        4. Improve quality (focus on fewer items)
+        5. Enable pull system (downstream pulls when capacity)
+
+        WIP limits are enforced by Kanban count: the number of Kanbans
+        in a stage equals the WIP limit. When all Kanbans are active,
+        no new work can be pulled.
+
+        Setting WIP limits:
+        - Start conservatively (lower is better)
+        - Adjust based on flow metrics (cycle time, throughput)
+        - Consider team capacity and task complexity
+        - Account for dependencies and wait times
+    """@en .
+
+tcps-flow:wipLimitId
+    a owl:DatatypeProperty ;
+    rdfs:label "WIP limit ID"@en ;
+    rdfs:comment "Unique identifier for this WIP limit constraint"@en ;
+    rdfs:domain tcps-flow:WIPLimit ;
+    rdfs:range xsd:string .
+
+tcps-flow:appliesTo
+    a owl:ObjectProperty ;
+    rdfs:label "applies to"@en ;
+    rdfs:comment "The ProductionStage that this WIP limit applies to"@en ;
+    rdfs:domain tcps-flow:WIPLimit ;
+    rdfs:range tcps-core:ProductionStage .
+
+tcps-flow:maxWIP
+    a owl:DatatypeProperty ;
+    rdfs:label "maximum WIP"@en ;
+    rdfs:comment """
+        Maximum number of WorkOrders allowed simultaneously in this stage.
+        Enforced by limiting number of active Kanbans.
+    """@en ;
+    rdfs:domain tcps-flow:WIPLimit ;
+    rdfs:range xsd:positiveInteger .
+
+tcps-flow:currentWIP
+    a owl:DatatypeProperty ;
+    rdfs:label "current WIP"@en ;
+    rdfs:comment "Current number of WorkOrders in progress in this stage"@en ;
+    rdfs:domain tcps-flow:WIPLimit ;
+    rdfs:range xsd:nonNegativeInteger .
+
+tcps-flow:utilizationRate
+    a owl:DatatypeProperty ;
+    rdfs:label "utilization rate"@en ;
+    rdfs:comment """
+        Current WIP as percentage of max WIP (0.0 to 1.0).
+        Example: currentWIP=3, maxWIP=5 => utilizationRate=0.60
+        Used to monitor capacity and flow.
+    """@en ;
+    rdfs:domain tcps-flow:WIPLimit ;
+    rdfs:range xsd:decimal .
+
+tcps-flow:isAtCapacity
+    a owl:DatatypeProperty ;
+    rdfs:label "is at capacity"@en ;
+    rdfs:comment """
+        Boolean indicating if stage is at WIP limit (currentWIP = maxWIP).
+        When true, stage cannot pull new work from upstream.
+    """@en ;
+    rdfs:domain tcps-flow:WIPLimit ;
+    rdfs:range xsd:boolean .
+
+tcps-flow:violationCount
+    a owl:DatatypeProperty ;
+    rdfs:label "violation count"@en ;
+    rdfs:comment """
+        Number of times WIP limit has been violated (exceeded).
+        Should be zero in well-functioning system. Violations trigger
+        investigation and process improvement.
+    """@en ;
+    rdfs:domain tcps-flow:WIPLimit ;
+    rdfs:range xsd:nonNegativeInteger .
+
+###############################################################################
+# Heijunka - Production Leveling
+###############################################################################
+
+tcps-flow:Heijunka
+    a owl:Class ;
+    rdfs:label "Heijunka"@en ;
+    rdfs:comment """
+        Heijunka (平準化) means "production leveling" or "smoothing". In TCPS,
+        Heijunka distributes WorkOrders across multiple priority buckets to
+        achieve balanced, sustainable flow.
+
+        TCPS Heijunka buckets:
+        1. RELIABILITY: Uptime, stability, bug fixes
+        2. SECURITY: Vulnerabilities, compliance, hardening
+        3. COST: Efficiency, resource optimization, waste reduction
+        4. COMPLIANCE: Regulatory, legal, policy requirements
+
+        Goals of leveling:
+        - Prevent "batching" of work by type
+        - Smooth resource utilization
+        - Reduce bottlenecks and wait times
+        - Enable cross-functional flow
+        - Improve predictability
+
+        Example leveling:
+        - Instead of: 10 security fixes, then 10 features
+        - Do: Rotate through buckets: 2 security, 2 reliability, 2 cost, 2 compliance, repeat
+
+        Heijunka box: Visual board showing work distribution across buckets and time.
+    """@en ;
+    skos:example """
+        Heijunka-Week-04:
+          Period: 2026-01-20 to 2026-01-26
+          Buckets:
+            - RELIABILITY: 25% (15 WorkOrders)
+            - SECURITY: 30% (18 WorkOrders)
+            - COST: 25% (15 WorkOrders)
+            - COMPLIANCE: 20% (12 WorkOrders)
+    """@en .
+
+tcps-flow:heijunkaId
+    a owl:DatatypeProperty ;
+    rdfs:label "heijunka ID"@en ;
+    rdfs:comment "Unique identifier for this Heijunka leveling plan"@en ;
+    rdfs:domain tcps-flow:Heijunka ;
+    rdfs:range xsd:string .
+
+tcps-flow:planningPeriod
+    a owl:DatatypeProperty ;
+    rdfs:label "planning period"@en ;
+    rdfs:comment """
+        Duration of the leveling period (e.g., weekly, biweekly, monthly).
+        Shorter periods enable more frequent rebalancing.
+    """@en ;
+    rdfs:domain tcps-flow:Heijunka ;
+    rdfs:range xsd:string .
+
+tcps-flow:periodStart
+    a owl:DatatypeProperty ;
+    rdfs:label "period start"@en ;
+    rdfs:comment "Start date/time of this leveling period"@en ;
+    rdfs:domain tcps-flow:Heijunka ;
+    rdfs:range xsd:dateTime .
+
+tcps-flow:periodEnd
+    a owl:DatatypeProperty ;
+    rdfs:label "period end"@en ;
+    rdfs:comment "End date/time of this leveling period"@en ;
+    rdfs:domain tcps-flow:Heijunka ;
+    rdfs:range xsd:dateTime .
+
+tcps-flow:containsBucket
+    a owl:ObjectProperty ;
+    rdfs:label "contains bucket"@en ;
+    rdfs:comment "The priority buckets in this Heijunka plan"@en ;
+    rdfs:domain tcps-flow:Heijunka ;
+    rdfs:range tcps-flow:HeijunkaBucket .
+
+tcps-flow:totalCapacity
+    a owl:DatatypeProperty ;
+    rdfs:label "total capacity"@en ;
+    rdfs:comment """
+        Total production capacity for this period (number of WorkOrders
+        that can be completed). Distributed across buckets.
+    """@en ;
+    rdfs:domain tcps-flow:Heijunka ;
+    rdfs:range xsd:positiveInteger .
+
+###############################################################################
+# Heijunka Bucket - Priority Category
+###############################################################################
+
+tcps-flow:HeijunkaBucket
+    a owl:Class ;
+    rdfs:label "Heijunka Bucket"@en ;
+    rdfs:comment """
+        A HeijunkaBucket represents a priority category in the Heijunka
+        leveling system. TCPS defines four standard buckets:
+
+        1. RELIABILITY: Work that improves system uptime and stability
+           - Bug fixes, error handling, resilience
+           - Performance optimization, resource management
+           - Monitoring, alerting, incident response
+
+        2. SECURITY: Work that protects against threats and vulnerabilities
+           - Vulnerability patches, security updates
+           - Access control, authentication, encryption
+           - Compliance scanning, audit logging
+
+        3. COST: Work that reduces operational costs and waste
+           - Resource optimization (CPU, memory, network)
+           - Infrastructure efficiency (autoscaling, right-sizing)
+           - Process automation, tooling improvements
+
+        4. COMPLIANCE: Work that meets regulatory and policy requirements
+           - GDPR, SOC2, HIPAA, PCI-DSS compliance
+           - License management, open source audits
+           - Documentation, record-keeping
+
+        Each bucket receives a target allocation (percentage or count)
+        of total capacity for the planning period.
+    """@en .
+
+tcps-flow:bucketId
+    a owl:DatatypeProperty ;
+    rdfs:label "bucket ID"@en ;
+    rdfs:comment "Unique identifier for this Heijunka bucket"@en ;
+    rdfs:domain tcps-flow:HeijunkaBucket ;
+    rdfs:range xsd:string .
+
+tcps-flow:bucketName
+    a owl:DatatypeProperty ;
+    rdfs:label "bucket name"@en ;
+    rdfs:comment """
+        Name of the bucket: RELIABILITY, SECURITY, COST, or COMPLIANCE
+    """@en ;
+    rdfs:domain tcps-flow:HeijunkaBucket ;
+    rdfs:range xsd:string .
+
+tcps-flow:bucketDescription
+    a owl:DatatypeProperty ;
+    rdfs:label "bucket description"@en ;
+    rdfs:comment "Detailed description of work types in this bucket"@en ;
+    rdfs:domain tcps-flow:HeijunkaBucket ;
+    rdfs:range xsd:string .
+
+tcps-flow:targetAllocation
+    a owl:DatatypeProperty ;
+    rdfs:label "target allocation"@en ;
+    rdfs:comment """
+        Target allocation as percentage of total capacity (0.0 to 1.0).
+        Example: 0.25 = 25% of WorkOrders should be from this bucket.
+    """@en ;
+    rdfs:domain tcps-flow:HeijunkaBucket ;
+    rdfs:range xsd:decimal .
+
+tcps-flow:actualAllocation
+    a owl:DatatypeProperty ;
+    rdfs:label "actual allocation"@en ;
+    rdfs:comment """
+        Actual allocation achieved during this period (0.0 to 1.0).
+        Used to measure adherence to leveling plan.
+    """@en ;
+    rdfs:domain tcps-flow:HeijunkaBucket ;
+    rdfs:range xsd:decimal .
+
+tcps-flow:allocatedWorkOrders
+    a owl:DatatypeProperty ;
+    rdfs:label "allocated work orders"@en ;
+    rdfs:comment "Number of WorkOrders allocated to this bucket for the period"@en ;
+    rdfs:domain tcps-flow:HeijunkaBucket ;
+    rdfs:range xsd:nonNegativeInteger .
+
+tcps-flow:completedWorkOrders
+    a owl:DatatypeProperty ;
+    rdfs:label "completed work orders"@en ;
+    rdfs:comment "Number of WorkOrders from this bucket completed during the period"@en ;
+    rdfs:domain tcps-flow:HeijunkaBucket ;
+    rdfs:range xsd:nonNegativeInteger .
+
+tcps-flow:bucketPriority
+    a owl:DatatypeProperty ;
+    rdfs:label "bucket priority"@en ;
+    rdfs:comment """
+        Priority ranking of this bucket (1 = highest).
+        Used for tie-breaking when multiple buckets compete for capacity.
+    """@en ;
+    rdfs:domain tcps-flow:HeijunkaBucket ;
+    rdfs:range xsd:positiveInteger .
+
+###############################################################################
+# Pull Signal - Demand Authorization
+###############################################################################
+
+tcps-flow:PullSignal
+    a owl:Class ;
+    rdfs:label "Pull Signal"@en ;
+    rdfs:comment """
+        A PullSignal is a message sent from a downstream ProductionStage
+        to an upstream stage requesting work. Pull signals implement
+        demand-driven production: work is only started when requested.
+
+        Pull signal flow:
+        1. Downstream stage has capacity (WIP < limit)
+        2. Downstream sends PullSignal to upstream
+        3. Upstream receives signal and prepares work
+        4. Work is pulled from upstream to downstream
+        5. Kanban is activated in downstream stage
+
+        Pull signals prevent:
+        - Overproduction (building what's not needed)
+        - Inventory buildup (work piling up between stages)
+        - Resource waste (idle workers or machines)
+
+        Types of pull signals:
+        - CAPACITY_AVAILABLE: Downstream has open Kanban
+        - CUSTOMER_ORDER: External demand created
+        - INVENTORY_LOW: Reorder point reached
+        - SCHEDULED_PULL: Takt time alignment
+    """@en ;
+    skos:example """
+        PullSignal-TEST-to-COMPILE:
+          From: TEST stage
+          To: COMPILE stage
+          Type: CAPACITY_AVAILABLE
+          Requests: 2 WorkOrders
+          Timestamp: 2026-01-26T11:00:00Z
+    """@en .
+
+tcps-flow:pullSignalId
+    a owl:DatatypeProperty ;
+    rdfs:label "pull signal ID"@en ;
+    rdfs:comment "Unique identifier for this pull signal"@en ;
+    rdfs:domain tcps-flow:PullSignal ;
+    rdfs:range xsd:string .
+
+tcps-flow:fromStage
+    a owl:ObjectProperty ;
+    rdfs:label "from stage"@en ;
+    rdfs:comment "The downstream ProductionStage sending the pull signal"@en ;
+    rdfs:domain tcps-flow:PullSignal ;
+    rdfs:range tcps-core:ProductionStage .
+
+tcps-flow:toStage
+    a owl:ObjectProperty ;
+    rdfs:label "to stage"@en ;
+    rdfs:comment "The upstream ProductionStage receiving the pull signal"@en ;
+    rdfs:domain tcps-flow:PullSignal ;
+    rdfs:range tcps-core:ProductionStage .
+
+tcps-flow:signalType
+    a owl:DatatypeProperty ;
+    rdfs:label "signal type"@en ;
+    rdfs:comment """
+        Type of pull signal:
+        - CAPACITY_AVAILABLE: Downstream has open capacity
+        - CUSTOMER_ORDER: External customer demand
+        - INVENTORY_LOW: SKU inventory below reorder point
+        - SCHEDULED_PULL: Takt time-based pull
+    """@en ;
+    rdfs:domain tcps-flow:PullSignal ;
+    rdfs:range xsd:string .
+
+tcps-flow:requestedQuantity
+    a owl:DatatypeProperty ;
+    rdfs:label "requested quantity"@en ;
+    rdfs:comment "Number of WorkOrders requested by this pull signal"@en ;
+    rdfs:domain tcps-flow:PullSignal ;
+    rdfs:range xsd:positiveInteger .
+
+tcps-flow:signalTime
+    a owl:DatatypeProperty ;
+    rdfs:label "signal time"@en ;
+    rdfs:comment "Timestamp when the pull signal was sent"@en ;
+    rdfs:domain tcps-flow:PullSignal ;
+    rdfs:range xsd:dateTime .
+
+tcps-flow:acknowledgedAt
+    a owl:DatatypeProperty ;
+    rdfs:label "acknowledged at"@en ;
+    rdfs:comment "Timestamp when upstream acknowledged the pull signal"@en ;
+    rdfs:domain tcps-flow:PullSignal ;
+    rdfs:range xsd:dateTime .
+
+tcps-flow:fulfilledAt
+    a owl:DatatypeProperty ;
+    rdfs:label "fulfilled at"@en ;
+    rdfs:comment "Timestamp when the requested work was delivered"@en ;
+    rdfs:domain tcps-flow:PullSignal ;
+    rdfs:range xsd:dateTime .
+
+tcps-flow:responseTime
+    a owl:DatatypeProperty ;
+    rdfs:label "response time"@en ;
+    rdfs:comment """
+        Duration (in minutes) from signal to fulfillment.
+        Calculated as: fulfilledAt - signalTime.
+        Key metric for pull system efficiency.
+    """@en ;
+    rdfs:domain tcps-flow:PullSignal ;
+    rdfs:range xsd:decimal .
+
+###############################################################################
+# Takt Time - Customer Demand Rate
+###############################################################################
+
+tcps-flow:TaktTime
+    a owl:Class ;
+    rdfs:label "Takt Time"@en ;
+    rdfs:comment """
+        Takt Time (German "takt" = rhythm, beat) is the rate at which
+        customers demand products. It sets the pace of production.
+
+        Formula: Takt Time = Available Production Time / Customer Demand
+
+        Example:
+        - Available time: 8 hours/day = 480 minutes
+        - Customer demand: 48 units/day
+        - Takt time: 480 / 48 = 10 minutes per unit
+
+        Takt time drives:
+        1. Production pacing (complete one unit every takt)
+        2. Capacity planning (staff and resources)
+        3. Pull signal scheduling (when to pull)
+        4. Continuous flow (single-piece flow at takt)
+
+        In TCPS:
+        - SKU has takt time based on marketplace demand
+        - WorkOrders are created to meet takt rhythm
+        - Stages are balanced to takt time
+        - Deviations trigger rebalancing or capacity adjustment
+    """@en .
+
+tcps-flow:taktTimeId
+    a owl:DatatypeProperty ;
+    rdfs:label "takt time ID"@en ;
+    rdfs:comment "Unique identifier for this takt time calculation"@en ;
+    rdfs:domain tcps-flow:TaktTime ;
+    rdfs:range xsd:string .
+
+tcps-flow:forSKU
+    a owl:ObjectProperty ;
+    rdfs:label "for SKU"@en ;
+    rdfs:comment "The SKU that this takt time applies to"@en ;
+    rdfs:domain tcps-flow:TaktTime ;
+    rdfs:range tcps-core:SKU .
+
+tcps-flow:availableTime
+    a owl:DatatypeProperty ;
+    rdfs:label "available time"@en ;
+    rdfs:comment """
+        Available production time per period (in minutes).
+        Example: 480 minutes/day (8 hours), 2400 minutes/week (40 hours)
+    """@en ;
+    rdfs:domain tcps-flow:TaktTime ;
+    rdfs:range xsd:decimal .
+
+tcps-flow:customerDemand
+    a owl:DatatypeProperty ;
+    rdfs:label "customer demand"@en ;
+    rdfs:comment """
+        Number of units demanded by customers per period.
+        Based on historical sales, forecasts, and orders.
+    """@en ;
+    rdfs:domain tcps-flow:TaktTime ;
+    rdfs:range xsd:decimal .
+
+tcps-flow:taktRate
+    a owl:DatatypeProperty ;
+    rdfs:label "takt rate"@en ;
+    rdfs:comment """
+        Calculated takt time (in minutes per unit).
+        Formula: availableTime / customerDemand
+        Example: 480 / 48 = 10 minutes per unit
+    """@en ;
+    rdfs:domain tcps-flow:TaktTime ;
+    rdfs:range xsd:decimal .
+
+tcps-flow:actualCycleTime
+    a owl:DatatypeProperty ;
+    rdfs:label "actual cycle time"@en ;
+    rdfs:comment """
+        Measured time to complete one unit (in minutes).
+        Should be <= takt time to meet demand.
+    """@en ;
+    rdfs:domain tcps-flow:TaktTime ;
+    rdfs:range xsd:decimal .
+
+tcps-flow:meetsCustomerDemand
+    a owl:DatatypeProperty ;
+    rdfs:label "meets customer demand"@en ;
+    rdfs:comment """
+        Boolean indicating if production rate meets customer demand.
+        True if actualCycleTime <= taktRate.
+    """@en ;
+    rdfs:domain tcps-flow:TaktTime ;
+    rdfs:range xsd:boolean .
+
+###############################################################################
+# SHACL Shapes for Flow Validation
+###############################################################################
+
+tcps-flow:KanbanShape
+    a sh:NodeShape ;
+    sh:targetClass tcps-flow:Kanban ;
+    rdfs:label "Kanban Validation Shape"@en ;
+    rdfs:comment "SHACL shape for validating Kanban cards"@en ;
+    sh:property [
+        sh:path tcps-flow:kanbanId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Kanban must have exactly one kanbanId"@en ;
+    ] ;
+    sh:property [
+        sh:path tcps-flow:controlsStage ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class tcps-core:ProductionStage ;
+        sh:message "Kanban must control exactly one ProductionStage"@en ;
+    ] ;
+    sh:property [
+        sh:path tcps-flow:kanbanStatus ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "AVAILABLE" "ACTIVE" "BLOCKED" "RETIRED" ) ;
+        sh:message "Kanban status must be AVAILABLE, ACTIVE, BLOCKED, or RETIRED"@en ;
+    ] .
+
+tcps-flow:WIPLimitShape
+    a sh:NodeShape ;
+    sh:targetClass tcps-flow:WIPLimit ;
+    rdfs:label "WIP Limit Validation Shape"@en ;
+    rdfs:comment "SHACL shape for validating WIP limits"@en ;
+    sh:property [
+        sh:path tcps-flow:wipLimitId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+    ] ;
+    sh:property [
+        sh:path tcps-flow:appliesTo ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class tcps-core:ProductionStage ;
+        sh:message "WIP Limit must apply to exactly one ProductionStage"@en ;
+    ] ;
+    sh:property [
+        sh:path tcps-flow:maxWIP ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:positiveInteger ;
+        sh:message "WIP Limit must have a positive maximum"@en ;
+    ] ;
+    sh:property [
+        sh:path tcps-flow:currentWIP ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:nonNegativeInteger ;
+    ] .
+
+tcps-flow:HeijunkaBucketShape
+    a sh:NodeShape ;
+    sh:targetClass tcps-flow:HeijunkaBucket ;
+    rdfs:label "Heijunka Bucket Validation Shape"@en ;
+    rdfs:comment "SHACL shape for validating Heijunka buckets"@en ;
+    sh:property [
+        sh:path tcps-flow:bucketId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+    ] ;
+    sh:property [
+        sh:path tcps-flow:bucketName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "RELIABILITY" "SECURITY" "COST" "COMPLIANCE" ) ;
+        sh:message "Bucket name must be RELIABILITY, SECURITY, COST, or COMPLIANCE"@en ;
+    ] ;
+    sh:property [
+        sh:path tcps-flow:targetAllocation ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Target allocation must be between 0.0 and 1.0"@en ;
+    ] .
+
+tcps-flow:PullSignalShape
+    a sh:NodeShape ;
+    sh:targetClass tcps-flow:PullSignal ;
+    rdfs:label "Pull Signal Validation Shape"@en ;
+    rdfs:comment "SHACL shape for validating pull signals"@en ;
+    sh:property [
+        sh:path tcps-flow:pullSignalId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+    ] ;
+    sh:property [
+        sh:path tcps-flow:fromStage ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class tcps-core:ProductionStage ;
+        sh:message "Pull Signal must have exactly one fromStage"@en ;
+    ] ;
+    sh:property [
+        sh:path tcps-flow:toStage ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class tcps-core:ProductionStage ;
+        sh:message "Pull Signal must have exactly one toStage"@en ;
+    ] ;
+    sh:property [
+        sh:path tcps-flow:requestedQuantity ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:positiveInteger ;
+        sh:message "Pull Signal must request at least one WorkOrder"@en ;
+    ] .
+
+###############################################################################
+# Standard Heijunka Buckets (Individuals)
+###############################################################################
+
+tcps-flow:ReliabilityBucket
+    a tcps-flow:HeijunkaBucket ;
+    tcps-flow:bucketId "RELIABILITY_BUCKET"^^xsd:string ;
+    tcps-flow:bucketName "RELIABILITY"^^xsd:string ;
+    tcps-flow:bucketDescription """
+        Reliability bucket contains work that improves system uptime,
+        stability, and resilience:
+        - Bug fixes and error handling
+        - Performance optimization
+        - Monitoring and alerting
+        - Incident response and postmortems
+        - Graceful degradation patterns
+    """@en ;
+    rdfs:label "Reliability Bucket"@en .
+
+tcps-flow:SecurityBucket
+    a tcps-flow:HeijunkaBucket ;
+    tcps-flow:bucketId "SECURITY_BUCKET"^^xsd:string ;
+    tcps-flow:bucketName "SECURITY"^^xsd:string ;
+    tcps-flow:bucketDescription """
+        Security bucket contains work that protects against threats
+        and vulnerabilities:
+        - Security patches and updates
+        - Vulnerability remediation
+        - Access control and authentication
+        - Encryption and data protection
+        - Security scanning and audits
+    """@en ;
+    rdfs:label "Security Bucket"@en .
+
+tcps-flow:CostBucket
+    a tcps-flow:HeijunkaBucket ;
+    tcps-flow:bucketId "COST_BUCKET"^^xsd:string ;
+    tcps-flow:bucketName "COST"^^xsd:string ;
+    tcps-flow:bucketDescription """
+        Cost bucket contains work that reduces operational costs
+        and eliminates waste:
+        - Resource optimization (CPU, memory, network)
+        - Infrastructure efficiency
+        - Process automation
+        - Tooling improvements
+        - Technical debt reduction
+    """@en ;
+    rdfs:label "Cost Bucket"@en .
+
+tcps-flow:ComplianceBucket
+    a tcps-flow:HeijunkaBucket ;
+    tcps-flow:bucketId "COMPLIANCE_BUCKET"^^xsd:string ;
+    tcps-flow:bucketName "COMPLIANCE"^^xsd:string ;
+    tcps-flow:bucketDescription """
+        Compliance bucket contains work that meets regulatory
+        and policy requirements:
+        - GDPR, SOC2, HIPAA, PCI-DSS compliance
+        - License management
+        - Open source audits
+        - Documentation and record-keeping
+        - Policy enforcement
+    """@en ;
+    rdfs:label "Compliance Bucket"@en .

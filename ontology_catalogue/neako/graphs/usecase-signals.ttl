@@ -1,0 +1,54 @@
+@prefix gen: <urn:gen#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# -------- SQL (schema) --------
+[] a gen:Emit ;
+   gen:slug "sql-signals" ;
+   gen:templateFile "db/schema.sql.tmpl" ;
+   gen:to "db/sql/{{ table }}.sql" ;
+   gen:var [ gen:key "table" ; gen:value "signals" ] ;
+   gen:var [ gen:key "pk" ; gen:value "id uuid primary key default gen_random_uuid()" ] ;
+   gen:var [ gen:key "cols" ; gen:value "entity_id uuid not null, kind text not null, text text not null, tags text[], payload jsonb, created_at timestamptz default now()" ] .
+
+# -------- SQL (RLS) --------
+[] a gen:Emit ;
+   gen:slug "sql-rls" ;
+   gen:templateFile "db/rls.sql.tmpl" ;
+   gen:to "db/sql/{{ table }}_rls.sql" ;
+   gen:var [ gen:key "table" ; gen:value "signals" ] ;
+   gen:var [ gen:key "policy_read" ; gen:value "using (true)" ] ;
+   gen:var [ gen:key "policy_write" ; gen:value "with check (true)" ] .
+
+# -------- Edge Function (Supabase Deno) --------
+[] a gen:Emit ;
+   gen:slug "edge-match" ;
+   gen:templateFile "edge/function.ts.tmpl" ;
+   gen:to "supabase/functions/{{ fn }}/index.ts" ;
+   gen:var [ gen:key "fn" ; gen:value "match_signals" ] ;
+   gen:var [ gen:key "table" ; gen:value "signals" ] ;
+   gen:var [ gen:key "match_sql" ; gen:value "select a.id as a, b.id as b from signals a join signals b on a.kind='offer' and b.kind='request' and a.id<>b.id limit 100" ] .
+
+# -------- BFF (Nuxt Nitro server/api) --------
+[] a gen:Emit ;
+   gen:slug "bff-route" ;
+   gen:templateFile "bff/endpoint.ts.tmpl" ;
+   gen:to "server/api/{{ route }}.get.ts" ;
+   gen:var [ gen:key "route" ; gen:value "signals/match" ] ;
+   gen:var [ gen:key "edgeFn" ; gen:value "match_signals" ] .
+
+# -------- Composable (Nuxt) --------
+[] a gen:Emit ;
+   gen:slug "composable" ;
+   gen:templateFile "nuxt/composable.mjs.tmpl" ;
+   gen:to "composables/use{{ Name }}.mjs" ;
+   gen:var [ gen:key "name" ; gen:value "signals" ] ;
+   gen:var [ gen:key "Name" ; gen:value "Signals" ] ;
+   gen:var [ gen:key "endpoint" ; gen:value "/api/signals/match" ] .
+
+# -------- UI (Nuxt page) --------
+[] a gen:Emit ;
+   gen:slug "ui-page" ;
+   gen:templateFile "nuxt/page.vue.tmpl" ;
+   gen:to "pages/{{ name }}.vue" ;
+   gen:var [ gen:key "name" ; gen:value "signals" ] ;
+   gen:var [ gen:key "title" ; gen:value "Signals Constellation" ] .

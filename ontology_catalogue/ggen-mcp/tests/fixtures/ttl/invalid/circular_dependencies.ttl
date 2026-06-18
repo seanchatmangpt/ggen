@@ -1,0 +1,33 @@
+# Invalid TTL - Circular Dependencies
+# Tests cyclic hierarchy detection
+
+@prefix ex: <http://example.org/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# Circular class hierarchy: A -> B -> C -> A
+ex:ClassA a owl:Class ;
+    rdfs:subClassOf ex:ClassB ;
+    rdfs:label "Class A"@en .
+
+ex:ClassB a owl:Class ;
+    rdfs:subClassOf ex:ClassC ;
+    rdfs:label "Class B"@en .
+
+ex:ClassC a owl:Class ;
+    rdfs:subClassOf ex:ClassA ;
+    rdfs:label "Class C"@en .
+
+# Self-referential class
+ex:SelfReferential a owl:Class ;
+    rdfs:subClassOf ex:SelfReferential ;
+    rdfs:label "Self Referential"@en .
+
+# Circular property domain/range
+ex:circularProp1 a owl:ObjectProperty ;
+    rdfs:domain ex:DomainClass ;
+    rdfs:range ex:RangeClass .
+
+ex:circularProp2 a owl:ObjectProperty ;
+    rdfs:domain ex:RangeClass ;
+    rdfs:range ex:DomainClass .

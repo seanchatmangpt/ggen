@@ -1,0 +1,71 @@
+
+@prefix : <http://test.com/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+  
+:Person a owl:Class ;
+    rdfs:label "Person" .
+    
+:name a owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range http://www.w3.org/2001/XMLSchema#string .
+      
+:age a owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range http://www.w3.org/2001/XMLSchema#integer .
+      
+:email a owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range http://www.w3.org/2001/XMLSchema#string .
+      
+:is_active a owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range http://www.w3.org/2001/XMLSchema#boolean .
+      
+:salary a owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range http://www.w3.org/2001/XMLSchema#decimal .
+      
+:birth_date a owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range http://www.w3.org/2001/XMLSchema#dateTime .
+      
+:works_for a owl:ObjectProperty ;
+    rdfs:domain :Person ;
+    rdfs:range :Organization .
+        
+:member_of a owl:ObjectProperty ;
+    rdfs:domain :Person ;
+    rdfs:range :Department .
+        
+:manages a owl:ObjectProperty ;
+    rdfs:domain :Person ;
+    rdfs:range :Department .
+        
+:Organization a owl:Class ;
+    rdfs:label "Organization" .
+    
+:organization_name a owl:DatatypeProperty ;
+    rdfs:domain :Organization ;
+    rdfs:range http://www.w3.org/2001/XMLSchema#string .
+      
+:founded_year a owl:DatatypeProperty ;
+    rdfs:domain :Organization ;
+    rdfs:range http://www.w3.org/2001/XMLSchema#integer .
+      
+:has_department a owl:ObjectProperty ;
+    rdfs:domain :Organization ;
+    rdfs:range :Department .
+        
+:Department a owl:Class ;
+    rdfs:label "Department" .
+    
+:department_name a owl:DatatypeProperty ;
+    rdfs:domain :Department ;
+    rdfs:range http://www.w3.org/2001/XMLSchema#string .
+      
+:budget a owl:DatatypeProperty ;
+    rdfs:domain :Department ;
+    rdfs:range http://www.w3.org/2001/XMLSchema#decimal .
+      

@@ -1,0 +1,13 @@
+PREFIX cicd: <https://cargo-cicd.rs/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?noun_name ?noun_about ?verb_name ?verb_about WHERE {
+    ?noun a cicd:Noun ;
+        rdfs:label ?noun_name ;
+        cicd:about ?noun_about ;
+        cicd:verbs ?verbs .
+    ?verb a cicd:Verb ;
+        rdfs:label ?verb_name ;
+        cicd:about ?verb_about .
+}
+ORDER BY ?noun_name ?verb_name

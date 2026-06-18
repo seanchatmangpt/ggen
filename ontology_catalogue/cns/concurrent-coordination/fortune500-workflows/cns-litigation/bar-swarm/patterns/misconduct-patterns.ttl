@@ -1,0 +1,433 @@
+@prefix misconduct: <http://cns-litigation.org/misconduct#> .
+@prefix bar: <http://cns-litigation.org/bar#> .
+@prefix legal: <http://cns-litigation.org/legal#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+# Professional Misconduct Classification Ontology
+# Comprehensive taxonomy of attorney misconduct patterns
+
+misconduct:MisconductTaxonomy a owl:Ontology ;
+    rdfs:label "Professional Misconduct Classification System" ;
+    rdfs:comment "Comprehensive classification of attorney misconduct patterns for bar complaint processing" ;
+    owl:versionInfo "2.0" ;
+    owl:created "2025-07-29T22:39:00Z" .
+
+# Top-Level Misconduct Categories
+misconduct:ProfessionalMisconduct a owl:Class ;
+    rdfs:label "Professional Misconduct" ;
+    rdfs:comment "Root class for all forms of attorney professional misconduct" ;
+    owl:disjointUnionOf (
+        misconduct:EthicsViolation
+        misconduct:Malpractice
+        misconduct:TrustAccountViolation
+        misconduct:ConflictOfInterest
+        misconduct:CompetenceFailure
+        misconduct:CommunicationFailure
+        misconduct:FeesDispute
+        misconduct:CriminalConduct
+        misconduct:CourtMisconduct
+        misconduct:AdvertisingViolation
+    ) .
+
+# Ethics Violations (Model Rule Categories)
+misconduct:EthicsViolation a owl:Class ;
+    rdfs:subClassOf misconduct:ProfessionalMisconduct ;
+    rdfs:label "Ethics Rule Violation" ;
+    skos:definition "Violations of Model Rules of Professional Conduct" ;
+    owl:equivalentClass [
+        a owl:Restriction ;
+        owl:onProperty misconduct:violatesRule ;
+        owl:someValuesFrom misconduct:ModelRule
+    ] .
+
+misconduct:ClientConfidentialityBreach a owl:Class ;
+    rdfs:subClassOf misconduct:EthicsViolation ;
+    rdfs:label "Client Confidentiality Breach" ;
+    misconduct:modelRuleReference "Rule 1.6" ;
+    misconduct:severityLevel misconduct:High ;
+    misconduct:typicalSanctions (
+        misconduct:Suspension
+        misconduct:Disbarment
+    ) ;
+    skos:definition "Unauthorized disclosure of client confidential information" .
+
+misconduct:ZealousAdvocacyFailure a owl:Class ;
+    rdfs:subClassOf misconduct:EthicsViolation ;
+    rdfs:label "Failure of Zealous Advocacy" ;
+    misconduct:modelRuleReference "Rule 1.1, 1.3" ;
+    misconduct:severityLevel misconduct:Medium ;
+    skos:definition "Failure to provide competent and diligent representation" .
+
+# Malpractice Categories
+misconduct:Malpractice a owl:Class ;
+    rdfs:subClassOf misconduct:ProfessionalMisconduct ;
+    rdfs:label "Legal Malpractice" ;
+    skos:definition "Professional negligence in legal representation" ;
+    misconduct:requiresCivilLiability true ;
+    misconduct:typicalDamages "monetary_compensation" .
+
+misconduct:MissedDeadline a owl:Class ;
+    rdfs:subClassOf misconduct:Malpractice ;
+    rdfs:label "Missed Critical Deadline" ;
+    misconduct:severityLevel misconduct:High ;
+    misconduct:evidenceRequirements (
+        misconduct:DeadlineDocumentation
+        misconduct:ClientHarmProof
+        misconduct:CausationEvidence
+    ) ;
+    skos:definition "Failure to meet court-imposed or statutory deadlines causing client harm" .
+
+misconduct:InadequateResearch a owl:Class ;
+    rdfs:subClassOf misconduct:Malpractice ;
+    rdfs:label "Inadequate Legal Research" ;
+    misconduct:severityLevel misconduct:Medium ;
+    misconduct:evidencePatterns (
+        "missing_controlling_precedent"
+        "failure_to_cite_relevant_statutes"
+        "outdated_legal_authorities"
+    ) ;
+    skos:definition "Failure to conduct adequate legal research resulting in client harm" .
+
+# Trust Account Violations
+misconduct:TrustAccountViolation a owl:Class ;
+    rdfs:subClassOf misconduct:ProfessionalMisconduct ;
+    rdfs:label "Trust Account Violation" ;
+    misconduct:modelRuleReference "Rule 1.15" ;
+    misconduct:severityLevel misconduct:Critical ;
+    misconduct:requiresFinancialAudit true ;
+    skos:definition "Improper handling of client funds or trust account violations" .
+
+misconduct:ClientFundMisappropriation a owl:Class ;
+    rdfs:subClassOf misconduct:TrustAccountViolation ;
+    rdfs:label "Client Fund Misappropriation" ;
+    misconduct:severityLevel misconduct:Critical ;
+    misconduct:typicalSanctions (
+        misconduct:Disbarment
+        misconduct:CriminalReferral
+    ) ;
+    misconduct:restitutionRequired true ;
+    skos:definition "Unauthorized use or theft of client funds" .
+
+misconduct:InadequateRecordKeeping a owl:Class ;
+    rdfs:subClassOf misconduct:TrustAccountViolation ;
+    rdfs:label "Inadequate Trust Account Record Keeping" ;
+    misconduct:severityLevel misconduct:Medium ;
+    misconduct:evidenceRequirements (
+        misconduct:BankRecords
+        misconduct:ClientLedgers
+        misconduct:ReconciliationRecords
+    ) ;
+    skos:definition "Failure to maintain proper trust account records" .
+
+# Conflict of Interest Categories
+misconduct:ConflictOfInterest a owl:Class ;
+    rdfs:subClassOf misconduct:ProfessionalMisconduct ;
+    rdfs:label "Conflict of Interest" ;
+    misconduct:modelRuleReference "Rule 1.7, 1.8, 1.9" ;
+    misconduct:requiresWaiverAnalysis true ;
+    skos:definition "Representation of conflicting interests without proper consent" .
+
+misconduct:ConcurrentClientConflict a owl:Class ;
+    rdfs:subClassOf misconduct:ConflictOfInterest ;
+    rdfs:label "Concurrent Client Conflict" ;
+    misconduct:modelRuleReference "Rule 1.7" ;
+    misconduct:analysisRequired "adverse_interest_test AND material_limitation_test" ;
+    skos:definition "Simultaneous representation of clients with conflicting interests" .
+
+misconduct:FormerClientConflict a owl:Class ;
+    rdfs:subClassOf misconduct:ConflictOfInterest ;
+    rdfs:label "Former Client Conflict" ;
+    misconduct:modelRuleReference "Rule 1.9" ;
+    misconduct:analysisRequired "substantial_relationship_test AND adverse_interest_test" ;
+    skos:definition "Representation adverse to former client in substantially related matter" .
+
+# Competence and Diligence Failures
+misconduct:CompetenceFailure a owl:Class ;
+    rdfs:subClassOf misconduct:ProfessionalMisconduct ;
+    rdfs:label "Competence Failure" ;
+    misconduct:modelRuleReference "Rule 1.1" ;
+    misconduct:evidencePatterns (
+        "lack_of_legal_knowledge"
+        "inadequate_preparation"
+        "failure_to_acquire_necessary_skills"
+    ) ;
+    skos:definition "Failure to provide competent representation" .
+
+misconduct:LackOfDiligence a owl:Class ;
+    rdfs:subClassOf misconduct:CompetenceFailure ;
+    rdfs:label "Lack of Diligence" ;
+    misconduct:modelRuleReference "Rule 1.3" ;
+    misconduct:evidencePatterns (
+        "procrastination"
+        "neglect_of_client_matter"
+        "failure_to_pursue_client_objectives"
+    ) ;
+    skos:definition "Failure to act with reasonable diligence and promptness" .
+
+# Communication Failures
+misconduct:CommunicationFailure a owl:Class ;
+    rdfs:subClassOf misconduct:ProfessionalMisconduct ;
+    rdfs:label "Communication Failure" ;
+    misconduct:modelRuleReference "Rule 1.4" ;
+    misconduct:severityLevel misconduct:Medium ;
+    skos:definition "Failure to communicate adequately with clients" .
+
+misconduct:FailureToInform a owl:Class ;
+    rdfs:subClassOf misconduct:CommunicationFailure ;
+    rdfs:label "Failure to Inform Client" ;
+    misconduct:evidenceRequirements (
+        misconduct:CommunicationRecords
+        misconduct:ClientTestimony
+        misconduct:TimelineDocumentation
+    ) ;
+    skos:definition "Failure to keep client reasonably informed about representation" .
+
+# Fee Disputes and Violations
+misconduct:FeesDispute a owl:Class ;
+    rdfs:subClassOf misconduct:ProfessionalMisconduct ;
+    rdfs:label "Fee-Related Violation" ;
+    misconduct:modelRuleReference "Rule 1.5" ;
+    misconduct:requiresFeeAnalysis true ;
+    skos:definition "Violations related to attorney fees and billing practices" .
+
+misconduct:UnreasonableFees a owl:Class ;
+    rdfs:subClassOf misconduct:FeesDispute ;
+    rdfs:label "Unreasonable Fees" ;
+    misconduct:analysisFactors (
+        "time_and_labor_required"
+        "novelty_and_difficulty"
+        "skill_requisite"
+        "customary_fee"
+        "amount_involved"
+        "results_obtained"
+        "time_limitations"
+        "attorney_experience"
+    ) ;
+    skos:definition "Charging unreasonable or excessive fees" .
+
+# Criminal Conduct
+misconduct:CriminalConduct a owl:Class ;
+    rdfs:subClassOf misconduct:ProfessionalMisconduct ;
+    rdfs:label "Criminal Conduct" ;
+    misconduct:severityLevel misconduct:Critical ;
+    misconduct:requiresCriminalConviction false ;
+    misconduct:typicalSanctions (
+        misconduct:Suspension
+        misconduct:Disbarment
+    ) ;
+    skos:definition "Criminal conduct reflecting adversely on fitness to practice law" .
+
+# Court-Related Misconduct
+misconduct:CourtMisconduct a owl:Class ;
+    rdfs:subClassOf misconduct:ProfessionalMisconduct ;
+    rdfs:label "Court-Related Misconduct" ;
+    misconduct:modelRuleReference "Rule 3.1, 3.3, 3.4" ;
+    misconduct:severityLevel misconduct:High ;
+    skos:definition "Misconduct in proceedings before tribunals" .
+
+misconduct:FrivolousProceedings a owl:Class ;
+    rdfs:subClassOf misconduct:CourtMisconduct ;
+    rdfs:label "Frivolous Legal Proceedings" ;
+    misconduct:modelRuleReference "Rule 3.1" ;
+    misconduct:evidenceRequirements (
+        misconduct:LegalBasisAnalysis
+        misconduct:FactualBasisAnalysis
+        misconduct:GoodFaithTest
+    ) ;
+    skos:definition "Bringing or defending frivolous legal proceedings" .
+
+misconduct:CandorToTribunal a owl:Class ;
+    rdfs:subClassOf misconduct:CourtMisconduct ;
+    rdfs:label "Lack of Candor to Tribunal" ;
+    misconduct:modelRuleReference "Rule 3.3" ;
+    misconduct:severityLevel misconduct:High ;
+    misconduct:evidencePatterns (
+        "false_statements_of_fact"
+        "false_statements_of_law"
+        "failure_to_correct_false_statements"
+        "failure_to_disclose_controlling_authority"
+    ) ;
+    skos:definition "Making false statements or failing to correct false statements to tribunal" .
+
+# Evidence Pattern Definitions
+misconduct:EvidencePattern a owl:Class ;
+    rdfs:label "Evidence Pattern" ;
+    rdfs:comment "Pattern of evidence typically associated with misconduct types" .
+
+misconduct:DocumentationPattern a owl:Class ;
+    rdfs:subClassOf misconduct:EvidencePattern ;
+    rdfs:label "Documentation Evidence Pattern" ;
+    misconduct:evidenceTypes (
+        "correspondence"
+        "court_filings"
+        "billing_records"
+        "time_records"
+        "client_files"
+    ) .
+
+misconduct:CommunicationPattern a owl:Class ;
+    rdfs:subClassOf misconduct:EvidencePattern ;
+    rdfs:label "Communication Evidence Pattern" ;
+    misconduct:evidenceTypes (
+        "email_records"
+        "phone_logs"
+        "meeting_notes"
+        "client_communications"
+        "opposing_counsel_communications"
+    ) .
+
+misconduct:FinancialPattern a owl:Class ;
+    rdfs:subClassOf misconduct:EvidencePattern ;
+    rdfs:label "Financial Evidence Pattern" ;
+    misconduct:evidenceTypes (
+        "trust_account_records"
+        "bank_statements"
+        "client_payment_records"
+        "fee_agreements"
+        "expense_records"
+    ) .
+
+# Severity Classifications
+misconduct:SeverityLevel a owl:Class ;
+    rdfs:label "Misconduct Severity Level" .
+
+misconduct:Low a misconduct:SeverityLevel ;
+    rdfs:label "Low Severity" ;
+    misconduct:typicalSanctions (misconduct:PrivateReprimand misconduct:PublicReprimand) .
+
+misconduct:Medium a misconduct:SeverityLevel ;
+    rdfs:label "Medium Severity" ;
+    misconduct:typicalSanctions (misconduct:PublicReprimand misconduct:Probation) .
+
+misconduct:High a misconduct:SeverityLevel ;
+    rdfs:label "High Severity" ;
+    misconduct:typicalSanctions (misconduct:Suspension misconduct:Probation) .
+
+misconduct:Critical a misconduct:SeverityLevel ;
+    rdfs:label "Critical Severity" ;
+    misconduct:typicalSanctions (misconduct:Suspension misconduct:Disbarment) .
+
+# Sanction Types
+misconduct:Sanction a owl:Class ;
+    rdfs:label "Bar Disciplinary Sanction" .
+
+misconduct:PrivateReprimand a misconduct:Sanction ;
+    rdfs:label "Private Reprimand" ;
+    misconduct:publicDisclosure false .
+
+misconduct:PublicReprimand a misconduct:Sanction ;
+    rdfs:label "Public Reprimand" ;
+    misconduct:publicDisclosure true .
+
+misconduct:Probation a misconduct:Sanction ;
+    rdfs:label "Probation" ;
+    misconduct:requiresSupervision true .
+
+misconduct:Suspension a misconduct:Sanction ;
+    rdfs:label "License Suspension" ;
+    misconduct:practiceProhibited true ;
+    misconduct:requiresReinstatement true .
+
+misconduct:Disbarment a misconduct:Sanction ;
+    rdfs:label "Disbarment" ;
+    misconduct:practiceProhibited true ;
+    misconduct:permanent true .
+
+misconduct:CriminalReferral a misconduct:Sanction ;
+    rdfs:label "Criminal Referral" ;
+    misconduct:requiresProsecutorReview true .
+
+# Properties for Misconduct Analysis
+misconduct:violatesRule a owl:ObjectProperty ;
+    rdfs:domain misconduct:ProfessionalMisconduct ;
+    rdfs:range misconduct:ModelRule .
+
+misconduct:severityLevel a owl:ObjectProperty ;
+    rdfs:domain misconduct:ProfessionalMisconduct ;
+    rdfs:range misconduct:SeverityLevel .
+
+misconduct:evidenceRequirements a owl:DataProperty ;
+    rdfs:domain misconduct:ProfessionalMisconduct ;
+    rdfs:range xsd:string .
+
+misconduct:evidencePatterns a owl:DataProperty ;
+    rdfs:domain misconduct:ProfessionalMisconduct ;
+    rdfs:range xsd:string .
+
+misconduct:typicalSanctions a owl:ObjectProperty ;
+    rdfs:domain misconduct:ProfessionalMisconduct ;
+    rdfs:range misconduct:Sanction .
+
+misconduct:modelRuleReference a owl:DataProperty ;
+    rdfs:domain misconduct:ProfessionalMisconduct ;
+    rdfs:range xsd:string .
+
+misconduct:requiresFinancialAudit a owl:DatatypeProperty ;
+    rdfs:domain misconduct:ProfessionalMisconduct ;
+    rdfs:range xsd:boolean .
+
+misconduct:restitutionRequired a owl:DatatypeProperty ;
+    rdfs:domain misconduct:ProfessionalMisconduct ;
+    rdfs:range xsd:boolean .
+
+# Advanced Pattern Recognition Rules
+misconduct:PatternRecognitionRule a owl:Class ;
+    rdfs:label "Misconduct Pattern Recognition Rule" ;
+    rdfs:comment "Rules for automated misconduct pattern recognition" .
+
+misconduct:TrustAccountRule a misconduct:PatternRecognitionRule ;
+    rdfs:label "Trust Account Violation Detection Rule" ;
+    misconduct:ruleLogic """
+        IF (
+            bank_record_discrepancies > threshold AND
+            client_ledger_inconsistencies > threshold AND
+            reconciliation_failures > frequency_limit
+        ) THEN classify_as(TrustAccountViolation)
+    """ .
+
+misconduct:ConflictDetectionRule a misconduct:PatternRecognitionRule ;
+    rdfs:label "Conflict of Interest Detection Rule" ;
+    misconduct:ruleLogic """
+        IF (
+            client_adverse_interests(client_a, client_b) AND
+            same_attorney_representation(client_a, client_b, time_overlap) AND
+            no_valid_waiver_present
+        ) THEN classify_as(ConflictOfInterest)
+    """ .
+
+misconduct:MalpracticeIndicatorRule a misconduct:PatternRecognitionRule ;
+    rdfs:label "Malpractice Indicator Detection Rule" ;
+    misconduct:ruleLogic """
+        IF (
+            missed_critical_deadline OR
+            failed_to_file_required_documents OR
+            inadequate_legal_research_evident OR
+            client_harm_documented
+        ) THEN investigate_for(Malpractice)
+    """ .
+
+# Statistical Analysis Framework
+misconduct:StatisticalAnalysis a owl:Class ;
+    rdfs:label "Misconduct Statistical Analysis" ;
+    misconduct:prevalenceData [
+        misconduct:communicationFailures "23%" ;
+        misconduct:competenceIssues "18%" ;
+        misconduct:trustAccountViolations "15%" ;
+        misconduct:conflictOfInterest "12%" ;
+        misconduct:feesDisputes "11%" ;
+        misconduct:criminalConduct "8%" ;
+        misconduct:courtMisconduct "7%" ;
+        misconduct:otherViolations "6%"
+    ] ;
+    misconduct:successfulProsecutionRates [
+        misconduct:trustAccountViolations "87%" ;
+        misconduct:criminalConduct "82%" ;
+        misconduct:courtMisconduct "74%" ;
+        misconduct:conflictOfInterest "68%" ;
+        misconduct:competenceIssues "61%" ;
+        misconduct:communicationFailures "45%"
+    ] .

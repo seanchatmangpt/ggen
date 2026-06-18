@@ -1,0 +1,288 @@
+@prefix vw: <http://bytepqc.org/ontology/verifiable-work#> .
+@prefix v5fab: <http://bytepqc.org/ontology/v5-fabrication#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Verifiable Work Ontology
+# Cryptographic Proof Systems for Mathematical Work Verification
+# Author: BytePQC V5 Cryptographic Team
+# Version: 5.0.0-alpha
+
+vw: a owl:Ontology ;
+    dcterms:title "Verifiable Work Ontology" ;
+    dcterms:description "Ontology defining cryptographic proof systems that make work verification mathematically certain" ;
+    v5fab:integratesWithOntology v5fab: ;
+    dcterms:version "5.0.0-alpha" .
+
+#############################################
+# VERIFIABLE WORK CORE CONCEPTS
+#############################################
+
+vw:VerifiableWork a owl:Class ;
+    rdfs:subClassOf v5fab:FabricationProcess ;
+    rdfs:label "Verifiable Work" ;
+    rdfs:comment "Work that can be cryptographically verified with mathematical certainty" .
+
+vw:CryptographicProof a owl:Class ;
+    rdfs:subClassOf v5fab:FailurePreventionMechanism ;
+    rdfs:label "Cryptographic Proof" ;
+    rdfs:comment "Mathematical proof that work was performed correctly" .
+
+vw:ZeroKnowledgeProof a owl:Class ;
+    rdfs:subClassOf vw:CryptographicProof ;
+    rdfs:label "Zero Knowledge Proof" ;
+    rdfs:comment "Proof that reveals nothing except correctness of work" .
+
+vw:ProofOfWork a owl:Class ;
+    rdfs:subClassOf vw:CryptographicProof ;
+    rdfs:label "Proof of Work" ;
+    rdfs:comment "Cryptographic proof that computational work was performed" .
+
+vw:ProofOfCorrectness a owl:Class ;
+    rdfs:subClassOf vw:CryptographicProof ;
+    rdfs:label "Proof of Correctness" ;
+    rdfs:comment "Mathematical proof that work result is correct" .
+
+#############################################
+# PROOF VERIFICATION
+#############################################
+
+vw:ProofVerifier a owl:Class ;
+    rdfs:label "Proof Verifier" ;
+    rdfs:comment "System that verifies cryptographic proofs" .
+
+vw:VerificationResult a owl:Class ;
+    rdfs:label "Verification Result" ;
+    rdfs:comment "Result of proof verification process" .
+
+vw:MathematicalCertainty a owl:Class ;
+    rdfs:subClassOf v5fab:ImpossibilityConstraint ;
+    rdfs:label "Mathematical Certainty" ;
+    rdfs:comment "Mathematical certainty in proof verification" .
+
+vw:CryptographicSoundness a owl:Class ;
+    rdfs:subClassOf vw:MathematicalCertainty ;
+    rdfs:label "Cryptographic Soundness" ;
+    rdfs:comment "Cryptographic soundness guarantee - false proofs are impossible" .
+
+#############################################
+# WORK VERIFICATION PROPERTIES
+#############################################
+
+vw:hasProof a owl:ObjectProperty ;
+    rdfs:label "has proof" ;
+    rdfs:comment "Links verifiable work to its cryptographic proof" ;
+    rdfs:domain vw:VerifiableWork ;
+    rdfs:range vw:CryptographicProof .
+
+vw:verifiedBy a owl:ObjectProperty ;
+    rdfs:label "verified by" ;
+    rdfs:comment "Links proofs to their verification systems" ;
+    rdfs:domain vw:CryptographicProof ;
+    rdfs:range vw:ProofVerifier .
+
+vw:hasVerificationResult a owl:ObjectProperty ;
+    rdfs:label "has verification result" ;
+    rdfs:comment "Links verification to its result" ;
+    rdfs:domain vw:ProofVerifier ;
+    rdfs:range vw:VerificationResult .
+
+vw:guarantees a owl:ObjectProperty ;
+    rdfs:label "guarantees" ;
+    rdfs:comment "Links proofs to mathematical certainty guarantees" ;
+    rdfs:domain vw:CryptographicProof ;
+    rdfs:range vw:MathematicalCertainty .
+
+#############################################
+# PROOF SYSTEM PARAMETERS
+#############################################
+
+vw:proofSystem a owl:DatatypeProperty ;
+    rdfs:label "proof system" ;
+    rdfs:comment "Name of cryptographic proof system used" ;
+    rdfs:domain vw:CryptographicProof ;
+    rdfs:range xsd:string .
+
+vw:securityParameter a owl:DatatypeProperty ;
+    rdfs:label "security parameter" ;
+    rdfs:comment "Security parameter (e.g., 256 for 256-bit security)" ;
+    rdfs:domain vw:CryptographicProof ;
+    rdfs:range xsd:positiveInteger .
+
+vw:soundnessError a owl:DatatypeProperty ;
+    rdfs:label "soundness error" ;
+    rdfs:comment "Probability of accepting false proof (negligible)" ;
+    rdfs:domain vw:CryptographicProof ;
+    rdfs:range xsd:decimal .
+
+vw:completenessError a owl:DatatypeProperty ;
+    rdfs:label "completeness error" ;
+    rdfs:comment "Probability of rejecting valid proof (should be 0)" ;
+    rdfs:domain vw:CryptographicProof ;
+    rdfs:range xsd:decimal ;
+    owl:hasValue "0.0"^^xsd:decimal .
+
+vw:zeroKnowledgeLevel a owl:DatatypeProperty ;
+    rdfs:label "zero knowledge level" ;
+    rdfs:comment "Level of zero knowledge guarantee" ;
+    rdfs:domain vw:ZeroKnowledgeProof ;
+    rdfs:range xsd:string .
+
+#############################################
+# PROOF GENERATION AND VERIFICATION
+#############################################
+
+vw:proofGeneration a owl:DatatypeProperty ;
+    rdfs:label "proof generation" ;
+    rdfs:comment "Algorithm for generating cryptographic proof" ;
+    rdfs:domain vw:CryptographicProof ;
+    rdfs:range xsd:string .
+
+vw:proofVerification a owl:DatatypeProperty ;
+    rdfs:label "proof verification" ;
+    rdfs:comment "Algorithm for verifying cryptographic proof" ;
+    rdfs:domain vw:CryptographicProof ;
+    rdfs:range xsd:string .
+
+vw:verificationComplexity a owl:DatatypeProperty ;
+    rdfs:label "verification complexity" ;
+    rdfs:comment "Computational complexity of proof verification" ;
+    rdfs:domain vw:CryptographicProof ;
+    rdfs:range xsd:string .
+
+vw:proofSize a owl:DatatypeProperty ;
+    rdfs:label "proof size" ;
+    rdfs:comment "Size of cryptographic proof in bits" ;
+    rdfs:domain vw:CryptographicProof ;
+    rdfs:range xsd:positiveInteger .
+
+#############################################
+# VERIFICATION AXIOMS
+#############################################
+
+# Axiom: Every verifiable work must have cryptographic proof
+vw:VerifiableWork rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty vw:hasProof ;
+    owl:someValuesFrom vw:CryptographicProof
+] .
+
+# Axiom: Cryptographic proofs must have soundness error < 2^(-128)
+vw:CryptographicProof rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty vw:soundnessError ;
+    owl:someValuesFrom [
+        a rdfs:Datatype ;
+        owl:onDatatype xsd:decimal ;
+        owl:withRestrictions ([xsd:maxExclusive "7.888609052210118e-39"^^xsd:decimal])
+    ]
+] .
+
+# Axiom: Completeness error must be zero
+vw:CryptographicProof rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty vw:completenessError ;
+    owl:hasValue "0.0"^^xsd:decimal
+] .
+
+# Axiom: Security parameter must be at least 256 bits
+vw:CryptographicProof rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty vw:securityParameter ;
+    owl:someValuesFrom [
+        a rdfs:Datatype ;
+        owl:onDatatype xsd:positiveInteger ;
+        owl:withRestrictions ([xsd:minInclusive 256])
+    ]
+] .
+
+#############################################
+# SPECIFIC PROOF SYSTEM INSTANCES
+#############################################
+
+vw:KyberCorrectnessProof a vw:ProofOfCorrectness ;
+    rdfs:label "Kyber Correctness Proof" ;
+    rdfs:comment "Zero-knowledge proof of Kyber implementation correctness" ;
+    vw:proofSystem "PLONK" ;
+    vw:securityParameter 256 ;
+    vw:soundnessError "3.944304526105059e-39"^^xsd:decimal ;
+    vw:completenessError "0.0"^^xsd:decimal ;
+    vw:verificationComplexity "O(log n)" ;
+    vw:proofGeneration "PLONK_PROVE(kyber_circuit, witness)" ;
+    vw:proofVerification "PLONK_VERIFY(kyber_circuit, proof, public_input)" .
+
+vw:MemorySafetyProof a vw:ZeroKnowledgeProof ;
+    rdfs:label "Memory Safety Proof" ;
+    rdfs:comment "Zero-knowledge proof of memory safety" ;
+    vw:proofSystem "STARK" ;
+    vw:securityParameter 256 ;
+    vw:soundnessError "3.944304526105059e-39"^^xsd:decimal ;
+    vw:completenessError "0.0"^^xsd:decimal ;
+    vw:zeroKnowledgeLevel "Perfect" ;
+    vw:verificationComplexity "O(polylog n)" ;
+    vw:proofGeneration "STARK_PROVE(memory_trace, safety_constraints)" ;
+    vw:proofVerification "STARK_VERIFY(proof, public_parameters)" .
+
+vw:TimingConstancyProof a vw:ProofOfCorrectness ;
+    rdfs:label "Timing Constancy Proof" ;
+    rdfs:comment "Proof that execution time is constant regardless of secret inputs" ;
+    vw:proofSystem "Bulletproofs" ;
+    vw:securityParameter 256 ;
+    vw:soundnessError "3.944304526105059e-39"^^xsd:decimal ;
+    vw:completenessError "0.0"^^xsd:decimal ;
+    vw:verificationComplexity "O(log n)" ;
+    vw:proofGeneration "BULLETPROOF_PROVE(timing_circuit, constant_time_witness)" ;
+    vw:proofVerification "BULLETPROOF_VERIFY(proof, range_constraints)" .
+
+#############################################
+# MATHEMATICAL CERTAINTY INSTANCES
+#############################################
+
+vw:CryptographicSoundnessGuarantee a vw:CryptographicSoundness ;
+    rdfs:label "Cryptographic Soundness Guarantee" ;
+    rdfs:comment "Mathematical guarantee that false proofs are computationally impossible" ;
+    v5fab:hasMathematicalProof "Soundness follows from discrete logarithm assumption with 2^256 security" ;
+    v5fab:impossibilityLevel "1.0"^^xsd:decimal ;
+    v5fab:constraintSatisfactionFunction "soundness_error < 2^(-256) → false_proof_acceptance = impossible" .
+
+vw:ZeroKnowledgeGuarantee a vw:MathematicalCertainty ;
+    rdfs:label "Zero Knowledge Guarantee" ;
+    rdfs:comment "Mathematical guarantee that proofs reveal no information beyond validity" ;
+    v5fab:hasMathematicalProof "Zero-knowledge property proven by simulator indistinguishability" ;
+    v5fab:impossibilityLevel "1.0"^^xsd:decimal ;
+    v5fab:constraintSatisfactionFunction "∀ verifier: simulator_output ≡ real_proof → information_leakage = 0" .
+
+vw:CompletenessGuarantee a vw:MathematicalCertainty ;
+    rdfs:label "Completeness Guarantee" ;
+    rdfs:comment "Mathematical guarantee that valid proofs are always accepted" ;
+    v5fab:hasMathematicalProof "Completeness follows from proof system correctness" ;
+    v5fab:impossibilityLevel "1.0"^^xsd:decimal ;
+    v5fab:constraintSatisfactionFunction "valid_proof ∧ honest_verifier → acceptance = certain" .
+
+#############################################
+# PROOF COMPOSITION
+#############################################
+
+vw:CompositeProof a owl:Class ;
+    rdfs:subClassOf vw:CryptographicProof ;
+    rdfs:label "Composite Proof" ;
+    rdfs:comment "Proof composed of multiple sub-proofs" .
+
+vw:composedOf a owl:ObjectProperty ;
+    rdfs:label "composed of" ;
+    rdfs:comment "Links composite proofs to their components" ;
+    rdfs:domain vw:CompositeProof ;
+    rdfs:range vw:CryptographicProof .
+
+# Axiom: Composite proof soundness is sum of component soundness errors
+vw:CompositeProof rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty vw:soundnessError ;
+    owl:someValuesFrom [
+        a rdfs:Datatype ;
+        owl:onDatatype xsd:decimal ;
+        owl:withRestrictions ([rdfs:comment "sum of component soundness errors"])
+    ]
+] .

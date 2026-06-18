@@ -1,0 +1,19 @@
+PREFIX lsp: <http://ggen.io/ontology/lsp#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# One row per server with all safe pack module names comma-concatenated.
+# pack_id_safe = pack_id stripped of version, hyphens replaced with underscores.
+# Used by packs_mod.rs.tera to generate src/packs/mod.rs per server.
+
+SELECT ?server_name (GROUP_CONCAT(?pack_id_safe; SEPARATOR=",") AS ?pack_mods)
+WHERE {
+    ?server a lsp:Server ;
+            lsp:serverName ?server_name ;
+            lsp:hasRulePack ?pack .
+
+    ?pack lsp:packId ?pack_id .
+
+    BIND(REPLACE(REPLACE(STR(?pack_id), "@.*", ""), "-", "_") AS ?pack_id_safe)
+}
+GROUP BY ?server_name
+ORDER BY ?server_name

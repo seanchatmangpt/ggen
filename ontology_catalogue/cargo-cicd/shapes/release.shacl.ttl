@@ -1,0 +1,106 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix dcat:    <http://www.w3.org/ns/dcat#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix cc:      <https://cargo-cicd.rs/ontology/> .
+@prefix ccsh:    <https://cargo-cicd.rs/shapes/> .
+
+# ── Shape ontology header ─────────────────────────────────────────────────────
+ccsh:ReleaseShapes
+    a owl:Ontology ;
+    dcterms:title "cargo-cicd release condition SHACL shapes"@en ;
+    dcterms:description
+        "Validates cc:ReleaseCondition nodes: every condition must carry a boolean conditionMet flag, supply a blockerReason when unmet, and a PUBLISH_READY release dataset must reference all 16 conditions."@en ;
+    dcterms:created "2026-06-02"^^xsd:date ;
+    owl:imports <https://cargo-cicd.rs/ontology/release> ;
+    owl:versionInfo "26.6.2" .
+
+# ── ReleaseConditionShape ─────────────────────────────────────────────────────
+#
+# Target: every instance of cc:ReleaseCondition.
+# The release ontology declares 16 such individuals (RC01–RC16).
+#
+ccsh:ReleaseConditionShape
+    a sh:NodeShape ;
+    sh:name "ReleaseConditionShape" ;
+    sh:description
+        "Every cc:ReleaseCondition must carry a boolean cc:conditionMet flag. When the flag is false, cc:blockerReason must also be present."@en ;
+
+    sh:targetClass cc:ReleaseCondition ;
+
+    # ── cc:conditionMet — required, boolean ──────────────────────────────────
+    sh:property [
+        sh:path cc:conditionMet ;
+        sh:name "conditionMet" ;
+        sh:description "Whether this release condition is currently satisfied."@en ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:message "cc:conditionMet is required and must be an xsd:boolean."@en ;
+    ] .
+
+# ── ReleaseConditionBlockerShape ─────────────────────────────────────────────
+#
+# When cc:conditionMet = false, cc:blockerReason must be present.
+# Implemented as a SPARQL constraint so the false-value test is explicit.
+#
+ccsh:ReleaseConditionBlockerShape
+    a sh:NodeShape ;
+    sh:name "ReleaseConditionBlockerShape" ;
+    sh:description
+        "A cc:ReleaseCondition whose conditionMet is false must supply cc:blockerReason explaining why it is unmet."@en ;
+
+    sh:targetClass cc:ReleaseCondition ;
+
+    sh:sparql [
+        sh:message "When cc:conditionMet is false, cc:blockerReason must be present."@en ;
+        sh:select """
+            PREFIX cc:  <https://cargo-cicd.rs/ontology/>
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            SELECT $this
+            WHERE {
+                $this cc:conditionMet false .
+                FILTER NOT EXISTS { $this cc:blockerReason ?reason . }
+            }
+        """ ;
+    ] .
+
+# ── PublishReadyDatasetShape ──────────────────────────────────────────────────
+#
+# A PUBLISH_READY release dataset (dcat:Dataset that also is a prov:Entity and
+# carries all 16 conditions via dcterms:hasPart) must reference all 16 condition
+# individuals. Checked via a SPARQL constraint that counts distinct hasPart links
+# and rejects datasets with fewer than 16.
+#
+ccsh:PublishReadyDatasetShape
+    a sh:NodeShape ;
+    sh:name "PublishReadyDatasetShape" ;
+    sh:description
+        "A release dataset (dcat:Dataset) must reference all 16 cc:ReleaseCondition instances via dcterms:hasPart before it may be considered PUBLISH_READY."@en ;
+
+    sh:targetClass dcat:Dataset ;
+
+    sh:sparql [
+        sh:message "A release dcat:Dataset must reference all 16 cc:ReleaseCondition instances via dcterms:hasPart."@en ;
+        sh:select """
+            PREFIX cc:      <https://cargo-cicd.rs/ontology/>
+            PREFIX dcterms: <http://purl.org/dc/terms/>
+            SELECT $this
+            WHERE {
+                {
+                    SELECT $this (COUNT(DISTINCT ?rc) AS ?count)
+                    WHERE {
+                        $this dcterms:hasPart ?rc .
+                        ?rc a cc:ReleaseCondition .
+                    }
+                    GROUP BY $this
+                }
+                FILTER (?count < 16)
+            }
+        """ ;
+    ] .

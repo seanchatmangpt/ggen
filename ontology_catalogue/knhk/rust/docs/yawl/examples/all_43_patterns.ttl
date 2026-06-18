@@ -1,0 +1,430 @@
+@prefix yawl: <http://bitflow.ai/ontology/yawl/v2#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix vdaalst: <http://bitflow.ai/ontology/vdaalst/patterns#> .
+
+# ============================================================================
+# VAN DER AALST 43 PATTERNS - ALL PATTERNS IN TURTLE FORMAT
+# ============================================================================
+# This file demonstrates how to represent all 43 Van der Aalst workflow
+# patterns using Turtle RDF format with YAWL and Van der Aalst ontologies.
+# ============================================================================
+
+# ============================================================================
+# BASIC CONTROL FLOW PATTERNS (1-5)
+# ============================================================================
+
+<http://example.org/workflow/pattern-1-sequence> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 1: Sequence" ;
+    rdfs:comment "Execute multiple activities in sequential order" ;
+    yawl:appliesPattern vdaalst:Pattern1Sequence ;
+    yawl:hasTask <http://example.org/task/seq-task1>, <http://example.org/task/seq-task2>, <http://example.org/task/seq-task3> .
+
+<http://example.org/task/seq-task1> a yawl:Task ;
+    rdfs:label "Task 1" ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:AND ;
+    yawl:hasOutgoingFlow <http://example.org/condition/seq-cond-1-2> .
+
+<http://example.org/task/seq-task2> a yawl:Task ;
+    rdfs:label "Task 2" ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:AND ;
+    yawl:hasIncomingFlow <http://example.org/condition/seq-cond-1-2> ;
+    yawl:hasOutgoingFlow <http://example.org/condition/seq-cond-2-3> .
+
+<http://example.org/task/seq-task3> a yawl:Task ;
+    rdfs:label "Task 3" ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:AND ;
+    yawl:hasIncomingFlow <http://example.org/condition/seq-cond-2-3> .
+
+<http://example.org/condition/seq-cond-1-2> a yawl:Condition .
+<http://example.org/condition/seq-cond-2-3> a yawl:Condition .
+
+# ============================================================================
+# PATTERN 2: PARALLEL SPLIT
+# ============================================================================
+
+<http://example.org/workflow/pattern-2-parallel-split> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 2: Parallel Split" ;
+    rdfs:comment "Diverge into parallel branches" ;
+    yawl:appliesPattern vdaalst:Pattern2ParallelSplit ;
+    yawl:hasTask <http://example.org/task/split-start>, <http://example.org/task/split-branch1>, <http://example.org/task/split-branch2>, <http://example.org/task/split-branch3> .
+
+<http://example.org/task/split-start> a yawl:Task ;
+    rdfs:label "Start" ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:AND ;
+    yawl:hasOutgoingFlow <http://example.org/condition/split-1>, <http://example.org/condition/split-2>, <http://example.org/condition/split-3> .
+
+<http://example.org/task/split-branch1> a yawl:Task ;
+    rdfs:label "Branch 1" ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:AND ;
+    yawl:hasIncomingFlow <http://example.org/condition/split-1> .
+
+<http://example.org/task/split-branch2> a yawl:Task ;
+    rdfs:label "Branch 2" ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:AND ;
+    yawl:hasIncomingFlow <http://example.org/condition/split-2> .
+
+<http://example.org/task/split-branch3> a yawl:Task ;
+    rdfs:label "Branch 3" ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:AND ;
+    yawl:hasIncomingFlow <http://example.org/condition/split-3> .
+
+<http://example.org/condition/split-1> a yawl:Condition .
+<http://example.org/condition/split-2> a yawl:Condition .
+<http://example.org/condition/split-3> a yawl:Condition .
+
+# ============================================================================
+# PATTERN 3: SYNCHRONIZATION
+# ============================================================================
+
+<http://example.org/workflow/pattern-3-synchronization> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 3: Synchronization" ;
+    rdfs:comment "Synchronize parallel branches" ;
+    yawl:appliesPattern vdaalst:Pattern3Synchronization ;
+    yawl:hasTask <http://example.org/task/sync-join> .
+
+<http://example.org/task/sync-join> a yawl:Task ;
+    rdfs:label "Synchronization Point" ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:AND ;
+    yawl:hasIncomingFlow <http://example.org/condition/sync-from1>, <http://example.org/condition/sync-from2>, <http://example.org/condition/sync-from3> ;
+    vdaalst:requiresAllIncoming true .
+
+<http://example.org/condition/sync-from1> a yawl:Condition .
+<http://example.org/condition/sync-from2> a yawl:Condition .
+<http://example.org/condition/sync-from3> a yawl:Condition .
+
+# ============================================================================
+# PATTERN 4: EXCLUSIVE CHOICE
+# ============================================================================
+
+<http://example.org/workflow/pattern-4-exclusive-choice> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 4: Exclusive Choice" ;
+    rdfs:comment "Choose one branch based on condition" ;
+    yawl:appliesPattern vdaalst:Pattern4ExclusiveChoice ;
+    yawl:hasTask <http://example.org/task/xor-choice>, <http://example.org/task/xor-option1>, <http://example.org/task/xor-option2> .
+
+<http://example.org/task/xor-choice> a yawl:Task ;
+    rdfs:label "Decision" ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:AND ;
+    yawl:hasOutgoingFlow <http://example.org/condition/xor-yes>, <http://example.org/condition/xor-no> .
+
+<http://example.org/task/xor-option1> a yawl:Task ;
+    rdfs:label "Option 1" ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:AND ;
+    yawl:hasIncomingFlow <http://example.org/condition/xor-yes> .
+
+<http://example.org/task/xor-option2> a yawl:Task ;
+    rdfs:label "Option 2" ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:AND ;
+    yawl:hasIncomingFlow <http://example.org/condition/xor-no> .
+
+<http://example.org/condition/xor-yes> a yawl:Condition ;
+    rdfs:label "Condition True" ;
+    yawl:hasConditionExpression "[amount > 1000]" .
+
+<http://example.org/condition/xor-no> a yawl:Condition ;
+    rdfs:label "Condition False" ;
+    yawl:hasConditionExpression "[amount <= 1000]" .
+
+# ============================================================================
+# PATTERN 5: SIMPLE MERGE
+# ============================================================================
+
+<http://example.org/workflow/pattern-5-simple-merge> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 5: Simple Merge" ;
+    rdfs:comment "Merge exclusive branches" ;
+    yawl:appliesPattern vdaalst:Pattern5SimpleMerge ;
+    yawl:hasTask <http://example.org/task/merge-point> .
+
+<http://example.org/task/merge-point> a yawl:Task ;
+    rdfs:label "Merge Point" ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:XOR ;
+    yawl:hasIncomingFlow <http://example.org/condition/merge-from1>, <http://example.org/condition/merge-from2> ;
+    vdaalst:assumesExclusiveIncoming true .
+
+<http://example.org/condition/merge-from1> a yawl:Condition .
+<http://example.org/condition/merge-from2> a yawl:Condition .
+
+# ============================================================================
+# PATTERN 6: MULTI-CHOICE
+# ============================================================================
+
+<http://example.org/workflow/pattern-6-multi-choice> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 6: Multi-Choice" ;
+    rdfs:comment "Choose multiple branches" ;
+    yawl:appliesPattern vdaalst:Pattern6MultiChoice ;
+    yawl:hasTask <http://example.org/task/multi-choice>, <http://example.org/task/option-a>, <http://example.org/task/option-b>, <http://example.org/task/option-c> .
+
+<http://example.org/task/multi-choice> a yawl:Task ;
+    rdfs:label "Multi-Choice Decision" ;
+    yawl:hasSplitType yawl:OR ;
+    yawl:hasJoinType yawl:AND ;
+    yawl:hasOutgoingFlow <http://example.org/condition/mc-a>, <http://example.org/condition/mc-b>, <http://example.org/condition/mc-c> .
+
+<http://example.org/task/option-a> a yawl:Task ;
+    rdfs:label "Option A" ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:AND ;
+    yawl:hasIncomingFlow <http://example.org/condition/mc-a> .
+
+<http://example.org/task/option-b> a yawl:Task ;
+    rdfs:label "Option B" ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:AND ;
+    yawl:hasIncomingFlow <http://example.org/condition/mc-b> .
+
+<http://example.org/task/option-c> a yawl:Task ;
+    rdfs:label "Option C" ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:AND ;
+    yawl:hasIncomingFlow <http://example.org/condition/mc-c> .
+
+<http://example.org/condition/mc-a> a yawl:Condition .
+<http://example.org/condition/mc-b> a yawl:Condition .
+<http://example.org/condition/mc-c> a yawl:Condition .
+
+# ============================================================================
+# PATTERNS 7-25 (Advanced Patterns - Summary)
+# ============================================================================
+# Patterns 7-25 follow similar structure. Here's a template for remaining patterns:
+
+# Pattern 7: Structured Synchronizing Merge
+<http://example.org/workflow/pattern-7-structured-merge> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 7: Structured Synchronizing Merge" ;
+    yawl:appliesPattern vdaalst:Pattern7StructuredSynchronizingMerge ;
+    vdaalst:requiresComplexSync true .
+
+# Pattern 8: Multi-Merge
+<http://example.org/workflow/pattern-8-multi-merge> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 8: Multi-Merge" ;
+    yawl:appliesPattern vdaalst:Pattern8MultiMerge ;
+    vdaalst:allowsUnsynchronizedMerge true .
+
+# Pattern 9: Discriminator
+<http://example.org/workflow/pattern-9-discriminator> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 9: Discriminator" ;
+    yawl:appliesPattern vdaalst:Pattern9Discriminator ;
+    vdaalst:continuesOnFirst true .
+
+# Pattern 10: Arbitrary Cycles
+<http://example.org/workflow/pattern-10-cycles> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 10: Arbitrary Cycles" ;
+    yawl:appliesPattern vdaalst:Pattern10ArbitraryCycles ;
+    vdaalst:allowsCycles true .
+
+# Pattern 11: Implicit Termination
+<http://example.org/workflow/pattern-11-implicit-termination> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 11: Implicit Termination" ;
+    yawl:appliesPattern vdaalst:Pattern11ImplicitTermination ;
+    vdaalst:implicitTermination true .
+
+# Pattern 12: MI Without Synchronization
+<http://example.org/workflow/pattern-12-mi-no-sync> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 12: MI Without Synchronization" ;
+    yawl:appliesPattern vdaalst:Pattern12MIWithoutSync ;
+    vdaalst:supportsMultipleInstances true ;
+    vdaalst:requiresSynchronization false .
+
+# Pattern 13: MI With Design-Time Knowledge
+<http://example.org/workflow/pattern-13-mi-design-time> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 13: MI With Design-Time Knowledge" ;
+    yawl:appliesPattern vdaalst:Pattern13MIWithDesignTimeKnowledge ;
+    vdaalst:supportsMultipleInstances true ;
+    vdaalst:knownInstanceCount "DESIGN_TIME" .
+
+# Pattern 14: MI With Runtime Knowledge
+<http://example.org/workflow/pattern-14-mi-runtime> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 14: MI With Runtime Knowledge" ;
+    yawl:appliesPattern vdaalst:Pattern14MIWithRuntimeKnowledge ;
+    vdaalst:supportsMultipleInstances true ;
+    vdaalst:knownInstanceCount "INITIALIZATION_TIME" .
+
+# Pattern 15: MI Without Runtime Knowledge
+<http://example.org/workflow/pattern-15-mi-dynamic> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 15: MI Without Runtime Knowledge" ;
+    yawl:appliesPattern vdaalst:Pattern15MIWithoutRuntimeKnowledge ;
+    vdaalst:supportsMultipleInstances true ;
+    vdaalst:knownInstanceCount "RUNTIME" .
+
+# Pattern 16: Deferred Choice
+<http://example.org/workflow/pattern-16-deferred-choice> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 16: Deferred Choice" ;
+    yawl:appliesPattern vdaalst:Pattern16DeferredChoice ;
+    vdaalst:eventDriven true ;
+    vdaalst:supportsExternalEvents true .
+
+# Pattern 17: Interleaved Parallel Routing
+<http://example.org/workflow/pattern-17-interleaved> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 17: Interleaved Parallel Routing" ;
+    yawl:appliesPattern vdaalst:Pattern17InterleavedParallelRouting ;
+    vdaalst:supportsInterleaving true ;
+    vdaalst:nonDeterministic true .
+
+# Pattern 18: Milestone
+<http://example.org/workflow/pattern-18-milestone> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 18: Milestone" ;
+    yawl:appliesPattern vdaalst:Pattern18Milestone ;
+    vdaalst:supportsMilestones true ;
+    vdaalst:allowsStateBasedEnabling true .
+
+# Pattern 19: Cancel Activity
+<http://example.org/workflow/pattern-19-cancel-activity> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 19: Cancel Activity" ;
+    yawl:appliesPattern vdaalst:Pattern19CancelActivity ;
+    vdaalst:supportsCancellation true ;
+    vdaalst:cancellationScope "ACTIVITY" .
+
+# Pattern 20: Cancel Case
+<http://example.org/workflow/pattern-20-cancel-case> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 20: Cancel Case" ;
+    yawl:appliesPattern vdaalst:Pattern20CancelCase ;
+    vdaalst:supportsCancellation true ;
+    vdaalst:cancellationScope "CASE" .
+
+# Pattern 21: Cancel Region
+<http://example.org/workflow/pattern-21-cancel-region> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 21: Cancel Region" ;
+    yawl:appliesPattern vdaalst:Pattern21CancelRegion ;
+    vdaalst:supportsCancellation true ;
+    vdaalst:cancellationScope "REGION" .
+
+# Pattern 22: Cancel MI Activity
+<http://example.org/workflow/pattern-22-cancel-mi> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 22: Cancel MI Activity" ;
+    yawl:appliesPattern vdaalst:Pattern22CancelMIActivity ;
+    vdaalst:supportsCancellation true ;
+    vdaalst:supportsMultipleInstances true ;
+    vdaalst:cancellationScope "MI_ACTIVITY" .
+
+# Pattern 23: Complete MI Activity
+<http://example.org/workflow/pattern-23-complete-mi> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 23: Complete MI Activity" ;
+    yawl:appliesPattern vdaalst:Pattern23CompleteMIActivity ;
+    vdaalst:supportsMultipleInstances true ;
+    vdaalst:allowsEarlyCompletion true .
+
+# Pattern 24: Blocking Discriminator
+<http://example.org/workflow/pattern-24-blocking-discriminator> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 24: Blocking Discriminator" ;
+    yawl:appliesPattern vdaalst:Pattern24BlockingDiscriminator ;
+    vdaalst:blocksBranches true ;
+    vdaalst:continuesOnFirst true .
+
+# Pattern 25: Cancelling Discriminator
+<http://example.org/workflow/pattern-25-cancelling-discriminator> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 25: Cancelling Discriminator" ;
+    yawl:appliesPattern vdaalst:Pattern25CancellingDiscriminator ;
+    vdaalst:supportsCancellation true ;
+    vdaalst:continuesOnFirst true .
+
+# ============================================================================
+# PATTERNS 26-39 (Advanced Control Flow - Summary)
+# ============================================================================
+
+<http://example.org/workflow/pattern-26-structural-multi> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 26: Structural Multi-Choice" ;
+    yawl:appliesPattern vdaalst:Pattern26StructuralMultiChoice .
+
+<http://example.org/workflow/pattern-27-general-sync> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 27: General Synchronizing Merge" ;
+    yawl:appliesPattern vdaalst:Pattern27GeneralSynchronizingMerge .
+
+<http://example.org/workflow/pattern-28-thread-merge> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 28: Thread Merge" ;
+    yawl:appliesPattern vdaalst:Pattern28ThreadMerge .
+
+<http://example.org/workflow/pattern-29-thread-split> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 29: Thread Split" ;
+    yawl:appliesPattern vdaalst:Pattern29ThreadSplit .
+
+<http://example.org/workflow/pattern-30-partial-join> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 30: Partial Join" ;
+    yawl:appliesPattern vdaalst:Pattern30PartialJoin .
+
+<http://example.org/workflow/pattern-31-exception> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 31: Exception Handler" ;
+    yawl:appliesPattern vdaalst:Pattern31ExceptionHandler ;
+    vdaalst:supportsExceptionHandling true .
+
+<http://example.org/workflow/pattern-32-suspend> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 32: Suspend/Resume" ;
+    yawl:appliesPattern vdaalst:Pattern32Suspend ;
+    vdaalst:supportsSuspend true .
+
+<http://example.org/workflow/pattern-33-recursive> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 33: Recursive Subprocess" ;
+    yawl:appliesPattern vdaalst:Pattern33RecursiveSubprocess ;
+    vdaalst:supportsRecursion true .
+
+<http://example.org/workflow/pattern-34-transaction> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 34: Transaction Subprocess" ;
+    yawl:appliesPattern vdaalst:Pattern34TransactionSubprocess ;
+    vdaalst:supportsTransactions true .
+
+<http://example.org/workflow/pattern-35-event-based> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 35: Event-Based Split" ;
+    yawl:appliesPattern vdaalst:Pattern35EventBasedSplit ;
+    vdaalst:eventDriven true .
+
+<http://example.org/workflow/pattern-36-parallel-execute> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 36: Parallel Execute with Split" ;
+    yawl:appliesPattern vdaalst:Pattern36ParallelWithSplit .
+
+<http://example.org/workflow/pattern-37-exclusive-execute> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 37: Exclusive Execute with Split" ;
+    yawl:appliesPattern vdaalst:Pattern37ExclusiveWithSplit .
+
+<http://example.org/workflow/pattern-38-nested> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 38: Nested Activity" ;
+    yawl:appliesPattern vdaalst:Pattern38NestedActivity ;
+    vdaalst:supportsNesting true .
+
+<http://example.org/workflow/pattern-39-data-based> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 39: Data-Based Decision" ;
+    yawl:appliesPattern vdaalst:Pattern39DataBasedDecision ;
+    vdaalst:dataAware true .
+
+# ============================================================================
+# TRIGGER/TERMINATION PATTERNS (40-43)
+# ============================================================================
+
+<http://example.org/workflow/pattern-40-event-trigger> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 40: Event Trigger" ;
+    yawl:appliesPattern vdaalst:Pattern40EventTrigger ;
+    vdaalst:eventDriven true ;
+    vdaalst:externallyTriggered true .
+
+<http://example.org/workflow/pattern-41-interrupting-trigger> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 41: Interrupting Trigger" ;
+    yawl:appliesPattern vdaalst:Pattern41InterruptingTrigger ;
+    vdaalst:eventDriven true ;
+    vdaalst:canInterrupt true .
+
+<http://example.org/workflow/pattern-42-non-interrupting-trigger> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 42: Non-Interrupting Trigger" ;
+    yawl:appliesPattern vdaalst:Pattern42NonInterruptingTrigger ;
+    vdaalst:eventDriven true ;
+    vdaalst:canInterrupt false .
+
+<http://example.org/workflow/pattern-43-timeout> a yawl:WorkflowSpecification ;
+    rdfs:label "Pattern 43: Timeout" ;
+    yawl:appliesPattern vdaalst:Pattern43Timeout ;
+    vdaalst:timeoutBased true ;
+    vdaalst:supportsTimeBasedEvents true ;
+    yawl:hasTimeConstraint <http://example.org/constraint/timeout-5min> .
+
+<http://example.org/constraint/timeout-5min> a yawl:TimeConstraint ;
+    rdfs:label "5 Minute Timeout" ;
+    yawl:hasTimeout "PT5M"^^<http://www.w3.org/2001/XMLSchema#duration> .

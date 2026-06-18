@@ -1,0 +1,14 @@
+# Extract Rust skills for LLM generation
+PREFIX a2a: <http://example.org/a2a#>
+PREFIX ex: <http://example.org/skills#>
+
+SELECT ?skill_name ?system_prompt ?implementation_hint ?language WHERE {
+  ?skill a a2a:Skill ;
+         a2a:skillName ?skill_name ;
+         a2a:hasSystemPrompt ?system_prompt ;
+         a2a:hasImplementationHint ?implementation_hint ;
+         a2a:targetLanguage ?language .
+
+  FILTER(?language = "rust")
+}
+ORDER BY ?skill_name

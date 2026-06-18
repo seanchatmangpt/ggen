@@ -1,0 +1,1173 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix sk: <http://github.com/github/spec-kit#> .
+@prefix jtbd: <http://github.com/github/spec-kit/jtbd#> .
+
+# ============================================================================
+# Jobs To Be Done (JTBD) Ontology
+# ============================================================================
+# Purpose: RDF vocabulary for customer-centric feature development using JTBD
+# Based on: Clayton Christensen's Jobs To Be Done theory
+# Integration: Extends spec-kit for feature specifications with customer context
+# Constitutional Equation: jtbd-spec.md = μ(jtbd-feature.ttl)
+# ============================================================================
+
+# ============================================================================
+# CORE CLASSES - Job Definition
+# ============================================================================
+
+jtbd:Job a owl:Class ;
+    rdfs:label "Job To Be Done"@en ;
+    rdfs:comment "Core job that a customer is trying to accomplish. A job is stable over time and independent of any particular solution."@en ;
+    rdfs:subClassOf owl:Thing .
+
+jtbd:FunctionalJob a owl:Class ;
+    rdfs:label "Functional Job"@en ;
+    rdfs:comment "The core practical task or objective that the customer wants to accomplish. Describes what needs to be done."@en ;
+    rdfs:subClassOf jtbd:Job .
+
+jtbd:EmotionalJob a owl:Class ;
+    rdfs:label "Emotional Job"@en ;
+    rdfs:comment "How the customer wants to feel or be perceived. Describes the desired emotional state or identity."@en ;
+    rdfs:subClassOf jtbd:Job .
+
+jtbd:SocialJob a owl:Class ;
+    rdfs:label "Social Job"@en ;
+    rdfs:comment "How the customer wants to be perceived by others. Describes the desired social standing or image."@en ;
+    rdfs:subClassOf jtbd:Job .
+
+jtbd:JobStatement a owl:Class ;
+    rdfs:label "Job Statement"@en ;
+    rdfs:comment "Structured statement expressing a job: 'When [context], I want to [achieve outcome] so I can [emotional benefit]'"@en ;
+    rdfs:subClassOf owl:Thing .
+
+# ============================================================================
+# OUTCOME & MEASUREMENT CLASSES
+# ============================================================================
+
+jtbd:Outcome a owl:Class ;
+    rdfs:label "Outcome"@en ;
+    rdfs:comment "Measurable result that indicates job completion. Outcomes are stable criteria customers use to judge success."@en ;
+    rdfs:subClassOf owl:Thing .
+
+jtbd:DesiredOutcome a owl:Class ;
+    rdfs:label "Desired Outcome"@en ;
+    rdfs:comment "Specific outcome the customer wants to achieve when completing a job. Typically phrased as 'minimize/maximize [metric]'."@en ;
+    rdfs:subClassOf jtbd:Outcome .
+
+jtbd:SuccessCriteria a owl:Class ;
+    rdfs:label "Success Criteria"@en ;
+    rdfs:comment "Observable measurement that indicates the job has been successfully completed. Must be quantifiable."@en ;
+    rdfs:subClassOf owl:Thing .
+
+jtbd:SuccessMetric a owl:Class ;
+    rdfs:label "Success Metric"@en ;
+    rdfs:comment "Quantitative measurement dimension for job completion (time, accuracy, cost, effort, throughput)."@en ;
+    rdfs:subClassOf owl:Thing .
+
+# ============================================================================
+# MEASUREMENT-SPECIFIC CLASSES
+# ============================================================================
+
+jtbd:JobCompletion a owl:Class ;
+    rdfs:label "Job Completion"@en ;
+    rdfs:comment "Record of a completed job instance with temporal data, success status, and outcome achievements."@en ;
+    rdfs:subClassOf owl:Thing .
+
+jtbd:OutcomeAchievement a owl:Class ;
+    rdfs:label "Outcome Achievement"@en ;
+    rdfs:comment "Measured achievement of a desired outcome with metric values, temporal data, and success indicators."@en ;
+    rdfs:subClassOf owl:Thing .
+
+jtbd:PainpointResolution a owl:Class ;
+    rdfs:label "Painpoint Resolution"@en ;
+    rdfs:comment "Record of painpoint resolution with before/after severity, impact reduction, and solution reference."@en ;
+    rdfs:subClassOf owl:Thing .
+
+jtbd:MetricsDashboard a owl:Class ;
+    rdfs:label "Metrics Dashboard"@en ;
+    rdfs:comment "Aggregated metrics view for job performance, outcome achievement, or painpoint tracking over a time period."@en ;
+    rdfs:subClassOf owl:Thing .
+
+jtbd:OutcomeReport a owl:Class ;
+    rdfs:label "Outcome Report"@en ;
+    rdfs:comment "Periodic report on outcome performance with statistics, trends, and achievement rates."@en ;
+    rdfs:subClassOf owl:Thing .
+
+jtbd:SatisfactionSurvey a owl:Class ;
+    rdfs:label "Satisfaction Survey"@en ;
+    rdfs:comment "Customer satisfaction survey measuring importance and satisfaction scores for jobs and outcomes."@en ;
+    rdfs:subClassOf owl:Thing .
+
+jtbd:FeatureImpactAnalysis a owl:Class ;
+    rdfs:label "Feature Impact Analysis"@en ;
+    rdfs:comment "Analysis of feature impact on jobs, outcomes, and painpoints with before/after comparisons."@en ;
+    rdfs:subClassOf owl:Thing .
+
+# ============================================================================
+# CUSTOMER & CONTEXT CLASSES
+# ============================================================================
+
+jtbd:CustomerSegment a owl:Class ;
+    rdfs:label "Customer Segment"@en ;
+    rdfs:comment "Group of customers who share the same job with similar circumstances and priorities. Segmentation is job-based, not demographic."@en ;
+    rdfs:subClassOf owl:Thing .
+
+jtbd:Persona a owl:Class ;
+    rdfs:label "Customer Persona"@en ;
+    rdfs:comment "Representative archetype of a customer segment who has this job. Based on job circumstances, not demographics."@en ;
+    rdfs:subClassOf owl:Thing .
+
+jtbd:ContextClue a owl:Class ;
+    rdfs:label "Context Clue"@en ;
+    rdfs:comment "Situational indicator or circumstance that signals when a job needs to be done. The 'when' in the job statement."@en ;
+    rdfs:subClassOf owl:Thing .
+
+jtbd:JobCircumstance a owl:Class ;
+    rdfs:label "Job Circumstance"@en ;
+    rdfs:comment "Specific situation or scenario in which the job arises. Circumstances define when and why a job occurs."@en ;
+    rdfs:subClassOf owl:Thing .
+
+# ============================================================================
+# FORCES & FRICTION CLASSES
+# ============================================================================
+
+jtbd:Force a owl:Class ;
+    rdfs:label "Force"@en ;
+    rdfs:comment "Pressure affecting a customer's decision to adopt or continue using a solution for their job."@en ;
+    rdfs:subClassOf owl:Thing .
+
+jtbd:ProgressMaker a owl:Class ;
+    rdfs:label "Progress Maker"@en ;
+    rdfs:comment "Force that pushes the customer toward adopting a new solution. Push (problem with current state) and Pull (attraction to new solution)."@en ;
+    rdfs:subClassOf jtbd:Force .
+
+jtbd:PushForce a owl:Class ;
+    rdfs:label "Push Force"@en ;
+    rdfs:comment "Frustration or problem with the current solution that pushes customers to seek alternatives."@en ;
+    rdfs:subClassOf jtbd:ProgressMaker .
+
+jtbd:PullForce a owl:Class ;
+    rdfs:label "Pull Force"@en ;
+    rdfs:comment "Attraction or benefit of the new solution that pulls customers toward adoption."@en ;
+    rdfs:subClassOf jtbd:ProgressMaker .
+
+jtbd:ProgressBraker a owl:Class ;
+    rdfs:label "Progress Braker"@en ;
+    rdfs:comment "Force that holds the customer back from adopting a new solution. Habit (inertia) and Anxiety (fear of change)."@en ;
+    rdfs:subClassOf jtbd:Force .
+
+jtbd:Habit a owl:Class ;
+    rdfs:label "Habit"@en ;
+    rdfs:comment "Inertia of the current behavior or solution. The comfort and familiarity of 'the way we do it now'."@en ;
+    rdfs:subClassOf jtbd:ProgressBraker .
+
+jtbd:Anxiety a owl:Class ;
+    rdfs:label "Anxiety"@en ;
+    rdfs:comment "Worry or fear about switching to a new solution. Concerns about risk, learning curve, or failure."@en ;
+    rdfs:subClassOf jtbd:ProgressBraker .
+
+jtbd:Painpoint a owl:Class ;
+    rdfs:label "Painpoint"@en ;
+    rdfs:comment "Specific friction, obstacle, or unmet need that prevents job completion or makes it difficult. Points to opportunities for improvement."@en ;
+    rdfs:subClassOf owl:Thing .
+
+# ============================================================================
+# SOLUTION & FEATURE CLASSES
+# ============================================================================
+
+jtbd:Solution a owl:Class ;
+    rdfs:label "Solution"@en ;
+    rdfs:comment "Product, service, or feature that customers hire to get a job done. Solutions come and go, but jobs remain stable."@en ;
+    rdfs:subClassOf owl:Thing .
+
+jtbd:CurrentSolution a owl:Class ;
+    rdfs:label "Current Solution"@en ;
+    rdfs:comment "Existing approach or workaround customers currently use to get the job done."@en ;
+    rdfs:subClassOf jtbd:Solution .
+
+jtbd:ProposedSolution a owl:Class ;
+    rdfs:label "Proposed Solution"@en ;
+    rdfs:comment "New product, feature, or approach being designed to help customers get the job done better."@en ;
+    rdfs:subClassOf jtbd:Solution .
+
+jtbd:CompetitiveSolution a owl:Class ;
+    rdfs:label "Competitive Solution"@en ;
+    rdfs:comment "Alternative solutions in the market that customers could hire for this job."@en ;
+    rdfs:subClassOf jtbd:Solution .
+
+# ============================================================================
+# PRIORITY & IMPORTANCE CLASSES
+# ============================================================================
+
+jtbd:OutcomePriority a owl:Class ;
+    rdfs:label "Outcome Priority"@en ;
+    rdfs:comment "Relative importance of an outcome to a customer segment. Combines importance and satisfaction scores."@en ;
+    rdfs:subClassOf owl:Thing .
+
+jtbd:OpportunityScore a owl:Class ;
+    rdfs:label "Opportunity Score"@en ;
+    rdfs:comment "Calculated score showing innovation potential: Importance + (Importance - Satisfaction). Scores > 10 indicate underserved outcomes."@en ;
+    rdfs:subClassOf owl:Thing .
+
+# ============================================================================
+# DATATYPE PROPERTIES - Job Metadata
+# ============================================================================
+
+jtbd:jobTitle a owl:DatatypeProperty ;
+    rdfs:label "job title"@en ;
+    rdfs:domain jtbd:Job ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Short descriptive title for the job (2-8 words). Should be solution-agnostic."@en .
+
+jtbd:jobDescription a owl:DatatypeProperty ;
+    rdfs:label "job description"@en ;
+    rdfs:domain jtbd:Job ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Detailed description of what the customer is trying to accomplish. Focus on the goal, not the method."@en .
+
+jtbd:jobType a owl:DatatypeProperty ;
+    rdfs:label "job type"@en ;
+    rdfs:domain jtbd:Job ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Classification: Functional, Emotional, or Social"@en .
+
+jtbd:jobSize a owl:DatatypeProperty ;
+    rdfs:label "job size"@en ;
+    rdfs:domain jtbd:Job ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Scope of job: Big (main job), Small (sub-job), or Micro (job step)"@en .
+
+jtbd:jobStability a owl:DatatypeProperty ;
+    rdfs:label "job stability"@en ;
+    rdfs:domain jtbd:Job ;
+    rdfs:range xsd:string ;
+    rdfs:comment "How stable is this job over time: Stable (years), Evolving (changing gradually), Emerging (new)"@en .
+
+# ============================================================================
+# DATATYPE PROPERTIES - Job Statement Components
+# ============================================================================
+
+jtbd:when a owl:DatatypeProperty ;
+    rdfs:label "when (context)"@en ;
+    rdfs:domain jtbd:JobStatement ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Context or situation when the job arises. The triggering circumstance."@en .
+
+jtbd:wantTo a owl:DatatypeProperty ;
+    rdfs:label "I want to (action)"@en ;
+    rdfs:domain jtbd:JobStatement ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The functional outcome or action the customer wants to achieve."@en .
+
+jtbd:soICan a owl:DatatypeProperty ;
+    rdfs:label "so I can (benefit)"@en ;
+    rdfs:domain jtbd:JobStatement ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The emotional or social benefit the customer seeks from completing the job."@en .
+
+jtbd:fullStatement a owl:DatatypeProperty ;
+    rdfs:label "full job statement"@en ;
+    rdfs:domain jtbd:JobStatement ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Complete statement: 'When [context], I want to [achieve outcome], so I can [benefit]'"@en .
+
+# ============================================================================
+# DATATYPE PROPERTIES - Outcome Measurement
+# ============================================================================
+
+jtbd:outcomeStatement a owl:DatatypeProperty ;
+    rdfs:label "outcome statement"@en ;
+    rdfs:domain jtbd:Outcome ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Structured outcome statement: 'Minimize/Maximize [metric] [object] [clarifier]'"@en .
+
+jtbd:outcomeDirection a owl:DatatypeProperty ;
+    rdfs:label "outcome direction"@en ;
+    rdfs:domain jtbd:Outcome ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Direction of improvement: Minimize or Maximize"@en .
+
+jtbd:outcomeMetric a owl:DatatypeProperty ;
+    rdfs:label "outcome metric"@en ;
+    rdfs:domain jtbd:Outcome ;
+    rdfs:range xsd:string ;
+    rdfs:comment "What is being measured: time, likelihood, number, effort, cost, etc."@en .
+
+jtbd:outcomeObject a owl:DatatypeProperty ;
+    rdfs:label "outcome object"@en ;
+    rdfs:domain jtbd:Outcome ;
+    rdfs:range xsd:string ;
+    rdfs:comment "What is being affected by the metric: errors, steps, decisions, etc."@en .
+
+jtbd:outcomeClarifier a owl:DatatypeProperty ;
+    rdfs:label "outcome clarifier"@en ;
+    rdfs:domain jtbd:Outcome ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Additional context clarifying the outcome: 'when starting', 'before committing', etc."@en .
+
+jtbd:importanceScore a owl:DatatypeProperty ;
+    rdfs:label "importance score"@en ;
+    rdfs:domain jtbd:OutcomePriority ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "How important is this outcome to customers? Scale: 1 (not important) to 10 (critical)"@en .
+
+jtbd:satisfactionScore a owl:DatatypeProperty ;
+    rdfs:label "satisfaction score"@en ;
+    rdfs:domain jtbd:OutcomePriority ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "How satisfied are customers with current solutions for this outcome? Scale: 1 (very dissatisfied) to 10 (very satisfied)"@en .
+
+jtbd:opportunityScoreValue a owl:DatatypeProperty ;
+    rdfs:label "opportunity score value"@en ;
+    rdfs:domain jtbd:OpportunityScore ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Calculated opportunity: Importance + (Importance - Satisfaction). Scores > 10 = underserved, < 5 = overserved"@en .
+
+jtbd:opportunityType a owl:DatatypeProperty ;
+    rdfs:label "opportunity type"@en ;
+    rdfs:domain jtbd:OpportunityScore ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Classification: Overserved (< 5), Appropriately Served (5-10), Underserved (10-15), Severely Underserved (> 15)"@en .
+
+# ============================================================================
+# DATATYPE PROPERTIES - Success Criteria
+# ============================================================================
+
+jtbd:criteriaDescription a owl:DatatypeProperty ;
+    rdfs:label "criteria description"@en ;
+    rdfs:domain jtbd:SuccessCriteria ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Description of how to measure job completion success"@en .
+
+jtbd:metricName a owl:DatatypeProperty ;
+    rdfs:label "metric name"@en ;
+    rdfs:domain jtbd:SuccessMetric ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Name of the measurement (e.g., 'Time to Complete', 'Error Rate', 'Cognitive Load')"@en .
+
+jtbd:metricType a owl:DatatypeProperty ;
+    rdfs:label "metric type"@en ;
+    rdfs:domain jtbd:SuccessMetric ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type of measurement: Time, Quality, Effort, Cost, or Throughput"@en .
+
+jtbd:targetValue a owl:DatatypeProperty ;
+    rdfs:label "target value"@en ;
+    rdfs:domain jtbd:SuccessMetric ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Target threshold or goal for this metric (e.g., '< 2 minutes', '> 95% accuracy', '< 3 steps')"@en .
+
+jtbd:currentValue a owl:DatatypeProperty ;
+    rdfs:label "current value"@en ;
+    rdfs:domain jtbd:SuccessMetric ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Current measured value with existing solutions (baseline)"@en .
+
+# ============================================================================
+# DATATYPE PROPERTIES - Customer Segment
+# ============================================================================
+
+jtbd:segmentName a owl:DatatypeProperty ;
+    rdfs:label "segment name"@en ;
+    rdfs:domain jtbd:CustomerSegment ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Descriptive name for this customer segment based on job circumstances"@en .
+
+jtbd:segmentDescription a owl:DatatypeProperty ;
+    rdfs:label "segment description"@en ;
+    rdfs:domain jtbd:CustomerSegment ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Detailed description of who is in this segment and their shared circumstances"@en .
+
+jtbd:segmentSize a owl:DatatypeProperty ;
+    rdfs:label "segment size"@en ;
+    rdfs:domain jtbd:CustomerSegment ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Estimated number of customers in this segment"@en .
+
+jtbd:marketShare a owl:DatatypeProperty ;
+    rdfs:label "market share"@en ;
+    rdfs:domain jtbd:CustomerSegment ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Percentage of total addressable market this segment represents (0-100)"@en .
+
+jtbd:personaName a owl:DatatypeProperty ;
+    rdfs:label "persona name"@en ;
+    rdfs:domain jtbd:Persona ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Name of the representative persona (typically fictional but memorable)"@en .
+
+jtbd:personaRole a owl:DatatypeProperty ;
+    rdfs:label "persona role"@en ;
+    rdfs:domain jtbd:Persona ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Role or position of this persona (based on job context, not demographics)"@en .
+
+jtbd:personaGoals a owl:DatatypeProperty ;
+    rdfs:label "persona goals"@en ;
+    rdfs:domain jtbd:Persona ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Primary goals this persona is trying to achieve"@en .
+
+jtbd:personaChallenges a owl:DatatypeProperty ;
+    rdfs:label "persona challenges"@en ;
+    rdfs:domain jtbd:Persona ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Key challenges or obstacles this persona faces"@en .
+
+# ============================================================================
+# DATATYPE PROPERTIES - Context & Circumstances
+# ============================================================================
+
+jtbd:contextDescription a owl:DatatypeProperty ;
+    rdfs:label "context description"@en ;
+    rdfs:domain jtbd:ContextClue ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Description of the situational clue that signals job activation"@en .
+
+jtbd:triggerType a owl:DatatypeProperty ;
+    rdfs:label "trigger type"@en ;
+    rdfs:domain jtbd:ContextClue ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type of trigger: Time-based, Event-based, or Condition-based"@en .
+
+jtbd:triggerFrequency a owl:DatatypeProperty ;
+    rdfs:label "trigger frequency"@en ;
+    rdfs:domain jtbd:ContextClue ;
+    rdfs:range xsd:string ;
+    rdfs:comment "How often this trigger occurs: Hourly, Daily, Weekly, Monthly, Quarterly, Annually, or Sporadic"@en .
+
+jtbd:circumstanceDescription a owl:DatatypeProperty ;
+    rdfs:label "circumstance description"@en ;
+    rdfs:domain jtbd:JobCircumstance ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Detailed description of the specific situation when this job arises"@en .
+
+jtbd:environmentalFactors a owl:DatatypeProperty ;
+    rdfs:label "environmental factors"@en ;
+    rdfs:domain jtbd:JobCircumstance ;
+    rdfs:range xsd:string ;
+    rdfs:comment "External factors influencing this circumstance (location, tools available, time pressure, etc.)"@en .
+
+# ============================================================================
+# DATATYPE PROPERTIES - Forces & Friction
+# ============================================================================
+
+jtbd:forceDescription a owl:DatatypeProperty ;
+    rdfs:label "force description"@en ;
+    rdfs:domain jtbd:Force ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Description of this force and how it affects customer decision-making"@en .
+
+jtbd:forceStrength a owl:DatatypeProperty ;
+    rdfs:label "force strength"@en ;
+    rdfs:domain jtbd:Force ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Strength of this force: Weak, Moderate, or Strong"@en .
+
+jtbd:pushReason a owl:DatatypeProperty ;
+    rdfs:label "push reason"@en ;
+    rdfs:domain jtbd:PushForce ;
+    rdfs:range xsd:string ;
+    rdfs:comment "What problem with current solution is pushing customers away?"@en .
+
+jtbd:pullBenefit a owl:DatatypeProperty ;
+    rdfs:label "pull benefit"@en ;
+    rdfs:domain jtbd:PullForce ;
+    rdfs:range xsd:string ;
+    rdfs:comment "What benefit of new solution is attracting customers?"@en .
+
+jtbd:habitDescription a owl:DatatypeProperty ;
+    rdfs:label "habit description"@en ;
+    rdfs:domain jtbd:Habit ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Description of the current behavior or workaround that creates inertia"@en .
+
+jtbd:habitStrength a owl:DatatypeProperty ;
+    rdfs:label "habit strength"@en ;
+    rdfs:domain jtbd:Habit ;
+    rdfs:range xsd:string ;
+    rdfs:comment "How entrenched is this habit? Light (easy to change), Moderate, or Deep (very difficult to change)"@en .
+
+jtbd:anxietyDescription a owl:DatatypeProperty ;
+    rdfs:label "anxiety description"@en ;
+    rdfs:domain jtbd:Anxiety ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Description of the worry or fear preventing adoption"@en .
+
+jtbd:anxietyType a owl:DatatypeProperty ;
+    rdfs:label "anxiety type"@en ;
+    rdfs:domain jtbd:Anxiety ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type of anxiety: Financial Risk, Learning Curve, Social Risk, Performance Risk, or Privacy/Security Risk"@en .
+
+jtbd:painpointDescription a owl:DatatypeProperty ;
+    rdfs:label "painpoint description"@en ;
+    rdfs:domain jtbd:Painpoint ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Description of the friction or obstacle preventing job completion"@en .
+
+jtbd:painpointSeverity a owl:DatatypeProperty ;
+    rdfs:label "painpoint severity"@en ;
+    rdfs:domain jtbd:Painpoint ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Impact severity: Minor (annoyance), Moderate (significant friction), Critical (blocking)"@en .
+
+jtbd:workaround a owl:DatatypeProperty ;
+    rdfs:label "workaround"@en ;
+    rdfs:domain jtbd:Painpoint ;
+    rdfs:range xsd:string ;
+    rdfs:comment "How do customers currently work around this painpoint?"@en .
+
+# ============================================================================
+# DATATYPE PROPERTIES - Solutions
+# ============================================================================
+
+jtbd:solutionName a owl:DatatypeProperty ;
+    rdfs:label "solution name"@en ;
+    rdfs:domain jtbd:Solution ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Name of the product, service, or feature"@en .
+
+jtbd:solutionDescription a owl:DatatypeProperty ;
+    rdfs:label "solution description"@en ;
+    rdfs:domain jtbd:Solution ;
+    rdfs:range xsd:string ;
+    rdfs:comment "How this solution helps get the job done"@en .
+
+jtbd:adoptionRate a owl:DatatypeProperty ;
+    rdfs:label "adoption rate"@en ;
+    rdfs:domain jtbd:Solution ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Percentage of customers who have adopted this solution (0-100)"@en .
+
+jtbd:hireFrequency a owl:DatatypeProperty ;
+    rdfs:label "hire frequency"@en ;
+    rdfs:domain jtbd:Solution ;
+    rdfs:range xsd:string ;
+    rdfs:comment "How often customers 'hire' this solution: Frequently, Occasionally, Rarely"@en .
+
+jtbd:fireReason a owl:DatatypeProperty ;
+    rdfs:label "fire reason"@en ;
+    rdfs:domain jtbd:Solution ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Why do customers 'fire' (stop using) this solution?"@en .
+
+# ============================================================================
+# DATATYPE PROPERTIES - Temporal Tracking
+# ============================================================================
+
+jtbd:measuredAt a owl:DatatypeProperty ;
+    rdfs:label "measured at"@en ;
+    rdfs:domain owl:Thing ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Timestamp when a measurement was taken. Used for outcome achievements, surveys, and analytics."@en .
+
+jtbd:periodStart a owl:DatatypeProperty ;
+    rdfs:label "period start"@en ;
+    rdfs:domain owl:Thing ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Start of measurement or analysis period for aggregated data."@en .
+
+jtbd:periodEnd a owl:DatatypeProperty ;
+    rdfs:label "period end"@en ;
+    rdfs:domain owl:Thing ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "End of measurement or analysis period for aggregated data."@en .
+
+jtbd:aggregationLevel a owl:DatatypeProperty ;
+    rdfs:label "aggregation level"@en ;
+    rdfs:domain owl:Thing ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Level of temporal aggregation: Individual, Hourly, Daily, Weekly, Monthly, Quarterly, Yearly."@en .
+
+jtbd:completedAt a owl:DatatypeProperty ;
+    rdfs:label "completed at"@en ;
+    rdfs:domain jtbd:JobCompletion ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Timestamp when a job was completed."@en .
+
+jtbd:resolvedAt a owl:DatatypeProperty ;
+    rdfs:label "resolved at"@en ;
+    rdfs:domain jtbd:PainpointResolution ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Timestamp when a painpoint was resolved."@en .
+
+jtbd:conductedAt a owl:DatatypeProperty ;
+    rdfs:label "conducted at"@en ;
+    rdfs:domain jtbd:SatisfactionSurvey ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Timestamp when a satisfaction survey was conducted."@en .
+
+jtbd:generatedAt a owl:DatatypeProperty ;
+    rdfs:label "generated at"@en ;
+    rdfs:domain jtbd:OutcomeReport ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Timestamp when an outcome report was generated."@en .
+
+jtbd:analyzedAt a owl:DatatypeProperty ;
+    rdfs:label "analyzed at"@en ;
+    rdfs:domain jtbd:FeatureImpactAnalysis ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Timestamp when a feature impact analysis was performed."@en .
+
+jtbd:lastRefreshed a owl:DatatypeProperty ;
+    rdfs:label "last refreshed"@en ;
+    rdfs:domain jtbd:MetricsDashboard ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Timestamp when dashboard metrics were last refreshed."@en .
+
+jtbd:lastMeasured a owl:DatatypeProperty ;
+    rdfs:label "last measured"@en ;
+    rdfs:domain jtbd:Persona ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Timestamp of the last measurement taken for this persona."@en .
+
+# ============================================================================
+# OBJECT PROPERTIES - Job Relationships
+# ============================================================================
+
+jtbd:hasJobStatement a owl:ObjectProperty ;
+    rdfs:label "has job statement"@en ;
+    rdfs:domain jtbd:Job ;
+    rdfs:range jtbd:JobStatement ;
+    rdfs:comment "Job is expressed through structured statement"@en .
+
+jtbd:hasDesiredOutcome a owl:ObjectProperty ;
+    rdfs:label "has desired outcome"@en ;
+    rdfs:domain jtbd:Job ;
+    rdfs:range jtbd:DesiredOutcome ;
+    rdfs:comment "Job has desired outcomes that define success"@en .
+
+jtbd:hasSuccessCriteria a owl:ObjectProperty ;
+    rdfs:label "has success criteria"@en ;
+    rdfs:domain jtbd:Job ;
+    rdfs:range jtbd:SuccessCriteria ;
+    rdfs:comment "Job completion measured by success criteria"@en .
+
+jtbd:hasPainpoint a owl:ObjectProperty ;
+    rdfs:label "has painpoint"@en ;
+    rdfs:domain jtbd:Job ;
+    rdfs:range jtbd:Painpoint ;
+    rdfs:comment "Job has associated painpoints preventing completion"@en .
+
+jtbd:parentJob a owl:ObjectProperty ;
+    rdfs:label "parent job"@en ;
+    rdfs:domain jtbd:Job ;
+    rdfs:range jtbd:Job ;
+    rdfs:comment "This job is a sub-job of a larger parent job"@en .
+
+jtbd:relatedTo a owl:ObjectProperty ;
+    rdfs:label "related to"@en ;
+    rdfs:domain jtbd:Job ;
+    rdfs:range jtbd:Job ;
+    rdfs:comment "Jobs that are related or frequently done together"@en .
+
+# ============================================================================
+# OBJECT PROPERTIES - Customer Relationships
+# ============================================================================
+
+jtbd:performedBy a owl:ObjectProperty ;
+    rdfs:label "performed by"@en ;
+    rdfs:domain jtbd:Job ;
+    rdfs:range jtbd:CustomerSegment ;
+    rdfs:comment "Job is performed by this customer segment"@en .
+
+jtbd:hasPersona a owl:ObjectProperty ;
+    rdfs:label "has persona"@en ;
+    rdfs:domain jtbd:CustomerSegment ;
+    rdfs:range jtbd:Persona ;
+    rdfs:comment "Customer segment represented by persona"@en .
+
+jtbd:hasContextClue a owl:ObjectProperty ;
+    rdfs:label "has context clue"@en ;
+    rdfs:domain jtbd:CustomerSegment ;
+    rdfs:range jtbd:ContextClue ;
+    rdfs:comment "Segment experiences these context clues that trigger job"@en .
+
+jtbd:inCircumstance a owl:ObjectProperty ;
+    rdfs:label "in circumstance"@en ;
+    rdfs:domain jtbd:Job ;
+    rdfs:range jtbd:JobCircumstance ;
+    rdfs:comment "Job occurs in this circumstance"@en .
+
+# ============================================================================
+# OBJECT PROPERTIES - Force Relationships
+# ============================================================================
+
+jtbd:hasPushForce a owl:ObjectProperty ;
+    rdfs:label "has push force"@en ;
+    rdfs:domain jtbd:Job ;
+    rdfs:range jtbd:PushForce ;
+    rdfs:comment "Job has push forces moving customers away from current solution"@en .
+
+jtbd:hasPullForce a owl:ObjectProperty ;
+    rdfs:label "has pull force"@en ;
+    rdfs:domain jtbd:Job ;
+    rdfs:range jtbd:PullForce ;
+    rdfs:comment "Job has pull forces attracting customers to new solution"@en .
+
+jtbd:hasHabit a owl:ObjectProperty ;
+    rdfs:label "has habit"@en ;
+    rdfs:domain jtbd:Job ;
+    rdfs:range jtbd:Habit ;
+    rdfs:comment "Job has habits that create inertia against change"@en .
+
+jtbd:hasAnxiety a owl:ObjectProperty ;
+    rdfs:label "has anxiety"@en ;
+    rdfs:domain jtbd:Job ;
+    rdfs:range jtbd:Anxiety ;
+    rdfs:comment "Job has anxieties preventing adoption of new solution"@en .
+
+# ============================================================================
+# OBJECT PROPERTIES - Solution Relationships
+# ============================================================================
+
+jtbd:solvedBy a owl:ObjectProperty ;
+    rdfs:label "solved by"@en ;
+    rdfs:domain jtbd:Job ;
+    rdfs:range jtbd:Solution ;
+    rdfs:comment "Job can be solved by these solutions"@en .
+
+jtbd:currentlyUsing a owl:ObjectProperty ;
+    rdfs:label "currently using"@en ;
+    rdfs:domain jtbd:CustomerSegment ;
+    rdfs:range jtbd:CurrentSolution ;
+    rdfs:comment "Customer segment currently uses this solution"@en .
+
+jtbd:competesWithSolution a owl:ObjectProperty ;
+    rdfs:label "competes with solution"@en ;
+    rdfs:domain jtbd:ProposedSolution ;
+    rdfs:range jtbd:CompetitiveSolution ;
+    rdfs:comment "Proposed solution competes with these alternatives"@en .
+
+# ============================================================================
+# OBJECT PROPERTIES - Measurement Relationships
+# ============================================================================
+
+jtbd:hasOutcomePriority a owl:ObjectProperty ;
+    rdfs:label "has outcome priority"@en ;
+    rdfs:domain jtbd:DesiredOutcome ;
+    rdfs:range jtbd:OutcomePriority ;
+    rdfs:comment "Outcome has priority scores from customer segment"@en .
+
+jtbd:hasOpportunityScore a owl:ObjectProperty ;
+    rdfs:label "has opportunity score"@en ;
+    rdfs:domain jtbd:DesiredOutcome ;
+    rdfs:range jtbd:OpportunityScore ;
+    rdfs:comment "Outcome has calculated opportunity score for innovation"@en .
+
+jtbd:measuredBy a owl:ObjectProperty ;
+    rdfs:label "measured by"@en ;
+    rdfs:domain jtbd:SuccessCriteria ;
+    rdfs:range jtbd:SuccessMetric ;
+    rdfs:comment "Success criteria measured by this metric"@en .
+
+# ============================================================================
+# OBJECT PROPERTIES - Integration with Spec-Kit
+# ============================================================================
+
+jtbd:informsFeature a owl:ObjectProperty ;
+    rdfs:label "informs feature"@en ;
+    rdfs:domain jtbd:Job ;
+    rdfs:range sk:Feature ;
+    rdfs:comment "Job insights inform feature specification"@en .
+
+jtbd:addressesPainpoint a owl:ObjectProperty ;
+    rdfs:label "addresses painpoint"@en ;
+    rdfs:domain sk:Feature ;
+    rdfs:range jtbd:Painpoint ;
+    rdfs:comment "Feature designed to address this painpoint"@en .
+
+jtbd:enablesOutcome a owl:ObjectProperty ;
+    rdfs:label "enables outcome"@en ;
+    rdfs:domain sk:Feature ;
+    rdfs:range jtbd:DesiredOutcome ;
+    rdfs:comment "Feature enables achievement of desired outcome"@en .
+
+jtbd:targetsSegment a owl:ObjectProperty ;
+    rdfs:label "targets segment"@en ;
+    rdfs:domain sk:Feature ;
+    rdfs:range jtbd:CustomerSegment ;
+    rdfs:comment "Feature specifically targets this customer segment"@en .
+
+# ============================================================================
+# SHACL VALIDATION SHAPES
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Job Shape
+# ----------------------------------------------------------------------------
+
+jtbd:JobShape a sh:NodeShape ;
+    sh:targetClass jtbd:Job ;
+    sh:property [
+        sh:path jtbd:jobTitle ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 5 ;
+        sh:maxLength 100 ;
+        sh:message "Job must have title (5-100 characters)"@en ;
+    ] ;
+    sh:property [
+        sh:path jtbd:jobDescription ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 20 ;
+        sh:message "Job description required (at least 20 characters)"@en ;
+    ] ;
+    sh:property [
+        sh:path jtbd:jobType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "Functional" "Emotional" "Social" ) ;
+        sh:message "Job type must be Functional, Emotional, or Social"@en ;
+    ] ;
+    sh:property [
+        sh:path jtbd:hasJobStatement ;
+        sh:class jtbd:JobStatement ;
+        sh:minCount 1 ;
+        sh:message "Job must have at least one job statement"@en ;
+    ] ;
+    sh:property [
+        sh:path jtbd:hasDesiredOutcome ;
+        sh:class jtbd:DesiredOutcome ;
+        sh:minCount 1 ;
+        sh:message "Job must have at least one desired outcome"@en ;
+    ] .
+
+# ----------------------------------------------------------------------------
+# Job Statement Shape
+# ----------------------------------------------------------------------------
+
+jtbd:JobStatementShape a sh:NodeShape ;
+    sh:targetClass jtbd:JobStatement ;
+    sh:property [
+        sh:path jtbd:when ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 10 ;
+        sh:message "Context (when) required (at least 10 characters)"@en ;
+    ] ;
+    sh:property [
+        sh:path jtbd:wantTo ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 10 ;
+        sh:message "Action (want to) required (at least 10 characters)"@en ;
+    ] ;
+    sh:property [
+        sh:path jtbd:soICan ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 10 ;
+        sh:message "Benefit (so I can) required (at least 10 characters)"@en ;
+    ] ;
+    sh:property [
+        sh:path jtbd:fullStatement ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 30 ;
+        sh:message "Full job statement required (at least 30 characters)"@en ;
+    ] .
+
+# ----------------------------------------------------------------------------
+# Desired Outcome Shape
+# ----------------------------------------------------------------------------
+
+jtbd:DesiredOutcomeShape a sh:NodeShape ;
+    sh:targetClass jtbd:DesiredOutcome ;
+    sh:property [
+        sh:path jtbd:outcomeStatement ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 15 ;
+        sh:message "Outcome statement required (at least 15 characters)"@en ;
+    ] ;
+    sh:property [
+        sh:path jtbd:outcomeDirection ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "Minimize" "Maximize" ) ;
+        sh:message "Outcome direction must be Minimize or Maximize"@en ;
+    ] ;
+    sh:property [
+        sh:path jtbd:outcomeMetric ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Outcome metric required (e.g., time, likelihood, number)"@en ;
+    ] ;
+    sh:property [
+        sh:path jtbd:outcomeObject ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Outcome object required (what is being measured)"@en ;
+    ] .
+
+# ----------------------------------------------------------------------------
+# Customer Segment Shape
+# ----------------------------------------------------------------------------
+
+jtbd:CustomerSegmentShape a sh:NodeShape ;
+    sh:targetClass jtbd:CustomerSegment ;
+    sh:property [
+        sh:path jtbd:segmentName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 5 ;
+        sh:maxLength 100 ;
+        sh:message "Segment name required (5-100 characters)"@en ;
+    ] ;
+    sh:property [
+        sh:path jtbd:segmentDescription ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 30 ;
+        sh:message "Segment description required (at least 30 characters)"@en ;
+    ] ;
+    sh:property [
+        sh:path jtbd:hasPersona ;
+        sh:class jtbd:Persona ;
+        sh:minCount 1 ;
+        sh:message "Customer segment must have at least one persona"@en ;
+    ] .
+
+# ----------------------------------------------------------------------------
+# Persona Shape
+# ----------------------------------------------------------------------------
+
+jtbd:PersonaShape a sh:NodeShape ;
+    sh:targetClass jtbd:Persona ;
+    sh:property [
+        sh:path jtbd:personaName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 3 ;
+        sh:maxLength 50 ;
+        sh:message "Persona name required (3-50 characters)"@en ;
+    ] ;
+    sh:property [
+        sh:path jtbd:personaRole ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Persona role required"@en ;
+    ] ;
+    sh:property [
+        sh:path jtbd:personaGoals ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:minLength 20 ;
+        sh:message "Persona goals required (at least 20 characters)"@en ;
+    ] ;
+    sh:property [
+        sh:path jtbd:personaChallenges ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:minLength 20 ;
+        sh:message "Persona challenges required (at least 20 characters)"@en ;
+    ] .
+
+# ----------------------------------------------------------------------------
+# Painpoint Shape
+# ----------------------------------------------------------------------------
+
+jtbd:PainpointShape a sh:NodeShape ;
+    sh:targetClass jtbd:Painpoint ;
+    sh:property [
+        sh:path jtbd:painpointDescription ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 15 ;
+        sh:message "Painpoint description required (at least 15 characters)"@en ;
+    ] ;
+    sh:property [
+        sh:path jtbd:painpointSeverity ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "Minor" "Moderate" "Critical" ) ;
+        sh:message "Painpoint severity must be Minor, Moderate, or Critical"@en ;
+    ] .
+
+# ----------------------------------------------------------------------------
+# Success Metric Shape
+# ----------------------------------------------------------------------------
+
+jtbd:SuccessMetricShape a sh:NodeShape ;
+    sh:targetClass jtbd:SuccessMetric ;
+    sh:property [
+        sh:path jtbd:metricName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 5 ;
+        sh:message "Metric name required (at least 5 characters)"@en ;
+    ] ;
+    sh:property [
+        sh:path jtbd:metricType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "Time" "Quality" "Effort" "Cost" "Throughput" ) ;
+        sh:message "Metric type must be Time, Quality, Effort, Cost, or Throughput"@en ;
+    ] ;
+    sh:property [
+        sh:path jtbd:targetValue ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Target value required for success metric"@en ;
+    ] .
+
+# ----------------------------------------------------------------------------
+# Opportunity Score Shape
+# ----------------------------------------------------------------------------
+
+jtbd:OpportunityScoreShape a sh:NodeShape ;
+    sh:targetClass jtbd:OpportunityScore ;
+    sh:property [
+        sh:path jtbd:opportunityScoreValue ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 30.0 ;
+        sh:message "Opportunity score must be between 0 and 30"@en ;
+    ] ;
+    sh:property [
+        sh:path jtbd:opportunityType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "Overserved" "Appropriately Served" "Underserved" "Severely Underserved" ) ;
+        sh:message "Opportunity type must be Overserved, Appropriately Served, Underserved, or Severely Underserved"@en ;
+    ] .
+
+# ----------------------------------------------------------------------------
+# Outcome Priority Shape
+# ----------------------------------------------------------------------------
+
+jtbd:OutcomePriorityShape a sh:NodeShape ;
+    sh:targetClass jtbd:OutcomePriority ;
+    sh:property [
+        sh:path jtbd:importanceScore ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1.0 ;
+        sh:maxInclusive 10.0 ;
+        sh:message "Importance score must be between 1 and 10"@en ;
+    ] ;
+    sh:property [
+        sh:path jtbd:satisfactionScore ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1.0 ;
+        sh:maxInclusive 10.0 ;
+        sh:message "Satisfaction score must be between 1 and 10"@en ;
+    ] .
+
+# ----------------------------------------------------------------------------
+# Force Shapes
+# ----------------------------------------------------------------------------
+
+jtbd:PushForceShape a sh:NodeShape ;
+    sh:targetClass jtbd:PushForce ;
+    sh:property [
+        sh:path jtbd:pushReason ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 15 ;
+        sh:message "Push reason required (at least 15 characters)"@en ;
+    ] ;
+    sh:property [
+        sh:path jtbd:forceStrength ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "Weak" "Moderate" "Strong" ) ;
+        sh:message "Force strength must be Weak, Moderate, or Strong"@en ;
+    ] .
+
+jtbd:PullForceShape a sh:NodeShape ;
+    sh:targetClass jtbd:PullForce ;
+    sh:property [
+        sh:path jtbd:pullBenefit ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 15 ;
+        sh:message "Pull benefit required (at least 15 characters)"@en ;
+    ] ;
+    sh:property [
+        sh:path jtbd:forceStrength ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "Weak" "Moderate" "Strong" ) ;
+        sh:message "Force strength must be Weak, Moderate, or Strong"@en ;
+    ] .
+
+jtbd:HabitShape a sh:NodeShape ;
+    sh:targetClass jtbd:Habit ;
+    sh:property [
+        sh:path jtbd:habitDescription ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 15 ;
+        sh:message "Habit description required (at least 15 characters)"@en ;
+    ] ;
+    sh:property [
+        sh:path jtbd:habitStrength ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "Light" "Moderate" "Deep" ) ;
+        sh:message "Habit strength must be Light, Moderate, or Deep"@en ;
+    ] .
+
+jtbd:AnxietyShape a sh:NodeShape ;
+    sh:targetClass jtbd:Anxiety ;
+    sh:property [
+        sh:path jtbd:anxietyDescription ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 15 ;
+        sh:message "Anxiety description required (at least 15 characters)"@en ;
+    ] ;
+    sh:property [
+        sh:path jtbd:anxietyType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "Financial Risk" "Learning Curve" "Social Risk" "Performance Risk" "Privacy/Security Risk" ) ;
+        sh:message "Anxiety type must be Financial Risk, Learning Curve, Social Risk, Performance Risk, or Privacy/Security Risk"@en ;
+    ] .
+
+# ============================================================================
+# End of JTBD Ontology Schema
+# ============================================================================

@@ -1,0 +1,21 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX yawl: <http://yawlfoundation.org/ontology#>
+
+SELECT ?spec ?net ?isRoot ?taskCount ?flowCount
+WHERE {
+  ?net a yawl:Net ;
+        yawl:isRootNet ?isRoot .
+  ?spec a yawl:Specification ;
+         yawl:hasNet ?net .
+  OPTIONAL { ?net yawl:isRootNet ?isRoot }
+  {
+    SELECT ?net (COUNT(?task) AS ?taskCount)
+    WHERE { ?spec yawl:hasNet ?net . ?spec yawl:hasTask ?task }
+    GROUP BY ?net
+  }
+  {
+    SELECT ?net (COUNT(?flow) AS ?flowCount)
+    WHERE { ?spec yawl:hasNet ?net . ?flow a yawl:Flow . ?flow yawl:flowsFrom ?from . ?flow yawl:flowsTo ?to }
+    GROUP BY ?net
+  }
+}

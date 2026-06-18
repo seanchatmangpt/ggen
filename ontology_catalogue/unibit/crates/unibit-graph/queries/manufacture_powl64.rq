@@ -1,0 +1,60 @@
+PREFIX cgpt: <https://chatmangpt.com/ns/powl#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+CONSTRUCT {
+    ?node a cgpt:Powl64Frame ;
+          cgpt:powl8Opcode ?opcode ;
+          cgpt:modelId ?modelId ;
+          cgpt:operand ?operand ;
+          cgpt:controlMask ?controlMask .
+}
+WHERE {
+    ?node a ?type .
+    # Only pick kinetic nodes
+    FILTER(REGEX(STR(?node), "powl8/"))
+    FILTER(?type IN (cgpt:LawfulMotion, cgpt:Activity, cgpt:Silent, cgpt:StartNode, cgpt:EndNode,
+                     cgpt:OperatorSequence, cgpt:OperatorXOR, cgpt:OperatorParallel,
+                     cgpt:OperatorLoop, cgpt:OperatorOR, cgpt:OperatorInterleaving,
+                     cgpt:FrequentTransition))
+
+    OPTIONAL { ?node cgpt:powl8Opcode ?o }
+    BIND(COALESCE(?o,
+        IF(?type = cgpt:Silent, 0,
+        IF(?type = cgpt:Activity, 1,
+        IF(?type = cgpt:OperatorSequence, 6,
+        IF(?type = cgpt:OperatorXOR, 4,
+        IF(?type = cgpt:OperatorParallel, 7,
+        IF(?type = cgpt:OperatorLoop, 5,
+        IF(?type = cgpt:OperatorOR, 8,
+        IF(?type = cgpt:OperatorInterleaving, 9,
+        IF(?type = cgpt:FrequentTransition, 10,
+        IF(?type = cgpt:StartNode, 11,
+        IF(?type = cgpt:EndNode, 12, 1)))))))))))) AS ?opcode)
+
+    OPTIONAL { ?node dcterms:identifier ?m }
+    BIND(COALESCE(?m, 0) AS ?modelId)
+
+    OPTIONAL {
+        ?node cgpt:childA ?ca .
+        ?ca dcterms:identifier ?ida .
+        OPTIONAL {
+            ?node cgpt:childB ?cb .
+            ?cb dcterms:identifier ?idb .
+        }
+        BIND(COALESCE(
+            (xsd:integer(?ida) * 65536) + COALESCE(xsd:integer(?idb), 0),
+            xsd:integer(?ida)
+        ) AS ?op_calc)
+    }
+
+    OPTIONAL { ?node cgpt:operand ?op_lit }
+    BIND(COALESCE(?op_lit, ?op_calc, 0) AS ?operand)
+
+    OPTIONAL { ?node cgpt:controlMask ?c }
+    BIND(COALESCE(?c, 0) AS ?controlMask)
+
+    FILTER NOT EXISTS { ?node cgpt:blockedBy ?blocker }
+}

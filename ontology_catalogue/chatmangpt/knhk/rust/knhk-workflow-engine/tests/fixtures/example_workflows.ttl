@@ -1,0 +1,265 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix yawl: <http://yawlfoundation.org/schema/> .
+@prefix knhk: <http://knhk.org/schema/> .
+@prefix ex: <http://example.org/workflow/> .
+
+# ============================================================================
+# Example 1: Simple Sequential Workflow
+# ============================================================================
+
+ex:OrderProcessing a yawl:Workflow ;
+    rdfs:label "Order Processing Workflow" ;
+    yawl:hasStartCondition ex:OrderStart ;
+    yawl:hasEndCondition ex:OrderEnd ;
+    knhk:maxTicks 8 ;
+    yawl:hasTask ex:ValidateOrder, ex:ProcessPayment, ex:ShipOrder .
+
+ex:OrderStart a yawl:Condition ;
+    rdfs:label "Start" ;
+    yawl:flowsTo ex:ValidateOrder .
+
+ex:ValidateOrder a yawl:AtomicTask ;
+    rdfs:label "Validate Order" ;
+    knhk:maxTicks 8 ;
+    yawl:inputCondition ex:OrderStart ;
+    yawl:outputCondition ex:ValidationComplete ;
+    yawl:flowsTo ex:ProcessPayment .
+
+ex:ValidationComplete a yawl:Condition ;
+    rdfs:label "Validation Complete" .
+
+ex:ProcessPayment a yawl:AtomicTask ;
+    rdfs:label "Process Payment" ;
+    knhk:maxTicks 8 ;
+    yawl:inputCondition ex:ValidationComplete ;
+    yawl:outputCondition ex:PaymentComplete ;
+    yawl:flowsTo ex:ShipOrder .
+
+ex:PaymentComplete a yawl:Condition ;
+    rdfs:label "Payment Complete" .
+
+ex:ShipOrder a yawl:AtomicTask ;
+    rdfs:label "Ship Order" ;
+    knhk:maxTicks 8 ;
+    yawl:inputCondition ex:PaymentComplete ;
+    yawl:outputCondition ex:OrderEnd .
+
+ex:OrderEnd a yawl:Condition ;
+    rdfs:label "End" .
+
+# ============================================================================
+# Example 2: Parallel Split Workflow (Pattern 2)
+# ============================================================================
+
+ex:LoanApproval a yawl:Workflow ;
+    rdfs:label "Loan Approval Workflow" ;
+    yawl:hasStartCondition ex:LoanStart ;
+    yawl:hasEndCondition ex:LoanEnd ;
+    knhk:maxTicks 16 ;
+    yawl:hasTask ex:ReceiveApplication, ex:SplitChecks, ex:CreditCheck,
+                 ex:IncomeVerification, ex:PropertyAppraisal, ex:JoinChecks, ex:MakeDecision .
+
+ex:LoanStart a yawl:Condition ;
+    rdfs:label "Start" ;
+    yawl:flowsTo ex:ReceiveApplication .
+
+ex:ReceiveApplication a yawl:AtomicTask ;
+    rdfs:label "Receive Application" ;
+    knhk:maxTicks 8 ;
+    yawl:flowsTo ex:SplitChecks .
+
+ex:SplitChecks a yawl:AtomicTask ;
+    rdfs:label "Split Checks" ;
+    knhk:maxTicks 4 ;
+    yawl:splitType yawl:AND ;
+    yawl:outputCondition ex:ChecksSplit .
+
+ex:ChecksSplit a yawl:Condition ;
+    rdfs:label "Checks Split" ;
+    yawl:flowsTo ex:CreditCheck, ex:IncomeVerification, ex:PropertyAppraisal .
+
+ex:CreditCheck a yawl:AtomicTask ;
+    rdfs:label "Credit Check" ;
+    knhk:maxTicks 8 ;
+    yawl:inputCondition ex:ChecksSplit ;
+    yawl:outputCondition ex:ChecksJoin .
+
+ex:IncomeVerification a yawl:AtomicTask ;
+    rdfs:label "Income Verification" ;
+    knhk:maxTicks 8 ;
+    yawl:inputCondition ex:ChecksSplit ;
+    yawl:outputCondition ex:ChecksJoin .
+
+ex:PropertyAppraisal a yawl:AtomicTask ;
+    rdfs:label "Property Appraisal" ;
+    knhk:maxTicks 8 ;
+    yawl:inputCondition ex:ChecksSplit ;
+    yawl:outputCondition ex:ChecksJoin .
+
+ex:ChecksJoin a yawl:Condition ;
+    rdfs:label "Checks Join" ;
+    yawl:flowsTo ex:JoinChecks .
+
+ex:JoinChecks a yawl:AtomicTask ;
+    rdfs:label "Join Checks" ;
+    knhk:maxTicks 4 ;
+    yawl:joinType yawl:AND ;
+    yawl:inputCondition ex:ChecksJoin ;
+    yawl:flowsTo ex:MakeDecision .
+
+ex:MakeDecision a yawl:AtomicTask ;
+    rdfs:label "Make Decision" ;
+    knhk:maxTicks 8 ;
+    yawl:outputCondition ex:LoanEnd .
+
+ex:LoanEnd a yawl:Condition ;
+    rdfs:label "End" .
+
+# ============================================================================
+# Example 3: XOR Split Workflow (Pattern 4)
+# ============================================================================
+
+ex:CustomerSupport a yawl:Workflow ;
+    rdfs:label "Customer Support Workflow" ;
+    yawl:hasStartCondition ex:SupportStart ;
+    yawl:hasEndCondition ex:SupportEnd ;
+    knhk:maxTicks 12 ;
+    yawl:hasTask ex:ClassifyRequest, ex:RouteRequest, ex:TechnicalSupport,
+                 ex:BillingSupport, ex:GeneralInquiry, ex:CloseTicket .
+
+ex:SupportStart a yawl:Condition ;
+    rdfs:label "Start" .
+
+ex:ClassifyRequest a yawl:AtomicTask ;
+    rdfs:label "Classify Request" ;
+    knhk:maxTicks 8 ;
+    yawl:inputCondition ex:SupportStart ;
+    yawl:flowsTo ex:RouteRequest .
+
+ex:RouteRequest a yawl:AtomicTask ;
+    rdfs:label "Route Request" ;
+    knhk:maxTicks 4 ;
+    yawl:splitType yawl:XOR ;
+    yawl:outputCondition ex:RoutingChoice .
+
+ex:RoutingChoice a yawl:Condition ;
+    rdfs:label "Routing Choice" ;
+    yawl:flowsTo ex:TechnicalSupport, ex:BillingSupport, ex:GeneralInquiry .
+
+ex:TechnicalSupport a yawl:AtomicTask ;
+    rdfs:label "Technical Support" ;
+    knhk:maxTicks 8 ;
+    yawl:inputCondition ex:RoutingChoice ;
+    yawl:outputCondition ex:TicketResolved .
+
+ex:BillingSupport a yawl:AtomicTask ;
+    rdfs:label "Billing Support" ;
+    knhk:maxTicks 8 ;
+    yawl:inputCondition ex:RoutingChoice ;
+    yawl:outputCondition ex:TicketResolved .
+
+ex:GeneralInquiry a yawl:AtomicTask ;
+    rdfs:label "General Inquiry" ;
+    knhk:maxTicks 8 ;
+    yawl:inputCondition ex:RoutingChoice ;
+    yawl:outputCondition ex:TicketResolved .
+
+ex:TicketResolved a yawl:Condition ;
+    rdfs:label "Ticket Resolved" ;
+    yawl:flowsTo ex:CloseTicket .
+
+ex:CloseTicket a yawl:AtomicTask ;
+    rdfs:label "Close Ticket" ;
+    knhk:maxTicks 4 ;
+    yawl:inputCondition ex:TicketResolved ;
+    yawl:outputCondition ex:SupportEnd .
+
+ex:SupportEnd a yawl:Condition ;
+    rdfs:label "End" .
+
+# ============================================================================
+# Example 4: Multiple Instance Workflow (Pattern 12)
+# ============================================================================
+
+ex:DocumentReview a yawl:Workflow ;
+    rdfs:label "Document Review Workflow" ;
+    yawl:hasStartCondition ex:ReviewStart ;
+    yawl:hasEndCondition ex:ReviewEnd ;
+    knhk:maxTicks 20 ;
+    yawl:hasTask ex:DistributeDocument, ex:ReviewTask, ex:ConsolidateFeedback .
+
+ex:ReviewStart a yawl:Condition ;
+    rdfs:label "Start" .
+
+ex:DistributeDocument a yawl:AtomicTask ;
+    rdfs:label "Distribute Document" ;
+    knhk:maxTicks 8 ;
+    yawl:inputCondition ex:ReviewStart ;
+    yawl:flowsTo ex:ReviewTask .
+
+ex:ReviewTask a yawl:MultipleInstanceTask ;
+    rdfs:label "Review Document" ;
+    knhk:maxTicks 8 ;
+    knhk:minInstances 3 ;
+    knhk:maxInstances 10 ;
+    yawl:inputCondition ex:DocumentDistributed ;
+    yawl:outputCondition ex:ReviewsComplete .
+
+ex:DocumentDistributed a yawl:Condition ;
+    rdfs:label "Document Distributed" .
+
+ex:ReviewsComplete a yawl:Condition ;
+    rdfs:label "Reviews Complete" ;
+    yawl:flowsTo ex:ConsolidateFeedback .
+
+ex:ConsolidateFeedback a yawl:AtomicTask ;
+    rdfs:label "Consolidate Feedback" ;
+    knhk:maxTicks 8 ;
+    yawl:inputCondition ex:ReviewsComplete ;
+    yawl:outputCondition ex:ReviewEnd .
+
+ex:ReviewEnd a yawl:Condition ;
+    rdfs:label "End" .
+
+# ============================================================================
+# Example 5: Workflow with Guards and Constraints
+# ============================================================================
+
+ex:SecureTransaction a yawl:Workflow ;
+    rdfs:label "Secure Transaction Workflow" ;
+    yawl:hasStartCondition ex:TransactionStart ;
+    yawl:hasEndCondition ex:TransactionEnd ;
+    knhk:maxTicks 8 ;
+    knhk:requiresAuthorization true ;
+    yawl:hasTask ex:AuthenticateUser, ex:ValidateTransaction, ex:ExecuteTransaction, ex:AuditLog .
+
+ex:TransactionStart a yawl:Condition ;
+    rdfs:label "Start" .
+
+ex:AuthenticateUser a yawl:AtomicTask ;
+    rdfs:label "Authenticate User" ;
+    knhk:maxTicks 8 ;
+    knhk:guardConstraint "user.authenticated == true" ;
+    yawl:inputCondition ex:TransactionStart ;
+    yawl:flowsTo ex:ValidateTransaction .
+
+ex:ValidateTransaction a yawl:AtomicTask ;
+    rdfs:label "Validate Transaction" ;
+    knhk:maxTicks 8 ;
+    knhk:guardConstraint "transaction.amount <= user.dailyLimit" ;
+    yawl:flowsTo ex:ExecuteTransaction .
+
+ex:ExecuteTransaction a yawl:AtomicTask ;
+    rdfs:label "Execute Transaction" ;
+    knhk:maxTicks 8 ;
+    knhk:guardConstraint "account.balance >= transaction.amount" ;
+    yawl:flowsTo ex:AuditLog .
+
+ex:AuditLog a yawl:AtomicTask ;
+    rdfs:label "Audit Log" ;
+    knhk:maxTicks 4 ;
+    yawl:outputCondition ex:TransactionEnd .
+
+ex:TransactionEnd a yawl:Condition ;
+    rdfs:label "End" .

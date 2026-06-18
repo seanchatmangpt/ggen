@@ -1,0 +1,12 @@
+PREFIX dwh: <https://ggen.ai/ontology/data-warehouse#>
+SELECT ?pipeline ?source ?target ?lastRun ?status WHERE {
+  ?pipeline a dwh:ETL_Pipeline ;
+            dwh:pipelineName ?name ;
+            dwh:hasDataSource ?source ;
+            dwh:hasDataTarget ?target .
+  OPTIONAL {
+    ?jobRun dwh:status ?status ;
+            dwh:endTime ?lastRun .
+  }
+}
+ORDER BY DESC(?lastRun)

@@ -1,0 +1,78 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix schema: <http://schema.org/> .
+@prefix ex: <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Sample data for testing Unjucks RDF integration
+
+# Person entities
+ex:person1 a schema:Person ;
+    schema:name "Alice Johnson"@en ;
+    schema:email "alice@example.org" ;
+    schema:birthDate "1990-05-15"^^xsd:date ;
+    schema:jobTitle "Software Engineer" ;
+    schema:worksFor ex:company1 ;
+    schema:knows ex:person2, ex:person3 .
+
+ex:person2 a schema:Person ;
+    schema:name "Bob Smith"@en ;
+    schema:email "bob@example.org" ;
+    schema:birthDate "1985-03-22"^^xsd:date ;
+    schema:jobTitle "Product Manager" ;
+    schema:worksFor ex:company1 ;
+    schema:knows ex:person1 .
+
+ex:person3 a schema:Person ;
+    schema:name "Carol White"@en ;
+    schema:email "carol@example.org" ;
+    schema:jobTitle "Designer" ;
+    schema:worksFor ex:company2 .
+
+# Organization entities
+ex:company1 a schema:Organization ;
+    schema:name "TechCorp Inc." ;
+    schema:url <https://techcorp.example.org> ;
+    schema:foundingDate "2010-01-01"^^xsd:date ;
+    schema:numberOfEmployees 150 ;
+    schema:address ex:address1 .
+
+ex:company2 a schema:Organization ;
+    schema:name "Design Studio Ltd." ;
+    schema:url <https://designstudio.example.org> ;
+    schema:numberOfEmployees 25 .
+
+# Address
+ex:address1 a schema:PostalAddress ;
+    schema:streetAddress "123 Tech Street" ;
+    schema:addressLocality "San Francisco" ;
+    schema:addressRegion "CA" ;
+    schema:postalCode "94105" ;
+    schema:addressCountry "USA" .
+
+# Products
+ex:product1 a schema:Product ;
+    schema:name "Unjucks Template Engine" ;
+    schema:description "A powerful template engine with RDF support" ;
+    schema:version "2.0.0" ;
+    schema:creator ex:person1 ;
+    schema:dateCreated "2024-01-15"^^xsd:date ;
+    schema:keywords "template", "engine", "rdf", "turtle" .
+
+# Blog posts
+ex:post1 a schema:BlogPosting ;
+    schema:headline "Introduction to RDF Templates" ;
+    schema:author ex:person1 ;
+    schema:datePublished "2024-12-01"^^xsd:date ;
+    schema:articleBody "This article explains how to use RDF data in templates..." ;
+    schema:keywords "rdf", "templates", "tutorial" .
+
+# Events
+ex:event1 a schema:Event ;
+    schema:name "RDF Workshop 2025" ;
+    schema:startDate "2025-02-15T09:00:00"^^xsd:dateTime ;
+    schema:endDate "2025-02-15T17:00:00"^^xsd:dateTime ;
+    schema:location ex:address1 ;
+    schema:organizer ex:company1 ;
+    schema:attendee ex:person1, ex:person2, ex:person3 .

@@ -1,0 +1,726 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix cyber: <http://cns.ai/ontology/cybersecurity#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+
+# Cybersecurity Threat Detection and Response Ontology
+# Ultra-fast threat detection and automated incident response
+# Target: Sub-millisecond response times with BitActor integration
+
+cyber:CybersecurityOntology rdf:type owl:Ontology ;
+    rdfs:label "Real-time Cybersecurity System"@en ;
+    rdfs:comment "Semantic model for ultra-fast threat detection and automated response"@en ;
+    owl:versionInfo "1.0" .
+
+#####################################################################
+# Core Security Asset Classes
+#####################################################################
+
+cyber:Asset rdf:type owl:Class ;
+    rdfs:label "Security Asset"@en ;
+    rdfs:comment "Any system, device, or resource that requires protection"@en .
+
+cyber:NetworkAsset rdf:type owl:Class ;
+    rdfs:subClassOf cyber:Asset ;
+    rdfs:label "Network Asset"@en ;
+    rdfs:comment "Network infrastructure requiring security monitoring"@en .
+
+cyber:ComputeAsset rdf:type owl:Class ;
+    rdfs:subClassOf cyber:Asset ;
+    rdfs:label "Compute Asset"@en ;
+    rdfs:comment "Computing device or system"@en .
+
+cyber:DataAsset rdf:type owl:Class ;
+    rdfs:subClassOf cyber:Asset ;
+    rdfs:label "Data Asset"@en ;
+    rdfs:comment "Information or data requiring protection"@en .
+
+cyber:UserAsset rdf:type owl:Class ;
+    rdfs:subClassOf cyber:Asset ;
+    rdfs:label "User Asset"@en ;
+    rdfs:comment "Human user account or identity"@en .
+
+cyber:ApplicationAsset rdf:type owl:Class ;
+    rdfs:subClassOf cyber:Asset ;
+    rdfs:label "Application Asset"@en ;
+    rdfs:comment "Software application or service"@en .
+
+#####################################################################
+# Network Infrastructure Classes
+#####################################################################
+
+cyber:NetworkDevice rdf:type owl:Class ;
+    rdfs:subClassOf cyber:NetworkAsset ;
+    rdfs:label "Network Device"@en ;
+    rdfs:comment "Physical or virtual network infrastructure device"@en .
+
+cyber:Router rdf:type owl:Class ;
+    rdfs:subClassOf cyber:NetworkDevice ;
+    rdfs:label "Network Router"@en .
+
+cyber:Switch rdf:type owl:Class ;
+    rdfs:subClassOf cyber:NetworkDevice ;
+    rdfs:label "Network Switch"@en .
+
+cyber:Firewall rdf:type owl:Class ;
+    rdfs:subClassOf cyber:NetworkDevice ;
+    rdfs:label "Network Firewall"@en .
+
+cyber:LoadBalancer rdf:type owl:Class ;
+    rdfs:subClassOf cyber:NetworkDevice ;
+    rdfs:label "Load Balancer"@en .
+
+cyber:VPN rdf:type owl:Class ;
+    rdfs:subClassOf cyber:NetworkDevice ;
+    rdfs:label "VPN Gateway"@en .
+
+cyber:NetworkSegment rdf:type owl:Class ;
+    rdfs:label "Network Segment"@en ;
+    rdfs:comment "Logical or physical network subdivision"@en .
+
+cyber:DMZ rdf:type owl:Class ;
+    rdfs:subClassOf cyber:NetworkSegment ;
+    rdfs:label "Demilitarized Zone"@en .
+
+cyber:InternalNetwork rdf:type owl:Class ;
+    rdfs:subClassOf cyber:NetworkSegment ;
+    rdfs:label "Internal Network"@en .
+
+cyber:PublicNetwork rdf:type owl:Class ;
+    rdfs:subClassOf cyber:NetworkSegment ;
+    rdfs:label "Public Network"@en .
+
+#####################################################################
+# Threat and Attack Classes
+#####################################################################
+
+cyber:Threat rdf:type owl:Class ;
+    rdfs:label "Cybersecurity Threat"@en ;
+    rdfs:comment "Potential danger to security assets"@en .
+
+cyber:Malware rdf:type owl:Class ;
+    rdfs:subClassOf cyber:Threat ;
+    rdfs:label "Malware"@en ;
+    rdfs:comment "Malicious software threat"@en .
+
+cyber:Virus rdf:type owl:Class ;
+    rdfs:subClassOf cyber:Malware ;
+    rdfs:label "Computer Virus"@en .
+
+cyber:Worm rdf:type owl:Class ;
+    rdfs:subClassOf cyber:Malware ;
+    rdfs:label "Computer Worm"@en .
+
+cyber:Trojan rdf:type owl:Class ;
+    rdfs:subClassOf cyber:Malware ;
+    rdfs:label "Trojan Horse"@en .
+
+cyber:Ransomware rdf:type owl:Class ;
+    rdfs:subClassOf cyber:Malware ;
+    rdfs:label "Ransomware"@en .
+
+cyber:Rootkit rdf:type owl:Class ;
+    rdfs:subClassOf cyber:Malware ;
+    rdfs:label "Rootkit"@en .
+
+cyber:Spyware rdf:type owl:Class ;
+    rdfs:subClassOf cyber:Malware ;
+    rdfs:label "Spyware"@en .
+
+cyber:Botnet rdf:type owl:Class ;
+    rdfs:subClassOf cyber:Malware ;
+    rdfs:label "Botnet"@en .
+
+#####################################################################
+# Attack Types and Techniques
+#####################################################################
+
+cyber:Attack rdf:type owl:Class ;
+    rdfs:label "Cyber Attack"@en ;
+    rdfs:comment "Active exploitation attempt or malicious activity"@en .
+
+cyber:NetworkAttack rdf:type owl:Class ;
+    rdfs:subClassOf cyber:Attack ;
+    rdfs:label "Network Attack"@en .
+
+cyber:DDoSAttack rdf:type owl:Class ;
+    rdfs:subClassOf cyber:NetworkAttack ;
+    rdfs:label "Distributed Denial of Service Attack"@en .
+
+cyber:ManInTheMiddleAttack rdf:type owl:Class ;
+    rdfs:subClassOf cyber:NetworkAttack ;
+    rdfs:label "Man-in-the-Middle Attack"@en .
+
+cyber:PacketSniffing rdf:type owl:Class ;
+    rdfs:subClassOf cyber:NetworkAttack ;
+    rdfs:label "Packet Sniffing"@en .
+
+cyber:PortScan rdf:type owl:Class ;
+    rdfs:subClassOf cyber:NetworkAttack ;
+    rdfs:label "Port Scanning"@en .
+
+cyber:WebAttack rdf:type owl:Class ;
+    rdfs:subClassOf cyber:Attack ;
+    rdfs:label "Web Application Attack"@en .
+
+cyber:SQLInjection rdf:type owl:Class ;
+    rdfs:subClassOf cyber:WebAttack ;
+    rdfs:label "SQL Injection"@en .
+
+cyber:XSS rdf:type owl:Class ;
+    rdfs:subClassOf cyber:WebAttack ;
+    rdfs:label "Cross-Site Scripting"@en .
+
+cyber:CSRF rdf:type owl:Class ;
+    rdfs:subClassOf cyber:WebAttack ;
+    rdfs:label "Cross-Site Request Forgery"@en .
+
+cyber:SocialEngineering rdf:type owl:Class ;
+    rdfs:subClassOf cyber:Attack ;
+    rdfs:label "Social Engineering"@en .
+
+cyber:PhishingAttack rdf:type owl:Class ;
+    rdfs:subClassOf cyber:SocialEngineering ;
+    rdfs:label "Phishing Attack"@en .
+
+cyber:SpearPhishing rdf:type owl:Class ;
+    rdfs:subClassOf cyber:PhishingAttack ;
+    rdfs:label "Spear Phishing"@en .
+
+cyber:PrivilegeEscalation rdf:type owl:Class ;
+    rdfs:subClassOf cyber:Attack ;
+    rdfs:label "Privilege Escalation"@en .
+
+cyber:LateralMovement rdf:type owl:Class ;
+    rdfs:subClassOf cyber:Attack ;
+    rdfs:label "Lateral Movement"@en .
+
+cyber:DataExfiltration rdf:type owl:Class ;
+    rdfs:subClassOf cyber:Attack ;
+    rdfs:label "Data Exfiltration"@en .
+
+#####################################################################
+# Security Events and Incidents
+#####################################################################
+
+cyber:SecurityEvent rdf:type owl:Class ;
+    rdfs:label "Security Event"@en ;
+    rdfs:comment "Observed security-relevant occurrence"@en .
+
+cyber:SecurityIncident rdf:type owl:Class ;
+    rdfs:label "Security Incident"@en ;
+    rdfs:comment "Confirmed security breach or compromise"@en .
+
+cyber:Vulnerability rdf:type owl:Class ;
+    rdfs:label "Security Vulnerability"@en ;
+    rdfs:comment "Weakness that can be exploited by threats"@en .
+
+cyber:ZeroDayVulnerability rdf:type owl:Class ;
+    rdfs:subClassOf cyber:Vulnerability ;
+    rdfs:label "Zero-Day Vulnerability"@en .
+
+cyber:Alert rdf:type owl:Class ;
+    rdfs:label "Security Alert"@en ;
+    rdfs:comment "Automated security notification"@en .
+
+cyber:ThreatIntelligence rdf:type owl:Class ;
+    rdfs:label "Threat Intelligence"@en ;
+    rdfs:comment "Information about current and emerging threats"@en .
+
+cyber:IOC rdf:type owl:Class ;
+    rdfs:label "Indicator of Compromise"@en ;
+    rdfs:comment "Observable evidence of security breach"@en .
+
+#####################################################################
+# Security Controls and Defenses
+#####################################################################
+
+cyber:SecurityControl rdf:type owl:Class ;
+    rdfs:label "Security Control"@en ;
+    rdfs:comment "Protective measure or safeguard"@en .
+
+cyber:PreventiveControl rdf:type owl:Class ;
+    rdfs:subClassOf cyber:SecurityControl ;
+    rdfs:label "Preventive Control"@en .
+
+cyber:DetectiveControl rdf:type owl:Class ;
+    rdfs:subClassOf cyber:SecurityControl ;
+    rdfs:label "Detective Control"@en .
+
+cyber:CorrectiveControl rdf:type owl:Class ;
+    rdfs:subClassOf cyber:SecurityControl ;
+    rdfs:label "Corrective Control"@en .
+
+cyber:IDS rdf:type owl:Class ;
+    rdfs:subClassOf cyber:DetectiveControl ;
+    rdfs:label "Intrusion Detection System"@en .
+
+cyber:IPS rdf:type owl:Class ;
+    rdfs:subClassOf cyber:PreventiveControl ;
+    rdfs:label "Intrusion Prevention System"@en .
+
+cyber:SIEM rdf:type owl:Class ;
+    rdfs:subClassOf cyber:DetectiveControl ;
+    rdfs:label "Security Information and Event Management"@en .
+
+cyber:Antivirus rdf:type owl:Class ;
+    rdfs:subClassOf cyber:PreventiveControl ;
+    rdfs:label "Antivirus Software"@en .
+
+cyber:EDR rdf:type owl:Class ;
+    rdfs:subClassOf cyber:DetectiveControl ;
+    rdfs:label "Endpoint Detection and Response"@en .
+
+cyber:SOAR rdf:type owl:Class ;
+    rdfs:subClassOf cyber:CorrectiveControl ;
+    rdfs:label "Security Orchestration, Automation and Response"@en .
+
+#####################################################################
+# Core Properties - Asset Identification
+#####################################################################
+
+cyber:assetID rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:Asset ;
+    rdfs:range xsd:string ;
+    rdfs:label "Asset Identifier"@en .
+
+cyber:assetType rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:Asset ;
+    rdfs:range xsd:string ;
+    rdfs:label "Asset Type"@en .
+
+cyber:assetOwner rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:Asset ;
+    rdfs:range xsd:string ;
+    rdfs:label "Asset Owner"@en .
+
+cyber:criticality rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:Asset ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Asset Criticality (1-10)"@en .
+
+cyber:confidentialityLevel rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:Asset ;
+    rdfs:range xsd:string ;
+    rdfs:label "Confidentiality Classification"@en .
+
+#####################################################################
+# Network Properties
+#####################################################################
+
+cyber:ipAddress rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:NetworkAsset ;
+    rdfs:range xsd:string ;
+    rdfs:label "IP Address"@en .
+
+cyber:macAddress rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:NetworkAsset ;
+    rdfs:range xsd:string ;
+    rdfs:label "MAC Address"@en .
+
+cyber:port rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:NetworkAsset ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Network Port"@en .
+
+cyber:protocol rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:NetworkAsset ;
+    rdfs:range xsd:string ;
+    rdfs:label "Network Protocol"@en .
+
+cyber:networkSegment rdf:type owl:ObjectProperty ;
+    rdfs:domain cyber:NetworkAsset ;
+    rdfs:range cyber:NetworkSegment ;
+    rdfs:label "Network Segment"@en .
+
+cyber:isOnline rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:NetworkAsset ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Online Status"@en .
+
+#####################################################################
+# Threat Properties
+#####################################################################
+
+cyber:threatID rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:Threat ;
+    rdfs:range xsd:string ;
+    rdfs:label "Threat Identifier"@en .
+
+cyber:severity rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:Threat ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Threat Severity (1-10)"@en .
+
+cyber:confidence rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:Threat ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Detection Confidence (0.0-1.0)"@en .
+
+cyber:firstSeen rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:Threat ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "First Detection Time"@en .
+
+cyber:lastSeen rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:Threat ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Last Detection Time"@en .
+
+cyber:threatFamily rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:Malware ;
+    rdfs:range xsd:string ;
+    rdfs:label "Malware Family"@en .
+
+cyber:md5Hash rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:Malware ;
+    rdfs:range xsd:string ;
+    rdfs:label "MD5 Hash"@en .
+
+cyber:sha256Hash rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:Malware ;
+    rdfs:range xsd:string ;
+    rdfs:label "SHA256 Hash"@en .
+
+cyber:fileSize rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:Malware ;
+    rdfs:range xsd:integer ;
+    rdfs:label "File Size (bytes)"@en .
+
+#####################################################################
+# Attack Properties
+#####################################################################
+
+cyber:attackID rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:Attack ;
+    rdfs:range xsd:string ;
+    rdfs:label "Attack Identifier"@en .
+
+cyber:attackVector rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:Attack ;
+    rdfs:range xsd:string ;
+    rdfs:label "Attack Vector"@en .
+
+cyber:sourceIP rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:Attack ;
+    rdfs:range xsd:string ;
+    rdfs:label "Source IP Address"@en .
+
+cyber:destinationIP rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:Attack ;
+    rdfs:range xsd:string ;
+    rdfs:label "Destination IP Address"@en .
+
+cyber:sourcePort rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:Attack ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Source Port"@en .
+
+cyber:destinationPort rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:Attack ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Destination Port"@en .
+
+cyber:attackTimestamp rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:Attack ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Attack Timestamp"@en .
+
+cyber:duration rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:Attack ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Attack Duration (seconds)"@en .
+
+cyber:packetCount rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:NetworkAttack ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Packet Count"@en .
+
+cyber:byteCount rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:NetworkAttack ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Byte Count"@en .
+
+#####################################################################
+# Security Event Properties
+#####################################################################
+
+cyber:eventID rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:SecurityEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "Event Identifier"@en .
+
+cyber:eventType rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:SecurityEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "Event Type"@en .
+
+cyber:eventTimestamp rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:SecurityEvent ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Event Timestamp"@en .
+
+cyber:eventSeverity rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:SecurityEvent ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Event Severity (1-10)"@en .
+
+cyber:riskScore rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:SecurityEvent ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Risk Score (0.0-10.0)"@en .
+
+cyber:falsePositiveProbability rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:SecurityEvent ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "False Positive Probability (0.0-1.0)"@en .
+
+#####################################################################
+# Vulnerability Properties
+#####################################################################
+
+cyber:cveID rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:Vulnerability ;
+    rdfs:range xsd:string ;
+    rdfs:label "CVE Identifier"@en .
+
+cyber:cvssScore rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:Vulnerability ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "CVSS Score (0.0-10.0)"@en .
+
+cyber:exploitability rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:Vulnerability ;
+    rdfs:range xsd:string ;
+    rdfs:label "Exploitability Level"@en .
+
+cyber:impactScore rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:Vulnerability ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Impact Score (0.0-10.0)"@en .
+
+cyber:disclosureDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:Vulnerability ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Vulnerability Disclosure Date"@en .
+
+cyber:patchAvailable rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:Vulnerability ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Patch Available"@en .
+
+#####################################################################
+# Relationship Properties
+#####################################################################
+
+cyber:targets rdf:type owl:ObjectProperty ;
+    rdfs:domain cyber:Threat ;
+    rdfs:range cyber:Asset ;
+    rdfs:label "Targets Asset"@en .
+
+cyber:exploits rdf:type owl:ObjectProperty ;
+    rdfs:domain cyber:Attack ;
+    rdfs:range cyber:Vulnerability ;
+    rdfs:label "Exploits Vulnerability"@en .
+
+cyber:affects rdf:type owl:ObjectProperty ;
+    rdfs:domain cyber:Attack ;
+    rdfs:range cyber:Asset ;
+    rdfs:label "Affects Asset"@en .
+
+cyber:detectedBy rdf:type owl:ObjectProperty ;
+    rdfs:domain cyber:Threat ;
+    rdfs:range cyber:SecurityControl ;
+    rdfs:label "Detected By Control"@en .
+
+cyber:mitigatedBy rdf:type owl:ObjectProperty ;
+    rdfs:domain cyber:Threat ;
+    rdfs:range cyber:SecurityControl ;
+    rdfs:label "Mitigated By Control"@en .
+
+cyber:protects rdf:type owl:ObjectProperty ;
+    rdfs:domain cyber:SecurityControl ;
+    rdfs:range cyber:Asset ;
+    rdfs:label "Protects Asset"@en .
+
+cyber:communicatesWith rdf:type owl:ObjectProperty ;
+    rdfs:domain cyber:NetworkAsset ;
+    rdfs:range cyber:NetworkAsset ;
+    rdfs:label "Communicates With"@en .
+
+cyber:hasVulnerability rdf:type owl:ObjectProperty ;
+    rdfs:domain cyber:Asset ;
+    rdfs:range cyber:Vulnerability ;
+    rdfs:label "Has Vulnerability"@en .
+
+cyber:generatesEvent rdf:type owl:ObjectProperty ;
+    rdfs:domain cyber:Asset ;
+    rdfs:range cyber:SecurityEvent ;
+    rdfs:label "Generates Event"@en .
+
+#####################################################################
+# BitActor Integration Properties
+#####################################################################
+
+cyber:bitactorID rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:Asset ;
+    rdfs:range xsd:string ;
+    rdfs:label "BitActor Instance ID"@en .
+
+cyber:processingLatency rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:SecurityEvent ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Processing Latency (nanoseconds)"@en .
+
+cyber:ticksUsed rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:SecurityEvent ;
+    rdfs:range xsd:integer ;
+    rdfs:label "CPU Ticks Used"@en .
+
+cyber:simdOptimized rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:SecurityEvent ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "SIMD Optimized Processing"@en .
+
+cyber:realTimeProcessing rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:SecurityControl ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Real-time Processing Enabled"@en .
+
+cyber:detectionAccuracy rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:SecurityControl ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Detection Accuracy (%)"@en .
+
+cyber:responseTime rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:SecurityControl ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Response Time (milliseconds)"@en .
+
+#####################################################################
+# Incident Response Properties
+#####################################################################
+
+cyber:incidentID rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:SecurityIncident ;
+    rdfs:range xsd:string ;
+    rdfs:label "Incident Identifier"@en .
+
+cyber:incidentStatus rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:SecurityIncident ;
+    rdfs:range xsd:string ;
+    rdfs:label "Incident Status"@en .
+
+cyber:containmentTime rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:SecurityIncident ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Containment Time (minutes)"@en .
+
+cyber:recoveryTime rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:SecurityIncident ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Recovery Time (minutes)"@en .
+
+cyber:businessImpact rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:SecurityIncident ;
+    rdfs:range xsd:string ;
+    rdfs:label "Business Impact Level"@en .
+
+cyber:assignedAnalyst rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:SecurityIncident ;
+    rdfs:range xsd:string ;
+    rdfs:label "Assigned Security Analyst"@en .
+
+#####################################################################
+# Threat Intelligence Properties
+#####################################################################
+
+cyber:iocType rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:IOC ;
+    rdfs:range xsd:string ;
+    rdfs:label "IOC Type"@en .
+
+cyber:iocValue rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:IOC ;
+    rdfs:range xsd:string ;
+    rdfs:label "IOC Value"@en .
+
+cyber:reputation rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:IOC ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Reputation Score (-1.0 to 1.0)"@en .
+
+cyber:source rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:ThreatIntelligence ;
+    rdfs:range xsd:string ;
+    rdfs:label "Intelligence Source"@en .
+
+cyber:reliability rdf:type owl:DatatypeProperty ;
+    rdfs:domain cyber:ThreatIntelligence ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Source Reliability (0.0-1.0)"@en .
+
+#####################################################################
+# Instances - Common Asset Types
+#####################################################################
+
+cyber:WebServer rdf:type cyber:ComputeAsset ;
+    cyber:assetType "web_server" ;
+    cyber:criticality 8 ;
+    cyber:confidentialityLevel "public" .
+
+cyber:DatabaseServer rdf:type cyber:ComputeAsset ;
+    cyber:assetType "database_server" ;
+    cyber:criticality 10 ;
+    cyber:confidentialityLevel "confidential" .
+
+cyber:WorkstationPC rdf:type cyber:ComputeAsset ;
+    cyber:assetType "workstation" ;
+    cyber:criticality 5 ;
+    cyber:confidentialityLevel "internal" .
+
+cyber:MobileDevice rdf:type cyber:ComputeAsset ;
+    cyber:assetType "mobile_device" ;
+    cyber:criticality 6 ;
+    cyber:confidentialityLevel "internal" .
+
+#####################################################################
+# Instances - Common Threats
+#####################################################################
+
+cyber:WannaCry rdf:type cyber:Ransomware ;
+    cyber:threatFamily "WannaCry" ;
+    cyber:severity 10 ;
+    cyber:md5Hash "db349b97c37d22f5ea1d1841e3c89eb4" .
+
+cyber:Conficker rdf:type cyber:Worm ;
+    cyber:threatFamily "Conficker" ;
+    cyber:severity 8 ;
+    cyber:md5Hash "multiple_variants" .
+
+cyber:Stuxnet rdf:type cyber:Worm ;
+    cyber:threatFamily "Stuxnet" ;
+    cyber:severity 10 ;
+    cyber:md5Hash "ac4c51eb24aa95b727500faf5a34323c" .
+
+#####################################################################
+# Instances - Common Controls
+#####################################################################
+
+cyber:PfSenseFirewall rdf:type cyber:Firewall ;
+    cyber:realTimeProcessing true ;
+    cyber:detectionAccuracy 95.0 ;
+    cyber:responseTime 1.0 .
+
+cyber:SnortIDS rdf:type cyber:IDS ;
+    cyber:realTimeProcessing true ;
+    cyber:detectionAccuracy 92.0 ;
+    cyber:responseTime 5.0 .
+
+cyber:SplunkSIEM rdf:type cyber:SIEM ;
+    cyber:realTimeProcessing true ;
+    cyber:detectionAccuracy 88.0 ;
+    cyber:responseTime 15.0 .

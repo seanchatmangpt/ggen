@@ -1,0 +1,65 @@
+# Example RDF Benchmark Schema
+# This schema defines a simple insert benchmark for demonstration purposes
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://example.org/benchmark#> .
+@prefix micro: <http://example.org/micro#> .
+
+# Benchmark definition
+ex:bench_insert_single_triple a micro:Benchmark ;
+    micro:name "insert_single_triple" ;
+    micro:operation micro:TraceIngestion ;
+    micro:slo_micros "1.0"^^xsd:float ;
+    micro:description "Insert a single RDF triple into the store" ;
+    micro:dataset_size "100"^^xsd:integer ;
+    micro:warmup_iterations "10"^^xsd:integer ;
+    micro:measurement_iterations "100"^^xsd:integer .
+
+# Operation type definition
+micro:TraceIngestion a rdfs:Class ;
+    rdfs:label "Trace Ingestion" ;
+    rdfs:comment "Operations related to ingesting trace data into RDF store" .
+
+# Benchmark class definition
+micro:Benchmark a rdfs:Class ;
+    rdfs:label "Benchmark" ;
+    rdfs:comment "A performance benchmark definition" .
+
+# Property definitions
+micro:name a rdf:Property ;
+    rdfs:label "name" ;
+    rdfs:domain micro:Benchmark ;
+    rdfs:range xsd:string .
+
+micro:operation a rdf:Property ;
+    rdfs:label "operation" ;
+    rdfs:domain micro:Benchmark ;
+    rdfs:range micro:Operation .
+
+micro:slo_micros a rdf:Property ;
+    rdfs:label "slo_micros" ;
+    rdfs:comment "Service Level Objective in microseconds" ;
+    rdfs:domain micro:Benchmark ;
+    rdfs:range xsd:float .
+
+micro:description a rdf:Property ;
+    rdfs:label "description" ;
+    rdfs:domain micro:Benchmark ;
+    rdfs:range xsd:string .
+
+micro:dataset_size a rdf:Property ;
+    rdfs:label "dataset_size" ;
+    rdfs:domain micro:Benchmark ;
+    rdfs:range xsd:integer .
+
+micro:warmup_iterations a rdf:Property ;
+    rdfs:label "warmup_iterations" ;
+    rdfs:domain micro:Benchmark ;
+    rdfs:range xsd:integer .
+
+micro:measurement_iterations a rdf:Property ;
+    rdfs:label "measurement_iterations" ;
+    rdfs:domain micro:Benchmark ;
+    rdfs:range xsd:integer .

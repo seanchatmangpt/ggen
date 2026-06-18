@@ -1,0 +1,838 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix sk: <http://github.com/github/spec-kit#> .
+@prefix jtbd: <http://github.com/github/spec-kit/jtbd#> .
+
+# ============================================================================
+# Jobs To Be Done (JTBD) SHACL Validation Shapes
+# ============================================================================
+# Purpose: Advanced validation shapes for JTBD measurements and tracking
+# Extends: jtbd-schema.ttl base shapes with measurement-specific validation
+# Validates: Job completion records, outcomes, painpoints, personas
+# ============================================================================
+
+# ============================================================================
+# JOB COMPLETION VALIDATION SHAPES
+# ============================================================================
+
+jtbd:JobCompletionShape a sh:NodeShape ;
+    rdfs:label "Job Completion Shape"@en ;
+    rdfs:comment "Validates job completion records with temporal and measurement data"@en ;
+    sh:targetClass jtbd:JobCompletion ;
+
+    # Temporal tracking
+    sh:property [
+        sh:path jtbd:completedAt ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Job completion must have exactly one completion timestamp"@en ;
+    ] ;
+
+    sh:property [
+        sh:path jtbd:duration ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minExclusive 0.0 ;
+        sh:message "Duration must be a positive decimal value (in seconds)"@en ;
+    ] ;
+
+    # Success measurement
+    sh:property [
+        sh:path jtbd:wasSuccessful ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Job completion must indicate success/failure status"@en ;
+    ] ;
+
+    # Relationship to job
+    sh:property [
+        sh:path jtbd:completesJob ;
+        sh:class jtbd:Job ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Job completion must reference exactly one job"@en ;
+    ] ;
+
+    # Relationship to customer segment
+    sh:property [
+        sh:path jtbd:performedBy ;
+        sh:class jtbd:CustomerSegment ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Job completion must reference the customer segment that performed it"@en ;
+    ] ;
+
+    # Outcome achievement tracking
+    sh:property [
+        sh:path jtbd:achievedOutcome ;
+        sh:class jtbd:Outcome ;
+        sh:message "Job completion may reference achieved outcomes"@en ;
+    ] ;
+
+    # Context reference
+    sh:property [
+        sh:path jtbd:inCircumstance ;
+        sh:class jtbd:JobCircumstance ;
+        sh:maxCount 1 ;
+        sh:message "Job completion may reference the circumstance context"@en ;
+    ] ;
+
+    # Optional notes
+    sh:property [
+        sh:path jtbd:completionNotes ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:maxLength 1000 ;
+        sh:message "Completion notes must be 1000 characters or less"@en ;
+    ] .
+
+# ============================================================================
+# OUTCOME ACHIEVEMENT VALIDATION SHAPES
+# ============================================================================
+
+jtbd:OutcomeAchievementShape a sh:NodeShape ;
+    rdfs:label "Outcome Achievement Shape"@en ;
+    rdfs:comment "Validates outcome achievement records with metrics and temporal data"@en ;
+    sh:targetClass jtbd:OutcomeAchievement ;
+
+    # Temporal tracking
+    sh:property [
+        sh:path jtbd:measuredAt ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Outcome achievement must have exactly one measurement timestamp"@en ;
+    ] ;
+
+    # Metric value
+    sh:property [
+        sh:path jtbd:metricValue ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Outcome achievement must record the measured metric value"@en ;
+    ] ;
+
+    # Target comparison
+    sh:property [
+        sh:path jtbd:metTargetThreshold ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Must indicate whether target threshold was met"@en ;
+    ] ;
+
+    # Relationship to desired outcome
+    sh:property [
+        sh:path jtbd:achievesOutcome ;
+        sh:class jtbd:DesiredOutcome ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Outcome achievement must reference exactly one desired outcome"@en ;
+    ] ;
+
+    # Customer segment reference
+    sh:property [
+        sh:path jtbd:byCustomerSegment ;
+        sh:class jtbd:CustomerSegment ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Outcome achievement must reference the customer segment"@en ;
+    ] ;
+
+    # Solution reference
+    sh:property [
+        sh:path jtbd:usingSolution ;
+        sh:class jtbd:Solution ;
+        sh:maxCount 1 ;
+        sh:message "May reference the solution used to achieve outcome"@en ;
+    ] ;
+
+    # Period tracking
+    sh:property [
+        sh:path jtbd:periodStart ;
+        sh:datatype xsd:dateTime ;
+        sh:maxCount 1 ;
+        sh:message "Optional period start for aggregated measurements"@en ;
+    ] ;
+
+    sh:property [
+        sh:path jtbd:periodEnd ;
+        sh:datatype xsd:dateTime ;
+        sh:maxCount 1 ;
+        sh:message "Optional period end for aggregated measurements"@en ;
+    ] ;
+
+    # Aggregation level
+    sh:property [
+        sh:path jtbd:aggregationLevel ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:in ( "Individual" "Daily" "Weekly" "Monthly" "Quarterly" "Yearly" ) ;
+        sh:message "Aggregation level must be Individual, Daily, Weekly, Monthly, Quarterly, or Yearly"@en ;
+    ] ;
+
+    # Confidence score
+    sh:property [
+        sh:path jtbd:confidenceScore ;
+        sh:datatype xsd:decimal ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Confidence score must be between 0.0 and 1.0"@en ;
+    ] .
+
+# ============================================================================
+# PAINPOINT RESOLUTION VALIDATION SHAPES
+# ============================================================================
+
+jtbd:PainpointResolutionShape a sh:NodeShape ;
+    rdfs:label "Painpoint Resolution Shape"@en ;
+    rdfs:comment "Validates painpoint resolution records with before/after measurements"@en ;
+    sh:targetClass jtbd:PainpointResolution ;
+
+    # Temporal tracking
+    sh:property [
+        sh:path jtbd:resolvedAt ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Painpoint resolution must have resolution timestamp"@en ;
+    ] ;
+
+    # Resolution status
+    sh:property [
+        sh:path jtbd:resolutionStatus ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "Fully Resolved" "Partially Resolved" "Mitigated" "Workaround" "Unresolved" ) ;
+        sh:message "Resolution status must be: Fully Resolved, Partially Resolved, Mitigated, Workaround, or Unresolved"@en ;
+    ] ;
+
+    # Before/After severity
+    sh:property [
+        sh:path jtbd:severityBefore ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "Minor" "Moderate" "Critical" ) ;
+        sh:message "Severity before must be Minor, Moderate, or Critical"@en ;
+    ] ;
+
+    sh:property [
+        sh:path jtbd:severityAfter ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "None" "Minor" "Moderate" "Critical" ) ;
+        sh:message "Severity after must be None, Minor, Moderate, or Critical"@en ;
+    ] ;
+
+    # Impact metrics
+    sh:property [
+        sh:path jtbd:impactReduction ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Impact reduction must be percentage between 0 and 100"@en ;
+    ] ;
+
+    # Relationship to painpoint
+    sh:property [
+        sh:path jtbd:resolvesPainpoint ;
+        sh:class jtbd:Painpoint ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Resolution must reference exactly one painpoint"@en ;
+    ] ;
+
+    # Solution that resolved it
+    sh:property [
+        sh:path jtbd:resolvedBySolution ;
+        sh:class jtbd:Solution ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Resolution must reference the solution that resolved the painpoint"@en ;
+    ] ;
+
+    # Customer segment
+    sh:property [
+        sh:path jtbd:forCustomerSegment ;
+        sh:class jtbd:CustomerSegment ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Resolution must reference the customer segment"@en ;
+    ] ;
+
+    # Measurement period
+    sh:property [
+        sh:path jtbd:periodStart ;
+        sh:datatype xsd:dateTime ;
+        sh:maxCount 1 ;
+        sh:message "Optional measurement period start"@en ;
+    ] ;
+
+    sh:property [
+        sh:path jtbd:periodEnd ;
+        sh:datatype xsd:dateTime ;
+        sh:maxCount 1 ;
+        sh:message "Optional measurement period end"@en ;
+    ] ;
+
+    # Validation notes
+    sh:property [
+        sh:path jtbd:resolutionEvidence ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:minLength 20 ;
+        sh:message "Resolution evidence must be at least 20 characters"@en ;
+    ] .
+
+# ============================================================================
+# ENHANCED PERSONA VALIDATION SHAPE
+# ============================================================================
+
+jtbd:EnhancedPersonaShape a sh:NodeShape ;
+    rdfs:label "Enhanced Persona Shape"@en ;
+    rdfs:comment "Extended persona validation with measurement tracking"@en ;
+    sh:targetClass jtbd:Persona ;
+
+    # Core persona fields (from base schema)
+    sh:property [
+        sh:path jtbd:personaName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 3 ;
+        sh:maxLength 50 ;
+        sh:message "Persona name required (3-50 characters)"@en ;
+    ] ;
+
+    sh:property [
+        sh:path jtbd:personaRole ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Persona role required"@en ;
+    ] ;
+
+    sh:property [
+        sh:path jtbd:personaGoals ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:minLength 20 ;
+        sh:message "Persona goals required (at least 20 characters)"@en ;
+    ] ;
+
+    sh:property [
+        sh:path jtbd:personaChallenges ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:minLength 20 ;
+        sh:message "Persona challenges required (at least 20 characters)"@en ;
+    ] ;
+
+    # Measurement tracking extensions
+    sh:property [
+        sh:path jtbd:trackingEnabled ;
+        sh:datatype xsd:boolean ;
+        sh:maxCount 1 ;
+        sh:message "Optional flag to enable measurement tracking for this persona"@en ;
+    ] ;
+
+    sh:property [
+        sh:path jtbd:sampleSize ;
+        sh:datatype xsd:integer ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1 ;
+        sh:message "Optional sample size for measurement (minimum 1)"@en ;
+    ] ;
+
+    sh:property [
+        sh:path jtbd:lastMeasured ;
+        sh:datatype xsd:dateTime ;
+        sh:maxCount 1 ;
+        sh:message "Optional timestamp of last measurement"@en ;
+    ] ;
+
+    # Satisfaction tracking
+    sh:property [
+        sh:path jtbd:overallSatisfaction ;
+        sh:datatype xsd:decimal ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1.0 ;
+        sh:maxInclusive 10.0 ;
+        sh:message "Overall satisfaction score must be between 1 and 10"@en ;
+    ] ;
+
+    sh:property [
+        sh:path jtbd:npsScore ;
+        sh:datatype xsd:integer ;
+        sh:maxCount 1 ;
+        sh:minInclusive -100 ;
+        sh:maxInclusive 100 ;
+        sh:message "Net Promoter Score must be between -100 and 100"@en ;
+    ] ;
+
+    # Behavioral metrics
+    sh:property [
+        sh:path jtbd:jobFrequencyActual ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:in ( "Multiple Daily" "Daily" "Weekly" "Monthly" "Quarterly" "Rarely" ) ;
+        sh:message "Actual job frequency must be: Multiple Daily, Daily, Weekly, Monthly, Quarterly, or Rarely"@en ;
+    ] ;
+
+    sh:property [
+        sh:path jtbd:adoptionRate ;
+        sh:datatype xsd:decimal ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Adoption rate must be percentage between 0 and 100"@en ;
+    ] ;
+
+    # Demographic context (optional)
+    sh:property [
+        sh:path jtbd:personaExperience ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:in ( "Novice" "Intermediate" "Advanced" "Expert" ) ;
+        sh:message "Experience level must be: Novice, Intermediate, Advanced, or Expert"@en ;
+    ] ;
+
+    sh:property [
+        sh:path jtbd:personaTechSavviness ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:in ( "Low" "Medium" "High" ) ;
+        sh:message "Tech savviness must be: Low, Medium, or High"@en ;
+    ] .
+
+# ============================================================================
+# METRICS DASHBOARD VALIDATION SHAPE
+# ============================================================================
+
+jtbd:MetricsDashboardShape a sh:NodeShape ;
+    rdfs:label "Metrics Dashboard Shape"@en ;
+    rdfs:comment "Validates metrics dashboard aggregation records"@en ;
+    sh:targetClass jtbd:MetricsDashboard ;
+
+    # Dashboard metadata
+    sh:property [
+        sh:path jtbd:dashboardName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 5 ;
+        sh:maxLength 100 ;
+        sh:message "Dashboard name required (5-100 characters)"@en ;
+    ] ;
+
+    sh:property [
+        sh:path jtbd:dashboardType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "Job Performance" "Outcome Achievement" "Painpoint Tracking" "Solution Adoption" "Customer Satisfaction" ) ;
+        sh:message "Dashboard type must be: Job Performance, Outcome Achievement, Painpoint Tracking, Solution Adoption, or Customer Satisfaction"@en ;
+    ] ;
+
+    # Temporal scope
+    sh:property [
+        sh:path jtbd:periodStart ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Dashboard period start required"@en ;
+    ] ;
+
+    sh:property [
+        sh:path jtbd:periodEnd ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Dashboard period end required"@en ;
+    ] ;
+
+    sh:property [
+        sh:path jtbd:aggregationLevel ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "Hourly" "Daily" "Weekly" "Monthly" "Quarterly" "Yearly" ) ;
+        sh:message "Aggregation level must be: Hourly, Daily, Weekly, Monthly, Quarterly, or Yearly"@en ;
+    ] ;
+
+    # Data references
+    sh:property [
+        sh:path jtbd:tracksJob ;
+        sh:class jtbd:Job ;
+        sh:message "Dashboard may track specific jobs"@en ;
+    ] ;
+
+    sh:property [
+        sh:path jtbd:tracksOutcome ;
+        sh:class jtbd:Outcome ;
+        sh:message "Dashboard may track specific outcomes"@en ;
+    ] ;
+
+    sh:property [
+        sh:path jtbd:tracksSegment ;
+        sh:class jtbd:CustomerSegment ;
+        sh:message "Dashboard may track specific customer segments"@en ;
+    ] ;
+
+    # Refresh metadata
+    sh:property [
+        sh:path jtbd:lastRefreshed ;
+        sh:datatype xsd:dateTime ;
+        sh:maxCount 1 ;
+        sh:message "Optional last refresh timestamp"@en ;
+    ] ;
+
+    sh:property [
+        sh:path jtbd:refreshFrequency ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:in ( "Real-time" "Hourly" "Daily" "Weekly" "On-demand" ) ;
+        sh:message "Refresh frequency must be: Real-time, Hourly, Daily, Weekly, or On-demand"@en ;
+    ] .
+
+# ============================================================================
+# OUTCOME REPORT VALIDATION SHAPE
+# ============================================================================
+
+jtbd:OutcomeReportShape a sh:NodeShape ;
+    rdfs:label "Outcome Report Shape"@en ;
+    rdfs:comment "Validates outcome performance reports"@en ;
+    sh:targetClass jtbd:OutcomeReport ;
+
+    # Report metadata
+    sh:property [
+        sh:path jtbd:reportTitle ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 10 ;
+        sh:message "Report title required (at least 10 characters)"@en ;
+    ] ;
+
+    sh:property [
+        sh:path jtbd:generatedAt ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Report generation timestamp required"@en ;
+    ] ;
+
+    # Period coverage
+    sh:property [
+        sh:path jtbd:periodStart ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Report period start required"@en ;
+    ] ;
+
+    sh:property [
+        sh:path jtbd:periodEnd ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Report period end required"@en ;
+    ] ;
+
+    # Outcome reference
+    sh:property [
+        sh:path jtbd:reportsOnOutcome ;
+        sh:class jtbd:DesiredOutcome ;
+        sh:minCount 1 ;
+        sh:message "Report must reference at least one desired outcome"@en ;
+    ] ;
+
+    # Customer segment
+    sh:property [
+        sh:path jtbd:forCustomerSegment ;
+        sh:class jtbd:CustomerSegment ;
+        sh:maxCount 1 ;
+        sh:message "Report may target specific customer segment"@en ;
+    ] ;
+
+    # Summary statistics
+    sh:property [
+        sh:path jtbd:totalMeasurements ;
+        sh:datatype xsd:integer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0 ;
+        sh:message "Total measurements count required (non-negative)"@en ;
+    ] ;
+
+    sh:property [
+        sh:path jtbd:averageScore ;
+        sh:datatype xsd:decimal ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:message "Average score must be non-negative"@en ;
+    ] ;
+
+    sh:property [
+        sh:path jtbd:achievementRate ;
+        sh:datatype xsd:decimal ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Achievement rate must be percentage between 0 and 100"@en ;
+    ] ;
+
+    # Trend analysis
+    sh:property [
+        sh:path jtbd:trendDirection ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:in ( "Improving" "Stable" "Declining" "Insufficient Data" ) ;
+        sh:message "Trend direction must be: Improving, Stable, Declining, or Insufficient Data"@en ;
+    ] .
+
+# ============================================================================
+# SATISFACTION SURVEY VALIDATION SHAPE
+# ============================================================================
+
+jtbd:SatisfactionSurveyShape a sh:NodeShape ;
+    rdfs:label "Satisfaction Survey Shape"@en ;
+    rdfs:comment "Validates customer satisfaction survey records"@en ;
+    sh:targetClass jtbd:SatisfactionSurvey ;
+
+    # Survey metadata
+    sh:property [
+        sh:path jtbd:surveyName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 5 ;
+        sh:message "Survey name required (at least 5 characters)"@en ;
+    ] ;
+
+    sh:property [
+        sh:path jtbd:conductedAt ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Survey timestamp required"@en ;
+    ] ;
+
+    # Survey scope
+    sh:property [
+        sh:path jtbd:surveysJob ;
+        sh:class jtbd:Job ;
+        sh:maxCount 1 ;
+        sh:message "Survey may target specific job"@en ;
+    ] ;
+
+    sh:property [
+        sh:path jtbd:surveysOutcome ;
+        sh:class jtbd:DesiredOutcome ;
+        sh:maxCount 1 ;
+        sh:message "Survey may target specific outcome"@en ;
+    ] ;
+
+    sh:property [
+        sh:path jtbd:targetSegment ;
+        sh:class jtbd:CustomerSegment ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Survey must target exactly one customer segment"@en ;
+    ] ;
+
+    # Response metrics
+    sh:property [
+        sh:path jtbd:totalResponses ;
+        sh:datatype xsd:integer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1 ;
+        sh:message "Total responses required (at least 1)"@en ;
+    ] ;
+
+    sh:property [
+        sh:path jtbd:responseRate ;
+        sh:datatype xsd:decimal ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Response rate must be percentage between 0 and 100"@en ;
+    ] ;
+
+    # Satisfaction scores
+    sh:property [
+        sh:path jtbd:importanceScore ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1.0 ;
+        sh:maxInclusive 10.0 ;
+        sh:message "Importance score must be between 1 and 10"@en ;
+    ] ;
+
+    sh:property [
+        sh:path jtbd:satisfactionScore ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1.0 ;
+        sh:maxInclusive 10.0 ;
+        sh:message "Satisfaction score must be between 1 and 10"@en ;
+    ] ;
+
+    sh:property [
+        sh:path jtbd:opportunityScoreValue ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 30.0 ;
+        sh:message "Opportunity score must be between 0 and 30"@en ;
+    ] .
+
+# ============================================================================
+# FEATURE IMPACT ANALYSIS VALIDATION SHAPE
+# ============================================================================
+
+jtbd:FeatureImpactAnalysisShape a sh:NodeShape ;
+    rdfs:label "Feature Impact Analysis Shape"@en ;
+    rdfs:comment "Validates feature impact analysis records"@en ;
+    sh:targetClass jtbd:FeatureImpactAnalysis ;
+
+    # Analysis metadata
+    sh:property [
+        sh:path jtbd:analysisName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 10 ;
+        sh:message "Analysis name required (at least 10 characters)"@en ;
+    ] ;
+
+    sh:property [
+        sh:path jtbd:analyzedAt ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Analysis timestamp required"@en ;
+    ] ;
+
+    # Feature reference (integration with spec-kit)
+    sh:property [
+        sh:path jtbd:analyzesFeature ;
+        sh:class sk:Feature ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Analysis must reference exactly one feature"@en ;
+    ] ;
+
+    # Before/After period
+    sh:property [
+        sh:path jtbd:baselinePeriodStart ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Baseline period start required"@en ;
+    ] ;
+
+    sh:property [
+        sh:path jtbd:baselinePeriodEnd ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Baseline period end required"@en ;
+    ] ;
+
+    sh:property [
+        sh:path jtbd:measurementPeriodStart ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Measurement period start required"@en ;
+    ] ;
+
+    sh:property [
+        sh:path jtbd:measurementPeriodEnd ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Measurement period end required"@en ;
+    ] ;
+
+    # Impact metrics
+    sh:property [
+        sh:path jtbd:impactedOutcomes ;
+        sh:class jtbd:DesiredOutcome ;
+        sh:minCount 1 ;
+        sh:message "Analysis must reference at least one impacted outcome"@en ;
+    ] ;
+
+    sh:property [
+        sh:path jtbd:resolvedPainpoints ;
+        sh:class jtbd:Painpoint ;
+        sh:message "Analysis may reference resolved painpoints"@en ;
+    ] ;
+
+    sh:property [
+        sh:path jtbd:targetedSegments ;
+        sh:class jtbd:CustomerSegment ;
+        sh:minCount 1 ;
+        sh:message "Analysis must reference at least one customer segment"@en ;
+    ] ;
+
+    # Summary statistics
+    sh:property [
+        sh:path jtbd:overallImpactScore ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive -100.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Overall impact score must be between -100 and 100"@en ;
+    ] ;
+
+    sh:property [
+        sh:path jtbd:adoptionRate ;
+        sh:datatype xsd:decimal ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Adoption rate must be percentage between 0 and 100"@en ;
+    ] ;
+
+    sh:property [
+        sh:path jtbd:satisfactionDelta ;
+        sh:datatype xsd:decimal ;
+        sh:maxCount 1 ;
+        sh:minInclusive -10.0 ;
+        sh:maxInclusive 10.0 ;
+        sh:message "Satisfaction delta must be between -10 and 10"@en ;
+    ] ;
+
+    # Conclusion
+    sh:property [
+        sh:path jtbd:impactSummary ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 50 ;
+        sh:message "Impact summary required (at least 50 characters)"@en ;
+    ] .
+
+# ============================================================================
+# End of JTBD SHACL Validation Shapes
+# ============================================================================

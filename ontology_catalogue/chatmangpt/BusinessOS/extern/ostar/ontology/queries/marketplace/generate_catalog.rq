@@ -1,0 +1,14 @@
+# Generates marketplace catalog entries from observed plugin triples.
+PREFIX ostar: <https://chatmangpt.com/ontologies/o-star/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?plugin ?name ?version ?tier ?sourceUrl ?hasMcpServer WHERE {
+  ?plugin a ostar:Plugin .
+  OPTIONAL { ?plugin ostar:pluginName ?name }
+  OPTIONAL { ?plugin ostar:version ?version }
+  OPTIONAL { ?plugin ostar:sourceTier ?tier }
+  OPTIONAL { ?plugin ostar:sourceUrl ?sourceUrl }
+  OPTIONAL { ?plugin ostar:hasMcpServer ?hasMcpServer }
+}
+ORDER BY ?name ?version

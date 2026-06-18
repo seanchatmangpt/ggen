@@ -1,0 +1,373 @@
+# =============================================================================
+# MCP SHACL Shapes
+# Validation rules for MCP domain ontology
+# =============================================================================
+
+@prefix mcp: <https://ggen-mcp.dev/mcp#> .
+@prefix ggen: <https://ggen-mcp.dev/domain#> .
+@prefix ddd: <https://ddd-patterns.dev/schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# MCP Tool Shape
+# =============================================================================
+
+mcp:ToolShape a sh:NodeShape ;
+    sh:targetClass mcp:Tool ;
+    sh:name "MCP Tool Shape" ;
+    sh:description "Validates MCP Tool definitions" ;
+
+    # Required: name
+    sh:property [
+        sh:path mcp:name ;
+        sh:name "Tool Name" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:maxLength 64 ;
+        sh:pattern "^[a-z][a-z0-9_]*$" ;
+        sh:message "Tool name must be lowercase snake_case, 1-64 characters"
+    ] ;
+
+    # Required: description
+    sh:property [
+        sh:path mcp:description ;
+        sh:name "Tool Description" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 10 ;
+        sh:maxLength 500 ;
+        sh:message "Tool description must be 10-500 characters"
+    ] ;
+
+    # Required: handler
+    sh:property [
+        sh:path mcp:handler ;
+        sh:name "Handler Function" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^handle_[a-z][a-z0-9_]*$" ;
+        sh:message "Handler must match pattern: handle_<name>"
+    ] ;
+
+    # Optional: inputSchema
+    sh:property [
+        sh:path mcp:inputSchema ;
+        sh:name "Input Schema" ;
+        sh:class mcp:Schema ;
+        sh:maxCount 1
+    ] ;
+
+    # Optional: outputSchema
+    sh:property [
+        sh:path mcp:outputSchema ;
+        sh:name "Output Schema" ;
+        sh:class mcp:Schema ;
+        sh:maxCount 1
+    ] .
+
+# =============================================================================
+# MCP Resource Shape
+# =============================================================================
+
+mcp:ResourceShape a sh:NodeShape ;
+    sh:targetClass mcp:Resource ;
+    sh:name "MCP Resource Shape" ;
+    sh:description "Validates MCP Resource definitions" ;
+
+    # Required: name
+    sh:property [
+        sh:path mcp:name ;
+        sh:name "Resource Name" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:maxLength 64 ;
+        sh:pattern "^[a-z][a-z0-9_]*$" ;
+        sh:message "Resource name must be lowercase snake_case, 1-64 characters"
+    ] ;
+
+    # Required: description
+    sh:property [
+        sh:path mcp:description ;
+        sh:name "Resource Description" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 10 ;
+        sh:maxLength 500 ;
+        sh:message "Resource description must be 10-500 characters"
+    ] ;
+
+    # Required: URI template
+    sh:property [
+        sh:path mcp:uri ;
+        sh:name "URI Template" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-z]+://.*$" ;
+        sh:message "URI must be a valid URI template"
+    ] ;
+
+    # Required: MIME type
+    sh:property [
+        sh:path mcp:mimeType ;
+        sh:name "MIME Type" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-z]+/[a-z0-9.+-]+$" ;
+        sh:message "MIME type must be valid (e.g., text/turtle, application/json)"
+    ] ;
+
+    # Required: provider
+    sh:property [
+        sh:path mcp:provider ;
+        sh:name "Resource Provider" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[A-Z][a-zA-Z0-9]*Provider$" ;
+        sh:message "Provider must match pattern: <Name>Provider"
+    ] .
+
+# =============================================================================
+# MCP Schema Shape
+# =============================================================================
+
+mcp:SchemaShape a sh:NodeShape ;
+    sh:targetClass mcp:Schema ;
+    sh:name "MCP Schema Shape" ;
+    sh:description "Validates JSON Schema definitions" ;
+
+    # Required: label
+    sh:property [
+        sh:path rdfs:label ;
+        sh:name "Schema Label" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] ;
+
+    # Optional: schemaJson (the actual JSON Schema content)
+    sh:property [
+        sh:path mcp:schemaJson ;
+        sh:name "JSON Schema Content" ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1
+    ] .
+
+# =============================================================================
+# DDD Aggregate Root Shape
+# =============================================================================
+
+ddd:AggregateRootShape a sh:NodeShape ;
+    sh:targetClass ddd:AggregateRoot ;
+    sh:name "DDD Aggregate Root Shape" ;
+    sh:description "Validates DDD Aggregate Root definitions" ;
+
+    # Required: label
+    sh:property [
+        sh:path rdfs:label ;
+        sh:name "Aggregate Label" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[A-Z][a-zA-Z0-9]*$" ;
+        sh:message "Aggregate label must be PascalCase"
+    ] ;
+
+    # Optional: comment
+    sh:property [
+        sh:path rdfs:comment ;
+        sh:name "Aggregate Description" ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1
+    ] ;
+
+    # At least one property
+    sh:property [
+        sh:path ddd:hasProperty ;
+        sh:name "Properties" ;
+        sh:minCount 1 ;
+        sh:message "Aggregate must have at least one property"
+    ] .
+
+# =============================================================================
+# DDD Value Object Shape
+# =============================================================================
+
+ddd:ValueObjectShape a sh:NodeShape ;
+    sh:targetClass ddd:ValueObject ;
+    sh:name "DDD Value Object Shape" ;
+    sh:description "Validates DDD Value Object definitions" ;
+
+    # Required: label
+    sh:property [
+        sh:path rdfs:label ;
+        sh:name "Value Object Label" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[A-Z][a-zA-Z0-9]*$" ;
+        sh:message "Value Object label must be PascalCase"
+    ] ;
+
+    # At least one property
+    sh:property [
+        sh:path ddd:hasProperty ;
+        sh:name "Properties" ;
+        sh:minCount 1 ;
+        sh:message "Value Object must have at least one property"
+    ] .
+
+# =============================================================================
+# DDD Command Shape
+# =============================================================================
+
+ddd:CommandShape a sh:NodeShape ;
+    sh:targetClass ddd:Command ;
+    sh:name "DDD Command Shape" ;
+    sh:description "Validates DDD Command definitions" ;
+
+    # Required: label
+    sh:property [
+        sh:path rdfs:label ;
+        sh:name "Command Label" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] ;
+
+    # Optional: comment
+    sh:property [
+        sh:path rdfs:comment ;
+        sh:name "Command Description" ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1
+    ] .
+
+# =============================================================================
+# DDD Domain Event Shape
+# =============================================================================
+
+ddd:DomainEventShape a sh:NodeShape ;
+    sh:targetClass ddd:DomainEvent ;
+    sh:name "DDD Domain Event Shape" ;
+    sh:description "Validates DDD Domain Event definitions" ;
+
+    # Required: label
+    sh:property [
+        sh:path rdfs:label ;
+        sh:name "Event Label" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] .
+
+# =============================================================================
+# DDD Repository Shape
+# =============================================================================
+
+ddd:RepositoryShape a sh:NodeShape ;
+    sh:targetClass ddd:Repository ;
+    sh:name "DDD Repository Shape" ;
+    sh:description "Validates DDD Repository definitions" ;
+
+    # Required: label
+    sh:property [
+        sh:path rdfs:label ;
+        sh:name "Repository Label" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[A-Z][a-zA-Z0-9]*Repository$" ;
+        sh:message "Repository label must end with 'Repository'"
+    ] ;
+
+    # Required: forAggregate
+    sh:property [
+        sh:path ddd:forAggregate ;
+        sh:name "For Aggregate" ;
+        sh:class ddd:AggregateRoot ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Repository must be associated with an Aggregate Root"
+    ] .
+
+# =============================================================================
+# DDD Service Shape
+# =============================================================================
+
+ddd:ServiceShape a sh:NodeShape ;
+    sh:targetClass ddd:Service ;
+    sh:name "DDD Service Shape" ;
+    sh:description "Validates DDD Service definitions" ;
+
+    # Required: label
+    sh:property [
+        sh:path rdfs:label ;
+        sh:name "Service Label" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[A-Z][a-zA-Z0-9]*Service$" ;
+        sh:message "Service label must end with 'Service'"
+    ] .
+
+# =============================================================================
+# DDD Handler Shape
+# =============================================================================
+
+ddd:HandlerShape a sh:NodeShape ;
+    sh:targetClass ddd:Handler ;
+    sh:name "DDD Handler Shape" ;
+    sh:description "Validates DDD Handler definitions" ;
+
+    # Required: label
+    sh:property [
+        sh:path rdfs:label ;
+        sh:name "Handler Label" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[A-Z][a-zA-Z0-9]*Handler$" ;
+        sh:message "Handler label must end with 'Handler'"
+    ] ;
+
+    # Required: handles command
+    sh:property [
+        sh:path ddd:handles ;
+        sh:name "Handles Command" ;
+        sh:class ddd:Command ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Handler must handle exactly one Command"
+    ] .
+
+# =============================================================================
+# DDD Policy Shape
+# =============================================================================
+
+ddd:PolicyShape a sh:NodeShape ;
+    sh:targetClass ddd:Policy ;
+    sh:name "DDD Policy Shape" ;
+    sh:description "Validates DDD Policy definitions" ;
+
+    # Required: label
+    sh:property [
+        sh:path rdfs:label ;
+        sh:name "Policy Label" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[A-Z][a-zA-Z0-9]*Policy$" ;
+        sh:message "Policy label must end with 'Policy'"
+    ] .

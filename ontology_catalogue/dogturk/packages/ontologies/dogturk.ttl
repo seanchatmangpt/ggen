@@ -1,0 +1,593 @@
+@prefix : <https://dogturk.com/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix schema: <http://schema.org/> .
+
+<https://dogturk.com/ontology> a owl:Ontology ;
+    dc:title "DogTurk Domain Ontology" ;
+    dc:description "Comprehensive ontology for dog training workflows, trainer management, and outcome tracking" ;
+    dc:creator "DogTurk Development Team" ;
+    dcterms:created "2025-09-04T00:00:00Z"^^xsd:dateTime ;
+    dcterms:modified "2025-09-04T00:00:00Z"^^xsd:dateTime ;
+    owl:versionInfo "1.0.0" ;
+    rdfs:comment "This ontology defines the business domain for DogTurk, including dog training cases, trainer profiles, video processing pipelines, and training outcome tracking." .
+
+# =============================================================================
+# CORE CLASSES - Dog Training Domain
+# =============================================================================
+
+:Dog a owl:Class ;
+    rdfs:label "Dog" ;
+    rdfs:comment "A domestic dog that is subject to training" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasName ;
+        owl:someValuesFrom xsd:string
+    ] .
+
+:TrainingCase a owl:Class ;
+    rdfs:label "Training Case" ;
+    rdfs:comment "A complete training case involving a dog, trainer, and specific behavioral objectives" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :involvesDog ;
+        owl:exactCardinality "1"^^xsd:nonNegativeInteger
+    ] .
+
+:TrainingSession a owl:Class ;
+    rdfs:label "Training Session" ;
+    rdfs:comment "An individual training session within a broader training case" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :partOfCase ;
+        owl:someValuesFrom :TrainingCase
+    ] .
+
+:BehavioralIssue a owl:Class ;
+    rdfs:label "Behavioral Issue" ;
+    rdfs:comment "A specific behavioral problem or area for improvement" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasSeverity ;
+        owl:someValuesFrom :SeverityLevel
+    ] .
+
+:TrainingTechnique a owl:Class ;
+    rdfs:label "Training Technique" ;
+    rdfs:comment "A specific methodology or approach used in dog training" .
+
+:TrainingOutcome a owl:Class ;
+    rdfs:label "Training Outcome" ;
+    rdfs:comment "The measured result or progress from training activities" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasMetric ;
+        owl:someValuesFrom :OutcomeMetric
+    ] .
+
+# =============================================================================
+# TRAINER AND PERSONNEL CLASSES
+# =============================================================================
+
+:Trainer a owl:Class ;
+    rdfs:label "Trainer" ;
+    rdfs:comment "A certified or qualified dog trainer" ;
+    rdfs:subClassOf foaf:Person, [
+        a owl:Restriction ;
+        owl:onProperty :hasCertification ;
+        owl:someValuesFrom :TrainingCertification
+    ] .
+
+:TrainingCertification a owl:Class ;
+    rdfs:label "Training Certification" ;
+    rdfs:comment "Professional certification held by trainers" .
+
+:TrainerProfile a owl:Class ;
+    rdfs:label "Trainer Profile" ;
+    rdfs:comment "Complete profile information and permissions for a trainer" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :associatedWith ;
+        owl:someValuesFrom :Trainer
+    ] .
+
+:Permission a owl:Class ;
+    rdfs:label "Permission" ;
+    rdfs:comment "Access control permission within the system" .
+
+:Role a owl:Class ;
+    rdfs:label "Role" ;
+    rdfs:comment "System role defining a set of permissions and responsibilities" .
+
+# =============================================================================
+# MEDIA AND PROCESSING CLASSES
+# =============================================================================
+
+:VideoRecording a owl:Class ;
+    rdfs:label "Video Recording" ;
+    rdfs:comment "Video content recorded during training sessions" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :recordedDuring ;
+        owl:someValuesFrom :TrainingSession
+    ] .
+
+:AudioRecording a owl:Class ;
+    rdfs:label "Audio Recording" ;
+    rdfs:comment "Audio content recorded during training sessions" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :recordedDuring ;
+        owl:someValuesFrom :TrainingSession
+    ] .
+
+:ProcessingPipeline a owl:Class ;
+    rdfs:label "Processing Pipeline" ;
+    rdfs:comment "Automated pipeline for processing video and audio content" .
+
+:ProcessingStep a owl:Class ;
+    rdfs:label "Processing Step" ;
+    rdfs:comment "Individual step within a processing pipeline" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :partOfPipeline ;
+        owl:someValuesFrom :ProcessingPipeline
+    ] .
+
+:AIAnalysis a owl:Class ;
+    rdfs:label "AI Analysis" ;
+    rdfs:comment "Automated analysis performed by AI systems on training content" .
+
+# =============================================================================
+# WORKFLOW AND PLANNING CLASSES
+# =============================================================================
+
+:TrainingPlan a owl:Class ;
+    rdfs:label "Training Plan" ;
+    rdfs:comment "Structured plan outlining training objectives and methodologies" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :createdFor ;
+        owl:someValuesFrom :TrainingCase
+    ] .
+
+:TrainingGoal a owl:Class ;
+    rdfs:label "Training Goal" ;
+    rdfs:comment "Specific objective within a training plan" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :partOfPlan ;
+        owl:someValuesFrom :TrainingPlan
+    ] .
+
+:Workflow a owl:Class ;
+    rdfs:label "Workflow" ;
+    rdfs:comment "Business process workflow for training operations" .
+
+:WorkflowStep a owl:Class ;
+    rdfs:label "Workflow Step" ;
+    rdfs:comment "Individual step within a workflow" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :partOfWorkflow ;
+        owl:someValuesFrom :Workflow
+    ] .
+
+# =============================================================================
+# MEASUREMENT AND TRACKING CLASSES
+# =============================================================================
+
+:OutcomeMetric a owl:Class ;
+    rdfs:label "Outcome Metric" ;
+    rdfs:comment "Quantifiable measure of training progress or success" .
+
+:ProgressMeasurement a owl:Class ;
+    rdfs:label "Progress Measurement" ;
+    rdfs:comment "Specific measurement of progress at a point in time" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :measuredOn ;
+        owl:someValuesFrom xsd:dateTime
+    ] .
+
+:TrainingEvent a owl:Class ;
+    rdfs:label "Training Event" ;
+    rdfs:comment "Significant event during training that should be tracked" .
+
+:Milestone a owl:Class ;
+    rdfs:label "Milestone" ;
+    rdfs:comment "Significant achievement or checkpoint in training progress" .
+
+# =============================================================================
+# ENUMERATION CLASSES
+# =============================================================================
+
+:SeverityLevel a owl:Class ;
+    rdfs:label "Severity Level" ;
+    rdfs:comment "Level of severity for behavioral issues" .
+
+:TrainingApproach a owl:Class ;
+    rdfs:label "Training Approach" ;
+    rdfs:comment "General approach or philosophy used in training" .
+
+:SessionType a owl:Class ;
+    rdfs:label "Session Type" ;
+    rdfs:comment "Type or category of training session" .
+
+:OutcomeStatus a owl:Class ;
+    rdfs:label "Outcome Status" ;
+    rdfs:comment "Status of training outcome (success, in-progress, etc.)" .
+
+# =============================================================================
+# OBJECT PROPERTIES - Relationships between entities
+# =============================================================================
+
+:involvesDog a owl:ObjectProperty ;
+    rdfs:label "involves dog" ;
+    rdfs:comment "Links a training case to the dog being trained" ;
+    rdfs:domain :TrainingCase ;
+    rdfs:range :Dog .
+
+:assignedToTrainer a owl:ObjectProperty ;
+    rdfs:label "assigned to trainer" ;
+    rdfs:comment "Links a training case to its assigned trainer" ;
+    rdfs:domain :TrainingCase ;
+    rdfs:range :Trainer .
+
+:partOfCase a owl:ObjectProperty ;
+    rdfs:label "part of case" ;
+    rdfs:comment "Links a training session to its parent case" ;
+    rdfs:domain :TrainingSession ;
+    rdfs:range :TrainingCase .
+
+:addressesIssue a owl:ObjectProperty ;
+    rdfs:label "addresses issue" ;
+    rdfs:comment "Links a training case or session to behavioral issues being addressed" ;
+    rdfs:range :BehavioralIssue .
+
+:usesTechnique a owl:ObjectProperty ;
+    rdfs:label "uses technique" ;
+    rdfs:comment "Links training activities to specific techniques employed" ;
+    rdfs:range :TrainingTechnique .
+
+:producesOutcome a owl:ObjectProperty ;
+    rdfs:label "produces outcome" ;
+    rdfs:comment "Links training activities to their measured outcomes" ;
+    rdfs:range :TrainingOutcome .
+
+:recordedDuring a owl:ObjectProperty ;
+    rdfs:label "recorded during" ;
+    rdfs:comment "Links media content to the session during which it was recorded" ;
+    rdfs:range :TrainingSession .
+
+:processedBy a owl:ObjectProperty ;
+    rdfs:label "processed by" ;
+    rdfs:comment "Links media content to processing pipelines" ;
+    rdfs:range :ProcessingPipeline .
+
+:analyzedBy a owl:ObjectProperty ;
+    rdfs:label "analyzed by" ;
+    rdfs:comment "Links content to AI analysis systems" ;
+    rdfs:range :AIAnalysis .
+
+:createdFor a owl:ObjectProperty ;
+    rdfs:label "created for" ;
+    rdfs:comment "Links training plans to their target cases" ;
+    rdfs:domain :TrainingPlan ;
+    rdfs:range :TrainingCase .
+
+:partOfPlan a owl:ObjectProperty ;
+    rdfs:label "part of plan" ;
+    rdfs:comment "Links goals to their parent training plan" ;
+    rdfs:domain :TrainingGoal ;
+    rdfs:range :TrainingPlan .
+
+:partOfPipeline a owl:ObjectProperty ;
+    rdfs:label "part of pipeline" ;
+    rdfs:comment "Links processing steps to their parent pipeline" ;
+    rdfs:domain :ProcessingStep ;
+    rdfs:range :ProcessingPipeline .
+
+:partOfWorkflow a owl:ObjectProperty ;
+    rdfs:label "part of workflow" ;
+    rdfs:comment "Links workflow steps to their parent workflow" ;
+    rdfs:domain :WorkflowStep ;
+    rdfs:range :Workflow .
+
+:associatedWith a owl:ObjectProperty ;
+    rdfs:label "associated with" ;
+    rdfs:comment "General association relationship" .
+
+:hasCertification a owl:ObjectProperty ;
+    rdfs:label "has certification" ;
+    rdfs:comment "Links trainers to their professional certifications" ;
+    rdfs:domain :Trainer ;
+    rdfs:range :TrainingCertification .
+
+:hasPermission a owl:ObjectProperty ;
+    rdfs:label "has permission" ;
+    rdfs:comment "Links profiles to their system permissions" ;
+    rdfs:range :Permission .
+
+:hasRole a owl:ObjectProperty ;
+    rdfs:label "has role" ;
+    rdfs:comment "Links profiles to their system roles" ;
+    rdfs:range :Role .
+
+:hasMetric a owl:ObjectProperty ;
+    rdfs:label "has metric" ;
+    rdfs:comment "Links outcomes to their measurement metrics" ;
+    rdfs:domain :TrainingOutcome ;
+    rdfs:range :OutcomeMetric .
+
+:hasSeverity a owl:ObjectProperty ;
+    rdfs:label "has severity" ;
+    rdfs:comment "Links behavioral issues to their severity level" ;
+    rdfs:domain :BehavioralIssue ;
+    rdfs:range :SeverityLevel .
+
+:followsApproach a owl:ObjectProperty ;
+    rdfs:label "follows approach" ;
+    rdfs:comment "Links training activities to their methodological approach" ;
+    rdfs:range :TrainingApproach .
+
+:hasSessionType a owl:ObjectProperty ;
+    rdfs:label "has session type" ;
+    rdfs:comment "Links sessions to their type classification" ;
+    rdfs:domain :TrainingSession ;
+    rdfs:range :SessionType .
+
+:hasStatus a owl:ObjectProperty ;
+    rdfs:label "has status" ;
+    rdfs:comment "Links outcomes to their current status" ;
+    rdfs:domain :TrainingOutcome ;
+    rdfs:range :OutcomeStatus .
+
+# =============================================================================
+# DATATYPE PROPERTIES - Literal values and attributes
+# =============================================================================
+
+:hasName a owl:DatatypeProperty ;
+    rdfs:label "has name" ;
+    rdfs:comment "Name or identifier for an entity" ;
+    rdfs:range xsd:string .
+
+:hasDescription a owl:DatatypeProperty ;
+    rdfs:label "has description" ;
+    rdfs:comment "Textual description of an entity" ;
+    rdfs:range xsd:string .
+
+:hasBreed a owl:DatatypeProperty ;
+    rdfs:label "has breed" ;
+    rdfs:comment "Breed of the dog" ;
+    rdfs:domain :Dog ;
+    rdfs:range xsd:string .
+
+:hasAge a owl:DatatypeProperty ;
+    rdfs:label "has age" ;
+    rdfs:comment "Age of the dog in months" ;
+    rdfs:domain :Dog ;
+    rdfs:range xsd:integer .
+
+:hasWeight a owl:DatatypeProperty ;
+    rdfs:label "has weight" ;
+    rdfs:comment "Weight of the dog in kilograms" ;
+    rdfs:domain :Dog ;
+    rdfs:range xsd:decimal .
+
+:createdDate a owl:DatatypeProperty ;
+    rdfs:label "created date" ;
+    rdfs:comment "Date when an entity was created" ;
+    rdfs:range xsd:dateTime .
+
+:lastModified a owl:DatatypeProperty ;
+    rdfs:label "last modified" ;
+    rdfs:comment "Date when an entity was last modified" ;
+    rdfs:range xsd:dateTime .
+
+:startDate a owl:DatatypeProperty ;
+    rdfs:label "start date" ;
+    rdfs:comment "Start date for time-bounded entities" ;
+    rdfs:range xsd:dateTime .
+
+:endDate a owl:DatatypeProperty ;
+    rdfs:label "end date" ;
+    rdfs:comment "End date for time-bounded entities" ;
+    rdfs:range xsd:dateTime .
+
+:duration a owl:DatatypeProperty ;
+    rdfs:label "duration" ;
+    rdfs:comment "Duration in minutes" ;
+    rdfs:range xsd:integer .
+
+:sessionNotes a owl:DatatypeProperty ;
+    rdfs:label "session notes" ;
+    rdfs:comment "Free-text notes from a training session" ;
+    rdfs:domain :TrainingSession ;
+    rdfs:range xsd:string .
+
+:filePath a owl:DatatypeProperty ;
+    rdfs:label "file path" ;
+    rdfs:comment "File system path to media content" ;
+    rdfs:range xsd:string .
+
+:fileSize a owl:DatatypeProperty ;
+    rdfs:label "file size" ;
+    rdfs:comment "Size of file in bytes" ;
+    rdfs:range xsd:integer .
+
+:mimeType a owl:DatatypeProperty ;
+    rdfs:label "MIME type" ;
+    rdfs:comment "MIME type of media content" ;
+    rdfs:range xsd:string .
+
+:resolution a owl:DatatypeProperty ;
+    rdfs:label "resolution" ;
+    rdfs:comment "Video resolution (e.g., 1920x1080)" ;
+    rdfs:domain :VideoRecording ;
+    rdfs:range xsd:string .
+
+:frameRate a owl:DatatypeProperty ;
+    rdfs:label "frame rate" ;
+    rdfs:comment "Video frame rate in frames per second" ;
+    rdfs:domain :VideoRecording ;
+    rdfs:range xsd:decimal .
+
+:sampleRate a owl:DatatypeProperty ;
+    rdfs:label "sample rate" ;
+    rdfs:comment "Audio sample rate in Hz" ;
+    rdfs:domain :AudioRecording ;
+    rdfs:range xsd:integer .
+
+:bitRate a owl:DatatypeProperty ;
+    rdfs:label "bit rate" ;
+    rdfs:comment "Media bit rate in bits per second" ;
+    rdfs:range xsd:integer .
+
+:processingStatus a owl:DatatypeProperty ;
+    rdfs:label "processing status" ;
+    rdfs:comment "Status of media processing" ;
+    rdfs:range xsd:string .
+
+:confidenceScore a owl:DatatypeProperty ;
+    rdfs:label "confidence score" ;
+    rdfs:comment "AI analysis confidence score (0.0-1.0)" ;
+    rdfs:domain :AIAnalysis ;
+    rdfs:range xsd:decimal .
+
+:measuredValue a owl:DatatypeProperty ;
+    rdfs:label "measured value" ;
+    rdfs:comment "Quantitative measurement value" ;
+    rdfs:domain :ProgressMeasurement ;
+    rdfs:range xsd:decimal .
+
+:measurementUnit a owl:DatatypeProperty ;
+    rdfs:label "measurement unit" ;
+    rdfs:comment "Unit of measurement" ;
+    rdfs:domain :ProgressMeasurement ;
+    rdfs:range xsd:string .
+
+:measuredOn a owl:DatatypeProperty ;
+    rdfs:label "measured on" ;
+    rdfs:comment "Date and time when measurement was taken" ;
+    rdfs:domain :ProgressMeasurement ;
+    rdfs:range xsd:dateTime .
+
+:targetValue a owl:DatatypeProperty ;
+    rdfs:label "target value" ;
+    rdfs:comment "Target or goal value for measurements" ;
+    rdfs:range xsd:decimal .
+
+:priority a owl:DatatypeProperty ;
+    rdfs:label "priority" ;
+    rdfs:comment "Priority level (1-5, with 1 being highest)" ;
+    rdfs:range xsd:integer .
+
+:successRate a owl:DatatypeProperty ;
+    rdfs:label "success rate" ;
+    rdfs:comment "Success rate as percentage (0-100)" ;
+    rdfs:range xsd:decimal .
+
+:email a owl:DatatypeProperty ;
+    rdfs:label "email" ;
+    rdfs:comment "Email address" ;
+    rdfs:range xsd:string .
+
+:phoneNumber a owl:DatatypeProperty ;
+    rdfs:label "phone number" ;
+    rdfs:comment "Contact phone number" ;
+    rdfs:range xsd:string .
+
+:yearsExperience a owl:DatatypeProperty ;
+    rdfs:label "years experience" ;
+    rdfs:comment "Years of professional experience" ;
+    rdfs:domain :Trainer ;
+    rdfs:range xsd:integer .
+
+:licenseNumber a owl:DatatypeProperty ;
+    rdfs:label "license number" ;
+    rdfs:comment "Professional license number" ;
+    rdfs:range xsd:string .
+
+:isActive a owl:DatatypeProperty ;
+    rdfs:label "is active" ;
+    rdfs:comment "Whether an entity is currently active" ;
+    rdfs:range xsd:boolean .
+
+# =============================================================================
+# INDIVIDUALS - Predefined instances and enumerations
+# =============================================================================
+
+# Severity Levels
+:Mild a :SeverityLevel ;
+    rdfs:label "Mild" ;
+    rdfs:comment "Low severity behavioral issue" .
+
+:Moderate a :SeverityLevel ;
+    rdfs:label "Moderate" ;
+    rdfs:comment "Medium severity behavioral issue" .
+
+:Severe a :SeverityLevel ;
+    rdfs:label "Severe" ;
+    rdfs:comment "High severity behavioral issue" .
+
+:Critical a :SeverityLevel ;
+    rdfs:label "Critical" ;
+    rdfs:comment "Critical severity behavioral issue requiring immediate attention" .
+
+# Training Approaches
+:PositiveReinforcement a :TrainingApproach ;
+    rdfs:label "Positive Reinforcement" ;
+    rdfs:comment "Training approach based on reward-based methods" .
+
+:BalancedTraining a :TrainingApproach ;
+    rdfs:label "Balanced Training" ;
+    rdfs:comment "Training approach using both positive and negative reinforcement" .
+
+:ClickerTraining a :TrainingApproach ;
+    rdfs:label "Clicker Training" ;
+    rdfs:comment "Training approach using clicker conditioning" .
+
+# Session Types
+:BasicObedience a :SessionType ;
+    rdfs:label "Basic Obedience" ;
+    rdfs:comment "Fundamental obedience training session" .
+
+:BehaviorModification a :SessionType ;
+    rdfs:label "Behavior Modification" ;
+    rdfs:comment "Session focused on correcting specific behavioral issues" .
+
+:Socialization a :SessionType ;
+    rdfs:label "Socialization" ;
+    rdfs:comment "Session focused on social skills development" .
+
+:AdvancedTraining a :SessionType ;
+    rdfs:label "Advanced Training" ;
+    rdfs:comment "Advanced skill development session" .
+
+:Assessment a :SessionType ;
+    rdfs:label "Assessment" ;
+    rdfs:comment "Initial or periodic assessment session" .
+
+# Outcome Status
+:InProgress a :OutcomeStatus ;
+    rdfs:label "In Progress" ;
+    rdfs:comment "Training outcome is still being worked on" .
+
+:Achieved a :OutcomeStatus ;
+    rdfs:label "Achieved" ;
+    rdfs:comment "Training outcome has been successfully achieved" .
+
+:PartiallyAchieved a :OutcomeStatus ;
+    rdfs:label "Partially Achieved" ;
+    rdfs:comment "Training outcome has been partially achieved" .
+
+:NotAchieved a :OutcomeStatus ;
+    rdfs:label "Not Achieved" ;
+    rdfs:comment "Training outcome was not achieved within the expected timeframe" .

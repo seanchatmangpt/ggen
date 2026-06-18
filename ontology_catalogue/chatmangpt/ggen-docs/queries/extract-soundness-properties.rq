@@ -1,0 +1,23 @@
+# Extract WvdA soundness properties and requirements
+PREFIX osa: <https://chatmangpt.com/osa#>
+PREFIX wvda: <https://process-mining.org/wvda#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?label ?definition ?rule ?timeoutMs ?maxDepth ?maxAttempts ?maxSize ?ttlSeconds ?maxMemoryMb ?resource
+WHERE {
+  ?property a wvda:SoundnessProperty ;
+           rdfs:label ?label ;
+           wvda:definition ?definition .
+  OPTIONAL {
+    ?property osa:requirement ?req .
+    ?req osa:rule ?rule .
+    OPTIONAL { ?req osa:timeout_ms ?timeoutMs }
+    OPTIONAL { ?req osa:max_depth ?maxDepth }
+    OPTIONAL { ?req osa:max_attempts ?maxAttempts }
+    OPTIONAL { ?req osa:max_size ?maxSize }
+    OPTIONAL { ?req osa:ttl_seconds ?ttlSeconds }
+    OPTIONAL { ?req osa:max_memory_mb ?maxMemoryMb }
+    OPTIONAL { ?req osa:resource ?resource }
+  }
+}
+ORDER BY ?label

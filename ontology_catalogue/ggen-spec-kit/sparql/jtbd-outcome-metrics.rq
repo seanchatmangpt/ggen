@@ -1,0 +1,58 @@
+# ============================================================================
+# JTBD Query: Outcome Metrics Dashboard
+# ============================================================================
+# Purpose: Extract all success criteria and outcome metrics, grouped by
+#          persona and job. Identify measurement gaps.
+#
+# Output: Outcome, metric definition, target, measurement gap status
+# Use: Success criteria tracking, metric definition, OKR setting
+#
+# Example Output:
+# Persona    | Job              | Outcome                  | Metric | Target    | Has Definition?
+# Dev Lead   | Manage deps      | Fast resolution          | time   | < 5 min   | Yes
+# Dev Lead   | Manage deps      | Vulnerability detection  | count  | 0 vulns   | Yes
+# Backend    | Configure OTEL   | Complete observability   | NULL   | NULL      | NO - NEEDS METRIC
+# QA Eng     | Run tests        | High coverage            | percent| > 80%     | Yes
+# ============================================================================
+
+PREFIX sk: <http://github.com/github/spec-kit#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT
+  ?personaName
+  ?personaRole
+  ?jobName
+  ?outcomeName
+  ?outcomeDescription
+  ?outcomePriority
+  ?outcomeMetric
+  ?outcomeTarget
+  ?outcomeImportance
+  ?outcomeSatisfaction
+  ?outcomeOpportunityScore
+  (IF(BOUND(?outcomeMetric) && BOUND(?outcomeTarget), "Yes", "NO - NEEDS METRIC") AS ?hasDefinition)
+  (IF(?outcomeImportance > 7 && !BOUND(?outcomeMetric), "HIGH PRIORITY GAP", "OK") AS ?gapSeverity)
+WHERE {
+  # Jobs with outcomes
+  ?job a sk:Job ;
+       sk:jobName ?jobName .
+
+  ?job sk:hasOutcome ?outcome .
+  ?outcome sk:outcomeName ?outcomeName .
+
+  OPTIONAL { ?outcome sk:outcomeDescription ?outcomeDescription }
+  OPTIONAL { ?outcome sk:outcomePriority ?outcomePriority }
+  OPTIONAL { ?outcome sk:outcomeMetric ?outcomeMetric }
+  OPTIONAL { ?outcome sk:outcomeTarget ?outcomeTarget }
+  OPTIONAL { ?outcome sk:outcomeImportance ?outcomeImportance }
+  OPTIONAL { ?outcome sk:outcomeSatisfaction ?outcomeSatisfaction }
+  OPTIONAL { ?outcome sk:outcomeOpportunityScore ?outcomeOpportunityScore }
+
+  # Link to persona
+  OPTIONAL {
+    ?persona sk:hasJob ?job ;
+             sk:personaName ?personaName ;
+             sk:personaRole ?personaRole .
+  }
+}
+ORDER BY ?personaName ?jobName ?outcomePriority

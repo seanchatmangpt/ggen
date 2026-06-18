@@ -1,0 +1,433 @@
+# API Specification in RDF
+# Demonstrates REST API modeling with SPARQL integration
+
+@prefix ex: <http://example.org/comprehensive-rust-showcase/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix hydra: <http://www.w3.org/ns/hydra/core#> .
+@prefix schema: <http://schema.org/> .
+
+# API Specification
+ex:UserServiceAPI a hydra:ApiDocumentation ;
+    rdfs:label "User Service API" ;
+    rdfs:comment "REST API for user management" ;
+    hydra:entrypoint ex:UserServiceEntryPoint ;
+    hydra:supportedClass ex:User, ex:UserCollection ;
+    hydra:title "User Service API v1.0" ;
+    hydra:description "Comprehensive user management API" .
+
+ex:ProductServiceAPI a hydra:ApiDocumentation ;
+    rdfs:label "Product Service API" ;
+    rdfs:comment "REST API for product management" ;
+    hydra:entrypoint ex:ProductServiceEntryPoint ;
+    hydra:supportedClass ex:Product, ex:ProductCollection ;
+    hydra:title "Product Service API v1.0" ;
+    hydra:description "Comprehensive product management API" .
+
+ex:OrderServiceAPI a hydra:ApiDocumentation ;
+    rdfs:label "Order Service API" ;
+    rdfs:comment "REST API for order management" ;
+    hydra:entrypoint ex:OrderServiceEntryPoint ;
+    hydra:supportedClass ex:Order, ex:OrderCollection ;
+    hydra:title "Order Service API v1.0" ;
+    hydra:description "Comprehensive order management API" .
+
+# Entry Points
+ex:UserServiceEntryPoint a hydra:EntryPoint ;
+    hydra:url "/api/v1/users" ;
+    hydra:supportedOperation ex:GetUsersOperation, ex:PostUserOperation .
+
+ex:ProductServiceEntryPoint a hydra:EntryPoint ;
+    hydra:url "/api/v1/products" ;
+    hydra:supportedOperation ex:GetProductsOperation, ex:PostProductOperation .
+
+ex:OrderServiceEntryPoint a hydra:EntryPoint ;
+    hydra:url "/api/v1/orders" ;
+    hydra:supportedOperation ex:GetOrdersOperation, ex:PostOrderOperation .
+
+# API Operations
+ex:GetUsersOperation a hydra:Operation ;
+    rdfs:label "Get Users" ;
+    hydra:method "GET" ;
+    hydra:expects ex:UserCollection ;
+    hydra:returns ex:UserCollection ;
+    hydra:statusCode 200 ;
+    hydra:description "Retrieve all users" .
+
+ex:PostUserOperation a hydra:Operation ;
+    rdfs:label "Create User" ;
+    hydra:method "POST" ;
+    hydra:expects ex:User ;
+    hydra:returns ex:User ;
+    hydra:statusCode 201 ;
+    hydra:description "Create a new user" .
+
+ex:GetUserOperation a hydra:Operation ;
+    rdfs:label "Get User" ;
+    hydra:method "GET" ;
+    hydra:expects ex:User ;
+    hydra:returns ex:User ;
+    hydra:statusCode 200 ;
+    hydra:description "Retrieve a specific user" .
+
+ex:PutUserOperation a hydra:Operation ;
+    rdfs:label "Update User" ;
+    hydra:method "PUT" ;
+    hydra:expects ex:User ;
+    hydra:returns ex:User ;
+    hydra:statusCode 200 ;
+    hydra:description "Update a specific user" .
+
+ex:DeleteUserOperation a hydra:Operation ;
+    rdfs:label "Delete User" ;
+    hydra:method "DELETE" ;
+    hydra:expects ex:User ;
+    hydra:returns hydra:Status ;
+    hydra:statusCode 204 ;
+    hydra:description "Delete a specific user" .
+
+ex:GetProductsOperation a hydra:Operation ;
+    rdfs:label "Get Products" ;
+    hydra:method "GET" ;
+    hydra:expects ex:ProductCollection ;
+    hydra:returns ex:ProductCollection ;
+    hydra:statusCode 200 ;
+    hydra:description "Retrieve all products" .
+
+ex:PostProductOperation a hydra:Operation ;
+    rdfs:label "Create Product" ;
+    hydra:method "POST" ;
+    hydra:expects ex:Product ;
+    hydra:returns ex:Product ;
+    hydra:statusCode 201 ;
+    hydra:description "Create a new product" .
+
+ex:GetProductOperation a hydra:Operation ;
+    rdfs:label "Get Product" ;
+    hydra:method "GET" ;
+    hydra:expects ex:Product ;
+    hydra:returns ex:Product ;
+    hydra:statusCode 200 ;
+    hydra:description "Retrieve a specific product" .
+
+ex:PutProductOperation a hydra:Operation ;
+    rdfs:label "Update Product" ;
+    hydra:method "PUT" ;
+    hydra:expects ex:Product ;
+    hydra:returns ex:Product ;
+    hydra:statusCode 200 ;
+    hydra:description "Update a specific product" .
+
+ex:DeleteProductOperation a hydra:Operation ;
+    rdfs:label "Delete Product" ;
+    hydra:method "DELETE" ;
+    hydra:expects ex:Product ;
+    hydra:returns hydra:Status ;
+    hydra:statusCode 204 ;
+    hydra:description "Delete a specific product" .
+
+ex:GetOrdersOperation a hydra:Operation ;
+    rdfs:label "Get Orders" ;
+    hydra:method "GET" ;
+    hydra:expects ex:OrderCollection ;
+    hydra:returns ex:OrderCollection ;
+    hydra:statusCode 200 ;
+    hydra:description "Retrieve all orders" .
+
+ex:PostOrderOperation a hydra:Operation ;
+    rdfs:label "Create Order" ;
+    hydra:method "POST" ;
+    hydra:expects ex:Order ;
+    hydra:returns ex:Order ;
+    hydra:statusCode 201 ;
+    hydra:description "Create a new order" .
+
+ex:GetOrderOperation a hydra:Operation ;
+    rdfs:label "Get Order" ;
+    hydra:method "GET" ;
+    hydra:expects ex:Order ;
+    hydra:returns ex:Order ;
+    hydra:statusCode 200 ;
+    hydra:description "Retrieve a specific order" .
+
+ex:PutOrderOperation a hydra:Operation ;
+    rdfs:label "Update Order" ;
+    hydra:method "PUT" ;
+    hydra:expects ex:Order ;
+    hydra:returns ex:Order ;
+    hydra:statusCode 200 ;
+    hydra:description "Update a specific order" .
+
+ex:DeleteOrderOperation a hydra:Operation ;
+    rdfs:label "Delete Order" ;
+    hydra:method "DELETE" ;
+    hydra:expects ex:Order ;
+    hydra:returns hydra:Status ;
+    hydra:statusCode 204 ;
+    hydra:description "Delete a specific order" .
+
+# Collections
+ex:UserCollection a hydra:Collection ;
+    rdfs:label "User Collection" ;
+    hydra:member ex:User ;
+    hydra:totalItems 0 ;
+    hydra:itemsPerPage 20 ;
+    hydra:firstPage "/api/v1/users?page=1" .
+
+ex:ProductCollection a hydra:Collection ;
+    rdfs:label "Product Collection" ;
+    hydra:member ex:Product ;
+    hydra:totalItems 0 ;
+    hydra:itemsPerPage 20 ;
+    hydra:firstPage "/api/v1/products?page=1" .
+
+ex:OrderCollection a hydra:Collection ;
+    rdfs:label "Order Collection" ;
+    hydra:member ex:Order ;
+    hydra:totalItems 0 ;
+    hydra:itemsPerPage 20 ;
+    hydra:firstPage "/api/v1/orders?page=1" .
+
+# API Endpoints with detailed specifications
+ex:UserServiceEndpoints a ex:ServiceEndpoints ;
+    rdfs:label "User Service Endpoints" ;
+    ex:hasEndpoint ex:GetUsersEndpoint, ex:PostUserEndpoint, ex:GetUserEndpoint, ex:PutUserEndpoint, ex:DeleteUserEndpoint .
+
+ex:GetUsersEndpoint a ex:APIEndpoint ;
+    rdfs:label "GET /api/v1/users" ;
+    ex:path "/api/v1/users" ;
+    ex:method "GET" ;
+    ex:version "1.0" ;
+    ex:description "Retrieve all users with pagination" ;
+    ex:parameters ex:PageParam, ex:LimitParam, ex:SortParam ;
+    ex:response ex:UserCollectionResponse ;
+    ex:statusCodes ex:Success200, ex:Error400, ex:Error500 .
+
+ex:PostUserEndpoint a ex:APIEndpoint ;
+    rdfs:label "POST /api/v1/users" ;
+    ex:path "/api/v1/users" ;
+    ex:method "POST" ;
+    ex:version "1.0" ;
+    ex:description "Create a new user" ;
+    ex:parameters ex:UserBodyParam ;
+    ex:response ex:UserResponse ;
+    ex:statusCodes ex:Success201, ex:Error400, ex:Error409, ex:Error500 .
+
+ex:GetUserEndpoint a ex:APIEndpoint ;
+    rdfs:label "GET /api/v1/users/{id}" ;
+    ex:path "/api/v1/users/{id}" ;
+    ex:method "GET" ;
+    ex:version "1.0" ;
+    ex:description "Retrieve a specific user by ID" ;
+    ex:parameters ex:UserIdParam ;
+    ex:response ex:UserResponse ;
+    ex:statusCodes ex:Success200, ex:Error404, ex:Error500 .
+
+ex:PutUserEndpoint a ex:APIEndpoint ;
+    rdfs:label "PUT /api/v1/users/{id}" ;
+    ex:path "/api/v1/users/{id}" ;
+    ex:method "PUT" ;
+    ex:version "1.0" ;
+    ex:description "Update a specific user by ID" ;
+    ex:parameters ex:UserIdParam, ex:UserBodyParam ;
+    ex:response ex:UserResponse ;
+    ex:statusCodes ex:Success200, ex:Error400, ex:Error404, ex:Error500 .
+
+ex:DeleteUserEndpoint a ex:APIEndpoint ;
+    rdfs:label "DELETE /api/v1/users/{id}" ;
+    ex:path "/api/v1/users/{id}" ;
+    ex:method "DELETE" ;
+    ex:version "1.0" ;
+    ex:description "Delete a specific user by ID" ;
+    ex:parameters ex:UserIdParam ;
+    ex:response ex:EmptyResponse ;
+    ex:statusCodes ex:Success204, ex:Error404, ex:Error500 .
+
+# Parameters
+ex:PageParam a ex:APIParameter ;
+    rdfs:label "Page Parameter" ;
+    ex:name "page" ;
+    ex:type "query" ;
+    ex:dataType xsd:integer ;
+    ex:required false ;
+    ex:defaultValue 1 ;
+    ex:description "Page number for pagination" .
+
+ex:LimitParam a ex:APIParameter ;
+    rdfs:label "Limit Parameter" ;
+    ex:name "limit" ;
+    ex:type "query" ;
+    ex:dataType xsd:integer ;
+    ex:required false ;
+    ex:defaultValue 20 ;
+    ex:description "Number of items per page" .
+
+ex:SortParam a ex:APIParameter ;
+    rdfs:label "Sort Parameter" ;
+    ex:name "sort" ;
+    ex:type "query" ;
+    ex:dataType xsd:string ;
+    ex:required false ;
+    ex:defaultValue "createdAt" ;
+    ex:description "Field to sort by" .
+
+ex:UserIdParam a ex:APIParameter ;
+    rdfs:label "User ID Parameter" ;
+    ex:name "id" ;
+    ex:type "path" ;
+    ex:dataType xsd:string ;
+    ex:required true ;
+    ex:description "User ID" .
+
+ex:UserBodyParam a ex:APIParameter ;
+    rdfs:label "User Body Parameter" ;
+    ex:name "user" ;
+    ex:type "body" ;
+    ex:dataType ex:User ;
+    ex:required true ;
+    ex:description "User data" .
+
+# Responses
+ex:UserCollectionResponse a ex:APIResponse ;
+    rdfs:label "User Collection Response" ;
+    ex:statusCode 200 ;
+    ex:contentType "application/json" ;
+    ex:schema ex:UserCollectionSchema ;
+    ex:description "Successfully retrieved user collection" .
+
+ex:UserResponse a ex:APIResponse ;
+    rdfs:label "User Response" ;
+    ex:statusCode 200 ;
+    ex:contentType "application/json" ;
+    ex:schema ex:UserSchema ;
+    ex:description "Successfully retrieved user" .
+
+ex:EmptyResponse a ex:APIResponse ;
+    rdfs:label "Empty Response" ;
+    ex:statusCode 204 ;
+    ex:contentType "application/json" ;
+    ex:description "Successfully deleted resource" .
+
+# Status Codes
+ex:Success200 a ex:StatusCode ;
+    rdfs:label "200 OK" ;
+    ex:code 200 ;
+    ex:description "Request successful" .
+
+ex:Success201 a ex:StatusCode ;
+    rdfs:label "201 Created" ;
+    ex:code 201 ;
+    ex:description "Resource created successfully" .
+
+ex:Success204 a ex:StatusCode ;
+    rdfs:label "204 No Content" ;
+    ex:code 204 ;
+    ex:description "Request successful, no content returned" .
+
+ex:Error400 a ex:StatusCode ;
+    rdfs:label "400 Bad Request" ;
+    ex:code 400 ;
+    ex:description "Invalid request" .
+
+ex:Error404 a ex:StatusCode ;
+    rdfs:label "404 Not Found" ;
+    ex:code 404 ;
+    ex:description "Resource not found" .
+
+ex:Error409 a ex:StatusCode ;
+    rdfs:label "409 Conflict" ;
+    ex:code 409 ;
+    ex:description "Resource conflict" .
+
+ex:Error500 a ex:StatusCode ;
+    rdfs:label "500 Internal Server Error" ;
+    ex:code 500 ;
+    ex:description "Internal server error" .
+
+# Schemas
+ex:UserSchema a ex:JSONSchema ;
+    rdfs:label "User Schema" ;
+    ex:properties ex:UserIdProp, ex:UserNameProp, ex:UserEmailProp, ex:UserCreatedAtProp ;
+    ex:required ex:UserNameProp, ex:UserEmailProp ;
+    ex:type "object" .
+
+ex:UserCollectionSchema a ex:JSONSchema ;
+    rdfs:label "User Collection Schema" ;
+    ex:properties ex:UsersProp, ex:TotalItemsProp, ex:PageProp ;
+    ex:required ex:UsersProp ;
+    ex:type "object" .
+
+ex:UserIdProp a ex:JSONProperty ;
+    rdfs:label "User ID Property" ;
+    ex:name "id" ;
+    ex:type "string" ;
+    ex:format "uuid" ;
+    ex:description "Unique user identifier" .
+
+ex:UserNameProp a ex:JSONProperty ;
+    rdfs:label "User Name Property" ;
+    ex:name "name" ;
+    ex:type "string" ;
+    ex:minLength 2 ;
+    ex:maxLength 100 ;
+    ex:description "User's full name" .
+
+ex:UserEmailProp a ex:JSONProperty ;
+    rdfs:label "User Email Property" ;
+    ex:name "email" ;
+    ex:type "string" ;
+    ex:format "email" ;
+    ex:description "User's email address" .
+
+ex:UserCreatedAtProp a ex:JSONProperty ;
+    rdfs:label "User Created At Property" ;
+    ex:name "createdAt" ;
+    ex:type "string" ;
+    ex:format "date-time" ;
+    ex:description "When the user was created" .
+
+ex:UsersProp a ex:JSONProperty ;
+    rdfs:label "Users Property" ;
+    ex:name "users" ;
+    ex:type "array" ;
+    ex:items ex:UserSchema ;
+    ex:description "Array of users" .
+
+ex:TotalItemsProp a ex:JSONProperty ;
+    rdfs:label "Total Items Property" ;
+    ex:name "totalItems" ;
+    ex:type "integer" ;
+    ex:description "Total number of users" .
+
+ex:PageProp a ex:JSONProperty ;
+    rdfs:label "Page Property" ;
+    ex:name "page" ;
+    ex:type "integer" ;
+    ex:description "Current page number" .
+
+# SPARQL Queries for API Generation
+ex:findAllEndpoints a ex:SPARQLQuery ;
+    rdfs:label "Find All Endpoints" ;
+    ex:query "SELECT ?endpoint ?path ?method WHERE { ?endpoint a ex:APIEndpoint ; ex:path ?path ; ex:method ?method }" ;
+    ex:description "Query to find all API endpoints" .
+
+ex:findEndpointsByMethod a ex:SPARQLQuery ;
+    rdfs:label "Find Endpoints by Method" ;
+    ex:query "SELECT ?endpoint ?path WHERE { ?endpoint a ex:APIEndpoint ; ex:path ?path ; ex:method ?method }" ;
+    ex:description "Query to find endpoints by HTTP method" .
+
+ex:findEndpointsByPath a ex:SPARQLQuery ;
+    rdfs:label "Find Endpoints by Path" ;
+    ex:query "SELECT ?endpoint ?method WHERE { ?endpoint a ex:APIEndpoint ; ex:path ?path ; ex:method ?method }" ;
+    ex:description "Query to find endpoints by path pattern" .
+
+ex:findParametersByEndpoint a ex:SPARQLQuery ;
+    rdfs:label "Find Parameters by Endpoint" ;
+    ex:query "SELECT ?param ?name ?type WHERE { ?endpoint ex:parameters ?param . ?param ex:name ?name ; ex:type ?type }" ;
+    ex:description "Query to find parameters for an endpoint" .
+
+ex:findResponsesByEndpoint a ex:SPARQLQuery ;
+    rdfs:label "Find Responses by Endpoint" ;
+    ex:query "SELECT ?response ?statusCode ?contentType WHERE { ?endpoint ex:response ?response . ?response ex:statusCode ?statusCode ; ex:contentType ?contentType }" ;
+    ex:description "Query to find responses for an endpoint" .

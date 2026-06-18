@@ -1,0 +1,392 @@
+# Complete ByteStar Pattern Ontology - All 43 Patterns (P01..P43)
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bs: <urn:bs:> .
+@prefix bscore: <https://bytestar.org/ontology/bytestar-core#> .
+
+<https://bytestar.org/ontology/bytestar-patterns>
+  a owl:Ontology ;
+  rdfs:label "ByteStar Complete Pattern Definitions" ;
+  rdfs:comment """Complete ontological definitions for all 43 ByteFlow patterns (P01..P43).
+    Each pattern defines a legal sequence of kernel executions that completes in ≤8 hops.
+    These patterns implement workflow topologies for the ByteStar execution model.""" ;
+  owl:versionInfo "3.0.0" ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core> .
+
+#################################################################
+# Sequential Patterns (P01-P10)
+#################################################################
+
+<urn:bs:p/P01> a bscore:Pattern ;
+  rdfs:label "Linear Chain" ;
+  rdfs:comment "Simple linear sequence of kernel executions" ;
+  bscore:hasHopCount "3"^^xsd:integer ;
+  bscore:patternType "sequential" ;
+  bscore:complexity "low" .
+
+<urn:bs:p/P02> a bscore:Pattern ;
+  rdfs:label "Conditional Branch" ;
+  rdfs:comment "Two-way conditional execution pattern" ;
+  bscore:hasHopCount "4"^^xsd:integer ;
+  bscore:patternType "sequential" ;
+  bscore:complexity "low" .
+
+<urn:bs:p/P03> a bscore:Pattern ;
+  rdfs:label "Loop Pattern" ;
+  rdfs:comment "Bounded iteration pattern" ;
+  bscore:hasHopCount "6"^^xsd:integer ;
+  bscore:patternType "sequential" ;
+  bscore:complexity "medium" .
+
+<urn:bs:p/P04> a bscore:Pattern ;
+  rdfs:label "Multi-Branch" ;
+  rdfs:comment "Multi-way conditional execution" ;
+  bscore:hasHopCount "5"^^xsd:integer ;
+  bscore:patternType "sequential" ;
+  bscore:complexity "medium" .
+
+<urn:bs:p/P05> a bscore:Pattern ;
+  rdfs:label "Nested Conditional" ;
+  rdfs:comment "Nested conditional execution pattern" ;
+  bscore:hasHopCount "7"^^xsd:integer ;
+  bscore:patternType "sequential" ;
+  bscore:complexity "medium" .
+
+<urn:bs:p/P06> a bscore:Pattern ;
+  rdfs:label "Sequential Merge" ;
+  rdfs:comment "Merge multiple sequential paths" ;
+  bscore:hasHopCount "5"^^xsd:integer ;
+  bscore:patternType "sequential" ;
+  bscore:complexity "medium" .
+
+<urn:bs:p/P07> a bscore:Pattern ;
+  rdfs:label "Error Recovery" ;
+  rdfs:comment "Error handling and recovery pattern" ;
+  bscore:hasHopCount "6"^^xsd:integer ;
+  bscore:patternType "sequential" ;
+  bscore:complexity "high" .
+
+<urn:bs:p/P08> a bscore:Pattern ;
+  rdfs:label "Transaction Begin" ;
+  rdfs:comment "Start transactional execution" ;
+  bscore:hasHopCount "3"^^xsd:integer ;
+  bscore:patternType "sequential" ;
+  bscore:complexity "low" .
+
+<urn:bs:p/P09> a bscore:Pattern ;
+  rdfs:label "Transaction Commit" ;
+  rdfs:comment "Commit transactional changes" ;
+  bscore:hasHopCount "4"^^xsd:integer ;
+  bscore:patternType "sequential" ;
+  bscore:complexity "medium" .
+
+<urn:bs:p/P10> a bscore:Pattern ;
+  rdfs:label "Transaction Abort" ;
+  rdfs:comment "Abort and rollback transaction" ;
+  bscore:hasHopCount "3"^^xsd:integer ;
+  bscore:patternType "sequential" ;
+  bscore:complexity "medium" .
+
+#################################################################
+# Parallel Patterns (P11-P20)
+#################################################################
+
+<urn:bs:p/P11> a bscore:Pattern ;
+  rdfs:label "Fork-Join" ;
+  rdfs:comment "Parallel execution with synchronization" ;
+  bscore:hasHopCount "4"^^xsd:integer ;
+  bscore:patternType "parallel" ;
+  bscore:complexity "medium" .
+
+<urn:bs:p/P12> a bscore:Pattern ;
+  rdfs:label "Producer-Consumer" ;
+  rdfs:comment "Producer-consumer parallel pattern" ;
+  bscore:hasHopCount "5"^^xsd:integer ;
+  bscore:patternType "parallel" ;
+  bscore:complexity "medium" .
+
+<urn:bs:p/P13> a bscore:Pattern ;
+  rdfs:label "Pipeline Stage" ;
+  rdfs:comment "Pipeline execution stage" ;
+  bscore:hasHopCount "3"^^xsd:integer ;
+  bscore:patternType "parallel" ;
+  bscore:complexity "low" .
+
+<urn:bs:p/P14> a bscore:Pattern ;
+  rdfs:label "Scatter-Gather" ;
+  rdfs:comment "Scatter work, gather results" ;
+  bscore:hasHopCount "6"^^xsd:integer ;
+  bscore:patternType "parallel" ;
+  bscore:complexity "high" .
+
+<urn:bs:p/P15> a bscore:Pattern ;
+  rdfs:label "Map-Reduce" ;
+  rdfs:comment "Parallel map-reduce operation" ;
+  bscore:hasHopCount "7"^^xsd:integer ;
+  bscore:patternType "parallel" ;
+  bscore:complexity "high" .
+
+<urn:bs:p/P16> a bscore:Pattern ;
+  rdfs:label "Barrier Sync" ;
+  rdfs:comment "Barrier synchronization pattern" ;
+  bscore:hasHopCount "2"^^xsd:integer ;
+  bscore:patternType "parallel" ;
+  bscore:complexity "low" .
+
+<urn:bs:p/P17> a bscore:Pattern ;
+  rdfs:label "Async Message" ;
+  rdfs:comment "Asynchronous message passing" ;
+  bscore:hasHopCount "3"^^xsd:integer ;
+  bscore:patternType "parallel" ;
+  bscore:complexity "medium" .
+
+<urn:bs:p/P18> a bscore:Pattern ;
+  rdfs:label "Future Wait" ;
+  rdfs:comment "Wait for future result" ;
+  bscore:hasHopCount "2"^^xsd:integer ;
+  bscore:patternType "parallel" ;
+  bscore:complexity "low" .
+
+<urn:bs:p/P19> a bscore:Pattern ;
+  rdfs:label "Lock Acquire" ;
+  rdfs:comment "Acquire synchronization lock" ;
+  bscore:hasHopCount "2"^^xsd:integer ;
+  bscore:patternType "parallel" ;
+  bscore:complexity "medium" .
+
+<urn:bs:p/P20> a bscore:Pattern ;
+  rdfs:label "Lock Release" ;
+  rdfs:comment "Release synchronization lock" ;
+  bscore:hasHopCount "1"^^xsd:integer ;
+  bscore:patternType "parallel" ;
+  bscore:complexity "low" .
+
+#################################################################
+# Data Flow Patterns (P21-P30)
+#################################################################
+
+<urn:bs:p/P21> a bscore:Pattern ;
+  rdfs:label "Data Transform" ;
+  rdfs:comment "Transform data format or structure" ;
+  bscore:hasHopCount "3"^^xsd:integer ;
+  bscore:patternType "dataflow" ;
+  bscore:complexity "medium" .
+
+<urn:bs:p/P22> a bscore:Pattern ;
+  rdfs:label "Data Validation" ;
+  rdfs:comment "Validate data integrity and constraints" ;
+  bscore:hasHopCount "4"^^xsd:integer ;
+  bscore:patternType "dataflow" ;
+  bscore:complexity "medium" .
+
+<urn:bs:p/P23> a bscore:Pattern ;
+  rdfs:label "Data Filter" ;
+  rdfs:comment "Filter data based on predicates" ;
+  bscore:hasHopCount "3"^^xsd:integer ;
+  bscore:patternType "dataflow" ;
+  bscore:complexity "low" .
+
+<urn:bs:p/P24> a bscore:Pattern ;
+  rdfs:label "Data Aggregation" ;
+  rdfs:comment "Aggregate data from multiple sources" ;
+  bscore:hasHopCount "5"^^xsd:integer ;
+  bscore:patternType "dataflow" ;
+  bscore:complexity "medium" .
+
+<urn:bs:p/P25> a bscore:Pattern ;
+  rdfs:label "Data Partition" ;
+  rdfs:comment "Partition data into subsets" ;
+  bscore:hasHopCount "4"^^xsd:integer ;
+  bscore:patternType "dataflow" ;
+  bscore:complexity "medium" .
+
+<urn:bs:p/P26> a bscore:Pattern ;
+  rdfs:label "Data Sort" ;
+  rdfs:comment "Sort data elements" ;
+  bscore:hasHopCount "6"^^xsd:integer ;
+  bscore:patternType "dataflow" ;
+  bscore:complexity "high" .
+
+<urn:bs:p/P27> a bscore:Pattern ;
+  rdfs:label "Data Join" ;
+  rdfs:comment "Join data from multiple sources" ;
+  bscore:hasHopCount "5"^^xsd:integer ;
+  bscore:patternType "dataflow" ;
+  bscore:complexity "high" .
+
+<urn:bs:p/P28> a bscore:Pattern ;
+  rdfs:label "Data Cache" ;
+  rdfs:comment "Cache data for fast access" ;
+  bscore:hasHopCount "2"^^xsd:integer ;
+  bscore:patternType "dataflow" ;
+  bscore:complexity "low" .
+
+<urn:bs:p/P29> a bscore:Pattern ;
+  rdfs:label "Data Compress" ;
+  rdfs:comment "Compress data for storage" ;
+  bscore:hasHopCount "4"^^xsd:integer ;
+  bscore:patternType "dataflow" ;
+  bscore:complexity "medium" .
+
+<urn:bs:p/P30> a bscore:Pattern ;
+  rdfs:label "Data Decompress" ;
+  rdfs:comment "Decompress stored data" ;
+  bscore:hasHopCount "3"^^xsd:integer ;
+  bscore:patternType "dataflow" ;
+  bscore:complexity "medium" .
+
+#################################################################
+# Control Patterns (P31-P43)
+#################################################################
+
+<urn:bs:p/P31> a bscore:Pattern ;
+  rdfs:label "Admission Gate" ;
+  rdfs:comment "Control admission to execution context" ;
+  bscore:hasHopCount "2"^^xsd:integer ;
+  bscore:patternType "control" ;
+  bscore:complexity "low" .
+
+<urn:bs:p/P32> a bscore:Pattern ;
+  rdfs:label "Flow Control" ;
+  rdfs:comment "Control execution flow rate" ;
+  bscore:hasHopCount "3"^^xsd:integer ;
+  bscore:patternType "control" ;
+  bscore:complexity "medium" .
+
+<urn:bs:p/P33> a bscore:Pattern ;
+  rdfs:label "Priority Queue" ;
+  rdfs:comment "Priority-based execution ordering" ;
+  bscore:hasHopCount "4"^^xsd:integer ;
+  bscore:patternType "control" ;
+  bscore:complexity "medium" .
+
+<urn:bs:p/P34> a bscore:Pattern ;
+  rdfs:label "Load Balance" ;
+  rdfs:comment "Balance load across executors" ;
+  bscore:hasHopCount "3"^^xsd:integer ;
+  bscore:patternType "control" ;
+  bscore:complexity "medium" .
+
+<urn:bs:p/P35> a bscore:Pattern ;
+  rdfs:label "Circuit Breaker" ;
+  rdfs:comment "Circuit breaker for fault tolerance" ;
+  bscore:hasHopCount "2"^^xsd:integer ;
+  bscore:patternType "control" ;
+  bscore:complexity "medium" .
+
+<urn:bs:p/P36> a bscore:Pattern ;
+  rdfs:label "Retry Pattern" ;
+  rdfs:comment "Retry failed operations" ;
+  bscore:hasHopCount "5"^^xsd:integer ;
+  bscore:patternType "control" ;
+  bscore:complexity "medium" .
+
+<urn:bs:p/P37> a bscore:Pattern ;
+  rdfs:label "Timeout Control" ;
+  rdfs:comment "Timeout-based execution control" ;
+  bscore:hasHopCount "3"^^xsd:integer ;
+  bscore:patternType "control" ;
+  bscore:complexity "medium" .
+
+<urn:bs:p/P38> a bscore:Pattern ;
+  rdfs:label "Resource Pool" ;
+  rdfs:comment "Resource pooling and allocation" ;
+  bscore:hasHopCount "4"^^xsd:integer ;
+  bscore:patternType "control" ;
+  bscore:complexity "high" .
+
+<urn:bs:p/P39> a bscore:Pattern ;
+  rdfs:label "Event Handler" ;
+  rdfs:comment "Event-driven execution pattern" ;
+  bscore:hasHopCount "3"^^xsd:integer ;
+  bscore:patternType "control" ;
+  bscore:complexity "medium" .
+
+<urn:bs:p/P40> a bscore:Pattern ;
+  rdfs:label "State Machine" ;
+  rdfs:comment "Finite state machine pattern" ;
+  bscore:hasHopCount "4"^^xsd:integer ;
+  bscore:patternType "control" ;
+  bscore:complexity "high" .
+
+<urn:bs:p/P41> a bscore:Pattern ;
+  rdfs:label "Observer Pattern" ;
+  rdfs:comment "Observer notification pattern" ;
+  bscore:hasHopCount "2"^^xsd:integer ;
+  bscore:patternType "control" ;
+  bscore:complexity "low" .
+
+<urn:bs:p/P42> a bscore:Pattern ;
+  rdfs:label "Command Queue" ;
+  rdfs:comment "Command queuing and execution" ;
+  bscore:hasHopCount "3"^^xsd:integer ;
+  bscore:patternType "control" ;
+  bscore:complexity "medium" .
+
+<urn:bs:p/P43> a bscore:Pattern ;
+  rdfs:label "Workflow End" ;
+  rdfs:comment "Workflow termination pattern" ;
+  bscore:hasHopCount "1"^^xsd:integer ;
+  bscore:patternType "control" ;
+  bscore:complexity "low" .
+
+#################################################################
+# Pattern Properties and Relations
+#################################################################
+
+bscore:patternType a owl:DatatypeProperty ;
+  rdfs:label "patternType" ;
+  rdfs:comment "The functional type of the pattern" ;
+  rdfs:domain bscore:Pattern ;
+  rdfs:range xsd:string .
+
+bscore:complexity a owl:DatatypeProperty ;
+  rdfs:label "complexity" ;
+  rdfs:comment "The execution complexity of the pattern" ;
+  rdfs:domain bscore:Pattern ;
+  rdfs:range xsd:string .
+
+bscore:usesKernel a owl:ObjectProperty ;
+  rdfs:label "usesKernel" ;
+  rdfs:comment "Indicates which kernel a pattern uses" ;
+  rdfs:domain bscore:Pattern ;
+  rdfs:range bscore:Kernel .
+
+bscore:followedBy a owl:ObjectProperty ;
+  rdfs:label "followedBy" ;
+  rdfs:comment "Indicates pattern execution order" ;
+  rdfs:domain bscore:Pattern ;
+  rdfs:range bscore:Pattern .
+
+#################################################################
+# Validation Constraints
+#################################################################
+
+# All patterns must have hop count ≤ 8 (Doctrine of 8)
+bscore:Pattern rdfs:subClassOf [
+  a owl:Restriction ;
+  owl:onProperty bscore:hasHopCount ;
+  owl:allValuesFrom [
+    a rdfs:Datatype ;
+    owl:onDatatype xsd:integer ;
+    owl:withRestrictions (
+      [ xsd:minInclusive "1"^^xsd:integer ]
+      [ xsd:maxInclusive "8"^^xsd:integer ]
+    )
+  ]
+] .
+
+# Pattern types must be from defined vocabulary
+bscore:Pattern rdfs:subClassOf [
+  a owl:Restriction ;
+  owl:onProperty bscore:patternType ;
+  owl:allValuesFrom [
+    a rdfs:Datatype ;
+    owl:onDatatype xsd:string ;
+    owl:withRestrictions (
+      [ xsd:pattern "sequential|parallel|dataflow|control" ]
+    )
+  ]
+] .

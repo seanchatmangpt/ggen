@@ -1,0 +1,104 @@
+@prefix yawl: <http://www.yawlfoundation.org/yawlschema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Pattern 1-5: Order Processing Workflow
+# Demonstrates: Sequence, Parallel Split, Synchronization, Exclusive Choice, Simple Merge
+
+<#OrderProcessing> a yawl:Specification ;
+    yawl:uri <http://example.org/workflows/order-processing> ;
+    yawl:name "Order Processing" ;
+    yawl:documentation "Reference workflow demonstrating basic control flow patterns (1-5)" ;
+    yawl:hasDecomposition <#OrderProcessingNet> .
+
+<#OrderProcessingNet> a yawl:Net ;
+    yawl:id "order_processing_net" ;
+    yawl:name "Order Processing Net" ;
+    yawl:isRootNet true ;
+    yawl:hasInputCondition <#start> ;
+    yawl:hasOutputCondition <#end> ;
+    yawl:hasTask <#receiveOrder> ;
+    yawl:hasTask <#validateOrder> ;
+    yawl:hasTask <#checkInventory> ;
+    yawl:hasTask <#processPayment> ;
+    yawl:hasTask <#shipOrder> ;
+    yawl:hasCondition <#c1> ;
+    yawl:hasCondition <#c2> .
+
+# Input Condition (start)
+<#start> a yawl:InputCondition ;
+    yawl:id "start" ;
+    yawl:name "Start" ;
+    yawl:flowsInto <#flow1> .
+
+# Pattern 1: Sequence (receiveOrder -> validateOrder)
+<#receiveOrder> a yawl:Task ;
+    yawl:id "receive_order" ;
+    yawl:name "Receive Order" ;
+    yawl:documentation "Pattern 1: Sequence" ;
+    yawl:hasJoin yawl:ControlTypeXor ;
+    yawl:hasSplit yawl:ControlTypeXor ;
+    yawl:flowsInto <#flow2> .
+
+# Pattern 4: Exclusive Choice (validateOrder chooses inventory OR reject)
+<#validateOrder> a yawl:Task ;
+    yawl:id "validate_order" ;
+    yawl:name "Validate Order" ;
+    yawl:documentation "Pattern 2: Parallel Split + Pattern 4: Exclusive Choice" ;
+    yawl:hasJoin yawl:ControlTypeXor ;
+    yawl:hasSplit yawl:ControlTypeAnd ;  # Parallel split to inventory + payment
+    yawl:flowsInto <#flow3> ;
+    yawl:flowsInto <#flow4> .
+
+# Pattern 2: Parallel Split (checkInventory || processPayment)
+<#checkInventory> a yawl:Task ;
+    yawl:id "check_inventory" ;
+    yawl:name "Check Inventory" ;
+    yawl:documentation "Pattern 2: Parallel Split - concurrent execution" ;
+    yawl:hasJoin yawl:ControlTypeXor ;
+    yawl:hasSplit yawl:ControlTypeXor ;
+    yawl:flowsInto <#flow5> .
+
+<#processPayment> a yawl:Task ;
+    yawl:id "process_payment" ;
+    yawl:name "Process Payment" ;
+    yawl:documentation "Pattern 2: Parallel Split - concurrent execution" ;
+    yawl:hasJoin yawl:ControlTypeXor ;
+    yawl:hasSplit yawl:ControlTypeXor ;
+    yawl:flowsInto <#flow6> .
+
+# Pattern 3: Synchronization (wait for both inventory + payment)
+<#shipOrder> a yawl:Task ;
+    yawl:id "ship_order" ;
+    yawl:name "Ship Order" ;
+    yawl:documentation "Pattern 3: Synchronization - wait for all parallel branches" ;
+    yawl:hasJoin yawl:ControlTypeAnd ;  # Synchronization
+    yawl:hasSplit yawl:ControlTypeXor ;
+    yawl:flowsInto <#flow7> .
+
+# Output Condition (end)
+<#end> a yawl:OutputCondition ;
+    yawl:id "end" ;
+    yawl:name "End" .
+
+# Flows
+<#flow1> a yawl:FlowsInto ;
+    yawl:nextElementRef <#receiveOrder> .
+
+<#flow2> a yawl:FlowsInto ;
+    yawl:nextElementRef <#validateOrder> .
+
+<#flow3> a yawl:FlowsInto ;
+    yawl:nextElementRef <#checkInventory> .
+
+<#flow4> a yawl:FlowsInto ;
+    yawl:nextElementRef <#processPayment> .
+
+<#flow5> a yawl:FlowsInto ;
+    yawl:nextElementRef <#shipOrder> .
+
+<#flow6> a yawl:FlowsInto ;
+    yawl:nextElementRef <#shipOrder> .
+
+<#flow7> a yawl:FlowsInto ;
+    yawl:nextElementRef <#end> .

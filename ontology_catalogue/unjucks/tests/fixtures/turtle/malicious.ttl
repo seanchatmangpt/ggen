@@ -1,0 +1,33 @@
+# This file contains malicious/invalid Turtle syntax for security testing
+@prefix ex: <http://example.org/> .
+
+# Invalid syntax - missing closing quote
+ex:invalid1 rdfs:label "unclosed string .
+
+# Extremely long URI to test buffer overflow
+ex:veryLongURI_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa rdfs:label "test" .
+
+# Invalid prefix declaration
+@prefix : <ht://invalid-scheme> .
+
+# Circular reference attempt  
+ex:a ex:sameAs ex:b .
+ex:b ex:sameAs ex:a .
+
+# Null bytes and control characters (would be binary in real file)
+# ex:nullByte rdfs:label "contains\0null" .
+
+# Nested quotes attempt
+ex:nestedQuotes rdfs:label """This contains "nested" quotes""" .
+
+# Invalid numeric literals  
+ex:invalidNumber ex:value "not-a-number"^^xsd:integer .
+
+# Missing prefix
+invalid:missingPrefix rdfs:label "test" .
+
+# Malformed blank node
+[ ex:prop "value" ex:invalidProp .
+
+# Invalid escape sequences
+ex:invalidEscape rdfs:label "bad\escape" .

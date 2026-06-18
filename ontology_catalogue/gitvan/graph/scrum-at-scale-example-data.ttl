@@ -1,0 +1,110 @@
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix scr:  <https://gitvan.dev/scrum#> .
+@prefix sas:  <https://gitvan.dev/scrum-at-scale#> .
+@prefix ex:   <http://example.org/> .
+
+##########
+# Example Scrum@Scale Data
+# This demonstrates the hooks in action with realistic data
+##########
+
+# Teams
+ex:frontend-team a scr:Team ; scr:name "Frontend Team" .
+ex:backend-team a scr:Team ; scr:name "Backend Team" .
+ex:devops-team a scr:Team ; scr:name "DevOps Team" .
+
+# Current Sprint (Week 1 of 2-week sprint)
+ex:sprint-2024-01 a scr:Sprint ;
+  scr:name "Sprint 2024-01" ;
+  scr:startAt "2024-01-15T09:00:00Z"^^xsd:dateTime ;
+  scr:endAt "2024-01-29T17:00:00Z"^^xsd:dateTime .
+
+# Backlog Items with cross-team dependencies
+ex:user-auth-ui a scr:BacklogItem ;
+  scr:name "User Authentication UI" ;
+  scr:team ex:frontend-team ;
+  scr:sprint ex:sprint-2024-01 ;
+  scr:status "in-progress" ;
+  scr:dependsOn ex:user-auth-api .
+
+ex:user-auth-api a scr:BacklogItem ;
+  scr:name "User Authentication API" ;
+  scr:team ex:backend-team ;
+  scr:sprint ex:sprint-2024-01 ;
+  scr:status "in-progress" ;
+  scr:dependsOn ex:auth-database .
+
+ex:auth-database a scr:BacklogItem ;
+  scr:name "Authentication Database Schema" ;
+  scr:team ex:devops-team ;
+  scr:sprint ex:sprint-2024-01 ;
+  scr:status "done" .
+
+ex:payment-ui a scr:BacklogItem ;
+  scr:name "Payment Processing UI" ;
+  scr:team ex:frontend-team ;
+  scr:sprint ex:sprint-2024-01 ;
+  scr:status "todo" ;
+  scr:dependsOn ex:payment-api .
+
+ex:payment-api a scr:BacklogItem ;
+  scr:name "Payment Processing API" ;
+  scr:team ex:backend-team ;
+  scr:sprint ex:sprint-2024-01 ;
+  scr:status "todo" ;
+  scr:dependsOn ex:payment-gateway .
+
+ex:payment-gateway a scr:BacklogItem ;
+  scr:name "Payment Gateway Integration" ;
+  scr:team ex:devops-team ;
+  scr:sprint ex:sprint-2024-01 ;
+  scr:status "todo" .
+
+# Additional dependencies creating risk
+ex:notification-ui a scr:BacklogItem ;
+  scr:name "Notification UI" ;
+  scr:team ex:frontend-team ;
+  scr:sprint ex:sprint-2024-01 ;
+  scr:status "todo" ;
+  scr:dependsOn ex:notification-service .
+
+ex:notification-service a scr:BacklogItem ;
+  scr:name "Notification Service" ;
+  scr:team ex:backend-team ;
+  scr:sprint ex:sprint-2024-01 ;
+  scr:status "todo" .
+
+ex:email-service a scr:BacklogItem ;
+  scr:name "Email Service Integration" ;
+  scr:team ex:devops-team ;
+  scr:sprint ex:sprint-2024-01 ;
+  scr:status "todo" ;
+  scr:dependsOn ex:notification-service .
+
+# Impediments with aging
+ex:impediment-1 a scr:Impediment ;
+  scr:name "Database migration blocking auth" ;
+  scr:status "open" ;
+  scr:openedAt "2024-01-16T10:00:00Z"^^xsd:dateTime ;
+  scr:ageHours "26.5"^^xsd:decimal ;
+  scr:severity "high" .
+
+ex:impediment-2 a scr:Impediment ;
+  scr:name "Payment gateway API rate limits" ;
+  scr:status "open" ;
+  scr:openedAt "2024-01-15T14:30:00Z"^^xsd:dateTime ;
+  scr:ageHours "52.0"^^xsd:decimal ;
+  scr:severity "critical" .
+
+# Scrum of Scrums meeting (today at 2 PM)
+ex:sos-meeting-today a sas:SoS ;
+  scr:name "Daily Scrum of Scrums" ;
+  scr:startAt "2024-01-18T14:00:00Z"^^xsd:dateTime ;
+  scr:endAt "2024-01-18T14:30:00Z"^^xsd:dateTime .
+
+# MetaScrum meeting (tomorrow)
+ex:metascrum-tomorrow a sas:MetaScrum ;
+  scr:name "MetaScrum Planning" ;
+  scr:startAt "2024-01-19T10:00:00Z"^^xsd:dateTime ;
+  scr:endAt "2024-01-19T11:00:00Z"^^xsd:dateTime .

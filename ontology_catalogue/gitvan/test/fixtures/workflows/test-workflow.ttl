@@ -1,0 +1,24 @@
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix gh: <http://example.org/git-hooks#> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+
+# Supervision test workflow hook
+ex:test-workflow rdf:type gh:Hook ;
+    rdfs:label "Supervision Test Workflow" .
+
+# Test Step 1 - Simple CLI command
+ex:step1 rdf:type gv:Step ;
+    gv:type "cli" ;
+    gv:handler "test-handler-1" .
+
+# Test Step 2 - Another CLI command with dependency
+ex:step2 rdf:type gv:Step ;
+    gv:type "cli" ;
+    gv:handler "test-handler-2" .
+
+# Test Step 3 - Final step with dependency
+ex:step3 rdf:type gv:Step ;
+    gv:type "cli" ;
+    gv:handler "test-handler-3" .

@@ -1,0 +1,9 @@
+PREFIX code: <https://chatmangpt.com/ontology/codegen#>
+
+SELECT ?name ?edition ?toolchain
+WHERE {
+  ?workspace a code:Workspace ;
+             code:name ?name ;
+             code:edition ?edition ;
+             code:toolchain ?toolchain .
+}

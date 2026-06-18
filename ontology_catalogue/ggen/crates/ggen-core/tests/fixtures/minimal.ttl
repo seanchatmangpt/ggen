@@ -1,0 +1,12 @@
+@prefix : <http://example.org/test/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+:TestClass a owl:Class ;
+  rdfs:label "Test Class" ;
+  rdfs:comment "A minimal test class for ggen testing" .
+
+:TestProperty a owl:ObjectProperty ;
+  rdfs:domain :TestClass ;
+  rdfs:range :TestClass ;
+  rdfs:label "Test Property" .

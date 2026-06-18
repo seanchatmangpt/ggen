@@ -1,0 +1,257 @@
+@prefix vec: <http://bytestar.io/ontology/vectorization#> .
+@prefix simd: <http://bytestar.io/ontology/simd#> .
+@prefix crypto: <http://bytestar.io/ontology/crypto#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Vectorization Pattern Ontology
+# Defines common patterns for SIMD optimization in cryptographic operations
+
+# Base Classes
+vec:VectorizationPattern a owl:Class ;
+    rdfs:label "Vectorization Pattern" ;
+    rdfs:comment "A reusable pattern for SIMD optimization" .
+
+vec:DataPattern a owl:Class ;
+    rdfs:label "Data Access Pattern" ;
+    rdfs:comment "How data is accessed and processed in vectors" .
+
+vec:ComputePattern a owl:Class ;
+    rdfs:label "Compute Pattern" ;
+    rdfs:comment "Computational workflow pattern for SIMD operations" .
+
+vec:MemoryPattern a owl:Class ;
+    rdfs:label "Memory Access Pattern" ;
+    rdfs:comment "Memory access patterns optimized for SIMD" .
+
+# Properties
+vec:hasDataPattern a owl:ObjectProperty ;
+    rdfs:domain vec:VectorizationPattern ;
+    rdfs:range vec:DataPattern .
+
+vec:hasComputePattern a owl:ObjectProperty ;
+    rdfs:domain vec:VectorizationPattern ;
+    rdfs:range vec:ComputePattern .
+
+vec:hasMemoryPattern a owl:ObjectProperty ;
+    rdfs:domain vec:VectorizationPattern ;
+    rdfs:range vec:MemoryPattern .
+
+vec:vectorLength a owl:DatatypeProperty ;
+    rdfs:domain vec:VectorizationPattern ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Number of elements processed per vector operation" .
+
+vec:parallelismFactor a owl:DatatypeProperty ;
+    rdfs:domain vec:VectorizationPattern ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Degree of parallelism achieved" .
+
+vec:memoryAlignmentRequirement a owl:DatatypeProperty ;
+    rdfs:domain vec:MemoryPattern ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Required memory alignment in bytes" .
+
+vec:cacheEfficiency a owl:DatatypeProperty ;
+    rdfs:domain vec:MemoryPattern ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Cache hit ratio optimization factor" .
+
+# Polynomial Operation Patterns
+vec:PolynomialMultiplicationPattern a vec:VectorizationPattern ;
+    rdfs:label "Polynomial Multiplication SIMD Pattern" ;
+    vec:vectorLength "16"^^xsd:integer ;
+    vec:parallelismFactor "16"^^xsd:integer ;
+    rdfs:comment "SIMD pattern for polynomial coefficient multiplication" .
+
+vec:SchoolbookMultiplication a vec:ComputePattern ;
+    rdfs:label "Schoolbook Multiplication" ;
+    rdfs:comment "Traditional coefficient-wise multiplication pattern" .
+
+vec:KaratsubaMultiplication a vec:ComputePattern ;
+    rdfs:label "Karatsuba Multiplication" ;
+    rdfs:comment "Divide-and-conquer multiplication pattern" .
+
+vec:ToomCookMultiplication a vec:ComputePattern ;
+    rdfs:label "Toom-Cook Multiplication" ;
+    rdfs:comment "Higher-order multiplication pattern" .
+
+vec:PolynomialMultiplicationPattern vec:hasComputePattern vec:SchoolbookMultiplication .
+
+# Modular Reduction Patterns
+vec:BarrettReductionPattern a vec:VectorizationPattern ;
+    rdfs:label "Barrett Reduction SIMD Pattern" ;
+    vec:vectorLength "16"^^xsd:integer ;
+    vec:parallelismFactor "8"^^xsd:integer ;
+    rdfs:comment "SIMD pattern for Barrett modular reduction" .
+
+vec:MontgomeryReductionPattern a vec:VectorizationPattern ;
+    rdfs:label "Montgomery Reduction SIMD Pattern" ;
+    vec:vectorLength "16"^^xsd:integer ;
+    vec:parallelismFactor "8"^^xsd:integer ;
+    rdfs:comment "SIMD pattern for Montgomery modular reduction" .
+
+vec:PrecomputedReduction a vec:ComputePattern ;
+    rdfs:label "Precomputed Reduction Constants" ;
+    rdfs:comment "Use precomputed constants for reduction" .
+
+vec:BarrettReductionPattern vec:hasComputePattern vec:PrecomputedReduction .
+vec:MontgomeryReductionPattern vec:hasComputePattern vec:PrecomputedReduction .
+
+# Number Theoretic Transform Patterns
+vec:NTTPattern a vec:VectorizationPattern ;
+    rdfs:label "Number Theoretic Transform SIMD Pattern" ;
+    vec:vectorLength "16"^^xsd:integer ;
+    vec:parallelismFactor "16"^^xsd:integer ;
+    rdfs:comment "SIMD pattern for NTT butterfly operations" .
+
+vec:ButterflyPattern a vec:ComputePattern ;
+    rdfs:label "Butterfly Computation Pattern" ;
+    rdfs:comment "Butterfly operations for NTT/FFT" .
+
+vec:BitReversalPattern a vec:DataPattern ;
+    rdfs:label "Bit-Reversal Permutation" ;
+    rdfs:comment "Bit-reversal reordering pattern" .
+
+vec:TwiddleFactorPattern a vec:DataPattern ;
+    rdfs:label "Twiddle Factor Access" ;
+    rdfs:comment "Twiddle factor loading pattern" .
+
+vec:NTTPattern vec:hasComputePattern vec:ButterflyPattern .
+vec:NTTPattern vec:hasDataPattern vec:BitReversalPattern .
+vec:NTTPattern vec:hasDataPattern vec:TwiddleFactorPattern .
+
+# Matrix-Vector Multiplication Patterns
+vec:MatrixVectorPattern a vec:VectorizationPattern ;
+    rdfs:label "Matrix-Vector Multiplication SIMD Pattern" ;
+    vec:vectorLength "16"^^xsd:integer ;
+    vec:parallelismFactor "16"^^xsd:integer ;
+    rdfs:comment "SIMD pattern for matrix-vector operations" .
+
+vec:RowMajorAccess a vec:MemoryPattern ;
+    rdfs:label "Row-Major Matrix Access" ;
+    vec:memoryAlignmentRequirement "32"^^xsd:integer ;
+    vec:cacheEfficiency "0.9"^^xsd:decimal .
+
+vec:ColumnMajorAccess a vec:MemoryPattern ;
+    rdfs:label "Column-Major Matrix Access" ;
+    vec:memoryAlignmentRequirement "32"^^xsd:integer ;
+    vec:cacheEfficiency "0.7"^^xsd:decimal .
+
+vec:BlockedAccess a vec:MemoryPattern ;
+    rdfs:label "Blocked Matrix Access" ;
+    vec:memoryAlignmentRequirement "32"^^xsd:integer ;
+    vec:cacheEfficiency "0.95"^^xsd:decimal ;
+    rdfs:comment "Cache-friendly blocked access pattern" .
+
+vec:MatrixVectorPattern vec:hasMemoryPattern vec:RowMajorAccess .
+
+# Vectorized Data Access Patterns
+vec:SequentialAccess a vec:DataPattern ;
+    rdfs:label "Sequential Access Pattern" ;
+    rdfs:comment "Linear sequential data access" .
+
+vec:StridedAccess a vec:DataPattern ;
+    rdfs:label "Strided Access Pattern" ;
+    rdfs:comment "Fixed-stride data access" .
+
+vec:GatherScatter a vec:DataPattern ;
+    rdfs:label "Gather/Scatter Pattern" ;
+    rdfs:comment "Irregular gather/scatter operations" .
+
+vec:ShufflePattern a vec:DataPattern ;
+    rdfs:label "Shuffle Pattern" ;
+    rdfs:comment "Data reshuffling within vectors" .
+
+# Specific Cryptographic Algorithm Patterns
+vec:KyberEncryptPattern a vec:VectorizationPattern ;
+    rdfs:label "Kyber Encryption SIMD Pattern" ;
+    vec:vectorLength "16"^^xsd:integer ;
+    vec:parallelismFactor "16"^^xsd:integer ;
+    rdfs:comment "Optimized pattern for Kyber encryption operations" .
+
+vec:KyberDecryptPattern a vec:VectorizationPattern ;
+    rdfs:label "Kyber Decryption SIMD Pattern" ;
+    vec:vectorLength "16"^^xsd:integer ;
+    vec:parallelismFactor "16"^^xsd:integer ;
+    rdfs:comment "Optimized pattern for Kyber decryption operations" .
+
+vec:DilithiumSignPattern a vec:VectorizationPattern ;
+    rdfs:label "Dilithium Signing SIMD Pattern" ;
+    vec:vectorLength "16"^^xsd:integer ;
+    vec:parallelismFactor "8"^^xsd:integer ;
+    rdfs:comment "Optimized pattern for Dilithium signature generation" .
+
+# Pattern Complexity Classifications
+vec:PatternComplexity a owl:Class ;
+    rdfs:label "Pattern Complexity" .
+
+vec:SimplePattern a vec:PatternComplexity ;
+    rdfs:label "Simple Pattern" ;
+    rdfs:comment "Basic vectorization with minimal dependencies" .
+
+vec:IntermediatePattern a vec:PatternComplexity ;
+    rdfs:label "Intermediate Pattern" ;
+    rdfs:comment "Moderate complexity with some data dependencies" .
+
+vec:ComplexPattern a vec:PatternComplexity ;
+    rdfs:label "Complex Pattern" ;
+    rdfs:comment "Complex pattern with significant data dependencies" .
+
+vec:hasComplexity a owl:ObjectProperty ;
+    rdfs:domain vec:VectorizationPattern ;
+    rdfs:range vec:PatternComplexity .
+
+# Assign complexity levels
+vec:PolynomialMultiplicationPattern vec:hasComplexity vec:SimplePattern .
+vec:BarrettReductionPattern vec:hasComplexity vec:IntermediatePattern .
+vec:NTTPattern vec:hasComplexity vec:ComplexPattern .
+vec:MatrixVectorPattern vec:hasComplexity vec:SimplePattern .
+
+# Performance Characteristics
+vec:expectedSpeedup a owl:DatatypeProperty ;
+    rdfs:domain vec:VectorizationPattern ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Expected performance speedup factor" .
+
+vec:registerPressure a owl:DatatypeProperty ;
+    rdfs:domain vec:VectorizationPattern ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Register usage pressure (0-1)" .
+
+vec:PolynomialMultiplicationPattern vec:expectedSpeedup "8.0"^^xsd:decimal .
+vec:PolynomialMultiplicationPattern vec:registerPressure "0.6"^^xsd:decimal .
+
+vec:NTTPattern vec:expectedSpeedup "4.0"^^xsd:decimal .
+vec:NTTPattern vec:registerPressure "0.8"^^xsd:decimal .
+
+vec:MatrixVectorPattern vec:expectedSpeedup "12.0"^^xsd:decimal .
+vec:MatrixVectorPattern vec:registerPressure "0.5"^^xsd:decimal .
+
+# Code Generation Templates
+vec:hasCodeTemplate a owl:ObjectProperty ;
+    rdfs:domain vec:VectorizationPattern ;
+    rdfs:range vec:CodeTemplate .
+
+vec:CodeTemplate a owl:Class ;
+    rdfs:label "Code Generation Template" ;
+    rdfs:comment "Template for generating SIMD code" .
+
+vec:AVX2Template a vec:CodeTemplate ;
+    rdfs:label "AVX2 Code Template" .
+
+vec:AVX512Template a vec:CodeTemplate ;
+    rdfs:label "AVX-512 Code Template" .
+
+vec:NEONTemplate a vec:CodeTemplate ;
+    rdfs:label "NEON Code Template" .
+
+vec:SVETemplate a vec:CodeTemplate ;
+    rdfs:label "SVE Code Template" .
+
+# Template associations
+vec:PolynomialMultiplicationPattern vec:hasCodeTemplate vec:AVX2Template, vec:AVX512Template, vec:NEONTemplate .
+vec:NTTPattern vec:hasCodeTemplate vec:AVX2Template, vec:AVX512Template .
+vec:MatrixVectorPattern vec:hasCodeTemplate vec:AVX2Template, vec:NEONTemplate, vec:SVETemplate .

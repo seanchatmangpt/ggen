@@ -1,0 +1,43 @@
+PREFIX ostar: <https://chatmangpt.com/ontologies/o-star/>
+PREFIX realm: <https://chatmangpt.com/ontologies/o-star/governance:realm-configuration:>
+
+SELECT ?motion ?europeanVotes ?americanVotes ?asianVotes ?quorumMet
+WHERE {
+  ?motion a rr:Motion .
+
+  # Count votes by realm
+  {
+    SELECT ?motion (COUNT(?vote) AS ?europeanVotes)
+    WHERE {
+      ?vote rr:voteCastedFor ?motion .
+      ?vote rr:fromRealm realm:EuropeanRealm .
+    }
+    GROUP BY ?motion
+  }
+
+  {
+    SELECT ?motion (COUNT(?vote) AS ?americanVotes)
+    WHERE {
+      ?vote rr:voteCastedFor ?motion .
+      ?vote rr:fromRealm realm:AmericanRealm .
+    }
+    GROUP BY ?motion
+  }
+
+  {
+    SELECT ?motion (COUNT(?vote) AS ?asianVotes)
+    WHERE {
+      ?vote rr:voteCastedFor ?motion .
+      ?vote rr:fromRealm realm:AsianRealm .
+    }
+    GROUP BY ?motion
+  }
+
+  # Check if 2-of-3 realms meet minimum threshold
+  BIND(
+    (?europeanVotes >= ?euMin) +
+    (?americanVotes >= ?usMin) +
+    (?asianVotes >= ?asiaMin) >= 2
+    AS ?quorumMet
+  )
+}

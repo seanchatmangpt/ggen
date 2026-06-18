@@ -1,0 +1,820 @@
+@prefix ba: <http://bytestar.org/ontology/> .
+@prefix bac: <http://bytestar.org/ontology/compliance/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix time: <http://www.w3.org/2006/time#> .
+
+# =============================================================================
+# ByteStar Compliance Framework Ontology
+# Version: 5.0.0 - Phase 4
+# =============================================================================
+
+<http://bytestar.org/ontology/compliance-framework> a owl:Ontology ;
+    owl:versionIRI <http://bytestar.org/ontology/compliance-framework/5.0.0> ;
+    dct:title "ByteStar Compliance Framework Ontology" ;
+    dct:description "Comprehensive regulatory compliance, control mapping, and automated adherence framework for ByteStar systems" ;
+    dct:creator "ByteStar Architecture Team" ;
+    dct:created "2025-01-15"^^xsd:date ;
+    dct:modified "2025-01-15"^^xsd:date ;
+    owl:imports <http://bytestar.org/ontology/core>,
+                <http://bytestar.org/ontology/security>,
+                <http://bytestar.org/ontology/data-governance> .
+
+# =============================================================================
+# Core Compliance Classes
+# =============================================================================
+
+bac:ComplianceFramework a owl:Class ;
+    rdfs:label "Compliance Framework" ;
+    rdfs:comment "A regulatory or standards framework that defines compliance requirements" ;
+    rdfs:subClassOf ba:GovernanceEntity .
+
+bac:RegulatoryFramework a owl:Class ;
+    rdfs:label "Regulatory Framework" ;
+    rdfs:comment "Government or regulatory body mandated compliance framework" ;
+    rdfs:subClassOf bac:ComplianceFramework .
+
+bac:StandardsFramework a owl:Class ;
+    rdfs:label "Standards Framework" ;
+    rdfs:comment "Industry or international standards-based compliance framework" ;
+    rdfs:subClassOf bac:ComplianceFramework .
+
+bac:ComplianceControl a owl:Class ;
+    rdfs:label "Compliance Control" ;
+    rdfs:comment "Specific control mechanism or requirement within a compliance framework" ;
+    rdfs:subClassOf ba:SecurityControl .
+
+bac:ComplianceRequirement a owl:Class ;
+    rdfs:label "Compliance Requirement" ;
+    rdfs:comment "Specific requirement mandated by a compliance framework" ;
+    rdfs:subClassOf ba:Requirement .
+
+bac:ComplianceEvidence a owl:Class ;
+    rdfs:label "Compliance Evidence" ;
+    rdfs:comment "Documentation or artifacts that demonstrate compliance adherence" ;
+    rdfs:subClassOf ba:Evidence .
+
+bac:AuditTrail a owl:Class ;
+    rdfs:label "Audit Trail" ;
+    rdfs:comment "Sequential record of compliance-related activities and changes" ;
+    rdfs:subClassOf ba:TraceabilityRecord .
+
+bac:ComplianceAssessment a owl:Class ;
+    rdfs:label "Compliance Assessment" ;
+    rdfs:comment "Evaluation of compliance status and adherence" ;
+    rdfs:subClassOf ba:Assessment .
+
+bac:ComplianceGap a owl:Class ;
+    rdfs:label "Compliance Gap" ;
+    rdfs:comment "Identified deficiency in compliance adherence" ;
+    rdfs:subClassOf ba:Risk .
+
+bac:ComplianceReport a owl:Class ;
+    rdfs:label "Compliance Report" ;
+    rdfs:comment "Formal report on compliance status and findings" ;
+    rdfs:subClassOf ba:Report .
+
+bac:ComplianceMonitor a owl:Class ;
+    rdfs:label "Compliance Monitor" ;
+    rdfs:comment "Automated system for continuous compliance monitoring" ;
+    rdfs:subClassOf ba:Monitor .
+
+bac:ComplianceCertification a owl:Class ;
+    rdfs:label "Compliance Certification" ;
+    rdfs:comment "Formal certification of compliance adherence" ;
+    rdfs:subClassOf ba:Certification .
+
+# =============================================================================
+# Regulatory Framework Instances
+# =============================================================================
+
+# Financial Regulations
+bac:SOX a bac:RegulatoryFramework ;
+    rdfs:label "Sarbanes-Oxley Act" ;
+    bac:frameworkCode "SOX" ;
+    bac:jurisdiction "United States" ;
+    bac:applicableSectors "Public Companies" ;
+    bac:mandatoryDate "2002-07-30"^^xsd:date ;
+    bac:focusArea "Financial Reporting", "Corporate Governance" .
+
+bac:GDPR a bac:RegulatoryFramework ;
+    rdfs:label "General Data Protection Regulation" ;
+    bac:frameworkCode "GDPR" ;
+    bac:jurisdiction "European Union" ;
+    bac:applicableSectors "All Data Controllers/Processors" ;
+    bac:mandatoryDate "2018-05-25"^^xsd:date ;
+    bac:focusArea "Data Privacy", "Personal Data Protection" .
+
+bac:HIPAA a bac:RegulatoryFramework ;
+    rdfs:label "Health Insurance Portability and Accountability Act" ;
+    bac:frameworkCode "HIPAA" ;
+    bac:jurisdiction "United States" ;
+    bac:applicableSectors "Healthcare" ;
+    bac:mandatoryDate "1996-08-21"^^xsd:date ;
+    bac:focusArea "Health Information Privacy", "Security" .
+
+bac:PCI_DSS a bac:RegulatoryFramework ;
+    rdfs:label "Payment Card Industry Data Security Standard" ;
+    bac:frameworkCode "PCI-DSS" ;
+    bac:jurisdiction "Global" ;
+    bac:applicableSectors "Payment Card Industry" ;
+    bac:mandatoryDate "2004-12-15"^^xsd:date ;
+    bac:focusArea "Payment Security", "Cardholder Data Protection" .
+
+bac:FISMA a bac:RegulatoryFramework ;
+    rdfs:label "Federal Information Security Management Act" ;
+    bac:frameworkCode "FISMA" ;
+    bac:jurisdiction "United States" ;
+    bac:applicableSectors "Federal Agencies" ;
+    bac:mandatoryDate "2002-12-17"^^xsd:date ;
+    bac:focusArea "Information Security", "Federal Systems" .
+
+# International Standards
+bac:ISO27001 a bac:StandardsFramework ;
+    rdfs:label "ISO/IEC 27001 Information Security Management" ;
+    bac:frameworkCode "ISO-27001" ;
+    bac:standardBody "ISO/IEC" ;
+    bac:focusArea "Information Security Management Systems" .
+
+bac:NIST_CSF a bac:StandardsFramework ;
+    rdfs:label "NIST Cybersecurity Framework" ;
+    bac:frameworkCode "NIST-CSF" ;
+    bac:standardBody "NIST" ;
+    bac:focusArea "Cybersecurity Risk Management" .
+
+bac:COBIT a bac:StandardsFramework ;
+    rdfs:label "Control Objectives for Information Technologies" ;
+    bac:frameworkCode "COBIT" ;
+    bac:standardBody "ISACA" ;
+    bac:focusArea "IT Governance", "Risk Management" .
+
+bac:ISO27002 a bac:StandardsFramework ;
+    rdfs:label "ISO/IEC 27002 Information Security Controls" ;
+    bac:frameworkCode "ISO-27002" ;
+    bac:standardBody "ISO/IEC" ;
+    bac:focusArea "Information Security Controls" .
+
+# =============================================================================
+# Compliance Control Categories
+# =============================================================================
+
+bac:AccessControl a owl:Class ;
+    rdfs:label "Access Control" ;
+    rdfs:subClassOf bac:ComplianceControl ;
+    rdfs:comment "Controls governing access to systems and data" .
+
+bac:DataProtectionControl a owl:Class ;
+    rdfs:label "Data Protection Control" ;
+    rdfs:subClassOf bac:ComplianceControl ;
+    rdfs:comment "Controls for protecting sensitive data" .
+
+bac:AuditControl a owl:Class ;
+    rdfs:label "Audit Control" ;
+    rdfs:subClassOf bac:ComplianceControl ;
+    rdfs:comment "Controls for audit trails and logging" .
+
+bac:IncidentResponseControl a owl:Class ;
+    rdfs:label "Incident Response Control" ;
+    rdfs:subClassOf bac:ComplianceControl ;
+    rdfs:comment "Controls for incident detection and response" .
+
+bac:BusinessContinuityControl a owl:Class ;
+    rdfs:label "Business Continuity Control" ;
+    rdfs:subClassOf bac:ComplianceControl ;
+    rdfs:comment "Controls for business continuity and disaster recovery" .
+
+bac:ChangeManagementControl a owl:Class ;
+    rdfs:label "Change Management Control" ;
+    rdfs:subClassOf bac:ComplianceControl ;
+    rdfs:comment "Controls for managing system and process changes" .
+
+bac:RiskManagementControl a owl:Class ;
+    rdfs:label "Risk Management Control" ;
+    rdfs:subClassOf bac:ComplianceControl ;
+    rdfs:comment "Controls for identifying and managing risks" .
+
+bac:DocumentationControl a owl:Class ;
+    rdfs:label "Documentation Control" ;
+    rdfs:subClassOf bac:ComplianceControl ;
+    rdfs:comment "Controls for maintaining compliance documentation" .
+
+# =============================================================================
+# Data Governance and Privacy
+# =============================================================================
+
+bac:DataClassification a owl:Class ;
+    rdfs:label "Data Classification" ;
+    rdfs:comment "Classification scheme for data based on sensitivity and compliance requirements" ;
+    rdfs:subClassOf ba:Classification .
+
+bac:PersonalDataProtection a owl:Class ;
+    rdfs:label "Personal Data Protection" ;
+    rdfs:comment "Mechanisms for protecting personal data under privacy regulations" ;
+    rdfs:subClassOf bac:DataProtectionControl .
+
+bac:DataRetentionPolicy a owl:Class ;
+    rdfs:label "Data Retention Policy" ;
+    rdfs:comment "Policy governing data retention and disposal" ;
+    rdfs:subClassOf ba:Policy .
+
+bac:ConsentManagement a owl:Class ;
+    rdfs:label "Consent Management" ;
+    rdfs:comment "System for managing data subject consent" ;
+    rdfs:subClassOf ba:ManagementSystem .
+
+bac:DataSubjectRights a owl:Class ;
+    rdfs:label "Data Subject Rights" ;
+    rdfs:comment "Rights of data subjects under privacy regulations" ;
+    rdfs:subClassOf ba:Right .
+
+bac:DataBreachNotification a owl:Class ;
+    rdfs:label "Data Breach Notification" ;
+    rdfs:comment "Process for notifying authorities and subjects of data breaches" ;
+    rdfs:subClassOf ba:NotificationProcess .
+
+# =============================================================================
+# Financial Reporting Controls
+# =============================================================================
+
+bac:FinancialControl a owl:Class ;
+    rdfs:label "Financial Control" ;
+    rdfs:comment "Control related to financial reporting and transparency" ;
+    rdfs:subClassOf bac:ComplianceControl .
+
+bac:InternalControl a owl:Class ;
+    rdfs:label "Internal Control" ;
+    rdfs:comment "Internal control over financial reporting" ;
+    rdfs:subClassOf bac:FinancialControl .
+
+bac:DisclosureControl a owl:Class ;
+    rdfs:label "Disclosure Control" ;
+    rdfs:comment "Control over financial disclosures and transparency" ;
+    rdfs:subClassOf bac:FinancialControl .
+
+bac:SegregationOfDuties a owl:Class ;
+    rdfs:label "Segregation of Duties" ;
+    rdfs:comment "Control ensuring separation of conflicting duties" ;
+    rdfs:subClassOf bac:InternalControl .
+
+# =============================================================================
+# Compliance Assessment and Monitoring
+# =============================================================================
+
+bac:ContinuousMonitoring a owl:Class ;
+    rdfs:label "Continuous Monitoring" ;
+    rdfs:comment "Ongoing automated monitoring of compliance status" ;
+    rdfs:subClassOf bac:ComplianceMonitor .
+
+bac:ComplianceMetric a owl:Class ;
+    rdfs:label "Compliance Metric" ;
+    rdfs:comment "Quantitative measure of compliance performance" ;
+    rdfs:subClassOf ba:Metric .
+
+bac:ComplianceAlert a owl:Class ;
+    rdfs:label "Compliance Alert" ;
+    rdfs:comment "Automated alert for compliance violations or risks" ;
+    rdfs:subClassOf ba:Alert .
+
+bac:ComplianceDashboard a owl:Class ;
+    rdfs:label "Compliance Dashboard" ;
+    rdfs:comment "Visual interface for compliance status monitoring" ;
+    rdfs:subClassOf ba:Dashboard .
+
+bac:AutomatedComplianceCheck a owl:Class ;
+    rdfs:label "Automated Compliance Check" ;
+    rdfs:comment "Automated verification of compliance requirements" ;
+    rdfs:subClassOf ba:AutomatedCheck .
+
+# =============================================================================
+# Properties
+# =============================================================================
+
+# Framework Properties
+bac:frameworkCode a owl:DatatypeProperty ;
+    rdfs:label "framework code" ;
+    rdfs:domain bac:ComplianceFramework ;
+    rdfs:range xsd:string .
+
+bac:jurisdiction a owl:DatatypeProperty ;
+    rdfs:label "jurisdiction" ;
+    rdfs:domain bac:RegulatoryFramework ;
+    rdfs:range xsd:string .
+
+bac:applicableSectors a owl:DatatypeProperty ;
+    rdfs:label "applicable sectors" ;
+    rdfs:domain bac:ComplianceFramework ;
+    rdfs:range xsd:string .
+
+bac:mandatoryDate a owl:DatatypeProperty ;
+    rdfs:label "mandatory date" ;
+    rdfs:domain bac:RegulatoryFramework ;
+    rdfs:range xsd:date .
+
+bac:standardBody a owl:DatatypeProperty ;
+    rdfs:label "standard body" ;
+    rdfs:domain bac:StandardsFramework ;
+    rdfs:range xsd:string .
+
+bac:focusArea a owl:DatatypeProperty ;
+    rdfs:label "focus area" ;
+    rdfs:domain bac:ComplianceFramework ;
+    rdfs:range xsd:string .
+
+# Control Properties
+bac:controlID a owl:DatatypeProperty ;
+    rdfs:label "control ID" ;
+    rdfs:domain bac:ComplianceControl ;
+    rdfs:range xsd:string .
+
+bac:controlFamily a owl:DatatypeProperty ;
+    rdfs:label "control family" ;
+    rdfs:domain bac:ComplianceControl ;
+    rdfs:range xsd:string .
+
+bac:implementationGuidance a owl:DatatypeProperty ;
+    rdfs:label "implementation guidance" ;
+    rdfs:domain bac:ComplianceControl ;
+    rdfs:range xsd:string .
+
+bac:testProcedure a owl:DatatypeProperty ;
+    rdfs:label "test procedure" ;
+    rdfs:domain bac:ComplianceControl ;
+    rdfs:range xsd:string .
+
+# Assessment Properties
+bac:complianceStatus a owl:DatatypeProperty ;
+    rdfs:label "compliance status" ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Status values: compliant, non-compliant, partially-compliant, not-assessed" .
+
+bac:assessmentDate a owl:DatatypeProperty ;
+    rdfs:label "assessment date" ;
+    rdfs:range xsd:dateTime .
+
+bac:nextAssessmentDue a owl:DatatypeProperty ;
+    rdfs:label "next assessment due" ;
+    rdfs:range xsd:dateTime .
+
+bac:complianceScore a owl:DatatypeProperty ;
+    rdfs:label "compliance score" ;
+    rdfs:range xsd:decimal .
+
+bac:riskLevel a owl:DatatypeProperty ;
+    rdfs:label "risk level" ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Values: critical, high, medium, low" .
+
+# Evidence Properties
+bac:evidenceType a owl:DatatypeProperty ;
+    rdfs:label "evidence type" ;
+    rdfs:domain bac:ComplianceEvidence ;
+    rdfs:range xsd:string .
+
+bac:collectionMethod a owl:DatatypeProperty ;
+    rdfs:label "collection method" ;
+    rdfs:domain bac:ComplianceEvidence ;
+    rdfs:range xsd:string .
+
+bac:retentionPeriod a owl:DatatypeProperty ;
+    rdfs:label "retention period" ;
+    rdfs:domain bac:ComplianceEvidence ;
+    rdfs:range xsd:duration .
+
+# Monitoring Properties
+bac:monitoringFrequency a owl:DatatypeProperty ;
+    rdfs:label "monitoring frequency" ;
+    rdfs:domain bac:ComplianceMonitor ;
+    rdfs:range xsd:duration .
+
+bac:alertThreshold a owl:DatatypeProperty ;
+    rdfs:label "alert threshold" ;
+    rdfs:domain bac:ComplianceAlert ;
+    rdfs:range xsd:decimal .
+
+bac:escalationLevel a owl:DatatypeProperty ;
+    rdfs:label "escalation level" ;
+    rdfs:domain bac:ComplianceAlert ;
+    rdfs:range xsd:integer .
+
+# Performance Properties (Doctrine of 8 Compliance)
+bac:performanceTarget a owl:DatatypeProperty ;
+    rdfs:label "performance target" ;
+    rdfs:comment "Performance requirement under Doctrine of 8" ;
+    rdfs:range xsd:decimal .
+
+bac:latencyRequirement a owl:DatatypeProperty ;
+    rdfs:label "latency requirement" ;
+    rdfs:comment "Maximum latency for compliance operations (milliseconds)" ;
+    rdfs:range xsd:decimal .
+
+bac:throughputRequirement a owl:DatatypeProperty ;
+    rdfs:label "throughput requirement" ;
+    rdfs:comment "Minimum throughput for compliance operations (ops/second)" ;
+    rdfs:range xsd:decimal .
+
+# =============================================================================
+# Object Properties
+# =============================================================================
+
+# Framework Relationships
+bac:definesControl a owl:ObjectProperty ;
+    rdfs:label "defines control" ;
+    rdfs:domain bac:ComplianceFramework ;
+    rdfs:range bac:ComplianceControl .
+
+bac:requiresCompliance a owl:ObjectProperty ;
+    rdfs:label "requires compliance" ;
+    rdfs:domain ba:System ;
+    rdfs:range bac:ComplianceFramework .
+
+bac:mappedToFramework a owl:ObjectProperty ;
+    rdfs:label "mapped to framework" ;
+    rdfs:domain bac:ComplianceControl ;
+    rdfs:range bac:ComplianceFramework .
+
+bac:inheritsFromFramework a owl:ObjectProperty ;
+    rdfs:label "inherits from framework" ;
+    rdfs:domain bac:ComplianceFramework ;
+    rdfs:range bac:ComplianceFramework .
+
+# Control Relationships
+bac:implementsControl a owl:ObjectProperty ;
+    rdfs:label "implements control" ;
+    rdfs:domain ba:System ;
+    rdfs:range bac:ComplianceControl .
+
+bac:dependsOnControl a owl:ObjectProperty ;
+    rdfs:label "depends on control" ;
+    rdfs:domain bac:ComplianceControl ;
+    rdfs:range bac:ComplianceControl .
+
+bac:compensatesControl a owl:ObjectProperty ;
+    rdfs:label "compensates control" ;
+    rdfs:domain bac:ComplianceControl ;
+    rdfs:range bac:ComplianceControl .
+
+# Evidence and Audit Relationships
+bac:providesEvidence a owl:ObjectProperty ;
+    rdfs:label "provides evidence" ;
+    rdfs:range bac:ComplianceEvidence .
+
+bac:supportsCompliance a owl:ObjectProperty ;
+    rdfs:label "supports compliance" ;
+    rdfs:domain bac:ComplianceEvidence ;
+    rdfs:range bac:ComplianceControl .
+
+bac:documentedIn a owl:ObjectProperty ;
+    rdfs:label "documented in" ;
+    rdfs:range bac:AuditTrail .
+
+bac:generatesEvidence a owl:ObjectProperty ;
+    rdfs:label "generates evidence" ;
+    rdfs:domain bac:AuditTrail ;
+    rdfs:range bac:ComplianceEvidence .
+
+# Assessment Relationships
+bac:assessedBy a owl:ObjectProperty ;
+    rdfs:label "assessed by" ;
+    rdfs:range bac:ComplianceAssessment .
+
+bac:identifiesGap a owl:ObjectProperty ;
+    rdfs:label "identifies gap" ;
+    rdfs:domain bac:ComplianceAssessment ;
+    rdfs:range bac:ComplianceGap .
+
+bac:addressesGap a owl:ObjectProperty ;
+    rdfs:label "addresses gap" ;
+    rdfs:domain bac:ComplianceControl ;
+    rdfs:range bac:ComplianceGap .
+
+# Monitoring Relationships
+bac:monitorsCompliance a owl:ObjectProperty ;
+    rdfs:label "monitors compliance" ;
+    rdfs:domain bac:ComplianceMonitor ;
+    rdfs:range bac:ComplianceControl .
+
+bac:triggersAlert a owl:ObjectProperty ;
+    rdfs:label "triggers alert" ;
+    rdfs:domain bac:ComplianceMonitor ;
+    rdfs:range bac:ComplianceAlert .
+
+bac:escalatesTo a owl:ObjectProperty ;
+    rdfs:label "escalates to" ;
+    rdfs:domain bac:ComplianceAlert ;
+    rdfs:range foaf:Agent .
+
+# Certification Relationships
+bac:certifies a owl:ObjectProperty ;
+    rdfs:label "certifies" ;
+    rdfs:domain bac:ComplianceCertification ;
+    rdfs:range bac:ComplianceFramework .
+
+bac:issuedBy a owl:ObjectProperty ;
+    rdfs:label "issued by" ;
+    rdfs:domain bac:ComplianceCertification ;
+    rdfs:range foaf:Organization .
+
+# =============================================================================
+# Compliance Control Instances
+# =============================================================================
+
+# SOX Controls
+bac:SOX_302 a bac:InternalControl ;
+    bac:controlID "SOX-302" ;
+    bac:controlFamily "Disclosure Controls" ;
+    rdfs:label "Corporate Responsibility for Financial Reports" ;
+    bac:mappedToFramework bac:SOX ;
+    bac:implementationGuidance "CEO and CFO must certify accuracy of financial statements" .
+
+bac:SOX_404 a bac:InternalControl ;
+    bac:controlID "SOX-404" ;
+    bac:controlFamily "Internal Controls" ;
+    rdfs:label "Management Assessment of Internal Controls" ;
+    bac:mappedToFramework bac:SOX ;
+    bac:implementationGuidance "Annual assessment of internal control effectiveness" .
+
+# GDPR Controls
+bac:GDPR_Art6 a bac:DataProtectionControl ;
+    bac:controlID "GDPR-Art6" ;
+    bac:controlFamily "Lawfulness of Processing" ;
+    rdfs:label "Lawful Basis for Processing" ;
+    bac:mappedToFramework bac:GDPR ;
+    bac:implementationGuidance "Establish lawful basis before processing personal data" .
+
+bac:GDPR_Art17 a bac:DataProtectionControl ;
+    bac:controlID "GDPR-Art17" ;
+    bac:controlFamily "Data Subject Rights" ;
+    rdfs:label "Right to Erasure" ;
+    bac:mappedToFramework bac:GDPR ;
+    bac:implementationGuidance "Implement data deletion capabilities for data subjects" .
+
+bac:GDPR_Art32 a bac:DataProtectionControl ;
+    bac:controlID "GDPR-Art32" ;
+    bac:controlFamily "Security of Processing" ;
+    rdfs:label "Security of Processing" ;
+    bac:mappedToFramework bac:GDPR ;
+    bac:implementationGuidance "Implement appropriate technical and organizational measures" .
+
+# ISO 27001 Controls
+bac:ISO27001_A5_1_1 a bac:DocumentationControl ;
+    bac:controlID "A.5.1.1" ;
+    bac:controlFamily "Information Security Policies" ;
+    rdfs:label "Policies for Information Security" ;
+    bac:mappedToFramework bac:ISO27001 ;
+    bac:implementationGuidance "Define and maintain information security policies" .
+
+bac:ISO27001_A9_1_1 a bac:AccessControl ;
+    bac:controlID "A.9.1.1" ;
+    bac:controlFamily "Access Control" ;
+    rdfs:label "Access Control Policy" ;
+    bac:mappedToFramework bac:ISO27001 ;
+    bac:implementationGuidance "Establish access control policy and procedures" .
+
+# NIST CSF Controls
+bac:NIST_ID_AM_1 a bac:DocumentationControl ;
+    bac:controlID "ID.AM-1" ;
+    bac:controlFamily "Asset Management" ;
+    rdfs:label "Physical devices and systems inventory" ;
+    bac:mappedToFramework bac:NIST_CSF ;
+    bac:implementationGuidance "Maintain inventory of physical devices and systems" .
+
+bac:NIST_PR_AC_1 a bac:AccessControl ;
+    bac:controlID "PR.AC-1" ;
+    bac:controlFamily "Access Control" ;
+    rdfs:label "Identities and credentials management" ;
+    bac:mappedToFramework bac:NIST_CSF ;
+    bac:implementationGuidance "Manage identities and credentials for authorized devices and users" .
+
+# =============================================================================
+# SHACL Shapes for Compliance Validation
+# =============================================================================
+
+bac:ComplianceFrameworkShape a sh:NodeShape ;
+    sh:targetClass bac:ComplianceFramework ;
+    sh:property [
+        sh:path bac:frameworkCode ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[A-Z0-9_-]+$" ;
+    ] ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path bac:focusArea ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+    ] .
+
+bac:ComplianceControlShape a sh:NodeShape ;
+    sh:targetClass bac:ComplianceControl ;
+    sh:property [
+        sh:path bac:controlID ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[A-Z0-9.-]+$" ;
+    ] ;
+    sh:property [
+        sh:path bac:mappedToFramework ;
+        sh:class bac:ComplianceFramework ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path bac:implementationGuidance ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] .
+
+bac:ComplianceAssessmentShape a sh:NodeShape ;
+    sh:targetClass bac:ComplianceAssessment ;
+    sh:property [
+        sh:path bac:complianceStatus ;
+        sh:datatype xsd:string ;
+        sh:in ( "compliant" "non-compliant" "partially-compliant" "not-assessed" ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path bac:assessmentDate ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path bac:complianceScore ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+    ] .
+
+bac:ComplianceEvidenceShape a sh:NodeShape ;
+    sh:targetClass bac:ComplianceEvidence ;
+    sh:property [
+        sh:path bac:evidenceType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path bac:collectionMethod ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path bac:retentionPeriod ;
+        sh:datatype xsd:duration ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] .
+
+bac:ComplianceMonitorShape a sh:NodeShape ;
+    sh:targetClass bac:ComplianceMonitor ;
+    sh:property [
+        sh:path bac:monitoringFrequency ;
+        sh:datatype xsd:duration ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path bac:performanceTarget ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:comment "Performance target under Doctrine of 8" ;
+    ] ;
+    sh:property [
+        sh:path bac:latencyRequirement ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 8.0 ;
+        sh:comment "Maximum 8ms latency requirement" ;
+    ] .
+
+bac:PerformanceComplianceShape a sh:NodeShape ;
+    sh:targetNode ba:System ;
+    sh:property [
+        sh:path bac:latencyRequirement ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 8.0 ;
+        sh:message "System must meet Doctrine of 8 latency requirements" ;
+    ] ;
+    sh:property [
+        sh:path bac:throughputRequirement ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 1000.0 ;
+        sh:message "System must meet minimum throughput requirements" ;
+    ] .
+
+# =============================================================================
+# Automated Compliance Monitoring Rules
+# =============================================================================
+
+bac:AutomatedGDPRMonitoring a bac:ContinuousMonitoring ;
+    rdfs:label "Automated GDPR Compliance Monitoring" ;
+    bac:monitorsCompliance bac:GDPR_Art6, bac:GDPR_Art17, bac:GDPR_Art32 ;
+    bac:monitoringFrequency "PT15M"^^xsd:duration ;
+    bac:alertThreshold 0.95 ;
+    bac:performanceTarget 99.9 ;
+    bac:latencyRequirement 5.0 .
+
+bac:SOXFinancialControlMonitoring a bac:ContinuousMonitoring ;
+    rdfs:label "SOX Financial Controls Monitoring" ;
+    bac:monitorsCompliance bac:SOX_302, bac:SOX_404 ;
+    bac:monitoringFrequency "PT1H"^^xsd:duration ;
+    bac:alertThreshold 1.0 ;
+    bac:performanceTarget 100.0 ;
+    bac:latencyRequirement 3.0 .
+
+bac:ISO27001SecurityMonitoring a bac:ContinuousMonitoring ;
+    rdfs:label "ISO 27001 Security Controls Monitoring" ;
+    bac:monitorsCompliance bac:ISO27001_A5_1_1, bac:ISO27001_A9_1_1 ;
+    bac:monitoringFrequency "PT5M"^^xsd:duration ;
+    bac:alertThreshold 0.98 ;
+    bac:performanceTarget 99.8 ;
+    bac:latencyRequirement 2.0 .
+
+# =============================================================================
+# Compliance Metrics and KPIs
+# =============================================================================
+
+bac:ComplianceEffectiveness a bac:ComplianceMetric ;
+    rdfs:label "Compliance Effectiveness" ;
+    rdfs:comment "Percentage of controls operating effectively" ;
+    ba:calculationMethod "effective_controls / total_controls * 100" ;
+    ba:targetValue 98.0 ;
+    ba:unit "percentage" .
+
+bac:ComplianceGapRemediation a bac:ComplianceMetric ;
+    rdfs:label "Compliance Gap Remediation Time" ;
+    rdfs:comment "Average time to remediate identified compliance gaps" ;
+    ba:calculationMethod "sum(remediation_times) / count(gaps)" ;
+    ba:targetValue 48.0 ;
+    ba:unit "hours" .
+
+bac:AuditTrailCompleteness a bac:ComplianceMetric ;
+    rdfs:label "Audit Trail Completeness" ;
+    rdfs:comment "Percentage of activities with complete audit trails" ;
+    ba:calculationMethod "activities_with_trails / total_activities * 100" ;
+    ba:targetValue 100.0 ;
+    ba:unit "percentage" .
+
+bac:ComplianceAutomationRate a bac:ComplianceMetric ;
+    rdfs:label "Compliance Automation Rate" ;
+    rdfs:comment "Percentage of compliance checks automated" ;
+    ba:calculationMethod "automated_checks / total_checks * 100" ;
+    ba:targetValue 85.0 ;
+    ba:unit "percentage" .
+
+# =============================================================================
+# Integration with Security Policies
+# =============================================================================
+
+bac:unifiedGovernanceIntegration a owl:ObjectProperty ;
+    rdfs:label "unified governance integration" ;
+    rdfs:comment "Integration point between compliance and security governance" ;
+    rdfs:domain bac:ComplianceFramework ;
+    rdfs:range ba:SecurityPolicy .
+
+# Link compliance frameworks to security policies
+bac:GDPR bac:unifiedGovernanceIntegration ba:DataProtectionPolicy .
+bac:ISO27001 bac:unifiedGovernanceIntegration ba:InformationSecurityPolicy .
+bac:NIST_CSF bac:unifiedGovernanceIntegration ba:CybersecurityPolicy .
+bac:PCI_DSS bac:unifiedGovernanceIntegration ba:PaymentSecurityPolicy .
+
+# =============================================================================
+# Compliance Reporting Templates
+# =============================================================================
+
+bac:ExecutiveComplianceReport a bac:ComplianceReport ;
+    rdfs:label "Executive Compliance Report" ;
+    rdfs:comment "High-level compliance status for executive leadership" ;
+    bac:reportingFrequency "P1M"^^xsd:duration ;
+    bac:includesMetrics bac:ComplianceEffectiveness, bac:ComplianceGapRemediation .
+
+bac:RegulatoryComplianceReport a bac:ComplianceReport ;
+    rdfs:label "Regulatory Compliance Report" ;
+    rdfs:comment "Detailed compliance report for regulatory submissions" ;
+    bac:reportingFrequency "P3M"^^xsd:duration ;
+    bac:includesMetrics bac:AuditTrailCompleteness, bac:ComplianceAutomationRate .
+
+bac:ContinuousComplianceDashboard a bac:ComplianceDashboard ;
+    rdfs:label "Continuous Compliance Dashboard" ;
+    rdfs:comment "Real-time view of compliance status across all frameworks" ;
+    bac:updateFrequency "PT1M"^^xsd:duration ;
+    bac:displayMetrics bac:ComplianceEffectiveness, bac:ComplianceGapRemediation, bac:AuditTrailCompleteness .
+
+# =============================================================================
+# End of Ontology
+# =============================================================================

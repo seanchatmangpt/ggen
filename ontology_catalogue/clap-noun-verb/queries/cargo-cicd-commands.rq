@@ -1,0 +1,55 @@
+# cargo-cicd-commands.rq
+# Extract noun-verb command combinations from cargo-cicd ontology
+# Returns structured specifications for code generation
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX cnv: <http://clap-noun-verb.io/ontology#>
+PREFIX cicd: <http://cargo-cicd.io/ontology#>
+PREFIX spec: <http://cargo-cicd.io/spec#>
+
+SELECT DISTINCT
+  ?noun_name
+  ?noun_description
+  ?verb_name
+  ?verb_description
+  ?full_command_name
+  ?return_type
+  ?output_format
+  ?is_required
+  (GROUP_CONCAT(DISTINCT ?arg_name; SEPARATOR=",") AS ?argument_names)
+  (GROUP_CONCAT(DISTINCT ?arg_type; SEPARATOR=",") AS ?argument_types)
+WHERE {
+  # Match noun entities from cargo-cicd ontology
+  ?noun a cnv:Noun ;
+    cnv:hasNounName ?noun_name .
+  OPTIONAL { ?noun cnv:nounAbout ?noun_description . }
+
+  # Match verb entities associated with noun
+  ?noun cnv:hasVerbs ?verb .
+  ?verb cnv:hasVerbName ?verb_name .
+  OPTIONAL { ?verb cnv:verbAbout ?verb_description . }
+
+  # Extract return type and output format
+  OPTIONAL { ?verb cnv:returnType ?return_type . }
+  OPTIONAL { ?verb cnv:outputFormat ?output_format . }
+
+  # Extract associated arguments
+  OPTIONAL {
+    ?verb cnv:hasArguments ?arg .
+    ?arg cnv:argName ?arg_name .
+    ?arg cnv:argType ?arg_type .
+    OPTIONAL { ?arg cnv:isRequired ?is_required . }
+  }
+
+  # Create fully qualified command name (noun verb)
+  BIND(CONCAT(?noun_name, " ", ?verb_name) AS ?full_command_name)
+
+  # Filter to cargo-cicd domain (optional, for clarity)
+  FILTER(STRSTARTS(STR(?noun), STR(cicd:)))
+}
+GROUP BY ?noun_name ?noun_description ?verb_name ?verb_description ?full_command_name ?return_type ?output_format ?is_required
+ORDER BY ?noun_name ?verb_name

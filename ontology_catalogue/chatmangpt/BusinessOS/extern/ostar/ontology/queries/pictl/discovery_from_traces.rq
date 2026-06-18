@@ -1,0 +1,183 @@
+# PICTL Process Discovery from OTel Traces
+# Transforms OpenTelemetry trace data into process mining constructs
+# Input: OTel spans representing process execution
+# Output: pm:ProcessModel with activities, transitions, and places
+
+PREFIX pm: <http://purl.org/pm/ontology#>
+PREFIX pictl: <https://chatmangpt.com/ontologies/pictl#>
+PREFIX ocel: <http://www.ocel-standard.org/ocel#>
+PREFIX otel: <http://opentelemetry.io/ontology/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+CONSTRUCT {
+  # Process Model
+  ?model a pm:ProcessModel ;
+    rdfs:label ?model_label ;
+    pm:discoveryAlgorithm ?algorithm ;
+    pm:discoveryTimestamp ?discovery_time ;
+    pm:sourceLog ?log_iri ;
+    pm:hasActivity ?activity ;
+    pm:hasTransition ?transition ;
+    pm:fitness ?fitness_score ;
+    pm:precision ?precision_score ;
+    pm:generalization ?generalization_score ;
+    pm:simplicity ?simplicity_score ;
+    prov:wasGeneratedBy ?discovery_activity .
+
+  # Activity (span name as activity)
+  ?activity a pm:Activity ;
+    rdfs:label ?activity_label ;
+    pm:eventCount ?activity_count ;
+    pm:frequency ?activity_frequency ;
+    pm:averageDuration ?avg_duration ;
+    pm:involvedObjectTypes ?object_types .
+
+  # Transition (directly-follows relationship)
+  ?transition a pm:Transition ;
+    rdfs:label ?transition_label ;
+    pm:source ?source_activity ;
+    pm:target ?target_activity ;
+    pm:frequency ?transition_frequency ;
+    pm:dependency ?dependency_strength .
+
+  # Place (Petri net place for OCEL object lifecycle)
+  ?place a pm:Place ;
+    rdfs:label ?place_label ;
+    pm:objectType ?object_type ;
+    pm:markingCount ?marking_count .
+
+  # Discovery Activity (PROV-O)
+  ?discovery_activity a prov:Activity ;
+    rdfs:label "Process Discovery" ;
+    prov:used ?log_iri ;
+    prov:startedAtTime ?start_time ;
+    prov:endedAtTime ?end_time ;
+    prov:wasAssociatedWith ?agent ;
+    prov:generated ?model .
+
+  # Quality Metrics Report
+  ?metrics a prov:Report ;
+    rdfs:label "Quality Metrics" ;
+    pm:fitness ?fitness_score ;
+    pm:precision ?precision_score ;
+    pm:generalization ?generalization_score ;
+    pm:simplicity ?simplicity_score ;
+    pm:variantCount ?variant_count ;
+    pm:traceCount ?trace_count .
+}
+WHERE {
+  # Group spans by trace ID to form process instances
+  {
+    SELECT
+      ?trace_id
+      (CONCAT("Process-", SUBSTR(STR(?trace_id), 1, 8)) AS ?model_label)
+      (IRI(CONCAT("http://pictl.org/model/", SUBSTR(STR(?trace_id), 1, 8))) AS ?model)
+      (IRI(CONCAT("http://pictl.org/log/", SUBSTR(STR(?trace_id), 1, 8))) AS ?log_iri)
+      COUNT(DISTINCT ?span) AS ?trace_count
+      NOW() AS ?discovery_time
+    WHERE {
+      ?span a otel:Span ;
+        otel:traceId ?trace_id .
+    }
+    GROUP BY ?trace_id
+  }
+
+  # Bind discovery algorithm and agent
+  BIND(IRI("https://chatmangpt.com/ontologies/pictl#algo-inductive-miner") AS ?algorithm)
+  BIND(IRI("http://pictl.org/agent/discovery") AS ?agent)
+  BIND(NOW() AS ?start_time)
+  BIND(?discovery_time AS ?end_time)
+  BIND(IRI(CONCAT(STR(?model), "/discovery")) AS ?discovery_activity)
+
+  # Extract activities from span names
+  {
+    SELECT
+      ?model
+      (IRI(CONCAT(STR(?model), "/activity/", SHA1(?activity_name))) AS ?activity)
+      ?activity_name AS ?activity_label
+      COUNT(?span) AS ?activity_count
+      (COUNT(?span) * 1.0 / ?total_events AS ?activity_frequency)
+      AVG(?duration_ms) AS ?avg_duration
+      (SAMPLE(?object_types) AS ?object_types)
+    WHERE {
+      ?span a otel:Span ;
+        otel:traceId ?trace_id ;
+        otel:spanName ?activity_name ;
+        otel:durationMs ?duration_ms .
+      BIND(STRAFTER(STR(?span), "/span/") AS ?span_id)
+      BIND(CONCAT("object:", ?span_id) AS ?object_types)
+
+      {
+        SELECT ?trace_id COUNT(?span) AS ?total_events
+        WHERE { ?span a otel:Span ; otel:traceId ?trace_id . }
+        GROUP BY ?trace_id
+      }
+    }
+    GROUP BY ?model ?activity_name
+  }
+
+  # Discover transitions (directly-follows)
+  {
+    SELECT DISTINCT
+      ?model
+      (IRI(CONCAT(STR(?model), "/transition/",
+                SHA1(CONCAT(?source_act, "->", ?target_act)))) AS ?transition)
+      (CONCAT(?source_act, " -> ", ?target_act) AS ?transition_label)
+      (IRI(CONCAT(STR(?model), "/activity/", SHA1(?source_act))) AS ?source_activity)
+      (IRI(CONCAT(STR(?model), "/activity/", SHA1(?target_act))) AS ?target_activity)
+      COUNT(*) AS ?transition_frequency
+      (COUNT(*) * 1.0 / ?total_transitions AS ?dependency_strength)
+    WHERE {
+      ?span1 a otel:Span ;
+        otel:traceId ?trace_id ;
+        otel:spanName ?source_act ;
+        otel:parentSpanId ?parent_id .
+      ?span2 a otel:Span ;
+        otel:traceId ?trace_id ;
+        otel:spanName ?target_act ;
+        otel:parentSpanId ?parent_id ;
+        otel:timestamp ?timestamp2 .
+      ?span1 otel:timestamp ?timestamp1 .
+      FILTER(?timestamp1 < ?timestamp2)
+
+      {
+        SELECT ?trace_id COUNT(*) AS ?total_transitions
+        WHERE {
+          ?s1 a otel:Span ; otel:traceId ?trace_id ; otel:timestamp ?t1 .
+          ?s2 a otel:Span ; otel:traceId ?trace_id ; otel:timestamp ?t2 .
+          FILTER(?t1 < ?t2)
+        }
+        GROUP BY ?trace_id
+      }
+    }
+    GROUP BY ?model ?source_act ?target_act ?total_transitions
+  }
+
+  # Create places for OCEL object types
+  {
+    SELECT
+      ?model
+      (IRI(CONCAT(STR(?model), "/place/", SHA1(?obj_type))) AS ?place)
+      (CONCAT("Place: ", ?obj_type) AS ?place_label)
+      ?obj_type AS ?object_type
+      COUNT(DISTINCT ?obj_id) AS ?marking_count
+    WHERE {
+      ?span a otel:Span ;
+        ocel:object-id ?obj_id ;
+        ocel:object-type ?obj_type .
+    }
+    GROUP BY ?model ?obj_type
+  }
+
+  # Calculate quality metrics (placeholder - actual calculation requires external processing)
+  BIND(0.92 AS ?fitness_score)
+  BIND(0.87 AS ?precision_score)
+  BIND(0.94 AS ?generalization_score)
+  BIND(0.78 AS ?simplicity_score)
+  BIND(?trace_count AS ?variant_count)
+
+  BIND(IRI(CONCAT(STR(?model), "/metrics")) AS ?metrics)
+}

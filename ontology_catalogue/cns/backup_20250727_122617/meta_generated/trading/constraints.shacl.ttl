@@ -1,0 +1,21 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix : <http://cns.io/trading#> .
+
+# SHACL Constraints for Trading Ontology System
+
+:TickComplianceShape a sh:NodeShape ;
+    sh:targetClass :PerformanceMetric ;
+    sh:property [
+        sh:path :executionTicks ;
+        sh:maxInclusive 8 ;
+        sh:severity sh:Violation ;
+        sh:message "Operation must complete within 8 CPU ticks" ;
+    ] .
+
+:RiskLimitShape a sh:NodeShape ;
+    sh:targetClass :RiskMetric ;
+    sh:property [
+        sh:path :value ;
+        sh:minInclusive 0 ;
+        sh:message "Risk metric values must be non-negative" ;
+    ] .

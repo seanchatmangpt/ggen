@@ -1,0 +1,3 @@
+@prefix ex: <http://example.org/> .
+this is invalid syntax
+ex:john a schema:Person

@@ -1,0 +1,33 @@
+# Silent Workflow Entry Check: Every workflow submission must have
+# a public admission path.
+#
+# Strategy: Find prov:Activities of workflow type that don't have
+# a preceding admission/validation activity AND no governing ODRL policy.
+#
+# Expected: 0 results (all workflow activities have public admission paths).
+
+PREFIX odrl: <http://www.w3.org/ns/odrl/2/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+
+SELECT ?workflow ?issue
+WHERE {
+  ?workflow a prov:Activity .
+  ?workflow prov:type ?workflow_type .
+  FILTER(REGEX(STR(?workflow_type), "workflow|manufacturing|governance"))
+
+  FILTER NOT EXISTS {
+    ?admission a prov:Activity .
+    ?admission prov:generated ?workflow .
+    ?admission prov:type ?admission_type .
+    FILTER(REGEX(STR(?admission_type), "admission|validate|authorize"))
+  }
+
+  FILTER NOT EXISTS {
+    ?policy a odrl:Policy .
+    ?policy odrl:permission ?permission .
+    ?permission odrl:target ?workflow .
+  }
+
+  BIND("No public admission path found" AS ?issue)
+}
+ORDER BY ?workflow

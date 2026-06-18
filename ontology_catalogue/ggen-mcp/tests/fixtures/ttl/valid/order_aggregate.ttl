@@ -1,0 +1,168 @@
+# Valid Order Aggregate - DDD E-commerce Pattern
+# Demonstrates aggregate with entities, value objects, and business rules
+
+@prefix order: <http://ggen-mcp.dev/domain/order#> .
+@prefix ddd: <http://ggen-mcp.dev/ontology/ddd#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# =============================================================================
+# AGGREGATE ROOT
+# =============================================================================
+
+order:Order a owl:Class ;
+    rdfs:subClassOf ddd:AggregateRoot ;
+    rdfs:label "Order"@en ;
+    rdfs:comment "Order aggregate root - manages order lifecycle"@en ;
+    ddd:hasProperty order:orderId, order:customerId, order:lineItems, order:totalAmount, order:status ;
+    ddd:hasInvariant [
+        rdfs:label "Order must have items" ;
+        ddd:check "!self.line_items.is_empty()" ;
+        ddd:message "Order must contain at least one line item"
+    ] ;
+    ddd:hasInvariant [
+        rdfs:label "Total must match line items" ;
+        ddd:check "self.calculate_total() == self.total_amount" ;
+        ddd:message "Order total must equal sum of line items"
+    ] .
+
+# =============================================================================
+# ENTITIES
+# =============================================================================
+
+order:LineItem a owl:Class ;
+    rdfs:subClassOf ddd:Entity ;
+    rdfs:label "Line Item"@en ;
+    rdfs:comment "Order line item entity"@en ;
+    ddd:hasProperty order:lineItemId, order:productId, order:quantity, order:unitPrice .
+
+# =============================================================================
+# VALUE OBJECTS
+# =============================================================================
+
+order:OrderId a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Order ID"@en ;
+    ddd:hasProperty [ rdfs:label "value" ; ddd:type "uuid::Uuid" ] .
+
+order:CustomerId a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Customer ID"@en ;
+    ddd:hasProperty [ rdfs:label "value" ; ddd:type "uuid::Uuid" ] .
+
+order:LineItemId a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Line Item ID"@en ;
+    ddd:hasProperty [ rdfs:label "value" ; ddd:type "uuid::Uuid" ] .
+
+order:ProductId a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Product ID"@en ;
+    ddd:hasProperty [ rdfs:label "value" ; ddd:type "uuid::Uuid" ] .
+
+order:Money a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Money"@en ;
+    rdfs:comment "Monetary amount with currency"@en ;
+    ddd:hasProperty [ rdfs:label "amount" ; ddd:type "rust_decimal::Decimal" ] ;
+    ddd:hasProperty [ rdfs:label "currency" ; ddd:type "Currency" ] ;
+    ddd:hasInvariant [
+        rdfs:label "Amount must be non-negative" ;
+        ddd:check "self.amount >= rust_decimal::Decimal::ZERO" ;
+        ddd:message "Money amount cannot be negative"
+    ] .
+
+order:Quantity a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Quantity"@en ;
+    ddd:hasProperty [ rdfs:label "value" ; ddd:type "u32" ] ;
+    ddd:hasInvariant [
+        rdfs:label "Quantity must be positive" ;
+        ddd:check "self.0 > 0" ;
+        ddd:message "Quantity must be at least 1"
+    ] .
+
+order:OrderStatus a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Order Status"@en .
+
+order:Pending a order:OrderStatus ;
+    rdfs:label "Pending"@en .
+
+order:Confirmed a order:OrderStatus ;
+    rdfs:label "Confirmed"@en .
+
+order:Shipped a order:OrderStatus ;
+    rdfs:label "Shipped"@en .
+
+order:Delivered a order:OrderStatus ;
+    rdfs:label "Delivered"@en .
+
+order:Cancelled a order:OrderStatus ;
+    rdfs:label "Cancelled"@en .
+
+# =============================================================================
+# COMMANDS
+# =============================================================================
+
+order:PlaceOrderCommand a owl:Class ;
+    rdfs:subClassOf ddd:Command ;
+    rdfs:label "Place Order Command"@en ;
+    ddd:hasProperty [ rdfs:label "customer_id" ; ddd:type "CustomerId" ] ;
+    ddd:hasProperty [ rdfs:label "line_items" ; ddd:type "Vec<LineItem>" ] .
+
+order:AddLineItemCommand a owl:Class ;
+    rdfs:subClassOf ddd:Command ;
+    rdfs:label "Add Line Item Command"@en ;
+    ddd:hasProperty [ rdfs:label "order_id" ; ddd:type "OrderId" ] ;
+    ddd:hasProperty [ rdfs:label "product_id" ; ddd:type "ProductId" ] ;
+    ddd:hasProperty [ rdfs:label "quantity" ; ddd:type "Quantity" ] ;
+    ddd:hasProperty [ rdfs:label "unit_price" ; ddd:type "Money" ] .
+
+order:ConfirmOrderCommand a owl:Class ;
+    rdfs:subClassOf ddd:Command ;
+    rdfs:label "Confirm Order Command"@en ;
+    ddd:hasProperty [ rdfs:label "order_id" ; ddd:type "OrderId" ] .
+
+order:CancelOrderCommand a owl:Class ;
+    rdfs:subClassOf ddd:Command ;
+    rdfs:label "Cancel Order Command"@en ;
+    ddd:hasProperty [ rdfs:label "order_id" ; ddd:type "OrderId" ] ;
+    ddd:hasProperty [ rdfs:label "reason" ; ddd:type "String" ] .
+
+# =============================================================================
+# DOMAIN EVENTS
+# =============================================================================
+
+order:OrderPlacedEvent a owl:Class ;
+    rdfs:subClassOf ddd:DomainEvent ;
+    rdfs:label "Order Placed Event"@en ;
+    ddd:hasProperty [ rdfs:label "order_id" ; ddd:type "OrderId" ] ;
+    ddd:hasProperty [ rdfs:label "customer_id" ; ddd:type "CustomerId" ] ;
+    ddd:hasProperty [ rdfs:label "total_amount" ; ddd:type "Money" ] ;
+    ddd:hasProperty [ rdfs:label "timestamp" ; ddd:type "chrono::DateTime<chrono::Utc>" ] .
+
+order:OrderConfirmedEvent a owl:Class ;
+    rdfs:subClassOf ddd:DomainEvent ;
+    rdfs:label "Order Confirmed Event"@en ;
+    ddd:hasProperty [ rdfs:label "order_id" ; ddd:type "OrderId" ] ;
+    ddd:hasProperty [ rdfs:label "timestamp" ; ddd:type "chrono::DateTime<chrono::Utc>" ] .
+
+order:OrderCancelledEvent a owl:Class ;
+    rdfs:subClassOf ddd:DomainEvent ;
+    rdfs:label "Order Cancelled Event"@en ;
+    ddd:hasProperty [ rdfs:label "order_id" ; ddd:type "OrderId" ] ;
+    ddd:hasProperty [ rdfs:label "reason" ; ddd:type "String" ] ;
+    ddd:hasProperty [ rdfs:label "timestamp" ; ddd:type "chrono::DateTime<chrono::Utc>" ] .
+
+# =============================================================================
+# REPOSITORY
+# =============================================================================
+
+order:OrderRepository a owl:Class ;
+    rdfs:subClassOf ddd:Repository ;
+    rdfs:label "Order Repository"@en ;
+    ddd:forAggregate order:Order .

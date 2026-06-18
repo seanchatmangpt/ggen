@@ -1,0 +1,10 @@
+SELECT DISTINCT ?type ?field_name ?field_type ?field_visibility ?field_description ?field_default
+WHERE {
+    ?type a ggen:Type .
+    ?type ggen:hasField ?field .
+    ?field ggen:name ?field_name .
+    ?field ggen:type ?field_type .
+    OPTIONAL { ?field ggen:visibility ?field_visibility }
+    OPTIONAL { ?field ggen:description ?field_description }
+    OPTIONAL { ?field ggen:default ?field_default }
+} ORDER BY ?type ?field_name

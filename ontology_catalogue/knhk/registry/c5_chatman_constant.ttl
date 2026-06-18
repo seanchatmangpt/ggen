@@ -1,0 +1,13 @@
+@prefix knhk: <https://knhk.io/covenant#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+knhk:C5_ChatmanConstant a owl:Class ;
+    rdfs:label "C5 — Chatman Constant Guards Complexity" ;
+    rdfs:comment "τ ≤ 8: bounded graph-state mutation. Max 8 lanes per CONSTRUCT8 cell. Need9 = decompose/split." .
+
+knhk:tau_bound a owl:DatatypeProperty ;
+    rdfs:label "τ bound" ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "The Chatman Constant: maximum construct8 lane count. Value: 8." .

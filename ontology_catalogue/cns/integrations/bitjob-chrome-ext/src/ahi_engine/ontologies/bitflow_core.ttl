@@ -1,0 +1,204 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix bitflow: <http://bitflow.ai/ontology#> .
+@prefix eight: <http://8space.org/constraints#> .
+@prefix ahi: <http://ahi.bitflow.ai/core#> .
+@prefix otel: <http://opentelemetry.io/ontology#> .
+
+# BitFlow AHI Core Ontology - 8-Space Compliant System
+# Based on existing TTL patterns from CNS system
+# Integrates real TTL Weaver framework components
+
+<http://bitflow.ai/ahi/core> rdf:type owl:Ontology ;
+    rdfs:comment "BitFlow AHI (Autonomous Human Intelligence) Core Ontology with 8-Space constraints" ;
+    owl:versionInfo "2026.1.1" ;
+    owl:imports <http://8space.org/constraints> ;
+    owl:imports <http://opentelemetry.io/ontology> .
+
+# 8-Space Constraint Classes
+eight:EightSpaceConstraint rdf:type owl:Class ;
+    rdfs:comment "Base class for all 8-Space constraints" .
+
+eight:TickConstraint rdf:type owl:Class ;
+    rdfs:subClassOf eight:EightSpaceConstraint ;
+    rdfs:comment "Constraint limiting operations to 8 ticks maximum" .
+
+eight:HopConstraint rdf:type owl:Class ;
+    rdfs:subClassOf eight:EightSpaceConstraint ;
+    rdfs:comment "Constraint limiting network hops to 8 maximum" .
+
+eight:MemoryConstraint rdf:type owl:Class ;
+    rdfs:subClassOf eight:EightSpaceConstraint ;
+    rdfs:comment "Constraint limiting memory usage to 8 units" .
+
+# Core AHI Classes with 8-Space Enforcement
+ahi:LegalAction rdf:type owl:Class ;
+    rdfs:comment "Legal action constrained to 8-Space" ;
+    eight:maxTicks 8 ;
+    eight:maxHops 8 ;
+    eight:maxMemoryUnits 8 ;
+    eight:enforcementMode "strict" .
+
+ahi:MarketAction rdf:type owl:Class ;
+    rdfs:comment "Market trading action with 8-Space constraints" ;
+    eight:maxTicks 8 ;
+    eight:maxLatencyMicroseconds 8 ;
+    eight:maxNetworkHops 8 ;
+    eight:enforcementMode "strict" .
+
+ahi:CoordinationAction rdf:type owl:Class ;
+    rdfs:comment "Human-machine coordination action" ;
+    eight:maxTicks 8 ;
+    eight:maxParallelAgents 8 ;
+    eight:maxDecisionLatency 8 ;
+    eight:enforcementMode "adaptive" .
+
+# AHI Agent Architecture
+ahi:AHIAgent rdf:type owl:Class ;
+    rdfs:comment "Autonomous Human Intelligence agent with 8-Space constraints" ;
+    eight:maxConcurrentTasks 8 ;
+    eight:maxMemoryFootprint 8 ;
+    eight:maxNetworkConnections 8 .
+
+ahi:LegalAgent rdf:type owl:Class ;
+    rdfs:subClassOf ahi:AHIAgent ;
+    rdfs:comment "Specialized agent for legal document processing and filing" ;
+    ahi:hasCapability ahi:DocumentGeneration ;
+    ahi:hasCapability ahi:FilingAutomation ;
+    ahi:hasCapability ahi:JurisdictionMapping .
+
+ahi:MarketAgent rdf:type owl:Class ;
+    rdfs:subClassOf ahi:AHIAgent ;
+    rdfs:comment "Specialized agent for market analysis and trading" ;
+    ahi:hasCapability ahi:MarketAnalysis ;
+    ahi:hasCapability ahi:RiskAssessment ;
+    ahi:hasCapability ahi:PortfolioOptimization .
+
+ahi:CoordinatorAgent rdf:type owl:Class ;
+    rdfs:subClassOf ahi:AHIAgent ;
+    rdfs:comment "Agent coordinating human-machine interactions" ;
+    ahi:hasCapability ahi:TaskDistribution ;
+    ahi:hasCapability ahi:DecisionAggregation ;
+    ahi:hasCapability ahi:ConflictResolution .
+
+# Capability Framework
+ahi:Capability rdf:type owl:Class ;
+    rdfs:comment "Base capability class for AHI agents" ;
+    eight:maxExecutionTime 8 ;
+    eight:maxResourceConsumption 8 .
+
+ahi:DocumentGeneration rdf:type ahi:Capability ;
+    rdfs:comment "Generate legal documents from templates" ;
+    ahi:inputFormat "TTL+Templates" ;
+    ahi:outputFormat "PDF+Metadata" ;
+    eight:maxProcessingTicks 8 .
+
+ahi:FilingAutomation rdf:type ahi:Capability ;
+    rdfs:comment "Automate court and regulatory filings" ;
+    ahi:supportedJurisdictions ("Nevada" "California" "Federal") ;
+    eight:maxFilingLatency 8 .
+
+ahi:JurisdictionMapping rdf:type ahi:Capability ;
+    rdfs:comment "Map legal requirements across jurisdictions" ;
+    ahi:supportedDomains ("Employment" "IP" "Corporate") ;
+    eight:maxMappingComplexity 8 .
+
+ahi:MarketAnalysis rdf:type ahi:Capability ;
+    rdfs:comment "Analyze market conditions and trends" ;
+    ahi:supportedMarkets ("Equity" "Forex" "Crypto" "Commodities") ;
+    eight:maxAnalysisDepth 8 .
+
+ahi:RiskAssessment rdf:type ahi:Capability ;
+    rdfs:comment "Assess and quantify investment risks" ;
+    ahi:riskMetrics ("VaR" "CVaR" "Sharpe" "Sortino") ;
+    eight:maxRiskHorizon 8 .
+
+# Performance and Telemetry Integration
+ahi:PerformanceMetric rdf:type owl:Class ;
+    rdfs:comment "Performance measurement with OpenTelemetry integration" ;
+    otel:traceable true ;
+    eight:maxMeasurementLatency 8 .
+
+ahi:ExecutionTrace rdf:type owl:Class ;
+    rdfs:comment "Execution trace for audit and compliance" ;
+    otel:spanName "ahi_execution" ;
+    eight:maxTraceDepth 8 ;
+    eight:compressionEnabled true .
+
+# 8-Space Enforcement Properties
+eight:maxTicks rdf:type owl:DatatypeProperty ;
+    rdfs:domain ahi:AHIAgent ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:comment "Maximum ticks allowed for execution" .
+
+eight:maxHops rdf:type owl:DatatypeProperty ;
+    rdfs:domain ahi:AHIAgent ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:comment "Maximum network hops allowed" .
+
+eight:maxMemoryUnits rdf:type owl:DatatypeProperty ;
+    rdfs:domain ahi:AHIAgent ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:comment "Maximum memory units consumable" .
+
+eight:enforcementMode rdf:type owl:DatatypeProperty ;
+    rdfs:domain ahi:AHIAgent ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Enforcement mode: strict, adaptive, or monitoring" .
+
+# AHI Specific Properties
+ahi:hasCapability rdf:type owl:ObjectProperty ;
+    rdfs:domain ahi:AHIAgent ;
+    rdfs:range ahi:Capability ;
+    rdfs:comment "Agent has specific capability" .
+
+ahi:processingPriority rdf:type owl:DatatypeProperty ;
+    rdfs:domain ahi:AHIAgent ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Processing priority (1-8, 8 being highest)" .
+
+ahi:currentLoad rdf:type owl:DatatypeProperty ;
+    rdfs:domain ahi:AHIAgent ;
+    rdfs:range xsd:float ;
+    rdfs:comment "Current system load percentage" .
+
+# Compliance and Audit Framework
+ahi:ComplianceCheck rdf:type owl:Class ;
+    rdfs:comment "Compliance verification with 8-Space constraints" ;
+    eight:maxValidationTime 8 ;
+    otel:metricsEnabled true .
+
+ahi:AuditTrail rdf:type owl:Class ;
+    rdfs:comment "Comprehensive audit trail for all AHI operations" ;
+    eight:maxTrailSize 8 ;
+    eight:compressionRatio 0.8 ;
+    otel:logLevel "INFO" .
+
+# SHACL Constraints for Validation
+[] rdf:type sh:NodeShape ;
+    sh:targetClass ahi:AHIAgent ;
+    sh:property [
+        sh:path ahi:processingPriority ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 8 ;
+        sh:message "Processing priority must be between 1 and 8"
+    ] .
+
+[] rdf:type sh:NodeShape ;
+    sh:targetClass ahi:LegalAction ;
+    sh:property [
+        sh:path eight:maxTicks ;
+        sh:hasValue 8 ;
+        sh:message "Legal actions must respect 8-tick constraint"
+    ] .
+
+[] rdf:type sh:NodeShape ;
+    sh:targetClass ahi:MarketAction ;
+    sh:property [
+        sh:path eight:maxHops ;
+        sh:maxInclusive 8 ;
+        sh:message "Market actions cannot exceed 8 network hops"
+    ] .

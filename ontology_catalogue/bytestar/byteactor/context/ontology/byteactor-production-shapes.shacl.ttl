@@ -1,0 +1,176 @@
+@prefix : <https://bytestar.org/ontology/byteactor/production-shapes#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix bapr: <https://bytestar.org/ontology/byteactor/production-readiness#> .
+
+<https://bytestar.org/ontology/byteactor/production-shapes>
+  a owl:Ontology ;
+  rdfs:label "ByteActor Production Readiness SHACL Shapes" ;
+  rdfs:comment "SHACL shapes for validating ByteActor deployments against production readiness criteria." ;
+  owl:versionInfo "1.0.0" ;
+  owl:imports
+    bapr: .
+
+#################################################################
+# ByteActor Production Readiness Validation
+#################################################################
+
+:ActorProductionDeploymentShape a sh:NodeShape ;
+  sh:targetClass bcore:ByteActor ;
+  sh:property [
+    sh:path bapr:hasStatus ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:class bapr:ProductionReadinessStatus ;
+    sh:message "ByteActor deployment must have a defined production readiness status." ;
+  ] ;
+  sh:property [
+    sh:path bapr:hasMetric ;
+    sh:minCount 1 ;
+    sh:message "ByteActor deployment must report at least one production readiness metric." ;
+  ] ;
+  sh:property [
+    sh:path bapr:meetsPerformanceRequirement ;
+    sh:minCount 1 ;
+    sh:message "ByteActor deployment must meet at least one performance requirement." ;
+  ] ;
+  sh:property [
+    sh:path bapr:meetsResourceRequirement ;
+    sh:minCount 1 ;
+    sh:message "ByteActor deployment must meet at least one resource utilization requirement." ;
+  ] ;
+  sh:property [
+    sh:path bapr:meetsReliabilityRequirement ;
+    sh:minCount 1 ;
+    sh:message "ByteActor deployment must meet at least one reliability requirement." ;
+  ] ;
+  sh:property [
+    sh:path bapr:implementsSecurityControl ;
+    sh:minCount 1 ;
+    sh:message "ByteActor deployment must implement at least one security control." ;
+  ] .
+
+# Example: Metric Value Conformance (e.g., Tick Budget Adherence)
+:TickBudgetAdherenceShape a sh:NodeShape ;
+  sh:targetClass bapr:ProductionReadinessMetric ;
+  sh:property [
+    sh:path bapr:metricName ;
+    sh:hasValue "Tick Budget Adherence" ;
+  ] ;
+  sh:property [
+    sh:path bapr:metricValue ;
+    sh:lessThanOrEquals bapr:targetValue ;
+    sh:message "Tick Budget Adherence metric value must be less than or equal to its target (e.g., 8 ticks)." ;
+    sh:severity sh:Violation ;
+  ] .
+
+# Example: Performance Requirement - Latency
+:LatencyRequirementShape a sh:NodeShape ;
+  sh:targetClass bapr:PerformanceRequirement ;
+  sh:property [
+    sh:path bapr:requirementName ;
+    sh:hasValue "End-to-End Latency" ;
+  ] ;
+  sh:property [
+    sh:path bapr:targetValue ;
+    sh:maxInclusive 200.0 ;
+    sh:message "End-to-End Latency target value must be <= 200 ns." ;
+  ] .
+
+# Example: Security Control Implementation
+:SecurityControlImplementationShape a sh:NodeShape ;
+  sh:targetClass bapr:SecurityControl ;
+  sh:property [
+    sh:path bapr:isImplemented ;
+    sh:hasValue true ;
+    sh:message "Security control must be implemented." ;
+  ] .
+
+#################################################################
+# Enhanced SHACL Validation Shapes for Kernel Registry
+#################################################################
+
+:KernelRegistryShape a sh:NodeShape ;
+  sh:targetClass bapr:KernelRegistry ;
+  sh:property [
+    sh:path bapr:hasKernel ;
+    sh:minCount 1 ;
+    sh:maxCount 64 ;
+    sh:message "Kernel registry must contain 1-64 kernels." ;
+  ] ;
+  sh:sparql [
+    sh:select """
+      SELECT $this WHERE {
+        $this a bapr:KernelRegistry .
+        {
+          SELECT (COUNT(?kernel) AS ?count) WHERE {
+            $this bapr:hasKernel ?kernel .
+            ?kernel bapr:isActive true .
+          }
+        }
+        FILTER(?count != 64)
+      }
+    """ ;
+    sh:message "Kernel registry must have exactly 64 active kernels." ;
+  ] .
+
+:KernelPerformanceShape a sh:NodeShape ;
+  sh:targetClass bapr:Kernel ;
+  sh:property [
+    sh:path bapr:measuredTicks ;
+    sh:maxInclusive 8 ;
+    sh:message "Kernel must execute in ≤8 ticks." ;
+    sh:severity sh:Violation ;
+  ] ;
+  sh:property [
+    sh:path bapr:isConstantTime ;
+    sh:hasValue true ;
+    sh:message "Kernel must be constant-time." ;
+  ] ;
+  sh:property [
+    sh:path bapr:isBranchFree ;
+    sh:hasValue true ;
+    sh:message "Kernel must be branch-free." ;
+  ] .
+
+:KernelSlotShape a sh:NodeShape ;
+  sh:targetClass bapr:KernelSlot ;
+  sh:property [
+    sh:path bapr:patternByte ;
+    sh:minInclusive 0 ;
+    sh:maxInclusive 63 ;
+    sh:message "Pattern byte must be 0-63." ;
+  ] ;
+  sh:sparql [
+    sh:select """
+      SELECT $this WHERE {
+        $this bapr:patternByte ?byte .
+        ?other bapr:patternByte ?byte .
+        FILTER($this != ?other)
+      }
+    """ ;
+    sh:message "Pattern byte must be unique across all slots." ;
+  ] .
+
+:WorkflowPatternCoverageShape a sh:NodeShape ;
+  sh:targetClass bapr:KernelRegistry ;
+  sh:sparql [
+    sh:select """
+      SELECT $this WHERE {
+        $this a bapr:KernelRegistry .
+        {
+          SELECT (COUNT(DISTINCT ?pattern) AS ?count) WHERE {
+            $this bapr:hasKernel ?kernel .
+            ?kernel bapr:implementsPattern ?pattern .
+            ?pattern a bapr:WorkflowPattern .
+          }
+        }
+        FILTER(?count < 43)
+      }
+    """ ;
+    sh:message "Registry must implement all 43 Van der Aalst workflow patterns." ;
+  ] .

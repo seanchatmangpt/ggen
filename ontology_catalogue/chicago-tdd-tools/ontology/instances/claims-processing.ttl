@@ -1,0 +1,500 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+  xmlns:ce="http://chatman-equation.org/core/"
+  xmlns:cp="http://chatman-equation.org/claims/"
+  xmlns:doc="http://chatman-equation.org/documentation/">
+
+  <!--
+    Claims Processing Lifecycle Ontology
+
+    Models the complete insurance claims workflow:
+    Submission → Validation → Fraud Detection → Entitlements Check →
+    Settlement Calculation → Payment Processing
+
+    Demonstrates Chatman Equation on high-volume, deterministic workflow.
+    Includes 5 guards (Legality, Budget, Chronology, Causality, Recursion).
+  -->
+
+  <!-- ================================================================= -->
+  <!-- METADATA -->
+  <!-- ================================================================= -->
+
+  <rdf:Description rdf:about="http://chatman-equation.org/claims/processing">
+    <rdf:type rdf:resource="http://chatman-equation.org/documentation/Ontology"/>
+    <rdfs:label>Claims Processing Lifecycle</rdfs:label>
+    <rdfs:comment>Complete RDF model of insurance claims processing workflow</rdfs:comment>
+
+    <cp:version>1.0.0</cp:version>
+    <cp:lastUpdated rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2025-11-16</cp:datatype>
+    <cp:sector>Enterprise Insurance Claims</cp:sector>
+    <cp:stageCount>6</cp:stageCount>
+    <cp:hookCount>7</cp:hookCount>
+    <cp:guardCount>5</cp:guardCount>
+    <cp:testCaseTarget>100 synthetic claims</cp:testCaseTarget>
+  </rdf:Description>
+
+  <!-- ================================================================= -->
+  <!-- VALIDATION STAGE -->
+  <!-- ================================================================= -->
+
+  <rdf:Description rdf:about="http://chatman-equation.org/claims/stage/validation">
+    <rdf:type rdf:resource="http://chatman-equation.org/claims/Stage"/>
+    <rdfs:label>Claim Submission Validation</rdfs:label>
+
+    <cp:stageNumber>1</cp:stageNumber>
+    <cp:stageName>Validation</cp:stageName>
+    <cp:description>Verify claim has all required fields and valid formats</cp:description>
+    <cp:deterministic>true</cp:deterministic>
+    <cp:maxLatencySeconds>2</cp:maxLatencySeconds>
+    <cp:validationRules>
+      <rdf:Description>
+        <cp:field>claimantId</cp:field>
+        <cp:required>true</cp:required>
+        <cp:format>UUID</cp:format>
+      </rdf:Description>
+      <rdf:Description>
+        <cp:field>claimDate</cp:field>
+        <cp:required>true</cp:required>
+        <cp:constraint>Within 365 days of incident</cp:constraint>
+      </rdf:Description>
+      <rdf:Description>
+        <cp:field>incidentDescription</cp:field>
+        <cp:required>true</cp:required>
+        <cp:constraint>Minimum 20 characters</cp:constraint>
+      </rdf:Description>
+      <rdf:Description>
+        <cp:field>claimAmount</cp:field>
+        <cp:required>true</cp:required>
+        <cp:constraint>$100-$1,000,000</cp:constraint>
+      </rdf:Description>
+    </cp:validationRules>
+    <cp:requiredGuards>
+      <rdf:Description>
+        <cp:guardType>Legality</cp:guardType>
+        <cp:rule>All required fields present and valid</cp:rule>
+      </rdf:Description>
+      <rdf:Description>
+        <cp:guardType>Budget</cp:guardType>
+        <cp:rule>Claim amount within policy limits</cp:rule>
+      </rdf:Description>
+    </cp:requiredGuards>
+  </rdf:Description>
+
+  <!-- ================================================================= -->
+  <!-- FRAUD DETECTION STAGE -->
+  <!-- ================================================================= -->
+
+  <rdf:Description rdf:about="http://chatman-equation.org/claims/stage/fraud-detection">
+    <rdf:type rdf:resource="http://chatman-equation.org/claims/Stage"/>
+    <rdfs:label>Fraud Detection</rdfs:label>
+
+    <cp:stageNumber>2</cp:stageNumber>
+    <cp:stageName>Fraud Detection</cp:stageName>
+    <cp:description>Run ML model to detect potential fraud indicators</cp:description>
+    <cp:deterministic>true</cp:deterministic>
+    <cp:maxLatencySeconds>5</cp:maxLatencySeconds>
+    <cp:fraudIndicators>
+      <rdf:Description>
+        <cp:indicator>Duplicate claim</cp:indicator>
+        <cp:severity>Critical</cp:severity>
+      </rdf:Description>
+      <rdf:Description>
+        <cp:indicator>Prior claim rejections</cp:indicator>
+        <cp:severity>High</cp:severity>
+      </rdf:Description>
+      <rdf:Description>
+        <cp:indicator>Unusual claim pattern</cp:indicator>
+        <cp:severity>Medium</cp:severity>
+      </rdf:Description>
+    </cp:fraudIndicators>
+    <cp:requiredGuards>
+      <rdf:Description>
+        <cp:guardType>Legality</cp:guardType>
+        <cp:rule>Fraud score computed consistently</cp:rule>
+      </rdf:Description>
+      <rdf:Description>
+        <cp:guardType>Causality</cp:guardType>
+        <cp:rule>Only applies after validation passes</cp:rule>
+      </rdf:Description>
+    </cp:requiredGuards>
+  </rdf:Description>
+
+  <!-- ================================================================= -->
+  <!-- ENTITLEMENTS VERIFICATION STAGE -->
+  <!-- ================================================================= -->
+
+  <rdf:Description rdf:about="http://chatman-equation.org/claims/stage/entitlements">
+    <rdf:type rdf:resource="http://chatman-equation.org/claims/Stage"/>
+    <rdfs:label>Entitlements Verification</rdfs:label>
+
+    <cp:stageNumber>3</cp:stageNumber>
+    <cp:stageName>Entitlements Check</cp:stageName>
+    <cp:description>Verify claimant is entitled to benefits under policy</cp:description>
+    <cp:deterministic>true</cp:deterministic>
+    <cp:maxLatencySeconds>3</cp:maxLatencySeconds>
+    <cp:checks>
+      <rdf:Description>
+        <cp:check>Policy is active</cp:check>
+      </rdf:Description>
+      <rdf:Description>
+        <cp:check>Coverage includes incident type</cp:check>
+      </rdf:Description>
+      <rdf:Description>
+        <cp:check>Deductible not exceeded</cp:check>
+      </rdf:Description>
+      <rdf:Description>
+        <cp:check>No exclusions apply</cp:check>
+      </rdf:Description>
+    </cp:checks>
+    <cp:requiredGuards>
+      <rdf:Description>
+        <cp:guardType>Legality</cp:guardType>
+        <cp:rule>All entitlements checks must pass for claim approval</cp:rule>
+      </rdf:Description>
+    </cp:requiredGuards>
+  </rdf:Description>
+
+  <!-- ================================================================= -->
+  <!-- SETTLEMENT CALCULATION STAGE -->
+  <!-- ================================================================= -->
+
+  <rdf:Description rdf:about="http://chatman-equation.org/claims/stage/settlement">
+    <rdf:type rdf:resource="http://chatman-equation.org/claims/Stage"/>
+    <rdfs:label>Settlement Calculation</rdfs:label>
+
+    <cp:stageNumber>4</cp:stageNumber>
+    <cp:stageName>Settlement Calculation</cp:stageName>
+    <cp:description>Calculate final settlement amount including deductible and policy limits</cp:description>
+    <cp:deterministic>true</cp:deterministic>
+    <cp:maxLatencySeconds>2</cp:maxLatencySeconds>
+    <cp:formula>
+      settlement = min(claimAmount - deductible, policyLimit)
+    </cp:formula>
+    <cp:requiredGuards>
+      <rdf:Description>
+        <cp:guardType>Budget</cp:guardType>
+        <cp:rule>Settlement ≤ Available reserves</cp:rule>
+      </rdf:Description>
+      <rdf:Description>
+        <cp:guardType>Legality</cp:guardType>
+        <cp:rule>Calculation verifiable by external audit</cp:rule>
+      </rdf:Description>
+    </cp:requiredGuards>
+  </rdf:Description>
+
+  <!-- ================================================================= -->
+  <!-- PAYMENT PROCESSING STAGE -->
+  <!-- ================================================================= -->
+
+  <rdf:Description rdf:about="http://chatman-equation.org/claims/stage/payment">
+    <rdf:type rdf:resource="http://chatman-equation.org/claims/Stage"/>
+    <rdfs:label>Payment Processing</rdfs:label>
+
+    <cp:stageNumber>5</cp:stageNumber>
+    <cp:stageName>Payment Processing</cp:stageName>
+    <cp:description>Process payment via ACH, check, or wire transfer</cp:description>
+    <cp:deterministic>true</cp:deterministic>
+    <cp:maxLatencySeconds>86400</cp:maxLatencySeconds>
+    <cp:comment>24 hours max processing time</cp:comment>
+    <cp:paymentMethods>
+      <rdf:Description>
+        <cp:method>ACH Direct Deposit</cp:method>
+        <cp:timing>1-2 business days</cp:timing>
+      </rdf:Description>
+      <rdf:Description>
+        <cp:method>Check by Mail</cp:method>
+        <cp:timing>3-5 business days</cp:timing>
+      </rdf:Description>
+      <rdf:Description>
+        <cp:method>Wire Transfer</cp:method>
+        <cp:timing>Same day</cp:timing>
+      </rdf:Description>
+    </cp:paymentMethods>
+    <cp:requiredGuards>
+      <rdf:Description>
+        <cp:guardType>Legality</cp:guardType>
+        <cp:rule>Payment must match approved settlement amount exactly</cp:rule>
+      </rdf:Description>
+      <rdf:Description>
+        <cp:guardType>Chronology</cp:guardType>
+        <cp:rule>Payment only after all approvals complete</cp:rule>
+      </rdf:Description>
+    </cp:requiredGuards>
+  </rdf:Description>
+
+  <!-- ================================================================= -->
+  <!-- RECEIPT GENERATION STAGE -->
+  <!-- ================================================================= -->
+
+  <rdf:Description rdf:about="http://chatman-equation.org/claims/stage/receipt">
+    <rdf:type rdf:resource="http://chatman-equation.org/claims/Stage"/>
+    <rdfs:label>Settlement Receipt</rdfs:label>
+
+    <cp:stageNumber>6</cp:stageNumber>
+    <cp:stageName>Receipt Generation</cp:stageName>
+    <cp:description>Generate cryptographic receipt for complete claim lifecycle</cp:description>
+    <cp:deterministic>true</cp:deterministic>
+    <cp:maxLatencySeconds>1</cp:maxLatencySeconds>
+    <cp:receiptContains>
+      <rdf:Description>
+        <cp:field>claimId</cp:field>
+      </rdf:Description>
+      <rdf:Description>
+        <cp:field>validationResult</cp:field>
+      </rdf:Description>
+      <rdf:Description>
+        <cp:field>fraudScore</cp:field>
+      </rdf:Description>
+      <rdf:Description>
+        <cp:field>entitlementsCheckResult</cp:field>
+      </rdf:Description>
+      <rdf:Description>
+        <cp:field>settlementAmount</cp:field>
+      </rdf:Description>
+      <rdf:Description>
+        <cp:field>paymentMethod</cp:field>
+      </rdf:Description>
+      <rdf:Description>
+        <cp:field>merkleRoot</cp:field>
+      </rdf:Description>
+    </cp:receiptContains>
+  </rdf:Description>
+
+  <!-- ================================================================= -->
+  <!-- KNOWLEDGE HOOKS (Operators) -->
+  <!-- ================================================================= -->
+
+  <rdf:Description rdf:about="http://chatman-equation.org/claims/hook/validate-submission">
+    <rdf:type rdf:resource="http://chatman-equation.org/core/KnowledgeHook"/>
+    <rdfs:label>Validate Claim Submission</rdfs:label>
+
+    <cp:hookId>validate_submission</cp:hookId>
+    <cp:stage rdf:resource="http://chatman-equation.org/claims/stage/validation"/>
+    <cp:description>Validate all required fields present and formatted correctly</cp:description>
+    <cp:deterministic>true</cp:deterministic>
+  </rdf:Description>
+
+  <rdf:Description rdf:about="http://chatman-equation.org/claims/hook/check-fraud-score">
+    <rdf:type rdf:resource="http://chatman-equation.org/core/KnowledgeHook"/>
+    <rdfs:label>Check Fraud Score</rdfs:label>
+
+    <cp:hookId>check_fraud_score</cp:hookId>
+    <cp:stage rdf:resource="http://chatman-equation.org/claims/stage/fraud-detection"/>
+    <cp:description>Run fraud detection ML model</cp:description>
+    <cp:deterministic>true</cp:deterministic>
+    <cp:outputRange>0-100 fraud score</cp:outputRange>
+  </rdf:Description>
+
+  <rdf:Description rdf:about="http://chatman-equation.org/claims/hook/verify-entitlements">
+    <rdf:type rdf:resource="http://chatman-equation.org/core/KnowledgeHook"/>
+    <rdfs:label>Verify Entitlements</rdfs:label>
+
+    <cp:hookId>verify_entitlements</cp:hookId>
+    <cp:stage rdf:resource="http://chatman-equation.org/claims/stage/entitlements"/>
+    <cp:description>Check all entitlements requirements</cp:description>
+    <cp:deterministic>true</cp:deterministic>
+  </rdf:Description>
+
+  <rdf:Description rdf:about="http://chatman-equation.org/claims/hook/settle-amount">
+    <rdf:type rdf:resource="http://chatman-equation.org/core/KnowledgeHook"/>
+    <rdfs:label>Settle Amount</rdfs:label>
+
+    <cp:hookId>settle_amount</cp:hookId>
+    <cp:stage rdf:resource="http://chatman-equation.org/claims/stage/settlement"/>
+    <cp:description>Calculate settlement amount</cp:description>
+    <cp:deterministic>true</cp:deterministic>
+  </rdf:Description>
+
+  <rdf:Description rdf:about="http://chatman-equation.org/claims/hook/process-payment">
+    <rdf:type rdf:resource="http://chatman-equation.org/core/KnowledgeHook"/>
+    <rdfs:label>Process Payment</rdfs:label>
+
+    <cp:hookId>process_payment</cp:hookId>
+    <cp:stage rdf:resource="http://chatman-equation.org/claims/stage/payment"/>
+    <cp:description>Execute payment transaction</cp:description>
+    <cp:deterministic>true</cp:deterministic>
+  </rdf:Description>
+
+  <rdf:Description rdf:about="http://chatman-equation.org/claims/hook/emit-settlement-receipt">
+    <rdf:type rdf:resource="http://chatman-equation.org/core/KnowledgeHook"/>
+    <rdfs:label>Emit Settlement Receipt</rdfs:label>
+
+    <cp:hookId>emit_settlement_receipt</cp:hookId>
+    <cp:stage rdf:resource="http://chatman-equation.org/claims/stage/receipt"/>
+    <cp:description>Generate cryptographic receipt for complete claim</cp:description>
+    <cp:deterministic>true</cp:deterministic>
+  </rdf:Description>
+
+  <!-- ================================================================= -->
+  <!-- GUARDS (5 Types) -->
+  <!-- ================================================================= -->
+
+  <rdf:Description rdf:about="http://chatman-equation.org/claims/guard/legality">
+    <rdf:type rdf:resource="http://chatman-equation.org/core/Guard"/>
+    <rdfs:label>Legality Guard</rdfs:label>
+
+    <cp:guardType>Legality</cp:guardType>
+    <cp:description>Ensures all processing follows policy rules and compliance requirements</cp:description>
+    <cp:appliesTo>
+      <rdf:Description><cp:stage>Validation</cp:stage></rdf:Description>
+      <rdf:Description><cp:stage>Entitlements</cp:stage></rdf:Description>
+      <rdf:Description><cp:stage>Settlement</cp:stage></rdf:Description>
+      <rdf:Description><cp:stage>Payment</cp:stage></rdf:Description>
+    </cp:appliesTo>
+  </rdf:Description>
+
+  <rdf:Description rdf:about="http://chatman-equation.org/claims/guard/budget">
+    <rdf:type rdf:resource="http://chatman-equation.org/core/Guard"/>
+    <rdfs:label>Budget Guard</rdfs:label>
+
+    <cp:guardType>Budget</cp:guardType>
+    <cp:description>Prevents exceeding claim limits, deductibles, and available reserves</cp:description>
+    <cp:constraints>
+      <rdf:Description>
+        <cp:constraint>Settlement ≤ Policy Limit</cp:constraint>
+      </rdf:Description>
+      <rdf:Description>
+        <cp:constraint>Claimant must satisfy deductible</cp:constraint>
+      </rdf:Description>
+      <rdf:Description>
+        <cp:constraint>Total monthly payouts ≤ Available reserves</cp:constraint>
+      </rdf:Description>
+    </cp:constraints>
+  </rdf:Description>
+
+  <rdf:Description rdf:about="http://chatman-equation.org/claims/guard/chronology">
+    <rdf:type rdf:resource="http://chatman-equation.org/core/Guard"/>
+    <rdfs:label>Chronology Guard</rdfs:label>
+
+    <cp:guardType>Chronology</cp:guardType>
+    <cp:description>Enforces proper temporal ordering of processing stages</cp:description>
+    <cp:ordering>
+      Validation → Fraud Detection → Entitlements → Settlement → Payment → Receipt
+    </cp:ordering>
+  </rdf:Description>
+
+  <rdf:Description rdf:about="http://chatman-equation.org/claims/guard/causality">
+    <rdf:type rdf:resource="http://chatman-equation.org/core/Guard"/>
+    <rdfs:label>Causality Guard</rdfs:label>
+
+    <cp:guardType>Causality</cp:guardType>
+    <cp:description>Ensures stages only execute when dependencies are satisfied</cp:description>
+    <cp:dependencies>
+      <rdf:Description>
+        <cp:stage>Fraud Detection</cp:stage>
+        <cp:requires>Validation passed</cp:requires>
+      </rdf:Description>
+      <rdf:Description>
+        <cp:stage>Settlement</cp:stage>
+        <cp:requires>Entitlements passed</cp:requires>
+      </rdf:Description>
+      <rdf:Description>
+        <cp:stage>Payment</cp:stage>
+        <cp:requires>Settlement approved</cp:requires>
+      </rdf:Description>
+    </cp:dependencies>
+  </rdf:Description>
+
+  <rdf:Description rdf:about="http://chatman-equation.org/claims/guard/recursion">
+    <rdf:type rdf:resource="http://chatman-equation.org/core/Guard"/>
+    <rdfs:label>Recursion Guard</rdfs:label>
+
+    <cp:guardType>Recursion</cp:guardType>
+    <cp:description>Bounds recursion depth for iterative processing</cp:description>
+    <cp:chatmanConstant>8</cp:chatmanConstant>
+    <cp:maxRetries>3</cp:maxRetries>
+    <cp:comment>Appeals and revisions limited to 3 iterations maximum</cp:comment>
+  </rdf:Description>
+
+  <!-- ================================================================= -->
+  <!-- THEOREM MAPPING -->
+  <!-- ================================================================= -->
+
+  <rdf:Description rdf:about="http://chatman-equation.org/claims/theorems">
+    <rdf:type rdf:resource="http://chatman-equation.org/documentation/TheoremSet"/>
+    <rdfs:label>Claims Processing Theorems</rdfs:label>
+
+    <cp:theorem>
+      <rdf:Description>
+        <cp:id>Thm-CP-1</cp:id>
+        <cp:name>Deterministic Claims Routing</cp:name>
+        <cp:description>All claims with same data route through same processing path</cp:description>
+        <cp:testProperty>all_claims_route_deterministically (property-based with 100+ claims)</cp:testProperty>
+      </rdf:Description>
+    </cp:theorem>
+
+    <cp:theorem>
+      <rdf:Description>
+        <cp:id>Thm-CP-2</cp:id>
+        <cp:name>Guard-Based Fraud Prevention</cp:name>
+        <cp:description>Guards reject fraudulent claims before settlement</cp:description>
+        <cp:testProperty>guards_reject_fraud (property-based)</cp:testProperty>
+      </rdf:Description>
+    </cp:theorem>
+
+    <cp:theorem>
+      <rdf:Description>
+        <cp:id>Thm-CP-3</cp:id>
+        <cp:name>Receipt Cryptographic Validity</cp:name>
+        <cp:description>All settlement receipts are cryptographically signed and verifiable</cp:description>
+        <cp:testProperty>receipts_cryptographically_valid (property-based)</cp:testProperty>
+      </rdf:Description>
+    </cp:theorem>
+
+    <cp:theorem>
+      <rdf:Description>
+        <cp:id>Thm-CP-4</cp:id>
+        <cp:name>Audit Trail Completeness</cp:name>
+        <cp:description>Every claim generates complete audit trail through all stages</cp:description>
+        <cp:testProperty>audit_trail_completeness</cp:testProperty>
+      </rdf:Description>
+    </cp:theorem>
+  </rdf:Description>
+
+  <!-- ================================================================= -->
+  <!-- SYNTHETIC TEST DATA CONFIGURATION -->
+  <!-- ================================================================= -->
+
+  <rdf:Description rdf:about="http://chatman-equation.org/claims/testing">
+    <rdf:type rdf:resource="http://chatman-equation.org/documentation/TestConfiguration"/>
+    <rdfs:label>Test Data Configuration</rdfs:label>
+
+    <cp:totalTestCases>100</cp:totalTestCases>
+    <cp:testCategories>
+      <rdf:Description>
+        <cp:category>Valid Claims</cp:category>
+        <cp:count>60</cp:count>
+        <cp:description>Claims that should be fully approved and paid</cp:description>
+      </rdf:Description>
+      <rdf:Description>
+        <cp:category>Invalid Claims</cp:category>
+        <cp:count>15</cp:count>
+        <cp:description>Claims rejected at validation stage</cp:description>
+      </rdf:Description>
+      <rdf:Description>
+        <cp:category>Fraud Cases</cp:category>
+        <cp:count>15</cp:count>
+        <cp:description>Claims flagged and rejected by fraud detection</cp:description>
+      </rdf:Description>
+      <rdf:Description>
+        <cp:category>Edge Cases</cp:category>
+        <cp:count>10</cp:count>
+        <cp:description>Boundary conditions and unusual scenarios</cp:description>
+      </rdf:Description>
+    </cp:testCategories>
+
+    <cp:determinismValidation>
+      <cp:description>Process 100 claims twice, verify identical results</cp:description>
+      <cp:expectedOutcome>100% identical processing paths</cp:expectedOutcome>
+    </cp:determinismValidation>
+
+    <cp:auditComplianceValidation>
+      <cp:description>Verify all claims have complete audit trail</cp:description>
+      <cp:expectedOutcome>100% of claims have settlements receipts</cp:expectedOutcome>
+    </cp:auditComplianceValidation>
+  </rdf:Description>
+
+</rdf:RDF>

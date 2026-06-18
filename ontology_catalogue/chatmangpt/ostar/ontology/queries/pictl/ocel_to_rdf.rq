@@ -1,0 +1,273 @@
+# PICTL OCEL to RDF Transformation
+# Converts Object-Centric Event Log (OCEL) format to RDF graph
+# Integrates with pictl algorithm ontology for discovery and conformance
+
+PREFIX pictl: <https://chatmangpt.com/ontologies/pictl#>
+PREFIX pm: <http://purl.org/pm/ontology#>
+PREFIX ocel: <http://www.ocel-standard.org/ocel#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+
+CONSTRUCT {
+  # Object-Centric Event Log
+  ?ocel_log a pm:ObjectCentricEventLog ;
+    rdfs:label ?log_label ;
+    pm:eventCount ?event_count ;
+    pm:traceCount ?trace_count ;
+    pm:objectCount ?object_count ;
+    pm:activityCount ?activity_count ;
+    pm:objectTypeCount ?object_type_count ;
+    dcat:startDate ?start_time ;
+    dcat:endDate ?end_time ;
+    prov:wasGeneratedAtTime ?timestamp ;
+    pictl:sparsity ?sparsity ;
+    pictl:complexity ?complexity .
+
+  # OCEL Event
+  ?event a ocel:Event ;
+    rdfs:label ?event_label ;
+    ocel:event-id ?event_id ;
+    ocel:activity ?activity ;
+    ocel:timestamp ?timestamp_val ;
+    ocel:lifecycle ?lifecycle ;
+    ocel:traceId ?trace_id ;
+    pictl:involvesObject ?object_iri ;
+    pictl:hasAttribute ?attribute_iri .
+
+  # OCEL Object
+  ?object_iri a ocel:Object ;
+    rdfs:label ?object_label ;
+    ocel:object-id ?object_id ;
+    ocel:object-type ?object_type ;
+    ocel:lifecycle ?object_lifecycle ;
+    pictl:participatesInEvent ?event ;
+    pictl:hasAttribute ?obj_attr_iri .
+
+  # OCEL Object Type
+  ?object_type_iri a ocel:ObjectType ;
+    rdfs:label ?object_type_label ;
+    ocel:object-type-name ?object_type ;
+    pm:objectCount ?type_object_count ;
+    pm:eventParticipationCount ?participation_count .
+
+  # OCEL Activity (Event Type)
+  ?activity_iri a pm:Activity ;
+    rdfs:label ?activity_label ;
+    ocel:activity-name ?activity ;
+    pm:eventCount ?activity_event_count ;
+    pm:frequency ?activity_frequency ;
+    pictl:involvesObjectType ?involved_type .
+
+  # OCEL Trace (Case)
+  ?trace_iri a ocel:Trace ;
+    rdfs:label ?trace_label ;
+    ocel:trace-id ?trace_id ;
+    pm:traceLength ?trace_length ;
+    pm:duration ?trace_duration ;
+    pictl:hasEvent ?trace_event ;
+    pictl:variantHash ?variant_hash .
+
+  # OCEL Attribute (Event-level)
+  ?attribute_iri a ocel:Attribute ;
+    rdfs:label ?attr_label ;
+    ocel:attribute-name ?attr_name ;
+    ocel:attribute-value ?attr_value ;
+    ocel:attribute-type ?attr_type ;
+    ocel:forEvent ?event .
+
+  # OCEL Attribute (Object-level)
+  ?obj_attr_iri a ocel:Attribute ;
+    rdfs:label ?obj_attr_label ;
+    ocel:attribute-name ?obj_attr_name ;
+    ocel:attribute-value ?obj_attr_value ;
+    ocel:attribute-type ?obj_attr_type ;
+    ocel:forObject ?object_iri .
+
+  # Object-Event Relation (OCEL's core relation)
+  ?oe_relation a ocel:ObjectEventRelation ;
+    rdfs:label ?relation_label ;
+    ocel:object ?object_iri ;
+    ocel:event ?event ;
+    ocel:qualifier ?qualifier .
+}
+WHERE {
+  # Source bindings from JSON OCEL data (application layer processing):
+  # This CONSTRUCT assumes bindings are provided via VALUES or from prior processing
+
+  # Bind OCEL log metadata
+  BIND(IRI("http://pictl.org/ocel/log-001") AS ?ocel_log)
+  BIND("Manufacturing OCEL Log" AS ?log_label)
+  BIND(NOW() AS ?timestamp)
+
+  # Event statistics
+  {
+    SELECT
+      COUNT(DISTINCT ?e) AS ?event_count
+      COUNT(DISTINCT ?t) AS ?trace_count
+      COUNT(DISTINCT ?o) AS ?object_count
+      COUNT(DISTINCT ?a) AS ?activity_count
+      COUNT(DISTINCT ?ot) AS ?object_type_count
+      MIN(?ts) AS ?start_time
+      MAX(?ts) AS ?end_time
+    WHERE {
+      # Placeholder: actual data comes from VALUES or subquery
+      BIND("event-1" AS ?e)
+      BIND("trace-1" AS ?t)
+      BIND("object-1" AS ?o)
+      BIND("activity-1" AS ?a)
+      BIND("type-1" AS ?ot)
+      BIND("2026-01-01T00:00:00Z"^^xsd:dateTime AS ?ts)
+    }
+  }
+
+  # Calculate sparsity and complexity
+  BIND((1.0 - (?event_count * 1.0 / (?trace_count * ?activity_count))) AS ?sparsity)
+  BIND((?activity_count * 1.0 / ?trace_count) AS ?complexity)
+
+  # Events (with their attributes and object relations)
+  {
+    SELECT
+      (IRI(CONCAT("http://pictl.org/event/", ?eid)) AS ?event)
+      (CONCAT("Event ", ?eid) AS ?event_label)
+      ?eid AS ?event_id
+      ?act AS ?activity
+      ?ts AS ?timestamp_val
+      "complete" AS ?lifecycle
+      ?tid AS ?trace_id
+    WHERE {
+      # VALUES from application layer:
+      VALUES (?eid ?act ?ts ?tid) {
+        ("e001" "Create Order" "2026-01-01T10:00:00Z"^^xsd:dateTime "t001")
+        ("e002" "Ship Goods" "2026-01-01T11:00:00Z"^^xsd:dateTime "t001")
+        ("e003" "Pay Invoice" "2026-01-02T09:00:00Z"^^xsd:dateTime "t001")
+      }
+    }
+  }
+
+  # Objects involved in events
+  {
+    SELECT
+      ?event
+      (IRI(CONCAT("http://pictl.org/object/", ?oid)) AS ?object_iri)
+      (CONCAT("Object ", ?oid) AS ?object_label)
+      ?oid AS ?object_id
+      ?otype AS ?object_type
+      (IRI(CONCAT("http://pictl.org/objtype/", ?otype)) AS ?object_type_iri)
+      (CONCAT("Type: ", ?otype) AS ?object_type_label)
+      "active" AS ?object_lifecycle
+    WHERE {
+      VALUES (?event ?oid ?otype) {
+        (<http://pictl.org/event/e001> "o001" "Order")
+        (<http://pictl.org/event/e001> "o002" "Customer")
+        (<http://pictl.org/event/e002> "o001" "Order")
+        (<http://pictl.org/event/e002> "o003" "Item")
+        (<http://pictl.org/event/e003> "o004" "Invoice")
+        (<http://pictl.org/event/e003> "o005" "Payment")
+      }
+    }
+  }
+
+  # Object type statistics
+  {
+    SELECT
+      ?object_type_iri
+      ?object_type_label
+      ?object_type
+      COUNT(DISTINCT ?object_iri) AS ?type_object_count
+      COUNT(DISTINCT ?event) AS ?participation_count
+    WHERE {
+      ?object_iri ocel:object-type ?object_type .
+      ?event pictl:involvesObject ?object_iri .
+    }
+    GROUP BY ?object_type_iri ?object_type_label ?object_type
+  }
+
+  # Activity statistics
+  {
+    SELECT
+      ?activity
+      (IRI(CONCAT("http://pictl.org/activity/", SHA1(?activity))) AS ?activity_iri)
+      (CONCAT("Activity: ", ?activity) AS ?activity_label)
+      COUNT(DISTINCT ?event) AS ?activity_event_count
+      (COUNT(?event) * 1.0 / ?total_events AS ?activity_frequency)
+      SAMPLE(?object_type) AS ?involved_type
+    WHERE {
+      ?event ocel:activity ?activity .
+      { SELECT COUNT(?e) AS ?total_events WHERE { ?e a ocel:Event . } }
+    }
+    GROUP BY ?activity
+  }
+
+  # Trace statistics
+  {
+    SELECT
+      ?trace_id
+      (IRI(CONCAT("http://pictl.org/trace/", ?trace_id)) AS ?trace_iri)
+      (CONCAT("Trace ", ?trace_id) AS ?trace_label)
+      COUNT(DISTINCT ?event) AS ?trace_length
+      (MAX(?ts) - MIN(?ts) AS ?trace_duration)
+      SHA1(GROUP_CONCAT(?activity; ORDER BY ?ts SEPARATOR="|")) AS ?variant_hash
+    WHERE {
+      ?event ocel:traceId ?trace_id ;
+        ocel:activity ?activity ;
+        ocel:timestamp ?ts .
+    }
+    GROUP BY ?trace_id
+  }
+
+  # Trace events (link trace to its events)
+  ?event ocel:traceId ?trace_id .
+  BIND(IRI(CONCAT("http://pictl.org/trace/", ?trace_id)) AS ?trace_iri)
+  BIND(?event AS ?trace_event)
+
+  # Event attributes
+  {
+    SELECT
+      ?event
+      (IRI(CONCAT(STR(?event), "/attr/", ?aname)) AS ?attribute_iri)
+      (CONCAT(?aname, "=", ?avalue) AS ?attr_label)
+      ?aname AS ?attr_name
+      ?avalue AS ?attr_value
+      (DATATYPE(?avalue) AS ?attr_type)
+    WHERE {
+      VALUES (?event ?aname ?avalue) {
+        (<http://pictl.org/event/e001> "amount" "100.0"^^xsd:decimal)
+        (<http://pictl.org/event/e002> "priority" "high")
+      }
+    }
+  }
+
+  # Object attributes
+  {
+    SELECT
+      ?object_iri
+      (IRI(CONCAT(STR(?object_iri), "/attr/", ?oaname)) AS ?obj_attr_iri)
+      (CONCAT(?oaname, "=", ?oavalue) AS ?obj_attr_label)
+      ?oaname AS ?obj_attr_name
+      ?oavalue AS ?obj_attr_value
+      (DATATYPE(?oavalue) AS ?obj_attr_type)
+    WHERE {
+      VALUES (?object_iri ?oaname ?oavalue) {
+        (<http://pictl.org/object/o001> "status" "pending")
+        (<http://pictl.org/object/o002> "region" "US-West")
+      }
+    }
+  }
+
+  # Object-Event relations with qualifiers
+  {
+    SELECT
+      ?event
+      ?object_iri
+      (IRI(CONCAT("http://pictl.org/relation/",
+                 SUBSTR(SHA1(CONCAT(STR(?event), STR(?object_iri))), 1, 8))) AS ?oe_relation)
+      (CONCAT("Relation: ", STR(?object_iri), " in ", STR(?event)) AS ?relation_label)
+      "participates" AS ?qualifier
+    WHERE {
+      ?event pictl:involvesObject ?object_iri .
+    }
+  }
+}

@@ -1,0 +1,222 @@
+@prefix cicd: <https://cargo-cicd.rs/ontology#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# cargo-cicd command surface ontology
+# Source law for ggen manufacturing
+
+# ── Nouns ────────────────────────────────────────────────────────
+cicd:status a cicd:Noun ;
+    rdfs:label "status" ;
+    cicd:about "Show workspace CI/CD status" ;
+    cicd:publicSafe true ;
+    cicd:verbs (cicd:statusShow) .
+
+cicd:target a cicd:Noun ;
+    rdfs:label "target" ;
+    cicd:about "Manage target directory" ;
+    cicd:publicSafe true ;
+    cicd:verbs (cicd:targetShow cicd:targetPrune) .
+
+cicd:test a cicd:Noun ;
+    rdfs:label "test" ;
+    cicd:about "Run changed tests" ;
+    cicd:publicSafe true ;
+    cicd:verbs (cicd:testChanged) .
+
+cicd:trybuild a cicd:Noun ;
+    rdfs:label "trybuild" ;
+    cicd:about "Manage trybuild fixtures" ;
+    cicd:publicSafe true ;
+    cicd:verbs (cicd:trybuildChanged) .
+
+cicd:git a cicd:Noun ;
+    rdfs:label "git" ;
+    cicd:about "Git phase management" ;
+    cicd:publicSafe true ;
+    cicd:verbs (cicd:gitStatus cicd:gitClose) .
+
+cicd:publish a cicd:Noun ;
+    rdfs:label "publish" ;
+    cicd:about "Publish cicd.toml workspace state" ;
+    cicd:publicSafe true ;
+    cicd:verbs (cicd:publishRun) .
+
+cicd:workspace a cicd:Noun ;
+    rdfs:label "workspace" ;
+    cicd:about "Workspace diagnostics" ;
+    cicd:publicSafe true ;
+    cicd:verbs (cicd:workspaceDoctor) .
+
+# ── Verbs ────────────────────────────────────────────────────────
+cicd:statusShow a cicd:Verb ; rdfs:label "show" ; cicd:about "Show full CI/CD status" .
+cicd:targetShow a cicd:Verb ; rdfs:label "show" ; cicd:about "Show target directory size and state" .
+cicd:targetPrune a cicd:Verb ; rdfs:label "prune" ; cicd:about "Plan or execute target directory cleanup" .
+cicd:testChanged a cicd:Verb ; rdfs:label "changed" ; cicd:about "Run tests for changed files only" .
+cicd:trybuildChanged a cicd:Verb ; rdfs:label "changed" ; cicd:about "Run trybuild for changed fixtures only" .
+cicd:gitStatus a cicd:Verb ; rdfs:label "status" ; cicd:about "Show git repository state" .
+cicd:gitClose a cicd:Verb ; rdfs:label "close" ; cicd:about "Enforce phase closure: stage, commit, verify" .
+cicd:publishRun a cicd:Verb ; rdfs:label "run" ; cicd:about "Emit cicd.toml with current workspace state" .
+cicd:workspaceDoctor a cicd:Verb ; rdfs:label "doctor" ; cicd:about "Diagnose workspace health" .
+
+# ── Verb→Noun links ─────────────────────────────────────────────
+cicd:statusShow cicd:noun cicd:status .
+cicd:targetShow cicd:noun cicd:target .
+cicd:targetPrune cicd:noun cicd:target .
+cicd:testChanged cicd:noun cicd:test .
+cicd:trybuildChanged cicd:noun cicd:trybuild .
+cicd:gitStatus cicd:noun cicd:git .
+cicd:gitClose cicd:noun cicd:git .
+cicd:publishRun cicd:noun cicd:publish .
+cicd:workspaceDoctor cicd:noun cicd:workspace .
+
+# ── Diataxis Doc Types ───────────────────────────────────────────
+cicd:DocType a rdfs:Class .
+
+cicd:tutorial a cicd:DocType ; rdfs:label "tutorial" .
+cicd:howTo a cicd:DocType ; rdfs:label "how-to" .
+cicd:reference a cicd:DocType ; rdfs:label "reference" .
+cicd:explanation a cicd:DocType ; rdfs:label "explanation" .
+
+# ── Evidence Events ──────────────────────────────────────────────
+cicd:EvidenceEvent a rdfs:Class .
+
+cicd:statusShowEvent a cicd:EvidenceEvent ;
+    rdfs:label "status_show" ;
+    cicd:emittedBy cicd:statusShow ;
+    cicd:xesActivity "status:show" ;
+    cicd:validated true .
+
+cicd:targetShowEvent a cicd:EvidenceEvent ;
+    rdfs:label "target_show" ;
+    cicd:emittedBy cicd:targetShow ;
+    cicd:xesActivity "target:show" ;
+    cicd:validated true .
+
+cicd:targetPruneEvent a cicd:EvidenceEvent ;
+    rdfs:label "target_prune" ;
+    cicd:emittedBy cicd:targetPrune ;
+    cicd:xesActivity "target:prune" ;
+    cicd:validated true .
+
+cicd:testChangedEvent a cicd:EvidenceEvent ;
+    rdfs:label "test_changed" ;
+    cicd:emittedBy cicd:testChanged ;
+    cicd:xesActivity "test:changed" ;
+    cicd:validated true .
+
+cicd:trybuildChangedEvent a cicd:EvidenceEvent ;
+    rdfs:label "trybuild_changed" ;
+    cicd:emittedBy cicd:trybuildChanged ;
+    cicd:xesActivity "trybuild:changed" ;
+    cicd:validated true .
+
+cicd:gitStatusEvent a cicd:EvidenceEvent ;
+    rdfs:label "git_status" ;
+    cicd:emittedBy cicd:gitStatus ;
+    cicd:xesActivity "git:status" ;
+    cicd:validated true .
+
+cicd:gitCloseEvent a cicd:EvidenceEvent ;
+    rdfs:label "git_close" ;
+    cicd:emittedBy cicd:gitClose ;
+    cicd:xesActivity "git:close" ;
+    cicd:validated true .
+
+cicd:publishRunEvent a cicd:EvidenceEvent ;
+    rdfs:label "publish_run" ;
+    cicd:emittedBy cicd:publishRun ;
+    cicd:xesActivity "publish:run" ;
+    cicd:validated true .
+
+cicd:workspaceDoctorEvent a cicd:EvidenceEvent ;
+    rdfs:label "workspace_doctor" ;
+    cicd:emittedBy cicd:workspaceDoctor ;
+    cicd:xesActivity "workspace:doctor" ;
+    cicd:validated true .
+
+# ── Playground Scenarios ─────────────────────────────────────────
+cicd:PlaygroundScenario a rdfs:Class .
+
+cicd:cleanWorkspaceScenario a cicd:PlaygroundScenario ;
+    rdfs:label "clean-workspace" ;
+    cicd:command cicd:statusShow ;
+    cicd:precondition "Clean git tree, fresh workspace" ;
+    cicd:expectedOutcome "status=pass, no dirty files" .
+
+cicd:targetShowScenario a cicd:PlaygroundScenario ;
+    rdfs:label "target-show-scenario" ;
+    cicd:command cicd:targetShow ;
+    cicd:precondition "Workspace with populated target directory" ;
+    cicd:expectedOutcome "target size and state displayed" .
+
+cicd:targetPruneScenario a cicd:PlaygroundScenario ;
+    rdfs:label "target-prune-scenario" ;
+    cicd:command cicd:targetPrune ;
+    cicd:precondition "Workspace with large target directory" ;
+    cicd:expectedOutcome "target directory cleaned or plan shown" .
+
+cicd:testChangedScenario a cicd:PlaygroundScenario ;
+    rdfs:label "test-changed-scenario" ;
+    cicd:command cicd:testChanged ;
+    cicd:precondition "At least one modified source file with tests" ;
+    cicd:expectedOutcome "only changed tests executed, results shown" .
+
+cicd:trybuildChangedScenario a cicd:PlaygroundScenario ;
+    rdfs:label "trybuild-changed-scenario" ;
+    cicd:command cicd:trybuildChanged ;
+    cicd:precondition "Changed trybuild fixture files present" ;
+    cicd:expectedOutcome "trybuild runs only for changed fixtures" .
+
+cicd:gitStatusScenario a cicd:PlaygroundScenario ;
+    rdfs:label "git-status-scenario" ;
+    cicd:command cicd:gitStatus ;
+    cicd:precondition "Git repository with uncommitted changes" ;
+    cicd:expectedOutcome "git repository state displayed" .
+
+cicd:gitCloseScenario a cicd:PlaygroundScenario ;
+    rdfs:label "git-close-scenario" ;
+    cicd:command cicd:gitClose ;
+    cicd:precondition "Staged changes ready to commit" ;
+    cicd:expectedOutcome "phase closed: staged, committed, verified" .
+
+cicd:publishRunScenario a cicd:PlaygroundScenario ;
+    rdfs:label "publish-run-scenario" ;
+    cicd:command cicd:publishRun ;
+    cicd:precondition "Valid workspace state to publish" ;
+    cicd:expectedOutcome "cicd.toml emitted with current workspace state" .
+
+cicd:workspaceDoctorScenario a cicd:PlaygroundScenario ;
+    rdfs:label "workspace-doctor-scenario" ;
+    cicd:command cicd:workspaceDoctor ;
+    cicd:precondition "Workspace with potential health issues" ;
+    cicd:expectedOutcome "workspace health diagnosis report shown" .
+
+# ── Feature Projections ──────────────────────────────────────────
+cicd:Feature a rdfs:Class .
+cicd:defaultFeature a cicd:Feature ; rdfs:label "default" .
+cicd:processDataFeature a cicd:Feature ; rdfs:label "process-data" .
+cicd:autonomicFeature a cicd:Feature ; rdfs:label "autonomic" .
+cicd:wasm4pmFeature a cicd:Feature ; rdfs:label "wasm4pm" .
+
+# ── Policies ────────────────────────────────────────────────────
+cicd:TargetPressurePolicy a cicd:Policy ;
+    rdfs:label "target_pressure" ;
+    cicd:mode "suggest" ;
+    cicd:enabled true .
+
+cicd:ToolchainMismatchPolicy a cicd:Policy ;
+    rdfs:label "toolchain_mismatch" ;
+    cicd:mode "suggest" ;
+    cicd:enabled true .
+
+cicd:TrybuildChangedPolicy a cicd:Policy ;
+    rdfs:label "trybuild_changed" ;
+    cicd:mode "suggest" ;
+    cicd:enabled true .
+
+cicd:GitPhaseDirtyPolicy a cicd:Policy ;
+    rdfs:label "git_phase_dirty" ;
+    cicd:mode "suggest" ;
+    cicd:enabled true .

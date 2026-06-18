@@ -1,0 +1,440 @@
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix sh:     <http://www.w3.org/ns/shacl#> .
+@prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
+@prefix pi:     <https://process.intelligence/ontology/> .
+@prefix audit:  <https://process.intelligence/audit-law/> .
+
+# Audit Law — 15 Audit Gates with SHACL Pass/Fail Constraints
+# Date: 2026-06-01
+# Authority: PI Research Program
+# Purpose: SHACL-enforced proof gates constraining manufacturing and deployment
+
+audit:AUDIT_LAW a owl:NamedIndividual, pi:AuditLaw ;
+    dcterms:title "Process Intelligence Audit Law" ;
+    dcterms:description "15 SHACL proof gates with pass/fail criteria for manufacturing pipeline conformance" ;
+    dcterms:issued "2026-06-01"^^xsd:date ;
+    pi:totalGates 15 ;
+    pi:shaclConstraints 15 ;
+    pi:gateCategories "Component Boundary (3), Feature Law (3), Projection Safety (3), DTO/Serialization (2), Tool Smuggling (1), Telemetry Separation (3)" ;
+    .
+
+# GATE 1: No DTO Flattening (wasm4pm-compat)
+audit:GATE_001_NO_DTO_FLATTENING a owl:NamedIndividual, pi:AuditGate ;
+    dcterms:title "No DTO Flattening" ;
+    dcterms:description "Prevent JSON serialization in wasm4pm-compat; enforce separation of concerns from wasm4pm engine" ;
+    pi:gateNumber 1 ;
+    pi:category "DTO/Serialization" ;
+    pi:scope "wasm4pm-compat codebase" ;
+    pi:criterion "Zero instances of to_json_string(), receipt_json(), or JSON serialization methods in src/manufacturing/" ;
+    pi:failureExample "to_json_string() method in mod.rs; receipt_json() method in traits.rs" ;
+    pi:expectedAction "Move JSON serialization to wasm4pm engine only" ;
+    pi:shaclShape audit:SHAPE_001 ;
+    pi:blockingStatus "YES (blocks manufacturing if fails)" ;
+    pi:estimatedRemediationHours "4-6" ;
+    .
+
+audit:SHAPE_001 a sh:NodeShape ;
+    sh:targetClass pi:SerializationCheck ;
+    sh:property [
+        sh:path pi:serializationMethod ;
+        sh:in () ;
+        sh:message "JSON serialization methods forbidden in compat layer" ;
+    ] ;
+    .
+
+# GATE 2: No Tool Smuggling (Feature Isolation)
+audit:GATE_002_NO_TOOL_SMUGGLING a owl:NamedIndividual, pi:AuditGate ;
+    dcterms:title "No Tool Smuggling" ;
+    dcterms:description "Verify Cargo feature isolation: no execution tools (mining, conformance, replay) in compat feature flags" ;
+    pi:gateNumber 2 ;
+    pi:category "Feature Law" ;
+    pi:scope "wasm4pm-compat Cargo.toml and feature definitions" ;
+    pi:criterion "7 forbidden tools blocked: mining, conformance, replay, state_transitions, normalization, petri_net, witness_projection" ;
+    pi:shaclShape audit:SHAPE_002 ;
+    pi:blockingStatus "YES (blocks feature compilation if fails)" ;
+    .
+
+audit:SHAPE_002 a sh:NodeShape ;
+    sh:targetClass pi:FeatureDefinition ;
+    sh:property [
+        sh:path pi:forbiddenTools ;
+        sh:in (
+            "pi:mining"
+            "pi:conformance"
+            "pi:replay"
+            "pi:state_transitions"
+            "pi:normalization"
+            "pi:petri_net"
+            "pi:witness_projection"
+        ) ;
+        sh:message "Execution tools forbidden in compat feature flags" ;
+    ] ;
+    .
+
+# GATE 3: Component Boundary Enforcement (WIT World Segregation)
+audit:GATE_003_COMPONENT_BOUNDARY a owl:NamedIndividual, pi:AuditGate ;
+    dcterms:title "Component Boundary Enforcement" ;
+    dcterms:description "Verify WIT world segregation: compat-world (structure-only) vs engine-world (execution) with strict boundaries" ;
+    pi:gateNumber 3 ;
+    pi:category "Component Boundary" ;
+    pi:scope "WIT interface definitions and world declarations" ;
+    pi:criterion "Two distinct WIT worlds with zero cross-contamination; exported types in compat-world must be structure-only (no execution functions)" ;
+    pi:shaclShape audit:SHAPE_003 ;
+    pi:blockingStatus "YES (blocks WASM compilation if fails)" ;
+    .
+
+audit:SHAPE_003 a sh:NodeShape ;
+    sh:targetClass pi:WITWorld ;
+    sh:property [
+        sh:path pi:worldType ;
+        sh:in ("structure-only" "execution") ;
+        sh:message "WIT world must be classified as structure-only or execution" ;
+    ] ;
+    sh:property [
+        sh:path pi:exportedFunctions ;
+        sh:minCount 0 ;
+        sh:message "Compat-world must not export execution functions" ;
+    ] ;
+    .
+
+# GATE 4: Type-Law Boundary (Evidence<T, State, W> Monomorphization)
+audit:GATE_004_TYPELAWBOUNDARY a owl:NamedIndividual, pi:AuditGate ;
+    dcterms:title "Type-Law Boundary Verification" ;
+    dcterms:description "Validate Evidence<T, State, W> monomorphization completeness in TypeScript projections" ;
+    pi:gateNumber 4 ;
+    pi:category "Projection Safety" ;
+    pi:scope "TypeScript type definitions and brand tokens" ;
+    pi:criterion "All Evidence<T, State, W> instances fully monomorphized; zero generic T placeholders leaked to TypeScript surface" ;
+    pi:shaclShape audit:SHAPE_004 ;
+    pi:blockingStatus "YES (blocks TypeScript export if fails)" ;
+    .
+
+audit:SHAPE_004 a sh:NodeShape ;
+    sh:targetClass pi:EvidenceType ;
+    sh:property [
+        sh:path pi:monomorphized ;
+        sh:hasValue true ;
+        sh:message "Evidence<T, State, W> must be fully monomorphized before TypeScript export" ;
+    ] ;
+    .
+
+# GATE 5: Brand Token Enforcement (DTO Tags)
+audit:GATE_005_BRAND_TOKENS a owl:NamedIndividual, pi:AuditGate ;
+    dcterms:title "Brand Token Enforcement" ;
+    dcterms:description "Verify all TypeScript board claim DTOs carry witness brand tokens for type safety" ;
+    pi:gateNumber 5 ;
+    pi:category "Projection Safety" ;
+    pi:scope "TypeScript DTO definitions (board claims, synergy projections, debt claims)" ;
+    pi:criterion "100% of board claim DTOs tagged with brand token; zero untagged DTOs in public surface" ;
+    pi:shaclShape audit:SHAPE_005 ;
+    pi:blockingStatus "YES (blocks TypeScript compilation if fails)" ;
+    .
+
+audit:SHAPE_005 a sh:NodeShape ;
+    sh:targetClass pi:BoardClaimDTO ;
+    sh:property [
+        sh:path pi:brandToken ;
+        sh:minCount 1 ;
+        sh:message "All board claim DTOs must carry a witness brand token" ;
+    ] ;
+    .
+
+# GATE 6: Enum Tagging (Classification Isolation)
+audit:GATE_006_ENUM_TAGGING a owl:NamedIndividual, pi:AuditGate ;
+    dcterms:title "Enum Tagging" ;
+    dcterms:description "Verify all TypeScript enums tagged with brand tokens for nominal typing" ;
+    pi:gateNumber 6 ;
+    pi:category "Projection Safety" ;
+    pi:scope "TypeScript enum definitions (verdict types, lifecycle states, claim categories)" ;
+    pi:criterion "100% of exported enums tagged; zero bare enums in public API" ;
+    pi:shaclShape audit:SHAPE_006 ;
+    pi:blockingStatus "YES (blocks compilation if fails)" ;
+    .
+
+audit:SHAPE_006 a sh:NodeShape ;
+    sh:targetClass pi:TypeScriptEnum ;
+    sh:property [
+        sh:path pi:tagged ;
+        sh:hasValue true ;
+        sh:message "All TypeScript enums must be tagged with nominal type markers" ;
+    ] ;
+    .
+
+# GATE 7: Projection Surface Safety (No Internal Leakage)
+audit:GATE_007_PROJECTION_SURFACE a owl:NamedIndividual, pi:AuditGate ;
+    dcterms:title "Projection Surface Safety" ;
+    dcterms:description "Ensure TypeScript projection surface is safe: zero internal/private types exposed in FFI boundary" ;
+    pi:gateNumber 7 ;
+    pi:category "Projection Safety" ;
+    pi:scope "FFI boundary between Rust (wasm4pm-compat) and TypeScript" ;
+    pi:criterion "All exported types are projection-safe; zero internal type references in public exports" ;
+    pi:shaclShape audit:SHAPE_007 ;
+    pi:blockingStatus "YES (blocks wasm-bindgen if fails)" ;
+    .
+
+audit:SHAPE_007 a sh:NodeShape ;
+    sh:targetClass pi:FFIExport ;
+    sh:property [
+        sh:path pi:projectionSafe ;
+        sh:hasValue true ;
+        sh:message "All FFI exports must be projection-safe (no internal types exposed)" ;
+    ] ;
+    .
+
+# GATE 8: Graduation Boundary Verification
+audit:GATE_008_GRADUATION_BOUNDARY a owl:NamedIndividual, pi:AuditGate ;
+    dcterms:title "Graduation Boundary Verification" ;
+    dcterms:description "Verify wasm4pm-compat graduation boundary: 87/87 public items (classes, traits, functions, constants) conform to graduation interface" ;
+    pi:gateNumber 8 ;
+    pi:category "Component Boundary" ;
+    pi:scope "wasm4pm-compat public API surface" ;
+    pi:criterion "87/87 public items implement GraduateToWasm4pm trait or export through graduation interface" ;
+    pi:expectedCount 87 ;
+    pi:shaclShape audit:SHAPE_008 ;
+    pi:blockingStatus "YES (blocks engine integration if fails)" ;
+    .
+
+audit:SHAPE_008 a sh:NodeShape ;
+    sh:targetClass pi:PublicItem ;
+    sh:property [
+        sh:path pi:graduationReady ;
+        sh:hasValue true ;
+        sh:message "All public items must implement graduation interface for engine integration" ;
+    ] ;
+    .
+
+# GATE 9: No Client-Only Authentication
+audit:GATE_009_NO_CLIENT_AUTH a owl:NamedIndividual, pi:AuditGate ;
+    dcterms:title "No Client-Only Authentication" ;
+    dcterms:description "Detect and reject client-only authentication patterns violating server-authority principle" ;
+    pi:gateNumber 9 ;
+    pi:category "Feature Law" ;
+    pi:scope "Entire codebase" ;
+    pi:criterion "Zero client-only auth implementations; all authentication decisions must be server-verified" ;
+    pi:shaclShape audit:SHAPE_009 ;
+    pi:blockingStatus "YES (security gate)" ;
+    .
+
+audit:SHAPE_009 a sh:NodeShape ;
+    sh:targetClass pi:AuthenticationMethod ;
+    sh:property [
+        sh:path pi:serverVerified ;
+        sh:hasValue true ;
+        sh:message "All authentication must be server-verified (no client-only auth)" ;
+    ] ;
+    .
+
+# GATE 10: No Dashboard Truth-Source Violations
+audit:GATE_010_NO_DASHBOARD_TRUTH a owl:NamedIndividual, pi:AuditGate ;
+    dcterms:title "No Dashboard Truth-Source Violations" ;
+    dcterms:description "Prevent dashboard/UI from being source of truth for process state or verdicts" ;
+    pi:gateNumber 10 ;
+    pi:category "Feature Law" ;
+    pi:scope "UI/dashboard code" ;
+    pi:criterion "Zero instances where UI makes process state decisions; UI only displays server-computed verdicts" ;
+    pi:shaclShape audit:SHAPE_010 ;
+    pi:blockingStatus "YES (architecture gate)" ;
+    .
+
+audit:SHAPE_010 a sh:NodeShape ;
+    sh:targetClass pi:DashboardState ;
+    sh:property [
+        sh:path pi:truthSourceVerified ;
+        sh:hasValue true ;
+        sh:message "Dashboard must not be truth-source for process state (display-only)" ;
+    ] ;
+    .
+
+# GATE 11: No Telemetry-as-Receipt Violations
+audit:GATE_011_NO_TELEMETRY_AS_RECEIPT a owl:NamedIndividual, pi:AuditGate ;
+    dcterms:title "No Telemetry-as-Receipt Violations" ;
+    dcterms:description "Enforce strict separation: telemetry (observability) ≠ cryptographic receipts (process proof)" ;
+    pi:gateNumber 11 ;
+    pi:category "Telemetry Separation" ;
+    pi:scope "Telemetry and receipt emission code" ;
+    pi:criterion "Zero telemetry spans/events used as process receipts; receipts are separate, cryptographically signed artifacts" ;
+    pi:shaclShape audit:SHAPE_011 ;
+    pi:blockingStatus "YES (boundaries gate)" ;
+    .
+
+audit:SHAPE_011 a sh:NodeShape ;
+    sh:targetClass pi:TelemetryEvent ;
+    sh:property [
+        sh:path pi:notUsedAsReceipt ;
+        sh:hasValue true ;
+        sh:message "Telemetry must not be conflated with cryptographic receipts" ;
+    ] ;
+    .
+
+# GATE 12: No Realtime-as-Evidence Violations
+audit:GATE_012_NO_REALTIME_EVIDENCE a owl:NamedIndividual, pi:AuditGate ;
+    dcterms:title "No Realtime-as-Evidence Violations" ;
+    dcterms:description "Prevent realtime metrics/measurements from being used as process event evidence" ;
+    pi:gateNumber 12 ;
+    pi:category "Telemetry Separation" ;
+    pi:scope "Event log and evidence capture" ;
+    pi:criterion "Zero realtime telemetry used as process event log entries; evidence must be immutable, post-hoc verified" ;
+    pi:shaclShape audit:SHAPE_012 ;
+    pi:blockingStatus "YES (evidence integrity gate)" ;
+    .
+
+audit:SHAPE_012 a sh:NodeShape ;
+    sh:targetClass pi:EventLogEntry ;
+    sh:property [
+        sh:path pi:immutableEvidence ;
+        sh:hasValue true ;
+        sh:message "Event log entries must be immutable evidence (not realtime telemetry)" ;
+    ] ;
+    .
+
+# GATE 13: Live Check Findings Routed Correctly
+audit:GATE_013_LIVE_CHECK_ROUTING a owl:NamedIndividual, pi:AuditGate ;
+    dcterms:title "Live Check Findings Routed Correctly" ;
+    dcterms:description "Verify OTel live check intake verdicts route only to court consequence (governance), not to process mining" ;
+    pi:gateNumber 13 ;
+    pi:category "Telemetry Separation" ;
+    pi:scope "otel-weaver live check intake socket" ;
+    pi:criterion "100% of live check findings route to governance court; zero misrouted to process mining" ;
+    pi:shaclShape audit:SHAPE_013 ;
+    pi:blockingStatus "YES (routing gate)" ;
+    .
+
+audit:SHAPE_013 a sh:NodeShape ;
+    sh:targetClass pi:LiveCheckFinding ;
+    sh:property [
+        sh:path pi:routedToCourt ;
+        sh:hasValue true ;
+        sh:message "Live check findings must route to governance court (not process mining)" ;
+    ] ;
+    .
+
+# GATE 14: Schema Diff Routed to Observability, Not Receipt
+audit:GATE_014_SCHEMA_DIFF_ROUTING a owl:NamedIndividual, pi:AuditGate ;
+    dcterms:title "Schema Diff Routed Correctly" ;
+    dcterms:description "Verify OTel schema diffs route to observability channel, not to receipt/proof channel" ;
+    pi:gateNumber 14 ;
+    pi:category "Telemetry Separation" ;
+    pi:scope "otel-weaver schema diff handling" ;
+    pi:criterion "100% of weaver schema diffs route to observability; zero misrouted to receipt chain" ;
+    pi:shaclShape audit:SHAPE_014 ;
+    pi:blockingStatus "YES (routing gate)" ;
+    .
+
+audit:SHAPE_014 a sh:NodeShape ;
+    sh:targetClass pi:SchemaDiff ;
+    sh:property [
+        sh:path pi:routedToObservability ;
+        sh:hasValue true ;
+        sh:message "Schema diffs must route to observability channel (not receipt chain)" ;
+    ] ;
+    .
+
+# GATE 15: Schema URL Present in All Diffs
+audit:GATE_015_SCHEMA_URL_VERIFICATION a owl:NamedIndividual, pi:AuditGate ;
+    dcterms:title "Schema URL Verification" ;
+    dcterms:description "Verify all OTel schema diffs include OpenTelemetry schema URL for version tracking and drift detection" ;
+    pi:gateNumber 15 ;
+    pi:category "Telemetry Separation" ;
+    pi:scope "OTel schema metadata" ;
+    pi:criterion "100% of schema diffs include schema:url field with valid OTel schema version URL" ;
+    pi:shaclShape audit:SHAPE_015 ;
+    pi:blockingStatus "YES (metadata gate)" ;
+    .
+
+audit:SHAPE_015 a sh:NodeShape ;
+    sh:targetClass pi:OTelSchema ;
+    sh:property [
+        sh:path pi:schemaUrl ;
+        sh:minCount 1 ;
+        sh:message "All OTel schemas must include schema URL for version tracking" ;
+    ] ;
+    .
+
+# Vocabulary Classes
+pi:AuditLaw a owl:Class ;
+    rdfs:label "Audit Law" ;
+    skos:definition "Comprehensive set of SHACL-enforced proof gates constraining manufacturing and deployment" ;
+    .
+
+pi:AuditGate a owl:Class ;
+    rdfs:label "Audit Gate" ;
+    skos:definition "Individual SHACL proof gate with pass/fail criteria and enforcement rules" ;
+    .
+
+# Vocabulary Properties
+pi:gateNumber a owl:DatatypeProperty ;
+    rdfs:label "gate number" ;
+    rdfs:range xsd:integer ;
+    .
+
+pi:category a owl:DatatypeProperty ;
+    rdfs:label "category" ;
+    rdfs:range xsd:string ;
+    skos:definition "Gate category: Component Boundary, Feature Law, Projection Safety, DTO/Serialization, Tool Smuggling, or Telemetry Separation" ;
+    .
+
+pi:scope a owl:DatatypeProperty ;
+    rdfs:label "scope" ;
+    rdfs:range xsd:string ;
+    skos:definition "Which part of the codebase or system this gate covers" ;
+    .
+
+pi:criterion a owl:DatatypeProperty ;
+    rdfs:label "criterion" ;
+    rdfs:range xsd:string ;
+    skos:definition "Specific measurable criterion for gate pass/fail" ;
+    .
+
+pi:failureExample a owl:DatatypeProperty ;
+    rdfs:label "failure example" ;
+    rdfs:range xsd:string ;
+    skos:definition "Real example of what failure looks like" ;
+    .
+
+pi:expectedAction a owl:DatatypeProperty ;
+    rdfs:label "expected action" ;
+    rdfs:range xsd:string ;
+    skos:definition "Remediation or corrective action if gate fails" ;
+    .
+
+pi:shaclShape a owl:ObjectProperty ;
+    rdfs:label "SHACL shape" ;
+    skos:definition "SHACL node shape enforcing this gate constraint" ;
+    .
+
+pi:blockingStatus a owl:DatatypeProperty ;
+    rdfs:label "blocking status" ;
+    rdfs:range xsd:string ;
+    skos:definition "YES or NO: whether gate failure blocks downstream processes" ;
+    .
+
+pi:estimatedRemediationHours a owl:DatatypeProperty ;
+    rdfs:label "estimated remediation hours" ;
+    rdfs:range xsd:string ;
+    skos:definition "Estimated effort to fix gate failure" ;
+    .
+
+pi:expectedCount a owl:DatatypeProperty ;
+    rdfs:label "expected count" ;
+    rdfs:range xsd:integer ;
+    skos:definition "Expected number of items/entities for quantified gates" ;
+    .
+
+pi:totalGates a owl:DatatypeProperty ;
+    rdfs:label "total gates" ;
+    rdfs:range xsd:integer ;
+    .
+
+pi:shaclConstraints a owl:DatatypeProperty ;
+    rdfs:label "SHACL constraints" ;
+    rdfs:range xsd:integer ;
+    .
+
+pi:gateCategories a owl:DatatypeProperty ;
+    rdfs:label "gate categories" ;
+    rdfs:range xsd:string ;
+    .

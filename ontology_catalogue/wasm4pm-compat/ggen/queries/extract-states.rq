@@ -1,0 +1,17 @@
+# SPARQL Query: Extract Evidence Lifecycle States from wasm4pm-compat ontology
+# Purpose: Enumerate all typestate tokens and their lawful successor transitions
+# Usage: ggen query extract-states.rq --format json
+
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+PREFIX compat: <https://wasm4pm-compat.rs/ontology#>
+
+SELECT ?state ?rustType ?successor
+WHERE {
+  ?state a compat:EvidenceState ;
+         compat:rustType ?rustType .
+
+  OPTIONAL { ?state compat:successorState ?successor . }
+}
+ORDER BY ?rustType

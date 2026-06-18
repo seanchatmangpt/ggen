@@ -1,0 +1,483 @@
+@prefix :       <http://bitstar.dev/ontology/validation#> .
+@prefix val:    <http://bitstar.dev/ontology/validation#> .
+@prefix sh:     <http://www.w3.org/ns/shacl#> .
+@prefix master: <http://bitstar.dev/ontology/master#> .
+@prefix dflss:  <http://bitbizeco.dev/ontology/v1/dflss#> .
+@prefix bpo:    <http://bitstar.dev/ontology/dflss/process#> .
+@prefix qa:     <http://bitstar.dev/ontology/dflss/quality#> .
+@prefix innov:  <http://bitstar.dev/ontology/dflss/innovation#> .
+@prefix eco:    <http://bitstar.dev/ontology/dflss/ecosystem#> .
+@prefix perf:   <http://bitstar.dev/ontology/dflss/metrics#> .
+@prefix e8:     <http://bitstar.dev/ontology/8space#> .
+@prefix dark:   <http://bitstar.dev/ontology/dark#> .
+@prefix lewrick: <http://bitstar.dev/ontology/lewrick#> .
+@prefix pareto: <http://bitstar.dev/ontology/pareto#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+
+<http://bitstar.dev/ontology/validation>
+  a owl:Ontology ;
+  rdfs:label "BitStar Composite SHACL Validation" ;
+  rdfs:comment "Comprehensive validation rules spanning all BitStar ontologies" ;
+  owl:imports <http://bitstar.dev/ontology/master> .
+
+#################################################################
+# Composite Validation Shapes
+#################################################################
+
+val:ComprehensiveSystemValidation a sh:NodeShape ;
+  rdfs:label "Comprehensive System Validation" ;
+  rdfs:comment "Validates system across all ontological dimensions" ;
+  sh:targetClass master:IntegratedSystem ;
+  
+  # Group 1: DMEDI Process Validation
+  sh:property [
+    sh:path dflss:hasPhase ;
+    sh:minCount 5 ;
+    sh:message "System must implement all 5 DMEDI phases"
+  ] ;
+  
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:select """
+      PREFIX dflss: <http://bitbizeco.dev/ontology/v1/dflss#>
+      SELECT $this WHERE {
+        FILTER NOT EXISTS {
+          VALUES ?phase { 
+            dflss:Define dflss:Measure dflss:Explore 
+            dflss:Develop dflss:Implement 
+          }
+          $this dflss:hasPhase/dflss:phaseType ?phase
+        }
+      }
+    """ ;
+    sh:message "Missing DMEDI phase implementation"
+  ] ;
+  
+  # Group 2: Quality Standards Validation
+  sh:property [
+    sh:path qa:sigmaLevel ;
+    sh:minInclusive qa:FourSigma ;
+    sh:message "System must achieve at least 4 Sigma quality level"
+  ] ;
+  
+  sh:property [
+    sh:path qa:dpmo ;
+    sh:maxInclusive 6210 ;
+    sh:message "DPMO must not exceed 6210 (4 Sigma threshold)"
+  ] ;
+  
+  sh:property [
+    sh:path qa:availability ;
+    sh:minInclusive 0.99 ;
+    sh:datatype xsd:decimal ;
+    sh:message "System availability must be at least 99%"
+  ] ;
+  
+  # Group 3: Performance Metrics Validation
+  sh:property [
+    sh:path perf:improvement ;
+    sh:minInclusive 2.0 ;
+    sh:message "Performance improvement must be at least 200%"
+  ] ;
+  
+  sh:property [
+    sh:path master:globalPerformanceScore ;
+    sh:minInclusive 0.75 ;
+    sh:maxInclusive 1.0 ;
+    sh:message "Global performance score must be between 75% and 100%"
+  ] ;
+  
+  # Group 4: Business Ecosystem Validation
+  sh:property [
+    sh:path eco:participantCount ;
+    sh:minInclusive 100 ;
+    sh:message "Ecosystem must have at least 100 participants"
+  ] ;
+  
+  sh:property [
+    sh:path eco:networkDensity ;
+    sh:minInclusive 0.30 ;
+    sh:message "Network density must be at least 30%"
+  ] ;
+  
+  sh:property [
+    sh:path eco:viralCoefficient ;
+    sh:minInclusive 1.0 ;
+    sh:message "Viral coefficient must be >= 1.0 for growth"
+  ] ;
+  
+  # Group 5: Innovation Validation
+  sh:property [
+    sh:path innov:timeReduction ;
+    sh:minInclusive 0.40 ;
+    sh:message "Innovation must achieve at least 40% time reduction"
+  ] ;
+  
+  # Group 6: 8-Space Constraints
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:select """
+      PREFIX e8: <http://bitstar.dev/ontology/8space#>
+      SELECT $this WHERE {
+        {
+          $this e8:maxCycles ?cycles .
+          FILTER (?cycles > 8)
+        } UNION {
+          $this e8:maxMemoryMB ?memory .
+          FILTER (?memory > 8)
+        } UNION {
+          $this e8:maxFiles ?files .
+          FILTER (?files > 8)
+        }
+      }
+    """ ;
+    sh:message "System violates 8-Space constraints (max 8 cycles, 8MB, 8 files)"
+  ] .
+
+#################################################################
+# Cross-Ontology Dependency Validation
+#################################################################
+
+val:CrossOntologyDependencyShape a sh:NodeShape ;
+  rdfs:label "Cross-Ontology Dependency Validation" ;
+  sh:targetClass master:CrossOntologyEntity ;
+  
+  # Ensure cross-ontology entities have proper alignments
+  sh:property [
+    sh:path master:alignsWith ;
+    sh:minCount 1 ;
+    sh:nodeKind sh:IRI ;
+    sh:message "Cross-ontology entity must align with at least one concept"
+  ] ;
+  
+  # Validate integration relationships
+  sh:property [
+    sh:path master:integratesWith ;
+    sh:nodeKind sh:IRI ;
+    sh:class master:CrossOntologyEntity ;
+    sh:message "Integration must be with another cross-ontology entity"
+  ] ;
+  
+  # Check compliance across ontologies
+  sh:property [
+    sh:path master:crossOntologyCompliance ;
+    sh:minInclusive 0.70 ;
+    sh:datatype xsd:decimal ;
+    sh:message "Cross-ontology compliance must be at least 70%"
+  ] .
+
+#################################################################
+# 80/20 Pareto Optimization Validation
+#################################################################
+
+val:ParetoOptimizationShape a sh:NodeShape ;
+  rdfs:label "Pareto Optimization Validation" ;
+  sh:targetClass bpo:OptimizedProcess ;
+  
+  # Validate 80/20 principle application
+  sh:property [
+    sh:path bpo:effortReduction ;
+    sh:minInclusive 0.60 ;
+    sh:message "Process must achieve at least 60% effort reduction"
+  ] ;
+  
+  sh:property [
+    sh:path bpo:valueConcentration ;
+    sh:minInclusive 0.70 ;
+    sh:message "At least 70% value must be concentrated in vital activities"
+  ] ;
+  
+  # Validate vital few metrics (max 5)
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:select """
+      PREFIX bpo: <http://bitstar.dev/ontology/dflss/process#>
+      SELECT $this (COUNT(?metric) AS ?count) WHERE {
+        $this bpo:measuresVitalFew ?metric
+      }
+      GROUP BY $this
+      HAVING (COUNT(?metric) > 5)
+    """ ;
+    sh:message "Process measures too many metrics (>5), violating vital few principle"
+  ] ;
+  
+  # Ensure bottlenecks are addressed
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:select """
+      PREFIX bpo: <http://bitstar.dev/ontology/dflss/process#>
+      SELECT $this ?bottleneck WHERE {
+        $this bpo:hasBottleneck ?bottleneck .
+        FILTER NOT EXISTS {
+          $this bpo:optimizesWith ?tool .
+          ?tool bpo:resolvesBottleneck ?bottleneck
+        }
+      }
+    """ ;
+    sh:message "Process has unresolved bottlenecks"
+  ] .
+
+#################################################################
+# Dark Pattern Innovation Validation
+#################################################################
+
+val:DarkPatternValidation a sh:NodeShape ;
+  rdfs:label "Dark Pattern Innovation Validation" ;
+  sh:targetClass innov:DarkInnovation ;
+  
+  # Validate darkness level
+  sh:property [
+    sh:path dark:darknessLevel ;
+    sh:equals 10 ;
+    sh:message "Dark innovations must be Level 10"
+  ] ;
+  
+  # Validate comprehension requirements
+  sh:property [
+    sh:path dark:humanComprehension ;
+    sh:equals 0.0 ;
+    sh:message "Dark patterns must have 0% human comprehension"
+  ] ;
+  
+  sh:property [
+    sh:path dark:aiComprehension ;
+    sh:equals 1.0 ;
+    sh:message "Dark patterns must have 100% AI comprehension"
+  ] ;
+  
+  # Validate special capabilities
+  sh:or (
+    [
+      sh:property [
+        sh:path innov:optimizationDimensions ;
+        sh:minInclusive 1000 ;
+        sh:message "Quantum optimization requires 1000+ dimensions"
+      ]
+    ]
+    [
+      sh:property [
+        sh:path innov:generationCycle ;
+        sh:maxInclusive 1000 ;
+        sh:message "Self-improvement cycle must be < 1ms"
+      ]
+    ]
+    [
+      sh:property [
+        sh:path dark:dimensions ;
+        sh:minInclusive 10 ;
+        sh:message "Hyperdimensional space requires 10+ dimensions"
+      ]
+    ]
+  ) .
+
+#################################################################
+# Network Effects Validation
+#################################################################
+
+val:NetworkEffectsValidation a sh:NodeShape ;
+  rdfs:label "Network Effects Validation" ;
+  sh:targetClass eco:PlatformEcosystem ;
+  
+  # Validate network effect presence
+  sh:property [
+    sh:path eco:hasNetworkEffect ;
+    sh:minCount 1 ;
+    sh:message "Platform ecosystem must have at least one network effect"
+  ] ;
+  
+  # Validate viral growth
+  sh:property [
+    sh:path eco:viralCoefficient ;
+    sh:minInclusive 1.0 ;
+    sh:message "Viral coefficient must be >= 1.0 for sustainable growth"
+  ] ;
+  
+  # Validate Metcalfe's Law value creation
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:select """
+      PREFIX eco: <http://bitstar.dev/ontology/dflss/ecosystem#>
+      SELECT $this ?participants ?value WHERE {
+        $this eco:participantCount ?participants ;
+              eco:networkValue ?value .
+        BIND(?participants * (?participants - 1) / 2 AS ?metcalfeValue)
+        FILTER (?value < ?metcalfeValue * 0.5)
+      }
+    """ ;
+    sh:message "Network value below Metcalfe's Law prediction"
+  ] .
+
+#################################################################
+# Technical Performance Validation
+#################################################################
+
+val:TechnicalPerformanceValidation a sh:NodeShape ;
+  rdfs:label "Technical Performance Validation" ;
+  sh:targetNode perf:TechnicalMetric ;
+  
+  # Validate improvement over baseline
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:select """
+      PREFIX perf: <http://bitstar.dev/ontology/dflss/metrics#>
+      SELECT $this ?baseline ?actual WHERE {
+        $this perf:baseline ?baseline ;
+              perf:actual ?actual .
+        FILTER (?actual < ?baseline * 1.5)
+      }
+    """ ;
+    sh:message "Technical metric must show at least 50% improvement over baseline"
+  ] ;
+  
+  # Validate target achievement
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:select """
+      PREFIX perf: <http://bitstar.dev/ontology/dflss/metrics#>
+      SELECT $this ?actual ?target WHERE {
+        $this perf:actual ?actual ;
+              perf:target ?target ;
+              perf:targetAchieved false .
+        FILTER (?actual < ?target * 0.90)
+      }
+    """ ;
+    sh:message "Performance below 90% of target"
+  ] .
+
+#################################################################
+# Business Metrics Validation
+#################################################################
+
+val:BusinessMetricsValidation a sh:NodeShape ;
+  rdfs:label "Business Metrics Validation" ;
+  sh:targetClass perf:BusinessMetric ;
+  
+  # Validate revenue growth
+  sh:property [
+    sh:path perf:cagr ;
+    sh:minInclusive 1.0 ;
+    sh:message "Business must show at least 100% CAGR"
+  ] ;
+  
+  # Validate unit economics
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:select """
+      PREFIX perf: <http://bitstar.dev/ontology/dflss/metrics#>
+      SELECT $this ?cac ?ltv WHERE {
+        $this perf:CustomerAcquisitionCost ?cac ;
+              perf:CustomerLifetimeValue ?ltv .
+        FILTER (?ltv < ?cac * 3)
+      }
+    """ ;
+    sh:message "LTV must be at least 3x CAC for sustainable unit economics"
+  ] .
+
+#################################################################
+# Composite Quality Gate Validation
+#################################################################
+
+val:CompositeQualityGateShape a sh:NodeShape ;
+  rdfs:label "Composite Quality Gate Validation" ;
+  sh:targetClass dflss:Project ;
+  
+  # Validate all quality gates passed
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:select """
+      PREFIX dflss: <http://bitbizeco.dev/ontology/v1/dflss#>
+      PREFIX qa: <http://bitstar.dev/ontology/dflss/quality#>
+      SELECT $this ?phase WHERE {
+        $this dflss:hasPhase/dflss:phaseType ?phase .
+        ?gate a qa:QualityGate ;
+              dflss:allowedInPhaseType ?phase .
+        FILTER NOT EXISTS {
+          $this qa:passesGate ?gate
+        }
+      }
+    """ ;
+    sh:message "Project has not passed all required quality gates"
+  ] .
+
+#################################################################
+# Lewrick Principles Validation
+#################################################################
+
+val:LewrickPrinciplesValidation a sh:NodeShape ;
+  rdfs:label "Lewrick Business Principles Validation" ;
+  sh:targetClass eco:CrossIndustryEcosystem ;
+  
+  # Validate cross-industry collaboration
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:select """
+      PREFIX eco: <http://bitstar.dev/ontology/dflss/ecosystem#>
+      PREFIX lewrick: <http://bitstar.dev/ontology/lewrick#>
+      SELECT $this (COUNT(DISTINCT ?industry) AS ?count) WHERE {
+        $this eco:hasParticipant ?participant .
+        ?participant eco:industry ?industry
+      }
+      GROUP BY $this
+      HAVING (COUNT(DISTINCT ?industry) < 2)
+    """ ;
+    sh:message "Cross-industry ecosystem must have participants from at least 2 industries"
+  ] ;
+  
+  # Validate innovation acceleration
+  sh:property [
+    sh:path innov:timeToMarket ;
+    sh:sparql [
+      a sh:SPARQLConstraint ;
+      sh:select """
+        PREFIX innov: <http://bitstar.dev/ontology/dflss/innovation#>
+        SELECT $this ?traditional ?accelerated WHERE {
+          $this innov:traditional ?traditional ;
+                innov:accelerated ?accelerated .
+          FILTER (?accelerated > ?traditional * 0.60)
+        }
+      """ ;
+      sh:message "Must achieve at least 40% time-to-market reduction"
+    ]
+  ] ;
+  
+  # Validate scalable business model
+  sh:property [
+    sh:path eco:networkEffects ;
+    sh:equals true ;
+    sh:message "Scalable business model requires network effects"
+  ] .
+
+#################################################################
+# Global Validation Orchestrator
+#################################################################
+
+val:GlobalValidationOrchestrator a sh:NodeShape ;
+  rdfs:label "Global Validation Orchestrator" ;
+  rdfs:comment "Orchestrates validation across all shapes" ;
+  sh:targetClass master:IntegratedSystem ;
+  
+  # Reference all validation shapes
+  sh:node val:ComprehensiveSystemValidation ;
+  sh:node val:CrossOntologyDependencyShape ;
+  sh:node val:ParetoOptimizationShape ;
+  sh:node val:NetworkEffectsValidation ;
+  sh:node val:TechnicalPerformanceValidation ;
+  sh:node val:BusinessMetricsValidation ;
+  sh:node val:CompositeQualityGateShape ;
+  sh:node val:LewrickPrinciplesValidation ;
+  
+  # Final validation check
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:select """
+      PREFIX master: <http://bitstar.dev/ontology/master#>
+      SELECT $this WHERE {
+        $this master:globalPerformanceScore ?score .
+        FILTER (?score < 0.80)
+      }
+    """ ;
+    sh:message "System fails global validation threshold (80%)"
+  ] .

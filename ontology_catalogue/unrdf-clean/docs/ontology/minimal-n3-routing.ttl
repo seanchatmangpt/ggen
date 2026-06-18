@@ -1,0 +1,334 @@
+@prefix kgc: <http://kgc.unrdf.dev/ns#> .
+@prefix schema: <http://schema.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# ============================================================================
+# ENGINE DEFINITIONS
+# ============================================================================
+
+kgc:Oxigraph a kgc:RdfEngine ;
+  rdfs:label "Oxigraph WASM SPARQL Engine" ;
+  rdfs:comment "WASM-based SPARQL 1.1 engine, authoritative for all standard RDF operations" ;
+  kgc:isPrimary true ;
+  kgc:version "0.5.2" ;
+  kgc:capabilities [
+    kgc:storage true ;
+    kgc:sparql11 true ;
+    kgc:sparqlUpdate true ;
+    kgc:reasoning false ;
+    kgc:streaming false ;
+    kgc:formats "Turtle, N-Triples, N-Quads, TriG, JSON-LD, RDF/XML" ;
+    kgc:parallelQueries true
+  ] .
+
+kgc:N3 a kgc:RdfEngine ;
+  rdfs:label "N3.js RDF Library" ;
+  rdfs:comment "JavaScript RDF library, justified only for 5 specific boundary cases" ;
+  kgc:isPrimary false ;
+  kgc:version "1.17+" ;
+  kgc:capabilities [
+    kgc:storage true ;
+    kgc:sparql11 false ;
+    kgc:sparqlUpdate false ;
+    kgc:reasoning true ;
+    kgc:streaming true ;
+    kgc:formats "Turtle, N-Triples, N-Quads, JSON-LD, Notation3" ;
+    kgc:permissiveParsing true
+  ] .
+
+# ============================================================================
+# OPERATION DEFINITIONS
+# ============================================================================
+
+# Oxigraph Operations (Default - Everything Else)
+
+kgc:QueryOperation a kgc:Operation ;
+  rdfs:label "SPARQL Query (SELECT, ASK, CONSTRUCT, DESCRIBE)" ;
+  rdfs:comment "Execute SPARQL 1.1 queries on RDF graph" ;
+  kgc:routesTo kgc:Oxigraph ;
+  kgc:priority 1 ;
+  kgc:justification "Oxigraph provides complete SPARQL 1.1 support" ;
+  kgc:mustNeverUseN3 true .
+
+kgc:UpdateOperation a kgc:Operation ;
+  rdfs:label "SPARQL Update (INSERT, DELETE)" ;
+  rdfs:comment "Execute SPARQL 1.1 Update operations" ;
+  kgc:routesTo kgc:Oxigraph ;
+  kgc:priority 1 ;
+  kgc:justification "Oxigraph provides SPARQL 1.1 Update support" ;
+  kgc:mustNeverUseN3 true .
+
+kgc:StorageOperation a kgc:Operation ;
+  rdfs:label "RDF Storage (add, delete, clear)" ;
+  rdfs:comment "Fundamental RDF storage operations" ;
+  kgc:routesTo kgc:Oxigraph ;
+  kgc:priority 1 ;
+  kgc:justification "Oxigraph is the authoritative storage engine" ;
+  kgc:mustNeverUseN3 true .
+
+kgc:BasicParseOperation a kgc:Operation ;
+  rdfs:label "Basic RDF Parsing" ;
+  rdfs:comment "Parse RDF from standard formats (Turtle, N-Triples, JSON-LD, etc.)" ;
+  kgc:routesTo kgc:Oxigraph ;
+  kgc:priority 2 ;
+  kgc:justification "Oxigraph handles all standard formats natively" ;
+  kgc:mustNeverUseN3 true .
+
+kgc:BasicSerializeOperation a kgc:Operation ;
+  rdfs:label "Basic RDF Serialization" ;
+  rdfs:comment "Serialize RDF to standard formats" ;
+  kgc:routesTo kgc:Oxigraph ;
+  kgc:priority 2 ;
+  kgc:justification "Oxigraph supports all standard serialization formats" ;
+  kgc:mustNeverUseN3 true .
+
+kgc:MatchOperation a kgc:Operation ;
+  rdfs:label "Pattern Matching" ;
+  rdfs:comment "Match quads by subject, predicate, object, or graph" ;
+  kgc:routesTo kgc:Oxigraph ;
+  kgc:justification "Oxigraph provides efficient pattern matching" ;
+  kgc:mustNeverUseN3 true .
+
+# N3-Justified Operations (5 only)
+
+kgc:StreamParseOperation a kgc:Operation ;
+  rdfs:label "Streaming RDF Parse" ;
+  rdfs:comment "Parse RDF stream with backpressure handling" ;
+  kgc:routesTo kgc:N3 ;
+  kgc:priority 3 ;
+  kgc:justification "N3 provides backpressure-aware streaming parser for large inputs" ;
+  kgc:justificationCode "streaming" ;
+  kgc:reenterOxigraph true ;
+  kgc:constraint "Only use when input exceeds memory budget or backpressure required" .
+
+kgc:StreamSerializeOperation a kgc:Operation ;
+  rdfs:label "Streaming RDF Serialization" ;
+  rdfs:comment "Serialize RDF stream to sink with backpressure" ;
+  kgc:routesTo kgc:N3 ;
+  kgc:priority 3 ;
+  kgc:justification "N3 provides streaming writer for large outputs" ;
+  kgc:justificationCode "streaming" ;
+  kgc:reenterOxigraph true ;
+  kgc:constraint "Only use when output must stream to sink" .
+
+kgc:N3ReasoningOperation a kgc:Operation ;
+  rdfs:label "N3 Rule-Based Reasoning" ;
+  rdfs:comment "Forward-chaining reasoning with Notation3 rules" ;
+  kgc:routesTo kgc:N3 ;
+  kgc:priority 4 ;
+  kgc:justification "N3-only capability: forward-chaining logic not in Oxigraph SPARQL" ;
+  kgc:justificationCode "reasoning" ;
+  kgc:reenterOxigraph true ;
+  kgc:constraint "Only use when explicit N3 rule-based inference required" .
+
+kgc:PermissiveParseOperation a kgc:Operation ;
+  rdfs:label "Permissive RDF Parse" ;
+  rdfs:comment "Parse malformed or dirty RDF with permissive parser" ;
+  kgc:routesTo kgc:N3 ;
+  kgc:priority 4 ;
+  kgc:justification "N3 permissive parser recovers from malformed RDF Oxigraph rejects" ;
+  kgc:justificationCode "permissive" ;
+  kgc:reenterOxigraph true ;
+  kgc:constraint "Only use when Oxigraph strict parsing fails" .
+
+kgc:RdfTransformOperation a kgc:Operation ;
+  rdfs:label "RDF Structural Transform" ;
+  rdfs:comment "Transform RDF graph structure not expressible in SPARQL" ;
+  kgc:routesTo kgc:N3 ;
+  kgc:priority 4 ;
+  kgc:justification "Structural transforms require programmatic graph rewriting" ;
+  kgc:justificationCode "transform" ;
+  kgc:reenterOxigraph true ;
+  kgc:constraint "Only use when transformation cannot be expressed in SPARQL 1.1" .
+
+# ============================================================================
+# μ(O) MINIMAL-N3 ENFORCEMENT RULES
+# ============================================================================
+
+kgc:MinimalN3Principle a schema:Rule ;
+  rdfs:label "Minimal-N3 Principle (μ(O))" ;
+  schema:description "Oxigraph is authoritative. N3 invoked ONLY when Oxigraph cannot act." ;
+  kgc:enforces [
+    rdf:type rdf:List ;
+    rdf:first kgc:OxigraphForStorage ;
+    rdf:rest [
+      rdf:type rdf:List ;
+      rdf:first kgc:OxigraphForQuery ;
+      rdf:rest [
+        rdf:type rdf:List ;
+        rdf:first kgc:OxigraphForUpdate ;
+        rdf:rest [
+          rdf:type rdf:List ;
+          rdf:first kgc:OxigraphForBasicParsing ;
+          rdf:rest [
+            rdf:type rdf:List ;
+            rdf:first kgc:OxigraphForBasicSerialization ;
+            rdf:rest rdf:nil
+          ]
+        ]
+      ]
+    ]
+  ] .
+
+kgc:OxigraphForStorage a schema:Rule ;
+  rdfs:label "MUST use Oxigraph for storage" ;
+  schema:description "N3 cannot be used for add, delete, clear, or other storage mutations" ;
+  kgc:severity kgc:Critical .
+
+kgc:OxigraphForQuery a schema:Rule ;
+  rdfs:label "MUST use Oxigraph for SPARQL queries" ;
+  schema:description "N3 cannot be used for SELECT, ASK, CONSTRUCT, or DESCRIBE queries" ;
+  kgc:severity kgc:Critical .
+
+kgc:OxigraphForUpdate a schema:Rule ;
+  rdfs:label "MUST use Oxigraph for SPARQL updates" ;
+  schema:description "N3 cannot be used for INSERT, DELETE, or other SPARQL updates" ;
+  kgc:severity kgc:Critical .
+
+kgc:OxigraphForBasicParsing a schema:Rule ;
+  rdfs:label "MUST use Oxigraph for basic RDF parsing" ;
+  schema:description "N3 can ONLY be used for permissive-parse (malformed RDF recovery)" ;
+  kgc:severity kgc:Critical .
+
+kgc:OxigraphForBasicSerialization a schema:Rule ;
+  rdfs:label "MUST use Oxigraph for basic RDF serialization" ;
+  schema:description "N3 can ONLY be used for stream-serialize (output backpressure)" ;
+  kgc:severity kgc:Critical .
+
+kgc:N3ReeentryRule a schema:Rule ;
+  rdfs:label "N3 operations MUST re-enter Oxigraph" ;
+  schema:description "All 5 N3-justified operations must convert result back to Oxigraph store immediately" ;
+  kgc:severity kgc:High ;
+  kgc:appliesTo kgc:N3ReasoningOperation ;
+  kgc:appliesTo kgc:StreamParseOperation ;
+  kgc:appliesTo kgc:StreamSerializeOperation ;
+  kgc:appliesTo kgc:PermissiveParseOperation ;
+  kgc:appliesTo kgc:RdfTransformOperation .
+
+# ============================================================================
+# DECISION RULES
+# ============================================================================
+
+# SPARQL Query Decision Rule
+kgc:QueryDecisionRule a kgc:DecisionRule ;
+  rdfs:label "If operation is SPARQL query" ;
+  schema:description "Determine whether to use Oxigraph" ;
+  kgc:condition "operation.includes('SELECT') OR operation.includes('ASK') OR operation.includes('CONSTRUCT')" ;
+  kgc:decision "Use Oxigraph" ;
+  kgc:reason "SPARQL queries are Oxigraph's primary strength" .
+
+# Streaming Decision Rule
+kgc:StreamingDecisionRule a kgc:DecisionRule ;
+  rdfs:label "If operation requires streaming" ;
+  schema:description "Determine whether to use N3" ;
+  kgc:condition "inputSize > memoryBudget OR outputRequiresBackpressure" ;
+  kgc:decision "Use N3 streaming parser/writer, then re-enter Oxigraph" ;
+  kgc:reason "N3 provides backpressure handling Oxigraph lacks" .
+
+# Reasoning Decision Rule
+kgc:ReasoningDecisionRule a kgc:DecisionRule ;
+  rdfs:label "If operation needs forward-chaining reasoning" ;
+  schema:description "Determine whether to use N3" ;
+  kgc:condition "needsN3Rules OR needsForwardChaining" ;
+  kgc:decision "Use N3 reasoning engine, then re-enter Oxigraph" ;
+  kgc:reason "N3 forward-chaining logic is not expressible in SPARQL" .
+
+# Malformed RDF Decision Rule
+kgc:MalformedDecisionRule a kgc:DecisionRule ;
+  rdfs:label "If RDF is malformed" ;
+  schema:description "Determine whether to use N3 permissive parser" ;
+  kgc:condition "OxigraphParsing.failed AND strictParseRequired == false" ;
+  kgc:decision "Use N3 permissive parser, then re-enter Oxigraph" ;
+  kgc:reason "N3 permissive parser recovers from syntax errors" .
+
+# Default Decision Rule
+kgc:DefaultDecisionRule a kgc:DecisionRule ;
+  rdfs:label "For all other operations" ;
+  schema:description "Default to Oxigraph" ;
+  kgc:condition "NOT (streaming OR reasoning OR malformed OR transform)" ;
+  kgc:decision "Use Oxigraph" ;
+  kgc:reason "Oxigraph is the authoritative engine for everything else" .
+
+# ============================================================================
+# EXAMPLE SPARQL QUERY FOR ROUTING LOGIC
+# ============================================================================
+
+kgc:RoutingQuery a kgc:SparqlConstruct ;
+  rdfs:label "Engine Routing Decision Query" ;
+  schema:description "Query to determine correct engine for a given operation" ;
+  schema:text """
+    PREFIX kgc: <http://kgc.unrdf.dev/ns#>
+
+    CONSTRUCT {
+      ?operation kgc:engine ?engine .
+      ?operation kgc:justification ?reason .
+      ?operation kgc:priority ?priority .
+      ?operation kgc:reenterOxigraph ?reenter .
+    }
+    WHERE {
+      ?operation a kgc:Operation ;
+        kgc:routesTo ?engine ;
+        kgc:justification ?reason ;
+        kgc:priority ?priority .
+
+      OPTIONAL {
+        ?operation kgc:reenterOxigraph ?reenter .
+      }
+
+      FILTER (?engine = kgc:Oxigraph || ?engine = kgc:N3)
+    }
+    ORDER BY ?priority
+  """ .
+
+# ============================================================================
+# VALIDATION QUERIES
+# ============================================================================
+
+kgc:FindOxigraphOperations a kgc:SparqlSelect ;
+  rdfs:label "Find all Oxigraph operations" ;
+  schema:text """
+    PREFIX kgc: <http://kgc.unrdf.dev/ns#>
+
+    SELECT ?operation ?label ?justification
+    WHERE {
+      ?operation a kgc:Operation ;
+        kgc:routesTo kgc:Oxigraph ;
+        rdfs:label ?label ;
+        kgc:justification ?justification .
+    }
+  """ .
+
+kgc:FindN3Operations a kgc:SparqlSelect ;
+  rdfs:label "Find all N3-justified operations" ;
+  schema:text """
+    PREFIX kgc: <http://kgc.unrdf.dev/ns#>
+
+    SELECT ?operation ?label ?justification ?reenter
+    WHERE {
+      ?operation a kgc:Operation ;
+        kgc:routesTo kgc:N3 ;
+        rdfs:label ?label ;
+        kgc:justification ?justification .
+
+      OPTIONAL {
+        ?operation kgc:reenterOxigraph ?reenter .
+      }
+    }
+  """ .
+
+kgc:FindViolations a kgc:SparqlSelect ;
+  rdfs:label "Find enforcement rule violations" ;
+  schema:text """
+    PREFIX kgc: <http://kgc.unrdf.dev/ns#>
+
+    SELECT ?violation ?severity ?description
+    WHERE {
+      ?rule a schema:Rule ;
+        kgc:severity ?severity ;
+        rdfs:label ?violation ;
+        schema:description ?description .
+
+      FILTER (?severity = kgc:Critical || ?severity = kgc:High)
+    }
+  """ .

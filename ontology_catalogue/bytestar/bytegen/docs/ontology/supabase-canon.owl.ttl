@@ -1,0 +1,848 @@
+@prefix : <https://bytestar.org/ontology/supabase-canon#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix dc: <https://bytestar.org/ontology/dark-canon#> .
+@prefix lgc: <https://bytestar.org/ontology/bytestar-lgc#> .
+@prefix bcore: <https://bytestar.org/ontology/bytecore-index#> .
+@prefix bethos: <https://bytestar.org/ontology/byteethos-index#> .
+@prefix bflow: <https://bytestar.org/ontology/byteflow-index#> .
+@prefix bgen: <https://bytestar.org/ontology/bytegen/fabrication#> .
+@prefix spr: <http://bytestar.net/ontology/spr_calculus#> .
+@prefix pqc: <https://bytestar.org/ontology/pqc#> .
+
+<https://bytestar.org/ontology/supabase-canon>
+    rdf:type owl:Ontology ;
+    owl:versionIRI <https://bytestar.org/ontology/supabase-canon/v1.0> ;
+    rdfs:label "Supabase Canonical Access Plane Ontology" ;
+    rdfs:comment """The single source of truth ontology for the ttl-nuxt Sovereign Access Plane.
+    This canonical ontology bridges Nuxt/Supabase applications with ByteStar V6 doctrines,
+    including the FullerV2 Canon, 8-Hop Envelope, Zero-Tick Rejection, Capability Algebra,
+    and Receipts-First Methodology. It defines the complete semantic model for user
+    authentication, document management with PQC encryption, Mission Crystal fabrication,
+    and N-dimensional marketplace connections.""" ;
+    owl:imports bcore: ,
+                bethos: ,
+                bflow: ,
+                bgen: ;
+    rdfs:seeAlso dc:FullerV2 ;
+    rdfs:seeAlso lgc:EightHopLaw ;
+    rdfs:seeAlso lgc:ZeroTickReject ;
+    rdfs:seeAlso lgc:CapabilityAlgebra ;
+    rdfs:seeAlso lgc:ReceiptsFirstMethodology .
+
+#################################################################
+#    Core Access Plane Classes
+#################################################################
+
+:SovereignAccessPlane rdf:type owl:Class ;
+    rdfs:label "Sovereign Access Plane" ;
+    rdfs:comment "The complete access control and data management plane for ByteStar applications." ;
+    rdfs:subClassOf :AccessControlSystem .
+
+:AccessControlSystem rdf:type owl:Class ;
+    rdfs:label "Access Control System" ;
+    rdfs:comment "Base class for systems that manage access control and authentication." .
+
+:SupabaseIntegration rdf:type owl:Class ;
+    rdfs:label "Supabase Integration" ;
+    rdfs:comment "Integration layer that bridges Supabase database with ByteStar ontologies." ;
+    rdfs:subClassOf :DatabaseIntegration .
+
+:NuxtApplication rdf:type owl:Class ;
+    rdfs:label "Nuxt Application" ;
+    rdfs:comment "Nuxt-based frontend application integrated with the Sovereign Access Plane." ;
+    rdfs:subClassOf :WebApplication .
+
+#################################################################
+#    User Authentication & Identity Management
+#################################################################
+
+:User rdf:type owl:Class ;
+    rdfs:label "User" ;
+    rdfs:comment "A registered user within the Sovereign Access Plane with authenticated identity." ;
+    rdfs:subClassOf :Identity .
+
+:Identity rdf:type owl:Class ;
+    rdfs:label "Identity" ;
+    rdfs:comment "Base class for all identity entities within the system." .
+
+:UserProfile rdf:type owl:Class ;
+    rdfs:label "User Profile" ;
+    rdfs:comment "Extended profile information for a user including preferences and metadata." ;
+    rdfs:subClassOf :UserData .
+
+:AuthenticationMethod rdf:type owl:Class ;
+    rdfs:label "Authentication Method" ;
+    rdfs:comment "A method for authenticating users (password, OAuth, PQC, etc.)." .
+
+:OAuth2Provider rdf:type owl:Class ;
+    rdfs:label "OAuth2 Provider" ;
+    rdfs:comment "External OAuth2 authentication provider (Google, GitHub, etc.)." ;
+    rdfs:subClassOf :AuthenticationMethod .
+
+:PQCAuthentication rdf:type owl:Class ;
+    rdfs:label "Post-Quantum Cryptography Authentication" ;
+    rdfs:comment "Post-quantum cryptographic authentication method for enhanced security." ;
+    rdfs:subClassOf :AuthenticationMethod .
+
+:SessionToken rdf:type owl:Class ;
+    rdfs:label "Session Token" ;
+    rdfs:comment "JWT or similar token representing an authenticated user session." ;
+    rdfs:subClassOf :SecurityToken .
+
+:RefreshToken rdf:type owl:Class ;
+    rdfs:label "Refresh Token" ;
+    rdfs:comment "Long-lived token used to refresh expired session tokens." ;
+    rdfs:subClassOf :SecurityToken .
+
+#################################################################
+#    Document Management with PQC Encryption
+#################################################################
+
+:Document rdf:type owl:Class ;
+    rdfs:label "Document" ;
+    rdfs:comment "A document stored within the system with PQC encryption capabilities." ;
+    rdfs:subClassOf :EncryptedAsset .
+
+:DocumentMetadata rdf:type owl:Class ;
+    rdfs:label "Document Metadata" ;
+    rdfs:comment "Metadata associated with documents including tags, timestamps, and access control." ;
+    rdfs:subClassOf :Metadata .
+
+:EncryptionKey rdf:type owl:Class ;
+    rdfs:label "Encryption Key" ;
+    rdfs:comment "Post-quantum cryptographic key used for document encryption/decryption." ;
+    rdfs:subClassOf pqc:PQCKey .
+
+:DocumentVersion rdf:type owl:Class ;
+    rdfs:label "Document Version" ;
+    rdfs:comment "A specific version of a document with immutable hash and timestamp." ;
+    rdfs:subClassOf :VersionedAsset .
+
+:AccessPermission rdf:type owl:Class ;
+    rdfs:label "Access Permission" ;
+    rdfs:comment "Permission granted to a user or role for accessing specific documents." ;
+    rdfs:subClassOf :Permission .
+
+:DocumentCollection rdf:type owl:Class ;
+    rdfs:label "Document Collection" ;
+    rdfs:comment "A collection or folder of related documents with shared access policies." ;
+    rdfs:subClassOf :AssetCollection .
+
+#################################################################
+#    Mission Crystal Fabrication
+#################################################################
+
+:MissionCrystal rdf:type owl:Class ;
+    rdfs:label "Mission Crystal" ;
+    rdfs:comment "A crystallized mission specification containing goals, constraints, and execution parameters." ;
+    rdfs:subClassOf bflow:Crystal .
+
+:MissionObjective rdf:type owl:Class ;
+    rdfs:label "Mission Objective" ;
+    rdfs:comment "A specific, measurable objective within a mission crystal." ;
+    rdfs:subClassOf :Goal .
+
+:ExecutionConstraint rdf:type owl:Class ;
+    rdfs:label "Execution Constraint" ;
+    rdfs:comment "Constraints that limit or guide mission execution (time, resources, dependencies)." ;
+    rdfs:subClassOf :Constraint .
+
+:MissionStatus rdf:type owl:Class ;
+    rdfs:label "Mission Status" ;
+    rdfs:comment "Current status of mission execution (pending, active, completed, failed)." .
+
+:MissionReceipt rdf:type owl:Class ;
+    rdfs:label "Mission Receipt" ;
+    rdfs:comment "Cryptographically sealed receipt proving mission completion and results." ;
+    rdfs:subClassOf spr:Receipt .
+
+:CrystalFabricator rdf:type owl:Class ;
+    rdfs:label "Crystal Fabricator" ;
+    rdfs:comment "Agent or system responsible for fabricating mission crystals from requirements." ;
+    rdfs:subClassOf bgen:ttl2dspy .
+
+#################################################################
+#    N-Dimensional Marketplace
+#################################################################
+
+:Marketplace rdf:type owl:Class ;
+    rdfs:label "N-Dimensional Marketplace" ;
+    rdfs:comment "Multi-dimensional marketplace for trading various types of assets and services." ;
+    rdfs:subClassOf :TradingVenue .
+
+:MarketplaceDimension rdf:type owl:Class ;
+    rdfs:label "Marketplace Dimension" ;
+    rdfs:comment "A dimension of the marketplace (assets, services, data, computation, etc.)." .
+
+:TradableAsset rdf:type owl:Class ;
+    rdfs:label "Tradable Asset" ;
+    rdfs:comment "Any asset that can be traded within the marketplace." ;
+    rdfs:subClassOf :Asset .
+
+:ServiceOffering rdf:type owl:Class ;
+    rdfs:label "Service Offering" ;
+    rdfs:comment "A service offered for trade within the marketplace." ;
+    rdfs:subClassOf :TradableAsset .
+
+:ComputationResource rdf:type owl:Class ;
+    rdfs:label "Computation Resource" ;
+    rdfs:comment "Computational resources (CPU, GPU, storage) offered for trade." ;
+    rdfs:subClassOf :TradableAsset .
+
+:DataAsset rdf:type owl:Class ;
+    rdfs:label "Data Asset" ;
+    rdfs:comment "Data sets, models, or insights offered for trade." ;
+    rdfs:subClassOf :TradableAsset .
+
+:MarketTransaction rdf:type owl:Class ;
+    rdfs:label "Market Transaction" ;
+    rdfs:comment "A completed transaction within the marketplace with cryptographic proof." ;
+    rdfs:subClassOf :Transaction .
+
+:MarketParticipant rdf:type owl:Class ;
+    rdfs:label "Market Participant" ;
+    rdfs:comment "An entity participating in marketplace transactions (buyer, seller, broker)." ;
+    rdfs:subClassOf :User .
+
+#################################################################
+#    System Integration & Infrastructure
+#################################################################
+
+:SupabaseTable rdf:type owl:Class ;
+    rdfs:label "Supabase Table" ;
+    rdfs:comment "A table within the Supabase database mapped to ontology classes." ;
+    rdfs:subClassOf :DatabaseTable .
+
+:RowLevelSecurity rdf:type owl:Class ;
+    rdfs:label "Row Level Security Policy" ;
+    rdfs:comment "RLS policy in Supabase enforcing access control at the row level." ;
+    rdfs:subClassOf :SecurityPolicy .
+
+:DatabaseMigration rdf:type owl:Class ;
+    rdfs:label "Database Migration" ;
+    rdfs:comment "A versioned database schema migration with rollback capabilities." ;
+    rdfs:subClassOf :SchemaChange .
+
+:APIEndpoint rdf:type owl:Class ;
+    rdfs:label "API Endpoint" ;
+    rdfs:comment "RESTful API endpoint generated from ontology specifications." ;
+    rdfs:subClassOf :WebService .
+
+:NuxtComponent rdf:type owl:Class ;
+    rdfs:label "Nuxt Component" ;
+    rdfs:comment "Vue.js component within the Nuxt application layer." ;
+    rdfs:subClassOf :UIComponent .
+
+:TypedClient rdf:type owl:Class ;
+    rdfs:label "Typed Client" ;
+    rdfs:comment "Type-safe client SDK generated from ontology and SHACL specifications." ;
+    rdfs:subClassOf :ClientSDK .
+
+#################################################################
+#    Object Properties - Identity & Authentication
+#################################################################
+
+:hasProfile rdf:type owl:ObjectProperty ;
+    rdfs:label "has profile" ;
+    rdfs:domain :User ;
+    rdfs:range :UserProfile ;
+    rdfs:comment "Associates a user with their profile information." .
+
+:authenticatedBy rdf:type owl:ObjectProperty ;
+    rdfs:label "authenticated by" ;
+    rdfs:domain :User ;
+    rdfs:range :AuthenticationMethod ;
+    rdfs:comment "Indicates which authentication method was used for a user." .
+
+:hasSessionToken rdf:type owl:ObjectProperty ;
+    rdfs:label "has session token" ;
+    rdfs:domain :User ;
+    rdfs:range :SessionToken ;
+    rdfs:comment "Associates a user with their current session token." .
+
+:hasRefreshToken rdf:type owl:ObjectProperty ;
+    rdfs:label "has refresh token" ;
+    rdfs:domain :User ;
+    rdfs:range :RefreshToken ;
+    rdfs:comment "Associates a user with their refresh token." .
+
+#################################################################
+#    Object Properties - Document Management
+#################################################################
+
+:hasDocument rdf:type owl:ObjectProperty ;
+    rdfs:label "has document" ;
+    rdfs:domain :User ;
+    rdfs:range :Document ;
+    rdfs:comment "Associates a user with documents they own or have access to." .
+
+:encryptedWith rdf:type owl:ObjectProperty ;
+    rdfs:label "encrypted with" ;
+    rdfs:domain :Document ;
+    rdfs:range :EncryptionKey ;
+    rdfs:comment "Indicates which encryption key was used to encrypt a document." .
+
+:hasMetadata rdf:type owl:ObjectProperty ;
+    rdfs:label "has metadata" ;
+    rdfs:domain :Document ;
+    rdfs:range :DocumentMetadata ;
+    rdfs:comment "Associates a document with its metadata." .
+
+:hasVersion rdf:type owl:ObjectProperty ;
+    rdfs:label "has version" ;
+    rdfs:domain :Document ;
+    rdfs:range :DocumentVersion ;
+    rdfs:comment "Associates a document with its versions." .
+
+:hasPermission rdf:type owl:ObjectProperty ;
+    rdfs:label "has permission" ;
+    rdfs:domain :User ;
+    rdfs:range :AccessPermission ;
+    rdfs:comment "Associates a user with their access permissions." .
+
+:belongsToCollection rdf:type owl:ObjectProperty ;
+    rdfs:label "belongs to collection" ;
+    rdfs:domain :Document ;
+    rdfs:range :DocumentCollection ;
+    rdfs:comment "Indicates that a document belongs to a specific collection." .
+
+#################################################################
+#    Object Properties - Mission Crystals
+#################################################################
+
+:hasMissionCrystal rdf:type owl:ObjectProperty ;
+    rdfs:label "has mission crystal" ;
+    rdfs:domain :User ;
+    rdfs:range :MissionCrystal ;
+    rdfs:comment "Associates a user with mission crystals they own or are assigned to." .
+
+:hasObjective rdf:type owl:ObjectProperty ;
+    rdfs:label "has objective" ;
+    rdfs:domain :MissionCrystal ;
+    rdfs:range :MissionObjective ;
+    rdfs:comment "Associates a mission crystal with its objectives." .
+
+:hasConstraint rdf:type owl:ObjectProperty ;
+    rdfs:label "has constraint" ;
+    rdfs:domain :MissionCrystal ;
+    rdfs:range :ExecutionConstraint ;
+    rdfs:comment "Associates a mission crystal with its execution constraints." .
+
+:hasStatus rdf:type owl:ObjectProperty ;
+    rdfs:label "has status" ;
+    rdfs:domain :MissionCrystal ;
+    rdfs:range :MissionStatus ;
+    rdfs:comment "Indicates the current status of a mission crystal." .
+
+:generatesReceipt rdf:type owl:ObjectProperty ;
+    rdfs:label "generates receipt" ;
+    rdfs:domain :MissionCrystal ;
+    rdfs:range :MissionReceipt ;
+    rdfs:comment "Associates a completed mission with its cryptographic receipt." .
+
+:fabricatedBy rdf:type owl:ObjectProperty ;
+    rdfs:label "fabricated by" ;
+    rdfs:domain :MissionCrystal ;
+    rdfs:range :CrystalFabricator ;
+    rdfs:comment "Indicates which fabricator created a mission crystal." .
+
+#################################################################
+#    Object Properties - Marketplace
+#################################################################
+
+:participatesIn rdf:type owl:ObjectProperty ;
+    rdfs:label "participates in" ;
+    rdfs:domain :MarketParticipant ;
+    rdfs:range :Marketplace ;
+    rdfs:comment "Indicates that a participant is active in a marketplace." .
+
+:hasDimension rdf:type owl:ObjectProperty ;
+    rdfs:label "has dimension" ;
+    rdfs:domain :Marketplace ;
+    rdfs:range :MarketplaceDimension ;
+    rdfs:comment "Associates a marketplace with its dimensions." .
+
+:offersAsset rdf:type owl:ObjectProperty ;
+    rdfs:label "offers asset" ;
+    rdfs:domain :MarketParticipant ;
+    rdfs:range :TradableAsset ;
+    rdfs:comment "Indicates that a participant offers an asset for trade." .
+
+:executesTransaction rdf:type owl:ObjectProperty ;
+    rdfs:label "executes transaction" ;
+    rdfs:domain :MarketParticipant ;
+    rdfs:range :MarketTransaction ;
+    rdfs:comment "Associates a participant with transactions they've executed." .
+
+:tradedIn rdf:type owl:ObjectProperty ;
+    rdfs:label "traded in" ;
+    rdfs:domain :TradableAsset ;
+    rdfs:range :MarketplaceDimension ;
+    rdfs:comment "Indicates which marketplace dimension an asset is traded in." .
+
+#################################################################
+#    Object Properties - System Integration
+#################################################################
+
+:mapsToTable rdf:type owl:ObjectProperty ;
+    rdfs:label "maps to table" ;
+    rdfs:domain owl:Class ;
+    rdfs:range :SupabaseTable ;
+    rdfs:comment "Maps an ontology class to a corresponding Supabase table." .
+
+:protectedBy rdf:type owl:ObjectProperty ;
+    rdfs:label "protected by" ;
+    rdfs:domain :SupabaseTable ;
+    rdfs:range :RowLevelSecurity ;
+    rdfs:comment "Associates a table with its row-level security policies." .
+
+:implementedBy rdf:type owl:ObjectProperty ;
+    rdfs:label "implemented by" ;
+    rdfs:domain :APIEndpoint ;
+    rdfs:range :NuxtComponent ;
+    rdfs:comment "Indicates which Nuxt component implements an API endpoint." .
+
+:generatesClient rdf:type owl:ObjectProperty ;
+    rdfs:label "generates client" ;
+    rdfs:domain owl:Ontology ;
+    rdfs:range :TypedClient ;
+    rdfs:comment "Indicates that an ontology generates a typed client SDK." .
+
+#################################################################
+#    Data Properties - Core Attributes
+#################################################################
+
+:userId rdf:type owl:DatatypeProperty ;
+    rdfs:label "user ID" ;
+    rdfs:domain :User ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Unique identifier for a user (UUID format)." .
+
+:email rdf:type owl:DatatypeProperty ;
+    rdfs:label "email" ;
+    rdfs:domain :User ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Email address of the user." .
+
+:username rdf:type owl:DatatypeProperty ;
+    rdfs:label "username" ;
+    rdfs:domain :User ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Unique username for the user." .
+
+:createdAt rdf:type owl:DatatypeProperty ;
+    rdfs:label "created at" ;
+    rdfs:domain owl:Thing ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Timestamp when the entity was created." .
+
+:updatedAt rdf:type owl:DatatypeProperty ;
+    rdfs:label "updated at" ;
+    rdfs:domain owl:Thing ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Timestamp when the entity was last updated." .
+
+:isActive rdf:type owl:DatatypeProperty ;
+    rdfs:label "is active" ;
+    rdfs:domain owl:Thing ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Indicates whether an entity is currently active." .
+
+#################################################################
+#    Data Properties - Document Management
+#################################################################
+
+:documentId rdf:type owl:DatatypeProperty ;
+    rdfs:label "document ID" ;
+    rdfs:domain :Document ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Unique identifier for a document." .
+
+:fileName rdf:type owl:DatatypeProperty ;
+    rdfs:label "file name" ;
+    rdfs:domain :Document ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Original filename of the document." .
+
+:fileSize rdf:type owl:DatatypeProperty ;
+    rdfs:label "file size" ;
+    rdfs:domain :Document ;
+    rdfs:range xsd:long ;
+    rdfs:comment "Size of the document in bytes." .
+
+:mimeType rdf:type owl:DatatypeProperty ;
+    rdfs:label "MIME type" ;
+    rdfs:domain :Document ;
+    rdfs:range xsd:string ;
+    rdfs:comment "MIME type of the document." .
+
+:hashValue rdf:type owl:DatatypeProperty ;
+    rdfs:label "hash value" ;
+    rdfs:domain :Document ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Cryptographic hash of the document content." .
+
+:encryptionAlgorithm rdf:type owl:DatatypeProperty ;
+    rdfs:label "encryption algorithm" ;
+    rdfs:domain :EncryptionKey ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Post-quantum cryptographic algorithm used (Kyber, NTRU, etc.)." .
+
+#################################################################
+#    Data Properties - Mission Crystals
+#################################################################
+
+:crystalId rdf:type owl:DatatypeProperty ;
+    rdfs:label "crystal ID" ;
+    rdfs:domain :MissionCrystal ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Unique identifier for a mission crystal." .
+
+:missionTitle rdf:type owl:DatatypeProperty ;
+    rdfs:label "mission title" ;
+    rdfs:domain :MissionCrystal ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Human-readable title for the mission." .
+
+:priority rdf:type owl:DatatypeProperty ;
+    rdfs:label "priority" ;
+    rdfs:domain :MissionCrystal ;
+    rdfs:range xsd:int ;
+    rdfs:comment "Priority level of the mission (1-10 scale)." .
+
+:estimatedDuration rdf:type owl:DatatypeProperty ;
+    rdfs:label "estimated duration" ;
+    rdfs:domain :MissionCrystal ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Estimated time to complete the mission." .
+
+:statusValue rdf:type owl:DatatypeProperty ;
+    rdfs:label "status value" ;
+    rdfs:domain :MissionStatus ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Current status: pending, active, completed, failed, cancelled." .
+
+#################################################################
+#    Data Properties - Marketplace
+#################################################################
+
+:assetId rdf:type owl:DatatypeProperty ;
+    rdfs:label "asset ID" ;
+    rdfs:domain :TradableAsset ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Unique identifier for a tradable asset." .
+
+:assetPrice rdf:type owl:DatatypeProperty ;
+    rdfs:label "asset price" ;
+    rdfs:domain :TradableAsset ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Current price of the asset in marketplace currency." .
+
+:dimensionName rdf:type owl:DatatypeProperty ;
+    rdfs:label "dimension name" ;
+    rdfs:domain :MarketplaceDimension ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Name of the marketplace dimension." .
+
+:transactionId rdf:type owl:DatatypeProperty ;
+    rdfs:label "transaction ID" ;
+    rdfs:domain :MarketTransaction ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Unique identifier for a market transaction." .
+
+:transactionAmount rdf:type owl:DatatypeProperty ;
+    rdfs:label "transaction amount" ;
+    rdfs:domain :MarketTransaction ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Amount involved in the transaction." .
+
+#################################################################
+#    SHACL Shapes for Validation
+#################################################################
+
+:UserShape rdf:type sh:NodeShape ;
+    sh:targetClass :User ;
+    sh:property [
+        sh:path :userId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" ;
+    ] ;
+    sh:property [
+        sh:path :email ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[^@]+@[^@]+\\.[^@]+$" ;
+    ] ;
+    sh:property [
+        sh:path :username ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 3 ;
+        sh:maxLength 50 ;
+    ] ;
+    sh:property [
+        sh:path :createdAt ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path :hasProfile ;
+        sh:class :UserProfile ;
+        sh:maxCount 1 ;
+    ] .
+
+:DocumentShape rdf:type sh:NodeShape ;
+    sh:targetClass :Document ;
+    sh:property [
+        sh:path :documentId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^doc_[0-9a-f]{32}$" ;
+    ] ;
+    sh:property [
+        sh:path :fileName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:maxLength 255 ;
+    ] ;
+    sh:property [
+        sh:path :fileSize ;
+        sh:datatype xsd:long ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0 ;
+    ] ;
+    sh:property [
+        sh:path :hashValue ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[0-9a-f]{64}$" ;
+    ] ;
+    sh:property [
+        sh:path :encryptedWith ;
+        sh:class :EncryptionKey ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] .
+
+:MissionCrystalShape rdf:type sh:NodeShape ;
+    sh:targetClass :MissionCrystal ;
+    sh:property [
+        sh:path :crystalId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^crystal_[0-9a-f]{32}$" ;
+    ] ;
+    sh:property [
+        sh:path :missionTitle ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 5 ;
+        sh:maxLength 200 ;
+    ] ;
+    sh:property [
+        sh:path :priority ;
+        sh:datatype xsd:int ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 10 ;
+    ] ;
+    sh:property [
+        sh:path :hasObjective ;
+        sh:class :MissionObjective ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path :hasStatus ;
+        sh:class :MissionStatus ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] .
+
+:TradableAssetShape rdf:type sh:NodeShape ;
+    sh:targetClass :TradableAsset ;
+    sh:property [
+        sh:path :assetId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^asset_[0-9a-f]{32}$" ;
+    ] ;
+    sh:property [
+        sh:path :assetPrice ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+    ] ;
+    sh:property [
+        sh:path :tradedIn ;
+        sh:class :MarketplaceDimension ;
+        sh:minCount 1 ;
+    ] .
+
+:MarketTransactionShape rdf:type sh:NodeShape ;
+    sh:targetClass :MarketTransaction ;
+    sh:property [
+        sh:path :transactionId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^tx_[0-9a-f]{64}$" ;
+    ] ;
+    sh:property [
+        sh:path :transactionAmount ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minExclusive 0.0 ;
+    ] ;
+    sh:property [
+        sh:path :createdAt ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] .
+
+#################################################################
+#    Inference Rules & Constraints
+#################################################################
+
+# Rule: User must have at least one authentication method
+[] rdf:type sh:NodeShape ;
+    sh:targetClass :User ;
+    sh:property [
+        sh:path :authenticatedBy ;
+        sh:class :AuthenticationMethod ;
+        sh:minCount 1 ;
+        sh:message "User must have at least one authentication method" ;
+    ] .
+
+# Rule: Document must have exactly one encryption key
+[] rdf:type sh:NodeShape ;
+    sh:targetClass :Document ;
+    sh:property [
+        sh:path :encryptedWith ;
+        sh:class :EncryptionKey ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Document must be encrypted with exactly one key" ;
+    ] .
+
+# Rule: Mission crystal must have at least one objective
+[] rdf:type sh:NodeShape ;
+    sh:targetClass :MissionCrystal ;
+    sh:property [
+        sh:path :hasObjective ;
+        sh:class :MissionObjective ;
+        sh:minCount 1 ;
+        sh:message "Mission crystal must have at least one objective" ;
+    ] .
+
+# Rule: Active session tokens must not be expired
+[] rdf:type sh:NodeShape ;
+    sh:targetClass :SessionToken ;
+    sh:sparql [
+        sh:select "SELECT $this WHERE { $this :isActive true . $this :expiresAt ?exp . FILTER (?exp < NOW()) }" ;
+        sh:message "Active session token cannot be expired" ;
+    ] .
+
+#################################################################
+#    Supabase Integration Mappings
+#################################################################
+
+# Table mappings for code generation
+:users_table rdf:type :SupabaseTable ;
+    rdfs:label "users" ;
+    :mapsFrom :User ;
+    :hasColumns "id, email, username, created_at, updated_at, is_active" .
+
+:documents_table rdf:type :SupabaseTable ;
+    rdfs:label "documents" ;
+    :mapsFrom :Document ;
+    :hasColumns "id, user_id, filename, file_size, mime_type, hash_value, encrypted_key_id, created_at" .
+
+:mission_crystals_table rdf:type :SupabaseTable ;
+    rdfs:label "mission_crystals" ;
+    :mapsFrom :MissionCrystal ;
+    :hasColumns "id, user_id, title, priority, status, estimated_duration, created_at, updated_at" .
+
+:tradable_assets_table rdf:type :SupabaseTable ;
+    rdfs:label "tradable_assets" ;
+    :mapsFrom :TradableAsset ;
+    :hasColumns "id, owner_id, asset_type, price, dimension_id, created_at, is_available" .
+
+:market_transactions_table rdf:type :SupabaseTable ;
+    rdfs:label "market_transactions" ;
+    :mapsFrom :MarketTransaction ;
+    :hasColumns "id, buyer_id, seller_id, asset_id, amount, transaction_hash, created_at" .
+
+#################################################################
+#    Nuxt Component Mappings
+#################################################################
+
+:UserProfileComponent rdf:type :NuxtComponent ;
+    rdfs:label "UserProfile.vue" ;
+    :implementsClass :User ;
+    :hasTemplate "user-profile-template" .
+
+:DocumentManagerComponent rdf:type :NuxtComponent ;
+    rdfs:label "DocumentManager.vue" ;
+    :implementsClass :Document ;
+    :hasTemplate "document-manager-template" .
+
+:MissionCrystalDashboard rdf:type :NuxtComponent ;
+    rdfs:label "MissionDashboard.vue" ;
+    :implementsClass :MissionCrystal ;
+    :hasTemplate "mission-dashboard-template" .
+
+:MarketplaceComponent rdf:type :NuxtComponent ;
+    rdfs:label "MarketplaceView.vue" ;
+    :implementsClass :Marketplace ;
+    :hasTemplate "marketplace-template" .
+
+#################################################################
+#    API Endpoint Definitions
+#################################################################
+
+:UserAPI rdf:type :APIEndpoint ;
+    rdfs:label "User Management API" ;
+    :basePath "/api/users" ;
+    :implementsClass :User ;
+    :supportsMethods "GET, POST, PUT, DELETE" .
+
+:DocumentAPI rdf:type :APIEndpoint ;
+    rdfs:label "Document Management API" ;
+    :basePath "/api/documents" ;
+    :implementsClass :Document ;
+    :supportsMethods "GET, POST, PUT, DELETE" ;
+    :requiresAuthentication true .
+
+:MissionAPI rdf:type :APIEndpoint ;
+    rdfs:label "Mission Crystal API" ;
+    :basePath "/api/missions" ;
+    :implementsClass :MissionCrystal ;
+    :supportsMethods "GET, POST, PUT, DELETE" ;
+    :requiresAuthentication true .
+
+:MarketplaceAPI rdf:type :APIEndpoint ;
+    rdfs:label "Marketplace API" ;
+    :basePath "/api/marketplace" ;
+    :implementsClass :Marketplace ;
+    :supportsMethods "GET, POST" ;
+    :requiresAuthentication true .

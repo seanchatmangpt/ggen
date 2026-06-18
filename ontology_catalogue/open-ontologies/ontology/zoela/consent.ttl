@@ -1,0 +1,274 @@
+@prefix zoe:     <https://zoela.org/ontology/> .
+@prefix schema:  <https://schema.org/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix odrl:     <http://www.w3.org/ns/odrl/2/> .
+
+# ============================================================================
+# ZOE LA Mobile — Consent Ontology
+# ============================================================================
+# Models the consent types required for route stage transitions in the ZOE LA
+# Mobile combinatorial service graph.
+#
+# Consent records are anchored to schema:AgreeAction, which provides:
+#   schema:agent  — who granted consent
+#   schema:object — what was consented to
+#   schema:startTime / schema:endTime — temporal bounds
+#
+# Route stage gating:
+#   Each zoe:ConsentRequirement names a zoe:blocksRouteStage value. A route
+#   transition to that stage is blocked unless an active Consent of the
+#   required type exists for the target person.
+#
+# Guardian consent:
+#   When zoe:isGuardianConsent is true, zoe:grantedBy records the guardian
+#   UUID (not the minor) and zoe:grantedFor records the minor's person UUID.
+# ============================================================================
+
+zoe:ConsentOntology a owl:Ontology ;
+    rdfs:label   "ZOE LA Consent Ontology"@en ;
+    rdfs:comment "Defines consent types required for route stage transitions in the ZOE LA Mobile combinatorial service graph. Anchored to schema:AgreeAction."@en ;
+    dcterms:creator  "Sean Chatman" ;
+    dcterms:created  "2026-05-17"^^xsd:date ;
+    dcterms:license  <https://opensource.org/licenses/MIT> ;
+    owl:versionInfo  "1.0.0" .
+
+# ============================================================================
+# Properties — Consent
+# ============================================================================
+
+zoe:consentCode a owl:DatatypeProperty ;
+    rdfs:label   "consent code"@en ;
+    rdfs:comment "Short uppercase code uniquely identifying the consent type; matches the corresponding ConsentType concept notation."@en ;
+    skos:notation "consent_code" ;
+    rdfs:domain  zoe:Consent ;
+    rdfs:range   xsd:string .
+
+zoe:consentType a owl:ObjectProperty ;
+    rdfs:label   "consent type"@en ;
+    rdfs:comment "Links a Consent record to the SKOS ConsentType concept that classifies it."@en ;
+    skos:notation "consent_type" ;
+    rdfs:domain  zoe:Consent ;
+    rdfs:range   skos:Concept .
+
+zoe:grantedAt a owl:DatatypeProperty ;
+    rdfs:label   "granted at"@en ;
+    rdfs:comment "ISO-8601 timestamp at which the consent was recorded as granted."@en ;
+    skos:notation "granted_at" ;
+    rdfs:domain  zoe:Consent ;
+    rdfs:range   xsd:dateTime .
+
+zoe:consentExpiresAt a owl:DatatypeProperty ;
+    rdfs:label   "consent expires at"@en ;
+    rdfs:comment "Optional ISO-8601 timestamp after which the consent is no longer valid. Null means indefinite."@en ;
+    skos:notation "consent_expires_at" ;
+    rdfs:domain  zoe:Consent ;
+    rdfs:range   xsd:dateTime .
+
+zoe:grantedBy a owl:DatatypeProperty ;
+    rdfs:label   "granted by"@en ;
+    rdfs:comment "UUID of the person who granted consent. For guardian consent this is the guardian's UUID, not the minor's."@en ;
+    skos:notation "granted_by" ;
+    rdfs:domain  zoe:Consent ;
+    rdfs:range   xsd:string .
+
+zoe:grantedFor a owl:DatatypeProperty ;
+    rdfs:label   "granted for"@en ;
+    rdfs:comment "UUID of the subject person for whom consent is being granted. Differs from grantedBy when isGuardianConsent is true."@en ;
+    skos:notation "granted_for" ;
+    rdfs:domain  zoe:Consent ;
+    rdfs:range   xsd:string .
+
+zoe:consentIsActive a owl:DatatypeProperty ;
+    rdfs:label   "consent is active"@en ;
+    rdfs:comment "Boolean flag. False when the consent has been explicitly revoked or has passed its expiry date."@en ;
+    skos:notation "consent_is_active" ;
+    rdfs:domain  zoe:Consent ;
+    rdfs:range   xsd:boolean .
+
+zoe:hasDocument a owl:DatatypeProperty ;
+    rdfs:label   "has document"@en ;
+    rdfs:comment "URL of the signed consent document stored in object storage (e.g., Supabase Storage signed URL)."@en ;
+    skos:notation "document_url" ;
+    rdfs:domain  zoe:Consent ;
+    rdfs:range   xsd:string .
+
+zoe:isGuardianConsent a owl:DatatypeProperty ;
+    rdfs:label   "is guardian consent"@en ;
+    rdfs:comment "When true, the consent was granted by a parent or legal guardian on behalf of a minor. grantedBy must record the guardian's UUID."@en ;
+    skos:notation "is_guardian_consent" ;
+    rdfs:domain  zoe:Consent ;
+    rdfs:range   xsd:boolean .
+
+# ============================================================================
+# Properties — ConsentRequirement
+# ============================================================================
+
+zoe:requiresConsentType a owl:ObjectProperty ;
+    rdfs:label   "requires consent type"@en ;
+    rdfs:comment "The SKOS ConsentType concept that must be present and active before the blocked route stage may be entered."@en ;
+    skos:notation "requires_consent_type" ;
+    rdfs:domain  zoe:ConsentRequirement ;
+    rdfs:range   skos:Concept .
+
+zoe:blocksRouteStage a owl:DatatypeProperty ;
+    rdfs:label   "blocks route stage"@en ;
+    rdfs:comment "Identifier of the route stage (e.g., 'youth_camp_enroll', 'partner_referral_send') that is blocked until the required consent is on file."@en ;
+    skos:notation "blocks_route_stage" ;
+    rdfs:domain  zoe:ConsentRequirement ;
+    rdfs:range   xsd:string .
+
+zoe:refusalMessageCode a owl:DatatypeProperty ;
+    rdfs:label   "refusal message code"@en ;
+    rdfs:comment "i18n message code returned to the client when this consent requirement blocks a stage transition."@en ;
+    skos:notation "refusal_message_code" ;
+    rdfs:domain  zoe:ConsentRequirement ;
+    rdfs:range   xsd:string .
+
+# ============================================================================
+# Classes
+# ============================================================================
+
+zoe:Consent a owl:Class ;
+    rdfs:label      "Consent"@en ;
+    rdfs:comment    "A recorded consent granted by or on behalf of a person for a specific purpose within the ZOE LA Ministry. Subclass of schema:AgreeAction to inherit agent, object, and time metadata."@en ;
+    rdfs:subClassOf schema:AgreeAction .
+
+zoe:ConsentRequirement a owl:Class ;
+    rdfs:label      "Consent Requirement"@en ;
+    rdfs:comment    "A gate condition that blocks a named route stage until an active Consent of the required type exists for the target person."@en ;
+    rdfs:subClassOf owl:Thing ;
+    rdfs:subClassOf odrl:Duty .
+
+# ============================================================================
+# SKOS ConceptScheme — Consent Types
+# ============================================================================
+
+zoe:ConsentTypeScheme a skos:ConceptScheme ;
+    rdfs:label   "ZOE LA Consent Type Scheme"@en ;
+    rdfs:comment "Controlled vocabulary of all consent types required across ZOE LA Mobile route stages."@en ;
+    skos:prefLabel "ZOE LA Consent Types"@en .
+
+# ── CommunicationConsent ──────────────────────────────────────────────────────
+
+zoe:CommunicationConsent a skos:Concept ;
+    rdfs:label      "Communication Consent"@en ;
+    skos:prefLabel  "Communication Consent"@en ;
+    skos:definition "Consent to receive communications from ZOE LA including emails, SMS, and push notifications."@en ;
+    skos:notation   "COMM" ;
+    skos:inScheme   zoe:ConsentTypeScheme .
+
+# ── GuardianConsent ───────────────────────────────────────────────────────────
+
+zoe:GuardianConsent a skos:Concept ;
+    rdfs:label      "Guardian Consent"@en ;
+    skos:prefLabel  "Guardian Consent"@en ;
+    skos:definition "Parental or legal guardian consent for minors participating in ministry activities including events, camps, and service routes."@en ;
+    skos:notation   "GUARD" ;
+    skos:inScheme   zoe:ConsentTypeScheme .
+
+# ── MedicalConsent ────────────────────────────────────────────────────────────
+
+zoe:MedicalConsent a skos:Concept ;
+    rdfs:label      "Medical Consent"@en ;
+    skos:prefLabel  "Medical Consent"@en ;
+    skos:definition "Consent for emergency medical treatment in camp or event settings where the guardian may not be immediately reachable."@en ;
+    skos:notation   "MED" ;
+    skos:inScheme   zoe:ConsentTypeScheme .
+
+# ── ReferralConsent ───────────────────────────────────────────────────────────
+
+zoe:ReferralConsent a skos:Concept ;
+    rdfs:label      "Referral Consent"@en ;
+    skos:prefLabel  "Referral Consent"@en ;
+    skos:definition "Consent to share personal information with partner organizations for the purpose of coordinated service delivery."@en ;
+    skos:notation   "REF" ;
+    skos:inScheme   zoe:ConsentTypeScheme .
+
+# ── MediaConsent ──────────────────────────────────────────────────────────────
+
+zoe:MediaConsent a skos:Concept ;
+    rdfs:label      "Media Consent"@en ;
+    skos:prefLabel  "Media Consent"@en ;
+    skos:definition "Consent for photo and video recording of the person and for publication of that media in ministry communications."@en ;
+    skos:notation   "MEDIA" ;
+    skos:inScheme   zoe:ConsentTypeScheme .
+
+# ── DataSharingConsent ────────────────────────────────────────────────────────
+
+zoe:DataSharingConsent a skos:Concept ;
+    rdfs:label      "Data Sharing Consent"@en ;
+    skos:prefLabel  "Data Sharing Consent"@en ;
+    skos:definition "Consent for sharing personal data with external service providers used by ZOE LA for ministry operations (e.g., background check vendors, communication platforms)."@en ;
+    skos:notation   "DATA" ;
+    skos:inScheme   zoe:ConsentTypeScheme .
+
+# ── VolunteerBackgroundConsent ────────────────────────────────────────────────
+
+zoe:VolunteerBackgroundConsent a skos:Concept ;
+    rdfs:label      "Background Check Consent"@en ;
+    skos:prefLabel  "Background Check Consent"@en ;
+    skos:definition "Consent for a criminal background check required before assignment to roles that include YouthLeaderRole or CareTeamRole."@en ;
+    skos:notation   "BGC" ;
+    skos:inScheme   zoe:ConsentTypeScheme .
+
+# ── Scheme top-concept links ──────────────────────────────────────────────────
+
+zoe:ConsentTypeScheme skos:hasTopConcept
+    zoe:CommunicationConsent,
+    zoe:GuardianConsent,
+    zoe:MedicalConsent,
+    zoe:ReferralConsent,
+    zoe:MediaConsent,
+    zoe:DataSharingConsent,
+    zoe:VolunteerBackgroundConsent .
+
+# ============================================================================
+# ConsentRequirement Instances — Route Stage Gates
+# ============================================================================
+
+zoe:GuardianConsentForYouthCamp a zoe:ConsentRequirement ;
+    rdfs:label              "Guardian Consent for Youth Camp Enrollment"@en ;
+    skos:notation           "REQ-GUARD-CAMP" ;
+    zoe:requiresConsentType zoe:GuardianConsent ;
+    zoe:blocksRouteStage    "youth_camp_enroll" ;
+    zoe:refusalMessageCode  "consent.guardian.required_for_youth_camp" .
+
+zoe:MedicalConsentForCamp a zoe:ConsentRequirement ;
+    rdfs:label              "Medical Consent for Camp or Event"@en ;
+    skos:notation           "REQ-MED-CAMP" ;
+    zoe:requiresConsentType zoe:MedicalConsent ;
+    zoe:blocksRouteStage    "youth_camp_enroll" ;
+    zoe:refusalMessageCode  "consent.medical.required_for_camp" .
+
+zoe:ReferralConsentForPartner a zoe:ConsentRequirement ;
+    rdfs:label              "Referral Consent for Partner Organization Send"@en ;
+    skos:notation           "REQ-REF-PARTNER" ;
+    zoe:requiresConsentType zoe:ReferralConsent ;
+    zoe:blocksRouteStage    "partner_referral_send" ;
+    zoe:refusalMessageCode  "consent.referral.required_for_partner_send" .
+
+zoe:BackgroundCheckConsentForYouthRole a zoe:ConsentRequirement ;
+    rdfs:label              "Background Check Consent for Youth-Facing Role Assignment"@en ;
+    skos:notation           "REQ-BGC-YOUTH-ROLE" ;
+    zoe:requiresConsentType zoe:VolunteerBackgroundConsent ;
+    zoe:blocksRouteStage    "youth_role_assign" ;
+    zoe:refusalMessageCode  "consent.bgc.required_for_youth_role" .
+
+zoe:CommunicationConsentForOnboarding a zoe:ConsentRequirement ;
+    rdfs:label              "Communication Consent for Member Onboarding"@en ;
+    skos:notation           "REQ-COMM-ONBOARD" ;
+    zoe:requiresConsentType zoe:CommunicationConsent ;
+    zoe:blocksRouteStage    "member_onboard_complete" ;
+    zoe:refusalMessageCode  "consent.communication.required_for_onboarding" .
+
+zoe:DataSharingConsentForExternalProvider a zoe:ConsentRequirement ;
+    rdfs:label              "Data Sharing Consent for External Provider Integration"@en ;
+    skos:notation           "REQ-DATA-EXTERNAL" ;
+    zoe:requiresConsentType zoe:DataSharingConsent ;
+    zoe:blocksRouteStage    "external_provider_sync" ;
+    zoe:refusalMessageCode  "consent.data_sharing.required_for_external_sync" .

@@ -1,0 +1,37 @@
+# Performance Module
+# Part of trading ontology
+
+@prefix : <http://cns.io/trading/performance#> .
+@prefix trading: <http://cns.io/trading#> .
+@prefix cns: <http://cns.io/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# Performance Classes
+
+:PerformanceMetric a owl:Class ;
+    rdfs:label "Performance Metric" ;
+    rdfs:comment "Base class for performance measurements" .
+
+:LatencyMetric a owl:Class ;
+    rdfs:subClassOf :PerformanceMetric ;
+    rdfs:label "Latency Metric" .
+
+:ThroughputMetric a owl:Class ;
+    rdfs:subClassOf :PerformanceMetric ;
+    rdfs:label "Throughput Metric" .
+
+:order_matchPerformance a owl:Class ;
+    rdfs:subClassOf :PerformanceMetric ;
+    rdfs:label "Order Match Performance" ;
+    cns:targetTicks 8 .
+
+:risk_checkPerformance a owl:Class ;
+    rdfs:subClassOf :PerformanceMetric ;
+    rdfs:label "Risk Check Performance" ;
+    cns:targetTicks 8 .
+
+:data_parsePerformance a owl:Class ;
+    rdfs:subClassOf :PerformanceMetric ;
+    rdfs:label "Data Parse Performance" ;
+    cns:targetTicks 8 .
+

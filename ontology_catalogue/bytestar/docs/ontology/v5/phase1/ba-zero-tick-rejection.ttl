@@ -1,0 +1,1040 @@
+@prefix : <http://bytestar.org/ontology/zero-tick-rejection#> .
+@prefix ba: <http://bytestar.org/ontology/byteactor#> .
+@prefix be: <http://bytestar.org/ontology/byteethos#> .
+@prefix bf: <http://bytestar.org/ontology/byteflow#> .
+@prefix bc: <http://bytestar.org/ontology/bytecore#> .
+@prefix doe: <http://bytestar.org/ontology/doctrine-of-8#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix sp: <http://spinrdf.org/sp#> .
+
+<http://bytestar.org/ontology/zero-tick-rejection> rdf:type owl:Ontology ;
+    dct:title "Zero-Tick Rejection: ByteStar Instant Validation Ontology"@en ;
+    dct:description """The foundational ontology defining the zero-tick rejection mechanism that provides
+    instant, zero-overhead validation throughout the ByteStar ecosystem. This ontology establishes
+    the absolute binary nature of ByteStar validation where any violation results in immediate,
+    zero-cost rejection with no second chances or appeals."""@en ;
+    dct:creator "ByteStar Ecosystem"@en ;
+    dct:created "2025-01-01T00:00:00Z"^^xsd:dateTime ;
+    dct:modified "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    owl:versionInfo "5.0.0-phase1"@en ;
+    dct:license <https://opensource.org/licenses/MIT> ;
+    rdfs:seeAlso <http://bytestar.org/docs/zero-tick-rejection> ;
+    owl:imports <http://bytestar.org/ontology/byteactor> ,
+                <http://bytestar.org/ontology/byteethos> ,
+                <http://bytestar.org/ontology/byteflow> ,
+                <http://bytestar.org/ontology/bytecore> ,
+                <http://bytestar.org/ontology/doctrine-of-8> ;
+    # Fundamental system behavior declaration
+    :definesSystemBehavior :ZeroTickRejectionBehavior .
+
+#################################################################
+#    Core Zero-Tick Rejection Classes
+#################################################################
+
+###  http://bytestar.org/ontology/zero-tick-rejection#ZeroTickRejectionBehavior
+:ZeroTickRejectionBehavior rdf:type owl:Class ;
+                          rdfs:subClassOf ba:SystemBehavior ;
+                          rdfs:label "Zero-Tick Rejection Behavior"@en ;
+                          rdfs:comment """The fundamental system behavior that provides instant rejection
+                          of any violation with zero computational overhead. This behavior is immutable
+                          and operates at the hardware level for maximum performance."""@en ;
+                          :hasExecutionOverhead "0"^^xsd:nonNegativeInteger ;
+                          :isHardwareAccelerated "true"^^xsd:boolean ;
+                          :isImmutable "true"^^xsd:boolean ;
+                          :operatesAtCPULevel "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#InstantRejection
+:InstantRejection rdf:type owl:Class ;
+                 rdfs:subClassOf doe:ZeroTickRejection ;
+                 rdfs:label "Instant Rejection"@en ;
+                 rdfs:comment """The core rejection mechanism that operates with zero latency,
+                 zero overhead, and zero tolerance. Rejection decisions are binary and final."""@en ;
+                 :hasLatency "0"^^xsd:nonNegativeInteger ;
+                 :hasOverhead "0"^^xsd:nonNegativeInteger ;
+                 :isBinaryDecision "true"^^xsd:boolean ;
+                 :isAppealsAllowed "false"^^xsd:boolean ;
+                 :isFinal "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#RejectionTrigger
+:RejectionTrigger rdf:type owl:Class ;
+                 rdfs:subClassOf ba:SystemComponent ;
+                 rdfs:label "Rejection Trigger"@en ;
+                 rdfs:comment """Hardware-level triggers that detect violations and initiate
+                 instant rejection without software intervention."""@en ;
+                 :operatesInHardware "true"^^xsd:boolean ;
+                 :requiresSoftwareIntervention "false"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#BinaryValidation
+:BinaryValidation rdf:type owl:Class ;
+                 rdfs:subClassOf ba:ValidationMechanism ;
+                 rdfs:label "Binary Validation"@en ;
+                 rdfs:comment """Validation system that produces only binary outcomes: PASS or REJECT.
+                 No warnings, no partial passes, no conditional acceptance."""@en ;
+                 :hasOutcomeTypes (:Pass :Reject) ;
+                 :allowsWarnings "false"^^xsd:boolean ;
+                 :allowsPartialPass "false"^^xsd:boolean ;
+                 :allowsConditionalAcceptance "false"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#ValidationOutcome
+:ValidationOutcome rdf:type owl:Class ;
+                  rdfs:subClassOf ba:SystemState ;
+                  rdfs:label "Validation Outcome"@en ;
+                  rdfs:comment """The binary result of validation: either PASS or REJECT.
+                  No intermediate states or conditional outcomes are permitted."""@en .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#Pass
+:Pass rdf:type owl:Class ;
+     rdfs:subClassOf :ValidationOutcome ;
+     rdfs:label "Pass"@en ;
+     rdfs:comment """Validation outcome indicating complete compliance with all constraints.
+     Operation is allowed to proceed without restrictions."""@en ;
+     :allowsExecution "true"^^xsd:boolean ;
+     :hasRestrictions "false"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#Reject
+:Reject rdf:type owl:Class ;
+       rdfs:subClassOf :ValidationOutcome ;
+       rdfs:label "Reject"@en ;
+       rdfs:comment """Validation outcome indicating violation of one or more constraints.
+       Operation is immediately terminated with zero-tick rejection."""@en ;
+       :allowsExecution "false"^^xsd:boolean ;
+       :triggersRejection "true"^^xsd:boolean ;
+       :isRecoverable "false"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#DoctrineViolation
+:DoctrineViolation rdf:type owl:Class ;
+                  rdfs:subClassOf :RejectionTrigger ;
+                  rdfs:label "Doctrine Violation"@en ;
+                  rdfs:comment """Violation of the Doctrine of 8 performance constraint.
+                  Triggers immediate zero-tick rejection."""@en ;
+                  :violatesConstraint doe:TheDoctrineOfEight ;
+                  :hasRejectionType :PerformanceRejection .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#FraudDetection
+:FraudDetection rdf:type owl:Class ;
+               rdfs:subClassOf :RejectionTrigger ;
+               rdfs:label "Fraud Detection"@en ;
+               rdfs:comment """Detection of fraudulent or malicious activity that threatens
+               system integrity. Triggers immediate security rejection."""@en ;
+               :detectsMaliciousActivity "true"^^xsd:boolean ;
+               :hasRejectionType :SecurityRejection ;
+               :threatLevel :Critical .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#SecurityTrigger
+:SecurityTrigger rdf:type owl:Class ;
+                rdfs:subClassOf :RejectionTrigger ;
+                rdfs:label "Security Trigger"@en ;
+                rdfs:comment """Hardware-level security violations that compromise system integrity.
+                Operates at CPU microcode level for maximum protection."""@en ;
+                :operatesAtMicrocodeLevel "true"^^xsd:boolean ;
+                :hasRejectionType :SecurityRejection ;
+                :bypassable "false"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#ImmutableDecision
+:ImmutableDecision rdf:type owl:Class ;
+                  rdfs:subClassOf ba:SystemDecision ;
+                  rdfs:label "Immutable Decision"@en ;
+                  rdfs:comment """Rejection decisions that cannot be appealed, overridden, or modified.
+                  Once made, the decision is final and irreversible."""@en ;
+                  :canBeAppealed "false"^^xsd:boolean ;
+                  :canBeOverridden "false"^^xsd:boolean ;
+                  :canBeModified "false"^^xsd:boolean ;
+                  :isReversible "false"^^xsd:boolean ;
+                  :isFinal "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#PerformanceGuarantee
+:PerformanceGuarantee rdf:type owl:Class ;
+                     rdfs:subClassOf ba:SystemGuarantee ;
+                     rdfs:label "Performance Guarantee"@en ;
+                     rdfs:comment """Absolute guarantee that zero-tick rejection operates with
+                     zero overhead and provides deterministic performance."""@en ;
+                     :guaranteesZeroOverhead "true"^^xsd:boolean ;
+                     :guaranteesDeterministicBehavior "true"^^xsd:boolean ;
+                     :guaranteesConstantTime "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#RejectionType
+:RejectionType rdf:type owl:Class ;
+              rdfs:subClassOf ba:Classification ;
+              rdfs:label "Rejection Type"@en ;
+              rdfs:comment """Classification of different types of rejections based on
+              the nature of the violation."""@en .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#PerformanceRejection
+:PerformanceRejection rdf:type owl:Class ;
+                     rdfs:subClassOf :RejectionType ;
+                     rdfs:label "Performance Rejection"@en ;
+                     rdfs:comment """Rejection due to performance constraint violations,
+                     particularly Doctrine of 8 violations."""@en ;
+                     :violatesPerformanceConstraint "true"^^xsd:boolean ;
+                     :relatedConstraint doe:DoctrineOfEightLaw .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#SecurityRejection
+:SecurityRejection rdf:type owl:Class ;
+                  rdfs:subClassOf :RejectionType ;
+                  rdfs:label "Security Rejection"@en ;
+                  rdfs:comment """Rejection due to security violations, fraud detection,
+                  or threats to system integrity."""@en ;
+                  :threatensSystemIntegrity "true"^^xsd:boolean ;
+                  :requiresSecurityResponse "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#GovernanceRejection
+:GovernanceRejection rdf:type owl:Class ;
+                    rdfs:subClassOf :RejectionType ;
+                    rdfs:label "Governance Rejection"@en ;
+                    rdfs:comment """Rejection due to governance policy violations or
+                    compliance failures."""@en ;
+                    :violatesGovernancePolicy "true"^^xsd:boolean ;
+                    :affectsCompliance "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#IntegrityRejection
+:IntegrityRejection rdf:type owl:Class ;
+                   rdfs:subClassOf :RejectionType ;
+                   rdfs:label "Integrity Rejection"@en ;
+                   rdfs:comment """Rejection due to data integrity violations or
+                   corruption detection."""@en ;
+                   :detectsCorruption "true"^^xsd:boolean ;
+                   :threatenDataIntegrity "true"^^xsd:boolean .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://bytestar.org/ontology/zero-tick-rejection#triggersInstantRejection
+:triggersInstantRejection rdf:type owl:ObjectProperty ;
+                         rdfs:domain :RejectionTrigger ;
+                         rdfs:range :InstantRejection ;
+                         rdfs:label "triggers instant rejection"@en ;
+                         rdfs:comment "Indicates that a trigger causes instant rejection."@en .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#hasValidationOutcome
+:hasValidationOutcome rdf:type owl:ObjectProperty ,
+                               owl:FunctionalProperty ;
+                     rdfs:domain :BinaryValidation ;
+                     rdfs:range :ValidationOutcome ;
+                     rdfs:label "has validation outcome"@en ;
+                     rdfs:comment "Relates a validation to its binary outcome."@en .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#hasRejectionType
+:hasRejectionType rdf:type owl:ObjectProperty ,
+                           owl:FunctionalProperty ;
+                 rdfs:domain :InstantRejection ;
+                 rdfs:range :RejectionType ;
+                 rdfs:label "has rejection type"@en ;
+                 rdfs:comment "Classifies the type of rejection."@en .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#hasRejectionTrigger
+:hasRejectionTrigger rdf:type owl:ObjectProperty ;
+                    rdfs:domain ba:Operation ;
+                    rdfs:range :RejectionTrigger ;
+                    rdfs:label "has rejection trigger"@en ;
+                    rdfs:comment "Indicates what triggered the rejection of an operation."@en .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#implementsRejectionBehavior
+:implementsRejectionBehavior rdf:type owl:ObjectProperty ;
+                            rdfs:domain ba:SystemComponent ;
+                            rdfs:range :ZeroTickRejectionBehavior ;
+                            rdfs:label "implements rejection behavior"@en ;
+                            rdfs:comment "Indicates a component implements zero-tick rejection."@en .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#guarantees
+:guarantees rdf:type owl:ObjectProperty ;
+           rdfs:domain ba:System ;
+           rdfs:range :PerformanceGuarantee ;
+           rdfs:label "guarantees"@en ;
+           rdfs:comment "Indicates what performance guarantees a system provides."@en .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#violatesIntegrity
+:violatesIntegrity rdf:type owl:ObjectProperty ;
+                  rdfs:domain ba:Operation ;
+                  rdfs:range be:IntegrityConstraint ;
+                  rdfs:label "violates integrity"@en ;
+                  rdfs:comment "Indicates an operation violates system integrity."@en .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#detectsFraud
+:detectsFraud rdf:type owl:ObjectProperty ;
+             rdfs:domain :FraudDetection ;
+             rdfs:range ba:MaliciousActivity ;
+             rdfs:label "detects fraud"@en ;
+             rdfs:comment "Indicates fraud detection capability."@en .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#resultsInDecision
+:resultsInDecision rdf:type owl:ObjectProperty ,
+                            owl:FunctionalProperty ;
+                  rdfs:domain :InstantRejection ;
+                  rdfs:range :ImmutableDecision ;
+                  rdfs:label "results in decision"@en ;
+                  rdfs:comment "Links rejection to its immutable decision."@en .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#hasSecurityLevel
+:hasSecurityLevel rdf:type owl:ObjectProperty ,
+                           owl:FunctionalProperty ;
+                 rdfs:domain :SecurityTrigger ;
+                 rdfs:range be:SecurityLevel ;
+                 rdfs:label "has security level"@en ;
+                 rdfs:comment "Indicates the security level of a trigger."@en .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+###  http://bytestar.org/ontology/zero-tick-rejection#hasExecutionOverhead
+:hasExecutionOverhead rdf:type owl:DatatypeProperty ,
+                               owl:FunctionalProperty ;
+                     rdfs:domain :ZeroTickRejectionBehavior ;
+                     rdfs:range xsd:nonNegativeInteger ;
+                     rdfs:label "has execution overhead"@en ;
+                     rdfs:comment "The computational overhead in CPU cycles (must be 0)."@en .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#hasLatency
+:hasLatency rdf:type owl:DatatypeProperty ,
+                     owl:FunctionalProperty ;
+           rdfs:domain :InstantRejection ;
+           rdfs:range xsd:nonNegativeInteger ;
+           rdfs:label "has latency"@en ;
+           rdfs:comment "The latency in nanoseconds (must be 0 for instant rejection)."@en .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#hasOverhead
+:hasOverhead rdf:type owl:DatatypeProperty ,
+                      owl:FunctionalProperty ;
+            rdfs:domain :InstantRejection ;
+            rdfs:range xsd:nonNegativeInteger ;
+            rdfs:label "has overhead"@en ;
+            rdfs:comment "The computational overhead (must be 0)."@en .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#isBinaryDecision
+:isBinaryDecision rdf:type owl:DatatypeProperty ,
+                           owl:FunctionalProperty ;
+                 rdfs:domain :InstantRejection ;
+                 rdfs:range xsd:boolean ;
+                 rdfs:label "is binary decision"@en ;
+                 rdfs:comment "Indicates if the decision is strictly binary (must be true)."@en .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#isAppealsAllowed
+:isAppealsAllowed rdf:type owl:DatatypeProperty ,
+                           owl:FunctionalProperty ;
+                 rdfs:domain :InstantRejection ;
+                 rdfs:range xsd:boolean ;
+                 rdfs:label "is appeals allowed"@en ;
+                 rdfs:comment "Indicates if appeals are allowed (must be false)."@en .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#isFinal
+:isFinal rdf:type owl:DatatypeProperty ,
+                  owl:FunctionalProperty ;
+        rdfs:domain :ImmutableDecision ;
+        rdfs:range xsd:boolean ;
+        rdfs:label "is final"@en ;
+        rdfs:comment "Indicates if the decision is final (must be true)."@en .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#isHardwareAccelerated
+:isHardwareAccelerated rdf:type owl:DatatypeProperty ,
+                                owl:FunctionalProperty ;
+                      rdfs:domain :ZeroTickRejectionBehavior ;
+                      rdfs:range xsd:boolean ;
+                      rdfs:label "is hardware accelerated"@en ;
+                      rdfs:comment "Indicates if the behavior uses hardware acceleration."@en .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#operatesAtCPULevel
+:operatesAtCPULevel rdf:type owl:DatatypeProperty ,
+                             owl:FunctionalProperty ;
+                   rdfs:domain :ZeroTickRejectionBehavior ;
+                   rdfs:range xsd:boolean ;
+                   rdfs:label "operates at CPU level"@en ;
+                   rdfs:comment "Indicates if the behavior operates at CPU hardware level."@en .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#operatesInHardware
+:operatesInHardware rdf:type owl:DatatypeProperty ,
+                             owl:FunctionalProperty ;
+                   rdfs:domain :RejectionTrigger ;
+                   rdfs:range xsd:boolean ;
+                   rdfs:label "operates in hardware"@en ;
+                   rdfs:comment "Indicates if the trigger operates in hardware."@en .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#requiresSoftwareIntervention
+:requiresSoftwareIntervention rdf:type owl:DatatypeProperty ,
+                                       owl:FunctionalProperty ;
+                             rdfs:domain :RejectionTrigger ;
+                             rdfs:range xsd:boolean ;
+                             rdfs:label "requires software intervention"@en ;
+                             rdfs:comment "Indicates if software intervention is required (should be false)."@en .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#allowsWarnings
+:allowsWarnings rdf:type owl:DatatypeProperty ,
+                         owl:FunctionalProperty ;
+               rdfs:domain :BinaryValidation ;
+               rdfs:range xsd:boolean ;
+               rdfs:label "allows warnings"@en ;
+               rdfs:comment "Indicates if warnings are allowed (must be false for binary validation)."@en .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#guaranteesZeroOverhead
+:guaranteesZeroOverhead rdf:type owl:DatatypeProperty ,
+                                 owl:FunctionalProperty ;
+                       rdfs:domain :PerformanceGuarantee ;
+                       rdfs:range xsd:boolean ;
+                       rdfs:label "guarantees zero overhead"@en ;
+                       rdfs:comment "Indicates if zero overhead is guaranteed (must be true)."@en .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#guaranteesDeterministicBehavior
+:guaranteesDeterministicBehavior rdf:type owl:DatatypeProperty ,
+                                          owl:FunctionalProperty ;
+                                rdfs:domain :PerformanceGuarantee ;
+                                rdfs:range xsd:boolean ;
+                                rdfs:label "guarantees deterministic behavior"@en ;
+                                rdfs:comment "Indicates if deterministic behavior is guaranteed."@en .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#rejectionTimestamp
+:rejectionTimestamp rdf:type owl:DatatypeProperty ;
+                   rdfs:domain :InstantRejection ;
+                   rdfs:range xsd:dateTime ;
+                   rdfs:label "rejection timestamp"@en ;
+                   rdfs:comment "The precise timestamp when rejection occurred."@en .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#violationDetails
+:violationDetails rdf:type owl:DatatypeProperty ;
+                 rdfs:domain :RejectionTrigger ;
+                 rdfs:range xsd:string ;
+                 rdfs:label "violation details"@en ;
+                 rdfs:comment "Detailed description of what triggered the violation."@en .
+
+#################################################################
+#    Individuals
+#################################################################
+
+###  http://bytestar.org/ontology/zero-tick-rejection#TheZeroTickRejectionSystem
+:TheZeroTickRejectionSystem rdf:type owl:NamedIndividual ,
+                                     :ZeroTickRejectionBehavior ;
+                           rdfs:label "The Zero-Tick Rejection System"@en ;
+                           rdfs:comment """The singular system-wide zero-tick rejection mechanism
+                           that operates across all ByteStar components."""@en ;
+                           :hasExecutionOverhead "0"^^xsd:nonNegativeInteger ;
+                           :isHardwareAccelerated "true"^^xsd:boolean ;
+                           :isImmutable "true"^^xsd:boolean ;
+                           :operatesAtCPULevel "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#GlobalBinaryValidator
+:GlobalBinaryValidator rdf:type owl:NamedIndividual ,
+                                :BinaryValidation ;
+                      rdfs:label "Global Binary Validator"@en ;
+                      rdfs:comment """The system-wide binary validator that produces
+                      only PASS or REJECT outcomes."""@en ;
+                      :allowsWarnings "false"^^xsd:boolean ;
+                      :allowsPartialPass "false"^^xsd:boolean ;
+                      :allowsConditionalAcceptance "false"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#ByteStarPerformanceGuarantee
+:ByteStarPerformanceGuarantee rdf:type owl:NamedIndividual ,
+                                       :PerformanceGuarantee ;
+                             rdfs:label "ByteStar Performance Guarantee"@en ;
+                             rdfs:comment """The absolute performance guarantee provided
+                             by the zero-tick rejection system."""@en ;
+                             :guaranteesZeroOverhead "true"^^xsd:boolean ;
+                             :guaranteesDeterministicBehavior "true"^^xsd:boolean ;
+                             :guaranteesConstantTime "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#HardwareFraudDetector
+:HardwareFraudDetector rdf:type owl:NamedIndividual ,
+                                :FraudDetection ;
+                      rdfs:label "Hardware Fraud Detector"@en ;
+                      rdfs:comment """Hardware-level fraud detection that operates
+                      independently of software systems."""@en ;
+                      :operatesInHardware "true"^^xsd:boolean ;
+                      :detectsMaliciousActivity "true"^^xsd:boolean ;
+                      :hasRejectionType :SecurityRejection .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#MicrocodeSecurityTrigger
+:MicrocodeSecurityTrigger rdf:type owl:NamedIndividual ,
+                                   :SecurityTrigger ;
+                         rdfs:label "Microcode Security Trigger"@en ;
+                         rdfs:comment """CPU microcode-level security trigger that
+                         cannot be bypassed by software."""@en ;
+                         :operatesAtMicrocodeLevel "true"^^xsd:boolean ;
+                         :bypassable "false"^^xsd:boolean ;
+                         :hasRejectionType :SecurityRejection .
+
+#################################################################
+#    SHACL Shapes for Zero-Tick Rejection Validation
+#################################################################
+
+###  http://bytestar.org/ontology/zero-tick-rejection#ZeroOverheadConstraintShape
+:ZeroOverheadConstraintShape rdf:type sh:NodeShape ;
+                            sh:targetClass :ZeroTickRejectionBehavior ;
+                            rdfs:label "Zero Overhead Constraint Shape"@en ;
+                            rdfs:comment "Validates that zero-tick rejection has zero overhead."@en ;
+                            sh:property [
+                                sh:path :hasExecutionOverhead ;
+                                sh:datatype xsd:nonNegativeInteger ;
+                                sh:hasValue 0 ;
+                                sh:message "Zero-tick rejection must have exactly 0 execution overhead."@en ;
+                                sh:severity sh:Violation
+                            ] ;
+                            sh:property [
+                                sh:path :isHardwareAccelerated ;
+                                sh:datatype xsd:boolean ;
+                                sh:hasValue "true"^^xsd:boolean ;
+                                sh:message "Zero-tick rejection must be hardware accelerated."@en
+                            ] ;
+                            sh:property [
+                                sh:path :operatesAtCPULevel ;
+                                sh:datatype xsd:boolean ;
+                                sh:hasValue "true"^^xsd:boolean ;
+                                sh:message "Zero-tick rejection must operate at CPU level."@en
+                            ] .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#InstantRejectionShape
+:InstantRejectionShape rdf:type sh:NodeShape ;
+                      sh:targetClass :InstantRejection ;
+                      rdfs:label "Instant Rejection Shape"@en ;
+                      rdfs:comment "Validates instant rejection properties."@en ;
+                      sh:property [
+                          sh:path :hasLatency ;
+                          sh:datatype xsd:nonNegativeInteger ;
+                          sh:hasValue 0 ;
+                          sh:message "Instant rejection must have zero latency."@en ;
+                          sh:severity sh:Violation
+                      ] ;
+                      sh:property [
+                          sh:path :hasOverhead ;
+                          sh:datatype xsd:nonNegativeInteger ;
+                          sh:hasValue 0 ;
+                          sh:message "Instant rejection must have zero overhead."@en ;
+                          sh:severity sh:Violation
+                      ] ;
+                      sh:property [
+                          sh:path :isBinaryDecision ;
+                          sh:datatype xsd:boolean ;
+                          sh:hasValue "true"^^xsd:boolean ;
+                          sh:message "Instant rejection must be a binary decision."@en
+                      ] ;
+                      sh:property [
+                          sh:path :isAppealsAllowed ;
+                          sh:datatype xsd:boolean ;
+                          sh:hasValue "false"^^xsd:boolean ;
+                          sh:message "Appeals must not be allowed for instant rejection."@en
+                      ] .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#BinaryValidationShape
+:BinaryValidationShape rdf:type sh:NodeShape ;
+                      sh:targetClass :BinaryValidation ;
+                      rdfs:label "Binary Validation Shape"@en ;
+                      rdfs:comment "Validates binary validation constraints."@en ;
+                      sh:property [
+                          sh:path :allowsWarnings ;
+                          sh:datatype xsd:boolean ;
+                          sh:hasValue "false"^^xsd:boolean ;
+                          sh:message "Binary validation must not allow warnings."@en ;
+                          sh:severity sh:Violation
+                      ] ;
+                      sh:property [
+                          sh:path :allowsPartialPass ;
+                          sh:datatype xsd:boolean ;
+                          sh:hasValue "false"^^xsd:boolean ;
+                          sh:message "Binary validation must not allow partial passes."@en ;
+                          sh:severity sh:Violation
+                      ] ;
+                      sh:property [
+                          sh:path :allowsConditionalAcceptance ;
+                          sh:datatype xsd:boolean ;
+                          sh:hasValue "false"^^xsd:boolean ;
+                          sh:message "Binary validation must not allow conditional acceptance."@en ;
+                          sh:severity sh:Violation
+                      ] .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#ImmutableDecisionShape
+:ImmutableDecisionShape rdf:type sh:NodeShape ;
+                       sh:targetClass :ImmutableDecision ;
+                       rdfs:label "Immutable Decision Shape"@en ;
+                       rdfs:comment "Validates immutable decision properties."@en ;
+                       sh:property [
+                           sh:path :canBeAppealed ;
+                           sh:datatype xsd:boolean ;
+                           sh:hasValue "false"^^xsd:boolean ;
+                           sh:message "Immutable decisions cannot be appealed."@en ;
+                           sh:severity sh:Violation
+                       ] ;
+                       sh:property [
+                           sh:path :canBeOverridden ;
+                           sh:datatype xsd:boolean ;
+                           sh:hasValue "false"^^xsd:boolean ;
+                           sh:message "Immutable decisions cannot be overridden."@en ;
+                           sh:severity sh:Violation
+                       ] ;
+                       sh:property [
+                           sh:path :isFinal ;
+                           sh:datatype xsd:boolean ;
+                           sh:hasValue "true"^^xsd:boolean ;
+                           sh:message "Immutable decisions must be final."@en ;
+                           sh:severity sh:Violation
+                       ] .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#PerformanceGuaranteeShape
+:PerformanceGuaranteeShape rdf:type sh:NodeShape ;
+                          sh:targetClass :PerformanceGuarantee ;
+                          rdfs:label "Performance Guarantee Shape"@en ;
+                          rdfs:comment "Validates performance guarantee requirements."@en ;
+                          sh:property [
+                              sh:path :guaranteesZeroOverhead ;
+                              sh:datatype xsd:boolean ;
+                              sh:hasValue "true"^^xsd:boolean ;
+                              sh:message "Performance guarantee must guarantee zero overhead."@en ;
+                              sh:severity sh:Violation
+                          ] ;
+                          sh:property [
+                              sh:path :guaranteesDeterministicBehavior ;
+                              sh:datatype xsd:boolean ;
+                              sh:hasValue "true"^^xsd:boolean ;
+                              sh:message "Performance guarantee must guarantee deterministic behavior."@en
+                          ] .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#HardwareTriggerShape
+:HardwareTriggerShape rdf:type sh:NodeShape ;
+                     sh:targetClass :RejectionTrigger ;
+                     rdfs:label "Hardware Trigger Shape"@en ;
+                     rdfs:comment "Validates hardware trigger requirements."@en ;
+                     sh:property [
+                         sh:path :operatesInHardware ;
+                         sh:datatype xsd:boolean ;
+                         sh:hasValue "true"^^xsd:boolean ;
+                         sh:message "Rejection triggers should operate in hardware for optimal performance."@en ;
+                         sh:severity sh:Warning
+                     ] ;
+                     sh:property [
+                         sh:path :requiresSoftwareIntervention ;
+                         sh:datatype xsd:boolean ;
+                         sh:hasValue "false"^^xsd:boolean ;
+                         sh:message "Hardware triggers should not require software intervention."@en ;
+                         sh:severity sh:Warning
+                     ] .
+
+###  http://bytestar.org/ontology/zero-tick-rejection#ValidationOutcomeShape
+:ValidationOutcomeShape rdf:type sh:NodeShape ;
+                       sh:targetClass :ValidationOutcome ;
+                       rdfs:label "Validation Outcome Shape"@en ;
+                       rdfs:comment "Validates that outcomes are strictly binary."@en ;
+                       sh:xone (
+                           [ sh:class :Pass ]
+                           [ sh:class :Reject ]
+                       ) ;
+                       sh:message "Validation outcome must be either Pass or Reject, no other states allowed."@en ;
+                       sh:severity sh:Violation .
+
+#################################################################
+#    Axioms and Rules for Zero-Tick Rejection
+#################################################################
+
+# Axiom: Any violation triggers instant rejection
+[] rdf:type owl:Class ;
+   owl:equivalentClass [
+       rdf:type owl:Class ;
+       owl:intersectionOf (
+           ba:Operation
+           [
+               rdf:type owl:Restriction ;
+               owl:onProperty doe:violatesConstraint ;
+               owl:someValuesFrom doe:DoctrineOfEightLaw
+           ]
+       )
+   ] ;
+   rdfs:subClassOf [
+       rdf:type owl:Restriction ;
+       owl:onProperty :triggersInstantRejection ;
+       owl:someValuesFrom :InstantRejection
+   ] .
+
+# Axiom: Instant rejection results in immutable decision
+[] rdf:type owl:Class ;
+   owl:equivalentClass :InstantRejection ;
+   rdfs:subClassOf [
+       rdf:type owl:Restriction ;
+       owl:onProperty :resultsInDecision ;
+       owl:someValuesFrom :ImmutableDecision
+   ] .
+
+# Axiom: Binary validation produces binary outcomes
+[] rdf:type owl:Class ;
+   owl:equivalentClass :BinaryValidation ;
+   rdfs:subClassOf [
+       rdf:type owl:Restriction ;
+       owl:onProperty :hasValidationOutcome ;
+       owl:allValuesFrom :ValidationOutcome
+   ] .
+
+# Axiom: Zero-tick rejection has zero overhead
+[] rdf:type owl:Class ;
+   owl:equivalentClass :ZeroTickRejectionBehavior ;
+   rdfs:subClassOf [
+       rdf:type owl:Restriction ;
+       owl:onProperty :hasExecutionOverhead ;
+       owl:hasValue "0"^^xsd:nonNegativeInteger
+   ] .
+
+# Axiom: Hardware triggers operate without software
+[] rdf:type owl:Class ;
+   owl:equivalentClass [
+       rdf:type owl:Class ;
+       owl:intersectionOf (
+           :RejectionTrigger
+           [
+               rdf:type owl:Restriction ;
+               owl:onProperty :operatesInHardware ;
+               owl:hasValue "true"^^xsd:boolean
+           ]
+       )
+   ] ;
+   rdfs:subClassOf [
+       rdf:type owl:Restriction ;
+       owl:onProperty :requiresSoftwareIntervention ;
+       owl:hasValue "false"^^xsd:boolean
+   ] .
+
+#################################################################
+#    SPARQL Queries for Zero-Tick Rejection Monitoring
+#################################################################
+
+# Query 1: Find all zero-tick rejections in real-time
+:findZeroTickRejectionsQuery rdf:type sp:Query ;
+    rdfs:label "Find Zero-Tick Rejections"@en ;
+    sp:text """
+    PREFIX : <http://bytestar.org/ontology/zero-tick-rejection#>
+    PREFIX ba: <http://bytestar.org/ontology/byteactor#>
+    PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+    
+    SELECT ?operation ?rejection ?rejectionType ?timestamp ?details WHERE {
+        ?operation a ba:Operation ;
+                   :triggersInstantRejection ?rejection .
+        ?rejection a :InstantRejection ;
+                   :hasRejectionType ?rejectionType ;
+                   :rejectionTimestamp ?timestamp .
+        OPTIONAL { 
+            ?operation :hasRejectionTrigger ?trigger .
+            ?trigger :violationDetails ?details 
+        }
+        FILTER (?timestamp > NOW() - "PT1H"^^xsd:dayTimeDuration)
+    }
+    ORDER BY DESC(?timestamp)
+    """ .
+
+# Query 2: Validate zero-overhead guarantee
+:validateZeroOverheadQuery rdf:type sp:Query ;
+    rdfs:label "Validate Zero Overhead"@en ;
+    sp:text """
+    PREFIX : <http://bytestar.org/ontology/zero-tick-rejection#>
+    PREFIX ba: <http://bytestar.org/ontology/byteactor#>
+    
+    SELECT ?behavior ?overhead ?isCompliant WHERE {
+        ?behavior a :ZeroTickRejectionBehavior ;
+                  :hasExecutionOverhead ?overhead .
+        BIND(IF(?overhead = 0, "COMPLIANT", "VIOLATION") AS ?isCompliant)
+    }
+    ORDER BY ?overhead
+    """ .
+
+# Query 3: Binary validation compliance check
+:binaryValidationComplianceQuery rdf:type sp:Query ;
+    rdfs:label "Binary Validation Compliance"@en ;
+    sp:text """
+    PREFIX : <http://bytestar.org/ontology/zero-tick-rejection#>
+    PREFIX ba: <http://bytestar.org/ontology/byteactor#>
+    
+    SELECT ?validator ?allowsWarnings ?allowsPartial ?allowsConditional ?isCompliant WHERE {
+        ?validator a :BinaryValidation ;
+                   :allowsWarnings ?allowsWarnings ;
+                   :allowsPartialPass ?allowsPartial ;
+                   :allowsConditionalAcceptance ?allowsConditional .
+        BIND(IF(?allowsWarnings = false && ?allowsPartial = false && ?allowsConditional = false, 
+             "COMPLIANT", "VIOLATION") AS ?isCompliant)
+    }
+    ORDER BY ?isCompliant
+    """ .
+
+# Query 4: Fraud detection activity monitoring
+:fraudDetectionActivityQuery rdf:type sp:Query ;
+    rdfs:label "Fraud Detection Activity"@en ;
+    sp:text """
+    PREFIX : <http://bytestar.org/ontology/zero-tick-rejection#>
+    PREFIX ba: <http://bytestar.org/ontology/byteactor#>
+    PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+    
+    SELECT ?detector ?activity ?rejection ?timestamp (COUNT(?activity) AS ?detectionCount) WHERE {
+        ?detector a :FraudDetection ;
+                  :detectsFraud ?activity .
+        ?activity :triggersInstantRejection ?rejection .
+        ?rejection :rejectionTimestamp ?timestamp .
+        FILTER (?timestamp > NOW() - "PT24H"^^xsd:dayTimeDuration)
+    }
+    GROUP BY ?detector ?activity ?rejection ?timestamp
+    ORDER BY DESC(?detectionCount) DESC(?timestamp)
+    """ .
+
+# Query 5: Performance guarantee validation
+:performanceGuaranteeValidationQuery rdf:type sp:Query ;
+    rdfs:label "Performance Guarantee Validation"@en ;
+    sp:text """
+    PREFIX : <http://bytestar.org/ontology/zero-tick-rejection#>
+    PREFIX ba: <http://bytestar.org/ontology/byteactor#>
+    
+    SELECT ?system ?guarantee ?zeroOverhead ?deterministicBehavior ?constantTime ?isValid WHERE {
+        ?system :guarantees ?guarantee .
+        ?guarantee a :PerformanceGuarantee ;
+                   :guaranteesZeroOverhead ?zeroOverhead ;
+                   :guaranteesDeterministicBehavior ?deterministicBehavior .
+        OPTIONAL { ?guarantee :guaranteesConstantTime ?constantTime }
+        BIND(IF(?zeroOverhead = true && ?deterministicBehavior = true, "VALID", "INVALID") AS ?isValid)
+    }
+    ORDER BY ?isValid ?system
+    """ .
+
+# Query 6: Immutable decision audit
+:immutableDecisionAuditQuery rdf:type sp:Query ;
+    rdfs:label "Immutable Decision Audit"@en ;
+    sp:text """
+    PREFIX : <http://bytestar.org/ontology/zero-tick-rejection#>
+    PREFIX ba: <http://bytestar.org/ontology/byteactor#>
+    PREFIX prov: <http://www.w3.org/ns/prov#>
+    
+    SELECT ?decision ?canAppeal ?canOverride ?canModify ?isFinal ?isImmutable WHERE {
+        ?decision a :ImmutableDecision ;
+                  :canBeAppealed ?canAppeal ;
+                  :canBeOverridden ?canOverride ;
+                  :canBeModified ?canModify ;
+                  :isFinal ?isFinal .
+        BIND(IF(?canAppeal = false && ?canOverride = false && ?canModify = false && ?isFinal = true, 
+             "IMMUTABLE", "MUTABLE") AS ?isImmutable)
+    }
+    ORDER BY ?isImmutable ?decision
+    """ .
+
+#################################################################
+#    Integration with ByteStar Component Ontologies
+#################################################################
+
+# Integration with ByteActor - All operations must support zero-tick rejection
+ba:Operation rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty :hasValidationOutcome ;
+    owl:someValuesFrom :ValidationOutcome
+] .
+
+# Integration with ByteEthos - Governance rules trigger rejections
+be:GovernanceRule rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty :hasRejectionTrigger ;
+    owl:someValuesFrom :RejectionTrigger
+] .
+
+# Integration with ByteFlow - Workflow steps must pass binary validation
+bf:WorkflowStep rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty :hasValidationOutcome ;
+    owl:allValuesFrom [
+        rdf:type owl:Class ;
+        owl:unionOf ( :Pass :Reject )
+    ]
+] .
+
+# Integration with ByteCore - Performance measurements trigger rejections
+bc:PerformanceMeasurement rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty :hasRejectionTrigger ;
+    owl:someValuesFrom :DoctrineViolation
+] .
+
+# Integration with Doctrine of 8 - Violations trigger zero-tick rejection
+doe:ZeroTickRejection rdfs:subClassOf :InstantRejection .
+
+#################################################################
+#    Documentation and Examples
+#################################################################
+
+:DocumentationExamples rdf:type owl:Class ;
+    rdfs:label "Zero-Tick Rejection Examples"@en ;
+    rdfs:comment """Examples demonstrating zero-tick rejection in action
+    across different ByteStar system components."""@en .
+
+# Example 1: Performance violation rejection
+:ExamplePerformanceViolation rdf:type owl:NamedIndividual ,
+                                     ba:Operation ;
+                            rdfs:label "Example Performance Violation"@en ;
+                            rdfs:comment "Operation that violates performance constraints."@en ;
+                            :hasRejectionTrigger :ExampleDoctrineViolation ;
+                            :triggersInstantRejection :ExamplePerformanceRejection ;
+                            :hasValidationOutcome :Reject .
+
+:ExampleDoctrineViolation rdf:type owl:NamedIndividual ,
+                                  :DoctrineViolation ;
+                         rdfs:label "Example Doctrine Violation"@en ;
+                         :violationDetails "Operation exceeded 8 tick limit with 12 ticks"@en ;
+                         :hasRejectionType :PerformanceRejection .
+
+:ExamplePerformanceRejection rdf:type owl:NamedIndividual ,
+                                     :InstantRejection ;
+                            rdfs:label "Example Performance Rejection"@en ;
+                            :hasLatency "0"^^xsd:nonNegativeInteger ;
+                            :hasOverhead "0"^^xsd:nonNegativeInteger ;
+                            :isBinaryDecision "true"^^xsd:boolean ;
+                            :isAppealsAllowed "false"^^xsd:boolean ;
+                            :hasRejectionType :PerformanceRejection ;
+                            :rejectionTimestamp "2025-08-23T14:30:15.123Z"^^xsd:dateTime ;
+                            :resultsInDecision :ExampleImmutableDecision .
+
+:ExampleImmutableDecision rdf:type owl:NamedIndividual ,
+                                  :ImmutableDecision ;
+                         rdfs:label "Example Immutable Decision"@en ;
+                         :canBeAppealed "false"^^xsd:boolean ;
+                         :canBeOverridden "false"^^xsd:boolean ;
+                         :canBeModified "false"^^xsd:boolean ;
+                         :isFinal "true"^^xsd:boolean .
+
+# Example 2: Security threat rejection
+:ExampleSecurityThreat rdf:type owl:NamedIndividual ,
+                               ba:Operation ;
+                      rdfs:label "Example Security Threat"@en ;
+                      rdfs:comment "Operation detected as security threat."@en ;
+                      :hasRejectionTrigger :ExampleSecurityTrigger ;
+                      :triggersInstantRejection :ExampleSecurityRejection ;
+                      :hasValidationOutcome :Reject .
+
+:ExampleSecurityTrigger rdf:type owl:NamedIndividual ,
+                                :SecurityTrigger ;
+                       rdfs:label "Example Security Trigger"@en ;
+                       :operatesAtMicrocodeLevel "true"^^xsd:boolean ;
+                       :bypassable "false"^^xsd:boolean ;
+                       :violationDetails "Potential buffer overflow attack detected"@en ;
+                       :hasRejectionType :SecurityRejection .
+
+:ExampleSecurityRejection rdf:type owl:NamedIndividual ,
+                                  :InstantRejection ;
+                         rdfs:label "Example Security Rejection"@en ;
+                         :hasLatency "0"^^xsd:nonNegativeInteger ;
+                         :hasOverhead "0"^^xsd:nonNegativeInteger ;
+                         :isBinaryDecision "true"^^xsd:boolean ;
+                         :isAppealsAllowed "false"^^xsd:boolean ;
+                         :hasRejectionType :SecurityRejection ;
+                         :rejectionTimestamp "2025-08-23T14:31:22.456Z"^^xsd:dateTime .
+
+# Example 3: Successful operation (Pass)
+:ExampleSuccessfulOperation rdf:type owl:NamedIndividual ,
+                                    ba:Operation ;
+                           rdfs:label "Example Successful Operation"@en ;
+                           rdfs:comment "Operation that passes all validation checks."@en ;
+                           :hasValidationOutcome :Pass .
+
+#################################################################
+#    Metadata and Provenance
+#################################################################
+
+:ZeroTickRejectionMetadata rdf:type owl:Class ;
+    rdfs:label "Zero-Tick Rejection Metadata"@en ;
+    rdfs:comment "Metadata about the zero-tick rejection ontology."@en ;
+    dct:creator "ByteStar Performance Engineering Team"@en ;
+    dct:contributor "Hardware Architecture Division"@en ,
+                    "Security Engineering Team"@en ,
+                    "Validation Framework Team"@en ;
+    prov:wasGeneratedBy :ZeroTickRejectionCreationActivity ;
+    dct:conformsTo <https://www.w3.org/TR/owl2-syntax/> ,
+                   <https://www.w3.org/TR/shacl/> .
+
+:ZeroTickRejectionCreationActivity rdf:type prov:Activity ;
+    rdfs:label "Zero-Tick Rejection Creation Activity"@en ;
+    rdfs:comment "The activity that created the zero-tick rejection ontology."@en ;
+    prov:startedAtTime "2024-12-15T00:00:00Z"^^xsd:dateTime ;
+    prov:endedAtTime "2025-01-15T00:00:00Z"^^xsd:dateTime ;
+    prov:wasAssociatedWith :ByteStarPerformanceTeam .
+
+:ByteStarPerformanceTeam rdf:type prov:Agent ,
+                                  foaf:Organization ;
+    rdfs:label "ByteStar Performance Engineering Team"@en ;
+    rdfs:comment "The team responsible for performance and validation systems."@en ;
+    foaf:name "ByteStar Performance Engineering Team"@en .
+
+#################################################################
+#    Version Information and Design Principles
+#################################################################
+
+: rdfs:comment """
+Zero-Tick Rejection Ontology Version History:
+
+v5.0.0-phase1 (2025-08-23):
+- Initial foundational ontology for zero-tick rejection mechanism
+- Complete binary validation system specification
+- Hardware-level trigger definitions
+- Immutable decision framework
+- Performance guarantee system
+- Fraud detection and security integration
+- SHACL validation shapes for all components
+- SPARQL monitoring queries
+- Full integration with ByteStar component ontologies
+
+Core Design Principles:
+
+1. ABSOLUTE BINARY VALIDATION:
+   - Only two outcomes: PASS or REJECT
+   - No warnings, partial passes, or conditional acceptance
+   - Decisions are immediate and final
+
+2. ZERO COMPUTATIONAL OVERHEAD:
+   - All rejection mechanisms operate with 0 CPU cycles overhead
+   - Hardware-accelerated at CPU microcode level
+   - No software intervention required
+
+3. IMMUTABLE DECISIONS:
+   - All rejection decisions are final and irreversible
+   - No appeals process or override mechanisms
+   - Cannot be modified or reversed
+
+4. HARDWARE-LEVEL OPERATION:
+   - Triggers operate at CPU hardware level
+   - Independent of software systems
+   - Cannot be bypassed or disabled
+
+5. REAL-TIME VALIDATION:
+   - Continuous monitoring of all operations
+   - Instant detection and rejection of violations
+   - Deterministic performance guarantees
+
+6. COMPREHENSIVE COVERAGE:
+   - Integrates with all ByteStar components
+   - Covers performance, security, governance, and integrity
+   - Universal application across the entire ecosystem
+
+7. FRAUD DETECTION INTEGRATION:
+   - Built-in fraud detection at hardware level
+   - Automatic threat identification and rejection
+   - Security-first design philosophy
+
+Application Domains:
+
+- Performance constraint enforcement (Doctrine of 8)
+- Security threat detection and mitigation
+- Governance policy compliance validation
+- Data integrity protection
+- Fraud detection and prevention
+- System integrity maintenance
+
+The zero-tick rejection system ensures that the ByteStar ecosystem
+maintains absolute performance, security, and integrity standards
+through immediate, zero-overhead validation and rejection of any
+violations. This system operates as the foundational protection
+mechanism for the entire ByteStar infrastructure.
+
+Integration Points:
+
+- ByteActor: Operation validation and rejection
+- ByteEthos: Governance rule enforcement
+- ByteFlow: Workflow step validation
+- ByteCore: Performance measurement triggers
+- Doctrine of 8: Performance constraint enforcement
+
+This ontology establishes the theoretical and practical foundation
+for ultra-high performance, ultra-secure, and ultra-reliable
+operation of the ByteStar ecosystem through absolute binary
+validation with zero tolerance for violations.
+"""@en .

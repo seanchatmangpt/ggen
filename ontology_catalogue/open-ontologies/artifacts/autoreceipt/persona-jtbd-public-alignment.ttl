@@ -1,0 +1,291 @@
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix schema: <http://schema.org/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix spdx: <http://spdx.org/rdf/terms#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+<urn:uuid:system> a prov:SoftwareAgent ;
+    schema:name "open-ontologies AutoReceipt Compiler" .
+
+<urn:uuid:persona:TheOntologyArchitect> a prov:Agent ;
+    schema:name "The Ontology Architect (OA-1 to OA-8)" .
+
+<urn:uuid:persona:TheComplianceAssuranceLead> a prov:Agent ;
+    schema:name "The Compliance / Assurance Lead (CL-1 to CL-8)" .
+
+<urn:uuid:persona:TheAICodingAgentSupervisor> a prov:Agent ;
+    schema:name "The AI Coding Agent Supervisor (AS-1 to AS-8)" .
+
+<urn:uuid:persona:TheReleasePlatformEngineer> a prov:Agent ;
+    schema:name "The Release / Platform Engineer (RE-1 to RE-8)" .
+
+<urn:uuid:persona:TheProcessIntelligenceAnalyst> a prov:Agent ;
+    schema:name "The Process Intelligence Analyst (PI-1 to PI-8)" .
+
+<urn:uuid:persona:TheProductUXOperator> a prov:Agent ;
+    schema:name "The Product / UX Operator (UX-1 to UX-8)" .
+
+<urn:uuid:persona:TheDomainSteward> a prov:Agent ;
+    schema:name "The Domain Steward (DS-1 to DS-8)" .
+
+<urn:uuid:persona:TheScientificInfrastructureStrategist> a prov:Agent ;
+    schema:name "The Scientific / Infrastructure Strategist (IS-1 to IS-8)" .
+
+<urn:uuid:jtbd:OA-1> a schema:Action, prov:Activity ;
+    schema:name "Import public-aligned model" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheOntologyArchitect> .
+
+<urn:uuid:jtbd:OA-2> a schema:Action, prov:Activity ;
+    schema:name "Detect private vocabulary drift" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheOntologyArchitect> .
+
+<urn:uuid:jtbd:OA-3> a schema:Action, prov:Activity ;
+    schema:name "Validate SHACL closure" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheOntologyArchitect> .
+
+<urn:uuid:jtbd:OA-4> a schema:Action, prov:Activity ;
+    schema:name "Map model to public terms" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheOntologyArchitect> .
+
+<urn:uuid:jtbd:OA-5> a schema:Action, prov:Activity ;
+    schema:name "Manufacture extraction plan" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheOntologyArchitect> .
+
+<urn:uuid:jtbd:OA-6> a schema:Action, prov:Activity ;
+    schema:name "Prove model-to-artifact trace" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheOntologyArchitect> .
+
+<urn:uuid:jtbd:OA-7> a schema:Action, prov:Activity ;
+    schema:name "Refuse incomplete model" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheOntologyArchitect> .
+
+<urn:uuid:jtbd:OA-8> a schema:Action, prov:Activity ;
+    schema:name "Publish model status" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheOntologyArchitect> .
+
+<urn:uuid:jtbd:CL-1> a schema:Action, prov:Activity ;
+    schema:name "Verify a policy ran" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheComplianceAssuranceLead> .
+
+<urn:uuid:jtbd:CL-2> a schema:Action, prov:Activity ;
+    schema:name "Prove consent gating" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheComplianceAssuranceLead> .
+
+<urn:uuid:jtbd:CL-3> a schema:Action, prov:Activity ;
+    schema:name "Audit a sensitive route" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheComplianceAssuranceLead> .
+
+<urn:uuid:jtbd:CL-4> a schema:Action, prov:Activity ;
+    schema:name "Inspect refusal reason" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheComplianceAssuranceLead> .
+
+<urn:uuid:jtbd:CL-5> a schema:Action, prov:Activity ;
+    schema:name "Detect receipt tampering" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheComplianceAssuranceLead> .
+
+<urn:uuid:jtbd:CL-6> a schema:Action, prov:Activity ;
+    schema:name "Export audit bundle" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheComplianceAssuranceLead> .
+
+<urn:uuid:jtbd:CL-7> a schema:Action, prov:Activity ;
+    schema:name "Confirm least privilege" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheComplianceAssuranceLead> .
+
+<urn:uuid:jtbd:CL-8> a schema:Action, prov:Activity ;
+    schema:name "Prove no hidden closure" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheComplianceAssuranceLead> .
+
+<urn:uuid:jtbd:AS-1> a schema:Action, prov:Activity ;
+    schema:name "Admit safe Gemini action" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheAICodingAgentSupervisor> .
+
+<urn:uuid:jtbd:AS-2> a schema:Action, prov:Activity ;
+    schema:name "Refuse direct yolo actuation" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheAICodingAgentSupervisor> .
+
+<urn:uuid:jtbd:AS-3> a schema:Action, prov:Activity ;
+    schema:name "Detect fake completion" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheAICodingAgentSupervisor> .
+
+<urn:uuid:jtbd:AS-4> a schema:Action, prov:Activity ;
+    schema:name "Verify changed files" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheAICodingAgentSupervisor> .
+
+<urn:uuid:jtbd:AS-5> a schema:Action, prov:Activity ;
+    schema:name "Refuse forbidden root write" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheAICodingAgentSupervisor> .
+
+<urn:uuid:jtbd:AS-6> a schema:Action, prov:Activity ;
+    schema:name "Handle nonzero exit" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheAICodingAgentSupervisor> .
+
+<urn:uuid:jtbd:AS-7> a schema:Action, prov:Activity ;
+    schema:name "Enforce clean release tree" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheAICodingAgentSupervisor> .
+
+<urn:uuid:jtbd:AS-8> a schema:Action, prov:Activity ;
+    schema:name "Compare summary to evidence" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheAICodingAgentSupervisor> .
+
+<urn:uuid:jtbd:RE-1> a schema:Action, prov:Activity ;
+    schema:name "Verify package identity" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheReleasePlatformEngineer> .
+
+<urn:uuid:jtbd:RE-2> a schema:Action, prov:Activity ;
+    schema:name "Refuse dirty release" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheReleasePlatformEngineer> .
+
+<urn:uuid:jtbd:RE-3> a schema:Action, prov:Activity ;
+    schema:name "Inspect package contents" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheReleasePlatformEngineer> .
+
+<urn:uuid:jtbd:RE-4> a schema:Action, prov:Activity ;
+    schema:name "Bind certificate to tarball" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheReleasePlatformEngineer> .
+
+<urn:uuid:jtbd:RE-5> a schema:Action, prov:Activity ;
+    schema:name "Run release gauntlet" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheReleasePlatformEngineer> .
+
+<urn:uuid:jtbd:RE-6> a schema:Action, prov:Activity ;
+    schema:name "Detect recursive publish risk" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheReleasePlatformEngineer> .
+
+<urn:uuid:jtbd:RE-7> a schema:Action, prov:Activity ;
+    schema:name "Verify registry publish" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheReleasePlatformEngineer> .
+
+<urn:uuid:jtbd:RE-8> a schema:Action, prov:Activity ;
+    schema:name "Clean install smoke" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheReleasePlatformEngineer> .
+
+<urn:uuid:jtbd:PI-1> a schema:Action, prov:Activity ;
+    schema:name "Import OCEL" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheProcessIntelligenceAnalyst> .
+
+<urn:uuid:jtbd:PI-2> a schema:Action, prov:Activity ;
+    schema:name "Detect missing object owner" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheProcessIntelligenceAnalyst> .
+
+<urn:uuid:jtbd:PI-3> a schema:Action, prov:Activity ;
+    schema:name "Trace handoff path" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheProcessIntelligenceAnalyst> .
+
+<urn:uuid:jtbd:PI-4> a schema:Action, prov:Activity ;
+    schema:name "Detect false completion" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheProcessIntelligenceAnalyst> .
+
+<urn:uuid:jtbd:PI-5> a schema:Action, prov:Activity ;
+    schema:name "Export OCEL-style evidence" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheProcessIntelligenceAnalyst> .
+
+<urn:uuid:jtbd:PI-6> a schema:Action, prov:Activity ;
+    schema:name "Run conformance check" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheProcessIntelligenceAnalyst> .
+
+<urn:uuid:jtbd:PI-7> a schema:Action, prov:Activity ;
+    schema:name "Find bottleneck" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheProcessIntelligenceAnalyst> .
+
+<urn:uuid:jtbd:PI-8> a schema:Action, prov:Activity ;
+    schema:name "Compare routes" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheProcessIntelligenceAnalyst> .
+
+<urn:uuid:jtbd:UX-1> a schema:Action, prov:Activity ;
+    schema:name "Project receipt to user text" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheProductUXOperator> .
+
+<urn:uuid:jtbd:UX-2> a schema:Action, prov:Activity ;
+    schema:name "Show pending honestly" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheProductUXOperator> .
+
+<urn:uuid:jtbd:UX-3> a schema:Action, prov:Activity ;
+    schema:name "Show human-required state" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheProductUXOperator> .
+
+<urn:uuid:jtbd:UX-4> a schema:Action, prov:Activity ;
+    schema:name "Hide restricted proof" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheProductUXOperator> .
+
+<urn:uuid:jtbd:UX-5> a schema:Action, prov:Activity ;
+    schema:name "Admin sees proof depth" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheProductUXOperator> .
+
+<urn:uuid:jtbd:UX-6> a schema:Action, prov:Activity ;
+    schema:name "Detect misleading copy" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheProductUXOperator> .
+
+<urn:uuid:jtbd:UX-7> a schema:Action, prov:Activity ;
+    schema:name "Generate next-step CTA" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheProductUXOperator> .
+
+<urn:uuid:jtbd:UX-8> a schema:Action, prov:Activity ;
+    schema:name "Validate device-visible proof" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheProductUXOperator> .
+
+<urn:uuid:jtbd:DS-1> a schema:Action, prov:Activity ;
+    schema:name "Open a service route" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheDomainSteward> .
+
+<urn:uuid:jtbd:DS-2> a schema:Action, prov:Activity ;
+    schema:name "Assign correct owner" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheDomainSteward> .
+
+<urn:uuid:jtbd:DS-3> a schema:Action, prov:Activity ;
+    schema:name "Detect overdue follow-up" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheDomainSteward> .
+
+<urn:uuid:jtbd:DS-4> a schema:Action, prov:Activity ;
+    schema:name "Prevent premature closure" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheDomainSteward> .
+
+<urn:uuid:jtbd:DS-5> a schema:Action, prov:Activity ;
+    schema:name "Escalate sensitive route" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheDomainSteward> .
+
+<urn:uuid:jtbd:DS-6> a schema:Action, prov:Activity ;
+    schema:name "Transfer ownership" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheDomainSteward> .
+
+<urn:uuid:jtbd:DS-7> a schema:Action, prov:Activity ;
+    schema:name "Show route status" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheDomainSteward> .
+
+<urn:uuid:jtbd:DS-8> a schema:Action, prov:Activity ;
+    schema:name "Close route with proof" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheDomainSteward> .
+
+<urn:uuid:jtbd:IS-1> a schema:Action, prov:Activity ;
+    schema:name "Model intervention class" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheScientificInfrastructureStrategist> .
+
+<urn:uuid:jtbd:IS-2> a schema:Action, prov:Activity ;
+    schema:name "Admit local repair route" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheScientificInfrastructureStrategist> .
+
+<urn:uuid:jtbd:IS-3> a schema:Action, prov:Activity ;
+    schema:name "Require measurement evidence" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheScientificInfrastructureStrategist> .
+
+<urn:uuid:jtbd:IS-4> a schema:Action, prov:Activity ;
+    schema:name "Bind sensor data" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheScientificInfrastructureStrategist> .
+
+<urn:uuid:jtbd:IS-5> a schema:Action, prov:Activity ;
+    schema:name "Detect tampered measurement" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheScientificInfrastructureStrategist> .
+
+<urn:uuid:jtbd:IS-6> a schema:Action, prov:Activity ;
+    schema:name "Replay intervention history" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheScientificInfrastructureStrategist> .
+
+<urn:uuid:jtbd:IS-7> a schema:Action, prov:Activity ;
+    schema:name "Compare outcomes" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheScientificInfrastructureStrategist> .
+
+<urn:uuid:jtbd:IS-8> a schema:Action, prov:Activity ;
+    schema:name "Scale verified pattern" ;
+    prov:wasAssociatedWith <urn:uuid:persona:TheScientificInfrastructureStrategist> .

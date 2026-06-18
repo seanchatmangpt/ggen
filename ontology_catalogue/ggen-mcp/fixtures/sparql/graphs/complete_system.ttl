@@ -1,0 +1,101 @@
+@prefix ddd: <https://ddd-patterns.dev/schema#> .
+@prefix mcp: <https://modelcontextprotocol.io/> .
+@prefix ggen: <https://ggen-mcp.dev/domain#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# ============================================================================
+# Complete System - Integration of Domain and MCP
+# ============================================================================
+
+# Product Aggregate
+ggen:ProductAggregate a ddd:AggregateRoot ;
+    rdfs:label "Product" ;
+    rdfs:comment "Product catalog aggregate" ;
+    ddd:hasProperty ggen:Product_sku ;
+    ddd:hasProperty ggen:Product_name ;
+    ddd:hasProperty ggen:Product_price .
+
+ggen:Product_sku a ddd:Property ;
+    rdfs:label "sku" ;
+    ddd:type "String" .
+
+ggen:Product_name a ddd:Property ;
+    rdfs:label "name" ;
+    ddd:type "String" .
+
+ggen:Product_price a ddd:Property ;
+    rdfs:label "price" ;
+    ddd:type "f64" .
+
+# Service
+ggen:ProductService a ddd:Service ;
+    rdfs:label "ProductService" ;
+    rdfs:comment "Product domain service" ;
+    ddd:uses ggen:ProductRepository ;
+    ddd:hasMethod ggen:ProductService_findBySku .
+
+ggen:ProductService_findBySku a ddd:Method ;
+    rdfs:label "find_by_sku" ;
+    ddd:param "sku: String" ;
+    ddd:returns "Option<Product>" .
+
+# Policy
+ggen:PricingPolicy a ddd:Policy ;
+    rdfs:label "PricingPolicy" ;
+    rdfs:comment "Validates product pricing rules" ;
+    ddd:validates ggen:ProductAggregate ;
+    ddd:ensures "price > 0" ;
+    ddd:verifies "pricing_rules" .
+
+# MCP Tool with Handler Integration
+ggen:CreateProductTool a mcp:Tool ;
+    rdfs:label "create_product" ;
+    rdfs:comment "Create a new product" ;
+    mcp:hasParameter ggen:CreateProduct_sku ;
+    mcp:hasParameter ggen:CreateProduct_name ;
+    mcp:hasParameter ggen:CreateProduct_price .
+
+ggen:CreateProduct_sku a mcp:Parameter ;
+    rdfs:label "sku" ;
+    mcp:paramType "string" ;
+    mcp:required true .
+
+ggen:CreateProduct_name a mcp:Parameter ;
+    rdfs:label "name" ;
+    mcp:paramType "string" ;
+    mcp:required true .
+
+ggen:CreateProduct_price a mcp:Parameter ;
+    rdfs:label "price" ;
+    mcp:paramType "number" ;
+    mcp:required true .
+
+# Command linked to Tool
+ggen:CreateProductCommand a ddd:Command ;
+    rdfs:label "CreateProduct" ;
+    ddd:hasParameter ggen:CreateProductCommand_sku ;
+    ddd:hasParameter ggen:CreateProductCommand_name ;
+    ddd:hasParameter ggen:CreateProductCommand_price ;
+    ddd:emitsEvent ggen:ProductCreatedEvent .
+
+# Handler that processes both Tool and Command
+ggen:CreateProductHandler a ddd:Handler ;
+    rdfs:label "CreateProductHandler" ;
+    ddd:handles ggen:CreateProductCommand ;
+    ddd:handles ggen:CreateProductTool ;
+    ddd:emits ggen:ProductCreatedEvent .
+
+# Event
+ggen:ProductCreatedEvent a ddd:DomainEvent ;
+    rdfs:label "ProductCreated" ;
+    ddd:hasProperty ggen:ProductCreated_sku .
+
+ggen:ProductCreated_sku a ddd:Property ;
+    rdfs:label "sku" ;
+    ddd:type "String" .
+
+# Repository
+ggen:ProductRepository a ddd:Repository ;
+    rdfs:label "ProductRepository" ;
+    ddd:forAggregate ggen:ProductAggregate .

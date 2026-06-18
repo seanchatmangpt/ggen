@@ -1,0 +1,273 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix market: <http://bitflow.ai/market#> .
+@prefix eight: <http://8space.org/constraints#> .
+@prefix ahi: <http://ahi.bitflow.ai/core#> .
+@prefix otel: <http://opentelemetry.io/ontology#> .
+
+# Market Model Ontology - Ultra-High Frequency Trading and Portfolio Management
+# Based on existing UHFT TTL patterns from CNS system
+# Implements real market constraints with 8-Space enforcement
+
+<http://bitflow.ai/market/model> rdf:type owl:Ontology ;
+    rdfs:comment "Market model ontology for AHI trading and portfolio management" ;
+    owl:versionInfo "2026.1.1" ;
+    owl:imports <http://bitflow.ai/ahi/core> ;
+    owl:imports <http://8space.org/constraints> .
+
+# Asset Classes and Market Structure
+market:AssetClass rdf:type owl:Class ;
+    rdfs:comment "Financial asset class with 8-Space trading constraints" ;
+    eight:maxPositions 8 ;
+    eight:maxLatencyMicroseconds 8 ;
+    eight:maxOrderDepth 8 .
+
+market:Equity rdf:type market:AssetClass ;
+    rdfs:comment "Equity securities" ;
+    market:tradingVenue ("NYSE" "NASDAQ" "ARCA" "BATS" "IEX" "EDGX" "EDGA" "CHX") ;
+    market:tickSize "0.01" ;
+    eight:maxOrderSize 8 .  # order units
+
+market:FixedIncome rdf:type market:AssetClass ;
+    rdfs:comment "Fixed income securities" ;
+    market:tradingVenue ("Treasury Direct" "TRACE" "MarketAxess" "Tradeweb") ;
+    market:yieldTypes ("Current" "YTM" "YTC" "YTW") ;
+    eight:maxDuration 8.0 .  # years
+
+market:Forex rdf:type market:AssetClass ;
+    rdfs:comment "Foreign exchange" ;
+    market:majorPairs ("EUR/USD" "GBP/USD" "USD/JPY" "USD/CHF" "AUD/USD" "USD/CAD" "NZD/USD") ;
+    market:tradingSession ("Sydney" "Tokyo" "London" "New York") ;
+    eight:maxLeverage 8.0 .
+
+market:Cryptocurrency rdf:type market:AssetClass ;
+    rdfs:comment "Cryptocurrency assets" ;
+    market:exchanges ("Coinbase" "Binance" "Kraken" "Gemini" "Bitstamp") ;
+    market:blockchainTypes ("Bitcoin" "Ethereum" "Solana" "Polygon") ;
+    eight:maxVolatility 0.8 .  # 80% daily volatility limit
+
+market:Commodities rdf:type market:AssetClass ;
+    rdfs:comment "Commodity futures and spots" ;
+    market:commodityTypes ("Energy" "Metals" "Agriculture" "Livestock") ;
+    market:contractMonths ("H" "M" "U" "Z") ;  # Mar, Jun, Sep, Dec
+    eight:maxContractSize 8 .
+
+# Trading Strategies with 8-Space Constraints
+market:TradingStrategy rdf:type owl:Class ;
+    rdfs:comment "Algorithmic trading strategy" ;
+    eight:maxExecutionTime 8 ;
+    eight:maxSignalSources 8 ;
+    eight:maxPositionSize 8 .
+
+market:MomentumStrategy rdf:type market:TradingStrategy ;
+    rdfs:comment "Momentum-based trading strategy" ;
+    market:timeframes ("1m" "5m" "15m" "1h" "4h" "1d") ;
+    market:indicators ("RSI" "MACD" "Stochastic" "Williams%R") ;
+    eight:maxLookbackPeriods 8 .
+
+market:MeanReversionStrategy rdf:type market:TradingStrategy ;
+    rdfs:comment "Mean reversion trading strategy" ;
+    market:bollinger_periods 20 ;
+    market:standard_deviations 2.0 ;
+    market:reversion_threshold 0.8 ;
+    eight:maxHoldingPeriod 8 .  # hours
+
+market:ArbitrageStrategy rdf:type market:TradingStrategy ;
+    rdfs:comment "Statistical arbitrage strategy" ;
+    market:correlation_threshold 0.8 ;
+    market:spread_threshold 0.08 ;  # 8 basis points
+    eight:maxPairCount 8 .
+
+market:MarketMakingStrategy rdf:type market:TradingStrategy ;
+    rdfs:comment "Market making with bid-ask spread capture" ;
+    market:min_spread 0.0008 ;  # 8 basis points
+    market:inventory_target 0.0 ;
+    eight:maxQuoteUpdates 8 .
+
+# Risk Management Framework
+market:RiskMetric rdf:type owl:Class ;
+    rdfs:comment "Risk measurement and management" ;
+    eight:maxCalculationTime 8 ;
+    eight:maxRiskFactors 8 .
+
+market:VaR rdf:type market:RiskMetric ;
+    rdfs:comment "Value at Risk calculation" ;
+    market:confidence_level 0.95 ;
+    market:time_horizon 1 ;  # day
+    eight:maxPortfolioSize 8 .
+
+market:CVaR rdf:type market:RiskMetric ;
+    rdfs:comment "Conditional Value at Risk (Expected Shortfall)" ;
+    market:confidence_level 0.95 ;
+    market:tail_expectation "average" ;
+    eight:maxTailSamples 8 .
+
+market:SharpeRatio rdf:type market:RiskMetric ;
+    rdfs:comment "Sharpe ratio for risk-adjusted returns" ;
+    market:risk_free_rate 0.05 ;  # 5% annual
+    market:calculation_period 252 ;  # trading days
+    eight:maxObservations 8 .
+
+market:MaxDrawdown rdf:type market:RiskMetric ;
+    rdfs:comment "Maximum drawdown measurement" ;
+    market:calculation_method "peak-to-trough" ;
+    eight:maxDrawdownPeriod 8 .  # months
+
+# Portfolio Optimization
+market:PortfolioOptimizer rdf:type owl:Class ;
+    rdfs:comment "Portfolio optimization engine with 8-Space constraints" ;
+    eight:maxAssets 8 ;
+    eight:maxIterations 8 ;
+    eight:maxOptimizationTime 8 .
+
+market:MarkowitzOptimizer rdf:type market:PortfolioOptimizer ;
+    rdfs:comment "Modern Portfolio Theory optimizer" ;
+    market:objective "minimize_variance" ;
+    market:constraints ("sum_weights_eq_1" "long_only" "max_weight_0.8") ;
+    eight:maxCovarianceSize 8 .
+
+market:BlackLittermanOptimizer rdf:type market:PortfolioOptimizer ;
+    rdfs:comment "Black-Litterman portfolio optimization" ;
+    market:confidence_level 0.8 ;
+    market:tau 0.025 ;
+    market:views_uncertainty "proportional" ;
+    eight:maxViewCount 8 .
+
+# Market Microstructure and Order Management
+market:OrderType rdf:type owl:Class ;
+    rdfs:comment "Order types with execution constraints" ;
+    eight:maxOrderLifetime 8 ;
+    eight:maxModifications 8 .
+
+market:MarketOrder rdf:type market:OrderType ;
+    rdfs:comment "Market order for immediate execution" ;
+    market:execution_priority "time" ;
+    market:slippage_tolerance 0.008 ;  # 80 basis points
+    eight:maxFillTime 8 .
+
+market:LimitOrder rdf:type market:OrderType ;
+    rdfs:comment "Limit order with price specification" ;
+    market:time_in_force ("DAY" "GTC" "IOC" "FOK") ;
+    market:price_improvement true ;
+    eight:maxPriceLevels 8 .
+
+market:StopOrder rdf:type market:OrderType ;
+    rdfs:comment "Stop order for risk management" ;
+    market:stop_types ("stop_loss" "take_profit" "trailing_stop") ;
+    market:trigger_method "last_price" ;
+    eight:maxSlippageTicks 8 .
+
+# Performance Analytics
+market:PerformanceMetric rdf:type owl:Class ;
+    rdfs:comment "Performance measurement with OpenTelemetry integration" ;
+    otel:traceable true ;
+    eight:maxCalculationLatency 8 .
+
+market:AlphaGeneration rdf:type market:PerformanceMetric ;
+    rdfs:comment "Alpha generation measurement" ;
+    market:benchmark "SPY" ;
+    market:calculation_method "regression" ;
+    eight:maxBenchmarkPeriod 8 .  # years
+
+market:InformationRatio rdf:type market:PerformanceMetric ;
+    rdfs:comment "Information ratio calculation" ;
+    market:tracking_error_annualized true ;
+    eight:maxTrackingPeriod 8 .  # years
+
+# Ultra-High Frequency Trading Components
+market:UHFTStrategy rdf:type owl:Class ;
+    rdfs:subClassOf market:TradingStrategy ;
+    rdfs:comment "Ultra-high frequency trading strategy" ;
+    eight:maxLatencyNanoseconds 8 ;
+    eight:maxOrdersPerSecond 8 ;
+    eight:maxMarketDataFeeds 8 .
+
+market:LatencyOptimization rdf:type owl:Class ;
+    rdfs:comment "Latency optimization techniques" ;
+    market:techniques ("Kernel Bypass" "FPGA" "Colocation" "Direct Market Access") ;
+    eight:maxNetworkHops 8 ;
+    eight:targetLatency 8 .
+
+# Market Data and Signal Processing
+market:MarketDataFeed rdf:type owl:Class ;
+    rdfs:comment "Market data feed with 8-Space processing constraints" ;
+    eight:maxUpdateFrequency 8 ;
+    eight:maxBufferSize 8 ;
+    eight:maxProcessingDelay 8 .
+
+market:Level1Data rdf:type market:MarketDataFeed ;
+    rdfs:comment "Level 1 market data (top of book)" ;
+    market:data_fields ("bid" "ask" "bid_size" "ask_size" "last" "volume") ;
+    eight:maxSymbols 8 .
+
+market:Level2Data rdf:type market:MarketDataFeed ;
+    rdfs:comment "Level 2 market data (full depth of book)" ;
+    market:depth_levels 10 ;
+    eight:maxDepthLevels 8 .
+
+# Properties for Market Domain
+market:tradingVenue rdf:type owl:DatatypeProperty ;
+    rdfs:domain market:AssetClass ;
+    rdfs:range rdf:List ;
+    rdfs:comment "Available trading venues" .
+
+market:tickSize rdf:type owl:DatatypeProperty ;
+    rdfs:domain market:AssetClass ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Minimum price increment" .
+
+market:timeframes rdf:type owl:DatatypeProperty ;
+    rdfs:domain market:TradingStrategy ;
+    rdfs:range rdf:List ;
+    rdfs:comment "Supported timeframes for strategy" .
+
+market:confidence_level rdf:type owl:DatatypeProperty ;
+    rdfs:domain market:RiskMetric ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Statistical confidence level" .
+
+market:objective rdf:type owl:DatatypeProperty ;
+    rdfs:domain market:PortfolioOptimizer ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Optimization objective function" .
+
+market:execution_priority rdf:type owl:DatatypeProperty ;
+    rdfs:domain market:OrderType ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Order execution priority" .
+
+# SHACL Validation for Market Domain
+[] rdf:type sh:NodeShape ;
+    sh:targetClass market:AssetClass ;
+    sh:property [
+        sh:path eight:maxPositions ;
+        sh:hasValue 8 ;
+        sh:message "Asset classes limited to 8 positions under 8-Space constraints"
+    ] .
+
+[] rdf:type sh:NodeShape ;
+    sh:targetClass market:TradingStrategy ;
+    sh:property [
+        sh:path eight:maxExecutionTime ;
+        sh:maxInclusive 8000 ;
+        sh:message "Strategy execution time cannot exceed 8000 microseconds"
+    ] .
+
+[] rdf:type sh:NodeShape ;
+    sh:targetClass market:PortfolioOptimizer ;
+    sh:property [
+        sh:path eight:maxAssets ;
+        sh:maxInclusive 8 ;
+        sh:message "Portfolio optimizers limited to 8 assets under 8-Space"
+    ] .
+
+[] rdf:type sh:NodeShape ;
+    sh:targetClass market:UHFTStrategy ;
+    sh:property [
+        sh:path eight:maxLatencyNanoseconds ;
+        sh:maxInclusive 800000 ;
+        sh:message "UHFT strategies must maintain sub-800 microsecond latency"
+    ] .

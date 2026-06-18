@@ -1,0 +1,18 @@
+PREFIX cap:  <https://chatmangpt.com/ontologies/o-star/cap:>
+PREFIX proj: <https://chatmangpt.com/ontologies/o-star/proj:>
+PREFIX rt:   <https://chatmangpt.com/ontologies/o-star/runtime:>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Enumerate all admitted PublicSurfaces with their surface kind, projector, and runtime.
+# mu runs this to determine what must be compiled in the current pipeline run.
+
+SELECT ?capability ?label ?surfaceKind ?effectClass ?projectorFamily ?runtimeProfile ?requiresReceipt WHERE {
+  ?capability a cap:PublicSurface ;
+              cap:admissionStatus "admitted" ;
+              cap:surfaceKind     ?surfaceKind ;
+              cap:projectorFamily ?projectorFamily .
+  OPTIONAL { ?capability rdfs:label                 ?label }
+  OPTIONAL { ?capability cap:effectClass             ?effectClass }
+  OPTIONAL { ?capability cap:runtimeProfile          ?runtimeProfile }
+  OPTIONAL { ?capability cap:requiresReceiptPolicy   ?requiresReceipt }
+} ORDER BY ?surfaceKind ?capability

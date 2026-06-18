@@ -1,0 +1,295 @@
+@prefix bj: <http://bitjob.io/ontology#> .
+@prefix bf: <http://bitstar.io/bitflow#> .
+@prefix bm: <http://bitstar.io/bitmesh#> .
+@prefix ba: <http://bitstar.io/bitactor#> .
+@prefix yawl: <http://yawlfoundation.org/yawlschema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# ========================================================================
+# BitJob Turtle YAWL Workflow Definitions
+# Leveraging EXISTING BitStar Components (No New Engines!)
+# ========================================================================
+
+# Component Mapping to Existing Code
+bj:ExistingComponents a owl:Class ;
+    rdfs:label "Production BitStar Components" ;
+    rdfs:comment "All these components already exist in /server/lib/" ;
+    bj:bitflowEngine "/server/lib/bitflow/applicationWorkflow.js" ;
+    bj:bitmeshSwarm "/server/lib/bitmesh/matchingSwarm.js" ;
+    bj:bitactorPool "/server/lib/bitactor/jobMatcherPool.js" ;
+    bj:yawlPatterns "/server/lib/bitflow/yawlJobEngineWorkflows.js" .
+
+# ========================================================================
+# Layer 1: Nuxt App (Presentation Layer)
+# ========================================================================
+
+bj:NuxtApp a bf:Layer ;
+    rdfs:label "Nuxt Application Layer" ;
+    bf:existingComponents [
+        bj:path "/pages/jobs.vue" ;
+        bj:path "/pages/dashboard.vue" ;
+        bj:path "/composables/useApplications.js" ;
+        bj:path "/composables/useJobSearch.js"
+    ] ;
+    bf:responsibilities "UI rendering, user interaction, state management" ;
+    bf:connectsTo bj:NuxtBitSupa .
+
+# ========================================================================
+# Layer 2: Nuxt-Bit-Supa (Validation & Auth Layer)
+# ========================================================================
+
+bj:NuxtBitSupa a bf:Layer ;
+    rdfs:label "Nuxt-Bit-Supa Integration Layer" ;
+    bf:existingComponents [
+        bj:path "/plugins/01.bit-supa-integration.client.ts" ;
+        bj:path "/composables/useBitSupa.js" ;
+        bj:path "/server/api/auth/" ;
+        bj:path "/middleware/auth.js"
+    ] ;
+    bf:responsibilities "Authentication, validation, Supabase integration" ;
+    bf:connectsTo bj:BitMesh ;
+    bf:ttl 3600 . # 1 hour session TTL
+
+# ========================================================================
+# Layer 3: BitMesh (Service Mesh & Distribution)
+# ========================================================================
+
+bj:BitMesh a bm:ServiceMesh ;
+    rdfs:label "BitMesh Swarm Intelligence Layer" ;
+    bm:existingSwarm "/server/lib/bitmesh/matchingSwarm.js" ;
+    bm:swarmSize 50 ;
+    bm:consensusAlgorithm "Byzantine Fault Tolerant" ;
+    bm:components [
+        bj:matcherNode1 a bm:SwarmNode ;
+            bm:strategy "semantic_matching" ;
+            bm:weight 0.3 ;
+        bj:matcherNode2 a bm:SwarmNode ;
+            bm:strategy "skill_matching" ;
+            bm:weight 0.3 ;
+        bj:matcherNode3 a bm:SwarmNode ;
+            bm:strategy "experience_matching" ;
+            bm:weight 0.2 ;
+        bj:matcherNode4 a bm:SwarmNode ;
+            bm:strategy "location_matching" ;
+            bm:weight 0.2
+    ] ;
+    bm:cacheLayer "/server/lib/cache/bitmesh-cache.js" ;
+    bm:ttl 600 ; # 10 minute cache
+    bf:connectsTo bj:BitFlow .
+
+# ========================================================================
+# Layer 4: BitFlow (Workflow Orchestration)
+# ========================================================================
+
+bj:BitFlow a bf:WorkflowEngine ;
+    rdfs:label "BitFlow YAWL Workflow Engine" ;
+    bf:existingEngine "/server/lib/bitflow/applicationWorkflow.js" ;
+    bf:yawlPatterns "/server/lib/bitflow/yawlJobEngineWorkflows.js" ;
+    bf:trinityCompliant true ;
+    bf:tickDuration 125 ; # 125ms per tick
+    bf:maxTicks 8 ; # Trinity 8-tick constraint
+    bf:implementsPatterns [
+        yawl:Pattern1_Sequence ;
+        yawl:Pattern2_ParallelSplit ;
+        yawl:Pattern3_Synchronization ;
+        yawl:Pattern4_ExclusiveChoice ;
+        yawl:Pattern5_SimpleMerge ;
+        # ... all 43 Van der Aalst patterns implemented
+    ] ;
+    bf:connectsTo bj:TTL_YAWL .
+
+# ========================================================================
+# Layer 5: TTL YAWL (Execution with Time-To-Live)
+# ========================================================================
+
+bj:TTL_YAWL a yawl:ExecutionEngine ;
+    rdfs:label "TTL-Aware YAWL Execution Layer" ;
+    yawl:existingAdapter "/utils/bit-integration/bitflowAdapter.js" ;
+    yawl:persistenceLayer "/supabase/migrations/20250806042000_create_bitflow_workflow_tables.sql" ;
+    yawl:ttlManagement true ;
+    yawl:checkpointInterval 300 ; # 5 minute checkpoints
+    yawl:deadLetterTTL 86400 . # 24 hour dead letter
+
+# ========================================================================
+# WORKFLOW DEFINITIONS (Using Existing Components)
+# ========================================================================
+
+# Job Application Workflow (TURTLE Pattern - Slow & Steady)
+bj:JobApplicationWorkflow a bf:Workflow ;
+    rdfs:label "Job Application Turtle Workflow" ;
+    dcterms:description "Complete job application pipeline with checkpoints" ;
+    bf:type "turtle" ; # Slow, reliable, persistent
+    bf:existingImplementation "/server/lib/bitflow/applicationWorkflow.js" ;
+    bf:stages [
+        # Stage 1: Receive & Validate
+        bj:ReceiveApplication a bf:WorkflowStage ;
+            bf:stageNumber 1 ;
+            bf:name "Receive Application" ;
+            bf:executedBy bj:NuxtBitSupa ;
+            bf:existingAPI "/server/api/applications.post.js" ;
+            bf:timeout 60 ;
+            bf:checkpoint true ;
+            bf:ttl 300 ;
+            
+        # Stage 2: Parse Resume
+        bj:ParseResume a bf:WorkflowStage ;
+            bf:stageNumber 2 ;
+            bf:name "Parse Resume" ;
+            bf:executedBy bj:BitActorPool ;
+            bf:existingActor "/server/lib/bitactor/resumeParserPool.js" ;
+            bf:timeout 300 ;
+            bf:checkpoint true ;
+            bf:ttl 600 ;
+            
+        # Stage 3: Match with AI
+        bj:AIMatching a bf:WorkflowStage ;
+            bf:stageNumber 3 ;
+            bf:name "AI-Powered Matching" ;
+            bf:executedBy bj:BitMesh ;
+            bf:existingSwarm "/server/lib/bitmesh/matchingSwarm.js" ;
+            bf:consensusRequired true ;
+            bf:timeout 600 ;
+            bf:checkpoint true ;
+            bf:ttl 900 ;
+            
+        # Stage 4: Rank & Classify
+        bj:RankCandidate a bf:WorkflowStage ;
+            bf:stageNumber 4 ;
+            bf:name "Rank Candidate" ;
+            bf:executedBy bj:BitFlow ;
+            bf:pattern yawl:Pattern4_ExclusiveChoice ;
+            bf:existingLogic "/utils/jobMatcher.js" ;
+            bf:timeout 120 ;
+            bf:checkpoint true ;
+            
+        # Stage 5: Notify & Schedule
+        bj:NotifyEmployer a bf:WorkflowStage ;
+            bf:stageNumber 5 ;
+            bf:name "Notify Employer" ;
+            bf:executedBy bj:TTL_YAWL ;
+            bf:pattern yawl:Pattern2_ParallelSplit ;
+            bf:existingAPI "/server/api/notifications.post.js" ;
+            bf:timeout 180 ;
+            bf:checkpoint false
+    ] ;
+    bf:transitions [
+        [ bf:from bj:ReceiveApplication ; bf:to bj:ParseResume ] ;
+        [ bf:from bj:ParseResume ; bf:to bj:AIMatching ] ;
+        [ bf:from bj:AIMatching ; bf:to bj:RankCandidate ] ;
+        [ bf:from bj:RankCandidate ; bf:to bj:NotifyEmployer ;
+          bf:condition "match_score >= 60" ]
+    ] .
+
+# Job Discovery Workflow (YAWL Pattern - Complex Flow)
+bj:JobDiscoveryWorkflow a bf:Workflow ;
+    rdfs:label "Job Discovery YAWL Workflow" ;
+    dcterms:description "Multi-path job discovery with parallel processing" ;
+    bf:type "yawl" ; # Complex workflow patterns
+    bf:existingImplementation "/server/lib/bitflow/jobHuntingWorkflow.js" ;
+    bf:stages [
+        # Parallel job search across platforms
+        bj:SearchJobs a bf:WorkflowStage ;
+            bf:pattern yawl:Pattern2_ParallelSplit ;
+            bf:executedBy bj:BitMesh ;
+            bf:parallelTasks [
+                [ bf:platform "internal" ; bf:api "/api/jobs.get.js" ] ;
+                [ bf:platform "external" ; bf:api "/api/jobs/external.js" ] ;
+                [ bf:platform "ai_generated" ; bf:api "/api/jobs/ai-suggestions.js" ]
+            ] ;
+            
+        # Synchronize results
+        bj:MergeResults a bf:WorkflowStage ;
+            bf:pattern yawl:Pattern3_Synchronization ;
+            bf:executedBy bj:BitFlow ;
+            bf:existingMerger "/utils/jobMerger.js" ;
+            
+        # Multi-choice filtering
+        bj:FilterJobs a bf:WorkflowStage ;
+            bf:pattern yawl:Pattern6_MultiChoice ;
+            bf:executedBy bj:BitActorPool ;
+            bf:filters [
+                [ bf:criteria "salary" ; bf:weight 0.3 ] ;
+                [ bf:criteria "location" ; bf:weight 0.2 ] ;
+                [ bf:criteria "skills" ; bf:weight 0.5 ]
+            ]
+    ] .
+
+# BitActor Pool Configuration (Existing)
+bj:BitActorPool a ba:ActorPool ;
+    rdfs:label "High-Performance BitActor Pool" ;
+    ba:existingPool "/server/lib/bitactor/jobMatcherPool.js" ;
+    ba:poolSize 64 ;
+    ba:actorType "lightweight" ;
+    ba:supervisionStrategy "one_for_one" ;
+    ba:messageBatching true ;
+    ba:mailboxLimit 10000 ;
+    ba:performance "2.186B ops/sec" . # From benchmarks
+
+# ========================================================================
+# API ENDPOINTS (All Existing - No New Code!)
+# ========================================================================
+
+bj:ExistingAPIs a owl:Class ;
+    rdfs:label "Production API Endpoints" ;
+    bj:endpoints [
+        [ bj:path "/api/yawl/execute-job-workflows" ;
+          bj:method "POST" ;
+          bj:purpose "Execute YAWL workflows" ] ;
+        
+        [ bj:path "/api/jobs/yawl-integration" ;
+          bj:method "POST" ;
+          bj:purpose "Job-workflow integration" ] ;
+        
+        [ bj:path "/api/application-workflow" ;
+          bj:method "POST" ;
+          bj:purpose "Application workflows" ] ;
+        
+        [ bj:path "/api/bitactor/coordination" ;
+          bj:method "POST" ;
+          bj:purpose "Actor coordination" ] ;
+        
+        [ bj:path "/api/jobs.get.js" ;
+          bj:method "GET" ;
+          bj:purpose "Job discovery" ] ;
+        
+        [ bj:path "/api/applications.post.js" ;
+          bj:method "POST" ;
+          bj:purpose "Submit applications" ]
+    ] .
+
+# ========================================================================
+# PERFORMANCE CHARACTERISTICS (From Existing System)
+# ========================================================================
+
+bj:SystemPerformance a owl:Class ;
+    rdfs:label "Measured Performance Metrics" ;
+    bj:trinity "8 ticks @ 125ms" ;
+    bj:throughput "2.186B ops/sec" ;
+    bj:swarmNodes "5-50 auto-scaling" ;
+    bj:actorPools "64 actors per pool" ;
+    bj:cacheTTL "600 seconds" ;
+    bj:sessionTTL "3600 seconds" ;
+    bj:checkpointInterval "300 seconds" ;
+    bj:consensusAlgorithm "Byzantine Fault Tolerant" ;
+    bj:patterns "Van der Aalst 1-43 complete" .
+
+# ========================================================================
+# INTEGRATION INSTRUCTIONS (Configuration Only!)
+# ========================================================================
+
+bj:IntegrationSteps a owl:Class ;
+    rdfs:label "How to Wire Everything Together" ;
+    rdfs:comment """
+    1. All components exist - just configure connections
+    2. Update .env with Supabase credentials
+    3. Enable existing APIs in nuxt.config.js
+    4. Start BitActor pools: npm run actors:start
+    5. Initialize BitMesh swarm: npm run swarm:init
+    6. Deploy workflows: npm run workflows:deploy
+    
+    NO NEW ENGINES NEEDED - Everything is already built!
+    """ .

@@ -1,0 +1,3432 @@
+@prefix ns1: <http://cns.ai/ontology/healthcare#> .
+@prefix ns2: <http://hyperintelligence.ai/patterns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://bitstar.ai/dark#DarkChain_047565f95f3b> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_08766fe16b23> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_0a357de7c803> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_0d8fb6d27245> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_0fcd5d2ec598> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_102c28b8016a> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_12bbb960d138> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_150b2aced2e8> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_16f41ccbb669> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_1d1b31775d1f> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_1e8fcbc28c45> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_1f1671da5463> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_21b0eb72cb88> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_21d6a0f3368e> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_2890ed23ba0a> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_2da1fcb50557> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_34145574e9d4> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_358ac67c7971> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_36cf3b32b2de> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_38eeb0f065b1> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_3bc0fc82dcc7> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_3d1b5be832c5> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_44d00f9e0ed8> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_45b259d6a949> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_4b165309e1da> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_50b89c3bb456> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_56526f752fa5> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_58457d01bc0e> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_597ee941b2bf> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_5b9dcf3f4e17> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_5cc5e78e5fcf> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_5ea37e7aaea9> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_63ac67bf1931> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_64584c9df9a8> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_648bc3899581> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_65396d7b99fa> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_6ebe318f6cd0> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_6f6577082cd2> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_735c4c9814dd> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_73ad834257da> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_77b1879a0c8f> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_7acef8b02cb1> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_7c26544e0b25> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_7c41b0a76ad8> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_811742dd8a0c> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_81c80a79c399> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_863e2419370d> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_8ba8da53735d> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_8bf1fb61b3b7> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_8c42d147461a> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_8fefbd414124> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_9232b18ed13e> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_945baf6769ba> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_94b8a1486ab5> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_97a3b06669fc> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_9b14c496cea9> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_9c252e1495bd> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_9cfa1cfc191c> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_9d2e64df5710> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_a182560825fa> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_a280e1b73fe3> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_a606293b51ff> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_a9e81d182c69> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_adc4420c8e94> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_b644931edc7e> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_b9f4eca8dcba> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_ba23b0803a74> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_ba3aede5c70a> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_bace4632dde6> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_bcf8459b3fcb> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_bf0f0cd03a44> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_c0ce84abb83f> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_c1683eded21d> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_c4d3a08eba3b> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_ca1cb817a533> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_cb85d653549c> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_cbd0cdb56e3b> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_cf0b4da53009> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_cfa72d4fcf6e> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_cfb835949f05> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_d2f1a568caca> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_d4ca0f9a2e1d> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_d5c8a622648c> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_d5ff6bbebe09> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_d7a7af561637> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_dd7875720c16> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_de332e5142da> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_e4c2f96cf51e> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_e4cecc10390d> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_eab0f7c53c95> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_eb3c9b541d1f> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_ec687a2d4b22> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_ec6ca59b8c2e> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_ef7da6662f8b> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_f096ba44e939> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_f4b7783c6ba2> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_f582029b9dc5> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_f860ee14ca65> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_fca5596cc5db> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_fea6acee9463> ns2:hasComplexityLevel 7 .
+
+ns1:AcuteCondition a owl:Class ;
+    rdfs:label "Acute Medical Condition"@en ;
+    rdfs:subClassOf ns1:MedicalCondition .
+
+ns1:AtrialFibrillation a ns1:Arrhythmia ;
+    rdfs:label "Atrial Fibrillation" .
+
+ns1:BaxterInfusionPump a ns1:InfusionPump ;
+    ns1:deviceManufacturer "Baxter International" ;
+    ns1:deviceModel "SIGMA Spectrum" ;
+    ns1:deviceStatus "operational" .
+
+ns1:BloodPressureMonitor a owl:Class ;
+    rdfs:label "Blood Pressure Monitor"@en ;
+    rdfs:subClassOf ns1:MonitoringDevice .
+
+ns1:Cardiologist a ns1:Specialist ;
+    rdfs:label "Cardiologist" .
+
+ns1:CardiologyUnit a owl:Class ;
+    rdfs:label "Cardiology Unit"@en ;
+    rdfs:subClassOf ns1:MedicalUnit .
+
+ns1:ChronicCOPD a ns1:COPD ;
+    rdfs:label "Chronic COPD" .
+
+ns1:Clinic a owl:Class ;
+    rdfs:label "Medical Clinic"@en ;
+    rdfs:subClassOf ns1:HealthcareFacility .
+
+ns1:ClinicalEvent a owl:Class ;
+    rdfs:label "Clinical Event"@en ;
+    rdfs:comment "Significant occurrence in patient care or monitoring"@en .
+
+ns1:CodeBlue a owl:Class ;
+    rdfs:label "Code Blue Emergency"@en ;
+    rdfs:subClassOf ns1:CriticalAlert .
+
+ns1:Defibrillator a owl:Class ;
+    rdfs:label "Automated External Defibrillator"@en ;
+    rdfs:subClassOf ns1:MedicalDevice .
+
+ns1:DeviceAlert a owl:Class ;
+    rdfs:label "Medical Device Alert"@en ;
+    rdfs:subClassOf ns1:MedicalAlert .
+
+ns1:ECGMonitor a owl:Class ;
+    rdfs:label "Electrocardiogram Monitor"@en ;
+    rdfs:subClassOf ns1:MonitoringDevice .
+
+ns1:EmergencyDepartment a owl:Class ;
+    rdfs:label "Emergency Department"@en ;
+    rdfs:subClassOf ns1:MedicalUnit .
+
+ns1:EssentialHypertension a ns1:Hypertension ;
+    rdfs:label "Essential Hypertension" .
+
+ns1:GlucoseMonitor a owl:Class ;
+    rdfs:label "Blood Glucose Monitor"@en ;
+    rdfs:subClassOf ns1:MonitoringDevice .
+
+ns1:HealthcareOntology a owl:Ontology ;
+    rdfs:label "Real-time Healthcare Monitoring System"@en ;
+    rdfs:comment "Semantic model for ultra-fast patient monitoring and clinical decision support"@en ;
+    owl:versionInfo "1.0" .
+
+ns1:Hospital a owl:Class ;
+    rdfs:label "Hospital"@en ;
+    rdfs:subClassOf ns1:HealthcareFacility .
+
+ns1:ICU a owl:Class ;
+    rdfs:label "Intensive Care Unit"@en ;
+    rdfs:subClassOf ns1:MedicalUnit .
+
+ns1:ICUNurse a ns1:Nurse ;
+    rdfs:label "ICU Nurse" .
+
+ns1:MasimoPulseOx a ns1:PulseOximeter ;
+    ns1:deviceManufacturer "Masimo Corporation" ;
+    ns1:deviceModel "Radical-7" ;
+    ns1:measurementAccuracy 99.2 ;
+    ns1:realTimeMonitoring true ;
+    ns1:samplingRate 50.0 .
+
+ns1:MedicalSurgicalUnit a owl:Class ;
+    rdfs:label "Medical-Surgical Unit"@en ;
+    rdfs:subClassOf ns1:MedicalUnit .
+
+ns1:MedicationAlert a owl:Class ;
+    rdfs:label "Medication Alert"@en ;
+    rdfs:subClassOf ns1:MedicalAlert .
+
+ns1:NICU a owl:Class ;
+    rdfs:label "Neonatal Intensive Care Unit"@en ;
+    rdfs:subClassOf ns1:MedicalUnit .
+
+ns1:NormalBloodGlucose a ns1:BloodGlucose ;
+    ns1:criticalRangeHigh 400.0 ;
+    ns1:criticalRangeLow 50.0 ;
+    ns1:measurementUnit "mg/dL" ;
+    ns1:normalRangeHigh 140.0 ;
+    ns1:normalRangeLow 70.0 .
+
+ns1:NormalBloodPressure a ns1:BloodPressure ;
+    ns1:criticalRangeHigh 180.0 ;
+    ns1:criticalRangeLow 70.0 ;
+    ns1:measurementUnit "mmHg" ;
+    ns1:normalRangeHigh 140.0 ;
+    ns1:normalRangeLow 90.0 .
+
+ns1:NormalBodyTemperature a ns1:BodyTemperature ;
+    ns1:criticalRangeHigh 40.0 ;
+    ns1:criticalRangeLow 35.0 ;
+    ns1:measurementUnit "°C" ;
+    ns1:normalRangeHigh 37.2 ;
+    ns1:normalRangeLow 36.1 .
+
+ns1:NormalHeartRate a ns1:HeartRate ;
+    ns1:criticalRangeHigh 150.0 ;
+    ns1:criticalRangeLow 40.0 ;
+    ns1:measurementUnit "bpm" ;
+    ns1:normalRangeHigh 100.0 ;
+    ns1:normalRangeLow 60.0 .
+
+ns1:NormalOxygenSaturation a ns1:OxygenSaturation ;
+    ns1:criticalRangeHigh 100.0 ;
+    ns1:criticalRangeLow 88.0 ;
+    ns1:measurementUnit "%" ;
+    ns1:normalRangeHigh 100.0 ;
+    ns1:normalRangeLow 95.0 .
+
+ns1:NormalRespiratoryRate a ns1:RespiratoryRate ;
+    ns1:criticalRangeHigh 30.0 ;
+    ns1:criticalRangeLow 8.0 ;
+    ns1:measurementUnit "breaths/min" ;
+    ns1:normalRangeHigh 20.0 ;
+    ns1:normalRangeLow 12.0 .
+
+ns1:PatientDeteriorationAlert a owl:Class ;
+    rdfs:label "Patient Deterioration Alert"@en ;
+    rdfs:subClassOf ns1:CriticalAlert .
+
+ns1:PhilipsIntelliVue a ns1:VitalSignsMonitor ;
+    ns1:deviceManufacturer "Philips Healthcare" ;
+    ns1:deviceModel "IntelliVue MX800" ;
+    ns1:measurementAccuracy 98.5 ;
+    ns1:realTimeMonitoring true ;
+    ns1:samplingRate 125.0 ;
+    ns1:simdOptimized true .
+
+ns1:RespiratoryMonitor a owl:Class ;
+    rdfs:label "Respiratory Monitor"@en ;
+    rdfs:subClassOf ns1:MonitoringDevice .
+
+ns1:RespiratoryTherapist a ns1:Technician ;
+    rdfs:label "Respiratory Therapist" .
+
+ns1:Surgery a owl:Class ;
+    rdfs:label "Surgical Procedure"@en ;
+    rdfs:subClassOf ns1:Treatment .
+
+ns1:TemperatureMonitor a owl:Class ;
+    rdfs:label "Body Temperature Monitor"@en ;
+    rdfs:subClassOf ns1:MonitoringDevice .
+
+ns1:Therapy a owl:Class ;
+    rdfs:label "Medical Therapy"@en ;
+    rdfs:subClassOf ns1:Treatment .
+
+ns1:Type2Diabetes a ns1:Diabetes ;
+    rdfs:label "Type 2 Diabetes Mellitus" .
+
+ns1:Ventilator a owl:Class ;
+    rdfs:label "Mechanical Ventilator"@en ;
+    rdfs:subClassOf ns1:MedicalDevice .
+
+ns1:VitalSignAlert a owl:Class ;
+    rdfs:label "Vital Sign Alert"@en ;
+    rdfs:subClassOf ns1:MedicalAlert .
+
+ns1:WelchAllynVitalSigns a ns1:VitalSignsMonitor ;
+    ns1:deviceManufacturer "Welch Allyn" ;
+    ns1:deviceModel "Connex VSM 6000" ;
+    ns1:measurementAccuracy 97.8 ;
+    ns1:realTimeMonitoring true .
+
+ns1:acknowledgedBy a owl:DatatypeProperty ;
+    rdfs:label "Alert Acknowledged By"@en ;
+    rdfs:domain ns1:MedicalAlert ;
+    rdfs:range xsd:string .
+
+ns1:acknowledgmentTime a owl:DatatypeProperty ;
+    rdfs:label "Alert Acknowledgment Time"@en ;
+    rdfs:domain ns1:MedicalAlert ;
+    rdfs:range xsd:dateTime .
+
+ns1:acuityLevel a owl:DatatypeProperty ;
+    rdfs:label "Patient Acuity Level (1-5)"@en ;
+    rdfs:domain ns1:Patient ;
+    rdfs:range xsd:integer .
+
+ns1:administrationTime a owl:DatatypeProperty ;
+    rdfs:label "Medication Administration Time"@en ;
+    rdfs:domain ns1:Dosage ;
+    rdfs:range xsd:dateTime .
+
+ns1:admissionDate a owl:DatatypeProperty ;
+    rdfs:label "Hospital Admission Date"@en ;
+    rdfs:domain ns1:Patient ;
+    rdfs:range xsd:dateTime .
+
+ns1:age a owl:DatatypeProperty ;
+    rdfs:label "Age (years)"@en ;
+    rdfs:domain ns1:Patient ;
+    rdfs:range xsd:integer .
+
+ns1:alertID a owl:DatatypeProperty ;
+    rdfs:label "Alert Identifier"@en ;
+    rdfs:domain ns1:MedicalAlert ;
+    rdfs:range xsd:string .
+
+ns1:alertMessage a owl:DatatypeProperty ;
+    rdfs:label "Alert Message"@en ;
+    rdfs:domain ns1:MedicalAlert ;
+    rdfs:range xsd:string .
+
+ns1:alertResponseTime a owl:DatatypeProperty ;
+    rdfs:label "Alert Response Time (milliseconds)"@en ;
+    rdfs:domain ns1:MedicalAlert ;
+    rdfs:range xsd:decimal .
+
+ns1:alertSeverity a owl:DatatypeProperty ;
+    rdfs:label "Alert Severity (1-5)"@en ;
+    rdfs:domain ns1:MedicalAlert ;
+    rdfs:range xsd:integer .
+
+ns1:alertStatus a owl:DatatypeProperty ;
+    rdfs:label "Alert Status"@en ;
+    rdfs:domain ns1:MedicalAlert ;
+    rdfs:range xsd:string .
+
+ns1:alertThresholdHigh a owl:DatatypeProperty ;
+    rdfs:label "High Alert Threshold"@en ;
+    rdfs:domain ns1:MonitoringDevice ;
+    rdfs:range xsd:decimal .
+
+ns1:alertThresholdLow a owl:DatatypeProperty ;
+    rdfs:label "Low Alert Threshold"@en ;
+    rdfs:domain ns1:MonitoringDevice ;
+    rdfs:range xsd:decimal .
+
+ns1:alertTimestamp a owl:DatatypeProperty ;
+    rdfs:label "Alert Timestamp"@en ;
+    rdfs:domain ns1:MedicalAlert ;
+    rdfs:range xsd:dateTime .
+
+ns1:alertType a owl:DatatypeProperty ;
+    rdfs:label "Alert Type"@en ;
+    rdfs:domain ns1:MedicalAlert ;
+    rdfs:range xsd:string .
+
+ns1:beatsPerMinute a owl:DatatypeProperty ;
+    rdfs:label "Heart Rate (beats per minute)"@en ;
+    rdfs:domain ns1:HeartRate ;
+    rdfs:range xsd:integer .
+
+ns1:bitactorID a owl:DatatypeProperty ;
+    rdfs:label "BitActor Instance ID"@en ;
+    rdfs:domain ns1:MedicalDevice ;
+    rdfs:range xsd:string .
+
+ns1:breathsPerMinute a owl:DatatypeProperty ;
+    rdfs:label "Respiratory Rate (breaths per minute)"@en ;
+    rdfs:domain ns1:RespiratoryRate ;
+    rdfs:range xsd:integer .
+
+ns1:consciousnessLevel a owl:DatatypeProperty ;
+    rdfs:label "Level of Consciousness"@en ;
+    rdfs:domain ns1:Patient ;
+    rdfs:range xsd:string .
+
+ns1:criticalRangeHigh a owl:DatatypeProperty ;
+    rdfs:label "Critical Range Upper Bound"@en ;
+    rdfs:domain ns1:VitalSign ;
+    rdfs:range xsd:decimal .
+
+ns1:criticalRangeLow a owl:DatatypeProperty ;
+    rdfs:label "Critical Range Lower Bound"@en ;
+    rdfs:domain ns1:VitalSign ;
+    rdfs:range xsd:decimal .
+
+ns1:dateOfBirth a owl:DatatypeProperty ;
+    rdfs:label "Date of Birth"@en ;
+    rdfs:domain ns1:Patient ;
+    rdfs:range xsd:date .
+
+ns1:deviceID a owl:DatatypeProperty ;
+    rdfs:label "Medical Device Identifier"@en ;
+    rdfs:domain ns1:MedicalDevice ;
+    rdfs:range xsd:string .
+
+ns1:deviceManufacturer a owl:DatatypeProperty ;
+    rdfs:label "Device Manufacturer"@en ;
+    rdfs:domain ns1:MedicalDevice ;
+    rdfs:range xsd:string .
+
+ns1:deviceModel a owl:DatatypeProperty ;
+    rdfs:label "Device Model"@en ;
+    rdfs:domain ns1:MedicalDevice ;
+    rdfs:range xsd:string .
+
+ns1:deviceStatus a owl:DatatypeProperty ;
+    rdfs:label "Device Operational Status"@en ;
+    rdfs:domain ns1:MedicalDevice ;
+    rdfs:range xsd:string .
+
+ns1:diastolicPressure a owl:DatatypeProperty ;
+    rdfs:label "Diastolic Blood Pressure (mmHg)"@en ;
+    rdfs:domain ns1:BloodPressure ;
+    rdfs:range xsd:decimal .
+
+ns1:dischargeDate a owl:DatatypeProperty ;
+    rdfs:label "Hospital Discharge Date"@en ;
+    rdfs:domain ns1:Patient ;
+    rdfs:range xsd:dateTime .
+
+ns1:dosageAmount a owl:DatatypeProperty ;
+    rdfs:label "Dosage Amount"@en ;
+    rdfs:domain ns1:Dosage ;
+    rdfs:range xsd:decimal .
+
+ns1:dosageUnit a owl:DatatypeProperty ;
+    rdfs:label "Dosage Unit"@en ;
+    rdfs:domain ns1:Dosage ;
+    rdfs:range xsd:string .
+
+ns1:earlyWarningScore a owl:DatatypeProperty ;
+    rdfs:label "Early Warning Score"@en ;
+    rdfs:domain ns1:Patient ;
+    rdfs:range xsd:integer .
+
+ns1:fallRisk a owl:DatatypeProperty ;
+    rdfs:label "Fall Risk Assessment"@en ;
+    rdfs:domain ns1:Patient ;
+    rdfs:range xsd:string .
+
+ns1:frequency a owl:DatatypeProperty ;
+    rdfs:label "Administration Frequency"@en ;
+    rdfs:domain ns1:Dosage ;
+    rdfs:range xsd:string .
+
+ns1:gender a owl:DatatypeProperty ;
+    rdfs:label "Gender"@en ;
+    rdfs:domain ns1:Patient ;
+    rdfs:range xsd:string .
+
+ns1:genericName a owl:DatatypeProperty ;
+    rdfs:label "Generic Medication Name"@en ;
+    rdfs:domain ns1:Medication ;
+    rdfs:range xsd:string .
+
+ns1:glucoseMgDl a owl:DatatypeProperty ;
+    rdfs:label "Blood Glucose (mg/dL)"@en ;
+    rdfs:domain ns1:BloodGlucose ;
+    rdfs:range xsd:decimal .
+
+ns1:height a owl:DatatypeProperty ;
+    rdfs:label "Height (cm)"@en ;
+    rdfs:domain ns1:Patient ;
+    rdfs:range xsd:decimal .
+
+ns1:lastCalibrationDate a owl:DatatypeProperty ;
+    rdfs:label "Last Calibration Date"@en ;
+    rdfs:domain ns1:MedicalDevice ;
+    rdfs:range xsd:dateTime .
+
+ns1:meanArterialPressure a owl:DatatypeProperty ;
+    rdfs:label "Mean Arterial Pressure (mmHg)"@en ;
+    rdfs:domain ns1:BloodPressure ;
+    rdfs:range xsd:decimal .
+
+ns1:measurementAccuracy a owl:DatatypeProperty ;
+    rdfs:label "Measurement Accuracy (%)"@en ;
+    rdfs:domain ns1:MonitoringDevice ;
+    rdfs:range xsd:decimal .
+
+ns1:measurementTimestamp a owl:DatatypeProperty ;
+    rdfs:label "Measurement Timestamp"@en ;
+    rdfs:domain ns1:VitalSign ;
+    rdfs:range xsd:dateTime .
+
+ns1:measurementUnit a owl:DatatypeProperty ;
+    rdfs:label "Unit of Measurement"@en ;
+    rdfs:domain ns1:VitalSign ;
+    rdfs:range xsd:string .
+
+ns1:measurementValue a owl:DatatypeProperty ;
+    rdfs:label "Measurement Value"@en ;
+    rdfs:domain ns1:VitalSign ;
+    rdfs:range xsd:decimal .
+
+ns1:medicalRecordNumber a owl:DatatypeProperty ;
+    rdfs:label "Medical Record Number"@en ;
+    rdfs:domain ns1:Patient ;
+    rdfs:range xsd:string .
+
+ns1:medicationName a owl:DatatypeProperty ;
+    rdfs:label "Medication Name"@en ;
+    rdfs:domain ns1:Medication ;
+    rdfs:range xsd:string .
+
+ns1:mobilityLevel a owl:DatatypeProperty ;
+    rdfs:label "Patient Mobility Level"@en ;
+    rdfs:domain ns1:Patient ;
+    rdfs:range xsd:string .
+
+ns1:nextMaintenanceDate a owl:DatatypeProperty ;
+    rdfs:label "Next Scheduled Maintenance"@en ;
+    rdfs:domain ns1:MedicalDevice ;
+    rdfs:range xsd:dateTime .
+
+ns1:normalRangeHigh a owl:DatatypeProperty ;
+    rdfs:label "Normal Range Upper Bound"@en ;
+    rdfs:domain ns1:VitalSign ;
+    rdfs:range xsd:decimal .
+
+ns1:normalRangeLow a owl:DatatypeProperty ;
+    rdfs:label "Normal Range Lower Bound"@en ;
+    rdfs:domain ns1:VitalSign ;
+    rdfs:range xsd:decimal .
+
+ns1:oxygenSaturationPercent a owl:DatatypeProperty ;
+    rdfs:label "Oxygen Saturation (%)"@en ;
+    rdfs:domain ns1:OxygenSaturation ;
+    rdfs:range xsd:decimal .
+
+ns1:painScore a owl:DatatypeProperty ;
+    rdfs:label "Pain Score (0-10)"@en ;
+    rdfs:domain ns1:PainLevel ;
+    rdfs:range xsd:integer .
+
+ns1:patientID a owl:DatatypeProperty ;
+    rdfs:label "Patient Identifier"@en ;
+    rdfs:domain ns1:Patient ;
+    rdfs:range xsd:string .
+
+ns1:prescriptionDate a owl:DatatypeProperty ;
+    rdfs:label "Prescription Date"@en ;
+    rdfs:domain ns1:Prescription ;
+    rdfs:range xsd:dateTime .
+
+ns1:processingLatency a owl:DatatypeProperty ;
+    rdfs:label "Processing Latency (nanoseconds)"@en ;
+    rdfs:domain ns1:VitalSign ;
+    rdfs:range xsd:decimal .
+
+ns1:realTimeMonitoring a owl:DatatypeProperty ;
+    rdfs:label "Real-time Monitoring Enabled"@en ;
+    rdfs:domain ns1:MonitoringDevice ;
+    rdfs:range xsd:boolean .
+
+ns1:relatedTo a owl:ObjectProperty ;
+    rdfs:label "Alert Related To Patient"@en ;
+    rdfs:domain ns1:MedicalAlert ;
+    rdfs:range ns1:Patient .
+
+ns1:riskScore a owl:DatatypeProperty ;
+    rdfs:label "Clinical Risk Score"@en ;
+    rdfs:domain ns1:Patient ;
+    rdfs:range xsd:decimal .
+
+ns1:route a owl:DatatypeProperty ;
+    rdfs:label "Route of Administration"@en ;
+    rdfs:domain ns1:Dosage ;
+    rdfs:range xsd:string .
+
+ns1:samplingRate a owl:DatatypeProperty ;
+    rdfs:label "Sampling Rate (Hz)"@en ;
+    rdfs:domain ns1:MonitoringDevice ;
+    rdfs:range xsd:decimal .
+
+ns1:serialNumber a owl:DatatypeProperty ;
+    rdfs:label "Device Serial Number"@en ;
+    rdfs:domain ns1:MedicalDevice ;
+    rdfs:range xsd:string .
+
+ns1:simdOptimized a owl:DatatypeProperty ;
+    rdfs:label "SIMD Optimized Processing"@en ;
+    rdfs:domain ns1:MonitoringDevice ;
+    rdfs:range xsd:boolean .
+
+ns1:systolicPressure a owl:DatatypeProperty ;
+    rdfs:label "Systolic Blood Pressure (mmHg)"@en ;
+    rdfs:domain ns1:BloodPressure ;
+    rdfs:range xsd:decimal .
+
+ns1:temperatureCelsius a owl:DatatypeProperty ;
+    rdfs:label "Body Temperature (°C)"@en ;
+    rdfs:domain ns1:BodyTemperature ;
+    rdfs:range xsd:decimal .
+
+ns1:ticksUsed a owl:DatatypeProperty ;
+    rdfs:label "CPU Ticks Used"@en ;
+    rdfs:domain ns1:VitalSign ;
+    rdfs:range xsd:integer .
+
+ns1:treatedWith a owl:ObjectProperty ;
+    rdfs:label "Treated With"@en ;
+    rdfs:domain ns1:Patient ;
+    rdfs:range ns1:Treatment .
+
+ns1:weight a owl:DatatypeProperty ;
+    rdfs:label "Body Weight (kg)"@en ;
+    rdfs:domain ns1:Patient ;
+    rdfs:range xsd:decimal .
+
+ns2:Dimension10Restriction_ba4d302df585 a owl:Restriction ;
+    ns2:dimensions 10 ;
+    ns2:humanVisualizeable false .
+
+ns2:Dimension11Restriction_1bd3fd7384c1 a owl:Restriction ;
+    ns2:dimensions 11 ;
+    ns2:humanVisualizeable false .
+
+ns2:Dimension12Restriction_bef1bb27cb3b a owl:Restriction ;
+    ns2:dimensions 12 ;
+    ns2:humanVisualizeable false .
+
+ns2:Dimension3Restriction_b0309902baf6 a owl:Restriction ;
+    ns2:dimensions 3 ;
+    ns2:humanVisualizeable true .
+
+ns2:Dimension4Restriction_2919179739b6 a owl:Restriction ;
+    ns2:dimensions 4 ;
+    ns2:humanVisualizeable false .
+
+ns2:Dimension5Restriction_129228750a8b a owl:Restriction ;
+    ns2:dimensions 5 ;
+    ns2:humanVisualizeable false .
+
+ns2:Dimension6Restriction_d57f0c96348b a owl:Restriction ;
+    ns2:dimensions 6 ;
+    ns2:humanVisualizeable false .
+
+ns2:Dimension7Restriction_3014205f44c6 a owl:Restriction ;
+    ns2:dimensions 7 ;
+    ns2:humanVisualizeable false .
+
+ns2:Dimension8Restriction_73d56c4ee4dc a owl:Restriction ;
+    ns2:dimensions 8 ;
+    ns2:humanVisualizeable false .
+
+ns2:Dimension9Restriction_4723a57dc99b a owl:Restriction ;
+    ns2:dimensions 9 ;
+    ns2:humanVisualizeable false .
+
+ns2:MetaCognitionRequired a ns2:ComprehensionBarrier ;
+    ns2:humanComprehensible false ;
+    ns2:minimumIntelligence "ARTIFICIAL_HYPER" .
+
+ns2:MetamorphicClass_c645c2045d51 a owl:Class ;
+    ns2:observationAltersStructure true ;
+    ns2:shapeShifts true .
+
+ns2:NonEuclidean_1e0fed735320 a owl:ObjectProperty ;
+    ns2:geometry "HYPERBOLIC" ;
+    ns2:parallelLinesIntersect true .
+
+ns2:NotExistsCascade_0_adaf8b90ddbd a sh:NodeShape ;
+    ns2:nestingDepth 1 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . } }" .
+
+ns2:NotExistsCascade_1_56384aa258a3 a sh:NodeShape ;
+    ns2:nestingDepth 2 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . }} }" .
+
+ns2:NotExistsCascade_2_cf91dd6d9d90 a sh:NodeShape ;
+    ns2:nestingDepth 3 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . }}} }" .
+
+ns2:NotExistsCascade_3_4f58624f3764 a sh:NodeShape ;
+    ns2:nestingDepth 4 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . }}}} }" .
+
+ns2:NotExistsCascade_4_ee06526cf44a a sh:NodeShape ;
+    ns2:nestingDepth 5 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . }}}}} }" .
+
+ns2:NotExistsCascade_5_ea0813dc297e a sh:NodeShape ;
+    ns2:nestingDepth 6 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . NOT EXISTS { ?this hyper:level5 ?val5 . }}}}}} }" .
+
+ns2:NotExistsCascade_6_d38c0f13997d a sh:NodeShape ;
+    ns2:nestingDepth 7 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . NOT EXISTS { ?this hyper:level5 ?val5 . NOT EXISTS { ?this hyper:level6 ?val6 . }}}}}}} }" .
+
+ns2:NotExistsCascade_7_22508dfb28d7 a sh:NodeShape ;
+    ns2:nestingDepth 8 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . NOT EXISTS { ?this hyper:level5 ?val5 . NOT EXISTS { ?this hyper:level6 ?val6 . NOT EXISTS { ?this hyper:level7 ?val7 . }}}}}}}} }" .
+
+ns2:NotExistsCascade_8_2e86b227cb6a a sh:NodeShape ;
+    ns2:nestingDepth 9 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . NOT EXISTS { ?this hyper:level5 ?val5 . NOT EXISTS { ?this hyper:level6 ?val6 . NOT EXISTS { ?this hyper:level7 ?val7 . NOT EXISTS { ?this hyper:level8 ?val8 . }}}}}}}}} }" .
+
+ns2:NotExistsCascade_9_a65d549d5509 a sh:NodeShape ;
+    ns2:nestingDepth 10 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . NOT EXISTS { ?this hyper:level5 ?val5 . NOT EXISTS { ?this hyper:level6 ?val6 . NOT EXISTS { ?this hyper:level7 ?val7 . NOT EXISTS { ?this hyper:level8 ?val8 . NOT EXISTS { ?this hyper:level9 ?val9 . }}}}}}}}}} }" .
+
+ns2:QuantumShape_ce7b1e82b0c8 a sh:NodeShape ;
+    ns2:existsInStates 1024 ;
+    ns2:observerEffect "COLLAPSES_ON_HUMAN_OBSERVATION" .
+
+ns1:Arrhythmia a owl:Class ;
+    rdfs:label "Cardiac Arrhythmia"@en ;
+    rdfs:subClassOf ns1:CardiacCondition .
+
+ns1:COPD a owl:Class ;
+    rdfs:label "Chronic Obstructive Pulmonary Disease"@en ;
+    rdfs:subClassOf ns1:RespiratoryCondition .
+
+ns1:CardiacCondition a owl:Class ;
+    rdfs:label "Cardiac Condition"@en ;
+    rdfs:subClassOf ns1:MedicalCondition .
+
+ns1:Diabetes a owl:Class ;
+    rdfs:label "Diabetes Mellitus"@en ;
+    rdfs:subClassOf ns1:ChronicCondition .
+
+ns1:Hypertension a owl:Class ;
+    rdfs:label "Hypertension"@en ;
+    rdfs:subClassOf ns1:ChronicCondition .
+
+ns1:InfusionPump a owl:Class ;
+    rdfs:label "Infusion Pump"@en ;
+    rdfs:subClassOf ns1:MedicalDevice .
+
+ns1:PainLevel a owl:Class ;
+    rdfs:label "Pain Assessment Level"@en ;
+    rdfs:subClassOf ns1:VitalSign .
+
+ns1:PulseOximeter a owl:Class ;
+    rdfs:label "Pulse Oximeter"@en ;
+    rdfs:subClassOf ns1:MonitoringDevice .
+
+ns1:RespiratoryCondition a owl:Class ;
+    rdfs:label "Respiratory Condition"@en ;
+    rdfs:subClassOf ns1:MedicalCondition .
+
+ns1:Technician a owl:Class ;
+    rdfs:label "Medical Technician"@en ;
+    rdfs:subClassOf ns1:HealthcareProvider .
+
+ns2:EmergentConsciousness_3699656dccee a ns2:ConsciousnessPattern ;
+    ns2:comprehendsItself ns2:EmergentConsciousness_3699656dccee ;
+    ns2:emergesFrom <http://bitstar.ai/dark#CollectiveComplexity> ;
+    ns2:selfAware true .
+
+ns2:RecursiveChain_b930d0cbdaf6 ns2:recursionDepth "INFINITE" ;
+    owl:propertyChainAxiom ns2:RecursiveChain_b930d0cbdaf6 .
+
+ns2:SelfModifyingAxiom_afc45a77ba90 a owl:Axiom ;
+    ns2:modificationRate "CONTINUOUS" ;
+    ns2:modifies ns2:SelfModifyingAxiom_afc45a77ba90 .
+
+ns1:BloodGlucose a owl:Class ;
+    rdfs:label "Blood Glucose Level"@en ;
+    rdfs:subClassOf ns1:VitalSign .
+
+ns1:BodyTemperature a owl:Class ;
+    rdfs:label "Body Temperature"@en ;
+    rdfs:subClassOf ns1:VitalSign .
+
+ns1:ChronicCondition a owl:Class ;
+    rdfs:label "Chronic Medical Condition"@en ;
+    rdfs:subClassOf ns1:MedicalCondition .
+
+ns1:CriticalAlert a owl:Class ;
+    rdfs:label "Critical Medical Alert"@en ;
+    rdfs:subClassOf ns1:MedicalAlert .
+
+ns1:HealthcareFacility a owl:Class ;
+    rdfs:label "Healthcare Facility"@en ;
+    rdfs:comment "Medical institution providing patient care"@en .
+
+ns1:HeartRate a owl:Class ;
+    rdfs:label "Heart Rate"@en ;
+    rdfs:subClassOf ns1:VitalSign .
+
+ns1:Medication a owl:Class ;
+    rdfs:label "Medication"@en ;
+    rdfs:comment "Pharmaceutical substance used for treatment or prevention"@en .
+
+ns1:OxygenSaturation a owl:Class ;
+    rdfs:label "Oxygen Saturation (SpO2)"@en ;
+    rdfs:subClassOf ns1:VitalSign .
+
+ns1:RespiratoryRate a owl:Class ;
+    rdfs:label "Respiratory Rate"@en ;
+    rdfs:subClassOf ns1:VitalSign .
+
+ns1:VitalSignsMonitor a owl:Class ;
+    rdfs:label "Vital Signs Monitor"@en ;
+    rdfs:subClassOf ns1:MonitoringDevice .
+
+ns2:InfiniteRegression_de4f745fc4cf a owl:Class ;
+    ns2:regressionDepth "∞" ;
+    rdfs:subClassOf ns2:InfiniteRegression_de4f745fc4cf ;
+    owl:equivalentClass ns2:InfiniteRegression_de4f745fc4cf .
+
+ns2:TemporalParadox_cb8c8a00bfe2 a owl:Class ;
+    ns2:causedBy ns2:TemporalParadox_cb8c8a00bfe2 ;
+    ns2:existsBefore ns2:TemporalParadox_cb8c8a00bfe2 ;
+    ns2:paradoxLevel 10 .
+
+ns1:Prescription a owl:Class ;
+    rdfs:label "Medical Prescription"@en ;
+    rdfs:comment "Healthcare provider's order for medication or treatment"@en .
+
+ns1:Treatment a owl:Class ;
+    rdfs:label "Medical Treatment"@en ;
+    rdfs:comment "Medical intervention or therapy provided to patient"@en .
+
+ns1:BloodPressure a owl:Class ;
+    rdfs:label "Blood Pressure"@en ;
+    rdfs:subClassOf ns1:VitalSign .
+
+ns1:MedicalCondition a owl:Class ;
+    rdfs:label "Medical Condition"@en ;
+    rdfs:comment "Disease, disorder, or health condition affecting a patient"@en .
+
+ns1:Dosage a owl:Class ;
+    rdfs:label "Medication Dosage"@en ;
+    rdfs:comment "Prescribed amount and frequency of medication administration"@en .
+
+ns1:MedicalUnit a owl:Class ;
+    rdfs:label "Medical Unit"@en ;
+    rdfs:comment "Specialized department or ward within healthcare facility"@en .
+
+ns1:MedicalDevice a owl:Class ;
+    rdfs:label "Medical Device"@en ;
+    rdfs:comment "Equipment used for patient monitoring, diagnosis, or treatment"@en .
+
+ns1:MedicalAlert a owl:Class ;
+    rdfs:label "Medical Alert"@en ;
+    rdfs:comment "Urgent notification requiring immediate medical attention"@en .
+
+ns1:MonitoringDevice a owl:Class ;
+    rdfs:label "Patient Monitoring Device"@en ;
+    rdfs:subClassOf ns1:MedicalDevice .
+
+ns1:VitalSign a owl:Class ;
+    rdfs:label "Vital Sign"@en ;
+    rdfs:comment "Essential physiological measurement indicating life functions"@en .
+
+ns1:administeredBy a owl:ObjectProperty ;
+    rdfs:label "Administered By Provider"@en ;
+    rdfs:domain ns1:Dosage ;
+    rdfs:range ns1:HealthcareProvider .
+
+ns1:diagnosedWith a owl:ObjectProperty ;
+    rdfs:label "Diagnosed With Condition"@en ;
+    rdfs:domain ns1:Patient ;
+    rdfs:range ns1:MedicalCondition .
+
+ns1:generatedBy a owl:ObjectProperty ;
+    rdfs:label "Generated By Device"@en ;
+    rdfs:domain ns1:VitalSign ;
+    rdfs:range ns1:MonitoringDevice .
+
+ns1:measurementOf a owl:ObjectProperty ;
+    rdfs:label "Measurement Of Patient"@en ;
+    rdfs:domain ns1:VitalSign ;
+    rdfs:range ns1:Patient .
+
+ns1:prescribedBy a owl:ObjectProperty ;
+    rdfs:label "Prescribed By Provider"@en ;
+    rdfs:domain ns1:Prescription ;
+    rdfs:range ns1:HealthcareProvider .
+
+ns1:prescribedFor a owl:ObjectProperty ;
+    rdfs:label "Prescribed For Patient"@en ;
+    rdfs:domain ns1:Prescription ;
+    rdfs:range ns1:Patient .
+
+ns1:triggeredBy a owl:ObjectProperty ;
+    rdfs:label "Triggered By Vital Sign"@en ;
+    rdfs:domain ns1:MedicalAlert ;
+    rdfs:range ns1:VitalSign .
+
+ns1:locatedIn a owl:ObjectProperty ;
+    rdfs:label "Located In Unit"@en ;
+    rdfs:domain ns1:Patient ;
+    rdfs:range ns1:MedicalUnit .
+
+ns1:monitoredBy a owl:ObjectProperty ;
+    rdfs:label "Monitored By Device"@en ;
+    rdfs:domain ns1:Patient ;
+    rdfs:range ns1:MonitoringDevice .
+
+ns1:Specialist a owl:Class ;
+    rdfs:label "Medical Specialist"@en ;
+    rdfs:subClassOf ns1:Physician .
+
+ns1:assignedTo a owl:ObjectProperty ;
+    rdfs:label "Assigned To Provider"@en ;
+    rdfs:domain ns1:Patient ;
+    rdfs:range ns1:HealthcareProvider .
+
+ns1:Nurse a owl:Class ;
+    rdfs:label "Nurse"@en ;
+    rdfs:subClassOf ns1:HealthcareProvider .
+
+ns1:Physician a owl:Class ;
+    rdfs:label "Physician"@en ;
+    rdfs:subClassOf ns1:HealthcareProvider .
+
+ns1:HealthcareProvider a owl:Class ;
+    rdfs:label "Healthcare Provider"@en ;
+    rdfs:comment "Medical professional providing patient care"@en .
+
+ns1:Patient a owl:Class ;
+    rdfs:label "Patient"@en ;
+    rdfs:comment "Individual receiving medical care and monitoring"@en .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:measurementOf ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedFor ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:triggeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:diagnosedWith ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:locatedIn ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:administeredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Specialist ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:prescribedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:assignedTo ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:generatedBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Nurse ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:monitoredBy ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns1:Patient ns1:HealthcareProvider ns1:Physician ) ] .
+

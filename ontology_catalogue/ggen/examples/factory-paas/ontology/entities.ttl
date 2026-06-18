@@ -1,0 +1,180 @@
+# Entities - Domain Model
+
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix ddd:   <https://ggen.io/ontology/ddd#> .
+@prefix attr:  <https://ggen.io/examples/attribution#> .
+
+# ============================================================================
+# PUBLISHER ENTITY
+# ============================================================================
+
+attr:Publisher a ddd:Entity ;
+  ddd:name "Publisher" ;
+  rdfs:comment "Content creator earning revenue" ;
+  ddd:identityField attr:Publisher_id ;
+  ddd:hasField attr:Publisher_id ;
+  ddd:hasField attr:Publisher_name ;
+  ddd:hasField attr:Publisher_email ;
+  ddd:hasField attr:Publisher_total_revenue ;
+  ddd:hasField attr:Publisher_created_at .
+
+attr:Publisher_id a ddd:Field ;
+  ddd:name "id" ;
+  ddd:type "Uuid" ;
+  ddd:required true ;
+  rdfs:comment "Unique publisher identifier" .
+
+attr:Publisher_name a ddd:Field ;
+  ddd:name "name" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  rdfs:comment "Publisher display name" .
+
+attr:Publisher_email a ddd:Field ;
+  ddd:name "email" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  ddd:format "email" ;
+  rdfs:comment "Publisher contact email" .
+
+attr:Publisher_total_revenue a ddd:Field ;
+  ddd:name "total_revenue" ;
+  ddd:type "Decimal" ;
+  ddd:required false ;
+  ddd:default "0.0" ;
+  rdfs:comment "Lifetime revenue earned" .
+
+attr:Publisher_created_at a ddd:Field ;
+  ddd:name "created_at" ;
+  ddd:type "DateTime" ;
+  ddd:required true ;
+  rdfs:comment "Account creation timestamp" .
+
+# ============================================================================
+# OFFER ENTITY
+# ============================================================================
+
+attr:Offer a ddd:Entity ;
+  ddd:name "Offer" ;
+  rdfs:comment "Advertiser offer with payout" ;
+  ddd:identityField attr:Offer_id ;
+  ddd:hasField attr:Offer_id ;
+  ddd:hasField attr:Offer_name ;
+  ddd:hasField attr:Offer_payout_amount ;
+  ddd:hasField attr:Offer_payout_currency ;
+  ddd:hasField attr:Offer_active .
+
+attr:Offer_id a ddd:Field ;
+  ddd:name "id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+attr:Offer_name a ddd:Field ;
+  ddd:name "name" ;
+  ddd:type "String" ;
+  ddd:required true .
+
+attr:Offer_payout_amount a ddd:Field ;
+  ddd:name "payout_amount" ;
+  ddd:type "Decimal" ;
+  ddd:required true ;
+  rdfs:comment "Amount paid per conversion" .
+
+attr:Offer_payout_currency a ddd:Field ;
+  ddd:name "payout_currency" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  ddd:default "USD" .
+
+attr:Offer_active a ddd:Field ;
+  ddd:name "active" ;
+  ddd:type "bool" ;
+  ddd:required true ;
+  ddd:default "true" .
+
+# ============================================================================
+# CLICK ENTITY (VALUE OBJECT)
+# ============================================================================
+
+attr:Click a ddd:ValueObject ;
+  ddd:name "Click" ;
+  rdfs:comment "User click event" ;
+  ddd:hasField attr:Click_id ;
+  ddd:hasField attr:Click_publisher_id ;
+  ddd:hasField attr:Click_offer_id ;
+  ddd:hasField attr:Click_timestamp ;
+  ddd:hasField attr:Click_ip_hash ;
+  ddd:hasField attr:Click_user_agent .
+
+attr:Click_id a ddd:Field ;
+  ddd:name "id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+attr:Click_publisher_id a ddd:Field ;
+  ddd:name "publisher_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true ;
+  ddd:references attr:Publisher .
+
+attr:Click_offer_id a ddd:Field ;
+  ddd:name "offer_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true ;
+  ddd:references attr:Offer .
+
+attr:Click_timestamp a ddd:Field ;
+  ddd:name "timestamp" ;
+  ddd:type "DateTime" ;
+  ddd:required true .
+
+attr:Click_ip_hash a ddd:Field ;
+  ddd:name "ip_hash" ;
+  ddd:type "String" ;
+  ddd:required false ;
+  rdfs:comment "Privacy-safe IP hash" .
+
+attr:Click_user_agent a ddd:Field ;
+  ddd:name "user_agent" ;
+  ddd:type "String" ;
+  ddd:required false .
+
+# ============================================================================
+# ATTRIBUTION VALUE OBJECT
+# ============================================================================
+
+attr:Attribution a ddd:ValueObject ;
+  ddd:name "Attribution" ;
+  rdfs:comment "Credit assignment result" ;
+  ddd:hasField attr:Attribution_click_id ;
+  ddd:hasField attr:Attribution_publisher_id ;
+  ddd:hasField attr:Attribution_offer_id ;
+  ddd:hasField attr:Attribution_amount ;
+  ddd:hasField attr:Attribution_computed_at .
+
+attr:Attribution_click_id a ddd:Field ;
+  ddd:name "click_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+attr:Attribution_publisher_id a ddd:Field ;
+  ddd:name "publisher_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+attr:Attribution_offer_id a ddd:Field ;
+  ddd:name "offer_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+attr:Attribution_amount a ddd:Field ;
+  ddd:name "amount" ;
+  ddd:type "Decimal" ;
+  ddd:required true .
+
+attr:Attribution_computed_at a ddd:Field ;
+  ddd:name "computed_at" ;
+  ddd:type "DateTime" ;
+  ddd:required true .

@@ -1,0 +1,96 @@
+@prefix : <http://test.ontoforge.com/ontology#> .
+@prefix test: <http://test.ontoforge.com/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# Test Ontology for BDD Testing
+: a owl:Ontology ;
+    rdfs:label "Test Ontology"@en ;
+    rdfs:comment "Simple ontology for testing TTL parsing and model generation"@en .
+
+# Classes
+test:Person a owl:Class ;
+    rdfs:label "Person"@en ;
+    rdfs:comment "A human being"@en .
+
+test:Organization a owl:Class ;
+    rdfs:label "Organization"@en ;
+    rdfs:comment "A business or institution"@en .
+
+test:Department a owl:Class ;
+    rdfs:label "Department"@en ;
+    rdfs:comment "A subdivision of an organization"@en .
+
+# Data Properties
+test:name a owl:DatatypeProperty ;
+    rdfs:label "name"@en ;
+    rdfs:domain test:Person ;
+    rdfs:range xsd:string .
+
+test:age a owl:DatatypeProperty ;
+    rdfs:label "age"@en ;
+    rdfs:domain test:Person ;
+    rdfs:range xsd:integer .
+
+test:email a owl:DatatypeProperty ;
+    rdfs:label "email"@en ;
+    rdfs:domain test:Person ;
+    rdfs:range xsd:string .
+
+test:isActive a owl:DatatypeProperty ;
+    rdfs:label "is active"@en ;
+    rdfs:domain test:Person ;
+    rdfs:range xsd:boolean .
+
+test:salary a owl:DatatypeProperty ;
+    rdfs:label "salary"@en ;
+    rdfs:domain test:Person ;
+    rdfs:range xsd:decimal .
+
+test:birthDate a owl:DatatypeProperty ;
+    rdfs:label "birth date"@en ;
+    rdfs:domain test:Person ;
+    rdfs:range xsd:dateTime .
+
+test:organizationName a owl:DatatypeProperty ;
+    rdfs:label "organization name"@en ;
+    rdfs:domain test:Organization ;
+    rdfs:range xsd:string .
+
+test:foundedYear a owl:DatatypeProperty ;
+    rdfs:label "founded year"@en ;
+    rdfs:domain test:Organization ;
+    rdfs:range xsd:integer .
+
+test:departmentName a owl:DatatypeProperty ;
+    rdfs:label "department name"@en ;
+    rdfs:domain test:Department ;
+    rdfs:range xsd:string .
+
+test:budget a owl:DatatypeProperty ;
+    rdfs:label "budget"@en ;
+    rdfs:domain test:Department ;
+    rdfs:range xsd:decimal .
+
+# Object Properties
+test:worksFor a owl:ObjectProperty ;
+    rdfs:label "works for"@en ;
+    rdfs:domain test:Person ;
+    rdfs:range test:Organization .
+
+test:memberOf a owl:ObjectProperty ;
+    rdfs:label "member of"@en ;
+    rdfs:domain test:Person ;
+    rdfs:range test:Department .
+
+test:hasDepartment a owl:ObjectProperty ;
+    rdfs:label "has department"@en ;
+    rdfs:domain test:Organization ;
+    rdfs:range test:Department .
+
+test:manages a owl:ObjectProperty ;
+    rdfs:label "manages"@en ;
+    rdfs:domain test:Person ;
+    rdfs:range test:Department .

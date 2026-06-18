@@ -1,0 +1,47 @@
+@prefix : <http://spec-kit.io/ontology#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:Feature001 a :Feature ;
+    :featureName "Constitutional Equation Implementation" ;
+    :description "Implement μ₁-μ₅ pipeline for deterministic RDF-to-Markdown transformation" ;
+    :priority "P0" ;
+    :status "in-progress" ;
+    :assignedTo :Team_Core ;
+    :dueDate "2025-01-31"^^xsd:date ;
+    :hasRequirement :Req001, :Req002, :Req003, :Req004, :Req005 .
+
+:Req001 a :Requirement ;
+    :requirementText "System MUST validate RDF against SHACL shapes before processing" ;
+    :priority "P0" ;
+    :category "validation" ;
+    :rationale "Prevents invalid data from entering pipeline" .
+
+:Req002 a :Requirement ;
+    :requirementText "System MUST generate SHA256 receipts for all transformations" ;
+    :priority "P0" ;
+    :category "verification" ;
+    :rationale "Enables cryptographic proof of correctness" .
+
+:Req003 a :Requirement ;
+    :requirementText "System MUST ensure idempotence: μ∘μ = μ" ;
+    :priority "P0" ;
+    :category "correctness" ;
+    :rationale "Deterministic output is fundamental to RDF-first architecture" .
+
+:Req004 a :Requirement ;
+    :requirementText "System MUST normalize line endings to LF" ;
+    :priority "P1" ;
+    :category "canonicalization" ;
+    :rationale "Ensures consistent output across platforms" .
+
+:Req005 a :Requirement ;
+    :requirementText "System MUST complete sync in under 5 seconds for typical projects" ;
+    :priority "P2" ;
+    :category "performance" ;
+    :rationale "Fast feedback loop improves developer experience" .
+
+:Team_Core a :Team ;
+    rdfs:label "Core Platform Team" ;
+    :teamSize 3 ;
+    :focusArea "RDF Infrastructure" .

@@ -1,0 +1,7 @@
+@prefix core: <https://core.bitstar.dev/ontology/core#> .
+
+[] a core:Module ;
+   core:hasVersion 1 ;
+   core:hasCapability "echo" .
+
+

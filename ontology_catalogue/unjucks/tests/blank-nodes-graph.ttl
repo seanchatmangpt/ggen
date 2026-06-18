@@ -1,0 +1,38 @@
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Test graph with blank nodes for C14N normalization testing
+ex:Person1 ex:hasContact _:contact1 ;
+    rdfs:label "John Doe" .
+
+_:contact1 ex:email "john@example.com" ;
+    ex:phone "+1234567890" ;
+    ex:address _:addr1 .
+
+_:addr1 ex:street "123 Main St" ;
+    ex:city "Anytown" ;
+    ex:zipCode "12345" .
+
+ex:Person2 ex:hasContact _:contact2 ;
+    rdfs:label "Jane Smith" .
+
+_:contact2 ex:email "jane@example.com" ;
+    ex:phone "+0987654321" ;
+    ex:address _:addr2 .
+
+_:addr2 ex:street "456 Oak Ave" ;
+    ex:city "Somewhere" ;
+    ex:zipCode "67890" .
+
+# Another person with same structure but different blank node IDs
+ex:Person3 ex:hasContact _:c3 ;
+    rdfs:label "Bob Johnson" .
+
+_:c3 ex:email "bob@example.com" ;
+    ex:phone "+1122334455" ;
+    ex:address _:a3 .
+
+_:a3 ex:street "789 Pine Dr" ;
+    ex:city "Elsewhere" ;
+    ex:zipCode "54321" .

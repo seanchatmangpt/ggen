@@ -1,0 +1,1082 @@
+# MCP Domain Ontology v1.0.0
+# Model Context Protocol (MCP) Domain Model for Rust Code Generation
+#
+# This ontology defines MCP concepts as proper DDD entities using OWL/RDFS.
+# Designed for use with ggen sync to generate Rust domain code.
+#
+# Core Concepts:
+# - McpServer: Aggregate Root - the main MCP server instance
+# - Tool: Entity - callable function with input schema
+# - Resource: Entity - accessible data/content with URI
+# - Prompt: Entity - pre-defined prompt template
+# - Supporting Value Objects, Commands, Events, Repositories, Services
+
+@prefix mcp: <http://ggen-mcp.dev/ontology/mcp#> .
+@prefix ddd: <http://ggen-mcp.dev/ontology/ddd#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# =============================================================================
+# ONTOLOGY METADATA
+# =============================================================================
+
+mcp:McpDomainOntology a owl:Ontology ;
+    rdfs:label "MCP Domain Ontology"@en ;
+    rdfs:comment "Domain-Driven Design ontology for Model Context Protocol (MCP)"@en ;
+    owl:versionInfo "1.0.0" .
+
+# =============================================================================
+# DDD META-CLASSES (Pattern Categories)
+# =============================================================================
+
+ddd:AggregateRoot a owl:Class ;
+    rdfs:label "Aggregate Root"@en ;
+    rdfs:comment "DDD Aggregate Root - consistency boundary with identity"@en .
+
+ddd:Entity a owl:Class ;
+    rdfs:label "Entity"@en ;
+    rdfs:comment "DDD Entity - object with identity and lifecycle"@en .
+
+ddd:ValueObject a owl:Class ;
+    rdfs:label "Value Object"@en ;
+    rdfs:comment "DDD Value Object - immutable object defined by attributes"@en .
+
+ddd:Command a owl:Class ;
+    rdfs:label "Command"@en ;
+    rdfs:comment "CQRS Command - intent to change state"@en .
+
+ddd:Query a owl:Class ;
+    rdfs:label "Query"@en ;
+    rdfs:comment "CQRS Query - request for data without side effects"@en .
+
+ddd:DomainEvent a owl:Class ;
+    rdfs:label "Domain Event"@en ;
+    rdfs:comment "Domain Event - something that happened in the domain"@en .
+
+ddd:Repository a owl:Class ;
+    rdfs:label "Repository"@en ;
+    rdfs:comment "Repository - collection-like interface for aggregate persistence"@en .
+
+ddd:Service a owl:Class ;
+    rdfs:label "Service"@en ;
+    rdfs:comment "Domain Service - stateless operations across aggregates"@en .
+
+ddd:Factory a owl:Class ;
+    rdfs:label "Factory"@en ;
+    rdfs:comment "Factory - creates complex aggregates or entities"@en .
+
+# =============================================================================
+# DDD META-PROPERTIES
+# =============================================================================
+
+ddd:hasProperty a owl:ObjectProperty ;
+    rdfs:label "has property"@en ;
+    rdfs:comment "Entity or Value Object has this property"@en .
+
+ddd:hasInvariant a owl:ObjectProperty ;
+    rdfs:label "has invariant"@en ;
+    rdfs:comment "Invariant constraint that must hold"@en .
+
+ddd:forAggregate a owl:ObjectProperty ;
+    rdfs:label "for aggregate"@en ;
+    rdfs:comment "Repository is for this aggregate root"@en .
+
+ddd:handles a owl:ObjectProperty ;
+    rdfs:label "handles"@en ;
+    rdfs:comment "Handler processes this command"@en .
+
+ddd:emits a owl:ObjectProperty ;
+    rdfs:label "emits"@en ;
+    rdfs:comment "Command handler emits this event"@en .
+
+ddd:uses a owl:ObjectProperty ;
+    rdfs:label "uses"@en ;
+    rdfs:comment "Service uses this repository or other service"@en .
+
+ddd:type a owl:DatatypeProperty ;
+    rdfs:label "Rust type"@en ;
+    rdfs:comment "Rust type name for code generation"@en ;
+    rdfs:range xsd:string .
+
+ddd:check a owl:DatatypeProperty ;
+    rdfs:label "invariant check"@en ;
+    rdfs:comment "Rust expression for invariant validation"@en ;
+    rdfs:range xsd:string .
+
+ddd:message a owl:DatatypeProperty ;
+    rdfs:label "error message"@en ;
+    rdfs:comment "Error message when invariant fails"@en ;
+    rdfs:range xsd:string .
+
+# =============================================================================
+# MCP CORE CLASSES - AGGREGATE ROOTS
+# =============================================================================
+
+mcp:McpServer a owl:Class ;
+    rdfs:subClassOf ddd:AggregateRoot ;
+    rdfs:label "MCP Server"@en ;
+    rdfs:comment "MCP Server aggregate root - manages tools, resources, and prompts"@en ;
+    ddd:hasProperty mcp:serverId, mcp:serverName, mcp:serverVersion, mcp:protocolVersion ;
+    ddd:hasProperty mcp:capabilities, mcp:serverInfo ;
+    ddd:hasInvariant [
+        rdfs:label "Server ID must be non-empty" ;
+        ddd:check "!self.server_id.0.is_empty()" ;
+        ddd:message "Server ID cannot be empty"
+    ] ;
+    ddd:hasInvariant [
+        rdfs:label "Protocol version must be valid" ;
+        ddd:check "self.protocol_version.is_compatible()" ;
+        ddd:message "Protocol version must be MCP-compatible"
+    ] .
+
+# =============================================================================
+# MCP CORE CLASSES - ENTITIES
+# =============================================================================
+
+mcp:Tool a owl:Class ;
+    rdfs:subClassOf ddd:Entity ;
+    rdfs:label "Tool"@en ;
+    rdfs:comment "MCP Tool - callable function exposed by server"@en ;
+    ddd:hasProperty mcp:toolName, mcp:toolDescription, mcp:inputSchema ;
+    ddd:hasInvariant [
+        rdfs:label "Tool name must be valid identifier" ;
+        sh:pattern "^[a-z][a-z0-9_]*$" ;
+        ddd:check "self.name.is_valid_identifier()" ;
+        ddd:message "Tool name must be a valid identifier (lowercase, alphanumeric, underscore)"
+    ] ;
+    ddd:hasInvariant [
+        rdfs:label "Tool must have input schema" ;
+        ddd:check "self.input_schema.is_some()" ;
+        ddd:message "Tool must define an input schema"
+    ] .
+
+mcp:Resource a owl:Class ;
+    rdfs:subClassOf ddd:Entity ;
+    rdfs:label "Resource"@en ;
+    rdfs:comment "MCP Resource - accessible data or content with URI"@en ;
+    ddd:hasProperty mcp:resourceUri, mcp:resourceName, mcp:resourceDescription ;
+    ddd:hasProperty mcp:mimeType, mcp:resourceAnnotations ;
+    ddd:hasInvariant [
+        rdfs:label "Resource URI must be valid" ;
+        ddd:check "self.uri.is_valid()" ;
+        ddd:message "Resource URI must be a valid URI"
+    ] .
+
+mcp:ResourceTemplate a owl:Class ;
+    rdfs:subClassOf ddd:Entity ;
+    rdfs:label "Resource Template"@en ;
+    rdfs:comment "MCP Resource Template - URI template for dynamic resources"@en ;
+    ddd:hasProperty mcp:uriTemplate, mcp:templateName, mcp:templateDescription ;
+    ddd:hasProperty mcp:mimeType .
+
+mcp:Prompt a owl:Class ;
+    rdfs:subClassOf ddd:Entity ;
+    rdfs:label "Prompt"@en ;
+    rdfs:comment "MCP Prompt - pre-defined prompt template with arguments"@en ;
+    ddd:hasProperty mcp:promptName, mcp:promptDescription, mcp:promptArguments .
+
+mcp:Root a owl:Class ;
+    rdfs:subClassOf ddd:Entity ;
+    rdfs:label "Root"@en ;
+    rdfs:comment "MCP Root - filesystem or data root exposed by server"@en ;
+    ddd:hasProperty mcp:rootUri, mcp:rootName .
+
+# =============================================================================
+# MCP CORE CLASSES - VALUE OBJECTS
+# =============================================================================
+
+mcp:ServerId a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Server ID"@en ;
+    rdfs:comment "Unique identifier for MCP server"@en ;
+    ddd:hasProperty [ rdfs:label "value" ; ddd:type "String" ] ;
+    ddd:hasInvariant [
+        rdfs:label "Must be non-empty" ;
+        ddd:check "!self.0.is_empty()" ;
+        ddd:message "Server ID cannot be empty"
+    ] .
+
+mcp:ToolName a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Tool Name"@en ;
+    rdfs:comment "Validated tool identifier"@en ;
+    ddd:hasProperty [ rdfs:label "value" ; ddd:type "String" ] ;
+    ddd:hasInvariant [
+        rdfs:label "Valid identifier pattern" ;
+        sh:pattern "^[a-z][a-z0-9_]*$" ;
+        ddd:check "Regex::new(r\"^[a-z][a-z0-9_]*$\").unwrap().is_match(&self.0)" ;
+        ddd:message "Tool name must be lowercase alphanumeric with underscores"
+    ] .
+
+mcp:ResourceUri a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Resource URI"@en ;
+    rdfs:comment "Valid MCP resource URI"@en ;
+    ddd:hasProperty [ rdfs:label "scheme" ; ddd:type "String" ] ;
+    ddd:hasProperty [ rdfs:label "path" ; ddd:type "String" ] ;
+    ddd:hasInvariant [
+        rdfs:label "Must have valid scheme" ;
+        ddd:check "!self.scheme.is_empty()" ;
+        ddd:message "Resource URI must have a scheme"
+    ] .
+
+mcp:ProtocolVersion a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Protocol Version"@en ;
+    rdfs:comment "MCP protocol version (semver)"@en ;
+    ddd:hasProperty [ rdfs:label "major" ; ddd:type "u32" ] ;
+    ddd:hasProperty [ rdfs:label "minor" ; ddd:type "u32" ] ;
+    ddd:hasProperty [ rdfs:label "patch" ; ddd:type "u32" ] ;
+    ddd:hasInvariant [
+        rdfs:label "Must be MCP compatible" ;
+        ddd:check "self.major >= 1" ;
+        ddd:message "Protocol version must be 1.0.0 or higher"
+    ] .
+
+mcp:JsonSchema a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "JSON Schema"@en ;
+    rdfs:comment "JSON Schema for tool input validation"@en ;
+    ddd:hasProperty [ rdfs:label "schema_json" ; ddd:type "serde_json::Value" ] ;
+    ddd:hasInvariant [
+        rdfs:label "Must be valid JSON object" ;
+        ddd:check "self.schema_json.is_object()" ;
+        ddd:message "JSON Schema must be a valid JSON object"
+    ] .
+
+mcp:ToolInput a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Tool Input"@en ;
+    rdfs:comment "Input arguments for tool invocation"@en ;
+    ddd:hasProperty [ rdfs:label "arguments" ; ddd:type "serde_json::Value" ] .
+
+mcp:ToolResult a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Tool Result"@en ;
+    rdfs:comment "Result from tool execution"@en ;
+    ddd:hasProperty [ rdfs:label "content" ; ddd:type "Vec<Content>" ] ;
+    ddd:hasProperty [ rdfs:label "is_error" ; ddd:type "bool" ] .
+
+mcp:Content a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Content"@en ;
+    rdfs:comment "MCP content (text, image, or resource)"@en .
+
+mcp:TextContent a owl:Class ;
+    rdfs:subClassOf mcp:Content ;
+    rdfs:label "Text Content"@en ;
+    rdfs:comment "Text content type"@en ;
+    ddd:hasProperty [ rdfs:label "text" ; ddd:type "String" ] .
+
+mcp:ImageContent a owl:Class ;
+    rdfs:subClassOf mcp:Content ;
+    rdfs:label "Image Content"@en ;
+    rdfs:comment "Image content type (base64 encoded)"@en ;
+    ddd:hasProperty [ rdfs:label "data" ; ddd:type "String" ] ;
+    ddd:hasProperty [ rdfs:label "mime_type" ; ddd:type "String" ] .
+
+mcp:ResourceContent a owl:Class ;
+    rdfs:subClassOf mcp:Content ;
+    rdfs:label "Resource Content"@en ;
+    rdfs:comment "Embedded resource content"@en ;
+    ddd:hasProperty [ rdfs:label "uri" ; ddd:type "ResourceUri" ] ;
+    ddd:hasProperty [ rdfs:label "text" ; ddd:type "Option<String>" ] ;
+    ddd:hasProperty [ rdfs:label "blob" ; ddd:type "Option<String>" ] .
+
+mcp:PromptArgument a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Prompt Argument"@en ;
+    rdfs:comment "Argument definition for a prompt"@en ;
+    ddd:hasProperty [ rdfs:label "name" ; ddd:type "String" ] ;
+    ddd:hasProperty [ rdfs:label "description" ; ddd:type "Option<String>" ] ;
+    ddd:hasProperty [ rdfs:label "required" ; ddd:type "bool" ] .
+
+mcp:PromptMessage a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Prompt Message"@en ;
+    rdfs:comment "Message in a prompt response"@en ;
+    ddd:hasProperty [ rdfs:label "role" ; ddd:type "Role" ] ;
+    ddd:hasProperty [ rdfs:label "content" ; ddd:type "Content" ] .
+
+mcp:Role a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Role"@en ;
+    rdfs:comment "Message role (user or assistant)"@en .
+
+mcp:UserRole a mcp:Role ;
+    rdfs:label "User Role"@en .
+
+mcp:AssistantRole a mcp:Role ;
+    rdfs:label "Assistant Role"@en .
+
+mcp:ServerCapabilities a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Server Capabilities"@en ;
+    rdfs:comment "Capabilities advertised by MCP server"@en ;
+    ddd:hasProperty [ rdfs:label "tools" ; ddd:type "Option<ToolsCapability>" ] ;
+    ddd:hasProperty [ rdfs:label "resources" ; ddd:type "Option<ResourcesCapability>" ] ;
+    ddd:hasProperty [ rdfs:label "prompts" ; ddd:type "Option<PromptsCapability>" ] ;
+    ddd:hasProperty [ rdfs:label "logging" ; ddd:type "Option<LoggingCapability>" ] ;
+    ddd:hasProperty [ rdfs:label "experimental" ; ddd:type "Option<serde_json::Value>" ] .
+
+mcp:ToolsCapability a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Tools Capability"@en ;
+    rdfs:comment "Server capability to provide tools"@en ;
+    ddd:hasProperty [ rdfs:label "list_changed" ; ddd:type "Option<bool>" ] .
+
+mcp:ResourcesCapability a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Resources Capability"@en ;
+    rdfs:comment "Server capability to provide resources"@en ;
+    ddd:hasProperty [ rdfs:label "subscribe" ; ddd:type "Option<bool>" ] ;
+    ddd:hasProperty [ rdfs:label "list_changed" ; ddd:type "Option<bool>" ] .
+
+mcp:PromptsCapability a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Prompts Capability"@en ;
+    rdfs:comment "Server capability to provide prompts"@en ;
+    ddd:hasProperty [ rdfs:label "list_changed" ; ddd:type "Option<bool>" ] .
+
+mcp:LoggingCapability a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Logging Capability"@en ;
+    rdfs:comment "Server capability to accept log messages"@en .
+
+mcp:ServerInfo a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Server Info"@en ;
+    rdfs:comment "Server metadata information"@en ;
+    ddd:hasProperty [ rdfs:label "name" ; ddd:type "String" ] ;
+    ddd:hasProperty [ rdfs:label "version" ; ddd:type "String" ] .
+
+mcp:ClientInfo a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Client Info"@en ;
+    rdfs:comment "Client metadata information"@en ;
+    ddd:hasProperty [ rdfs:label "name" ; ddd:type "String" ] ;
+    ddd:hasProperty [ rdfs:label "version" ; ddd:type "String" ] .
+
+mcp:Annotation a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Annotation"@en ;
+    rdfs:comment "Annotation for resources and content"@en ;
+    ddd:hasProperty [ rdfs:label "audience" ; ddd:type "Option<Vec<Role>>" ] ;
+    ddd:hasProperty [ rdfs:label "priority" ; ddd:type "Option<f64>" ] .
+
+# =============================================================================
+# MCP PROPERTIES - Data Properties
+# =============================================================================
+
+mcp:serverId a owl:DatatypeProperty ;
+    rdfs:domain mcp:McpServer ;
+    rdfs:range xsd:string ;
+    rdfs:label "server ID"@en .
+
+mcp:serverName a owl:DatatypeProperty ;
+    rdfs:domain mcp:McpServer ;
+    rdfs:range xsd:string ;
+    rdfs:label "server name"@en .
+
+mcp:serverVersion a owl:DatatypeProperty ;
+    rdfs:domain mcp:McpServer ;
+    rdfs:range xsd:string ;
+    rdfs:label "server version"@en .
+
+mcp:protocolVersion a owl:DatatypeProperty ;
+    rdfs:domain mcp:McpServer ;
+    rdfs:range xsd:string ;
+    rdfs:label "protocol version"@en .
+
+mcp:toolName a owl:DatatypeProperty ;
+    rdfs:domain mcp:Tool ;
+    rdfs:range xsd:string ;
+    rdfs:label "tool name"@en .
+
+mcp:toolDescription a owl:DatatypeProperty ;
+    rdfs:domain mcp:Tool ;
+    rdfs:range xsd:string ;
+    rdfs:label "tool description"@en .
+
+mcp:resourceUri a owl:DatatypeProperty ;
+    rdfs:domain mcp:Resource ;
+    rdfs:range xsd:anyURI ;
+    rdfs:label "resource URI"@en .
+
+mcp:resourceName a owl:DatatypeProperty ;
+    rdfs:domain mcp:Resource ;
+    rdfs:range xsd:string ;
+    rdfs:label "resource name"@en .
+
+mcp:resourceDescription a owl:DatatypeProperty ;
+    rdfs:domain mcp:Resource ;
+    rdfs:range xsd:string ;
+    rdfs:label "resource description"@en .
+
+mcp:mimeType a owl:DatatypeProperty ;
+    rdfs:domain [ owl:unionOf ( mcp:Resource mcp:ResourceTemplate mcp:ImageContent ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:label "MIME type"@en .
+
+mcp:uriTemplate a owl:DatatypeProperty ;
+    rdfs:domain mcp:ResourceTemplate ;
+    rdfs:range xsd:string ;
+    rdfs:label "URI template"@en .
+
+mcp:templateName a owl:DatatypeProperty ;
+    rdfs:domain mcp:ResourceTemplate ;
+    rdfs:range xsd:string ;
+    rdfs:label "template name"@en .
+
+mcp:templateDescription a owl:DatatypeProperty ;
+    rdfs:domain mcp:ResourceTemplate ;
+    rdfs:range xsd:string ;
+    rdfs:label "template description"@en .
+
+mcp:promptName a owl:DatatypeProperty ;
+    rdfs:domain mcp:Prompt ;
+    rdfs:range xsd:string ;
+    rdfs:label "prompt name"@en .
+
+mcp:promptDescription a owl:DatatypeProperty ;
+    rdfs:domain mcp:Prompt ;
+    rdfs:range xsd:string ;
+    rdfs:label "prompt description"@en .
+
+mcp:rootUri a owl:DatatypeProperty ;
+    rdfs:domain mcp:Root ;
+    rdfs:range xsd:anyURI ;
+    rdfs:label "root URI"@en .
+
+mcp:rootName a owl:DatatypeProperty ;
+    rdfs:domain mcp:Root ;
+    rdfs:range xsd:string ;
+    rdfs:label "root name"@en .
+
+# =============================================================================
+# MCP PROPERTIES - Object Properties
+# =============================================================================
+
+mcp:hasTool a owl:ObjectProperty ;
+    rdfs:domain mcp:McpServer ;
+    rdfs:range mcp:Tool ;
+    rdfs:label "has tool"@en ;
+    rdfs:comment "Server exposes this tool"@en .
+
+mcp:hasResource a owl:ObjectProperty ;
+    rdfs:domain mcp:McpServer ;
+    rdfs:range mcp:Resource ;
+    rdfs:label "has resource"@en ;
+    rdfs:comment "Server exposes this resource"@en .
+
+mcp:hasResourceTemplate a owl:ObjectProperty ;
+    rdfs:domain mcp:McpServer ;
+    rdfs:range mcp:ResourceTemplate ;
+    rdfs:label "has resource template"@en ;
+    rdfs:comment "Server exposes this resource template"@en .
+
+mcp:hasPrompt a owl:ObjectProperty ;
+    rdfs:domain mcp:McpServer ;
+    rdfs:range mcp:Prompt ;
+    rdfs:label "has prompt"@en ;
+    rdfs:comment "Server exposes this prompt"@en .
+
+mcp:hasRoot a owl:ObjectProperty ;
+    rdfs:domain mcp:McpServer ;
+    rdfs:range mcp:Root ;
+    rdfs:label "has root"@en ;
+    rdfs:comment "Server exposes this root"@en .
+
+mcp:capabilities a owl:ObjectProperty ;
+    rdfs:domain mcp:McpServer ;
+    rdfs:range mcp:ServerCapabilities ;
+    rdfs:label "capabilities"@en ;
+    rdfs:comment "Server advertised capabilities"@en .
+
+mcp:serverInfo a owl:ObjectProperty ;
+    rdfs:domain mcp:McpServer ;
+    rdfs:range mcp:ServerInfo ;
+    rdfs:label "server info"@en .
+
+mcp:inputSchema a owl:ObjectProperty ;
+    rdfs:domain mcp:Tool ;
+    rdfs:range mcp:JsonSchema ;
+    rdfs:label "input schema"@en ;
+    rdfs:comment "JSON Schema for tool input validation"@en .
+
+mcp:promptArguments a owl:ObjectProperty ;
+    rdfs:domain mcp:Prompt ;
+    rdfs:range mcp:PromptArgument ;
+    rdfs:label "prompt arguments"@en ;
+    rdfs:comment "Arguments accepted by this prompt"@en .
+
+mcp:resourceAnnotations a owl:ObjectProperty ;
+    rdfs:domain mcp:Resource ;
+    rdfs:range mcp:Annotation ;
+    rdfs:label "resource annotations"@en .
+
+# =============================================================================
+# MCP COMMANDS
+# =============================================================================
+
+mcp:InitializeCommand a owl:Class ;
+    rdfs:subClassOf ddd:Command ;
+    rdfs:label "Initialize Command"@en ;
+    rdfs:comment "Initialize MCP connection with client info"@en ;
+    ddd:hasProperty [ rdfs:label "client_info" ; ddd:type "ClientInfo" ] ;
+    ddd:hasProperty [ rdfs:label "protocol_version" ; ddd:type "ProtocolVersion" ] .
+
+mcp:RegisterToolCommand a owl:Class ;
+    rdfs:subClassOf ddd:Command ;
+    rdfs:label "Register Tool Command"@en ;
+    rdfs:comment "Register a new tool with the server"@en ;
+    ddd:hasProperty [ rdfs:label "name" ; ddd:type "ToolName" ] ;
+    ddd:hasProperty [ rdfs:label "description" ; ddd:type "String" ] ;
+    ddd:hasProperty [ rdfs:label "input_schema" ; ddd:type "JsonSchema" ] .
+
+mcp:UnregisterToolCommand a owl:Class ;
+    rdfs:subClassOf ddd:Command ;
+    rdfs:label "Unregister Tool Command"@en ;
+    rdfs:comment "Remove a tool from the server"@en ;
+    ddd:hasProperty [ rdfs:label "name" ; ddd:type "ToolName" ] .
+
+mcp:CallToolCommand a owl:Class ;
+    rdfs:subClassOf ddd:Command ;
+    rdfs:label "Call Tool Command"@en ;
+    rdfs:comment "Invoke a tool with arguments"@en ;
+    ddd:hasProperty [ rdfs:label "name" ; ddd:type "ToolName" ] ;
+    ddd:hasProperty [ rdfs:label "arguments" ; ddd:type "ToolInput" ] .
+
+mcp:RegisterResourceCommand a owl:Class ;
+    rdfs:subClassOf ddd:Command ;
+    rdfs:label "Register Resource Command"@en ;
+    rdfs:comment "Register a new resource with the server"@en ;
+    ddd:hasProperty [ rdfs:label "uri" ; ddd:type "ResourceUri" ] ;
+    ddd:hasProperty [ rdfs:label "name" ; ddd:type "String" ] ;
+    ddd:hasProperty [ rdfs:label "description" ; ddd:type "Option<String>" ] ;
+    ddd:hasProperty [ rdfs:label "mime_type" ; ddd:type "Option<String>" ] .
+
+mcp:ReadResourceCommand a owl:Class ;
+    rdfs:subClassOf ddd:Command ;
+    rdfs:label "Read Resource Command"@en ;
+    rdfs:comment "Read content from a resource"@en ;
+    ddd:hasProperty [ rdfs:label "uri" ; ddd:type "ResourceUri" ] .
+
+mcp:SubscribeResourceCommand a owl:Class ;
+    rdfs:subClassOf ddd:Command ;
+    rdfs:label "Subscribe Resource Command"@en ;
+    rdfs:comment "Subscribe to resource updates"@en ;
+    ddd:hasProperty [ rdfs:label "uri" ; ddd:type "ResourceUri" ] .
+
+mcp:UnsubscribeResourceCommand a owl:Class ;
+    rdfs:subClassOf ddd:Command ;
+    rdfs:label "Unsubscribe Resource Command"@en ;
+    rdfs:comment "Unsubscribe from resource updates"@en ;
+    ddd:hasProperty [ rdfs:label "uri" ; ddd:type "ResourceUri" ] .
+
+mcp:RegisterPromptCommand a owl:Class ;
+    rdfs:subClassOf ddd:Command ;
+    rdfs:label "Register Prompt Command"@en ;
+    rdfs:comment "Register a new prompt with the server"@en ;
+    ddd:hasProperty [ rdfs:label "name" ; ddd:type "String" ] ;
+    ddd:hasProperty [ rdfs:label "description" ; ddd:type "Option<String>" ] ;
+    ddd:hasProperty [ rdfs:label "arguments" ; ddd:type "Vec<PromptArgument>" ] .
+
+mcp:GetPromptCommand a owl:Class ;
+    rdfs:subClassOf ddd:Command ;
+    rdfs:label "Get Prompt Command"@en ;
+    rdfs:comment "Get a prompt with arguments"@en ;
+    ddd:hasProperty [ rdfs:label "name" ; ddd:type "String" ] ;
+    ddd:hasProperty [ rdfs:label "arguments" ; ddd:type "Option<serde_json::Value>" ] .
+
+mcp:SetLogLevelCommand a owl:Class ;
+    rdfs:subClassOf ddd:Command ;
+    rdfs:label "Set Log Level Command"@en ;
+    rdfs:comment "Set the server log level"@en ;
+    ddd:hasProperty [ rdfs:label "level" ; ddd:type "LogLevel" ] .
+
+# =============================================================================
+# MCP QUERIES
+# =============================================================================
+
+mcp:ListToolsQuery a owl:Class ;
+    rdfs:subClassOf ddd:Query ;
+    rdfs:label "List Tools Query"@en ;
+    rdfs:comment "Query to list all available tools"@en ;
+    ddd:hasProperty [ rdfs:label "cursor" ; ddd:type "Option<String>" ] .
+
+mcp:ListResourcesQuery a owl:Class ;
+    rdfs:subClassOf ddd:Query ;
+    rdfs:label "List Resources Query"@en ;
+    rdfs:comment "Query to list all available resources"@en ;
+    ddd:hasProperty [ rdfs:label "cursor" ; ddd:type "Option<String>" ] .
+
+mcp:ListResourceTemplatesQuery a owl:Class ;
+    rdfs:subClassOf ddd:Query ;
+    rdfs:label "List Resource Templates Query"@en ;
+    rdfs:comment "Query to list all resource templates"@en ;
+    ddd:hasProperty [ rdfs:label "cursor" ; ddd:type "Option<String>" ] .
+
+mcp:ListPromptsQuery a owl:Class ;
+    rdfs:subClassOf ddd:Query ;
+    rdfs:label "List Prompts Query"@en ;
+    rdfs:comment "Query to list all available prompts"@en ;
+    ddd:hasProperty [ rdfs:label "cursor" ; ddd:type "Option<String>" ] .
+
+mcp:ListRootsQuery a owl:Class ;
+    rdfs:subClassOf ddd:Query ;
+    rdfs:label "List Roots Query"@en ;
+    rdfs:comment "Query to list all exposed roots"@en .
+
+# =============================================================================
+# MCP DOMAIN EVENTS
+# =============================================================================
+
+mcp:ServerInitializedEvent a owl:Class ;
+    rdfs:subClassOf ddd:DomainEvent ;
+    rdfs:label "Server Initialized Event"@en ;
+    rdfs:comment "Server has been initialized with client"@en ;
+    ddd:hasProperty [ rdfs:label "server_id" ; ddd:type "ServerId" ] ;
+    ddd:hasProperty [ rdfs:label "client_info" ; ddd:type "ClientInfo" ] ;
+    ddd:hasProperty [ rdfs:label "timestamp" ; ddd:type "Instant" ] .
+
+mcp:ToolRegisteredEvent a owl:Class ;
+    rdfs:subClassOf ddd:DomainEvent ;
+    rdfs:label "Tool Registered Event"@en ;
+    rdfs:comment "A tool has been registered"@en ;
+    ddd:hasProperty [ rdfs:label "server_id" ; ddd:type "ServerId" ] ;
+    ddd:hasProperty [ rdfs:label "tool_name" ; ddd:type "ToolName" ] ;
+    ddd:hasProperty [ rdfs:label "timestamp" ; ddd:type "Instant" ] .
+
+mcp:ToolUnregisteredEvent a owl:Class ;
+    rdfs:subClassOf ddd:DomainEvent ;
+    rdfs:label "Tool Unregistered Event"@en ;
+    rdfs:comment "A tool has been unregistered"@en ;
+    ddd:hasProperty [ rdfs:label "server_id" ; ddd:type "ServerId" ] ;
+    ddd:hasProperty [ rdfs:label "tool_name" ; ddd:type "ToolName" ] ;
+    ddd:hasProperty [ rdfs:label "timestamp" ; ddd:type "Instant" ] .
+
+mcp:ToolCalledEvent a owl:Class ;
+    rdfs:subClassOf ddd:DomainEvent ;
+    rdfs:label "Tool Called Event"@en ;
+    rdfs:comment "A tool has been invoked"@en ;
+    ddd:hasProperty [ rdfs:label "server_id" ; ddd:type "ServerId" ] ;
+    ddd:hasProperty [ rdfs:label "tool_name" ; ddd:type "ToolName" ] ;
+    ddd:hasProperty [ rdfs:label "result" ; ddd:type "ToolResult" ] ;
+    ddd:hasProperty [ rdfs:label "duration_ms" ; ddd:type "u64" ] ;
+    ddd:hasProperty [ rdfs:label "timestamp" ; ddd:type "Instant" ] .
+
+mcp:ResourceRegisteredEvent a owl:Class ;
+    rdfs:subClassOf ddd:DomainEvent ;
+    rdfs:label "Resource Registered Event"@en ;
+    rdfs:comment "A resource has been registered"@en ;
+    ddd:hasProperty [ rdfs:label "server_id" ; ddd:type "ServerId" ] ;
+    ddd:hasProperty [ rdfs:label "resource_uri" ; ddd:type "ResourceUri" ] ;
+    ddd:hasProperty [ rdfs:label "timestamp" ; ddd:type "Instant" ] .
+
+mcp:ResourceReadEvent a owl:Class ;
+    rdfs:subClassOf ddd:DomainEvent ;
+    rdfs:label "Resource Read Event"@en ;
+    rdfs:comment "A resource has been read"@en ;
+    ddd:hasProperty [ rdfs:label "server_id" ; ddd:type "ServerId" ] ;
+    ddd:hasProperty [ rdfs:label "resource_uri" ; ddd:type "ResourceUri" ] ;
+    ddd:hasProperty [ rdfs:label "timestamp" ; ddd:type "Instant" ] .
+
+mcp:ResourceUpdatedEvent a owl:Class ;
+    rdfs:subClassOf ddd:DomainEvent ;
+    rdfs:label "Resource Updated Event"@en ;
+    rdfs:comment "A resource has been updated (for subscribers)"@en ;
+    ddd:hasProperty [ rdfs:label "server_id" ; ddd:type "ServerId" ] ;
+    ddd:hasProperty [ rdfs:label "resource_uri" ; ddd:type "ResourceUri" ] ;
+    ddd:hasProperty [ rdfs:label "timestamp" ; ddd:type "Instant" ] .
+
+mcp:PromptRegisteredEvent a owl:Class ;
+    rdfs:subClassOf ddd:DomainEvent ;
+    rdfs:label "Prompt Registered Event"@en ;
+    rdfs:comment "A prompt has been registered"@en ;
+    ddd:hasProperty [ rdfs:label "server_id" ; ddd:type "ServerId" ] ;
+    ddd:hasProperty [ rdfs:label "prompt_name" ; ddd:type "String" ] ;
+    ddd:hasProperty [ rdfs:label "timestamp" ; ddd:type "Instant" ] .
+
+mcp:PromptRequestedEvent a owl:Class ;
+    rdfs:subClassOf ddd:DomainEvent ;
+    rdfs:label "Prompt Requested Event"@en ;
+    rdfs:comment "A prompt has been requested"@en ;
+    ddd:hasProperty [ rdfs:label "server_id" ; ddd:type "ServerId" ] ;
+    ddd:hasProperty [ rdfs:label "prompt_name" ; ddd:type "String" ] ;
+    ddd:hasProperty [ rdfs:label "timestamp" ; ddd:type "Instant" ] .
+
+mcp:ToolListChangedEvent a owl:Class ;
+    rdfs:subClassOf ddd:DomainEvent ;
+    rdfs:label "Tool List Changed Event"@en ;
+    rdfs:comment "The list of available tools has changed"@en ;
+    ddd:hasProperty [ rdfs:label "server_id" ; ddd:type "ServerId" ] ;
+    ddd:hasProperty [ rdfs:label "timestamp" ; ddd:type "Instant" ] .
+
+mcp:ResourceListChangedEvent a owl:Class ;
+    rdfs:subClassOf ddd:DomainEvent ;
+    rdfs:label "Resource List Changed Event"@en ;
+    rdfs:comment "The list of available resources has changed"@en ;
+    ddd:hasProperty [ rdfs:label "server_id" ; ddd:type "ServerId" ] ;
+    ddd:hasProperty [ rdfs:label "timestamp" ; ddd:type "Instant" ] .
+
+mcp:PromptListChangedEvent a owl:Class ;
+    rdfs:subClassOf ddd:DomainEvent ;
+    rdfs:label "Prompt List Changed Event"@en ;
+    rdfs:comment "The list of available prompts has changed"@en ;
+    ddd:hasProperty [ rdfs:label "server_id" ; ddd:type "ServerId" ] ;
+    ddd:hasProperty [ rdfs:label "timestamp" ; ddd:type "Instant" ] .
+
+mcp:RootsListChangedEvent a owl:Class ;
+    rdfs:subClassOf ddd:DomainEvent ;
+    rdfs:label "Roots List Changed Event"@en ;
+    rdfs:comment "The list of exposed roots has changed"@en ;
+    ddd:hasProperty [ rdfs:label "server_id" ; ddd:type "ServerId" ] ;
+    ddd:hasProperty [ rdfs:label "timestamp" ; ddd:type "Instant" ] .
+
+mcp:LogMessageEvent a owl:Class ;
+    rdfs:subClassOf ddd:DomainEvent ;
+    rdfs:label "Log Message Event"@en ;
+    rdfs:comment "Server log message"@en ;
+    ddd:hasProperty [ rdfs:label "level" ; ddd:type "LogLevel" ] ;
+    ddd:hasProperty [ rdfs:label "logger" ; ddd:type "Option<String>" ] ;
+    ddd:hasProperty [ rdfs:label "data" ; ddd:type "serde_json::Value" ] ;
+    ddd:hasProperty [ rdfs:label "timestamp" ; ddd:type "Instant" ] .
+
+# =============================================================================
+# MCP ENUMS (as owl:Class with instances)
+# =============================================================================
+
+mcp:LogLevel a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Log Level"@en ;
+    rdfs:comment "Logging level enumeration"@en .
+
+mcp:DebugLevel a mcp:LogLevel ;
+    rdfs:label "Debug"@en .
+
+mcp:InfoLevel a mcp:LogLevel ;
+    rdfs:label "Info"@en .
+
+mcp:NoticeLevel a mcp:LogLevel ;
+    rdfs:label "Notice"@en .
+
+mcp:WarningLevel a mcp:LogLevel ;
+    rdfs:label "Warning"@en .
+
+mcp:ErrorLevel a mcp:LogLevel ;
+    rdfs:label "Error"@en .
+
+mcp:CriticalLevel a mcp:LogLevel ;
+    rdfs:label "Critical"@en .
+
+mcp:AlertLevel a mcp:LogLevel ;
+    rdfs:label "Alert"@en .
+
+mcp:EmergencyLevel a mcp:LogLevel ;
+    rdfs:label "Emergency"@en .
+
+# =============================================================================
+# MCP REPOSITORIES
+# =============================================================================
+
+mcp:McpServerRepository a owl:Class ;
+    rdfs:subClassOf ddd:Repository ;
+    rdfs:label "MCP Server Repository"@en ;
+    rdfs:comment "Repository for MCP Server aggregates"@en ;
+    ddd:forAggregate mcp:McpServer .
+
+mcp:ToolRepository a owl:Class ;
+    rdfs:subClassOf ddd:Repository ;
+    rdfs:label "Tool Repository"@en ;
+    rdfs:comment "Repository for tool entities (within server aggregate)"@en ;
+    ddd:forAggregate mcp:Tool .
+
+mcp:ResourceRepository a owl:Class ;
+    rdfs:subClassOf ddd:Repository ;
+    rdfs:label "Resource Repository"@en ;
+    rdfs:comment "Repository for resource entities (within server aggregate)"@en ;
+    ddd:forAggregate mcp:Resource .
+
+mcp:PromptRepository a owl:Class ;
+    rdfs:subClassOf ddd:Repository ;
+    rdfs:label "Prompt Repository"@en ;
+    rdfs:comment "Repository for prompt entities (within server aggregate)"@en ;
+    ddd:forAggregate mcp:Prompt .
+
+# =============================================================================
+# MCP SERVICES
+# =============================================================================
+
+mcp:ToolService a owl:Class ;
+    rdfs:subClassOf ddd:Service ;
+    rdfs:label "Tool Service"@en ;
+    rdfs:comment "Service for tool operations"@en ;
+    ddd:uses mcp:ToolRepository ;
+    ddd:handles mcp:RegisterToolCommand, mcp:UnregisterToolCommand, mcp:CallToolCommand ;
+    ddd:emits mcp:ToolRegisteredEvent, mcp:ToolUnregisteredEvent, mcp:ToolCalledEvent .
+
+mcp:ResourceService a owl:Class ;
+    rdfs:subClassOf ddd:Service ;
+    rdfs:label "Resource Service"@en ;
+    rdfs:comment "Service for resource operations"@en ;
+    ddd:uses mcp:ResourceRepository ;
+    ddd:handles mcp:RegisterResourceCommand, mcp:ReadResourceCommand ;
+    ddd:handles mcp:SubscribeResourceCommand, mcp:UnsubscribeResourceCommand ;
+    ddd:emits mcp:ResourceRegisteredEvent, mcp:ResourceReadEvent, mcp:ResourceUpdatedEvent .
+
+mcp:PromptService a owl:Class ;
+    rdfs:subClassOf ddd:Service ;
+    rdfs:label "Prompt Service"@en ;
+    rdfs:comment "Service for prompt operations"@en ;
+    ddd:uses mcp:PromptRepository ;
+    ddd:handles mcp:RegisterPromptCommand, mcp:GetPromptCommand ;
+    ddd:emits mcp:PromptRegisteredEvent, mcp:PromptRequestedEvent .
+
+mcp:SessionService a owl:Class ;
+    rdfs:subClassOf ddd:Service ;
+    rdfs:label "Session Service"@en ;
+    rdfs:comment "Service for MCP session lifecycle"@en ;
+    ddd:uses mcp:McpServerRepository ;
+    ddd:handles mcp:InitializeCommand ;
+    ddd:emits mcp:ServerInitializedEvent .
+
+mcp:NotificationService a owl:Class ;
+    rdfs:subClassOf ddd:Service ;
+    rdfs:label "Notification Service"@en ;
+    rdfs:comment "Service for sending MCP notifications"@en ;
+    ddd:emits mcp:ToolListChangedEvent, mcp:ResourceListChangedEvent ;
+    ddd:emits mcp:PromptListChangedEvent, mcp:RootsListChangedEvent ;
+    ddd:emits mcp:ResourceUpdatedEvent, mcp:LogMessageEvent .
+
+# =============================================================================
+# MCP FACTORIES
+# =============================================================================
+
+mcp:McpServerFactory a owl:Class ;
+    rdfs:subClassOf ddd:Factory ;
+    rdfs:label "MCP Server Factory"@en ;
+    rdfs:comment "Factory for creating MCP server instances"@en .
+
+mcp:ToolFactory a owl:Class ;
+    rdfs:subClassOf ddd:Factory ;
+    rdfs:label "Tool Factory"@en ;
+    rdfs:comment "Factory for creating tool entities"@en .
+
+# =============================================================================
+# SHACL SHAPES FOR VALIDATION
+# =============================================================================
+
+mcp:McpServerShape a sh:NodeShape ;
+    sh:targetClass mcp:McpServer ;
+    sh:property [
+        sh:path mcp:serverId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:description "Server must have exactly one non-empty ID"@en
+    ] ;
+    sh:property [
+        sh:path mcp:serverName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:description "Server must have exactly one name"@en
+    ] ;
+    sh:property [
+        sh:path mcp:protocolVersion ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^\\d+\\.\\d+\\.\\d+$" ;
+        sh:description "Protocol version must be semver format"@en
+    ] .
+
+mcp:ToolShape a sh:NodeShape ;
+    sh:targetClass mcp:Tool ;
+    sh:property [
+        sh:path mcp:toolName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-z][a-z0-9_]*$" ;
+        sh:description "Tool name must be valid identifier"@en
+    ] ;
+    sh:property [
+        sh:path mcp:toolDescription ;
+        sh:datatype xsd:string ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:description "Tool may have one description"@en
+    ] ;
+    sh:property [
+        sh:path mcp:inputSchema ;
+        sh:class mcp:JsonSchema ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:description "Tool must have exactly one input schema"@en
+    ] .
+
+mcp:ResourceShape a sh:NodeShape ;
+    sh:targetClass mcp:Resource ;
+    sh:property [
+        sh:path mcp:resourceUri ;
+        sh:nodeKind sh:IRI ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:description "Resource must have exactly one URI"@en
+    ] ;
+    sh:property [
+        sh:path mcp:resourceName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:description "Resource must have exactly one name"@en
+    ] ;
+    sh:property [
+        sh:path mcp:mimeType ;
+        sh:datatype xsd:string ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:description "Resource may have one MIME type"@en
+    ] .
+
+mcp:PromptShape a sh:NodeShape ;
+    sh:targetClass mcp:Prompt ;
+    sh:property [
+        sh:path mcp:promptName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:description "Prompt must have exactly one name"@en
+    ] ;
+    sh:property [
+        sh:path mcp:promptArguments ;
+        sh:class mcp:PromptArgument ;
+        sh:minCount 0 ;
+        sh:description "Prompt may have zero or more arguments"@en
+    ] .
+
+mcp:PromptArgumentShape a sh:NodeShape ;
+    sh:targetClass mcp:PromptArgument ;
+    sh:property [
+        sh:path [ rdfs:label "name" ] ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:description "Argument must have exactly one name"@en
+    ] .
+
+# =============================================================================
+# MCP ERROR TYPES (for Result<T, E>)
+# =============================================================================
+
+mcp:McpError a owl:Class ;
+    rdfs:label "MCP Error"@en ;
+    rdfs:comment "Base class for MCP errors"@en .
+
+mcp:ToolNotFoundError a owl:Class ;
+    rdfs:subClassOf mcp:McpError ;
+    rdfs:label "Tool Not Found Error"@en ;
+    rdfs:comment "Requested tool does not exist"@en ;
+    ddd:hasProperty [ rdfs:label "tool_name" ; ddd:type "ToolName" ] .
+
+mcp:ResourceNotFoundError a owl:Class ;
+    rdfs:subClassOf mcp:McpError ;
+    rdfs:label "Resource Not Found Error"@en ;
+    rdfs:comment "Requested resource does not exist"@en ;
+    ddd:hasProperty [ rdfs:label "uri" ; ddd:type "ResourceUri" ] .
+
+mcp:PromptNotFoundError a owl:Class ;
+    rdfs:subClassOf mcp:McpError ;
+    rdfs:label "Prompt Not Found Error"@en ;
+    rdfs:comment "Requested prompt does not exist"@en ;
+    ddd:hasProperty [ rdfs:label "name" ; ddd:type "String" ] .
+
+mcp:InvalidArgumentsError a owl:Class ;
+    rdfs:subClassOf mcp:McpError ;
+    rdfs:label "Invalid Arguments Error"@en ;
+    rdfs:comment "Tool arguments failed validation"@en ;
+    ddd:hasProperty [ rdfs:label "message" ; ddd:type "String" ] .
+
+mcp:ToolExecutionError a owl:Class ;
+    rdfs:subClassOf mcp:McpError ;
+    rdfs:label "Tool Execution Error"@en ;
+    rdfs:comment "Tool execution failed"@en ;
+    ddd:hasProperty [ rdfs:label "tool_name" ; ddd:type "ToolName" ] ;
+    ddd:hasProperty [ rdfs:label "message" ; ddd:type "String" ] .
+
+mcp:ResourceReadError a owl:Class ;
+    rdfs:subClassOf mcp:McpError ;
+    rdfs:label "Resource Read Error"@en ;
+    rdfs:comment "Failed to read resource content"@en ;
+    ddd:hasProperty [ rdfs:label "uri" ; ddd:type "ResourceUri" ] ;
+    ddd:hasProperty [ rdfs:label "message" ; ddd:type "String" ] .
+
+mcp:ProtocolError a owl:Class ;
+    rdfs:subClassOf mcp:McpError ;
+    rdfs:label "Protocol Error"@en ;
+    rdfs:comment "MCP protocol violation"@en ;
+    ddd:hasProperty [ rdfs:label "code" ; ddd:type "i32" ] ;
+    ddd:hasProperty [ rdfs:label "message" ; ddd:type "String" ] .
+
+mcp:InternalError a owl:Class ;
+    rdfs:subClassOf mcp:McpError ;
+    rdfs:label "Internal Error"@en ;
+    rdfs:comment "Internal server error"@en ;
+    ddd:hasProperty [ rdfs:label "message" ; ddd:type "String" ] .
+
+# =============================================================================
+# DOCUMENTATION
+# =============================================================================
+
+mcp:documentation rdfs:comment """
+MCP Domain Ontology v1.0.0
+
+This ontology provides a complete Domain-Driven Design model for the Model
+Context Protocol (MCP), enabling:
+
+1. CODE GENERATION: Use with ggen sync to generate Rust domain code:
+   - Aggregate roots with invariants
+   - Entities with identity and lifecycle
+   - Value objects with validation
+   - Commands and queries (CQRS)
+   - Domain events for event sourcing
+   - Repository traits
+   - Domain services
+
+2. VALIDATION: SHACL shapes ensure:
+   - Required properties are present
+   - Values match expected patterns
+   - Relationships are correctly formed
+
+3. SEMANTIC QUERIES: SPARQL queries can:
+   - Find all tools with specific capabilities
+   - Trace event lineage
+   - Validate domain invariants
+
+Key DDD Concepts Modeled:
+- McpServer: Aggregate Root (consistency boundary)
+- Tool, Resource, Prompt: Entities (with identity)
+- ServerId, ToolName, ResourceUri, etc.: Value Objects (immutable, validated)
+- Commands: Intent to change state
+- Events: Facts that happened in the domain
+- Repositories: Persistence abstractions
+- Services: Cross-aggregate operations
+
+Usage with ggen:
+  ggen sync --ontology ontology/mcp-domain.ttl --output src/generated/
+
+This will generate:
+  - src/generated/entities.rs (McpServer, Tool, Resource, Prompt)
+  - src/generated/value_objects.rs (ServerId, ToolName, etc.)
+  - src/generated/commands.rs (all Command types)
+  - src/generated/events.rs (all Event types)
+  - src/generated/errors.rs (McpError variants)
+  - src/generated/repositories.rs (Repository traits)
+  - src/generated/services.rs (Service traits)
+"""@en .

@@ -1,0 +1,903 @@
+@prefix : <http://bytestar.org/ontology/security/sidechannel#> .
+@prefix ba: <http://bytestar.org/ontology/byteactor#> .
+@prefix be: <http://bytestar.org/ontology/byteethos#> .
+@prefix bf: <http://bytestar.org/ontology/byteflow#> .
+@prefix bc: <http://bytestar.org/ontology/bytecore#> .
+@prefix bp: <http://bytestar.org/ontology/bytepqc#> .
+@prefix doe: <http://bytestar.org/ontology/doctrine-of-8#> .
+@prefix det: <http://bytestar.org/ontology/deterministic-execution#> .
+@prefix ztr: <http://bytestar.org/ontology/zero-tick-rejection#> .
+@prefix sp: <http://bytestar.org/ontology/security-policy#> .
+@prefix pqcval: <http://bytestar.org/ontology/security/pqc-validation#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix crypto: <https://w3id.org/security#> .
+@prefix nist: <https://csrc.nist.gov/schema#> .
+@prefix pqcs: <http://bytepqc.org/ontology/security#> .
+
+<http://bytestar.org/ontology/security/sidechannel> rdf:type owl:Ontology ;
+    dct:title "ByteStar Side-Channel Resistance Framework"@en ;
+    dct:description """Comprehensive framework for detecting, measuring, and preventing side-channel attacks
+    across all ByteStar crystal implementations with hardware-level protection mechanisms.
+    
+    This ontology establishes:
+    1. Side-channel attack taxonomy and classification system
+    2. Resistance measurement and verification protocols
+    3. Constant-time execution validation frameworks
+    4. Hardware-level protection mechanisms and countermeasures
+    5. Statistical analysis tools for leakage detection
+    6. Real-time monitoring and threat response systems
+    7. Multi-dimensional leakage assessment capabilities
+    8. Formal verification of side-channel resistance properties
+    9. Performance-optimized protection (≤8 tick constraint)
+    10. Integration with zero-tick rejection mechanisms
+    11. Advanced statistical testing for information leakage
+    12. Hardware security module compatibility validation
+    
+    The framework provides comprehensive protection against:
+    - Timing attacks (execution time variations)
+    - Power analysis attacks (power consumption patterns)
+    - Electromagnetic attacks (EM emission analysis)
+    - Cache attacks (memory access pattern analysis)
+    - Fault injection attacks (controlled error introduction)
+    - Acoustic attacks (sound-based information leakage)
+    - Optical attacks (visual information leakage)
+    - Template attacks (statistical pattern matching)
+    
+    Advanced capabilities include:
+    - Multi-variate statistical analysis of side-channel leakage
+    - Real-time leakage detection and mitigation
+    - Formal verification of constant-time properties
+    - Hardware countermeasure effectiveness validation
+    - Cross-crystal side-channel correlation analysis"""@en ;
+    dct:creator "ByteStar Side-Channel Security Team"@en ;
+    dct:created "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    dct:modified "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    owl:versionInfo "5.0.0-security"@en ;
+    dct:license <https://opensource.org/licenses/MIT> ;
+    rdfs:seeAlso <http://bytestar.org/docs/sidechannel-resistance> ;
+    owl:imports <http://bytestar.org/ontology/byteactor> ,
+                <http://bytestar.org/ontology/byteethos> ,
+                <http://bytestar.org/ontology/byteflow> ,
+                <http://bytestar.org/ontology/bytecore> ,
+                <http://bytestar.org/ontology/bytepqc> ,
+                <http://bytestar.org/ontology/doctrine-of-8> ,
+                <http://bytestar.org/ontology/deterministic-execution> ,
+                <http://bytestar.org/ontology/zero-tick-rejection> ,
+                <http://bytestar.org/ontology/security-policy> ,
+                <http://bytestar.org/ontology/security/pqc-validation> .
+
+#################################################################
+#    Core Side-Channel Resistance Framework Classes
+#################################################################
+
+###  http://bytestar.org/ontology/security/sidechannel#SideChannelResistanceFramework
+:SideChannelResistanceFramework rdf:type owl:Class ;
+                                rdfs:subClassOf sp:PreventiveControl ;
+                                rdfs:label "Side-Channel Resistance Framework"@en ;
+                                rdfs:comment """Comprehensive framework for protecting against side-channel attacks
+                                through detection, measurement, and mitigation of information leakage."""@en ;
+                                :protectsAgainst :SideChannelAttack ;
+                                :hasProtectionLevel :HardwareLevel ;
+                                :operatesWithinConstraint doe:EightTickConstraint ;
+                                :integratesWithZeroTick ztr:InstantRejection ;
+                                :providesRealTimeProtection "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/sidechannel#SideChannelAttack
+:SideChannelAttack rdf:type owl:Class ;
+                   rdfs:subClassOf sp:AttackVector ;
+                   rdfs:label "Side-Channel Attack"@en ;
+                   rdfs:comment """Attack that exploits unintended information leakage from
+                   physical implementation of cryptographic systems."""@en ;
+                   :exploitsLeakage :InformationLeakage ;
+                   :hasAttackComplexity :Low , :Medium , :High ;
+                   :requiresPhysicalAccess :Local , :Remote , :Adjacent .
+
+###  http://bytestar.org/ontology/security/sidechannel#TimingAttack
+:TimingAttack rdf:type owl:Class ;
+              rdfs:subClassOf :SideChannelAttack ;
+              rdfs:label "Timing Attack"@en ;
+              rdfs:comment """Attack that exploits variations in execution time
+              to extract secret information from cryptographic operations."""@en ;
+              :exploitsLeakage :TimingLeakage ;
+              :hasAttackSurface sp:NetworkSurface , sp:ApplicationSurface ;
+              :requiresPhysicalAccess :Remote ;
+              :hasMitigationComplexity :Medium .
+
+###  http://bytestar.org/ontology/security/sidechannel#PowerAnalysisAttack
+:PowerAnalysisAttack rdf:type owl:Class ;
+                     rdfs:subClassOf :SideChannelAttack ;
+                     rdfs:label "Power Analysis Attack"@en ;
+                     rdfs:comment """Attack that analyzes power consumption patterns
+                     to extract cryptographic secrets from hardware implementations."""@en ;
+                     :exploitsLeakage :PowerLeakage ;
+                     :hasAttackSurface sp:PhysicalSurface ;
+                     :requiresPhysicalAccess :Local , :Adjacent ;
+                     :hasAttackVariant :SimplePowerAnalysis , :DifferentialPowerAnalysis .
+
+###  http://bytestar.org/ontology/security/sidechannel#ElectromagneticAttack
+:ElectromagneticAttack rdf:type owl:Class ;
+                       rdfs:subClassOf :SideChannelAttack ;
+                       rdfs:label "Electromagnetic Attack"@en ;
+                       rdfs:comment """Attack that analyzes electromagnetic emissions
+                       from electronic devices to extract secret information."""@en ;
+                       :exploitsLeakage :ElectromagneticLeakage ;
+                       :hasAttackSurface sp:PhysicalSurface ;
+                       :requiresPhysicalAccess :Adjacent ;
+                       :hasFrequencyRange "10kHz-10GHz"^^xsd:string .
+
+###  http://bytestar.org/ontology/security/sidechannel#CacheAttack
+:CacheAttack rdf:type owl:Class ;
+             rdfs:subClassOf :SideChannelAttack ;
+             rdfs:label "Cache Attack"@en ;
+             rdfs:comment """Attack that exploits cache memory access patterns
+             to infer information about cryptographic operations."""@en ;
+             :exploitsLeakage :CacheLeakage ;
+             :hasAttackSurface sp:ApplicationSurface ;
+             :requiresPhysicalAccess :Local ;
+             :hasAttackVariant :FlushReload , :PrimeProbe , :Evict .
+
+###  http://bytestar.org/ontology/security/sidechannel#FaultInjectionAttack
+:FaultInjectionAttack rdf:type owl:Class ;
+                      rdfs:subClassOf :SideChannelAttack ;
+                      rdfs:label "Fault Injection Attack"@en ;
+                      rdfs:comment """Active attack that introduces controlled faults
+                      into cryptographic computations to extract secrets."""@en ;
+                      :exploitsLeakage :FaultLeakage ;
+                      :hasAttackSurface sp:PhysicalSurface ;
+                      :requiresPhysicalAccess :Local ;
+                      :hasInjectionMethod :VoltageGlitch , :ClockGlitch , :LaserFault .
+
+###  http://bytestar.org/ontology/security/sidechannel#AcousticAttack
+:AcousticAttack rdf:type owl:Class ;
+                rdfs:subClassOf :SideChannelAttack ;
+                rdfs:label "Acoustic Attack"@en ;
+                rdfs:comment """Attack that analyzes acoustic emissions from
+                electronic devices during cryptographic operations."""@en ;
+                :exploitsLeakage :AcousticLeakage ;
+                :hasAttackSurface sp:PhysicalSurface ;
+                :requiresPhysicalAccess :Adjacent ;
+                :hasFrequencyRange "0-100kHz"^^xsd:string .
+
+###  http://bytestar.org/ontology/security/sidechannel#OpticalAttack
+:OpticalAttack rdf:type owl:Class ;
+               rdfs:subClassOf :SideChannelAttack ;
+               rdfs:label "Optical Attack"@en ;
+               rdfs:comment """Attack that uses optical methods to extract
+               information from cryptographic devices."""@en ;
+               :exploitsLeakage :OpticalLeakage ;
+               :hasAttackSurface sp:PhysicalSurface ;
+               :requiresPhysicalAccess :Local ;
+               :hasOpticalMethod :Photoemission , :Backscatter , :Laser .
+
+#################################################################
+#    Information Leakage Classes and Taxonomy
+#################################################################
+
+###  http://bytestar.org/ontology/security/sidechannel#InformationLeakage
+:InformationLeakage rdf:type owl:Class ;
+                    rdfs:subClassOf sp:Vulnerability ;
+                    rdfs:label "Information Leakage"@en ;
+                    rdfs:comment """Unintended disclosure of sensitive information
+                    through observable physical phenomena during computation."""@en ;
+                    :hasLeakageType :TimingLeakage , :PowerLeakage , :ElectromagneticLeakage ;
+                    :hasLeakageLevel :None , :Minimal , :Significant , :Severe ;
+                    :isMeasurable "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/sidechannel#TimingLeakage
+:TimingLeakage rdf:type owl:Class ;
+               rdfs:subClassOf :InformationLeakage ;
+               rdfs:label "Timing Leakage"@en ;
+               rdfs:comment """Information leakage through variations in execution time
+               that correlate with secret data or operations."""@en ;
+               :hasMeasurementUnit "nanoseconds"^^xsd:string ;
+               :hasVarianceThreshold "0.0"^^xsd:decimal ;
+               :isDetectableRemotely "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/sidechannel#PowerLeakage
+:PowerLeakage rdf:type owl:Class ;
+              rdfs:subClassOf :InformationLeakage ;
+              rdfs:label "Power Leakage"@en ;
+              rdfs:comment """Information leakage through power consumption patterns
+              that correlate with cryptographic operations and secret data."""@en ;
+              :hasMeasurementUnit "milliwatts"^^xsd:string ;
+              :hasVarianceThreshold "0.001"^^xsd:decimal ;
+              :isDetectableRemotely "false"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/sidechannel#ElectromagneticLeakage
+:ElectromagneticLeakage rdf:type owl:Class ;
+                        rdfs:subClassOf :InformationLeakage ;
+                        rdfs:label "Electromagnetic Leakage"@en ;
+                        rdfs:comment """Information leakage through electromagnetic emissions
+                        from electronic devices during cryptographic operations."""@en ;
+                        :hasMeasurementUnit "dBm"^^xsd:string ;
+                        :hasFrequencySpectrum "10kHz-10GHz"^^xsd:string ;
+                        :isDetectableRemotely "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/sidechannel#CacheLeakage
+:CacheLeakage rdf:type owl:Class ;
+              rdfs:subClassOf :InformationLeakage ;
+              rdfs:label "Cache Leakage"@en ;
+              rdfs:comment """Information leakage through cache memory access patterns
+              that reveal cryptographic secrets through timing variations."""@en ;
+              :hasMeasurementUnit "cache_misses"^^xsd:string ;
+              :affectsCacheLevel :L1Cache , :L2Cache , :L3Cache , :TLB ;
+              :isDetectableRemotely "false"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/sidechannel#FaultLeakage
+:FaultLeakage rdf:type owl:Class ;
+              rdfs:subClassOf :InformationLeakage ;
+              rdfs:label "Fault Leakage"@en ;
+              rdfs:comment """Information leakage through controlled introduction of faults
+              that cause predictable changes in cryptographic outputs."""@en ;
+              :hasMeasurementUnit "fault_rate"^^xsd:string ;
+              :requiresActiveAttack "true"^^xsd:boolean ;
+              :isDetectableRemotely "false"^^xsd:boolean .
+
+#################################################################
+#    Side-Channel Resistance and Protection Classes
+#################################################################
+
+###  http://bytestar.org/ontology/security/sidechannel#SideChannelResistance
+:SideChannelResistance rdf:type owl:Class ;
+                       rdfs:subClassOf pqcs:SideChannelResistance ;
+                       rdfs:label "Side-Channel Resistance"@en ;
+                       rdfs:comment """Property of a system or implementation that provides
+                       protection against side-channel attacks through design and countermeasures."""@en ;
+                       :hasResistanceLevel :None , :Basic , :Enhanced , :Advanced , :Maximum ;
+                       :hasFormalProof "true"^^xsd:boolean ;
+                       :isVerifiable "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/sidechannel#ConstantTimeExecution
+:ConstantTimeExecution rdf:type owl:Class ;
+                       rdfs:subClassOf :SideChannelResistance ;
+                       rdfs:label "Constant-Time Execution"@en ;
+                       rdfs:comment """Execution property where operations complete in
+                       exactly the same time regardless of input values."""@en ;
+                       :hasTimingVariance "0.0"^^xsd:decimal ;
+                       :preventsTiming :TimingAttack ;
+                       :isEnforcedByHardware "true"^^xsd:boolean ;
+                       :hasMaxExecutionTicks "8"^^xsd:integer .
+
+###  http://bytestar.org/ontology/security/sidechannel#PowerBalancing
+:PowerBalancing rdf:type owl:Class ;
+                rdfs:subClassOf :SideChannelResistance ;
+                rdfs:label "Power Balancing"@en ;
+                rdfs:comment """Technique that ensures constant power consumption
+                during cryptographic operations to prevent power analysis."""@en ;
+                :hasPowerVariance "0.001"^^xsd:decimal ;
+                :preventsPowerAnalysis :PowerAnalysisAttack ;
+                :requiresHardwareSupport "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/sidechannel#ElectromagneticShielding
+:ElectromagneticShielding rdf:type owl:Class ;
+                          rdfs:subClassOf :SideChannelResistance ;
+                          rdfs:label "Electromagnetic Shielding"@en ;
+                          rdfs:comment """Physical protection that reduces electromagnetic
+                          emissions from cryptographic devices."""@en ;
+                          :hasAttenuationFactor "60dB"^^xsd:string ;
+                          :preventsEM :ElectromagneticAttack ;
+                          :requiresPhysicalProtection "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/sidechannel#CacheObliviousAlgorithms
+:CacheObliviousAlgorithms rdf:type owl:Class ;
+                          rdfs:subClassOf :SideChannelResistance ;
+                          rdfs:label "Cache-Oblivious Algorithms"@en ;
+                          rdfs:comment """Algorithms designed to have memory access patterns
+                          that are independent of secret data."""@en ;
+                          :hasCacheVariance "0.0"^^xsd:decimal ;
+                          :preventsCache :CacheAttack ;
+                          :isDataIndependent "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/sidechannel#Randomization
+:Randomization rdf:type owl:Class ;
+               rdfs:subClassOf :SideChannelResistance ;
+               rdfs:label "Randomization"@en ;
+               rdfs:comment """Technique that introduces randomness into cryptographic
+               operations to make side-channel analysis more difficult."""@en ;
+               :hasRandomnessSource :TrueRandomNumberGenerator ;
+               :increasesAnalysisComplexity "exponential"^^xsd:string ;
+               :requiresEntropySource "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/sidechannel#Masking
+:Masking rdf:type owl:Class ;
+         rdfs:subClassOf :SideChannelResistance ;
+         rdfs:label "Masking"@en ;
+         rdfs:comment """Cryptographic countermeasure that splits sensitive values
+         into random shares to prevent leakage correlation."""@en ;
+         :hasMaskingOrder :FirstOrder , :SecondOrder , :HigherOrder ;
+         :providesProvableSecurity "true"^^xsd:boolean ;
+         :hasSecurityProof :StatisticalIndependence .
+
+#################################################################
+#    Side-Channel Detection and Measurement Classes
+#################################################################
+
+###  http://bytestar.org/ontology/security/sidechannel#SideChannelDetector
+:SideChannelDetector rdf:type owl:Class ;
+                     rdfs:subClassOf sp:DetectiveControl ;
+                     rdfs:label "Side-Channel Detector"@en ;
+                     rdfs:comment """System that detects and measures side-channel leakage
+                     in cryptographic implementations."""@en ;
+                     :detects :InformationLeakage ;
+                     :hasDetectionMethod :StatisticalAnalysis , :CorrelationAnalysis , :MutualInformation ;
+                     :hasDetectionAccuracy "99.99"^^xsd:decimal ;
+                     :operatesRealTime "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/sidechannel#TimingAnalyzer
+:TimingAnalyzer rdf:type owl:Class ;
+                rdfs:subClassOf :SideChannelDetector ;
+                rdfs:label "Timing Analyzer"@en ;
+                rdfs:comment """Specialized detector that analyzes execution time variations
+                to identify timing-based side-channel leakage."""@en ;
+                :analyzes :TimingLeakage ;
+                :hasPrecision "nanoseconds"^^xsd:string ;
+                :hasStatisticalPower "99.99"^^xsd:decimal ;
+                :detectsVariations "0.001"^^xsd:decimal .
+
+###  http://bytestar.org/ontology/security/sidechannel#PowerAnalyzer
+:PowerAnalyzer rdf:type owl:Class ;
+               rdfs:subClassOf :SideChannelDetector ;
+               rdfs:label "Power Analyzer"@en ;
+               rdfs:comment """Specialized detector that analyzes power consumption patterns
+               to identify power-based side-channel leakage."""@en ;
+               :analyzes :PowerLeakage ;
+               :hasSamplingRate "1GS/s"^^xsd:string ;
+               :hasResolution "16bit"^^xsd:string ;
+               :detectsCorrelations :PowerSecretCorrelation .
+
+###  http://bytestar.org/ontology/security/sidechannel#ElectromagneticAnalyzer
+:ElectromagneticAnalyzer rdf:type owl:Class ;
+                         rdfs:subClassOf :SideChannelDetector ;
+                         rdfs:label "Electromagnetic Analyzer"@en ;
+                         rdfs:comment """Specialized detector that analyzes electromagnetic emissions
+                         to identify EM-based side-channel leakage."""@en ;
+                         :analyzes :ElectromagneticLeakage ;
+                         :hasFrequencyRange "10kHz-10GHz"^^xsd:string ;
+                         :hasBandwidth "1GHz"^^xsd:string ;
+                         :detectsEmissions :EMSecretCorrelation .
+
+###  http://bytestar.org/ontology/security/sidechannel#CacheAnalyzer
+:CacheAnalyzer rdf:type owl:Class ;
+               rdfs:subClassOf :SideChannelDetector ;
+               rdfs:label "Cache Analyzer"@en ;
+               rdfs:comment """Specialized detector that analyzes cache access patterns
+               to identify cache-based side-channel leakage."""@en ;
+               :analyzes :CacheLeakage ;
+               :monitorsCache :L1Cache , :L2Cache , :L3Cache ;
+               :hasAccessGranularity "cache_line"^^xsd:string ;
+               :detectsPatterns :CacheAccessPattern .
+
+###  http://bytestar.org/ontology/security/sidechannel#StatisticalTester
+:StatisticalTester rdf:type owl:Class ;
+                   rdfs:subClassOf :SideChannelDetector ;
+                   rdfs:label "Statistical Tester"@en ;
+                   rdfs:comment """Advanced statistical analysis system for detecting
+                   information leakage using multiple statistical methods."""@en ;
+                   :usesTests :TTest , :ChiSquareTest , :KolmogorovSmirnovTest , :MutualInformationTest ;
+                   :hasSignificanceLevel "0.001"^^xsd:decimal ;
+                   :providesPValue "true"^^xsd:boolean ;
+                   :hasStatisticalPower "99.99"^^xsd:decimal .
+
+#################################################################
+#    Formal Verification and Validation Classes
+#################################################################
+
+###  http://bytestar.org/ontology/security/sidechannel#FormalVerification
+:FormalVerification rdf:type owl:Class ;
+                    rdfs:subClassOf sp:PreventiveControl ;
+                    rdfs:label "Formal Verification"@en ;
+                    rdfs:comment """Mathematical verification of side-channel resistance
+                    properties using formal methods and theorem proving."""@en ;
+                    :verifiesProperty :ConstantTimeProperty , :PowerIndependence , :CacheOblivious ;
+                    :usesMethod :ModelChecking , :TheoremProving , :StaticAnalysis ;
+                    :providesProof :MathematicalProof ;
+                    :hasVerificationLevel :Complete .
+
+###  http://bytestar.org/ontology/security/sidechannel#ConstantTimeVerification
+:ConstantTimeVerification rdf:type owl:Class ;
+                          rdfs:subClassOf :FormalVerification ;
+                          rdfs:label "Constant-Time Verification"@en ;
+                          rdfs:comment """Formal verification that ensures constant-time
+                          execution properties of cryptographic implementations."""@en ;
+                          :verifiesProperty :ConstantTimeProperty ;
+                          :hasTimingModel :ExecutionTimeModel ;
+                          :ensuresIndependence :DataIndependentTiming ;
+                          :providesGuarantee :TimingInvariance .
+
+###  http://bytestar.org/ontology/security/sidechannel#PowerIndependenceVerification
+:PowerIndependenceVerification rdf:type owl:Class ;
+                               rdfs:subClassOf :FormalVerification ;
+                               rdfs:label "Power Independence Verification"@en ;
+                               rdfs:comment """Formal verification that ensures power consumption
+                               independence from secret data."""@en ;
+                               :verifiesProperty :PowerIndependence ;
+                               :hasPowerModel :PowerConsumptionModel ;
+                               :ensuresIndependence :DataIndependentPower ;
+                               :providesGuarantee :PowerInvariance .
+
+###  http://bytestar.org/ontology/security/sidechannel#MemoryAccessVerification
+:MemoryAccessVerification rdf:type owl:Class ;
+                          rdfs:subClassOf :FormalVerification ;
+                          rdfs:label "Memory Access Verification"@en ;
+                          rdfs:comment """Formal verification that ensures memory access patterns
+                          are independent of secret data."""@en ;
+                          :verifiesProperty :CacheOblivious ;
+                          :hasMemoryModel :MemoryAccessModel ;
+                          :ensuresIndependence :DataIndependentMemory ;
+                          :providesGuarantee :MemoryInvariance .
+
+#################################################################
+#    Countermeasure and Mitigation Classes
+#################################################################
+
+###  http://bytestar.org/ontology/security/sidechannel#SideChannelCountermeasure
+:SideChannelCountermeasure rdf:type owl:Class ;
+                           rdfs:subClassOf sp:PreventiveControl ;
+                           rdfs:label "Side-Channel Countermeasure"@en ;
+                           rdfs:comment """Protective measure designed to prevent or mitigate
+                           side-channel attacks on cryptographic implementations."""@en ;
+                           :mitigates :SideChannelAttack ;
+                           :hasCountermeasureType :Masking , :Randomization , :Hiding , :Balancing ;
+                           :hasEffectivenessLevel :Low , :Medium , :High , :Maximum ;
+                           :isHardwareImplemented "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/sidechannel#HardwareCountermeasure
+:HardwareCountermeasure rdf:type owl:Class ;
+                        rdfs:subClassOf :SideChannelCountermeasure ;
+                        rdfs:label "Hardware Countermeasure"@en ;
+                        rdfs:comment """Countermeasure implemented directly in hardware
+                        for maximum security and performance."""@en ;
+                        :operatesAtHardwareLevel "true"^^xsd:boolean ;
+                        :hasPerformanceImpact :Minimal ;
+                        :providesPhysicalProtection "true"^^xsd:boolean ;
+                        :cannotBeBypassed "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/sidechannel#SoftwareCountermeasure
+:SoftwareCountermeasure rdf:type owl:Class ;
+                        rdfs:subClassOf :SideChannelCountermeasure ;
+                        rdfs:label "Software Countermeasure"@en ;
+                        rdfs:comment """Countermeasure implemented in software through
+                        careful algorithm design and implementation techniques."""@en ;
+                        :operatesAtSoftwareLevel "true"^^xsd:boolean ;
+                        :hasPerformanceImpact :Variable ;
+                        :requiresCarefulImplementation "true"^^xsd:boolean ;
+                        :isVerifiable "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/sidechannel#DualRailLogic
+:DualRailLogic rdf:type owl:Class ;
+               rdfs:subClassOf :HardwareCountermeasure ;
+               rdfs:label "Dual-Rail Logic"@en ;
+               rdfs:comment """Hardware design technique that uses complementary signals
+               to balance power consumption and prevent power analysis."""@en ;
+               :balancesPowerConsumption "true"^^xsd:boolean ;
+               :usesTwoRails "true"^^xsd:boolean ;
+               :preventsGlitches "true"^^xsd:boolean ;
+               :hasBalancingAccuracy "99.99"^^xsd:decimal .
+
+###  http://bytestar.org/ontology/security/sidechannel#NoiseGeneration
+:NoiseGeneration rdf:type owl:Class ;
+                 rdfs:subClassOf :HardwareCountermeasure ;
+                 rdfs:label "Noise Generation"@en ;
+                 rdfs:comment """Countermeasure that introduces controlled noise
+                 to mask side-channel leakage signals."""@en ;
+                 :generatesNoise :PowerNoise , :TimingNoise , :ElectromagneticNoise ;
+                 :hasNoiseLevel "configurable"^^xsd:string ;
+                 :masksLeakage "true"^^xsd:boolean ;
+                 :hasSignalToNoiseRatio "variable"^^xsd:string .
+
+###  http://bytestar.org/ontology/security/sidechannel#ClockRandomization
+:ClockRandomization rdf:type owl:Class ;
+                    rdfs:subClassOf :HardwareCountermeasure ;
+                    rdfs:label "Clock Randomization"@en ;
+                    rdfs:comment """Technique that randomizes clock frequency and timing
+                    to prevent timing-based side-channel attacks."""@en ;
+                    :randomizesClock "true"^^xsd:boolean ;
+                    :hasRandomnessSource :TrueRandomNumberGenerator ;
+                    :maintainsFunctionality "true"^^xsd:boolean ;
+                    :preventsTimingAttacks "true"^^xsd:boolean .
+
+#################################################################
+#    Real-Time Monitoring and Response Classes
+#################################################################
+
+###  http://bytestar.org/ontology/security/sidechannel#RealTimeMonitor
+:RealTimeMonitor rdf:type owl:Class ;
+                 rdfs:subClassOf sp:DetectiveControl ;
+                 rdfs:label "Real-Time Monitor"@en ;
+                 rdfs:comment """System that continuously monitors for side-channel
+                 attacks and leakage in real-time operations."""@en ;
+                 :monitorsInRealTime "true"^^xsd:boolean ;
+                 :hasResponseTime "nanoseconds"^^xsd:string ;
+                 :detects :SideChannelAttack ;
+                 :triggersResponse :ImmediateCountermeasure ;
+                 :operatesWithinConstraint doe:EightTickConstraint .
+
+###  http://bytestar.org/ontology/security/sidechannel#AdaptiveProtection
+:AdaptiveProtection rdf:type owl:Class ;
+                    rdfs:subClassOf sp:CorrectiveControl ;
+                    rdfs:label "Adaptive Protection"@en ;
+                    rdfs:comment """Dynamic protection system that adapts countermeasures
+                    based on detected side-channel threats and attack patterns."""@en ;
+                    :adaptsToThreats "true"^^xsd:boolean ;
+                    :hasAdaptationSpeed "microseconds"^^xsd:string ;
+                    :optimizesCountermeasures "true"^^xsd:boolean ;
+                    :maintainsPerformance doe:EightTickConstraint .
+
+###  http://bytestar.org/ontology/security/sidechannel#ThreatMitigation
+:ThreatMitigation rdf:type owl:Class ;
+                  rdfs:subClassOf sp:CorrectiveControl ;
+                  rdfs:label "Threat Mitigation"@en ;
+                  rdfs:comment """System that implements immediate mitigation measures
+                  when side-channel attacks are detected."""@en ;
+                  :implementsMitigation :ImmediateShutdown , :AlgorithmSwitching , :NoiseInjection ;
+                  :hasResponseTime "microseconds"^^xsd:string ;
+                  :triggersZeroTick ztr:InstantRejection ;
+                  :preventsDataExtraction "true"^^xsd:boolean .
+
+#################################################################
+#    Object Properties for Side-Channel Framework
+#################################################################
+
+###  http://bytestar.org/ontology/security/sidechannel#protectsAgainst
+:protectsAgainst rdf:type owl:ObjectProperty ;
+                 rdfs:domain :SideChannelResistanceFramework ;
+                 rdfs:range :SideChannelAttack ;
+                 rdfs:label "protects against"@en ;
+                 rdfs:comment "Indicates side-channel attacks protected against."@en .
+
+###  http://bytestar.org/ontology/security/sidechannel#exploitsLeakage
+:exploitsLeakage rdf:type owl:ObjectProperty ;
+                 rdfs:domain :SideChannelAttack ;
+                 rdfs:range :InformationLeakage ;
+                 rdfs:label "exploits leakage"@en ;
+                 rdfs:comment "Indicates information leakage exploited by attack."@en .
+
+###  http://bytestar.org/ontology/security/sidechannel#detectsLeakage
+:detectsLeakage rdf:type owl:ObjectProperty ;
+                rdfs:domain :SideChannelDetector ;
+                rdfs:range :InformationLeakage ;
+                rdfs:label "detects leakage"@en ;
+                rdfs:comment "Indicates leakage detected by detector."@en .
+
+###  http://bytestar.org/ontology/security/sidechannel#preventsAttack
+:preventsAttack rdf:type owl:ObjectProperty ;
+                rdfs:domain :SideChannelCountermeasure ;
+                rdfs:range :SideChannelAttack ;
+                rdfs:label "prevents attack"@en ;
+                rdfs:comment "Indicates attack prevented by countermeasure."@en .
+
+###  http://bytestar.org/ontology/security/sidechannel#verifiesResistance
+:verifiesResistance rdf:type owl:ObjectProperty ;
+                    rdfs:domain :FormalVerification ;
+                    rdfs:range :SideChannelResistance ;
+                    rdfs:label "verifies resistance"@en ;
+                    rdfs:comment "Indicates resistance property verified."@en .
+
+###  http://bytestar.org/ontology/security/sidechannel#monitorsForAttack
+:monitorsForAttack rdf:type owl:ObjectProperty ;
+                   rdfs:domain :RealTimeMonitor ;
+                   rdfs:range :SideChannelAttack ;
+                   rdfs:label "monitors for attack"@en ;
+                   rdfs:comment "Indicates attack monitored by system."@en .
+
+###  http://bytestar.org/ontology/security/sidechannel#mitigatesThreat
+:mitigatesThreat rdf:type owl:ObjectProperty ;
+                 rdfs:domain :ThreatMitigation ;
+                 rdfs:range :SideChannelAttack ;
+                 rdfs:label "mitigates threat"@en ;
+                 rdfs:comment "Indicates threat mitigated by system."@en .
+
+###  http://bytestar.org/ontology/security/sidechannel#hasCountermeasure
+:hasCountermeasure rdf:type owl:ObjectProperty ;
+                   rdfs:domain ba:CrystalComponent ;
+                   rdfs:range :SideChannelCountermeasure ;
+                   rdfs:label "has countermeasure"@en ;
+                   rdfs:comment "Indicates countermeasure implemented by component."@en .
+
+#################################################################
+#    Data Properties for Side-Channel Framework
+#################################################################
+
+###  http://bytestar.org/ontology/security/sidechannel#hasTimingVariance
+:hasTimingVariance rdf:type owl:DatatypeProperty ;
+                   rdfs:domain :TimingLeakage ;
+                   rdfs:range xsd:decimal ;
+                   rdfs:label "has timing variance"@en ;
+                   rdfs:comment "Measured timing variance in nanoseconds."@en .
+
+###  http://bytestar.org/ontology/security/sidechannel#hasPowerVariance
+:hasPowerVariance rdf:type owl:DatatypeProperty ;
+                  rdfs:domain :PowerLeakage ;
+                  rdfs:range xsd:decimal ;
+                  rdfs:label "has power variance"@en ;
+                  rdfs:comment "Measured power consumption variance."@en .
+
+###  http://bytestar.org/ontology/security/sidechannel#hasLeakageLevel
+:hasLeakageLevel rdf:type owl:DatatypeProperty ;
+                 rdfs:domain :InformationLeakage ;
+                 rdfs:range xsd:string ;
+                 rdfs:label "has leakage level"@en ;
+                 rdfs:comment "Categorized level of information leakage."@en .
+
+###  http://bytestar.org/ontology/security/sidechannel#hasDetectionAccuracy
+:hasDetectionAccuracy rdf:type owl:DatatypeProperty ;
+                      rdfs:domain :SideChannelDetector ;
+                      rdfs:range xsd:decimal ;
+                      rdfs:label "has detection accuracy"@en ;
+                      rdfs:comment "Detection accuracy as percentage (0.0-100.0)."@en .
+
+###  http://bytestar.org/ontology/security/sidechannel#hasStatisticalPower
+:hasStatisticalPower rdf:type owl:DatatypeProperty ;
+                     rdfs:domain :StatisticalTester ;
+                     rdfs:range xsd:decimal ;
+                     rdfs:label "has statistical power"@en ;
+                     rdfs:comment "Statistical power of tests (0.0-100.0)."@en .
+
+###  http://bytestar.org/ontology/security/sidechannel#hasSignificanceLevel
+:hasSignificanceLevel rdf:type owl:DatatypeProperty ;
+                      rdfs:domain :StatisticalTester ;
+                      rdfs:range xsd:decimal ;
+                      rdfs:label "has significance level"@en ;
+                      rdfs:comment "Statistical significance level (p-value)."@en .
+
+###  http://bytestar.org/ontology/security/sidechannel#hasResistanceLevel
+:hasResistanceLevel rdf:type owl:DatatypeProperty ;
+                    rdfs:domain :SideChannelResistance ;
+                    rdfs:range xsd:string ;
+                    rdfs:label "has resistance level"@en ;
+                    rdfs:comment "Level of side-channel resistance provided."@en .
+
+###  http://bytestar.org/ontology/security/sidechannel#hasCountermeasureEffectiveness
+:hasCountermeasureEffectiveness rdf:type owl:DatatypeProperty ;
+                                rdfs:domain :SideChannelCountermeasure ;
+                                rdfs:range xsd:decimal ;
+                                rdfs:label "has countermeasure effectiveness"@en ;
+                                rdfs:comment "Effectiveness rating (0.0-10.0)."@en .
+
+###  http://bytestar.org/ontology/security/sidechannel#hasResponseTimeNanoseconds
+:hasResponseTimeNanoseconds rdf:type owl:DatatypeProperty ;
+                            rdfs:domain :RealTimeMonitor ;
+                            rdfs:range xsd:nonNegativeInteger ;
+                            rdfs:label "has response time nanoseconds"@en ;
+                            rdfs:comment "Response time in nanoseconds."@en .
+
+###  http://bytestar.org/ontology/security/sidechannel#isConstantTime
+:isConstantTime rdf:type owl:DatatypeProperty ;
+                rdfs:domain ba:Kernel ;
+                rdfs:range xsd:boolean ;
+                rdfs:label "is constant time"@en ;
+                rdfs:comment "Boolean indicating constant-time execution."@en .
+
+###  http://bytestar.org/ontology/security/sidechannel#isSideChannelResistant
+:isSideChannelResistant rdf:type owl:DatatypeProperty ;
+                        rdfs:domain ba:CrystalComponent ;
+                        rdfs:range xsd:boolean ;
+                        rdfs:label "is side-channel resistant"@en ;
+                        rdfs:comment "Boolean indicating side-channel resistance."@en .
+
+###  http://bytestar.org/ontology/security/sidechannel#hasLeakageMeasurement
+:hasLeakageMeasurement rdf:type owl:DatatypeProperty ;
+                       rdfs:domain :InformationLeakage ;
+                       rdfs:range xsd:decimal ;
+                       rdfs:label "has leakage measurement"@en ;
+                       rdfs:comment "Quantified measurement of leakage amount."@en .
+
+#################################################################
+#    Side-Channel Framework Instances and Examples
+#################################################################
+
+###  Master Side-Channel Resistance Framework
+:MasterSideChannelFramework rdf:type :SideChannelResistanceFramework ;
+                            rdfs:label "Master Side-Channel Resistance Framework"@en ;
+                            rdfs:comment "Primary framework for side-channel protection across ByteStar."@en ;
+                            :protectsAgainst :TimingAttack , :PowerAnalysisAttack , :ElectromagneticAttack ,
+                                           :CacheAttack , :FaultInjectionAttack ;
+                            :hasProtectionLevel :HardwareLevel ;
+                            :operatesWithinConstraint doe:EightTickConstraint ;
+                            :integratesWithZeroTick ztr:InstantRejection ;
+                            :providesRealTimeProtection "true"^^xsd:boolean .
+
+###  Crystal-Specific Side-Channel Protection
+:ByteActorSideChannelProtection rdf:type :SideChannelResistance ;
+                                rdfs:label "ByteActor Side-Channel Protection"@en ;
+                                rdfs:comment "Side-channel protection for ByteActor kernels."@en ;
+                                :hasResistanceLevel "Maximum" ;
+                                :hasFormalProof "true"^^xsd:boolean ;
+                                :isVerifiable "true"^^xsd:boolean ;
+                                :hasCountermeasureEffectiveness "9.9"^^xsd:decimal .
+
+:ByteCoreSideChannelProtection rdf:type :SideChannelResistance ;
+                               rdfs:label "ByteCore Side-Channel Protection"@en ;
+                               rdfs:comment "Side-channel protection for ByteCore operations."@en ;
+                               :hasResistanceLevel "Maximum" ;
+                               :hasFormalProof "true"^^xsd:boolean ;
+                               :isVerifiable "true"^^xsd:boolean ;
+                               :hasCountermeasureEffectiveness "9.8"^^xsd:decimal .
+
+###  Timing Analysis System
+:PrimaryTimingAnalyzer rdf:type :TimingAnalyzer ;
+                       rdfs:label "Primary Timing Analyzer"@en ;
+                       rdfs:comment "Main timing analysis system for detecting timing leakage."@en ;
+                       :analyzes :TimingLeakage ;
+                       :hasPrecision "nanoseconds" ;
+                       :hasStatisticalPower "99.99"^^xsd:decimal ;
+                       :detectsVariations "0.001"^^xsd:decimal ;
+                       :hasDetectionAccuracy "99.9"^^xsd:decimal .
+
+###  Power Analysis System
+:PrimaryPowerAnalyzer rdf:type :PowerAnalyzer ;
+                      rdfs:label "Primary Power Analyzer"@en ;
+                      rdfs:comment "Main power analysis system for detecting power leakage."@en ;
+                      :analyzes :PowerLeakage ;
+                      :hasSamplingRate "1GS/s" ;
+                      :hasResolution "16bit" ;
+                      :hasDetectionAccuracy "99.8"^^xsd:decimal .
+
+###  Electromagnetic Analysis System
+:PrimaryEMAnalyzer rdf:type :ElectromagneticAnalyzer ;
+                   rdfs:label "Primary EM Analyzer"@en ;
+                   rdfs:comment "Main EM analysis system for detecting EM leakage."@en ;
+                   :analyzes :ElectromagneticLeakage ;
+                   :hasFrequencyRange "10kHz-10GHz" ;
+                   :hasBandwidth "1GHz" ;
+                   :hasDetectionAccuracy "99.7"^^xsd:decimal .
+
+###  Real-Time Monitoring System
+:MasterRealTimeMonitor rdf:type :RealTimeMonitor ;
+                       rdfs:label "Master Real-Time Monitor"@en ;
+                       rdfs:comment "Primary real-time side-channel monitoring system."@en ;
+                       :monitorsInRealTime "true"^^xsd:boolean ;
+                       :hasResponseTime "nanoseconds" ;
+                       :hasResponseTimeNanoseconds 50 ;
+                       :detects :TimingAttack , :PowerAnalysisAttack , :CacheAttack ;
+                       :triggersResponse :ImmediateCountermeasure ;
+                       :operatesWithinConstraint doe:EightTickConstraint .
+
+#################################################################
+#    SHACL Validation Shapes for Side-Channel Framework
+#################################################################
+
+###  Constant-Time Execution Shape
+:ConstantTimeExecutionShape rdf:type sh:NodeShape ;
+                           sh:targetClass :ConstantTimeExecution ;
+                           rdfs:label "Constant-Time Execution Shape"@en ;
+                           rdfs:comment "Validation shape for constant-time execution requirements."@en ;
+                           sh:property [
+                               sh:path :hasTimingVariance ;
+                               sh:datatype xsd:decimal ;
+                               sh:hasValue "0.0"^^xsd:decimal ;
+                               sh:minCount 1 ;
+                               sh:maxCount 1 ;
+                               sh:message "Constant-time execution must have zero timing variance"@en ;
+                               sh:severity sh:Violation
+                           ] ;
+                           sh:property [
+                               sh:path :isConstantTime ;
+                               sh:datatype xsd:boolean ;
+                               sh:hasValue "true"^^xsd:boolean ;
+                               sh:minCount 1 ;
+                               sh:message "Must be constant-time execution"@en
+                           ] .
+
+###  Side-Channel Resistance Shape
+:SideChannelResistanceShape rdf:type sh:NodeShape ;
+                           sh:targetClass :SideChannelResistance ;
+                           rdfs:label "Side-Channel Resistance Shape"@en ;
+                           rdfs:comment "Validation shape for side-channel resistance requirements."@en ;
+                           sh:property [
+                               sh:path :isSideChannelResistant ;
+                               sh:datatype xsd:boolean ;
+                               sh:hasValue "true"^^xsd:boolean ;
+                               sh:minCount 1 ;
+                               sh:message "Must provide side-channel resistance"@en
+                           ] ;
+                           sh:property [
+                               sh:path :hasResistanceLevel ;
+                               sh:datatype xsd:string ;
+                               sh:in ( "Basic" "Enhanced" "Advanced" "Maximum" ) ;
+                               sh:minCount 1 ;
+                               sh:message "Must have valid resistance level"@en
+                           ] .
+
+###  Detection Accuracy Shape
+:DetectionAccuracyShape rdf:type sh:NodeShape ;
+                       sh:targetClass :SideChannelDetector ;
+                       rdfs:label "Detection Accuracy Shape"@en ;
+                       rdfs:comment "Validation shape for detection accuracy requirements."@en ;
+                       sh:property [
+                           sh:path :hasDetectionAccuracy ;
+                           sh:datatype xsd:decimal ;
+                           sh:minInclusive "95.0"^^xsd:decimal ;
+                           sh:maxInclusive "100.0"^^xsd:decimal ;
+                           sh:minCount 1 ;
+                           sh:message "Detection accuracy must be at least 95%"@en
+                       ] .
+
+###  Real-Time Response Shape
+:RealTimeResponseShape rdf:type sh:NodeShape ;
+                      sh:targetClass :RealTimeMonitor ;
+                      rdfs:label "Real-Time Response Shape"@en ;
+                      rdfs:comment "Validation shape for real-time response requirements."@en ;
+                      sh:property [
+                          sh:path :hasResponseTimeNanoseconds ;
+                          sh:datatype xsd:nonNegativeInteger ;
+                          sh:maxInclusive 100 ;
+                          sh:minCount 1 ;
+                          sh:message "Response time must be ≤100 nanoseconds"@en
+                      ] ;
+                      sh:property [
+                          sh:path :monitorsInRealTime ;
+                          sh:datatype xsd:boolean ;
+                          sh:hasValue "true"^^xsd:boolean ;
+                          sh:message "Must monitor in real-time"@en
+                      ] .
+
+#################################################################
+#    Integration Axioms and Constraints
+#################################################################
+
+# Axiom: All ByteStar kernels must be constant-time
+ba:Kernel rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty :isConstantTime ;
+    owl:hasValue "true"^^xsd:boolean
+] .
+
+# Axiom: All crystal components must have side-channel resistance
+ba:CrystalComponent rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty :isSideChannelResistant ;
+    owl:hasValue "true"^^xsd:boolean
+] .
+
+# Axiom: All operations must have timing variance of zero
+ba:Operation rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty :hasTimingVariance ;
+    owl:hasValue "0.0"^^xsd:decimal
+] .
+
+# Axiom: Side-channel countermeasures must be hardware-implemented for maximum security
+:SideChannelCountermeasure rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty :isHardwareImplemented ;
+    owl:hasValue "true"^^xsd:boolean
+] .
+
+#################################################################
+#    Documentation and Metadata
+#################################################################
+
+:SideChannelFrameworkDocumentation rdf:type owl:Class ;
+    rdfs:label "Side-Channel Framework Documentation"@en ;
+    rdfs:comment """Comprehensive documentation for the side-channel resistance framework
+    covering implementation guidelines, testing procedures, and countermeasure deployment."""@en ;
+    dct:creator "ByteStar Side-Channel Security Team"@en ;
+    dct:created "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    prov:wasGeneratedBy :SideChannelFrameworkDevelopment .
+
+:SideChannelFrameworkDevelopment rdf:type prov:Activity ;
+    rdfs:label "Side-Channel Framework Development"@en ;
+    rdfs:comment "Development activity for creating the side-channel resistance framework."@en ;
+    prov:startedAtTime "2025-05-01T00:00:00Z"^^xsd:dateTime ;
+    prov:endedAtTime "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    prov:wasAssociatedWith :ByteStarSideChannelTeam .
+
+:ByteStarSideChannelTeam rdf:type prov:Agent ,
+                                 foaf:Organization ;
+    rdfs:label "ByteStar Side-Channel Security Team"@en ;
+    foaf:name "ByteStar Side-Channel Security Team"@en .
+
+#################################################################
+#    End of Side-Channel Resistance Framework Ontology
+#################################################################

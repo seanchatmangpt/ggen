@@ -1,0 +1,49 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix fin: <https://kgen.dev/ontologies/finance#> .
+
+fin: a owl:Ontology ;
+    rdfs:label "Financial Ontology for KGEN" ;
+    rdfs:comment "Canonical financial accounting ontology for KGEN code generation" .
+
+# Core Financial Concepts
+fin:JournalEntry a owl:Class ;
+    rdfs:label "Journal Entry" ;
+    rdfs:comment "A financial transaction recorded in the general ledger" .
+
+fin:Account a owl:Class ;
+    rdfs:label "Account" ;
+    rdfs:comment "A financial account in the chart of accounts" .
+
+# Account Types
+fin:SalesRevenue a fin:Account ;
+    rdfs:label "Sales Revenue" .
+
+fin:CostOfGoodsSold a fin:Account ;
+    rdfs:label "Cost of Goods Sold" .
+
+fin:OperatingExpenses a fin:Account ;
+    rdfs:label "Operating Expenses" .
+
+# Properties
+fin:hasDate a owl:DatatypeProperty ;
+    rdfs:domain fin:JournalEntry ;
+    rdfs:range xsd:date .
+
+fin:hasAccount a owl:ObjectProperty ;
+    rdfs:domain fin:JournalEntry ;
+    rdfs:range fin:Account .
+
+fin:hasDescription a owl:DatatypeProperty ;
+    rdfs:domain fin:JournalEntry ;
+    rdfs:range xsd:string .
+
+fin:hasDebit a owl:DatatypeProperty ;
+    rdfs:domain fin:JournalEntry ;
+    rdfs:range xsd:decimal .
+
+fin:hasCredit a owl:DatatypeProperty ;
+    rdfs:domain fin:JournalEntry ;
+    rdfs:range xsd:decimal .

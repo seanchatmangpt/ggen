@@ -1,0 +1,14 @@
+# SPARQL ASK query to check if a URI is defined as any entity
+#
+# Args:
+#   ?uri: The entity URI to check
+#
+# Returns:
+#   true if ?uri appears as subject or predicate in any public ontology
+#
+
+ASK WHERE {
+    { ?uri ?p ?o . }
+    UNION
+    { ?s ?uri ?o . }
+}

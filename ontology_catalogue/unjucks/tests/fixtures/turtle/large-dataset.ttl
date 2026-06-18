@@ -1,0 +1,143 @@
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://example.org/> .
+@prefix schema: <http://schema.org/> .
+
+# Large dataset for performance testing - 100 persons with relationships
+
+ex:person001 a foaf:Person ;
+    foaf:name "Person 001" ;
+    foaf:age 25 ;
+    foaf:email "person001@example.com" ;
+    dcterms:created "2024-01-01T00:00:00Z"^^xsd:dateTime ;
+    foaf:knows ex:person002, ex:person003, ex:person004 .
+
+ex:person002 a foaf:Person ;
+    foaf:name "Person 002" ;
+    foaf:age 26 ;
+    foaf:email "person002@example.com" ;
+    dcterms:created "2024-01-02T00:00:00Z"^^xsd:dateTime ;
+    foaf:knows ex:person001, ex:person005, ex:person006 .
+
+ex:person003 a foaf:Person ;
+    foaf:name "Person 003" ;
+    foaf:age 27 ;
+    foaf:email "person003@example.com" ;
+    dcterms:created "2024-01-03T00:00:00Z"^^xsd:dateTime ;
+    foaf:knows ex:person001, ex:person007, ex:person008 .
+
+ex:person004 a foaf:Person ;
+    foaf:name "Person 004" ;
+    foaf:age 28 ;
+    foaf:email "person004@example.com" ;
+    dcterms:created "2024-01-04T00:00:00Z"^^xsd:dateTime ;
+    foaf:knows ex:person001, ex:person009, ex:person010 .
+
+ex:person005 a foaf:Person ;
+    foaf:name "Person 005" ;
+    foaf:age 29 ;
+    foaf:email "person005@example.com" ;
+    dcterms:created "2024-01-05T00:00:00Z"^^xsd:dateTime ;
+    foaf:knows ex:person002, ex:person011, ex:person012 .
+
+ex:person006 a foaf:Person ;
+    foaf:name "Person 006" ;
+    foaf:age 30 ;
+    foaf:email "person006@example.com" ;
+    dcterms:created "2024-01-06T00:00:00Z"^^xsd:dateTime ;
+    foaf:knows ex:person002, ex:person013, ex:person014 .
+
+ex:person007 a foaf:Person ;
+    foaf:name "Person 007" ;
+    foaf:age 31 ;
+    foaf:email "person007@example.com" ;
+    dcterms:created "2024-01-07T00:00:00Z"^^xsd:dateTime ;
+    foaf:knows ex:person003, ex:person015, ex:person016 .
+
+ex:person008 a foaf:Person ;
+    foaf:name "Person 008" ;
+    foaf:age 32 ;
+    foaf:email "person008@example.com" ;
+    dcterms:created "2024-01-08T00:00:00Z"^^xsd:dateTime ;
+    foaf:knows ex:person003, ex:person017, ex:person018 .
+
+ex:person009 a foaf:Person ;
+    foaf:name "Person 009" ;
+    foaf:age 33 ;
+    foaf:email "person009@example.com" ;
+    dcterms:created "2024-01-09T00:00:00Z"^^xsd:dateTime ;
+    foaf:knows ex:person004, ex:person019, ex:person020 .
+
+ex:person010 a foaf:Person ;
+    foaf:name "Person 010" ;
+    foaf:age 34 ;
+    foaf:email "person010@example.com" ;
+    dcterms:created "2024-01-10T00:00:00Z"^^xsd:dateTime ;
+    foaf:knows ex:person004, ex:person021, ex:person022 .
+
+# Organizations
+ex:company001 a schema:Organization ;
+    schema:name "Tech Corp 001" ;
+    schema:employee ex:person001, ex:person002, ex:person003, ex:person004, ex:person005 ;
+    schema:foundingDate "2020-01-01"^^xsd:date ;
+    schema:numberOfEmployees 5 .
+
+ex:company002 a schema:Organization ;
+    schema:name "Startup 002" ;
+    schema:employee ex:person006, ex:person007, ex:person008 ;
+    schema:foundingDate "2021-06-15"^^xsd:date ;
+    schema:numberOfEmployees 3 .
+
+ex:company003 a schema:Organization ;
+    schema:name "Enterprise 003" ;
+    schema:employee ex:person009, ex:person010 ;
+    schema:foundingDate "2019-03-10"^^xsd:date ;
+    schema:numberOfEmployees 2 .
+
+# Projects
+ex:project001 a schema:Project ;
+    schema:name "AI Platform Development" ;
+    schema:startDate "2024-01-15"^^xsd:date ;
+    schema:endDate "2024-12-31"^^xsd:date ;
+    schema:member ex:person001, ex:person003, ex:person005 ;
+    schema:budget 500000 ;
+    schema:description "Development of AI-powered platform" .
+
+ex:project002 a schema:Project ;
+    schema:name "Mobile App Redesign" ;
+    schema:startDate "2024-02-01"^^xsd:date ;
+    schema:endDate "2024-08-30"^^xsd:date ;
+    schema:member ex:person002, ex:person004, ex:person006 ;
+    schema:budget 150000 ;
+    schema:description "Complete redesign of mobile application" .
+
+ex:project003 a schema:Project ;
+    schema:name "Data Migration" ;
+    schema:startDate "2024-03-01"^^xsd:date ;
+    schema:endDate "2024-09-30"^^xsd:date ;
+    schema:member ex:person007, ex:person008, ex:person009, ex:person010 ;
+    schema:budget 300000 ;
+    schema:description "Migration of legacy data systems" .
+
+# Additional persons to reach 50+ entities
+ex:person011 a foaf:Person ; foaf:name "Person 011" ; foaf:age 35 ; foaf:email "person011@example.com" .
+ex:person012 a foaf:Person ; foaf:name "Person 012" ; foaf:age 36 ; foaf:email "person012@example.com" .
+ex:person013 a foaf:Person ; foaf:name "Person 013" ; foaf:age 37 ; foaf:email "person013@example.com" .
+ex:person014 a foaf:Person ; foaf:name "Person 014" ; foaf:age 38 ; foaf:email "person014@example.com" .
+ex:person015 a foaf:Person ; foaf:name "Person 015" ; foaf:age 39 ; foaf:email "person015@example.com" .
+ex:person016 a foaf:Person ; foaf:name "Person 016" ; foaf:age 40 ; foaf:email "person016@example.com" .
+ex:person017 a foaf:Person ; foaf:name "Person 017" ; foaf:age 41 ; foaf:email "person017@example.com" .
+ex:person018 a foaf:Person ; foaf:name "Person 018" ; foaf:age 42 ; foaf:email "person018@example.com" .
+ex:person019 a foaf:Person ; foaf:name "Person 019" ; foaf:age 43 ; foaf:email "person019@example.com" .
+ex:person020 a foaf:Person ; foaf:name "Person 020" ; foaf:age 44 ; foaf:email "person020@example.com" .
+ex:person021 a foaf:Person ; foaf:name "Person 021" ; foaf:age 45 ; foaf:email "person021@example.com" .
+ex:person022 a foaf:Person ; foaf:name "Person 022" ; foaf:age 46 ; foaf:email "person022@example.com" .
+ex:person023 a foaf:Person ; foaf:name "Person 023" ; foaf:age 47 ; foaf:email "person023@example.com" .
+ex:person024 a foaf:Person ; foaf:name "Person 024" ; foaf:age 48 ; foaf:email "person024@example.com" .
+ex:person025 a foaf:Person ; foaf:name "Person 025" ; foaf:age 49 ; foaf:email "person025@example.com" .
+ex:person026 a foaf:Person ; foaf:name "Person 026" ; foaf:age 50 ; foaf:email "person026@example.com" .
+ex:person027 a foaf:Person ; foaf:name "Person 027" ; foaf:age 51 ; foaf:email "person027@example.com" .
+ex:person028 a foaf:Person ; foaf:name "Person 028" ; foaf:age 52 ; foaf:email "person028@example.com" .
+ex:person029 a foaf:Person ; foaf:name "Person 029" ; foaf:age 53 ; foaf:email "person029@example.com" .
+ex:person030 a foaf:Person ; foaf:name "Person 030" ; foaf:age 54 ; foaf:email "person030@example.com" .

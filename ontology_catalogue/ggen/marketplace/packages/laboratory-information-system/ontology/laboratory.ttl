@@ -1,0 +1,325 @@
+@prefix lab: <http://example.org/laboratory#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix schema: <http://schema.org/> .
+
+# Ontology Definition
+lab:LaboratoryOntology a owl:Ontology ;
+    rdfs:label "Laboratory Information System Ontology" ;
+    rdfs:comment "Comprehensive ontology for laboratory operations including tests, specimens, and results" ;
+    owl:versionInfo "1.0.0" .
+
+# Laboratory Classes
+lab:Laboratory a owl:Class ;
+    rdfs:label "Laboratory" ;
+    rdfs:comment "Clinical laboratory facility" .
+
+lab:ClinicalLab a owl:Class ;
+    rdfs:subClassOf lab:Laboratory ;
+    rdfs:label "Clinical Lab" .
+
+lab:PathologyLab a owl:Class ;
+    rdfs:subClassOf lab:Laboratory ;
+    rdfs:label "Pathology Lab" .
+
+lab:MicrobiologyLab a owl:Class ;
+    rdfs:subClassOf lab:Laboratory ;
+    rdfs:label "Microbiology Lab" .
+
+# Test Classes
+lab:LabTest a owl:Class ;
+    rdfs:label "Laboratory Test" ;
+    rdfs:comment "Clinical laboratory test" .
+
+lab:BloodTest a owl:Class ;
+    rdfs:subClassOf lab:LabTest ;
+    rdfs:label "Blood Test" .
+
+lab:UrineTest a owl:Class ;
+    rdfs:subClassOf lab:LabTest ;
+    rdfs:label "Urine Test" .
+
+lab:MicrobiologyTest a owl:Class ;
+    rdfs:subClassOf lab:LabTest ;
+    rdfs:label "Microbiology Test" .
+
+lab:PathologyTest a owl:Class ;
+    rdfs:subClassOf lab:LabTest ;
+    rdfs:label "Pathology Test" .
+
+# Test Order
+lab:TestOrder a owl:Class ;
+    rdfs:label "Test Order" ;
+    rdfs:comment "Laboratory test order" .
+
+lab:OrderPriority a owl:Class ;
+    rdfs:label "Order Priority" ;
+    rdfs:comment "Test order priority (routine, urgent, stat)" .
+
+lab:OrderStatus a owl:Class ;
+    rdfs:label "Order Status" ;
+    rdfs:comment "Status of test order" .
+
+# Specimen Classes
+lab:Specimen a owl:Class ;
+    rdfs:label "Specimen" ;
+    rdfs:comment "Laboratory specimen" .
+
+lab:BloodSpecimen a owl:Class ;
+    rdfs:subClassOf lab:Specimen ;
+    rdfs:label "Blood Specimen" .
+
+lab:UrineSpecimen a owl:Class ;
+    rdfs:subClassOf lab:Specimen ;
+    rdfs:label "Urine Specimen" .
+
+lab:TissueSpecimen a owl:Class ;
+    rdfs:subClassOf lab:Specimen ;
+    rdfs:label "Tissue Specimen" .
+
+lab:SpecimenCollection a owl:Class ;
+    rdfs:label "Specimen Collection" ;
+    rdfs:comment "Specimen collection event" .
+
+lab:SpecimenContainer a owl:Class ;
+    rdfs:label "Specimen Container" ;
+    rdfs:comment "Container for specimen" .
+
+# Results
+lab:TestResult a owl:Class ;
+    rdfs:label "Test Result" ;
+    rdfs:comment "Laboratory test result" .
+
+lab:QuantitativeResult a owl:Class ;
+    rdfs:subClassOf lab:TestResult ;
+    rdfs:label "Quantitative Result" ;
+    rdfs:comment "Numeric result with units" .
+
+lab:QualitativeResult a owl:Class ;
+    rdfs:subClassOf lab:TestResult ;
+    rdfs:label "Qualitative Result" ;
+    rdfs:comment "Descriptive result (positive/negative)" .
+
+lab:ReferenceRange a owl:Class ;
+    rdfs:label "Reference Range" ;
+    rdfs:comment "Normal reference range" .
+
+lab:CriticalValue a owl:Class ;
+    rdfs:label "Critical Value" ;
+    rdfs:comment "Critical test result requiring immediate notification" .
+
+# Quality Control
+lab:QualityControl a owl:Class ;
+    rdfs:label "Quality Control" ;
+    rdfs:comment "Quality control test" .
+
+lab:Calibration a owl:Class ;
+    rdfs:label "Calibration" ;
+    rdfs:comment "Instrument calibration" .
+
+lab:Proficiency a owl:Class ;
+    rdfs:label "Proficiency Test" ;
+    rdfs:comment "External proficiency testing" .
+
+# Instruments
+lab:Instrument a owl:Class ;
+    rdfs:label "Instrument" ;
+    rdfs:comment "Laboratory instrument" .
+
+lab:Analyzer a owl:Class ;
+    rdfs:subClassOf lab:Instrument ;
+    rdfs:label "Analyzer" ;
+    rdfs:comment "Automated analyzer" .
+
+lab:Microscope a owl:Class ;
+    rdfs:subClassOf lab:Instrument ;
+    rdfs:label "Microscope" .
+
+# Personnel
+lab:Pathologist a owl:Class ;
+    rdfs:label "Pathologist" ;
+    rdfs:comment "Licensed pathologist" .
+
+lab:MedicalTechnologist a owl:Class ;
+    rdfs:label "Medical Technologist" ;
+    rdfs:comment "Clinical laboratory scientist" .
+
+lab:Phlebotomist a owl:Class ;
+    rdfs:label "Phlebotomist" ;
+    rdfs:comment "Specimen collection specialist" .
+
+# Patient
+lab:Patient a owl:Class ;
+    rdfs:label "Patient" ;
+    rdfs:comment "Laboratory patient" .
+
+# Properties - Test Order
+lab:hasTestOrder a owl:ObjectProperty ;
+    rdfs:domain lab:Patient ;
+    rdfs:range lab:TestOrder ;
+    rdfs:label "has test order" .
+
+lab:hasTest a owl:ObjectProperty ;
+    rdfs:domain lab:TestOrder ;
+    rdfs:range lab:LabTest ;
+    rdfs:label "has test" .
+
+lab:orderDate a owl:DatatypeProperty ;
+    rdfs:domain lab:TestOrder ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "order date" .
+
+lab:orderedBy a owl:DatatypeProperty ;
+    rdfs:domain lab:TestOrder ;
+    rdfs:range xsd:string ;
+    rdfs:label "ordered by" .
+
+lab:hasPriority a owl:ObjectProperty ;
+    rdfs:domain lab:TestOrder ;
+    rdfs:range lab:OrderPriority ;
+    rdfs:label "has priority" .
+
+lab:hasOrderStatus a owl:ObjectProperty ;
+    rdfs:domain lab:TestOrder ;
+    rdfs:range lab:OrderStatus ;
+    rdfs:label "has order status" .
+
+# Specimen Properties
+lab:hasSpecimen a owl:ObjectProperty ;
+    rdfs:domain lab:TestOrder ;
+    rdfs:range lab:Specimen ;
+    rdfs:label "has specimen" .
+
+lab:hasSpecimenID a owl:DatatypeProperty ;
+    rdfs:domain lab:Specimen ;
+    rdfs:range xsd:string ;
+    rdfs:label "has specimen ID" .
+
+lab:collectionDate a owl:DatatypeProperty ;
+    rdfs:domain lab:SpecimenCollection ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "collection date" .
+
+lab:collectedBy a owl:ObjectProperty ;
+    rdfs:domain lab:SpecimenCollection ;
+    rdfs:range lab:Phlebotomist ;
+    rdfs:label "collected by" .
+
+lab:hasContainer a owl:ObjectProperty ;
+    rdfs:domain lab:Specimen ;
+    rdfs:range lab:SpecimenContainer ;
+    rdfs:label "has container" .
+
+lab:containerType a owl:DatatypeProperty ;
+    rdfs:domain lab:SpecimenContainer ;
+    rdfs:range xsd:string ;
+    rdfs:label "container type" ;
+    rdfs:comment "red top, lavender top, etc." .
+
+# Result Properties
+lab:hasResult a owl:ObjectProperty ;
+    rdfs:domain lab:TestOrder ;
+    rdfs:range lab:TestResult ;
+    rdfs:label "has result" .
+
+lab:hasValue a owl:DatatypeProperty ;
+    rdfs:domain lab:QuantitativeResult ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "has value" .
+
+lab:hasUnit a owl:DatatypeProperty ;
+    rdfs:domain lab:QuantitativeResult ;
+    rdfs:range xsd:string ;
+    rdfs:label "has unit" .
+
+lab:hasInterpretation a owl:DatatypeProperty ;
+    rdfs:domain lab:TestResult ;
+    rdfs:range xsd:string ;
+    rdfs:label "has interpretation" ;
+    rdfs:comment "normal, high, low, critical" .
+
+lab:hasReferenceRange a owl:ObjectProperty ;
+    rdfs:domain lab:LabTest ;
+    rdfs:range lab:ReferenceRange ;
+    rdfs:label "has reference range" .
+
+lab:lowValue a owl:DatatypeProperty ;
+    rdfs:domain lab:ReferenceRange ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "low value" .
+
+lab:highValue a owl:DatatypeProperty ;
+    rdfs:domain lab:ReferenceRange ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "high value" .
+
+lab:resultDate a owl:DatatypeProperty ;
+    rdfs:domain lab:TestResult ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "result date" .
+
+lab:verifiedBy a owl:ObjectProperty ;
+    rdfs:domain lab:TestResult ;
+    rdfs:range lab:Pathologist ;
+    rdfs:label "verified by" .
+
+# Instrument Properties
+lab:performedOn a owl:ObjectProperty ;
+    rdfs:domain lab:TestResult ;
+    rdfs:range lab:Instrument ;
+    rdfs:label "performed on" .
+
+lab:hasInstrument a owl:ObjectProperty ;
+    rdfs:domain lab:Laboratory ;
+    rdfs:range lab:Instrument ;
+    rdfs:label "has instrument" .
+
+lab:lastCalibration a owl:DatatypeProperty ;
+    rdfs:domain lab:Instrument ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "last calibration" .
+
+# QC Properties
+lab:hasQC a owl:ObjectProperty ;
+    rdfs:domain lab:Laboratory ;
+    rdfs:range lab:QualityControl ;
+    rdfs:label "has QC" .
+
+lab:qcDate a owl:DatatypeProperty ;
+    rdfs:domain lab:QualityControl ;
+    rdfs:range xsd:date ;
+    rdfs:label "QC date" .
+
+lab:qcResult a owl:DatatypeProperty ;
+    rdfs:domain lab:QualityControl ;
+    rdfs:range xsd:string ;
+    rdfs:label "QC result" ;
+    rdfs:comment "pass, fail" .
+
+# Example Instances
+lab:laboratory_001 a lab:ClinicalLab ;
+    schema:name "Central Clinical Laboratory" ;
+    lab:hasInstrument lab:analyzer_001 .
+
+lab:order_001 a lab:TestOrder ;
+    lab:hasTest lab:test_cbc ;
+    lab:orderDate "2025-01-15T08:00:00Z"^^xsd:dateTime ;
+    lab:orderedBy "Dr. Smith" ;
+    lab:hasPriority lab:priority_routine .
+
+lab:test_cbc a lab:BloodTest ;
+    schema:name "Complete Blood Count" ;
+    schema:code "CBC" ;
+    lab:hasReferenceRange lab:range_wbc .
+
+lab:specimen_001 a lab:BloodSpecimen ;
+    lab:hasSpecimenID "LAB-2025-001" ;
+    lab:collectionDate "2025-01-15T08:15:00Z"^^xsd:dateTime .
+
+lab:result_001 a lab:QuantitativeResult ;
+    lab:hasValue 7.5 ;
+    lab:hasUnit "K/uL" ;
+    lab:hasInterpretation "normal" ;
+    lab:resultDate "2025-01-15T10:30:00Z"^^xsd:dateTime .

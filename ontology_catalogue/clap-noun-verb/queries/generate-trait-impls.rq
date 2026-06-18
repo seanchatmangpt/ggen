@@ -1,0 +1,45 @@
+# generate-trait-impls.rq
+# Extract trait implementation requirements for code generation
+# Returns data needed to generate trait impl blocks for nouns and verbs
+# Includes: resource type, trait requirements, handler signature, return type
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX cnv: <http://clap-noun-verb.io/ontology#>
+PREFIX ex: <http://clap-noun-verb.io/examples#>
+
+SELECT
+  ?resource
+  ?resourceType
+  ?resourceName
+  ?traitRequirement
+  ?traitLabel
+  ?returnType
+  ?handlerSignature
+  (COUNT(?argument) AS ?argumentCount)
+WHERE {
+  {
+    # Verbs: extract trait requirements, return type, and arguments
+    ?resource a cnv:Verb .
+    BIND("Verb" AS ?resourceType)
+    ?resource cnv:hasVerbName ?resourceName .
+    OPTIONAL { ?resource cnv:HasTraitBound ?traitRequirement . }
+    OPTIONAL { ?traitRequirement rdfs:label ?traitLabel . }
+    OPTIONAL { ?resource cnv:returnType ?returnType . }
+    OPTIONAL { ?resource cnv:runHandler ?handlerSignature . }
+    OPTIONAL { ?resource cnv:hasArguments ?argument . }
+  } UNION {
+    # Nouns: extract trait requirements and argument count
+    ?resource a cnv:Noun .
+    BIND("Noun" AS ?resourceType)
+    ?resource cnv:hasNounName ?resourceName .
+    OPTIONAL { ?resource cnv:HasTraitBound ?traitRequirement . }
+    OPTIONAL { ?traitRequirement rdfs:label ?traitLabel . }
+    OPTIONAL { ?resource cnv:hasVerbs ?verb . }
+    OPTIONAL { ?verb cnv:hasArguments ?argument . }
+  }
+}
+GROUP BY ?resource ?resourceType ?resourceName ?traitRequirement ?traitLabel ?returnType ?handlerSignature
+ORDER BY ?resourceType DESC(?resourceName) ?traitLabel

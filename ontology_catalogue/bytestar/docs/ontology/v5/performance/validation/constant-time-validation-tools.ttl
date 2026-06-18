@@ -1,0 +1,623 @@
+@prefix : <http://bytestar.org/ontology/constant-time-validation#> .
+@prefix ba: <http://bytestar.org/ontology/byteactor#> .
+@prefix doctrine: <http://bytestar.org/ontology/doctrine-of-8#> .
+@prefix perf: <http://bytestar.org/ontology/performance-measurement#> .
+@prefix benchmark: <http://bytestar.org/ontology/performance-benchmark#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+<http://bytestar.org/ontology/constant-time-validation> rdf:type owl:Ontology ;
+    dct:title "Constant-Time Operation Validation Tools"@en ;
+    dct:description """Comprehensive validation tools ensuring constant-time execution
+    guarantees for cryptographic and security-critical operations under Doctrine of 8.
+    Includes statistical analysis, timing attack detection, and formal verification."""@en ;
+    dct:creator "ByteStar Security Team"@en ;
+    dct:created "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    owl:versionInfo "5.0.0-constant-time"@en ;
+    owl:imports <http://bytestar.org/ontology/doctrine-of-8> ,
+                <http://bytestar.org/ontology/performance-measurement> ,
+                <http://bytestar.org/ontology/performance-benchmark> .
+
+#################################################################
+#    Constant-Time Validation Core Classes
+#################################################################
+
+###  http://bytestar.org/ontology/constant-time-validation#ConstantTimeValidator
+:ConstantTimeValidator rdf:type owl:Class ;
+                      rdfs:subClassOf benchmark:PerformanceValidator ;
+                      rdfs:label "Constant-Time Validator"@en ;
+                      rdfs:comment """Core validator ensuring operations execute in
+                      constant time regardless of input values or system state."""@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#TimingAnalyzer
+:TimingAnalyzer rdf:type owl:Class ;
+               rdfs:subClassOf :ConstantTimeValidator ;
+               rdfs:label "Timing Analyzer"@en ;
+               rdfs:comment """Statistical analyzer detecting timing variations
+               that could indicate non-constant-time behavior."""@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#TimingAttackDetector
+:TimingAttackDetector rdf:type owl:Class ;
+                     rdfs:subClassOf :ConstantTimeValidator ;
+                     rdfs:label "Timing Attack Detector"@en ;
+                     rdfs:comment """Detector identifying potential timing attack
+                     vulnerabilities through execution time analysis."""@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#ConstantTimeProof
+:ConstantTimeProof rdf:type owl:Class ;
+                  rdfs:subClassOf ba:SecurityProperty ;
+                  rdfs:label "Constant-Time Proof"@en ;
+                  rdfs:comment """Formal proof or statistical evidence that an
+                  operation executes in constant time."""@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#StatisticalProof
+:StatisticalProof rdf:type owl:Class ;
+                 rdfs:subClassOf :ConstantTimeProof ;
+                 rdfs:label "Statistical Proof"@en ;
+                 rdfs:comment """Proof based on statistical analysis of timing
+                 measurements across diverse inputs."""@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#FormalVerificationProof
+:FormalVerificationProof rdf:type owl:Class ;
+                         rdfs:subClassOf :ConstantTimeProof ;
+                         rdfs:label "Formal Verification Proof"@en ;
+                         rdfs:comment """Proof based on formal mathematical
+                         verification of execution paths."""@en .
+
+#################################################################
+#    Timing Measurement & Analysis
+#################################################################
+
+###  http://bytestar.org/ontology/constant-time-validation#TimingMeasurementSet
+:TimingMeasurementSet rdf:type owl:Class ;
+                     rdfs:subClassOf benchmark:BenchmarkMeasurement ;
+                     rdfs:label "Timing Measurement Set"@en ;
+                     rdfs:comment """Collection of timing measurements across
+                     different inputs for constant-time analysis."""@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#ConstantTimeMeasurement
+:ConstantTimeMeasurement rdf:type owl:Class ;
+                        rdfs:subClassOf benchmark:TickMeasurement ;
+                        rdfs:label "Constant-Time Measurement"@en ;
+                        rdfs:comment """Single timing measurement with metadata
+                        for constant-time validation analysis."""@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#TimingVariation
+:TimingVariation rdf:type owl:Class ;
+                rdfs:subClassOf perf:PerformanceMetric ;
+                rdfs:label "Timing Variation"@en ;
+                rdfs:comment """Measurement of timing variation across different
+                inputs or system states."""@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#ExecutionPathAnalysis
+:ExecutionPathAnalysis rdf:type owl:Class ;
+                      rdfs:subClassOf :TimingAnalyzer ;
+                      rdfs:label "Execution Path Analysis"@en ;
+                      rdfs:comment """Analysis of execution paths to verify
+                      consistent timing regardless of input."""@en .
+
+#################################################################
+#    Statistical Analysis Tools
+#################################################################
+
+###  http://bytestar.org/ontology/constant-time-validation#StatisticalAnalyzer
+:StatisticalAnalyzer rdf:type owl:Class ;
+                    rdfs:subClassOf :TimingAnalyzer ;
+                    rdfs:label "Statistical Analyzer"@en ;
+                    rdfs:comment """Statistical analysis engine for timing data
+                    using advanced statistical methods."""@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#VarianceAnalysis
+:VarianceAnalysis rdf:type owl:Class ;
+                 rdfs:subClassOf :StatisticalAnalyzer ;
+                 rdfs:label "Variance Analysis"@en ;
+                 rdfs:comment """Analysis of timing variance to detect
+                 non-constant-time behavior patterns."""@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#StudentTTest
+:StudentTTest rdf:type owl:Class ;
+             rdfs:subClassOf :StatisticalAnalyzer ;
+             rdfs:label "Student's T-Test"@en ;
+             rdfs:comment """T-test analysis for comparing timing distributions
+             between different input classes."""@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#WelchTTest
+:WelchTTest rdf:type owl:Class ;
+           rdfs:subClassOf :StatisticalAnalyzer ;
+           rdfs:label "Welch's T-Test"@en ;
+           rdfs:comment """Welch's t-test for unequal variance timing
+           distribution comparison."""@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#ChiSquareTest
+:ChiSquareTest rdf:type owl:Class ;
+              rdfs:subClassOf :StatisticalAnalyzer ;
+              rdfs:label "Chi-Square Test"@en ;
+              rdfs:comment """Chi-square test for timing distribution
+              independence verification."""@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#KolmogorovSmirnovTest
+:KolmogorovSmirnovTest rdf:type owl:Class ;
+                      rdfs:subClassOf :StatisticalAnalyzer ;
+                      rdfs:label "Kolmogorov-Smirnov Test"@en ;
+                      rdfs:comment """K-S test for comparing cumulative timing
+                      distribution functions."""@en .
+
+#################################################################
+#    Input Generation & Test Vectors
+#################################################################
+
+###  http://bytestar.org/ontology/constant-time-validation#TestVectorGenerator
+:TestVectorGenerator rdf:type owl:Class ;
+                    rdfs:subClassOf ba:SystemComponent ;
+                    rdfs:label "Test Vector Generator"@en ;
+                    rdfs:comment """Generator creating comprehensive test vectors
+                    for constant-time validation."""@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#RandomInputGenerator
+:RandomInputGenerator rdf:type owl:Class ;
+                     rdfs:subClassOf :TestVectorGenerator ;
+                     rdfs:label "Random Input Generator"@en ;
+                     rdfs:comment """Generator producing cryptographically random
+                     inputs for timing analysis."""@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#AdversarialInputGenerator
+:AdversarialInputGenerator rdf:type owl:Class ;
+                          rdfs:subClassOf :TestVectorGenerator ;
+                          rdfs:label "Adversarial Input Generator"@en ;
+                          rdfs:comment """Generator creating adversarial inputs
+                          designed to trigger timing variations."""@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#BoundaryValueGenerator
+:BoundaryValueGenerator rdf:type owl:Class ;
+                       rdfs:subClassOf :TestVectorGenerator ;
+                       rdfs:label "Boundary Value Generator"@en ;
+                       rdfs:comment """Generator focusing on boundary values
+                       and edge cases for comprehensive testing."""@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#TestVector
+:TestVector rdf:type owl:Class ;
+           rdfs:subClassOf ba:TestData ;
+           rdfs:label "Test Vector"@en ;
+           rdfs:comment """Input vector for constant-time validation with
+           expected behavior metadata."""@en .
+
+#################################################################
+#    Vulnerability Detection
+#################################################################
+
+###  http://bytestar.org/ontology/constant-time-validation#VulnerabilityDetector
+:VulnerabilityDetector rdf:type owl:Class ;
+                      rdfs:subClassOf :TimingAttackDetector ;
+                      rdfs:label "Vulnerability Detector"@en ;
+                      rdfs:comment """Detector identifying timing-based
+                      security vulnerabilities."""@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#SideChannelDetector
+:SideChannelDetector rdf:type owl:Class ;
+                    rdfs:subClassOf :VulnerabilityDetector ;
+                    rdfs:label "Side Channel Detector"@en ;
+                    rdfs:comment """Detector for side-channel information
+                    leakage through timing variations."""@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#CacheTimingDetector
+:CacheTimingDetector rdf:type owl:Class ;
+                    rdfs:subClassOf :SideChannelDetector ;
+                    rdfs:label "Cache Timing Detector"@en ;
+                    rdfs:comment """Detector for cache-based timing attacks
+                    and memory access patterns."""@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#BranchTimingDetector
+:BranchTimingDetector rdf:type owl:Class ;
+                     rdfs:subClassOf :SideChannelDetector ;
+                     rdfs:label "Branch Timing Detector"@en ;
+                     rdfs:comment """Detector for branch prediction timing
+                     variations and control flow leakage."""@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#TimingVulnerability
+:TimingVulnerability rdf:type owl:Class ;
+                    rdfs:subClassOf ba:SecurityVulnerability ;
+                    rdfs:label "Timing Vulnerability"@en ;
+                    rdfs:comment """Identified vulnerability enabling timing
+                    attacks on cryptographic operations."""@en .
+
+#################################################################
+#    Formal Verification Tools
+#################################################################
+
+###  http://bytestar.org/ontology/constant-time-validation#FormalVerifier
+:FormalVerifier rdf:type owl:Class ;
+               rdfs:subClassOf :ConstantTimeValidator ;
+               rdfs:label "Formal Verifier"@en ;
+               rdfs:comment """Formal verification engine proving constant-time
+               execution through mathematical analysis."""@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#SymbolicExecutor
+:SymbolicExecutor rdf:type owl:Class ;
+                 rdfs:subClassOf :FormalVerifier ;
+                 rdfs:label "Symbolic Executor"@en ;
+                 rdfs:comment """Symbolic execution engine analyzing all
+                 possible execution paths."""@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#ModelChecker
+:ModelChecker rdf:type owl:Class ;
+             rdfs:subClassOf :FormalVerifier ;
+             rdfs:label "Model Checker"@en ;
+             rdfs:comment """Model checker verifying constant-time properties
+             against formal specifications."""@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#TheoremProver
+:TheoremProver rdf:type owl:Class ;
+              rdfs:subClassOf :FormalVerifier ;
+              rdfs:label "Theorem Prover"@en ;
+              rdfs:comment """Automated theorem prover for constant-time
+              execution guarantees."""@en .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://bytestar.org/ontology/constant-time-validation#analyzesOperation
+:analyzesOperation rdf:type owl:ObjectProperty ;
+                  rdfs:domain :ConstantTimeValidator ;
+                  rdfs:range ba:CrystalOperation ;
+                  rdfs:label "analyzes operation"@en ;
+                  rdfs:comment "Relates validator to operation being analyzed."@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#generatesTestVector
+:generatesTestVector rdf:type owl:ObjectProperty ;
+                    rdfs:domain :TestVectorGenerator ;
+                    rdfs:range :TestVector ;
+                    rdfs:label "generates test vector"@en ;
+                    rdfs:comment "Relates generator to test vectors produced."@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#detectsVulnerability
+:detectsVulnerability rdf:type owl:ObjectProperty ;
+                     rdfs:domain :VulnerabilityDetector ;
+                     rdfs:range :TimingVulnerability ;
+                     rdfs:label "detects vulnerability"@en ;
+                     rdfs:comment "Relates detector to vulnerabilities found."@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#providesProof
+:providesProof rdf:type owl:ObjectProperty ;
+              rdfs:domain :ConstantTimeValidator ;
+              rdfs:range :ConstantTimeProof ;
+              rdfs:label "provides proof"@en ;
+              rdfs:comment "Relates validator to proof provided."@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#measuresTiming
+:measuresTiming rdf:type owl:ObjectProperty ;
+               rdfs:domain :TimingAnalyzer ;
+               rdfs:range :TimingMeasurementSet ;
+               rdfs:label "measures timing"@en ;
+               rdfs:comment "Relates analyzer to timing measurements."@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#appliesStatisticalTest
+:appliesStatisticalTest rdf:type owl:ObjectProperty ;
+                       rdfs:domain :StatisticalAnalyzer ;
+                       rdfs:range :StatisticalTest ;
+                       rdfs:label "applies statistical test"@en ;
+                       rdfs:comment "Relates analyzer to statistical tests applied."@en .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+###  http://bytestar.org/ontology/constant-time-validation#varianceThreshold
+:varianceThreshold rdf:type owl:DatatypeProperty ,
+                            owl:FunctionalProperty ;
+                  rdfs:domain :VarianceAnalysis ;
+                  rdfs:range xsd:double ;
+                  rdfs:label "variance threshold"@en ;
+                  rdfs:comment "Maximum allowed variance for constant-time validation."@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#confidenceLevel
+:confidenceLevel rdf:type owl:DatatypeProperty ,
+                          owl:FunctionalProperty ;
+                rdfs:domain :StatisticalAnalyzer ;
+                rdfs:range xsd:double ;
+                rdfs:label "confidence level"@en ;
+                rdfs:comment "Confidence level for statistical analysis (0.0-1.0)."@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#pValue
+:pValue rdf:type owl:DatatypeProperty ,
+                 owl:FunctionalProperty ;
+       rdfs:domain :StatisticalTest ;
+       rdfs:range xsd:double ;
+       rdfs:label "p-value"@en ;
+       rdfs:comment "P-value from statistical test."@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#sampleSize
+:sampleSize rdf:type owl:DatatypeProperty ,
+                     owl:FunctionalProperty ;
+           rdfs:domain :TimingMeasurementSet ;
+           rdfs:range xsd:positiveInteger ;
+           rdfs:label "sample size"@en ;
+           rdfs:comment "Number of measurements in the set."@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#measuredTicks
+:measuredTicks rdf:type owl:DatatypeProperty ;
+              rdfs:domain :ConstantTimeMeasurement ;
+              rdfs:range xsd:nonNegativeInteger ;
+              rdfs:label "measured ticks"@en ;
+              rdfs:comment "Number of ticks measured for this execution."@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#inputValue
+:inputValue rdf:type owl:DatatypeProperty ;
+           rdfs:domain :TestVector ;
+           rdfs:range xsd:hexBinary ;
+           rdfs:label "input value"@en ;
+           rdfs:comment "Input value for testing as hexadecimal."@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#vulnerabilitySeverity
+:vulnerabilitySeverity rdf:type owl:DatatypeProperty ,
+                                owl:FunctionalProperty ;
+                      rdfs:domain :TimingVulnerability ;
+                      rdfs:range xsd:string ;
+                      rdfs:label "vulnerability severity"@en ;
+                      rdfs:comment "Severity level of timing vulnerability."@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#leakageBits
+:leakageBits rdf:type owl:DatatypeProperty ,
+                      owl:FunctionalProperty ;
+            rdfs:domain :TimingVulnerability ;
+            rdfs:range xsd:double ;
+            rdfs:label "leakage bits"@en ;
+            rdfs:comment "Estimated bits of information leaked through timing."@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#proofConfidence
+:proofConfidence rdf:type owl:DatatypeProperty ,
+                          owl:FunctionalProperty ;
+                rdfs:domain :ConstantTimeProof ;
+                rdfs:range xsd:double ;
+                rdfs:label "proof confidence"@en ;
+                rdfs:comment "Confidence level in constant-time proof (0.0-1.0)."@en .
+
+#################################################################
+#    Supporting Classes
+#################################################################
+
+###  http://bytestar.org/ontology/constant-time-validation#StatisticalTest
+:StatisticalTest rdf:type owl:Class ;
+                rdfs:subClassOf perf:PerformanceAnalysis ;
+                rdfs:label "Statistical Test"@en ;
+                rdfs:comment """Statistical test applied to timing measurements
+                for constant-time validation."""@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#TestResult
+:TestResult rdf:type owl:Class ;
+           rdfs:subClassOf ba:TestResult ;
+           rdfs:label "Test Result"@en ;
+           rdfs:comment """Result from constant-time validation testing
+           with statistical analysis."""@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#ValidationReport
+:ValidationReport rdf:type owl:Class ;
+                 rdfs:subClassOf ba:AnalysisReport ;
+                 rdfs:label "Validation Report"@en ;
+                 rdfs:comment """Comprehensive report on constant-time
+                 validation results and findings."""@en .
+
+#################################################################
+#    SHACL Validation Shapes
+#################################################################
+
+###  http://bytestar.org/ontology/constant-time-validation#ConstantTimeMeasurementShape
+:ConstantTimeMeasurementShape rdf:type sh:NodeShape ;
+                             sh:targetClass :ConstantTimeMeasurement ;
+                             rdfs:label "Constant-Time Measurement Shape"@en ;
+                             rdfs:comment "Validates constant-time measurement properties."@en ;
+                             sh:property [
+                                 sh:path :measuredTicks ;
+                                 sh:datatype xsd:nonNegativeInteger ;
+                                 sh:maxInclusive 8 ;
+                                 sh:minCount 1 ;
+                                 sh:message "Measured ticks must not exceed 8 per Doctrine of 8."@en
+                             ] .
+
+###  http://bytestar.org/ontology/constant-time-validation#TimingMeasurementSetShape
+:TimingMeasurementSetShape rdf:type sh:NodeShape ;
+                          sh:targetClass :TimingMeasurementSet ;
+                          rdfs:label "Timing Measurement Set Shape"@en ;
+                          rdfs:comment "Validates timing measurement set requirements."@en ;
+                          sh:property [
+                              sh:path :sampleSize ;
+                              sh:datatype xsd:positiveInteger ;
+                              sh:minInclusive 1000 ; # Minimum 1000 samples for statistical validity
+                              sh:minCount 1 ;
+                              sh:maxCount 1 ;
+                              sh:message "Sample size must be at least 1000 for statistical validity."@en
+                          ] .
+
+###  http://bytestar.org/ontology/constant-time-validation#StatisticalAnalyzerShape
+:StatisticalAnalyzerShape rdf:type sh:NodeShape ;
+                         sh:targetClass :StatisticalAnalyzer ;
+                         rdfs:label "Statistical Analyzer Shape"@en ;
+                         rdfs:comment "Validates statistical analyzer configuration."@en ;
+                         sh:property [
+                             sh:path :confidenceLevel ;
+                             sh:datatype xsd:double ;
+                             sh:minInclusive 0.90 ; # Minimum 90% confidence
+                             sh:maxInclusive 1.0 ;
+                             sh:minCount 1 ;
+                             sh:maxCount 1 ;
+                             sh:message "Confidence level must be between 0.90 and 1.0."@en
+                         ] .
+
+###  http://bytestar.org/ontology/constant-time-validation#VarianceAnalysisShape
+:VarianceAnalysisShape rdf:type sh:NodeShape ;
+                      sh:targetClass :VarianceAnalysis ;
+                      rdfs:label "Variance Analysis Shape"@en ;
+                      rdfs:comment "Validates variance analysis parameters."@en ;
+                      sh:property [
+                          sh:path :varianceThreshold ;
+                          sh:datatype xsd:double ;
+                          sh:maxInclusive 0.01 ; # Maximum 1% variance allowed
+                          sh:minInclusive 0.0 ;
+                          sh:minCount 1 ;
+                          sh:maxCount 1 ;
+                          sh:message "Variance threshold must not exceed 0.01 (1%)."@en
+                      ] .
+
+###  http://bytestar.org/ontology/constant-time-validation#StatisticalTestShape
+:StatisticalTestShape rdf:type sh:NodeShape ;
+                     sh:targetClass :StatisticalTest ;
+                     rdfs:label "Statistical Test Shape"@en ;
+                     rdfs:comment "Validates statistical test results."@en ;
+                     sh:property [
+                         sh:path :pValue ;
+                         sh:datatype xsd:double ;
+                         sh:minInclusive 0.0 ;
+                         sh:maxInclusive 1.0 ;
+                         sh:message "P-value must be between 0.0 and 1.0."@en
+                     ] .
+
+###  http://bytestar.org/ontology/constant-time-validation#TimingVulnerabilityShape
+:TimingVulnerabilityShape rdf:type sh:NodeShape ;
+                         sh:targetClass :TimingVulnerability ;
+                         rdfs:label "Timing Vulnerability Shape"@en ;
+                         rdfs:comment "Validates timing vulnerability properties."@en ;
+                         sh:property [
+                             sh:path :vulnerabilitySeverity ;
+                             sh:datatype xsd:string ;
+                             sh:in ("LOW" "MEDIUM" "HIGH" "CRITICAL") ;
+                             sh:minCount 1 ;
+                             sh:maxCount 1 ;
+                             sh:message "Vulnerability severity must be LOW, MEDIUM, HIGH, or CRITICAL."@en
+                         ] ;
+                         sh:property [
+                             sh:path :leakageBits ;
+                             sh:datatype xsd:double ;
+                             sh:minInclusive 0.0 ;
+                             sh:message "Information leakage must be non-negative."@en
+                         ] .
+
+###  http://bytestar.org/ontology/constant-time-validation#ConstantTimeProofShape
+:ConstantTimeProofShape rdf:type sh:NodeShape ;
+                       sh:targetClass :ConstantTimeProof ;
+                       rdfs:label "Constant-Time Proof Shape"@en ;
+                       rdfs:comment "Validates constant-time proof properties."@en ;
+                       sh:property [
+                           sh:path :proofConfidence ;
+                           sh:datatype xsd:double ;
+                           sh:minInclusive 0.95 ; # Minimum 95% confidence for proofs
+                           sh:maxInclusive 1.0 ;
+                           sh:minCount 1 ;
+                           sh:maxCount 1 ;
+                           sh:message "Proof confidence must be at least 0.95 (95%)."@en
+                       ] .
+
+#################################################################
+#    Validation Framework Integration
+#################################################################
+
+# Axiom: All cryptographic operations must have constant-time proofs
+[] rdf:type owl:Class ;
+   owl:equivalentClass [
+       rdf:type owl:Class ;
+       owl:intersectionOf (
+           ba:CryptographicOperation
+           [
+               rdf:type owl:Restriction ;
+               owl:onProperty :providesProof ;
+               owl:someValuesFrom :ConstantTimeProof
+           ]
+       )
+   ] .
+
+# Axiom: Constant-time validation requires statistical significance
+[] rdf:type owl:Class ;
+   owl:equivalentClass [
+       rdf:type owl:Class ;
+       owl:intersectionOf (
+           :StatisticalProof
+           [
+               rdf:type owl:Restriction ;
+               owl:onProperty :confidenceLevel ;
+               owl:someValuesFrom [
+                   rdf:type rdfs:Datatype ;
+                   owl:onDatatype xsd:double ;
+                   owl:withRestrictions (
+                       [ xsd:minInclusive "0.95"^^xsd:double ]
+                   )
+               ]
+           ]
+       )
+   ] .
+
+#################################################################
+#    Predefined Validation Tools
+#################################################################
+
+###  http://bytestar.org/ontology/constant-time-validation#GlobalConstantTimeValidator
+:GlobalConstantTimeValidator rdf:type owl:NamedIndividual ,
+                                      :ConstantTimeValidator ;
+                            rdfs:label "Global Constant-Time Validator"@en ;
+                            rdfs:comment """Primary validator ensuring all crystal
+                            operations maintain constant-time execution."""@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#CryptographicTimingAnalyzer
+:CryptographicTimingAnalyzer rdf:type owl:NamedIndividual ,
+                                      :TimingAnalyzer ;
+                            rdfs:label "Cryptographic Timing Analyzer"@en ;
+                            rdfs:comment """Specialized analyzer for cryptographic
+                            operation timing validation."""@en ;
+                            :confidenceLevel "0.999"^^xsd:double .
+
+###  http://bytestar.org/ontology/constant-time-validation#AdvancedStatisticalAnalyzer
+:AdvancedStatisticalAnalyzer rdf:type owl:NamedIndividual ,
+                                      :StatisticalAnalyzer ;
+                            rdfs:label "Advanced Statistical Analyzer"@en ;
+                            rdfs:comment """Advanced analyzer with multiple statistical
+                            tests for comprehensive validation."""@en ;
+                            :confidenceLevel "0.99"^^xsd:double .
+
+###  http://bytestar.org/ontology/constant-time-validation#ComprehensiveVulnerabilityDetector
+:ComprehensiveVulnerabilityDetector rdf:type owl:NamedIndividual ,
+                                             :VulnerabilityDetector ;
+                                   rdfs:label "Comprehensive Vulnerability Detector"@en ;
+                                   rdfs:comment """Comprehensive detector for all types
+                                   of timing-based vulnerabilities."""@en .
+
+###  http://bytestar.org/ontology/constant-time-validation#SecureRandomGenerator
+:SecureRandomGenerator rdf:type owl:NamedIndividual ,
+                                :RandomInputGenerator ;
+                      rdfs:label "Secure Random Generator"@en ;
+                      rdfs:comment """Cryptographically secure random number generator
+                      for test vector generation."""@en .
+
+#################################################################
+#    Example Validation Scenarios
+#################################################################
+
+# Example timing measurement set
+:ExampleTimingMeasurementSet rdf:type owl:NamedIndividual ,
+                                      :TimingMeasurementSet ;
+                            rdfs:label "Example Timing Measurement Set"@en ;
+                            :sampleSize "10000"^^xsd:positiveInteger ;
+                            dct:created "2025-08-23T12:00:00Z"^^xsd:dateTime .
+
+# Example constant-time measurement
+:ExampleConstantTimeMeasurement rdf:type owl:NamedIndividual ,
+                                         :ConstantTimeMeasurement ;
+                               rdfs:label "Example Constant-Time Measurement"@en ;
+                               :measuredTicks "6"^^xsd:nonNegativeInteger ;
+                               dct:created "2025-08-23T12:00:01Z"^^xsd:dateTime .
+
+# Example statistical test result
+:ExampleStatisticalTest rdf:type owl:NamedIndividual ,
+                                 :StudentTTest ;
+                       rdfs:label "Example T-Test Result"@en ;
+                       :pValue "0.85"^^xsd:double ; # High p-value indicates no significant difference
+                       dct:created "2025-08-23T12:00:02Z"^^xsd:dateTime .
+
+# Example constant-time proof
+:ExampleConstantTimeProof rdf:type owl:NamedIndividual ,
+                                   :StatisticalProof ;
+                         rdfs:label "Example Statistical Proof"@en ;
+                         :proofConfidence "0.999"^^xsd:double ;
+                         dct:created "2025-08-23T12:00:03Z"^^xsd:dateTime .

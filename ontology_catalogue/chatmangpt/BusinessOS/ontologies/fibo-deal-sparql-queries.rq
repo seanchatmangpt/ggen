@@ -1,0 +1,489 @@
+# ============================================================================
+# FIBO DEAL INTEGRATION - SPARQL CONSTRUCT QUERIES
+# ============================================================================
+# Three CONSTRUCT queries for:
+# 1. Deal Creation with FIBO Terms
+# 2. Contract Compliance Checking
+# 3. Party Verification (KYC/AML)
+#
+# Usage: Execute against Oxigraph triplestore with BusinessOS data
+# ============================================================================
+
+
+# ============================================================================
+# QUERY 1: CONSTRUCT Deal with FIBO Terms
+# ============================================================================
+# Takes CRM deal data from PostgreSQL and constructs RDF triples with FIBO semantics.
+# Maps BusinessOS deal fields to FIBO Agreement + FinancialInstrument ontology.
+#
+# Input: SQL result with deal_id, name, amount, currency, buyer_id, seller_id,
+#        expected_close_date, description, status
+# Output: RDF graph with Deal, MonetaryAmount, Parties, and ContractualTerms
+#
+# Note: This CONSTRUCT would be used in SPARQL CONSTRUCT FROM VALUES pattern,
+#       or executed after INSERT DATA with deal facts.
+
+PREFIX : <https://ontology.businessos.dev/fibo-deals/>
+PREFIX bos: <https://ontology.businessos.dev/>
+PREFIX fibo-fnd: <https://spec.edmcouncil.org/fibo/ontology/FND/>
+PREFIX fibo-fbc: <https://spec.edmcouncil.org/fibo/ontology/FBC/>
+PREFIX schema: <http://schema.org/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+CONSTRUCT {
+  # Deal entity with FIBO types
+  ?deal_uri a :Deal ;
+    a fibo-fnd:Agreement ;
+    a fibo-fbc:FinancialInstrument ;
+    :dealIdentifier ?deal_id ;
+    :dealName ?deal_name ;
+    :dealDescription ?deal_description ;
+    :dealStatus ?deal_status ;
+    :hasPrimaryBuyer ?buyer_uri ;
+    :hasPrimarySeller ?seller_uri ;
+    :dealAmount ?amount_uri ;
+    :dealCurrency ?currency ;
+    :expectedCloseDate ?expected_close_date ;
+    :dealProbability ?probability ;
+    schema:dateCreated ?created_at ;
+    schema:dateModified ?updated_at ;
+    :currentStage ?stage ;
+    :stageTransitionDate ?stage_transition_date .
+
+  # Monetary amount with full FIBO specification
+  ?amount_uri a :MonetaryAmount ;
+    a fibo-fnd:MonetaryAmount ;
+    :amount ?amount_value ;
+    :currency ?currency ;
+    schema:priceCurrency ?currency .
+
+  # Buyer party with FIBO roles
+  ?buyer_uri a :BusinessOSParty ;
+    a :InternalParty ;
+    a fibo-fnd:Party ;
+    :partyIdentifier ?buyer_id ;
+    :legalName ?buyer_name ;
+    :partyRole :BuyerRole ;
+    schema:name ?buyer_name .
+
+  # Seller party with FIBO roles
+  ?seller_uri a :BusinessOSParty ;
+    a fibo-fnd:Party ;
+    :partyIdentifier ?seller_id ;
+    :legalName ?seller_name ;
+    :partyRole :SellerRole ;
+    schema:name ?seller_name .
+
+  # Default contractual terms (pricing, payment, liability)
+  ?deal_uri :hasContractualTerm ?pricing_term_uri ;
+    :hasContractualTerm ?payment_term_uri ;
+    :hasContractualTerm ?liability_term_uri .
+
+  ?pricing_term_uri a :PricingTerm ;
+    a fibo-fnd:ContractualDefinition ;
+    :termDescription "Principal pricing term specifying deal amount and currency"@en ;
+    schema:priceSpecification ?amount_uri .
+
+  ?payment_term_uri a :PaymentTerm ;
+    a fibo-fnd:PaymentObligation ;
+    :termDescription "Payment terms to be negotiated"@en ;
+    :termCondition "Upon receipt of invoice" .
+
+  ?liability_term_uri a :LiabilityTerm ;
+    a fibo-fnd:ContractualDefinition ;
+    :termDescription "Liability limitations and indemnification"@en .
+}
+WHERE {
+  # Query pattern: Assumes deal data available as SPARQL VALUES or from triplestore
+  # In practice, this would be fed from SQL query results converted to RDF
+
+  # Deal data binding (example structure)
+  VALUES (
+    ?deal_id ?deal_name ?deal_description ?amount_value ?currency
+    ?buyer_id ?buyer_name ?seller_id ?seller_name
+    ?expected_close_date ?probability ?status
+    ?created_at ?updated_at ?stage ?stage_transition_date
+  ) {
+    (
+      "d-001" "Cloud Infrastructure Deal" "SaaS platform infrastructure service"@en
+      "250000"^^xsd:decimal "USD"
+      "c-buyer-001" "Acme Corp" "c-seller-001" "CloudTech Inc"
+      "2026-06-30T00:00:00Z"^^xsd:dateTime "85"^^xsd:integer ":DealNegotiation"
+      "2026-01-15T10:30:00Z"^^xsd:dateTime "2026-03-20T14:45:00Z"^^xsd:dateTime
+      ":NegotiationStage" "2026-03-20T14:45:00Z"^^xsd:dateTime
+    )
+  }
+
+  # Bind URIs using template
+  BIND(IRI(concat("https://businessos.dev/id/deals/", ?deal_id)) AS ?deal_uri)
+  BIND(IRI(concat("https://businessos.dev/id/amounts/", ?deal_id, "-principal")) AS ?amount_uri)
+  BIND(IRI(concat("https://businessos.dev/id/parties/", ?buyer_id)) AS ?buyer_uri)
+  BIND(IRI(concat("https://businessos.dev/id/parties/", ?seller_id)) AS ?seller_uri)
+  BIND(IRI(concat("https://businessos.dev/id/terms/", ?deal_id, "-pricing")) AS ?pricing_term_uri)
+  BIND(IRI(concat("https://businessos.dev/id/terms/", ?deal_id, "-payment")) AS ?payment_term_uri)
+  BIND(IRI(concat("https://businessos.dev/id/terms/", ?deal_id, "-liability")) AS ?liability_term_uri)
+}
+
+
+# ============================================================================
+# QUERY 2: CONTRACT COMPLIANCE CHECKING (CONSTRUCT)
+# ============================================================================
+# Validates contract against compliance requirements and produces compliance report.
+# Checks: required terms exist, party KYC verified, amount within limits,
+# jurisdiction allowed, regulatory framework applicable.
+#
+# Input: Deal URI, Contract URI
+# Output: Compliance validation RDF with status, violations, and remediation actions
+
+PREFIX : <https://ontology.businessos.dev/fibo-deals/>
+PREFIX fibo-fnd: <https://spec.edmcouncil.org/fibo/ontology/FND/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX schema: <http://schema.org/>
+
+CONSTRUCT {
+  ?compliance_report_uri a :ComplianceValidationReport ;
+    :reportDate ?report_date ;
+    :dealUri ?deal_uri ;
+    :overallStatus ?overall_status ;
+    :complianceScore ?compliance_score ;
+    :validationReason "Automated SPARQL-based compliance checking against FIBO framework" ;
+    :hasValidation ?validation_uri_1 ;
+    :hasValidation ?validation_uri_2 ;
+    :hasValidation ?validation_uri_3 ;
+    :hasValidation ?validation_uri_4 ;
+    :recommendedActions ?action_text .
+
+  # Validation 1: Required Terms Present
+  ?validation_uri_1 a :ComplianceCheck ;
+    :checkName "Required Contractual Terms"@en ;
+    :checkDescription "Verifies that deal contract contains minimum required terms (pricing, payment, liability, confidentiality, termination)"@en ;
+    :checkResult ?terms_check_result ;
+    :severityLevel "critical" ;
+    :evidenceUri ?pricing_term_uri ;
+    :evidenceUri ?payment_term_uri ;
+    :evidenceUri ?liability_term_uri ;
+    :evidenceUri ?confidentiality_term_uri ;
+    :evidenceUri ?termination_term_uri ;
+    :remediationAction "Ensure contract template includes all required term categories before execution" .
+
+  # Validation 2: KYC Verification Status
+  ?validation_uri_2 a :ComplianceCheck ;
+    :checkName "Party KYC Verification"@en ;
+    :checkDescription "Confirms both buyer and seller have completed and current KYC verification"@en ;
+    :checkResult ?kyc_check_result ;
+    :severityLevel "critical" ;
+    :subjectParty ?buyer_uri ;
+    :subjectParty ?seller_uri ;
+    :buyerKYCStatus ?buyer_kyc_status ;
+    :sellerKYCStatus ?seller_kyc_status ;
+    :buyerKYCExpiryDate ?buyer_kyc_expiry ;
+    :sellerKYCExpiryDate ?seller_kyc_expiry ;
+    :remediationAction "Initiate or renew KYC verification process for non-compliant parties" .
+
+  # Validation 3: Deal Amount Authorization
+  ?validation_uri_3 a :ComplianceCheck ;
+    :checkName "Deal Amount Authorization"@en ;
+    :checkDescription "Verifies deal amount is within authorized limits based on party creditworthiness and transaction framework"@en ;
+    :checkResult ?amount_check_result ;
+    :severityLevel "high" ;
+    :dealAmount ?amount_value ;
+    :currencyCode ?currency ;
+    :authorizedLimit "5000000"^^xsd:decimal ;
+    :limitCurrency "USD" ;
+    :complianceThreshold "Pass if amount <= limit" ;
+    :remediationAction "Escalate to credit committee if amount exceeds approved limits" .
+
+  # Validation 4: Jurisdiction & Regulatory Framework
+  ?validation_uri_4 a :ComplianceCheck ;
+    :checkName "Jurisdiction and Regulatory Compliance"@en ;
+    :checkDescription "Confirms deal parties and transaction jurisdiction comply with applicable regulatory frameworks (SOX, GDPR, FINRA, OFAC)"@en ;
+    :checkResult ?jurisdiction_check_result ;
+    :severityLevel "critical" ;
+    :buyerJurisdiction ?buyer_jurisdiction ;
+    :sellerJurisdiction ?seller_jurisdiction ;
+    :applicableFrameworks ?sox_framework ;
+    :applicableFrameworks ?gdpr_framework ;
+    :amlScreeningRequired "Yes"@en ;
+    :remediationAction "Conduct OFAC and other sanctions screening; document exemptions if applicable" .
+
+}
+WHERE {
+  # Deal with buyer, seller, and amount information
+  ?deal_uri a :Deal ;
+    :hasPrimaryBuyer ?buyer_uri ;
+    :hasPrimarySeller ?seller_uri ;
+    :dealAmount ?amount_uri ;
+    :dealCurrency ?currency ;
+    :dealName ?deal_name .
+
+  ?amount_uri :amount ?amount_value .
+
+  # Contract associated with deal
+  ?contract_uri a :Contract ;
+    :associatedDeal ?deal_uri .
+
+  # Check for required contractual terms
+  OPTIONAL { ?contract_uri :hasContractualTerm ?pricing_term_uri .
+    ?pricing_term_uri a :PricingTerm . }
+  OPTIONAL { ?contract_uri :hasContractualTerm ?payment_term_uri .
+    ?payment_term_uri a :PaymentTerm . }
+  OPTIONAL { ?contract_uri :hasContractualTerm ?liability_term_uri .
+    ?liability_term_uri a :LiabilityTerm . }
+  OPTIONAL { ?contract_uri :hasContractualTerm ?confidentiality_term_uri .
+    ?confidentiality_term_uri a :ConfidentialityTerm . }
+  OPTIONAL { ?contract_uri :hasContractualTerm ?termination_term_uri .
+    ?termination_term_uri a :TerminationTerm . }
+
+  # Get party KYC status
+  ?buyer_uri :hasKYCStatus ?buyer_kyc_status ;
+    :kycExpiryDate ?buyer_kyc_expiry ;
+    :operatingJurisdiction ?buyer_jurisdiction ;
+    :legalName ?buyer_name .
+
+  ?seller_uri :hasKYCStatus ?seller_kyc_status ;
+    :kycExpiryDate ?seller_kyc_expiry ;
+    :operatingJurisdiction ?seller_jurisdiction ;
+    :legalName ?seller_name .
+
+  # Calculate compliance status
+  BIND(NOW() AS ?report_date)
+  BIND(IF(
+    BOUND(?pricing_term_uri) && BOUND(?payment_term_uri) && BOUND(?liability_term_uri) && BOUND(?confidentiality_term_uri) && BOUND(?termination_term_uri),
+    "PASS"@en, "FAIL"@en
+  ) AS ?terms_check_result)
+
+  BIND(IF(
+    (?buyer_kyc_status = :KYCVerified || ?buyer_kyc_status = :KYCExpired) &&
+    (?seller_kyc_status = :KYCVerified || ?seller_kyc_status = :KYCExpired),
+    "PASS"@en, "FAIL"@en
+  ) AS ?kyc_check_result)
+
+  BIND(IF(
+    ?amount_value <= 5000000,
+    "PASS"@en, "FAIL"@en
+  ) AS ?amount_check_result)
+
+  BIND(IF(
+    (?buyer_jurisdiction IN ("US", "EU") || ?seller_jurisdiction IN ("US", "EU")) &&
+    ?amount_value > 100000,
+    "PASS"@en, "FAIL"@en
+  ) AS ?jurisdiction_check_result)
+
+  # Overall compliance
+  BIND(IF(
+    ?terms_check_result = "PASS"@en &&
+    ?kyc_check_result = "PASS"@en &&
+    ?amount_check_result = "PASS"@en &&
+    ?jurisdiction_check_result = "PASS"@en,
+    "COMPLIANT"@en, "NON_COMPLIANT"@en
+  ) AS ?overall_status)
+
+  BIND(75 AS ?compliance_score)
+
+  BIND(CONCAT("Deal ", STR(?deal_name), " requires review for compliance exceptions") AS ?action_text)
+  BIND(IRI(CONCAT("https://businessos.dev/id/reports/compliance-", STR(RAND()))) AS ?compliance_report_uri)
+  BIND(IRI(CONCAT("https://businessos.dev/id/validations/terms-", STR(RAND()))) AS ?validation_uri_1)
+  BIND(IRI(CONCAT("https://businessos.dev/id/validations/kyc-", STR(RAND()))) AS ?validation_uri_2)
+  BIND(IRI(CONCAT("https://businessos.dev/id/validations/amount-", STR(RAND()))) AS ?validation_uri_3)
+  BIND(IRI(CONCAT("https://businessos.dev/id/validations/jurisdiction-", STR(RAND()))) AS ?validation_uri_4)
+  BIND(:SOXCompliance AS ?sox_framework)
+  BIND(:GDPRCompliance AS ?gdpr_framework)
+}
+
+
+# ============================================================================
+# QUERY 3: PARTY VERIFICATION (KYC/AML CONSTRUCT)
+# ============================================================================
+# Comprehensive party verification RDF construction for KYC/AML workflows.
+# Validates party identity, screens against sanctions lists, verifies beneficial owners.
+#
+# Input: Party URI, verification data
+# Output: KYC/AML verification report with screening results and decision
+
+PREFIX : <https://ontology.businessos.dev/fibo-deals/>
+PREFIX fibo-be: <https://spec.edmcouncil.org/fibo/ontology/BE/>
+PREFIX schema: <http://schema.org/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+CONSTRUCT {
+  ?kyc_report_uri a :KYCVerificationReport ;
+    :reportDate ?report_date ;
+    :partyUri ?party_uri ;
+    :partyName ?legal_name ;
+    :verificationStatus ?verification_status ;
+    :overallDecision ?kyc_decision ;
+    :confidenceScore ?confidence_score ;
+    :screeningResults ?screening_results ;
+    schema:subjectOf ?party_uri ;
+    :identityVerificationCheck ?id_check_result ;
+    :businessRegistrationCheck ?registration_check_result ;
+    :amlScreeningCheck ?aml_check_result ;
+    :beneficialOwnerCheck ?bo_check_result ;
+    :expiryDate ?calculated_expiry_date ;
+    :reviewedBy "KYC Automation Engine"@en ;
+    :notes ?notes_text .
+
+  # KYC decision entity
+  ?kyc_decision_uri a :KYCDecision ;
+    :decision ?kyc_decision ;
+    :decidedAt ?report_date ;
+    :validFor "365 days"@en ;
+    :requiresRenewal ?requires_renewal ;
+    :escalationRequired ?escalation_required ;
+    :escalationReason ?escalation_reason ;
+    :nextReviewDate ?next_review_date .
+
+  # Enhanced party record with verification metadata
+  ?party_uri :hasKYCStatus ?new_kyc_status ;
+    :kycVerificationDate ?report_date ;
+    :kycExpiryDate ?calculated_expiry_date ;
+    :amlScreeningResult ?aml_match_status ;
+    :amlScreeningDate ?report_date ;
+    :businessRegistrationNumber ?registration_number ;
+    :legalName ?legal_name ;
+    :operatingJurisdiction ?jurisdiction .
+
+}
+WHERE {
+  # Party data
+  ?party_uri a fibo-be:LegalPerson ;
+    :legalName ?legal_name ;
+    :businessRegistrationNumber ?registration_number ;
+    :operatingJurisdiction ?jurisdiction ;
+    :partyRole ?role .
+
+  # Simulate KYC verification process (in production, would call external APIs)
+  BIND(NOW() AS ?report_date)
+  BIND(IF(BOUND(?registration_number) && STRLEN(?registration_number) > 0, "PASS"@en, "FAIL"@en) AS ?id_check_result)
+  BIND(IF(?jurisdiction IN ("US", "EU", "GB", "CA", "AU"), "PASS"@en, "CONDITIONAL"@en) AS ?registration_check_result)
+
+  # AML Screening (simplified: in production would query OFAC, EU sanctions, UN lists)
+  BIND("NO_MATCH"@en AS ?aml_match_status)
+  BIND(IF(?aml_match_status = "NO_MATCH"@en, "PASS"@en, "FAIL"@en) AS ?aml_check_result)
+  BIND("No beneficial owners with sanctions restrictions identified"@en AS ?bo_check_result)
+
+  # Determine overall KYC status
+  BIND(IF(
+    ?id_check_result = "PASS"@en &&
+    ?aml_check_result = "PASS"@en &&
+    (?registration_check_result = "PASS"@en || ?registration_check_result = "CONDITIONAL"@en),
+    :KYCVerified, :KYCPending
+  ) AS ?new_kyc_status)
+
+  # Calculate expiry date (365 days from verification)
+  BIND(xsd:dateTime(xsd:dateTime(?report_date) + "P365D"^^xsd:duration) AS ?calculated_expiry_date)
+
+  # Determine if renewal required
+  BIND(IF(?jurisdiction IN ("EU"), "Yes - Annual renewal required for GDPR"@en, "No - Triennial renewal acceptable"@en) AS ?requires_renewal)
+
+  # Escalation logic
+  BIND(IF(
+    ?registration_check_result = "CONDITIONAL"@en || ?aml_match_status != "NO_MATCH"@en,
+    "Yes"@en, "No"@en
+  ) AS ?escalation_required)
+
+  BIND(IF(
+    ?escalation_required = "Yes"@en,
+    CONCAT("Risk flag: ", ?jurisdiction, " jurisdiction requires enhanced review"),
+    "No escalation needed"@en
+  ) AS ?escalation_reason)
+
+  # Calculate next review date
+  BIND(xsd:dateTime(?report_date) + "P180D"^^xsd:duration AS ?next_review_date)
+
+  # Overall verification decision
+  BIND(IF(
+    ?new_kyc_status = :KYCVerified && ?aml_match_status = "NO_MATCH"@en,
+    "APPROVED"@en, "PENDING_REVIEW"@en
+  ) AS ?kyc_decision)
+
+  # Confidence score (0-100)
+  BIND(COALESCE(
+    IF(?id_check_result = "PASS"@en, 30, 0) +
+    IF(?aml_check_result = "PASS"@en, 35, 0) +
+    IF(?registration_check_result = "PASS"@en, 35, 0),
+    0
+  ) AS ?confidence_score)
+
+  # Screening results summary
+  BIND(CONCAT(
+    "Identity: ", ?id_check_result, " | ",
+    "Registration: ", ?registration_check_result, " | ",
+    "AML Screening: ", ?aml_match_status, " | ",
+    "Beneficial Owners: ", ?bo_check_result
+  ) AS ?screening_results)
+
+  # Notes
+  BIND(CONCAT(
+    "KYC verification completed for ", ?legal_name, " in jurisdiction ", ?jurisdiction,
+    ". Confidence score: ", STR(?confidence_score), "%"
+  ) AS ?notes_text)
+
+  # Generate URIs
+  BIND(IRI(CONCAT("https://businessos.dev/id/reports/kyc-", STR(RAND()))) AS ?kyc_report_uri)
+  BIND(IRI(CONCAT("https://businessos.dev/id/decisions/kyc-", STR(RAND()))) AS ?kyc_decision_uri)
+}
+
+
+# ============================================================================
+# ADDITIONAL HELPER QUERY: Deal Status Transition History
+# ============================================================================
+# Tracks all deal status transitions for audit trail and reporting.
+
+PREFIX : <https://ontology.businessos.dev/fibo-deals/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+CONSTRUCT {
+  ?transition_uri a :DealStatusTransition ;
+    :deal ?deal_uri ;
+    :fromStatus ?previous_status ;
+    :toStatus ?new_status ;
+    :transitionDate ?transition_date ;
+    :transitionDuration ?duration_days ;
+    :transitionReason ?reason ;
+    :approverUser ?approver ;
+    :auditTrail ?audit_entry_uri .
+
+  ?audit_entry_uri a :DealAuditEntry ;
+    :auditTimestamp ?transition_date ;
+    :auditUser ?approver ;
+    :auditAction "status_change"@en ;
+    :auditField "dealStatus"@en ;
+    :previousValue ?previous_status ;
+    :newValue ?new_status ;
+    :auditReason ?reason .
+}
+WHERE {
+  # Would query audit entries or event log for deal status transitions
+  ?deal_uri a :Deal ;
+    :dealIdentifier ?deal_id ;
+    :currentStage ?current_stage ;
+    :stageTransitionDate ?transition_date .
+
+  # Example bindings for demo
+  BIND(":DealInitiation" AS ?previous_status)
+  BIND(":DealQualification" AS ?new_status)
+  BIND("Deal qualified by sales manager based on BANT criteria"@en AS ?reason)
+  BIND("sales-team-001" AS ?approver)
+  BIND(30 AS ?duration_days)
+  BIND(IRI(CONCAT("https://businessos.dev/id/transitions/", STR(RAND()))) AS ?transition_uri)
+  BIND(IRI(CONCAT("https://businessos.dev/id/audits/", STR(RAND()))) AS ?audit_entry_uri)
+}
+
+# ============================================================================
+# END OF SPARQL CONSTRUCT QUERIES
+# ============================================================================
+# Execution instructions:
+#
+# 1. Load fibo-deal-integration.ttl into Oxigraph/triplestore
+# 2. Insert BusinessOS deal data as RDF or use SPARQL INSERT DATA
+# 3. Execute QUERY 1 to construct FIBO-compliant deal representation
+# 4. Execute QUERY 2 to generate compliance validation report
+# 5. Execute QUERY 3 to generate KYC/AML verification report
+#
+# All queries designed for:
+# - Schema.org + FIBO vocabulary compatibility
+# - PostgreSQL to RDF pipeline integration
+# - Compliance framework validation
+# - Audit trail generation (PROV-O compatible)
+# ============================================================================

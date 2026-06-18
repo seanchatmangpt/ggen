@@ -1,0 +1,230 @@
+# ggen Template Demonstration Workflow
+# This example demonstrates all features of the ggen projection layer (Π)
+
+@prefix : <http://example.org/knhk/demo/> .
+@prefix yawl: <http://yawl.org/> .
+@prefix knhk: <http://knhk.io/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Workflow Definition
+:DemoWorkflow a yawl:Workflow ;
+    rdfs:label "Demo Workflow" ;
+    yawl:workflowId "demo-workflow-v1" ;
+    yawl:version "1.0.0" ;
+    rdfs:comment "Demonstrates ggen code generation capabilities" .
+
+# Tasks
+:SubmitTask a yawl:Task ;
+    rdfs:label "Submit Request" ;
+    yawl:taskId "submit-request" ;
+    yawl:taskType "Atomic" ;
+    yawl:pattern "Basic" ;
+    rdfs:comment "Initial task that submits a request for processing" ;
+    knhk:hasGuard :AmountGuard ;
+    yawl:hasInput :AmountInput ;
+    yawl:hasOutput :RequestIdOutput .
+
+:ValidateTask a yawl:Task ;
+    rdfs:label "Validate Request" ;
+    yawl:taskId "validate-request" ;
+    yawl:taskType "Atomic" ;
+    yawl:pattern "Sequence" ;
+    rdfs:comment "Validates the submitted request" ;
+    knhk:hasGuard :DataValidGuard ;
+    knhk:hasHook :ValidationHook .
+
+:ProcessParallel a yawl:Task ;
+    rdfs:label "Parallel Processing" ;
+    yawl:taskId "parallel-process" ;
+    yawl:taskType "Composite" ;
+    yawl:pattern "ParallelSplit" ;
+    rdfs:comment "Splits work into parallel execution paths" .
+
+:ProcessA a yawl:Task ;
+    rdfs:label "Process Branch A" ;
+    yawl:taskId "process-a" ;
+    yawl:taskType "Atomic" ;
+    yawl:pattern "Concurrent" ;
+    rdfs:comment "First parallel processing branch" ;
+    yawl:dependsOn :ProcessParallel .
+
+:ProcessB a yawl:Task ;
+    rdfs:label "Process Branch B" ;
+    yawl:taskId "process-b" ;
+    yawl:taskType "Atomic" ;
+    yawl:pattern "Concurrent" ;
+    rdfs:comment "Second parallel processing branch" ;
+    yawl:dependsOn :ProcessParallel .
+
+:JoinTask a yawl:Task ;
+    rdfs:label "Join Results" ;
+    yawl:taskId "join-results" ;
+    yawl:taskType "Composite" ;
+    yawl:pattern "Synchronization" ;
+    rdfs:comment "Synchronizes parallel execution paths" ;
+    yawl:dependsOn :ProcessA, :ProcessB .
+
+:ApproveTask a yawl:Task ;
+    rdfs:label "Approve Request" ;
+    yawl:taskId "approve-request" ;
+    yawl:taskType "Atomic" ;
+    yawl:pattern "Decision" ;
+    rdfs:comment "Manager approves or rejects request" ;
+    knhk:hasGuard :ApprovalGuard ;
+    knhk:hasHook :ApprovalHook .
+
+:CompleteTask a yawl:Task ;
+    rdfs:label "Complete Workflow" ;
+    yawl:taskId "complete" ;
+    yawl:taskType "Atomic" ;
+    yawl:pattern "Basic" ;
+    rdfs:comment "Final task that completes the workflow" ;
+    knhk:hasHook :CompletionHook .
+
+# States
+:InitialState a yawl:State ;
+    rdfs:label "Initial" ;
+    yawl:stateType "start" ;
+    rdfs:comment "Starting state of workflow" .
+
+:SubmittedState a yawl:State ;
+    rdfs:label "Submitted" ;
+    yawl:stateType "active" ;
+    rdfs:comment "Request has been submitted" .
+
+:ValidatingState a yawl:State ;
+    rdfs:label "Validating" ;
+    yawl:stateType "active" ;
+    rdfs:comment "Request is being validated" .
+
+:ProcessingState a yawl:State ;
+    rdfs:label "Processing" ;
+    yawl:stateType "active" ;
+    rdfs:comment "Request is being processed" .
+
+:PendingApprovalState a yawl:State ;
+    rdfs:label "Pending Approval" ;
+    yawl:stateType "active" ;
+    rdfs:comment "Waiting for approval" .
+
+:ApprovedState a yawl:State ;
+    rdfs:label "Approved" ;
+    yawl:stateType "end" ;
+    yawl:isFinal true ;
+    rdfs:comment "Request approved and completed" .
+
+:RejectedState a yawl:State ;
+    rdfs:label "Rejected" ;
+    yawl:stateType "end" ;
+    yawl:isFinal true ;
+    yawl:isError true ;
+    rdfs:comment "Request rejected" .
+
+# Transitions
+:SubmitTransition a yawl:Transition ;
+    yawl:fromState :InitialState ;
+    yawl:toState :SubmittedState ;
+    yawl:event "submit" ;
+    rdfs:comment "Submit request for processing" .
+
+:ValidateTransition a yawl:Transition ;
+    yawl:fromState :SubmittedState ;
+    yawl:toState :ValidatingState ;
+    yawl:event "validate" ;
+    knhk:hasGuard :AmountGuard .
+
+:ProcessTransition a yawl:Transition ;
+    yawl:fromState :ValidatingState ;
+    yawl:toState :ProcessingState ;
+    yawl:event "process" ;
+    knhk:hasGuard :DataValidGuard .
+
+:ApprovalTransition a yawl:Transition ;
+    yawl:fromState :ProcessingState ;
+    yawl:toState :PendingApprovalState ;
+    yawl:event "request_approval" ;
+    rdfs:comment "Request manager approval" .
+
+:ApproveTransition a yawl:Transition ;
+    yawl:fromState :PendingApprovalState ;
+    yawl:toState :ApprovedState ;
+    yawl:event "approve" ;
+    knhk:hasGuard :ApprovalGuard .
+
+:RejectTransition a yawl:Transition ;
+    yawl:fromState :PendingApprovalState ;
+    yawl:toState :RejectedState ;
+    yawl:event "reject" .
+
+# Guards
+:AmountGuard a knhk:Guard ;
+    rdfs:label "amount_check" ;
+    knhk:guardType "COMPARE_O_LE" ;
+    knhk:expression "amount <= 10000" ;
+    knhk:maxRunLen 8 ;
+    rdfs:comment "Ensures amount is within limits (≤$10,000)" .
+
+:DataValidGuard a knhk:Guard ;
+    rdfs:label "data_valid" ;
+    knhk:guardType "ASK_SP" ;
+    knhk:expression "data is not null and data.length > 0" ;
+    knhk:maxRunLen 8 ;
+    rdfs:comment "Validates data is present and non-empty" .
+
+:ApprovalGuard a knhk:Guard ;
+    rdfs:label "approval_authorized" ;
+    knhk:guardType "ASK_SPO" ;
+    knhk:expression "user has role 'manager'" ;
+    knhk:maxRunLen 8 ;
+    rdfs:comment "Ensures user has manager role" .
+
+# Hooks
+:ValidationHook a knhk:Hook ;
+    rdfs:label "on_validate" ;
+    knhk:trigger "validate_request" ;
+    knhk:hookType "PreCondition" ;
+    rdfs:comment "Executed before validation" ;
+    knhk:sparqlQuery """
+        ASK {
+            ?request a :Request ;
+                     :hasData ?data .
+            FILTER(strlen(?data) > 0)
+        }
+    """ .
+
+:ApprovalHook a knhk:Hook ;
+    rdfs:label "on_approval" ;
+    knhk:trigger "approval_granted" ;
+    knhk:hookType "PostCondition" ;
+    rdfs:comment "Executed after approval" ;
+    knhk:action "notify_requester" .
+
+:CompletionHook a knhk:Hook ;
+    rdfs:label "on_complete" ;
+    knhk:trigger "workflow_completed" ;
+    knhk:hookType "PostCondition" ;
+    rdfs:comment "Executed when workflow completes" ;
+    knhk:action "send_completion_email" .
+
+# Input/Output Parameters
+:AmountInput a yawl:InputParameter ;
+    rdfs:label "amount" ;
+    yawl:dataType xsd:decimal ;
+    yawl:isRequired true ;
+    rdfs:comment "Request amount in dollars" .
+
+:RequestIdOutput a yawl:OutputParameter ;
+    rdfs:label "request_id" ;
+    yawl:dataType xsd:string ;
+    rdfs:comment "Generated request identifier" .
+
+# Performance Constraints (Chatman Constant)
+:DemoWorkflow knhk:maxTicks 8 ;
+                knhk:maxDurationNs 2 .
+
+# YAWL Pattern Usage
+:DemoWorkflow yawl:usesPattern yawl:Pattern1 ,  # Sequence
+                                yawl:Pattern2 ,  # Parallel Split
+                                yawl:Pattern3 ,  # Synchronization
+                                yawl:Pattern4 .  # Exclusive Choice

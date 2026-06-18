@@ -1,0 +1,34 @@
+# release-checklist.rq
+# Purpose : Drive release-checklist rendering for cargo-cicd v26.6.2.
+# Returns : condition_number, condition_description, condition_met,
+#           blocker_reason
+# Order   : condition_number ASC (lexicographic on RC01..RC16)
+
+PREFIX rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl:     <http://www.w3.org/2002/07/owl#>
+PREFIX skos:    <http://www.w3.org/2004/02/skos/core#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX prov:    <http://www.w3.org/ns/prov#>
+PREFIX dcat:    <http://www.w3.org/ns/dcat#>
+PREFIX xsd:     <http://www.w3.org/2001/XMLSchema#>
+PREFIX cc:      <https://cargo-cicd.rs/ontology/>
+
+SELECT
+    ?condition_number
+    ?condition_description
+    ?condition_met
+    ?blocker_reason
+WHERE {
+    cc:CargoCicdRelease_26_6_2 dcterms:hasPart ?condition .
+
+    ?condition a cc:ReleaseCondition ;
+               dcterms:identifier    ?condition_number ;
+               dcterms:description   ?condition_description ;
+               cc:conditionMet       ?condition_met .
+
+    OPTIONAL { ?condition cc:blockerReason ?blocker_reason . }
+
+    FILTER(lang(?condition_description) = "en" || lang(?condition_description) = "")
+}
+ORDER BY ?condition_number

@@ -1,0 +1,57 @@
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix cnv:  <http://clap-noun-verb.io/ontology#> .
+@prefix ex:   <http://clap-noun-verb.io/examples/greet-demo#> .
+
+# =============================================================================
+# greet-demo example ontology (R1 self-rendering proof for the clap-noun-verb pack)
+#
+# Surface: `greet-demo tool <verb>`
+#   - tool greet  [--name <name>]            (optional arg)
+#   - tool convert --type <t> [--dry-run]    (Rust-keyword arg `type`; kebab flag `--dry-run`)
+#
+# This ontology is the ONLY input to ggen sync for the example. The rendered verb
+# wrappers delegate to EXAMPLE-SCOPED handlers in src/handlers.rs (not pack API).
+# =============================================================================
+
+ex:tool a cnv:Noun ;
+    cnv:hasNounName "tool" ;
+    cnv:nounAbout "Example noun demonstrating pack-rendered verb dispatch" ;
+    cnv:hasVerbs ex:greet , ex:convert .
+
+# --- verb: greet (no required args; one optional --name) ---------------------
+ex:greet a cnv:Verb ;
+    cnv:hasVerbName "greet" ;
+    cnv:verbAbout "Print a deterministic greeting" ;
+    cnv:belongsToNoun ex:tool ;
+    cnv:returnType "()" ;
+    cnv:hasArguments ex:greet_name .
+
+ex:greet_name a cnv:Argument ;
+    cnv:hasArgumentName "name" ;
+    cnv:valueType "String" ;
+    cnv:required "false" ;
+    cnv:argumentAbout "Who to greet" .
+
+# --- verb: convert (Rust-keyword arg `type`; kebab flag `--dry-run`) ----------
+ex:convert a cnv:Verb ;
+    cnv:hasVerbName "convert" ;
+    cnv:verbAbout "Convert using a target type" ;
+    cnv:belongsToNoun ex:tool ;
+    cnv:returnType "()" ;
+    cnv:hasArguments ex:convert_type , ex:convert_dryrun .
+
+# CLI flag `--type` -> Rust ident `type` (a keyword) -> raw-ident r#type in template
+ex:convert_type a cnv:Argument ;
+    cnv:hasArgumentName "type" ;
+    cnv:valueType "String" ;
+    cnv:required "true" ;
+    cnv:argumentAbout "Target type to convert to" .
+
+# kebab flag `--dry-run` -> snake field dry_run
+ex:convert_dryrun a cnv:Argument ;
+    cnv:hasArgumentName "dry-run" ;
+    cnv:valueType "bool" ;
+    cnv:required "false" ;
+    cnv:argumentAbout "Preview without writing" .

@@ -1,0 +1,167 @@
+# PICTL Variant Analysis
+# Discovers and analyzes process variants from event logs
+# Identifies unique execution paths and their frequencies
+
+PREFIX pm: <http://purl.org/pm/ontology#>
+PREFIX pictl: <https://chatmangpt.com/ontologies/pictl#>
+PREFIX ocel: <http://www.ocel-standard.org/ocel#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+CONSTRUCT {
+  # Variant (unique activity sequence)
+  ?variant a pictl:ProcessVariant ;
+    rdfs:label ?variant_label ;
+    pm:activitySequence ?activity_sequence ;
+    pm:frequency ?variant_frequency ;
+    pm:caseCount ?case_count ;
+    pm:percentage ?variant_percentage ;
+    pm:avgDuration ?avg_duration ;
+    pm:isHappyPath ?is_happy_path ;
+    prov:wasDerivedFrom ?log_iri .
+
+  # Variant Statistics
+  ?variant_stats a prov:Report ;
+    rdfs:label "Variant Analysis Statistics" ;
+    pm:uniqueVariantCount ?unique_variants ;
+    pm:totalCases ?total_cases ;
+    pm:dominantVariant ?dominant_variant ;
+    pm:entropy ?entropy_score ;
+    pm:variantExplosion ?has_explosion .
+
+  # Activity in Sequence
+  ?activity_in_variant a pictl:ActivityInVariant ;
+    rdfs:label ?activity_label ;
+    pm:activity ?activity_iri ;
+    pm:position ?position ;
+    pm:variant ?variant ;
+    pm:avgWaitTime ?avg_wait_time .
+
+  # Variant Similarity (for clustering)
+  ?similarity a pictl:VariantSimilarity ;
+    rdfs:label ?similarity_label ;
+    pm:variant1 ?variant1_iri ;
+    pm:variant2 ?variant2_iri ;
+    pm:levenshteinDistance ?levenshtein_dist ;
+    pm:jaccardSimilarity ?jaccard_sim ;
+    pm:editDistance ?edit_dist .
+}
+WHERE {
+  # Group traces by activity sequence to identify variants
+  {
+    SELECT
+      ?sequence_hash
+      (IRI(CONCAT("http://pictl.org/variant/", ?sequence_hash)) AS ?variant)
+      (CONCAT("Variant ", ?sequence_hash) AS ?variant_label)
+      ?activity_sequence
+      COUNT(DISTINCT ?trace_id) AS ?case_count
+      AVG(?duration_ms) AS ?avg_duration
+      (GROUP_CONCAT(?activity_name; SEPARATOR=" -> ") AS ?sequence_str)
+    WHERE {
+      # Get ordered activities per trace
+      {
+        SELECT
+          ?trace_id
+          GROUP_CONCAT(?activity_name; ORDER BY ?event_index SEPARATOR="|") AS ?activity_sequence
+          SUM(?duration_ms) AS ?duration_ms
+          SHA1(GROUP_CONCAT(?activity_name; ORDER BY ?event_index SEPARATOR="|")) AS ?sequence_hash
+        WHERE {
+          ?event a ocel:Event ;
+            ocel:traceId ?trace_id ;
+            ocel:activity ?activity_name ;
+            ocel:event-index ?event_index .
+          ?event ocel:durationMs ?duration_ms
+        }
+        GROUP BY ?trace_id
+      }
+    }
+    GROUP BY ?sequence_hash ?activity_sequence
+  }
+
+  # Calculate variant percentages
+  {
+    SELECT ?variant ?case_count ?activity_sequence ?avg_duration ?sequence_str
+           SUM(?case_count) OVER () AS ?total_cases
+           (COUNT(*) OVER () AS ?unique_variants)
+    WHERE { }
+  }
+
+  BIND(?case_count * 100.0 / ?total_cases AS ?variant_percentage)
+  BIND(?case_count * 1.0 / ?total_cases AS ?variant_frequency)
+
+  # Identify happy path (most frequent variant)
+  {
+    SELECT ?variant ?case_count ?variant_frequency
+           RANK() OVER (ORDER BY DESC(?case_count)) AS ?rank
+    WHERE { }
+  }
+  BIND(IF(?rank = 1, true, false) AS ?is_happy_path)
+
+  # Bind log IRI
+  BIND(IRI("http://pictl.org/log/analyzed") AS ?log_iri)
+
+  # Create statistics report
+  BIND(IRI("http://pictl.org/variant/stats") AS ?variant_stats)
+  BIND(IF(?rank = 1, ?variant, ?variant) AS ?dominant_variant)
+
+  # Calculate entropy (measure of process variability)
+  {
+    SELECT SUM(-?p * LN(?p)) AS ?entropy_score
+    WHERE {
+      ?variant a pictl:ProcessVariant ;
+        pm:frequency ?p .
+    }
+  }
+
+  # Detect variant explosion (more than 20 unique variants or low entropy)
+  BIND(IF(?unique_variants > 20 || ?entropy_score > 2.5, true, false) AS ?has_explosion)
+
+  # Break down activities in each variant
+  {
+    SELECT
+      ?variant
+      ?sequence_str
+      (IRI(CONCAT(STR(?variant), "/activity/", ?pos)) AS ?activity_in_variant)
+      (CONCAT("Activity ", ?activity_name, " at position ", STR(?pos)) AS ?activity_label)
+      (IRI(CONCAT("http://pictl.org/activity/", SHA1(?activity_name))) AS ?activity_iri)
+      ?activity_name
+      ?pos AS ?position
+      (AVG(?wait_ms) AS ?avg_wait_time)
+    WHERE {
+      BIND(?sequence_str AS ?str)
+      BIND(REPLACE(?str, " -> ", "|") AS ?pipe_str)
+      # Split sequence into activities with positions
+      BIND(?pos AS ?position)  # Simplified - would need string splitting
+      BIND("Activity" AS ?activity_name)
+      BIND(0 AS ?wait_ms)
+    }
+  }
+
+  # Calculate variant similarities (for clustering)
+  {
+    SELECT DISTINCT
+      ?variant AS ?variant1_iri
+      ?other_variant AS ?variant2_iri
+      (IRI(CONCAT("http://pictl.org/similarity/",
+                 SUBSTR(MIN(SHA1(CONCAT(STR(?variant), STR(?other_variant)))), 1, 8))) AS ?similarity)
+      (CONCAT("Similarity: ", SUBSTR(STR(?variant1_iri), 1, 8),
+              " <-> ", SUBSTR(STR(?variant2_iri), 1, 8)) AS ?similarity_label)
+      (ABS(LENGTH(?seq1) - LENGTH(?seq2)) AS ?levenshtein_dist)
+      (1.0 - ABS(LENGTH(?seq1) - LENGTH(?seq2)) * 1.0 /
+              MAX(LENGTH(?seq1), LENGTH(?seq2)) AS ?jaccard_sim)
+      (ABS(?case_count - ?other_count) AS ?edit_dist)
+    WHERE {
+      ?variant a pictl:ProcessVariant ;
+        pm:activitySequence ?seq1 ;
+        pm:caseCount ?case_count .
+      ?other_variant a pictl:ProcessVariant ;
+        pm:activitySequence ?seq2 ;
+        pm:caseCount ?other_count .
+      FILTER(?variant != ?other_variant)
+      FILTER(?variant1_iri < ?variant2_iri)  # Avoid duplicates
+      LIMIT 100  # Limit similarity computations
+    }
+  }
+}

@@ -1,0 +1,281 @@
+@prefix kmkt: <https://kgen.io/marketplace#> .
+@prefix kgen: <https://kgen.io/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# Developer View Schema for implementation details
+
+kmkt:DeveloperView a owl:Class ;
+    rdfs:label "Developer View"@en ;
+    rdfs:comment "Software developer perspective with APIs, examples, and guides"@en .
+
+kmkt:hasAPIDocumentation a owl:ObjectProperty ;
+    rdfs:label "has API documentation"@en ;
+    rdfs:domain kmkt:DeveloperView ;
+    rdfs:range kmkt:APIDocumentation .
+
+kmkt:hasCodeExample a owl:ObjectProperty ;
+    rdfs:label "has code example"@en ;
+    rdfs:domain kmkt:DeveloperView ;
+    rdfs:range kmkt:CodeExample .
+
+kmkt:hasQuickstartGuide a owl:ObjectProperty ;
+    rdfs:label "has quickstart guide"@en ;
+    rdfs:domain kmkt:DeveloperView ;
+    rdfs:range kmkt:QuickstartGuide .
+
+kmkt:hasImplementationPattern a owl:ObjectProperty ;
+    rdfs:label "has implementation pattern"@en ;
+    rdfs:domain kmkt:DeveloperView ;
+    rdfs:range kmkt:ImplementationPattern .
+
+# API Documentation
+kmkt:APIDocumentation a owl:Class ;
+    rdfs:label "API Documentation"@en ;
+    rdfs:comment "Complete API reference documentation"@en .
+
+kmkt:totalAPIs a owl:DatatypeProperty ;
+    rdfs:label "total APIs"@en ;
+    rdfs:domain kmkt:APIDocumentation ;
+    rdfs:range xsd:integer .
+
+kmkt:hasAuthentication a owl:ObjectProperty ;
+    rdfs:label "has authentication"@en ;
+    rdfs:domain kmkt:APIDocumentation ;
+    rdfs:range kmkt:Authentication .
+
+kmkt:hasRateLimit a owl:ObjectProperty ;
+    rdfs:label "has rate limit"@en ;
+    rdfs:domain kmkt:APIDocumentation ;
+    rdfs:range kmkt:RateLimit .
+
+kmkt:hasSDK a owl:ObjectProperty ;
+    rdfs:label "has SDK"@en ;
+    rdfs:domain kmkt:APIDocumentation ;
+    rdfs:range kmkt:SDK .
+
+# Authentication
+kmkt:Authentication a owl:Class ;
+    rdfs:label "Authentication"@en ;
+    rdfs:comment "API authentication mechanism"@en .
+
+kmkt:authType a owl:DatatypeProperty ;
+    rdfs:label "authentication type"@en ;
+    rdfs:domain kmkt:Authentication ;
+    rdfs:range xsd:string .
+
+kmkt:authURL a owl:DatatypeProperty ;
+    rdfs:label "authentication URL"@en ;
+    rdfs:domain kmkt:Authentication ;
+    rdfs:range xsd:string .
+
+kmkt:tokenExpiry a owl:DatatypeProperty ;
+    rdfs:label "token expiry"@en ;
+    rdfs:domain kmkt:Authentication ;
+    rdfs:range xsd:integer .
+
+# Rate Limit
+kmkt:RateLimit a owl:Class ;
+    rdfs:label "Rate Limit"@en ;
+    rdfs:comment "API rate limiting configuration"@en .
+
+kmkt:requestsPerMinute a owl:DatatypeProperty ;
+    rdfs:label "requests per minute"@en ;
+    rdfs:domain kmkt:RateLimit ;
+    rdfs:range xsd:integer .
+
+kmkt:burstLimit a owl:DatatypeProperty ;
+    rdfs:label "burst limit"@en ;
+    rdfs:domain kmkt:RateLimit ;
+    rdfs:range xsd:integer .
+
+# SDK
+kmkt:SDK a owl:Class ;
+    rdfs:label "Software Development Kit"@en ;
+    rdfs:comment "Client library for API integration"@en .
+
+kmkt:language a owl:DatatypeProperty ;
+    rdfs:label "programming language"@en ;
+    rdfs:domain kmkt:SDK ;
+    rdfs:range xsd:string .
+
+kmkt:version a owl:DatatypeProperty ;
+    rdfs:label "version"@en ;
+    rdfs:domain kmkt:SDK ;
+    rdfs:range xsd:string .
+
+kmkt:downloadURL a owl:DatatypeProperty ;
+    rdfs:label "download URL"@en ;
+    rdfs:domain kmkt:SDK ;
+    rdfs:range xsd:string .
+
+# Code Example
+kmkt:CodeExample a owl:Class ;
+    rdfs:label "Code Example"@en ;
+    rdfs:comment "Practical code implementation example"@en .
+
+kmkt:exampleTitle a owl:DatatypeProperty ;
+    rdfs:label "example title"@en ;
+    rdfs:domain kmkt:CodeExample ;
+    rdfs:range xsd:string .
+
+kmkt:programmingLanguage a owl:DatatypeProperty ;
+    rdfs:label "programming language"@en ;
+    rdfs:domain kmkt:CodeExample ;
+    rdfs:range xsd:string .
+
+kmkt:codeContent a owl:DatatypeProperty ;
+    rdfs:label "code content"@en ;
+    rdfs:domain kmkt:CodeExample ;
+    rdfs:range xsd:string .
+
+kmkt:difficulty a owl:DatatypeProperty ;
+    rdfs:label "difficulty"@en ;
+    rdfs:domain kmkt:CodeExample ;
+    rdfs:range xsd:string .
+
+kmkt:isInteractive a owl:DatatypeProperty ;
+    rdfs:label "is interactive"@en ;
+    rdfs:domain kmkt:CodeExample ;
+    rdfs:range xsd:boolean .
+
+# Quickstart Guide
+kmkt:QuickstartGuide a owl:Class ;
+    rdfs:label "Quickstart Guide"@en ;
+    rdfs:comment "Step-by-step implementation guide"@en .
+
+kmkt:guideTitle a owl:DatatypeProperty ;
+    rdfs:label "guide title"@en ;
+    rdfs:domain kmkt:QuickstartGuide ;
+    rdfs:range xsd:string .
+
+kmkt:estimatedTime a owl:DatatypeProperty ;
+    rdfs:label "estimated time"@en ;
+    rdfs:domain kmkt:QuickstartGuide ;
+    rdfs:range xsd:integer .
+
+kmkt:hasPrerequisite a owl:ObjectProperty ;
+    rdfs:label "has prerequisite"@en ;
+    rdfs:domain kmkt:QuickstartGuide ;
+    rdfs:range kmkt:Prerequisite .
+
+kmkt:hasStep a owl:ObjectProperty ;
+    rdfs:label "has step"@en ;
+    rdfs:domain kmkt:QuickstartGuide ;
+    rdfs:range kmkt:Step .
+
+# Prerequisite
+kmkt:Prerequisite a owl:Class ;
+    rdfs:label "Prerequisite"@en ;
+    rdfs:comment "Required knowledge or tools for guide"@en .
+
+kmkt:prerequisiteType a owl:DatatypeProperty ;
+    rdfs:label "prerequisite type"@en ;
+    rdfs:domain kmkt:Prerequisite ;
+    rdfs:range xsd:string .
+
+kmkt:description a owl:DatatypeProperty ;
+    rdfs:label "description"@en ;
+    rdfs:domain kmkt:Prerequisite ;
+    rdfs:range xsd:string .
+
+# Step
+kmkt:Step a owl:Class ;
+    rdfs:label "Step"@en ;
+    rdfs:comment "Individual step in quickstart guide"@en .
+
+kmkt:stepNumber a owl:DatatypeProperty ;
+    rdfs:label "step number"@en ;
+    rdfs:domain kmkt:Step ;
+    rdfs:range xsd:integer .
+
+kmkt:stepTitle a owl:DatatypeProperty ;
+    rdfs:label "step title"@en ;
+    rdfs:domain kmkt:Step ;
+    rdfs:range xsd:string .
+
+kmkt:instructions a owl:DatatypeProperty ;
+    rdfs:label "instructions"@en ;
+    rdfs:domain kmkt:Step ;
+    rdfs:range xsd:string .
+
+# Implementation Pattern
+kmkt:ImplementationPattern a owl:Class ;
+    rdfs:label "Implementation Pattern"@en ;
+    rdfs:comment "Common implementation approach or pattern"@en .
+
+kmkt:patternCategory a owl:DatatypeProperty ;
+    rdfs:label "pattern category"@en ;
+    rdfs:domain kmkt:ImplementationPattern ;
+    rdfs:range xsd:string .
+
+kmkt:useCase a owl:DatatypeProperty ;
+    rdfs:label "use case"@en ;
+    rdfs:domain kmkt:ImplementationPattern ;
+    rdfs:range xsd:string .
+
+kmkt:averageDifficulty a owl:DatatypeProperty ;
+    rdfs:label "average difficulty"@en ;
+    rdfs:domain kmkt:ImplementationPattern ;
+    rdfs:range xsd:decimal .
+
+# Development Tools
+kmkt:DevelopmentTool a owl:Class ;
+    rdfs:label "Development Tool"@en ;
+    rdfs:comment "Tool for software development and debugging"@en .
+
+kmkt:toolType a owl:DatatypeProperty ;
+    rdfs:label "tool type"@en ;
+    rdfs:domain kmkt:DevelopmentTool ;
+    rdfs:range xsd:string .
+
+kmkt:toolName a owl:DatatypeProperty ;
+    rdfs:label "tool name"@en ;
+    rdfs:domain kmkt:DevelopmentTool ;
+    rdfs:range xsd:string .
+
+kmkt:integrationLevel a owl:DatatypeProperty ;
+    rdfs:label "integration level"@en ;
+    rdfs:domain kmkt:DevelopmentTool ;
+    rdfs:range xsd:string .
+
+# Resources
+kmkt:DeveloperResource a owl:Class ;
+    rdfs:label "Developer Resource"@en ;
+    rdfs:comment "Additional resource for developers"@en .
+
+kmkt:resourceType a owl:DatatypeProperty ;
+    rdfs:label "resource type"@en ;
+    rdfs:domain kmkt:DeveloperResource ;
+    rdfs:range xsd:string .
+
+kmkt:resourceURL a owl:DatatypeProperty ;
+    rdfs:label "resource URL"@en ;
+    rdfs:domain kmkt:DeveloperResource ;
+    rdfs:range xsd:string .
+
+kmkt:lastUpdated a owl:DatatypeProperty ;
+    rdfs:label "last updated"@en ;
+    rdfs:domain kmkt:DeveloperResource ;
+    rdfs:range xsd:dateTime .
+
+# Testing Framework
+kmkt:TestingFramework a owl:Class ;
+    rdfs:label "Testing Framework"@en ;
+    rdfs:comment "Framework for testing implementations"@en .
+
+kmkt:frameworkName a owl:DatatypeProperty ;
+    rdfs:label "framework name"@en ;
+    rdfs:domain kmkt:TestingFramework ;
+    rdfs:range xsd:string .
+
+kmkt:testTypes a owl:DatatypeProperty ;
+    rdfs:label "test types"@en ;
+    rdfs:domain kmkt:TestingFramework ;
+    rdfs:range xsd:string .
+
+kmkt:coverage a owl:DatatypeProperty ;
+    rdfs:label "coverage"@en ;
+    rdfs:domain kmkt:TestingFramework ;
+    rdfs:range xsd:decimal .

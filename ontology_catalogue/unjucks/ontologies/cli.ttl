@@ -1,0 +1,393 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix kgen: <http://kgen.ai/ontology/> .
+@prefix kgencli: <http://kgen.ai/ontology/cli/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# ==============================================================================
+# KGEN CLI Ontology - Command Line Interface Structure
+# ==============================================================================
+
+<http://kgen.ai/ontology/cli> a owl:Ontology ;
+    dcterms:title "KGEN CLI Ontology"@en ;
+    dcterms:description "Ontology defining command line interface structure for KGEN"@en ;
+    dcterms:creator "KGEN System"@en ;
+    dcterms:created "2025-09-12"^^xsd:date ;
+    dcterms:modified "2025-09-12"^^xsd:date ;
+    owl:versionInfo "1.0.0"@en ;
+    owl:imports <http://kgen.ai/ontology/> .
+
+# ==============================================================================
+# Core CLI Classes
+# ==============================================================================
+
+kgencli:CLI a owl:Class ;
+    rdfs:label "CLI Application"@en ;
+    rdfs:comment "A command line interface application"@en ;
+    rdfs:subClassOf prov:SoftwareAgent .
+
+kgencli:Command a owl:Class ;
+    rdfs:label "CLI Command"@en ;
+    rdfs:comment "A command that can be executed in a CLI"@en ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:seeAlso <https://en.wikipedia.org/wiki/Command-line_interface> .
+
+kgencli:SubCommand a owl:Class ;
+    rdfs:label "CLI Subcommand"@en ;
+    rdfs:comment "A subcommand within a main command"@en ;
+    rdfs:subClassOf kgencli:Command .
+
+kgencli:Option a owl:Class ;
+    rdfs:label "CLI Option"@en ;
+    rdfs:comment "A command line option or flag"@en ;
+    rdfs:subClassOf owl:Thing .
+
+kgencli:Flag a owl:Class ;
+    rdfs:label "CLI Flag"@en ;
+    rdfs:comment "A boolean command line flag"@en ;
+    rdfs:subClassOf kgencli:Option .
+
+kgencli:Parameter a owl:Class ;
+    rdfs:label "CLI Parameter"@en ;
+    rdfs:comment "A command line parameter with a value"@en ;
+    rdfs:subClassOf kgencli:Option .
+
+kgencli:Argument a owl:Class ;
+    rdfs:label "CLI Argument"@en ;
+    rdfs:comment "A positional command line argument"@en ;
+    rdfs:subClassOf owl:Thing .
+
+kgencli:Usage a owl:Class ;
+    rdfs:label "CLI Usage"@en ;
+    rdfs:comment "Usage information for a CLI command"@en ;
+    rdfs:subClassOf owl:Thing .
+
+kgencli:Help a owl:Class ;
+    rdfs:label "CLI Help"@en ;
+    rdfs:comment "Help documentation for a CLI command"@en ;
+    rdfs:subClassOf owl:Thing .
+
+kgencli:Example a owl:Class ;
+    rdfs:label "CLI Example"@en ;
+    rdfs:comment "Example usage of a CLI command"@en ;
+    rdfs:subClassOf owl:Thing .
+
+# ==============================================================================
+# KGEN Specific Commands
+# ==============================================================================
+
+kgencli:GenerateCommand a owl:Class ;
+    rdfs:label "Generate Command"@en ;
+    rdfs:comment "Command for generating artifacts from knowledge graphs"@en ;
+    rdfs:subClassOf kgencli:Command .
+
+kgencli:ValidateCommand a owl:Class ;
+    rdfs:label "Validate Command"@en ;
+    rdfs:comment "Command for validating RDF graphs and artifacts"@en ;
+    rdfs:subClassOf kgencli:Command .
+
+kgencli:AttestCommand a owl:Class ;
+    rdfs:label "Attest Command"@en ;
+    rdfs:comment "Command for creating cryptographic attestations"@en ;
+    rdfs:subClassOf kgencli:Command .
+
+kgencli:DriftCommand a owl:Class ;
+    rdfs:label "Drift Detection Command"@en ;
+    rdfs:comment "Command for detecting configuration drift"@en ;
+    rdfs:subClassOf kgencli:Command .
+
+kgencli:ConfigCommand a owl:Class ;
+    rdfs:label "Config Command"@en ;
+    rdfs:comment "Command for managing KGEN configuration"@en ;
+    rdfs:subClassOf kgencli:Command .
+
+kgencli:PolicyCommand a owl:Class ;
+    rdfs:label "Policy Command"@en ;
+    rdfs:comment "Command for managing governance policies"@en ;
+    rdfs:subClassOf kgencli:Command .
+
+kgencli:CacheCommand a owl:Class ;
+    rdfs:label "Cache Command"@en ;
+    rdfs:comment "Command for managing artifact caches"@en ;
+    rdfs:subClassOf kgencli:Command .
+
+# ==============================================================================
+# Properties
+# ==============================================================================
+
+# Command Structure Properties
+kgencli:hasCommand a owl:ObjectProperty ;
+    rdfs:label "has command"@en ;
+    rdfs:comment "Relates a CLI to its available commands"@en ;
+    rdfs:domain kgencli:CLI ;
+    rdfs:range kgencli:Command .
+
+kgencli:hasSubCommand a owl:ObjectProperty ;
+    rdfs:label "has subcommand"@en ;
+    rdfs:comment "Relates a command to its subcommands"@en ;
+    rdfs:domain kgencli:Command ;
+    rdfs:range kgencli:SubCommand .
+
+kgencli:hasOption a owl:ObjectProperty ;
+    rdfs:label "has option"@en ;
+    rdfs:comment "Relates a command to its options"@en ;
+    rdfs:domain kgencli:Command ;
+    rdfs:range kgencli:Option .
+
+kgencli:hasArgument a owl:ObjectProperty ;
+    rdfs:label "has argument"@en ;
+    rdfs:comment "Relates a command to its arguments"@en ;
+    rdfs:domain kgencli:Command ;
+    rdfs:range kgencli:Argument .
+
+kgencli:hasUsage a owl:ObjectProperty ;
+    rdfs:label "has usage"@en ;
+    rdfs:comment "Relates a command to its usage information"@en ;
+    rdfs:domain kgencli:Command ;
+    rdfs:range kgencli:Usage .
+
+kgencli:hasHelp a owl:ObjectProperty ;
+    rdfs:label "has help"@en ;
+    rdfs:comment "Relates a command to its help documentation"@en ;
+    rdfs:domain kgencli:Command ;
+    rdfs:range kgencli:Help .
+
+kgencli:hasExample a owl:ObjectProperty ;
+    rdfs:label "has example"@en ;
+    rdfs:comment "Relates a command to usage examples"@en ;
+    rdfs:domain kgencli:Command ;
+    rdfs:range kgencli:Example .
+
+# Option Properties
+kgencli:shortName a owl:DatatypeProperty ;
+    rdfs:label "short name"@en ;
+    rdfs:comment "Short name for a CLI option (e.g., -v)"@en ;
+    rdfs:domain kgencli:Option ;
+    rdfs:range xsd:string .
+
+kgencli:longName a owl:DatatypeProperty ;
+    rdfs:label "long name"@en ;
+    rdfs:comment "Long name for a CLI option (e.g., --verbose)"@en ;
+    rdfs:domain kgencli:Option ;
+    rdfs:range xsd:string .
+
+kgencli:isRequired a owl:DatatypeProperty ;
+    rdfs:label "is required"@en ;
+    rdfs:comment "Whether an option or argument is required"@en ;
+    rdfs:domain [ owl:unionOf ( kgencli:Option kgencli:Argument ) ] ;
+    rdfs:range xsd:boolean .
+
+kgencli:hasDefault a owl:DatatypeProperty ;
+    rdfs:label "has default"@en ;
+    rdfs:comment "Default value for an option or argument"@en ;
+    rdfs:domain [ owl:unionOf ( kgencli:Option kgencli:Argument ) ] ;
+    rdfs:range xsd:string .
+
+kgencli:hasDescription a owl:DatatypeProperty ;
+    rdfs:label "has description"@en ;
+    rdfs:comment "Description of a CLI element"@en ;
+    rdfs:domain owl:Thing ;
+    rdfs:range xsd:string .
+
+# Command Execution Properties
+kgencli:executesAt a owl:DatatypeProperty ;
+    rdfs:label "executes at"@en ;
+    rdfs:comment "Timestamp when command was executed"@en ;
+    rdfs:domain kgencli:Command ;
+    rdfs:range xsd:dateTime .
+
+kgencli:executedBy a owl:ObjectProperty ;
+    rdfs:label "executed by"@en ;
+    rdfs:comment "Agent that executed the command"@en ;
+    rdfs:domain kgencli:Command ;
+    rdfs:range prov:Agent .
+
+kgencli:hasExitCode a owl:DatatypeProperty ;
+    rdfs:label "has exit code"@en ;
+    rdfs:comment "Exit code returned by command execution"@en ;
+    rdfs:domain kgencli:Command ;
+    rdfs:range xsd:integer .
+
+kgencli:hasOutput a owl:DatatypeProperty ;
+    rdfs:label "has output"@en ;
+    rdfs:comment "Output produced by command execution"@en ;
+    rdfs:domain kgencli:Command ;
+    rdfs:range xsd:string .
+
+kgencli:hasError a owl:DatatypeProperty ;
+    rdfs:label "has error"@en ;
+    rdfs:comment "Error message from command execution"@en ;
+    rdfs:domain kgencli:Command ;
+    rdfs:range xsd:string .
+
+# Configuration Properties
+kgencli:configFile a owl:DatatypeProperty ;
+    rdfs:label "config file"@en ;
+    rdfs:comment "Path to configuration file"@en ;
+    rdfs:domain kgencli:CLI ;
+    rdfs:range xsd:string .
+
+kgencli:workingDirectory a owl:DatatypeProperty ;
+    rdfs:label "working directory"@en ;
+    rdfs:comment "Working directory for command execution"@en ;
+    rdfs:domain kgencli:Command ;
+    rdfs:range xsd:string .
+
+kgencli:verboseMode a owl:DatatypeProperty ;
+    rdfs:label "verbose mode"@en ;
+    rdfs:comment "Whether verbose logging is enabled"@en ;
+    rdfs:domain kgencli:CLI ;
+    rdfs:range xsd:boolean .
+
+kgencli:debugMode a owl:DatatypeProperty ;
+    rdfs:label "debug mode"@en ;
+    rdfs:comment "Whether debug mode is enabled"@en ;
+    rdfs:domain kgencli:CLI ;
+    rdfs:range xsd:boolean .
+
+# ==============================================================================
+# KGEN Specific Properties
+# ==============================================================================
+
+# Generation Properties
+kgencli:generatesArtifact a owl:ObjectProperty ;
+    rdfs:label "generates artifact"@en ;
+    rdfs:comment "Relates a generate command to the artifact it produces"@en ;
+    rdfs:domain kgencli:GenerateCommand ;
+    rdfs:range kgen:Artifact .
+
+kgencli:usesTemplate a owl:ObjectProperty ;
+    rdfs:label "uses template"@en ;
+    rdfs:comment "Template used for generation"@en ;
+    rdfs:domain kgencli:GenerateCommand ;
+    rdfs:range kgen:Template .
+
+kgencli:outputDirectory a owl:DatatypeProperty ;
+    rdfs:label "output directory"@en ;
+    rdfs:comment "Directory where artifacts are generated"@en ;
+    rdfs:domain kgencli:GenerateCommand ;
+    rdfs:range xsd:string .
+
+# Validation Properties
+kgencli:validatesGraph a owl:ObjectProperty ;
+    rdfs:label "validates graph"@en ;
+    rdfs:comment "RDF graph being validated"@en ;
+    rdfs:domain kgencli:ValidateCommand ;
+    rdfs:range kgen:KnowledgeGraph .
+
+kgencli:usesSHACL a owl:ObjectProperty ;
+    rdfs:label "uses SHACL"@en ;
+    rdfs:comment "SHACL shapes used for validation"@en ;
+    rdfs:domain kgencli:ValidateCommand ;
+    rdfs:range kgen:SHACLShape .
+
+# Attestation Properties
+kgencli:createsAttestation a owl:ObjectProperty ;
+    rdfs:label "creates attestation"@en ;
+    rdfs:comment "Attestation created by the command"@en ;
+    rdfs:domain kgencli:AttestCommand ;
+    rdfs:range kgen:Attestation .
+
+kgencli:signingKey a owl:DatatypeProperty ;
+    rdfs:label "signing key"@en ;
+    rdfs:comment "Key used for signing attestations"@en ;
+    rdfs:domain kgencli:AttestCommand ;
+    rdfs:range xsd:string .
+
+# Drift Detection Properties
+kgencli:detectedDrift a owl:ObjectProperty ;
+    rdfs:label "detected drift"@en ;
+    rdfs:comment "Configuration drift detected by the command"@en ;
+    rdfs:domain kgencli:DriftCommand ;
+    rdfs:range kgen:ConfigurationDrift .
+
+kgencli:baselineHash a owl:DatatypeProperty ;
+    rdfs:label "baseline hash"@en ;
+    rdfs:comment "Hash of baseline configuration"@en ;
+    rdfs:domain kgencli:DriftCommand ;
+    rdfs:range xsd:string .
+
+# ==============================================================================
+# Named Individuals - KGEN CLI Instance
+# ==============================================================================
+
+kgencli:KGenCLI a kgencli:CLI ;
+    rdfs:label "KGEN CLI"@en ;
+    rdfs:comment "The KGEN Command Line Interface"@en ;
+    dcterms:description "Knowledge Graph Engine CLI for deterministic artifact generation"@en ;
+    kgencli:hasCommand kgencli:GenerateCmd, kgencli:ValidateCmd, kgencli:AttestCmd, 
+                      kgencli:DriftCmd, kgencli:ConfigCmd, kgencli:PolicyCmd, kgencli:CacheCmd .
+
+# Command Instances
+kgencli:GenerateCmd a kgencli:GenerateCommand ;
+    rdfs:label "generate"@en ;
+    kgencli:hasDescription "Generate artifacts from RDF knowledge graphs"@en ;
+    kgencli:hasOption kgencli:TemplateOption, kgencli:OutputOption, kgencli:VerboseFlag .
+
+kgencli:ValidateCmd a kgencli:ValidateCommand ;
+    rdfs:label "validate"@en ;
+    kgencli:hasDescription "Validate RDF graphs using SHACL shapes"@en ;
+    kgencli:hasOption kgencli:ShaclOption, kgencli:StrictFlag .
+
+kgencli:AttestCmd a kgencli:AttestCommand ;
+    rdfs:label "attest"@en ;
+    kgencli:hasDescription "Create cryptographic attestations for artifacts"@en ;
+    kgencli:hasOption kgencli:KeyOption, kgencli:OutputFormatOption .
+
+kgencli:DriftCmd a kgencli:DriftCommand ;
+    rdfs:label "drift"@en ;
+    kgencli:hasDescription "Detect configuration drift in artifacts"@en ;
+    kgencli:hasOption kgencli:BaselineOption, kgencli:ThresholdOption .
+
+# Option Instances
+kgencli:TemplateOption a kgencli:Parameter ;
+    kgencli:shortName "-t"@en ;
+    kgencli:longName "--template"@en ;
+    kgencli:hasDescription "Template to use for generation"@en ;
+    kgencli:isRequired true .
+
+kgencli:OutputOption a kgencli:Parameter ;
+    kgencli:shortName "-o"@en ;
+    kgencli:longName "--output"@en ;
+    kgencli:hasDescription "Output directory for generated artifacts"@en ;
+    kgencli:hasDefault "./output"@en .
+
+kgencli:VerboseFlag a kgencli:Flag ;
+    kgencli:shortName "-v"@en ;
+    kgencli:longName "--verbose"@en ;
+    kgencli:hasDescription "Enable verbose output"@en .
+
+kgencli:ShaclOption a kgencli:Parameter ;
+    kgencli:shortName "-s"@en ;
+    kgencli:longName "--shacl"@en ;
+    kgencli:hasDescription "SHACL shapes file for validation"@en .
+
+kgencli:StrictFlag a kgencli:Flag ;
+    kgencli:longName "--strict"@en ;
+    kgencli:hasDescription "Enable strict validation mode"@en .
+
+kgencli:KeyOption a kgencli:Parameter ;
+    kgencli:shortName "-k"@en ;
+    kgencli:longName "--key"@en ;
+    kgencli:hasDescription "Private key for signing attestations"@en ;
+    kgencli:isRequired true .
+
+kgencli:OutputFormatOption a kgencli:Parameter ;
+    kgencli:longName "--format"@en ;
+    kgencli:hasDescription "Output format for attestations"@en ;
+    kgencli:hasDefault "json"@en .
+
+kgencli:BaselineOption a kgencli:Parameter ;
+    kgencli:shortName "-b"@en ;
+    kgencli:longName "--baseline"@en ;
+    kgencli:hasDescription "Baseline configuration for drift detection"@en .
+
+kgencli:ThresholdOption a kgencli:Parameter ;
+    kgencli:longName "--threshold"@en ;
+    kgencli:hasDescription "Drift detection threshold"@en ;
+    kgencli:hasDefault "0.1"@en .

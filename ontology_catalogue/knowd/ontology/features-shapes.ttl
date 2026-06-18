@@ -1,0 +1,194 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix feat: <http://knowd.io/features#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# ============================================================================
+# SHACL SHAPES FOR PRODUCTION READINESS VALIDATION
+# ============================================================================
+
+# Basic feature validation
+feat:ProductionFeatureShape a sh:NodeShape ;
+    sh:targetClass feat:ProductionFeature ;
+    sh:property [
+        sh:path feat:status ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every feature must have exactly one status" ;
+    ] ;
+    sh:property [
+        sh:path feat:priority ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("P0" "P1" "P2") ;
+        sh:message "Priority must be P0, P1, or P2" ;
+    ] ;
+    sh:property [
+        sh:path feat:completeness ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:datatype xsd:decimal ;
+        sh:message "Completeness must be between 0.0 and 1.0" ;
+    ] ;
+    sh:property [
+        sh:path feat:implementedIn ;
+        sh:minCount 1 ;
+        sh:message "Every feature must specify where it is implemented" ;
+    ] .
+
+# Production blocker: P0 features must be 100% complete
+feat:ProductionReadyShape a sh:NodeShape ;
+    sh:target [
+        sh:select """
+            PREFIX feat: <http://knowd.io/features#>
+            SELECT ?this WHERE {
+                ?this feat:priority "P0" .
+            }
+        """ ;
+    ] ;
+    sh:property [
+        sh:path feat:completeness ;
+        sh:minInclusive 1.0 ;
+        sh:message "P0 features must be 100% complete for production deployment" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path feat:status ;
+        sh:in (feat:Implemented feat:Tested feat:Deployed) ;
+        sh:message "P0 features must be at least Implemented" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# Test coverage requirements
+feat:TestCoverageShape a sh:NodeShape ;
+    sh:target [
+        sh:select """
+            PREFIX feat: <http://knowd.io/features#>
+            SELECT ?this WHERE {
+                ?this feat:priority "P0" .
+            }
+        """ ;
+    ] ;
+    sh:property [
+        sh:path feat:testCoverage ;
+        sh:minCount 1 ;
+        sh:minInclusive 0.80 ;
+        sh:message "P0 features must have at least 80% test coverage" ;
+        sh:severity sh:Warning ;
+    ] .
+
+# Security features must be fully tested
+feat:SecurityFeatureShape a sh:NodeShape ;
+    sh:targetClass feat:SecurityFeature ;
+    sh:property [
+        sh:path feat:testCoverage ;
+        sh:minCount 1 ;
+        sh:minInclusive 0.85 ;
+        sh:message "Security features must have at least 85% test coverage" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path feat:status ;
+        sh:in (feat:Tested feat:Deployed) ;
+        sh:message "Security features must be fully tested before deployment" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# Compliance features validation
+feat:ComplianceFeatureShape a sh:NodeShape ;
+    sh:targetClass feat:ComplianceFeature ;
+    sh:property [
+        sh:path feat:jiraTicket ;
+        sh:minCount 1 ;
+        sh:message "Compliance features must have associated JIRA tickets for audit trail" ;
+        sh:severity sh:Warning ;
+    ] ;
+    sh:property [
+        sh:path feat:testCoverage ;
+        sh:minInclusive 0.85 ;
+        sh:message "Compliance features must have at least 85% test coverage" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# Performance features should have metrics
+feat:PerformanceFeatureShape a sh:NodeShape ;
+    sh:targetClass feat:PerformanceFeature ;
+    sh:or (
+        [ sh:path feat:performanceImprovement ; sh:minCount 1 ]
+        [ sh:path feat:cacheHitRate ; sh:minCount 1 ]
+    ) ;
+    sh:message "Performance features should document their performance improvement or cache hit rate" ;
+    sh:severity sh:Warning .
+
+# Features with LLM dependencies must be flagged
+feat:LLMDependencyShape a sh:NodeShape ;
+    sh:target [
+        sh:select """
+            PREFIX feat: <http://knowd.io/features#>
+            SELECT ?this WHERE {
+                ?this feat:requiresLLM true .
+            }
+        """ ;
+    ] ;
+    sh:property [
+        sh:path feat:priority ;
+        sh:in ("P2") ;
+        sh:message "Features requiring LLM should be P2 priority (not production-critical)" ;
+        sh:severity sh:Info ;
+    ] .
+
+# Dependency validation
+feat:DependencyShape a sh:NodeShape ;
+    sh:targetObjectsOf feat:blocksProduction ;
+    sh:property [
+        sh:path feat:status ;
+        sh:in (feat:Implemented feat:Tested feat:Deployed) ;
+        sh:message "Cannot deploy a feature that is blocked by unimplemented dependencies" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# Status progression validation
+feat:StatusProgressionShape a sh:NodeShape ;
+    sh:targetClass feat:ProductionFeature ;
+    sh:sparql [
+        sh:message "Features marked as Tested must have completeness >= 1.0" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX feat: <http://knowd.io/features#>
+            SELECT ?this WHERE {
+                ?this feat:status feat:Tested ;
+                      feat:completeness ?c .
+                FILTER(?c < 1.0)
+            }
+        """ ;
+    ] ;
+    sh:sparql [
+        sh:message "Features marked as Deployed must be Tested first" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX feat: <http://knowd.io/features#>
+            SELECT ?this WHERE {
+                ?this feat:status feat:Deployed .
+                FILTER NOT EXISTS {
+                    ?this feat:testCoverage ?coverage .
+                    FILTER(?coverage >= 0.80)
+                }
+            }
+        """ ;
+    ] .
+
+# Production readiness report shape
+feat:ProductionReadinessReport a sh:NodeShape ;
+    sh:target [
+        sh:select """
+            PREFIX feat: <http://knowd.io/features#>
+            SELECT ?this WHERE {
+                ?this a feat:ProductionFeature ;
+                      feat:priority "P0" .
+            }
+        """ ;
+    ] ;
+    sh:description "Comprehensive production readiness validation" ;
+    sh:severity sh:Violation .

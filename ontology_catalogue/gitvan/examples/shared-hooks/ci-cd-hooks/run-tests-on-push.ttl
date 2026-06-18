@@ -1,0 +1,47 @@
+@prefix gh: <http://example.org/git-hooks#> .
+@prefix git: <http://example.org/git#> .
+
+gh:RunTestsOnPush a gh:Hook ;
+  gh:name "Run Tests on Push" ;
+  gh:description "Automatically execute test suite when code is pushed" ;
+  gh:version "1.0.0" ;
+  gh:maintainer "GitVan Community" ;
+
+  gh:trigger [
+    a git:PostPushEvent
+  ] ;
+
+  gh:condition [
+    a gh:BranchMatch ;
+    gh:pattern "^(main|develop|feature/.*)$" ;
+  ] ;
+
+  gh:action [
+    a gh:ShellAction ;
+    gh:script """
+      echo "🧪 Running test suite..."
+
+      # Detect test command based on package.json
+      if [ -f package.json ]; then
+        npm test 2>&1
+        TEST_RESULT=$?
+      elif [ -f requirements.txt ] && [ -f manage.py ]; then
+        python manage.py test 2>&1
+        TEST_RESULT=$?
+      elif [ -f Makefile ]; then
+        make test 2>&1
+        TEST_RESULT=$?
+      else
+        echo "⚠️  No test command found"
+        exit 0
+      fi
+
+      if [ $TEST_RESULT -eq 0 ]; then
+        echo "✅ All tests passed"
+        exit 0
+      else
+        echo "❌ Tests failed"
+        exit 1
+      fi
+    """
+  ] .

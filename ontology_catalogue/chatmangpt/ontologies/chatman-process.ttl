@@ -1,0 +1,840 @@
+@prefix : <https://ontology.chatmangpt.com/process/> .
+@prefix chatman: <https://ontology.chatmangpt.com/core#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix bpmn: <http://www.omg.org/spec/BPMN/20100524/MODEL#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# ONTOLOGY DECLARATION
+# ============================================================================
+
+<https://ontology.chatmangpt.com/process> a owl:Ontology ;
+  rdfs:label "ChatmanGPT Process Ontology"@en ;
+  rdfs:comment "Formal specification of process models, YAWL patterns, and workflow semantics for ChatmanGPT systems."@en ;
+  owl:versionInfo "1.0.0" ;
+  owl:versionIRI <https://ontology.chatmangpt.com/process/1.0.0> ;
+  dc:date "2026-03-25"^^xsd:date ;
+  dc:creator "ChatmanGPT Team" ;
+  dc:issued "2026-03-25"^^xsd:date .
+
+# ============================================================================
+# IMPORTS
+# ============================================================================
+
+<https://ontology.chatmangpt.com/process> owl:imports <https://ontology.chatmangpt.com/core> ;
+  owl:imports <http://www.w3.org/2006/time> .
+
+# ============================================================================
+# PROCESS SOUNDNESS (WvdA - van der Aalst)
+# ============================================================================
+
+chatman:SoundProcess a owl:Class ;
+  rdfs:label "Sound Process"@en ;
+  rdfs:comment "A Petri net satisfying soundness property: deadlock-free, no live locks, proper termination."@en ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:ProcessModel a owl:Class ;
+  rdfs:label "Process Model"@en ;
+  rdfs:comment "Formal specification of business process, workflow, or coordination pattern."@en ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+# Soundness predicates
+chatman:hasNoDeadTransitions a owl:DatatypeProperty ;
+  rdfs:label "Has No Dead Transitions"@en ;
+  rdfs:comment "Boolean property indicating absence of dead transitions (transitions never fired in any execution)."@en ;
+  rdfs:domain chatman:SoundProcess ;
+  rdfs:range xsd:boolean .
+
+chatman:hasNoLiveLocks a owl:DatatypeProperty ;
+  rdfs:label "Has No Live Locks"@en ;
+  rdfs:comment "Boolean property indicating absence of live locks (process not deadlocked but making no progress)."@en ;
+  rdfs:domain chatman:SoundProcess ;
+  rdfs:range xsd:boolean .
+
+chatman:hasProperCompletion a owl:DatatypeProperty ;
+  rdfs:label "Has Proper Completion"@en ;
+  rdfs:comment "Boolean property indicating proper termination: only sink place marked when no transitions enabled."@en ;
+  rdfs:domain chatman:SoundProcess ;
+  rdfs:range xsd:boolean .
+
+chatman:deadlockFreeProof a owl:ObjectProperty ;
+  rdfs:label "Deadlock Free Proof"@en ;
+  rdfs:comment "Reference to formal proof artifact (Petri net model, UPPAAL verification, TLA+ proof)."@en ;
+  rdfs:domain chatman:SoundProcess ;
+  rdfs:range chatman:FormalProof .
+
+chatman:livenessProof a owl:ObjectProperty ;
+  rdfs:label "Liveness Proof"@en ;
+  rdfs:comment "Reference to formal proof that all actions eventually complete or escalate."@en ;
+  rdfs:domain chatman:SoundProcess ;
+  rdfs:range chatman:FormalProof .
+
+chatman:boundednessProof a owl:ObjectProperty ;
+  rdfs:label "Boundedness Proof"@en ;
+  rdfs:comment "Reference to formal proof that resource consumption is bounded."@en ;
+  rdfs:domain chatman:SoundProcess ;
+  rdfs:range chatman:FormalProof .
+
+chatman:FormalProof a owl:Class ;
+  rdfs:label "Formal Proof"@en ;
+  rdfs:comment "Evidence artifact supporting process soundness claim."@en ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+# ============================================================================
+# YAWL PATTERN ONTOLOGY (43 Workflow Patterns)
+# ============================================================================
+
+# Pattern concept scheme
+:yawl-patterns a skos:ConceptScheme ;
+  rdfs:label "YAWL 43 Workflow Patterns"@en ;
+  rdfs:comment "Complete catalog of Yet Another Workflow Language (YAWL) control-flow patterns."@en ;
+  skos:hasTopConcept :wcp-category-control-flow,
+                     :wcp-category-branching,
+                     :wcp-category-structural,
+                     :wcp-category-cancellation,
+                     :wcp-category-state-based .
+
+# Pattern categories
+:wcp-category-control-flow a skos:Concept ;
+  skos:prefLabel "Control Flow Patterns"@en ;
+  skos:definition "Basic control-flow patterns (WCP-1 to WCP-20): sequence, parallel split, synchronization, etc."@en ;
+  skos:inScheme :yawl-patterns .
+
+:wcp-category-branching a skos:Concept ;
+  skos:prefLabel "Advanced Branching Patterns"@en ;
+  skos:definition "Complex branching and merging patterns (WCP-21 to WCP-27): inclusive choice, multi-choice, etc."@en ;
+  skos:inScheme :yawl-patterns .
+
+:wcp-category-structural a skos:Concept ;
+  skos:prefLabel "Structural Patterns"@en ;
+  skos:definition "Structural composition patterns (WCP-28 to WCP-32): arbitrary cycles, deferred choice, etc."@en ;
+  skos:inScheme :yawl-patterns .
+
+:wcp-category-cancellation a skos:Concept ;
+  skos:prefLabel "Cancellation Patterns"@en ;
+  skos:definition "Cancellation and termination patterns (WCP-33 to WCP-38): activity cancel, instance cancel, etc."@en ;
+  skos:inScheme :yawl-patterns .
+
+:wcp-category-state-based a skos:Concept ;
+  skos:prefLabel "State-Based and Other Patterns"@en ;
+  skos:definition "State-based execution and miscellaneous patterns (WCP-39 to WCP-43): state machine, generator, etc."@en ;
+  skos:inScheme :yawl-patterns .
+
+# WCP-1: Sequence
+:wcp-1 a skos:Concept ;
+  skos:notation "WCP-1" ;
+  skos:prefLabel "Sequence"@en ;
+  skos:definition "Enablement of task B after completion of task A (A then B)."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-control-flow .
+
+# WCP-2: Parallel Split
+:wcp-2 a skos:Concept ;
+  skos:notation "WCP-2" ;
+  skos:prefLabel "Parallel Split"@en ;
+  skos:definition "Divergence of one branch into multiple branches executing in parallel."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-control-flow .
+
+# WCP-3: Synchronization
+:wcp-3 a skos:Concept ;
+  skos:notation "WCP-3" ;
+  skos:prefLabel "Synchronization"@en ;
+  skos:definition "Convergence of multiple branches into one, all branches must complete before continuation."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-control-flow .
+
+# WCP-4: Exclusive Choice
+:wcp-4 a skos:Concept ;
+  skos:notation "WCP-4" ;
+  skos:prefLabel "Exclusive Choice"@en ;
+  skos:definition "One of multiple tasks chosen based on condition; exactly one branch executes."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-control-flow .
+
+# WCP-5: Simple Merge
+:wcp-5 a skos:Concept ;
+  skos:notation "WCP-5" ;
+  skos:prefLabel "Simple Merge"@en ;
+  skos:definition "Convergence of multiple branches assuming no explicit synchronization needed (one path active)."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-control-flow .
+
+# WCP-6: Multiple Choice
+:wcp-6 a skos:Concept ;
+  skos:notation "WCP-6" ;
+  skos:prefLabel "Multiple Choice"@en ;
+  skos:definition "Multiple branches chosen simultaneously based on conditions; one or more branches execute."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-control-flow .
+
+# WCP-7: Synchronizing Merge
+:wcp-7 a skos:Concept ;
+  skos:notation "WCP-7" ;
+  skos:prefLabel "Synchronizing Merge"@en ;
+  skos:definition "Convergence of multiple branches with synchronization only when multiple branches active."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-control-flow .
+
+# WCP-8: Multiple Merge
+:wcp-8 a skos:Concept ;
+  skos:notation "WCP-8" ;
+  skos:prefLabel "Multiple Merge"@en ;
+  skos:definition "Convergence of branches; one token output for each input token (no synchronization)."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-control-flow .
+
+# WCP-9: Discriminator
+:wcp-9 a skos:Concept ;
+  skos:notation "WCP-9" ;
+  skos:prefLabel "Discriminator"@en ;
+  skos:definition "Completion of one branch enables continuation; suppress tokens from remaining branches."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-control-flow .
+
+# WCP-10: Arbitrary Cycles
+:wcp-10 a skos:Concept ;
+  skos:notation "WCP-10" ;
+  skos:prefLabel "Arbitrary Cycles"@en ;
+  skos:definition "Ability to repeat sequence of tasks (including arbitrary backward jumps)."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-control-flow .
+
+# WCP-11: Implicit Termination
+:wcp-11 a skos:Concept ;
+  skos:notation "WCP-11" ;
+  skos:prefLabel "Implicit Termination"@en ;
+  skos:definition "Process instance terminates when no more work (no explicit end task required)."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-control-flow .
+
+# WCP-12: Multiple Instances Without Synchronization
+:wcp-12 a skos:Concept ;
+  skos:notation "WCP-12" ;
+  skos:prefLabel "Multiple Instances Without Synchronization"@en ;
+  skos:definition "Task instantiated multiple times; instances run independently without synchronization."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-control-flow .
+
+# WCP-13: Multiple Instances With Design-Time Knowledge
+:wcp-13 a skos:Concept ;
+  skos:notation "WCP-13" ;
+  skos:prefLabel "Multiple Instances With Design-Time Knowledge"@en ;
+  skos:definition "Task instantiated multiple times; number of instances known at design time."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-control-flow .
+
+# WCP-14: Multiple Instances With Runtime Knowledge
+:wcp-14 a skos:Concept ;
+  skos:notation "WCP-14" ;
+  skos:prefLabel "Multiple Instances With Runtime Knowledge"@en ;
+  skos:definition "Task instantiated multiple times; number of instances determined at runtime."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-control-flow .
+
+# WCP-15: Deferred Choice
+:wcp-15 a skos:Concept ;
+  skos:notation "WCP-15" ;
+  skos:prefLabel "Deferred Choice"@en ;
+  skos:definition "Choice determined by external event, not data condition; often called external choice."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-control-flow .
+
+# WCP-16: Interleaved Parallel Routing
+:wcp-16 a skos:Concept ;
+  skos:notation "WCP-16" ;
+  skos:prefLabel "Interleaved Parallel Routing"@en ;
+  skos:definition "Multiple branches serialize at points but still exhibit parallelism (non-strict ordering)."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-control-flow .
+
+# WCP-17: Milestone
+:wcp-17 a skos:Concept ;
+  skos:notation "WCP-17" ;
+  skos:prefLabel "Milestone"@en ;
+  skos:definition "Task enabled only while specific condition holds; disabled once condition becomes false."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-control-flow .
+
+# WCP-18: Cancellation Region
+:wcp-18 a skos:Concept ;
+  skos:notation "WCP-18" ;
+  skos:prefLabel "Cancellation Region"@en ;
+  skos:definition "All active tasks in region cancelled when region exit condition becomes true."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-control-flow .
+
+# WCP-19: Cancel Task
+:wcp-19 a skos:Concept ;
+  skos:notation "WCP-19" ;
+  skos:prefLabel "Cancel Task"@en ;
+  skos:definition "Single task cancelled from outside the task itself."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-control-flow .
+
+# WCP-20: Cancelation of Multi-Instance Activity
+:wcp-20 a skos:Concept ;
+  skos:notation "WCP-20" ;
+  skos:prefLabel "Cancelation of Multi-Instance Activity"@en ;
+  skos:definition "Multiple instances of task cancelled individually or as group."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-control-flow .
+
+# WCP-21: Structured Loop
+:wcp-21 a skos:Concept ;
+  skos:notation "WCP-21" ;
+  skos:prefLabel "Structured Loop"@en ;
+  skos:definition "Iteration with explicit loopback edge; exit condition tested before re-entry."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-branching .
+
+# WCP-22: Recursion
+:wcp-22 a skos:Concept ;
+  skos:notation "WCP-22" ;
+  skos:prefLabel "Recursion"@en ;
+  skos:definition "Process spawns sub-process of same type; allows unbounded nesting depth."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-branching .
+
+# WCP-23: Transient Trigger
+:wcp-23 a skos:Concept ;
+  skos:notation "WCP-23" ;
+  skos:prefLabel "Transient Trigger"@en ;
+  skos:definition "Task triggered by condition that may become false before task completes."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-branching .
+
+# WCP-24: Persistent Trigger
+:wcp-24 a skos:Concept ;
+  skos:notation "WCP-24" ;
+  skos:prefLabel "Persistent Trigger"@en ;
+  skos:definition "Task triggered by persistent condition; remains active as long as condition true."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-branching .
+
+# WCP-25: Cancellation and Restart
+:wcp-25 a skos:Concept ;
+  skos:notation "WCP-25" ;
+  skos:prefLabel "Cancellation and Restart"@en ;
+  skos:definition "Task cancelled and restarted multiple times based on external trigger."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-branching .
+
+# WCP-26: Acyclic Synchronizing Merge
+:wcp-26 a skos:Concept ;
+  skos:notation "WCP-26" ;
+  skos:prefLabel "Acyclic Synchronizing Merge"@en ;
+  skos:definition "Multiple input branches synchronized when all active branches completed (acyclic context)."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-branching .
+
+# WCP-27: Cyclic Synchronizing Merge
+:wcp-27 a skos:Concept ;
+  skos:notation "WCP-27" ;
+  skos:prefLabel "Cyclic Synchronizing Merge"@en ;
+  skos:definition "Multiple input branches synchronized when all active branches completed (cyclic context)."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-branching .
+
+# WCP-28: Blocking Discriminator
+:wcp-28 a skos:Concept ;
+  skos:notation "WCP-28" ;
+  skos:prefLabel "Blocking Discriminator"@en ;
+  skos:definition "First branch completion enables join; other branches consumed without effect."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-structural .
+
+# WCP-29: Canceling Discriminator
+:wcp-29 a skos:Concept ;
+  skos:notation "WCP-29" ;
+  skos:prefLabel "Canceling Discriminator"@en ;
+  skos:definition "First branch completion enables join and cancels remaining branches."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-structural .
+
+# WCP-30: Structured Partial Join
+:wcp-30 a skos:Concept ;
+  skos:notation "WCP-30" ;
+  skos:prefLabel "Structured Partial Join"@en ;
+  skos:definition "Join waits for specific subset of input branches; other branches ignored."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-structural .
+
+# WCP-31: Blocking Partial Join
+:wcp-31 a skos:Concept ;
+  skos:notation "WCP-31" ;
+  skos:prefLabel "Blocking Partial Join"@en ;
+  skos:definition "Unstructured partial join; waits for N out of M branches."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-structural .
+
+# WCP-32: Canceling Partial Join
+:wcp-32 a skos:Concept ;
+  skos:notation "WCP-32" ;
+  skos:prefLabel "Canceling Partial Join"@en ;
+  skos:definition "Unstructured partial join that cancels remaining branches after N complete."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-structural .
+
+# WCP-33: Activity Instance Cancel
+:wcp-33 a skos:Concept ;
+  skos:notation "WCP-33" ;
+  skos:prefLabel "Activity Instance Cancel"@en ;
+  skos:definition "Single activity instance cancelled (subtask of multi-instance activity)."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-cancellation .
+
+# WCP-34: Activity Instance Restart
+:wcp-34 a skos:Concept ;
+  skos:notation "WCP-34" ;
+  skos:prefLabel "Activity Instance Restart"@en ;
+  skos:definition "Completed activity instance restarted and re-executed."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-cancellation .
+
+# WCP-35: Multiple Instance Activity Cancel
+:wcp-35 a skos:Concept ;
+  skos:notation "WCP-35" ;
+  skos:prefLabel "Multiple Instance Activity Cancel"@en ;
+  skos:definition "All remaining instances of multi-instance activity cancelled."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-cancellation .
+
+# WCP-36: Boundary Interrupt
+:wcp-36 a skos:Concept ;
+  skos:notation "WCP-36" ;
+  skos:prefLabel "Boundary Interrupt"@en ;
+  skos:definition "Activity interrupted by external event; current work abandoned, cleanup executed."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-cancellation .
+
+# WCP-37: Multiple Conditions
+:wcp-37 a skos:Concept ;
+  skos:notation "WCP-37" ;
+  skos:prefLabel "Multiple Conditions"@en ;
+  skos:definition "Activity enabled/disabled by multiple independent conditions."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-cancellation .
+
+# WCP-38: Interleaved Partial Join
+:wcp-38 a skos:Concept ;
+  skos:notation "WCP-38" ;
+  skos:prefLabel "Interleaved Partial Join"@en ;
+  skos:definition "N out of M branches must complete, with relative ordering preserved."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-cancellation .
+
+# WCP-39: State Machine
+:wcp-39 a skos:Concept ;
+  skos:notation "WCP-39" ;
+  skos:prefLabel "State Machine"@en ;
+  skos:definition "Process modeled as finite state machine with explicit states and transitions."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-state-based .
+
+# WCP-40: Generator
+:wcp-40 a skos:Concept ;
+  skos:notation "WCP-40" ;
+  skos:prefLabel "Generator"@en ;
+  skos:definition "Task that produces output tokens consumed by multiple subsequent branches."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-state-based .
+
+# WCP-41: Dynamic Instance Spawning
+:wcp-41 a skos:Concept ;
+  skos:notation "WCP-41" ;
+  skos:prefLabel "Dynamic Instance Spawning"@en ;
+  skos:definition "Process instance spawned dynamically based on runtime data."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-state-based .
+
+# WCP-42: Workflow Instance Synchronization
+:wcp-42 a skos:Concept ;
+  skos:notation "WCP-42" ;
+  skos:prefLabel "Workflow Instance Synchronization"@en ;
+  skos:definition "Multiple workflow instances synchronized at specific points."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-state-based .
+
+# WCP-43: Invoked Subtasks
+:wcp-43 a skos:Concept ;
+  skos:notation "WCP-43" ;
+  skos:prefLabel "Invoked Subtasks"@en ;
+  skos:definition "Task invokes sub-process as subtask; parent waits for subtask completion."@en ;
+  skos:inScheme :yawl-patterns ;
+  skos:broader :wcp-category-state-based .
+
+# ============================================================================
+# BPMN TASK TYPES AND HIERARCHY
+# ============================================================================
+
+chatman:BPMNTask a owl:Class ;
+  rdfs:label "BPMN Task"@en ;
+  rdfs:comment "Task element in BPMN 2.0 process model."@en ;
+  rdfs:subClassOf bpmn:Task ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:AtomicTask a owl:Class ;
+  rdfs:label "Atomic Task"@en ;
+  rdfs:comment "Indivisible task with no sub-process decomposition."@en ;
+  rdfs:subClassOf chatman:BPMNTask ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:CompositeTask a owl:Class ;
+  rdfs:label "Composite Task"@en ;
+  rdfs:comment "Task composed of multiple sub-tasks (process decomposition)."@en ;
+  rdfs:subClassOf chatman:BPMNTask ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:LoopTask a owl:Class ;
+  rdfs:label "Loop Task"@en ;
+  rdfs:comment "Task with explicit loop behavior (do-while or while loop)."@en ;
+  rdfs:subClassOf chatman:BPMNTask ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+# Task properties
+chatman:hasTaskType a owl:DatatypeProperty ;
+  rdfs:label "Has Task Type"@en ;
+  rdfs:comment "Type classification for BPMN task (e.g., 'Service', 'User', 'Script')."@en ;
+  rdfs:domain chatman:BPMNTask ;
+  rdfs:range xsd:string .
+
+chatman:isMultiInstance a owl:DatatypeProperty ;
+  rdfs:label "Is Multi Instance"@en ;
+  rdfs:comment "Boolean indicating task creates multiple parallel or sequential instances."@en ;
+  rdfs:domain chatman:BPMNTask ;
+  rdfs:range xsd:boolean .
+
+# ============================================================================
+# PROCESS COMPOSITION SEMANTICS
+# ============================================================================
+
+chatman:Process a owl:Class ;
+  rdfs:label "Process"@en ;
+  rdfs:comment "Executable workflow or business process."@en ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:composedOf a owl:ObjectProperty ;
+  rdfs:label "Composed Of"@en ;
+  rdfs:comment "Process composition relationship: P1 composedOf P2 means P2 is a sub-process of P1."@en ;
+  rdfs:domain chatman:Process ;
+  rdfs:range chatman:Process ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:sequentialComposition a owl:ObjectProperty ;
+  rdfs:label "Sequential Composition"@en ;
+  rdfs:comment "Sequential execution: P1 sequentialComposition P2 means P2 executes after P1 completes."@en ;
+  rdfs:domain chatman:Process ;
+  rdfs:range chatman:Process ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:parallelComposition a owl:ObjectProperty ;
+  rdfs:label "Parallel Composition"@en ;
+  rdfs:comment "Concurrent execution: P1 parallelComposition P2 means both execute simultaneously."@en ;
+  rdfs:domain chatman:Process ;
+  rdfs:range chatman:Process ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+# OWL Axiom: Composition Theorem for Sound Processes
+# If sound(P1) AND sound(P2), then sound(P1 sequentialComposition P2)
+# Expressed as SWRL rule equivalent (documentation):
+# (?p1 rdf:type chatman:SoundProcess) ∧ (?p2 rdf:type chatman:SoundProcess) ∧
+# (?p1 chatman:sequentialComposition ?p2) →
+# (?p_composite rdf:type chatman:SoundProcess)
+
+<#composition-soundness-rule> a owl:Axiom ;
+  rdfs:label "Composition Soundness Axiom"@en ;
+  rdfs:comment "If P1 and P2 are sound processes, their sequential composition is sound. SWRL: (?p1 rdf:type chatman:SoundProcess) ∧ (?p2 rdf:type chatman:SoundProcess) ∧ (?p1 chatman:sequentialComposition ?p2) → (?composite rdf:type chatman:SoundProcess)"@en ;
+  owl:assertionURL <https://ontology.chatmangpt.com/process#composition-soundness> ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:isSound a owl:DatatypeProperty ;
+  rdfs:label "Is Sound"@en ;
+  rdfs:comment "Boolean property indicating process satisfies soundness (deadlock-free, no live locks, proper termination)."@en ;
+  rdfs:domain chatman:Process ;
+  rdfs:range xsd:boolean .
+
+# ============================================================================
+# TEMPORAL CONSTRAINTS (OWL-Time Integration)
+# ============================================================================
+
+chatman:TemporalConstraint a owl:Class ;
+  rdfs:label "Temporal Constraint"@en ;
+  rdfs:comment "Time-based constraint on process or task execution."@en ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:hasMaxDuration a owl:ObjectProperty ;
+  rdfs:label "Has Max Duration"@en ;
+  rdfs:comment "Maximum duration for task or process execution (OWL-Time Duration)."@en ;
+  rdfs:domain [ a owl:Class ; owl:unionOf (chatman:Process chatman:BPMNTask) ] ;
+  rdfs:range time:Duration ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:hasMinDuration a owl:ObjectProperty ;
+  rdfs:label "Has Min Duration"@en ;
+  rdfs:comment "Minimum duration before task or process can complete."@en ;
+  rdfs:domain [ a owl:Class ; owl:unionOf (chatman:Process chatman:BPMNTask) ] ;
+  rdfs:range time:Duration ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:hasDeadline a owl:ObjectProperty ;
+  rdfs:label "Has Deadline"@en ;
+  rdfs:comment "Hard deadline (OWL-Time Instant) by which process must complete."@en ;
+  rdfs:domain [ a owl:Class ; owl:unionOf (chatman:Process chatman:BPMNTask) ] ;
+  rdfs:range time:Instant ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:hasSLA a owl:ObjectProperty ;
+  rdfs:label "Has SLA"@en ;
+  rdfs:comment "Service-Level Agreement specifying performance targets (max duration)."@en ;
+  rdfs:domain [ a owl:Class ; owl:unionOf (chatman:Process chatman:BPMNTask) ] ;
+  rdfs:range chatman:ServiceLevelAgreement ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:ServiceLevelAgreement a owl:Class ;
+  rdfs:label "Service Level Agreement"@en ;
+  rdfs:comment "Specification of performance and availability expectations."@en ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:targetResponseTime a owl:ObjectProperty ;
+  rdfs:label "Target Response Time"@en ;
+  rdfs:comment "Target response time (OWL-Time Duration) as SLA requirement."@en ;
+  rdfs:domain chatman:ServiceLevelAgreement ;
+  rdfs:range time:Duration ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:targetAvailability a owl:DatatypeProperty ;
+  rdfs:label "Target Availability"@en ;
+  rdfs:comment "Target availability percentage (0.0 to 1.0) as SLA requirement."@en ;
+  rdfs:domain chatman:ServiceLevelAgreement ;
+  rdfs:range [ a rdfs:Datatype ; owl:onDatatype xsd:decimal ; owl:withRestrictions (
+    [ xsd:minInclusive 0 ] [ xsd:maxInclusive 1 ] ) ] ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+# ============================================================================
+# PROCESS EXECUTION SEMANTICS
+# ============================================================================
+
+chatman:ExecutionPath a owl:Class ;
+  rdfs:label "Execution Path"@en ;
+  rdfs:comment "Sequence of tasks executed in a process instance."@en ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:hasExecutionPath a owl:ObjectProperty ;
+  rdfs:label "Has Execution Path"@en ;
+  rdfs:comment "Reference to possible execution path through process."@en ;
+  rdfs:domain chatman:Process ;
+  rdfs:range chatman:ExecutionPath ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:follows a owl:ObjectProperty ;
+  rdfs:label "Follows"@en ;
+  rdfs:comment "Sequential ordering in execution path."@en ;
+  rdfs:domain chatman:BPMNTask ;
+  rdfs:range chatman:BPMNTask ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+# ============================================================================
+# RESOURCE CONSTRAINTS
+# ============================================================================
+
+chatman:ResourceConstraint a owl:Class ;
+  rdfs:label "Resource Constraint"@en ;
+  rdfs:comment "Constraint on resource availability or consumption."@en ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:hasResourceConstraint a owl:ObjectProperty ;
+  rdfs:label "Has Resource Constraint"@en ;
+  rdfs:comment "Resource constraint applicable to process or task."@en ;
+  rdfs:domain [ a owl:Class ; owl:unionOf (chatman:Process chatman:BPMNTask) ] ;
+  rdfs:range chatman:ResourceConstraint ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:maxQueueSize a owl:DatatypeProperty ;
+  rdfs:label "Max Queue Size"@en ;
+  rdfs:comment "Maximum queue depth for pending tasks (boundedness property)."@en ;
+  rdfs:domain chatman:ResourceConstraint ;
+  rdfs:range xsd:positiveInteger ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:maxConcurrentInstances a owl:DatatypeProperty ;
+  rdfs:label "Max Concurrent Instances"@en ;
+  rdfs:comment "Maximum number of concurrent task instances."@en ;
+  rdfs:domain chatman:ResourceConstraint ;
+  rdfs:range xsd:positiveInteger ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:budgetConstraint a owl:ObjectProperty ;
+  rdfs:label "Budget Constraint"@en ;
+  rdfs:comment "Per-operation budget (time_ms, memory_mb, cpu_percent)."@en ;
+  rdfs:domain chatman:ResourceConstraint ;
+  rdfs:range chatman:OperationBudget ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:OperationBudget a owl:Class ;
+  rdfs:label "Operation Budget"@en ;
+  rdfs:comment "Budget limits for operation execution (time, memory, CPU)."@en ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:timeMs a owl:DatatypeProperty ;
+  rdfs:label "Time Milliseconds"@en ;
+  rdfs:comment "Time budget in milliseconds."@en ;
+  rdfs:domain chatman:OperationBudget ;
+  rdfs:range xsd:positiveInteger ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:memoryMb a owl:DatatypeProperty ;
+  rdfs:label "Memory Megabytes"@en ;
+  rdfs:comment "Memory budget in megabytes."@en ;
+  rdfs:domain chatman:OperationBudget ;
+  rdfs:range xsd:positiveInteger ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:cpuPercent a owl:DatatypeProperty ;
+  rdfs:label "CPU Percent"@en ;
+  rdfs:comment "CPU usage budget as percentage (0-100)."@en ;
+  rdfs:domain chatman:OperationBudget ;
+  rdfs:range [ a rdfs:Datatype ; owl:onDatatype xsd:decimal ; owl:withRestrictions (
+    [ xsd:minInclusive 0 ] [ xsd:maxInclusive 100 ] ) ] ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+# ============================================================================
+# CONTROL FLOW GRAPH
+# ============================================================================
+
+chatman:ControlFlowGraph a owl:Class ;
+  rdfs:label "Control Flow Graph"@en ;
+  rdfs:comment "Directed graph representing possible execution flows in process."@en ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:hasControlFlowGraph a owl:ObjectProperty ;
+  rdfs:label "Has Control Flow Graph"@en ;
+  rdfs:comment "Reference to control flow graph for process."@en ;
+  rdfs:domain chatman:Process ;
+  rdfs:range chatman:ControlFlowGraph ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:edge a owl:ObjectProperty ;
+  rdfs:label "Edge"@en ;
+  rdfs:comment "Directed edge in control flow graph."@en ;
+  rdfs:domain chatman:ControlFlowGraph ;
+  rdfs:range chatman:ControlFlowEdge ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:ControlFlowEdge a owl:Class ;
+  rdfs:label "Control Flow Edge"@en ;
+  rdfs:comment "Edge between tasks in control flow graph."@en ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:fromNode a owl:ObjectProperty ;
+  rdfs:label "From Node"@en ;
+  rdfs:comment "Source node of edge."@en ;
+  rdfs:domain chatman:ControlFlowEdge ;
+  rdfs:range [ a owl:Class ; owl:unionOf (chatman:BPMNTask chatman:Process) ] ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:toNode a owl:ObjectProperty ;
+  rdfs:label "To Node"@en ;
+  rdfs:comment "Target node of edge."@en ;
+  rdfs:domain chatman:ControlFlowEdge ;
+  rdfs:range [ a owl:Class ; owl:unionOf (chatman:BPMNTask chatman:Process) ] ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:hasGuardCondition a owl:DatatypeProperty ;
+  rdfs:label "Has Guard Condition"@en ;
+  rdfs:comment "Boolean condition that must be satisfied for edge traversal."@en ;
+  rdfs:domain chatman:ControlFlowEdge ;
+  rdfs:range xsd:string ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+# ============================================================================
+# PETRI NET SEMANTICS
+# ============================================================================
+
+chatman:PetriNet a owl:Class ;
+  rdfs:label "Petri Net"@en ;
+  rdfs:comment "Formal mathematical model of process as Petri net (places and transitions)."@en ;
+  rdfs:subClassOf chatman:ProcessModel ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:Place a owl:Class ;
+  rdfs:label "Place"@en ;
+  rdfs:comment "Node in Petri net representing state or condition (can hold tokens)."@en ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:Transition a owl:Class ;
+  rdfs:label "Transition"@en ;
+  rdfs:comment "Node in Petri net representing event or activity (consumes and produces tokens)."@en ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:hasPlace a owl:ObjectProperty ;
+  rdfs:label "Has Place"@en ;
+  rdfs:comment "Place in Petri net."@en ;
+  rdfs:domain chatman:PetriNet ;
+  rdfs:range chatman:Place ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:hasTransition a owl:ObjectProperty ;
+  rdfs:label "Has Transition"@en ;
+  rdfs:comment "Transition in Petri net."@en ;
+  rdfs:domain chatman:PetriNet ;
+  rdfs:range chatman:Transition ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:arc a owl:ObjectProperty ;
+  rdfs:label "Arc"@en ;
+  rdfs:comment "Directed arc connecting place to transition or transition to place."@en ;
+  rdfs:domain chatman:PetriNet ;
+  rdfs:range chatman:Arc ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:Arc a owl:Class ;
+  rdfs:label "Arc"@en ;
+  rdfs:comment "Connection in Petri net with weight (multiplicity)."@en ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:source a owl:ObjectProperty ;
+  rdfs:label "Source"@en ;
+  rdfs:comment "Source node of arc (place or transition)."@en ;
+  rdfs:domain chatman:Arc ;
+  rdfs:range [ a owl:Class ; owl:unionOf (chatman:Place chatman:Transition) ] ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:target a owl:ObjectProperty ;
+  rdfs:label "Target"@en ;
+  rdfs:comment "Target node of arc (place or transition)."@en ;
+  rdfs:domain chatman:Arc ;
+  rdfs:range [ a owl:Class ; owl:unionOf (chatman:Place chatman:Transition) ] ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:weight a owl:DatatypeProperty ;
+  rdfs:label "Weight"@en ;
+  rdfs:comment "Arc weight (number of tokens consumed/produced)."@en ;
+  rdfs:domain chatman:Arc ;
+  rdfs:range xsd:positiveInteger ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+chatman:markingConstraint a owl:DatatypeProperty ;
+  rdfs:label "Marking Constraint"@en ;
+  rdfs:comment "Constraint on place marking (max tokens allowed)."@en ;
+  rdfs:domain chatman:Place ;
+  rdfs:range xsd:positiveInteger ;
+  rdfs:isDefinedBy <https://ontology.chatmangpt.com/process> .
+
+# ============================================================================
+# METADATA AND DOCUMENTATION
+# ============================================================================
+
+dc:date a owl:AnnotationProperty .
+dc:creator a owl:AnnotationProperty .
+dc:issued a owl:AnnotationProperty .
+
+# ============================================================================
+# END OF PROCESS ONTOLOGY
+# ============================================================================

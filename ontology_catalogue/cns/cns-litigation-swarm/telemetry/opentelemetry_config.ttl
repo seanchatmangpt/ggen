@@ -1,0 +1,196 @@
+# OpenTelemetry Configuration for CNS Litigation Swarm
+@prefix cns: <http://cns.litigation/ontology#> .
+@prefix otel: <http://opentelemetry.io/ontology#> .
+@prefix yawl: <http://yawlwms.org/ontology#> .
+
+# OpenTelemetry Tracing Configuration
+otel:CNSLitigationTracer a otel:Tracer ;
+    otel:name "cns-litigation-swarm" ;
+    otel:version "1.0.0" ;
+    otel:schema_url "https://opentelemetry.io/schemas/1.21.0" .
+
+# Span Configuration for DAG Node Execution
+otel:DAGNodeSpan a otel:SpanKind ;
+    otel:name "dag.node.execution" ;
+    otel:attributes [
+        otel:dag_iri ?dag_iri ;
+        otel:node_type ?node_type ;
+        otel:jurisdiction ?jurisdiction ;
+        otel:filing_type ?filing_type ;
+        otel:progress_tick ?progress_tick ;
+        otel:agent_source ?agent_id ;
+        otel:file_path ?file_path ;
+        otel:task_id ?task_id ;
+        otel:workflow_pattern ?yawl_pattern ;
+        otel:contradiction_detected ?contradiction_flag ;
+        otel:evidence_hash ?evidence_hash ;
+        otel:iri_reference ?signed_iri
+    ] .
+
+# Span Configuration for Contradiction Points
+otel:ContradictionSpan a otel:SpanKind ;
+    otel:name "contradiction.detection" ;
+    otel:attributes [
+        otel:contradiction_type ?type ;
+        otel:opposing_counsel ?entity ;
+        otel:original_position ?original ;
+        otel:contradicting_position ?contradiction ;
+        otel:evidence_source ?evidence ;
+        otel:timestamp ?detection_time ;
+        otel:confidence_score ?confidence ;
+        otel:agent_detector ?detecting_agent
+    ] .
+
+# Span Configuration for Submission Traces
+otel:SubmissionSpan a otel:SpanKind ;
+    otel:name "filing.submission" ;
+    otel:attributes [
+        otel:submission_method ?method ;
+        otel:jurisdiction_target ?jurisdiction ;
+        otel:form_type ?form ;
+        otel:submission_timestamp ?timestamp ;
+        otel:confirmation_number ?confirmation ;
+        otel:file_hash ?hash ;
+        otel:user_action ?ui_action ;
+        otel:copy_button_pressed ?copy_pressed ;
+        otel:submit_button_pressed ?submit_pressed
+    ] .
+
+# UI Interaction Spans
+otel:UIInteractionSpan a otel:SpanKind ;
+    otel:name "ui.interaction" ;
+    otel:attributes [
+        otel:interaction_type ?type ;  # "copy", "submit", "reminder_dismiss"
+        otel:element_id ?element ;
+        otel:timestamp ?timestamp ;
+        otel:user_agent ?user_agent ;
+        otel:screen_coordinates ?coordinates ;
+        otel:form_data_hash ?form_hash ;
+        otel:session_id ?session
+    ] .
+
+# Reminder and Calendar Integration Spans
+otel:ReminderSpan a otel:SpanKind ;
+    otel:name "reminder.state_change" ;
+    otel:attributes [
+        otel:reminder_type ?type ;  # "calendar", "icloud_push", "notification"
+        otel:reminder_content ?content ;
+        otel:due_date ?due_date ;
+        otel:completion_status ?status ;
+        otel:delta_detection ?delta ;
+        otel:activity_type ?activity ;
+        otel:macos_integration ?macos_event ;
+        otel:ios_sync ?ios_sync
+    ] .
+
+# Evidence Compilation Spans
+otel:EvidenceSpan a otel:SpanKind ;
+    otel:name "evidence.compilation" ;
+    otel:attributes [
+        otel:evidence_type ?type ;  # "email", "contract", "recording", "document"
+        otel:evidence_hash ?hash ;
+        otel:evidence_source ?source ;
+        otel:annotation_added ?annotation ;
+        otel:metadata_extracted ?metadata ;
+        otel:digest_bundle_id ?bundle_id ;
+        otel:iri_signature ?signed_iri ;
+        otel:agent_compiler ?compiling_agent
+    ] .
+
+# Audit Trail Spans  
+otel:AuditSpan a otel:SpanKind ;
+    otel:name "audit.trail" ;
+    otel:attributes [
+        otel:file_output_type ?output_type ;  # "PDF", "TTL", "YAWL.TTL"
+        otel:file_hash ?file_hash ;
+        otel:iri_reference ?iri ;
+        otel:agent_source ?agent_id ;
+        otel:generation_timestamp ?timestamp ;
+        otel:file_path ?path ;
+        otel:integrity_check ?integrity ;
+        otel:digital_signature ?signature
+    ] .
+
+# Ultrathink Behavioral Stabilizer Spans
+otel:UltrathinkSpan a otel:SpanKind ;
+    otel:name "ultrathink.stabilizer" ;
+    otel:attributes [
+        otel:cognitive_profile "DISC_99_80_40_40" ;
+        otel:directional_focus ?focus_score ;
+        otel:distraction_detected ?distraction_flag ;
+        otel:off_task_state ?off_task ;
+        otel:missed_reminder ?missed_reminder ;
+        otel:unpressed_button ?unpressed_button ;
+        otel:cognitive_divergence ?divergence_score ;
+        otel:entropy_calculation ?entropy ;
+        otel:task_scoring ?anti_distraction_score
+    ] .
+
+# Agent Performance Monitoring Spans
+otel:AgentPerformanceSpan a otel:SpanKind ;
+    otel:name "agent.performance" ;
+    otel:attributes [
+        otel:agent_id ?agent_id ;
+        otel:agent_type ?agent_type ;
+        otel:task_completion_time ?completion_time ;
+        otel:loop_stall_detected ?stall_flag ;
+        otel:tick_usage ?tick_count ;
+        otel:memory_coordination ?memory_ops ;
+        otel:decision_quality ?decision_score ;
+        otel:workflow_pattern_compliance ?pattern_compliance
+    ] .
+
+# Cross-Agent Coordination Spans
+otel:CoordinationSpan a otel:SpanKind ;
+    otel:name "agent.coordination" ;
+    otel:attributes [
+        otel:coordination_type ?type ;  # "memory_share", "task_handoff", "decision_sync"
+        otel:source_agent ?source ;
+        otel:target_agent ?target ;
+        otel:coordination_data ?data_hash ;
+        otel:ttl_graph_update ?graph_update ;
+        otel:declarative_logic ?logic_applied ;
+        otel:state_transformation ?state_change
+    ] .
+
+# YAWL Workflow Pattern Execution Spans
+otel:WorkflowPatternSpan a otel:SpanKind ;
+    otel:name "yawl.pattern.execution" ;
+    otel:attributes [
+        otel:pattern_number ?pattern_num ;  # 1-43 (Van der Aalst)
+        otel:pattern_name ?pattern_name ;
+        otel:execution_context ?context ;
+        otel:branching_condition ?condition ;
+        otel:synchronization_point ?sync_point ;
+        otel:cycle_iteration ?iteration ;
+        otel:instance_count ?instances ;
+        otel:pattern_completion ?completion_status
+    ] .
+
+# ttl2gspy Integration Configuration
+cns:TTL2GSPYIntegration a cns:GraphVisualization ;
+    cns:exploration_tool "ttl2gspy" ;
+    cns:graph_labels [
+        cns:jurisdiction ?jurisdiction ;
+        cns:filing_type ?filing_type ;
+        cns:targeted_entity ?entity ;
+        cns:progress_tick ?tick ;
+        cns:dag_iri ?dag_iri ;
+        cns:file_path ?file_path
+    ] ;
+    cns:span_correlation otel:span_id ;
+    cns:ttl_export_format "turtle" ;
+    cns:graph_query_endpoint "http://localhost:8080/sparql" .
+
+# Metric Configuration
+otel:CNSMetrics a otel:MeterProvider ;
+    otel:meters [
+        otel:litigation_success_rate "Counter of successful filings" ;
+        otel:jurisdiction_response_time "Histogram of response times" ;
+        otel:contradiction_detection_rate "Rate of contradiction detection" ;
+        otel:evidence_compilation_time "Time to compile evidence bundles" ;
+        otel:ultrathink_stabilization_events "Count of cognitive stabilization events" ;
+        otel:agent_coordination_efficiency "Efficiency of cross-agent coordination" ;
+        otel:workflow_pattern_usage "Usage frequency of YAWL patterns" ;
+        otel:ui_interaction_completion_rate "Rate of completed UI interactions"
+    ] .

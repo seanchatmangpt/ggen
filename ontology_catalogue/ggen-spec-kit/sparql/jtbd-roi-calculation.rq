@@ -1,0 +1,142 @@
+# ============================================================================
+# JTBD Query: ROI Calculation for Features
+# ============================================================================
+# Purpose: Calculate return on investment for features based on JTBD metrics.
+#          Combines outcome achievement, adoption rates, satisfaction improvement,
+#          painpoint resolution, and development costs to compute feature ROI.
+#
+# Output: Features with ROI score, cost/benefit analysis, investment recommendation
+# Use: Budget allocation, feature prioritization, deprecation decisions, reporting
+#
+# Example Output:
+# Feature             | Cost    | Adoption | Satisfaction Δ | Outcomes | Painpoints | ROI Score | Recommendation
+# Auto-dependency mgr | $45K    | 87%      | +4.7          | 3        | 2          | 9.2       | Expand
+# OTEL wizard         | $78K    | 45%      | +1.9          | 2        | 1          | 5.8       | Iterate
+# Security scanner    | $32K    | 92%      | +5.0          | 4        | 3          | 9.8       | Expand
+# Test parallelizer   | $56K    | 68%      | +3.3          | 2        | 1          | 7.4       | Optimize
+# Legacy formatter    | $12K    | 15%      | -0.5          | 0        | 0          | 2.1       | Deprecate
+# ============================================================================
+
+PREFIX jtbd: <http://github.com/github/spec-kit/jtbd#>
+PREFIX sk: <http://github.com/github/spec-kit#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT
+  ?featureName
+  ?featureDescription
+  ?featureStatus
+  ?developmentCost
+  ?maintenanceCost
+  ?totalCost
+  ?adoptionRate
+  ?usageFrequency
+  ?activeUsers
+  ?satisfactionBefore
+  ?satisfactionAfter
+  (?satisfactionAfter - ?satisfactionBefore AS ?satisfactionImprovement)
+  (COUNT(DISTINCT ?outcome) AS ?outcomesEnabled)
+  (COUNT(DISTINCT ?painpoint) AS ?painpointsResolved)
+  (COUNT(DISTINCT ?persona) AS ?personasServed)
+  ?avgTimeToValue
+  ?completionRateImprovement
+  ?revenueImpact
+  ?costSavings
+  # ROI Formula: (Benefit - Cost) / Cost * 100
+  # Benefit = (adoptionRate/100 * activeUsers * (satisfactionImprovement * 10 + costSavings/1000))
+  ((((?adoptionRate / 100.0) * ?activeUsers *
+     ((?satisfactionAfter - ?satisfactionBefore) * 10.0 + COALESCE(?costSavings, 0) / 1000.0) +
+     COALESCE(?revenueImpact, 0)) - ?totalCost) / NULLIF(?totalCost, 0) * 100.0
+   AS ?roiPercent)
+  # ROI Score (0-10 scale for easier comparison)
+  (LEAST(10.0, (?adoptionRate / 10.0) * 0.3 +
+               ((?satisfactionAfter - ?satisfactionBefore) + 5.0) * 0.3 +
+               (LEAST(5, ?outcomesEnabled) * 2.0) * 0.2 +
+               (LEAST(5, ?painpointsResolved) * 2.0) * 0.2) AS ?roiScore)
+  (IF(?roiScore >= 8.5 && ?adoptionRate >= 75, "Expand - High ROI & Adoption",
+      IF(?roiScore >= 7.0 && ?adoptionRate >= 50, "Optimize - Good ROI",
+         IF(?roiScore >= 5.0 && ?adoptionRate >= 25, "Iterate - Moderate ROI",
+            IF(?roiScore >= 3.0, "Reconsider - Low ROI",
+               "Deprecate - Negative ROI")))) AS ?investmentRecommendation)
+  ?paybackPeriod
+  ?paybackPeriodUnit
+  (IF(?roiScore >= 7.0, "High Value",
+      IF(?roiScore >= 5.0, "Medium Value",
+         "Low Value")) AS ?valueCategory)
+  ?dateRangeStart
+  ?dateRangeEnd
+WHERE {
+  # All features
+  ?feature a sk:Feature ;
+           sk:featureName ?featureName .
+
+  OPTIONAL { ?feature sk:featureDescription ?featureDescription }
+  OPTIONAL { ?feature sk:featureStatus ?featureStatus }
+
+  # Cost metrics
+  OPTIONAL { ?feature sk:developmentCost ?developmentCost }
+  OPTIONAL { ?feature sk:maintenanceCost ?maintenanceCost }
+  BIND((COALESCE(?developmentCost, 0) + COALESCE(?maintenanceCost, 0)) AS ?totalCost)
+
+  # Adoption and usage metrics
+  OPTIONAL { ?feature sk:adoptionRate ?adoptionRate }
+  OPTIONAL { ?feature sk:usageFrequency ?usageFrequency }
+  OPTIONAL { ?feature sk:activeUsers ?activeUsers }
+
+  # Satisfaction metrics (before/after feature)
+  OPTIONAL { ?feature sk:satisfactionBefore ?satisfactionBefore }
+  OPTIONAL { ?feature sk:satisfactionAfter ?satisfactionAfter }
+
+  # Outcomes enabled by this feature
+  OPTIONAL {
+    ?feature jtbd:enablesOutcome ?outcome .
+  }
+
+  # Painpoints resolved by this feature
+  OPTIONAL {
+    ?feature jtbd:addressesPainpoint ?painpoint .
+  }
+
+  # Personas served
+  OPTIONAL {
+    ?feature jtbd:targetsSegment ?segment .
+    ?segment jtbd:hasPersona ?persona .
+  }
+
+  # Time-to-value metric
+  OPTIONAL { ?feature sk:avgTimeToValue ?avgTimeToValue }
+
+  # Completion rate improvement
+  OPTIONAL { ?feature sk:completionRateImprovement ?completionRateImprovement }
+
+  # Financial impact
+  OPTIONAL { ?feature sk:revenueImpact ?revenueImpact }
+  OPTIONAL { ?feature sk:costSavings ?costSavings }
+
+  # Payback period
+  OPTIONAL {
+    ?feature sk:paybackPeriod ?paybackPeriod ;
+             sk:paybackPeriodUnit ?paybackPeriodUnit .
+  }
+
+  # Date range filtering
+  OPTIONAL { ?feature sk:metricsDateStart ?dateRangeStart }
+  OPTIONAL { ?feature sk:metricsDateEnd ?dateRangeEnd }
+
+  # Default values for calculations
+  BIND(COALESCE(?adoptionRate, 0.0) AS ?adoptionRate)
+  BIND(COALESCE(?activeUsers, 100) AS ?activeUsers)
+  BIND(COALESCE(?satisfactionBefore, 5.0) AS ?satisfactionBefore)
+  BIND(COALESCE(?satisfactionAfter, 5.0) AS ?satisfactionAfter)
+  BIND(COALESCE(?totalCost, 1.0) AS ?totalCost)
+
+  # Filter out features with no cost data (prevents division by zero)
+  FILTER(?totalCost > 0)
+}
+GROUP BY ?featureName ?featureDescription ?featureStatus
+         ?developmentCost ?maintenanceCost ?totalCost
+         ?adoptionRate ?usageFrequency ?activeUsers
+         ?satisfactionBefore ?satisfactionAfter
+         ?avgTimeToValue ?completionRateImprovement
+         ?revenueImpact ?costSavings ?paybackPeriod ?paybackPeriodUnit
+         ?dateRangeStart ?dateRangeEnd
+ORDER BY DESC(?roiScore) DESC(?adoptionRate) ?featureName

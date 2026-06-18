@@ -1,0 +1,60 @@
+# Round 4 WD §29 — SHACL shapes for the trusted-keys directory.
+#
+# Validates entries materialized into RDF when `onto_attestation_rotate_keys`
+# loads a fresh `OPEN_ONTOLOGIES_TRUSTED_KEYS_DIR`. Every loaded key MUST:
+#   - have a fingerprint (`attest:fingerprint`) that is a 16-char lowercase
+#     hex string,
+#   - have a non-empty `attest:pem` body that begins with the
+#     SubjectPublicKeyInfo header,
+#   - have an `attest:added_at` xsd:dateTime stamp.
+#
+# Rotation refuses to swap if any loaded entry violates these shapes —
+# §29 retirement closure means a misconfigured trust dir must NOT silently
+# downgrade A10 to "trust nothing".
+
+@prefix sh:     <http://www.w3.org/ns/shacl#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix attest: <urn:ontostar:attestation:> .
+
+attest:TrustedKeyShape
+    a sh:NodeShape ;
+    rdfs:label "TrustedKey shape (Round 4 WD §29)" ;
+    sh:targetClass attest:TrustedKey ;
+
+    sh:property [
+        sh:path attest:fingerprint ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        # 16 lowercase hex chars (8 bytes BLAKE3 prefix, hex-encoded).
+        sh:pattern "^[0-9a-f]{16}$" ;
+        sh:message "fingerprint must be 16 lowercase hex chars (8-byte BLAKE3 prefix)" ;
+    ] ;
+
+    sh:property [
+        sh:path attest:pem ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:pattern "^-----BEGIN PUBLIC KEY-----" ;
+        sh:message "pem must be a non-empty SubjectPublicKeyInfo PEM block" ;
+    ] ;
+
+    sh:property [
+        sh:path attest:added_at ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "added_at must be an xsd:dateTime stamp" ;
+    ] ;
+
+    sh:property [
+        sh:path attest:status ;
+        sh:datatype xsd:string ;
+        sh:in ( "active" "retired" ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "status must be 'active' or 'retired'" ;
+    ] .

@@ -1,0 +1,770 @@
+@prefix : <http://bitflow.ai/ontology/patterns#> .
+@prefix wp: <http://bitflow.ai/ontology/workflow-patterns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix yawl: <http://bitflow.ai/ontology/yawl/v2#> .
+@prefix perf: <http://bitflow.ai/ontology/performance#> .
+@prefix sparql: <http://bitflow.ai/sparql/patterns#> .
+
+# ========================================
+# Workflow Patterns Ontology v1.0 for Bitflow
+# Complete Definition of 43 Workflow Patterns
+# ========================================
+
+<http://bitflow.ai/ontology/workflow-patterns> a owl:Ontology ;
+    rdfs:label "Workflow Patterns Ontology v1.0" ;
+    rdfs:comment "Complete semantic definition of all 43 workflow patterns with performance hints and SHACL constraints" ;
+    owl:versionInfo "1.0" ;
+    rdfs:seeAlso <http://www.workflowpatterns.com/> ;
+    rdfs:seeAlso <https://www.yawlfoundation.org/> .
+
+# ========================================
+# Pattern Categories
+# ========================================
+
+:PatternCategory a owl:Class ;
+    rdfs:label "Pattern Category" ;
+    rdfs:comment "Category grouping for workflow patterns" .
+
+:BasicControl a :PatternCategory ;
+    rdfs:label "Basic Control Flow Patterns" ;
+    rdfs:comment "Fundamental patterns for process control" .
+
+:AdvancedBranching a :PatternCategory ;
+    rdfs:label "Advanced Branching and Synchronization" ;
+    rdfs:comment "Complex split and join patterns" .
+
+:MultipleInstance a :PatternCategory ;
+    rdfs:label "Multiple Instance Patterns" ;
+    rdfs:comment "Patterns for handling multiple instances" .
+
+:StateBased a :PatternCategory ;
+    rdfs:label "State-based Patterns" ;
+    rdfs:comment "Patterns based on process state" .
+
+:Cancellation a :PatternCategory ;
+    rdfs:label "Cancellation and Force Completion" ;
+    rdfs:comment "Patterns for process cancellation" .
+
+:Triggering a :PatternCategory ;
+    rdfs:label "Trigger Patterns" ;
+    rdfs:comment "Event-based triggering patterns" .
+
+# ========================================
+# Base Pattern Class
+# ========================================
+
+:WorkflowPattern a owl:Class ;
+    rdfs:subClassOf yawl:Task ;
+    rdfs:label "Workflow Pattern" ;
+    rdfs:comment "Abstract base class for all workflow patterns" .
+
+# Pattern Properties
+:patternID a owl:DatatypeProperty ;
+    rdfs:domain :WorkflowPattern ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Pattern ID" ;
+    rdfs:comment "Unique identifier for the pattern (1-43)" .
+
+:patternCategory a owl:ObjectProperty ;
+    rdfs:domain :WorkflowPattern ;
+    rdfs:range :PatternCategory ;
+    rdfs:label "Pattern Category" .
+
+:hasImplementationHint a owl:DatatypeProperty ;
+    rdfs:domain :WorkflowPattern ;
+    rdfs:range xsd:string ;
+    rdfs:label "Implementation Hint" ;
+    rdfs:comment "Performance and implementation guidance" .
+
+:supportsSIMD a owl:DatatypeProperty ;
+    rdfs:domain :WorkflowPattern ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Supports SIMD" ;
+    rdfs:comment "Whether pattern can leverage SIMD instructions" .
+
+:averageExecutionTicks a owl:DatatypeProperty ;
+    rdfs:domain :WorkflowPattern ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Average Execution Ticks" ;
+    rdfs:comment "Typical CPU ticks for pattern execution" .
+
+# ========================================
+# CATEGORY 1: Basic Control Flow Patterns (1-5)
+# ========================================
+
+# Pattern 1: Sequence
+:SequencePattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 1: Sequence" ;
+    rdfs:comment "Sequential execution of activities" ;
+    :patternID 1 ;
+    :patternCategory :BasicControl ;
+    :averageExecutionTicks 1 ;
+    :supportsSIMD false ;
+    :hasImplementationHint "Direct flow transition, zero overhead" .
+
+# Pattern 2: Parallel Split
+:ParallelSplitPattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 2: Parallel Split (AND-split)" ;
+    rdfs:comment "Splits execution into multiple parallel branches" ;
+    :patternID 2 ;
+    :patternCategory :BasicControl ;
+    :averageExecutionTicks 2 ;
+    :supportsSIMD true ;
+    :hasImplementationHint "Use SIMD for parallel branch initialization" ;
+    yawl:hasSplitType yawl:AND .
+
+# Pattern 3: Synchronization
+:SynchronizationPattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 3: Synchronization (AND-join)" ;
+    rdfs:comment "Synchronizes multiple parallel branches" ;
+    :patternID 3 ;
+    :patternCategory :BasicControl ;
+    :averageExecutionTicks 3 ;
+    :supportsSIMD true ;
+    :hasImplementationHint "Atomic counter for branch tracking" ;
+    yawl:hasJoinType yawl:AND .
+
+# Pattern 4: Exclusive Choice
+:ExclusiveChoicePattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 4: Exclusive Choice (XOR-split)" ;
+    rdfs:comment "Selects one branch from multiple alternatives" ;
+    :patternID 4 ;
+    :patternCategory :BasicControl ;
+    :averageExecutionTicks 2 ;
+    :supportsSIMD false ;
+    :hasImplementationHint "Branch prediction optimization" ;
+    yawl:hasSplitType yawl:XOR .
+
+# Pattern 5: Simple Merge
+:SimpleMergePattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 5: Simple Merge (XOR-join)" ;
+    rdfs:comment "Merges alternative branches without synchronization" ;
+    :patternID 5 ;
+    :patternCategory :BasicControl ;
+    :averageExecutionTicks 1 ;
+    :supportsSIMD false ;
+    :hasImplementationHint "Direct flow merge, no waiting" ;
+    yawl:hasJoinType yawl:XOR .
+
+# ========================================
+# CATEGORY 2: Advanced Branching and Synchronization (6-13)
+# ========================================
+
+# Pattern 6: Multi-Choice
+:MultiChoicePattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 6: Multi-Choice (OR-split)" ;
+    rdfs:comment "Selects one or more branches based on conditions" ;
+    :patternID 6 ;
+    :patternCategory :AdvancedBranching ;
+    :averageExecutionTicks 3 ;
+    :supportsSIMD true ;
+    :hasImplementationHint "Bitmap for branch selection" ;
+    yawl:hasSplitType yawl:OR .
+
+# Pattern 7: Structured Synchronizing Merge
+:StructuredSyncMergePattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 7: Structured Synchronizing Merge" ;
+    rdfs:comment "Merges paths that diverged from same OR-split" ;
+    :patternID 7 ;
+    :patternCategory :AdvancedBranching ;
+    :averageExecutionTicks 4 ;
+    :supportsSIMD false ;
+    :hasImplementationHint "Track split context for proper sync" .
+
+# Pattern 8: Multi-Merge
+:MultiMergePattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 8: Multi-Merge" ;
+    rdfs:comment "Allows activity execution for each incoming branch" ;
+    :patternID 8 ;
+    :patternCategory :AdvancedBranching ;
+    :averageExecutionTicks 2 ;
+    :supportsSIMD false ;
+    :hasImplementationHint "Queue incoming tokens" .
+
+# Pattern 9: Structured Discriminator
+:StructuredDiscriminatorPattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 9: Structured Discriminator" ;
+    rdfs:comment "Waits for first incoming branch then cancels others" ;
+    :patternID 9 ;
+    :patternCategory :AdvancedBranching ;
+    :averageExecutionTicks 3 ;
+    :supportsSIMD false ;
+    :hasImplementationHint "Atomic first-arrival detection" .
+
+# Pattern 10: Arbitrary Cycles
+:ArbitraryCyclesPattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 10: Arbitrary Cycles" ;
+    rdfs:comment "Supports loops in workflow graph" ;
+    :patternID 10 ;
+    :patternCategory :AdvancedBranching ;
+    :averageExecutionTicks 2 ;
+    :supportsSIMD false ;
+    :hasImplementationHint "Loop counter with overflow protection" .
+
+# Pattern 11: Implicit Termination
+:ImplicitTerminationPattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 11: Implicit Termination" ;
+    rdfs:comment "Process ends when no activities can execute" ;
+    :patternID 11 ;
+    :patternCategory :AdvancedBranching ;
+    :averageExecutionTicks 4 ;
+    :supportsSIMD false ;
+    :hasImplementationHint "Global activity counter" .
+
+# Pattern 12: Multiple Instances without Synchronization
+:MIWithoutSyncPattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 12: MI without Synchronization" ;
+    rdfs:comment "Creates instances without waiting for completion" ;
+    :patternID 12 ;
+    :patternCategory :AdvancedBranching ;
+    :averageExecutionTicks 2 ;
+    :supportsSIMD true ;
+    :hasImplementationHint "Fire-and-forget spawning" .
+
+# Pattern 13: Multiple Instances with a priori Design-Time Knowledge
+:MIAprioriDesignPattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 13: MI with Design-Time Knowledge" ;
+    rdfs:comment "Number of instances known at design time" ;
+    :patternID 13 ;
+    :patternCategory :AdvancedBranching ;
+    :averageExecutionTicks 3 ;
+    :supportsSIMD true ;
+    :hasImplementationHint "Pre-allocated instance pool" .
+
+# ========================================
+# CATEGORY 3: Multiple Instance Patterns (14-21)
+# ========================================
+
+# Pattern 14: Multiple Instances with a priori Run-Time Knowledge
+:MIAprioriRuntimePattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 14: MI with Run-Time Knowledge" ;
+    rdfs:comment "Number of instances known at runtime" ;
+    :patternID 14 ;
+    :patternCategory :MultipleInstance ;
+    :averageExecutionTicks 4 ;
+    :supportsSIMD true ;
+    :hasImplementationHint "Dynamic instance allocation" .
+
+# Pattern 15: Multiple Instances without a priori Run-Time Knowledge
+:MINoAprioriPattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 15: MI without Run-Time Knowledge" ;
+    rdfs:comment "Dynamic instance creation during execution" ;
+    :patternID 15 ;
+    :patternCategory :MultipleInstance ;
+    :averageExecutionTicks 5 ;
+    :supportsSIMD false ;
+    :hasImplementationHint "Growing instance pool" .
+
+# Pattern 16: Deferred Choice
+:DeferredChoicePattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 16: Deferred Choice" ;
+    rdfs:comment "Choice made by environment, not process" ;
+    :patternID 16 ;
+    :patternCategory :MultipleInstance ;
+    :averageExecutionTicks 3 ;
+    :supportsSIMD false ;
+    :hasImplementationHint "Event-driven branch selection" .
+
+# Pattern 17: Interleaved Parallel Routing
+:InterleavedParallelPattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 17: Interleaved Parallel Routing" ;
+    rdfs:comment "Parallel execution with shared resources" ;
+    :patternID 17 ;
+    :patternCategory :MultipleInstance ;
+    :averageExecutionTicks 6 ;
+    :supportsSIMD false ;
+    :hasImplementationHint "Mutex for resource access" .
+
+# Pattern 18: Milestone
+:MilestonePattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 18: Milestone" ;
+    rdfs:comment "Activity enabled until milestone reached" ;
+    :patternID 18 ;
+    :patternCategory :MultipleInstance ;
+    :averageExecutionTicks 2 ;
+    :supportsSIMD false ;
+    :hasImplementationHint "State flag checking" .
+
+# Pattern 19: Cancel Activity
+:CancelActivityPattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 19: Cancel Activity" ;
+    rdfs:comment "Cancels a running activity" ;
+    :patternID 19 ;
+    :patternCategory :MultipleInstance ;
+    :averageExecutionTicks 2 ;
+    :supportsSIMD false ;
+    :hasImplementationHint "Interrupt flag signaling" .
+
+# Pattern 20: Cancel Case
+:CancelCasePattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 20: Cancel Case" ;
+    rdfs:comment "Cancels entire process instance" ;
+    :patternID 20 ;
+    :patternCategory :MultipleInstance ;
+    :averageExecutionTicks 4 ;
+    :supportsSIMD true ;
+    :hasImplementationHint "Broadcast cancellation signal" .
+
+# Pattern 21: Structured Loop
+:StructuredLoopPattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 21: Structured Loop" ;
+    rdfs:comment "Pre-test or post-test loop construct" ;
+    :patternID 21 ;
+    :patternCategory :MultipleInstance ;
+    :averageExecutionTicks 3 ;
+    :supportsSIMD false ;
+    :hasImplementationHint "Loop counter with condition check" .
+
+# ========================================
+# CATEGORY 4: State-based Patterns (22-27)
+# ========================================
+
+# Pattern 22: Recursion
+:RecursionPattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 22: Recursion" ;
+    rdfs:comment "Activity can invoke itself recursively" ;
+    :patternID 22 ;
+    :patternCategory :StateBased ;
+    :averageExecutionTicks 5 ;
+    :supportsSIMD false ;
+    :hasImplementationHint "Stack depth limit enforcement" .
+
+# Pattern 23: Transient Trigger
+:TransientTriggerPattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 23: Transient Trigger" ;
+    rdfs:comment "Trigger lost if activity not ready" ;
+    :patternID 23 ;
+    :patternCategory :StateBased ;
+    :averageExecutionTicks 1 ;
+    :supportsSIMD false ;
+    :hasImplementationHint "Non-blocking trigger check" .
+
+# Pattern 24: Persistent Trigger
+:PersistentTriggerPattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 24: Persistent Trigger" ;
+    rdfs:comment "Trigger retained until consumed" ;
+    :patternID 24 ;
+    :patternCategory :StateBased ;
+    :averageExecutionTicks 2 ;
+    :supportsSIMD false ;
+    :hasImplementationHint "Trigger queue per activity" .
+
+# Pattern 25: Cancel Region
+:CancelRegionPattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 25: Cancel Region" ;
+    rdfs:comment "Cancels set of activities in region" ;
+    :patternID 25 ;
+    :patternCategory :StateBased ;
+    :averageExecutionTicks 4 ;
+    :supportsSIMD true ;
+    :hasImplementationHint "Region bitmap for bulk cancel" .
+
+# Pattern 26: Cancel Multiple Instance Activity
+:CancelMIActivityPattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 26: Cancel MI Activity" ;
+    rdfs:comment "Cancels all instances of MI activity" ;
+    :patternID 26 ;
+    :patternCategory :StateBased ;
+    :averageExecutionTicks 3 ;
+    :supportsSIMD true ;
+    :hasImplementationHint "Instance list traversal" .
+
+# Pattern 27: Complete Multiple Instance Activity
+:CompleteMIActivityPattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 27: Complete MI Activity" ;
+    rdfs:comment "Forces completion of MI activity" ;
+    :patternID 27 ;
+    :patternCategory :StateBased ;
+    :averageExecutionTicks 3 ;
+    :supportsSIMD true ;
+    :hasImplementationHint "Force completion flag" .
+
+# ========================================
+# CATEGORY 5: Cancellation and Force Completion (28-32)
+# ========================================
+
+# Pattern 28: Blocking Discriminator
+:BlockingDiscriminatorPattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 28: Blocking Discriminator" ;
+    rdfs:comment "Blocks until all branches complete" ;
+    :patternID 28 ;
+    :patternCategory :Cancellation ;
+    :averageExecutionTicks 4 ;
+    :supportsSIMD false ;
+    :hasImplementationHint "Branch completion counter" .
+
+# Pattern 29: Cancelling Discriminator
+:CancellingDiscriminatorPattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 29: Cancelling Discriminator" ;
+    rdfs:comment "Cancels remaining branches after first" ;
+    :patternID 29 ;
+    :patternCategory :Cancellation ;
+    :averageExecutionTicks 3 ;
+    :supportsSIMD true ;
+    :hasImplementationHint "Atomic cancel broadcast" .
+
+# Pattern 30: Structured Partial Join
+:StructuredPartialJoinPattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 30: Structured Partial Join" ;
+    rdfs:comment "Joins N of M branches then cancels rest" ;
+    :patternID 30 ;
+    :patternCategory :Cancellation ;
+    :averageExecutionTicks 4 ;
+    :supportsSIMD true ;
+    :hasImplementationHint "Threshold counter with cancel" .
+
+# Pattern 31: Blocking Partial Join
+:BlockingPartialJoinPattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 31: Blocking Partial Join" ;
+    rdfs:comment "Waits for N of M then blocks rest" ;
+    :patternID 31 ;
+    :patternCategory :Cancellation ;
+    :averageExecutionTicks 5 ;
+    :supportsSIMD false ;
+    :hasImplementationHint "Blocking queue for late arrivals" .
+
+# Pattern 32: Cancelling Partial Join
+:CancellingPartialJoinPattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 32: Cancelling Partial Join" ;
+    rdfs:comment "Joins N of M then cancels rest" ;
+    :patternID 32 ;
+    :patternCategory :Cancellation ;
+    :averageExecutionTicks 4 ;
+    :supportsSIMD true ;
+    :hasImplementationHint "Threshold with immediate cancel" .
+
+# ========================================
+# CATEGORY 6: Trigger Patterns (33-43)
+# ========================================
+
+# Pattern 33: Generalized AND-Join
+:GeneralizedANDJoinPattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 33: Generalized AND-Join" ;
+    rdfs:comment "Waits for all active incoming branches" ;
+    :patternID 33 ;
+    :patternCategory :Triggering ;
+    :averageExecutionTicks 6 ;
+    :supportsSIMD false ;
+    :hasImplementationHint "Dynamic branch tracking" .
+
+# Pattern 34: Static Partial Join for MI
+:StaticPartialJoinMIPattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 34: Static Partial Join for MI" ;
+    rdfs:comment "Joins fixed number of MI instances" ;
+    :patternID 34 ;
+    :patternCategory :Triggering ;
+    :averageExecutionTicks 3 ;
+    :supportsSIMD true ;
+    :hasImplementationHint "Static counter initialization" .
+
+# Pattern 35: Cancelling Partial Join for MI
+:CancellingPartialJoinMIPattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 35: Cancelling Partial Join for MI" ;
+    rdfs:comment "Cancels remaining MI after threshold" ;
+    :patternID 35 ;
+    :patternCategory :Triggering ;
+    :averageExecutionTicks 4 ;
+    :supportsSIMD true ;
+    :hasImplementationHint "MI cancel broadcast" .
+
+# Pattern 36: Dynamic Partial Join for MI
+:DynamicPartialJoinMIPattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 36: Dynamic Partial Join for MI" ;
+    rdfs:comment "Runtime determined MI join threshold" ;
+    :patternID 36 ;
+    :patternCategory :Triggering ;
+    :averageExecutionTicks 5 ;
+    :supportsSIMD false ;
+    :hasImplementationHint "Dynamic threshold evaluation" .
+
+# Pattern 37: Acyclic Synchronizing Merge
+:AcyclicSyncMergePattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 37: Acyclic Synchronizing Merge" ;
+    rdfs:comment "OR-join without cycles" ;
+    :patternID 37 ;
+    :patternCategory :Triggering ;
+    :averageExecutionTicks 4 ;
+    :supportsSIMD false ;
+    :hasImplementationHint "Topological branch analysis" .
+
+# Pattern 38: General Synchronizing Merge
+:GeneralSyncMergePattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 38: General Synchronizing Merge" ;
+    rdfs:comment "Complex OR-join with cycle support" ;
+    :patternID 38 ;
+    :patternCategory :Triggering ;
+    :averageExecutionTicks 7 ;
+    :supportsSIMD false ;
+    :hasImplementationHint "Reachability analysis required" .
+
+# Pattern 39: Critical Section
+:CriticalSectionPattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 39: Critical Section" ;
+    rdfs:comment "Mutual exclusion for shared resources" ;
+    :patternID 39 ;
+    :patternCategory :Triggering ;
+    :averageExecutionTicks 3 ;
+    :supportsSIMD false ;
+    :hasImplementationHint "Lock-free CAS operations" .
+
+# Pattern 40: Interleaved Routing
+:InterleavedRoutingPattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 40: Interleaved Routing" ;
+    rdfs:comment "Sequential execution of parallel segments" ;
+    :patternID 40 ;
+    :patternCategory :Triggering ;
+    :averageExecutionTicks 5 ;
+    :supportsSIMD false ;
+    :hasImplementationHint "Segment queue management" .
+
+# Pattern 41: Thread Merge
+:ThreadMergePattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 41: Thread Merge" ;
+    rdfs:comment "Merges thread of control" ;
+    :patternID 41 ;
+    :patternCategory :Triggering ;
+    :averageExecutionTicks 2 ;
+    :supportsSIMD false ;
+    :hasImplementationHint "Thread ID tracking" .
+
+# Pattern 42: Thread Split
+:ThreadSplitPattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 42: Thread Split" ;
+    rdfs:comment "Splits thread of control" ;
+    :patternID 42 ;
+    :patternCategory :Triggering ;
+    :averageExecutionTicks 2 ;
+    :supportsSIMD true ;
+    :hasImplementationHint "Thread spawning optimization" .
+
+# Pattern 43: Explicit Termination
+:ExplicitTerminationPattern a owl:Class ;
+    rdfs:subClassOf :WorkflowPattern ;
+    rdfs:label "Pattern 43: Explicit Termination" ;
+    rdfs:comment "Defined end point for process" ;
+    :patternID 43 ;
+    :patternCategory :Triggering ;
+    :averageExecutionTicks 1 ;
+    :supportsSIMD false ;
+    :hasImplementationHint "Termination signal broadcast" .
+
+# ========================================
+# SHACL Constraints for Pattern Validation
+# ========================================
+
+:WorkflowPatternShape a sh:NodeShape ;
+    sh:targetClass :WorkflowPattern ;
+    sh:property [
+        sh:path :patternID ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 43 ;
+        sh:message "Pattern ID must be between 1 and 43"
+    ] ;
+    sh:property [
+        sh:path :patternCategory ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every pattern must belong to exactly one category"
+    ] ;
+    sh:property [
+        sh:path :averageExecutionTicks ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 8 ;
+        sh:message "Execution must complete within 8 ticks"
+    ] ;
+    sh:property [
+        sh:path :supportsSIMD ;
+        sh:datatype xsd:boolean ;
+        sh:message "SIMD support must be explicitly specified"
+    ] .
+
+# ========================================
+# Performance Optimization Hints
+# ========================================
+
+:OptimizationHint a owl:Class ;
+    rdfs:label "Optimization Hint" ;
+    rdfs:comment "Performance optimization guidance" .
+
+:ParallelizablePatterns a :OptimizationHint ;
+    rdfs:label "Parallelizable Patterns" ;
+    rdfs:comment "Patterns 2, 3, 6, 12, 13, 14, 20, 25, 26, 27, 29, 30, 32, 34, 35, 42" ;
+    :useSIMD true ;
+    :recommendedOptimization "SIMD vectorization for parallel operations" .
+
+:BranchingPatterns a :OptimizationHint ;
+    rdfs:label "Branching Patterns" ;
+    rdfs:comment "Patterns 4, 5, 6, 7, 16" ;
+    :recommendedOptimization "Branch prediction hints, speculative execution" .
+
+:SynchronizationPatterns a :OptimizationHint ;
+    rdfs:label "Synchronization Patterns" ;
+    rdfs:comment "Patterns 3, 7, 11, 28, 33, 37, 38" ;
+    :recommendedOptimization "Lock-free algorithms, atomic operations" .
+
+:LoopPatterns a :OptimizationHint ;
+    rdfs:label "Loop Patterns" ;
+    rdfs:comment "Patterns 10, 21, 22" ;
+    :recommendedOptimization "Loop unrolling, iterator optimization" .
+
+# ========================================
+# SPARQL Query Templates
+# ========================================
+
+:PatternAnalysisQuery a sparql:QueryTemplate ;
+    rdfs:label "Pattern Analysis Query" ;
+    sparql:queryString """
+        PREFIX : <http://bitflow.ai/ontology/patterns#>
+        PREFIX wp: <http://bitflow.ai/ontology/workflow-patterns#>
+        
+        # Find all patterns in a category
+        SELECT ?pattern ?id ?ticks ?simd
+        WHERE {
+            ?pattern a :WorkflowPattern ;
+                     :patternCategory ?category ;
+                     :patternID ?id ;
+                     :averageExecutionTicks ?ticks ;
+                     :supportsSIMD ?simd .
+            FILTER (?category = :AdvancedBranching)
+        }
+        ORDER BY ?id
+    """ .
+
+:PerformanceOptimizationQuery a sparql:QueryTemplate ;
+    rdfs:label "Performance Optimization Query" ;
+    sparql:queryString """
+        PREFIX : <http://bitflow.ai/ontology/patterns#>
+        
+        # Find patterns suitable for SIMD optimization
+        SELECT ?pattern ?id ?hint
+        WHERE {
+            ?pattern a :WorkflowPattern ;
+                     :patternID ?id ;
+                     :supportsSIMD true ;
+                     :hasImplementationHint ?hint .
+        }
+        ORDER BY ?id
+    """ .
+
+:ComplexityAnalysisQuery a sparql:QueryTemplate ;
+    rdfs:label "Complexity Analysis Query" ;
+    sparql:queryString """
+        PREFIX : <http://bitflow.ai/ontology/patterns#>
+        
+        # Find high-complexity patterns
+        SELECT ?pattern ?id ?ticks ?category
+        WHERE {
+            ?pattern a :WorkflowPattern ;
+                     :patternID ?id ;
+                     :averageExecutionTicks ?ticks ;
+                     :patternCategory ?category .
+            FILTER (?ticks >= 5)
+        }
+        ORDER BY DESC(?ticks)
+    """ .
+
+# ========================================
+# Pattern Relationships and Dependencies
+# ========================================
+
+:dependsOn a owl:ObjectProperty ;
+    rdfs:domain :WorkflowPattern ;
+    rdfs:range :WorkflowPattern ;
+    rdfs:label "depends on" ;
+    rdfs:comment "Pattern execution dependency" .
+
+:incompatibleWith a owl:ObjectProperty ;
+    rdfs:domain :WorkflowPattern ;
+    rdfs:range :WorkflowPattern ;
+    rdfs:label "incompatible with" ;
+    rdfs:comment "Patterns that cannot coexist" .
+
+:canCombineWith a owl:ObjectProperty ;
+    rdfs:domain :WorkflowPattern ;
+    rdfs:range :WorkflowPattern ;
+    rdfs:label "can combine with" ;
+    rdfs:comment "Patterns that work well together" .
+
+# Example relationships
+:StructuredSyncMergePattern :dependsOn :MultiChoicePattern .
+:ExclusiveChoicePattern :incompatibleWith :ParallelSplitPattern .
+:ParallelSplitPattern :canCombineWith :SynchronizationPattern .
+
+# ========================================
+# Telemetry and Monitoring Extensions
+# ========================================
+
+:PatternMetrics a owl:Class ;
+    rdfs:label "Pattern Metrics" ;
+    rdfs:comment "Runtime metrics for pattern execution" .
+
+:executionCount a owl:DatatypeProperty ;
+    rdfs:domain :PatternMetrics ;
+    rdfs:range xsd:integer ;
+    rdfs:label "execution count" .
+
+:averageLatency a owl:DatatypeProperty ;
+    rdfs:domain :PatternMetrics ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "average latency" ;
+    rdfs:comment "Average execution time in microseconds" .
+
+:successRate a owl:DatatypeProperty ;
+    rdfs:domain :PatternMetrics ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "success rate" ;
+    rdfs:comment "Percentage of successful executions" .
+
+:lastExecutionHash a owl:DatatypeProperty ;
+    rdfs:domain :PatternMetrics ;
+    rdfs:range xsd:string ;
+    rdfs:label "last execution hash" ;
+    rdfs:comment "Blake3 hash of last execution" .

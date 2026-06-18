@@ -1,0 +1,23 @@
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Sample data for query testing
+ex:person1 rdf:type foaf:Person ;
+           foaf:name "John Doe" ;
+           foaf:age 30 ;
+           foaf:email "john@example.org" .
+
+ex:person2 rdf:type foaf:Person ;
+           foaf:name "Jane Smith" ;
+           foaf:age 25 ;
+           foaf:email "jane@example.org" .
+
+ex:company1 rdf:type ex:Organization ;
+            ex:name "Example Corp" ;
+            ex:employee ex:person1, ex:person2 .
+
+ex:document1 rdf:type ex:Document ;
+             ex:title "Query Engine Design" ;
+             ex:author ex:person1 ;
+             ex:publishedYear 2024 .

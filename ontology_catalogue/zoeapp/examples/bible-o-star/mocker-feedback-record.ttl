@@ -1,0 +1,25 @@
+@prefix bos: <http://bible.o.star/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<urn:ostar:mocker-feedback-section> a bos:WallSection ;
+    bos:gateAssignment bos:SheepGate ;
+    bos:builderName bos:Tobiah ;
+    bos:provenance bos:Nehemiah_4_3 ;
+    bos:verdict bos:Verdict_MockeryLogged ;
+    bos:receiptRelation <urn:ostar:receipt:mockery-001> .
+
+bos:SheepGate a bos:Gate ;
+    rdfs:label "Sheep Gate" .
+
+bos:Tobiah a bos:Mocker ;
+    rdfs:label "Tobiah the Ammonite" .
+
+bos:Nehemiah_4_3 a bos:NationsLedger ;
+    rdfs:label "Nehemiah 4:3" .
+
+bos:Verdict_MockeryLogged a bos:InspectionVerdict ;
+    rdfs:label "Adversarial Signal Logged" .
+
+<urn:ostar:receipt:mockery-001> a bos:Receipt ;
+    rdfs:label "Mockery Audit Receipt #001" .

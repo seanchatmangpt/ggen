@@ -1,0 +1,421 @@
+# SPARQL Query: Dataset Lineage with Quality Metrics
+#
+# Purpose: Trace dataset lineage combined with quality measurements at each node
+# Enables impact analysis: "If source quality degrades, what datasets are affected?"
+#
+# Input Parameters:
+#   - datasetUri: Full URI of the dataset (e.g., https://businessos.local/datasets/finance/revenue-report)
+#   - minQualityScore: Minimum quality threshold (0-1, default 0.5)
+#
+# Output Columns:
+#   - level: Depth in lineage chain
+#   - datasetUri: URI of dataset
+#   - datasetLabel: Label
+#   - qualityScore: Overall quality measurement (0-1)
+#   - accuracy: Accuracy dimension (0-1, how correct is the data)
+#   - completeness: Completeness dimension (0-1, how many fields are populated)
+#   - timeliness: Timeliness dimension (0-1, how current is the data)
+#   - consistency: Consistency dimension (0-1, how consistent across copies)
+#   - lineageCompleteness: Quality of provenance documentation (0-1)
+#   - qualityStatus: PASS/WARN/FAIL based on threshold
+#   - lastUpdated: Most recent timestamp in lineage
+#
+# Behavior:
+#   - Combines DQV (Data Quality Vocabulary) with PROV-O lineage
+#   - Calculates composite quality as average of dimensions
+#   - Flags datasets below minQualityScore threshold
+#   - Follows 5-level ancestry chain
+#
+# Performance: ~15s timeout (requires DQV triples)
+# Tested: Oxigraph 0.3+ with DQV vocabulary
+
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dqv: <http://www.w3.org/ns/dqv#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT
+  ?level
+  ?datasetUri
+  ?datasetLabel
+  ?qualityScore
+  ?accuracy
+  ?completeness
+  ?timeliness
+  ?consistency
+  ?lineageCompleteness
+  ?qualityStatus
+  ?lastUpdated
+
+WHERE {
+  # STEP 1: Bind starting dataset and quality threshold
+  BIND(<https://businessos.local/datasets/finance/revenue-report> AS ?targetDataset)
+  BIND(0.5 as ?minQualityScore)
+
+  # STEP 2: Gather dataset at level 0 (starting point) with quality metrics
+  {
+    BIND(0 as ?level)
+    BIND(?targetDataset as ?datasetUri)
+    OPTIONAL { ?datasetUri rdfs:label ?datasetLabel }
+    OPTIONAL { ?datasetUri prov:generatedAtTime ?lastUpdated }
+
+    # STEP 3: Retrieve DQV quality measurements
+    # Accuracy: How correct is the data (e.g., matches source)
+    OPTIONAL {
+      ?datasetUri dqv:hasQualityMeasurement ?accuracyMeasure .
+      ?accuracyMeasure dqv:isMeasurementOf dqv:Accuracy ;
+                       dqv:value ?accuracy .
+    }
+    # Completeness: How many fields/records are populated
+    OPTIONAL {
+      ?datasetUri dqv:hasQualityMeasurement ?completenessMeasure .
+      ?completenessMeasure dqv:isMeasurementOf dqv:Completeness ;
+                           dqv:value ?completeness .
+    }
+    # Timeliness: How current is the data
+    OPTIONAL {
+      ?datasetUri dqv:hasQualityMeasurement ?timelinessMeasure .
+      ?timelinessMeasure dqv:isMeasurementOf dqv:Timeliness ;
+                         dqv:value ?timeliness .
+    }
+    # Consistency: How consistent is the data across sources
+    OPTIONAL {
+      ?datasetUri dqv:hasQualityMeasurement ?consistencyMeasure .
+      ?consistencyMeasure dqv:isMeasurementOf dqv:Consistency ;
+                          dqv:value ?consistency .
+    }
+
+    # STEP 4: Lineage completeness (quality of provenance documentation)
+    # Presence of wasGeneratedBy, wasDerivedFrom, attribution
+    BIND(
+      IF(EXISTS { ?datasetUri prov:wasGeneratedBy ?gen } &&
+         EXISTS { ?datasetUri prov:wasDerivedFrom ?der }, 0.9,
+         IF(EXISTS { ?datasetUri prov:wasGeneratedBy ?gen } ||
+            EXISTS { ?datasetUri prov:wasDerivedFrom ?der }, 0.6, 0.3)
+      ) as ?lineageCompleteness
+    )
+
+    # STEP 5: Calculate composite quality score
+    BIND(
+      COALESCE(
+        (
+          (COALESCE(?accuracy, 0.5) +
+           COALESCE(?completeness, 0.5) +
+           COALESCE(?timeliness, 0.5) +
+           COALESCE(?consistency, 0.5) +
+           ?lineageCompleteness) / 5.0
+        ),
+        0.5
+      ) as ?qualityScore
+    )
+
+    # STEP 6: Determine quality status
+    BIND(
+      IF(?qualityScore >= ?minQualityScore, "PASS",
+         IF(?qualityScore >= (?minQualityScore * 0.8), "WARN", "FAIL")
+      ) as ?qualityStatus
+    )
+  }
+  UNION
+  # STEP 7: Level 1 - Direct parents
+  {
+    BIND(1 as ?level)
+    ?targetDataset prov:wasDerivedFrom ?datasetUri .
+    OPTIONAL { ?datasetUri rdfs:label ?datasetLabel }
+    OPTIONAL { ?datasetUri prov:generatedAtTime ?lastUpdated }
+
+    OPTIONAL {
+      ?datasetUri dqv:hasQualityMeasurement ?accuracyMeasure .
+      ?accuracyMeasure dqv:isMeasurementOf dqv:Accuracy ;
+                       dqv:value ?accuracy .
+    }
+    OPTIONAL {
+      ?datasetUri dqv:hasQualityMeasurement ?completenessMeasure .
+      ?completenessMeasure dqv:isMeasurementOf dqv:Completeness ;
+                           dqv:value ?completeness .
+    }
+    OPTIONAL {
+      ?datasetUri dqv:hasQualityMeasurement ?timelinessMeasure .
+      ?timelinessMeasure dqv:isMeasurementOf dqv:Timeliness ;
+                         dqv:value ?timeliness .
+    }
+    OPTIONAL {
+      ?datasetUri dqv:hasQualityMeasurement ?consistencyMeasure .
+      ?consistencyMeasure dqv:isMeasurementOf dqv:Consistency ;
+                          dqv:value ?consistency .
+    }
+
+    BIND(
+      IF(EXISTS { ?datasetUri prov:wasGeneratedBy ?gen } &&
+         EXISTS { ?datasetUri prov:wasDerivedFrom ?der }, 0.9,
+         IF(EXISTS { ?datasetUri prov:wasGeneratedBy ?gen } ||
+            EXISTS { ?datasetUri prov:wasDerivedFrom ?der }, 0.6, 0.3)
+      ) as ?lineageCompleteness
+    )
+
+    BIND(
+      COALESCE(
+        (
+          (COALESCE(?accuracy, 0.5) +
+           COALESCE(?completeness, 0.5) +
+           COALESCE(?timeliness, 0.5) +
+           COALESCE(?consistency, 0.5) +
+           ?lineageCompleteness) / 5.0
+        ),
+        0.5
+      ) as ?qualityScore
+    )
+
+    BIND(
+      IF(?qualityScore >= ?minQualityScore, "PASS",
+         IF(?qualityScore >= (?minQualityScore * 0.8), "WARN", "FAIL")
+      ) as ?qualityStatus
+    )
+  }
+  UNION
+  # STEP 8: Level 2 - Grandparents
+  {
+    BIND(2 as ?level)
+    ?targetDataset prov:wasDerivedFrom ?parent1 .
+    ?parent1 prov:wasDerivedFrom ?datasetUri .
+    FILTER (?datasetUri != ?targetDataset)
+    OPTIONAL { ?datasetUri rdfs:label ?datasetLabel }
+    OPTIONAL { ?datasetUri prov:generatedAtTime ?lastUpdated }
+
+    OPTIONAL {
+      ?datasetUri dqv:hasQualityMeasurement ?accuracyMeasure .
+      ?accuracyMeasure dqv:isMeasurementOf dqv:Accuracy ;
+                       dqv:value ?accuracy .
+    }
+    OPTIONAL {
+      ?datasetUri dqv:hasQualityMeasurement ?completenessMeasure .
+      ?completenessMeasure dqv:isMeasurementOf dqv:Completeness ;
+                           dqv:value ?completeness .
+    }
+    OPTIONAL {
+      ?datasetUri dqv:hasQualityMeasurement ?timelinessMeasure .
+      ?timelinessMeasure dqv:isMeasurementOf dqv:Timeliness ;
+                         dqv:value ?timeliness .
+    }
+    OPTIONAL {
+      ?datasetUri dqv:hasQualityMeasurement ?consistencyMeasure .
+      ?consistencyMeasure dqv:isMeasurementOf dqv:Consistency ;
+                          dqv:value ?consistency .
+    }
+
+    BIND(
+      IF(EXISTS { ?datasetUri prov:wasGeneratedBy ?gen } &&
+         EXISTS { ?datasetUri prov:wasDerivedFrom ?der }, 0.9,
+         IF(EXISTS { ?datasetUri prov:wasGeneratedBy ?gen } ||
+            EXISTS { ?datasetUri prov:wasDerivedFrom ?der }, 0.6, 0.3)
+      ) as ?lineageCompleteness
+    )
+
+    BIND(
+      COALESCE(
+        (
+          (COALESCE(?accuracy, 0.5) +
+           COALESCE(?completeness, 0.5) +
+           COALESCE(?timeliness, 0.5) +
+           COALESCE(?consistency, 0.5) +
+           ?lineageCompleteness) / 5.0
+        ),
+        0.5
+      ) as ?qualityScore
+    )
+
+    BIND(
+      IF(?qualityScore >= ?minQualityScore, "PASS",
+         IF(?qualityScore >= (?minQualityScore * 0.8), "WARN", "FAIL")
+      ) as ?qualityStatus
+    )
+  }
+  UNION
+  # STEP 9: Level 3 - Great-grandparents
+  {
+    BIND(3 as ?level)
+    ?targetDataset prov:wasDerivedFrom ?parent1 .
+    ?parent1 prov:wasDerivedFrom ?parent2 .
+    ?parent2 prov:wasDerivedFrom ?datasetUri .
+    FILTER (?datasetUri != ?targetDataset && ?datasetUri != ?parent1)
+    OPTIONAL { ?datasetUri rdfs:label ?datasetLabel }
+    OPTIONAL { ?datasetUri prov:generatedAtTime ?lastUpdated }
+
+    OPTIONAL {
+      ?datasetUri dqv:hasQualityMeasurement ?accuracyMeasure .
+      ?accuracyMeasure dqv:isMeasurementOf dqv:Accuracy ;
+                       dqv:value ?accuracy .
+    }
+    OPTIONAL {
+      ?datasetUri dqv:hasQualityMeasurement ?completenessMeasure .
+      ?completenessMeasure dqv:isMeasurementOf dqv:Completeness ;
+                           dqv:value ?completeness .
+    }
+    OPTIONAL {
+      ?datasetUri dqv:hasQualityMeasurement ?timelinessMeasure .
+      ?timelinessMeasure dqv:isMeasurementOf dqv:Timeliness ;
+                         dqv:value ?timeliness .
+    }
+    OPTIONAL {
+      ?datasetUri dqv:hasQualityMeasurement ?consistencyMeasure .
+      ?consistencyMeasure dqv:isMeasurementOf dqv:Consistency ;
+                          dqv:value ?consistency .
+    }
+
+    BIND(
+      IF(EXISTS { ?datasetUri prov:wasGeneratedBy ?gen } &&
+         EXISTS { ?datasetUri prov:wasDerivedFrom ?der }, 0.9,
+         IF(EXISTS { ?datasetUri prov:wasGeneratedBy ?gen } ||
+            EXISTS { ?datasetUri prov:wasDerivedFrom ?der }, 0.6, 0.3)
+      ) as ?lineageCompleteness
+    )
+
+    BIND(
+      COALESCE(
+        (
+          (COALESCE(?accuracy, 0.5) +
+           COALESCE(?completeness, 0.5) +
+           COALESCE(?timeliness, 0.5) +
+           COALESCE(?consistency, 0.5) +
+           ?lineageCompleteness) / 5.0
+        ),
+        0.5
+      ) as ?qualityScore
+    )
+
+    BIND(
+      IF(?qualityScore >= ?minQualityScore, "PASS",
+         IF(?qualityScore >= (?minQualityScore * 0.8), "WARN", "FAIL")
+      ) as ?qualityStatus
+    )
+  }
+  UNION
+  # STEP 10: Level 4 and 5 (abbreviated for brevity)
+  {
+    BIND(4 as ?level)
+    ?targetDataset prov:wasDerivedFrom ?parent1 .
+    ?parent1 prov:wasDerivedFrom ?parent2 .
+    ?parent2 prov:wasDerivedFrom ?parent3 .
+    ?parent3 prov:wasDerivedFrom ?datasetUri .
+    FILTER (?datasetUri != ?targetDataset && ?datasetUri != ?parent1 && ?datasetUri != ?parent2)
+    OPTIONAL { ?datasetUri rdfs:label ?datasetLabel }
+    OPTIONAL { ?datasetUri prov:generatedAtTime ?lastUpdated }
+
+    OPTIONAL {
+      ?datasetUri dqv:hasQualityMeasurement ?accuracyMeasure .
+      ?accuracyMeasure dqv:isMeasurementOf dqv:Accuracy ;
+                       dqv:value ?accuracy .
+    }
+    OPTIONAL {
+      ?datasetUri dqv:hasQualityMeasurement ?completenessMeasure .
+      ?completenessMeasure dqv:isMeasurementOf dqv:Completeness ;
+                           dqv:value ?completeness .
+    }
+    OPTIONAL {
+      ?datasetUri dqv:hasQualityMeasurement ?timelinessMeasure .
+      ?timelinessMeasure dqv:isMeasurementOf dqv:Timeliness ;
+                         dqv:value ?timeliness .
+    }
+    OPTIONAL {
+      ?datasetUri dqv:hasQualityMeasurement ?consistencyMeasure .
+      ?consistencyMeasure dqv:isMeasurementOf dqv:Consistency ;
+                          dqv:value ?consistency .
+    }
+
+    BIND(
+      IF(EXISTS { ?datasetUri prov:wasGeneratedBy ?gen } &&
+         EXISTS { ?datasetUri prov:wasDerivedFrom ?der }, 0.9,
+         IF(EXISTS { ?datasetUri prov:wasGeneratedBy ?gen } ||
+            EXISTS { ?datasetUri prov:wasDerivedFrom ?der }, 0.6, 0.3)
+      ) as ?lineageCompleteness
+    )
+
+    BIND(
+      COALESCE(
+        (
+          (COALESCE(?accuracy, 0.5) +
+           COALESCE(?completeness, 0.5) +
+           COALESCE(?timeliness, 0.5) +
+           COALESCE(?consistency, 0.5) +
+           ?lineageCompleteness) / 5.0
+        ),
+        0.5
+      ) as ?qualityScore
+    )
+
+    BIND(
+      IF(?qualityScore >= ?minQualityScore, "PASS",
+         IF(?qualityScore >= (?minQualityScore * 0.8), "WARN", "FAIL")
+      ) as ?qualityStatus
+    )
+  }
+  UNION
+  # STEP 11: Level 5 (maximum depth)
+  {
+    BIND(5 as ?level)
+    ?targetDataset prov:wasDerivedFrom ?parent1 .
+    ?parent1 prov:wasDerivedFrom ?parent2 .
+    ?parent2 prov:wasDerivedFrom ?parent3 .
+    ?parent3 prov:wasDerivedFrom ?parent4 .
+    ?parent4 prov:wasDerivedFrom ?datasetUri .
+    FILTER (?datasetUri != ?targetDataset && ?datasetUri != ?parent1 &&
+            ?datasetUri != ?parent2 && ?datasetUri != ?parent3)
+    OPTIONAL { ?datasetUri rdfs:label ?datasetLabel }
+    OPTIONAL { ?datasetUri prov:generatedAtTime ?lastUpdated }
+
+    OPTIONAL {
+      ?datasetUri dqv:hasQualityMeasurement ?accuracyMeasure .
+      ?accuracyMeasure dqv:isMeasurementOf dqv:Accuracy ;
+                       dqv:value ?accuracy .
+    }
+    OPTIONAL {
+      ?datasetUri dqv:hasQualityMeasurement ?completenessMeasure .
+      ?completenessMeasure dqv:isMeasurementOf dqv:Completeness ;
+                           dqv:value ?completeness .
+    }
+    OPTIONAL {
+      ?datasetUri dqv:hasQualityMeasurement ?timelinessMeasure .
+      ?timelinessMeasure dqv:isMeasurementOf dqv:Timeliness ;
+                         dqv:value ?timeliness .
+    }
+    OPTIONAL {
+      ?datasetUri dqv:hasQualityMeasurement ?consistencyMeasure .
+      ?consistencyMeasure dqv:isMeasurementOf dqv:Consistency ;
+                          dqv:value ?consistency .
+    }
+
+    BIND(
+      IF(EXISTS { ?datasetUri prov:wasGeneratedBy ?gen } &&
+         EXISTS { ?datasetUri prov:wasDerivedFrom ?der }, 0.9,
+         IF(EXISTS { ?datasetUri prov:wasGeneratedBy ?gen } ||
+            EXISTS { ?datasetUri prov:wasDerivedFrom ?der }, 0.6, 0.3)
+      ) as ?lineageCompleteness
+    )
+
+    BIND(
+      COALESCE(
+        (
+          (COALESCE(?accuracy, 0.5) +
+           COALESCE(?completeness, 0.5) +
+           COALESCE(?timeliness, 0.5) +
+           COALESCE(?consistency, 0.5) +
+           ?lineageCompleteness) / 5.0
+        ),
+        0.5
+      ) as ?qualityScore
+    )
+
+    BIND(
+      IF(?qualityScore >= ?minQualityScore, "PASS",
+         IF(?qualityScore >= (?minQualityScore * 0.8), "WARN", "FAIL")
+      ) as ?qualityStatus
+    )
+  }
+}
+
+ORDER BY ?level ?datasetUri
+
+LIMIT 1000

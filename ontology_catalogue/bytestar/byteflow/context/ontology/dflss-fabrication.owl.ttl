@@ -1,0 +1,107 @@
+@prefix : <https://bytestar.org/ontology/byteflow/dflss-fabrication#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+
+<https://bytestar.org/ontology/byteflow/dflss-fabrication>
+  a owl:Ontology ;
+  rdfs:label "ByteFlow DfLSS Fabrication Specification" ;
+  rdfs:comment "Formalizes the Design for Lean Six Sigma (DfLSS) principles as applied to the AOT fabrication process within ByteFlow, ensuring quality, predictability, and security of fabricated artifacts." ;
+  owl:versionInfo "1.0.0" ;
+  owl:imports bcore: .
+
+#################################################################
+# Core DfLSS Fabrication Concepts
+#################################################################
+
+:DesignProposal a owl:Class ;
+  rdfs:label "Design Proposal" ;
+  rdfs:comment "A formal proposal for the design of a new or modified ByteStar component or workflow, subject to DfLSS validation." .
+
+:FMEA a owl:Class ;
+  rdfs:label "Failure Mode and Effects Analysis (FMEA)" ;
+  rdfs:comment "A systematic process for identifying potential failure modes in a design, their causes, and effects." .
+
+:CTQVerification a owl:Class ;
+  rdfs:label "Critical to Quality (CTQ) Verification" ;
+  rdfs:comment "The process of verifying that a design meets its Critical to Quality requirements." .
+
+:RiskPriorityNumber a owl:Class ;
+  rdfs:label "Risk Priority Number (RPN)" ;
+  rdfs:comment "A quantitative measure of risk in FMEA, calculated as Severity x Occurrence x Detection." .
+
+:FabricationValidationResult a owl:Class ;
+  rdfs:label "Fabrication Validation Result" ;
+  rdfs:comment "The outcome of the DfLSS validation process for a design proposal." .
+
+#################################################################
+# DfLSS Fabrication Properties
+#################################################################
+
+:isSubjectToFMEA a owl:ObjectProperty ;
+  rdfs:label "is subject to FMEA" ;
+  rdfs:domain :DesignProposal ;
+  rdfs:range :FMEA ;
+  rdfs:comment "A design proposal must undergo Failure Mode and Effects Analysis." .
+
+:hasCTQVerification a owl:ObjectProperty ;
+  rdfs:label "has CTQ Verification" ;
+  rdfs:domain :DesignProposal ;
+  rdfs:range :CTQVerification ;
+  rdfs:comment "A design proposal must undergo Critical to Quality verification." .
+
+:hasRPN a owl:ObjectProperty ;
+  rdfs:label "has RPN" ;
+  rdfs:domain :FMEA ;
+  rdfs:range :RiskPriorityNumber ;
+  rdfs:comment "An FMEA identifies a Risk Priority Number." .
+
+:rpnValue a owl:DatatypeProperty ;
+  rdfs:label "RPN Value" ;
+  rdfs:domain :RiskPriorityNumber ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "The calculated numerical value of the Risk Priority Number." .
+
+:hasSeverity a owl:DatatypeProperty ;
+  rdfs:label "has severity" ;
+  rdfs:domain :FMEA ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "The severity rating of a failure mode (1-10)." .
+
+:hasOccurrence a owl:DatatypeProperty ;
+  rdfs:label "has occurrence" ;
+  rdfs:domain :FMEA ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "The occurrence rating of a failure mode (1-10)." .
+
+:hasDetection a owl:DatatypeProperty ;
+  rdfs:label "has detection" ;
+  rdfs:domain :FMEA ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "The detection rating of a failure mode (1-10)." .
+
+:hasValidationResult a owl:ObjectProperty ;
+  rdfs:label "has validation result" ;
+  rdfs:domain :DesignProposal ;
+  rdfs:range :FabricationValidationResult ;
+  rdfs:comment "Links a design proposal to its DfLSS fabrication validation result." .
+
+:isApprovedForFabrication a owl:DatatypeProperty ;
+  rdfs:label "is approved for fabrication" ;
+  rdfs:domain :FabricationValidationResult ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "Indicates if the design proposal is approved for AOT fabrication based on DfLSS validation." .
+
+:ctqTargetValue a owl:DatatypeProperty ;
+  rdfs:label "CTQ Target Value" ;
+  rdfs:domain :CTQVerification ;
+  rdfs:range xsd:decimal ;
+  rdfs:comment "The target value for a Critical to Quality requirement." .
+
+:ctqActualValue a owl:DatatypeProperty ;
+  rdfs:label "CTQ Actual Value" ;
+  rdfs:domain :CTQVerification ;
+  rdfs:range xsd:decimal ;
+  rdfs:comment "The actual measured value for a Critical to Quality requirement." .

@@ -1,0 +1,1288 @@
+# UNRDF Documentation Ontology - SHACL Validation Shapes
+# Comprehensive SHACL shapes for validating:
+# - Capabilities (preconditions, postconditions, SLOs, authorization)
+# - Protocols (state machines, transitions, error handling)
+# - Types (properties, constraints, hierarchies)
+# - SLOs (thresholds, metrics, alerts)
+#
+# Version: 1.0.0
+# Usage: Validate documentation resources against these shapes
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# Import ontology namespaces
+@prefix doc: <urn:unrdf:doc:> .
+@prefix cap: <urn:unrdf:doc:capability:> .
+@prefix proto: <urn:unrdf:doc:protocol:> .
+@prefix typ: <urn:unrdf:doc:type:> .
+@prefix rsn: <urn:unrdf:doc:reasoning:> .
+@prefix slo: <urn:unrdf:doc:slo:> .
+@prefix auth: <urn:unrdf:doc:auth:> .
+@prefix cost: <urn:unrdf:doc:cost:> .
+
+# Shape namespace
+@prefix shapes: <urn:unrdf:doc:shapes:> .
+
+# =============================================================================
+# CAPABILITY VALIDATION SHAPES
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Shape: Capability Base Shape
+# Validates core properties required for all capabilities
+# -----------------------------------------------------------------------------
+
+shapes:CapabilityShape a sh:NodeShape ;
+    sh:targetClass cap:Capability ;
+    rdfs:label "Capability Shape"@en ;
+    rdfs:comment "Validates that capabilities have required metadata, conditions, and constraints."@en ;
+
+    # Must have a label
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 200 ;
+        sh:message "Capability must have exactly one label (1-200 characters)"
+    ] ;
+
+    # Must have a comment/description
+    sh:property [
+        sh:path rdfs:comment ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 10 ;
+        sh:message "Capability must have a description (minimum 10 characters)"
+    ] ;
+
+    # Should have a version
+    sh:property [
+        sh:path cap:version ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^\\d+\\.\\d+\\.\\d+$" ;
+        sh:message "Version must be in semantic version format (e.g., 1.0.0)"
+    ] ;
+
+    # Input type reference
+    sh:property [
+        sh:path cap:inputType ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "Input type must be an IRI reference to a type"
+    ] ;
+
+    # Output type reference
+    sh:property [
+        sh:path cap:outputType ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "Output type must be an IRI reference to a type"
+    ] ;
+
+    # Deprecation flag
+    sh:property [
+        sh:path cap:deprecated ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:message "Deprecated must be a boolean value"
+    ] ;
+
+    # If deprecated, should have supersededBy
+    sh:sparql [
+        sh:select """
+            PREFIX cap: <urn:unrdf:doc:capability:>
+            SELECT $this WHERE {
+                $this cap:deprecated true .
+                FILTER NOT EXISTS { $this cap:supersededBy ?replacement . }
+            }
+        """ ;
+        sh:message "Deprecated capabilities should specify a supersededBy replacement"
+        # Note: This is a warning, not a hard constraint
+    ] .
+
+# -----------------------------------------------------------------------------
+# Shape: Atomic Capability Shape
+# Additional constraints for atomic capabilities
+# -----------------------------------------------------------------------------
+
+shapes:AtomicCapabilityShape a sh:NodeShape ;
+    sh:targetClass cap:AtomicCapability ;
+    rdfs:label "Atomic Capability Shape"@en ;
+
+    # Inherits from CapabilityShape implicitly via class hierarchy
+
+    # Must not have composedOf (that's for composites)
+    sh:property [
+        sh:path cap:composedOf ;
+        sh:maxCount 0 ;
+        sh:message "Atomic capabilities cannot be composed of sub-capabilities"
+    ] .
+
+# -----------------------------------------------------------------------------
+# Shape: Composite Capability Shape
+# Constraints for composite capabilities
+# -----------------------------------------------------------------------------
+
+shapes:CompositeCapabilityShape a sh:NodeShape ;
+    sh:targetClass cap:CompositeCapability ;
+    rdfs:label "Composite Capability Shape"@en ;
+
+    # Must have at least 2 sub-capabilities
+    sh:property [
+        sh:path cap:composedOf ;
+        sh:minCount 2 ;
+        sh:nodeKind sh:IRI ;
+        sh:class cap:Capability ;
+        sh:message "Composite capabilities must be composed of at least 2 sub-capabilities"
+    ] ;
+
+    # Must specify execution order
+    sh:property [
+        sh:path cap:executionOrder ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "sequential" "parallel" "conditional" ) ;
+        sh:message "Execution order must be 'sequential', 'parallel', or 'conditional'"
+    ] .
+
+# -----------------------------------------------------------------------------
+# Shape: Condition Shape
+# Validates preconditions, postconditions, and invariants
+# -----------------------------------------------------------------------------
+
+shapes:ConditionShape a sh:NodeShape ;
+    sh:targetClass cap:Condition ;
+    rdfs:label "Condition Shape"@en ;
+    rdfs:comment "Validates that conditions have proper expressions."@en ;
+
+    # Must have a label
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Condition must have a label"
+    ] ;
+
+    # Must have at least one expression type
+    sh:or (
+        [
+            sh:property [
+                sh:path cap:conditionSparql ;
+                sh:minCount 1 ;
+                sh:datatype xsd:string ;
+                sh:minLength 10
+            ]
+        ]
+        [
+            sh:property [
+                sh:path cap:conditionN3 ;
+                sh:minCount 1 ;
+                sh:datatype xsd:string ;
+                sh:minLength 10
+            ]
+        ]
+        [
+            sh:property [
+                sh:path cap:conditionExpression ;
+                sh:minCount 1 ;
+                sh:datatype xsd:string ;
+                sh:minLength 5
+            ]
+        ]
+    ) ;
+    sh:message "Condition must have at least one expression (SPARQL, N3, or generic)" .
+
+# -----------------------------------------------------------------------------
+# Shape: Precondition Shape
+# Additional validation for preconditions
+# -----------------------------------------------------------------------------
+
+shapes:PreconditionShape a sh:NodeShape ;
+    sh:targetClass cap:Precondition ;
+    rdfs:label "Precondition Shape"@en ;
+
+    # SPARQL should be an ASK query for preconditions
+    sh:property [
+        sh:path cap:conditionSparql ;
+        sh:pattern "(?i)^\\s*ASK" ;
+        sh:message "Precondition SPARQL should be an ASK query"
+    ] .
+
+# -----------------------------------------------------------------------------
+# Shape: Capability with Authorization
+# Validates authorization requirements are properly specified
+# -----------------------------------------------------------------------------
+
+shapes:CapabilityAuthorizationShape a sh:NodeShape ;
+    sh:targetClass cap:Capability ;
+    rdfs:label "Capability Authorization Shape"@en ;
+
+    # Should have authorization level
+    sh:property [
+        sh:path auth:requiresAuth ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class auth:AuthorizationLevel ;
+        sh:message "Capability should specify required authorization level"
+    ] ;
+
+    # Permissions should be valid
+    sh:property [
+        sh:path auth:requiresPermission ;
+        sh:class auth:Permission ;
+        sh:message "Required permissions must be valid Permission instances"
+    ] .
+
+# -----------------------------------------------------------------------------
+# Shape: Capability Cost Model
+# Validates cost constraints are properly specified
+# -----------------------------------------------------------------------------
+
+shapes:CapabilityCostShape a sh:NodeShape ;
+    sh:targetClass cap:Capability ;
+    rdfs:label "Capability Cost Shape"@en ;
+
+    # Cost model reference
+    sh:property [
+        sh:path cost:hasCostModel ;
+        sh:maxCount 1 ;
+        sh:class cost:CostModel ;
+        sh:message "Cost model must be a valid CostModel instance"
+    ] ;
+
+    # Max budget constraint
+    sh:property [
+        sh:path cost:maxBudget ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minExclusive 0 ;
+        sh:message "Max budget must be a positive decimal value"
+    ] .
+
+# =============================================================================
+# PROTOCOL VALIDATION SHAPES
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Shape: Protocol Base Shape
+# Validates protocol structure and required components
+# -----------------------------------------------------------------------------
+
+shapes:ProtocolShape a sh:NodeShape ;
+    sh:targetClass proto:Protocol ;
+    rdfs:label "Protocol Shape"@en ;
+    rdfs:comment "Validates that protocols have required states, transitions, and handlers."@en ;
+
+    # Must have a label
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Protocol must have exactly one label"
+    ] ;
+
+    # Must have exactly one initial state
+    sh:property [
+        sh:path proto:hasInitialState ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class proto:InitialState ;
+        sh:message "Protocol must have exactly one initial state"
+    ] ;
+
+    # Must have at least one final state
+    sh:property [
+        sh:path proto:hasFinalState ;
+        sh:minCount 1 ;
+        sh:class proto:FinalState ;
+        sh:message "Protocol must have at least one final state"
+    ] ;
+
+    # Must have transitions
+    sh:property [
+        sh:path proto:hasTransition ;
+        sh:minCount 1 ;
+        sh:class proto:Transition ;
+        sh:message "Protocol must have at least one transition"
+    ] ;
+
+    # Should have timeout strategy
+    sh:property [
+        sh:path proto:hasTimeoutStrategy ;
+        sh:maxCount 1 ;
+        sh:class proto:TimeoutStrategy ;
+        sh:message "Protocol should have a timeout strategy"
+    ] ;
+
+    # Verify reachability: all states should be reachable from initial
+    sh:sparql [
+        sh:select """
+            PREFIX proto: <urn:unrdf:doc:protocol:>
+            SELECT $this ?unreachableState WHERE {
+                $this proto:hasState ?unreachableState .
+                FILTER NOT EXISTS {
+                    $this proto:hasInitialState ?unreachableState .
+                }
+                FILTER NOT EXISTS {
+                    $this proto:hasTransition ?t .
+                    ?t proto:toState ?unreachableState .
+                }
+            }
+        """ ;
+        sh:message "All protocol states must be reachable via transitions"
+    ] .
+
+# -----------------------------------------------------------------------------
+# Shape: State Shape
+# Validates protocol states
+# -----------------------------------------------------------------------------
+
+shapes:StateShape a sh:NodeShape ;
+    sh:targetClass proto:State ;
+    rdfs:label "State Shape"@en ;
+
+    # Must have a label
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "State must have exactly one label"
+    ] .
+
+# -----------------------------------------------------------------------------
+# Shape: Transition Shape
+# Validates state transitions
+# -----------------------------------------------------------------------------
+
+shapes:TransitionShape a sh:NodeShape ;
+    sh:targetClass proto:Transition ;
+    rdfs:label "Transition Shape"@en ;
+    rdfs:comment "Validates that transitions have valid source and target states."@en ;
+
+    # Must have a label
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Transition must have a label"
+    ] ;
+
+    # Must have exactly one source state
+    sh:property [
+        sh:path proto:fromState ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class proto:State ;
+        sh:message "Transition must have exactly one source state"
+    ] ;
+
+    # Must have exactly one target state
+    sh:property [
+        sh:path proto:toState ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class proto:State ;
+        sh:message "Transition must have exactly one target state"
+    ] ;
+
+    # Guard should be valid SPARQL ASK
+    sh:property [
+        sh:path proto:guard ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "(?i)^\\s*ASK" ;
+        sh:message "Transition guard should be a valid SPARQL ASK query"
+    ] ;
+
+    # Source cannot be a final state
+    sh:sparql [
+        sh:select """
+            PREFIX proto: <urn:unrdf:doc:protocol:>
+            SELECT $this ?fromState WHERE {
+                $this proto:fromState ?fromState .
+                ?fromState a proto:FinalState .
+            }
+        """ ;
+        sh:message "Transitions cannot originate from final states"
+    ] .
+
+# -----------------------------------------------------------------------------
+# Shape: Error Handler Shape
+# Validates error handling configuration
+# -----------------------------------------------------------------------------
+
+shapes:ErrorHandlerShape a sh:NodeShape ;
+    sh:targetClass proto:ErrorHandler ;
+    rdfs:label "Error Handler Shape"@en ;
+
+    # Must have a label
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Error handler must have a label"
+    ] ;
+
+    # Must specify error type handled
+    sh:property [
+        sh:path proto:handlesError ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Error handler must specify the error type it handles"
+    ] ;
+
+    # Must have fallback state or recovery action
+    sh:or (
+        [
+            sh:property [
+                sh:path proto:fallbackState ;
+                sh:minCount 1 ;
+                sh:class proto:State
+            ]
+        ]
+        [
+            sh:property [
+                sh:path proto:recoveryAction ;
+                sh:minCount 1 ;
+                sh:class cap:Capability
+            ]
+        ]
+    ) ;
+    sh:message "Error handler must have either a fallback state or recovery action" .
+
+# -----------------------------------------------------------------------------
+# Shape: Timeout Strategy Shape
+# Validates timeout configuration
+# -----------------------------------------------------------------------------
+
+shapes:TimeoutStrategyShape a sh:NodeShape ;
+    sh:targetClass proto:TimeoutStrategy ;
+    rdfs:label "Timeout Strategy Shape"@en ;
+
+    # Timeout value
+    sh:property [
+        sh:path proto:timeoutMs ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 300000 ;
+        sh:message "Timeout must be between 1ms and 300000ms (5 minutes)"
+    ] ;
+
+    # Timeout action
+    sh:property [
+        sh:path proto:timeoutAction ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "retry" "abort" "escalate" "skip" "rollback" ) ;
+        sh:message "Timeout action must be 'retry', 'abort', 'escalate', 'skip', or 'rollback'"
+    ] .
+
+# -----------------------------------------------------------------------------
+# Shape: Retry Policy Shape
+# Validates retry configuration
+# -----------------------------------------------------------------------------
+
+shapes:RetryPolicyShape a sh:NodeShape ;
+    sh:targetClass proto:RetryPolicy ;
+    rdfs:label "Retry Policy Shape"@en ;
+
+    # Max retries
+    sh:property [
+        sh:path proto:maxRetries ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 10 ;
+        sh:message "Max retries must be between 0 and 10"
+    ] ;
+
+    # Backoff strategy
+    sh:property [
+        sh:path proto:retryBackoff ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "linear" "exponential" "fibonacci" "constant" ) ;
+        sh:message "Retry backoff must be 'linear', 'exponential', 'fibonacci', or 'constant'"
+    ] ;
+
+    # Delay
+    sh:property [
+        sh:path proto:retryDelayMs ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 60000 ;
+        sh:message "Retry delay must be between 0ms and 60000ms"
+    ] .
+
+# -----------------------------------------------------------------------------
+# Shape: Consensus Requirement Shape
+# Validates consensus configuration
+# -----------------------------------------------------------------------------
+
+shapes:ConsensusRequirementShape a sh:NodeShape ;
+    sh:targetClass proto:ConsensusRequirement ;
+    rdfs:label "Consensus Requirement Shape"@en ;
+
+    # Quorum threshold
+    sh:property [
+        sh:path proto:quorum ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Quorum must be a decimal between 0.0 and 1.0"
+    ] ;
+
+    # Consensus algorithm
+    sh:property [
+        sh:path proto:consensusAlgorithm ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "voting" "raft" "pbft" "crdt" "paxos" ) ;
+        sh:message "Consensus algorithm must be 'voting', 'raft', 'pbft', 'crdt', or 'paxos'"
+    ] ;
+
+    # Byzantine tolerance
+    sh:property [
+        sh:path proto:byzantineTolerance ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxExclusive 0.5 ;
+        sh:message "Byzantine tolerance must be less than 0.5 (50%)"
+    ] .
+
+# =============================================================================
+# TYPE VALIDATION SHAPES
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Shape: Type Base Shape
+# Validates basic type properties
+# -----------------------------------------------------------------------------
+
+shapes:TypeShape a sh:NodeShape ;
+    sh:targetClass typ:Type ;
+    rdfs:label "Type Shape"@en ;
+    rdfs:comment "Validates that types have required metadata."@en ;
+
+    # Must have a label
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Type must have exactly one label"
+    ] .
+
+# -----------------------------------------------------------------------------
+# Shape: Complex Type Shape
+# Validates complex types with properties
+# -----------------------------------------------------------------------------
+
+shapes:ComplexTypeShape a sh:NodeShape ;
+    sh:targetClass typ:ComplexType ;
+    rdfs:label "Complex Type Shape"@en ;
+
+    # Should have at least one property
+    sh:property [
+        sh:path typ:hasProperty ;
+        sh:minCount 1 ;
+        sh:class typ:Property ;
+        sh:message "Complex types should have at least one property"
+    ] .
+
+# -----------------------------------------------------------------------------
+# Shape: Property Shape
+# Validates type properties
+# -----------------------------------------------------------------------------
+
+shapes:PropertyShape a sh:NodeShape ;
+    sh:targetClass typ:Property ;
+    rdfs:label "Property Shape"@en ;
+
+    # Must have a name
+    sh:property [
+        sh:path typ:propertyName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-zA-Z_][a-zA-Z0-9_]*$" ;
+        sh:message "Property name must be a valid identifier"
+    ] ;
+
+    # Must have a type
+    sh:property [
+        sh:path typ:propertyType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:or (
+            [ sh:class typ:Type ]
+            [ sh:class typ:TypeParameter ]
+        ) ;
+        sh:message "Property must have a valid type reference"
+    ] ;
+
+    # Required flag must be boolean
+    sh:property [
+        sh:path typ:required ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:message "Required must be a boolean value"
+    ] .
+
+# -----------------------------------------------------------------------------
+# Shape: Collection Type Shape
+# Validates collection types
+# -----------------------------------------------------------------------------
+
+shapes:CollectionTypeShape a sh:NodeShape ;
+    sh:targetClass typ:CollectionType ;
+    rdfs:label "Collection Type Shape"@en ;
+
+    # Must specify collection kind
+    sh:property [
+        sh:path typ:collectionKind ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "list" "set" "map" "array" ) ;
+        sh:message "Collection kind must be 'list', 'set', 'map', or 'array'"
+    ] ;
+
+    # Must have element type
+    sh:property [
+        sh:path typ:elementType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class typ:Type ;
+        sh:message "Collection must specify element type"
+    ] ;
+
+    # Map collections must have key type
+    sh:sparql [
+        sh:select """
+            PREFIX typ: <urn:unrdf:doc:type:>
+            SELECT $this WHERE {
+                $this typ:collectionKind "map" .
+                FILTER NOT EXISTS { $this typ:keyType ?keyType . }
+            }
+        """ ;
+        sh:message "Map collections must specify a key type"
+    ] .
+
+# -----------------------------------------------------------------------------
+# Shape: Union Type Shape
+# Validates union types
+# -----------------------------------------------------------------------------
+
+shapes:UnionTypeShape a sh:NodeShape ;
+    sh:targetClass typ:UnionType ;
+    rdfs:label "Union Type Shape"@en ;
+
+    # Must have unionOf with at least 2 types
+    sh:property [
+        sh:path typ:unionOf ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:node shapes:UnionListShape ;
+        sh:message "Union types must specify component types via unionOf"
+    ] .
+
+shapes:UnionListShape a sh:NodeShape ;
+    rdfs:label "Union List Shape"@en ;
+    sh:property [
+        sh:path ( [ sh:zeroOrMorePath rdf:rest ] rdf:first ) ;
+        sh:minCount 2 ;
+        sh:message "Union must contain at least 2 types"
+    ] .
+
+# -----------------------------------------------------------------------------
+# Shape: Generic Type Shape
+# Validates generic/parameterized types
+# -----------------------------------------------------------------------------
+
+shapes:GenericTypeShape a sh:NodeShape ;
+    sh:targetClass typ:GenericType ;
+    rdfs:label "Generic Type Shape"@en ;
+
+    # Must have at least one type parameter
+    sh:property [
+        sh:path typ:hasParameter ;
+        sh:minCount 1 ;
+        sh:class typ:TypeParameter ;
+        sh:message "Generic types must have at least one type parameter"
+    ] .
+
+# -----------------------------------------------------------------------------
+# Shape: Type Constraint Shape
+# Validates type constraints
+# -----------------------------------------------------------------------------
+
+shapes:TypeConstraintShape a sh:NodeShape ;
+    sh:targetClass typ:TypeConstraint ;
+    rdfs:label "Type Constraint Shape"@en ;
+
+    # At least one constraint specification
+    sh:or (
+        [ sh:property [ sh:path typ:minValue ; sh:minCount 1 ] ]
+        [ sh:property [ sh:path typ:maxValue ; sh:minCount 1 ] ]
+        [ sh:property [ sh:path typ:pattern ; sh:minCount 1 ] ]
+        [ sh:property [ sh:path typ:enumValues ; sh:minCount 1 ] ]
+        [ sh:property [ sh:path typ:constraintExpression ; sh:minCount 1 ] ]
+    ) ;
+    sh:message "Type constraint must specify at least one constraint" .
+
+# =============================================================================
+# SLO VALIDATION SHAPES
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Shape: SLO Base Shape
+# Validates basic SLO properties
+# -----------------------------------------------------------------------------
+
+shapes:SLOShape a sh:NodeShape ;
+    sh:targetClass slo:ServiceLevelObjective ;
+    rdfs:label "SLO Shape"@en ;
+    rdfs:comment "Validates that SLOs have required metric and target."@en ;
+
+    # Must have a label
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "SLO must have a label"
+    ] ;
+
+    # Should have a metric
+    sh:property [
+        sh:path slo:metric ;
+        sh:maxCount 1 ;
+        sh:class slo:Metric ;
+        sh:message "SLO should reference a valid metric"
+    ] ;
+
+    # Should have a target
+    sh:property [
+        sh:path slo:target ;
+        sh:maxCount 1 ;
+        sh:class slo:Threshold ;
+        sh:message "SLO should have a target threshold"
+    ] .
+
+# -----------------------------------------------------------------------------
+# Shape: Performance SLO Shape
+# Validates performance-specific SLOs
+# -----------------------------------------------------------------------------
+
+shapes:PerformanceSLOShape a sh:NodeShape ;
+    sh:targetClass slo:PerformanceSLO ;
+    rdfs:label "Performance SLO Shape"@en ;
+
+    # Percentile for latency SLOs
+    sh:property [
+        sh:path slo:percentile ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:in ( 50 90 95 99 999 ) ;
+        sh:message "Percentile must be one of: 50, 90, 95, 99, 999"
+    ] ;
+
+    # Latency target
+    sh:property [
+        sh:path slo:latencyMs ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 300000 ;
+        sh:message "Latency must be between 1ms and 300000ms"
+    ] ;
+
+    # Throughput target
+    sh:property [
+        sh:path slo:throughput ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minExclusive 0 ;
+        sh:message "Throughput must be a positive number"
+    ] .
+
+# -----------------------------------------------------------------------------
+# Shape: Availability SLO Shape
+# Validates availability-specific SLOs
+# -----------------------------------------------------------------------------
+
+shapes:AvailabilitySLOShape a sh:NodeShape ;
+    sh:targetClass slo:AvailabilitySLO ;
+    rdfs:label "Availability SLO Shape"@en ;
+
+    # Uptime percentage
+    sh:property [
+        sh:path slo:uptimePercent ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Uptime percentage must be between 0 and 100"
+    ] ;
+
+    # MTTR
+    sh:property [
+        sh:path slo:mttr ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0 ;
+        sh:message "MTTR must be a non-negative number (minutes)"
+    ] ;
+
+    # MTBF
+    sh:property [
+        sh:path slo:mtbf ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0 ;
+        sh:message "MTBF must be a non-negative number (hours)"
+    ] .
+
+# -----------------------------------------------------------------------------
+# Shape: Quality SLO Shape
+# Validates quality-specific SLOs
+# -----------------------------------------------------------------------------
+
+shapes:QualitySLOShape a sh:NodeShape ;
+    sh:targetClass slo:QualitySLO ;
+    rdfs:label "Quality SLO Shape"@en ;
+
+    # Error rate
+    sh:property [
+        sh:path slo:errorRate ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Error rate must be between 0.0 and 1.0"
+    ] ;
+
+    # Accuracy
+    sh:property [
+        sh:path slo:accuracy ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Accuracy must be between 0.0 and 1.0"
+    ] .
+
+# -----------------------------------------------------------------------------
+# Shape: Cost SLO Shape
+# Validates cost-specific SLOs
+# -----------------------------------------------------------------------------
+
+shapes:CostSLOShape a sh:NodeShape ;
+    sh:targetClass slo:CostSLO ;
+    rdfs:label "Cost SLO Shape"@en ;
+
+    # Max cost
+    sh:property [
+        sh:path slo:maxCost ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0 ;
+        sh:message "Max cost must be a non-negative number"
+    ] ;
+
+    # Cost unit
+    sh:property [
+        sh:path slo:costUnit ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Cost unit must be specified (e.g., 'tokens', 'USD')"
+    ] .
+
+# -----------------------------------------------------------------------------
+# Shape: Threshold Shape
+# Validates threshold configuration
+# -----------------------------------------------------------------------------
+
+shapes:ThresholdShape a sh:NodeShape ;
+    sh:targetClass slo:Threshold ;
+    rdfs:label "Threshold Shape"@en ;
+
+    # Threshold value
+    sh:property [
+        sh:path slo:thresholdValue ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:message "Threshold must have a numeric value"
+    ] ;
+
+    # Threshold unit
+    sh:property [
+        sh:path slo:thresholdUnit ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Threshold must specify a unit"
+    ] ;
+
+    # Comparison operator
+    sh:property [
+        sh:path slo:comparisonOperator ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "lessThan" "greaterThan" "equals" "lessThanOrEquals" "greaterThanOrEquals" "between" ) ;
+        sh:message "Comparison operator must be valid"
+    ] .
+
+# -----------------------------------------------------------------------------
+# Shape: Alert Shape
+# Validates alert configuration
+# -----------------------------------------------------------------------------
+
+shapes:AlertShape a sh:NodeShape ;
+    sh:targetClass slo:Alert ;
+    rdfs:label "Alert Shape"@en ;
+
+    # Severity
+    sh:property [
+        sh:path slo:alertSeverity ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "info" "warning" "critical" ) ;
+        sh:message "Alert severity must be 'info', 'warning', or 'critical'"
+    ] ;
+
+    # Threshold for triggering
+    sh:property [
+        sh:path slo:alertThreshold ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Alert threshold must be between 0.0 and 1.0"
+    ] .
+
+# -----------------------------------------------------------------------------
+# Shape: Measurement Shape
+# Validates SLO measurements
+# -----------------------------------------------------------------------------
+
+shapes:MeasurementShape a sh:NodeShape ;
+    sh:targetClass slo:Measurement ;
+    rdfs:label "Measurement Shape"@en ;
+
+    # Value
+    sh:property [
+        sh:path slo:measurementValue ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:message "Measurement must have a value"
+    ] ;
+
+    # Timestamp
+    sh:property [
+        sh:path slo:measurementTimestamp ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Measurement must have a timestamp"
+    ] ;
+
+    # Meets target flag
+    sh:property [
+        sh:path slo:meetsTarget ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:message "Measurement must indicate whether it meets target"
+    ] .
+
+# =============================================================================
+# AUTHORIZATION VALIDATION SHAPES
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Shape: Authorization Level Shape
+# Validates authorization level configuration
+# -----------------------------------------------------------------------------
+
+shapes:AuthorizationLevelShape a sh:NodeShape ;
+    sh:targetClass auth:AuthorizationLevel ;
+    rdfs:label "Authorization Level Shape"@en ;
+
+    # Must have a label
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Authorization level must have a label"
+    ] ;
+
+    # Must have a numeric level
+    sh:property [
+        sh:path auth:authLevel ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 10 ;
+        sh:message "Auth level must be between 0 and 10"
+    ] .
+
+# -----------------------------------------------------------------------------
+# Shape: Permission Shape
+# Validates permission configuration
+# -----------------------------------------------------------------------------
+
+shapes:PermissionShape a sh:NodeShape ;
+    sh:targetClass auth:Permission ;
+    rdfs:label "Permission Shape"@en ;
+
+    # Must have a name
+    sh:property [
+        sh:path auth:permissionName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-z]+:[a-z]+$" ;
+        sh:message "Permission name must be in format 'resource:action'"
+    ] ;
+
+    # Should have a scope
+    sh:property [
+        sh:path auth:scope ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Scope should be a valid OAuth2-style scope string"
+    ] .
+
+# =============================================================================
+# REASONING VALIDATION SHAPES
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Shape: Rule Shape
+# Validates reasoning rules
+# -----------------------------------------------------------------------------
+
+shapes:RuleShape a sh:NodeShape ;
+    sh:targetClass rsn:Rule ;
+    rdfs:label "Rule Shape"@en ;
+
+    # Must have a label
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Rule must have a label"
+    ] ;
+
+    # Must have antecedent
+    sh:property [
+        sh:path rsn:hasAntecedent ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class rsn:Formula ;
+        sh:message "Rule must have an antecedent (premise)"
+    ] ;
+
+    # Must have consequent
+    sh:property [
+        sh:path rsn:hasConsequent ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class rsn:Formula ;
+        sh:message "Rule must have a consequent (conclusion)"
+    ] .
+
+# -----------------------------------------------------------------------------
+# Shape: Formula Shape
+# Validates logical formulas
+# -----------------------------------------------------------------------------
+
+shapes:FormulaShape a sh:NodeShape ;
+    sh:targetClass rsn:Formula ;
+    rdfs:label "Formula Shape"@en ;
+
+    # Must have at least one representation
+    sh:or (
+        [
+            sh:property [
+                sh:path rsn:n3Formula ;
+                sh:minCount 1 ;
+                sh:datatype xsd:string ;
+                sh:minLength 5
+            ]
+        ]
+        [
+            sh:property [
+                sh:path rsn:sparqlQuery ;
+                sh:minCount 1 ;
+                sh:datatype xsd:string ;
+                sh:minLength 10
+            ]
+        ]
+    ) ;
+    sh:message "Formula must have N3 or SPARQL representation" .
+
+# -----------------------------------------------------------------------------
+# Shape: Proof Shape
+# Validates reasoning proofs
+# -----------------------------------------------------------------------------
+
+shapes:ProofShape a sh:NodeShape ;
+    sh:targetClass rsn:Proof ;
+    rdfs:label "Proof Shape"@en ;
+
+    # Must prove something
+    sh:property [
+        sh:path rsn:proves ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class rsn:Formula ;
+        sh:message "Proof must specify what it proves"
+    ] ;
+
+    # Must have at least one step
+    sh:property [
+        sh:path rsn:hasProofStep ;
+        sh:minCount 1 ;
+        sh:class rsn:ProofStep ;
+        sh:message "Proof must have at least one proof step"
+    ] .
+
+# -----------------------------------------------------------------------------
+# Shape: Proof Step Shape
+# Validates individual proof steps
+# -----------------------------------------------------------------------------
+
+shapes:ProofStepShape a sh:NodeShape ;
+    sh:targetClass rsn:ProofStep ;
+    rdfs:label "Proof Step Shape"@en ;
+
+    # Must have order
+    sh:property [
+        sh:path rsn:stepOrder ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:message "Proof step must have a positive step order"
+    ] ;
+
+    # Must reference applied rule
+    sh:property [
+        sh:path rsn:appliedRule ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class rsn:Rule ;
+        sh:message "Proof step must reference the applied rule"
+    ] ;
+
+    # Must have output
+    sh:property [
+        sh:path rsn:outputFormula ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class rsn:Formula ;
+        sh:message "Proof step must have an output formula"
+    ] .
+
+# =============================================================================
+# COST MODEL VALIDATION SHAPES
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Shape: Cost Model Shape
+# Validates cost model configuration
+# -----------------------------------------------------------------------------
+
+shapes:CostModelShape a sh:NodeShape ;
+    sh:targetClass cost:CostModel ;
+    rdfs:label "Cost Model Shape"@en ;
+
+    # Must have a label
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Cost model must have a label"
+    ] ;
+
+    # Must specify currency
+    sh:property [
+        sh:path cost:currency ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Cost model must specify currency"
+    ] ;
+
+    # Should have resource costs
+    sh:property [
+        sh:path cost:hasResourceCost ;
+        sh:minCount 1 ;
+        sh:class cost:ResourceCost ;
+        sh:message "Cost model should have at least one resource cost"
+    ] .
+
+# -----------------------------------------------------------------------------
+# Shape: Resource Cost Shape
+# Validates resource cost configuration
+# -----------------------------------------------------------------------------
+
+shapes:ResourceCostShape a sh:NodeShape ;
+    sh:targetClass cost:ResourceCost ;
+    rdfs:label "Resource Cost Shape"@en ;
+
+    # Resource type
+    sh:property [
+        sh:path cost:resourceType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "cpu" "memory" "tokens" "storage" "network" "gpu" ) ;
+        sh:message "Resource type must be valid"
+    ] ;
+
+    # Unit cost
+    sh:property [
+        sh:path cost:unitCost ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0 ;
+        sh:message "Unit cost must be non-negative"
+    ] .
+
+# End of SHACL Validation Shapes

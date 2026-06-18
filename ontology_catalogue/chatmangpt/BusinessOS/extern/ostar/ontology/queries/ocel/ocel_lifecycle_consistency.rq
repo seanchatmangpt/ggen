@@ -1,0 +1,17 @@
+# OCEL Lifecycle Consistency Validation
+# Validates that lifecycle transitions follow legal OCEL 2.0 patterns
+# Legal transitions: create → start → complete (or skip/abort at any point)
+
+PREFIX ocel: <http://www.ocel-standard.org/ocel#>
+PREFIX ostar: <https://chatmangpt.com/ontologies/ostar#>
+
+ASK {
+  # Find illegal lifecycle transitions
+  ?event a ocel:Event .
+  ?event ocel:lifecycle ?transition .
+
+  # Legal transitions
+  VALUES ?legal { "create" "start" "complete" "skip" "abort" "suspend" "resume" "schedule" "assign" "reassign" }
+
+  FILTER (?transition NOT IN ?legal)
+}

@@ -1,0 +1,10 @@
+# CQ-3: What are all POWL discovery variants and their notation?
+PREFIX powl: <urn:ontostar:powl:>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+SELECT ?variant ?label ?notation ?comment WHERE {
+  ?variant a powl:DiscoveryVariant ;
+           rdfs:label ?label .
+  OPTIONAL { ?variant skos:notation ?notation }
+  OPTIONAL { ?variant rdfs:comment ?comment }
+} ORDER BY ?label

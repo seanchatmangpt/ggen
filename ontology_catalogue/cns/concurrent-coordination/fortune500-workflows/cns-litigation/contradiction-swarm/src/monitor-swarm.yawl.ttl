@@ -1,0 +1,275 @@
+@prefix yawl: <http://www.yawlsystem.com/schema/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix cns: <http://cns-legal.ai/ontology/> .
+@prefix monitor: <http://cns-legal.ai/monitor/> .
+
+# CNS Legal Swarm - MonitorSwarm Workflow Definition
+# Real-time monitoring, focus tracking, latency optimization, and overload prevention
+
+monitor:MonitorSwarm a yawl:Specification ;
+    dc:title "CNS Legal MonitorSwarm - Real-time Performance Monitoring" ;
+    dc:description "Deterministic 8-tick execution monitoring with focus, latency, and overload tracking" ;
+    dc:version "2.0.0" ;
+    dc:created "2025-07-29T22:49:00Z" ;
+    yawl:rootNet monitor:MonitorNet .
+
+# Root monitoring network
+monitor:MonitorNet a yawl:NetElement ;
+    dc:title "Legal Swarm Monitor Network" ;
+    yawl:inputCondition monitor:StartMonitoring ;
+    yawl:outputCondition monitor:MonitoringComplete ;
+    yawl:task monitor:InitializeMonitoring,
+             monitor:FocusTracking,
+             monitor:LatencyMonitoring,
+             monitor:OverloadDetection,
+             monitor:AlertSystem,
+             monitor:PerformanceAnalytics,
+             monitor:DeterministicWindow .
+
+# === INITIALIZATION TASKS ===
+
+monitor:StartMonitoring a yawl:InputCondition ;
+    dc:title "Initialize Monitoring System" ;
+    yawl:flowsInto monitor:InitializeMonitoring .
+
+monitor:InitializeMonitoring a yawl:AtomicTask ;
+    dc:title "Initialize Monitoring Infrastructure" ;
+    dc:description "Set up monitoring agents, metrics collection, and baseline thresholds" ;
+    yawl:join "xor" ;
+    yawl:split "and" ;
+    yawl:flowsInto monitor:FocusTracking,
+                   monitor:LatencyMonitoring,
+                   monitor:OverloadDetection ;
+    yawl:decomposesTo monitor:InitMonitoringProcess ;
+    yawl:timer "PT30S" ;
+    monitor:executionTick "1" ;
+    monitor:priority "critical" .
+
+# === FOCUS TRACKING SYSTEM ===
+
+monitor:FocusTracking a yawl:AtomicTask ;
+    dc:title "Agent Focus Tracking System" ;
+    dc:description "Monitor agent attention allocation and cognitive load distribution" ;
+    yawl:join "xor" ;
+    yawl:split "and" ;
+    yawl:flowsInto monitor:AlertSystem ;
+    yawl:decomposesTo monitor:FocusTrackingProcess ;
+    yawl:timer "PT10S" ;
+    monitor:executionTick "2-8" ;
+    monitor:priority "high" ;
+    monitor:metrics [
+        monitor:focusDistribution "uniform|concentrated|fragmented" ;
+        monitor:attentionCoherence "0.0-1.0" ;
+        monitor:cognitiveLoad "0.0-1.0" ;
+        monitor:contextSwitchRate "switches/minute" ;
+        monitor:deepWorkSessions "count/hour"
+    ] .
+
+# === LATENCY MONITORING SYSTEM ===
+
+monitor:LatencyMonitoring a yawl:AtomicTask ;
+    dc:title "Performance Latency Monitoring" ;
+    dc:description "Track response times, processing delays, and communication latency" ;
+    yawl:join "xor" ;
+    yawl:split "and" ;
+    yawl:flowsInto monitor:PerformanceAnalytics ;
+    yawl:decomposesTo monitor:LatencyMonitoringProcess ;
+    yawl:timer "PT5S" ;
+    monitor:executionTick "2-8" ;
+    monitor:priority "high" ;
+    monitor:metrics [
+        monitor:responseTime "milliseconds" ;
+        monitor:processingDelay "milliseconds" ;
+        monitor:communicationLatency "milliseconds" ;
+        monitor:queueWaitTime "milliseconds" ;
+        monitor:throughput "operations/second"
+    ] .
+
+# === OVERLOAD DETECTION SYSTEM ===
+
+monitor:OverloadDetection a yawl:AtomicTask ;
+    dc:title "Overload Detection and Prevention" ;
+    dc:description "Detect system overload conditions and trigger preventive measures" ;
+    yawl:join "xor" ;
+    yawl:split "and" ;
+    yawl:flowsInto monitor:AlertSystem ;
+    yawl:decomposesTo monitor:OverloadDetectionProcess ;
+    yawl:timer "PT15S" ;
+    monitor:executionTick "3-8" ;
+    monitor:priority "critical" ;
+    monitor:thresholds [
+        monitor:cpuUtilization "85%" ;
+        monitor:memoryUtilization "80%" ;
+        monitor:queueDepth "100" ;
+        monitor:errorRate "5%" ;
+        monitor:responseTime "2000ms"
+    ] .
+
+# === ALERT SYSTEM ===
+
+monitor:AlertSystem a yawl:AtomicTask ;
+    dc:title "Performance Alert System" ;
+    dc:description "Generate and manage alerts for critical performance thresholds" ;
+    yawl:join "and" ;
+    yawl:split "xor" ;
+    yawl:flowsInto monitor:PerformanceAnalytics ;
+    yawl:decomposesTo monitor:AlertSystemProcess ;
+    yawl:timer "PT20S" ;
+    monitor:executionTick "4-8" ;
+    monitor:priority "high" ;
+    monitor:alertLevels [
+        monitor:info "Informational notifications" ;
+        monitor:warning "Performance degradation detected" ;
+        monitor:critical "Immediate intervention required" ;
+        monitor:emergency "System stability at risk"
+    ] .
+
+# === PERFORMANCE ANALYTICS ===
+
+monitor:PerformanceAnalytics a yawl:AtomicTask ;
+    dc:title "Performance Analytics Dashboard" ;
+    dc:description "Analyze performance trends and generate optimization recommendations" ;
+    yawl:join "and" ;
+    yawl:split "xor" ;
+    yawl:flowsInto monitor:DeterministicWindow ;
+    yawl:decomposesTo monitor:AnalyticsProcess ;
+    yawl:timer "PT60S" ;
+    monitor:executionTick "5-8" ;
+    monitor:priority "medium" ;
+    monitor:analytics [
+        monitor:trendAnalysis "Performance patterns over time" ;
+        monitor:bottleneckIdentification "Resource constraint analysis" ;
+        monitor:capacityPlanning "Future resource requirements" ;
+        monitor:optimizationSuggestions "Performance improvement recommendations"
+    ] .
+
+# === DETERMINISTIC EXECUTION WINDOW ===
+
+monitor:DeterministicWindow a yawl:AtomicTask ;
+    dc:title "8-Tick Deterministic Execution Window" ;
+    dc:description "Maintain deterministic execution timing for legal coordination" ;
+    yawl:join "xor" ;
+    yawl:split "xor" ;
+    yawl:flowsInto monitor:MonitoringComplete ;
+    yawl:decomposesTo monitor:DeterministicProcess ;
+    yawl:timer "PT8S" ;
+    monitor:executionTick "1-8" ;
+    monitor:priority "critical" ;
+    monitor:deterministic [
+        monitor:tickDuration "1000ms" ;
+        monitor:windowSize "8" ;
+        monitor:synchronization "strict" ;
+        monitor:jitterTolerance "50ms" ;
+        monitor:failsafeMode "enabled"
+    ] .
+
+# === COMPLETION ===
+
+monitor:MonitoringComplete a yawl:OutputCondition ;
+    dc:title "Monitoring Cycle Complete" ;
+    dc:description "Monitoring cycle completed, preparing for next iteration" .
+
+# === PROCESS DECOMPOSITIONS ===
+
+monitor:InitMonitoringProcess a yawl:NetElement ;
+    dc:title "Monitoring Initialization Process" ;
+    yawl:externalDataGateway "monitor-gateway" ;
+    yawl:enabledTime "immediate" ;
+    yawl:parameters [
+        monitor:baselineThresholds "system performance baselines" ;
+        monitor:agentRegistry "active agent inventory" ;
+        monitor:metricsConfig "monitoring configuration"
+    ] .
+
+monitor:FocusTrackingProcess a yawl:NetElement ;
+    dc:title "Focus Tracking Process" ;
+    yawl:externalDataGateway "focus-gateway" ;
+    yawl:enabledTime "continuous" ;
+    yawl:parameters [
+        monitor:agentStates "current agent focus states" ;
+        monitor:taskAllocations "active task assignments" ;
+        monitor:contextSwitches "focus change events"
+    ] .
+
+monitor:LatencyMonitoringProcess a yawl:NetElement ;
+    dc:title "Latency Monitoring Process" ;
+    yawl:externalDataGateway "latency-gateway" ;
+    yawl:enabledTime "continuous" ;
+    yawl:parameters [
+        monitor:responseMetrics "response time measurements" ;
+        monitor:communicationPaths "inter-agent communication tracking" ;
+        monitor:processingQueues "task processing queue states"
+    ] .
+
+monitor:OverloadDetectionProcess a yawl:NetElement ;
+    dc:title "Overload Detection Process" ;
+    yawl:externalDataGateway "overload-gateway" ;
+    yawl:enabledTime "continuous" ;
+    yawl:parameters [
+        monitor:systemMetrics "CPU, memory, network utilization" ;
+        monitor:queueDepths "task queue analysis" ;
+        monitor:errorRates "system error tracking"
+    ] .
+
+monitor:AlertSystemProcess a yawl:NetElement ;
+    dc:title "Alert System Process" ;
+    yawl:externalDataGateway "alert-gateway" ;
+    yawl:enabledTime "event-driven" ;
+    yawl:parameters [
+        monitor:alertRules "threshold and condition definitions" ;
+        monitor:notificationChannels "alert delivery mechanisms" ;
+        monitor:escalationPolicies "alert escalation procedures"
+    ] .
+
+monitor:AnalyticsProcess a yawl:NetElement ;
+    dc:title "Performance Analytics Process" ;
+    yawl:externalDataGateway "analytics-gateway" ;
+    yawl:enabledTime "scheduled" ;
+    yawl:parameters [
+        monitor:historicalData "performance history analysis" ;
+        monitor:trendModels "predictive performance models" ;
+        monitor:optimizationEngine "performance improvement recommendations"
+    ] .
+
+monitor:DeterministicProcess a yawl:NetElement ;
+    dc:title "Deterministic Window Process" ;
+    yawl:externalDataGateway "deterministic-gateway" ;
+    yawl:enabledTime "synchronized" ;
+    yawl:parameters [
+        monitor:tickScheduler "8-tick timing coordinator" ;
+        monitor:synchronizationPulse "system-wide sync signal" ;
+        monitor:executionWindows "deterministic execution slots"
+    ] .
+
+# === MONITORING METADATA ===
+
+monitor:MonitorSwarm yawl:hasDocumentation [
+    dc:subject "CNS Legal Swarm Monitoring System" ;
+    dc:description """
+    Real-time monitoring system for the CNS Legal Swarm coordination platform.
+    
+    Key Features:
+    - Agent focus tracking and attention management
+    - Latency monitoring and performance optimization
+    - Overload detection and prevention mechanisms
+    - Critical threshold alerting system
+    - Performance analytics and trend analysis
+    - 8-tick deterministic execution window maintenance
+    
+    Execution Model:
+    - Tick 1: System initialization and baseline establishment
+    - Ticks 2-8: Continuous monitoring with parallel execution
+    - Deterministic timing ensures legal coordination compliance
+    - Failsafe mechanisms prevent system instability
+    
+    Integration Points:
+    - SwarmCoordinator: Performance feedback and optimization
+    - ConceptMapper: Cognitive load and attention allocation
+    - ContradictionDetector: Processing efficiency monitoring
+    - DocumentAnalyzer: Document processing performance tracking
+    """ ;
+    dc:creator "CNS Legal AI MonitorSwarm Agent" ;
+    dc:created "2025-07-29T22:49:00Z" ;
+    dc:rights "CNS Legal AI - Internal Use Only"
+] .

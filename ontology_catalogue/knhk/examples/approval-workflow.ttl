@@ -1,0 +1,77 @@
+@prefix wf: <http://knhk.ai/workflow#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Example YAWL Workflow in Turtle/RDF Format
+# This is a simple approval workflow demonstrating Van der Aalst patterns
+
+:ApprovalWorkflow a wf:WorkflowSpecification ;
+    wf:id "approval-v1" ;
+    wf:name "Simple Approval Workflow" ;
+    wf:description "A basic 3-step approval workflow" ;
+    wf:startTask :Submit ;
+    wf:task :Submit, :Review, :Approve ;
+    wf:transition :SubmitToReview, :ReviewToApprove .
+
+# Task 1: Submit - Pattern 1 (Sequence)
+:Submit a wf:Task ;
+    wf:id "submit" ;
+    wf:name "Submit Document" ;
+    wf:pattern wf:Pattern1 ;
+    wf:inputParam :Document ;
+    wf:outputParam :SubmittedDocument ;
+    rdfs:comment "User submits a document for approval" .
+
+# Task 2: Review - Pattern 4 (Exclusive Choice)
+:Review a wf:Task ;
+    wf:id "review" ;
+    wf:name "Review Document" ;
+    wf:pattern wf:Pattern4 ;
+    wf:inputParam :SubmittedDocument ;
+    wf:outputParam :ReviewDecision ;
+    wf:flowCondition [
+        wf:condition "approved" ;
+        wf:target :Approve ;
+        wf:probability 0.8
+    ] ;
+    wf:flowCondition [
+        wf:condition "rejected" ;
+        wf:target :Submit ;
+        wf:probability 0.2
+    ] ;
+    rdfs:comment "Reviewer examines and decides on document" .
+
+# Task 3: Approve - Pattern 1 (Sequence)
+:Approve a wf:Task ;
+    wf:id "approve" ;
+    wf:name "Approve Document" ;
+    wf:pattern wf:Pattern1 ;
+    wf:inputParam :SubmittedDocument ;
+    rdfs:comment "Final approval and completion" .
+
+# Transitions
+:SubmitToReview a wf:Transition ;
+    wf:source :Submit ;
+    wf:target :Review ;
+    wf:label "submit_to_review" .
+
+:ReviewToApprove a wf:Transition ;
+    wf:source :Review ;
+    wf:target :Approve ;
+    wf:guard "approved" .
+
+# Parameters
+:Document a wf:Parameter ;
+    wf:name "Document" ;
+    wf:type wf:File ;
+    rdfs:comment "Input document to be approved" .
+
+:SubmittedDocument a wf:Parameter ;
+    wf:name "SubmittedDocument" ;
+    wf:type wf:File ;
+    rdfs:comment "Document submitted for review" .
+
+:ReviewDecision a wf:Parameter ;
+    wf:name "ReviewDecision" ;
+    wf:type wf:String ;
+    rdfs:comment "Decision from reviewer: 'approved' or 'rejected'" .

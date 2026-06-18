@@ -1,0 +1,61 @@
+@prefix : <http://enterprise.com/compliance#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Compliance Requirement Classes
+:ComplianceRequirement rdf:type rdfs:Class ;
+  rdfs:label "Compliance Requirement" ;
+  :immutableAudit true ;
+  :realTimeMonitoring true ;
+  :crossJurisdiction true ;
+  :regulatoryReporting true .
+
+:AuditPolicy rdf:type rdfs:Class ;
+  rdfs:label "Audit Policy" ;
+  :realTimeLogging true ;
+  :immutableStorage true ;
+  :encryptedStorage true ;
+  :tamperProofing true ;
+  :retentionPeriod "10 years" .
+
+:ComplianceRule rdf:type rdfs:Class ;
+  rdfs:label "Compliance Rule" ;
+  :customValidations [] ;
+  :automatedChecks true ;
+  :manualReview false ;
+  :escalationRequired false .
+
+:CompliancePolicy rdf:type rdfs:Class ;
+  rdfs:label "Compliance Policy" ;
+  :strictMode true ;
+  :exceptionHandling "ESCALATE" ;
+  :overrideAllowed false ;
+  :managerApproval true .
+
+# SOX Specific Requirements
+:SOXCompliance rdf:type :ComplianceRequirement ;
+  rdfs:label "SOX Compliance" ;
+  :section404 true ;
+  :itgcControls true ;
+  :financialReporting true ;
+  :internalControls true ;
+  :executiveCertification true .
+
+# GDPR Specific Requirements  
+:GDPRCompliance rdf:type :ComplianceRequirement ;
+  rdfs:label "GDPR Compliance" ;
+  :rightToBeForgtotten true ;
+  :dataPortability true ;
+  :consentWithdrawal true ;
+  :privacyByDesign true ;
+  :dataProtectionOfficer true .
+
+# HIPAA Specific Requirements
+:HIPAACompliance rdf:type :ComplianceRequirement ;
+  rdfs:label "HIPAA Compliance" ;
+  :phiProtection true ;
+  :minimumNecessary true ;
+  :businessAssociateAgreement true ;
+  :breachNotification true ;
+  :administrativeSafeguards true .

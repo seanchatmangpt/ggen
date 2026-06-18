@@ -1,0 +1,548 @@
+@prefix otel: <http://cns.io/ontology/otel#> .
+@prefix dfls: <http://cns.bitactor.io/ontology/dfls#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# =============================================================================
+# OTEL INSTRUMENTATION SHACL VALIDATION RULES
+# Quality constraints for OpenTelemetry Weaver integration with DFLS compliance
+# =============================================================================
+
+# =============================================================================
+# MINIMAL WRAPPER CONSTRAINTS (NO BUSINESS LOGIC)
+# =============================================================================
+
+otel:MinimalWrapperShape
+    a sh:NodeShape ;
+    sh:targetClass otel:MinimalWrapper ;
+    sh:property [
+        sh:path otel:hasBusinessLogic ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue false ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Minimal wrappers MUST NOT contain business logic" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path otel:wrapperComplexity ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 0.1 ;  # <10% complexity overhead
+        sh:message "Wrapper complexity must be ≤10% for minimal design" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path otel:instrumentationOverhead ;
+        sh:datatype xsd:double ;
+        sh:maxInclusive 0.05 ;  # <5% overhead
+        sh:message "Instrumentation overhead must be ≤5% for production use" ;
+        sh:severity sh:Warning ;
+    ] ;
+    sh:sparql [
+        sh:message "Minimal wrapper must use Weaver template" ;
+        sh:prefixes otel: ;
+        sh:select """
+            SELECT ?this
+            WHERE {
+                ?this a otel:MinimalWrapper .
+                FILTER NOT EXISTS { ?this otel:usesTemplate ?template }
+            }
+        """ ;
+        sh:severity sh:Violation ;
+    ] .
+
+otel:WeaverTemplateShape
+    a sh:NodeShape ;
+    sh:targetClass otel:WeaverTemplate ;
+    sh:property [
+        sh:path otel:templateContent ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 50 ;  # Minimum template length
+        sh:message "Weaver template must have content ≥50 characters" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path otel:templateLanguage ;
+        sh:datatype xsd:string ;
+        sh:in ("python" "go" "java" "rust" "javascript") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Template must target supported language" ;
+        sh:severity sh:Violation ;
+    ] ;
+    # Template must not contain business logic keywords
+    sh:sparql [
+        sh:message "Template must not contain business logic patterns" ;
+        sh:prefixes otel: ;
+        sh:select """
+            SELECT ?this ?content
+            WHERE {
+                ?this a otel:WeaverTemplate ;
+                      otel:templateContent ?content .
+                FILTER(
+                    REGEX(?content, "business", "i") ||
+                    REGEX(?content, "domain", "i") ||
+                    REGEX(?content, "calculate", "i") ||
+                    REGEX(?content, "process", "i") ||
+                    REGEX(?content, "validate", "i")
+                )
+            }
+        """ ;
+        sh:severity sh:Warning ;
+    ] .
+
+# =============================================================================
+# SPAN VALIDATION CONSTRAINTS
+# =============================================================================
+
+otel:SpanShape
+    a sh:NodeShape ;
+    sh:targetClass otel:Span ;
+    sh:property [
+        sh:path otel:spanName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-z][a-z0-9._-]*[a-z0-9]$" ;  # Valid span name format
+        sh:message "Span name must follow naming convention: lowercase, dots, dashes, underscores" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path otel:spanId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-f0-9]{16}$" ;  # 16-character hex string
+        sh:message "Span ID must be 16-character hex string" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path otel:traceId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-f0-9]{32}$" ;  # 32-character hex string
+        sh:message "Trace ID must be 32-character hex string" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path otel:spanDuration ;
+        sh:datatype xsd:duration ;
+        sh:message "Span duration must be valid ISO 8601 duration" ;
+        sh:severity sh:Warning ;
+    ] ;
+    sh:property [
+        sh:path otel:spanKind ;
+        sh:datatype xsd:string ;
+        sh:in ("internal" "client" "server" "producer" "consumer") ;
+        sh:message "Span kind must be valid OTEL span kind" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path otel:spanStatus ;
+        sh:datatype xsd:string ;
+        sh:in ("ok" "error" "timeout") ;
+        sh:message "Span status must be valid status code" ;
+        sh:severity sh:Violation ;
+    ] .
+
+otel:ChildSpanShape
+    a sh:NodeShape ;
+    sh:targetClass otel:ChildSpan ;
+    sh:property [
+        sh:path otel:hasParentSpan ;
+        sh:class otel:Span ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Child span must have exactly one parent span" ;
+        sh:severity sh:Violation ;
+    ] ;
+    # Child span cannot be its own parent
+    sh:sparql [
+        sh:message "Child span cannot be its own parent" ;
+        sh:prefixes otel: ;
+        sh:select """
+            SELECT ?this
+            WHERE {
+                ?this a otel:ChildSpan ;
+                      otel:hasParentSpan ?this .
+            }
+        """ ;
+        sh:severity sh:Violation ;
+    ] .
+
+# =============================================================================
+# METRIC VALIDATION CONSTRAINTS
+# =============================================================================
+
+otel:MetricShape
+    a sh:NodeShape ;
+    sh:targetClass otel:Metric ;
+    sh:property [
+        sh:path otel:metricName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-z][a-z0-9._]*[a-z0-9]$" ;  # Valid metric name format
+        sh:message "Metric name must follow naming convention" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path otel:metricValue ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 0.0 ;  # Non-negative values
+        sh:message "Metric value must be non-negative" ;
+        sh:severity sh:Warning ;
+    ] ;
+    sh:property [
+        sh:path otel:metricUnit ;
+        sh:datatype xsd:string ;
+        sh:in ("1" "s" "ms" "us" "ns" "B" "KiB" "MiB" "%" "Hz") ;
+        sh:message "Metric unit must be standard OTEL unit" ;
+        sh:severity sh:Warning ;
+    ] ;
+    sh:property [
+        sh:path otel:hasMetricType ;
+        sh:class otel:MetricType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Metric must have exactly one type" ;
+        sh:severity sh:Violation ;
+    ] .
+
+otel:CounterShape
+    a sh:NodeShape ;
+    sh:targetClass otel:Counter ;
+    # Counter values must be monotonically increasing
+    sh:sparql [
+        sh:message "Counter values should be monotonically increasing" ;
+        sh:prefixes otel: ;
+        sh:select """
+            SELECT ?this ?currentValue ?previousValue
+            WHERE {
+                ?this a otel:Counter ;
+                      otel:metricValue ?currentValue .
+                # This is a simplified check - in practice would need time ordering
+                OPTIONAL { ?this otel:previousValue ?previousValue }
+                FILTER(BOUND(?previousValue) && ?currentValue < ?previousValue)
+            }
+        """ ;
+        sh:severity sh:Warning ;
+    ] .
+
+otel:HistogramShape
+    a sh:NodeShape ;
+    sh:targetClass otel:Histogram ;
+    sh:property [
+        sh:path otel:metricUnit ;
+        sh:datatype xsd:string ;
+        sh:in ("s" "ms" "us" "ns" "B" "KiB" "MiB") ;  # Histogram units
+        sh:message "Histogram must use appropriate unit for measurements" ;
+        sh:severity sh:Warning ;
+    ] .
+
+# =============================================================================
+# PERFORMANCE MONITORING CONSTRAINTS
+# =============================================================================
+
+otel:PerformanceMonitorShape
+    a sh:NodeShape ;
+    sh:targetClass otel:PerformanceMonitor ;
+    sh:property [
+        sh:path otel:monitoringOverhead ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 0.05 ;  # <5% overhead for production
+        sh:message "Monitoring overhead must be ≤5% for production systems" ;
+        sh:severity sh:Violation ;
+    ] ;
+    # Performance monitors must instrument components
+    sh:sparql [
+        sh:message "Performance monitor must monitor at least one component" ;
+        sh:prefixes otel: ;
+        sh:select """
+            SELECT ?this
+            WHERE {
+                ?this a otel:PerformanceMonitor .
+                FILTER NOT EXISTS { ?this otel:monitorsComponent ?component }
+            }
+        """ ;
+        sh:severity sh:Warning ;
+    ] .
+
+otel:LatencyMonitorShape
+    a sh:NodeShape ;
+    sh:targetClass otel:LatencyMonitor ;
+    sh:property [
+        sh:path otel:targetLatency ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 0.0001 ;  # 100μs minimum
+        sh:maxInclusive 1.0 ;     # 1s maximum
+        sh:message "Target latency must be between 100μs and 1s" ;
+        sh:severity sh:Violation ;
+    ] ;
+    # DFLS requirement: Sub-millisecond for critical systems
+    sh:sparql [
+        sh:message "Critical systems should target sub-millisecond latency" ;
+        sh:prefixes otel: dfls: ;
+        sh:select """
+            SELECT ?this ?latency
+            WHERE {
+                ?this a otel:LatencyMonitor ;
+                      otel:targetLatency ?latency ;
+                      otel:monitorsComponent ?component .
+                ?component a dfls:DFLSSystem .
+                FILTER(?latency > 0.001)
+            }
+        """ ;
+        sh:severity sh:Warning ;
+    ] .
+
+otel:ErrorRateMonitorShape
+    a sh:NodeShape ;
+    sh:targetClass otel:ErrorRateMonitor ;
+    sh:property [
+        sh:path otel:targetErrorRate ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 0.00034 ;  # Six Sigma: 3.4 defects per million
+        sh:message "Target error rate must not exceed Six Sigma level (0.00034)" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# =============================================================================
+# SAMPLING CONSTRAINTS
+# =============================================================================
+
+otel:SamplerShape
+    a sh:NodeShape ;
+    sh:targetClass otel:Sampler ;
+    sh:closed false .  # Allow different sampler types
+
+otel:ProbabilitySamplerShape
+    a sh:NodeShape ;
+    sh:targetClass otel:ProbabilitySampler ;
+    sh:property [
+        sh:path otel:samplingRate ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Sampling rate must be between 0.0 and 1.0" ;
+        sh:severity sh:Violation ;
+    ] ;
+    # Warn if sampling rate is too high for production
+    sh:sparql [
+        sh:message "High sampling rates may impact production performance" ;
+        sh:prefixes otel: ;
+        sh:select """
+            SELECT ?this ?rate
+            WHERE {
+                ?this a otel:ProbabilitySampler ;
+                      otel:samplingRate ?rate .
+                FILTER(?rate > 0.1)  # >10% sampling
+            }
+        """ ;
+        sh:severity sh:Info ;
+    ] .
+
+otel:RateLimitingSamplerShape
+    a sh:NodeShape ;
+    sh:targetClass otel:RateLimitingSampler ;
+    sh:property [
+        sh:path otel:maxTracesPerSecond ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 10000 ;  # Reasonable limits
+        sh:message "Max traces per second must be between 1 and 10,000" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# =============================================================================
+# EXPORTER CONSTRAINTS
+# =============================================================================
+
+otel:ExporterShape
+    a sh:NodeShape ;
+    sh:targetClass otel:Exporter ;
+    sh:closed false .
+
+# Console exporter should only be used in development
+otel:ConsoleExporterShape
+    a sh:NodeShape ;
+    sh:targetClass otel:ConsoleExporter ;
+    sh:sparql [
+        sh:message "Console exporter should only be used in development/testing" ;
+        sh:prefixes otel: ;
+        sh:select """
+            SELECT ?this
+            WHERE {
+                ?this a otel:ConsoleExporter .
+                # In practice, this would check environment variables or deployment context
+            }
+        """ ;
+        sh:severity sh:Info ;
+    ] .
+
+# =============================================================================
+# DFLS INTEGRATION CONSTRAINTS
+# =============================================================================
+
+otel:DFLSInstrumentationShape
+    a sh:NodeShape ;
+    sh:targetClass otel:Instrumentable ;
+    # DFLS systems must have performance monitoring
+    sh:sparql [
+        sh:message "DFLS systems must have performance monitoring" ;
+        sh:prefixes otel: dfls: ;
+        sh:select """
+            SELECT ?this
+            WHERE {
+                ?this a dfls:DFLSSystem, otel:Instrumentable .
+                FILTER NOT EXISTS { 
+                    ?monitor a otel:PerformanceMonitor ;
+                             otel:monitorsComponent ?this .
+                }
+            }
+        """ ;
+        sh:severity sh:Warning ;
+    ] ;
+    # Six Sigma systems must have error rate monitoring
+    sh:sparql [
+        sh:message "Six Sigma systems must have error rate monitoring" ;
+        sh:prefixes otel: dfls: ;
+        sh:select """
+            SELECT ?this
+            WHERE {
+                ?this a dfls:SixSigmaMetric, otel:Instrumentable .
+                FILTER NOT EXISTS { 
+                    ?monitor a otel:ErrorRateMonitor ;
+                             otel:monitorsComponent ?this .
+                }
+            }
+        """ ;
+        sh:severity sh:Warning ;
+    ] .
+
+# =============================================================================
+# SYSTEM INTEGRATION CONSTRAINTS
+# =============================================================================
+
+otel:SystemIntegrationShape
+    a sh:NodeShape ;
+    sh:targetNode otel:SystemIntegration ;
+    # Ensure trace correlation across services
+    sh:sparql [
+        sh:message "Distributed traces must maintain correlation" ;
+        sh:prefixes otel: ;
+        sh:select """
+            SELECT ?clientSpan ?serverSpan ?traceId
+            WHERE {
+                ?clientSpan a otel:ClientSpan ;
+                           otel:traceId ?traceId .
+                ?serverSpan a otel:ServerSpan ;
+                           otel:traceId ?differentTraceId .
+                # Check for broken trace correlation
+                FILTER(?traceId != ?differentTraceId)
+                # Additional correlation logic would be needed
+            }
+        """ ;
+        sh:severity sh:Warning ;
+    ] ;
+    # Check for reasonable span hierarchy depth
+    sh:sparql [
+        sh:message "Span hierarchy should not be too deep (performance impact)" ;
+        sh:prefixes otel: ;
+        sh:select """
+            SELECT ?span (COUNT(?ancestor) AS ?depth)
+            WHERE {
+                ?span a otel:Span .
+                ?span otel:hasParentSpan+ ?ancestor .
+            }
+            GROUP BY ?span
+            HAVING (?depth > 10)  # Maximum recommended depth
+        """ ;
+        sh:severity sh:Info ;
+    ] .
+
+# =============================================================================
+# TEMPLATE VALIDATION CONSTRAINTS
+# =============================================================================
+
+otel:TemplateQualityShape
+    a sh:NodeShape ;
+    sh:targetClass otel:WeaverTemplate ;
+    # Template must include error handling
+    sh:sparql [
+        sh:message "Template should include error handling patterns" ;
+        sh:prefixes otel: ;
+        sh:select """
+            SELECT ?this ?content
+            WHERE {
+                ?this a otel:WeaverTemplate ;
+                      otel:templateContent ?content .
+                FILTER(!REGEX(?content, "try|catch|exception|error", "i"))
+            }
+        """ ;
+        sh:severity sh:Warning ;
+    ] ;
+    # Template must include span attributes
+    sh:sparql [
+        sh:message "Template should set span attributes for observability" ;
+        sh:prefixes otel: ;
+        sh:select """
+            SELECT ?this ?content
+            WHERE {
+                ?this a otel:WeaverTemplate ;
+                      otel:templateContent ?content .
+                FILTER(!REGEX(?content, "setAttribute|set_attribute", "i"))
+            }
+        """ ;
+        sh:severity sh:Info ;
+    ] .
+
+# =============================================================================
+# PERFORMANCE BUDGET CONSTRAINTS
+# =============================================================================
+
+otel:PerformanceBudgetShape
+    a sh:NodeShape ;
+    sh:targetNode otel:SystemPerformanceBudget ;
+    # System-wide instrumentation overhead check
+    sh:sparql [
+        sh:message "Total instrumentation overhead exceeds budget" ;
+        sh:prefixes otel: ;
+        sh:select """
+            SELECT (SUM(?overhead) AS ?totalOverhead)
+            WHERE {
+                ?component a otel:Instrumentable ;
+                          otel:instrumentationOverhead ?overhead .
+            }
+            HAVING (?totalOverhead > 0.05)  # >5% total overhead
+        """ ;
+        sh:severity sh:Violation ;
+    ] ;
+    # Check for too many metrics
+    sh:sparql [
+        sh:message "Too many metrics may impact performance" ;
+        sh:prefixes otel: ;
+        sh:select """
+            SELECT (COUNT(?metric) AS ?metricCount)
+            WHERE {
+                ?metric a otel:Metric .
+            }
+            HAVING (?metricCount > 1000)  # >1000 metrics
+        """ ;
+        sh:severity sh:Warning ;
+    ] .
+
+# =============================================================================
+# END OF SHACL VALIDATION RULES
+# =============================================================================

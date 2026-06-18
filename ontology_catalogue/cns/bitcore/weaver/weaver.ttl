@@ -1,0 +1,177 @@
+@prefix weaver: <http://bitstar.ai/weaver#> .
+@prefix bitstar: <http://bitstar.ai/core#> .
+@prefix tdd: <http://bitstar.ai/tdd#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# BitStar Weaver TDD Framework
+# 80/20 Test-Driven Development: 4 patterns handle 80% of test cases
+
+weaver:Framework a owl:Ontology ;
+    rdfs:label "Weaver TDD Framework" ;
+    rdfs:comment "RDF-based test generation with 80/20 optimization" ;
+    weaver:version "1.0.0" ;
+    weaver:coverage weaver:CoverageRequirements ;
+    weaver:patterns weaver:TestPatterns .
+
+# Core Test Patterns (The 20% that cover 80% of cases)
+weaver:TestPattern a owl:Class ;
+    rdfs:label "Test Pattern" ;
+    rdfs:subClassOf bitstar:Primitive .
+
+# Pattern 1: Unit Test Pattern (35% of tests)
+weaver:UnitTestPattern a weaver:TestPattern ;
+    rdfs:label "Unit Test Pattern" ;
+    weaver:coverage "35%" ;
+    weaver:template """
+        TEST({component}_unit_{function}) {
+            // Arrange
+            {setup}
+            // Act
+            {action}
+            // Assert
+            {assertion}
+        }
+    """ ;
+    weaver:maxTicks 4 .
+
+# Pattern 2: Integration Test Pattern (25% of tests)
+weaver:IntegrationTestPattern a weaver:TestPattern ;
+    rdfs:label "Integration Test Pattern" ;
+    weaver:coverage "25%" ;
+    weaver:template """
+        TEST({component}_integration_{scenario}) {
+            // Setup components
+            {component_setup}
+            // Execute workflow
+            {workflow_execution}
+            // Verify interactions
+            {interaction_verification}
+        }
+    """ ;
+    weaver:maxTicks 6 .
+
+# Pattern 3: Performance Test Pattern (20% of tests)
+weaver:PerformanceTestPattern a weaver:TestPattern ;
+    rdfs:label "Performance Test Pattern" ;
+    weaver:coverage "20%" ;
+    weaver:template """
+        BENCHMARK({component}_perf_{metric}) {
+            // Warmup
+            {warmup_iterations}
+            // Measure
+            TICK_START();
+            {operation}
+            TICK_END();
+            // Validate
+            ASSERT_TICK_LIMIT(8);
+        }
+    """ ;
+    weaver:maxTicks 8 .
+
+# Pattern 4: Invariant Test Pattern (20% of tests)
+weaver:InvariantTestPattern a weaver:TestPattern ;
+    rdfs:label "Invariant Test Pattern" ;
+    weaver:coverage "20%" ;
+    weaver:template """
+        TEST({component}_invariant_{property}) {
+            // Check preconditions
+            {precondition_check}
+            // Execute operation
+            {operation}
+            // Verify invariant
+            ASSERT_INVARIANT({invariant_check});
+        }
+    """ ;
+    weaver:maxTicks 5 .
+
+# Coverage Requirements
+weaver:CoverageRequirements a owl:Class ;
+    rdfs:label "Coverage Requirements" ;
+    weaver:linesCoverage "90%" ;
+    weaver:branchesCoverage "85%" ;
+    weaver:functionsCoverage "95%" ;
+    weaver:invariantsCoverage "100%" .
+
+# Test-Code Linking via RDF Predicates
+weaver:TestLink a owl:ObjectProperty ;
+    rdfs:label "Test-Code Link" ;
+    rdfs:domain weaver:Test ;
+    rdfs:range bitstar:Component ;
+    rdfs:comment "Links test to code under test" .
+
+weaver:tests a owl:ObjectProperty ;
+    rdfs:label "tests" ;
+    rdfs:subPropertyOf weaver:TestLink ;
+    owl:inverseOf weaver:testedBy .
+
+weaver:testedBy a owl:ObjectProperty ;
+    rdfs:label "tested by" ;
+    rdfs:subPropertyOf weaver:TestLink ;
+    owl:inverseOf weaver:tests .
+
+# Test Generation Rules
+weaver:GenerationRule a owl:Class ;
+    rdfs:label "Test Generation Rule" .
+
+weaver:ComponentTestRule a weaver:GenerationRule ;
+    rdfs:label "Component Test Rule" ;
+    weaver:condition "For each bitstar:Component" ;
+    weaver:generates "Unit tests for all public methods" ;
+    weaver:pattern weaver:UnitTestPattern .
+
+weaver:IntegrationTestRule a weaver:GenerationRule ;
+    rdfs:label "Integration Test Rule" ;
+    weaver:condition "For each component interaction" ;
+    weaver:generates "Integration test validating data flow" ;
+    weaver:pattern weaver:IntegrationTestPattern .
+
+weaver:PerformanceTestRule a weaver:GenerationRule ;
+    rdfs:label "Performance Test Rule" ;
+    weaver:condition "For each performance-critical operation" ;
+    weaver:generates "Benchmark validating tick guarantee" ;
+    weaver:pattern weaver:PerformanceTestPattern .
+
+weaver:InvariantTestRule a weaver:GenerationRule ;
+    rdfs:label "Invariant Test Rule" ;
+    weaver:condition "For each system invariant" ;
+    weaver:generates "Test validating invariant preservation" ;
+    weaver:pattern weaver:InvariantTestPattern .
+
+# Test Execution Configuration
+weaver:ExecutionConfig a owl:Class ;
+    rdfs:label "Test Execution Configuration" ;
+    weaver:parallel true ;
+    weaver:maxThreads 8 ;
+    weaver:timeout "100ms" ;
+    weaver:retries 0 ;
+    weaver:failFast false .
+
+# Test Reporting
+weaver:TestReport a owl:Class ;
+    rdfs:label "Test Report" ;
+    weaver:format "JUnit XML" ;
+    weaver:includesCoverage true ;
+    weaver:includesPerformance true ;
+    weaver:includesInvariants true .
+
+# YAWL Workflow Pattern Integration
+weaver:YAWLPattern a owl:Class ;
+    rdfs:label "YAWL Workflow Pattern" ;
+    rdfs:comment "43 workflow patterns for test orchestration" .
+
+weaver:SequentialPattern a weaver:YAWLPattern ;
+    rdfs:label "Sequential Test Pattern" ;
+    weaver:id "Pattern 1" ;
+    weaver:ticks 2 .
+
+weaver:ParallelPattern a weaver:YAWLPattern ;
+    rdfs:label "Parallel Test Pattern" ;
+    weaver:id "Pattern 2" ;
+    weaver:ticks 3 .
+
+weaver:ConditionalPattern a weaver:YAWLPattern ;
+    rdfs:label "Conditional Test Pattern" ;
+    weaver:id "Pattern 4" ;
+    weaver:ticks 3 .

@@ -1,0 +1,226 @@
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh:     <http://www.w3.org/ns/shacl#> .
+@prefix java26: <http://ggen.io/java26#> .
+@prefix shapes: <http://ggen.io/java26/shapes#> .
+
+# =============================================================================
+# SHACL VALIDATION SHAPES — SEALED DOMAIN HIERARCHY
+# =============================================================================
+# These shapes validate any domain.ttl that uses the java26-sealed-domain pack.
+#
+# Run: ggen validate ontology/domain.ttl
+#
+# Shapes defined here:
+#   1. SealedInterfaceShape   — validates java26:SealedInterface instances
+#   2. SealedRecordShape      — validates java26:SealedRecord instances
+#   3. FieldShape             — validates java26:Field instances
+#   4. AggregateRootShape     — validates java26:AggregateRoot instances
+# =============================================================================
+
+
+# =============================================================================
+# SHAPE 1: SealedInterface
+# =============================================================================
+# Every sealed interface MUST have exactly one java26:name and one
+# java26:javaPackage. The javaPackage must conform to Java's package naming
+# convention: lowercase identifiers separated by dots.
+# =============================================================================
+
+shapes:SealedInterfaceShape a sh:NodeShape ;
+    sh:targetClass java26:SealedInterface ;
+    rdfs:label "Sealed Interface Shape" ;
+    rdfs:comment "Validates that every java26:SealedInterface has required identity properties." ;
+
+    # Exactly one java26:name (string, non-empty, UpperCamelCase recommended)
+    sh:property [
+        sh:path java26:name ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Every java26:SealedInterface must have exactly one java26:name (string)." ;
+        sh:severity sh:Violation ;
+    ] ;
+
+    # Exactly one java26:javaPackage matching lowercase dot-separated convention
+    sh:property [
+        sh:path java26:javaPackage ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)*$" ;
+        sh:message "java26:javaPackage must match ^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)*$ (e.g. 'com.example.orders')." ;
+        sh:severity sh:Violation ;
+    ] .
+
+
+# =============================================================================
+# SHAPE 2: SealedRecord
+# =============================================================================
+# Every sealed record MUST:
+#   - Have exactly one java26:name
+#   - Have exactly one java26:javaPackage (valid Java package pattern)
+#   - Have exactly one java26:implements pointing to a java26:SealedInterface
+#
+# Fields are optional: some terminal-state records legitimately carry no data
+# beyond their type identity (e.g. a "Deleted" state record).
+# =============================================================================
+
+shapes:SealedRecordShape a sh:NodeShape ;
+    sh:targetClass java26:SealedRecord ;
+    rdfs:label "Sealed Record Shape" ;
+    rdfs:comment "Validates that every java26:SealedRecord has required identity and implements properties." ;
+
+    # Exactly one java26:name
+    sh:property [
+        sh:path java26:name ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Every java26:SealedRecord must have exactly one java26:name (string)." ;
+        sh:severity sh:Violation ;
+    ] ;
+
+    # Exactly one java26:javaPackage
+    sh:property [
+        sh:path java26:javaPackage ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)*$" ;
+        sh:message "java26:javaPackage must match ^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)*$ (e.g. 'com.example.orders')." ;
+        sh:severity sh:Violation ;
+    ] ;
+
+    # Exactly one java26:implements — must point to a SealedInterface
+    sh:property [
+        sh:path java26:implements ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class java26:SealedInterface ;
+        sh:message "Every java26:SealedRecord must implement exactly one java26:SealedInterface via java26:implements." ;
+        sh:severity sh:Violation ;
+    ] ;
+
+    # Optional fields — when present, each must be a java26:Field
+    sh:property [
+        sh:path java26:field ;
+        sh:class java26:Field ;
+        sh:message "java26:field on a SealedRecord must point to a java26:Field instance." ;
+        sh:severity sh:Violation ;
+    ] .
+
+
+# =============================================================================
+# SHAPE 3: Field
+# =============================================================================
+# Every field MUST have exactly one java26:fieldName and one java26:fieldType.
+# These are used verbatim in generated Java source; they must be non-empty.
+# Optional properties (java26:nullable, java26:id, java26:column) are not
+# required but are validated for type correctness when present.
+# =============================================================================
+
+shapes:FieldShape a sh:NodeShape ;
+    sh:targetClass java26:Field ;
+    rdfs:label "Field Shape" ;
+    rdfs:comment "Validates that every java26:Field has required name and type properties." ;
+
+    # Exactly one java26:fieldName (camelCase Java identifier)
+    sh:property [
+        sh:path java26:fieldName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:pattern "^[a-z][a-zA-Z0-9_]*$" ;
+        sh:message "java26:fieldName must be a non-empty camelCase Java identifier (e.g. 'customerId', 'createdAt')." ;
+        sh:severity sh:Violation ;
+    ] ;
+
+    # Exactly one java26:fieldType (non-empty Java type string)
+    sh:property [
+        sh:path java26:fieldType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "java26:fieldType must be a non-empty Java type name (e.g. 'String', 'UUID', 'Instant')." ;
+        sh:severity sh:Violation ;
+    ] ;
+
+    # Optional: java26:nullable must be boolean when present
+    sh:property [
+        sh:path java26:nullable ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:message "java26:nullable must be xsd:boolean (true or false)." ;
+        sh:severity sh:Violation ;
+    ] ;
+
+    # Optional: java26:id must be boolean when present
+    sh:property [
+        sh:path java26:id ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:message "java26:id must be xsd:boolean (true or false)." ;
+        sh:severity sh:Violation ;
+    ] ;
+
+    # Optional: java26:column must be string when present
+    sh:property [
+        sh:path java26:column ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-z][a-z0-9_]*$" ;
+        sh:message "java26:column must be a snake_case SQL column name (e.g. 'created_at')." ;
+        sh:severity sh:Warning ;
+    ] .
+
+
+# =============================================================================
+# SHAPE 4: AggregateRoot
+# =============================================================================
+# Every aggregate root MUST have exactly one java26:name, one
+# java26:javaPackage, and at least one java26:field.
+# Exactly one field should carry java26:id = true (validated as a warning
+# since ggen can generate a sensible default UUID id field when absent).
+# =============================================================================
+
+shapes:AggregateRootShape a sh:NodeShape ;
+    sh:targetClass java26:AggregateRoot ;
+    rdfs:label "Aggregate Root Shape" ;
+    rdfs:comment "Validates that every java26:AggregateRoot has required properties." ;
+
+    # Exactly one java26:name
+    sh:property [
+        sh:path java26:name ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Every java26:AggregateRoot must have exactly one java26:name (string)." ;
+        sh:severity sh:Violation ;
+    ] ;
+
+    # Exactly one java26:javaPackage
+    sh:property [
+        sh:path java26:javaPackage ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)*$" ;
+        sh:message "java26:javaPackage must match ^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)*$ (e.g. 'com.example.orders')." ;
+        sh:severity sh:Violation ;
+    ] ;
+
+    # At least one java26:field
+    sh:property [
+        sh:path java26:field ;
+        sh:minCount 1 ;
+        sh:class java26:Field ;
+        sh:message "Every java26:AggregateRoot must have at least one java26:field." ;
+        sh:severity sh:Violation ;
+    ] .

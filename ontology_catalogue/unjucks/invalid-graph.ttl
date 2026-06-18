@@ -1,0 +1,5 @@
+@prefix ex: <http://example.org/> .
+
+ex:broken a ex:Person ;
+    ex:name "Missing terminator"
+    ex:email "bad@syntax"

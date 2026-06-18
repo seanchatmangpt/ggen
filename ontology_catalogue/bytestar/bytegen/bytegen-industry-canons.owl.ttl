@@ -1,0 +1,112 @@
+@prefix : <https://bytestar.org/ontology/bytegen/industry-canons#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix arch: <https://bytestar.org/ontology/architecture#> .
+@prefix doctrines: <https://bytestar.org/ontology/doctrines#> .
+@prefix tg: <https://bytestar.org/ontology/trojan-gift#> .
+
+<https://bytestar.org/ontology/bytegen/industry-canons>
+    rdf:type owl:Ontology ;
+    owl:versionIRI <https://bytestar.org/ontology/bytegen/industry-canons/v1.0> ;
+    rdfs:comment "Ontology defining the structure and components of Industry Starter Canons (Ontology Plug Packs - OPPs) within the ByteGen realm." ;
+    owl:imports arch: ,
+                doctrines: ,
+                tg: .
+
+#################################################################
+#    Classes
+#################################################################
+
+:IndustryStarterCanon rdf:type owl:Class ;
+    rdfs:comment "A pre-built, domain-specific canon (Ontology Plug Pack) for a particular industry." .
+
+:OntologyPlugPack rdf:type owl:Class ;
+    rdfs:subClassOf :IndustryStarterCanon ;
+    rdfs:comment "A collection of artifacts comprising an Industry Starter Canon." .
+
+:IndustryInference rdf:type owl:Class ;
+    rdfs:comment "The process of automatically detecting and classifying an organization's industry." .
+
+:CanonApplication rdf:type owl:Class ;
+    rdfs:comment "The process of applying an Industry Starter Canon to an organization's infrastructure." .
+
+:SupabaseSchemaTemplate rdf:type owl:Class ;
+    rdfs:comment "A template for generating Supabase schemas (tables, enums, views, indexes)." .
+
+:RLS_CapabilityPolicy rdf:type owl:Class ;
+    rdfs:comment "Policies for Row-Level Security and capability-based access control." .
+
+:EdgeFunctionTemplate rdf:type owl:Class ;
+    rdfs:comment "Templates for Supabase Edge Functions (e.g., for signing and mission-crystal fabrication)." .
+
+:NuxtLayerComponent rdf:type owl:Class ;
+    rdfs:comment "Components for generating Nuxt multi-layer frontends." .
+
+:ShadowDataProductTemplate rdf:type owl:Class ;
+    rdfs:comment "Templates for generating privacy-safe shadow data products (non-PII aggregates, DP budgets)." .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+:hasComponent rdf:type owl:ObjectProperty ;
+    rdfs:domain :OntologyPlugPack ;
+    rdfs:range rdfs:Resource ;
+    rdfs:comment "An Ontology Plug Pack has various components." .
+
+:infersIndustry rdf:type owl:ObjectProperty ;
+    rdfs:domain :IndustryInference ;
+    rdfs:range :IndustryStarterCanon ;
+    rdfs:comment "The process of inferring an industry leads to the selection of an Industry Starter Canon." .
+
+:appliesCanon rdf:type owl:ObjectProperty ;
+    rdfs:domain :CanonApplication ;
+    rdfs:range :IndustryStarterCanon ;
+    rdfs:comment "The process of applying a specific Industry Starter Canon." .
+
+:generatesSchemaFrom rdf:type owl:ObjectProperty ;
+    rdfs:domain :SupabaseSchemaTemplate ;
+    rdfs:range :IndustryStarterCanon ;
+    rdfs:comment "A Supabase schema template generates schemas from an Industry Starter Canon." .
+
+:definesPolicyFor rdf:type owl:ObjectProperty ;
+    rdfs:domain :RLS_CapabilityPolicy ;
+    rdfs:range :IndustryStarterCanon ;
+    rdfs:comment "RLS and capability policies are defined for an Industry Starter Canon." .
+
+:providesEdgeFunction rdf:type owl:ObjectProperty ;
+    rdfs:domain :EdgeFunctionTemplate ;
+    rdfs:range :IndustryStarterCanon ;
+    rdfs:comment "Edge function templates are provided for an Industry Starter Canon." .
+
+:includesNuxtComponent rdf:type owl:ObjectProperty ;
+    rdfs:domain :NuxtLayerComponent ;
+    rdfs:range :IndustryStarterCanon ;
+    rdfs:comment "Nuxt layer components are included in an Industry Starter Canon." .
+
+:offersShadowProduct rdf:type owl:ObjectProperty ;
+    rdfs:domain :ShadowDataProductTemplate ;
+    rdfs:range :IndustryStarterCanon ;
+    rdfs:comment "Shadow data product templates are offered for an Industry Starter Canon." .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+:hasIndustryName rdf:type owl:DatatypeProperty ;
+    rdfs:domain :IndustryStarterCanon ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The name of the industry for which the canon is designed." .
+
+:hasConfidenceScore rdf:type owl:DatatypeProperty ;
+    rdfs:domain :IndustryInference ;
+    rdfs:range xsd:float ;
+    rdfs:comment "The confidence score of the industry inference, between 0.0 and 1.0." .
+
+:hasIndustrySignals rdf:type owl:DatatypeProperty ;
+    rdfs:domain :IndustryInference ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Signals used for industry inference (e.g., endpoint names, schema fingerprints)." .
+

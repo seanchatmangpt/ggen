@@ -1,0 +1,493 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bf: <http://bitflow.ai/ontology/workflow#> .
+@prefix yawl: <http://yawl.org/ontology#> .
+
+# ============================================
+# BitFlow Workflow Patterns Taxonomy (TTL)
+# ============================================
+
+<http://bitflow.ai/ontology/workflow-patterns> a owl:Ontology ;
+    rdfs:label "BitFlow Workflow Patterns"@en ;
+    rdfs:comment "Detailed specification of BitFlow workflow patterns with performance characteristics and financial optimizations"@en ;
+    owl:versionInfo "1.0.0" ;
+    owl:imports <http://bitflow.ai/ontology/workflow> .
+
+# ============================================
+# Control Flow Pattern Hierarchy
+# ============================================
+
+# Basic Patterns (WCP 1-5)
+bf:SequencePattern a owl:Class ;
+    rdfs:label "Sequence (WCP-1)"@en ;
+    rdfs:comment "Task A followed by Task B with 2-4 tick timing guarantee"@en ;
+    rdfs:subClassOf bf:WorkflowPattern ;
+    bf:hasComplexity "O(1)" ;
+    bf:hasPerformanceCharacteristic [
+        bf:minLatencyTicks 2 ;
+        bf:maxLatencyTicks 4 ;
+        bf:throughputOpsPerSec 764000 ;
+        bf:memoryFootprintBytes 64
+    ] .
+
+bf:ParallelSplitPattern a owl:Class ;
+    rdfs:label "Parallel Split (WCP-2)"@en ;
+    rdfs:comment "Single thread splits into multiple concurrent threads"@en ;
+    rdfs:subClassOf bf:WorkflowPattern ;
+    bf:hasComplexity "O(n)" ;
+    bf:hasPerformanceCharacteristic [
+        bf:minLatencyTicks 3 ;
+        bf:maxLatencyTicks 6 ;
+        bf:throughputOpsPerSec 764000 ;
+        bf:memoryFootprintBytes 128 ;
+        bf:maxConcurrentBranches 16
+    ] .
+
+bf:SynchronizationPattern a owl:Class ;
+    rdfs:label "Synchronization (WCP-3)"@en ;
+    rdfs:comment "Multiple threads converge into single thread"@en ;
+    rdfs:subClassOf bf:WorkflowPattern ;
+    bf:hasComplexity "O(n)" ;
+    bf:hasPerformanceCharacteristic [
+        bf:minLatencyTicks 4 ;
+        bf:maxLatencyTicks 8 ;
+        bf:throughputOpsPerSec 764000 ;
+        bf:memoryFootprintBytes 192 ;
+        bf:maxSyncBranches 16
+    ] .
+
+bf:ExclusiveChoicePattern a owl:Class ;
+    rdfs:label "Exclusive Choice (WCP-4)"@en ;
+    rdfs:comment "Single branch selection based on conditions"@en ;
+    rdfs:subClassOf bf:WorkflowPattern ;
+    bf:hasComplexity "O(1)" ;
+    bf:hasPerformanceCharacteristic [
+        bf:minLatencyTicks 2 ;
+        bf:maxLatencyTicks 3 ;
+        bf:throughputOpsPerSec 764000 ;
+        bf:memoryFootprintBytes 96 ;
+        bf:maxChoiceBranches 8
+    ] .
+
+bf:SimpleMergePattern a owl:Class ;
+    rdfs:label "Simple Merge (WCP-5)"@en ;
+    rdfs:comment "Convergence of two or more alternative branches"@en ;
+    rdfs:subClassOf bf:WorkflowPattern ;
+    bf:hasComplexity "O(1)" ;
+    bf:hasPerformanceCharacteristic [
+        bf:minLatencyTicks 1 ;
+        bf:maxLatencyTicks 2 ;
+        bf:throughputOpsPerSec 764000 ;
+        bf:memoryFootprintBytes 64
+    ] .
+
+# Advanced Patterns (WCP 6-10)
+bf:MultiChoicePattern a owl:Class ;
+    rdfs:label "Multi-Choice (WCP-6)"@en ;
+    rdfs:comment "Selection of multiple branches based on conditions"@en ;
+    rdfs:subClassOf bf:WorkflowPattern ;
+    bf:hasComplexity "O(m)" ;
+    bf:hasPerformanceCharacteristic [
+        bf:minLatencyTicks 3 ;
+        bf:maxLatencyTicks 7 ;
+        bf:throughputOpsPerSec 764000 ;
+        bf:memoryFootprintBytes 256 ;
+        bf:maxChoiceBranches 12
+    ] .
+
+bf:StructuredSyncMergePattern a owl:Class ;
+    rdfs:label "Structured Synchronizing Merge (WCP-7)"@en ;
+    rdfs:comment "Convergence of branches previously split by Multi-Choice"@en ;
+    rdfs:subClassOf bf:WorkflowPattern ;
+    bf:hasComplexity "O(m)" ;
+    bf:hasPerformanceCharacteristic [
+        bf:minLatencyTicks 5 ;
+        bf:maxLatencyTicks 12 ;
+        bf:throughputOpsPerSec 764000 ;
+        bf:memoryFootprintBytes 384 ;
+        bf:maxSyncBranches 12
+    ] .
+
+bf:MultiMergePattern a owl:Class ;
+    rdfs:label "Multi-Merge (WCP-8)"@en ;
+    rdfs:comment "Convergence without synchronization"@en ;
+    rdfs:subClassOf bf:WorkflowPattern ;
+    bf:hasComplexity "O(1)" ;
+    bf:hasPerformanceCharacteristic [
+        bf:minLatencyTicks 1 ;
+        bf:maxLatencyTicks 3 ;
+        bf:throughputOpsPerSec 764000 ;
+        bf:memoryFootprintBytes 128
+    ] .
+
+bf:DiscriminatorPattern a owl:Class ;
+    rdfs:label "Discriminator (WCP-9)"@en ;
+    rdfs:comment "Convergence that waits for first incoming branch"@en ;
+    rdfs:subClassOf bf:WorkflowPattern ;
+    bf:hasComplexity "O(1)" ;
+    bf:hasPerformanceCharacteristic [
+        bf:minLatencyTicks 2 ;
+        bf:maxLatencyTicks 4 ;
+        bf:throughputOpsPerSec 764000 ;
+        bf:memoryFootprintBytes 160
+    ] .
+
+bf:ArbitraryCyclesPattern a owl:Class ;
+    rdfs:label "Arbitrary Cycles (WCP-10)"@en ;
+    rdfs:comment "Loops with arbitrary entry and exit points"@en ;
+    rdfs:subClassOf bf:WorkflowPattern ;
+    bf:hasComplexity "O(k)" ;
+    bf:hasPerformanceCharacteristic [
+        bf:minLatencyTicks 4 ;
+        bf:maxLatencyTicks 16 ;
+        bf:throughputOpsPerSec 382000 ;
+        bf:memoryFootprintBytes 512 ;
+        bf:maxCycleDepth 8
+    ] .
+
+# ============================================
+# Financial-Specific Pattern Specializations
+# ============================================
+
+bf:UltraLowLatencySequence a owl:Class ;
+    rdfs:label "Ultra-Low Latency Sequence"@en ;
+    rdfs:comment "Optimized sequence for financial processing with sub-microsecond guarantees"@en ;
+    rdfs:subClassOf bf:SequencePattern ;
+    rdfs:subClassOf bf:FinancialWorkflowPattern ;
+    bf:hasLatencyBudget 1 ; # 1 microsecond max
+    bf:hasPerformanceCharacteristic [
+        bf:minLatencyTicks 2 ;
+        bf:maxLatencyTicks 3 ;
+        bf:throughputOpsPerSec 1000000 ;
+        bf:memoryFootprintBytes 64 ;
+        bf:cacheLineAligned true ;
+        bf:lockFree true
+    ] .
+
+bf:FinancialParallelSplit a owl:Class ;
+    rdfs:label "Financial Parallel Split"@en ;
+    rdfs:comment "Parallel processing for order validation, risk check, and market data"@en ;
+    rdfs:subClassOf bf:ParallelSplitPattern ;
+    rdfs:subClassOf bf:FinancialWorkflowPattern ;
+    bf:hasLatencyBudget 15 ; # 15 microseconds max
+    bf:hasPerformanceCharacteristic [
+        bf:minLatencyTicks 3 ;
+        bf:maxLatencyTicks 5 ;
+        bf:throughputOpsPerSec 764000 ;
+        bf:memoryFootprintBytes 256 ;
+        bf:maxConcurrentBranches 4 ; # Order, Risk, Position, Market
+        bf:ringBufferOptimized true
+    ] .
+
+bf:RiskBasedExclusiveChoice a owl:Class ;
+    rdfs:label "Risk-Based Exclusive Choice"@en ;
+    rdfs:comment "Choice pattern with integrated circuit breaker logic"@en ;
+    rdfs:subClassOf bf:ExclusiveChoicePattern ;
+    rdfs:subClassOf bf:FinancialWorkflowPattern ;
+    bf:hasLatencyBudget 5 ; # 5 microseconds max
+    bf:hasCircuitBreaker bf:FinancialCircuitBreaker ;
+    bf:hasPerformanceCharacteristic [
+        bf:minLatencyTicks 2 ;
+        bf:maxLatencyTicks 4 ;
+        bf:throughputOpsPerSec 764000 ;
+        bf:memoryFootprintBytes 128 ;
+        bf:maxChoiceBranches 3 ; # OK, Warning, Halt
+        bf:hasRiskLevels ( "NORMAL" "WARNING" "BREACH" "HALT" )
+    ] .
+
+bf:MarketMakingSyncMerge a owl:Class ;
+    rdfs:label "Market Making Sync Merge"@en ;
+    rdfs:comment "Structured merge for bid/ask quote generation"@en ;
+    rdfs:subClassOf bf:StructuredSyncMergePattern ;
+    rdfs:subClassOf bf:FinancialWorkflowPattern ;
+    bf:hasLatencyBudget 20 ; # 20 microseconds max
+    bf:hasPerformanceCharacteristic [
+        bf:minLatencyTicks 4 ;
+        bf:maxLatencyTicks 8 ;
+        bf:throughputOpsPerSec 764000 ;
+        bf:memoryFootprintBytes 512 ;
+        bf:maxSyncBranches 4 ; # Bid, Ask, Risk, Inventory
+        bf:quoteGenerationOptimized true
+    ] .
+
+# ============================================
+# Pattern State Management
+# ============================================
+
+bf:PatternState a owl:Class ;
+    rdfs:label "Pattern State"@en ;
+    rdfs:comment "Runtime state for workflow pattern execution"@en .
+
+bf:SequenceState a owl:Class ;
+    rdfs:label "Sequence State"@en ;
+    rdfs:comment "State for sequence pattern execution"@en ;
+    rdfs:subClassOf bf:PatternState ;
+    bf:hasStateFields [
+        bf:currentTask xsd:nonNegativeInteger ;
+        bf:totalTasks xsd:nonNegativeInteger ;
+        bf:completed xsd:boolean
+    ] .
+
+bf:ParallelState a owl:Class ;
+    rdfs:label "Parallel State"@en ;
+    rdfs:comment "State for parallel split/sync patterns"@en ;
+    rdfs:subClassOf bf:PatternState ;
+    bf:hasStateFields [
+        bf:incomingBranches xsd:nonNegativeInteger ;
+        bf:activatedBranches xsd:nonNegativeInteger ;
+        bf:completedBranches xsd:nonNegativeInteger ;
+        bf:branchMask xsd:nonNegativeInteger
+    ] .
+
+bf:ChoiceState a owl:Class ;
+    rdfs:label "Choice State"@en ;
+    rdfs:comment "State for choice pattern execution"@en ;
+    rdfs:subClassOf bf:PatternState ;
+    bf:hasStateFields [
+        bf:selectedBranch xsd:nonNegativeInteger ;
+        bf:conditionEvaluated xsd:boolean ;
+        bf:choiceComplete xsd:boolean
+    ] .
+
+bf:SyncState a owl:Class ;
+    rdfs:label "Sync State"@en ;
+    rdfs:comment "State for synchronization patterns"@en ;
+    rdfs:subClassOf bf:PatternState ;
+    bf:hasStateFields [
+        bf:expectedBranches xsd:nonNegativeInteger ;
+        bf:arrivedBranches xsd:nonNegativeInteger ;
+        bf:syncComplete xsd:boolean ;
+        bf:timeoutTicks xsd:nonNegativeInteger
+    ] .
+
+# ============================================
+# Pattern Performance Metrics
+# ============================================
+
+bf:PerformanceMetric a owl:Class ;
+    rdfs:label "Performance Metric"@en ;
+    rdfs:comment "Runtime performance measurement"@en .
+
+bf:LatencyMetric a owl:Class ;
+    rdfs:label "Latency Metric"@en ;
+    rdfs:comment "Pattern execution latency measurement"@en ;
+    rdfs:subClassOf bf:PerformanceMetric ;
+    bf:hasMetricFields [
+        bf:minLatencyNs xsd:nonNegativeInteger ;
+        bf:maxLatencyNs xsd:nonNegativeInteger ;
+        bf:avgLatencyNs xsd:nonNegativeInteger ;
+        bf:p99LatencyNs xsd:nonNegativeInteger ;
+        bf:measurementCount xsd:nonNegativeInteger
+    ] .
+
+bf:ThroughputMetric a owl:Class ;
+    rdfs:label "Throughput Metric"@en ;
+    rdfs:comment "Pattern throughput measurement"@en ;
+    rdfs:subClassOf bf:PerformanceMetric ;
+    bf:hasMetricFields [
+        bf:operationsPerSecond xsd:nonNegativeInteger ;
+        bf:peakOpsPerSecond xsd:nonNegativeInteger ;
+        bf:utilization xsd:decimal ;
+        bf:queueDepth xsd:nonNegativeInteger
+    ] .
+
+bf:MemoryMetric a owl:Class ;
+    rdfs:label "Memory Metric"@en ;
+    rdfs:comment "Pattern memory usage measurement"@en ;
+    rdfs:subClassOf bf:PerformanceMetric ;
+    bf:hasMetricFields [
+        bf:heapUsageBytes xsd:nonNegativeInteger ;
+        bf:stackUsageBytes xsd:nonNegativeInteger ;
+        bf:ringBufferUsageBytes xsd:nonNegativeInteger ;
+        bf:cacheHitRate xsd:decimal
+    ] .
+
+# ============================================
+# Error Handling and Recovery Patterns
+# ============================================
+
+bf:ErrorHandlingPattern a owl:Class ;
+    rdfs:label "Error Handling Pattern"@en ;
+    rdfs:comment "Pattern for managing workflow errors and exceptions"@en ;
+    rdfs:subClassOf bf:WorkflowPattern .
+
+bf:CircuitBreakerPattern a owl:Class ;
+    rdfs:label "Circuit Breaker Pattern"@en ;
+    rdfs:comment "Financial safety pattern for system protection"@en ;
+    rdfs:subClassOf bf:ErrorHandlingPattern ;
+    bf:hasPerformanceCharacteristic [
+        bf:minLatencyTicks 1 ;
+        bf:maxLatencyTicks 2 ;
+        bf:throughputOpsPerSec 764000 ;
+        bf:memoryFootprintBytes 64 ;
+        bf:activationThresholdMs 100 ;
+        bf:cooldownPeriodMs 1000
+    ] .
+
+bf:BackpressurePattern a owl:Class ;
+    rdfs:label "Backpressure Pattern"@en ;
+    rdfs:comment "Load management pattern for quality over quantity"@en ;
+    rdfs:subClassOf bf:ErrorHandlingPattern ;
+    bf:hasPerformanceCharacteristic [
+        bf:minLatencyTicks 1 ;
+        bf:maxLatencyTicks 1 ;
+        bf:throughputOpsPerSec 764000 ;
+        bf:memoryFootprintBytes 32 ;
+        bf:normalThreshold 80 ;
+        bf:warningThreshold 90 ;
+        bf:criticalThreshold 95
+    ] .
+
+bf:RetryPattern a owl:Class ;
+    rdfs:label "Retry Pattern"@en ;
+    rdfs:comment "Automatic retry with exponential backoff"@en ;
+    rdfs:subClassOf bf:ErrorHandlingPattern ;
+    bf:hasPerformanceCharacteristic [
+        bf:minLatencyTicks 2 ;
+        bf:maxLatencyTicks 16 ;
+        bf:throughputOpsPerSec 382000 ;
+        bf:memoryFootprintBytes 96 ;
+        bf:maxRetries 3 ;
+        bf:baseDelayMs 1 ;
+        bf:maxDelayMs 100
+    ] .
+
+# ============================================
+# Workflow Pattern Relationships
+# ============================================
+
+# Pattern Precedence Rules
+bf:SequencePattern bf:requiresPrecedence bf:WorkflowPattern .
+bf:SynchronizationPattern bf:requiresParallelSplit bf:ParallelSplitPattern .
+bf:StructuredSyncMergePattern bf:requiresMultiChoice bf:MultiChoicePattern .
+
+# Financial Pattern Dependencies
+bf:RiskBasedExclusiveChoice bf:requiresRiskCalculation bf:RiskManagementPattern .
+bf:MarketMakingSyncMerge bf:requiresMarketData bf:MarketDataPattern .
+bf:FinancialParallelSplit bf:requiresOrderValidation bf:OrderManagementPattern .
+
+# Performance Constraints
+bf:UltraLowLatencySequence owl:equivalentClass [
+    a owl:Class ;
+    owl:intersectionOf (
+        bf:SequencePattern
+        [
+            a owl:Restriction ;
+            owl:onProperty bf:hasLatencyBudget ;
+            owl:maxInclusive 1
+        ]
+    )
+] .
+
+bf:HighThroughputPattern owl:equivalentClass [
+    a owl:Class ;
+    owl:intersectionOf (
+        bf:WorkflowPattern
+        [
+            a owl:Restriction ;
+            owl:onProperty bf:hasThroughput ;
+            owl:minInclusive 500000
+        ]
+    )
+] .
+
+# ============================================
+# Pattern Validation Rules
+# ============================================
+
+# Every financial pattern must have latency budget
+[
+    a owl:Class ;
+    owl:intersectionOf (
+        bf:FinancialWorkflowPattern
+        [
+            a owl:Restriction ;
+            owl:onProperty bf:hasLatencyBudget ;
+            owl:minCardinality 1
+        ]
+    )
+] .
+
+# Parallel patterns must have at least 2 branches
+[
+    a owl:Class ;
+    owl:intersectionOf (
+        bf:ParallelSplitPattern
+        [
+            a owl:Restriction ;
+            owl:onProperty bf:hasBranch ;
+            owl:minCardinality 2
+        ]
+    )
+] .
+
+# Risk patterns must have circuit breakers
+[
+    a owl:Class ;
+    owl:intersectionOf (
+        bf:RiskManagementPattern
+        [
+            a owl:Restriction ;
+            owl:onProperty bf:hasCircuitBreaker ;
+            owl:minCardinality 1
+        ]
+    )
+] .
+
+# All patterns must have tick timing guarantees
+[
+    a owl:Class ;
+    owl:intersectionOf (
+        bf:WorkflowPattern
+        [
+            a owl:Restriction ;
+            owl:onProperty bf:hasTickTiming ;
+            owl:minInclusive 2
+        ]
+        [
+            a owl:Restriction ;
+            owl:onProperty bf:hasTickTiming ;
+            owl:maxInclusive 4
+        ]
+    )
+] .
+
+# ============================================
+# Example Pattern Instances
+# ============================================
+
+bf:OrderProcessingWorkflow a bf:FinancialParallelSplit ;
+    rdfs:label "Order Processing Workflow"@en ;
+    bf:hasLatencyBudget 50 ;
+    bf:hasBranch bf:OrderValidationBranch, bf:RiskCheckBranch, bf:PositionUpdateBranch ;
+    bf:hasRingBuffer bf:OrderBuffer ;
+    bf:hasCircuitBreaker bf:OrderCircuitBreaker .
+
+bf:MarketDataWorkflow a bf:UltraLowLatencySequence ;
+    rdfs:label "Market Data Processing Workflow"@en ;
+    bf:hasLatencyBudget 10 ;
+    bf:hasRingBuffer bf:MarketDataBuffer ;
+    bf:hasChecksum bf:CRC32Integrity .
+
+bf:RiskManagementWorkflow a bf:RiskBasedExclusiveChoice ;
+    rdfs:label "Risk Management Workflow"@en ;
+    bf:hasLatencyBudget 25 ;
+    bf:hasChoice [
+        bf:conditionValue "NORMAL" ;
+        bf:targetBranch bf:ContinueProcessing
+    ], [
+        bf:conditionValue "WARNING" ;
+        bf:targetBranch bf:AdditionalChecks
+    ], [
+        bf:conditionValue "BREACH" ;
+        bf:targetBranch bf:HaltTrading
+    ] ;
+    bf:hasCircuitBreaker bf:RiskCircuitBreaker .
+
+bf:TradeExecutionWorkflow a bf:MarketMakingSyncMerge ;
+    rdfs:label "Trade Execution Workflow"@en ;
+    bf:hasLatencyBudget 30 ;
+    bf:hasBranch bf:BidGeneration, bf:AskGeneration, bf:RiskAssessment, bf:InventoryCheck ;
+    bf:hasBackpressureControl bf:TradeBackpressure .

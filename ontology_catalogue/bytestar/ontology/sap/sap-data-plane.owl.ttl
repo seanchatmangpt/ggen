@@ -1,0 +1,100 @@
+@prefix : <https://bytestar.org/ontology/sap/data-plane#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix arch: <https://bytestar.org/ontology/architecture#> .
+@prefix doctrines: <https://bytestar.org/ontology/doctrines#> .
+@prefix sap_arch: <https://bytestar.org/ontology/sap/architecture#> .
+
+<https://bytestar.org/ontology/sap/data-plane>
+    rdf:type owl:Ontology ;
+    owl:versionIRI <https://bytestar.org/ontology/sap/data-plane/v1.0> ;
+    rdfs:comment "Ontology modeling the Supabase data plane components within the Sovereign Access Plane (SAP)." ;
+    owl:imports arch: ,
+                doctrines: ,
+                sap_arch: .
+
+#################################################################
+#    Classes
+#################################################################
+
+:SupabaseDataPlane rdf:type owl:Class ;
+    rdfs:comment "The data plane implemented using Supabase (Postgres, RLS, Edge Functions, Realtime)." .
+
+:Schema rdf:type owl:Class ;
+    rdfs:comment "The database schema, fabricated from ontologies." .
+
+:RowLevelSecurity rdf:type owl:Class ;
+    rdfs:comment "Row-Level Security policies for fine-grained access control." .
+
+:EdgeFunction rdf:type owl:Class ;
+    rdfs:comment "A Supabase Edge Function, used for signing and mission-crystal fabrication." .
+
+:RealtimeChannel rdf:type owl:Class ;
+    rdfs:comment "A Supabase Realtime channel for instant data updates." .
+
+:CDC_Outflow rdf:type owl:Class ;
+    rdfs:comment "Change Data Capture outflow for streaming data." .
+
+:ExactlyOnceAnchoring rdf:type owl:Class ;
+    rdfs:comment "Mechanism ensuring exactly-once delivery and anchoring of CDC sequences." .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+:hasSchema rdf:type owl:ObjectProperty ;
+    rdfs:domain :SupabaseDataPlane ;
+    rdfs:range :Schema ;
+    rdfs:comment "The Supabase data plane has a schema." .
+
+:appliesRLS rdf:type owl:ObjectProperty ;
+    rdfs:domain :SupabaseDataPlane ;
+    rdfs:range :RowLevelSecurity ;
+    rdfs:comment "The Supabase data plane applies Row-Level Security." .
+
+:usesEdgeFunction rdf:type owl:ObjectProperty ;
+    rdfs:domain :SupabaseDataPlane ;
+    rdfs:range :EdgeFunction ;
+    rdfs:comment "The Supabase data plane uses Edge Functions." .
+
+:providesRealtimeChannel rdf:type owl:ObjectProperty ;
+    rdfs:domain :SupabaseDataPlane ;
+    rdfs:range :RealtimeChannel ;
+    rdfs:comment "The Supabase data plane provides Realtime channels." .
+
+:hasCDC_Outflow rdf:type owl:ObjectProperty ;
+    rdfs:domain :SupabaseDataPlane ;
+    rdfs:range :CDC_Outflow ;
+    rdfs:comment "The Supabase data plane has CDC outflow." .
+
+:ensuresDelivery rdf:type owl:ObjectProperty ;
+    rdfs:domain :CDC_Outflow ;
+    rdfs:range :ExactlyOnceAnchoring ;
+    rdfs:comment "CDC outflow ensures exactly-once delivery." .
+
+:fabricatedFromOntology rdf:type owl:ObjectProperty ;
+    rdfs:domain :Schema ;
+    rdfs:range owl:Ontology ;
+    rdfs:comment "A schema is fabricated from an ontology." .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+:isDenyByDefault rdf:type owl:DatatypeProperty ;
+    rdfs:domain :RowLevelSecurity ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Indicates if RLS policies are deny-by-default." .
+
+:supportsPQC_Sealing rdf:type owl:DatatypeProperty ;
+    rdfs:domain :EdgeFunction ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Indicates if an Edge Function supports PQC sealing." .
+
+:hasExtensions rdf:type owl:DatatypeProperty ;
+    rdfs:domain :SupabaseDataPlane ;
+    rdfs:range xsd:string ;
+    rdfs:comment "List of Supabase extensions used (e.g., pgcrypto, pg_graphql)." .
+

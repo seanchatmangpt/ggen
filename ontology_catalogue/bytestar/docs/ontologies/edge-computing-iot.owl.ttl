@@ -1,0 +1,1201 @@
+@prefix : <https://bytestar.org/ontology/edge-iot#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+@prefix pg: <https://bytestar.org/ontology/performance-guarantees#> .
+@prefix cl: <https://bytestar.org/ontology/crystal-lattice#> .
+@prefix mac: <https://bytestar.org/ontology/multi-agent-coordination#> .
+
+@base <https://bytestar.org/ontology/edge-iot> .
+
+<https://bytestar.org/ontology/edge-iot> rdf:type owl:Ontology ;
+    owl:versionIRI <https://bytestar.org/ontology/edge-iot/1.0> ;
+    rdfs:label "Edge Computing and IoT Integration Ontology" ;
+    rdfs:comment """
+    The Edge Computing and IoT Integration Ontology defines the framework for
+    extending ByteStar fabric capabilities to edge devices, IoT ecosystems, and
+    distributed computing environments with ultra-low latency requirements.
+    
+    This ontology enables ByteStar to operate at the network edge while maintaining
+    deterministic performance guarantees, 8-tick doctrine compliance, and
+    post-quantum security across resource-constrained environments.
+    
+    Edge Computing Domains:
+    - Edge Node Architecture: Micro-datacenters and edge computing nodes
+    - IoT Device Management: Sensors, actuators, and smart device integration
+    - Fog Computing: Hierarchical edge-to-cloud computing continuum
+    - Mobile Edge Computing: 5G/6G network edge integration
+    - Industrial IoT: Manufacturing, automation, and control systems
+    - Smart City Infrastructure: Traffic, utilities, and environmental systems
+    
+    Key Features:
+    - Ultra-Low Latency: <1ms response time for critical applications
+    - Resource Optimization: Efficient computation on constrained devices
+    - Offline Capability: Autonomous operation during network partitions
+    - Dynamic Load Balancing: Intelligent workload distribution across edge
+    - Security at Scale: PQC protection for millions of IoT devices
+    - Real-Time Analytics: Stream processing and ML inference at edge
+    """ ;
+    owl:imports <https://bytestar.org/ontology/performance-guarantees> ,
+                <https://bytestar.org/ontology/crystal-lattice> ,
+                <https://bytestar.org/ontology/multi-agent-coordination> .
+
+#################################################################
+#    Core Edge Computing Classes
+#################################################################
+
+:EdgeComputingFabric a owl:Class ;
+    rdfs:label "Edge Computing Fabric" ;
+    rdfs:comment """
+    Distributed computing fabric extending ByteStar capabilities
+    to edge locations for ultra-low latency processing.
+    """ .
+
+:EdgeNode a owl:Class ;
+    rdfs:label "Edge Node" ;
+    rdfs:comment """
+    Computational unit deployed at network edge providing
+    processing capabilities close to data sources.
+    """ .
+
+:MicroDatacenter a owl:Class ;
+    rdfs:subClassOf :EdgeNode ;
+    rdfs:label "Micro-Datacenter" ;
+    rdfs:comment """
+    Small-scale datacenter facility deployed at edge
+    locations for regional processing capabilities.
+    """ .
+
+:EdgeGateway a owl:Class ;
+    rdfs:subClassOf :EdgeNode ;
+    rdfs:label "Edge Gateway" ;
+    rdfs:comment """
+    Network gateway device providing edge processing
+    and protocol translation capabilities.
+    """ .
+
+:FogNode a owl:Class ;
+    rdfs:subClassOf :EdgeNode ;
+    rdfs:label "Fog Node" ;
+    rdfs:comment """
+    Intermediate processing node in fog computing
+    architecture between IoT devices and cloud.
+    """ .
+
+:MobileEdgeComputing a owl:Class ;
+    rdfs:subClassOf :EdgeNode ;
+    rdfs:label "Mobile Edge Computing" ;
+    rdfs:comment """
+    Edge computing integrated with mobile networks
+    for 5G/6G ultra-low latency applications.
+    """ .
+
+:EdgeOrchestrator a owl:Class ;
+    rdfs:label "Edge Orchestrator" ;
+    rdfs:comment """
+    Management system coordinating workload distribution
+    and resource allocation across edge nodes.
+    """ .
+
+:EdgeRegistry a owl:Class ;
+    rdfs:label "Edge Registry" ;
+    rdfs:comment """
+    Service discovery and registration system for
+    edge nodes and available capabilities.
+    """ .
+
+#################################################################
+#    IoT Device Classes
+#################################################################
+
+:IoTDevice a owl:Class ;
+    rdfs:label "IoT Device" ;
+    rdfs:comment """
+    Internet-connected device with sensing, actuation,
+    or computing capabilities in IoT ecosystem.
+    """ .
+
+:Sensor a owl:Class ;
+    rdfs:subClassOf :IoTDevice ;
+    rdfs:label "Sensor" ;
+    rdfs:comment """
+    Device that detects and measures physical phenomena
+    and converts them to digital signals.
+    """ .
+
+:Actuator a owl:Class ;
+    rdfs:subClassOf :IoTDevice ;
+    rdfs:label "Actuator" ;
+    rdfs:comment """
+    Device that performs physical actions in response
+    to control signals from computing systems.
+    """ .
+
+:SmartDevice a owl:Class ;
+    rdfs:subClassOf :IoTDevice ;
+    rdfs:label "Smart Device" ;
+    rdfs:comment """
+    Intelligent device with embedded processing
+    capabilities and network connectivity.
+    """ .
+
+:WearableDevice a owl:Class ;
+    rdfs:subClassOf :IoTDevice ;
+    rdfs:label "Wearable Device" ;
+    rdfs:comment """
+    Portable device designed to be worn by users
+    for continuous monitoring or interaction.
+    """ .
+
+:IndustrialIoTDevice a owl:Class ;
+    rdfs:subClassOf :IoTDevice ;
+    rdfs:label "Industrial IoT Device" ;
+    rdfs:comment """
+    Ruggedized IoT device designed for industrial
+    environments and manufacturing processes.
+    """ .
+
+:AutonomousVehicle a owl:Class ;
+    rdfs:subClassOf :IoTDevice ;
+    rdfs:label "Autonomous Vehicle" ;
+    rdfs:comment """
+    Self-driving vehicle with advanced sensor arrays
+    and edge computing capabilities.
+    """ .
+
+:Drone a owl:Class ;
+    rdfs:subClassOf :IoTDevice ;
+    rdfs:label "Drone" ;
+    rdfs:comment """
+    Unmanned aerial vehicle with autonomous navigation
+    and data collection capabilities.
+    """ .
+
+#################################################################
+#    IoT Communication Classes
+#################################################################
+
+:IoTCommunicationProtocol a owl:Class ;
+    rdfs:label "IoT Communication Protocol" ;
+    rdfs:comment """
+    Communication protocol optimized for IoT device
+    connectivity and data exchange.
+    """ .
+
+:MQTT a owl:Class, owl:NamedIndividual ;
+    rdfs:subClassOf :IoTCommunicationProtocol ;
+    rdfs:label "MQTT" ;
+    rdfs:comment """
+    Message Queuing Telemetry Transport protocol
+    for lightweight publish-subscribe messaging.
+    """ .
+
+:CoAP a owl:Class, owl:NamedIndividual ;
+    rdfs:subClassOf :IoTCommunicationProtocol ;
+    rdfs:label "CoAP" ;
+    rdfs:comment """
+    Constrained Application Protocol for resource-constrained
+    devices and low-power networks.
+    """ .
+
+:LoRaWAN a owl:Class, owl:NamedIndividual ;
+    rdfs:subClassOf :IoTCommunicationProtocol ;
+    rdfs:label "LoRaWAN" ;
+    rdfs:comment """
+    Long Range Wide Area Network protocol for
+    low-power, long-range IoT communications.
+    """ .
+
+:SigFox a owl:Class, owl:NamedIndividual ;
+    rdfs:subClassOf :IoTCommunicationProtocol ;
+    rdfs:label "SigFox" ;
+    rdfs:comment """
+    Ultra-narrow band wireless communication protocol
+    for low-power IoT applications.
+    """ .
+
+:NB_IoT a owl:Class, owl:NamedIndividual ;
+    rdfs:subClassOf :IoTCommunicationProtocol ;
+    rdfs:label "NB-IoT" ;
+    rdfs:comment """
+    Narrowband Internet of Things cellular standard
+    for wide-area IoT connectivity.
+    """ .
+
+:BLE a owl:Class, owl:NamedIndividual ;
+    rdfs:subClassOf :IoTCommunicationProtocol ;
+    rdfs:label "Bluetooth Low Energy" ;
+    rdfs:comment """
+    Energy-efficient Bluetooth variant for
+    short-range IoT device communication.
+    """ .
+
+:Zigbee a owl:Class, owl:NamedIndividual ;
+    rdfs:subClassOf :IoTCommunicationProtocol ;
+    rdfs:label "Zigbee" ;
+    rdfs:comment """
+    Mesh networking protocol for home automation
+    and industrial IoT applications.
+    """ .
+
+#################################################################
+#    Edge Processing Classes
+#################################################################
+
+:EdgeProcessing a owl:Class ;
+    rdfs:label "Edge Processing" ;
+    rdfs:comment """
+    Computational processing performed at network edge
+    to reduce latency and bandwidth usage.
+    """ .
+
+:StreamProcessing a owl:Class ;
+    rdfs:subClassOf :EdgeProcessing ;
+    rdfs:label "Stream Processing" ;
+    rdfs:comment """
+    Real-time processing of continuous data streams
+    at edge locations with low latency requirements.
+    """ .
+
+:EdgeAnalytics a owl:Class ;
+    rdfs:subClassOf :EdgeProcessing ;
+    rdfs:label "Edge Analytics" ;
+    rdfs:comment """
+    Data analysis and insights generation performed
+    at edge nodes rather than centralized cloud.
+    """ .
+
+:MachineLearningInference a owl:Class ;
+    rdfs:subClassOf :EdgeProcessing ;
+    rdfs:label "Machine Learning Inference" ;
+    rdfs:comment """
+    ML model inference execution at edge nodes
+    for real-time decision making.
+    """ .
+
+:EventProcessing a owl:Class ;
+    rdfs:subClassOf :EdgeProcessing ;
+    rdfs:label "Event Processing" ;
+    rdfs:comment """
+    Processing of discrete events and triggers
+    from IoT devices and sensors.
+    """ .
+
+:DataFiltering a owl:Class ;
+    rdfs:subClassOf :EdgeProcessing ;
+    rdfs:label "Data Filtering" ;
+    rdfs:comment """
+    Selective data processing and transmission
+    to reduce bandwidth and storage requirements.
+    """ .
+
+:AggregationProcessing a owl:Class ;
+    rdfs:subClassOf :EdgeProcessing ;
+    rdfs:label "Aggregation Processing" ;
+    rdfs:comment """
+    Data aggregation and summarization at edge
+    before transmission to cloud systems.
+    """ .
+
+#################################################################
+#    Resource Management Classes
+#################################################################
+
+:EdgeResourceManager a owl:Class ;
+    rdfs:label "Edge Resource Manager" ;
+    rdfs:comment """
+    System managing computational, memory, and network
+    resources across distributed edge infrastructure.
+    """ .
+
+:ResourceConstraints a owl:Class ;
+    rdfs:label "Resource Constraints" ;
+    rdfs:comment """
+    Limitations on computational resources, memory,
+    power, and connectivity at edge devices.
+    """ .
+
+:PowerManagement a owl:Class ;
+    rdfs:label "Power Management" ;
+    rdfs:comment """
+    System optimizing power consumption and battery
+    life for edge devices and IoT systems.
+    """ .
+
+:BandwidthOptimization a owl:Class ;
+    rdfs:label "Bandwidth Optimization" ;
+    rdfs:comment """
+    Techniques for minimizing network bandwidth
+    usage in edge and IoT communications.
+    """ .
+
+:StorageManagement a owl:Class ;
+    rdfs:label "Storage Management" ;
+    rdfs:comment """
+    Management of local storage resources at
+    edge nodes for data caching and buffering.
+    """ .
+
+:ComputeOffloading a owl:Class ;
+    rdfs:label "Compute Offloading" ;
+    rdfs:comment """
+    Dynamic migration of computational tasks between
+    edge devices, fog nodes, and cloud systems.
+    """ .
+
+:LoadBalancer a owl:Class ;
+    rdfs:label "Edge Load Balancer" ;
+    rdfs:comment """
+    System distributing computational workload
+    across multiple edge nodes for optimization.
+    """ .
+
+#################################################################
+#    Real-Time System Classes
+#################################################################
+
+:RealTimeSystem a owl:Class ;
+    rdfs:label "Real-Time System" ;
+    rdfs:comment """
+    System with strict timing requirements where
+    correct functionality depends on meeting deadlines.
+    """ .
+
+:HardRealTime a owl:Class ;
+    rdfs:subClassOf :RealTimeSystem ;
+    rdfs:label "Hard Real-Time System" ;
+    rdfs:comment """
+    System where missing deadlines results in
+    system failure or catastrophic consequences.
+    """ .
+
+:SoftRealTime a owl:Class ;
+    rdfs:subClassOf :RealTimeSystem ;
+    rdfs:label "Soft Real-Time System" ;
+    rdfs:comment """
+    System where missing deadlines degrades performance
+    but doesn't cause system failure.
+    """ .
+
+:RealTimeScheduler a owl:Class ;
+    rdfs:label "Real-Time Scheduler" ;
+    rdfs:comment """
+    Scheduler ensuring task execution meets
+    real-time deadline requirements.
+    """ .
+
+:DeadlineMonitor a owl:Class ;
+    rdfs:label "Deadline Monitor" ;
+    rdfs:comment """
+    System monitoring task execution times
+    and deadline adherence in real-time systems.
+    """ .
+
+:PriorityManager a owl:Class ;
+    rdfs:label "Priority Manager" ;
+    rdfs:comment """
+    System managing task priorities to ensure
+    critical operations meet timing requirements.
+    """ .
+
+#################################################################
+#    Network Architecture Classes
+#################################################################
+
+:EdgeNetwork a owl:Class ;
+    rdfs:label "Edge Network" ;
+    rdfs:comment """
+    Network infrastructure connecting edge nodes,
+    IoT devices, and cloud systems.
+    """ .
+
+:MeshNetwork a owl:Class ;
+    rdfs:subClassOf :EdgeNetwork ;
+    rdfs:label "Mesh Network" ;
+    rdfs:comment """
+    Network topology where nodes connect directly
+    to multiple other nodes for redundancy.
+    """ .
+
+:StarNetwork a owl:Class ;
+    rdfs:subClassOf :EdgeNetwork ;
+    rdfs:label "Star Network" ;
+    rdfs:comment """
+    Network topology with central hub connecting
+    to multiple peripheral devices.
+    """ .
+
+:HierarchicalNetwork a owl:Class ;
+    rdfs:subClassOf :EdgeNetwork ;
+    rdfs:label "Hierarchical Network" ;
+    rdfs:comment """
+    Multi-tier network architecture with
+    devices, edge nodes, and cloud layers.
+    """ .
+
+:NetworkPartition a owl:Class ;
+    rdfs:label "Network Partition" ;
+    rdfs:comment """
+    Network condition where edge nodes become
+    isolated from central cloud systems.
+    """ .
+
+:OfflineOperation a owl:Class ;
+    rdfs:label "Offline Operation" ;
+    rdfs:comment """
+    Autonomous system operation capability
+    during network connectivity outages.
+    """ .
+
+:NetworkRecovery a owl:Class ;
+    rdfs:label "Network Recovery" ;
+    rdfs:comment """
+    Process of restoring network connectivity
+    and synchronizing offline operations.
+    """ .
+
+#################################################################
+#    Security and Privacy Classes
+#################################################################
+
+:EdgeSecurity a owl:Class ;
+    rdfs:label "Edge Security" ;
+    rdfs:comment """
+    Security framework protecting edge computing
+    infrastructure and IoT device communications.
+    """ .
+
+:DeviceAuthentication a owl:Class ;
+    rdfs:subClassOf :EdgeSecurity ;
+    rdfs:label "Device Authentication" ;
+    rdfs:comment """
+    Process verifying identity and legitimacy
+    of IoT devices joining network.
+    """ .
+
+:SecureBootstrap a owl:Class ;
+    rdfs:subClassOf :EdgeSecurity ;
+    rdfs:label "Secure Bootstrap" ;
+    rdfs:comment """
+    Process establishing secure initial configuration
+    and credentials for new IoT devices.
+    """ .
+
+:TrustManagement a owl:Class ;
+    rdfs:subClassOf :EdgeSecurity ;
+    rdfs:label "Trust Management" ;
+    rdfs:comment """
+    System establishing and maintaining trust
+    relationships between edge devices and nodes.
+    """ .
+
+:PrivacyPreservation a owl:Class ;
+    rdfs:label "Privacy Preservation" ;
+    rdfs:comment """
+    Techniques protecting user privacy and
+    sensitive data in edge and IoT systems.
+    """ .
+
+:DataMinimization a owl:Class ;
+    rdfs:subClassOf :PrivacyPreservation ;
+    rdfs:label "Data Minimization" ;
+    rdfs:comment """
+    Practice collecting and processing only
+    minimum data necessary for functionality.
+    """ .
+
+:AnonymizationTechnique a owl:Class ;
+    rdfs:subClassOf :PrivacyPreservation ;
+    rdfs:label "Anonymization Technique" ;
+    rdfs:comment """
+    Method removing personally identifiable
+    information from collected data.
+    """ .
+
+#################################################################
+#    Edge Computing Properties
+#################################################################
+
+:deployedAtEdge a owl:ObjectProperty ;
+    rdfs:label "deployed at edge" ;
+    rdfs:domain :EdgeNode ;
+    rdfs:comment "Edge location where node is deployed." .
+
+:connectsToCloud a owl:ObjectProperty ;
+    rdfs:label "connects to cloud" ;
+    rdfs:domain :EdgeNode ;
+    rdfs:comment "Cloud system connected to edge node." .
+
+:processesStream a owl:ObjectProperty ;
+    rdfs:label "processes stream" ;
+    rdfs:domain :StreamProcessing ;
+    rdfs:comment "Data stream being processed." .
+
+:hasLatencyRequirement a owl:DatatypeProperty ;
+    rdfs:label "has latency requirement" ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Maximum acceptable latency in milliseconds." .
+
+:hasComputeCapacity a owl:DatatypeProperty ;
+    rdfs:label "has compute capacity" ;
+    rdfs:domain :EdgeNode ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Computational capacity in GFLOPS." .
+
+:hasMemoryCapacity a owl:DatatypeProperty ;
+    rdfs:label "has memory capacity" ;
+    rdfs:domain :EdgeNode ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:comment "Memory capacity in megabytes." .
+
+:hasStorageCapacity a owl:DatatypeProperty ;
+    rdfs:label "has storage capacity" ;
+    rdfs:domain :EdgeNode ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:comment "Storage capacity in gigabytes." .
+
+:hasNetworkBandwidth a owl:DatatypeProperty ;
+    rdfs:label "has network bandwidth" ;
+    rdfs:domain :EdgeNode ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Available network bandwidth in Mbps." .
+
+:orchestratesWorkload a owl:ObjectProperty ;
+    rdfs:label "orchestrates workload" ;
+    rdfs:domain :EdgeOrchestrator ;
+    rdfs:comment "Workload being orchestrated across edge nodes." .
+
+:registersService a owl:ObjectProperty ;
+    rdfs:label "registers service" ;
+    rdfs:domain :EdgeRegistry ;
+    rdfs:comment "Service registered in edge registry." .
+
+#################################################################
+#    IoT Device Properties
+#################################################################
+
+:hasSensorType a owl:ObjectProperty ;
+    rdfs:label "has sensor type" ;
+    rdfs:domain :Sensor ;
+    rdfs:comment "Type of physical phenomenon sensed by device." .
+
+:hasActuatorType a owl:ObjectProperty ;
+    rdfs:label "has actuator type" ;
+    rdfs:domain :Actuator ;
+    rdfs:comment "Type of physical action performed by actuator." .
+
+:generatesSensorData a owl:ObjectProperty ;
+    rdfs:label "generates sensor data" ;
+    rdfs:domain :Sensor ;
+    rdfs:comment "Data generated by sensor device." .
+
+:receivesControlSignal a owl:ObjectProperty ;
+    rdfs:label "receives control signal" ;
+    rdfs:domain :Actuator ;
+    rdfs:comment "Control signal received by actuator." .
+
+:hasBatteryLife a owl:DatatypeProperty ;
+    rdfs:label "has battery life" ;
+    rdfs:domain :IoTDevice ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Battery life in hours." .
+
+:hasPowerConsumption a owl:DatatypeProperty ;
+    rdfs:label "has power consumption" ;
+    rdfs:domain :IoTDevice ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Power consumption in watts." .
+
+:hasUpdateFrequency a owl:DatatypeProperty ;
+    rdfs:label "has update frequency" ;
+    rdfs:domain :IoTDevice ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Data update frequency in Hz." .
+
+:hasOperatingRange a owl:DatatypeProperty ;
+    rdfs:label "has operating range" ;
+    rdfs:domain :IoTDevice ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Operating range in meters." .
+
+:supportsCommunicationProtocol a owl:ObjectProperty ;
+    rdfs:label "supports communication protocol" ;
+    rdfs:domain :IoTDevice ;
+    rdfs:range :IoTCommunicationProtocol ;
+    rdfs:comment "Communication protocol supported by device." .
+
+#################################################################
+#    Communication Properties
+#################################################################
+
+:hasDataRate a owl:DatatypeProperty ;
+    rdfs:label "has data rate" ;
+    rdfs:domain :IoTCommunicationProtocol ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Maximum data transmission rate in kbps." .
+
+:hasRange a owl:DatatypeProperty ;
+    rdfs:label "has range" ;
+    rdfs:domain :IoTCommunicationProtocol ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Communication range in kilometers." .
+
+:hasPowerEfficiency a owl:DatatypeProperty ;
+    rdfs:label "has power efficiency" ;
+    rdfs:domain :IoTCommunicationProtocol ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Power efficiency rating (0.0-1.0)." .
+
+:supportsMeshNetworking a owl:DatatypeProperty ;
+    rdfs:label "supports mesh networking" ;
+    rdfs:domain :IoTCommunicationProtocol ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Boolean indicating mesh networking support." .
+
+:hasQualityOfService a owl:DatatypeProperty ;
+    rdfs:label "has quality of service" ;
+    rdfs:domain :IoTCommunicationProtocol ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Quality of service level provided." .
+
+#################################################################
+#    Processing Properties
+#################################################################
+
+:processesInRealTime a owl:DatatypeProperty ;
+    rdfs:label "processes in real-time" ;
+    rdfs:domain :EdgeProcessing ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Boolean indicating real-time processing capability." .
+
+:hasProcessingLatency a owl:DatatypeProperty ;
+    rdfs:label "has processing latency" ;
+    rdfs:domain :EdgeProcessing ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Processing latency in microseconds." .
+
+:hasThroughputCapacity a owl:DatatypeProperty ;
+    rdfs:label "has throughput capacity" ;
+    rdfs:domain :EdgeProcessing ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:comment "Processing throughput in operations per second." .
+
+:executesMachineLearningModel a owl:ObjectProperty ;
+    rdfs:label "executes machine learning model" ;
+    rdfs:domain :MachineLearningInference ;
+    rdfs:comment "ML model executed for inference." .
+
+:filtersDataStream a owl:ObjectProperty ;
+    rdfs:label "filters data stream" ;
+    rdfs:domain :DataFiltering ;
+    rdfs:comment "Data stream being filtered." .
+
+:aggregatesData a owl:ObjectProperty ;
+    rdfs:label "aggregates data" ;
+    rdfs:domain :AggregationProcessing ;
+    rdfs:comment "Data being aggregated." .
+
+:detectsEvent a owl:ObjectProperty ;
+    rdfs:label "detects event" ;
+    rdfs:domain :EventProcessing ;
+    rdfs:comment "Event detected by processing system." .
+
+#################################################################
+#    Resource Management Properties
+#################################################################
+
+:managesResource a owl:ObjectProperty ;
+    rdfs:label "manages resource" ;
+    rdfs:domain :EdgeResourceManager ;
+    rdfs:comment "Resource being managed." .
+
+:hasResourceConstraint a owl:ObjectProperty ;
+    rdfs:label "has resource constraint" ;
+    rdfs:range :ResourceConstraints ;
+    rdfs:comment "Resource constraint affecting system." .
+
+:optimizesPowerUsage a owl:ObjectProperty ;
+    rdfs:label "optimizes power usage" ;
+    rdfs:domain :PowerManagement ;
+    rdfs:comment "Component with optimized power usage." .
+
+:optimizesBandwidth a owl:ObjectProperty ;
+    rdfs:label "optimizes bandwidth" ;
+    rdfs:domain :BandwidthOptimization ;
+    rdfs:comment "Communication channel with optimized bandwidth." .
+
+:cachesData a owl:ObjectProperty ;
+    rdfs:label "caches data" ;
+    rdfs:domain :StorageManagement ;
+    rdfs:comment "Data cached in local storage." .
+
+:offloadsComputation a owl:ObjectProperty ;
+    rdfs:label "offloads computation" ;
+    rdfs:domain :ComputeOffloading ;
+    rdfs:comment "Computation offloaded to other nodes." .
+
+:balancesLoad a owl:ObjectProperty ;
+    rdfs:label "balances load" ;
+    rdfs:domain :LoadBalancer ;
+    rdfs:comment "Workload being load balanced." .
+
+:hasResourceUtilization a owl:DatatypeProperty ;
+    rdfs:label "has resource utilization" ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Resource utilization percentage (0.0-1.0)." .
+
+#################################################################
+#    Real-Time Properties
+#################################################################
+
+:hasDeadline a owl:DatatypeProperty ;
+    rdfs:label "has deadline" ;
+    rdfs:domain :RealTimeSystem ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Task deadline in milliseconds." .
+
+:hasPriority a owl:DatatypeProperty ;
+    rdfs:label "has priority" ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Task priority level (higher numbers = higher priority)." .
+
+:schedulesTask a owl:ObjectProperty ;
+    rdfs:label "schedules task" ;
+    rdfs:domain :RealTimeScheduler ;
+    rdfs:comment "Task scheduled by real-time scheduler." .
+
+:monitorsDeadline a owl:ObjectProperty ;
+    rdfs:label "monitors deadline" ;
+    rdfs:domain :DeadlineMonitor ;
+    rdfs:comment "Deadline being monitored." .
+
+:managesPriority a owl:ObjectProperty ;
+    rdfs:label "manages priority" ;
+    rdfs:domain :PriorityManager ;
+    rdfs:comment "Task priority being managed." .
+
+:guaranteesLatency a owl:DatatypeProperty ;
+    rdfs:label "guarantees latency" ;
+    rdfs:domain :HardRealTime ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Guaranteed maximum latency in microseconds." .
+
+:toleratesLatencyVariation a owl:DatatypeProperty ;
+    rdfs:label "tolerates latency variation" ;
+    rdfs:domain :SoftRealTime ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Acceptable latency variation in microseconds." .
+
+#################################################################
+#    Network Properties
+#################################################################
+
+:hasNetworkTopology a owl:ObjectProperty ;
+    rdfs:label "has network topology" ;
+    rdfs:range :EdgeNetwork ;
+    rdfs:comment "Network topology used." .
+
+:hasNodeCount a owl:DatatypeProperty ;
+    rdfs:label "has node count" ;
+    rdfs:domain :EdgeNetwork ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:comment "Number of nodes in network." .
+
+:hasNetworkLatency a owl:DatatypeProperty ;
+    rdfs:label "has network latency" ;
+    rdfs:domain :EdgeNetwork ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Network communication latency in milliseconds." .
+
+:handlesConcurrentConnections a owl:DatatypeProperty ;
+    rdfs:label "handles concurrent connections" ;
+    rdfs:domain :EdgeNetwork ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:comment "Maximum concurrent device connections." .
+
+:detectsPartition a owl:ObjectProperty ;
+    rdfs:label "detects partition" ;
+    rdfs:domain :NetworkPartition ;
+    rdfs:comment "Network partition detection mechanism." .
+
+:enablesOfflineOperation a owl:ObjectProperty ;
+    rdfs:label "enables offline operation" ;
+    rdfs:domain :OfflineOperation ;
+    rdfs:comment "System capability enabled during offline operation." .
+
+:recoversFromPartition a owl:ObjectProperty ;
+    rdfs:label "recovers from partition" ;
+    rdfs:domain :NetworkRecovery ;
+    rdfs:comment "Recovery process from network partition." .
+
+:hasFaultTolerance a owl:DatatypeProperty ;
+    rdfs:label "has fault tolerance" ;
+    rdfs:domain :EdgeNetwork ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Fault tolerance capability (0.0-1.0)." .
+
+#################################################################
+#    Security Properties
+#################################################################
+
+:authenticatesDevice a owl:ObjectProperty ;
+    rdfs:label "authenticates device" ;
+    rdfs:domain :DeviceAuthentication ;
+    rdfs:range :IoTDevice ;
+    rdfs:comment "Device being authenticated." .
+
+:bootstrapsSecurely a owl:ObjectProperty ;
+    rdfs:label "bootstraps securely" ;
+    rdfs:domain :SecureBootstrap ;
+    rdfs:comment "System component bootstrapped securely." .
+
+:establishesTrust a owl:ObjectProperty ;
+    rdfs:label "establishes trust" ;
+    rdfs:domain :TrustManagement ;
+    rdfs:comment "Trust relationship being established." .
+
+:preservesPrivacy a owl:ObjectProperty ;
+    rdfs:label "preserves privacy" ;
+    rdfs:domain :PrivacyPreservation ;
+    rdfs:comment "Data with preserved privacy." .
+
+:minimizesData a owl:ObjectProperty ;
+    rdfs:label "minimizes data" ;
+    rdfs:domain :DataMinimization ;
+    rdfs:comment "Data collection being minimized." .
+
+:anonymizesData a owl:ObjectProperty ;
+    rdfs:label "anonymizes data" ;
+    rdfs:domain :AnonymizationTechnique ;
+    rdfs:range :IoTDevice ;
+    rdfs:comment "Data being anonymized." .
+
+:hasSecurityLevel a owl:DatatypeProperty ;
+    rdfs:label "has security level" ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Security level classification." .
+
+:requiresEncryption a owl:DatatypeProperty ;
+    rdfs:label "requires encryption" ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Boolean indicating encryption requirement." .
+
+#################################################################
+#    Mathematical Constraints and Axioms
+#################################################################
+
+# Ultra-Low Latency Constraint
+:MobileEdgeComputing rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasLatencyRequirement ;
+    owl:maxInclusive 1.0
+] .
+
+# Battery Life Positive Constraint
+:IoTDevice rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasBatteryLife ;
+    owl:minExclusive 0.0
+] .
+
+# Resource Utilization Bounds
+owl:Thing rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasResourceUtilization ;
+    owl:minInclusive 0.0
+] .
+
+owl:Thing rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasResourceUtilization ;
+    owl:maxInclusive 1.0
+] .
+
+# Power Efficiency Bounds
+:IoTCommunicationProtocol rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasPowerEfficiency ;
+    owl:minInclusive 0.0
+] .
+
+:IoTCommunicationProtocol rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasPowerEfficiency ;
+    owl:maxInclusive 1.0
+] .
+
+# Hard Real-Time Deadline Guarantee
+:HardRealTime rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :guaranteesLatency ;
+    owl:maxInclusive 1000.0
+] .
+
+# Edge Node Minimum Capacity
+:EdgeNode rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasComputeCapacity ;
+    owl:minInclusive 0.1
+] .
+
+# Network Fault Tolerance Bounds
+:EdgeNetwork rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasFaultTolerance ;
+    owl:minInclusive 0.0
+] .
+
+:EdgeNetwork rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasFaultTolerance ;
+    owl:maxInclusive 1.0
+] .
+
+# Priority Range Constraint
+owl:Thing rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasPriority ;
+    owl:minInclusive 0
+] .
+
+owl:Thing rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasPriority ;
+    owl:maxInclusive 10
+] .
+
+#################################################################
+#    SHACL Validation Shapes
+#################################################################
+
+:EdgeNodeShape a shacl:NodeShape ;
+    shacl:targetClass :EdgeNode ;
+    shacl:property [
+        shacl:path :hasComputeCapacity ;
+        shacl:datatype xsd:decimal ;
+        shacl:minInclusive 0.1 ;
+        shacl:message "Edge node must have minimum compute capacity of 0.1 GFLOPS"
+    ] ;
+    shacl:property [
+        shacl:path :hasLatencyRequirement ;
+        shacl:datatype xsd:decimal ;
+        shacl:minExclusive 0.0 ;
+        shacl:message "Latency requirement must be positive"
+    ] .
+
+:IoTDeviceShape a shacl:NodeShape ;
+    shacl:targetClass :IoTDevice ;
+    shacl:property [
+        shacl:path :hasBatteryLife ;
+        shacl:datatype xsd:decimal ;
+        shacl:minExclusive 0.0 ;
+        shacl:message "Battery life must be positive"
+    ] ;
+    shacl:property [
+        shacl:path :supportsCommunicationProtocol ;
+        shacl:class :IoTCommunicationProtocol ;
+        shacl:minCount 1 ;
+        shacl:message "IoT device must support at least one communication protocol"
+    ] .
+
+:RealTimeSystemShape a shacl:NodeShape ;
+    shacl:targetClass :RealTimeSystem ;
+    shacl:property [
+        shacl:path :hasDeadline ;
+        shacl:datatype xsd:decimal ;
+        shacl:minExclusive 0.0 ;
+        shacl:message "Deadline must be positive"
+    ] ;
+    shacl:property [
+        shacl:path :hasPriority ;
+        shacl:datatype xsd:integer ;
+        shacl:minInclusive 0 ;
+        shacl:maxInclusive 10 ;
+        shacl:message "Priority must be between 0 and 10"
+    ] .
+
+:EdgeNetworkShape a shacl:NodeShape ;
+    shacl:targetClass :EdgeNetwork ;
+    shacl:property [
+        shacl:path :hasNodeCount ;
+        shacl:datatype xsd:positiveInteger ;
+        shacl:minInclusive 2 ;
+        shacl:message "Edge network must have at least 2 nodes"
+    ] ;
+    shacl:property [
+        shacl:path :hasFaultTolerance ;
+        shacl:datatype xsd:decimal ;
+        shacl:minInclusive 0.0 ;
+        shacl:maxInclusive 1.0 ;
+        shacl:message "Fault tolerance must be between 0.0 and 1.0"
+    ] .
+
+#################################################################
+#    Individual Instances
+#################################################################
+
+# Edge Computing Fabric
+:PrimaryEdgeFabric a :EdgeComputingFabric ;
+    rdfs:label "Primary Edge Computing Fabric" ;
+    rdfs:comment "Main edge computing fabric extending ByteStar capabilities." .
+
+# Edge Nodes
+:MetroEdgeDatacenter a :MicroDatacenter ;
+    rdfs:label "Metro Edge Datacenter" ;
+    rdfs:comment "Metropolitan edge datacenter for regional processing." ;
+    :hasComputeCapacity 1000.0 ;
+    :hasMemoryCapacity 16384 ;
+    :hasStorageCapacity 10240 ;
+    :hasNetworkBandwidth 10000.0 ;
+    :hasLatencyRequirement 5.0 .
+
+:IndustrialEdgeGateway a :EdgeGateway ;
+    rdfs:label "Industrial Edge Gateway" ;
+    rdfs:comment "Edge gateway for industrial IoT integration." ;
+    :hasComputeCapacity 50.0 ;
+    :hasMemoryCapacity 4096 ;
+    :hasStorageCapacity 512 ;
+    :hasNetworkBandwidth 1000.0 ;
+    :hasLatencyRequirement 1.0 .
+
+:MobileEdgeNode a :MobileEdgeComputing ;
+    rdfs:label "5G Mobile Edge Node" ;
+    rdfs:comment "Mobile edge computing node integrated with 5G network." ;
+    :hasComputeCapacity 500.0 ;
+    :hasMemoryCapacity 8192 ;
+    :hasStorageCapacity 2048 ;
+    :hasLatencyRequirement 0.5 ;
+    :guaranteesLatency 500.0 .
+
+# IoT Devices
+:TemperatureSensor a :Sensor ;
+    rdfs:label "Temperature Sensor" ;
+    rdfs:comment "Industrial temperature monitoring sensor." ;
+    :hasBatteryLife 8760.0 ;
+    :hasPowerConsumption 0.001 ;
+    :hasUpdateFrequency 1.0 ;
+    :hasOperatingRange 100.0 ;
+    :supportsCommunicationProtocol :LoRaWAN ;
+    :requiresEncryption true .
+
+:RoboticActuator a :Actuator ;
+    rdfs:label "Robotic Actuator" ;
+    rdfs:comment "Precision robotic actuator for manufacturing." ;
+    :hasBatteryLife 24.0 ;
+    :hasPowerConsumption 50.0 ;
+    :hasUpdateFrequency 100.0 ;
+    :hasOperatingRange 5.0 ;
+    :supportsCommunicationProtocol :Zigbee ;
+    :requiresEncryption true .
+
+:AutonomousCar a :AutonomousVehicle ;
+    rdfs:label "Autonomous Car" ;
+    rdfs:comment "Self-driving vehicle with edge computing capabilities." ;
+    :hasComputeCapacity 200.0 ;
+    :hasMemoryCapacity 2048 ;
+    :hasStorageCapacity 1024 ;
+    :hasLatencyRequirement 0.1 ;
+    :supportsCommunicationProtocol :NB_IoT ;
+    :requiresEncryption true .
+
+:InspectionDrone a :Drone ;
+    rdfs:label "Infrastructure Inspection Drone" ;
+    rdfs:comment "Autonomous drone for infrastructure monitoring." ;
+    :hasBatteryLife 2.0 ;
+    :hasPowerConsumption 100.0 ;
+    :hasOperatingRange 10000.0 ;
+    :supportsCommunicationProtocol :SigFox ;
+    :requiresEncryption true .
+
+# Communication Protocols with Characteristics
+:LoRaWAN :hasDataRate 50.0 ;
+        :hasRange 15.0 ;
+        :hasPowerEfficiency 0.95 ;
+        :supportsMeshNetworking false ;
+        :hasQualityOfService "Best Effort" .
+
+:Zigbee :hasDataRate 250.0 ;
+        :hasRange 0.1 ;
+        :hasPowerEfficiency 0.85 ;
+        :supportsMeshNetworking true ;
+        :hasQualityOfService "Guaranteed Delivery" .
+
+:NB_IoT :hasDataRate 1000.0 ;
+        :hasRange 50.0 ;
+        :hasPowerEfficiency 0.90 ;
+        :supportsMeshNetworking false ;
+        :hasQualityOfService "QoS Differentiated" .
+
+# Edge Processing Systems
+:RealTimeStreamProcessor a :StreamProcessing ;
+    rdfs:label "Real-Time Stream Processor" ;
+    rdfs:comment "High-speed data stream processing at edge." ;
+    :processesInRealTime true ;
+    :hasProcessingLatency 100.0 ;
+    :hasThroughputCapacity 100000 .
+
+:MLInferenceEngine a :MachineLearningInference ;
+    rdfs:label "ML Inference Engine" ;
+    rdfs:comment "Edge-based machine learning inference system." ;
+    :hasProcessingLatency 5000.0 ;
+    :hasThroughputCapacity 1000 ;
+    :executesMachineLearningModel "Computer vision model for defect detection" .
+
+# Real-Time Systems
+:CriticalControlSystem a :HardRealTime ;
+    rdfs:label "Critical Control System" ;
+    rdfs:comment "Hard real-time system for industrial control." ;
+    :hasDeadline 1.0 ;
+    :hasPriority 10 ;
+    :guaranteesLatency 800.0 .
+
+:MediaStreamingSystem a :SoftRealTime ;
+    rdfs:label "Media Streaming System" ;
+    rdfs:comment "Soft real-time system for media streaming." ;
+    :hasDeadline 33.0 ;
+    :hasPriority 5 ;
+    :toleratesLatencyVariation 5000.0 .
+
+# Network Architectures
+:IndustrialMeshNetwork a :MeshNetwork ;
+    rdfs:label "Industrial Mesh Network" ;
+    rdfs:comment "Mesh network for industrial IoT devices." ;
+    :hasNodeCount 100 ;
+    :hasNetworkLatency 10.0 ;
+    :handlesConcurrentConnections 500 ;
+    :hasFaultTolerance 0.95 .
+
+:SmartCityHierarchicalNetwork a :HierarchicalNetwork ;
+    rdfs:label "Smart City Hierarchical Network" ;
+    rdfs:comment "Hierarchical network for smart city infrastructure." ;
+    :hasNodeCount 10000 ;
+    :hasNetworkLatency 50.0 ;
+    :handlesConcurrentConnections 50000 ;
+    :hasFaultTolerance 0.99 .
+
+# Resource Management Systems
+:EdgeResourceManager a :EdgeResourceManager ;
+    rdfs:label "Primary Edge Resource Manager" ;
+    rdfs:comment "Main resource management system for edge infrastructure." ;
+    :managesResource "Compute, memory, and storage resources" ;
+    :hasResourceUtilization 0.75 .
+
+:PowerOptimizer a :PowerManagement ;
+    rdfs:label "Power Optimization System" ;
+    rdfs:comment "System optimizing power consumption across edge devices." ;
+    :optimizesPowerUsage "IoT device power consumption" .
+
+# Security Systems
+:IoTDeviceAuthenticator a :DeviceAuthentication ;
+    rdfs:label "IoT Device Authenticator" ;
+    rdfs:comment "Authentication system for IoT device onboarding." ;
+    :authenticatesDevice :TemperatureSensor ;
+    :hasSecurityLevel "Military Grade" .
+
+:PrivacyPreservationSystem a :PrivacyPreservation ;
+    rdfs:label "Privacy Preservation System" ;
+    rdfs:comment "System preserving user privacy in edge computing." ;
+    :preservesPrivacy "Personal and location data" .

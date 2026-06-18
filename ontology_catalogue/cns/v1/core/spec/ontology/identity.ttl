@@ -1,0 +1,6 @@
+@prefix core: <https://cns.dev/core#> .
+@prefix id: <https://cns.dev/identity#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+id:Principal a rdfs:Class ; rdfs:subClassOf core:Primitive .
+id:hasRole a rdfs:Property ; rdfs:domain id:Principal ; rdfs:range rdfs:Literal .

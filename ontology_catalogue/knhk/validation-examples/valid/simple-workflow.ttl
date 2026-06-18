@@ -1,0 +1,178 @@
+@prefix yawl: <http://bitflow.ai/ontology/yawl/v2#> .
+@prefix yawl-exec: <http://bitflow.ai/ontology/yawl/execution/v1#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix : <http://example.org/workflow/simple#> .
+
+# =============================================================================
+# VALID WORKFLOW EXAMPLE - PASSES ALL Q INVARIANTS
+# =============================================================================
+#
+# This workflow demonstrates:
+# ✅ Q1: Immutability (proper versioning, no retrocausation)
+# ✅ Q2: Type soundness (valid split-join, typed data)
+# ✅ Q3: Bounded recursion (no unbounded loops)
+# ✅ Q4: Latency SLOs (declared durations, timeouts)
+# ✅ Q5: Resource bounds (concurrency limits)
+#
+# This should pass all SHACL validation with zero violations.
+#
+# =============================================================================
+
+:SimpleWorkflow a yawl:WorkflowSpecification ;
+    yawl:id "simple-workflow-001" ;
+    yawl:versionNumber "1.0.0" ;
+    rdfs:label "Simple Valid Workflow" ;
+    rdfs:comment "Example workflow that satisfies all Q invariants" ;
+    yawl:hasInputCondition :start ;
+    yawl:hasOutputCondition :end ;
+    yawl:hasTask :fetchData, :processData, :saveResults ;
+    yawl:hasCondition :start, :end .
+
+# =============================================================================
+# INPUT/OUTPUT CONDITIONS
+# =============================================================================
+
+:start a yawl:Condition ;
+    rdfs:label "Start" ;
+    yawl:flowsInto :flow1 .
+
+:end a yawl:Condition ;
+    rdfs:label "End" .
+
+# =============================================================================
+# TASKS (All satisfy Q invariants)
+# =============================================================================
+
+:fetchData a yawl:Task ;
+    rdfs:label "Fetch Data" ;
+    rdfs:comment "Retrieves data from external source" ;
+
+    # Q2: Valid execution mode
+    yawl-exec:executionMode yawl-exec:Asynchronous ;
+
+    # Q4: Timeout policy for async task
+    yawl-exec:timeoutPolicy yawl-exec:TimeoutRetry ;
+
+    # Q4: Expected duration declared
+    yawl:expectedDuration "PT0.05S"^^xsd:duration ;  # 50ms (warm path)
+
+    # Q2: Runtime behavior implementation
+    yawl-exec:runtimeBehavior <http://example.org/services/data-fetcher> ;
+
+    # Control flow
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+    yawl:flowsInto :flow2 ;
+
+    # Data flow (Q2: typed outputs)
+    yawl:outputVariable :dataOutput .
+
+:processData a yawl:Task ;
+    rdfs:label "Process Data" ;
+    rdfs:comment "Transforms fetched data" ;
+
+    # Q2: Valid execution mode (synchronous hot path)
+    yawl-exec:executionMode yawl-exec:Synchronous ;
+
+    # Q4: Hot path duration ≤ 8 ticks (marked as critical)
+    yawl:criticalPath true ;
+    yawl:expectedDuration "PT0.000000002S"^^xsd:duration ;  # 2ns (≤8 ticks)
+
+    # Q2: Runtime behavior
+    yawl-exec:runtimeBehavior <http://example.org/services/processor> ;
+
+    # Control flow
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+    yawl:flowsInto :flow3 ;
+
+    # Data flow (Q2: typed inputs and outputs)
+    yawl:inputVariable :dataInput ;
+    yawl:outputVariable :processedOutput .
+
+:saveResults a yawl:Task ;
+    rdfs:label "Save Results" ;
+    rdfs:comment "Persists processed data" ;
+
+    # Q2: Valid execution mode
+    yawl-exec:executionMode yawl-exec:Asynchronous ;
+
+    # Q4: Timeout policy
+    yawl-exec:timeoutPolicy yawl-exec:TimeoutEscalate ;
+
+    # Q4: Expected duration
+    yawl:expectedDuration "PT0.1S"^^xsd:duration ;  # 100ms
+
+    # Q2: Runtime behavior
+    yawl-exec:runtimeBehavior <http://example.org/services/storage> ;
+
+    # Control flow
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+    yawl:flowsInto :flow4 ;
+
+    # Data flow
+    yawl:inputVariable :processedInput .
+
+# =============================================================================
+# FLOWS
+# =============================================================================
+
+:flow1 a yawl:Flow ;
+    rdfs:label "Start to Fetch" ;
+    yawl:nextElementRef :fetchData .
+
+:flow2 a yawl:Flow ;
+    rdfs:label "Fetch to Process" ;
+    yawl:nextElementRef :processData .
+
+:flow3 a yawl:Flow ;
+    rdfs:label "Process to Save" ;
+    yawl:nextElementRef :saveResults .
+
+:flow4 a yawl:Flow ;
+    rdfs:label "Save to End" ;
+    yawl:nextElementRef :end .
+
+# =============================================================================
+# DATA VARIABLES (Q2: All typed)
+# =============================================================================
+
+:dataOutput a yawl:DataOutput ;
+    yawl:name "fetchedData" ;
+    yawl:dataType <http://example.org/schema/RawData> ;
+    yawl:mandatory true .
+
+:dataInput a yawl:DataInput ;
+    yawl:name "fetchedData" ;
+    yawl:dataType <http://example.org/schema/RawData> ;
+    yawl:mandatory true .
+
+:processedOutput a yawl:DataOutput ;
+    yawl:name "processedData" ;
+    yawl:dataType <http://example.org/schema/ProcessedData> ;
+    yawl:mandatory true .
+
+:processedInput a yawl:DataInput ;
+    yawl:name "processedData" ;
+    yawl:dataType <http://example.org/schema/ProcessedData> ;
+    yawl:mandatory true .
+
+# =============================================================================
+# VALIDATION EXPECTATIONS
+# =============================================================================
+#
+# This workflow should pass ALL validations:
+#
+# ✅ Q1: Version declared, no cycles, no retrocausation
+# ✅ Q2: Valid XOR-XOR combinations, all types declared, runtime behavior specified
+# ✅ Q3: No recursion (no backward flows)
+# ✅ Q4: All tasks declare duration, async tasks have timeout policies
+# ✅ Q5: Implicit resource bounds (no parallel tasks requiring concurrency limits)
+# ✅ WS-C: Proper input/output conditions, all tasks reachable
+# ✅ WS-D: Data variables properly typed and connected
+# ✅ WS-S: All structural requirements met
+#
+# Expected validation result: SUCCESS (exit code 0)
+#
+# =============================================================================

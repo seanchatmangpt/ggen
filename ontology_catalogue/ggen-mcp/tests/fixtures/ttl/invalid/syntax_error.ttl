@@ -1,0 +1,24 @@
+# Invalid TTL - Syntax Errors
+# This file intentionally contains syntax errors for testing
+
+@prefix ex: <http://example.org/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# Missing closing quote - syntax error
+ex:BrokenClass a owl:Class ;
+    rdfs:label "Unclosed string ;
+    rdfs:comment "This has an error"@en .
+
+# Missing dot at end
+ex:AnotherClass a owl:Class
+    rdfs:label "Missing dot"@en
+
+# Invalid prefix usage
+invalid:Class a owl:Class .
+
+# Malformed triple - missing predicate
+ex:Subject ex:Object .
+
+# Invalid URI
+ex:BadURI a <http://example.org/unclosed> .

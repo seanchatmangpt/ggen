@@ -1,0 +1,515 @@
+@prefix revoke: <http://bytestar.org/ontology/identity/revoke#> .
+@prefix ba: <http://bytestar.org/ontology/> .
+@prefix baac: <http://bytestar.org/ontology/access-control/> .
+@prefix baa: <http://bytestar.org/ontology/audit/> .
+@prefix orgbind: <http://bytestar.org/ontology/identity/orgbind#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix crypto: <http://www.w3.org/2000/10/swap/crypto#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+# ================================================================================
+# .revoke Crystal - Revocation Management Ontology
+# Version: 5.0.0 - Crystal Identity Suite
+# CTID: revoke-2025-01-23-v5.0.0-production
+# ================================================================================
+
+<http://bytestar.org/ontology/identity/revoke> a owl:Ontology ;
+    owl:versionIRI <http://bytestar.org/ontology/identity/revoke/5.0.0> ;
+    dct:title "Revocation Crystal (.revoke)"@en ;
+    dct:description """Crystal ontology for comprehensive revocation management with time-boxed 
+    capabilities, immediate revocation propagation, and quantum-resistant revocation lists. 
+    Provides cryptographic revocation mechanisms for credentials, capabilities, and organizational
+    bindings with sub-8ms revocation verification under Doctrine of 8."""@en ;
+    dct:creator "ByteStar Identity Foundation" ;
+    dct:created "2025-01-23T00:00:00Z"^^xsd:dateTime ;
+    dct:modified "2025-01-23T00:00:00Z"^^xsd:dateTime ;
+    owl:versionInfo "5.0.0" ;
+    dct:license <https://opensource.org/licenses/MIT> ;
+    # Leverage existing ontologies (80% reuse)
+    owl:imports <http://bytestar.org/ontology/access-control> ,
+                <http://bytestar.org/ontology/audit-system> ,
+                <http://bytestar.org/ontology/security-policy> ,
+                <http://bytestar.org/ontology/identity/orgbind> ;
+    # Crystal metadata
+    revoke:crystalType "revocation-management" ;
+    revoke:ctid "revoke-2025-01-23-v5.0.0-production" ;
+    revoke:wireFormat "protobuf-v3" ;
+    revoke:storageFormat "accumulator-tree" ;
+    revoke:capabilityFormat "bloom-filter-crl" ;
+    revoke:quantumResistant true ;
+    revoke:doctrineCompliant true ;
+    revoke:maxRevocationLatency "< 8ms" .
+
+# ================================================================================
+# CRYSTAL CORE - REVOCATION ARCHITECTURE
+# ================================================================================
+
+## Core Revocation Classes (leveraging existing security patterns)
+revoke:RevocationService a owl:Class ;
+    rdfs:label "Revocation Service"@en ;
+    rdfs:comment "Comprehensive service for managing credential and capability revocations."@en ;
+    rdfs:subClassOf ba:SecurityService ;  # Reuse from base ontology
+    revoke:revocationLatency "< 8ms" ;
+    revoke:throughputTarget "> 100K/sec" ;
+    revoke:availabilityTarget "99.99%" ;
+    revoke:quantumResistant true .
+
+revoke:RevocationList a owl:Class ;
+    rdfs:label "Revocation List"@en ;
+    rdfs:comment "Cryptographically secured list of revoked credentials and capabilities."@en ;
+    rdfs:subClassOf ba:SecurityList ;
+    revoke:listFormat "bloom-filter-crl" ;
+    revoke:falsePositiveRate "< 0.1%" ;
+    revoke:updateFrequency "realtime" ;
+    revoke:distributedReplication true .
+
+revoke:RevocationAuthority a owl:Class ;
+    rdfs:label "Revocation Authority"@en ;
+    rdfs:comment "Authority capable of issuing and managing revocations."@en ;
+    rdfs:subClassOf baac:CertificateAuthority ;  # Leverage access-control
+    revoke:authorityLevel xsd:string ;
+    revoke:revocationCapacity xsd:int ;
+    revoke:emergencyRevocation true ;
+    revoke:auditRequired true .
+
+## Time-boxed Capability Revocation (new 20%)
+revoke:TimeboxedCapability a owl:Class ;
+    rdfs:label "Timeboxed Capability"@en ;
+    rdfs:comment "Capability with explicit time constraints and automatic expiration."@en ;
+    rdfs:subClassOf baac:Permission ;  # Build on access-control patterns
+    revoke:validFrom xsd:dateTime ;
+    revoke:validUntil xsd:dateTime ;
+    revoke:maxLifetime "PT24H"^^xsd:duration ;
+    revoke:autoExpiration true ;
+    revoke:renewalAllowed true .
+
+revoke:CapabilityRevocation a owl:Class ;
+    rdfs:label "Capability Revocation"@en ;
+    rdfs:comment "Immediate revocation of specific capabilities with cryptographic proof."@en ;
+    rdfs:subClassOf revoke:RevocationEvent ;
+    revoke:revocationReason xsd:string ;
+    revoke:immediateEffect true ;
+    revoke:propagationRequired true ;
+    revoke:evidenceRequired true .
+
+revoke:EmergencyRevocation a owl:Class ;
+    rdfs:label "Emergency Revocation"@en ;
+    rdfs:comment "High-priority revocation for security incidents requiring immediate action."@en ;
+    rdfs:subClassOf revoke:CapabilityRevocation ;
+    revoke:priorityLevel "CRITICAL" ;
+    revoke:maxPropagationTime "PT10S"^^xsd:duration ;
+    revoke:bypassNormalFlow true ;
+    revoke:auditTrailRequired true .
+
+## Quantum-Resistant Revocation Mechanisms (new 20%)
+revoke:QuantumRevocationList a owl:Class ;
+    rdfs:label "Quantum Revocation List"@en ;
+    rdfs:comment "Quantum-resistant revocation list using post-quantum signatures."@en ;
+    rdfs:subClassOf revoke:RevocationList ;
+    revoke:signatureScheme "Dilithium-5" ;  # Post-quantum
+    revoke:hashAlgorithm "SHAKE-256" ;
+    revoke:accumulatorType "RSA-Accumulator-PQ" ;
+    revoke:witnessUpdateTime "< 1ms" .
+
+revoke:AccumulatorBasedRevocation a owl:Class ;
+    rdfs:label "Accumulator-based Revocation"@en ;
+    rdfs:comment "Cryptographic accumulator for efficient revocation proofs."@en ;
+    rdfs:subClassOf ba:CryptographicMechanism ;
+    revoke:accumulatorAlgorithm "Universal-Accumulator" ;
+    revoke:witnessSize "256 bytes" ;
+    revoke:proofSize "512 bytes" ;
+    revoke:verificationTime "< 2ms" .
+
+revoke:BloomFilterCRL a owl:Class ;
+    rdfs:label "Bloom Filter CRL"@en ;
+    rdfs:comment "Bloom filter-based certificate revocation list for fast lookups."@en ;
+    rdfs:subClassOf revoke:RevocationList ;
+    revoke:filterSize "1MB"^^xsd:int ;
+    revoke:hashFunctions "7"^^xsd:int ;
+    revoke:falsePositiveRate "0.1%"^^xsd:double ;
+    revoke:lookupTime "< 100μs" .
+
+# ================================================================================
+# REVOCATION EVENT SYSTEM
+# ================================================================================
+
+revoke:RevocationEvent a owl:Class ;
+    rdfs:label "Revocation Event"@en ;
+    rdfs:comment "Event representing the revocation of a credential or capability."@en ;
+    rdfs:subClassOf baa:AuditEvent ;  # Leverage audit system
+    revoke:revocationId xsd:string ;
+    revoke:revokedEntity xsd:string ;
+    revoke:revocationTimestamp xsd:dateTime ;
+    revoke:revocationReason xsd:string ;
+    revoke:propagationStatus xsd:string .
+
+revoke:RevocationPropagation a owl:Class ;
+    rdfs:label "Revocation Propagation"@en ;
+    rdfs:comment "Process of propagating revocation information across the system."@en ;
+    rdfs:subClassOf ba:DistributionProcess ;
+    revoke:propagationStrategy "broadcast" ;
+    revoke:maxPropagationDelay "PT1M"^^xsd:duration ;
+    revoke:confirmationRequired true ;
+    revoke:retryOnFailure true .
+
+revoke:RevocationConfirmation a owl:Class ;
+    rdfs:label "Revocation Confirmation"@en ;
+    rdfs:comment "Confirmation of revocation receipt and processing by system components."@en ;
+    rdfs:subClassOf ba:Confirmation ;
+    revoke:confirmationId xsd:string ;
+    revoke:componentId xsd:string ;
+    revoke:confirmationTimestamp xsd:dateTime ;
+    revoke:processingLatency xsd:duration .
+
+# ================================================================================
+# DISTRIBUTED REVOCATION MANAGEMENT
+# ================================================================================
+
+revoke:DistributedRevocationSystem a owl:Class ;
+    rdfs:label "Distributed Revocation System"@en ;
+    rdfs:comment "Distributed system for managing revocations across multiple nodes."@en ;
+    rdfs:subClassOf ba:DistributedSystem ;
+    revoke:consensusAlgorithm "Byzantine-Fault-Tolerant" ;
+    revoke:nodeCount xsd:int ;
+    revoke:faultTolerance "f < n/3" ;
+    revoke:synchronizationPeriod "PT30S"^^xsd:duration .
+
+revoke:RevocationNode a owl:Class ;
+    rdfs:label "Revocation Node"@en ;
+    rdfs:comment "Individual node in the distributed revocation system."@en ;
+    rdfs:subClassOf ba:SystemNode ;
+    revoke:nodeRole xsd:string ;
+    revoke:revocationCapacity xsd:int ;
+    revoke:syncStatus xsd:string ;
+    revoke:lastSyncTime xsd:dateTime .
+
+revoke:RevocationSynchronizer a owl:Class ;
+    rdfs:label "Revocation Synchronizer"@en ;
+    rdfs:comment "Component responsible for synchronizing revocation state across nodes."@en ;
+    rdfs:subClassOf ba:SynchronizationService ;
+    revoke:syncProtocol "Gossip-Protocol" ;
+    revoke:syncFrequency "PT10S"^^xsd:duration ;
+    revoke:conflictResolution "timestamp-ordering" ;
+    revoke:merkleTreeSync true .
+
+# ================================================================================
+# CERTIFICATE AND CREDENTIAL REVOCATION
+# ================================================================================
+
+revoke:CertificateRevocation a owl:Class ;
+    rdfs:label "Certificate Revocation"@en ;
+    rdfs:comment "Revocation of digital certificates with immediate effect."@en ;
+    rdfs:subClassOf revoke:RevocationEvent ;
+    rdfs:subClassOf baac:DigitalCertificate ;  # Leverage access-control patterns
+    revoke:certificateSerial xsd:string ;
+    revoke:issuerDN xsd:string ;
+    revoke:revocationDate xsd:dateTime ;
+    revoke:crlEntry true .
+
+revoke:CredentialRevocation a owl:Class ;
+    rdfs:label "Credential Revocation"@en ;
+    rdfs:comment "Revocation of identity credentials and attestations."@en ;
+    rdfs:subClassOf revoke:RevocationEvent ;
+    revoke:credentialType xsd:string ;
+    revoke:credentialId xsd:string ;
+    revoke:holderIdentity xsd:string ;
+    revoke:cascadeRevocation true .
+
+revoke:OrganizationalBindingRevocation a owl:Class ;
+    rdfs:label "Organizational Binding Revocation"@en ;
+    rdfs:comment "Revocation of organizational membership bindings."@en ;
+    rdfs:subClassOf revoke:RevocationEvent ;
+    rdfs:subClassOf orgbind:OrganizationalBinding ;  # Link to orgbind crystal
+    revoke:organizationId xsd:string ;
+    revoke:membershipId xsd:string ;
+    revoke:revocationCause xsd:string ;
+    revoke:appealAllowed true .
+
+# ================================================================================
+# REVOCATION VERIFICATION AND VALIDATION
+# ================================================================================
+
+revoke:RevocationVerifier a owl:Class ;
+    rdfs:label "Revocation Verifier"@en ;
+    rdfs:comment "Component for verifying revocation status of credentials and capabilities."@en ;
+    rdfs:subClassOf ba:VerificationService ;
+    revoke:verificationLatency "< 8ms" ;
+    revoke:cacheEnabled true ;
+    revoke:cacheTTL "PT5M"^^xsd:duration ;
+    revoke:onlineCheckRequired false .
+
+revoke:RevocationValidator a owl:Class ;
+    rdfs:label "Revocation Validator"@en ;
+    rdfs:comment "Validator ensuring revocation integrity and authenticity."@en ;
+    rdfs:subClassOf ba:ValidationService ;
+    revoke:signatureValidation true ;
+    revoke:timestampValidation true ;
+    revoke:chainValidation true ;
+    revoke:quantumResistant true .
+
+revoke:RevocationCache a owl:Class ;
+    rdfs:label "Revocation Cache"@en ;
+    rdfs:comment "High-performance cache for revocation status information."@en ;
+    rdfs:subClassOf baac:AccessControlCache ;  # Leverage existing cache patterns
+    revoke:cacheSize "10MB"^^xsd:int ;
+    revoke:hitRatio "> 95%" ;
+    revoke:refreshInterval "PT1M"^^xsd:duration ;
+    revoke:distributedCache true .
+
+# ================================================================================
+# REVOCATION ANALYTICS AND MONITORING
+# ================================================================================
+
+revoke:RevocationAnalytics a owl:Class ;
+    rdfs:label "Revocation Analytics"@en ;
+    rdfs:comment "Analytics service for revocation patterns and security insights."@en ;
+    rdfs:subClassOf ba:AnalyticsService ;
+    revoke:patternDetection true ;
+    revoke:anomalyDetection true ;
+    revoke:trendAnalysis true ;
+    revoke:alerting true .
+
+revoke:RevocationMonitor a owl:Class ;
+    rdfs:label "Revocation Monitor"@en ;
+    rdfs:comment "Real-time monitoring of revocation system health and performance."@en ;
+    rdfs:subClassOf baa:RealTimeAuditMonitor ;  # Leverage audit monitoring
+    revoke:monitoringMetrics "latency,throughput,availability" ;
+    revoke:alertThresholds xsd:string ;
+    revoke:dashboardEnabled true ;
+    revoke:slaMonitoring true .
+
+revoke:RevocationAlert a owl:Class ;
+    rdfs:label "Revocation Alert"@en ;
+    rdfs:comment "Alert generated for revocation-related security events."@en ;
+    rdfs:subClassOf baa:AuditAlert ;  # Use audit alert structure
+    revoke:alertType xsd:string ;
+    revoke:severity xsd:string ;
+    revoke:affectedEntities xsd:int ;
+    revoke:responseRequired true .
+
+# ================================================================================
+# CRYSTAL ABI INTERFACES
+# ================================================================================
+
+## Wire Interface (Protobuf v3)
+revoke:RevokeWireInterface a ba:WireInterface ;
+    rdfs:label "Revoke Wire Interface"@en ;
+    rdfs:comment "Network protocol interface for revocation operations."@en ;
+    ba:protocolVersion "3.0" ;
+    ba:messageFormat "protobuf" ;
+    ba:compressionScheme "lz4" ;
+    ba:encryptionRequired true ;
+    revoke:operationTypes "revoke,verify,list,sync,confirm" ;
+    revoke:maxMessageSize "100KB"^^xsd:int ;
+    revoke:timeoutDefault "PT5S"^^xsd:duration .
+
+## Storage Interface (Accumulator Tree)
+revoke:RevokeStorageInterface a ba:StorageInterface ;
+    rdfs:label "Revoke Storage Interface"@en ;
+    rdfs:comment "Persistent storage using accumulator trees for efficient revocation proofs."@en ;
+    ba:storageType "accumulator-tree" ;
+    ba:compressionEnabled true ;
+    ba:encryptionAtRest true ;
+    revoke:accumulatorDepth "32"^^xsd:int ;
+    revoke:witnessCompression true ;
+    revoke:proofBatching true .
+
+## Capability Interface (Bloom Filter CRL)
+revoke:RevokeCapabilityInterface a ba:CapabilityInterface ;
+    rdfs:label "Revoke Capability Interface"@en ;
+    rdfs:comment "Capability interface using Bloom filter-based CRLs."@en ;
+    ba:capabilityFormat "bloom-filter-crl" ;
+    ba:bearerTokenRequired false ;
+    ba:delegationSupported false ;
+    revoke:filterSyncRequired true ;
+    revoke:falsePositiveHandling true ;
+    revoke:batchUpdates true .
+
+# ================================================================================
+# OBJECT PROPERTIES (Building on existing patterns)
+# ================================================================================
+
+revoke:revokes a owl:ObjectProperty ;
+    rdfs:label "revokes"@en ;
+    rdfs:comment "Links revocation event to the revoked entity."@en ;
+    rdfs:domain revoke:RevocationEvent ;
+    rdfs:range ba:Entity ;
+    revoke:immediateEffect true .
+
+revoke:revokedBy a owl:ObjectProperty ;
+    rdfs:label "revoked by"@en ;
+    rdfs:comment "Links revoked entity to the revocation authority."@en ;
+    rdfs:range revoke:RevocationAuthority ;
+    rdfs:subPropertyOf prov:wasInvalidatedBy .
+
+revoke:propagatesTo a owl:ObjectProperty ;
+    rdfs:label "propagates to"@en ;
+    rdfs:comment "Links revocation to systems that must receive the revocation."@en ;
+    rdfs:domain revoke:RevocationPropagation ;
+    rdfs:range ba:SystemComponent .
+
+revoke:confirmedBy a owl:ObjectProperty ;
+    rdfs:label "confirmed by"@en ;
+    rdfs:comment "Links revocation to confirmation from receiving systems."@en ;
+    rdfs:domain revoke:RevocationEvent ;
+    rdfs:range revoke:RevocationConfirmation .
+
+revoke:supersedes a owl:ObjectProperty ;
+    rdfs:label "supersedes"@en ;
+    rdfs:comment "Links revocation to previous revocations it supersedes."@en ;
+    rdfs:domain revoke:RevocationEvent ;
+    rdfs:range revoke:RevocationEvent ;
+    a owl:TransitiveProperty .
+
+revoke:hasWitness a owl:ObjectProperty ;
+    rdfs:label "has witness"@en ;
+    rdfs:comment "Links accumulator-based revocation to cryptographic witness."@en ;
+    rdfs:domain revoke:AccumulatorBasedRevocation ;
+    rdfs:range ba:CryptographicWitness .
+
+# ================================================================================
+# DATA PROPERTIES
+# ================================================================================
+
+revoke:revocationId a owl:DatatypeProperty ;
+    rdfs:label "revocation ID"@en ;
+    rdfs:domain revoke:RevocationEvent ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Unique identifier for the revocation event" .
+
+revoke:maxRevocationLatency a owl:DatatypeProperty ;
+    rdfs:label "maximum revocation latency"@en ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Maximum acceptable latency for revocation operations" .
+
+revoke:propagationDelay a owl:DatatypeProperty ;
+    rdfs:label "propagation delay"@en ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Time required to propagate revocation across the system" .
+
+revoke:falsePositiveRate a owl:DatatypeProperty ;
+    rdfs:label "false positive rate"@en ;
+    rdfs:range xsd:double ;
+    rdfs:comment "False positive rate for bloom filter-based CRLs" .
+
+revoke:witnessSize a owl:DatatypeProperty ;
+    rdfs:label "witness size"@en ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Size of cryptographic witness in bytes" .
+
+revoke:filterSize a owl:DatatypeProperty ;
+    rdfs:label "filter size"@en ;
+    rdfs:range xsd:int ;
+    rdfs:comment "Size of bloom filter in bytes" .
+
+# ================================================================================
+# SHACL VALIDATION SHAPES
+# ================================================================================
+
+revoke:RevocationServiceShape a sh:NodeShape ;
+    sh:targetClass revoke:RevocationService ;
+    sh:property [
+        sh:path revoke:revocationLatency ;
+        sh:pattern "< 8ms" ;
+        sh:message "Revocation latency must comply with Doctrine of 8" ;
+    ] ;
+    sh:property [
+        sh:path revoke:availabilityTarget ;
+        sh:minInclusive "99.0%"^^xsd:string ;
+        sh:message "Availability target must be at least 99%" ;
+    ] .
+
+revoke:TimeboxedCapabilityShape a sh:NodeShape ;
+    sh:targetClass revoke:TimeboxedCapability ;
+    sh:property [
+        sh:path revoke:validFrom ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path revoke:validUntil ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:sparql [
+        sh:message "Valid until must be after valid from" ;
+        sh:select """
+            PREFIX revoke: <http://bytestar.org/ontology/identity/revoke#>
+            SELECT $this
+            WHERE {
+                $this revoke:validFrom ?from .
+                $this revoke:validUntil ?until .
+                FILTER(?until <= ?from)
+            }
+        """ ;
+    ] .
+
+revoke:RevocationPropagationShape a sh:NodeShape ;
+    sh:targetClass revoke:RevocationPropagation ;
+    sh:property [
+        sh:path revoke:maxPropagationDelay ;
+        sh:datatype xsd:duration ;
+        sh:maxInclusive "PT5M"^^xsd:duration ;
+        sh:message "Propagation delay must not exceed 5 minutes" ;
+    ] .
+
+revoke:BloomFilterShape a sh:NodeShape ;
+    sh:targetClass revoke:BloomFilterCRL ;
+    sh:property [
+        sh:path revoke:falsePositiveRate ;
+        sh:datatype xsd:double ;
+        sh:maxInclusive 0.01 ;
+        sh:message "False positive rate must be below 1%" ;
+    ] ;
+    sh:property [
+        sh:path revoke:hashFunctions ;
+        sh:datatype xsd:int ;
+        sh:minInclusive 3 ;
+        sh:maxInclusive 15 ;
+        sh:message "Hash functions must be between 3 and 15" ;
+    ] .
+
+# ================================================================================
+# CRYSTAL IMPLEMENTATION INSTANCES
+# ================================================================================
+
+# Default Revocation Service
+revoke:DefaultRevocationService a revoke:RevocationService ;
+    rdfs:label "Default Revocation Service"@en ;
+    revoke:revocationLatency "< 8ms" ;
+    revoke:throughputTarget "> 100K/sec" ;
+    revoke:availabilityTarget "99.99%" ;
+    revoke:quantumResistant true .
+
+# Emergency Revocation Handler
+revoke:EmergencyRevocationHandler a revoke:EmergencyRevocation ;
+    rdfs:label "Emergency Revocation Handler"@en ;
+    revoke:priorityLevel "CRITICAL" ;
+    revoke:maxPropagationTime "PT10S"^^xsd:duration ;
+    revoke:bypassNormalFlow true .
+
+# Quantum-Resistant CRL
+revoke:ProductionQuantumCRL a revoke:QuantumRevocationList ;
+    rdfs:label "Production Quantum CRL"@en ;
+    revoke:signatureScheme "Dilithium-5" ;
+    revoke:hashAlgorithm "SHAKE-256" ;
+    revoke:accumulatorType "RSA-Accumulator-PQ" .
+
+# High-Performance Bloom Filter
+revoke:HighPerfBloomCRL a revoke:BloomFilterCRL ;
+    rdfs:label "High Performance Bloom CRL"@en ;
+    revoke:filterSize "1048576"^^xsd:int ;  # 1MB
+    revoke:hashFunctions "7"^^xsd:int ;
+    revoke:falsePositiveRate "0.001"^^xsd:double .
+
+# ================================================================================
+# END OF .revoke CRYSTAL ONTOLOGY
+# ================================================================================

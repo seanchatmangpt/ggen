@@ -1,0 +1,686 @@
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix agent: <http://chatmangpt.com/ontology/agent#> .
+
+agent:AgentTypeScheme
+  a skos:ConceptScheme ;
+  dcterms:title "Agent Types and Capabilities"@en ;
+  dcterms:description "SKOS ConceptScheme for agent types, roles, and capability classifications in ChatmanGPT."@en ;
+  dcterms:created "2026-03-25"^^xsd:date ;
+  dcterms:creator "ChatmanGPT"@en ;
+  dcterms:language "en" ;
+  skos:hasTopConcept
+    agent:ReasoningAgent,
+    agent:ExecutionAgent,
+    agent:CoordinationAgent,
+    agent:PersistenceAgent,
+    agent:ComplianceAgent ;
+  .
+
+# TOP CONCEPTS - BROAD AGENT CATEGORIES
+
+agent:ReasoningAgent
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Reasoning Agent"@en ;
+  skos:definition "Agents that perform inference, analysis, and decision-making."@en ;
+  skos:example "LLM-based agents, planning agents, diagnostic agents"@en ;
+  skos:narrower agent:LLMAgent, agent:DiagnosticAgent, agent:PlanningAgent, agent:AnalysisAgent ;
+  .
+
+agent:ExecutionAgent
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Execution Agent"@en ;
+  skos:definition "Agents that perform concrete actions and operations."@en ;
+  skos:example "Process agents, task agents, workflow agents"@en ;
+  skos:narrower agent:ProcessAgent, agent:TaskAgent, agent:WorkflowAgent, agent:SensorAgent ;
+  .
+
+agent:CoordinationAgent
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Coordination Agent"@en ;
+  skos:definition "Agents that orchestrate, synchronize, and manage other agents."@en ;
+  skos:example "Orchestrator agents, supervisor agents, dispatcher agents"@en ;
+  skos:narrower agent:OrchestratorAgent, agent:SupervisorAgent, agent:DispatcherAgent ;
+  .
+
+agent:PersistenceAgent
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Persistence Agent"@en ;
+  skos:definition "Agents responsible for state management, storage, and retrieval."@en ;
+  skos:example "Data agents, cache agents, memory agents"@en ;
+  skos:narrower agent:DataAgent, agent:CacheAgent, agent:MemoryAgent, agent:GraphAgent ;
+  .
+
+agent:ComplianceAgent
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Compliance Agent"@en ;
+  skos:definition "Agents that ensure policy compliance, audit, and governance."@en ;
+  skos:example "Compliance agents, audit agents, governance agents"@en ;
+  skos:narrower agent:ComplianceCheckAgent, agent:AuditAgent, agent:GovernanceAgent ;
+  .
+
+# REASONING AGENTS
+
+agent:LLMAgent
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "LLM Agent"@en ;
+  skos:definition "Language model-based agent that performs reasoning, generation, and semantic analysis."@en ;
+  skos:example "Claude agent, GPT agent, semantic reasoning agent"@en ;
+  skos:broader agent:ReasoningAgent ;
+  rdfs:comment "Requires: LLM API access, prompt engineering, context window management"@en ;
+  dcat:relation agent:ContextManagementCapability ;
+  dcat:relation agent:PromptEngineeringCapability ;
+  dcat:relation agent:SemanticAnalysisCapability ;
+  .
+
+agent:DiagnosticAgent
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Diagnostic Agent"@en ;
+  skos:definition "Agent that analyzes failures, root causes, and system health."@en ;
+  skos:example "Healing diagnosis agent, health check agent, failure detector"@en ;
+  skos:broader agent:ReasoningAgent ;
+  rdfs:comment "Requires: Symptom analysis, pattern recognition, statistical methods"@en ;
+  dcat:relation agent:RootCauseAnalysisCapability ;
+  dcat:relation agent:PatternRecognitionCapability ;
+  dcat:relation agent:SymptomAnalysisCapability ;
+  .
+
+agent:PlanningAgent
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Planning Agent"@en ;
+  skos:definition "Agent that creates plans, schedules, and execution strategies."@en ;
+  skos:example "Workflow planner, task scheduler, resource allocator"@en ;
+  skos:broader agent:ReasoningAgent ;
+  rdfs:comment "Requires: Graph search, constraint satisfaction, optimization"@en ;
+  dcat:relation agent:ConstraintSatisfactionCapability ;
+  dcat:relation agent:SearchCapability ;
+  dcat:relation agent:OptimizationCapability ;
+  .
+
+agent:AnalysisAgent
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Analysis Agent"@en ;
+  skos:definition "Agent that examines data, discovers patterns, and produces insights."@en ;
+  skos:example "Data analyst agent, trend analyzer, gap analyzer"@en ;
+  skos:broader agent:ReasoningAgent ;
+  rdfs:comment "Requires: Statistical analysis, data exploration, reporting"@en ;
+  dcat:relation agent:StatisticalAnalysisCapability ;
+  dcat:relation agent:DataExplorationCapability ;
+  dcat:relation agent:ReportingCapability ;
+  .
+
+# EXECUTION AGENTS
+
+agent:ProcessAgent
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Process Agent"@en ;
+  skos:definition "Agent that executes workflows, processes, or procedures."@en ;
+  skos:example "YAWL process executor, workflow runner, procedure executor"@en ;
+  skos:broader agent:ExecutionAgent ;
+  rdfs:comment "Requires: Process definition parsing, state machine execution, activity dispatch"@en ;
+  dcat:relation agent:StateManagementCapability ;
+  dcat:relation agent:ProcessParsingCapability ;
+  dcat:relation agent:ActivityDispatchCapability ;
+  .
+
+agent:TaskAgent
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Task Agent"@en ;
+  skos:definition "Agent responsible for executing specific tasks or atomic operations."@en ;
+  skos:example "Approval task agent, computation task agent, validation task"@en ;
+  skos:broader agent:ExecutionAgent ;
+  rdfs:comment "Requires: Task definition parsing, execution tracking, result capture"@en ;
+  dcat:relation agent:ExecutionTrackingCapability ;
+  dcat:relation agent:ResultCaptureCapability ;
+  dcat:relation agent:ErrorHandlingCapability ;
+  .
+
+agent:WorkflowAgent
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Workflow Agent"@en ;
+  skos:definition "Agent that orchestrates workflow execution and state transitions."@en ;
+  skos:example "Business process engine, workflow orchestrator, transaction coordinator"@en ;
+  skos:broader agent:ExecutionAgent ;
+  rdfs:comment "Requires: Transition management, activity coordination, state persistence"@en ;
+  dcat:relation agent:TransitionManagementCapability ;
+  dcat:relation agent:StateManagementCapability ;
+  dcat:relation agent:PersistenceCapability ;
+  .
+
+agent:SensorAgent
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Sensor Agent"@en ;
+  skos:definition "Agent that collects data from external systems, APIs, or physical sensors."@en ;
+  skos:example "Metrics collector, API poller, device sensor reader"@en ;
+  skos:broader agent:ExecutionAgent ;
+  rdfs:comment "Requires: Data collection, polling/event listening, data normalization"@en ;
+  dcat:relation agent:DataCollectionCapability ;
+  dcat:relation agent:EventListeningCapability ;
+  dcat:relation agent:DataNormalizationCapability ;
+  .
+
+# COORDINATION AGENTS
+
+agent:OrchestratorAgent
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Orchestrator Agent"@en ;
+  skos:definition "Agent that coordinates multiple agents or systems toward shared goals."@en ;
+  skos:example "System orchestrator, multi-agent coordinator, service mesh controller"@en ;
+  skos:broader agent:CoordinationAgent ;
+  rdfs:comment "Requires: Agent registry, dependency management, request routing"@en ;
+  dcat:relation agent:AgentRegistryCapability ;
+  dcat:relation agent:DependencyManagementCapability ;
+  dcat:relation agent:RequestRoutingCapability ;
+  .
+
+agent:SupervisorAgent
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Supervisor Agent"@en ;
+  skos:definition "Agent that monitors, restarts, and manages health of child agents."@en ;
+  skos:example "Erlang supervisor, process supervisor, health monitor"@en ;
+  skos:broader agent:CoordinationAgent ;
+  rdfs:comment "Requires: Health monitoring, crash detection, restart strategy"@en ;
+  dcat:relation agent:HealthMonitoringCapability ;
+  dcat:relation agent:CrashDetectionCapability ;
+  dcat:relation agent:RestartStrategyCapability ;
+  .
+
+agent:DispatcherAgent
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Dispatcher Agent"@en ;
+  skos:definition "Agent that routes messages, tasks, or requests to appropriate agents."@en ;
+  skos:example "Message queue dispatcher, load balancer, request router"@en ;
+  skos:broader agent:CoordinationAgent ;
+  rdfs:comment "Requires: Route selection, load balancing, queue management"@en ;
+  dcat:relation agent:RouteSelectionCapability ;
+  dcat:relation agent:LoadBalancingCapability ;
+  dcat:relation agent:QueueManagementCapability ;
+  .
+
+# PERSISTENCE AGENTS
+
+agent:DataAgent
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Data Agent"@en ;
+  skos:definition "Agent that manages data operations including CRUD, queries, and transactions."@en ;
+  skos:example "Database agent, data repository agent, SPARQL endpoint agent"@en ;
+  skos:broader agent:PersistenceAgent ;
+  rdfs:comment "Requires: Transaction management, query optimization, schema validation"@en ;
+  dcat:relation agent:TransactionManagementCapability ;
+  dcat:relation agent:QueryOptimizationCapability ;
+  dcat:relation agent:SchemaValidationCapability ;
+  .
+
+agent:CacheAgent
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Cache Agent"@en ;
+  skos:definition "Agent managing caches for performance optimization and data consistency."@en ;
+  skos:example "Redis agent, in-memory cache manager, cache invalidation agent"@en ;
+  skos:broader agent:PersistenceAgent ;
+  rdfs:comment "Requires: TTL management, invalidation strategy, hit/miss tracking"@en ;
+  dcat:relation agent:TTLManagementCapability ;
+  dcat:relation agent:InvalidationStrategyCapability ;
+  dcat:relation agent:CacheMetricsCapability ;
+  .
+
+agent:MemoryAgent
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Memory Agent"@en ;
+  skos:definition "Agent managing agent state, knowledge, and experience memory."@en ;
+  skos:example "Experience buffer, knowledge store, context manager"@en ;
+  skos:broader agent:PersistenceAgent ;
+  rdfs:comment "Requires: Memory encoding, retrieval, update, summarization"@en ;
+  dcat:relation agent:MemoryEncodingCapability ;
+  dcat:relation agent:RetrievalCapability ;
+  dcat:relation agent:SummarizationCapability ;
+  .
+
+agent:GraphAgent
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Graph Agent"@en ;
+  skos:definition "Agent managing knowledge graphs, semantic relationships, and ontologies."@en ;
+  skos:example "RDF store agent, knowledge graph manager, ontology agent"@en ;
+  skos:broader agent:PersistenceAgent ;
+  rdfs:comment "Requires: RDF/SPARQL, graph traversal, ontology reasoning"@en ;
+  dcat:relation agent:GraphTraversalCapability ;
+  dcat:relation agent:SPARQLCapability ;
+  dcat:relation agent:OntologyReasoningCapability ;
+  .
+
+# COMPLIANCE AGENTS
+
+agent:ComplianceCheckAgent
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Compliance Check Agent"@en ;
+  skos:definition "Agent that verifies compliance with policies, rules, and standards."@en ;
+  skos:example "SOC2 compliance checker, policy validator, security checker"@en ;
+  skos:broader agent:ComplianceAgent ;
+  rdfs:comment "Requires: Rule engine, policy evaluation, evidence collection"@en ;
+  dcat:relation agent:RuleEngineCapability ;
+  dcat:relation agent:PolicyEvaluationCapability ;
+  dcat:relation agent:EvidenceCollectionCapability ;
+  .
+
+agent:AuditAgent
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Audit Agent"@en ;
+  skos:definition "Agent that logs, audits, and provides traceability for actions."@en ;
+  skos:example "Audit log agent, change tracker, provenance recorder"@en ;
+  skos:broader agent:ComplianceAgent ;
+  rdfs:comment "Requires: Audit trail storage, immutable logging, report generation"@en ;
+  dcat:relation agent:AuditTrailCapability ;
+  dcat:relation agent:ProvenanceCapability ;
+  dcat:relation agent:ReportGenerationCapability ;
+  .
+
+agent:GovernanceAgent
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Governance Agent"@en ;
+  skos:definition "Agent managing organizational policies, approval workflows, and decision governance."@en ;
+  skos:example "Approval workflow agent, policy manager, decision reviewer"@en ;
+  skos:broader agent:ComplianceAgent ;
+  rdfs:comment "Requires: Workflow execution, approval routing, policy updates"@en ;
+  dcat:relation agent:ApprovalWorkflowCapability ;
+  dcat:relation agent:PolicyManagementCapability ;
+  dcat:relation agent:DecisionTrackingCapability ;
+  .
+
+# CAPABILITY NODES (referenced via dcat:relation)
+
+agent:ContextManagementCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Context Management Capability"@en ;
+  skos:definition "Ability to maintain and manage execution context across operations."@en ;
+  .
+
+agent:PromptEngineeringCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Prompt Engineering Capability"@en ;
+  skos:definition "Ability to craft effective prompts for language models."@en ;
+  .
+
+agent:SemanticAnalysisCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Semantic Analysis Capability"@en ;
+  skos:definition "Ability to understand and analyze semantic meaning."@en ;
+  .
+
+agent:RootCauseAnalysisCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Root Cause Analysis Capability"@en ;
+  skos:definition "Ability to identify root causes of failures."@en ;
+  .
+
+agent:PatternRecognitionCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Pattern Recognition Capability"@en ;
+  skos:definition "Ability to recognize patterns in data and behavior."@en ;
+  .
+
+agent:SymptomAnalysisCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Symptom Analysis Capability"@en ;
+  skos:definition "Ability to analyze symptoms to diagnose issues."@en ;
+  .
+
+agent:ConstraintSatisfactionCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Constraint Satisfaction Capability"@en ;
+  skos:definition "Ability to solve constraint satisfaction problems."@en ;
+  .
+
+agent:SearchCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Search Capability"@en ;
+  skos:definition "Ability to search solution spaces efficiently."@en ;
+  .
+
+agent:OptimizationCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Optimization Capability"@en ;
+  skos:definition "Ability to optimize solutions and resource allocation."@en ;
+  .
+
+agent:StatisticalAnalysisCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Statistical Analysis Capability"@en ;
+  skos:definition "Ability to analyze data using statistical methods."@en ;
+  .
+
+agent:DataExplorationCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Data Exploration Capability"@en ;
+  skos:definition "Ability to explore data and discover insights."@en ;
+  .
+
+agent:ReportingCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Reporting Capability"@en ;
+  skos:definition "Ability to generate and present reports."@en ;
+  .
+
+agent:StateManagementCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "State Management Capability"@en ;
+  skos:definition "Ability to manage and persist state."@en ;
+  .
+
+agent:ProcessParsingCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Process Parsing Capability"@en ;
+  skos:definition "Ability to parse and interpret process definitions."@en ;
+  .
+
+agent:ActivityDispatchCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Activity Dispatch Capability"@en ;
+  skos:definition "Ability to dispatch and coordinate activities."@en ;
+  .
+
+agent:ExecutionTrackingCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Execution Tracking Capability"@en ;
+  skos:definition "Ability to track and monitor execution."@en ;
+  .
+
+agent:ResultCaptureCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Result Capture Capability"@en ;
+  skos:definition "Ability to capture and store results."@en ;
+  .
+
+agent:ErrorHandlingCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Error Handling Capability"@en ;
+  skos:definition "Ability to handle and recover from errors."@en ;
+  .
+
+agent:TransitionManagementCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Transition Management Capability"@en ;
+  skos:definition "Ability to manage state transitions."@en ;
+  .
+
+agent:PersistenceCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Persistence Capability"@en ;
+  skos:definition "Ability to persist state and data."@en ;
+  .
+
+agent:DataCollectionCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Data Collection Capability"@en ;
+  skos:definition "Ability to collect data from sources."@en ;
+  .
+
+agent:EventListeningCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Event Listening Capability"@en ;
+  skos:definition "Ability to listen and react to events."@en ;
+  .
+
+agent:DataNormalizationCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Data Normalization Capability"@en ;
+  skos:definition "Ability to normalize and standardize data."@en ;
+  .
+
+agent:AgentRegistryCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Agent Registry Capability"@en ;
+  skos:definition "Ability to maintain agent registry and discovery."@en ;
+  .
+
+agent:DependencyManagementCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Dependency Management Capability"@en ;
+  skos:definition "Ability to manage dependencies between agents."@en ;
+  .
+
+agent:RequestRoutingCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Request Routing Capability"@en ;
+  skos:definition "Ability to route requests intelligently."@en ;
+  .
+
+agent:HealthMonitoringCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Health Monitoring Capability"@en ;
+  skos:definition "Ability to monitor health status."@en ;
+  .
+
+agent:CrashDetectionCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Crash Detection Capability"@en ;
+  skos:definition "Ability to detect and respond to crashes."@en ;
+  .
+
+agent:RestartStrategyCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Restart Strategy Capability"@en ;
+  skos:definition "Ability to implement restart strategies."@en ;
+  .
+
+agent:RouteSelectionCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Route Selection Capability"@en ;
+  skos:definition "Ability to select optimal routes."@en ;
+  .
+
+agent:LoadBalancingCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Load Balancing Capability"@en ;
+  skos:definition "Ability to balance load across agents."@en ;
+  .
+
+agent:QueueManagementCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Queue Management Capability"@en ;
+  skos:definition "Ability to manage queues efficiently."@en ;
+  .
+
+agent:TransactionManagementCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Transaction Management Capability"@en ;
+  skos:definition "Ability to manage transactions."@en ;
+  .
+
+agent:QueryOptimizationCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Query Optimization Capability"@en ;
+  skos:definition "Ability to optimize queries."@en ;
+  .
+
+agent:SchemaValidationCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Schema Validation Capability"@en ;
+  skos:definition "Ability to validate against schemas."@en ;
+  .
+
+agent:TTLManagementCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "TTL Management Capability"@en ;
+  skos:definition "Ability to manage time-to-live."@en ;
+  .
+
+agent:InvalidationStrategyCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Invalidation Strategy Capability"@en ;
+  skos:definition "Ability to implement cache invalidation."@en ;
+  .
+
+agent:CacheMetricsCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Cache Metrics Capability"@en ;
+  skos:definition "Ability to track cache metrics."@en ;
+  .
+
+agent:MemoryEncodingCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Memory Encoding Capability"@en ;
+  skos:definition "Ability to encode information in memory."@en ;
+  .
+
+agent:RetrievalCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Retrieval Capability"@en ;
+  skos:definition "Ability to retrieve stored information."@en ;
+  .
+
+agent:SummarizationCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Summarization Capability"@en ;
+  skos:definition "Ability to summarize information."@en ;
+  .
+
+agent:GraphTraversalCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Graph Traversal Capability"@en ;
+  skos:definition "Ability to traverse graphs efficiently."@en ;
+  .
+
+agent:SPARQLCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "SPARQL Capability"@en ;
+  skos:definition "Ability to query with SPARQL."@en ;
+  .
+
+agent:OntologyReasoningCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Ontology Reasoning Capability"@en ;
+  skos:definition "Ability to perform ontology-based reasoning."@en ;
+  .
+
+agent:RuleEngineCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Rule Engine Capability"@en ;
+  skos:definition "Ability to execute rule-based logic."@en ;
+  .
+
+agent:PolicyEvaluationCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Policy Evaluation Capability"@en ;
+  skos:definition "Ability to evaluate policies."@en ;
+  .
+
+agent:EvidenceCollectionCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Evidence Collection Capability"@en ;
+  skos:definition "Ability to collect evidence for compliance."@en ;
+  .
+
+agent:AuditTrailCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Audit Trail Capability"@en ;
+  skos:definition "Ability to maintain audit trails."@en ;
+  .
+
+agent:ProvenanceCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Provenance Capability"@en ;
+  skos:definition "Ability to track provenance."@en ;
+  .
+
+agent:ReportGenerationCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Report Generation Capability"@en ;
+  skos:definition "Ability to generate reports."@en ;
+  .
+
+agent:ApprovalWorkflowCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Approval Workflow Capability"@en ;
+  skos:definition "Ability to manage approval workflows."@en ;
+  .
+
+agent:PolicyManagementCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Policy Management Capability"@en ;
+  skos:definition "Ability to manage organizational policies."@en ;
+  .
+
+agent:DecisionTrackingCapability
+  a skos:Concept ;
+  skos:inScheme agent:AgentTypeScheme ;
+  skos:prefLabel "Decision Tracking Capability"@en ;
+  skos:definition "Ability to track decisions."@en ;
+  .

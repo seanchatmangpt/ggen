@@ -1,0 +1,134 @@
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix bibo: <http://purl.org/ontology/bibo/> .
+@prefix org: <http://www.w3.org/ns/org#> .
+@prefix ex: <http://example.org/> .
+
+# Academic Paper with Authors and Publications
+ex:paper-001 a bibo:AcademicArticle ;
+    dct:title "Advanced Code Generation using Semantic Templates" ;
+    dct:abstract "This paper explores the use of semantic web technologies for intelligent code generation." ;
+    dct:publisher ex:acm-publisher ;
+    dct:date "2024-03-15" ;
+    bibo:doi "10.1145/1234567.8901234" ;
+    bibo:pageStart "1" ;
+    bibo:pageEnd "15" ;
+    dct:creator ex:alice-smith, ex:bob-johnson, ex:carol-wilson .
+
+ex:paper-002 a bibo:AcademicArticle ;
+    dct:title "Template-Driven Development Patterns" ;
+    dct:abstract "A comprehensive study of template-driven development methodologies." ;
+    dct:publisher ex:ieee-publisher ;
+    dct:date "2024-02-20" ;
+    bibo:doi "10.1109/TSE.2024.3367890" ;
+    bibo:pageStart "45" ;
+    bibo:pageEnd "62" ;
+    dct:creator ex:bob-johnson, ex:david-brown .
+
+ex:conference-paper a bibo:Proceedings ;
+    dct:title "Proceedings of the International Conference on Software Engineering" ;
+    dct:date "2024-05-10" ;
+    dct:publisher ex:springer-publisher ;
+    bibo:editor ex:alice-smith .
+
+# Authors
+ex:alice-smith a foaf:Person ;
+    foaf:name "Dr. Alice Smith" ;
+    foaf:givenName "Alice" ;
+    foaf:familyName "Smith" ;
+    foaf:title "Professor" ;
+    foaf:mbox <mailto:alice.smith@university.edu> ;
+    foaf:workplaceHomepage <https://cs.university.edu/~alice> ;
+    org:memberOf ex:university-cs-dept ;
+    foaf:knows ex:bob-johnson, ex:carol-wilson .
+
+ex:bob-johnson a foaf:Person ;
+    foaf:name "Bob Johnson" ;
+    foaf:givenName "Bob" ;
+    foaf:familyName "Johnson" ;
+    foaf:title "Senior Researcher" ;
+    foaf:mbox <mailto:bob.johnson@techcorp.com> ;
+    foaf:workplaceHomepage <https://research.techcorp.com/bob> ;
+    org:memberOf ex:techcorp-research ;
+    foaf:knows ex:alice-smith, ex:david-brown .
+
+ex:carol-wilson a foaf:Person ;
+    foaf:name "Carol Wilson" ;
+    foaf:givenName "Carol" ;
+    foaf:familyName "Wilson" ;
+    foaf:title "PhD Student" ;
+    foaf:mbox <mailto:carol.wilson@gradschool.edu> ;
+    org:memberOf ex:gradschool-cs-dept ;
+    foaf:knows ex:alice-smith .
+
+ex:david-brown a foaf:Person ;
+    foaf:name "David Brown" ;
+    foaf:givenName "David" ;
+    foaf:familyName "Brown" ;
+    foaf:title "Principal Engineer" ;
+    foaf:mbox <mailto:david.brown@techcorp.com> ;
+    org:memberOf ex:techcorp-engineering ;
+    foaf:knows ex:bob-johnson .
+
+# Organizations
+ex:university-cs-dept a org:Organization ;
+    foaf:name "Computer Science Department, State University" ;
+    org:hasSubOrganization ex:ai-lab, ex:software-eng-lab .
+
+ex:techcorp-research a org:Organization ;
+    foaf:name "TechCorp Research Division" ;
+    org:hasSubOrganization ex:ml-team, ex:systems-team .
+
+ex:gradschool-cs-dept a org:Organization ;
+    foaf:name "Graduate School of Computer Science" .
+
+ex:techcorp-engineering a org:Organization ;
+    foaf:name "TechCorp Engineering" .
+
+# Publishers
+ex:acm-publisher a org:Organization ;
+    foaf:name "Association for Computing Machinery" ;
+    foaf:homepage <https://www.acm.org> .
+
+ex:ieee-publisher a org:Organization ;
+    foaf:name "IEEE Computer Society" ;
+    foaf:homepage <https://www.computer.org> .
+
+ex:springer-publisher a org:Organization ;
+    foaf:name "Springer Nature" ;
+    foaf:homepage <https://www.springer.com> .
+
+# Research Labs
+ex:ai-lab a org:OrganizationalUnit ;
+    foaf:name "Artificial Intelligence Laboratory" ;
+    org:purpose "Research in machine learning and AI applications" .
+
+ex:software-eng-lab a org:OrganizationalUnit ;
+    foaf:name "Software Engineering Laboratory" ;
+    org:purpose "Research in software development methodologies" .
+
+# Teams
+ex:ml-team a org:OrganizationalUnit ;
+    foaf:name "Machine Learning Team" ;
+    org:purpose "Applied machine learning research" .
+
+ex:systems-team a org:OrganizationalUnit ;
+    foaf:name "Systems Architecture Team" ;
+    org:purpose "Distributed systems and architecture research" .
+
+# Collaboration relationships
+ex:alice-smith foaf:currentProject ex:semantic-codegen-project .
+ex:bob-johnson foaf:currentProject ex:semantic-codegen-project, ex:template-patterns-project .
+ex:carol-wilson foaf:currentProject ex:semantic-codegen-project .
+ex:david-brown foaf:currentProject ex:template-patterns-project .
+
+# Projects
+ex:semantic-codegen-project a foaf:Project ;
+    foaf:name "Semantic Code Generation Research" ;
+    dct:description "Research into using semantic web technologies for automated code generation" ;
+    foaf:member ex:alice-smith, ex:bob-johnson, ex:carol-wilson .
+
+ex:template-patterns-project a foaf:Project ;
+    foaf:name "Template-Driven Development Patterns" ;
+    dct:description "Study of patterns and best practices in template-driven development" ;
+    foaf:member ex:bob-johnson, ex:david-brown .

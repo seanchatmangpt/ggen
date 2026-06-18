@@ -1,0 +1,68 @@
+# SPARQL Query: Critical and Major Gaps Must Be Closed or Explicitly PARTIAL
+# Purpose: SELECT audit of gap remediation status. Identifies critical/major gaps that are
+#         not yet closed and not explicitly marked as PARTIAL or accepted-debt.
+# Rationale: Hostile assumption: gaps left undocumented can silently invalidate audit checkpoints.
+#           Every critical gap must have either:
+#           (a) A ClosureClaim with closure evidence (audit:closureTimestamp set), OR
+#           (b) Status reclassified to "accepted-debt" with explicit reasoning, OR
+#           (c) Status documented as "PARTIAL" in a dedicated checkpoint marker
+# Returns: SELECT listing open critical gaps and their remediation status; empty = all gaps remediated.
+# Usage: ggen query audit-critical-gaps-have-remediation.rq --format sparql-results
+
+PREFIX audit:   <https://wasm4pm-compat.rs/audit#>
+PREFIX compat:  <https://wasm4pm-compat.rs/ontology#>
+PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:     <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?gapId ?gapCategory ?gapSeverity ?remediationPlan ?hasClosureClaim ?acceptedAsDebt
+WHERE {
+  # Find all documented gaps
+  ?gap a audit:Gap ;
+       audit:gapId ?gapId ;
+       audit:gapCategory ?gapCategory ;
+       audit:gapSeverity ?gapSeverity ;
+       audit:remediationPlan ?remediationPlan .
+
+  # Filter: keep only critical and major severity gaps
+  FILTER (?gapSeverity = "critical" || ?gapSeverity = "major")
+
+  # Check 1: Does this gap have a closure claim?
+  OPTIONAL {
+    ?closureClaim audit:closesGap ?gap ;
+                  audit:closureTimestamp ?closureTs .
+    BIND(true AS ?hasClosureClaim)
+  }
+  BIND(COALESCE(?hasClosureClaim, false) AS ?hasClosureClaim)
+
+  # Check 2: Is this gap explicitly marked as accepted-debt in its category?
+  # (Gaps reclassified from critical/major to accepted-debt appear in gapCategory)
+  OPTIONAL {
+    ?gap audit:gapCategory "accepted-debt" .
+    BIND(true AS ?acceptedAsDebt)
+  }
+  BIND(COALESCE(?acceptedAsDebt, false) AS ?acceptedAsDebt)
+
+  # Check 3: Is this gap marked as PARTIAL in any checkpoint?
+  # (Future: when CheckpointClaim includes partial gap tracking)
+  # For now, presence in remediationPlan containing "PARTIAL" is a signal
+  OPTIONAL {
+    FILTER REGEX(?remediationPlan, "PARTIAL|partial|PARTIAL_REMEDIATION", "i")
+    BIND(true AS ?isPartial)
+  }
+  BIND(COALESCE(?isPartial, false) AS ?isPartial)
+
+  # Validation filter: return gaps that are NOT adequately remediated
+  # A gap is adequately remediated if ANY of these is true:
+  #   1. hasClosureClaim = true (closure claim exists with timestamp)
+  #   2. acceptedAsDebt = true (explicitly accepted as technical debt)
+  #   3. isPartial = true (documented as partial/in-progress in remediation plan)
+  # Return those where NONE of these are true (open critical/major gaps)
+  FILTER (!?hasClosureClaim && !?acceptedAsDebt && !?isPartial)
+}
+ORDER BY ?gapSeverity DESC ?gapId
+# Validation Rule: Result set should be empty or contain only gaps documented as "PARTIAL".
+# Rows with critical/major severity indicate blockers for ALIVE certification.
+# Remediation paths:
+#   Path A: Add audit:ClosureClaim with audit:closingCommit and audit:closureTimestamp
+#   Path B: Change audit:gapCategory to "accepted-debt" and expand remediationPlan justification
+#   Path C: Document gap as "PARTIAL_REMEDIATION" status in remediationPlan field

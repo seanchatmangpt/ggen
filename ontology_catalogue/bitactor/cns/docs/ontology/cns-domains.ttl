@@ -1,0 +1,466 @@
+@prefix cns: <https://schema.chatman.ai/cns#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+#################################################################
+# CNS Domains Ontology - All Functional Domains and Relationships
+#################################################################
+
+# ============================================================================
+# DOMAIN CLASSES
+# ============================================================================
+
+cns:Domain a rdfs:Class ;
+    rdfs:label "Domain" ;
+    rdfs:comment "A functional domain in CNS" .
+
+cns:Engine a rdfs:Class ;
+    rdfs:label "CNS Engine" ;
+    rdfs:comment "A core CNS engine (SPARQL, SHACL, OWL, etc.)" .
+
+cns:Function a rdfs:Class ;
+    rdfs:label "C Function" ;
+    rdfs:comment "A C function that implements domain functionality" .
+
+cns:Component a rdfs:Class ;
+    rdfs:label "Component" ;
+    rdfs:comment "A component within a domain" .
+
+# ============================================================================
+# DOMAIN PROPERTIES
+# ============================================================================
+
+cns:belongsToDomain a rdf:Property ;
+    rdfs:label "belongs to domain" ;
+    rdfs:domain cns:Function ;
+    rdfs:range cns:Domain .
+
+cns:implementsEngine a rdf:Property ;
+    rdfs:label "implements engine" ;
+    rdfs:domain cns:Function ;
+    rdfs:range cns:Engine .
+
+cns:hasComponent a rdf:Property ;
+    rdfs:label "has component" ;
+    rdfs:domain cns:Domain ;
+    rdfs:range cns:Component .
+
+cns:hasEngine a rdf:Property ;
+    rdfs:label "has engine" ;
+    rdfs:domain cns:Domain ;
+    rdfs:range cns:Engine .
+
+cns:domainType a rdf:Property ;
+    rdfs:label "domain type" ;
+    rdfs:domain cns:Domain ;
+    rdfs:range rdfs:Literal .
+
+cns:domainPriority a rdf:Property ;
+    rdfs:label "domain priority" ;
+    rdfs:domain cns:Domain ;
+    rdfs:range xsd:integer .
+
+# ============================================================================
+# CORE DOMAINS
+# ============================================================================
+
+cns:OWLDomain a cns:Domain ;
+    rdfs:label "OWL Domain" ;
+    cns:domainType "reasoning" ;
+    cns:domainPriority 1 ;
+    rdfs:comment "OWL reasoning domain" .
+
+cns:SQLDomain a cns:Domain ;
+    rdfs:label "SQL Domain" ;
+    cns:domainType "query" ;
+    cns:domainPriority 2 ;
+    rdfs:comment "SQL processing domain" .
+
+cns:SPARQLDomain a cns:Domain ;
+    rdfs:label "SPARQL Domain" ;
+    cns:domainType "query" ;
+    cns:domainPriority 3 ;
+    rdfs:comment "SPARQL query processing domain" .
+
+cns:SHACLDomain a cns:Domain ;
+    rdfs:label "SHACL Domain" ;
+    cns:domainType "validation" ;
+    cns:domainPriority 4 ;
+    rdfs:comment "SHACL validation domain" .
+
+cns:BenchmarkDomain a cns:Domain ;
+    rdfs:label "Benchmark Domain" ;
+    cns:domainType "testing" ;
+    cns:domainPriority 5 ;
+    rdfs:comment "Performance benchmarking domain" .
+
+cns:TelemetryDomain a cns:Domain ;
+    rdfs:label "Telemetry Domain" ;
+    cns:domainType "monitoring" ;
+    cns:domainPriority 6 ;
+    rdfs:comment "OpenTelemetry instrumentation domain" .
+
+cns:CompilerDomain a cns:Domain ;
+    rdfs:label "Compiler Domain" ;
+    cns:domainType "code_generation" ;
+    cns:domainPriority 7 ;
+    rdfs:comment "Code generation and compilation domain" .
+
+cns:TestDomain a cns:Domain ;
+    rdfs:label "Test Domain" ;
+    cns:domainType "testing" ;
+    cns:domainPriority 8 ;
+    rdfs:comment "Unit testing and validation domain" .
+
+cns:BuildDomain a cns:Domain ;
+    rdfs:label "Build Domain" ;
+    cns:domainType "build" ;
+    cns:domainPriority 9 ;
+    rdfs:comment "Build system and automation domain" .
+
+cns:CLIDomain a cns:Domain ;
+    rdfs:label "CLI Domain" ;
+    cns:domainType "interface" ;
+    cns:domainPriority 10 ;
+    rdfs:comment "Command-line interface domain" .
+
+# ============================================================================
+# DOMAIN ENGINES
+# ============================================================================
+
+cns:OWLEngine a cns:Engine ;
+    rdfs:label "OWL Engine" ;
+    rdfs:comment "7T compliant OWL reasoning engine with 80/20 optimization" .
+
+cns:SQLAOTEngine a cns:Engine ;
+    rdfs:label "SQL AOT Engine" ;
+    rdfs:comment "Ahead-of-time SQL compilation engine" .
+
+cns:SPARQLEngine a cns:Engine ;
+    rdfs:label "SPARQL Engine" ;
+    rdfs:comment "SPARQL query processing engine" .
+
+cns:SHACLEngine a cns:Engine ;
+    rdfs:label "SHACL Engine" ;
+    rdfs:comment "SHACL validation engine" .
+
+cns:BenchmarkEngine a cns:Engine ;
+    rdfs:label "Benchmark Engine" ;
+    rdfs:comment "Performance benchmarking system" .
+
+cns:WeaverEngine a cns:Engine ;
+    rdfs:label "Weaver Engine" ;
+    rdfs:comment "Code weaver for telemetry instrumentation" .
+
+cns:GatekeeperEngine a cns:Engine ;
+    rdfs:label "Gatekeeper Engine" ;
+    rdfs:comment "Quality gate and validation system for CNS" .
+
+cns:CNSEngine a cns:Engine ;
+    rdfs:label "CNS Engine" ;
+    rdfs:comment "Core CNS engine" .
+
+# ============================================================================
+# DOMAIN COMPONENTS
+# ============================================================================
+
+cns:OWLReasoningComponent a cns:Component ;
+    rdfs:label "OWL Reasoning Component" ;
+    rdfs:comment "OWL reasoning functionality" .
+
+cns:SQLProcessingComponent a cns:Component ;
+    rdfs:label "SQL Processing Component" ;
+    rdfs:comment "SQL query processing functionality" .
+
+cns:SPARQLQueryComponent a cns:Component ;
+    rdfs:label "SPARQL Query Component" ;
+    rdfs:comment "SPARQL query processing functionality" .
+
+cns:SHACLValidationComponent a cns:Component ;
+    rdfs:label "SHACL Validation Component" ;
+    rdfs:comment "SHACL validation functionality" .
+
+cns:BenchmarkComponent a cns:Component ;
+    rdfs:label "Benchmark Component" ;
+    rdfs:comment "Performance benchmarking functionality" .
+
+cns:TelemetryComponent a cns:Component ;
+    rdfs:label "Telemetry Component" ;
+    rdfs:comment "OpenTelemetry instrumentation functionality" .
+
+cns:CompilerComponent a cns:Component ;
+    rdfs:label "Compiler Component" ;
+    rdfs:comment "Code generation functionality" .
+
+cns:TestComponent a cns:Component ;
+    rdfs:label "Test Component" ;
+    rdfs:comment "Testing functionality" .
+
+cns:BuildComponent a cns:Component ;
+    rdfs:label "Build Component" ;
+    rdfs:comment "Build system functionality" .
+
+cns:CLIComponent a cns:Component ;
+    rdfs:label "CLI Component" ;
+    rdfs:comment "Command-line interface functionality" .
+
+# ============================================================================
+# DOMAIN RELATIONSHIPS
+# ============================================================================
+
+# OWL Domain Relationships
+cns:OWLDomain cns:hasEngine cns:OWLEngine ;
+    cns:hasComponent cns:OWLReasoningComponent .
+
+cns:OWLEngine cns:implementsEngine cns:OWLDomain .
+
+# SQL Domain Relationships
+cns:SQLDomain cns:hasEngine cns:SQLAOTEngine ;
+    cns:hasComponent cns:SQLProcessingComponent .
+
+cns:SQLAOTEngine cns:implementsEngine cns:SQLDomain .
+
+# SPARQL Domain Relationships
+cns:SPARQLDomain cns:hasEngine cns:SPARQLEngine ;
+    cns:hasComponent cns:SPARQLQueryComponent .
+
+cns:SPARQLEngine cns:implementsEngine cns:SPARQLDomain .
+
+# SHACL Domain Relationships
+cns:SHACLDomain cns:hasEngine cns:SHACLEngine ;
+    cns:hasComponent cns:SHACLValidationComponent .
+
+cns:SHACLEngine cns:implementsEngine cns:SHACLDomain .
+
+# Benchmark Domain Relationships
+cns:BenchmarkDomain cns:hasEngine cns:BenchmarkEngine ;
+    cns:hasComponent cns:BenchmarkComponent .
+
+cns:BenchmarkEngine cns:implementsEngine cns:BenchmarkDomain .
+
+# Telemetry Domain Relationships
+cns:TelemetryDomain cns:hasEngine cns:WeaverEngine ;
+    cns:hasComponent cns:TelemetryComponent .
+
+cns:WeaverEngine cns:implementsEngine cns:TelemetryDomain .
+
+# Test Domain Relationships
+cns:TestDomain cns:hasComponent cns:TestComponent .
+
+# Build Domain Relationships
+cns:BuildDomain cns:hasComponent cns:BuildComponent .
+
+# CLI Domain Relationships
+cns:CLIDomain cns:hasEngine cns:CNSEngine ;
+    cns:hasComponent cns:CLIComponent .
+
+cns:CNSEngine cns:implementsEngine cns:CLIDomain .
+
+# ============================================================================
+# FUNCTION-TO-DOMAIN RELATIONSHIPS
+# ============================================================================
+
+# OWL Functions
+cns:owlCreate cns:belongsToDomain cns:OWLDomain ;
+    cns:implementsEngine cns:OWLEngine .
+
+cns:owlDestroy cns:belongsToDomain cns:OWLDomain ;
+    cns:implementsEngine cns:OWLEngine .
+
+cns:owlAddSubclass cns:belongsToDomain cns:OWLDomain ;
+    cns:implementsEngine cns:OWLEngine .
+
+cns:owlIsSubclassOf cns:belongsToDomain cns:OWLDomain ;
+    cns:implementsEngine cns:OWLEngine .
+
+cns:owlAddEquivalentClass cns:belongsToDomain cns:OWLDomain ;
+    cns:implementsEngine cns:OWLEngine .
+
+cns:owlIsEquivalentClass cns:belongsToDomain cns:OWLDomain ;
+    cns:implementsEngine cns:OWLEngine .
+
+cns:owlAddTransitiveProperty cns:belongsToDomain cns:OWLDomain ;
+    cns:implementsEngine cns:OWLEngine .
+
+cns:owlIsTransitiveProperty cns:belongsToDomain cns:OWLDomain ;
+    cns:implementsEngine cns:OWLEngine .
+
+cns:owlMaterialize80_20 cns:belongsToDomain cns:OWLDomain ;
+    cns:implementsEngine cns:OWLEngine .
+
+cns:owlComputeTransitiveClosure cns:belongsToDomain cns:OWLDomain ;
+    cns:implementsEngine cns:OWLEngine .
+
+# SQL Functions
+cns:sqlAOTCompile cns:belongsToDomain cns:SQLDomain ;
+    cns:implementsEngine cns:SQLAOTEngine .
+
+cns:sqlAOTExecute cns:belongsToDomain cns:SQLDomain ;
+    cns:implementsEngine cns:SQLAOTEngine .
+
+cns:sqlAOTParse cns:belongsToDomain cns:SQLDomain ;
+    cns:implementsEngine cns:SQLAOTEngine .
+
+cns:sqlAOTOptimize cns:belongsToDomain cns:SQLDomain ;
+    cns:implementsEngine cns:SQLAOTEngine .
+
+cns:sqlAOTGenerate cns:belongsToDomain cns:SQLDomain ;
+    cns:implementsEngine cns:SQLAOTEngine .
+
+# SPARQL Functions
+cns:spqlAsk cns:belongsToDomain cns:SPARQLDomain ;
+    cns:implementsEngine cns:SPARQLEngine .
+
+cns:spqlSelect cns:belongsToDomain cns:SPARQLDomain ;
+    cns:implementsEngine cns:SPARQLEngine .
+
+cns:spqlAdd cns:belongsToDomain cns:SPARQLDomain ;
+    cns:implementsEngine cns:SPARQLEngine .
+
+# SHACL Functions
+cns:shaclValidate cns:belongsToDomain cns:SHACLDomain ;
+    cns:implementsEngine cns:SHACLEngine .
+
+cns:shaclLoadShape cns:belongsToDomain cns:SHACLDomain ;
+    cns:implementsEngine cns:SHACLEngine .
+
+# Benchmark Functions
+cns:benchmarkRun cns:belongsToDomain cns:BenchmarkDomain ;
+    cns:implementsEngine cns:BenchmarkEngine .
+
+cns:benchmarkMeasure cns:belongsToDomain cns:BenchmarkDomain ;
+    cns:implementsEngine cns:BenchmarkEngine .
+
+cns:benchmarkStart cns:belongsToDomain cns:BenchmarkDomain ;
+    cns:implementsEngine cns:BenchmarkEngine .
+
+cns:benchmarkEnd cns:belongsToDomain cns:BenchmarkDomain ;
+    cns:implementsEngine cns:BenchmarkEngine .
+
+cns:benchmarkReport cns:belongsToDomain cns:BenchmarkDomain ;
+    cns:implementsEngine cns:BenchmarkEngine .
+
+# Weaver Functions
+cns:weaverInstrument cns:belongsToDomain cns:TelemetryDomain ;
+    cns:implementsEngine cns:WeaverEngine .
+
+cns:weaverExtractSpans cns:belongsToDomain cns:TelemetryDomain ;
+    cns:implementsEngine cns:WeaverEngine .
+
+cns:weaverGenerateCode cns:belongsToDomain cns:TelemetryDomain ;
+    cns:implementsEngine cns:WeaverEngine .
+
+cns:weaverValidate cns:belongsToDomain cns:TelemetryDomain ;
+    cns:implementsEngine cns:WeaverEngine .
+
+# Gatekeeper Functions
+cns:gatekeeperGetCycles cns:belongsToDomain cns:BenchmarkDomain ;
+    cns:implementsEngine cns:GatekeeperEngine .
+
+cns:gatekeeperSigma cns:belongsToDomain cns:BenchmarkDomain ;
+    cns:implementsEngine cns:GatekeeperEngine .
+
+cns:gatekeeperCalculateMetrics cns:belongsToDomain cns:BenchmarkDomain ;
+    cns:implementsEngine cns:GatekeeperEngine .
+
+cns:gatekeeperValidateCorrectness cns:belongsToDomain cns:BenchmarkDomain ;
+    cns:implementsEngine cns:GatekeeperEngine .
+
+cns:gatekeeperValidateCycleBudget cns:belongsToDomain cns:BenchmarkDomain ;
+    cns:implementsEngine cns:GatekeeperEngine .
+
+cns:gatekeeperValidateThroughput cns:belongsToDomain cns:BenchmarkDomain ;
+    cns:implementsEngine cns:GatekeeperEngine .
+
+# Pattern Functions
+cns:slabAlloc cns:belongsToDomain cns:BuildDomain .
+
+cns:radixSort cns:belongsToDomain cns:BuildDomain .
+
+cns:cmdqPush cns:belongsToDomain cns:BuildDomain .
+
+cns:cmdqPop cns:belongsToDomain cns:BuildDomain .
+
+cns:stringID cns:belongsToDomain cns:BuildDomain .
+
+cns:roarAnd cns:belongsToDomain cns:BuildDomain .
+
+# Jinja Functions
+cns:jinjaExec cns:belongsToDomain cns:CompilerDomain .
+
+cns:jinjaCompile cns:belongsToDomain cns:CompilerDomain .
+
+# ============================================================================
+# DOMAIN HIERARCHY
+# ============================================================================
+
+# Core Domains (High Priority)
+cns:OWLDomain cns:domainPriority 1 .
+cns:SQLDomain cns:domainPriority 2 .
+cns:SPARQLDomain cns:domainPriority 3 .
+cns:SHACLDomain cns:domainPriority 4 .
+
+# Support Domains (Medium Priority)
+cns:BenchmarkDomain cns:domainPriority 5 .
+cns:TelemetryDomain cns:domainPriority 6 .
+cns:CompilerDomain cns:domainPriority 7 .
+
+# Infrastructure Domains (Lower Priority)
+cns:TestDomain cns:domainPriority 8 .
+cns:BuildDomain cns:domainPriority 9 .
+cns:CLIDomain cns:domainPriority 10 .
+
+# ============================================================================
+# DOMAIN DEPENDENCIES
+# ============================================================================
+
+# Benchmark Domain depends on all other domains
+cns:BenchmarkDomain cns:dependsOn cns:OWLDomain .
+cns:BenchmarkDomain cns:dependsOn cns:SQLDomain .
+cns:BenchmarkDomain cns:dependsOn cns:SPARQLDomain .
+cns:BenchmarkDomain cns:dependsOn cns:SHACLDomain .
+
+# Telemetry Domain depends on all functional domains
+cns:TelemetryDomain cns:dependsOn cns:OWLDomain .
+cns:TelemetryDomain cns:dependsOn cns:SQLDomain .
+cns:TelemetryDomain cns:dependsOn cns:SPARQLDomain .
+cns:TelemetryDomain cns:dependsOn cns:SHACLDomain .
+
+# Compiler Domain depends on functional domains
+cns:CompilerDomain cns:dependsOn cns:OWLDomain .
+cns:CompilerDomain cns:dependsOn cns:SQLDomain .
+cns:CompilerDomain cns:dependsOn cns:SPARQLDomain .
+cns:CompilerDomain cns:dependsOn cns:SHACLDomain .
+
+# Test Domain depends on all domains
+cns:TestDomain cns:dependsOn cns:OWLDomain .
+cns:TestDomain cns:dependsOn cns:SQLDomain .
+cns:TestDomain cns:dependsOn cns:SPARQLDomain .
+cns:TestDomain cns:dependsOn cns:SHACLDomain .
+cns:TestDomain cns:dependsOn cns:BenchmarkDomain .
+cns:TestDomain cns:dependsOn cns:TelemetryDomain .
+cns:TestDomain cns:dependsOn cns:CompilerDomain .
+
+# Build Domain depends on all domains
+cns:BuildDomain cns:dependsOn cns:OWLDomain .
+cns:BuildDomain cns:dependsOn cns:SQLDomain .
+cns:BuildDomain cns:dependsOn cns:SPARQLDomain .
+cns:BuildDomain cns:dependsOn cns:SHACLDomain .
+cns:BuildDomain cns:dependsOn cns:BenchmarkDomain .
+cns:BuildDomain cns:dependsOn cns:TelemetryDomain .
+cns:BuildDomain cns:dependsOn cns:CompilerDomain .
+cns:BuildDomain cns:dependsOn cns:TestDomain .
+
+# CLI Domain depends on all domains
+cns:CLIDomain cns:dependsOn cns:OWLDomain .
+cns:CLIDomain cns:dependsOn cns:SQLDomain .
+cns:CLIDomain cns:dependsOn cns:SPARQLDomain .
+cns:CLIDomain cns:dependsOn cns:SHACLDomain .
+cns:CLIDomain cns:dependsOn cns:BenchmarkDomain .
+cns:CLIDomain cns:dependsOn cns:TelemetryDomain .
+cns:CLIDomain cns:dependsOn cns:CompilerDomain .
+cns:CLIDomain cns:dependsOn cns:TestDomain .
+cns:CLIDomain cns:dependsOn cns:BuildDomain . 

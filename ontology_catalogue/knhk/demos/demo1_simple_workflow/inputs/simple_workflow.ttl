@@ -1,0 +1,154 @@
+@prefix wf: <http://knhk.example/workflow/> .
+@prefix yawl: <http://knhk.example/yawl/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+
+# DEMO 1: Simple 3-Step Workflow
+# This demonstrates the basic Van der Aalst Sequence pattern
+# executed with full telemetry and MAPE-K observability.
+
+wf:SimpleWorkflow a yawl:Workflow ;
+    dc:title "Simple 3-Step Workflow" ;
+    dc:description "Demonstrates basic task sequencing with decision points" ;
+    yawl:hasStartTask wf:Task1 ;
+    yawl:pattern yawl:Sequence ;
+    yawl:chatmanConstant 3 ;
+    yawl:latencySLOTicks 8 .
+
+# Task 1: Initial Processing
+wf:Task1 a yawl:Task ;
+    dc:title "Task 1: Data Ingestion" ;
+    dc:description "Read input data and validate schema" ;
+    yawl:estimatedDuration "PT1S" ;
+    yawl:nextTask wf:DecisionPoint ;
+    yawl:pattern yawl:SimpleActivity ;
+    yawl:inputs ([
+        yawl:name "input_data" ;
+        yawl:type "string" ;
+        yawl:required true
+    ]) ;
+    yawl:outputs ([
+        yawl:name "validated_data" ;
+        yawl:type "json"
+    ]) .
+
+# Decision Point: Route based on validation result
+wf:DecisionPoint a yawl:ExclusiveChoice ;
+    dc:title "Decision: Validation Success?" ;
+    yawl:condition "[validated_data.status == 'OK']" ;
+    yawl:trueTask wf:Task2 ;
+    yawl:falseTask wf:Task2 .  # For demo, both routes go to Task2
+
+# Task 2: Processing
+wf:Task2 a yawl:Task ;
+    dc:title "Task 2: Data Processing" ;
+    dc:description "Process validated data through business logic" ;
+    yawl:estimatedDuration "PT2S" ;
+    yawl:nextTask wf:Task3 ;
+    yawl:pattern yawl:SimpleActivity ;
+    yawl:inputs ([
+        yawl:name "data" ;
+        yawl:type "json" ;
+        yawl:required true
+    ]) ;
+    yawl:outputs ([
+        yawl:name "processed_result" ;
+        yawl:type "json"
+    ]) .
+
+# Task 3: Output
+wf:Task3 a yawl:Task ;
+    dc:title "Task 3: Result Output" ;
+    dc:description "Write results and generate completion receipt" ;
+    yawl:estimatedDuration "PT1S" ;
+    yawl:nextTask wf:EndTask ;
+    yawl:pattern yawl:SimpleActivity ;
+    yawl:inputs ([
+        yawl:name "result" ;
+        yawl:type "json" ;
+        yawl:required true
+    ]) ;
+    yawl:outputs ([
+        yawl:name "output_file" ;
+        yawl:type "string"
+    ]) .
+
+# End Task: Completion
+wf:EndTask a yawl:EndTask ;
+    dc:title "Workflow Complete" ;
+    yawl:pattern yawl:TerminationTask ;
+    yawl:generates wf:CompletionReceipt .
+
+# MAPE-K Observability
+wf:SimpleWorkflow yawl:hasMonitor [
+    dc:title "Execution Monitor" ;
+    yawl:monitors (
+        wf:Task1Metric
+        wf:Task2Metric
+        wf:Task3Metric
+    )
+] .
+
+# Metrics collected during execution
+wf:Task1Metric a yawl:Metric ;
+    dc:title "Task 1 Latency" ;
+    yawl:unit "ms" ;
+    yawl:threshold 1000 .
+
+wf:Task2Metric a yawl:Metric ;
+    dc:title "Task 2 Latency" ;
+    yawl:unit "ms" ;
+    yawl:threshold 2000 .
+
+wf:Task3Metric a yawl:Metric ;
+    dc:title "Task 3 Latency" ;
+    yawl:unit "ms" ;
+    yawl:threshold 1000 .
+
+# Completion Receipt (proof of execution)
+wf:CompletionReceipt a yawl:Receipt ;
+    dc:title "Workflow Completion Receipt" ;
+    yawl:workflowId wf:SimpleWorkflow ;
+    yawl:timestamp "xsd:dateTime"^^xsd:string ;
+    yawl:duration "PT4S" ;
+    yawl:tasksCompleted 3 ;
+    yawl:latencyProfile [
+        yawl:min 500 ;
+        yawl:max 1800 ;
+        yawl:mean 1100 ;
+        yawl:chatmanConstantViolated false
+    ] ;
+    yawl:qualityMetrics [
+        yawl:completeness 1.0 ;
+        yawl:correctness 1.0 ;
+        yawl:consistency 1.0 ;
+        yawl:compliance 1.0
+    ] .
+
+# Q Invariant: No task can take longer than Chatman Constant (8 ticks = 8ms)
+wf:SimpleWorkflow yawl:hasInvariant [
+    dc:title "Q3: Chatman Constant" ;
+    yawl:invariantType "hard" ;
+    yawl:expression "forall task in tasks: latency(task) <= 8" ;
+    yawl:enforcedAt "runtime" ;
+    yawl:violationAction "abort"
+] .
+
+# Q Invariant: Workflow must complete within 30 seconds
+wf:SimpleWorkflow yawl:hasInvariant [
+    dc:title "Q4: Total Latency SLO" ;
+    yawl:invariantType "hard" ;
+    yawl:expression "totalLatency(workflow) <= 30000" ;
+    yawl:enforcedAt "runtime" ;
+    yawl:violationAction "abort"
+] .
+
+# Permutation Matrix: Prove this is valid according to Van der Aalst
+# (See yawl-pattern-permutations.ttl for full proof)
+wf:SimpleWorkflow yawl:permutationIndex "seq(1,1,1)" ;
+    yawl:patternsCombined (
+        yawl:Sequence
+        yawl:ExclusiveChoice
+        yawl:Sequence
+    ) ;
+    yawl:provenValid true ;
+    yawl:validationMethod yawl:PermutationMatrix .

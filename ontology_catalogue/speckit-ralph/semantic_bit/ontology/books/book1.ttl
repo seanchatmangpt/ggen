@@ -1,0 +1,26 @@
+@prefix insa: <https://w3id.org/insa/ns#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix book1: <https://w3id.org/insa/book1/> .
+
+book1:CANON
+    a insa:Book ;
+    skos:prefLabel "The Semantic Bit" ;
+    insa:hasPart book1:PART_01 .
+
+book1:PART_01
+    a insa:BookPart ;
+    skos:prefLabel "The Badge and the Field" ;
+    insa:hasOrder 1 ;
+    insa:hasChapter book1:CH_01 .
+
+book1:CH_01
+    a insa:BookChapter ;
+    skos:prefLabel "The Badge and the Field" ;
+    insa:hasChapterId "chapter-01-badge-field" ;
+    insa:hasOrder 1 ;
+    insa:hasOpeningLaw "A semantic bit is a named position in a bounded field whose presence activates an admitted operational meaning." ;
+    insa:hasPurpose "An access field carries the admitted meanings used to decide whether a door may open." ;
+    insa:targets field:ACCESS_BADGE .
+
+# Note: field:ACCESS_BADGE is already defined in spine.ttl

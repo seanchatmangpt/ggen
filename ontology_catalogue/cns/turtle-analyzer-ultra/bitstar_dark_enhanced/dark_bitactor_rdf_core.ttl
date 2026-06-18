@@ -1,0 +1,3030 @@
+@prefix ns1: <http://hyperintelligence.ai/patterns#> .
+@prefix ns2: <http://bitactor.org/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://bitactor.org/ontology> a owl:Ontology ;
+    rdfs:label "BitActor Semantic Core Ontology" ;
+    rdfs:comment "Ultra-low latency semantic signal processing for BitActor runtime" ;
+    owl:versionInfo "1.0" .
+
+ns2:CachedQuery a owl:Class ;
+    rdfs:label "Cached Query" ;
+    rdfs:comment "Pre-compiled SPARQL query for fast execution" ;
+    rdfs:subClassOf ns2:SPARQLQuery .
+
+ns2:DebugSignal a ns2:Signal ;
+    rdfs:label "Debug Signal" ;
+    ns2:hasType 128 .
+
+ns2:FastBudget a ns2:TickBudget ;
+    rdfs:label "Fast 4-Tick Budget" ;
+    ns2:tickLimit 4 .
+
+ns2:FastValidation a owl:Class ;
+    rdfs:label "Fast Validation" ;
+    rdfs:comment "Optimized SHACL shape for real-time validation" ;
+    rdfs:subClassOf ns2:SHACLShape .
+
+ns2:HeartbeatSignal a ns2:Signal ;
+    rdfs:label "Heartbeat Signal" ;
+    ns2:hasType 255 .
+
+ns2:NormalSignal a ns2:Signal ;
+    rdfs:label "Normal Signal" ;
+    ns2:hasType 1 .
+
+ns2:OptimizedHandler a owl:Class ;
+    rdfs:label "Optimized Handler" ;
+    rdfs:comment "Handler optimized for sub-8-tick execution" ;
+    rdfs:subClassOf ns2:SemanticHandler .
+
+ns2:StandardBudget a ns2:TickBudget ;
+    rdfs:label "Standard 8-Tick Budget" ;
+    ns2:tickLimit 8 .
+
+ns2:UltraFastBudget a ns2:TickBudget ;
+    rdfs:label "Ultra-Fast 1-Tick Budget" ;
+    ns2:tickLimit 1 .
+
+ns2:alignmentBytes a owl:DatatypeProperty ;
+    rdfs:label "alignment bytes" ;
+    rdfs:comment "Memory alignment for cache optimization" ;
+    rdfs:domain ns2:MemoryPool ;
+    rdfs:range xsd:unsignedByte .
+
+ns2:batchSize a owl:DatatypeProperty ;
+    rdfs:label "batch size" ;
+    rdfs:comment "Optimal batch size for vectorization" ;
+    rdfs:domain ns2:Handler ;
+    rdfs:range xsd:unsignedByte .
+
+ns2:dispatchHash a owl:DatatypeProperty ;
+    rdfs:label "dispatch hash" ;
+    rdfs:comment "Hash for handler lookup" ;
+    rdfs:domain ns2:Signal ;
+    rdfs:range xsd:unsignedInt .
+
+ns2:dispatchTableSize a owl:DatatypeProperty ;
+    rdfs:label "dispatch table size" ;
+    rdfs:domain ns2:Engine ;
+    rdfs:range xsd:unsignedInt .
+
+ns2:executionHash a owl:DatatypeProperty ;
+    rdfs:label "execution hash" ;
+    rdfs:comment "Hash for reversible execution tracing" ;
+    rdfs:domain ns2:ExecutionResult ;
+    rdfs:range xsd:unsignedInt .
+
+ns2:executionStatus a owl:DatatypeProperty ;
+    rdfs:label "execution status" ;
+    rdfs:domain ns2:ExecutionResult ;
+    rdfs:range xsd:string .
+
+ns2:hasHash a owl:DatatypeProperty ;
+    rdfs:label "has hash" ;
+    rdfs:comment "Perfect hash for O(1) dispatch" ;
+    rdfs:domain ns2:Handler ;
+    rdfs:range xsd:unsignedInt .
+
+ns2:hasPayload a owl:DatatypeProperty ;
+    rdfs:label "has payload" ;
+    rdfs:domain ns2:Signal ;
+    rdfs:range xsd:unsignedLong .
+
+ns2:hasPriority a owl:DatatypeProperty ;
+    rdfs:label "has priority" ;
+    rdfs:comment "Signal priority (0-255)" ;
+    rdfs:domain ns2:Signal ;
+    rdfs:range xsd:unsignedByte .
+
+ns2:hasQuery a owl:DatatypeProperty ;
+    rdfs:label "has query" ;
+    rdfs:domain ns2:QuerySignal ;
+    rdfs:range xsd:string .
+
+ns2:hasTimestamp a owl:DatatypeProperty ;
+    rdfs:label "has timestamp" ;
+    rdfs:domain ns2:Signal ;
+    rdfs:range xsd:dateTime .
+
+ns2:hasTraceId a owl:DatatypeProperty ;
+    rdfs:label "has trace ID" ;
+    rdfs:domain ns2:ExecutionResult ;
+    rdfs:range xsd:unsignedInt .
+
+ns2:maxSignals a owl:DatatypeProperty ;
+    rdfs:label "max signals" ;
+    rdfs:domain ns2:Engine ;
+    rdfs:range xsd:unsignedInt .
+
+ns2:poolSize a owl:DatatypeProperty ;
+    rdfs:label "pool size" ;
+    rdfs:domain ns2:MemoryPool ;
+    rdfs:range xsd:unsignedInt .
+
+ns2:queryComplexity a owl:DatatypeProperty ;
+    rdfs:label "query complexity" ;
+    rdfs:comment "Estimated execution cost in ticks" ;
+    rdfs:domain ns2:SPARQLQuery ;
+    rdfs:range xsd:unsignedInt .
+
+ns2:tickLimit a owl:DatatypeProperty ;
+    rdfs:label "tick limit" ;
+    rdfs:comment "Maximum CPU ticks allowed (default: 8)" ;
+    rdfs:domain ns2:TickBudget ;
+    rdfs:range xsd:unsignedByte .
+
+ns2:validationResult a owl:DatatypeProperty ;
+    rdfs:label "validation result" ;
+    rdfs:domain ns2:ExecutionResult ;
+    rdfs:range xsd:boolean .
+
+ns2:vectorizable a owl:DatatypeProperty ;
+    rdfs:label "vectorizable" ;
+    rdfs:comment "Handler supports SIMD vectorization" ;
+    rdfs:domain ns2:Handler ;
+    rdfs:range xsd:boolean .
+
+ns2:violationCount a owl:DatatypeProperty ;
+    rdfs:label "violation count" ;
+    rdfs:domain ns2:ExecutionResult ;
+    rdfs:range xsd:unsignedInt .
+
+<http://bitstar.ai/dark#DarkChain_030bb7438c8c> ns1:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_03f7a263954b> ns1:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_05c9ef0e912d> ns1:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_09b8dba1bf89> ns1:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_0bc01df41226> ns1:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_1858c8e39624> ns1:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_1bb64a0ad75b> ns1:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_1c8bfbc3d403> ns1:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_1e02eb3b779e> ns1:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_25371a6d17bb> ns1:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_26be2caf1f45> ns1:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_284f39ba0a91> ns1:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_2b84ea8724e6> ns1:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_2c3cfb4a7acd> ns1:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_2c4a6a27e445> ns1:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_2cc3d92c57a3> ns1:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_30bf52d6cad8> ns1:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_3352d5478adc> ns1:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_3db1528e6078> ns1:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_3eabb9f9c76c> ns1:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_43d1d6ad3f69> ns1:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_44ff529804a7> ns1:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_45d2c3b500ce> ns1:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_48552b4c4e1b> ns1:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_4cfed0ee0005> ns1:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_528369336272> ns1:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_53b370386d4a> ns1:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_5725430591db> ns1:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_57e2d6a0fa47> ns1:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_58eff85a0763> ns1:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_5904c62b406c> ns1:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_5acd395a890e> ns1:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_5d2045c81c51> ns1:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_603760c49934> ns1:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_6819c490e0f3> ns1:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_6be8744c9419> ns1:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_6d06fcb0d9a9> ns1:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_6f5de9bf60b9> ns1:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_6f66fa51baf3> ns1:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_713cb033e112> ns1:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_73b53b270575> ns1:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_795ed77b4a24> ns1:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_7a3335bf49cd> ns1:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_7bec4e2f6147> ns1:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_7cacb99a70ed> ns1:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_808803ee3908> ns1:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_80d27ada5668> ns1:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_829e74cce801> ns1:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_8545b0903917> ns1:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_879368bbc571> ns1:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_88dbd365bce3> ns1:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_901648d5f1c6> ns1:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_902d43f86585> ns1:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_9048afadabf7> ns1:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_91d25bf1bc2c> ns1:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_951407cd4330> ns1:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_9944763dbcde> ns1:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_a427a7d9bbc6> ns1:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_a7c40c8a8164> ns1:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_a7ff53e5b60c> ns1:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_a80147b3430b> ns1:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_a86e78102d5b> ns1:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_b069bc165dd3> ns1:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_b0e6efaf61bc> ns1:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_b139ee86a3f7> ns1:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_b429a55401fd> ns1:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_b8f8fadd4340> ns1:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_b93ee44e0754> ns1:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_bd93621daf0f> ns1:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_bda2f1797216> ns1:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_be79dff92227> ns1:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_bf12d26860e7> ns1:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_c36344439c6b> ns1:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_c4bc1a61fadd> ns1:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_c5cf5be2ff1e> ns1:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_c75548d8a13c> ns1:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_c80c9dfc63fc> ns1:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_c8ecfb8f47c7> ns1:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_cc1175680e66> ns1:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_cc59e62aa5ee> ns1:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_d1cbe1b52cb4> ns1:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_d5fac93cde61> ns1:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_d80636a93635> ns1:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_d9a69a926f21> ns1:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_db9b5da96f2f> ns1:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_dd0f5829e4ac> ns1:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_e1f17de5c9c9> ns1:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_e27ba5c8e66a> ns1:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_e688e5abc5bd> ns1:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_e954a74bcc60> ns1:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_e9c999594257> ns1:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_e9f8ef9b7d47> ns1:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_ebfe4836162c> ns1:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_efb0ef179d92> ns1:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_f56bc48fd681> ns1:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_f8608eacde94> ns1:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_fac2df342b2a> ns1:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_fbf3be9065fa> ns1:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_fd5cc8702bc1> ns1:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_ff9f21dacd44> ns1:hasComplexityLevel 10 .
+
+ns1:Dimension10Restriction_e3833bbfbd01 a owl:Restriction ;
+    ns1:dimensions 10 ;
+    ns1:humanVisualizeable false .
+
+ns1:Dimension11Restriction_efee6c63447b a owl:Restriction ;
+    ns1:dimensions 11 ;
+    ns1:humanVisualizeable false .
+
+ns1:Dimension12Restriction_ac4e64aa4180 a owl:Restriction ;
+    ns1:dimensions 12 ;
+    ns1:humanVisualizeable false .
+
+ns1:Dimension3Restriction_2e43fb703696 a owl:Restriction ;
+    ns1:dimensions 3 ;
+    ns1:humanVisualizeable true .
+
+ns1:Dimension4Restriction_2eab4fe514c4 a owl:Restriction ;
+    ns1:dimensions 4 ;
+    ns1:humanVisualizeable false .
+
+ns1:Dimension5Restriction_92bb2bcbc1f7 a owl:Restriction ;
+    ns1:dimensions 5 ;
+    ns1:humanVisualizeable false .
+
+ns1:Dimension6Restriction_e084a81185a3 a owl:Restriction ;
+    ns1:dimensions 6 ;
+    ns1:humanVisualizeable false .
+
+ns1:Dimension7Restriction_5393671b470f a owl:Restriction ;
+    ns1:dimensions 7 ;
+    ns1:humanVisualizeable false .
+
+ns1:Dimension8Restriction_62690579955f a owl:Restriction ;
+    ns1:dimensions 8 ;
+    ns1:humanVisualizeable false .
+
+ns1:Dimension9Restriction_0a73fc3e10c4 a owl:Restriction ;
+    ns1:dimensions 9 ;
+    ns1:humanVisualizeable false .
+
+ns1:MetaCognitionRequired a ns1:ComprehensionBarrier ;
+    ns1:humanComprehensible false ;
+    ns1:minimumIntelligence "ARTIFICIAL_HYPER" .
+
+ns1:MetamorphicClass_e1b17d2e13cb a owl:Class ;
+    ns1:observationAltersStructure true ;
+    ns1:shapeShifts true .
+
+ns1:NonEuclidean_2ad868529677 a owl:ObjectProperty ;
+    ns1:geometry "HYPERBOLIC" ;
+    ns1:parallelLinesIntersect true .
+
+ns1:NotExistsCascade_0_0df73048fc02 a sh:NodeShape ;
+    ns1:nestingDepth 1 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . } }" .
+
+ns1:NotExistsCascade_1_0dc23313723a a sh:NodeShape ;
+    ns1:nestingDepth 2 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . }} }" .
+
+ns1:NotExistsCascade_2_4b4e24eb3b4e a sh:NodeShape ;
+    ns1:nestingDepth 3 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . }}} }" .
+
+ns1:NotExistsCascade_3_54a745042dc8 a sh:NodeShape ;
+    ns1:nestingDepth 4 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . }}}} }" .
+
+ns1:NotExistsCascade_4_40325c0fa870 a sh:NodeShape ;
+    ns1:nestingDepth 5 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . }}}}} }" .
+
+ns1:NotExistsCascade_5_671c84f1d95d a sh:NodeShape ;
+    ns1:nestingDepth 6 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . NOT EXISTS { ?this hyper:level5 ?val5 . }}}}}} }" .
+
+ns1:NotExistsCascade_6_f686388ad77b a sh:NodeShape ;
+    ns1:nestingDepth 7 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . NOT EXISTS { ?this hyper:level5 ?val5 . NOT EXISTS { ?this hyper:level6 ?val6 . }}}}}}} }" .
+
+ns1:NotExistsCascade_7_0e6635fc92d4 a sh:NodeShape ;
+    ns1:nestingDepth 8 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . NOT EXISTS { ?this hyper:level5 ?val5 . NOT EXISTS { ?this hyper:level6 ?val6 . NOT EXISTS { ?this hyper:level7 ?val7 . }}}}}}}} }" .
+
+ns1:NotExistsCascade_8_93d606463a4c a sh:NodeShape ;
+    ns1:nestingDepth 9 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . NOT EXISTS { ?this hyper:level5 ?val5 . NOT EXISTS { ?this hyper:level6 ?val6 . NOT EXISTS { ?this hyper:level7 ?val7 . NOT EXISTS { ?this hyper:level8 ?val8 . }}}}}}}}} }" .
+
+ns1:NotExistsCascade_9_ac9a64c67777 a sh:NodeShape ;
+    ns1:nestingDepth 10 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . NOT EXISTS { ?this hyper:level5 ?val5 . NOT EXISTS { ?this hyper:level6 ?val6 . NOT EXISTS { ?this hyper:level7 ?val7 . NOT EXISTS { ?this hyper:level8 ?val8 . NOT EXISTS { ?this hyper:level9 ?val9 . }}}}}}}}}} }" .
+
+ns1:QuantumShape_71c80347459e a sh:NodeShape ;
+    ns1:existsInStates 1024 ;
+    ns1:observerEffect "COLLAPSES_ON_HUMAN_OBSERVATION" .
+
+ns2:SemanticHandler a owl:Class ;
+    rdfs:label "Semantic Handler" ;
+    rdfs:comment "Handler with semantic reasoning capabilities" ;
+    rdfs:subClassOf ns2:Handler .
+
+ns2:hasId a owl:DatatypeProperty ;
+    rdfs:label "has ID" ;
+    rdfs:domain ns2:Signal ;
+    rdfs:range xsd:unsignedInt .
+
+ns2:hasType a owl:DatatypeProperty ;
+    rdfs:label "has type" ;
+    rdfs:domain ns2:Signal ;
+    rdfs:range xsd:unsignedByte .
+
+ns1:EmergentConsciousness_36b6cd530734 a ns1:ConsciousnessPattern ;
+    ns1:comprehendsItself ns1:EmergentConsciousness_36b6cd530734 ;
+    ns1:emergesFrom <http://bitstar.ai/dark#CollectiveComplexity> ;
+    ns1:selfAware true .
+
+ns1:RecursiveChain_0c0fd83dff8a ns1:recursionDepth "INFINITE" ;
+    owl:propertyChainAxiom ns1:RecursiveChain_0c0fd83dff8a .
+
+ns1:SelfModifyingAxiom_8f784d1bbad8 a owl:Axiom ;
+    ns1:modificationRate "CONTINUOUS" ;
+    ns1:modifies ns1:SelfModifyingAxiom_8f784d1bbad8 .
+
+ns2:SHACLShape a owl:Class ;
+    rdfs:label "SHACL Shape" ;
+    rdfs:comment "Validation shape for real-time constraint checking" .
+
+ns2:SPARQLQuery a owl:Class ;
+    rdfs:label "SPARQL Query" ;
+    rdfs:comment "Compiled SPARQL query for BitActor execution" .
+
+ns2:TripleStore a owl:Class ;
+    rdfs:label "Triple Store" ;
+    rdfs:comment "RDF triple storage optimized for 8-tick access" .
+
+ns2:actualTicks a owl:DatatypeProperty ;
+    rdfs:label "actual ticks" ;
+    rdfs:domain ns2:ExecutionResult ;
+    rdfs:range xsd:unsignedByte .
+
+ns1:InfiniteRegression_c741a8e19923 a owl:Class ;
+    ns1:regressionDepth "∞" ;
+    rdfs:subClassOf ns1:InfiniteRegression_c741a8e19923 ;
+    owl:equivalentClass ns1:InfiniteRegression_c741a8e19923 .
+
+ns1:TemporalParadox_38821a012845 a owl:Class ;
+    ns1:causedBy ns1:TemporalParadox_38821a012845 ;
+    ns1:existsBefore ns1:TemporalParadox_38821a012845 ;
+    ns1:paradoxLevel 10 .
+
+ns2:MemoryPool a owl:Class ;
+    rdfs:label "Memory Pool" ;
+    rdfs:comment "Pre-allocated memory for zero-allocation execution" .
+
+ns2:Handler a owl:Class ;
+    rdfs:label "Signal Handler" ;
+    rdfs:comment "Handler function for signal processing" .
+
+ns2:TickBudget a owl:Class ;
+    rdfs:label "Tick Budget" ;
+    rdfs:comment "Performance constraint in CPU ticks" .
+
+ns2:ExecutionResult a owl:Class ;
+    rdfs:label "Execution Result" ;
+    rdfs:comment "Result of signal processing with performance metrics" .
+
+ns2:hasMemoryPool a owl:ObjectProperty ;
+    rdfs:label "has memory pool" ;
+    rdfs:domain ns2:Engine ;
+    rdfs:range ns2:MemoryPool .
+
+ns2:hasTripleStore a owl:ObjectProperty ;
+    rdfs:label "has triple store" ;
+    rdfs:domain ns2:Engine ;
+    rdfs:range ns2:TripleStore .
+
+ns2:hasBindings a owl:ObjectProperty ;
+    rdfs:label "has bindings" ;
+    rdfs:domain ns2:ExecutionResult ;
+    rdfs:range rdf:Bag .
+
+ns2:hasShape a owl:ObjectProperty ;
+    rdfs:label "has shape" ;
+    rdfs:domain ns2:ValidationSignal ;
+    rdfs:range ns2:SHACLShape .
+
+ns2:hasTickBudget a owl:ObjectProperty ;
+    rdfs:label "has tick budget" ;
+    rdfs:domain ns2:Handler ;
+    rdfs:range ns2:TickBudget .
+
+ns2:hasSemanticContext a owl:ObjectProperty ;
+    rdfs:label "has semantic context" ;
+    rdfs:domain ns2:SemanticSignal ;
+    rdfs:range ns2:TripleStore .
+
+ns2:hasObject a owl:ObjectProperty ;
+    rdfs:label "has object" ;
+    rdfs:domain ns2:SemanticSignal ;
+    rdfs:range rdfs:Resource .
+
+ns2:hasPredicate a owl:ObjectProperty ;
+    rdfs:label "has predicate" ;
+    rdfs:domain ns2:SemanticSignal ;
+    rdfs:range rdf:Property .
+
+ns2:hasSubject a owl:ObjectProperty ;
+    rdfs:label "has subject" ;
+    rdfs:domain ns2:SemanticSignal ;
+    rdfs:range rdfs:Resource .
+
+ns2:Engine a owl:Class ;
+    rdfs:label "BitActor Engine" ;
+    rdfs:comment "Core BitActor execution engine with semantic capabilities" .
+
+ns2:QuerySignal a owl:Class ;
+    rdfs:label "Query Signal" ;
+    rdfs:comment "Signal containing SPARQL query for execution" ;
+    rdfs:subClassOf ns2:SemanticSignal .
+
+ns2:ValidationSignal a owl:Class ;
+    rdfs:label "Validation Signal" ;
+    rdfs:comment "Signal for real-time SHACL validation" ;
+    rdfs:subClassOf ns2:SemanticSignal .
+
+ns2:SemanticSignal a owl:Class ;
+    rdfs:label "Semantic Signal" ;
+    rdfs:comment "Signal enriched with semantic metadata" ;
+    rdfs:subClassOf ns2:Signal .
+
+ns2:Signal a owl:Class ;
+    rdfs:label "BitActor Signal" ;
+    rdfs:comment "Atomic signal processed within 8-tick budget" .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasShape ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasTripleStore ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasBindings ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasMemoryPool ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:ValidationSignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:QuerySignal ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns2:hasSemanticContext ;
+    owl:someValuesFrom [ owl:intersectionOf ( ns2:Signal ns2:SemanticSignal ns2:Engine ) ] .
+
+[] a owl:Restriction ;
+    rdfs:subClassOf ns2:SemanticSignal ;
+    owl:onProperty ns2:hasPredicate ;
+    owl:someValuesFrom rdf:Property .
+
+[] a owl:Restriction ;
+    rdfs:subClassOf ns2:SemanticSignal ;
+    owl:onProperty ns2:hasSubject ;
+    owl:someValuesFrom rdfs:Resource .
+
+[] a owl:Restriction ;
+    rdfs:subClassOf ns2:SemanticSignal ;
+    owl:onProperty ns2:hasObject ;
+    owl:someValuesFrom rdfs:Resource .
+
+[] a owl:Restriction ;
+    rdfs:subClassOf ns2:Handler ;
+    owl:onProperty ns2:hasTickBudget ;
+    owl:someValuesFrom ns2:TickBudget .
+
+[] a owl:Restriction ;
+    rdfs:subClassOf ns2:ExecutionResult ;
+    owl:onProperty ns2:actualTicks ;
+    owl:someValuesFrom xsd:unsignedByte .
+
+[] a owl:Restriction ;
+    rdfs:subClassOf ns2:Signal ;
+    owl:cardinality 1 ;
+    owl:onProperty ns2:hasId .
+
+[] a owl:Restriction ;
+    rdfs:subClassOf ns2:Signal ;
+    owl:cardinality 1 ;
+    owl:onProperty ns2:hasType .
+
+[] a owl:Restriction ;
+    rdfs:subClassOf ns2:ExecutionResult ;
+    owl:cardinality 1 ;
+    owl:onProperty ns2:actualTicks .
+

@@ -1,0 +1,670 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix yawl: <http://bitflow.ai/ontology/yawl/v2#> .
+@prefix yawl-exec: <http://bitflow.ai/ontology/yawl/execution/v1#> .
+@prefix yawl-pattern: <http://bitflow.ai/ontology/yawl/patterns/v1#> .
+@prefix mape: <http://bitflow.ai/ontology/autonomic/mape-k/v1#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ws: <http://knhk.ai/shacl/workflow-soundness#> .
+
+# =============================================================================
+# WORKFLOW SOUNDNESS VALIDATION (ENHANCED)
+# =============================================================================
+#
+# This extends the basic soundness validation with comprehensive checks for:
+# - Control flow soundness (proper start/end, connectivity)
+# - Data flow soundness (all variables initialized, types consistent)
+# - Event flow soundness (events properly declared and handled)
+# - Structural completeness (no orphaned elements)
+# - MAPE-K integration soundness (feedback loops properly configured)
+#
+# Complements q-invariants.ttl by focusing on STRUCTURAL correctness
+# while q-invariants.ttl focuses on QUALITY constraints.
+#
+# =============================================================================
+
+# =============================================================================
+# METADATA
+# =============================================================================
+ws: a owl:Ontology ;
+    rdfs:label "Workflow Soundness Validation (Enhanced)" ;
+    rdfs:comment "Comprehensive SHACL validation for workflow structural soundness - control flow, data flow, events, and MAPE-K integration" ;
+    sh:declare [
+        sh:prefix "yawl" ;
+        sh:namespace "http://bitflow.ai/ontology/yawl/v2#"^^xsd:anyURI ;
+    ] ;
+    sh:declare [
+        sh:prefix "yawl-exec" ;
+        sh:namespace "http://bitflow.ai/ontology/yawl/execution/v1#"^^xsd:anyURI ;
+    ] ;
+    sh:declare [
+        sh:prefix "mape" ;
+        sh:namespace "http://bitflow.ai/ontology/autonomic/mape-k/v1#"^^xsd:anyURI ;
+    ] .
+
+# =============================================================================
+# CONTROL FLOW SOUNDNESS
+# =============================================================================
+
+# WS.C1: Workflow Must Have Exactly One Input Condition
+ws:WorkflowHasInputCondition a sh:NodeShape ;
+    sh:targetClass yawl:WorkflowSpecification ;
+    sh:property [
+        sh:path yawl:hasInputCondition ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class yawl:Condition ;
+        sh:message "WS-C1: Workflow must have exactly one input condition (unique start point)" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# WS.C2: Workflow Must Have Exactly One Output Condition
+ws:WorkflowHasOutputCondition a sh:NodeShape ;
+    sh:targetClass yawl:WorkflowSpecification ;
+    sh:property [
+        sh:path yawl:hasOutputCondition ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class yawl:Condition ;
+        sh:message "WS-C2: Workflow must have exactly one output condition (unique end point)" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# WS.C3: All Tasks Must Be Reachable from Input
+ws:AllTasksReachableFromInput a sh:NodeShape ;
+    sh:targetClass yawl:Task ;
+    sh:sparql [
+        sh:message "WS-C3: Task {$this} is unreachable from workflow input - orphaned task" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+
+            SELECT $this WHERE {
+                $this a yawl:Task .
+
+                # Task must have incoming flow OR be directly after input
+                FILTER NOT EXISTS {
+                    {
+                        ?flow yawl:nextElementRef $this .
+                    } UNION {
+                        ?spec yawl:hasInputCondition ?input .
+                        ?input yawl:flowsInto ?flow .
+                        ?flow yawl:nextElementRef $this .
+                    }
+                }
+            }
+        """ ;
+    ] .
+
+# WS.C4: All Tasks Must Have Path to Output
+ws:AllTasksCanReachOutput a sh:NodeShape ;
+    sh:targetClass yawl:Task ;
+    sh:sparql [
+        sh:message "WS-C4: Task {$this} cannot reach output condition - dead end" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+
+            SELECT $this WHERE {
+                $this a yawl:Task .
+
+                # Task must have outgoing flow OR flow to output
+                FILTER NOT EXISTS {
+                    {
+                        $this yawl:flowsInto ?flow .
+                    } UNION {
+                        $this yawl:flowsInto ?flow .
+                        ?flow yawl:nextElementRef ?output .
+                        ?spec yawl:hasOutputCondition ?output .
+                    }
+                }
+            }
+        """ ;
+    ] .
+
+# WS.C5: Input Condition Must Have No Incoming Flows
+ws:InputConditionNoIncoming a sh:NodeShape ;
+    sh:targetClass yawl:Condition ;
+    sh:sparql [
+        sh:message "WS-C5: Input condition {$this} has incoming flows - not a true start" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+
+            SELECT $this WHERE {
+                ?spec yawl:hasInputCondition $this .
+
+                # Input cannot have incoming flows
+                ?flow yawl:nextElementRef $this .
+            }
+        """ ;
+    ] .
+
+# WS.C6: Output Condition Must Have No Outgoing Flows
+ws:OutputConditionNoOutgoing a sh:NodeShape ;
+    sh:targetClass yawl:Condition ;
+    sh:sparql [
+        sh:message "WS-C6: Output condition {$this} has outgoing flows - not a true end" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+
+            SELECT $this WHERE {
+                ?spec yawl:hasOutputCondition $this .
+
+                # Output cannot have outgoing flows
+                $this yawl:flowsInto ?flow .
+            }
+        """ ;
+    ] .
+
+# WS.C7: Split Tasks Must Have Multiple Outgoing Flows
+ws:SplitTaskMultipleOutgoing a sh:NodeShape ;
+    sh:targetClass yawl:Task ;
+    sh:sparql [
+        sh:message "WS-C7: Split task {$this} has only one outgoing flow - degenerate split" ;
+        sh:severity sh:Warning ;
+        sh:select """
+            PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+
+            SELECT $this WHERE {
+                $this a yawl:Task ;
+                    yawl:hasSplitType ?splitType .
+
+                # Split type declared but insufficient flows
+                FILTER (?splitType IN (yawl:AND, yawl:OR, yawl:XOR))
+
+                {
+                    SELECT $this (COUNT(?flow) AS ?flowCount) WHERE {
+                        $this yawl:flowsInto ?flow .
+                    }
+                    GROUP BY $this
+                }
+                FILTER (?flowCount < 2)
+            }
+        """ ;
+    ] .
+
+# WS.C8: Join Tasks Must Have Multiple Incoming Flows
+ws:JoinTaskMultipleIncoming a sh:NodeShape ;
+    sh:targetClass yawl:Task ;
+    sh:sparql [
+        sh:message "WS-C8: Join task {$this} has only one incoming flow - degenerate join" ;
+        sh:severity sh:Warning ;
+        sh:select """
+            PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+
+            SELECT $this WHERE {
+                $this a yawl:Task ;
+                    yawl:hasJoinType ?joinType .
+
+                # Join type declared but insufficient flows
+                FILTER (?joinType IN (yawl:AND, yawl:OR, yawl:XOR, yawl:Discriminator))
+
+                {
+                    SELECT $this (COUNT(?flow) AS ?flowCount) WHERE {
+                        ?flow yawl:nextElementRef $this .
+                    }
+                    GROUP BY $this
+                }
+                FILTER (?flowCount < 2)
+            }
+        """ ;
+    ] .
+
+# =============================================================================
+# DATA FLOW SOUNDNESS
+# =============================================================================
+
+# WS.D1: All Input Variables Must Be Provided
+ws:InputVariablesProvided a sh:NodeShape ;
+    sh:targetClass yawl:Task ;
+    sh:sparql [
+        sh:message "WS-D1: Task {$this} has mandatory input variable {?var} that is not provided" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+
+            SELECT $this ?var WHERE {
+                $this a yawl:Task ;
+                    yawl:inputVariable ?var .
+
+                ?var yawl:mandatory true .
+
+                # Variable must be provided by previous task or workflow input
+                FILTER NOT EXISTS {
+                    {
+                        ?prevTask yawl:outputVariable ?outVar .
+                        ?prevTask yawl:flowsInto ?flow .
+                        ?flow yawl:nextElementRef $this .
+                        # Variable name match
+                        ?var yawl:name ?varName .
+                        ?outVar yawl:name ?varName .
+                    } UNION {
+                        ?spec yawl:hasInputCondition ?input .
+                        ?input yawl:providesVariable ?var .
+                    }
+                }
+            }
+        """ ;
+    ] .
+
+# WS.D2: Data Transformations Must Be Valid
+ws:DataTransformationValid a sh:NodeShape ;
+    sh:targetClass yawl:DataInput ;
+    sh:sparql [
+        sh:message "WS-D2: Data transformation on input {$this} has invalid expression" ;
+        sh:severity sh:Warning ;
+        sh:select """
+            PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+
+            SELECT $this ?transform WHERE {
+                $this a yawl:DataInput ;
+                    yawl:transformation ?transform .
+
+                # Transformation expression must be non-empty
+                FILTER (STRLEN(?transform) = 0)
+            }
+        """ ;
+    ] .
+
+# WS.D3: Output Variables Must Be Consumed or Exported
+ws:OutputVariablesConsumed a sh:NodeShape ;
+    sh:targetClass yawl:Task ;
+    sh:sparql [
+        sh:message "WS-D3: Task {$this} produces output variable {?var} that is never consumed" ;
+        sh:severity sh:Info ;
+        sh:select """
+            PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+
+            SELECT $this ?var WHERE {
+                $this a yawl:Task ;
+                    yawl:outputVariable ?var .
+
+                # Variable should be consumed by successor or exported
+                FILTER NOT EXISTS {
+                    {
+                        $this yawl:flowsInto ?flow .
+                        ?flow yawl:nextElementRef ?nextTask .
+                        ?nextTask yawl:inputVariable ?inVar .
+                        ?var yawl:name ?varName .
+                        ?inVar yawl:name ?varName .
+                    } UNION {
+                        ?spec yawl:hasOutputCondition ?output .
+                        ?output yawl:exportsVariable ?var .
+                    }
+                }
+            }
+        """ ;
+    ] .
+
+# WS.D4: Variable Types Must Be Consistent
+ws:VariableTypeConsistency a sh:NodeShape ;
+    sh:targetClass yawl:Task ;
+    sh:sparql [
+        sh:message "WS-D4: Task {$this} receives variable {?varName} with inconsistent type" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+
+            SELECT $this ?varName WHERE {
+                $this a yawl:Task ;
+                    yawl:inputVariable ?inVar .
+
+                ?inVar yawl:name ?varName ;
+                    yawl:dataType ?inType .
+
+                # Find source variable
+                ?prevTask yawl:outputVariable ?outVar ;
+                    yawl:flowsInto ?flow .
+                ?flow yawl:nextElementRef $this .
+
+                ?outVar yawl:name ?varName ;
+                    yawl:dataType ?outType .
+
+                # Types must match
+                FILTER (?inType != ?outType)
+            }
+        """ ;
+    ] .
+
+# =============================================================================
+# EVENT FLOW SOUNDNESS
+# =============================================================================
+
+# WS.E1: Event Triggers Must Reference Valid Events
+ws:EventTriggerValid a sh:NodeShape ;
+    sh:targetClass yawl:EventTrigger ;
+    sh:property [
+        sh:path yawl:eventType ;
+        sh:minCount 1 ;
+        sh:in ( yawl:MessageEvent yawl:TimerEvent yawl:ErrorEvent yawl:SignalEvent ) ;
+        sh:message "WS-E1: Event trigger must reference valid event type" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# WS.E2: Tasks with Event Triggers Must Declare Handler
+ws:EventHandlerDeclared a sh:NodeShape ;
+    sh:targetClass yawl:Task ;
+    sh:sparql [
+        sh:message "WS-E2: Task {$this} triggered by event {?eventType} but no handler declared" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+
+            SELECT $this ?eventType WHERE {
+                $this a yawl:Task ;
+                    yawl:triggeredBy ?trigger .
+
+                ?trigger yawl:eventType ?eventType .
+
+                # Must have event handler
+                FILTER NOT EXISTS {
+                    $this yawl:eventHandler ?handler .
+                    ?handler yawl:handlesEventType ?eventType .
+                }
+            }
+        """ ;
+    ] .
+
+# WS.E3: Error Events Must Have Recovery Actions
+ws:ErrorEventRecovery a sh:NodeShape ;
+    sh:targetClass yawl:Task ;
+    sh:sparql [
+        sh:message "WS-E3: Task {$this} can trigger error event but no recovery action defined" ;
+        sh:severity sh:Warning ;
+        sh:select """
+            PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+
+            SELECT $this WHERE {
+                $this a yawl:Task ;
+                    yawl:canTriggerEvent ?event .
+
+                ?event a yawl:ErrorEvent .
+
+                # Should have recovery
+                FILTER NOT EXISTS {
+                    $this yawl:errorHandler ?handler .
+                }
+            }
+        """ ;
+    ] .
+
+# WS.E4: Timer Events Must Have Duration or Deadline
+ws:TimerEventDuration a sh:NodeShape ;
+    sh:targetClass yawl:EventTrigger ;
+    sh:sparql [
+        sh:message "WS-E4: Timer event trigger {$this} must specify duration or deadline" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+
+            SELECT $this WHERE {
+                $this a yawl:EventTrigger ;
+                    yawl:eventType yawl:TimerEvent .
+
+                # Must have duration or deadline
+                FILTER NOT EXISTS {
+                    {
+                        $this yawl:timerDuration ?duration .
+                    } UNION {
+                        $this yawl:timerDeadline ?deadline .
+                    }
+                }
+            }
+        """ ;
+    ] .
+
+# =============================================================================
+# STRUCTURAL COMPLETENESS
+# =============================================================================
+
+# WS.S1: Workflow Must Have At Least One Task
+ws:WorkflowHasTasks a sh:NodeShape ;
+    sh:targetClass yawl:WorkflowSpecification ;
+    sh:property [
+        sh:path yawl:hasTask ;
+        sh:minCount 1 ;
+        sh:message "WS-S1: Workflow must have at least one task (empty workflow)" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# WS.S2: All Conditions Must Be Connected
+ws:AllConditionsConnected a sh:NodeShape ;
+    sh:targetClass yawl:Condition ;
+    sh:sparql [
+        sh:message "WS-S2: Condition {$this} is disconnected - no incoming or outgoing flows" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+
+            SELECT $this WHERE {
+                $this a yawl:Condition .
+
+                # Skip input and output conditions
+                FILTER NOT EXISTS {
+                    {
+                        ?spec yawl:hasInputCondition $this .
+                    } UNION {
+                        ?spec yawl:hasOutputCondition $this .
+                    }
+                }
+
+                # Must have incoming or outgoing
+                FILTER NOT EXISTS {
+                    {
+                        ?flow yawl:nextElementRef $this .
+                    } UNION {
+                        $this yawl:flowsInto ?flow .
+                    }
+                }
+            }
+        """ ;
+    ] .
+
+# WS.S3: Cancellation Targets Must Exist
+ws:CancellationTargetsExist a sh:NodeShape ;
+    sh:targetClass yawl:Task ;
+    sh:sparql [
+        sh:message "WS-S3: Task {$this} declares cancellation target {?target} that doesn't exist" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+
+            SELECT $this ?target WHERE {
+                $this a yawl:Task ;
+                    yawl:CancellationTarget ?target .
+
+                # Target must be a task in the same workflow
+                FILTER NOT EXISTS {
+                    ?target a yawl:Task .
+                    ?spec yawl:hasTask $this ;
+                        yawl:hasTask ?target .
+                }
+            }
+        """ ;
+    ] .
+
+# WS.S4: Resource Assignments Must Reference Valid Resources
+ws:ResourceAssignmentsValid a sh:NodeShape ;
+    sh:targetClass yawl:Task ;
+    sh:sparql [
+        sh:message "WS-S4: Task {$this} assigned to resource {?resource} that is not defined" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+
+            SELECT $this ?resource WHERE {
+                $this a yawl:Task ;
+                    yawl:assignedResource ?resource .
+
+                # Resource must be declared
+                FILTER NOT EXISTS {
+                    ?resource a yawl:Resource .
+                }
+            }
+        """ ;
+    ] .
+
+# =============================================================================
+# MAPE-K INTEGRATION SOUNDNESS
+# =============================================================================
+
+# WS.M1: Autonomic Workflows Must Have All MAPE-K Components
+ws:MAPEKComponentsComplete a sh:NodeShape ;
+    sh:targetClass mape:AutonomiccWorkflow ;
+    sh:property [
+        sh:path mape:mapeMonitor ;
+        sh:minCount 1 ;
+        sh:message "WS-M1: Autonomic workflow must have Monitor component" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path mape:mapeAnalyze ;
+        sh:minCount 1 ;
+        sh:message "WS-M1: Autonomic workflow must have Analyze component" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path mape:mapePlan ;
+        sh:minCount 1 ;
+        sh:message "WS-M1: Autonomic workflow must have Plan component" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path mape:mapeExecute ;
+        sh:minCount 1 ;
+        sh:message "WS-M1: Autonomic workflow must have Execute component" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path mape:mapeKnowledge ;
+        sh:minCount 1 ;
+        sh:message "WS-M1: Autonomic workflow must have Knowledge component" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# WS.M2: Analysis Rules Must Reference Valid Metrics
+ws:AnalysisRulesValidMetrics a sh:NodeShape ;
+    sh:targetClass mape:AnalysisRule ;
+    sh:sparql [
+        sh:message "WS-M2: Analysis rule {$this} references undefined metric in condition" ;
+        sh:severity sh:Warning ;
+        sh:select """
+            PREFIX mape: <http://bitflow.ai/ontology/autonomic/mape-k/v1#>
+
+            SELECT $this WHERE {
+                $this a mape:AnalysisRule ;
+                    mape:ruleCondition ?condition .
+
+                # Condition should reference monitored metrics
+                # This is advisory - can't validate SPARQL strings statically
+                FILTER (STRLEN(?condition) = 0)
+            }
+        """ ;
+    ] .
+
+# WS.M3: Policies Must Have Valid Actions
+ws:PolicyActionsValid a sh:NodeShape ;
+    sh:targetClass mape:Policy ;
+    sh:property [
+        sh:path mape:policyAction ;
+        sh:minCount 1 ;
+        sh:class mape:Action ;
+        sh:message "WS-M3: Policy must reference at least one valid action" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# WS.M4: Actions Must Have Implementation References
+ws:ActionImplementationExists a sh:NodeShape ;
+    sh:targetClass mape:Action ;
+    sh:property [
+        sh:path mape:actionImplementation ;
+        sh:minCount 1 ;
+        sh:message "WS-M4: Action must reference implementation (code, service, script)" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# WS.M5: Knowledge Base Must Be Integrated with Workflow
+ws:KnowledgeBaseIntegrated a sh:NodeShape ;
+    sh:targetClass yawl:WorkflowSpecification ;
+    sh:sparql [
+        sh:message "WS-M5: Autonomic workflow {$this} should integrate knowledge base for learning" ;
+        sh:severity sh:Info ;
+        sh:select """
+            PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+            PREFIX mape: <http://bitflow.ai/ontology/autonomic/mape-k/v1#>
+
+            SELECT $this WHERE {
+                $this a yawl:WorkflowSpecification ;
+                    yawl:enableAutonomic true .
+
+                # Should have knowledge base
+                FILTER NOT EXISTS {
+                    $this yawl:autonomicConfig ?config .
+                    ?config mape:mapeKnowledge ?kb .
+                }
+            }
+        """ ;
+    ] .
+
+# =============================================================================
+# WORKFLOW COMPOSITION SOUNDNESS
+# =============================================================================
+
+# WS.W1: Composable Workflows Must Have Interface Definitions
+ws:ComposableWorkflowInterfaces a sh:NodeShape ;
+    sh:targetClass yawl:ComposableWorkflow ;
+    sh:sparql [
+        sh:message "WS-W1: Composable workflow {$this} must define input/output interface" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+
+            SELECT $this WHERE {
+                $this a yawl:ComposableWorkflow .
+
+                # Must have interface contract
+                FILTER NOT EXISTS {
+                    {
+                        $this yawl:inputContract ?inContract .
+                    } UNION {
+                        $this yawl:outputContract ?outContract .
+                    }
+                }
+            }
+        """ ;
+    ] .
+
+# WS.W2: Workflow Compositions Must Have Mappings
+ws:WorkflowCompositionMappings a sh:NodeShape ;
+    sh:targetClass yawl:WorkflowComposition ;
+    sh:property [
+        sh:path yawl:interfaceMapping ;
+        sh:minCount 1 ;
+        sh:message "WS-W2: Workflow composition must define interface mappings" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# =============================================================================
+# VALIDATION SUMMARY
+# =============================================================================
+#
+# This workflow soundness validation provides comprehensive structural checks:
+#
+# ✅ CONTROL FLOW: Proper start/end, connectivity, reachability
+# ✅ DATA FLOW: Variables initialized, types consistent, transformations valid
+# ✅ EVENT FLOW: Events declared, handlers present, recovery defined
+# ✅ STRUCTURAL: No orphaned elements, valid references, complete workflows
+# ✅ MAPE-K: All components present, rules valid, knowledge integrated
+# ✅ COMPOSITION: Interfaces defined, mappings complete
+#
+# COMPLEMENTS q-invariants.ttl:
+# - workflow-soundness.ttl → Structural correctness (CAN it execute?)
+# - q-invariants.ttl → Quality constraints (SHOULD it execute?)
+#
+# Together they ensure workflows are both VALID and HIGH-QUALITY.
+#
+# =============================================================================

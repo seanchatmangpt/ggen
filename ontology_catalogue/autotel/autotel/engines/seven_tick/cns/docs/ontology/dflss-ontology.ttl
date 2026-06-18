@@ -1,0 +1,530 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix cns: <http://cns.autotel.org/ontology#> .
+@prefix dflss: <http://cns.autotel.org/ontology/dflss#> .
+@prefix perf: <http://cns.autotel.org/ontology/performance#> .
+@prefix telemetry: <http://cns.autotel.org/ontology/telemetry#> .
+
+# Design for Lean Six Sigma Ontology
+# Focuses on 7-tick performance constraints and CNS integration
+
+# =============================================================================
+# CORE DFLSS CONCEPTS
+# =============================================================================
+
+# DFLSS Process
+dflss:DFLSSProcess a owl:Class ;
+    rdfs:label "DFLSS Process" ;
+    rdfs:comment "A complete Design for Lean Six Sigma process with 7-tick performance constraints" ;
+    rdfs:subClassOf cns:Process .
+
+# DFLSS Phases
+dflss:DFLSSPhase a owl:Class ;
+    rdfs:label "DFLSS Phase" ;
+    rdfs:comment "A phase within the DFLSS methodology" ;
+    rdfs:subClassOf cns:ProcessPhase .
+
+# Define (D) Phase
+dflss:DefinePhase a owl:Class ;
+    rdfs:label "Define Phase" ;
+    rdfs:comment "Define phase: project scope, customer requirements, and performance targets" ;
+    rdfs:subClassOf dflss:DFLSSPhase ;
+    perf:maxExecutionTime "7"^^xsd:integer ;
+    perf:maxMemoryUsage "1024"^^xsd:integer .
+
+# Measure (M) Phase  
+dflss:MeasurePhase a owl:Class ;
+    rdfs:label "Measure Phase" ;
+    rdfs:comment "Measure phase: data collection, measurement system analysis, and baseline performance" ;
+    rdfs:subClassOf dflss:DFLSSPhase ;
+    perf:maxExecutionTime "7"^^xsd:integer ;
+    perf:maxMemoryUsage "2048"^^xsd:integer .
+
+# Analyze (A) Phase
+dflss:AnalyzePhase a owl:Class ;
+    rdfs:label "Analyze Phase" ;
+    rdfs:comment "Analyze phase: root cause analysis, statistical analysis, and performance modeling" ;
+    rdfs:subClassOf dflss:DFLSSPhase ;
+    perf:maxExecutionTime "7"^^xsd:integer ;
+    perf:maxMemoryUsage "4096"^^xsd:integer .
+
+# Design (D) Phase
+dflss:DesignPhase a owl:Class ;
+    rdfs:label "Design Phase" ;
+    rdfs:comment "Design phase: solution design, optimization, and performance validation" ;
+    rdfs:subClassOf dflss:DFLSSPhase ;
+    perf:maxExecutionTime "7"^^xsd:integer ;
+    perf:maxMemoryUsage "8192"^^xsd:integer .
+
+# Verify (V) Phase
+dflss:VerifyPhase a owl:Class ;
+    rdfs:label "Verify Phase" ;
+    rdfs:comment "Verify phase: implementation verification, performance testing, and validation" ;
+    rdfs:subClassOf dflss:DFLSSPhase ;
+    perf:maxExecutionTime "7"^^xsd:integer ;
+    perf:maxMemoryUsage "4096"^^xsd:integer .
+
+# =============================================================================
+# LEAN CONCEPTS
+# =============================================================================
+
+# Lean Principles
+dflss:LeanPrinciple a owl:Class ;
+    rdfs:label "Lean Principle" ;
+    rdfs:comment "Core lean principles for waste elimination and value optimization" ;
+    rdfs:subClassOf cns:Principle .
+
+# Value
+dflss:Value a owl:Class ;
+    rdfs:label "Value" ;
+    rdfs:comment "What the customer is willing to pay for" ;
+    rdfs:subClassOf dflss:LeanPrinciple ;
+    perf:maxExecutionTime "1"^^xsd:integer ;
+    perf:maxMemoryUsage "128"^^xsd:integer .
+
+# Value Stream
+dflss:ValueStream a owl:Class ;
+    rdfs:label "Value Stream" ;
+    rdfs:comment "The sequence of activities that deliver value to the customer" ;
+    rdfs:subClassOf dflss:LeanPrinciple ;
+    perf:maxExecutionTime "3"^^xsd:integer ;
+    perf:maxMemoryUsage "512"^^xsd:integer .
+
+# Flow
+dflss:Flow a owl:Class ;
+    rdfs:label "Flow" ;
+    rdfs:comment "Smooth, uninterrupted movement of work through the system" ;
+    rdfs:subClassOf dflss:LeanPrinciple ;
+    perf:maxExecutionTime "2"^^xsd:integer ;
+    perf:maxMemoryUsage "256"^^xsd:integer .
+
+# Pull
+dflss:Pull a owl:Class ;
+    rdfs:label "Pull" ;
+    rdfs:comment "Producing only what is needed when it is needed" ;
+    rdfs:subClassOf dflss:LeanPrinciple ;
+    perf:maxExecutionTime "2"^^xsd:integer ;
+    perf:maxMemoryUsage "256"^^xsd:integer .
+
+# Perfection
+dflss:Perfection a owl:Class ;
+    rdfs:label "Perfection" ;
+    rdfs:comment "Continuous improvement toward perfect value with zero waste" ;
+    rdfs:subClassOf dflss:LeanPrinciple ;
+    perf:maxExecutionTime "5"^^xsd:integer ;
+    perf:maxMemoryUsage "1024"^^xsd:integer .
+
+# Waste Types
+dflss:Waste a owl:Class ;
+    rdfs:label "Waste" ;
+    rdfs:comment "Any activity that does not add value to the customer" ;
+    rdfs:subClassOf cns:Problem .
+
+# 8 Types of Waste
+dflss:Defects a owl:Class ;
+    rdfs:label "Defects" ;
+    rdfs:comment "Work that contains errors or requires rework" ;
+    rdfs:subClassOf dflss:Waste ;
+    perf:maxExecutionTime "1"^^xsd:integer ;
+    perf:maxMemoryUsage "64"^^xsd:integer .
+
+dflss:Overproduction a owl:Class ;
+    rdfs:label "Overproduction" ;
+    rdfs:comment "Producing more than what is needed or before it is needed" ;
+    rdfs:subClassOf dflss:Waste ;
+    perf:maxExecutionTime "1"^^xsd:integer ;
+    perf:maxMemoryUsage "64"^^xsd:integer .
+
+dflss:Waiting a owl:Class ;
+    rdfs:label "Waiting" ;
+    rdfs:comment "Idle time when resources are not being utilized" ;
+    rdfs:subClassOf dflss:Waste ;
+    perf:maxExecutionTime "1"^^xsd:integer ;
+    perf:maxMemoryUsage "64"^^xsd:integer .
+
+dflss:NonUtilizedTalent a owl:Class ;
+    rdfs:label "Non-Utilized Talent" ;
+    rdfs:comment "Underutilizing people's skills, knowledge, and abilities" ;
+    rdfs:subClassOf dflss:Waste ;
+    perf:maxExecutionTime "1"^^xsd:integer ;
+    perf:maxMemoryUsage "64"^^xsd:integer .
+
+dflss:Transportation a owl:Class ;
+    rdfs:label "Transportation" ;
+    rdfs:comment "Unnecessary movement of materials or information" ;
+    rdfs:subClassOf dflss:Waste ;
+    perf:maxExecutionTime "1"^^xsd:integer ;
+    perf:maxMemoryUsage "64"^^xsd:integer .
+
+dflss:Inventory a owl:Class ;
+    rdfs:label "Inventory" ;
+    rdfs:comment "Excess materials, work-in-process, or finished goods" ;
+    rdfs:subClassOf dflss:Waste ;
+    perf:maxExecutionTime "1"^^xsd:integer ;
+    perf:maxMemoryUsage "64"^^xsd:integer .
+
+dflss:Motion a owl:Class ;
+    rdfs:label "Motion" ;
+    rdfs:comment "Unnecessary movement of people or equipment" ;
+    rdfs:subClassOf dflss:Waste ;
+    perf:maxExecutionTime "1"^^xsd:integer ;
+    perf:maxMemoryUsage "64"^^xsd:integer .
+
+dflss:ExtraProcessing a owl:Class ;
+    rdfs:label "Extra Processing" ;
+    rdfs:comment "Unnecessary steps or processing that adds no value" ;
+    rdfs:subClassOf dflss:Waste ;
+    perf:maxExecutionTime "1"^^xsd:integer ;
+    perf:maxMemoryUsage "64"^^xsd:integer .
+
+# =============================================================================
+# SIX SIGMA CONCEPTS
+# =============================================================================
+
+# Six Sigma Level
+dflss:SixSigmaLevel a owl:Class ;
+    rdfs:label "Six Sigma Level" ;
+    rdfs:comment "Performance level measured in defects per million opportunities" ;
+    rdfs:subClassOf cns:PerformanceMetric .
+
+# Sigma Levels
+dflss:OneSigma a owl:Class ;
+    rdfs:label "One Sigma" ;
+    rdfs:comment "690,000 DPMO (30.85% yield)" ;
+    rdfs:subClassOf dflss:SixSigmaLevel ;
+    dflss:defectsPerMillion "690000"^^xsd:integer ;
+    dflss:yieldPercentage "30.85"^^xsd:decimal .
+
+dflss:TwoSigma a owl:Class ;
+    rdfs:label "Two Sigma" ;
+    rdfs:comment "308,000 DPMO (69.15% yield)" ;
+    rdfs:subClassOf dflss:SixSigmaLevel ;
+    dflss:defectsPerMillion "308000"^^xsd:integer ;
+    dflss:yieldPercentage "69.15"^^xsd:decimal .
+
+dflss:ThreeSigma a owl:Class ;
+    rdfs:label "Three Sigma" ;
+    rdfs:comment "66,800 DPMO (93.32% yield)" ;
+    rdfs:subClassOf dflss:SixSigmaLevel ;
+    dflss:defectsPerMillion "66800"^^xsd:integer ;
+    dflss:yieldPercentage "93.32"^^xsd:decimal .
+
+dflss:FourSigma a owl:Class ;
+    rdfs:label "Four Sigma" ;
+    rdfs:comment "6,210 DPMO (99.38% yield)" ;
+    rdfs:subClassOf dflss:SixSigmaLevel ;
+    dflss:defectsPerMillion "6210"^^xsd:integer ;
+    dflss:yieldPercentage "99.38"^^xsd:decimal .
+
+dflss:FiveSigma a owl:Class ;
+    rdfs:label "Five Sigma" ;
+    rdfs:comment "233 DPMO (99.98% yield)" ;
+    rdfs:subClassOf dflss:SixSigmaLevel ;
+    dflss:defectsPerMillion "233"^^xsd:integer ;
+    dflss:yieldPercentage "99.98"^^xsd:decimal .
+
+dflss:SixSigma a owl:Class ;
+    rdfs:label "Six Sigma" ;
+    rdfs:comment "3.4 DPMO (99.9997% yield)" ;
+    rdfs:subClassOf dflss:SixSigmaLevel ;
+    dflss:defectsPerMillion "3"^^xsd:integer ;
+    dflss:yieldPercentage "99.9997"^^xsd:decimal .
+
+# Statistical Tools
+dflss:StatisticalTool a owl:Class ;
+    rdfs:label "Statistical Tool" ;
+    rdfs:comment "Tools for statistical analysis and process improvement" ;
+    rdfs:subClassOf cns:Tool .
+
+# Common Statistical Tools
+dflss:ControlChart a owl:Class ;
+    rdfs:label "Control Chart" ;
+    rdfs:comment "Statistical process control chart for monitoring process stability" ;
+    rdfs:subClassOf dflss:StatisticalTool ;
+    perf:maxExecutionTime "5"^^xsd:integer ;
+    perf:maxMemoryUsage "2048"^^xsd:integer .
+
+dflss:Histogram a owl:Class ;
+    rdfs:label "Histogram" ;
+    rdfs:comment "Frequency distribution chart for data analysis" ;
+    rdfs:subClassOf dflss:StatisticalTool ;
+    perf:maxExecutionTime "3"^^xsd:integer ;
+    perf:maxMemoryUsage "1024"^^xsd:integer .
+
+dflss:ParetoChart a owl:Class ;
+    rdfs:label "Pareto Chart" ;
+    rdfs:comment "80/20 analysis chart for identifying vital few factors" ;
+    rdfs:subClassOf dflss:StatisticalTool ;
+    perf:maxExecutionTime "4"^^xsd:integer ;
+    perf:maxMemoryUsage "1536"^^xsd:integer .
+
+dflss:ScatterPlot a owl:Class ;
+    rdfs:label "Scatter Plot" ;
+    rdfs:comment "Correlation analysis between two variables" ;
+    rdfs:subClassOf dflss:StatisticalTool ;
+    perf:maxExecutionTime "3"^^xsd:integer ;
+    perf:maxMemoryUsage "1024"^^xsd:integer .
+
+dflss:DesignOfExperiments a owl:Class ;
+    rdfs:label "Design of Experiments" ;
+    rdfs:comment "Systematic approach to experimentation for optimization" ;
+    rdfs:subClassOf dflss:StatisticalTool ;
+    perf:maxExecutionTime "7"^^xsd:integer ;
+    perf:maxMemoryUsage "8192"^^xsd:integer .
+
+# =============================================================================
+# DESIGN CONCEPTS
+# =============================================================================
+
+# Design Principles
+dflss:DesignPrinciple a owl:Class ;
+    rdfs:label "Design Principle" ;
+    rdfs:comment "Principles for effective design in DFLSS context" ;
+    rdfs:subClassOf cns:Principle .
+
+# Robust Design
+dflss:RobustDesign a owl:Class ;
+    rdfs:label "Robust Design" ;
+    rdfs:comment "Design that performs consistently under varying conditions" ;
+    rdfs:subClassOf dflss:DesignPrinciple ;
+    perf:maxExecutionTime "5"^^xsd:integer ;
+    perf:maxMemoryUsage "2048"^^xsd:integer .
+
+# Design for Manufacturability
+dflss:DesignForManufacturability a owl:Class ;
+    rdfs:label "Design for Manufacturability" ;
+    rdfs:comment "Design optimized for efficient manufacturing processes" ;
+    rdfs:subClassOf dflss:DesignPrinciple ;
+    perf:maxExecutionTime "4"^^xsd:integer ;
+    perf:maxMemoryUsage "1536"^^xsd:integer .
+
+# Design for Assembly
+dflss:DesignForAssembly a owl:Class ;
+    rdfs:label "Design for Assembly" ;
+    rdfs:comment "Design optimized for efficient assembly processes" ;
+    rdfs:subClassOf dflss:DesignPrinciple ;
+    perf:maxExecutionTime "4"^^xsd:integer ;
+    perf:maxMemoryUsage "1536"^^xsd:integer .
+
+# Design for Testability
+dflss:DesignForTestability a owl:Class ;
+    rdfs:label "Design for Testability" ;
+    rdfs:comment "Design that facilitates effective testing and validation" ;
+    rdfs:subClassOf dflss:DesignPrinciple ;
+    perf:maxExecutionTime "3"^^xsd:integer ;
+    perf:maxMemoryUsage "1024"^^xsd:integer .
+
+# Design for Reliability
+dflss:DesignForReliability a owl:Class ;
+    rdfs:label "Design for Reliability" ;
+    rdfs:comment "Design that ensures long-term reliability and performance" ;
+    rdfs:subClassOf dflss:DesignPrinciple ;
+    perf:maxExecutionTime "5"^^xsd:integer ;
+    perf:maxMemoryUsage "2048"^^xsd:integer .
+
+# =============================================================================
+# PERFORMANCE METRICS
+# =============================================================================
+
+# DFLSS Performance Metrics
+dflss:DFLSSMetric a owl:Class ;
+    rdfs:label "DFLSS Performance Metric" ;
+    rdfs:comment "Performance metrics specific to DFLSS processes" ;
+    rdfs:subClassOf cns:PerformanceMetric .
+
+# Process Capability
+dflss:ProcessCapability a owl:Class ;
+    rdfs:label "Process Capability" ;
+    rdfs:comment "Ability of a process to meet specifications consistently" ;
+    rdfs:subClassOf dflss:DFLSSMetric ;
+    perf:maxExecutionTime "5"^^xsd:integer ;
+    perf:maxMemoryUsage "2048"^^xsd:integer .
+
+# Cycle Time
+dflss:CycleTime a owl:Class ;
+    rdfs:label "Cycle Time" ;
+    rdfs:comment "Time required to complete one cycle of a process" ;
+    rdfs:subClassOf dflss:DFLSSMetric ;
+    perf:maxExecutionTime "1"^^xsd:integer ;
+    perf:maxMemoryUsage "128"^^xsd:integer .
+
+# Lead Time
+dflss:LeadTime a owl:Class ;
+    rdfs:label "Lead Time" ;
+    rdfs:comment "Total time from order to delivery" ;
+    rdfs:subClassOf dflss:DFLSSMetric ;
+    perf:maxExecutionTime "2"^^xsd:integer ;
+    perf:maxMemoryUsage "256"^^xsd:integer .
+
+# Takt Time
+dflss:TaktTime a owl:Class ;
+    rdfs:label "Takt Time" ;
+    rdfs:comment "Rate at which products must be produced to meet customer demand" ;
+    rdfs:subClassOf dflss:DFLSSMetric ;
+    perf:maxExecutionTime "2"^^xsd:integer ;
+    perf:maxMemoryUsage "256"^^xsd:integer .
+
+# First Pass Yield
+dflss:FirstPassYield a owl:Class ;
+    rdfs:label "First Pass Yield" ;
+    rdfs:comment "Percentage of products that pass quality inspection on first attempt" ;
+    rdfs:subClassOf dflss:DFLSSMetric ;
+    perf:maxExecutionTime "2"^^xsd:integer ;
+    perf:maxMemoryUsage "256"^^xsd:integer .
+
+# =============================================================================
+# TOOLS AND TECHNIQUES
+# =============================================================================
+
+# DFLSS Tools
+dflss:DFLSSTool a owl:Class ;
+    rdfs:label "DFLSS Tool" ;
+    rdfs:comment "Tools and techniques used in DFLSS methodology" ;
+    rdfs:subClassOf cns:Tool .
+
+# Voice of Customer
+dflss:VoiceOfCustomer a owl:Class ;
+    rdfs:label "Voice of Customer" ;
+    rdfs:comment "Process for capturing and analyzing customer requirements" ;
+    rdfs:subClassOf dflss:DFLSSTool ;
+    perf:maxExecutionTime "5"^^xsd:integer ;
+    perf:maxMemoryUsage "2048"^^xsd:integer .
+
+# Quality Function Deployment
+dflss:QualityFunctionDeployment a owl:Class ;
+    rdfs:label "Quality Function Deployment" ;
+    rdfs:comment "House of Quality matrix for translating customer needs to technical requirements" ;
+    rdfs:subClassOf dflss:DFLSSTool ;
+    perf:maxExecutionTime "7"^^xsd:integer ;
+    perf:maxMemoryUsage "4096"^^xsd:integer .
+
+# Failure Mode and Effects Analysis
+dflss:FailureModeAndEffectsAnalysis a owl:Class ;
+    rdfs:label "Failure Mode and Effects Analysis" ;
+    rdfs:comment "Systematic approach for identifying potential failures and their effects" ;
+    rdfs:subClassOf dflss:DFLSSTool ;
+    perf:maxExecutionTime "7"^^xsd:integer ;
+    perf:maxMemoryUsage "8192"^^xsd:integer .
+
+# Poka-Yoke
+dflss:PokaYoke a owl:Class ;
+    rdfs:label "Poka-Yoke" ;
+    rdfs:comment "Mistake-proofing devices and procedures" ;
+    rdfs:subClassOf dflss:DFLSSTool ;
+    perf:maxExecutionTime "3"^^xsd:integer ;
+    perf:maxMemoryUsage "1024"^^xsd:integer .
+
+# 5S Methodology
+dflss:FiveS a owl:Class ;
+    rdfs:label "5S Methodology" ;
+    rdfs:comment "Sort, Set in Order, Shine, Standardize, Sustain" ;
+    rdfs:subClassOf dflss:DFLSSTool ;
+    perf:maxExecutionTime "4"^^xsd:integer ;
+    perf:maxMemoryUsage "1536"^^xsd:integer .
+
+# =============================================================================
+# RELATIONSHIPS
+# =============================================================================
+
+# Phase Relationships
+dflss:hasPhase a owl:ObjectProperty ;
+    rdfs:label "has phase" ;
+    rdfs:domain dflss:DFLSSProcess ;
+    rdfs:range dflss:DFLSSPhase .
+
+dflss:precedesPhase a owl:ObjectProperty ;
+    rdfs:label "precedes phase" ;
+    rdfs:domain dflss:DFLSSPhase ;
+    rdfs:range dflss:DFLSSPhase .
+
+# Tool Relationships
+dflss:usesTool a owl:ObjectProperty ;
+    rdfs:label "uses tool" ;
+    rdfs:domain dflss:DFLSSPhase ;
+    rdfs:range dflss:DFLSSTool .
+
+dflss:implementsPrinciple a owl:ObjectProperty ;
+    rdfs:label "implements principle" ;
+    rdfs:domain dflss:DFLSSTool ;
+    rdfs:range dflss:LeanPrinciple .
+
+# Metric Relationships
+dflss:measuresMetric a owl:ObjectProperty ;
+    rdfs:label "measures metric" ;
+    rdfs:domain dflss:DFLSSTool ;
+    rdfs:range dflss:DFLSSMetric .
+
+dflss:targetsSigmaLevel a owl:ObjectProperty ;
+    rdfs:label "targets sigma level" ;
+    rdfs:domain dflss:DFLSSProcess ;
+    rdfs:range dflss:SixSigmaLevel .
+
+# Waste Relationships
+dflss:eliminatesWaste a owl:ObjectProperty ;
+    rdfs:label "eliminates waste" ;
+    rdfs:domain dflss:LeanPrinciple ;
+    rdfs:range dflss:Waste .
+
+# Performance Relationships
+dflss:hasPerformanceConstraint a owl:ObjectProperty ;
+    rdfs:label "has performance constraint" ;
+    rdfs:domain dflss:DFLSSProcess ;
+    rdfs:range perf:PerformanceConstraint .
+
+# =============================================================================
+# INSTANCES
+# =============================================================================
+
+# DFLSS Process Instance
+dflss:StandardDFLSSProcess a dflss:DFLSSProcess ;
+    rdfs:label "Standard DFLSS Process" ;
+    dflss:hasPhase dflss:DefinePhase ;
+    dflss:hasPhase dflss:MeasurePhase ;
+    dflss:hasPhase dflss:AnalyzePhase ;
+    dflss:hasPhase dflss:DesignPhase ;
+    dflss:hasPhase dflss:VerifyPhase ;
+    dflss:targetsSigmaLevel dflss:SixSigma ;
+    perf:maxExecutionTime "7"^^xsd:integer ;
+    perf:maxMemoryUsage "16384"^^xsd:integer .
+
+# Phase Sequence
+dflss:DefinePhase dflss:precedesPhase dflss:MeasurePhase .
+dflss:MeasurePhase dflss:precedesPhase dflss:AnalyzePhase .
+dflss:AnalyzePhase dflss:precedesPhase dflss:DesignPhase .
+dflss:DesignPhase dflss:precedesPhase dflss:VerifyPhase .
+
+# Tool Assignments
+dflss:DefinePhase dflss:usesTool dflss:VoiceOfCustomer .
+dflss:DefinePhase dflss:usesTool dflss:QualityFunctionDeployment .
+dflss:MeasurePhase dflss:usesTool dflss:ControlChart .
+dflss:MeasurePhase dflss:usesTool dflss:Histogram .
+dflss:AnalyzePhase dflss:usesTool dflss:ParetoChart .
+dflss:AnalyzePhase dflss:usesTool dflss:ScatterPlot .
+dflss:DesignPhase dflss:usesTool dflss:DesignOfExperiments .
+dflss:DesignPhase dflss:usesTool dflss:FailureModeAndEffectsAnalysis .
+dflss:VerifyPhase dflss:usesTool dflss:PokaYoke .
+dflss:VerifyPhase dflss:usesTool dflss:FiveS .
+
+# Principle Implementations
+dflss:Value dflss:eliminatesWaste dflss:Overproduction .
+dflss:Value dflss:eliminatesWaste dflss:ExtraProcessing .
+dflss:Flow dflss:eliminatesWaste dflss:Waiting .
+dflss:Flow dflss:eliminatesWaste dflss:Transportation .
+dflss:Pull dflss:eliminatesWaste dflss:Inventory .
+dflss:Perfection dflss:eliminatesWaste dflss:Defects .
+
+# Metric Measurements
+dflss:ControlChart dflss:measuresMetric dflss:ProcessCapability .
+dflss:Histogram dflss:measuresMetric dflss:FirstPassYield .
+dflss:ScatterPlot dflss:measuresMetric dflss:CycleTime .
+dflss:DesignOfExperiments dflss:measuresMetric dflss:LeadTime .
+
+# Performance Constraints
+dflss:StandardDFLSSProcess dflss:hasPerformanceConstraint perf:SevenTickConstraint .
+perf:SevenTickConstraint a perf:PerformanceConstraint ;
+    rdfs:label "7-Tick Performance Constraint" ;
+    perf:maxCycles "7"^^xsd:integer ;
+    perf:maxMemoryBytes "16384"^^xsd:integer ;
+    perf:maxLatencyNs "10"^^xsd:integer . 

@@ -1,0 +1,1206 @@
+@prefix ba: <http://bytestar.ai/ontology/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+# ============================================
+# ByteStar Deployment Pipeline Ontology
+# ============================================
+# Comprehensive ontology defining CI/CD pipeline architecture,
+# deployment strategies, and automated delivery processes
+
+ba:deployment-pipeline-ontology a owl:Ontology ;
+    dct:title "ByteStar Deployment Pipeline Ontology" ;
+    dct:description "Defines continuous integration and delivery across ByteStar with automated stages, deployment strategies, and pipeline orchestration" ;
+    dct:version "5.0.0" ;
+    dct:created "2025-01-XX"^^xsd:date ;
+    dct:creator "ByteStar AI Systems" ;
+    owl:versionInfo "Phase 5 - Deployment Pipeline Architecture" ;
+    dct:subject "CI/CD, Deployment, Infrastructure, Automation" .
+
+# ============================================
+# CORE DEPLOYMENT PIPELINE CLASSES
+# ============================================
+
+# Main Pipeline Architecture
+ba:DeploymentPipeline a owl:Class ;
+    rdfs:label "Deployment Pipeline" ;
+    rdfs:comment "Automated CI/CD pipeline for continuous integration and delivery" ;
+    rdfs:subClassOf ba:SystemComponent ;
+    skos:definition "A deployment pipeline is an automated process that takes code from version control through testing, building, and deployment to production environments" .
+
+ba:PipelineStage a owl:Class ;
+    rdfs:label "Pipeline Stage" ;
+    rdfs:comment "Individual stage within a deployment pipeline" ;
+    rdfs:subClassOf ba:ProcessComponent ;
+    skos:definition "A pipeline stage represents a discrete step in the deployment process with specific inputs, outputs, and success criteria" .
+
+ba:PipelineOrchestrator a owl:Class ;
+    rdfs:label "Pipeline Orchestrator" ;
+    rdfs:comment "System that manages and coordinates pipeline execution" ;
+    rdfs:subClassOf ba:ControlSystem ;
+    skos:definition "A pipeline orchestrator manages the execution flow, dependencies, and coordination between different pipeline stages" .
+
+# Pipeline Stage Types
+ba:BuildStage a owl:Class ;
+    rdfs:label "Build Stage" ;
+    rdfs:comment "Stage responsible for code compilation and artifact creation" ;
+    rdfs:subClassOf ba:PipelineStage ;
+    skos:definition "Build stage compiles source code, runs static analysis, and creates deployable artifacts" .
+
+ba:TestStage a owl:Class ;
+    rdfs:label "Test Stage" ;
+    rdfs:comment "Stage responsible for running automated tests" ;
+    rdfs:subClassOf ba:PipelineStage ;
+    skos:definition "Test stage executes unit tests, integration tests, and quality assurance checks" .
+
+ba:SecurityStage a owl:Class ;
+    rdfs:label "Security Stage" ;
+    rdfs:comment "Stage responsible for security scanning and vulnerability assessment" ;
+    rdfs:subClassOf ba:PipelineStage ;
+    skos:definition "Security stage performs security scans, vulnerability assessments, and compliance checks" .
+
+ba:DeploymentStage a owl:Class ;
+    rdfs:label "Deployment Stage" ;
+    rdfs:comment "Stage responsible for deploying artifacts to target environments" ;
+    rdfs:subClassOf ba:PipelineStage ;
+    skos:definition "Deployment stage handles the actual deployment of artifacts to target environments using specified strategies" .
+
+ba:ValidationStage a owl:Class ;
+    rdfs:label "Validation Stage" ;
+    rdfs:comment "Stage responsible for post-deployment validation and health checks" ;
+    rdfs:subClassOf ba:PipelineStage ;
+    skos:definition "Validation stage performs post-deployment testing, health checks, and performance validation" .
+
+# ============================================
+# BUILD AUTOMATION & ARTIFACT MANAGEMENT
+# ============================================
+
+ba:BuildAutomation a owl:Class ;
+    rdfs:label "Build Automation" ;
+    rdfs:comment "Automated system for code compilation and artifact generation" ;
+    rdfs:subClassOf ba:AutomationSystem ;
+    skos:definition "Build automation handles the automated compilation, packaging, and artifact generation from source code" .
+
+ba:Artifact a owl:Class ;
+    rdfs:label "Build Artifact" ;
+    rdfs:comment "Output of the build process ready for deployment" ;
+    rdfs:subClassOf ba:DeploymentAsset ;
+    skos:definition "A build artifact is a packaged, deployable unit created from the build process" .
+
+ba:ArtifactRepository a owl:Class ;
+    rdfs:label "Artifact Repository" ;
+    rdfs:comment "Storage system for build artifacts and dependencies" ;
+    rdfs:subClassOf ba:StorageSystem ;
+    skos:definition "Artifact repository stores, versions, and manages build artifacts and their metadata" .
+
+ba:ContainerImage a owl:Class ;
+    rdfs:label "Container Image" ;
+    rdfs:comment "Containerized artifact for deployment" ;
+    rdfs:subClassOf ba:Artifact ;
+    skos:definition "Container image is a packaged artifact containing application code and dependencies in a container format" .
+
+ba:BinaryArtifact a owl:Class ;
+    rdfs:label "Binary Artifact" ;
+    rdfs:comment "Compiled binary artifact for deployment" ;
+    rdfs:subClassOf ba:Artifact ;
+    skos:definition "Binary artifact is a compiled executable or library ready for deployment" .
+
+ba:PackageArtifact a owl:Class ;
+    rdfs:label "Package Artifact" ;
+    rdfs:comment "Packaged artifact for specific runtime environments" ;
+    rdfs:subClassOf ba:Artifact ;
+    skos:definition "Package artifact is a packaged deployment unit for specific runtime environments or package managers" .
+
+# ============================================
+# ENVIRONMENT MANAGEMENT
+# ============================================
+
+ba:DeploymentEnvironment a owl:Class ;
+    rdfs:label "Deployment Environment" ;
+    rdfs:comment "Target environment for application deployment" ;
+    rdfs:subClassOf ba:RuntimeEnvironment ;
+    skos:definition "A deployment environment represents a target infrastructure configuration where applications are deployed" .
+
+ba:DevelopmentEnvironment a owl:Class ;
+    rdfs:label "Development Environment" ;
+    rdfs:comment "Environment for development and initial testing" ;
+    rdfs:subClassOf ba:DeploymentEnvironment ;
+    skos:definition "Development environment is used for active development and initial testing of features" .
+
+ba:StagingEnvironment a owl:Class ;
+    rdfs:label "Staging Environment" ;
+    rdfs:comment "Pre-production environment for final testing" ;
+    rdfs:subClassOf ba:DeploymentEnvironment ;
+    skos:definition "Staging environment mirrors production for final testing and validation before release" .
+
+ba:ProductionEnvironment a owl:Class ;
+    rdfs:label "Production Environment" ;
+    rdfs:comment "Live production environment serving end users" ;
+    rdfs:subClassOf ba:DeploymentEnvironment ;
+    skos:definition "Production environment is the live system serving actual users and handling real workloads" .
+
+ba:TestEnvironment a owl:Class ;
+    rdfs:label "Test Environment" ;
+    rdfs:comment "Dedicated environment for automated testing" ;
+    rdfs:subClassOf ba:DeploymentEnvironment ;
+    skos:definition "Test environment is specifically configured for running automated test suites" .
+
+ba:EnvironmentPromotion a owl:Class ;
+    rdfs:label "Environment Promotion" ;
+    rdfs:comment "Process of promoting artifacts between environments" ;
+    rdfs:subClassOf ba:DeploymentProcess ;
+    skos:definition "Environment promotion is the process of moving validated artifacts from one environment to the next in the pipeline" .
+
+# ============================================
+# DEPLOYMENT STRATEGIES
+# ============================================
+
+ba:DeploymentStrategy a owl:Class ;
+    rdfs:label "Deployment Strategy" ;
+    rdfs:comment "Approach for deploying applications to production" ;
+    rdfs:subClassOf ba:ProcessStrategy ;
+    skos:definition "A deployment strategy defines how applications are deployed to minimize risk and downtime" .
+
+ba:BlueGreenDeployment a owl:Class ;
+    rdfs:label "Blue-Green Deployment" ;
+    rdfs:comment "Deployment strategy using two identical environments" ;
+    rdfs:subClassOf ba:DeploymentStrategy ;
+    skos:definition "Blue-green deployment maintains two identical production environments, switching traffic between them for zero-downtime deployments" .
+
+ba:CanaryDeployment a owl:Class ;
+    rdfs:label "Canary Deployment" ;
+    rdfs:comment "Gradual deployment strategy testing with subset of users" ;
+    rdfs:subClassOf ba:DeploymentStrategy ;
+    skos:definition "Canary deployment gradually rolls out changes to a small subset of users before full deployment" .
+
+ba:RollingDeployment a owl:Class ;
+    rdfs:label "Rolling Deployment" ;
+    rdfs:comment "Incremental deployment strategy updating instances gradually" ;
+    rdfs:subClassOf ba:DeploymentStrategy ;
+    skos:definition "Rolling deployment incrementally updates application instances to maintain availability during deployment" .
+
+ba:RecreateDeployment a owl:Class ;
+    rdfs:label "Recreate Deployment" ;
+    rdfs:comment "Complete replacement deployment strategy" ;
+    rdfs:subClassOf ba:DeploymentStrategy ;
+    skos:definition "Recreate deployment terminates old versions before starting new ones, accepting brief downtime" .
+
+ba:A_BTestingDeployment a owl:Class ;
+    rdfs:label "A/B Testing Deployment" ;
+    rdfs:comment "Deployment strategy for comparing different versions" ;
+    rdfs:subClassOf ba:DeploymentStrategy ;
+    skos:definition "A/B testing deployment runs multiple versions simultaneously to compare performance and user behavior" .
+
+# ============================================
+# INFRASTRUCTURE AS CODE
+# ============================================
+
+ba:InfrastructureAsCode a owl:Class ;
+    rdfs:label "Infrastructure as Code" ;
+    rdfs:comment "Infrastructure management through code and automation" ;
+    rdfs:subClassOf ba:AutomationSystem ;
+    skos:definition "Infrastructure as Code (IaC) manages and provisions infrastructure through machine-readable definition files" .
+
+ba:InfrastructureTemplate a owl:Class ;
+    rdfs:label "Infrastructure Template" ;
+    rdfs:comment "Template defining infrastructure configuration" ;
+    rdfs:subClassOf ba:ConfigurationTemplate ;
+    skos:definition "Infrastructure template defines the desired state of infrastructure resources in a declarative format" .
+
+ba:ProvisioningEngine a owl:Class ;
+    rdfs:label "Provisioning Engine" ;
+    rdfs:comment "System that provisions infrastructure from templates" ;
+    rdfs:subClassOf ba:AutomationEngine ;
+    skos:definition "Provisioning engine interprets infrastructure templates and creates/manages actual infrastructure resources" .
+
+ba:TerraformTemplate a owl:Class ;
+    rdfs:label "Terraform Template" ;
+    rdfs:comment "Terraform-based infrastructure template" ;
+    rdfs:subClassOf ba:InfrastructureTemplate ;
+    skos:definition "Terraform template uses HashiCorp Terraform syntax for infrastructure definition" .
+
+ba:CloudFormationTemplate a owl:Class ;
+    rdfs:label "CloudFormation Template" ;
+    rdfs:comment "AWS CloudFormation infrastructure template" ;
+    rdfs:subClassOf ba:InfrastructureTemplate ;
+    skos:definition "CloudFormation template uses AWS CloudFormation syntax for AWS infrastructure definition" .
+
+ba:KubernetesManifest a owl:Class ;
+    rdfs:label "Kubernetes Manifest" ;
+    rdfs:comment "Kubernetes resource definition manifest" ;
+    rdfs:subClassOf ba:InfrastructureTemplate ;
+    skos:definition "Kubernetes manifest defines Kubernetes resources for container orchestration" .
+
+# ============================================
+# CONFIGURATION MANAGEMENT
+# ============================================
+
+ba:ConfigurationManagement a owl:Class ;
+    rdfs:label "Configuration Management" ;
+    rdfs:comment "System for managing application and infrastructure configuration" ;
+    rdfs:subClassOf ba:ManagementSystem ;
+    skos:definition "Configuration management ensures consistent configuration across environments and manages configuration changes" .
+
+ba:ConfigurationStore a owl:Class ;
+    rdfs:label "Configuration Store" ;
+    rdfs:comment "Centralized store for configuration data" ;
+    rdfs:subClassOf ba:DataStore ;
+    skos:definition "Configuration store provides centralized, secure storage for application and infrastructure configuration" .
+
+ba:EnvironmentConfiguration a owl:Class ;
+    rdfs:label "Environment Configuration" ;
+    rdfs:comment "Configuration specific to a deployment environment" ;
+    rdfs:subClassOf ba:Configuration ;
+    skos:definition "Environment configuration contains settings and parameters specific to a particular deployment environment" .
+
+ba:ApplicationConfiguration a owl:Class ;
+    rdfs:label "Application Configuration" ;
+    rdfs:comment "Configuration for application behavior and features" ;
+    rdfs:subClassOf ba:Configuration ;
+    skos:definition "Application configuration defines runtime behavior, feature flags, and application-specific settings" .
+
+ba:InfrastructureConfiguration a owl:Class ;
+    rdfs:label "Infrastructure Configuration" ;
+    rdfs:comment "Configuration for infrastructure components" ;
+    rdfs:subClassOf ba:Configuration ;
+    skos:definition "Infrastructure configuration defines settings for servers, networks, databases, and other infrastructure components" .
+
+ba:ConfigurationDrift a owl:Class ;
+    rdfs:label "Configuration Drift" ;
+    rdfs:comment "Deviation from expected configuration state" ;
+    rdfs:subClassOf ba:SystemAnomaly ;
+    skos:definition "Configuration drift occurs when actual configuration deviates from the desired or expected state" .
+
+# ============================================
+# RELEASE MANAGEMENT
+# ============================================
+
+ba:ReleaseManagement a owl:Class ;
+    rdfs:label "Release Management" ;
+    rdfs:comment "Process for managing software releases and versions" ;
+    rdfs:subClassOf ba:ProcessManagement ;
+    skos:definition "Release management coordinates the planning, scheduling, and controlling of software releases" .
+
+ba:Release a owl:Class ;
+    rdfs:label "Software Release" ;
+    rdfs:comment "Packaged version of software ready for deployment" ;
+    rdfs:subClassOf ba:DeploymentAsset ;
+    skos:definition "A software release is a specific version of software that has been prepared and approved for deployment" .
+
+ba:ReleaseCandidate a owl:Class ;
+    rdfs:label "Release Candidate" ;
+    rdfs:comment "Potential release version undergoing final testing" ;
+    rdfs:subClassOf ba:Release ;
+    skos:definition "Release candidate is a version that could potentially be released after final validation and approval" .
+
+ba:Hotfix a owl:Class ;
+    rdfs:label "Hotfix Release" ;
+    rdfs:comment "Emergency release addressing critical issues" ;
+    rdfs:subClassOf ba:Release ;
+    skos:definition "Hotfix is an emergency release that addresses critical bugs or security vulnerabilities" .
+
+ba:FeatureRelease a owl:Class ;
+    rdfs:label "Feature Release" ;
+    rdfs:comment "Release containing new features and functionality" ;
+    rdfs:subClassOf ba:Release ;
+    skos:definition "Feature release introduces new features, enhancements, or significant functionality changes" .
+
+ba:MaintenanceRelease a owl:Class ;
+    rdfs:label "Maintenance Release" ;
+    rdfs:comment "Release containing bug fixes and minor improvements" ;
+    rdfs:subClassOf ba:Release ;
+    skos:definition "Maintenance release includes bug fixes, performance improvements, and minor enhancements" .
+
+ba:VersionControl a owl:Class ;
+    rdfs:label "Version Control" ;
+    rdfs:comment "System for tracking and managing code versions" ;
+    rdfs:subClassOf ba:ManagementSystem ;
+    skos:definition "Version control tracks changes to code and manages different versions of software components" .
+
+# ============================================
+# ROLLBACK & DISASTER RECOVERY
+# ============================================
+
+ba:RollbackMechanism a owl:Class ;
+    rdfs:label "Rollback Mechanism" ;
+    rdfs:comment "System for reverting deployments to previous versions" ;
+    rdfs:subClassOf ba:RecoveryMechanism ;
+    skos:definition "Rollback mechanism provides the ability to quickly revert to a previous working version in case of deployment issues" .
+
+ba:AutomaticRollback a owl:Class ;
+    rdfs:label "Automatic Rollback" ;
+    rdfs:comment "Automated rollback triggered by failure conditions" ;
+    rdfs:subClassOf ba:RollbackMechanism ;
+    skos:definition "Automatic rollback triggers reversion to previous version when predefined failure conditions are detected" .
+
+ba:ManualRollback a owl:Class ;
+    rdfs:label "Manual Rollback" ;
+    rdfs:comment "Human-initiated rollback process" ;
+    rdfs:subClassOf ba:RollbackMechanism ;
+    skos:definition "Manual rollback requires human intervention to initiate the reversion process" .
+
+ba:DisasterRecovery a owl:Class ;
+    rdfs:label "Disaster Recovery" ;
+    rdfs:comment "Comprehensive recovery strategy for catastrophic failures" ;
+    rdfs:subClassOf ba:RecoveryStrategy ;
+    skos:definition "Disaster recovery provides strategies and procedures for recovering from catastrophic system failures" .
+
+ba:BackupStrategy a owl:Class ;
+    rdfs:label "Backup Strategy" ;
+    rdfs:comment "Strategy for creating and maintaining system backups" ;
+    rdfs:subClassOf ba:DataStrategy ;
+    skos:definition "Backup strategy defines how system data and configurations are backed up and maintained" .
+
+ba:RecoveryPoint a owl:Class ;
+    rdfs:label "Recovery Point" ;
+    rdfs:comment "Known good state to which system can be restored" ;
+    rdfs:subClassOf ba:SystemState ;
+    skos:definition "Recovery point represents a verified good state of the system that can be used for restoration" .
+
+ba:RecoveryTimeObjective a owl:Class ;
+    rdfs:label "Recovery Time Objective" ;
+    rdfs:comment "Target time for system recovery after failure" ;
+    rdfs:subClassOf ba:PerformanceObjective ;
+    skos:definition "Recovery Time Objective (RTO) defines the maximum acceptable time to restore service after failure" .
+
+ba:RecoveryPointObjective a owl:Class ;
+    rdfs:label "Recovery Point Objective" ;
+    rdfs:comment "Maximum acceptable data loss duration" ;
+    rdfs:subClassOf ba:PerformanceObjective ;
+    skos:definition "Recovery Point Objective (RPO) defines the maximum acceptable amount of data loss measured in time" .
+
+# ============================================
+# PERFORMANCE MONITORING & HEALTH CHECKS
+# ============================================
+
+ba:PerformanceMonitoring a owl:Class ;
+    rdfs:label "Performance Monitoring" ;
+    rdfs:comment "System for monitoring application and infrastructure performance" ;
+    rdfs:subClassOf ba:MonitoringSystem ;
+    skos:definition "Performance monitoring tracks system performance metrics and identifies performance issues" .
+
+ba:HealthCheck a owl:Class ;
+    rdfs:label "Health Check" ;
+    rdfs:comment "Automated check for system health and availability" ;
+    rdfs:subClassOf ba:MonitoringCheck ;
+    skos:definition "Health check is an automated test that verifies system components are functioning correctly" .
+
+ba:LivenessProbe a owl:Class ;
+    rdfs:label "Liveness Probe" ;
+    rdfs:comment "Health check verifying application is running" ;
+    rdfs:subClassOf ba:HealthCheck ;
+    skos:definition "Liveness probe checks if an application is running and responsive" .
+
+ba:ReadinessProbe a owl:Class ;
+    rdfs:label "Readiness Probe" ;
+    rdfs:comment "Health check verifying application is ready to serve traffic" ;
+    rdfs:subClassOf ba:HealthCheck ;
+    skos:definition "Readiness probe checks if an application is ready to handle incoming requests" .
+
+ba:StartupProbe a owl:Class ;
+    rdfs:label "Startup Probe" ;
+    rdfs:comment "Health check for application startup completion" ;
+    rdfs:subClassOf ba:HealthCheck ;
+    skos:definition "Startup probe checks if an application has completed its startup process" .
+
+ba:SyntheticMonitoring a owl:Class ;
+    rdfs:label "Synthetic Monitoring" ;
+    rdfs:comment "Monitoring using artificial transactions and requests" ;
+    rdfs:subClassOf ba:PerformanceMonitoring ;
+    skos:definition "Synthetic monitoring uses simulated user interactions to proactively test system behavior" .
+
+ba:RealUserMonitoring a owl:Class ;
+    rdfs:label "Real User Monitoring" ;
+    rdfs:comment "Monitoring based on actual user interactions" ;
+    rdfs:subClassOf ba:PerformanceMonitoring ;
+    skos:definition "Real User Monitoring (RUM) tracks actual user interactions and experiences" .
+
+# ============================================
+# PIPELINE ORCHESTRATION & DEPENDENCIES
+# ============================================
+
+ba:PipelineOrchestration a owl:Class ;
+    rdfs:label "Pipeline Orchestration" ;
+    rdfs:comment "Coordination and management of pipeline execution" ;
+    rdfs:subClassOf ba:ProcessOrchestration ;
+    skos:definition "Pipeline orchestration manages the execution flow and coordination of deployment pipeline stages" .
+
+ba:StageDependency a owl:Class ;
+    rdfs:label "Stage Dependency" ;
+    rdfs:comment "Dependency relationship between pipeline stages" ;
+    rdfs:subClassOf ba:SystemDependency ;
+    skos:definition "Stage dependency defines prerequisite relationships between different pipeline stages" .
+
+ba:ParallelExecution a owl:Class ;
+    rdfs:label "Parallel Execution" ;
+    rdfs:comment "Concurrent execution of independent pipeline stages" ;
+    rdfs:subClassOf ba:ExecutionPattern ;
+    skos:definition "Parallel execution runs independent pipeline stages concurrently to reduce total execution time" .
+
+ba:SequentialExecution a owl:Class ;
+    rdfs:label "Sequential Execution" ;
+    rdfs:comment "Sequential execution of dependent pipeline stages" ;
+    rdfs:subClassOf ba:ExecutionPattern ;
+    skos:definition "Sequential execution runs pipeline stages in order when dependencies exist between stages" .
+
+ba:ConditionalExecution a owl:Class ;
+    rdfs:label "Conditional Execution" ;
+    rdfs:comment "Execution based on specific conditions or criteria" ;
+    rdfs:subClassOf ba:ExecutionPattern ;
+    skos:definition "Conditional execution runs pipeline stages only when specific conditions or criteria are met" .
+
+ba:PipelineTrigger a owl:Class ;
+    rdfs:label "Pipeline Trigger" ;
+    rdfs:comment "Event or condition that initiates pipeline execution" ;
+    rdfs:subClassOf ba:SystemTrigger ;
+    skos:definition "Pipeline trigger is an event or condition that automatically initiates deployment pipeline execution" .
+
+ba:GitTrigger a owl:Class ;
+    rdfs:label "Git Trigger" ;
+    rdfs:comment "Pipeline trigger based on Git repository events" ;
+    rdfs:subClassOf ba:PipelineTrigger ;
+    skos:definition "Git trigger initiates pipeline execution based on Git events like commits, merges, or tag creation" .
+
+ba:ScheduledTrigger a owl:Class ;
+    rdfs:label "Scheduled Trigger" ;
+    rdfs:comment "Pipeline trigger based on time schedule" ;
+    rdfs:subClassOf ba:PipelineTrigger ;
+    skos:definition "Scheduled trigger initiates pipeline execution based on time-based schedules or cron expressions" .
+
+ba:ManualTrigger a owl:Class ;
+    rdfs:label "Manual Trigger" ;
+    rdfs:comment "Human-initiated pipeline trigger" ;
+    rdfs:subClassOf ba:PipelineTrigger ;
+    skos:definition "Manual trigger requires human intervention to initiate pipeline execution" .
+
+# ============================================
+# QUALITY ASSURANCE & SECURITY INTEGRATION
+# ============================================
+
+ba:QualityGate a owl:Class ;
+    rdfs:label "Quality Gate" ;
+    rdfs:comment "Checkpoint ensuring quality standards before progression" ;
+    rdfs:subClassOf ba:QualityControl ;
+    skos:definition "Quality gate is a checkpoint in the pipeline that enforces quality standards before allowing progression to next stage" .
+
+ba:CodeQualityGate a owl:Class ;
+    rdfs:label "Code Quality Gate" ;
+    rdfs:comment "Quality gate focused on code quality metrics" ;
+    rdfs:subClassOf ba:QualityGate ;
+    skos:definition "Code quality gate enforces standards for code coverage, complexity, and quality metrics" .
+
+ba:SecurityGate a owl:Class ;
+    rdfs:label "Security Gate" ;
+    rdfs:comment "Quality gate focused on security requirements" ;
+    rdfs:subClassOf ba:QualityGate ;
+    skos:definition "Security gate enforces security standards and vulnerability thresholds" .
+
+ba:PerformanceGate a owl:Class ;
+    rdfs:label "Performance Gate" ;
+    rdfs:comment "Quality gate focused on performance criteria" ;
+    rdfs:subClassOf ba:QualityGate ;
+    skos:definition "Performance gate enforces performance benchmarks and response time requirements" .
+
+ba:ComplianceGate a owl:Class ;
+    rdfs:label "Compliance Gate" ;
+    rdfs:comment "Quality gate ensuring regulatory compliance" ;
+    rdfs:subClassOf ba:QualityGate ;
+    skos:definition "Compliance gate ensures adherence to regulatory requirements and industry standards" .
+
+# ============================================
+# CORE PROPERTIES
+# ============================================
+
+# Pipeline Properties
+ba:hasPipelineStage a owl:ObjectProperty ;
+    rdfs:label "has pipeline stage" ;
+    rdfs:comment "Associates a pipeline with its stages" ;
+    rdfs:domain ba:DeploymentPipeline ;
+    rdfs:range ba:PipelineStage .
+
+ba:stageOrder a owl:DatatypeProperty ;
+    rdfs:label "stage order" ;
+    rdfs:comment "Defines the execution order of pipeline stages" ;
+    rdfs:domain ba:PipelineStage ;
+    rdfs:range xsd:integer .
+
+ba:stageTimeout a owl:DatatypeProperty ;
+    rdfs:label "stage timeout" ;
+    rdfs:comment "Maximum execution time for pipeline stage" ;
+    rdfs:domain ba:PipelineStage ;
+    rdfs:range xsd:duration .
+
+ba:isParallel a owl:DatatypeProperty ;
+    rdfs:label "is parallel" ;
+    rdfs:comment "Indicates if stage can execute in parallel" ;
+    rdfs:domain ba:PipelineStage ;
+    rdfs:range xsd:boolean .
+
+ba:requiresApproval a owl:DatatypeProperty ;
+    rdfs:label "requires approval" ;
+    rdfs:comment "Indicates if stage requires manual approval" ;
+    rdfs:domain ba:PipelineStage ;
+    rdfs:range xsd:boolean .
+
+# Build and Artifact Properties
+ba:producesArtifact a owl:ObjectProperty ;
+    rdfs:label "produces artifact" ;
+    rdfs:comment "Associates build process with produced artifacts" ;
+    rdfs:domain ba:BuildAutomation ;
+    rdfs:range ba:Artifact .
+
+ba:artifactVersion a owl:DatatypeProperty ;
+    rdfs:label "artifact version" ;
+    rdfs:comment "Version identifier for build artifact" ;
+    rdfs:domain ba:Artifact ;
+    rdfs:range xsd:string .
+
+ba:artifactHash a owl:DatatypeProperty ;
+    rdfs:label "artifact hash" ;
+    rdfs:comment "Cryptographic hash of artifact for integrity verification" ;
+    rdfs:domain ba:Artifact ;
+    rdfs:range xsd:string .
+
+ba:artifactSize a owl:DatatypeProperty ;
+    rdfs:label "artifact size" ;
+    rdfs:comment "Size of artifact in bytes" ;
+    rdfs:domain ba:Artifact ;
+    rdfs:range xsd:long .
+
+ba:buildDuration a owl:DatatypeProperty ;
+    rdfs:label "build duration" ;
+    rdfs:comment "Time taken to build artifact" ;
+    rdfs:domain ba:BuildAutomation ;
+    rdfs:range xsd:duration .
+
+# Environment Properties
+ba:environmentType a owl:DatatypeProperty ;
+    rdfs:label "environment type" ;
+    rdfs:comment "Type classification of deployment environment" ;
+    rdfs:domain ba:DeploymentEnvironment ;
+    rdfs:range xsd:string .
+
+ba:environmentCapacity a owl:DatatypeProperty ;
+    rdfs:label "environment capacity" ;
+    rdfs:comment "Resource capacity of deployment environment" ;
+    rdfs:domain ba:DeploymentEnvironment ;
+    rdfs:range xsd:integer .
+
+ba:autoScalingEnabled a owl:DatatypeProperty ;
+    rdfs:label "auto scaling enabled" ;
+    rdfs:comment "Indicates if auto-scaling is enabled for environment" ;
+    rdfs:domain ba:DeploymentEnvironment ;
+    rdfs:range xsd:boolean .
+
+ba:promotesTo a owl:ObjectProperty ;
+    rdfs:label "promotes to" ;
+    rdfs:comment "Defines environment promotion path" ;
+    rdfs:domain ba:DeploymentEnvironment ;
+    rdfs:range ba:DeploymentEnvironment .
+
+# Deployment Strategy Properties
+ba:usesDeploymentStrategy a owl:ObjectProperty ;
+    rdfs:label "uses deployment strategy" ;
+    rdfs:comment "Associates deployment with strategy" ;
+    rdfs:domain ba:DeploymentStage ;
+    rdfs:range ba:DeploymentStrategy .
+
+ba:trafficSplitRatio a owl:DatatypeProperty ;
+    rdfs:label "traffic split ratio" ;
+    rdfs:comment "Percentage of traffic directed to new version" ;
+    rdfs:domain ba:DeploymentStrategy ;
+    rdfs:range xsd:decimal .
+
+ba:canaryDuration a owl:DatatypeProperty ;
+    rdfs:label "canary duration" ;
+    rdfs:comment "Duration of canary deployment phase" ;
+    rdfs:domain ba:CanaryDeployment ;
+    rdfs:range xsd:duration .
+
+ba:rolloutBatchSize a owl:DatatypeProperty ;
+    rdfs:label "rollout batch size" ;
+    rdfs:comment "Number of instances updated in each batch" ;
+    rdfs:domain ba:RollingDeployment ;
+    rdfs:range xsd:integer .
+
+ba:maxUnavailable a owl:DatatypeProperty ;
+    rdfs:label "max unavailable" ;
+    rdfs:comment "Maximum number of unavailable instances during deployment" ;
+    rdfs:domain ba:DeploymentStrategy ;
+    rdfs:range xsd:integer .
+
+# Health Check Properties
+ba:hasHealthCheck a owl:ObjectProperty ;
+    rdfs:label "has health check" ;
+    rdfs:comment "Associates component with health check" ;
+    rdfs:domain ba:DeploymentEnvironment ;
+    rdfs:range ba:HealthCheck .
+
+ba:checkInterval a owl:DatatypeProperty ;
+    rdfs:label "check interval" ;
+    rdfs:comment "Interval between health check executions" ;
+    rdfs:domain ba:HealthCheck ;
+    rdfs:range xsd:duration .
+
+ba:checkTimeout a owl:DatatypeProperty ;
+    rdfs:label "check timeout" ;
+    rdfs:comment "Timeout for health check execution" ;
+    rdfs:domain ba:HealthCheck ;
+    rdfs:range xsd:duration .
+
+ba:healthThreshold a owl:DatatypeProperty ;
+    rdfs:label "health threshold" ;
+    rdfs:comment "Threshold for considering component healthy" ;
+    rdfs:domain ba:HealthCheck ;
+    rdfs:range xsd:decimal .
+
+ba:failureThreshold a owl:DatatypeProperty ;
+    rdfs:label "failure threshold" ;
+    rdfs:comment "Number of consecutive failures before marking unhealthy" ;
+    rdfs:domain ba:HealthCheck ;
+    rdfs:range xsd:integer .
+
+# Configuration Properties
+ba:hasConfiguration a owl:ObjectProperty ;
+    rdfs:label "has configuration" ;
+    rdfs:comment "Associates component with configuration" ;
+    rdfs:domain ba:DeploymentEnvironment ;
+    rdfs:range ba:EnvironmentConfiguration .
+
+ba:configurationKey a owl:DatatypeProperty ;
+    rdfs:label "configuration key" ;
+    rdfs:comment "Key identifier for configuration parameter" ;
+    rdfs:domain ba:Configuration ;
+    rdfs:range xsd:string .
+
+ba:configurationValue a owl:DatatypeProperty ;
+    rdfs:label "configuration value" ;
+    rdfs:comment "Value of configuration parameter" ;
+    rdfs:domain ba:Configuration ;
+    rdfs:range xsd:string .
+
+ba:isSecretConfiguration a owl:DatatypeProperty ;
+    rdfs:label "is secret configuration" ;
+    rdfs:comment "Indicates if configuration contains sensitive data" ;
+    rdfs:domain ba:Configuration ;
+    rdfs:range xsd:boolean .
+
+ba:configurationSource a owl:DatatypeProperty ;
+    rdfs:label "configuration source" ;
+    rdfs:comment "Source of configuration data" ;
+    rdfs:domain ba:Configuration ;
+    rdfs:range xsd:string .
+
+# Release Properties
+ba:releaseVersion a owl:DatatypeProperty ;
+    rdfs:label "release version" ;
+    rdfs:comment "Version identifier for software release" ;
+    rdfs:domain ba:Release ;
+    rdfs:range xsd:string .
+
+ba:releaseDate a owl:DatatypeProperty ;
+    rdfs:label "release date" ;
+    rdfs:comment "Date of software release" ;
+    rdfs:domain ba:Release ;
+    rdfs:range xsd:dateTime .
+
+ba:releaseNotes a owl:DatatypeProperty ;
+    rdfs:label "release notes" ;
+    rdfs:comment "Description of changes in release" ;
+    rdfs:domain ba:Release ;
+    rdfs:range xsd:string .
+
+ba:isHotfix a owl:DatatypeProperty ;
+    rdfs:label "is hotfix" ;
+    rdfs:comment "Indicates if release is a hotfix" ;
+    rdfs:domain ba:Release ;
+    rdfs:range xsd:boolean .
+
+ba:releaseApprover a owl:DatatypeProperty ;
+    rdfs:label "release approver" ;
+    rdfs:comment "Person who approved the release" ;
+    rdfs:domain ba:Release ;
+    rdfs:range xsd:string .
+
+# Rollback Properties
+ba:hasRollbackMechanism a owl:ObjectProperty ;
+    rdfs:label "has rollback mechanism" ;
+    rdfs:comment "Associates deployment with rollback mechanism" ;
+    rdfs:domain ba:DeploymentStrategy ;
+    rdfs:range ba:RollbackMechanism .
+
+ba:rollbackVersion a owl:DatatypeProperty ;
+    rdfs:label "rollback version" ;
+    rdfs:comment "Version to rollback to" ;
+    rdfs:domain ba:RollbackMechanism ;
+    rdfs:range xsd:string .
+
+ba:rollbackDuration a owl:DatatypeProperty ;
+    rdfs:label "rollback duration" ;
+    rdfs:comment "Time taken to complete rollback" ;
+    rdfs:domain ba:RollbackMechanism ;
+    rdfs:range xsd:duration .
+
+ba:automaticRollbackEnabled a owl:DatatypeProperty ;
+    rdfs:label "automatic rollback enabled" ;
+    rdfs:comment "Indicates if automatic rollback is enabled" ;
+    rdfs:domain ba:DeploymentStrategy ;
+    rdfs:range xsd:boolean .
+
+ba:rollbackTriggerCondition a owl:DatatypeProperty ;
+    rdfs:label "rollback trigger condition" ;
+    rdfs:comment "Condition that triggers automatic rollback" ;
+    rdfs:domain ba:AutomaticRollback ;
+    rdfs:range xsd:string .
+
+# Trigger Properties
+ba:triggeredBy a owl:ObjectProperty ;
+    rdfs:label "triggered by" ;
+    rdfs:comment "Associates pipeline with trigger mechanism" ;
+    rdfs:domain ba:DeploymentPipeline ;
+    rdfs:range ba:PipelineTrigger .
+
+ba:triggerCondition a owl:DatatypeProperty ;
+    rdfs:label "trigger condition" ;
+    rdfs:comment "Condition that activates trigger" ;
+    rdfs:domain ba:PipelineTrigger ;
+    rdfs:range xsd:string .
+
+ba:triggerFrequency a owl:DatatypeProperty ;
+    rdfs:label "trigger frequency" ;
+    rdfs:comment "Frequency of trigger activation" ;
+    rdfs:domain ba:ScheduledTrigger ;
+    rdfs:range xsd:string .
+
+ba:gitBranch a owl:DatatypeProperty ;
+    rdfs:label "git branch" ;
+    rdfs:comment "Git branch monitored by trigger" ;
+    rdfs:domain ba:GitTrigger ;
+    rdfs:range xsd:string .
+
+ba:gitRepository a owl:DatatypeProperty ;
+    rdfs:label "git repository" ;
+    rdfs:comment "Git repository monitored by trigger" ;
+    rdfs:domain ba:GitTrigger ;
+    rdfs:range xsd:string .
+
+# Performance Properties
+ba:deploymentDuration a owl:DatatypeProperty ;
+    rdfs:label "deployment duration" ;
+    rdfs:comment "Total time taken for deployment" ;
+    rdfs:domain ba:DeploymentStage ;
+    rdfs:range xsd:duration .
+
+ba:successRate a owl:DatatypeProperty ;
+    rdfs:label "success rate" ;
+    rdfs:comment "Percentage of successful deployments" ;
+    rdfs:domain ba:DeploymentPipeline ;
+    rdfs:range xsd:decimal .
+
+ba:leadTime a owl:DatatypeProperty ;
+    rdfs:label "lead time" ;
+    rdfs:comment "Time from code commit to production deployment" ;
+    rdfs:domain ba:DeploymentPipeline ;
+    rdfs:range xsd:duration .
+
+ba:recoveryTime a owl:DatatypeProperty ;
+    rdfs:label "recovery time" ;
+    rdfs:comment "Time to recover from failed deployment" ;
+    rdfs:domain ba:DeploymentPipeline ;
+    rdfs:range xsd:duration .
+
+ba:changeFailureRate a owl:DatatypeProperty ;
+    rdfs:label "change failure rate" ;
+    rdfs:comment "Percentage of deployments that result in failures" ;
+    rdfs:domain ba:DeploymentPipeline ;
+    rdfs:range xsd:decimal .
+
+# Quality Gate Properties
+ba:hasQualityGate a owl:ObjectProperty ;
+    rdfs:label "has quality gate" ;
+    rdfs:comment "Associates stage with quality gate" ;
+    rdfs:domain ba:PipelineStage ;
+    rdfs:range ba:QualityGate .
+
+ba:qualityThreshold a owl:DatatypeProperty ;
+    rdfs:label "quality threshold" ;
+    rdfs:comment "Minimum quality threshold to pass gate" ;
+    rdfs:domain ba:QualityGate ;
+    rdfs:range xsd:decimal .
+
+ba:codeCoverageThreshold a owl:DatatypeProperty ;
+    rdfs:label "code coverage threshold" ;
+    rdfs:comment "Minimum code coverage percentage required" ;
+    rdfs:domain ba:CodeQualityGate ;
+    rdfs:range xsd:decimal .
+
+ba:vulnerabilityThreshold a owl:DatatypeProperty ;
+    rdfs:label "vulnerability threshold" ;
+    rdfs:comment "Maximum number of vulnerabilities allowed" ;
+    rdfs:domain ba:SecurityGate ;
+    rdfs:range xsd:integer .
+
+ba:performanceBenchmark a owl:DatatypeProperty ;
+    rdfs:label "performance benchmark" ;
+    rdfs:comment "Performance benchmark that must be met" ;
+    rdfs:domain ba:PerformanceGate ;
+    rdfs:range xsd:decimal .
+
+# ============================================
+# SHACL VALIDATION SHAPES
+# ============================================
+
+ba:DeploymentPipelineShape a sh:NodeShape ;
+    sh:targetClass ba:DeploymentPipeline ;
+    rdfs:label "Deployment Pipeline Validation" ;
+    rdfs:comment "Validates deployment pipeline configuration and requirements" ;
+    sh:property [
+        sh:path ba:hasPipelineStage ;
+        sh:minCount 1 ;
+        sh:message "Deployment pipeline must have at least one stage"
+    ] ;
+    sh:property [
+        sh:path ba:pipelineName ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 100 ;
+        sh:message "Pipeline name must be 1-100 characters"
+    ] ;
+    sh:property [
+        sh:path ba:triggeredBy ;
+        sh:minCount 1 ;
+        sh:message "Pipeline must have at least one trigger"
+    ] .
+
+ba:PipelineStageShape a sh:NodeShape ;
+    sh:targetClass ba:PipelineStage ;
+    rdfs:label "Pipeline Stage Validation" ;
+    rdfs:comment "Validates pipeline stage configuration" ;
+    sh:property [
+        sh:path ba:stageOrder ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:message "Stage order must be positive integer"
+    ] ;
+    sh:property [
+        sh:path ba:stageTimeout ;
+        sh:datatype xsd:duration ;
+        sh:message "Stage timeout must be valid duration"
+    ] ;
+    sh:property [
+        sh:path ba:stageName ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 50 ;
+        sh:message "Stage name must be 1-50 characters"
+    ] .
+
+ba:ArtifactShape a sh:NodeShape ;
+    sh:targetClass ba:Artifact ;
+    rdfs:label "Artifact Validation" ;
+    rdfs:comment "Validates build artifact properties" ;
+    sh:property [
+        sh:path ba:artifactVersion ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:pattern "^[0-9]+\\.[0-9]+\\.[0-9]+.*$" ;
+        sh:message "Artifact version must follow semantic versioning"
+    ] ;
+    sh:property [
+        sh:path ba:artifactHash ;
+        sh:datatype xsd:string ;
+        sh:minLength 32 ;
+        sh:message "Artifact hash must be at least 32 characters"
+    ] ;
+    sh:property [
+        sh:path ba:artifactSize ;
+        sh:datatype xsd:long ;
+        sh:minInclusive 1 ;
+        sh:message "Artifact size must be positive"
+    ] .
+
+ba:DeploymentEnvironmentShape a sh:NodeShape ;
+    sh:targetClass ba:DeploymentEnvironment ;
+    rdfs:label "Deployment Environment Validation" ;
+    rdfs:comment "Validates deployment environment configuration" ;
+    sh:property [
+        sh:path ba:environmentType ;
+        sh:datatype xsd:string ;
+        sh:in ("development" "staging" "production" "test") ;
+        sh:message "Environment type must be development, staging, production, or test"
+    ] ;
+    sh:property [
+        sh:path ba:hasHealthCheck ;
+        sh:minCount 1 ;
+        sh:message "Environment must have at least one health check"
+    ] ;
+    sh:property [
+        sh:path ba:environmentCapacity ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:message "Environment capacity must be positive"
+    ] .
+
+ba:HealthCheckShape a sh:NodeShape ;
+    sh:targetClass ba:HealthCheck ;
+    rdfs:label "Health Check Validation" ;
+    rdfs:comment "Validates health check configuration" ;
+    sh:property [
+        sh:path ba:checkInterval ;
+        sh:datatype xsd:duration ;
+        sh:message "Check interval must be valid duration"
+    ] ;
+    sh:property [
+        sh:path ba:checkTimeout ;
+        sh:datatype xsd:duration ;
+        sh:message "Check timeout must be valid duration"
+    ] ;
+    sh:property [
+        sh:path ba:failureThreshold ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 10 ;
+        sh:message "Failure threshold must be between 1 and 10"
+    ] .
+
+ba:ReleaseShape a sh:NodeShape ;
+    sh:targetClass ba:Release ;
+    rdfs:label "Release Validation" ;
+    rdfs:comment "Validates software release properties" ;
+    sh:property [
+        sh:path ba:releaseVersion ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9]+\\.[0-9]+\\.[0-9]+.*$" ;
+        sh:message "Release version must follow semantic versioning"
+    ] ;
+    sh:property [
+        sh:path ba:releaseDate ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Release date must be valid datetime"
+    ] ;
+    sh:property [
+        sh:path ba:releaseApprover ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Release must have an approver"
+    ] .
+
+ba:QualityGateShape a sh:NodeShape ;
+    sh:targetClass ba:QualityGate ;
+    rdfs:label "Quality Gate Validation" ;
+    rdfs:comment "Validates quality gate thresholds" ;
+    sh:property [
+        sh:path ba:qualityThreshold ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Quality threshold must be between 0 and 100"
+    ] .
+
+ba:CodeQualityGateShape a sh:NodeShape ;
+    sh:targetClass ba:CodeQualityGate ;
+    rdfs:label "Code Quality Gate Validation" ;
+    rdfs:comment "Validates code quality gate requirements" ;
+    sh:property [
+        sh:path ba:codeCoverageThreshold ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Code coverage threshold must be between 0 and 100"
+    ] .
+
+ba:SecurityGateShape a sh:NodeShape ;
+    sh:targetClass ba:SecurityGate ;
+    rdfs:label "Security Gate Validation" ;
+    rdfs:comment "Validates security gate requirements" ;
+    sh:property [
+        sh:path ba:vulnerabilityThreshold ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:message "Vulnerability threshold must be non-negative"
+    ] .
+
+ba:DeploymentStrategyShape a sh:NodeShape ;
+    sh:targetClass ba:DeploymentStrategy ;
+    rdfs:label "Deployment Strategy Validation" ;
+    rdfs:comment "Validates deployment strategy configuration" ;
+    sh:property [
+        sh:path ba:maxUnavailable ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:message "Max unavailable must be non-negative"
+    ] .
+
+ba:CanaryDeploymentShape a sh:NodeShape ;
+    sh:targetClass ba:CanaryDeployment ;
+    rdfs:label "Canary Deployment Validation" ;
+    rdfs:comment "Validates canary deployment configuration" ;
+    sh:property [
+        sh:path ba:trafficSplitRatio ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.1 ;
+        sh:maxInclusive 50.0 ;
+        sh:message "Traffic split ratio for canary must be between 0.1% and 50%"
+    ] ;
+    sh:property [
+        sh:path ba:canaryDuration ;
+        sh:datatype xsd:duration ;
+        sh:message "Canary duration must be valid duration"
+    ] .
+
+ba:RollingDeploymentShape a sh:NodeShape ;
+    sh:targetClass ba:RollingDeployment ;
+    rdfs:label "Rolling Deployment Validation" ;
+    rdfs:comment "Validates rolling deployment configuration" ;
+    sh:property [
+        sh:path ba:rolloutBatchSize ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:message "Rollout batch size must be at least 1"
+    ] .
+
+# ============================================
+# INDIVIDUAL INSTANCES & EXAMPLES
+# ============================================
+
+# Example Pipeline Instance
+ba:ByteStarMainPipeline a ba:DeploymentPipeline ;
+    rdfs:label "ByteStar Main Deployment Pipeline" ;
+    rdfs:comment "Main CI/CD pipeline for ByteStar platform" ;
+    ba:pipelineName "bytestar-main-pipeline" ;
+    ba:hasPipelineStage ba:ByteStarBuildStage, ba:ByteStarTestStage, ba:ByteStarSecurityStage, ba:ByteStarDeploymentStage ;
+    ba:triggeredBy ba:ByteStarGitTrigger ;
+    ba:successRate 98.5 ;
+    ba:leadTime "PT45M"^^xsd:duration .
+
+# Example Pipeline Stages
+ba:ByteStarBuildStage a ba:BuildStage ;
+    rdfs:label "ByteStar Build Stage" ;
+    ba:stageName "build" ;
+    ba:stageOrder 1 ;
+    ba:stageTimeout "PT15M"^^xsd:duration ;
+    ba:isParallel false ;
+    ba:requiresApproval false ;
+    ba:producesArtifact ba:ByteStarContainerImage .
+
+ba:ByteStarTestStage a ba:TestStage ;
+    rdfs:label "ByteStar Test Stage" ;
+    ba:stageName "test" ;
+    ba:stageOrder 2 ;
+    ba:stageTimeout "PT20M"^^xsd:duration ;
+    ba:isParallel true ;
+    ba:requiresApproval false ;
+    ba:hasQualityGate ba:ByteStarCodeQualityGate .
+
+ba:ByteStarSecurityStage a ba:SecurityStage ;
+    rdfs:label "ByteStar Security Stage" ;
+    ba:stageName "security-scan" ;
+    ba:stageOrder 3 ;
+    ba:stageTimeout "PT10M"^^xsd:duration ;
+    ba:isParallel false ;
+    ba:requiresApproval false ;
+    ba:hasQualityGate ba:ByteStarSecurityGate .
+
+ba:ByteStarDeploymentStage a ba:DeploymentStage ;
+    rdfs:label "ByteStar Deployment Stage" ;
+    ba:stageName "deploy" ;
+    ba:stageOrder 4 ;
+    ba:stageTimeout "PT30M"^^xsd:duration ;
+    ba:isParallel false ;
+    ba:requiresApproval true ;
+    ba:usesDeploymentStrategy ba:ByteStarCanaryDeployment .
+
+# Example Artifacts
+ba:ByteStarContainerImage a ba:ContainerImage ;
+    rdfs:label "ByteStar Container Image" ;
+    ba:artifactVersion "1.2.3" ;
+    ba:artifactHash "sha256:abc123..." ;
+    ba:artifactSize 256000000 ;
+    ba:buildDuration "PT12M"^^xsd:duration .
+
+# Example Environments
+ba:ByteStarDevelopment a ba:DevelopmentEnvironment ;
+    rdfs:label "ByteStar Development Environment" ;
+    ba:environmentType "development" ;
+    ba:environmentCapacity 5 ;
+    ba:autoScalingEnabled false ;
+    ba:promotesTo ba:ByteStarStaging ;
+    ba:hasHealthCheck ba:ByteStarDevHealthCheck .
+
+ba:ByteStarStaging a ba:StagingEnvironment ;
+    rdfs:label "ByteStar Staging Environment" ;
+    ba:environmentType "staging" ;
+    ba:environmentCapacity 10 ;
+    ba:autoScalingEnabled true ;
+    ba:promotesTo ba:ByteStarProduction ;
+    ba:hasHealthCheck ba:ByteStarStagingHealthCheck .
+
+ba:ByteStarProduction a ba:ProductionEnvironment ;
+    rdfs:label "ByteStar Production Environment" ;
+    ba:environmentType "production" ;
+    ba:environmentCapacity 50 ;
+    ba:autoScalingEnabled true ;
+    ba:hasHealthCheck ba:ByteStarProdHealthCheck ;
+    ba:hasRollbackMechanism ba:ByteStarAutoRollback .
+
+# Example Deployment Strategy
+ba:ByteStarCanaryDeployment a ba:CanaryDeployment ;
+    rdfs:label "ByteStar Canary Deployment" ;
+    ba:trafficSplitRatio 10.0 ;
+    ba:canaryDuration "PT2H"^^xsd:duration ;
+    ba:maxUnavailable 2 ;
+    ba:automaticRollbackEnabled true ;
+    ba:hasRollbackMechanism ba:ByteStarAutoRollback .
+
+# Example Health Checks
+ba:ByteStarProdHealthCheck a ba:LivenessProbe ;
+    rdfs:label "ByteStar Production Health Check" ;
+    ba:checkInterval "PT30S"^^xsd:duration ;
+    ba:checkTimeout "PT5S"^^xsd:duration ;
+    ba:healthThreshold 95.0 ;
+    ba:failureThreshold 3 .
+
+ba:ByteStarDevHealthCheck a ba:ReadinessProbe ;
+    rdfs:label "ByteStar Development Health Check" ;
+    ba:checkInterval "PT1M"^^xsd:duration ;
+    ba:checkTimeout "PT10S"^^xsd:duration ;
+    ba:healthThreshold 80.0 ;
+    ba:failureThreshold 5 .
+
+ba:ByteStarStagingHealthCheck a ba:StartupProbe ;
+    rdfs:label "ByteStar Staging Health Check" ;
+    ba:checkInterval "PT45S"^^xsd:duration ;
+    ba:checkTimeout "PT8S"^^xsd:duration ;
+    ba:healthThreshold 90.0 ;
+    ba:failureThreshold 3 .
+
+# Example Quality Gates
+ba:ByteStarCodeQualityGate a ba:CodeQualityGate ;
+    rdfs:label "ByteStar Code Quality Gate" ;
+    ba:qualityThreshold 85.0 ;
+    ba:codeCoverageThreshold 80.0 .
+
+ba:ByteStarSecurityGate a ba:SecurityGate ;
+    rdfs:label "ByteStar Security Gate" ;
+    ba:qualityThreshold 95.0 ;
+    ba:vulnerabilityThreshold 0 .
+
+# Example Triggers
+ba:ByteStarGitTrigger a ba:GitTrigger ;
+    rdfs:label "ByteStar Git Trigger" ;
+    ba:triggerCondition "push to main branch" ;
+    ba:gitBranch "main" ;
+    ba:gitRepository "github.com/bytestar/platform" .
+
+# Example Rollback
+ba:ByteStarAutoRollback a ba:AutomaticRollback ;
+    rdfs:label "ByteStar Automatic Rollback" ;
+    ba:rollbackTriggerCondition "error_rate > 5% OR response_time > 2000ms" ;
+    ba:rollbackDuration "PT5M"^^xsd:duration ;
+    ba:rollbackVersion "1.2.2" .

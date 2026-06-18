@@ -1,0 +1,58 @@
+@prefix dev: <https://gitvan.dev/developer#> .
+@prefix scrum: <https://gitvan.dev/scrum#> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+@prefix op: <https://gitvan.dev/op#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Start of Day - Sprint Context Activation Hook
+dev:start-of-day-hook rdf:type gh:Hook ;
+    gv:title "Start of Day - Sprint Context Activation" ;
+    gh:hasPredicate dev:start-of-day-predicate ;
+    gh:orderedPipelines dev:start-of-day-pipeline .
+
+# Predicate: Check if developer is starting work
+dev:start-of-day-predicate rdf:type gh:ASKPredicate ;
+    gh:queryText """
+        PREFIX dev: <https://gitvan.dev/developer#>
+        PREFIX scrum: <https://gitvan.dev/scrum#>
+        
+        ASK WHERE {
+            ?developer rdf:type dev:Developer ;
+                       dev:workStatus "starting" .
+            ?developer dev:currentSprint ?sprint .
+            ?sprint scrum:status "active" .
+        }
+    """ ;
+    gh:description "Triggers when developer starts their work day" .
+
+# Start of Day Pipeline
+dev:start-of-day-pipeline rdf:type op:Pipeline ;
+    op:steps dev:load-sprint-context, dev:review-backlog, dev:prepare-daily-scrum .
+
+# Step 1: Load Sprint Context
+dev:load-sprint-context rdf:type gv:ShellStep ;
+    gv:command "echo 'Loading sprint context...'" ;
+    gv:description "Load current sprint and team context" .
+
+# Step 2: Review Sprint Backlog
+dev:review-backlog rdf:type gv:HttpStep ;
+    gv:httpUrl "https://api.scrum.com/sprint-backlog" ;
+    gv:httpMethod "GET" ;
+    gv:headers '{"Content-Type": "application/json"}' ;
+    gv:body """
+        {
+            "action": "review-backlog",
+            "developer": "{{ developer.id }}",
+            "sprint": "{{ sprint.id }}"
+        }
+    """ ;
+    gv:description "Review assigned sprint backlog items" ;
+    gv:dependsOn dev:load-sprint-context .
+
+# Step 3: Prepare Daily Scrum
+dev:prepare-daily-scrum rdf:type gv:ShellStep ;
+    gv:command "echo 'Preparing daily scrum notes...'" ;
+    gv:description "Prepare notes for daily scrum meeting" ;
+    gv:dependsOn dev:review-backlog .
+

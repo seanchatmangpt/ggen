@@ -1,0 +1,49 @@
+@prefix ex: <http://example.org/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Complex hierarchical structure for testing
+ex:RootConcept a skos:Concept ;
+  skos:prefLabel "Root Concept"@en ;
+  skos:definition "The top-level concept in our hierarchy"@en ;
+  dc:created "2024-01-01T00:00:00Z"^^xsd:dateTime ;
+  skos:narrower ex:ChildConcept1, ex:ChildConcept2 .
+
+ex:ChildConcept1 a skos:Concept ;
+  skos:prefLabel "Child Concept 1"@en ;
+  skos:definition "First child concept"@en ;
+  skos:broader ex:RootConcept ;
+  skos:narrower ex:GrandChild1, ex:GrandChild2 ;
+  ex:customProperty "value1" .
+
+ex:ChildConcept2 a skos:Concept ;
+  skos:prefLabel "Child Concept 2"@en ;
+  skos:definition "Second child concept"@en ;
+  skos:broader ex:RootConcept ;
+  skos:narrower ex:GrandChild3 ;
+  ex:customProperty "value2" .
+
+ex:GrandChild1 a skos:Concept ;
+  skos:prefLabel "Grand Child 1"@en ;
+  skos:broader ex:ChildConcept1 ;
+  ex:leafNode true .
+
+ex:GrandChild2 a skos:Concept ;
+  skos:prefLabel "Grand Child 2"@en ;
+  skos:broader ex:ChildConcept1 ;
+  ex:leafNode true .
+
+ex:GrandChild3 a skos:Concept ;
+  skos:prefLabel "Grand Child 3"@en ;
+  skos:broader ex:ChildConcept2 ;
+  ex:leafNode true .
+
+# Add some cross-references for complexity
+ex:GrandChild1 skos:related ex:GrandChild3 .
+ex:ChildConcept1 owl:sameAs ex:AlternativeConcept1 .
+
+ex:AlternativeConcept1 a skos:Concept ;
+  skos:prefLabel "Alternative Label for Child 1"@en .

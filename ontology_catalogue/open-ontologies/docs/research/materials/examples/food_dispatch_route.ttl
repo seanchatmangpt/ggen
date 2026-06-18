@@ -1,0 +1,33 @@
+@prefix powl: <http://example.org/powl#> .
+@prefix civic: <http://example.org/civic/dispatch#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ---------------------------------------------------------------------------
+# Case Study 1: The Civic Provision Network (Exercise 1.1)
+# POWL Route Design for Emergency Food Dispatch
+# ---------------------------------------------------------------------------
+
+civic:EmergencyFoodDispatch a powl:StrictPartialOrder ;
+    powl:hasNode civic:Intake, 
+                 civic:PackBox, 
+                 civic:AssignDriver, 
+                 civic:DeliveryTransit, 
+                 civic:ConfirmDelivery,
+                 civic:FailedDeliveryLoop ;
+                 
+    # Sequential Backbone
+    powl:hasEdge [ powl:source civic:Intake ; powl:target civic:PackBox ] ;
+    powl:hasEdge [ powl:source civic:PackBox ; powl:target civic:AssignDriver ] ;
+    powl:hasEdge [ powl:source civic:AssignDriver ; powl:target civic:DeliveryTransit ] ;
+    
+    # Branching/Choice: Delivery can either succeed or fail
+    powl:hasEdge [ powl:source civic:DeliveryTransit ; powl:target civic:ConfirmDelivery ] ;
+    powl:hasEdge [ powl:source civic:DeliveryTransit ; powl:target civic:FailedDeliveryLoop ] ;
+
+    # Loop Constraint: Failed deliveries must return to AssignDriver
+    powl:hasEdge [ powl:source civic:FailedDeliveryLoop ; powl:target civic:AssignDriver ] .
+
+# Semantic Constraints (To be enforced by DL Reasoner)
+civic:PackBox powl:requiresRole "InventoryVolunteer"^^xsd:string .
+civic:DeliveryTransit powl:requiresRole "ClearedDriver"^^xsd:string .
+civic:ConfirmDelivery powl:emitsEvent "ocel:object_transition"^^xsd:string .

@@ -1,0 +1,79 @@
+@prefix : <http://movies.example.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Movie validation shape
+:MovieShape a sh:NodeShape ;
+    sh:targetClass :Movie ;
+    sh:property [
+        sh:path :title ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Movie must have exactly one non-empty title"
+    ] ;
+    sh:property [
+        sh:path :releaseDate ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:date ;
+        sh:message "Movie must have exactly one release date"
+    ] ;
+    sh:property [
+        sh:path :runtime ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 600 ;
+        sh:message "Runtime must be between 1 and 600 minutes"
+    ] ;
+    sh:property [
+        sh:path :rating ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 10 ;
+        sh:message "Rating must be between 0 and 10"
+    ] ;
+    sh:property [
+        sh:path :hasDirector ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class :Director ;
+        sh:message "Movie must have exactly one director"
+    ] ;
+    sh:property [
+        sh:path :hasActor ;
+        sh:minCount 1 ;
+        sh:class :Actor ;
+        sh:message "Movie must have at least one actor"
+    ] .
+
+# Person validation shape
+:PersonShape a sh:NodeShape ;
+    sh:targetClass :Person ;
+    sh:property [
+        sh:path :name ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 200 ;
+        sh:message "Person must have exactly one name (1-200 characters)"
+    ] ;
+    sh:property [
+        sh:path :birthDate ;
+        sh:datatype xsd:date ;
+        sh:maxCount 1 ;
+        sh:message "Person can have at most one birth date"
+    ] .
+
+# Studio validation
+:StudioShape a sh:NodeShape ;
+    sh:targetClass :Studio ;
+    sh:property [
+        sh:path :name ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Studio must have exactly one name"
+    ] .

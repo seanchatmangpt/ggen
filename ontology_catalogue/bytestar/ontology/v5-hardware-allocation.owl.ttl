@@ -1,0 +1,93 @@
+@prefix : <https://bytestar.org/ontology/v5/hardware-allocation#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix core: <https://bytestar.org/ontology/v5/core#> .
+@prefix arch: <https://bytestar.org/ontology/v5/architecture#> .
+@prefix exec: <https://bytestar.org/ontology/v5/execution#> .
+
+<https://bytestar.org/ontology/v5/hardware-allocation>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/v5/execution> ;
+  rdfs:label "ByteStar v5 Hardware Allocation Ontology" ;
+  rdfs:comment "This ontology defines the physical resource layout and allocation principles for the ByteStar ecosystem, including core pinning and NUMA optimization." ;
+  owl:versionInfo "5.0.0" .
+
+# #################################################################
+# I. Hardware Components
+# #################################################################
+
+:CPU_Core a owl:Class ;
+    rdfs:label "CPU Core" .
+
+:NUMA_Node a owl:Class ;
+    rdfs:label "NUMA Node" ;
+    rdfs:comment "A Non-Uniform Memory Access node, representing a group of CPU cores with local memory." .
+
+:L1_Cache a owl:Class ;
+    rdfs:label "L1 Cache" ;
+    rdfs:comment "The fastest and smallest level of CPU cache, local to a single core." .
+
+:MemoryRegion a owl:Class ;
+    rdfs:label "Memory Region" .
+
+# #################################################################
+# II. Hardware Properties
+# #################################################################
+
+:hasCoreID a owl:DatatypeProperty ;
+    rdfs:domain :CPU_Core ;
+    rdfs:range xsd:integer .
+
+:hasMemorySizeGB a owl:DatatypeProperty ;
+    rdfs:domain :MemoryRegion ;
+    rdfs:range xsd:float .
+
+:isPinnedTo a owl:ObjectProperty ;
+    rdfs:label "is pinned to" ;
+    rdfs:domain core:Subsystem ;
+    rdfs:range :CPU_Core .
+
+:containsCore a owl:ObjectProperty ;
+    rdfs:domain :NUMA_Node ;
+    rdfs:range :CPU_Core .
+
+:hasLocalMemory a owl:ObjectProperty ;
+    rdfs:domain :NUMA_Node ;
+    rdfs:range :MemoryRegion .
+
+# #################################################################
+# III. Sovereign Core Resource Map (Gold Profile) - Axioms
+# #################################################################
+
+# Axiom: ByteActor is pinned to Core 0.
+core:ByteActor rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :isPinnedTo ; owl:hasValue :Core0 ] .
+:Core0 a :CPU_Core ; rdfs:label "Core 0" ; :hasCoreID "0"^^xsd:integer .
+
+# Axiom: ByteFlow is pinned to Core 1.
+core:ByteFlow rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :isPinnedTo ; owl:hasValue :Core1 ] .
+:Core1 a :CPU_Core ; rdfs:label "Core 1" ; :hasCoreID "1"^^xsd:integer .
+
+# Axiom: ByteEthos is pinned to Core 2.
+core:ByteEthos rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :isPinnedTo ; owl:hasValue :Core2 ] .
+:Core2 a :CPU_Core ; rdfs:label "Core 2" ; :hasCoreID "2"^^xsd:integer .
+
+# Axiom: Core 0, 1, and 2 are part of NUMA Node 0.
+:NUMA_Node0 a :NUMA_Node ;
+    rdfs:label "NUMA Node 0" ;
+    :containsCore :Core0, :Core1, :Core2 .
+
+# Axiom: NUMA Node 0 has local memory.
+:NUMA_Node0 rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasLocalMemory ; owl:someValuesFrom :MemoryRegion0 ] .
+:MemoryRegion0 a :MemoryRegion ; rdfs:label "NUMA 0 Local Memory" ; :hasMemorySizeGB "128.0"^^xsd:float .
+
+# Axiom: The system has a NUMA Node 1 for general purpose cores.
+:NUMA_Node1 a :NUMA_Node ;
+    rdfs:label "NUMA Node 1" ;
+    :containsCore :Core3, :Core4, :Core5 .
+:Core3 a :CPU_Core ; rdfs:label "Core 3" ; :hasCoreID "3"^^xsd:integer .
+:Core4 a :CPU_Core ; rdfs:label "Core 4" ; :hasCoreID "4"^^xsd:integer .
+:Core5 a :CPU_Core ; rdfs:label "Core 5" ; :hasCoreID "5"^^xsd:integer .
+
+:NUMA_Node1 rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasLocalMemory ; owl:someValuesFrom :MemoryRegion1 ] .
+:MemoryRegion1 a :MemoryRegion ; rdfs:label "NUMA 1 Local Memory" ; :hasMemorySizeGB "128.0"^^xsd:float .

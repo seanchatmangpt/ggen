@@ -1,0 +1,1081 @@
+@prefix mts: <https://bytestar.org/ontology/governance/migration-tooling#> .
+@prefix tip: <https://bytestar.org/ontology/governance/tip#> .
+@prefix ba-meta: <https://bytestar.io/ontology/meta/> .
+@prefix ov: <https://byteactor.org/ontology/versioning/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# ===================================================================
+# MIGRATION TOOLING SPECIFICATIONS
+# Comprehensive specifications for automated migration tools and processes
+# ===================================================================
+
+<https://bytestar.org/ontology/governance/migration-tooling>
+    a owl:Ontology ;
+    dc:title "TIP Migration Tooling Specifications" ;
+    dc:description """Comprehensive specifications for automated migration tooling, 
+                      version safety guarantees, and migration path validation. 
+                      Includes tools, processes, and safety mechanisms for type evolution.""" ;
+    dc:creator "ByteStar Migration Engineering Team" ;
+    dc:created "2025-08-23"^^xsd:date ;
+    dc:version "1.0.0" ;
+    owl:versionIRI <https://bytestar.org/ontology/governance/migration-tooling/1.0.0> ;
+    owl:imports <https://bytestar.org/ontology/governance/tip>,
+                <https://byteactor.org/ontology/versioning/> ;
+    rdfs:seeAlso <https://bytestar.org/docs/migration-tooling> .
+
+# ===================================================================
+# 1. MIGRATION TOOL ARCHITECTURE
+# Core architecture for migration tooling infrastructure
+# ===================================================================
+
+## Migration Tool Classes
+
+mts:MigrationToolSuite a owl:Class ;
+    rdfs:label "Migration Tool Suite" ;
+    rdfs:comment "Complete suite of tools for managing type migrations." ;
+    rdfs:subClassOf tip:AutomatedMigrationTool .
+
+mts:MigrationEngine a owl:Class ;
+    rdfs:label "Migration Engine" ;
+    rdfs:comment "Core engine coordinating migration processes." ;
+    rdfs:subClassOf tip:AutomatedMigrationTool .
+
+mts:TransformationEngine a owl:Class ;
+    rdfs:label "Transformation Engine" ;
+    rdfs:comment "Engine for performing code and type transformations." ;
+    rdfs:subClassOf tip:CodeTransformer .
+
+mts:AnalysisEngine a owl:Class ;
+    rdfs:label "Analysis Engine" ;
+    rdfs:comment "Engine for analyzing migration requirements and impacts." ;
+    rdfs:subClassOf ba-meta:MetaReasoner .
+
+mts:ValidationEngine a owl:Class ;
+    rdfs:label "Validation Engine" ;
+    rdfs:comment "Engine for validating migration correctness and safety." ;
+    rdfs:subClassOf tip:MigrationValidator .
+
+## Tool Component Classes
+
+mts:MigrationComponent a owl:Class ;
+    rdfs:label "Migration Component" ;
+    rdfs:comment "Component within migration tool architecture." ;
+    rdfs:subClassOf owl:Thing .
+
+mts:Parser a owl:Class ;
+    rdfs:label "Parser" ;
+    rdfs:comment "Component for parsing source code and type definitions." ;
+    rdfs:subClassOf mts:MigrationComponent .
+
+mts:Analyzer a owl:Class ;
+    rdfs:label "Analyzer" ;
+    rdfs:comment "Component for analyzing code structure and dependencies." ;
+    rdfs:subClassOf mts:MigrationComponent .
+
+mts:Generator a owl:Class ;
+    rdfs:label "Generator" ;
+    rdfs:comment "Component for generating transformed code and configurations." ;
+    rdfs:subClassOf mts:MigrationComponent .
+
+mts:Validator a owl:Class ;
+    rdfs:label "Validator" ;
+    rdfs:comment "Component for validating transformations and migrations." ;
+    rdfs:subClassOf mts:MigrationComponent .
+
+# ===================================================================
+# 2. MIGRATION STRATEGY FRAMEWORK
+# Framework for defining and executing migration strategies
+# ===================================================================
+
+## Migration Strategy Classes
+
+mts:MigrationStrategy a owl:Class ;
+    rdfs:label "Migration Strategy" ;
+    rdfs:comment "High-level strategy for conducting migrations." ;
+    rdfs:subClassOf ov:MigrationStrategy .
+
+mts:IncrementalMigration a owl:Class ;
+    rdfs:label "Incremental Migration" ;
+    rdfs:comment "Strategy for gradual, step-by-step migration." ;
+    rdfs:subClassOf mts:MigrationStrategy .
+
+mts:BigBangMigration a owl:Class ;
+    rdfs:label "Big Bang Migration" ;
+    rdfs:comment "Strategy for complete, all-at-once migration." ;
+    rdfs:subClassOf mts:MigrationStrategy .
+
+mts:BlueGreenMigration a owl:Class ;
+    rdfs:label "Blue-Green Migration" ;
+    rdfs:comment "Strategy using parallel environments for zero-downtime migration." ;
+    rdfs:subClassOf mts:MigrationStrategy .
+
+mts:CanaryMigration a owl:Class ;
+    rdfs:label "Canary Migration" ;
+    rdfs:comment "Strategy for gradual rollout with monitoring and rollback." ;
+    rdfs:subClassOf mts:MigrationStrategy .
+
+## Migration Phase Classes
+
+mts:MigrationPhase a owl:Class ;
+    rdfs:label "Migration Phase" ;
+    rdfs:comment "Phase in migration process execution." ;
+    rdfs:subClassOf prov:Activity .
+
+mts:PreMigrationPhase a owl:Class ;
+    rdfs:label "Pre-Migration Phase" ;
+    rdfs:comment "Preparation phase before migration execution." ;
+    rdfs:subClassOf mts:MigrationPhase .
+
+mts:MigrationExecutionPhase a owl:Class ;
+    rdfs:label "Migration Execution Phase" ;
+    rdfs:comment "Main execution phase of migration." ;
+    rdfs:subClassOf mts:MigrationPhase .
+
+mts:PostMigrationPhase a owl:Class ;
+    rdfs:label "Post-Migration Phase" ;
+    rdfs:comment "Verification and cleanup phase after migration." ;
+    rdfs:subClassOf mts:MigrationPhase .
+
+mts:RollbackPhase a owl:Class ;
+    rdfs:label "Rollback Phase" ;
+    rdfs:comment "Emergency rollback phase if migration fails." ;
+    rdfs:subClassOf mts:MigrationPhase .
+
+# ===================================================================
+# 3. TRANSFORMATION SPECIFICATION FRAMEWORK
+# Framework for specifying code and type transformations
+# ===================================================================
+
+## Transformation Rule Classes
+
+mts:TransformationRule a owl:Class ;
+    rdfs:label "Transformation Rule" ;
+    rdfs:comment "Rule defining how to transform code elements during migration." ;
+    rdfs:subClassOf ov:TransformationRule .
+
+mts:TypeTransformationRule a owl:Class ;
+    rdfs:label "Type Transformation Rule" ;
+    rdfs:comment "Rule for transforming type definitions and signatures." ;
+    rdfs:subClassOf mts:TransformationRule .
+
+mts:CodeTransformationRule a owl:Class ;
+    rdfs:label "Code Transformation Rule" ;
+    rdfs:comment "Rule for transforming source code structures." ;
+    rdfs:subClassOf mts:TransformationRule .
+
+mts:ConfigTransformationRule a owl:Class ;
+    rdfs:label "Configuration Transformation Rule" ;
+    rdfs:comment "Rule for transforming configuration files and settings." ;
+    rdfs:subClassOf mts:TransformationRule .
+
+mts:DataTransformationRule a owl:Class ;
+    rdfs:label "Data Transformation Rule" ;
+    rdfs:comment "Rule for transforming data structures and formats." ;
+    rdfs:subClassOf mts:TransformationRule .
+
+## Transformation Pattern Classes
+
+mts:TransformationPattern a owl:Class ;
+    rdfs:label "Transformation Pattern" ;
+    rdfs:comment "Reusable pattern for common transformations." ;
+    rdfs:subClassOf ba-meta:OntologyPattern .
+
+mts:RenamePattern a owl:Class ;
+    rdfs:label "Rename Pattern" ;
+    rdfs:comment "Pattern for renaming types, functions, or variables." ;
+    rdfs:subClassOf mts:TransformationPattern .
+
+mts:WrapperPattern a owl:Class ;
+    rdfs:label "Wrapper Pattern" ;
+    rdfs:comment "Pattern for wrapping old interfaces with new ones." ;
+    rdfs:subClassOf mts:TransformationPattern .
+
+mts:AdapterPattern a owl:Class ;
+    rdfs:label "Adapter Pattern" ;
+    rdfs:comment "Pattern for adapting incompatible interfaces." ;
+    rdfs:subClassOf mts:TransformationPattern .
+
+mts:BridgePattern a owl:Class ;
+    rdfs:label "Bridge Pattern" ;
+    rdfs:comment "Pattern for bridging between old and new implementations." ;
+    rdfs:subClassOf mts:TransformationPattern .
+
+## Template Classes
+
+mts:TransformationTemplate a owl:Class ;
+    rdfs:label "Transformation Template" ;
+    rdfs:comment "Template for generating transformation code." ;
+    rdfs:subClassOf owl:Thing .
+
+mts:CodeTemplate a owl:Class ;
+    rdfs:label "Code Template" ;
+    rdfs:comment "Template for generating transformed source code." ;
+    rdfs:subClassOf mts:TransformationTemplate .
+
+mts:TypeTemplate a owl:Class ;
+    rdfs:label "Type Template" ;
+    rdfs:comment "Template for generating transformed type definitions." ;
+    rdfs:subClassOf mts:TransformationTemplate .
+
+mts:ConfigTemplate a owl:Class ;
+    rdfs:label "Configuration Template" ;
+    rdfs:comment "Template for generating transformed configuration files." ;
+    rdfs:subClassOf mts:TransformationTemplate .
+
+# ===================================================================
+# 4. SAFETY GUARANTEE FRAMEWORK
+# Framework for ensuring migration safety and correctness
+# ===================================================================
+
+## Safety Verification Classes
+
+mts:SafetyVerificationSystem a owl:Class ;
+    rdfs:label "Safety Verification System" ;
+    rdfs:comment "System for verifying migration safety guarantees." ;
+    rdfs:subClassOf tip:SafetyVerifier .
+
+mts:StaticAnalysisVerifier a owl:Class ;
+    rdfs:label "Static Analysis Verifier" ;
+    rdfs:comment "Verifier using static analysis techniques." ;
+    rdfs:subClassOf mts:SafetyVerificationSystem .
+
+mts:DynamicAnalysisVerifier a owl:Class ;
+    rdfs:label "Dynamic Analysis Verifier" ;
+    rdfs:comment "Verifier using dynamic analysis and testing." ;
+    rdfs:subClassOf mts:SafetyVerificationSystem .
+
+mts:FormalVerifier a owl:Class ;
+    rdfs:label "Formal Verifier" ;
+    rdfs:comment "Verifier using formal verification techniques." ;
+    rdfs:subClassOf mts:SafetyVerificationSystem .
+
+mts:PropertyBasedVerifier a owl:Class ;
+    rdfs:label "Property-Based Verifier" ;
+    rdfs:comment "Verifier using property-based testing." ;
+    rdfs:subClassOf mts:SafetyVerificationSystem .
+
+## Safety Property Classes
+
+mts:SafetyProperty a owl:Class ;
+    rdfs:label "Safety Property" ;
+    rdfs:comment "Property that must be maintained during migration." ;
+    rdfs:subClassOf tip:SafetyGuarantee .
+
+mts:TypePreservationProperty a owl:Class ;
+    rdfs:label "Type Preservation Property" ;
+    rdfs:comment "Property ensuring type safety is preserved." ;
+    rdfs:subClassOf mts:SafetyProperty .
+
+mts:BehaviorPreservationProperty a owl:Class ;
+    rdfs:label "Behavior Preservation Property" ;
+    rdfs:comment "Property ensuring behavioral equivalence." ;
+    rdfs:subClassOf mts:SafetyProperty .
+
+mts:PerformanceProperty a owl:Class ;
+    rdfs:label "Performance Property" ;
+    rdfs:comment "Property ensuring performance requirements are met." ;
+    rdfs:subClassOf mts:SafetyProperty .
+
+mts:CompatibilityProperty a owl:Class ;
+    rdfs:label "Compatibility Property" ;
+    rdfs:comment "Property ensuring backward compatibility." ;
+    rdfs:subClassOf mts:SafetyProperty .
+
+## Invariant Classes
+
+mts:MigrationInvariant a owl:Class ;
+    rdfs:label "Migration Invariant" ;
+    rdfs:comment "Invariant that must hold throughout migration." ;
+    rdfs:subClassOf ba-meta:Constraint .
+
+mts:DataInvariant a owl:Class ;
+    rdfs:label "Data Invariant" ;
+    rdfs:comment "Invariant concerning data structure and integrity." ;
+    rdfs:subClassOf mts:MigrationInvariant .
+
+mts:FunctionalInvariant a owl:Class ;
+    rdfs:label "Functional Invariant" ;
+    rdfs:comment "Invariant concerning functional behavior." ;
+    rdfs:subClassOf mts:MigrationInvariant .
+
+mts:SecurityInvariant a owl:Class ;
+    rdfs:label "Security Invariant" ;
+    rdfs:comment "Invariant concerning security properties." ;
+    rdfs:subClassOf mts:MigrationInvariant .
+
+# ===================================================================
+# 5. AUTOMATED TESTING FRAMEWORK
+# Framework for automated testing of migrations
+# ===================================================================
+
+## Test Generation Classes
+
+mts:TestGenerator a owl:Class ;
+    rdfs:label "Test Generator" ;
+    rdfs:comment "Component for generating migration tests." ;
+    rdfs:subClassOf mts:MigrationComponent .
+
+mts:UnitTestGenerator a owl:Class ;
+    rdfs:label "Unit Test Generator" ;
+    rdfs:comment "Generator for unit tests of transformed code." ;
+    rdfs:subClassOf mts:TestGenerator .
+
+mts:IntegrationTestGenerator a owl:Class ;
+    rdfs:label "Integration Test Generator" ;
+    rdfs:comment "Generator for integration tests of migration." ;
+    rdfs:subClassOf mts:TestGenerator .
+
+mts:PropertyTestGenerator a owl:Class ;
+    rdfs:label "Property Test Generator" ;
+    rdfs:comment "Generator for property-based tests." ;
+    rdfs:subClassOf mts:TestGenerator .
+
+mts:RegressionTestGenerator a owl:Class ;
+    rdfs:label "Regression Test Generator" ;
+    rdfs:comment "Generator for regression tests." ;
+    rdfs:subClassOf mts:TestGenerator .
+
+## Test Execution Classes
+
+mts:TestExecutor a owl:Class ;
+    rdfs:label "Test Executor" ;
+    rdfs:comment "Component for executing migration tests." ;
+    rdfs:subClassOf mts:MigrationComponent .
+
+mts:ParallelTestExecutor a owl:Class ;
+    rdfs:label "Parallel Test Executor" ;
+    rdfs:comment "Executor for running tests in parallel." ;
+    rdfs:subClassOf mts:TestExecutor .
+
+mts:ContinuousTestExecutor a owl:Class ;
+    rdfs:label "Continuous Test Executor" ;
+    rdfs:comment "Executor for continuous testing during migration." ;
+    rdfs:subClassOf mts:TestExecutor .
+
+## Test Suite Classes
+
+mts:MigrationTestSuite a owl:Class ;
+    rdfs:label "Migration Test Suite" ;
+    rdfs:comment "Complete test suite for migration validation." ;
+    rdfs:subClassOf ov:TestSuite .
+
+mts:SafetyTestSuite a owl:Class ;
+    rdfs:label "Safety Test Suite" ;
+    rdfs:comment "Test suite focusing on safety properties." ;
+    rdfs:subClassOf mts:MigrationTestSuite .
+
+mts:PerformanceTestSuite a owl:Class ;
+    rdfs:label "Performance Test Suite" ;
+    rdfs:comment "Test suite focusing on performance validation." ;
+    rdfs:subClassOf mts:MigrationTestSuite .
+
+mts:CompatibilityTestSuite a owl:Class ;
+    rdfs:label "Compatibility Test Suite" ;
+    rdfs:comment "Test suite focusing on compatibility validation." ;
+    rdfs:subClassOf mts:MigrationTestSuite .
+
+# ===================================================================
+# 6. ROLLBACK AND RECOVERY FRAMEWORK
+# Framework for migration rollback and error recovery
+# ===================================================================
+
+## Rollback Mechanism Classes
+
+mts:RollbackMechanism a owl:Class ;
+    rdfs:label "Rollback Mechanism" ;
+    rdfs:comment "Mechanism for rolling back failed migrations." ;
+    rdfs:subClassOf ov:RollbackOperation .
+
+mts:SnapshotRollback a owl:Class ;
+    rdfs:label "Snapshot Rollback" ;
+    rdfs:comment "Rollback using system snapshots." ;
+    rdfs:subClassOf mts:RollbackMechanism .
+
+mts:TransactionRollback a owl:Class ;
+    rdfs:label "Transaction Rollback" ;
+    rdfs:comment "Rollback using transactional mechanisms." ;
+    rdfs:subClassOf mts:RollbackMechanism .
+
+mts:InverseOperationRollback a owl:Class ;
+    rdfs:label "Inverse Operation Rollback" ;
+    rdfs:comment "Rollback using inverse transformation operations." ;
+    rdfs:subClassOf mts:RollbackMechanism .
+
+## Checkpoint Classes
+
+mts:MigrationCheckpoint a owl:Class ;
+    rdfs:label "Migration Checkpoint" ;
+    rdfs:comment "Checkpoint in migration process for recovery." ;
+    rdfs:subClassOf ov:Checkpoint .
+
+mts:AutomaticCheckpoint a owl:Class ;
+    rdfs:label "Automatic Checkpoint" ;
+    rdfs:comment "Automatically created checkpoint during migration." ;
+    rdfs:subClassOf mts:MigrationCheckpoint .
+
+mts:ManualCheckpoint a owl:Class ;
+    rdfs:label "Manual Checkpoint" ;
+    rdfs:comment "Manually created checkpoint for recovery." ;
+    rdfs:subClassOf mts:MigrationCheckpoint .
+
+## Recovery Strategy Classes
+
+mts:RecoveryStrategy a owl:Class ;
+    rdfs:label "Recovery Strategy" ;
+    rdfs:comment "Strategy for recovering from migration failures." ;
+    rdfs:subClassOf ov:RecoveryProcedure .
+
+mts:PartialRecovery a owl:Class ;
+    rdfs:label "Partial Recovery" ;
+    rdfs:comment "Recovery strategy for partially completed migrations." ;
+    rdfs:subClassOf mts:RecoveryStrategy .
+
+mts:CompleteRecovery a owl:Class ;
+    rdfs:label "Complete Recovery" ;
+    rdfs:comment "Recovery strategy requiring complete rollback." ;
+    rdfs:subClassOf mts:RecoveryStrategy .
+
+mts:ForwardRecovery a owl:Class ;
+    rdfs:label "Forward Recovery" ;
+    rdfs:comment "Recovery strategy fixing issues and continuing forward." ;
+    rdfs:subClassOf mts:RecoveryStrategy .
+
+# ===================================================================
+# 7. MIGRATION MONITORING AND REPORTING
+# Framework for monitoring migration progress and generating reports
+# ===================================================================
+
+## Monitoring Classes
+
+mts:MigrationMonitor a owl:Class ;
+    rdfs:label "Migration Monitor" ;
+    rdfs:comment "Component for monitoring migration progress and health." ;
+    rdfs:subClassOf mts:MigrationComponent .
+
+mts:ProgressMonitor a owl:Class ;
+    rdfs:label "Progress Monitor" ;
+    rdfs:comment "Monitor tracking migration progress and completion." ;
+    rdfs:subClassOf mts:MigrationMonitor .
+
+mts:HealthMonitor a owl:Class ;
+    rdfs:label "Health Monitor" ;
+    rdfs:comment "Monitor tracking system health during migration." ;
+    rdfs:subClassOf mts:MigrationMonitor .
+
+mts:PerformanceMonitor a owl:Class ;
+    rdfs:label "Performance Monitor" ;
+    rdfs:comment "Monitor tracking performance metrics during migration." ;
+    rdfs:subClassOf mts:MigrationMonitor .
+
+mts:ErrorMonitor a owl:Class ;
+    rdfs:label "Error Monitor" ;
+    rdfs:comment "Monitor tracking errors and failures during migration." ;
+    rdfs:subClassOf mts:MigrationMonitor .
+
+## Reporting Classes
+
+mts:MigrationReport a owl:Class ;
+    rdfs:label "Migration Report" ;
+    rdfs:comment "Report documenting migration process and outcomes." ;
+    rdfs:subClassOf prov:Activity .
+
+mts:ProgressReport a owl:Class ;
+    rdfs:label "Progress Report" ;
+    rdfs:comment "Report on migration progress and status." ;
+    rdfs:subClassOf mts:MigrationReport .
+
+mts:SafetyReport a owl:Class ;
+    rdfs:label "Safety Report" ;
+    rdfs:comment "Report on safety verification and validation." ;
+    rdfs:subClassOf mts:MigrationReport .
+
+mts:PerformanceReport a owl:Class ;
+    rdfs:label "Performance Report" ;
+    rdfs:comment "Report on performance impact of migration." ;
+    rdfs:subClassOf mts:MigrationReport .
+
+mts:PostMigrationReport a owl:Class ;
+    rdfs:label "Post-Migration Report" ;
+    rdfs:comment "Comprehensive report after migration completion." ;
+    rdfs:subClassOf mts:MigrationReport .
+
+# ===================================================================
+# 8. PROPERTIES - MIGRATION TOOL RELATIONSHIPS
+# Object and data properties for migration tooling
+# ===================================================================
+
+## Tool Architecture Properties
+
+mts:hasComponent a owl:ObjectProperty ;
+    rdfs:label "has component" ;
+    rdfs:comment "Associates migration tool with its components." ;
+    rdfs:domain mts:MigrationToolSuite ;
+    rdfs:range mts:MigrationComponent .
+
+mts:usesEngine a owl:ObjectProperty ;
+    rdfs:label "uses engine" ;
+    rdfs:comment "Specifies engine used by migration component." ;
+    rdfs:domain mts:MigrationComponent ;
+    rdfs:range mts:MigrationEngine .
+
+mts:implementsStrategy a owl:ObjectProperty ;
+    rdfs:label "implements strategy" ;
+    rdfs:comment "Specifies strategy implemented by migration tool." ;
+    rdfs:domain mts:MigrationEngine ;
+    rdfs:range mts:MigrationStrategy .
+
+## Transformation Properties
+
+mts:hasTransformationRule a owl:ObjectProperty ;
+    rdfs:label "has transformation rule" ;
+    rdfs:comment "Associates migration with transformation rules." ;
+    rdfs:domain tip:MigrationPlan ;
+    rdfs:range mts:TransformationRule .
+
+mts:usesPattern a owl:ObjectProperty ;
+    rdfs:label "uses pattern" ;
+    rdfs:comment "Specifies transformation pattern used by rule." ;
+    rdfs:domain mts:TransformationRule ;
+    rdfs:range mts:TransformationPattern .
+
+mts:hasTemplate a owl:ObjectProperty ;
+    rdfs:label "has template" ;
+    rdfs:comment "Associates transformation with code templates." ;
+    rdfs:domain mts:TransformationRule ;
+    rdfs:range mts:TransformationTemplate .
+
+mts:transformsFrom a owl:ObjectProperty ;
+    rdfs:label "transforms from" ;
+    rdfs:comment "Specifies source element for transformation." ;
+    rdfs:domain mts:TransformationRule ;
+    rdfs:range owl:Thing .
+
+mts:transformsTo a owl:ObjectProperty ;
+    rdfs:label "transforms to" ;
+    rdfs:comment "Specifies target element for transformation." ;
+    rdfs:domain mts:TransformationRule ;
+    rdfs:range owl:Thing .
+
+## Safety Properties
+
+mts:guaranteesProperty a owl:ObjectProperty ;
+    rdfs:label "guarantees property" ;
+    rdfs:comment "Specifies safety property guaranteed by migration." ;
+    rdfs:domain tip:MigrationPlan ;
+    rdfs:range mts:SafetyProperty .
+
+mts:maintainsInvariant a owl:ObjectProperty ;
+    rdfs:label "maintains invariant" ;
+    rdfs:comment "Specifies invariant maintained during migration." ;
+    rdfs:domain mts:MigrationStrategy ;
+    rdfs:range mts:MigrationInvariant .
+
+mts:verifiedBy a owl:ObjectProperty ;
+    rdfs:label "verified by" ;
+    rdfs:comment "Specifies verifier that verified safety property." ;
+    rdfs:domain mts:SafetyProperty ;
+    rdfs:range mts:SafetyVerificationSystem .
+
+## Testing Properties
+
+mts:hasTestSuite a owl:ObjectProperty ;
+    rdfs:label "has test suite" ;
+    rdfs:comment "Associates migration with test suites." ;
+    rdfs:domain tip:MigrationPlan ;
+    rdfs:range mts:MigrationTestSuite .
+
+mts:generatedBy a owl:ObjectProperty ;
+    rdfs:label "generated by" ;
+    rdfs:comment "Specifies generator that created test suite." ;
+    rdfs:domain mts:MigrationTestSuite ;
+    rdfs:range mts:TestGenerator .
+
+mts:executedBy a owl:ObjectProperty ;
+    rdfs:label "executed by" ;
+    rdfs:comment "Specifies executor that ran test suite." ;
+    rdfs:domain mts:MigrationTestSuite ;
+    rdfs:range mts:TestExecutor .
+
+## Rollback Properties
+
+mts:hasRollbackMechanism a owl:ObjectProperty ;
+    rdfs:label "has rollback mechanism" ;
+    rdfs:comment "Associates migration with rollback mechanisms." ;
+    rdfs:domain tip:MigrationPlan ;
+    rdfs:range mts:RollbackMechanism .
+
+mts:hasCheckpoint a owl:ObjectProperty ;
+    rdfs:label "has checkpoint" ;
+    rdfs:comment "Associates migration with recovery checkpoints." ;
+    rdfs:domain mts:MigrationPhase ;
+    rdfs:range mts:MigrationCheckpoint .
+
+mts:usesRecoveryStrategy a owl:ObjectProperty ;
+    rdfs:label "uses recovery strategy" ;
+    rdfs:comment "Specifies recovery strategy for migration." ;
+    rdfs:domain mts:RollbackMechanism ;
+    rdfs:range mts:RecoveryStrategy .
+
+## Monitoring Properties
+
+mts:monitoredBy a owl:ObjectProperty ;
+    rdfs:label "monitored by" ;
+    rdfs:comment "Specifies monitor tracking migration process." ;
+    rdfs:domain mts:MigrationPhase ;
+    rdfs:range mts:MigrationMonitor .
+
+mts:generatesReport a owl:ObjectProperty ;
+    rdfs:label "generates report" ;
+    rdfs:comment "Specifies report generated by monitoring." ;
+    rdfs:domain mts:MigrationMonitor ;
+    rdfs:range mts:MigrationReport .
+
+# ===================================================================
+# 9. DATA PROPERTIES - MIGRATION CONFIGURATION AND METRICS
+# Data properties for migration tooling configuration and metrics
+# ===================================================================
+
+## Tool Configuration Properties
+
+mts:toolVersion a owl:DatatypeProperty ;
+    rdfs:label "tool version" ;
+    rdfs:comment "Version of migration tool or component." ;
+    rdfs:domain mts:MigrationComponent ;
+    rdfs:range xsd:string .
+
+mts:isEnabled a owl:DatatypeProperty ;
+    rdfs:label "is enabled" ;
+    rdfs:comment "Whether migration component is enabled." ;
+    rdfs:domain mts:MigrationComponent ;
+    rdfs:range xsd:boolean .
+
+mts:configurationFile a owl:DatatypeProperty ;
+    rdfs:label "configuration file" ;
+    rdfs:comment "Path to configuration file for component." ;
+    rdfs:domain mts:MigrationComponent ;
+    rdfs:range xsd:string .
+
+## Transformation Configuration
+
+mts:transformationPriority a owl:DatatypeProperty ;
+    rdfs:label "transformation priority" ;
+    rdfs:comment "Priority for applying transformation rule (1-100)." ;
+    rdfs:domain mts:TransformationRule ;
+    rdfs:range [ a rdfs:Datatype ;
+                owl:onDatatype xsd:integer ;
+                owl:withRestrictions (
+                    [ xsd:minInclusive 1 ]
+                    [ xsd:maxInclusive 100 ]
+                ) ] .
+
+mts:isReversible a owl:DatatypeProperty ;
+    rdfs:label "is reversible" ;
+    rdfs:comment "Whether transformation can be automatically reversed." ;
+    rdfs:domain mts:TransformationRule ;
+    rdfs:range xsd:boolean .
+
+mts:complexityScore a owl:DatatypeProperty ;
+    rdfs:label "complexity score" ;
+    rdfs:comment "Complexity score for transformation (1-10)." ;
+    rdfs:domain mts:TransformationRule ;
+    rdfs:range [ a rdfs:Datatype ;
+                owl:onDatatype xsd:integer ;
+                owl:withRestrictions (
+                    [ xsd:minInclusive 1 ]
+                    [ xsd:maxInclusive 10 ]
+                ) ] .
+
+## Safety Configuration
+
+mts:verificationLevel a owl:DatatypeProperty ;
+    rdfs:label "verification level" ;
+    rdfs:comment "Level of verification required (1-5)." ;
+    rdfs:domain mts:SafetyProperty ;
+    rdfs:range [ a rdfs:Datatype ;
+                owl:onDatatype xsd:integer ;
+                owl:withRestrictions (
+                    [ xsd:minInclusive 1 ]
+                    [ xsd:maxInclusive 5 ]
+                ) ] .
+
+mts:criticalityLevel a owl:DatatypeProperty ;
+    rdfs:label "criticality level" ;
+    rdfs:comment "Criticality level of safety property (1-5)." ;
+    rdfs:domain mts:SafetyProperty ;
+    rdfs:range [ a rdfs:Datatype ;
+                owl:onDatatype xsd:integer ;
+                owl:withRestrictions (
+                    [ xsd:minInclusive 1 ]
+                    [ xsd:maxInclusive 5 ]
+                ) ] .
+
+mts:toleranceThreshold a owl:DatatypeProperty ;
+    rdfs:label "tolerance threshold" ;
+    rdfs:comment "Tolerance threshold for property verification (0-1)." ;
+    rdfs:domain mts:SafetyProperty ;
+    rdfs:range [ a rdfs:Datatype ;
+                owl:onDatatype xsd:decimal ;
+                owl:withRestrictions (
+                    [ xsd:minInclusive "0.0"^^xsd:decimal ]
+                    [ xsd:maxInclusive "1.0"^^xsd:decimal ]
+                ) ] .
+
+## Test Configuration
+
+mts:testTimeout a owl:DatatypeProperty ;
+    rdfs:label "test timeout" ;
+    rdfs:comment "Timeout for test execution in seconds." ;
+    rdfs:domain mts:MigrationTestSuite ;
+    rdfs:range xsd:positiveInteger .
+
+mts:parallelismLevel a owl:DatatypeProperty ;
+    rdfs:label "parallelism level" ;
+    rdfs:comment "Number of parallel test executions." ;
+    rdfs:domain mts:ParallelTestExecutor ;
+    rdfs:range xsd:positiveInteger .
+
+mts:coverageTarget a owl:DatatypeProperty ;
+    rdfs:label "coverage target" ;
+    rdfs:comment "Target test coverage percentage (0-100)." ;
+    rdfs:domain mts:MigrationTestSuite ;
+    rdfs:range [ a rdfs:Datatype ;
+                owl:onDatatype xsd:decimal ;
+                owl:withRestrictions (
+                    [ xsd:minInclusive "0.0"^^xsd:decimal ]
+                    [ xsd:maxInclusive "100.0"^^xsd:decimal ]
+                ) ] .
+
+## Migration Metrics
+
+mts:estimatedDuration a owl:DatatypeProperty ;
+    rdfs:label "estimated duration" ;
+    rdfs:comment "Estimated duration for migration phase." ;
+    rdfs:domain mts:MigrationPhase ;
+    rdfs:range xsd:duration .
+
+mts:actualDuration a owl:DatatypeProperty ;
+    rdfs:label "actual duration" ;
+    rdfs:comment "Actual duration of completed migration phase." ;
+    rdfs:domain mts:MigrationPhase ;
+    rdfs:range xsd:duration .
+
+mts:successRate a owl:DatatypeProperty ;
+    rdfs:label "success rate" ;
+    rdfs:comment "Success rate for migration strategy (0-1)." ;
+    rdfs:domain mts:MigrationStrategy ;
+    rdfs:range [ a rdfs:Datatype ;
+                owl:onDatatype xsd:decimal ;
+                owl:withRestrictions (
+                    [ xsd:minInclusive "0.0"^^xsd:decimal ]
+                    [ xsd:maxInclusive "1.0"^^xsd:decimal ]
+                ) ] .
+
+## Performance Metrics
+
+mts:throughputRate a owl:DatatypeProperty ;
+    rdfs:label "throughput rate" ;
+    rdfs:comment "Processing throughput in items per second." ;
+    rdfs:domain mts:MigrationEngine ;
+    rdfs:range xsd:decimal .
+
+mts:memoryUsage a owl:DatatypeProperty ;
+    rdfs:label "memory usage" ;
+    rdfs:comment "Peak memory usage in megabytes." ;
+    rdfs:domain mts:MigrationEngine ;
+    rdfs:range xsd:decimal .
+
+mts:cpuUsage a owl:DatatypeProperty ;
+    rdfs:label "CPU usage" ;
+    rdfs:comment "Peak CPU usage as percentage (0-100)." ;
+    rdfs:domain mts:MigrationEngine ;
+    rdfs:range [ a rdfs:Datatype ;
+                owl:onDatatype xsd:decimal ;
+                owl:withRestrictions (
+                    [ xsd:minInclusive "0.0"^^xsd:decimal ]
+                    [ xsd:maxInclusive "100.0"^^xsd:decimal ]
+                ) ] .
+
+## Checkpoint Metadata
+
+mts:checkpointSize a owl:DatatypeProperty ;
+    rdfs:label "checkpoint size" ;
+    rdfs:comment "Size of checkpoint data in megabytes." ;
+    rdfs:domain mts:MigrationCheckpoint ;
+    rdfs:range xsd:decimal .
+
+mts:checkpointTimestamp a owl:DatatypeProperty ;
+    rdfs:label "checkpoint timestamp" ;
+    rdfs:comment "Timestamp when checkpoint was created." ;
+    rdfs:domain mts:MigrationCheckpoint ;
+    rdfs:range xsd:dateTime .
+
+mts:retentionPeriod a owl:DatatypeProperty ;
+    rdfs:label "retention period" ;
+    rdfs:comment "How long checkpoint should be retained." ;
+    rdfs:domain mts:MigrationCheckpoint ;
+    rdfs:range xsd:duration .
+
+## Monitoring Metrics
+
+mts:monitoringInterval a owl:DatatypeProperty ;
+    rdfs:label "monitoring interval" ;
+    rdfs:comment "Interval between monitoring samples in seconds." ;
+    rdfs:domain mts:MigrationMonitor ;
+    rdfs:range xsd:positiveInteger .
+
+mts:alertThreshold a owl:DatatypeProperty ;
+    rdfs:label "alert threshold" ;
+    rdfs:comment "Threshold value for triggering alerts." ;
+    rdfs:domain mts:MigrationMonitor ;
+    rdfs:range xsd:decimal .
+
+mts:reportingFrequency a owl:DatatypeProperty ;
+    rdfs:label "reporting frequency" ;
+    rdfs:comment "Frequency of report generation in hours." ;
+    rdfs:domain mts:MigrationReport ;
+    rdfs:range xsd:positiveInteger .
+
+# ===================================================================
+# 10. SHACL VALIDATION SHAPES
+# Validation constraints for migration tooling specifications
+# ===================================================================
+
+## Migration Tool Validation
+
+mts:MigrationToolSuiteShape a sh:NodeShape ;
+    sh:targetClass mts:MigrationToolSuite ;
+    sh:property [
+        sh:path mts:hasComponent ;
+        sh:class mts:MigrationComponent ;
+        sh:minCount 1 ;
+        sh:message "Migration tool suite must have at least one component" ;
+    ] ;
+    sh:property [
+        sh:path mts:toolVersion ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^\\d+\\.\\d+\\.\\d+$" ;
+        sh:message "Tool version must follow semantic versioning (X.Y.Z)" ;
+    ] .
+
+## Transformation Rule Validation
+
+mts:TransformationRuleShape a sh:NodeShape ;
+    sh:targetClass mts:TransformationRule ;
+    sh:property [
+        sh:path mts:transformsFrom ;
+        sh:minCount 1 ;
+        sh:message "Transformation rule must specify source element" ;
+    ] ;
+    sh:property [
+        sh:path mts:transformsTo ;
+        sh:minCount 1 ;
+        sh:message "Transformation rule must specify target element" ;
+    ] ;
+    sh:property [
+        sh:path mts:transformationPriority ;
+        sh:datatype xsd:integer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 100 ;
+        sh:message "Transformation priority must be between 1 and 100" ;
+    ] .
+
+## Safety Property Validation
+
+mts:SafetyPropertyShape a sh:NodeShape ;
+    sh:targetClass mts:SafetyProperty ;
+    sh:property [
+        sh:path mts:verificationLevel ;
+        sh:datatype xsd:integer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 5 ;
+        sh:message "Verification level must be between 1 and 5" ;
+    ] ;
+    sh:property [
+        sh:path mts:verifiedBy ;
+        sh:class mts:SafetyVerificationSystem ;
+        sh:minCount 1 ;
+        sh:message "Safety property must be verified by at least one system" ;
+    ] .
+
+## Migration Test Suite Validation
+
+mts:MigrationTestSuiteShape a sh:NodeShape ;
+    sh:targetClass mts:MigrationTestSuite ;
+    sh:property [
+        sh:path mts:coverageTarget ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Coverage target must be between 0 and 100 percent" ;
+    ] ;
+    sh:property [
+        sh:path mts:testTimeout ;
+        sh:datatype xsd:positiveInteger ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1 ;
+        sh:message "Test timeout must be at least 1 second" ;
+    ] .
+
+# ===================================================================
+# 11. COMPLEX SPARQL CONSTRAINTS
+# Advanced validation rules using SPARQL
+# ===================================================================
+
+## Transformation Consistency Constraint
+
+mts:TransformationConsistencyConstraint a sh:NodeShape ;
+    sh:targetClass mts:TransformationRule ;
+    sh:sparql [
+        sh:message "Transformation source and target must be different" ;
+        sh:prefixes mts: ;
+        sh:select """
+            SELECT $this WHERE {
+                $this mts:transformsFrom ?source ;
+                      mts:transformsTo ?target .
+                FILTER (?source = ?target)
+            }
+        """ ;
+    ] .
+
+## Safety Property Coverage Constraint
+
+mts:SafetyPropertyCoverageConstraint a sh:NodeShape ;
+    sh:targetClass tip:MigrationPlan ;
+    sh:sparql [
+        sh:message "Migration plan must guarantee essential safety properties" ;
+        sh:prefixes mts: ;
+        sh:select """
+            SELECT $this WHERE {
+                $this a tip:MigrationPlan .
+                
+                # Check for required safety properties
+                FILTER NOT EXISTS { 
+                    $this mts:guaranteesProperty ?typeSafety .
+                    ?typeSafety a mts:TypePreservationProperty .
+                }
+            }
+        """ ;
+    ] .
+
+## Rollback Capability Constraint
+
+mts:RollbackCapabilityConstraint a sh:NodeShape ;
+    sh:targetClass tip:MigrationPlan ;
+    sh:sparql [
+        sh:message "Migration plan must have rollback mechanism for irreversible changes" ;
+        sh:prefixes mts: ;
+        sh:select """
+            SELECT $this WHERE {
+                $this mts:hasTransformationRule ?rule .
+                ?rule mts:isReversible false .
+                
+                FILTER NOT EXISTS {
+                    $this mts:hasRollbackMechanism ?rollback .
+                }
+            }
+        """ ;
+    ] .
+
+# ===================================================================
+# 12. CONCRETE TOOL INSTANCES
+# Example instances of migration tools and configurations
+# ===================================================================
+
+## Migration Tool Suite Instance
+
+mts:StandardMigrationToolSuite a mts:MigrationToolSuite ;
+    rdfs:label "Standard Migration Tool Suite" ;
+    rdfs:comment "Standard suite of tools for TIP migrations" ;
+    mts:toolVersion "1.0.0" ;
+    mts:hasComponent mts:StandardMigrationEngine,
+                     mts:StandardTransformationEngine,
+                     mts:StandardValidationEngine .
+
+## Migration Engine Instances
+
+mts:StandardMigrationEngine a mts:MigrationEngine ;
+    rdfs:label "Standard Migration Engine" ;
+    rdfs:comment "Standard engine for coordinating migrations" ;
+    mts:toolVersion "1.0.0" ;
+    mts:isEnabled "true"^^xsd:boolean ;
+    mts:implementsStrategy mts:IncrementalMigrationStrategy .
+
+mts:StandardTransformationEngine a mts:TransformationEngine ;
+    rdfs:label "Standard Transformation Engine" ;
+    rdfs:comment "Standard engine for code transformations" ;
+    mts:toolVersion "1.0.0" ;
+    mts:isEnabled "true"^^xsd:boolean .
+
+mts:StandardValidationEngine a mts:ValidationEngine ;
+    rdfs:label "Standard Validation Engine" ;
+    rdfs:comment "Standard engine for migration validation" ;
+    mts:toolVersion "1.0.0" ;
+    mts:isEnabled "true"^^xsd:boolean .
+
+## Migration Strategy Instances
+
+mts:IncrementalMigrationStrategy a mts:IncrementalMigration ;
+    rdfs:label "Standard Incremental Migration Strategy" ;
+    rdfs:comment "Standard strategy for incremental migrations" ;
+    mts:successRate "0.95"^^xsd:decimal ;
+    mts:maintainsInvariant mts:TypeSafetyInvariant,
+                          mts:DataIntegrityInvariant .
+
+## Safety Property Instances
+
+mts:TypeSafetyProperty a mts:TypePreservationProperty ;
+    rdfs:label "Type Safety Property" ;
+    rdfs:comment "Ensures type safety is preserved during migration" ;
+    mts:verificationLevel 5 ;
+    mts:criticalityLevel 5 ;
+    mts:verifiedBy mts:StaticTypeVerifier .
+
+mts:BehaviorEquivalenceProperty a mts:BehaviorPreservationProperty ;
+    rdfs:label "Behavior Equivalence Property" ;
+    rdfs:comment "Ensures behavioral equivalence is maintained" ;
+    mts:verificationLevel 4 ;
+    mts:criticalityLevel 4 ;
+    mts:verifiedBy mts:PropertyBasedVerifier .
+
+## Invariant Instances
+
+mts:TypeSafetyInvariant a mts:FunctionalInvariant ;
+    rdfs:label "Type Safety Invariant" ;
+    rdfs:comment "Invariant ensuring type safety throughout migration" .
+
+mts:DataIntegrityInvariant a mts:DataInvariant ;
+    rdfs:label "Data Integrity Invariant" ;
+    rdfs:comment "Invariant ensuring data integrity is maintained" .
+
+## Verification System Instances
+
+mts:StaticTypeVerifier a mts:StaticAnalysisVerifier ;
+    rdfs:label "Static Type Verifier" ;
+    rdfs:comment "Verifier using static type analysis" ;
+    mts:toolVersion "1.0.0" .
+
+mts:PropertyBasedVerifier a mts:PropertyBasedVerifier ;
+    rdfs:label "Property-Based Verifier" ;
+    rdfs:comment "Verifier using property-based testing" ;
+    mts:toolVersion "1.0.0" .
+
+# ===================================================================
+# END OF MIGRATION TOOLING SPECIFICATIONS ONTOLOGY
+# ===================================================================

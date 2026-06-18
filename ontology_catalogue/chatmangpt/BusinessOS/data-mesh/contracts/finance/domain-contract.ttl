@@ -1,0 +1,890 @@
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix schema: <http://schema.org/> .
+@prefix dqv: <http://www.w3.org/ns/dqv#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://businessos.example.com/> .
+
+# ========================================================================
+# Finance Domain Contract
+# Domain Owner: Chief Financial Officer (CFO)
+# Version: 1.0.0
+# Created: 2026-03-25
+# ========================================================================
+
+ex:FinanceDomainCatalog a dcat:Catalog ;
+  dct:title "Finance Domain Data Mesh Catalog" ;
+  dct:description "Machine-readable contracts for all Finance domain datasets" ;
+  dct:publisher ex:FinanceTeam ;
+  dct:issued "2026-03-25"^^xsd:date ;
+  dct:modified "2026-03-25"^^xsd:date ;
+  dcat:dataset
+    ex:DealsDataset,
+    ex:InvoicesDataset,
+    ex:PaymentsDataset,
+    ex:AccountsDataset ;
+  dcat:themeTaxonomy <http://publications.europa.eu/resource/authority/data-theme> .
+
+# ========================================================================
+# ENTITY 1: DEALS DATASET
+# ========================================================================
+
+ex:DealsDataset a dcat:Dataset ;
+  dct:title "Financial Deals" ;
+  dct:description "Master dataset of all financial deals, contracts, and commercial agreements" ;
+  dct:identifier "finance.deals.v1" ;
+  dct:issued "2026-03-25"^^xsd:date ;
+  dct:modified "2026-03-25"^^xsd:date ;
+  dcat:keyword "finance", "deals", "contracts", "revenue" ;
+  dct:accrualPeriodicity <http://purl.org/cld/terms/daily> ;
+  dct:language <http://id.loc.gov/vocabulary/iso639-1/en> ;
+
+  # Dataset Owner & Contact
+  dct:publisher ex:FinanceTeam ;
+  dcat:contactPoint [
+    a vcard:Organization ;
+    vcard:organization-name "Finance Operations" ;
+    vcard:hasEmail <mailto:finance-ops@businessos.example.com> ;
+    vcard:telephone "+1-555-FINANCE" ;
+    vcard:hasURL <https://businessos.example.com/finance/deals>
+  ] ;
+
+  # Distribution (API & Direct)
+  dcat:distribution ex:DealsDistributionAPI, ex:DealsDistributionDirect ;
+
+  # Data Quality
+  dqv:hasQualityMeasurement ex:DealsQualityAssessment ;
+
+  # Access Policy
+  odrl:hasPolicy ex:DealsAccessPolicy ;
+
+  # Lineage & Provenance
+  prov:hadPrimarySource ex:SalesSystemSource ;
+  prov:wasGeneratedBy ex:DealsSyncProcess ;
+
+  # Schema Information
+  dcat:record ex:DealType ;
+
+  # SLA Metrics
+  ex:slaTargets ex:DealsSLA ;
+
+  # Entity Relationships
+  ex:relatesTo ex:InvoicesDataset, ex:PaymentsDataset .
+
+# Deals Distribution - REST API
+ex:DealsDistributionAPI a dcat:Distribution ;
+  dct:title "Deals REST API" ;
+  dct:description "Real-time REST API for deal data access" ;
+  dcat:accessURL <https://api.businessos.example.com/v1/finance/deals> ;
+  dcat:downloadURL <https://api.businessos.example.com/v1/finance/deals/export> ;
+  dct:format <http://www.iana.org/assignments/media-types/application/json> ;
+  dct:issued "2026-03-25"^^xsd:date ;
+  dcat:mediaType "application/json+hal" ;
+  schema:codeRepository <https://github.com/seanchatmangpt/chatmangpt/tree/main/BusinessOS/services/finance> ;
+  ex:rateLimit 1000 ;
+  ex:rateLimitWindow "60s" ;
+  ex:authentication "OAuth2-RBAC" ;
+  ex:responseTime "< 500ms" ;
+  dcat:byteSize "2.4GB"^^xsd:nonNegativeInteger ;
+  ex:documentationUrl <https://businessos.example.com/api/finance/deals/docs> ;
+  dct:conformsTo <https://tools.ietf.org/html/draft-kelly-json-hal> .
+
+# Deals Distribution - Direct Database
+ex:DealsDistributionDirect a dcat:Distribution ;
+  dct:title "Deals PostgreSQL Direct" ;
+  dct:description "Direct PostgreSQL replication for batch processing" ;
+  dcat:accessURL <postgres://finance-replica.db.example.com:5432/finance/deals> ;
+  dct:format <http://purl.org/NET/mediatypes/text/sql> ;
+  dct:issued "2026-03-25"^^xsd:date ;
+  dcat:mediaType "application/x-sql" ;
+  ex:authentication "mTLS-Certificate" ;
+  ex:replicationLag "< 5s" ;
+  dcat:byteSize "2.4GB"^^xsd:nonNegativeInteger ;
+  ex:documentationUrl <https://businessos.example.com/database/finance/deals> ;
+  dct:conformsTo <https://www.postgresql.org/docs/current/> .
+
+# Deals Quality Assessment
+ex:DealsQualityAssessment a dqv:QualityAssessment ;
+  dct:title "Deals Data Quality Assessment" ;
+  dqv:isMeasurementOf ex:DealsDataset ;
+  dct:issued "2026-03-25"^^xsd:date ;
+  dct:modified "2026-03-25"^^xsd:date ;
+
+  # Quality Metrics
+  dqv:hasQualityMeasurement
+    ex:DealsTimelinessMetric,
+    ex:DealsAccuracyMetric,
+    ex:DealsCompletenessMetric,
+    ex:DealsConsistencyMetric,
+    ex:DealsValidityMetric ;
+
+  # Overall Quality Score
+  dqv:hasQualityAnnotation ex:DealsQualityAnnotation ;
+  ex:overallQualityScore "0.96"^^xsd:decimal .
+
+ex:DealsTimelinessMetric a dqv:Metric ;
+  dct:title "Data Freshness (Timeliness)" ;
+  dct:description "Time between source system change and data mesh update" ;
+  dqv:expectedValue "< 5 minutes"^^xsd:string ;
+  dqv:actualValue "1.2 minutes"^^xsd:string ;
+  dqv:isMeasurementOf ex:DealsDataset ;
+  dct:issued "2026-03-25"^^xsd:date ;
+  ex:measurementMethod "Event-driven sync via Kafka" ;
+  ex:monitoringTool "Prometheus + Alertmanager" ;
+  ex:sla "99.5% compliance" ;
+  ex:status "passing" .
+
+ex:DealsAccuracyMetric a dqv:Metric ;
+  dct:title "Value Accuracy" ;
+  dct:description "Percentage of deal records with correct monetary values" ;
+  dqv:expectedValue "99.9%"^^xsd:string ;
+  dqv:actualValue "99.95%"^^xsd:string ;
+  dqv:isMeasurementOf ex:DealsDataset ;
+  dct:issued "2026-03-25"^^xsd:date ;
+  ex:measurementMethod "Sample validation against source system" ;
+  ex:validationFrequency "Hourly" ;
+  ex:status "passing" .
+
+ex:DealsCompletenessMetric a dqv:Metric ;
+  dct:title "Field Completeness" ;
+  dct:description "Percentage of non-null values across required fields" ;
+  dqv:expectedValue "99.5%"^^xsd:string ;
+  dqv:actualValue "99.8%"^^xsd:string ;
+  dqv:isMeasurementOf ex:DealsDataset ;
+  dct:issued "2026-03-25"^^xsd:date ;
+  ex:measuredFields "deal_id, amount, status, client_id, contract_date" ;
+  ex:status "passing" .
+
+ex:DealsConsistencyMetric a dqv:Metric ;
+  dct:title "Data Consistency" ;
+  dct:description "Referential integrity across related datasets" ;
+  dqv:expectedValue "100%"^^xsd:string ;
+  dqv:actualValue "99.98%"^^xsd:string ;
+  dqv:isMeasurementOf ex:DealsDataset ;
+  dct:issued "2026-03-25"^^xsd:date ;
+  ex:validationRules "Foreign key integrity: deal.account_id → accounts.id" ;
+  ex:status "passing" .
+
+ex:DealsValidityMetric a dqv:Metric ;
+  dct:title "Value Validity" ;
+  dct:description "Records pass schema validation rules" ;
+  dqv:expectedValue "100%"^^xsd:string ;
+  dqv:actualValue "100%"^^xsd:string ;
+  dqv:isMeasurementOf ex:DealsDataset ;
+  dct:issued "2026-03-25"^^xsd:date ;
+  ex:validationRules "amount > 0, status IN (pending, active, closed, cancelled)" ;
+  ex:status "passing" .
+
+ex:DealsQualityAnnotation a dqv:QualityAnnotation ;
+  dqv:hasBody "Dataset meets Finance domain SLAs. All quality metrics passing. Safe for downstream consumption." ;
+  dct:issued "2026-03-25"^^xsd:date .
+
+# Deals Access Policy (ODRL)
+ex:DealsAccessPolicy a odrl:Set ;
+  dct:title "Deals Data Access Policy" ;
+  dct:description "Usage rights and access control for Deals dataset" ;
+  dct:issued "2026-03-25"^^xsd:date ;
+
+  # Policy Rules
+  odrl:permission
+    ex:DealsReadPermission,
+    ex:DealsAnalyticsPermission,
+    ex:DealsCrossDomainPermission ;
+
+  odrl:prohibition
+    ex:DealsUnauthorizedExportProhibition,
+    ex:DealsExternalSharingProhibition ;
+
+  odrl:obligation
+    ex:DealsAuditLoggingObligation,
+    ex:DealsDataClassificationObligation ;
+
+  ex:policyVersion "1.0.0" ;
+  ex:lastReviewed "2026-03-25"^^xsd:date ;
+  ex:nextReview "2026-06-25"^^xsd:date .
+
+# Permission 1: Read Access
+ex:DealsReadPermission a odrl:Permission ;
+  odrl:action odrl:Read ;
+  odrl:assignee [
+    a odrl:PartyCollection ;
+    odrl:collectionMember ex:FinanceRole, ex:CFORole, ex:ControllerRole
+  ] ;
+  odrl:target ex:DealsDataset ;
+  odrl:constraint [
+    a odrl:Constraint ;
+    odrl:operator odrl:eq ;
+    odrl:rightOperand "working-hours" ;
+    odrl:leftOperand odrl:timeInterval
+  ] ;
+  dct:description "Finance team can read deal data during business hours" .
+
+# Permission 2: Analytics & Reporting
+ex:DealsAnalyticsPermission a odrl:Permission ;
+  odrl:action odrl:Read ;
+  odrl:target ex:DealsDataset ;
+  odrl:assignee [
+    a odrl:PartyCollection ;
+    odrl:collectionMember ex:AnalyticsRole, ex:BIRole
+  ] ;
+  odrl:constraint [
+    a odrl:Constraint ;
+    odrl:operator odrl:lteq ;
+    odrl:rightOperand "1000" ;
+    odrl:leftOperand odrl:count ;
+    dct:description "Max 1000 records per query"
+  ] ;
+  dct:description "Analytics team can query aggregated deal data" ;
+  ex:reportingFrequency "Daily/Weekly" ;
+  ex:retentionPeriod "7 years (per SOC2)" .
+
+# Permission 3: Cross-Domain (Sales → Finance)
+ex:DealsCrossDomainPermission a odrl:Permission ;
+  odrl:action odrl:Read ;
+  odrl:target ex:DealsDataset ;
+  odrl:assignee [
+    a odrl:PartyCollection ;
+    odrl:collectionMember ex:SalesDomain
+  ] ;
+  odrl:constraint [
+    a odrl:Constraint ;
+    odrl:operator odrl:isA ;
+    odrl:rightOperand "integration-partner" ;
+    odrl:leftOperand odrl:party
+  ] ;
+  dct:description "Sales domain can access deal data via A2A integration" ;
+  ex:integrationProtocol "MCP/JSON-RPC" ;
+  ex:maxConcurrentRequests 10 .
+
+# Prohibition 1: Unauthorized Export
+ex:DealsUnauthorizedExportProhibition a odrl:Prohibition ;
+  odrl:action odrl:Export ;
+  odrl:assignee [
+    a odrl:PartyCollection ;
+    odrl:collectionMember ex:ExternalContractors, ex:VendorRole
+  ] ;
+  dct:description "Non-Finance personnel cannot export deal data" .
+
+# Prohibition 2: External Sharing
+ex:DealsExternalSharingProhibition a odrl:Prohibition ;
+  odrl:action odrl:Transfer ;
+  odrl:target ex:DealsDataset ;
+  odrl:assignee odrl:Any ;
+  odrl:constraint [
+    a odrl:Constraint ;
+    odrl:operator odrl:notIn ;
+    odrl:rightOperand ("businessos.example.com" "internal-network") ;
+    odrl:leftOperand odrl:network
+  ] ;
+  dct:description "Cannot transfer deal data outside BusinessOS network" .
+
+# Obligation 1: Audit Logging
+ex:DealsAuditLoggingObligation a odrl:Obligation ;
+  odrl:action odrl:Log ;
+  odrl:target ex:DealsDataset ;
+  dct:description "All deal data access must be logged" ;
+  ex:logLevel "DEBUG" ;
+  ex:logRetention "7 years" ;
+  ex:logFields "user_id, action, timestamp, record_ids, result_status" .
+
+# Obligation 2: Data Classification
+ex:DealsDataClassificationObligation a odrl:Obligation ;
+  odrl:action odrl:Label ;
+  odrl:target ex:DealsDataset ;
+  dct:description "All deal data must be labeled with sensitivity classification" ;
+  ex:classification "CONFIDENTIAL-INTERNAL" ;
+  ex:piiFields "client_id, contact_person, internal_cost" .
+
+# Deals Provenance
+ex:DealsSyncProcess a prov:Activity ;
+  dct:title "Deals Data Sync from Sales System" ;
+  prov:startedAtTime "2026-03-25T08:00:00Z"^^xsd:dateTime ;
+  prov:endedAtTime "2026-03-25T08:05:00Z"^^xsd:dateTime ;
+  prov:used ex:SalesSystemSource ;
+  prov:generated ex:DealsDataset ;
+  prov:wasAssociatedWith ex:FinanceDataEngineer ;
+  ex:syncMethod "Kafka CDC (Change Data Capture)" ;
+  ex:recordsProcessed 15847 ;
+  ex:recordsSuccess 15847 ;
+  ex:recordsError 0 ;
+  ex:dataQualityChecksRun 5 ;
+  ex:dataQualityChecksPassed 5 .
+
+ex:SalesSystemSource a prov:Entity ;
+  dct:title "Sales System (Salesforce)" ;
+  prov:wasAttributedTo ex:SalesTeam ;
+  ex:system "Salesforce CRM" ;
+  ex:version "Winter 2026" ;
+  dct:issued "2026-03-25T08:00:00Z"^^xsd:dateTime .
+
+ex:FinanceDataEngineer a prov:Agent ;
+  foaf:name "Finance Data Engineering Team" ;
+  foaf:mbox <mailto:data-engineering@businessos.example.com> .
+
+# SLA Definition
+ex:DealsSLA a ex:ServiceLevelAgreement ;
+  dct:title "Deals Dataset SLA" ;
+  dct:issued "2026-03-25"^^xsd:date ;
+  dct:modified "2026-03-25"^^xsd:date ;
+  ex:availability "99.5%" ;
+  ex:maxLatency "5 minutes" ;
+  ex:dataRefreshFrequency "Real-time (sub-minute)" ;
+  ex:rtoMinutes 15 ;
+  ex:rpoMinutes 1 ;
+  ex:supportTier "24/7 Level-2" ;
+  ex:escalationContact <mailto:finance-cto@businessos.example.com> ;
+  ex:incidentResponse "30 minutes" .
+
+# ========================================================================
+# ENTITY 2: INVOICES DATASET
+# ========================================================================
+
+ex:InvoicesDataset a dcat:Dataset ;
+  dct:title "Financial Invoices" ;
+  dct:description "Master dataset of all issued and received invoices with payment status" ;
+  dct:identifier "finance.invoices.v1" ;
+  dct:issued "2026-03-25"^^xsd:date ;
+  dct:modified "2026-03-25"^^xsd:date ;
+  dcat:keyword "finance", "invoices", "billing", "accounts-receivable" ;
+  dct:accrualPeriodicity <http://purl.org/cld/terms/daily> ;
+
+  dct:publisher ex:FinanceTeam ;
+  dcat:contactPoint [
+    a vcard:Organization ;
+    vcard:organization-name "Finance Operations" ;
+    vcard:hasEmail <mailto:invoices@businessos.example.com> ;
+    vcard:telephone "+1-555-INV" ;
+    vcard:hasURL <https://businessos.example.com/finance/invoices>
+  ] ;
+
+  dcat:distribution ex:InvoicesDistributionAPI, ex:InvoicesDistributionDirect ;
+  dqv:hasQualityMeasurement ex:InvoicesQualityAssessment ;
+  odrl:hasPolicy ex:InvoicesAccessPolicy ;
+  prov:hadPrimarySource ex:ERPSystemSource ;
+  prov:wasGeneratedBy ex:InvoicesSyncProcess ;
+  dcat:record ex:InvoiceType ;
+  ex:slaTargets ex:InvoicesSLA ;
+  ex:relatesTo ex:DealsDataset, ex:PaymentsDataset, ex:AccountsDataset .
+
+ex:InvoicesDistributionAPI a dcat:Distribution ;
+  dct:title "Invoices REST API" ;
+  dcat:accessURL <https://api.businessos.example.com/v1/finance/invoices> ;
+  dct:format <http://www.iana.org/assignments/media-types/application/json> ;
+  ex:rateLimit 2000 ;
+  ex:authentication "OAuth2-RBAC" ;
+  ex:responseTime "< 300ms" ;
+  dcat:byteSize "5.8GB"^^xsd:nonNegativeInteger .
+
+ex:InvoicesDistributionDirect a dcat:Distribution ;
+  dct:title "Invoices PostgreSQL Direct" ;
+  dcat:accessURL <postgres://finance-replica.db.example.com:5432/finance/invoices> ;
+  dct:format <http://purl.org/NET/mediatypes/text/sql> ;
+  ex:authentication "mTLS-Certificate" ;
+  ex:replicationLag "< 10s" ;
+  dcat:byteSize "5.8GB"^^xsd:nonNegativeInteger .
+
+ex:InvoicesQualityAssessment a dqv:QualityAssessment ;
+  dct:title "Invoices Data Quality Assessment" ;
+  dqv:isMeasurementOf ex:InvoicesDataset ;
+  dqv:hasQualityMeasurement
+    ex:InvoicesTimelinessMetric,
+    ex:InvoicesAccuracyMetric,
+    ex:InvoicesCompletenessMetric,
+    ex:InvoicesValidityMetric ;
+  ex:overallQualityScore "0.94"^^xsd:decimal .
+
+ex:InvoicesTimelinessMetric a dqv:Metric ;
+  dct:title "Invoice Processing Timeliness" ;
+  dqv:expectedValue "< 2 hours" ;
+  dqv:actualValue "47 minutes" ;
+  dqv:isMeasurementOf ex:InvoicesDataset ;
+  ex:status "passing" .
+
+ex:InvoicesAccuracyMetric a dqv:Metric ;
+  dct:title "Invoice Amount Accuracy" ;
+  dqv:expectedValue "99.95%" ;
+  dqv:actualValue "99.92%" ;
+  dqv:isMeasurementOf ex:InvoicesDataset ;
+  ex:status "passing" .
+
+ex:InvoicesCompletenessMetric a dqv:Metric ;
+  dct:title "Invoice Field Completeness" ;
+  dqv:expectedValue "99%" ;
+  dqv:actualValue "99.5%" ;
+  dqv:isMeasurementOf ex:InvoicesDataset ;
+  ex:measuredFields "invoice_id, amount, issue_date, due_date, status, line_items" ;
+  ex:status "passing" .
+
+ex:InvoicesValidityMetric a dqv:Metric ;
+  dct:title "Invoice Schema Validity" ;
+  dqv:expectedValue "100%" ;
+  dqv:actualValue "100%" ;
+  dqv:isMeasurementOf ex:InvoicesDataset ;
+  ex:status "passing" .
+
+ex:InvoicesAccessPolicy a odrl:Set ;
+  dct:title "Invoices Access Policy" ;
+  odrl:permission
+    ex:InvoicesFinanceRead,
+    ex:InvoicesAccountingRead,
+    ex:InvoicesSalesRead ;
+  odrl:prohibition
+    ex:InvoicesPublicProhibition ;
+  odrl:obligation
+    ex:InvoicesAuditObligation .
+
+ex:InvoicesFinanceRead a odrl:Permission ;
+  odrl:action odrl:Read ;
+  odrl:assignee ex:FinanceRole ;
+  odrl:target ex:InvoicesDataset ;
+  dct:description "Finance team full invoice read access" .
+
+ex:InvoicesAccountingRead a odrl:Permission ;
+  odrl:action odrl:Read ;
+  odrl:assignee ex:AccountingRole ;
+  odrl:target ex:InvoicesDataset ;
+  odrl:constraint [
+    a odrl:Constraint ;
+    odrl:leftOperand "field" ;
+    odrl:operator odrl:isNotIn ;
+    odrl:rightOperand ("cost_center_overhead", "margin_percentage")
+  ] ;
+  dct:description "Accounting can read invoices excluding cost fields" .
+
+ex:InvoicesSalesRead a odrl:Permission ;
+  odrl:action odrl:Read ;
+  odrl:assignee ex:SalesRole ;
+  odrl:target ex:InvoicesDataset ;
+  odrl:constraint [
+    a odrl:Constraint ;
+    odrl:leftOperand "ownership" ;
+    odrl:operator odrl:eq ;
+    odrl:rightOperand "sales_generated"
+  ] ;
+  dct:description "Sales can only read invoices they generated" .
+
+ex:InvoicesPublicProhibition a odrl:Prohibition ;
+  odrl:action odrl:Copy ;
+  odrl:assignee odrl:Any ;
+  dct:description "Invoices cannot be copied to personal systems" .
+
+ex:InvoicesAuditObligation a odrl:Obligation ;
+  odrl:action odrl:Log ;
+  ex:logLevel "WARN" ;
+  ex:logRetention "10 years (per SOX)" .
+
+ex:InvoicesSyncProcess a prov:Activity ;
+  dct:title "Invoices Sync from ERP" ;
+  prov:used ex:ERPSystemSource ;
+  prov:generated ex:InvoicesDataset ;
+  ex:recordsProcessed 45230 ;
+  ex:recordsSuccess 45230 ;
+  ex:recordsError 0 .
+
+ex:ERPSystemSource a prov:Entity ;
+  dct:title "Enterprise Resource Planning System" ;
+  ex:system "SAP S/4HANA" ;
+  ex:version "2026.1" .
+
+ex:InvoicesSLA a ex:ServiceLevelAgreement ;
+  dct:title "Invoices SLA" ;
+  ex:availability "99.9%" ;
+  ex:maxLatency "2 hours" ;
+  ex:rtoMinutes 30 ;
+  ex:rpoMinutes 5 ;
+  ex:supportTier "24/7 Level-3" .
+
+# ========================================================================
+# ENTITY 3: PAYMENTS DATASET
+# ========================================================================
+
+ex:PaymentsDataset a dcat:Dataset ;
+  dct:title "Financial Payments" ;
+  dct:description "Transaction-level payments and cash flow records" ;
+  dct:identifier "finance.payments.v1" ;
+  dct:issued "2026-03-25"^^xsd:date ;
+  dcat:keyword "finance", "payments", "cash-flow", "treasury" ;
+  dct:accrualPeriodicity <http://purl.org/cld/terms/daily> ;
+
+  dct:publisher ex:FinanceTeam ;
+  dcat:contactPoint [
+    a vcard:Organization ;
+    vcard:organization-name "Treasury Operations" ;
+    vcard:hasEmail <mailto:treasury@businessos.example.com>
+  ] ;
+
+  dcat:distribution ex:PaymentsDistributionAPI ;
+  dqv:hasQualityMeasurement ex:PaymentsQualityAssessment ;
+  odrl:hasPolicy ex:PaymentsAccessPolicy ;
+  prov:wasGeneratedBy ex:PaymentsSyncProcess ;
+  ex:slaTargets ex:PaymentsSLA ;
+  ex:relatesTo ex:DealsDataset, ex:InvoicesDataset .
+
+ex:PaymentsDistributionAPI a dcat:Distribution ;
+  dct:title "Payments REST API" ;
+  dcat:accessURL <https://api.businessos.example.com/v1/finance/payments> ;
+  dct:format <http://www.iana.org/assignments/media-types/application/json> ;
+  ex:rateLimit 5000 ;
+  ex:authentication "OAuth2-RBAC + mTLS" ;
+  ex:responseTime "< 200ms" ;
+  ex:piiRedaction true ;
+  dcat:byteSize "12.1GB"^^xsd:nonNegativeInteger .
+
+ex:PaymentsQualityAssessment a dqv:QualityAssessment ;
+  dct:title "Payments Quality Assessment" ;
+  dqv:hasQualityMeasurement
+    ex:PaymentsTimelinessMetric,
+    ex:PaymentsAccuracyMetric,
+    ex:PaymentsDuplicateDetectionMetric,
+    ex:PaymentsReconciliationMetric ;
+  ex:overallQualityScore "0.98"^^xsd:decimal .
+
+ex:PaymentsTimelinessMetric a dqv:Metric ;
+  dct:title "Payment Settlement Timeliness" ;
+  dqv:expectedValue "< 1 minute" ;
+  dqv:actualValue "18 seconds" ;
+  dqv:isMeasurementOf ex:PaymentsDataset ;
+  ex:status "passing" .
+
+ex:PaymentsAccuracyMetric a dqv:Metric ;
+  dct:title "Payment Amount Accuracy" ;
+  dqv:expectedValue "100%" ;
+  dqv:actualValue "99.98%" ;
+  dqv:isMeasurementOf ex:PaymentsDataset ;
+  ex:status "passing" .
+
+ex:PaymentsDuplicateDetectionMetric a dqv:Metric ;
+  dct:title "Duplicate Payment Detection" ;
+  dqv:expectedValue "0 duplicates" ;
+  dqv:actualValue "0 duplicates" ;
+  dqv:isMeasurementOf ex:PaymentsDataset ;
+  ex:detectionMethod "Hash-based duplicate check" ;
+  ex:status "passing" .
+
+ex:PaymentsReconciliationMetric a dqv:Metric ;
+  dct:title "Bank Reconciliation Match" ;
+  dqv:expectedValue "100%" ;
+  dqv:actualValue "99.99%" ;
+  dqv:isMeasurementOf ex:PaymentsDataset ;
+  ex:reconciledRecords 127349 ;
+  ex:unmatchedRecords 1 ;
+  ex:status "passing" .
+
+ex:PaymentsAccessPolicy a odrl:Set ;
+  dct:title "Payments Access Policy" ;
+  odrl:permission
+    ex:PaymentsTreasuryRead,
+    ex:PaymentsAccountingRead,
+    ex:PaymentsAuditRead ;
+  odrl:prohibition
+    ex:PaymentsModifyProhibition,
+    ex:PaymentsBulkExportProhibition ;
+  odrl:obligation
+    ex:PaymentsPIIObfuscationObligation,
+    ex:PaymentsEncryptionObligation .
+
+ex:PaymentsTreasuryRead a odrl:Permission ;
+  odrl:action odrl:Read ;
+  odrl:assignee ex:TreasuryRole ;
+  odrl:target ex:PaymentsDataset ;
+  dct:description "Treasury team full access to payments" .
+
+ex:PaymentsAccountingRead a odrl:Permission ;
+  odrl:action odrl:Read ;
+  odrl:assignee ex:AccountingRole ;
+  odrl:target ex:PaymentsDataset ;
+  dct:description "Accounting read access for reconciliation" .
+
+ex:PaymentsAuditRead a odrl:Permission ;
+  odrl:action odrl:Read ;
+  odrl:assignee ex:AuditRole ;
+  odrl:target ex:PaymentsDataset ;
+  odrl:constraint [
+    a odrl:Constraint ;
+    odrl:leftOperand "timeConstraint" ;
+    odrl:operator odrl:lteq ;
+    odrl:rightOperand "24-months"
+  ] ;
+  dct:description "Audit can access last 24 months of payment data" .
+
+ex:PaymentsModifyProhibition a odrl:Prohibition ;
+  odrl:action odrl:Delete ;
+  odrl:assignee odrl:Any ;
+  dct:description "No one can delete historical payment records" .
+
+ex:PaymentsBulkExportProhibition a odrl:Prohibition ;
+  odrl:action odrl:Export ;
+  odrl:assignee odrl:Any ;
+  odrl:constraint [
+    a odrl:Constraint ;
+    odrl:leftOperand "batchSize" ;
+    odrl:operator odrl:gt ;
+    odrl:rightOperand "1000"
+  ] ;
+  dct:description "Cannot export more than 1000 records per request" .
+
+ex:PaymentsPIIObfuscationObligation a odrl:Obligation ;
+  odrl:action odrl:Obfuscate ;
+  dct:description "Payment data must have sensitive fields obfuscated" ;
+  ex:piiFields "account_number, routing_number, card_number" ;
+  ex:obfuscationMethod "mask-last-4-chars" .
+
+ex:PaymentsEncryptionObligation a odrl:Obligation ;
+  odrl:action odrl:Encrypt ;
+  dct:description "All payments in transit must use encryption" ;
+  ex:encryptionAlgorithm "TLS 1.3" ;
+  ex:atRest "AES-256-GCM" .
+
+ex:PaymentsSyncProcess a prov:Activity ;
+  dct:title "Payments Sync from Payment Gateway" ;
+  ex:recordsProcessed 156780 ;
+  ex:recordsSuccess 156780 ;
+  ex:recordsError 0 .
+
+ex:PaymentsSLA a ex:ServiceLevelAgreement ;
+  dct:title "Payments SLA" ;
+  ex:availability "99.99%" ;
+  ex:maxLatency "< 1 minute" ;
+  ex:rtoMinutes 5 ;
+  ex:rpoMinutes 1 ;
+  ex:supportTier "24/7/365 Level-3 PCI-DSS" .
+
+# ========================================================================
+# ENTITY 4: ACCOUNTS DATASET
+# ========================================================================
+
+ex:AccountsDataset a dcat:Dataset ;
+  dct:title "Financial Accounts" ;
+  dct:description "Chart of accounts, sub-ledger accounts, and account hierarchies" ;
+  dct:identifier "finance.accounts.v1" ;
+  dct:issued "2026-03-25"^^xsd:date ;
+  dcat:keyword "finance", "accounting", "chart-of-accounts", "ledger" ;
+
+  dct:publisher ex:FinanceTeam ;
+  dcat:contactPoint [
+    a vcard:Organization ;
+    vcard:organization-name "Accounting" ;
+    vcard:hasEmail <mailto:accounting@businessos.example.com>
+  ] ;
+
+  dcat:distribution ex:AccountsDistributionAPI ;
+  dqv:hasQualityMeasurement ex:AccountsQualityAssessment ;
+  odrl:hasPolicy ex:AccountsAccessPolicy ;
+  prov:wasGeneratedBy ex:AccountsSyncProcess ;
+  ex:slaTargets ex:AccountsSLA ;
+  ex:relatesTo ex:DealsDataset, ex:InvoicesDataset, ex:PaymentsDataset .
+
+ex:AccountsDistributionAPI a dcat:Distribution ;
+  dct:title "Accounts REST API" ;
+  dcat:accessURL <https://api.businessos.example.com/v1/finance/accounts> ;
+  dct:format <http://www.iana.org/assignments/media-types/application/json> ;
+  ex:rateLimit 500 ;
+  ex:authentication "OAuth2-RBAC" ;
+  dcat:byteSize "1.2GB"^^xsd:nonNegativeInteger .
+
+ex:AccountsQualityAssessment a dqv:QualityAssessment ;
+  dct:title "Accounts Quality Assessment" ;
+  dqv:hasQualityMeasurement
+    ex:AccountsCompletenessMetric,
+    ex:AccountsConsistencyMetric ;
+  ex:overallQualityScore "0.99"^^xsd:decimal .
+
+ex:AccountsCompletenessMetric a dqv:Metric ;
+  dct:title "Account Master Data Completeness" ;
+  dqv:expectedValue "100%" ;
+  dqv:actualValue "100%" ;
+  dqv:isMeasurementOf ex:AccountsDataset ;
+  ex:status "passing" .
+
+ex:AccountsConsistencyMetric a dqv:Metric ;
+  dct:title "Account Hierarchy Consistency" ;
+  dqv:expectedValue "100%" ;
+  dqv:actualValue "100%" ;
+  dqv:isMeasurementOf ex:AccountsDataset ;
+  ex:validationRules "No cyclic hierarchies, parent-child relationships valid" ;
+  ex:status "passing" .
+
+ex:AccountsAccessPolicy a odrl:Set ;
+  dct:title "Accounts Access Policy" ;
+  odrl:permission ex:AccountsRead, ex:AccountsAuditRead ;
+  odrl:prohibition ex:AccountsModifyProhibition .
+
+ex:AccountsRead a odrl:Permission ;
+  odrl:action odrl:Read ;
+  odrl:assignee ex:FinanceRole ;
+  odrl:target ex:AccountsDataset ;
+  dct:description "Finance team can read account master data" .
+
+ex:AccountsAuditRead a odrl:Permission ;
+  odrl:action odrl:Read ;
+  odrl:assignee ex:AuditRole ;
+  odrl:target ex:AccountsDataset ;
+  dct:description "Audit team can read account definitions" .
+
+ex:AccountsModifyProhibition a odrl:Prohibition ;
+  odrl:action odrl:Modify ;
+  odrl:assignee odrl:Any ;
+  dct:description "Account chart is read-only; changes require CFO approval" .
+
+ex:AccountsSyncProcess a prov:Activity ;
+  dct:title "Accounts Sync from ERP" ;
+  ex:recordsProcessed 5432 ;
+  ex:recordsSuccess 5432 ;
+  ex:recordsError 0 .
+
+ex:AccountsSLA a ex:ServiceLevelAgreement ;
+  dct:title "Accounts SLA" ;
+  ex:availability "99.9%" ;
+  ex:changeFrequency "Monthly" ;
+  ex:supportTier "Business hours Level-2" .
+
+# ========================================================================
+# SCHEMA DEFINITIONS
+# ========================================================================
+
+ex:DealType a schema:DataType ;
+  dct:title "Deal Entity Schema" ;
+  dct:description "Structured schema for Financial Deal objects" ;
+  schema:name "Deal" ;
+  schema:properties [
+    a schema:PropertyValueSpecification ;
+    schema:name "deal_id" ;
+    schema:description "Unique identifier for deal" ;
+    schema:valuePattern "^DEAL-[0-9]{8}$" ;
+    schema:valueRequired true ;
+    schema:valueType "string"
+  ], [
+    a schema:PropertyValueSpecification ;
+    schema:name "amount" ;
+    schema:description "Financial amount in USD cents" ;
+    schema:valueType "integer" ;
+    schema:valueRequired true ;
+    schema:minValue 0
+  ], [
+    a schema:PropertyValueSpecification ;
+    schema:name "status" ;
+    schema:description "Deal lifecycle status" ;
+    schema:valueType "string" ;
+    schema:valueRequired true ;
+    schema:valueEnum ("pending", "active", "closed", "cancelled")
+  ], [
+    a schema:PropertyValueSpecification ;
+    schema:name "contract_date" ;
+    schema:description "Date contract was signed" ;
+    schema:valueType "date-time" ;
+    schema:valueRequired true
+  ], [
+    a schema:PropertyValueSpecification ;
+    schema:name "account_id" ;
+    schema:description "Related account identifier" ;
+    schema:valueType "string" ;
+    schema:valueRequired true ;
+    schema:valuePattern "^ACC-[0-9]{6}$"
+  ], [
+    a schema:PropertyValueSpecification ;
+    schema:name "client_id" ;
+    schema:description "Client organization identifier" ;
+    schema:valueType "string" ;
+    schema:valueRequired true
+  ] ;
+  dct:conformsTo <http://json-schema.org> ;
+  ex:jsonSchemaUrl <https://businessos.example.com/schemas/finance/deal.json> .
+
+ex:InvoiceType a schema:DataType ;
+  dct:title "Invoice Entity Schema" ;
+  dct:description "Structured schema for Invoice objects" ;
+  schema:name "Invoice" ;
+  schema:properties [
+    a schema:PropertyValueSpecification ;
+    schema:name "invoice_id" ;
+    schema:valueType "string" ;
+    schema:valueRequired true ;
+    schema:valuePattern "^INV-[0-9]{10}$"
+  ], [
+    a schema:PropertyValueSpecification ;
+    schema:name "amount" ;
+    schema:valueType "integer" ;
+    schema:valueRequired true ;
+    schema:minValue 0
+  ], [
+    a schema:PropertyValueSpecification ;
+    schema:name "status" ;
+    schema:valueType "string" ;
+    schema:valueEnum ("draft", "issued", "overdue", "paid", "cancelled")
+  ], [
+    a schema:PropertyValueSpecification ;
+    schema:name "issue_date" ;
+    schema:valueType "date-time" ;
+    schema:valueRequired true
+  ], [
+    a schema:PropertyValueSpecification ;
+    schema:name "due_date" ;
+    schema:valueType "date-time" ;
+    schema:valueRequired true
+  ], [
+    a schema:PropertyValueSpecification ;
+    schema:name "line_items" ;
+    schema:valueType "array<LineItem>" ;
+    schema:valueRequired true ;
+    schema:minItems 1
+  ] ;
+  ex:jsonSchemaUrl <https://businessos.example.com/schemas/finance/invoice.json> .
+
+# ========================================================================
+# PARTY DEFINITIONS (Access Control Entities)
+# ========================================================================
+
+ex:FinanceTeam a odrl:Party ;
+  foaf:name "Finance Team" ;
+  foaf:mbox <mailto:finance@businessos.example.com> .
+
+ex:FinanceRole a odrl:Party ;
+  foaf:name "Finance Role" ;
+  ex:ldapGroup "CN=finance-team,OU=Groups,DC=businessos,DC=example,DC=com" .
+
+ex:CFORole a odrl:Party ;
+  foaf:name "Chief Financial Officer" ;
+  ex:ldapGroup "CN=executive,OU=Groups,DC=businessos,DC=example,DC=com" .
+
+ex:ControllerRole a odrl:Party ;
+  foaf:name "Controller Role" ;
+  ex:ldapGroup "CN=accounting-controllers,OU=Groups,DC=businessos,DC=example,DC=com" .
+
+ex:AnalyticsRole a odrl:Party ;
+  foaf:name "Analytics/BI Role" ;
+  ex:ldapGroup "CN=analytics-team,OU=Groups,DC=businessos,DC=example,DC=com" .
+
+ex:BIRole a odrl:Party ;
+  foaf:name "Business Intelligence Role" ;
+  ex:ldapGroup "CN=bi-team,OU=Groups,DC=businessos,DC=example,DC=com" .
+
+ex:SalesDomain a odrl:Party ;
+  foaf:name "Sales Domain (A2A Integration)" ;
+  ex:integrationId "domain-sales" ;
+  ex:apiKey "masked" .
+
+ex:ExternalContractors a odrl:Party ;
+  foaf:name "External Contractors" .
+
+ex:VendorRole a odrl:Party ;
+  foaf:name "Vendor Role" .
+
+ex:AccountingRole a odrl:Party ;
+  foaf:name "Accounting Role" ;
+  ex:ldapGroup "CN=accounting,OU=Groups,DC=businessos,DC=example,DC=com" .
+
+ex:SalesRole a odrl:Party ;
+  foaf:name "Sales Role" ;
+  ex:ldapGroup "CN=sales-team,OU=Groups,DC=businessos,DC=example,DC=com" .
+
+ex:TreasuryRole a odrl:Party ;
+  foaf:name "Treasury Role" ;
+  ex:ldapGroup "CN=treasury,OU=Groups,DC=businessos,DC=example,DC=com" .
+
+ex:AuditRole a odrl:Party ;
+  foaf:name "Internal Audit Role" ;
+  ex:ldapGroup "CN=internal-audit,OU=Groups,DC=businessos,DC=example,DC=com" .

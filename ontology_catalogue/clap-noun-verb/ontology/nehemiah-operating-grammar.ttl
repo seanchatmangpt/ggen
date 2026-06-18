@@ -1,0 +1,381 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bos: <http://builditout.systems/nehemiah-operating-grammar/> .
+@prefix ne3: <http://builditout.systems/nehemiah-3/> .
+@prefix ne6: <http://builditout.systems/nehemiah-6/> .
+
+## ============================================================================
+## OPERATIONAL ONTOLOGY: Jerusalem Wall Reconstruction (Nehemiah 3 + 6)
+## ============================================================================
+## This ontology models the wall reconstruction as an operational system
+## with hard boundaries on admissibility, sworn builders, and adversarial gates.
+## ============================================================================
+
+## ====================
+## CORE OPERATING CLASSES
+## ====================
+
+bos:Gate a owl:Class ;
+  rdfs:label "Gate — Admissibility Boundary"@en ;
+  rdfs:comment "A physical gate serving as an entry point, responsibility assignment boundary, and inspection gate. Not a metaphor. A real, named, accountable location."@en ;
+  rdfs:subClassOf owl:Thing .
+
+bos:WallSection a owl:Class ;
+  rdfs:label "WallSection — Bounded Artifact"@en ;
+  rdfs:comment "A contiguous segment of wall between two gates, built by an assigned builder or builder group. Measurable, inspectable, accountable."@en ;
+  rdfs:subClassOf owl:Thing .
+
+bos:Builder a owl:Class ;
+  rdfs:label "Builder — Accountable Named Worker"@en ;
+  rdfs:comment "A named individual or household group who takes sworn responsibility for building a specific wall section. Identity, lineage, and oath are recorded."@en ;
+  rdfs:subClassOf owl:Thing .
+
+bos:GateSwarm a owl:Class ;
+  rdfs:label "GateSwarm — Coordinated Workers at a Gate"@en ;
+  rdfs:comment "A work group (multiple builders) assigned to the same gate. Coordination point for muster, accountability, and collective receipt."@en ;
+  rdfs:subClassOf owl:Thing .
+
+bos:Mocker a owl:Class ;
+  rdfs:label "Mocker — Adversarial Feedback Agent"@en ;
+  rdfs:comment "An external agent applying hostile pressure, false reports, ridicule, or intimidation to disrupt construction. Traceable by courier record."@en ;
+  rdfs:subClassOf owl:Thing .
+
+bos:Courier a owl:Class ;
+  rdfs:label "Courier — Carrier Channel"@en ;
+  rdfs:comment "A named messenger or communication pathway carrying reports, false news, or pressure communications. Can be poisoned via FalseReport."@en ;
+  rdfs:subClassOf owl:Thing .
+
+bos:CourierRecord a owl:Class ;
+  rdfs:label "CourierRecord — Logged Transmission"@en ;
+  rdfs:comment "An immutable record of a courier delivery: sender, recipient, payload, timestamp, verdict (accepted/rejected/intercepted)."@en ;
+  rdfs:subClassOf owl:Thing .
+
+bos:FalseReport a owl:Class ;
+  rdfs:label "FalseReport — Poisoned Payload"@en ;
+  rdfs:comment "A fabricated claim or rumor carried by courier. Examples: false reports of attack, false accusations of treason, false claims of impossibility."@en ;
+  rdfs:subClassOf owl:Thing .
+
+bos:Prayer a owl:Class ;
+  rdfs:label "Prayer — Upward Appeal"@en ;
+  rdfs:comment "A formal appeal to deity for strength, guidance, or verdict in the face of adversity. Recorded as a counter-action to mocker pressure."@en ;
+  rdfs:subClassOf owl:Thing .
+
+bos:UsuryLedger a owl:Class ;
+  rdfs:label "UsuryLedger — Internal Extraction Audit"@en ;
+  rdfs:comment "A ledger documenting internal economic predation: wealthy builders extracting interest/debt from poorer builders, compromising oath and unity."@en ;
+  rdfs:subClassOf owl:Thing .
+
+bos:MusterLedger a owl:Class ;
+  rdfs:label "MusterLedger — Accountable Person Census"@en ;
+  rdfs:comment "A census record of all named builders, their household size, their assigned gate/section, and their completion receipt. Enables muster-out verification."@en ;
+  rdfs:subClassOf owl:Thing .
+
+bos:ProphetOffice a owl:Class ;
+  rdfs:label "ProphetOffice — Proclamation Function"@en ;
+  rdfs:comment "A named individual (e.g., Nehemiah as recorder/proclaimer) who holds the right to declare official verdicts, issue warnings, and pronounce oaths binding."@en ;
+  rdfs:subClassOf owl:Thing .
+
+bos:InspectionGate a owl:Class ;
+  rdfs:label "InspectionGate — Final Verdict Authority"@en ;
+  rdfs:comment "The designated gate (gate number 10) where final inspection occurs, verdicts are issued, and completion receipts are minted."@en ;
+  rdfs:subClassOf bos:Gate .
+
+bos:Receipt a owl:Class ;
+  rdfs:label "Receipt — Proof of Action"@en ;
+  rdfs:comment "An immutable attestation that a wall section was inspected, found complete, and accepted. Issued by InspectionGate authority. Cannot be forged."@en ;
+  rdfs:subClassOf owl:Thing .
+
+## ====================
+## ENUMERATED GATE INSTANCES
+## ====================
+
+ne3:SheepGate a bos:Gate ;
+  rdfs:label "Sheep Gate"@en ;
+  bos:gateOrdinal 1 ;
+  bos:gateFunction "Entrance for ceremonial animals; rebuilt first as ritual opening" ;
+  rdfs:comment "The northeastern gate where sacrificial animals entered the Temple. Rebuilt by Eliashib the high priest." .
+
+ne3:FishGate a bos:Gate ;
+  rdfs:label "Fish Gate"@en ;
+  bos:gateOrdinal 2 ;
+  bos:gateFunction "Market gate for fish merchants; coordination point for commerce resumption" ;
+  rdfs:comment "Northern gate through which fish were brought to the city from the Sea of Galilee area." .
+
+ne3:OldGate a bos:Gate ;
+  rdfs:label "Old Gate"@en ;
+  bos:gateOrdinal 3 ;
+  bos:gateFunction "Oldest existing gate; structural continuity point" ;
+  rdfs:comment "The northern gate of the old city wall; rebuilt by Joiada son of Paseah." .
+
+ne3:ValleyGate a bos:Gate ;
+  rdfs:label "Valley Gate"@en ;
+  bos:gateOrdinal 4 ;
+  bos:gateFunction "Western entry to the Valley of Hinnom; drainage and refuge point" ;
+  rdfs:comment "Western gate overlooking the Hinnom Valley; rebuilt by Hanun and inhabitants of Zanoah. This is Hanun's assigned gate." .
+
+ne3:DungGate a bos:Gate ;
+  rdfs:label "Dung Gate"@en ;
+  bos:gateOrdinal 5 ;
+  bos:gateFunction "Refuse exit; sanitation and purification point" ;
+  rdfs:comment "Southern gate for removal of refuse; rebuilt by Malchijah son of Recab." .
+
+ne3:FountainGate a bos:Gate ;
+  rdfs:label "Fountain Gate"@en ;
+  bos:gateOrdinal 6 ;
+  bos:gateFunction "Water access; life-support and resilience point" ;
+  rdfs:comment "Southeastern gate providing access to water sources; rebuilt by Shallun son of Col-Hozeh." .
+
+ne3:WaterGate a bos:Gate ;
+  rdfs:label "Water Gate"@en ;
+  bos:gateOrdinal 7 ;
+  bos:gateFunction "Primary water intake; supply and distribution point" ;
+  rdfs:comment "Eastern gate providing access to water for the city; rebuilt by various groups." .
+
+ne3:HorseGate a bos:Gate ;
+  rdfs:label "Horse Gate"@en ;
+  bos:gateOrdinal 8 ;
+  bos:gateFunction "Military and trade gateway; mobility and commerce coordination" ;
+  rdfs:comment "Eastern gate for cavalry and beast traffic; rebuilt by Zadok son of Immer." .
+
+ne3:EastGate a bos:Gate ;
+  rdfs:label "East Gate"@en ;
+  bos:gateOrdinal 9 ;
+  bos:gateFunction "Primary eastern entry; sunrise orientation, renewal point" ;
+  rdfs:comment "The far eastern gate; rebuilt by Eliashib the high priest." .
+
+ne3:InspectionGate a bos:InspectionGate ;
+  rdfs:label "Inspection Gate"@en ;
+  bos:gateOrdinal 10 ;
+  bos:gateFunction "Final verdict authority; completion inspection and receipt issuance" ;
+  rdfs:comment "The gate where final wall inspection is conducted, verdicts issued, and receipts minted. The supreme admissibility boundary." .
+
+## ====================
+## HARD BOUNDARY: FALSE GATES (EXPLICITLY REJECTED)
+## ====================
+
+bos:InterestGate rdf:type bos:FalseGate ;
+  rdfs:label "❌ REJECTED: Interest Gate" ;
+  rdfs:comment "REFUSED. Interest/usury is an INTERNAL audit matter (UsuryLedger), not a gate. Gating functions are physical locations with named builders. Economic predation is logged, not gated." .
+
+bos:PeopleGate rdf:type bos:FalseGate ;
+  rdfs:label "❌ REJECTED: People Gate" ;
+  rdfs:comment "REFUSED. 'People' is abstraction. Gates have builders, walls, sections. Muster and census are handled by MusterLedger, not by a pseudo-gate." .
+
+bos:MessengerGate rdf:type bos:FalseGate ;
+  rdfs:label "❌ REJECTED: Messenger Gate" ;
+  rdfs:comment "REFUSED. Messengers are Courier instances, not gates. Messages are logged in CourierRecord. No gate exists for messengers." .
+
+bos:NationsGate rdf:type bos:FalseGate ;
+  rdfs:label "❌ REJECTED: Nations Gate" ;
+  rdfs:comment "REFUSED. External nations are Mocker agents (adversaries), not gates. They apply pressure via FalseReport carried by Courier. No admissibility gate for nations." .
+
+bos:ProphetGate rdf:type bos:FalseGate ;
+  rdfs:label "❌ REJECTED: Prophet Gate" ;
+  rdfs:comment "REFUSED. Prophet is a ProphetOffice (function/authority), not a physical gate. Prophecy is recorded as Prayer or verdict, not gated." .
+
+bos:RumorGate rdf:type bos:FalseGate ;
+  rdfs:label "❌ REJECTED: Rumor Gate" ;
+  rdfs:comment "REFUSED. Rumors are FalseReport payloads, not gates. They travel via Courier and are recorded in CourierRecord. Rumor is a payload category, not a boundary." .
+
+bos:ReportGate rdf:type bos:FalseGate ;
+  rdfs:label "❌ REJECTED: Report Gate" ;
+  rdfs:comment "REFUSED. Reports are CourierRecord instances or FalseReport instances, not gates. Reporting is a function, not a physical admissibility boundary." .
+
+bos:FalseGate a owl:Class ;
+  rdfs:label "FalseGate — Placeholder for Rejected Abstractions"@en ;
+  rdfs:comment "A class marking invalid gate attempts. These are abstractions, metaphors, or functions—not physical, named, accountable locations with assigned builders and completed sections." .
+
+## ====================
+## PROPERTIES: ACCOUNTABLE RELATIONSHIPS
+## ====================
+
+bos:assignedToGate a owl:ObjectProperty ;
+  rdfs:label "assignedToGate" ;
+  rdfs:domain bos:Builder ;
+  rdfs:range bos:Gate ;
+  rdfs:comment "A builder is assigned to build a specific gate section. This is a sworn, recorded, accountable assignment." .
+
+bos:buildsWallSection a owl:ObjectProperty ;
+  rdfs:label "buildsWallSection" ;
+  rdfs:domain bos:Builder ;
+  rdfs:range bos:WallSection ;
+  rdfs:comment "A builder completes work on a wall section, from one gate to the next, between numbered gates." .
+
+bos:hasBuilder a owl:ObjectProperty ;
+  rdfs:label "hasBuilder" ;
+  rdfs:domain bos:WallSection ;
+  rdfs:range bos:Builder ;
+  rdfs:comment "A wall section has one or more builders responsible for its completion." .
+
+bos:hasVerdict a owl:ObjectProperty ;
+  rdfs:label "hasVerdict" ;
+  rdfs:domain [ owl:unionOf ( bos:WallSection bos:Receipt bos:CourierRecord ) ] ;
+  rdfs:range [ owl:unionOf ( bos:VerdictALIVE bos:VerdictPARTIAL bos:VerdictBLOCKED ) ] ;
+  rdfs:comment "The formal verdict on a wall section, courier delivery, or receipt: ALIVE (complete/accepted), PARTIAL (incomplete), or BLOCKED (rejected)." .
+
+bos:hasReceipt a owl:ObjectProperty ;
+  rdfs:label "hasReceipt" ;
+  rdfs:domain bos:WallSection ;
+  rdfs:range bos:Receipt ;
+  rdfs:comment "A wall section, once inspected and approved, receives a minted Receipt by the InspectionGate authority." .
+
+bos:hasSource a owl:ObjectProperty ;
+  rdfs:label "hasSource" ;
+  rdfs:domain [ owl:unionOf ( bos:FalseReport bos:Prayer bos:CourierRecord ) ] ;
+  rdfs:range [ owl:unionOf ( bos:Mocker bos:Courier bos:Builder bos:ProphetOffice ) ] ;
+  rdfs:comment "The originating agent of a report, prayer, or message. Enables tracing of sources for accountability." .
+
+bos:carriesByPath a owl:ObjectProperty ;
+  rdfs:label "carriesByPath" ;
+  rdfs:domain bos:Courier ;
+  rdfs:range bos:Gate ;
+  rdfs:comment "A courier physically passes through gates when delivering messages. Tracks the route and checkpoints." .
+
+bos:interceptedAt a owl:ObjectProperty ;
+  rdfs:label "interceptedAt" ;
+  rdfs:domain bos:CourierRecord ;
+  rdfs:range bos:Gate ;
+  rdfs:comment "If a courier message is intercepted, it is recorded at which gate the interception occurred." .
+
+bos:affectsGateSwarm a owl:ObjectProperty ;
+  rdfs:label "affectsGateSwarm" ;
+  rdfs:domain [ owl:unionOf ( bos:FalseReport bos:Mocker bos:Prayer ) ] ;
+  rdfs:range bos:GateSwarm ;
+  rdfs:comment "Adversarial pressure (FalseReport, Mocker) targets a specific gate's work group; Prayer reinforces the same group." .
+
+bos:memberOfSwarm a owl:ObjectProperty ;
+  rdfs:label "memberOfSwarm" ;
+  rdfs:domain bos:Builder ;
+  rdfs:range bos:GateSwarm ;
+  rdfs:comment "A builder is a member of the coordinated work group assigned to a gate." .
+
+bos:leads a owl:ObjectProperty ;
+  rdfs:label "leads" ;
+  rdfs:domain bos:ProphetOffice ;
+  rdfs:range [ owl:unionOf ( bos:GateSwarm bos:MusterLedger ) ] ;
+  rdfs:comment "A prophet office (e.g., Nehemiah) leads the overall coordination and keeps the master muster ledger." .
+
+bos:recordedIn a owl:ObjectProperty ;
+  rdfs:label "recordedIn" ;
+  rdfs:domain [ owl:unionOf ( bos:Builder bos:WallSection bos:FalseReport ) ] ;
+  rdfs:range [ owl:unionOf ( bos:MusterLedger bos:UsuryLedger bos:CourierRecord ) ] ;
+  rdfs:comment "An entity is formally recorded in a ledger for accountability and audit purposes." .
+
+## ====================
+## VERDICT ENUMERATION
+## ====================
+
+bos:VerdictALIVE a owl:Class ;
+  rdfs:label "ALIVE — Complete, Accepted, Operational" ;
+  rdfs:comment "A wall section is fully built, inspected, and accepted. A courier report is received and believed. A builder is in good standing." .
+
+bos:VerdictPARTIAL a owl:Class ;
+  rdfs:label "PARTIAL — Incomplete, Under Review" ;
+  rdfs:comment "A wall section is partially complete or under inspection. A courier report is partially corroborated. Status: awaiting final verdict." .
+
+bos:VerdictBLOCKED a owl:Class ;
+  rdfs:label "BLOCKED — Rejected, Impossible, Adversarial" ;
+  rdfs:comment "A wall section is refused (faulty materials, structural failure). A courier report is intercepted or proven false. A builder is barred from continuing." .
+
+## ====================
+## EXAMPLE INSTANCE: VALLEY GATE + HANUN
+## ====================
+
+ne3:Hanun a bos:Builder ;
+  rdfs:label "Hanun" ;
+  rdfs:comment "High-ranked builder assigned to the Valley Gate (Gate 4). Leader of builders from Zanoah (lower social class). Responsible for rebuilding the Valley Gate wall section." ;
+  bos:assignedToGate ne3:ValleyGate ;
+  bos:buildsWallSection ne3:ValleyGateWallSection ;
+  bos:memberOfSwarm ne3:ValleyGateSwarm .
+
+ne3:ValleyGateWallSection a bos:WallSection ;
+  rdfs:label "Valley Gate Wall Section" ;
+  rdfs:comment "The wall section from the previous gate to the Valley Gate (approximately 1,000 cubits). Built by Hanun and the inhabitants of Zanoah." ;
+  bos:hasBuilder ne3:Hanun ;
+  bos:assignedToGate ne3:ValleyGate ;
+  bos:hasVerdict bos:VerdictALIVE .
+
+ne3:ValleyGateSwarm a bos:GateSwarm ;
+  rdfs:label "Valley Gate Work Group" ;
+  rdfs:comment "Coordination point for builders assigned to the Valley Gate. Hanun leads; includes inhabitants of Zanoah." ;
+  rdfs:seeAlso ne3:Hanun ;
+  bos:assignedToGate ne3:ValleyGate .
+
+ne3:ValleyGateReceipt a bos:Receipt ;
+  rdfs:label "Valley Gate Completion Receipt" ;
+  rdfs:comment "Minted by InspectionGate authority after final inspection. Attests to successful completion of Valley Gate section." ;
+  bos:hasVerdict bos:VerdictALIVE ;
+  bos:issuedFor ne3:ValleyGateWallSection ;
+  bos:issuedBy ne3:InspectionGate .
+
+## ====================
+## EXAMPLE INSTANCE: ADVERSARIAL PRESSURE (NEHEMIAH 6)
+## ====================
+
+ne6:SanballatMocker a bos:Mocker ;
+  rdfs:label "Sanballat (Adversary)" ;
+  rdfs:comment "External enemy applying hostile pressure. Uses false reports, false accusations (treason claim: 'You are rebuilding to revolt'), and ridicule to disrupt construction." .
+
+ne6:FalseReportTreason a bos:FalseReport ;
+  rdfs:label "False Report: Treason Accusation" ;
+  rdfs:comment "Fabricated claim that Nehemiah and builders are rebuilding the wall to commit treason and declare independence. Deliberately poisoned to trigger fear." ;
+  bos:hasSource ne6:SanballatMocker ;
+  bos:affectsGateSwarm ne3:ValleyGateSwarm ;
+  bos:hasVerdict bos:VerdictBLOCKED .
+
+ne6:CourierOpen a bos:Courier ;
+  rdfs:label "Courier: Unsecured Letter" ;
+  rdfs:comment "An open (unsealed) letter carrying false accusations. Deliberately left unsealed to allow copying and spreading of the rumor." .
+
+ne6:CourierOpenRecord a bos:CourierRecord ;
+  rdfs:label "Courier Record: Open Letter Delivery" ;
+  rdfs:comment "Logged delivery of the unsealed treason letter to Nehemiah. The letter was intercepted/received, and Nehemiah's response was Prayer + denial." ;
+  bos:hasVerdict bos:VerdictBLOCKED ;
+  bos:hasSource ne6:SanballatMocker ;
+  bos:interceptedAt ne3:InspectionGate .
+
+ne6:PrayerResponse a bos:Prayer ;
+  rdfs:label "Prayer: Strength Against Adversity" ;
+  rdfs:comment "Nehemiah's formal appeal to deity: 'Strengthen my hands.' A counter-action to the mocker's pressure, recorded as reinforcement of resolve." ;
+  bos:hasSource ne3:Nehemiah ;
+  bos:affectsGateSwarm ne3:ValleyGateSwarm .
+
+## ====================
+## EXAMPLE INSTANCE: INTERNAL AUDIT (NEHEMIAH 5)
+## ====================
+
+ne6:UsuryAbuseRecord a bos:UsuryLedger ;
+  rdfs:label "Internal Audit: Usury and Debt Extraction" ;
+  rdfs:comment "A ledger documenting how wealthy builders were extracting interest/debt from poorer builders, compromising the oath of unity. This is an INTERNAL structural flaw, not an external gate." ;
+  bos:recordedIn ne3:MusterLedger ;
+  bos:hasVerdict bos:VerdictBLOCKED .
+
+ne3:MusterLedger a bos:MusterLedger ;
+  rdfs:label "Master Muster Ledger: All Named Builders" ;
+  rdfs:comment "Census and accountability record of all named builders, their households, their assigned gates, and their completion receipts. The master truth for builder accountability." ;
+  rdfs:seeAlso ne3:Hanun ;
+  bos:leads ne3:ProphetOffice .
+
+ne3:ProphetOffice a bos:ProphetOffice ;
+  rdfs:label "Nehemiah: Prophet Office / Recorder" ;
+  rdfs:comment "Authority who keeps the muster ledger, pronounces oaths, issues verdicts, and mints receipts. The accountable authority ensuring all builders and gates complete and are recorded." ;
+  bos:leads ne3:MusterLedger .
+
+## ====================
+## SUMMARY OF OPERATING GRAMMAR
+## ====================
+## This ontology enforces:
+## 1. Real gates (10 named), not metaphorical ones.
+## 2. Named, accountable builders tied to specific gates and wall sections.
+## 3. Formal verdicts (ALIVE, PARTIAL, BLOCKED) on all work and communications.
+## 4. Immutable receipts minted by InspectionGate authority.
+## 5. Adversarial pressure logged via Mocker, FalseReport, Courier, CourierRecord.
+## 6. Internal audits (UsuryLedger) separate from external gating.
+## 7. Prophet office (Nehemiah) as supreme authority for muster, verdict, and receipt.
+## 8. Hard rejection of abstract/metaphorical gates.
+##
+## The system is OPERATIONAL: every entity is an object with properties,
+## every action is logged, every verdict is issued, every completion is receipted.
+## ============================================================================

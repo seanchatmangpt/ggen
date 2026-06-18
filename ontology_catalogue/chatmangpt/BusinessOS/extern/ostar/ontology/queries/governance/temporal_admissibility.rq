@@ -1,0 +1,29 @@
+PREFIX ostar: <https://chatmangpt.com/ontologies/o-star/>
+PREFIX rr: <https://chatmangpt.com/ontologies/o-star/governance:roberts-rules:>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+
+SELECT ?vote ?voter ?motion ?voteTimestamp ?debateStart ?debateEnd ?admissible ?reason
+WHERE {
+  ?vote a rr:Vote .
+  ?vote rr:voteCastedBy ?voter .
+  ?vote rr:voteCastedFor ?motion .
+  ?vote prov:generatedAtTime ?voteTimestamp .
+
+  ?motion rr:hasDebate ?debate .
+  ?debate rr:debateStartTime ?debateStart .
+  ?debate rr:debateEndTime ?debateEnd .
+
+  # Check if vote was cast within debate window
+  BIND(
+    IF(?voteTimestamp >= ?debateStart && ?voteTimestamp <= ?debateEnd,
+       true, false)
+    AS ?admissible
+  )
+
+  BIND(
+    IF(!?admissible,
+       "Vote cast outside debate window",
+       "Vote cast within debate window")
+    AS ?reason
+  )
+}

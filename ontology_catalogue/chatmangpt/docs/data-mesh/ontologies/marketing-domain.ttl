@@ -1,0 +1,419 @@
+# Marketing Domain Ontology — BusinessOS
+# Built on DCAT (Data Catalog Vocabulary) + schema.org
+# URI: https://businessos.local/ontology/marketing/
+# Version: 1.0.0
+# Date: 2026-03-25
+
+@prefix : <https://businessos.local/ontology/marketing/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dqv: <http://www.w3.org/ns/dqv#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix schema: <https://schema.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# ============================================================================
+# DOMAIN DEFINITION
+# ============================================================================
+
+:MarketingDomain
+  a owl:Class ;
+  dcterms:title "Marketing Domain"@en ;
+  dcterms:description "Marketing campaigns, audience management, content, and engagement"@en ;
+  dcterms:created "2026-03-25"^^xsd:date ;
+  dcterms:isPartOf <https://businessos.local> ;
+  skos:broadMatch schema:Event .
+
+# ============================================================================
+# CORE ENTITIES
+# ============================================================================
+
+# Campaign - Marketing campaign/initiative
+:Campaign
+  a owl:Class ;
+  dcterms:title "Marketing Campaign"@en ;
+  dcterms:description "Coordinated marketing initiative with goals and budget"@en ;
+  skos:definition "Time-bounded marketing effort targeting specific audience with defined objective" ;
+  rdfs:subClassOf schema:Event .
+
+:Campaign
+  skos:hasProperty :campaignId, :campaignName, :campaignType, :startDate, :endDate, :budget, :owner .
+
+:campaignId
+  a owl:DatatypeProperty ;
+  dcterms:title "Campaign ID"@en ;
+  rdfs:range xsd:string ;
+  dcterms:description "Unique identifier for campaign" .
+
+:campaignName
+  a owl:DatatypeProperty ;
+  dcterms:title "Campaign Name"@en ;
+  rdfs:range xsd:string ;
+  dcterms:description "Human-readable campaign name" .
+
+:campaignType
+  a owl:DatatypeProperty ;
+  dcterms:title "Campaign Type"@en ;
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:oneOf ( "EMAIL" "SOCIAL" "PAID_SEARCH" "DISPLAY" "CONTENT" "EVENT" "PARTNERSHIP" "DIRECT" )
+  ] ;
+  dqv:dimension dqv:Completeness ;
+  dcterms:description "Channel or type of campaign" .
+
+:budget
+  a owl:DatatypeProperty ;
+  dcterms:title "Campaign Budget"@en ;
+  rdfs:range xsd:decimal ;
+  dqv:dimension dqv:Accuracy ;
+  dcterms:description "Total allocated budget in USD" .
+
+:owner
+  a owl:ObjectProperty ;
+  dcterms:title "Campaign Owner"@en ;
+  rdfs:range foaf:Person ;
+  dcterms:description "Marketing person responsible for campaign" .
+
+# Audience - Segmented audience for targeting
+:Audience
+  a owl:Class ;
+  dcterms:title "Marketing Audience"@en ;
+  dcterms:description "Segmented group of people targeted by campaign"@en ;
+  rdfs:subClassOf schema:Audience .
+
+:Audience
+  skos:hasProperty :audienceId, :audienceName, :segmentCriteria, :size, :engagementRate .
+
+:audienceId
+  a owl:DatatypeProperty ;
+  dcterms:title "Audience ID"@en ;
+  rdfs:range xsd:string .
+
+:audienceName
+  a owl:DatatypeProperty ;
+  dcterms:title "Audience Name"@en ;
+  rdfs:range xsd:string .
+
+:segmentCriteria
+  a owl:ObjectProperty ;
+  dcterms:title "Segment Criteria"@en ;
+  rdfs:range :SegmentationRule ;
+  dcterms:description "Rules defining audience membership" .
+
+:size
+  a owl:DatatypeProperty ;
+  dcterms:title "Audience Size"@en ;
+  rdfs:range xsd:integer ;
+  dqv:dimension dqv:Accuracy ;
+  dcterms:description "Number of people in audience" .
+
+:engagementRate
+  a owl:DatatypeProperty ;
+  dcterms:title "Engagement Rate"@en ;
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:onDatatype xsd:decimal ;
+    owl:withRestrictions (
+      [ xsd:minInclusive "0.0"^^xsd:decimal ; xsd:maxInclusive "1.0"^^xsd:decimal ]
+    )
+  ] ;
+  dqv:dimension dqv:Accuracy ;
+  dcterms:description "Fraction of audience actively engaged" .
+
+# Segment - Audience segment
+:Segment
+  a owl:Class ;
+  dcterms:title "Audience Segment"@en ;
+  dcterms:description "Cohort of people sharing common characteristics"@en ;
+  skos:definition "Subset of total addressable market with defined demographics/behaviors" .
+
+:Segment
+  skos:hasProperty :segmentId, :segmentName, :criteria, :characterization .
+
+:segmentId
+  a owl:DatatypeProperty ;
+  dcterms:title "Segment ID"@en ;
+  rdfs:range xsd:string .
+
+:segmentName
+  a owl:DatatypeProperty ;
+  dcterms:title "Segment Name"@en ;
+  rdfs:range xsd:string .
+
+:criteria
+  a owl:ObjectProperty ;
+  dcterms:title "Segment Criteria"@en ;
+  rdfs:range :SegmentationRule ;
+  dcterms:description "Demographic, behavioral, or firmographic criteria" .
+
+:characterization
+  a owl:ObjectProperty ;
+  dcterms:title "Characterization"@en ;
+  rdfs:range :SegmentCharacteristics ;
+  dcterms:description "Profile and persona attributes" .
+
+# Content - Marketing content (articles, videos, etc.)
+:Content
+  a owl:Class ;
+  dcterms:title "Marketing Content"@en ;
+  dcterms:description "Piece of marketing content (article, video, ad, etc.)"@en ;
+  rdfs:subClassOf schema:CreativeWork .
+
+:Content
+  skos:hasProperty :contentId, :contentTitle, :contentType, :format, :channel, :author, :publishDate .
+
+:contentId
+  a owl:DatatypeProperty ;
+  dcterms:title "Content ID"@en ;
+  rdfs:range xsd:string .
+
+:contentTitle
+  a owl:DatatypeProperty ;
+  dcterms:title "Content Title"@en ;
+  rdfs:range xsd:string .
+
+:contentType
+  a owl:DatatypeProperty ;
+  dcterms:title "Content Type"@en ;
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:oneOf ( "ARTICLE" "VIDEO" "INFOGRAPHIC" "WHITEPAPER" "CASE_STUDY" "WEBINAR" "BLOG_POST" "AD" )
+  ] ;
+  dcterms:description "Type of content" .
+
+:format
+  a owl:DatatypeProperty ;
+  dcterms:title "Format"@en ;
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:oneOf ( "TEXT" "VIDEO" "IMAGE" "PDF" "INTERACTIVE" "AUDIO" )
+  ] ;
+  dcterms:description "Content format" .
+
+:channel
+  a owl:DatatypeProperty ;
+  dcterms:title "Channel"@en ;
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:oneOf ( "EMAIL" "WEBSITE" "SOCIAL_MEDIA" "PAID_SEARCH" "DISPLAY" "EVENT" "PARTNER" )
+  ] ;
+  dcterms:description "Distribution channel" .
+
+:author
+  a owl:ObjectProperty ;
+  dcterms:title "Author"@en ;
+  rdfs:range foaf:Person ;
+  dcterms:description "Content creator" .
+
+:publishDate
+  a owl:DatatypeProperty ;
+  dcterms:title "Publish Date"@en ;
+  rdfs:range xsd:dateTime ;
+  dqv:dimension dqv:Timeliness ;
+  dcterms:description "When content was published" .
+
+# Channel - Marketing channel (email, social, etc.)
+:Channel
+  a owl:Class ;
+  dcterms:title "Marketing Channel"@en ;
+  dcterms:description "Communication channel for reaching audience"@en ;
+  skos:definition "Medium through which marketing messages are delivered" .
+
+:Channel
+  skos:hasProperty :channelId, :channelName, :channelType, :cost, :reach .
+
+:channelId
+  a owl:DatatypeProperty ;
+  rdfs:range xsd:string .
+
+:channelName
+  a owl:DatatypeProperty ;
+  dcterms:title "Channel Name"@en ;
+  rdfs:range xsd:string .
+
+:channelType
+  a owl:DatatypeProperty ;
+  dcterms:title "Channel Type"@en ;
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:oneOf ( "EMAIL" "SOCIAL_MEDIA" "PAID_SEARCH" "DISPLAY" "SMS" "PUSH_NOTIFICATION" "WEBSITE" "EVENT" )
+  ] .
+
+:cost
+  a owl:DatatypeProperty ;
+  dcterms:title "Cost Per Reach"@en ;
+  rdfs:range xsd:decimal ;
+  dqv:dimension dqv:Accuracy ;
+  dcterms:description "Average cost per user reached" .
+
+:reach
+  a owl:DatatypeProperty ;
+  dcterms:title "Reach"@en ;
+  rdfs:range xsd:integer ;
+  dqv:dimension dqv:Accuracy ;
+  dcterms:description "Total people reached by channel" .
+
+# SegmentationRule - Rule for defining segments
+:SegmentationRule
+  a owl:Class ;
+  dcterms:title "Segmentation Rule"@en ;
+  dcterms:description "Logical rule for assigning audience members to segments"@en ;
+  skos:definition "Predicate determining segment membership" .
+
+:SegmentationRule
+  skos:hasProperty :ruleId, :ruleDefinition, :criteria .
+
+:ruleId
+  a owl:DatatypeProperty ;
+  rdfs:range xsd:string .
+
+:ruleDefinition
+  a owl:DatatypeProperty ;
+  dcterms:title "Rule Definition"@en ;
+  rdfs:range xsd:string ;
+  dcterms:description "Logical expression (e.g. industry=tech AND size>100)" .
+
+# ============================================================================
+# DATA CONTRACTS (DCAT)
+# ============================================================================
+
+:CampaignDataset
+  a dcat:Dataset ;
+  dcterms:title "Marketing Campaigns"@en ;
+  dcterms:description "Active and historical marketing campaigns with metadata"@en ;
+  dcterms:issued "2026-01-01"^^xsd:date ;
+  dcterms:creator <https://businessos.local/agents/marketing> ;
+  dcat:keyword "campaign", "marketing", "initiative" ;
+  dcat:accessURL <https://businessos.local/api/marketing/campaigns> ;
+  dcterms:accrualPeriodicity <http://purl.org/ckan/accrual/daily> ;
+  dqv:hasQualityMeasurement :CampaignCompletenessMetric .
+
+:CampaignCompletenessMetric
+  a dqv:QualityMeasurement ;
+  dqv:isMeasurementOf :CampaignDataset ;
+  dqv:value 0.92 ;  # 92% of campaigns have complete metadata
+  dqv:dimension dqv:Completeness ;
+  dcterms:issued "2026-03-25T00:00:00Z"^^xsd:dateTime .
+
+:AudienceSegmentDataset
+  a dcat:Dataset ;
+  dcterms:title "Audience Segments"@en ;
+  dcterms:description "Defined audience segments with demographics and behaviors"@en ;
+  dcterms:issued "2026-01-01"^^xsd:date ;
+  dcat:accessURL <https://businessos.local/api/marketing/audiences> ;
+  dcterms:accrualPeriodicity <http://purl.org/ckan/accrual/daily> ;
+  dqv:hasQualityMeasurement :AudienceAccuracyMetric .
+
+:AudienceAccuracyMetric
+  a dqv:QualityMeasurement ;
+  dqv:isMeasurementOf :AudienceSegmentDataset ;
+  dqv:value 0.88 ;  # 88% accuracy of segment assignments
+  dqv:dimension dqv:Accuracy ;
+  dcterms:issued "2026-03-25T00:00:00Z"^^xsd:dateTime .
+
+:ContentDataset
+  a dcat:Dataset ;
+  dcterms:title "Marketing Content Catalog"@en ;
+  dcterms:description "All marketing content with metadata and performance metrics"@en ;
+  dcterms:issued "2026-01-01"^^xsd:date ;
+  dcat:accessURL <https://businessos.local/api/marketing/content> ;
+  dcterms:accrualPeriodicity <http://purl.org/ckan/accrual/hourly> ;
+  dqv:hasQualityMeasurement :ContentFreshnessMetric .
+
+:ContentFreshnessMetric
+  a dqv:QualityMeasurement ;
+  dqv:isMeasurementOf :ContentDataset ;
+  dqv:value 0.99 ;  # 99% of content updated within 1 hour
+  dqv:dimension dqv:Freshness .
+
+# ============================================================================
+# QUALITY METRICS (DQV)
+# ============================================================================
+
+:MarketingQualityDimensions
+  a dqv:Dimension ;
+  dcterms:title "Marketing Quality Dimensions"@en ;
+  dqv:inCategory dqv:Accuracy, dqv:Completeness, dqv:Timeliness, dqv:Consistency .
+
+:CampaignROIMetric
+  a dqv:QualityMetric ;
+  dcterms:title "Campaign ROI"@en ;
+  skos:definition "Revenue generated per dollar spent on campaign" ;
+  dqv:expectedValue "3.5"^^xsd:decimal ;
+  dqv:unit "ratio" .
+
+# ============================================================================
+# GOVERNANCE (ODRL)
+# ============================================================================
+
+:CampaignAccessPolicy
+  a odrl:Policy ;
+  dcterms:title "Campaign Access Policy"@en ;
+  odrl:permission
+    [ a odrl:Permission ;
+      odrl:action odrl:Read ;
+      odrl:target :CampaignDataset, :AudienceSegmentDataset ;
+      odrl:assignee <https://businessos.local/teams/marketing>,
+                    <https://businessos.local/teams/sales>,
+                    <https://businessos.local/teams/analytics> ;
+      odrl:constraint
+        [ a odrl:Constraint ;
+          odrl:operator odrl:eq ;
+          odrl:leftOperand odrl:purpose ;
+          odrl:rightOperand odrl:businessPurpose:Planning
+        ] ;
+      dcterms:description "Marketing, Sales, Analytics can READ campaigns and audiences"
+    ] ;
+  odrl:permission
+    [ a odrl:Permission ;
+      odrl:action odrl:Write ;
+      odrl:target :CampaignDataset, :AudienceSegmentDataset ;
+      odrl:assignee <https://businessos.local/agents/marketing> ;
+      dcterms:description "Marketing agent can WRITE campaigns and segments"
+    ] .
+
+# ============================================================================
+# PROVENANCE & AUDIT (PROV-O)
+# ============================================================================
+
+:CampaignAnalysisActivity
+  a prov:Activity ;
+  dcterms:title "Campaign Performance Analysis"@en ;
+  prov:wasAssociatedWith <https://businessos.local/agents/marketing> ;
+  prov:used :CampaignDataset, :AudienceSegmentDataset ;
+  prov:generated :CampaignInsights ;
+  prov:startedAtTime "2026-03-20T00:00:00Z"^^xsd:dateTime ;
+  prov:endedAtTime "2026-03-22T18:00:00Z"^^xsd:dateTime .
+
+:CampaignInsights
+  a prov:Entity ;
+  dcterms:title "Campaign Performance Insights"@en ;
+  prov:wasDerivedFrom :CampaignDataset, :AudienceSegmentDataset ;
+  dcterms:issued "2026-03-22T18:00:00Z"^^xsd:dateTime .
+
+# ============================================================================
+# FEDERATION LINKS (Cross-domain Integration)
+# ============================================================================
+
+# Link to Sales domain (Campaign -> Opportunity)
+:CampaignOpportunity
+  a owl:Class ;
+  dcterms:references <https://businessos.local/ontology/sales/Opportunity> ;
+  dcterms:description "Marketing campaign influences sales opportunities" .
+
+# Link to Finance domain (Campaign -> Budget)
+:CampaignBudget
+  a owl:Class ;
+  owl:sameAs <https://businessos.local/ontology/finance/Budget> ;
+  dcterms:description "Campaign budget allocated from finance GL" .
+
+# Link to Operations domain (Campaign execution -> Process)
+:CampaignExecution
+  a owl:Class ;
+  skos:relatedMatch <https://businessos.local/ontology/operations/ProcessExecution> ;
+  dcterms:description "Campaign execution as operational process" .
+

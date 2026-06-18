@@ -1,0 +1,47 @@
+@prefix ex: <http://example.com/canine/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Valid canine training data that conforms to SHACL shapes
+
+ex:dog1 a ex:Dog ;
+  ex:name "Buddy" ;
+  ex:breed "Golden Retriever" ;
+  ex:age 3 ;
+  ex:status "training" .
+
+ex:dog2 a ex:Dog ;
+  ex:name "Luna" ;
+  ex:breed "Border Collie" ;
+  ex:age 5 ;
+  ex:status "active" .
+
+ex:session1 a ex:TrainingSession ;
+  ex:sessionId "session-2024-001" ;
+  ex:dog ex:dog1 ;
+  ex:date "2024-01-15T10:30:00"^^xsd:dateTime ;
+  ex:duration 60 ;
+  ex:skillsWorked "sit", "stay", "heel" ;
+  ex:outcome "good" .
+
+ex:session2 a ex:TrainingSession ;
+  ex:sessionId "session-2024-002" ;
+  ex:dog ex:dog2 ;
+  ex:date "2024-01-16T14:15:00"^^xsd:dateTime ;
+  ex:duration 45 ;
+  ex:skillsWorked "agility", "recall" ;
+  ex:outcome "excellent" .
+
+ex:instructor1 a ex:Instructor ;
+  ex:instructorId "inst-001" ;
+  ex:name "Sarah Johnson" ;
+  ex:email "sarah.johnson@dogtraining.com" ;
+  ex:certificationLevel "advanced" ;
+  ex:specialties "agility", "obedience", "puppy training" .
+
+ex:instructor2 a ex:Instructor ;
+  ex:instructorId "inst-002" ;
+  ex:name "Mike Thompson" ;
+  ex:email "mike.thompson@dogtraining.com" ;
+  ex:certificationLevel "master" ;
+  ex:specialties "behavioral training", "service dog preparation" .

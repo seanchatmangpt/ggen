@@ -1,0 +1,148 @@
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix yawl:    <http://yawlfoundation.org/yawl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix :        <http://yawlfoundation.org/shacl/yawl#> .
+
+# Flow Shape
+:FlowShape a sh:NodeShape ;
+    rdfs:label "Flow" ;
+    rdfs:comment "Shape for workflow flows in YAWL" ;
+    sh:targetClass yawl:Flow ;
+    sh:property [
+        sh:path yawl:hasId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^f\\d+$" ;
+        sh:message "Flow ID must start with 'f' followed by digits" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasSource ;
+        sh:node :YAWLElementShape ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Flow must have a source element" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasTarget ;
+        sh:node :YAWLElementShape ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Flow must have a target element" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasCondition ;
+        sh:datatype xsd:string ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:maxLength 200 ;
+        sh:message "Flow condition must be less than 200 characters" ;
+    ] ;
+    sh:closed true ;
+    sh:ignoredProperties (rdf:type) .
+
+# Condition Shape
+:ConditionShape a sh:NodeShape ;
+    rdfs:label "Condition" ;
+    rdfs:comment "Shape for YAWL flow conditions" ;
+    sh:targetClass yawl:Condition ;
+    sh:property [
+        sh:path yawl:hasExpression ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:maxLength 500 ;
+        sh:message "Condition must have an expression" ;
+    ] ;
+    sh:closed true ;
+    sh:ignoredProperties (rdf:type) .
+
+# Input Task Shape
+:InputTaskShape a sh:NodeShape ;
+    rdfs:label "Input Task" ;
+    rdfs:comment "Shape for input tasks in YAWL workflows" ;
+    sh:targetClass yawl:InputTask ;
+    sh:property [
+        sh:path yawl:hasOutputFlow ;
+        sh:node :FlowShape ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:qualifiedValueShapes [: FlowShape ] ;
+        sh:qualifiedValueShapeTypes sh:NodeShape ;
+        sh:message "Input task must have exactly one output flow" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasInputParameter ;
+        sh:node :ParameterShape ;
+        sh:minCount 1 ;
+        sh:maxCount 5 ;
+        sh:message "Input task must have at least one and at most 5 input parameters" ;
+    ] ;
+    sh:closed true ;
+    sh:ignoredProperties (rdf:type) .
+
+# Output Task Shape
+:OutputTaskShape a sh:NodeShape ;
+    rdfs:label "Output Task" ;
+    rdfs:comment "Shape for output tasks in YAWL workflows" ;
+    sh:targetClass yawl:OutputTask ;
+    sh:property [
+        sh:path yawl:hasInputFlow ;
+        sh:node :FlowShape ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:qualifiedValueShapes [: FlowShape ] ;
+        sh:qualifiedValueShapeTypes sh:NodeShape ;
+        sh:message "Output task must have exactly one input flow" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasOutputParameter ;
+        sh:node :ParameterShape ;
+        sh:minCount 1 ;
+        sh:maxCount 5 ;
+        sh:message "Output task must have at least one and at most 5 output parameters" ;
+    ] ;
+    sh:closed true ;
+    sh:ignoredProperties (rdf:type) .
+
+# Parameter Shape
+:ParameterShape a sh:NodeShape ;
+    rdfs:label "Parameter" ;
+    rdfs:comment "Shape for YAWL task parameters" ;
+    sh:targetClass yawl:Parameter ;
+    sh:property [
+        sh:path yawl:hasName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "[A-Za-z][A-Za-z0-9_]*" ;
+        sh:message "Parameter name must start with a letter and contain only letters, numbers, and underscores" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:hasValue "String" ;
+        sh:hasValue "Integer" ;
+        sh:hasValue "Boolean" ;
+        sh:hasValue "DateTime" ;
+        sh:hasValue "XML" ;
+        sh:in ("String" "Integer" "Boolean" "DateTime" "XML") ;
+        sh:message "Parameter type must be one of: String, Integer, Boolean, DateTime, XML" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasDefaultValue ;
+        sh:datatype xsd:string ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:maxLength 200 ;
+        sh:message "Default value must be less than 200 characters" ;
+    ] ;
+    sh:closed true ;
+    sh:ignoredProperties (rdf:type) .

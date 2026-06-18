@@ -1,0 +1,43 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix ex: <http://example.org/pizza#> .
+
+ex:Pizza a owl:Class ;
+    rdfs:label "Pizza" ;
+    rdfs:comment "A delicious Italian dish consisting of a base and toppings." .
+
+ex:PizzaBase a owl:Class ;
+    rdfs:label "Pizza Base" ;
+    rdfs:comment "The crust of the pizza." .
+
+ex:PizzaTopping a owl:Class ;
+    rdfs:label "Pizza Topping" ;
+    rdfs:comment "An ingredient placed on top of a pizza base." .
+
+ex:hasBase a owl:ObjectProperty ;
+    rdfs:label "has base" ;
+    rdfs:comment "Relates a pizza to its base." ;
+    rdfs:domain ex:Pizza ;
+    rdfs:range ex:PizzaBase .
+
+ex:hasTopping a owl:ObjectProperty ;
+    rdfs:label "has topping" ;
+    rdfs:comment "Relates a pizza to a topping." ;
+    rdfs:domain ex:Pizza ;
+    rdfs:range ex:PizzaTopping .
+
+ex:Margherita a owl:Class ;
+    rdfs:subClassOf ex:Pizza ;
+    rdfs:label "Margherita" ;
+    rdfs:comment "A classic pizza with tomato and mozzarella." .
+
+ex:Tomato a owl:Class ;
+    rdfs:subClassOf ex:PizzaTopping ;
+    rdfs:label "Tomato Topping" ;
+    rdfs:comment "Fresh tomato topping." .
+
+ex:Mozzarella a owl:Class ;
+    rdfs:subClassOf ex:PizzaTopping ;
+    rdfs:label "Mozzarella Topping" ;
+    rdfs:comment "Mozzarella cheese topping." .

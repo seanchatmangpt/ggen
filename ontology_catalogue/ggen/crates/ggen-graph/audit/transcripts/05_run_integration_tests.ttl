@@ -1,0 +1,30 @@
+@base <http://example.org/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix spdx: <http://spdx.org/rdf/terms#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<#activity_05_run_integration_tests> a prov:Activity ;
+    dcterms:identifier "05_run_integration_tests" ;
+    prov:startedAtTime "2026-05-27T04:21:52.892Z" ; 
+    prov:endedAtTime "2026-05-27T04:21:59.125Z" ;
+    prov:value 0 
+    ; prov:wasInformedBy _:aa6e93bf1365351a116e481f3a48e260 .
+
+<#stdout_05_run_integration_tests> a prov:Entity ;
+    prov:wasGeneratedBy <#activity_05_run_integration_tests> ;
+    dcterms:title "05_run_integration_tests.stdout" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "904ef1b877221fc73b073a9461c3c411d19352fadc38d258d29949f99b90433c"
+    ] .
+
+<#stderr_05_run_integration_tests> a prov:Entity ;
+    prov:wasGeneratedBy <#activity_05_run_integration_tests> ;
+    dcterms:title "05_run_integration_tests.stderr" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "e34a0bdafe4569909c138572519eaddd8af6e80fa12140e107f6c90867ed1af2"
+    ] .

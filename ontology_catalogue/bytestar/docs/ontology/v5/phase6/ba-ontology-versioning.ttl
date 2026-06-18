@@ -1,0 +1,773 @@
+@prefix ba: <https://byteactor.org/ontology/> .
+@prefix ov: <https://byteactor.org/ontology/versioning/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# Ontology Version Control and Migration System
+# Defines comprehensive version control for ontology evolution
+
+ba:ontology-versioning a owl:Ontology ;
+    dcterms:title "ByteActor Ontology Versioning System" ;
+    dcterms:description "Comprehensive version control and migration system for ontology evolution with semantic versioning, compatibility management, and automated migration paths" ;
+    dcterms:version "5.0.0" ;
+    dcterms:created "2024-08-23"^^xsd:date ;
+    dcterms:creator "ByteActor System Architecture" ;
+    owl:versionIRI <https://byteactor.org/ontology/versioning/5.0.0> ;
+    owl:imports ba:core-ontology .
+
+#############################################
+# Core Versioning Classes
+#############################################
+
+ov:OntologyVersion a owl:Class ;
+    rdfs:label "Ontology Version" ;
+    rdfs:comment "Represents a specific version of an ontology with semantic versioning and compatibility metadata" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ov:hasSemanticVersion ;
+        owl:cardinality 1
+    ] .
+
+ov:SemanticVersion a owl:Class ;
+    rdfs:label "Semantic Version" ;
+    rdfs:comment "Semantic version following MAJOR.MINOR.PATCH format with additional metadata" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ov:majorVersion ;
+        owl:cardinality 1
+    ] .
+
+ov:VersionHistory a owl:Class ;
+    rdfs:label "Version History" ;
+    rdfs:comment "Complete version history and lineage tracking for an ontology" .
+
+ov:CompatibilityLevel a owl:Class ;
+    rdfs:label "Compatibility Level" ;
+    rdfs:comment "Defines compatibility relationship between ontology versions" .
+
+ov:MigrationPath a owl:Class ;
+    rdfs:label "Migration Path" ;
+    rdfs:comment "Defines transformation path from one ontology version to another" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ov:fromVersion ;
+        owl:cardinality 1
+    ] .
+
+ov:TransformationScript a owl:Class ;
+    rdfs:label "Transformation Script" ;
+    rdfs:comment "Executable script for transforming data between ontology versions" .
+
+#############################################
+# Version Control Operations
+#############################################
+
+ov:VersionControlOperation a owl:Class ;
+    rdfs:label "Version Control Operation" ;
+    rdfs:comment "Base class for version control operations" ;
+    rdfs:subClassOf prov:Activity .
+
+ov:Commit a owl:Class ;
+    rdfs:label "Commit" ;
+    rdfs:comment "Atomic change set to ontology with metadata" ;
+    rdfs:subClassOf ov:VersionControlOperation .
+
+ov:Branch a owl:Class ;
+    rdfs:label "Branch" ;
+    rdfs:comment "Divergent development line for ontology evolution" .
+
+ov:Merge a owl:Class ;
+    rdfs:label "Merge" ;
+    rdfs:comment "Integration of changes from one branch to another" ;
+    rdfs:subClassOf ov:VersionControlOperation .
+
+ov:Tag a owl:Class ;
+    rdfs:label "Tag" ;
+    rdfs:comment "Named reference to specific ontology version" .
+
+ov:Release a owl:Class ;
+    rdfs:label "Release" ;
+    rdfs:comment "Published version of ontology with formal approval" ;
+    rdfs:subClassOf ov:Tag .
+
+#############################################
+# Change Detection and Comparison
+#############################################
+
+ov:OntologyDifference a owl:Class ;
+    rdfs:label "Ontology Difference" ;
+    rdfs:comment "Detected difference between two ontology versions" .
+
+ov:ChangeType a owl:Class ;
+    rdfs:label "Change Type" ;
+    rdfs:comment "Classification of ontology changes" .
+
+ov:BreakingChange a owl:Class ;
+    rdfs:label "Breaking Change" ;
+    rdfs:comment "Change that breaks backward compatibility" ;
+    rdfs:subClassOf ov:ChangeType .
+
+ov:CompatibleChange a owl:Class ;
+    rdfs:label "Compatible Change" ;
+    rdfs:comment "Change that maintains backward compatibility" ;
+    rdfs:subClassOf ov:ChangeType .
+
+ov:ComparisonReport a owl:Class ;
+    rdfs:label "Comparison Report" ;
+    rdfs:comment "Comprehensive report of differences between ontology versions" .
+
+#############################################
+# Migration and Transformation
+#############################################
+
+ov:MigrationStrategy a owl:Class ;
+    rdfs:label "Migration Strategy" ;
+    rdfs:comment "Strategy for migrating from one ontology version to another" .
+
+ov:TransformationRule a owl:Class ;
+    rdfs:label "Transformation Rule" ;
+    rdfs:comment "Rule defining how to transform data elements during migration" .
+
+ov:MigrationTest a owl:Class ;
+    rdfs:label "Migration Test" ;
+    rdfs:comment "Test case for validating migration correctness" .
+
+ov:MigrationValidation a owl:Class ;
+    rdfs:label "Migration Validation" ;
+    rdfs:comment "Validation result for migration operation" ;
+    rdfs:subClassOf prov:Activity .
+
+#############################################
+# Rollback and Recovery
+#############################################
+
+ov:RollbackOperation a owl:Class ;
+    rdfs:label "Rollback Operation" ;
+    rdfs:comment "Operation to revert to previous ontology version" ;
+    rdfs:subClassOf ov:VersionControlOperation .
+
+ov:RecoveryProcedure a owl:Class ;
+    rdfs:label "Recovery Procedure" ;
+    rdfs:comment "Procedure for recovering from failed ontology deployment" .
+
+ov:Checkpoint a owl:Class ;
+    rdfs:label "Checkpoint" ;
+    rdfs:comment "Recovery point with complete ontology state snapshot" .
+
+ov:BackupStrategy a owl:Class ;
+    rdfs:label "Backup Strategy" ;
+    rdfs:comment "Strategy for backing up ontology versions and data" .
+
+#############################################
+# Cross-Ontology Synchronization
+#############################################
+
+ov:SynchronizationPoint a owl:Class ;
+    rdfs:label "Synchronization Point" ;
+    rdfs:comment "Point in time where multiple ontologies are synchronized" .
+
+ov:DependencyGraph a owl:Class ;
+    rdfs:label "Dependency Graph" ;
+    rdfs:comment "Graph showing dependencies between ontology versions" .
+
+ov:SynchronizationStrategy a owl:Class ;
+    rdfs:label "Synchronization Strategy" ;
+    rdfs:comment "Strategy for synchronizing multiple ontology versions" .
+
+#############################################
+# Release Management
+#############################################
+
+ov:ReleaseWorkflow a owl:Class ;
+    rdfs:label "Release Workflow" ;
+    rdfs:comment "Workflow for managing ontology releases" .
+
+ov:ApprovalProcess a owl:Class ;
+    rdfs:label "Approval Process" ;
+    rdfs:comment "Process for approving ontology version releases" .
+
+ov:ReleaseCandidate a owl:Class ;
+    rdfs:label "Release Candidate" ;
+    rdfs:comment "Version candidate for potential release" ;
+    rdfs:subClassOf ov:OntologyVersion .
+
+ov:QualityGate a owl:Class ;
+    rdfs:label "Quality Gate" ;
+    rdfs:comment "Quality criteria that must be met before release" .
+
+#############################################
+# Core Properties
+#############################################
+
+# Version Identification
+ov:hasSemanticVersion a owl:ObjectProperty ;
+    rdfs:label "has semantic version" ;
+    rdfs:domain ov:OntologyVersion ;
+    rdfs:range ov:SemanticVersion .
+
+ov:majorVersion a owl:DatatypeProperty ;
+    rdfs:label "major version" ;
+    rdfs:domain ov:SemanticVersion ;
+    rdfs:range xsd:nonNegativeInteger .
+
+ov:minorVersion a owl:DatatypeProperty ;
+    rdfs:label "minor version" ;
+    rdfs:domain ov:SemanticVersion ;
+    rdfs:range xsd:nonNegativeInteger .
+
+ov:patchVersion a owl:DatatypeProperty ;
+    rdfs:label "patch version" ;
+    rdfs:domain ov:SemanticVersion ;
+    rdfs:range xsd:nonNegativeInteger .
+
+ov:preReleaseLabel a owl:DatatypeProperty ;
+    rdfs:label "pre-release label" ;
+    rdfs:domain ov:SemanticVersion ;
+    rdfs:range xsd:string .
+
+ov:buildMetadata a owl:DatatypeProperty ;
+    rdfs:label "build metadata" ;
+    rdfs:domain ov:SemanticVersion ;
+    rdfs:range xsd:string .
+
+# Version Relationships
+ov:previousVersion a owl:ObjectProperty ;
+    rdfs:label "previous version" ;
+    rdfs:domain ov:OntologyVersion ;
+    rdfs:range ov:OntologyVersion .
+
+ov:nextVersion a owl:ObjectProperty ;
+    rdfs:label "next version" ;
+    rdfs:domain ov:OntologyVersion ;
+    rdfs:range ov:OntologyVersion ;
+    owl:inverseOf ov:previousVersion .
+
+ov:compatibleWith a owl:ObjectProperty ;
+    rdfs:label "compatible with" ;
+    rdfs:domain ov:OntologyVersion ;
+    rdfs:range ov:OntologyVersion .
+
+ov:hasCompatibilityLevel a owl:ObjectProperty ;
+    rdfs:label "has compatibility level" ;
+    rdfs:domain ov:OntologyVersion ;
+    rdfs:range ov:CompatibilityLevel .
+
+# Migration Properties
+ov:fromVersion a owl:ObjectProperty ;
+    rdfs:label "from version" ;
+    rdfs:domain ov:MigrationPath ;
+    rdfs:range ov:OntologyVersion .
+
+ov:toVersion a owl:ObjectProperty ;
+    rdfs:label "to version" ;
+    rdfs:domain ov:MigrationPath ;
+    rdfs:range ov:OntologyVersion .
+
+ov:hasTransformationScript a owl:ObjectProperty ;
+    rdfs:label "has transformation script" ;
+    rdfs:domain ov:MigrationPath ;
+    rdfs:range ov:TransformationScript .
+
+ov:migrationComplexity a owl:DatatypeProperty ;
+    rdfs:label "migration complexity" ;
+    rdfs:domain ov:MigrationPath ;
+    rdfs:range xsd:string .
+
+# Change Detection Properties
+ov:hasChange a owl:ObjectProperty ;
+    rdfs:label "has change" ;
+    rdfs:domain ov:OntologyDifference ;
+    rdfs:range ov:ChangeType .
+
+ov:affectedElement a owl:DatatypeProperty ;
+    rdfs:label "affected element" ;
+    rdfs:domain ov:OntologyDifference ;
+    rdfs:range xsd:anyURI .
+
+ov:changeDescription a owl:DatatypeProperty ;
+    rdfs:label "change description" ;
+    rdfs:domain ov:OntologyDifference ;
+    rdfs:range xsd:string .
+
+ov:isBreakingChange a owl:DatatypeProperty ;
+    rdfs:label "is breaking change" ;
+    rdfs:domain ov:ChangeType ;
+    rdfs:range xsd:boolean .
+
+# Version Control Properties
+ov:commitHash a owl:DatatypeProperty ;
+    rdfs:label "commit hash" ;
+    rdfs:domain ov:Commit ;
+    rdfs:range xsd:string .
+
+ov:commitMessage a owl:DatatypeProperty ;
+    rdfs:label "commit message" ;
+    rdfs:domain ov:Commit ;
+    rdfs:range xsd:string .
+
+ov:commitAuthor a owl:ObjectProperty ;
+    rdfs:label "commit author" ;
+    rdfs:domain ov:Commit ;
+    rdfs:range foaf:Person .
+
+ov:commitTimestamp a owl:DatatypeProperty ;
+    rdfs:label "commit timestamp" ;
+    rdfs:domain ov:Commit ;
+    rdfs:range xsd:dateTime .
+
+ov:branchName a owl:DatatypeProperty ;
+    rdfs:label "branch name" ;
+    rdfs:domain ov:Branch ;
+    rdfs:range xsd:string .
+
+ov:tagName a owl:DatatypeProperty ;
+    rdfs:label "tag name" ;
+    rdfs:domain ov:Tag ;
+    rdfs:range xsd:string .
+
+# Release Properties
+ov:releaseNotes a owl:DatatypeProperty ;
+    rdfs:label "release notes" ;
+    rdfs:domain ov:Release ;
+    rdfs:range xsd:string .
+
+ov:releaseDate a owl:DatatypeProperty ;
+    rdfs:label "release date" ;
+    rdfs:domain ov:Release ;
+    rdfs:range xsd:date .
+
+ov:isStable a owl:DatatypeProperty ;
+    rdfs:label "is stable" ;
+    rdfs:domain ov:Release ;
+    rdfs:range xsd:boolean .
+
+ov:deprecationDate a owl:DatatypeProperty ;
+    rdfs:label "deprecation date" ;
+    rdfs:domain ov:OntologyVersion ;
+    rdfs:range xsd:date .
+
+#############################################
+# Compatibility Level Individuals
+#############################################
+
+ov:FullCompatibility a ov:CompatibilityLevel ;
+    rdfs:label "Full Compatibility" ;
+    rdfs:comment "Complete backward and forward compatibility" ;
+    ov:compatibilityScore 1.0 .
+
+ov:BackwardCompatible a ov:CompatibilityLevel ;
+    rdfs:label "Backward Compatible" ;
+    rdfs:comment "Maintains backward compatibility only" ;
+    ov:compatibilityScore 0.8 .
+
+ov:PartiallyCompatible a ov:CompatibilityLevel ;
+    rdfs:label "Partially Compatible" ;
+    rdfs:comment "Limited compatibility with migration required" ;
+    ov:compatibilityScore 0.5 .
+
+ov:Incompatible a ov:CompatibilityLevel ;
+    rdfs:label "Incompatible" ;
+    rdfs:comment "No compatibility - requires full migration" ;
+    ov:compatibilityScore 0.0 .
+
+#############################################
+# Change Type Individuals
+#############################################
+
+ov:ClassAddition a ov:CompatibleChange ;
+    rdfs:label "Class Addition" ;
+    rdfs:comment "Addition of new class - backward compatible" .
+
+ov:PropertyAddition a ov:CompatibleChange ;
+    rdfs:label "Property Addition" ;
+    rdfs:comment "Addition of new property - backward compatible" .
+
+ov:ClassRemoval a ov:BreakingChange ;
+    rdfs:label "Class Removal" ;
+    rdfs:comment "Removal of class - breaking change" .
+
+ov:PropertyRemoval a ov:BreakingChange ;
+    rdfs:label "Property Removal" ;
+    rdfs:comment "Removal of property - breaking change" .
+
+ov:PropertyRangeChange a ov:BreakingChange ;
+    rdfs:label "Property Range Change" ;
+    rdfs:comment "Change to property range - potentially breaking" .
+
+ov:HierarchyRestructure a ov:BreakingChange ;
+    rdfs:label "Hierarchy Restructure" ;
+    rdfs:comment "Major changes to class hierarchy - breaking" .
+
+#############################################
+# Migration Strategy Individuals
+#############################################
+
+ov:AutomatedMigration a ov:MigrationStrategy ;
+    rdfs:label "Automated Migration" ;
+    rdfs:comment "Fully automated migration with scripts" .
+
+ov:SemiAutomatedMigration a ov:MigrationStrategy ;
+    rdfs:label "Semi-Automated Migration" ;
+    rdfs:comment "Automated with manual intervention required" .
+
+ov:ManualMigration a ov:MigrationStrategy ;
+    rdfs:label "Manual Migration" ;
+    rdfs:comment "Manual migration required" .
+
+#############################################
+# SHACL Shapes for Version Control
+#############################################
+
+ov:SemanticVersionShape a sh:NodeShape ;
+    sh:targetClass ov:SemanticVersion ;
+    sh:property [
+        sh:path ov:majorVersion ;
+        sh:datatype xsd:nonNegativeInteger ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Semantic version must have exactly one major version number" ;
+    ] ;
+    sh:property [
+        sh:path ov:minorVersion ;
+        sh:datatype xsd:nonNegativeInteger ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Semantic version must have exactly one minor version number" ;
+    ] ;
+    sh:property [
+        sh:path ov:patchVersion ;
+        sh:datatype xsd:nonNegativeInteger ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Semantic version must have exactly one patch version number" ;
+    ] .
+
+ov:OntologyVersionShape a sh:NodeShape ;
+    sh:targetClass ov:OntologyVersion ;
+    sh:property [
+        sh:path ov:hasSemanticVersion ;
+        sh:class ov:SemanticVersion ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Ontology version must have exactly one semantic version" ;
+    ] ;
+    sh:property [
+        sh:path dcterms:created ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Ontology version must have creation timestamp" ;
+    ] .
+
+ov:MigrationPathShape a sh:NodeShape ;
+    sh:targetClass ov:MigrationPath ;
+    sh:property [
+        sh:path ov:fromVersion ;
+        sh:class ov:OntologyVersion ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Migration path must specify source version" ;
+    ] ;
+    sh:property [
+        sh:path ov:toVersion ;
+        sh:class ov:OntologyVersion ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Migration path must specify target version" ;
+    ] ;
+    sh:property [
+        sh:path ov:hasTransformationScript ;
+        sh:class ov:TransformationScript ;
+        sh:minCount 1 ;
+        sh:message "Migration path must have at least one transformation script" ;
+    ] .
+
+ov:CommitShape a sh:NodeShape ;
+    sh:targetClass ov:Commit ;
+    sh:property [
+        sh:path ov:commitHash ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 40 ;
+        sh:maxLength 40 ;
+        sh:pattern "^[a-f0-9]{40}$" ;
+        sh:message "Commit must have valid SHA-1 hash" ;
+    ] ;
+    sh:property [
+        sh:path ov:commitMessage ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:message "Commit must have non-empty message" ;
+    ] ;
+    sh:property [
+        sh:path ov:commitAuthor ;
+        sh:class foaf:Person ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Commit must have exactly one author" ;
+    ] .
+
+ov:ReleaseShape a sh:NodeShape ;
+    sh:targetClass ov:Release ;
+    sh:property [
+        sh:path ov:releaseDate ;
+        sh:datatype xsd:date ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Release must have release date" ;
+    ] ;
+    sh:property [
+        sh:path ov:isStable ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Release must specify stability status" ;
+    ] ;
+    sh:property [
+        sh:path ov:releaseNotes ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:message "Release must have release notes" ;
+    ] .
+
+#############################################
+# Complex SHACL Constraints
+#############################################
+
+# Ensure proper version ordering
+ov:VersionOrderingConstraint a sh:NodeShape ;
+    sh:targetClass ov:OntologyVersion ;
+    sh:sparql [
+        sh:message "Next version must have higher version number than current version" ;
+        sh:prefixes ov: ;
+        sh:select """
+            SELECT $this ?nextVer WHERE {
+                $this ov:nextVersion ?nextVer .
+                $this ov:hasSemanticVersion ?thisVer .
+                ?nextVer ov:hasSemanticVersion ?nextSemanticVer .
+                ?thisVer ov:majorVersion ?thisMajor .
+                ?thisVer ov:minorVersion ?thisMinor .
+                ?thisVer ov:patchVersion ?thisPatch .
+                ?nextSemanticVer ov:majorVersion ?nextMajor .
+                ?nextSemanticVer ov:minorVersion ?nextMinor .
+                ?nextSemanticVer ov:patchVersion ?nextPatch .
+                FILTER (
+                    ?nextMajor < ?thisMajor ||
+                    (?nextMajor = ?thisMajor && ?nextMinor < ?thisMinor) ||
+                    (?nextMajor = ?thisMajor && ?nextMinor = ?thisMinor && ?nextPatch <= ?thisPatch)
+                )
+            }
+        """ ;
+    ] .
+
+# Ensure migration path consistency
+ov:MigrationPathConsistencyConstraint a sh:NodeShape ;
+    sh:targetClass ov:MigrationPath ;
+    sh:sparql [
+        sh:message "Migration path source and target versions must be different" ;
+        sh:prefixes ov: ;
+        sh:select """
+            SELECT $this WHERE {
+                $this ov:fromVersion ?from .
+                $this ov:toVersion ?to .
+                FILTER (?from = ?to)
+            }
+        """ ;
+    ] .
+
+# Ensure breaking changes increment major version
+ov:BreakingChangeVersionConstraint a sh:NodeShape ;
+    sh:targetClass ov:OntologyVersion ;
+    sh:sparql [
+        sh:message "Breaking changes must increment major version number" ;
+        sh:prefixes ov: ;
+        sh:select """
+            SELECT $this WHERE {
+                $this ov:previousVersion ?prev .
+                ?diff ov:fromVersion ?prev ;
+                      ov:toVersion $this ;
+                      ov:hasChange ?change .
+                ?change a ov:BreakingChange .
+                $this ov:hasSemanticVersion ?thisVer .
+                ?prev ov:hasSemanticVersion ?prevVer .
+                ?thisVer ov:majorVersion ?thisMajor .
+                ?prevVer ov:majorVersion ?prevMajor .
+                FILTER (?thisMajor <= ?prevMajor)
+            }
+        """ ;
+    ] .
+
+#############################################
+# Deployment Pipeline Integration
+#############################################
+
+ov:DeploymentPipeline a owl:Class ;
+    rdfs:label "Deployment Pipeline" ;
+    rdfs:comment "CI/CD pipeline for ontology version deployment" .
+
+ov:PipelineStage a owl:Class ;
+    rdfs:label "Pipeline Stage" ;
+    rdfs:comment "Stage in deployment pipeline" .
+
+ov:ValidationStage a owl:Class ;
+    rdfs:label "Validation Stage" ;
+    rdfs:comment "Stage for validating ontology version" ;
+    rdfs:subClassOf ov:PipelineStage .
+
+ov:TestingStage a owl:Class ;
+    rdfs:label "Testing Stage" ;
+    rdfs:comment "Stage for testing ontology version" ;
+    rdfs:subClassOf ov:PipelineStage .
+
+ov:DeploymentStage a owl:Class ;
+    rdfs:label "Deployment Stage" ;
+    rdfs:comment "Stage for deploying ontology version" ;
+    rdfs:subClassOf ov:PipelineStage .
+
+# Pipeline Properties
+ov:hasPipelineStage a owl:ObjectProperty ;
+    rdfs:label "has pipeline stage" ;
+    rdfs:domain ov:DeploymentPipeline ;
+    rdfs:range ov:PipelineStage .
+
+ov:stageOrder a owl:DatatypeProperty ;
+    rdfs:label "stage order" ;
+    rdfs:domain ov:PipelineStage ;
+    rdfs:range xsd:integer .
+
+ov:stageStatus a owl:DatatypeProperty ;
+    rdfs:label "stage status" ;
+    rdfs:domain ov:PipelineStage ;
+    rdfs:range xsd:string .
+
+#############################################
+# Automated Testing Framework
+#############################################
+
+ov:TestSuite a owl:Class ;
+    rdfs:label "Test Suite" ;
+    rdfs:comment "Collection of tests for ontology version validation" .
+
+ov:VersionCompatibilityTest a owl:Class ;
+    rdfs:label "Version Compatibility Test" ;
+    rdfs:comment "Test for version compatibility validation" ;
+    rdfs:subClassOf ov:MigrationTest .
+
+ov:DataMigrationTest a owl:Class ;
+    rdfs:label "Data Migration Test" ;
+    rdfs:comment "Test for data migration validation" ;
+    rdfs:subClassOf ov:MigrationTest .
+
+ov:PerformanceRegressionTest a owl:Class ;
+    rdfs:label "Performance Regression Test" ;
+    rdfs:comment "Test for performance regression detection" ;
+    rdfs:subClassOf ov:MigrationTest .
+
+ov:TestResult a owl:Class ;
+    rdfs:label "Test Result" ;
+    rdfs:comment "Result of test execution" .
+
+# Test Properties
+ov:hasTestSuite a owl:ObjectProperty ;
+    rdfs:label "has test suite" ;
+    rdfs:domain ov:OntologyVersion ;
+    rdfs:range ov:TestSuite .
+
+ov:testStatus a owl:DatatypeProperty ;
+    rdfs:label "test status" ;
+    rdfs:domain ov:TestResult ;
+    rdfs:range xsd:string .
+
+ov:testScore a owl:DatatypeProperty ;
+    rdfs:label "test score" ;
+    rdfs:domain ov:TestResult ;
+    rdfs:range xsd:decimal .
+
+ov:executionTime a owl:DatatypeProperty ;
+    rdfs:label "execution time" ;
+    rdfs:domain ov:TestResult ;
+    rdfs:range xsd:duration .
+
+#############################################
+# Version Metadata Properties
+#############################################
+
+ov:compatibilityScore a owl:DatatypeProperty ;
+    rdfs:label "compatibility score" ;
+    rdfs:domain ov:CompatibilityLevel ;
+    rdfs:range xsd:decimal .
+
+ov:migrationEffort a owl:DatatypeProperty ;
+    rdfs:label "migration effort" ;
+    rdfs:domain ov:MigrationPath ;
+    rdfs:range xsd:string .
+
+ov:riskLevel a owl:DatatypeProperty ;
+    rdfs:label "risk level" ;
+    rdfs:domain ov:OntologyVersion ;
+    rdfs:range xsd:string .
+
+ov:changelogEntry a owl:DatatypeProperty ;
+    rdfs:label "changelog entry" ;
+    rdfs:domain ov:OntologyVersion ;
+    rdfs:range xsd:string .
+
+ov:migrationInstructions a owl:DatatypeProperty ;
+    rdfs:label "migration instructions" ;
+    rdfs:domain ov:MigrationPath ;
+    rdfs:range xsd:string .
+
+ov:rollbackProcedure a owl:DatatypeProperty ;
+    rdfs:label "rollback procedure" ;
+    rdfs:domain ov:OntologyVersion ;
+    rdfs:range xsd:string .
+
+ov:approvalStatus a owl:DatatypeProperty ;
+    rdfs:label "approval status" ;
+    rdfs:domain ov:Release ;
+    rdfs:range xsd:string .
+
+ov:qualityMetrics a owl:DatatypeProperty ;
+    rdfs:label "quality metrics" ;
+    rdfs:domain ov:OntologyVersion ;
+    rdfs:range xsd:string .
+
+#############################################
+# Ontology Version Control Rules
+#############################################
+
+# Infer compatibility based on version differences
+[ a owl:Restriction ;
+  owl:onProperty ov:hasCompatibilityLevel ;
+  owl:hasValue ov:FullCompatibility ] rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty ov:compatibleWith ;
+    owl:allValuesFrom ov:OntologyVersion
+] .
+
+# Infer migration complexity from version gap
+[ a owl:Restriction ;
+  owl:onProperty ov:migrationComplexity ;
+  owl:hasValue "high" ] rdfs:subClassOf [
+    a owl:Class ;
+    owl:intersectionOf (
+      [ a owl:Restriction ;
+        owl:onProperty ov:fromVersion ;
+        owl:someValuesFrom ov:OntologyVersion ]
+      [ a owl:Restriction ;
+        owl:onProperty ov:toVersion ;
+        owl:someValuesFrom ov:OntologyVersion ]
+    )
+] .

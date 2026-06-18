@@ -1,0 +1,12 @@
+PREFIX ddd: <https://ddd-patterns.dev/schema#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?policy_name ?validates_target ?ensures_what
+WHERE {
+  ?p a ddd:Policy .
+  ?p rdfs:label ?policy_name .
+  OPTIONAL { ?p ddd:validates ?validates_target . }
+  OPTIONAL { ?p ddd:ensures ?ensures_what . }
+}
+ORDER BY ?policy_name
+LIMIT 10000

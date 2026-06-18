@@ -1,0 +1,69 @@
+@prefix yawl: <http://bitflow.ai/ontology/yawl/v2#> .
+@prefix yawl-exec: <http://bitflow.ai/ontology/yawl/execution/v1#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix : <http://example.org/workflow/invalid-recursion#> .
+
+# =============================================================================
+# INVALID WORKFLOW - VIOLATES Q3 (UNBOUNDED RECURSION)
+# =============================================================================
+#
+# This workflow INTENTIONALLY violates Q3:
+# ❌ Has backward flow (cycle) but no MaxIterations declared
+# ❌ Unbounded recursion violates Chatman constant
+#
+# Expected SHACL violations:
+# - Q3-VIOLATION: Task has cycle but no iteration limit
+# - Q3-VIOLATION: No cycle detection mode declared
+#
+# This demonstrates what Covenant 2 PREVENTS.
+#
+# =============================================================================
+
+:InvalidRecursionWorkflow a yawl:WorkflowSpecification ;
+    yawl:id "invalid-recursion-001" ;
+    yawl:versionNumber "1.0.0" ;
+    rdfs:label "Invalid: Unbounded Recursion" ;
+    yawl:hasInputCondition :start ;
+    yawl:hasOutputCondition :end ;
+    yawl:hasTask :loopTask ;
+    yawl:hasCondition :start, :end .
+
+:start a yawl:Condition ;
+    yawl:flowsInto :flow1 .
+
+:end a yawl:Condition .
+
+# Task with unbounded recursion (Q3 VIOLATION)
+:loopTask a yawl:Task ;
+    rdfs:label "Unbounded Loop Task" ;
+    yawl-exec:executionMode yawl-exec:Synchronous ;
+    yawl-exec:runtimeBehavior <http://example.org/services/loop> ;
+
+    # ❌ VIOLATION: Has backward flow but no MaxIterations
+    yawl:BackwardFlow :loopTask ;
+
+    # ❌ VIOLATION: No cycle detection mode
+    # Should have: yawl:CycleDetectionMode yawl:DepthLimited
+    # Should have: yawl:MaxIterations 8
+
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+    yawl:flowsInto :flow2 .
+
+:flow1 a yawl:Flow ; yawl:nextElementRef :loopTask .
+:flow2 a yawl:Flow ; yawl:nextElementRef :end .
+
+# =============================================================================
+# EXPECTED VALIDATION RESULTS
+# =============================================================================
+#
+# ❌ Q3-VIOLATION: Unbounded recursion (no MaxIterations)
+# ❌ Q3-VIOLATION: No cycle detection mode
+# ❌ Q-VIOLATION: No expected duration declared
+#
+# Expected: FAILURE (exit code 1) with violations
+#
+# This workflow CANNOT deploy until violations are fixed.
+# Covenant 2: Invariants Are Law.
+#
+# =============================================================================

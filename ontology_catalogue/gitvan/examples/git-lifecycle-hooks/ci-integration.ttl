@@ -1,0 +1,704 @@
+@prefix ex: <http://example.org/gitvan/hooks/> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+@prefix op: <https://gitvan.dev/op#> .
+@prefix git: <https://gitvan.dev/git#> .
+@prefix ci: <https://gitvan.dev/ci#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# =============================================================================
+# CI Integration Hook
+# =============================================================================
+#
+# USE CASE:
+# Correlate CI/CD pipeline failures with commits and code changes
+# Provides root cause analysis and automated failure investigation
+#
+# TRIGGERS ON:
+# - ci-failure (when CI pipeline fails)
+# - post-test (after test execution)
+# - post-build (after build completion)
+#
+# SUCCESS CRITERIA:
+# - Links CI failures to specific commits
+# - Identifies changed files that may have caused failures
+# - Analyzes failure patterns and trends
+# - Suggests fixes based on error messages
+# - Notifies commit authors of failures
+#
+# INSTALLATION:
+# 1. Copy to .gitvan/hooks/ci-integration.ttl
+# 2. Configure CI webhook:
+#    git config gitvan.ci.webhook "https://your-ci.com/webhook"
+#    git config gitvan.ci.token "your-ci-token"
+# 3. Set CI provider:
+#    git config gitvan.ci.provider "github-actions|gitlab-ci|jenkins|circle-ci"
+# 4. Enable hook: gitvan hooks enable ci-integration
+#
+# =============================================================================
+
+ex:ci-integration-hook rdf:type gh:Hook ;
+    rdfs:label "CI/CD Integration" ;
+    gv:title "Continuous Integration Failure Analysis and Correlation" ;
+    rdfs:comment "Correlates CI failures with commits and provides root cause analysis" ;
+    gh:hookType "ci-failure" ;
+    gh:priority 85 ;
+    gh:enabled true ;
+    gh:hasPredicate ex:ci-failure-predicate ;
+    gh:orderedPipelines ex:ci-analysis-pipeline .
+
+# =============================================================================
+# ASK Predicate - Detects CI Failures
+# =============================================================================
+ex:ci-failure-predicate rdf:type gh:ASKPredicate ;
+    gh:queryText """
+        PREFIX ci: <https://gitvan.dev/ci#>
+        PREFIX git: <https://gitvan.dev/git#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+        ASK WHERE {
+            # Detect CI build/test failures
+            ?build rdf:type ci:Build ;
+                   ci:status ?status ;
+                   ci:completedAt ?time .
+
+            FILTER(?status IN ("failed", "error", "broken"))
+
+            # Recent failures (last 30 minutes)
+            BIND(NOW() - ?time AS ?age)
+            FILTER(?age < "PT30M"^^xsd:duration)
+        }
+    """ ;
+    gh:description "Detects failed CI/CD pipeline runs" .
+
+# =============================================================================
+# Pipeline - CI Failure Analysis and Resolution
+# =============================================================================
+ex:ci-analysis-pipeline rdf:type op:Pipeline ;
+    rdfs:label "CI Failure Analysis Pipeline" ;
+    op:steps (
+        ex:capture-ci-failure,
+        ex:correlate-with-commits,
+        ex:analyze-changed-files,
+        ex:identify-failure-patterns,
+        ex:suggest-fixes,
+        ex:notify-authors,
+        ex:track-failure-trends,
+        ex:generate-ci-report
+    ) .
+
+# =============================================================================
+# Step 1: Capture CI Failure Details
+# =============================================================================
+ex:capture-ci-failure rdf:type gv:SparqlStep ;
+    rdfs:label "Capture CI Failure Information" ;
+    gv:text """
+        PREFIX ci: <https://gitvan.dev/ci#>
+        PREFIX git: <https://gitvan.dev/git#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+        SELECT ?build ?buildId ?status ?startTime ?endTime ?duration
+               ?jobName ?stage ?exitCode ?errorMessage ?logUrl WHERE {
+            # Get failed build
+            ?build rdf:type ci:Build ;
+                   ci:buildId ?buildId ;
+                   ci:status ?status ;
+                   ci:startedAt ?startTime ;
+                   ci:completedAt ?endTime ;
+                   ci:jobName ?jobName ;
+                   ci:stage ?stage ;
+                   ci:exitCode ?exitCode ;
+                   ci:logUrl ?logUrl .
+
+            OPTIONAL {
+                ?build ci:errorMessage ?errorMessage .
+            }
+
+            # Calculate duration
+            BIND(?endTime - ?startTime AS ?duration)
+
+            FILTER(?status IN ("failed", "error", "broken"))
+
+            # Recent failures
+            BIND(NOW() - ?endTime AS ?age)
+            FILTER(?age < "PT30M"^^xsd:duration)
+        }
+        ORDER BY DESC(?endTime)
+        LIMIT 1
+    """ ;
+    gv:outputMapping '{
+        "buildId": "results[0].buildId.value",
+        "buildStatus": "results[0].status.value",
+        "jobName": "results[0].jobName.value",
+        "stage": "results[0].stage.value",
+        "startTime": "results[0].startTime.value",
+        "endTime": "results[0].endTime.value",
+        "durationSeconds": "Math.round((new Date(results[0].endTime.value) - new Date(results[0].startTime.value)) / 1000)",
+        "durationMinutes": "Math.round((new Date(results[0].endTime.value) - new Date(results[0].startTime.value)) / 60000)",
+        "exitCode": "parseInt(results[0].exitCode.value)",
+        "errorMessage": "results[0].errorMessage?.value || \"No error message\"",
+        "logUrl": "results[0].logUrl.value"
+    }' .
+
+# =============================================================================
+# Step 2: Correlate with Recent Commits
+# =============================================================================
+ex:correlate-with-commits rdf:type gv:SparqlStep ;
+    rdfs:label "Correlate CI Failure with Commits" ;
+    gv:text """
+        PREFIX ci: <https://gitvan.dev/ci#>
+        PREFIX git: <https://gitvan.dev/git#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+        SELECT ?commit ?sha ?author ?authorEmail ?message ?timestamp
+               ?linesAdded ?linesDeleted ?filesChanged WHERE {
+            # Get build and associated commit
+            ?build rdf:type ci:Build ;
+                   ci:buildId ?buildId ;
+                   ci:forCommit ?commit .
+
+            ?commit rdf:type git:Commit ;
+                    git:sha ?sha ;
+                    git:author ?author ;
+                    git:authorEmail ?authorEmail ;
+                    git:message ?message ;
+                    git:timestamp ?timestamp ;
+                    git:linesAdded ?linesAdded ;
+                    git:linesDeleted ?linesDeleted ;
+                    git:filesChanged ?filesChanged .
+
+            # Also get recent commits (within 1 hour of build)
+            FILTER(
+                ?commit = ?buildCommit ||
+                (?timestamp > ?buildStart - "PT1H"^^xsd:duration &&
+                 ?timestamp < ?buildStart)
+            )
+        }
+        ORDER BY DESC(?timestamp)
+        LIMIT 5
+    """ ;
+    gv:outputMapping '{
+        "primaryCommit": "results[0].sha.value",
+        "primaryCommitShort": "results[0].sha.value.substring(0, 7)",
+        "commitAuthor": "results[0].author.value",
+        "authorEmail": "results[0].authorEmail.value",
+        "commitMessage": "results[0].message.value",
+        "commitTimestamp": "results[0].timestamp.value",
+        "recentCommits": "results.map(r => ({
+            sha: r.sha.value.substring(0, 7),
+            author: r.author.value,
+            message: r.message.value,
+            filesChanged: parseInt(r.filesChanged.value)
+        }))",
+        "totalLinesChanged": "results.reduce((sum, r) => sum + parseInt(r.linesAdded.value) + parseInt(r.linesDeleted.value), 0)"
+    }' ;
+    gv:dependsOn ex:capture-ci-failure .
+
+# =============================================================================
+# Step 3: Analyze Changed Files
+# =============================================================================
+ex:analyze-changed-files rdf:type gv:SparqlStep ;
+    rdfs:label "Analyze Files Changed in Failed Build" ;
+    gv:text """
+        PREFIX ci: <https://gitvan.dev/ci#>
+        PREFIX git: <https://gitvan.dev/git#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+        SELECT ?file ?filePath ?changeType ?linesAdded ?linesDeleted
+               ?fileCategory ?riskScore WHERE {
+            # Get files changed in the failing commit
+            ?commit git:hasChange ?change .
+            ?build ci:forCommit ?commit ;
+                   ci:status "failed" .
+
+            ?change git:file ?file ;
+                    git:filePath ?filePath ;
+                    git:changeType ?changeType ;
+                    git:linesAdded ?linesAdded ;
+                    git:linesDeleted ?linesDeleted .
+
+            # Categorize files
+            BIND(
+                IF(REGEX(?filePath, "test|spec", "i"), "test",
+                IF(REGEX(?filePath, "\\.(yml|yaml|json|toml)$"), "config",
+                IF(REGEX(?filePath, "Dockerfile|docker-compose"), "docker",
+                IF(REGEX(?filePath, "\\.md$"), "docs",
+                "source"))))
+                AS ?fileCategory
+            )
+
+            # Calculate risk score (files more likely to break CI)
+            BIND(
+                (?linesAdded + ?linesDeleted) * 0.1 +
+                (IF(?fileCategory = "config", 30, 0)) +
+                (IF(?fileCategory = "docker", 25, 0)) +
+                (IF(?changeType = "delete", 20, 0)) +
+                (IF(?changeType = "rename", 15, 0))
+                AS ?riskScore
+            )
+        }
+        ORDER BY DESC(?riskScore)
+    """ ;
+    gv:outputMapping '{
+        "changedFiles": "results.map(r => ({
+            path: r.filePath.value,
+            type: r.changeType.value,
+            category: r.fileCategory.value,
+            added: parseInt(r.linesAdded.value),
+            deleted: parseInt(r.linesDeleted.value),
+            risk: parseFloat(r.riskScore.value)
+        }))",
+        "highRiskFiles": "results.filter(r => parseFloat(r.riskScore.value) > 30).map(r => r.filePath.value)",
+        "configFiles": "results.filter(r => r.fileCategory.value === \"config\").map(r => r.filePath.value)",
+        "testFiles": "results.filter(r => r.fileCategory.value === \"test\").map(r => r.filePath.value)",
+        "sourceFiles": "results.filter(r => r.fileCategory.value === \"source\").map(r => r.filePath.value)"
+    }' ;
+    gv:dependsOn ex:correlate-with-commits .
+
+# =============================================================================
+# Step 4: Identify Failure Patterns
+# =============================================================================
+ex:identify-failure-patterns rdf:type gv:SparqlStep ;
+    rdfs:label "Identify CI Failure Patterns" ;
+    gv:text """
+        PREFIX ci: <https://gitvan.dev/ci#>
+        PREFIX git: <https://gitvan.dev/git#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+        SELECT ?failureType ?frequency ?avgDuration ?commonFiles WHERE {
+            # Analyze historical failures
+            {
+                SELECT ?failureType (COUNT(?build) AS ?frequency)
+                       (AVG(?duration) AS ?avgDuration) WHERE {
+                    ?build rdf:type ci:Build ;
+                           ci:status "failed" ;
+                           ci:failureType ?failureType ;
+                           ci:duration ?duration ;
+                           ci:completedAt ?time .
+
+                    # Last 30 days
+                    FILTER(?time > NOW() - "P30D"^^xsd:duration)
+                }
+                GROUP BY ?failureType
+            }
+
+            # Find commonly failing files
+            OPTIONAL {
+                SELECT ?failureType (GROUP_CONCAT(?path; separator=",") AS ?commonFiles) WHERE {
+                    ?build ci:failureType ?failureType ;
+                           ci:forCommit ?commit .
+                    ?commit git:hasChange ?change .
+                    ?change git:filePath ?path .
+
+                    # Files that appear in >30% of failures
+                    {
+                        SELECT ?path (COUNT(?build2) AS ?failCount) WHERE {
+                            ?build2 ci:status "failed" ;
+                                   ci:forCommit ?commit2 .
+                            ?commit2 git:hasChange ?change2 .
+                            ?change2 git:filePath ?path .
+                        }
+                        GROUP BY ?path
+                        HAVING (COUNT(?build2) > 5)
+                    }
+                }
+                GROUP BY ?failureType
+            }
+        }
+        ORDER BY DESC(?frequency)
+    """ ;
+    gv:outputMapping '{
+        "failurePatterns": "results.map(r => ({
+            type: r.failureType.value,
+            frequency: parseInt(r.frequency.value),
+            avgDuration: Math.round(parseFloat(r.avgDuration.value)),
+            commonFiles: r.commonFiles?.value.split(\",\") || []
+        }))",
+        "mostCommonFailure": "results[0]?.failureType.value || \"unknown\"",
+        "isRecurringIssue": "results.length > 0 && parseInt(results[0].frequency.value) > 3"
+    }' ;
+    gv:dependsOn ex:analyze-changed-files .
+
+# =============================================================================
+# Step 5: Suggest Automated Fixes
+# =============================================================================
+ex:suggest-fixes rdf:type gv:SparqlStep ;
+    rdfs:label "Suggest Fixes Based on Error Analysis" ;
+    gv:text """
+        PREFIX ci: <https://gitvan.dev/ci#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+        SELECT ?errorPattern ?suggestedFix ?fixCommand ?documentation WHERE {
+            ?build ci:errorMessage ?errorMsg .
+
+            # Pattern matching for common errors
+            VALUES (?errorPattern ?suggestedFix ?fixCommand ?documentation) {
+                ("module not found|cannot find module" "Missing dependency" "npm install <module>" "https://docs.npmjs.com/")
+                ("ENOENT|no such file" "File path issue" "Check file paths and existence" "")
+                ("test.*failed|assertion.*failed" "Test failure" "Review test output and fix implementation" "")
+                ("syntax error|parse error" "Syntax error" "Check syntax in modified files" "")
+                ("timeout|timed out" "Timeout" "Optimize slow operations or increase timeout" "")
+                ("out of memory|OOM" "Memory issue" "Optimize memory usage or increase allocation" "")
+                ("permission denied" "Permission issue" "Check file permissions or access rights" "")
+                ("port.*in use|EADDRINUSE" "Port conflict" "Kill process using port or use different port" "")
+                ("certificate|SSL|TLS" "Certificate/SSL issue" "Check certificates or SSL configuration" "")
+                ("network|connection.*refused" "Network issue" "Check network connectivity and endpoints" "")
+            }
+
+            FILTER(REGEX(?errorMsg, ?errorPattern, "i"))
+        }
+        LIMIT 1
+    """ ;
+    gv:outputMapping '{
+        "detectedPattern": "results[0]?.errorPattern.value || \"unknown\"",
+        "suggestedFix": "results[0]?.suggestedFix.value || \"Manual investigation required\"",
+        "fixCommand": "results[0]?.fixCommand.value || \"\"",
+        "documentation": "results[0]?.documentation.value || \"\"",
+        "hasAutomatedFix": "!!results[0]?.fixCommand.value && results[0].fixCommand.value !== \"\""
+    }' ;
+    gv:dependsOn ex:identify-failure-patterns .
+
+# =============================================================================
+# Step 6: Notify Commit Authors
+# =============================================================================
+ex:notify-authors rdf:type gv:ActionStep ;
+    rdfs:label "Notify Authors of CI Failure" ;
+    gv:actionType "notification" ;
+    gv:notificationChannels "email:{{ authorEmail }}, slack:ci-failures" ;
+    gv:notificationTitle "❌ CI Build Failed: {{ jobName }}" ;
+    gv:notificationBody """
+Your commit {{ primaryCommitShort }} caused a CI build failure.
+
+**Build:** {{ buildId }}
+**Job:** {{ jobName }}
+**Stage:** {{ stage }}
+**Duration:** {{ durationMinutes }}m {{ durationSeconds % 60 }}s
+
+**Commit:** {{ primaryCommitShort }} - {{ commitMessage }}
+**Author:** {{ commitAuthor }}
+
+**Error:** {{ errorMessage | truncate(200) }}
+
+{% if suggestedFix != "Manual investigation required" %}
+**Suggested Fix:** {{ suggestedFix }}
+{% if fixCommand %}
+```bash
+{{ fixCommand }}
+```
+{% endif %}
+{% endif %}
+
+View full report: {{ reportPath }}
+View logs: {{ logUrl }}
+    """ ;
+    gv:notificationPriority "high" ;
+    gv:dependsOn ex:suggest-fixes .
+
+# =============================================================================
+# Step 7: Track CI Failure Trends
+# =============================================================================
+ex:track-failure-trends rdf:type gv:SparqlStep ;
+    rdfs:label "Track CI Failure Trends and Metrics" ;
+    gv:updateQuery """
+        PREFIX ci: <https://gitvan.dev/ci#>
+        PREFIX git: <https://gitvan.dev/git#>
+        PREFIX metrics: <https://gitvan.dev/metrics#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+        INSERT DATA {
+            <urn:ci:failure:{{ buildId }}>
+                rdf:type metrics:CIFailure ;
+                metrics:buildId "{{ buildId }}" ;
+                metrics:jobName "{{ jobName }}" ;
+                metrics:stage "{{ stage }}" ;
+                metrics:status "{{ buildStatus }}" ;
+                metrics:exitCode {{ exitCode }} ;
+                metrics:duration {{ durationSeconds }} ;
+                metrics:errorMessage """{{ errorMessage }}""" ;
+                metrics:failurePattern "{{ detectedPattern }}" ;
+                metrics:commit <urn:commit:{{ primaryCommit }}> ;
+                metrics:author "{{ commitAuthor }}" ;
+                metrics:authorEmail "{{ authorEmail }}" ;
+                metrics:timestamp "{{ endTime }}"^^xsd:dateTime ;
+                metrics:isRecurring {{ isRecurringIssue }} ;
+                metrics:suggestedFix "{{ suggestedFix }}" ;
+                metrics:resolved false .
+
+            # Track affected files
+            {% for file in highRiskFiles %}
+            <urn:ci:failure:file:{{ buildId }}-{{ loop.index }}>
+                rdf:type metrics:FailedFile ;
+                metrics:parentFailure <urn:ci:failure:{{ buildId }}> ;
+                metrics:filePath "{{ file }}" ;
+                metrics:highRisk true .
+            {% endfor %}
+
+            # Update author CI statistics
+            <urn:metrics:author:{{ authorEmail }}>
+                metrics:ciFailures ?newFailures ;
+                metrics:lastCIFailure "{{ endTime }}"^^xsd:dateTime .
+        }
+        WHERE {
+            BIND(<urn:metrics:author:{{ authorEmail }}> AS ?author)
+            OPTIONAL { ?author metrics:ciFailures ?oldFailures }
+            BIND(COALESCE(?oldFailures, 0) + 1 AS ?newFailures)
+        }
+    """ ;
+    gv:dependsOn ex:notify-authors .
+
+# =============================================================================
+# Step 8: Generate CI Failure Report
+# =============================================================================
+ex:generate-ci-report rdf:type gv:TemplateStep ;
+    rdfs:label "Generate CI Failure Analysis Report" ;
+    gv:text """
+# CI/CD Failure Analysis Report
+
+**Generated:** {{ "now" | date("YYYY-MM-DD HH:mm:ss") }}
+**Hook:** CI Integration
+**Status:** ❌ **BUILD FAILED**
+
+## Build Information
+
+- **Build ID:** `{{ buildId }}`
+- **Job Name:** {{ jobName }}
+- **Stage:** {{ stage }}
+- **Status:** {{ buildStatus | upper }}
+- **Duration:** {{ durationMinutes }}m {{ durationSeconds % 60 }}s
+- **Exit Code:** {{ exitCode }}
+- **Logs:** [View Full Logs]({{ logUrl }})
+
+## Error Details
+
+### Error Message
+```
+{{ errorMessage }}
+```
+
+### Error Pattern
+**Detected Pattern:** {{ detectedPattern }}
+{% if isRecurringIssue %}
+⚠️ **This is a recurring issue** ({{ failurePatterns[0].frequency }} occurrences in last 30 days)
+{% endif %}
+
+## Related Commits
+
+### Primary Commit
+- **SHA:** `{{ primaryCommitShort }}`
+- **Author:** {{ commitAuthor }} ({{ authorEmail }})
+- **Message:** {{ commitMessage }}
+- **Timestamp:** {{ commitTimestamp | date("YYYY-MM-DD HH:mm:ss") }}
+
+### Recent Commits (Build Window)
+{% for commit in recentCommits %}
+{{ loop.index }}. `{{ commit.sha }}` - {{ commit.author }}: {{ commit.message }}
+   ({{ commit.filesChanged }} files changed)
+{% endfor %}
+
+**Total Lines Changed:** {{ totalLinesChanged }}
+
+## Changed Files Analysis
+
+### High Risk Files ({{ highRiskFiles.length }})
+These files have high likelihood of causing CI failures:
+
+{% for file in highRiskFiles %}
+- `{{ file }}`
+{% endfor %}
+
+### Files by Category
+
+**Configuration Files ({{ configFiles.length }}):**
+{% for file in configFiles %}
+- `{{ file }}`
+{% endfor %}
+
+**Test Files ({{ testFiles.length }}):**
+{% for file in testFiles %}
+- `{{ file }}`
+{% endfor %}
+
+**Source Files ({{ sourceFiles.length }}):**
+{% for file in sourceFiles %}
+- `{{ file }}`
+{% endfor %}
+
+### Detailed Change Analysis
+{% for file in changedFiles %}
+#### {{ loop.index }}. `{{ file.path }}`
+- **Category:** {{ file.category }}
+- **Change Type:** {{ file.type }}
+- **Lines:** +{{ file.added }} -{{ file.deleted }}
+- **Risk Score:** {{ file.risk | round }}/100
+
+{% endfor %}
+
+## Root Cause Analysis
+
+### Suggested Fix
+{{ suggestedFix }}
+
+{% if hasAutomatedFix %}
+### Quick Fix Command
+```bash
+{{ fixCommand }}
+```
+{% endif %}
+
+{% if documentation %}
+### Related Documentation
+{{ documentation }}
+{% endif %}
+
+### Investigation Steps
+
+1. **Review Error Logs**
+   ```bash
+   # View full CI logs
+   curl {{ logUrl }}
+
+   # Search for specific error
+   curl {{ logUrl }} | grep -i "error\|fail"
+   ```
+
+2. **Reproduce Locally**
+   ```bash
+   # Checkout the failing commit
+   git checkout {{ primaryCommitShort }}
+
+   # Run the same job locally
+   npm run {{ jobName }}  # or your CI command
+   ```
+
+3. **Check Changed Files**
+   ```bash
+   # Review changes in high-risk files
+   {% for file in highRiskFiles %}
+   git diff {{ primaryCommitShort }}~1 {{ primaryCommitShort }} -- {{ file }}
+   {% endfor %}
+   ```
+
+4. **Verify Dependencies**
+   ```bash
+   # Check for dependency issues
+   npm ci  # or yarn install --frozen-lockfile
+
+   # Verify all dependencies installed correctly
+   npm ls
+   ```
+
+## Historical Failure Patterns
+
+{% for pattern in failurePatterns %}
+### {{ pattern.type | title }}
+- **Frequency:** {{ pattern.frequency }} failures (last 30 days)
+- **Avg Duration:** {{ pattern.avgDuration }}s
+- **Common Files:** {% if pattern.commonFiles.length > 0 %}{{ pattern.commonFiles | join(", ") }}{% else %}None{% endif %}
+
+{% endfor %}
+
+## Resolution Checklist
+
+- [ ] Review error message and logs
+- [ ] Identify root cause in changed files
+- [ ] Reproduce failure locally
+- [ ] Implement fix
+- [ ] Run tests locally to verify fix
+- [ ] Push fix commit
+- [ ] Monitor CI build for success
+{% if isRecurringIssue %}
+- [ ] Investigate why this is a recurring issue
+- [ ] Consider adding preventive checks
+{% endif %}
+
+## Prevention Strategies
+
+### For This Type of Failure
+{% if detectedPattern contains "module not found" %}
+- Always run `npm install` before committing
+- Keep package.json and package-lock.json in sync
+- Consider using pre-commit hooks for dependency checks
+{% elif detectedPattern contains "test.*failed" %}
+- Run full test suite locally before pushing
+- Use `git hooks` to run tests automatically
+- Consider test-driven development (TDD)
+{% elif detectedPattern contains "syntax error" %}
+- Use a linter (ESLint, Prettier) in your editor
+- Enable pre-commit linting hooks
+- Configure CI to fail fast on syntax errors
+{% elif detectedPattern contains "timeout" %}
+- Profile and optimize slow operations
+- Consider breaking tests into smaller suites
+- Increase timeout for known slow operations
+{% endif %}
+
+### General Best Practices
+1. **Run CI locally before pushing**
+   ```bash
+   # Many CI tools support local runs
+   act  # for GitHub Actions
+   gitlab-runner exec  # for GitLab CI
+   ```
+
+2. **Use pre-commit hooks**
+   ```bash
+   # Install GitVan pre-commit hooks
+   gitvan hooks install
+
+   # Enable CI checks before commit
+   git config gitvan.hooks.preCommit "test,lint,build"
+   ```
+
+3. **Monitor CI trends**
+   ```bash
+   # View CI failure trends
+   gitvan metrics ci --last 30d
+
+   # Analyze your CI failures
+   gitvan metrics ci --author {{ authorEmail }}
+   ```
+
+## Quick Reference
+
+### Retry Build
+```bash
+# Retry the failed build (if supported)
+curl -X POST {{ logUrl | replace("/logs", "/retry") }}
+```
+
+### Revert Commit (if needed)
+```bash
+# Revert the problematic commit
+git revert {{ primaryCommitShort }}
+git push origin main
+```
+
+### GitVan CI Tools
+```bash
+# Analyze this failure
+gitvan ci analyze {{ buildId }}
+
+# Get AI-powered fix suggestions
+gitvan ci suggest-fix {{ buildId }}
+
+# View historical failures for this file
+gitvan ci file-history {{ highRiskFiles[0] }}
+```
+
+---
+*This report was automatically generated by the CI Integration Hook*
+*Author has been notified via email and Slack*
+    """ ;
+    gv:filePath "./reports/ci-failures/{{ buildId }}-{{ 'now' | date('YYYY-MM-DD-HH-mm-ss') }}.md" ;
+    gv:dependsOn ex:track-failure-trends .
+
+# =============================================================================
+# Metadata
+# =============================================================================
+ex:ci-integration-hook
+    gv:version "1.0.0" ;
+    gv:author "GitVan Team" ;
+    gv:created "2025-12-03T00:00:00Z" ;
+    gv:tags "git", "ci-cd", "testing", "automation", "failure-analysis" ;
+    gv:documentation "https://gitvan.dev/docs/hooks/ci-integration" .

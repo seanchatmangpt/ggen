@@ -1,0 +1,6 @@
+@prefix sec: <https://core.bitstar.dev/ontology/security#> .
+
+[] a sec:Subject ;
+   sec:hasRole [ a sec:Role ; sec:hasPermission [ a sec:Permission ] ] .
+
+

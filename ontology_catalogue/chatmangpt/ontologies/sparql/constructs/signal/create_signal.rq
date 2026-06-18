@@ -1,0 +1,52 @@
+# @name: create_signal
+# @category: signal
+# @description: Create a Signal Theory encoded message: S=(Mode, Genre, Type, Format, Structure)
+# @params: ?signal_id, ?mode, ?genre, ?type, ?format, ?structure, ?content, ?timestamp, ?source_id
+# @returns: prov:Entity with Signal Theory metadata and content
+# @version: 1.0
+# @stability: stable
+#
+# Signal Theory: Every output is encoded as S=(M, G, T, F, W)
+#   M = Mode: "linguistic", "visual", "code", "data", "mixed"
+#   G = Genre: "spec", "brief", "report", "plan", "email", "adr", "pitch", etc.
+#   T = Type: "direct", "inform", "commit", "decide", "express"
+#   F = Format: "markdown", "code", "json", "yaml", "html"
+#   W = Structure: "adr-template", "review-checklist", etc.
+
+PREFIX bos: <http://businessos.dev/id/>
+PREFIX signal: <http://businessos.dev/signal/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX schema: <http://schema.org/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+CONSTRUCT {
+  ?signal a prov:Entity ;
+    schema:identifier ?signal_id ;
+    rdfs:label ?signal_label ;
+    signal:mode ?mode ;
+    signal:genre ?genre ;
+    signal:type ?type ;
+    signal:format ?format ;
+    signal:structure ?structure ;
+    prov:value ?content ;
+    schema:dateCreated ?timestamp ;
+    prov:wasGeneratedBy ?source ;
+    signal:shannon_ratio ?shannon ;
+    signal:ashby_match ?ashby ;
+    signal:beer_coherence ?coherence ;
+    signal:wiener_feedback ?feedback .
+
+  ?source a prov:Agent ;
+    schema:identifier ?source_id .
+}
+
+WHERE {
+  BIND(IRI(CONCAT("http://businessos.dev/id/signals/", STR(?signal_id))) AS ?signal)
+  BIND(IRI(CONCAT("http://businessos.dev/id/sources/", STR(?source_id))) AS ?source)
+  BIND(CONCAT("Signal: ", STR(?genre), " (", STR(?mode), ")") AS ?signal_label)
+  # Quality metrics (would be calculated by Signal Theory scorer)
+  BIND(0.85 AS ?shannon)
+  BIND(0.95 AS ?ashby)
+  BIND(0.90 AS ?coherence)
+  BIND(0.92 AS ?feedback)
+}

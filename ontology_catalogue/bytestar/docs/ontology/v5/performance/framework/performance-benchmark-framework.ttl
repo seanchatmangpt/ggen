@@ -1,0 +1,651 @@
+@prefix : <http://bytestar.org/ontology/performance-benchmark#> .
+@prefix ba: <http://bytestar.org/ontology/byteactor#> .
+@prefix doctrine: <http://bytestar.org/ontology/doctrine-of-8#> .
+@prefix perf: <http://bytestar.org/ontology/performance-measurement#> .
+@prefix res: <http://bytestar.org/ontology/resource-allocation#> .
+@prefix opt: <http://bytestar.org/ontology/optimization-engine#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+<http://bytestar.org/ontology/performance-benchmark> rdf:type owl:Ontology ;
+    dct:title "ByteStar Performance Benchmark Framework"@en ;
+    dct:description """Comprehensive performance validation and benchmarking framework for ALL
+    crystal operations under the Doctrine of 8. Provides constant-time operation validation,
+    resource consumption bounds, throughput/latency benchmarks, and regression detection."""@en ;
+    dct:creator "ByteStar Ecosystem"@en ;
+    dct:created "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    owl:versionInfo "5.0.0-performance"@en ;
+    owl:imports <http://bytestar.org/ontology/doctrine-of-8> ,
+                <http://bytestar.org/ontology/performance-measurement> ,
+                <http://bytestar.org/ontology/resource-allocation> ,
+                <http://bytestar.org/ontology/optimization-engine> ,
+                <http://bytestar.org/ontology/byteactor> .
+
+#################################################################
+#    Performance Benchmark Framework Core Classes
+#################################################################
+
+###  http://bytestar.org/ontology/performance-benchmark#PerformanceBenchmarkFramework
+:PerformanceBenchmarkFramework rdf:type owl:Class ;
+                              rdfs:subClassOf perf:PerformanceMeasurement ;
+                              rdfs:label "Performance Benchmark Framework"@en ;
+                              rdfs:comment """Core framework orchestrating all performance benchmarking
+                              activities across ByteStar crystal operations."""@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#CrystalOperationBenchmark
+:CrystalOperationBenchmark rdf:type owl:Class ;
+                          rdfs:subClassOf perf:BenchmarkSuite ;
+                          rdfs:label "Crystal Operation Benchmark"@en ;
+                          rdfs:comment """Specialized benchmark suite for crystal operations
+                          ensuring sub-8-tick performance compliance."""@en ;
+                          :hasMaxExecutionTicks "8"^^xsd:nonNegativeInteger .
+
+###  http://bytestar.org/ontology/performance-benchmark#ConstantTimeBenchmark
+:ConstantTimeBenchmark rdf:type owl:Class ;
+                      rdfs:subClassOf :CrystalOperationBenchmark ;
+                      rdfs:label "Constant-Time Benchmark"@en ;
+                      rdfs:comment """Benchmark validating constant-time execution guarantees
+                      for cryptographic and security-critical operations."""@en ;
+                      :requiresConstantTime "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/performance-benchmark#ResourceBoundsBenchmark
+:ResourceBoundsBenchmark rdf:type owl:Class ;
+                        rdfs:subClassOf :CrystalOperationBenchmark ;
+                        rdfs:label "Resource Bounds Benchmark"@en ;
+                        rdfs:comment """Benchmark validating resource consumption stays
+                        within predefined bounds."""@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#ThroughputBenchmark
+:ThroughputBenchmark rdf:type owl:Class ;
+                    rdfs:subClassOf :CrystalOperationBenchmark ;
+                    rdfs:label "Throughput Benchmark"@en ;
+                    rdfs:comment """Benchmark measuring maximum sustainable throughput
+                    while maintaining sub-8-tick latency."""@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#LatencyBenchmark
+:LatencyBenchmark rdf:type owl:Class ;
+                 rdfs:subClassOf :CrystalOperationBenchmark ;
+                 rdfs:label "Latency Benchmark"@en ;
+                 rdfs:comment """Benchmark measuring end-to-end latency distribution
+                 with focus on worst-case scenarios."""@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#RegressionBenchmark
+:RegressionBenchmark rdf:type owl:Class ;
+                    rdfs:subClassOf :CrystalOperationBenchmark ;
+                    rdfs:label "Regression Benchmark"@en ;
+                    rdfs:comment """Benchmark detecting performance regressions
+                    by comparing against baseline measurements."""@en .
+
+#################################################################
+#    Benchmark Execution Infrastructure
+#################################################################
+
+###  http://bytestar.org/ontology/performance-benchmark#BenchmarkExecutor
+:BenchmarkExecutor rdf:type owl:Class ;
+                  rdfs:subClassOf perf:PerformanceMonitor ;
+                  rdfs:label "Benchmark Executor"@en ;
+                  rdfs:comment """Execution engine for running performance benchmarks
+                  with precise timing and resource monitoring."""@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#BenchmarkRunner
+:BenchmarkRunner rdf:type owl:Class ;
+                rdfs:subClassOf :BenchmarkExecutor ;
+                rdfs:label "Benchmark Runner"@en ;
+                rdfs:comment """High-precision benchmark runner with nanosecond timing
+                accuracy and deterministic execution environment."""@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#IsolatedExecutionEnvironment
+:IsolatedExecutionEnvironment rdf:type owl:Class ;
+                             rdfs:subClassOf ba:SystemComponent ;
+                             rdfs:label "Isolated Execution Environment"@en ;
+                             rdfs:comment """Isolated environment ensuring consistent
+                             benchmark execution without external interference."""@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#BenchmarkOrchestrator
+:BenchmarkOrchestrator rdf:type owl:Class ;
+                      rdfs:subClassOf :BenchmarkExecutor ;
+                      rdfs:label "Benchmark Orchestrator"@en ;
+                      rdfs:comment """Orchestrator managing multiple concurrent benchmarks
+                      while maintaining isolation and resource allocation."""@en .
+
+#################################################################
+#    Performance Measurement & Validation
+#################################################################
+
+###  http://bytestar.org/ontology/performance-benchmark#PerformanceValidator
+:PerformanceValidator rdf:type owl:Class ;
+                     rdfs:subClassOf doctrine:PerformanceValidator ;
+                     rdfs:label "Performance Validator"@en ;
+                     rdfs:comment """Validator ensuring all measurements comply with
+                     Doctrine of 8 performance constraints."""@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#ConstantTimeValidator
+:ConstantTimeValidator rdf:type owl:Class ;
+                      rdfs:subClassOf :PerformanceValidator ;
+                      rdfs:label "Constant-Time Validator"@en ;
+                      rdfs:comment """Specialized validator for constant-time operation
+                      guarantees using statistical analysis."""@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#ResourceBoundsValidator
+:ResourceBoundsValidator rdf:type owl:Class ;
+                        rdfs:subClassOf :PerformanceValidator ;
+                        rdfs:label "Resource Bounds Validator"@en ;
+                        rdfs:comment """Validator ensuring resource consumption stays
+                        within predefined bounds across all operations."""@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#StatisticalAnalyzer
+:StatisticalAnalyzer rdf:type owl:Class ;
+                    rdfs:subClassOf perf:PerformanceMonitor ;
+                    rdfs:label "Statistical Analyzer"@en ;
+                    rdfs:comment """Statistical analyzer for performance data including
+                    confidence intervals and significance testing."""@en .
+
+#################################################################
+#    Benchmark Measurement Types
+#################################################################
+
+###  http://bytestar.org/ontology/performance-benchmark#BenchmarkMeasurement
+:BenchmarkMeasurement rdf:type owl:Class ;
+                     rdfs:subClassOf perf:PerformanceDataPoint ;
+                     rdfs:label "Benchmark Measurement"@en ;
+                     rdfs:comment """Single performance measurement from benchmark execution
+                     with comprehensive metadata and context."""@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#TickMeasurement
+:TickMeasurement rdf:type owl:Class ;
+                rdfs:subClassOf :BenchmarkMeasurement ;
+                rdfs:label "Tick Measurement"@en ;
+                rdfs:comment """Precise tick count measurement for operation execution
+                validation against Doctrine of 8."""@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#ResourceUsageMeasurement
+:ResourceUsageMeasurement rdf:type owl:Class ;
+                         rdfs:subClassOf :BenchmarkMeasurement ;
+                         rdfs:label "Resource Usage Measurement"@en ;
+                         rdfs:comment """Comprehensive resource usage measurement including
+                         CPU, memory, cache, and I/O utilization."""@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#ThroughputMeasurement
+:ThroughputMeasurement rdf:type owl:Class ;
+                      rdfs:subClassOf :BenchmarkMeasurement ;
+                      rdfs:label "Throughput Measurement"@en ;
+                      rdfs:comment """Throughput measurement capturing operations per
+                      time unit with quality metrics."""@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#LatencyDistribution
+:LatencyDistribution rdf:type owl:Class ;
+                    rdfs:subClassOf :BenchmarkMeasurement ;
+                    rdfs:label "Latency Distribution"@en ;
+                    rdfs:comment """Complete latency distribution with percentiles,
+                    histograms, and statistical analysis."""@en .
+
+#################################################################
+#    Performance Oracles & Prediction
+#################################################################
+
+###  http://bytestar.org/ontology/performance-benchmark#PerformanceOracle
+:PerformanceOracle rdf:type owl:Class ;
+                  rdfs:subClassOf opt:OptimizationEngine ;
+                  rdfs:label "Performance Oracle"@en ;
+                  rdfs:comment """AI-driven oracle predicting performance characteristics
+                  and identifying potential bottlenecks before they manifest."""@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#PredictiveModel
+:PredictiveModel rdf:type owl:Class ;
+                rdfs:subClassOf :PerformanceOracle ;
+                rdfs:label "Predictive Model"@en ;
+                rdfs:comment """Machine learning model predicting performance based on
+                system state, workload, and historical data."""@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#PerformancePredictor
+:PerformancePredictor rdf:type owl:Class ;
+                     rdfs:subClassOf :PerformanceOracle ;
+                     rdfs:label "Performance Predictor"@en ;
+                     rdfs:comment """Predictor generating performance forecasts for
+                     capacity planning and optimization decisions."""@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#BottleneckPredictor
+:BottleneckPredictor rdf:type owl:Class ;
+                    rdfs:subClassOf :PerformancePredictor ;
+                    rdfs:label "Bottleneck Predictor"@en ;
+                    rdfs:comment """Specialized predictor identifying potential
+                    performance bottlenecks before they impact operations."""@en .
+
+#################################################################
+#    Regression Detection & Analysis
+#################################################################
+
+###  http://bytestar.org/ontology/performance-benchmark#RegressionDetector
+:RegressionDetector rdf:type owl:Class ;
+                   rdfs:subClassOf opt:PerformanceProfiler ;
+                   rdfs:label "Regression Detector"@en ;
+                   rdfs:comment """Automated detector identifying performance regressions
+                   through statistical analysis of benchmark trends."""@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#BaselineComparator
+:BaselineComparator rdf:type owl:Class ;
+                   rdfs:subClassOf :RegressionDetector ;
+                   rdfs:label "Baseline Comparator"@en ;
+                   rdfs:comment """Comparator analyzing current performance against
+                   established baselines with significance testing."""@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#TrendAnalyzer
+:TrendAnalyzer rdf:type owl:Class ;
+              rdfs:subClassOf :RegressionDetector ;
+              rdfs:label "Trend Analyzer"@en ;
+              rdfs:comment """Analyzer detecting performance trends and predicting
+              future regression risks."""@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#RegressionAlert
+:RegressionAlert rdf:type owl:Class ;
+                rdfs:subClassOf perf:PerformanceAlert ;
+                rdfs:label "Regression Alert"@en ;
+                rdfs:comment """Alert triggered when performance regression is detected
+                with detailed analysis and remediation suggestions."""@en .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://bytestar.org/ontology/performance-benchmark#executesBenchmark
+:executesBenchmark rdf:type owl:ObjectProperty ;
+                  rdfs:domain :BenchmarkExecutor ;
+                  rdfs:range :CrystalOperationBenchmark ;
+                  rdfs:label "executes benchmark"@en ;
+                  rdfs:comment "Relates executor to benchmark being executed."@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#validatesMeasurement
+:validatesMeasurement rdf:type owl:ObjectProperty ;
+                     rdfs:domain :PerformanceValidator ;
+                     rdfs:range :BenchmarkMeasurement ;
+                     rdfs:label "validates measurement"@en ;
+                     rdfs:comment "Relates validator to measurement being validated."@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#producesOracle
+:producesOracle rdf:type owl:ObjectProperty ;
+               rdfs:domain :PerformanceOracle ;
+               rdfs:range :PerformancePrediction ;
+               rdfs:label "produces oracle"@en ;
+               rdfs:comment "Relates oracle to predictions produced."@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#detectsRegression
+:detectsRegression rdf:type owl:ObjectProperty ;
+                  rdfs:domain :RegressionDetector ;
+                  rdfs:range :PerformanceRegression ;
+                  rdfs:label "detects regression"@en ;
+                  rdfs:comment "Relates detector to regression detected."@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#hasBaseline
+:hasBaseline rdf:type owl:ObjectProperty ;
+            rdfs:domain :RegressionBenchmark ;
+            rdfs:range :PerformanceBaseline ;
+            rdfs:label "has baseline"@en ;
+            rdfs:comment "Relates benchmark to its performance baseline."@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#monitors
+:monitors rdf:type owl:ObjectProperty ;
+         rdfs:domain :BenchmarkExecutor ;
+         rdfs:range ba:CrystalOperation ;
+         rdfs:label "monitors"@en ;
+         rdfs:comment "Relates executor to crystal operations being monitored."@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#enforcesBounds
+:enforcesBounds rdf:type owl:ObjectProperty ;
+               rdfs:domain :ResourceBoundsValidator ;
+               rdfs:range :ResourceBound ;
+               rdfs:label "enforces bounds"@en ;
+               rdfs:comment "Relates validator to resource bounds being enforced."@en .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+###  http://bytestar.org/ontology/performance-benchmark#hasMaxExecutionTicks
+:hasMaxExecutionTicks rdf:type owl:DatatypeProperty ,
+                               owl:FunctionalProperty ;
+                     rdfs:domain :CrystalOperationBenchmark ;
+                     rdfs:range xsd:nonNegativeInteger ;
+                     rdfs:label "has max execution ticks"@en ;
+                     rdfs:comment "Maximum allowed execution ticks for benchmark."@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#requiresConstantTime
+:requiresConstantTime rdf:type owl:DatatypeProperty ,
+                               owl:FunctionalProperty ;
+                     rdfs:domain :ConstantTimeBenchmark ;
+                     rdfs:range xsd:boolean ;
+                     rdfs:label "requires constant time"@en ;
+                     rdfs:comment "Whether benchmark requires constant-time execution."@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#measurementPrecision
+:measurementPrecision rdf:type owl:DatatypeProperty ,
+                               owl:FunctionalProperty ;
+                     rdfs:domain :BenchmarkMeasurement ;
+                     rdfs:range xsd:double ;
+                     rdfs:label "measurement precision"@en ;
+                     rdfs:comment "Precision of benchmark measurement in nanoseconds."@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#confidenceInterval
+:confidenceInterval rdf:type owl:DatatypeProperty ,
+                             owl:FunctionalProperty ;
+                   rdfs:domain :StatisticalAnalyzer ;
+                   rdfs:range xsd:double ;
+                   rdfs:label "confidence interval"@en ;
+                   rdfs:comment "Confidence interval for statistical analysis."@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#regressionThreshold
+:regressionThreshold rdf:type owl:DatatypeProperty ,
+                              owl:FunctionalProperty ;
+                    rdfs:domain :RegressionDetector ;
+                    rdfs:range xsd:double ;
+                    rdfs:label "regression threshold"@en ;
+                    rdfs:comment "Threshold for detecting performance regression."@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#tickCount
+:tickCount rdf:type owl:DatatypeProperty ;
+          rdfs:domain :TickMeasurement ;
+          rdfs:range xsd:nonNegativeInteger ;
+          rdfs:label "tick count"@en ;
+          rdfs:comment "Number of ticks measured for operation execution."@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#cpuUsagePercent
+:cpuUsagePercent rdf:type owl:DatatypeProperty ;
+                rdfs:domain :ResourceUsageMeasurement ;
+                rdfs:range xsd:double ;
+                rdfs:label "CPU usage percent"@en ;
+                rdfs:comment "CPU utilization percentage during measurement."@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#memoryUsageBytes
+:memoryUsageBytes rdf:type owl:DatatypeProperty ;
+                 rdfs:domain :ResourceUsageMeasurement ;
+                 rdfs:range xsd:long ;
+                 rdfs:label "memory usage bytes"@en ;
+                 rdfs:comment "Memory usage in bytes during measurement."@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#operationsPerSecond
+:operationsPerSecond rdf:type owl:DatatypeProperty ;
+                    rdfs:domain :ThroughputMeasurement ;
+                    rdfs:range xsd:double ;
+                    rdfs:label "operations per second"@en ;
+                    rdfs:comment "Number of operations completed per second."@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#p50LatencyNanos
+:p50LatencyNanos rdf:type owl:DatatypeProperty ;
+                rdfs:domain :LatencyDistribution ;
+                rdfs:range xsd:long ;
+                rdfs:label "p50 latency nanoseconds"@en ;
+                rdfs:comment "50th percentile latency in nanoseconds."@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#p99LatencyNanos
+:p99LatencyNanos rdf:type owl:DatatypeProperty ;
+                rdfs:domain :LatencyDistribution ;
+                rdfs:range xsd:long ;
+                rdfs:label "p99 latency nanoseconds"@en ;
+                rdfs:comment "99th percentile latency in nanoseconds."@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#p999LatencyNanos
+:p999LatencyNanos rdf:type owl:DatatypeProperty ;
+                 rdfs:domain :LatencyDistribution ;
+                 rdfs:range xsd:long ;
+                 rdfs:label "p99.9 latency nanoseconds"@en ;
+                 rdfs:comment "99.9th percentile latency in nanoseconds."@en .
+
+#################################################################
+#    Supporting Classes for Performance Analysis
+#################################################################
+
+###  http://bytestar.org/ontology/performance-benchmark#PerformancePrediction
+:PerformancePrediction rdf:type owl:Class ;
+                      rdfs:subClassOf opt:OptimizationResult ;
+                      rdfs:label "Performance Prediction"@en ;
+                      rdfs:comment """Prediction of future performance characteristics
+                      based on current system state and trends."""@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#PerformanceRegression
+:PerformanceRegression rdf:type owl:Class ;
+                      rdfs:subClassOf perf:PerformanceAnomaly ;
+                      rdfs:label "Performance Regression"@en ;
+                      rdfs:comment """Detected degradation in performance compared
+                      to baseline or historical measurements."""@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#PerformanceBaseline
+:PerformanceBaseline rdf:type owl:Class ;
+                    rdfs:subClassOf perf:PerformanceBaseline ;
+                    rdfs:label "Performance Baseline"@en ;
+                    rdfs:comment """Established baseline performance measurements
+                    for comparison and regression detection."""@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#ResourceBound
+:ResourceBound rdf:type owl:Class ;
+              rdfs:subClassOf res:ResourceQuota ;
+              rdfs:label "Resource Bound"@en ;
+              rdfs:comment """Upper bound on resource consumption that must
+              not be exceeded during operation execution."""@en .
+
+#################################################################
+#    SHACL Validation Shapes
+#################################################################
+
+###  http://bytestar.org/ontology/performance-benchmark#CrystalOperationBenchmarkShape
+:CrystalOperationBenchmarkShape rdf:type sh:NodeShape ;
+                               sh:targetClass :CrystalOperationBenchmark ;
+                               rdfs:label "Crystal Operation Benchmark Shape"@en ;
+                               rdfs:comment "Validates crystal operation benchmark configuration."@en ;
+                               sh:property [
+                                   sh:path :hasMaxExecutionTicks ;
+                                   sh:datatype xsd:nonNegativeInteger ;
+                                   sh:maxInclusive 8 ;
+                                   sh:minCount 1 ;
+                                   sh:maxCount 1 ;
+                                   sh:message "Crystal operation benchmark must have max execution ticks ≤ 8."@en
+                               ] ;
+                               sh:property [
+                                   sh:path :monitors ;
+                                   sh:class ba:CrystalOperation ;
+                                   sh:minCount 1 ;
+                                   sh:message "Crystal operation benchmark must monitor at least one crystal operation."@en
+                               ] .
+
+###  http://bytestar.org/ontology/performance-benchmark#ConstantTimeBenchmarkShape
+:ConstantTimeBenchmarkShape rdf:type sh:NodeShape ;
+                           sh:targetClass :ConstantTimeBenchmark ;
+                           rdfs:label "Constant Time Benchmark Shape"@en ;
+                           rdfs:comment "Validates constant-time benchmark requirements."@en ;
+                           sh:property [
+                               sh:path :requiresConstantTime ;
+                               sh:datatype xsd:boolean ;
+                               sh:hasValue "true"^^xsd:boolean ;
+                               sh:minCount 1 ;
+                               sh:maxCount 1 ;
+                               sh:message "Constant-time benchmark must require constant-time execution."@en
+                           ] .
+
+###  http://bytestar.org/ontology/performance-benchmark#TickMeasurementShape
+:TickMeasurementShape rdf:type sh:NodeShape ;
+                     sh:targetClass :TickMeasurement ;
+                     rdfs:label "Tick Measurement Shape"@en ;
+                     rdfs:comment "Validates tick measurement compliance with Doctrine of 8."@en ;
+                     sh:property [
+                         sh:path :tickCount ;
+                         sh:datatype xsd:nonNegativeInteger ;
+                         sh:maxInclusive 8 ;
+                         sh:minCount 1 ;
+                         sh:message "Tick count must not exceed 8 per Doctrine of 8."@en
+                     ] .
+
+###  http://bytestar.org/ontology/performance-benchmark#ResourceUsageMeasurementShape
+:ResourceUsageMeasurementShape rdf:type sh:NodeShape ;
+                              sh:targetClass :ResourceUsageMeasurement ;
+                              rdfs:label "Resource Usage Measurement Shape"@en ;
+                              rdfs:comment "Validates resource usage measurement bounds."@en ;
+                              sh:property [
+                                  sh:path :cpuUsagePercent ;
+                                  sh:datatype xsd:double ;
+                                  sh:minInclusive 0.0 ;
+                                  sh:maxInclusive 100.0 ;
+                                  sh:message "CPU usage percentage must be between 0.0 and 100.0."@en
+                              ] ;
+                              sh:property [
+                                  sh:path :memoryUsageBytes ;
+                                  sh:datatype xsd:long ;
+                                  sh:minInclusive 0 ;
+                                  sh:message "Memory usage must be non-negative."@en
+                              ] .
+
+###  http://bytestar.org/ontology/performance-benchmark#LatencyDistributionShape
+:LatencyDistributionShape rdf:type sh:NodeShape ;
+                         sh:targetClass :LatencyDistribution ;
+                         rdfs:label "Latency Distribution Shape"@en ;
+                         rdfs:comment "Validates latency distribution measurements."@en ;
+                         sh:property [
+                             sh:path :p50LatencyNanos ;
+                             sh:datatype xsd:long ;
+                             sh:minInclusive 0 ;
+                             sh:maxInclusive 1000000 ; # 1ms = 8 ticks at 8GHz
+                             sh:message "P50 latency must be ≤ 1ms (8 ticks at 8GHz)."@en
+                         ] ;
+                         sh:property [
+                             sh:path :p99LatencyNanos ;
+                             sh:datatype xsd:long ;
+                             sh:minInclusive 0 ;
+                             sh:maxInclusive 1000000 ; # 1ms = 8 ticks at 8GHz
+                             sh:message "P99 latency must be ≤ 1ms (8 ticks at 8GHz)."@en
+                         ] ;
+                         sh:property [
+                             sh:path :p999LatencyNanos ;
+                             sh:datatype xsd:long ;
+                             sh:minInclusive 0 ;
+                             sh:maxInclusive 1000000 ; # 1ms = 8 ticks at 8GHz
+                             sh:message "P99.9 latency must be ≤ 1ms (8 ticks at 8GHz)."@en
+                         ] .
+
+#################################################################
+#    Framework Integration Axioms
+#################################################################
+
+# Axiom: All crystal operations must have associated benchmarks
+[] rdf:type owl:Class ;
+   owl:equivalentClass [
+       rdf:type owl:Class ;
+       owl:intersectionOf (
+           ba:CrystalOperation
+           [
+               rdf:type owl:Restriction ;
+               owl:onProperty :monitors ;
+               owl:someValuesFrom :CrystalOperationBenchmark
+           ]
+       )
+   ] .
+
+# Axiom: All benchmark measurements must comply with Doctrine of 8
+[] rdf:type owl:Class ;
+   owl:equivalentClass [
+       rdf:type owl:Class ;
+       owl:intersectionOf (
+           :TickMeasurement
+           [
+               rdf:type owl:Restriction ;
+               owl:onProperty :tickCount ;
+               owl:someValuesFrom [
+                   rdf:type rdfs:Datatype ;
+                   owl:onDatatype xsd:nonNegativeInteger ;
+                   owl:withRestrictions (
+                       [ xsd:maxInclusive 8 ]
+                   )
+               ]
+           ]
+       )
+   ] .
+
+# Axiom: Constant-time operations must have uniform execution time
+[] rdf:type owl:Class ;
+   owl:equivalentClass [
+       rdf:type owl:Class ;
+       owl:intersectionOf (
+           :ConstantTimeBenchmark
+           [
+               rdf:type owl:Restriction ;
+               owl:onProperty :requiresConstantTime ;
+               owl:hasValue "true"^^xsd:boolean
+           ]
+       )
+   ] ;
+   rdfs:subClassOf [
+       rdf:type owl:Restriction ;
+       owl:onProperty :validatesMeasurement ;
+       owl:someValuesFrom :ConstantTimeValidator
+   ] .
+
+#################################################################
+#    Performance Benchmark Individuals
+#################################################################
+
+###  http://bytestar.org/ontology/performance-benchmark#GlobalBenchmarkFramework
+:GlobalBenchmarkFramework rdf:type owl:NamedIndividual ,
+                                   :PerformanceBenchmarkFramework ;
+                         rdfs:label "Global Benchmark Framework"@en ;
+                         rdfs:comment """The primary benchmark framework coordinating
+                         all performance validation across ByteStar."""@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#CrystalOperationExecutor
+:CrystalOperationExecutor rdf:type owl:NamedIndividual ,
+                                   :BenchmarkRunner ;
+                         rdfs:label "Crystal Operation Executor"@en ;
+                         rdfs:comment """High-precision executor for crystal operation
+                         benchmarks with nanosecond timing accuracy."""@en ;
+                         :measurementPrecision "1.0"^^xsd:double . # 1ns precision
+
+###  http://bytestar.org/ontology/performance-benchmark#DoctrineValidator
+:DoctrineValidator rdf:type owl:NamedIndividual ,
+                            :PerformanceValidator ;
+                  rdfs:label "Doctrine Validator"@en ;
+                  rdfs:comment """Primary validator ensuring all operations
+                  comply with Doctrine of 8 constraints."""@en .
+
+###  http://bytestar.org/ontology/performance-benchmark#GlobalRegressionDetector
+:GlobalRegressionDetector rdf:type owl:NamedIndividual ,
+                                   :RegressionDetector ;
+                         rdfs:label "Global Regression Detector"@en ;
+                         rdfs:comment """System-wide regression detector monitoring
+                         all performance trends and anomalies."""@en ;
+                         :regressionThreshold "0.05"^^xsd:double . # 5% threshold
+
+#################################################################
+#    Documentation and Examples
+#################################################################
+
+:BenchmarkDocumentation rdf:type owl:Class ;
+    rdfs:label "Benchmark Documentation"@en ;
+    rdfs:comment """Documentation and examples for performance benchmarking
+    framework usage and best practices."""@en .
+
+# Example benchmark measurement
+:ExampleTickMeasurement rdf:type owl:NamedIndividual ,
+                                 :TickMeasurement ;
+                       rdfs:label "Example Tick Measurement"@en ;
+                       :tickCount "6"^^xsd:nonNegativeInteger ;
+                       :measurementPrecision "0.125"^^xsd:double ; # 125ps precision
+                       dct:created "2025-08-23T12:00:00Z"^^xsd:dateTime .
+
+# Example resource usage measurement
+:ExampleResourceUsage rdf:type owl:NamedIndividual ,
+                               :ResourceUsageMeasurement ;
+                     rdfs:label "Example Resource Usage"@en ;
+                     :cpuUsagePercent "45.2"^^xsd:double ;
+                     :memoryUsageBytes "1048576"^^xsd:long ; # 1MB
+                     dct:created "2025-08-23T12:00:01Z"^^xsd:dateTime .
+
+# Example latency distribution
+:ExampleLatencyDistribution rdf:type owl:NamedIndividual ,
+                                     :LatencyDistribution ;
+                           rdfs:label "Example Latency Distribution"@en ;
+                           :p50LatencyNanos "750000"^^xsd:long ; # 750μs = 6 ticks
+                           :p99LatencyNanos "1000000"^^xsd:long ; # 1ms = 8 ticks
+                           :p999LatencyNanos "1000000"^^xsd:long ; # 1ms = 8 ticks max
+                           dct:created "2025-08-23T12:00:02Z"^^xsd:dateTime .

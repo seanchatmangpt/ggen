@@ -1,0 +1,10 @@
+PREFIX yawl: <http://yawlfoundation.org/ontology#>
+
+CONSTRUCT {
+  ?task1 yawl:directlyFollows ?task2 .
+}
+WHERE {
+  ?flow a yawl:Flow ;
+         yawl:flowsFrom ?task1 ;
+         yawl:flowsTo ?task2 .
+}

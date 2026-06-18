@@ -1,0 +1,29 @@
+# Portfolio Budget Allocation Query
+# Returns budget allocation from portfolio to ARTs to teams
+
+PREFIX safe: <https://chatmangpt.com/ontologies/safe/pm#>
+PREFIX pm: <https://chatmangpt.com/ontologies/powl/pm#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?portfolio ?portfolioLabel ?art ?artLabel (SUM(?teamBudget) AS ?artBudget) ?teamCount
+WHERE {
+  # Find portfolio
+  ?portfolio a safe:Portfolio .
+  OPTIONAL { ?portfolio rdfs:label ?portfolioLabel }
+
+  # Find ARTs in portfolio
+  ?portfolio safe:hasArt ?art .
+  ?art a safe:AgileReleaseTrain .
+  OPTIONAL { ?art rdfs:label ?artLabel }
+
+  # Find teams in ART
+  ?art safe:hasTeam ?team .
+
+  # Get team budget allocation
+  ?art safe:allocatedBudget ?teamBudget .
+
+  # Count teams
+  ?art safe:hasTeam ?team2 .
+}
+GROUP BY ?portfolio ?portfolioLabel ?art ?artLabel
+ORDER BY DESC(?artBudget)

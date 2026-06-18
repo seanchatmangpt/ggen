@@ -1,0 +1,41 @@
+@prefix : <https://bytestar.org/ontology/bytestar-security#> .
+@prefix bs: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://bytestar.org/ontology/bytestar-security>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core> ;
+  rdfs:label "ByteStar Security & PQC" ;
+  rdfs:comment "PQC tiering (hot/warm/cold), receipts, ZK proofs, KEM settlement." .
+
+### PQC operations & tiering
+:PQCOp a owl:Class .
+:Verify a owl:Class ; rdfs:subClassOf :PQCOp .
+:Sign a owl:Class ; rdfs:subClassOf :PQCOp .
+:KeyGen a owl:Class ; rdfs:subClassOf :PQCOp .
+
+:placement a owl:DatatypeProperty ; rdfs:domain :PQCOp ; rdfs:range xsd:string .
+# Values: "hot" | "warm" | "cold"
+
+:targetLatencyNs a owl:DatatypeProperty ; rdfs:domain :PQCOp ; rdfs:range xsd:decimal .
+:batchSize a owl:DatatypeProperty ; rdfs:domain :PQCOp ; rdfs:range xsd:integer .
+
+### Rolling receipts (BLAKE3)
+:Receipt a owl:Class .
+:BLAKE3 a owl:Class ; rdfs:subClassOf :Receipt .
+:rollsInto a owl:ObjectProperty ; rdfs:domain :Receipt ; rdfs:range :Receipt .
+:seals a owl:ObjectProperty ; rdfs:domain :Receipt ; rdfs:range bs:Crystal .
+:digest a owl:DatatypeProperty ; rdfs:domain :Receipt ; rdfs:range xsd:hexBinary .
+
+### Zero-knowledge proofs
+:ZKProof a owl:Class .
+:constantSchedule a owl:DatatypeProperty ; rdfs:domain :ZKProof ; rdfs:range xsd:boolean .
+:noSecretBranching a owl:DatatypeProperty ; rdfs:domain :ZKProof ; rdfs:range xsd:boolean .
+:proves a owl:ObjectProperty ; rdfs:domain :ZKProof ; rdfs:range bs:Crystal .
+
+### KEM (Key Encapsulation Mechanism)
+:KEM a owl:Class .
+:encapsulates a owl:ObjectProperty ; rdfs:domain :KEM ; rdfs:range bs:Crystal .
+:privateSettlement a owl:DatatypeProperty ; rdfs:domain :KEM ; rdfs:range xsd:boolean .

@@ -1,0 +1,355 @@
+@prefix ba: <http://bitactor.org/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+
+# BitActor Semantic Core Ontology
+# Designed for 8-tick performance guarantee with semantic signal processing
+
+<http://bitactor.org/ontology> a owl:Ontology ;
+    rdfs:label "BitActor Semantic Core Ontology" ;
+    rdfs:comment "Ultra-low latency semantic signal processing for BitActor runtime" ;
+    owl:versionInfo "1.0" .
+
+# Core BitActor Classes
+
+ba:Signal a owl:Class ;
+    rdfs:label "BitActor Signal" ;
+    rdfs:comment "Atomic signal processed within 8-tick budget" .
+
+ba:SemanticSignal a owl:Class ;
+    rdfs:subClassOf ba:Signal ;
+    rdfs:label "Semantic Signal" ;
+    rdfs:comment "Signal enriched with semantic metadata" .
+
+ba:ValidationSignal a owl:Class ;
+    rdfs:subClassOf ba:SemanticSignal ;
+    rdfs:label "Validation Signal" ;
+    rdfs:comment "Signal for real-time SHACL validation" .
+
+ba:QuerySignal a owl:Class ;
+    rdfs:subClassOf ba:SemanticSignal ;
+    rdfs:label "Query Signal" ;
+    rdfs:comment "Signal containing SPARQL query for execution" .
+
+ba:Engine a owl:Class ;
+    rdfs:label "BitActor Engine" ;
+    rdfs:comment "Core BitActor execution engine with semantic capabilities" .
+
+ba:Handler a owl:Class ;
+    rdfs:label "Signal Handler" ;
+    rdfs:comment "Handler function for signal processing" .
+
+ba:SemanticHandler a owl:Class ;
+    rdfs:subClassOf ba:Handler ;
+    rdfs:label "Semantic Handler" ;
+    rdfs:comment "Handler with semantic reasoning capabilities" .
+
+# Performance Classes
+
+ba:TickBudget a owl:Class ;
+    rdfs:label "Tick Budget" ;
+    rdfs:comment "Performance constraint in CPU ticks" .
+
+ba:ExecutionResult a owl:Class ;
+    rdfs:label "Execution Result" ;
+    rdfs:comment "Result of signal processing with performance metrics" .
+
+# Knowledge Graph Classes
+
+ba:TripleStore a owl:Class ;
+    rdfs:label "Triple Store" ;
+    rdfs:comment "RDF triple storage optimized for 8-tick access" .
+
+ba:SHACLShape a owl:Class ;
+    rdfs:label "SHACL Shape" ;
+    rdfs:comment "Validation shape for real-time constraint checking" .
+
+ba:SPARQLQuery a owl:Class ;
+    rdfs:label "SPARQL Query" ;
+    rdfs:comment "Compiled SPARQL query for BitActor execution" .
+
+# Properties for Signal Structure
+
+ba:hasId a owl:DatatypeProperty ;
+    rdfs:domain ba:Signal ;
+    rdfs:range xsd:unsignedInt ;
+    rdfs:label "has ID" .
+
+ba:hasType a owl:DatatypeProperty ;
+    rdfs:domain ba:Signal ;
+    rdfs:range xsd:unsignedByte ;
+    rdfs:label "has type" .
+
+ba:hasPayload a owl:DatatypeProperty ;
+    rdfs:domain ba:Signal ;
+    rdfs:range xsd:unsignedLong ;
+    rdfs:label "has payload" .
+
+ba:hasTimestamp a owl:DatatypeProperty ;
+    rdfs:domain ba:Signal ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "has timestamp" .
+
+ba:hasPriority a owl:DatatypeProperty ;
+    rdfs:domain ba:Signal ;
+    rdfs:range xsd:unsignedByte ;
+    rdfs:label "has priority" ;
+    rdfs:comment "Signal priority (0-255)" .
+
+# Semantic Properties
+
+ba:hasPredicate a owl:ObjectProperty ;
+    rdfs:domain ba:SemanticSignal ;
+    rdfs:range rdf:Property ;
+    rdfs:label "has predicate" .
+
+ba:hasSubject a owl:ObjectProperty ;
+    rdfs:domain ba:SemanticSignal ;
+    rdfs:range rdfs:Resource ;
+    rdfs:label "has subject" .
+
+ba:hasObject a owl:ObjectProperty ;
+    rdfs:domain ba:SemanticSignal ;
+    rdfs:range rdfs:Resource ;
+    rdfs:label "has object" .
+
+ba:hasSemanticContext a owl:ObjectProperty ;
+    rdfs:domain ba:SemanticSignal ;
+    rdfs:range ba:TripleStore ;
+    rdfs:label "has semantic context" .
+
+# Performance Properties
+
+ba:hasTickBudget a owl:ObjectProperty ;
+    rdfs:domain ba:Handler ;
+    rdfs:range ba:TickBudget ;
+    rdfs:label "has tick budget" .
+
+ba:tickLimit a owl:DatatypeProperty ;
+    rdfs:domain ba:TickBudget ;
+    rdfs:range xsd:unsignedByte ;
+    rdfs:label "tick limit" ;
+    rdfs:comment "Maximum CPU ticks allowed (default: 8)" .
+
+ba:actualTicks a owl:DatatypeProperty ;
+    rdfs:domain ba:ExecutionResult ;
+    rdfs:range xsd:unsignedByte ;
+    rdfs:label "actual ticks" .
+
+ba:executionStatus a owl:DatatypeProperty ;
+    rdfs:domain ba:ExecutionResult ;
+    rdfs:range xsd:string ;
+    rdfs:label "execution status" .
+
+# SPARQL Integration Properties
+
+ba:hasQuery a owl:DatatypeProperty ;
+    rdfs:domain ba:QuerySignal ;
+    rdfs:range xsd:string ;
+    rdfs:label "has query" .
+
+ba:queryComplexity a owl:DatatypeProperty ;
+    rdfs:domain ba:SPARQLQuery ;
+    rdfs:range xsd:unsignedInt ;
+    rdfs:label "query complexity" ;
+    rdfs:comment "Estimated execution cost in ticks" .
+
+ba:hasBindings a owl:ObjectProperty ;
+    rdfs:domain ba:ExecutionResult ;
+    rdfs:range rdf:Bag ;
+    rdfs:label "has bindings" .
+
+# SHACL Validation Properties
+
+ba:hasShape a owl:ObjectProperty ;
+    rdfs:domain ba:ValidationSignal ;
+    rdfs:range ba:SHACLShape ;
+    rdfs:label "has shape" .
+
+ba:validationResult a owl:DatatypeProperty ;
+    rdfs:domain ba:ExecutionResult ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "validation result" .
+
+ba:violationCount a owl:DatatypeProperty ;
+    rdfs:domain ba:ExecutionResult ;
+    rdfs:range xsd:unsignedInt ;
+    rdfs:label "violation count" .
+
+# Engine Configuration Properties
+
+ba:maxSignals a owl:DatatypeProperty ;
+    rdfs:domain ba:Engine ;
+    rdfs:range xsd:unsignedInt ;
+    rdfs:label "max signals" .
+
+ba:dispatchTableSize a owl:DatatypeProperty ;
+    rdfs:domain ba:Engine ;
+    rdfs:range xsd:unsignedInt ;
+    rdfs:label "dispatch table size" .
+
+ba:hasTripleStore a owl:ObjectProperty ;
+    rdfs:domain ba:Engine ;
+    rdfs:range ba:TripleStore ;
+    rdfs:label "has triple store" .
+
+# Signal Type Individuals
+
+ba:HeartbeatSignal a ba:Signal ;
+    ba:hasType 255 ;
+    rdfs:label "Heartbeat Signal" .
+
+ba:NormalSignal a ba:Signal ;
+    ba:hasType 1 ;
+    rdfs:label "Normal Signal" .
+
+ba:DebugSignal a ba:Signal ;
+    ba:hasType 128 ;
+    rdfs:label "Debug Signal" .
+
+# Performance Budget Individuals
+
+ba:StandardBudget a ba:TickBudget ;
+    ba:tickLimit 8 ;
+    rdfs:label "Standard 8-Tick Budget" .
+
+ba:FastBudget a ba:TickBudget ;
+    ba:tickLimit 4 ;
+    rdfs:label "Fast 4-Tick Budget" .
+
+ba:UltraFastBudget a ba:TickBudget ;
+    ba:tickLimit 1 ;
+    rdfs:label "Ultra-Fast 1-Tick Budget" .
+
+# Semantic Signal Processing Rules
+
+# Rule: Semantic signals must have subject, predicate, object
+[] a owl:Restriction ;
+    owl:onProperty ba:hasPredicate ;
+    owl:someValuesFrom rdf:Property ;
+    rdfs:subClassOf ba:SemanticSignal .
+
+[] a owl:Restriction ;
+    owl:onProperty ba:hasSubject ;
+    owl:someValuesFrom rdfs:Resource ;
+    rdfs:subClassOf ba:SemanticSignal .
+
+[] a owl:Restriction ;
+    owl:onProperty ba:hasObject ;
+    owl:someValuesFrom rdfs:Resource ;
+    rdfs:subClassOf ba:SemanticSignal .
+
+# Rule: Handlers must have tick budget constraint
+[] a owl:Restriction ;
+    owl:onProperty ba:hasTickBudget ;
+    owl:someValuesFrom ba:TickBudget ;
+    rdfs:subClassOf ba:Handler .
+
+# Rule: Execution results must record actual ticks
+[] a owl:Restriction ;
+    owl:onProperty ba:actualTicks ;
+    owl:someValuesFrom xsd:unsignedByte ;
+    rdfs:subClassOf ba:ExecutionResult .
+
+# Cardinality Constraints for Performance
+
+# Signal can have exactly one ID
+[] a owl:Restriction ;
+    owl:onProperty ba:hasId ;
+    owl:cardinality 1 ;
+    rdfs:subClassOf ba:Signal .
+
+# Signal can have exactly one type
+[] a owl:Restriction ;
+    owl:onProperty ba:hasType ;
+    owl:cardinality 1 ;
+    rdfs:subClassOf ba:Signal .
+
+# Execution result has exactly one tick count
+[] a owl:Restriction ;
+    owl:onProperty ba:actualTicks ;
+    owl:cardinality 1 ;
+    rdfs:subClassOf ba:ExecutionResult .
+
+# Performance Optimization Classes
+
+ba:OptimizedHandler a owl:Class ;
+    rdfs:subClassOf ba:SemanticHandler ;
+    rdfs:label "Optimized Handler" ;
+    rdfs:comment "Handler optimized for sub-8-tick execution" .
+
+ba:CachedQuery a owl:Class ;
+    rdfs:subClassOf ba:SPARQLQuery ;
+    rdfs:label "Cached Query" ;
+    rdfs:comment "Pre-compiled SPARQL query for fast execution" .
+
+ba:FastValidation a owl:Class ;
+    rdfs:subClassOf ba:SHACLShape ;
+    rdfs:label "Fast Validation" ;
+    rdfs:comment "Optimized SHACL shape for real-time validation" .
+
+# Hash-based Dispatch Properties
+
+ba:hasHash a owl:DatatypeProperty ;
+    rdfs:domain ba:Handler ;
+    rdfs:range xsd:unsignedInt ;
+    rdfs:label "has hash" ;
+    rdfs:comment "Perfect hash for O(1) dispatch" .
+
+ba:dispatchHash a owl:DatatypeProperty ;
+    rdfs:domain ba:Signal ;
+    rdfs:range xsd:unsignedInt ;
+    rdfs:label "dispatch hash" ;
+    rdfs:comment "Hash for handler lookup" .
+
+# SIMD Optimization Properties
+
+ba:vectorizable a owl:DatatypeProperty ;
+    rdfs:domain ba:Handler ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "vectorizable" ;
+    rdfs:comment "Handler supports SIMD vectorization" .
+
+ba:batchSize a owl:DatatypeProperty ;
+    rdfs:domain ba:Handler ;
+    rdfs:range xsd:unsignedByte ;
+    rdfs:label "batch size" ;
+    rdfs:comment "Optimal batch size for vectorization" .
+
+# Telemetry Properties
+
+ba:hasTraceId a owl:DatatypeProperty ;
+    rdfs:domain ba:ExecutionResult ;
+    rdfs:range xsd:unsignedInt ;
+    rdfs:label "has trace ID" .
+
+ba:executionHash a owl:DatatypeProperty ;
+    rdfs:domain ba:ExecutionResult ;
+    rdfs:range xsd:unsignedInt ;
+    rdfs:label "execution hash" ;
+    rdfs:comment "Hash for reversible execution tracing" .
+
+# Memory Pool Properties
+
+ba:hasMemoryPool a owl:ObjectProperty ;
+    rdfs:domain ba:Engine ;
+    rdfs:range ba:MemoryPool ;
+    rdfs:label "has memory pool" .
+
+ba:MemoryPool a owl:Class ;
+    rdfs:label "Memory Pool" ;
+    rdfs:comment "Pre-allocated memory for zero-allocation execution" .
+
+ba:poolSize a owl:DatatypeProperty ;
+    rdfs:domain ba:MemoryPool ;
+    rdfs:range xsd:unsignedInt ;
+    rdfs:label "pool size" .
+
+ba:alignmentBytes a owl:DatatypeProperty ;
+    rdfs:domain ba:MemoryPool ;
+    rdfs:range xsd:unsignedByte ;
+    rdfs:label "alignment bytes" ;
+    rdfs:comment "Memory alignment for cache optimization" .

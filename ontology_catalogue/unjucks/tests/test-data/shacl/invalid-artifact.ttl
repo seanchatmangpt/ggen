@@ -1,0 +1,22 @@
+@prefix kgen: <https://kgen.io/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+# Invalid KGEN artifact for testing SHACL violations
+
+<https://kgen.io/artifacts/invalid-cli> a kgen:Artifact ;
+    kgen:contentHash "invalid-hash-format" ;
+    kgen:filePath "src/cli.js" ;
+    kgen:createdAt "2024-01-15T10:30:00Z"^^xsd:dateTime ;
+    kgen:fileSize -100 ;
+    kgen:mimeType "invalid/mime/type" ;
+    dct:title "Invalid CLI Implementation" ;
+    dct:description "Artifact with constraint violations" .
+
+<https://kgen.io/artifacts/missing-fields> a kgen:Artifact ;
+    # Missing required contentHash
+    kgen:filePath "src/missing.js" ;
+    # Missing createdAt
+    kgen:fileSize 0 ;
+    # Missing mimeType
+    dct:title "Incomplete Artifact" .

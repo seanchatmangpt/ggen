@@ -1,0 +1,28 @@
+# SPARQL Query: Extract Replay Authority Definitions from wasm4pm-compat ontology
+# Purpose: Identify all replay process forms and constraints that graduate to wasm4pm
+# engine for token-based simulation, path finding, and execution profiling
+# Usage: ggen query extract-replay-authority.rq --format json
+
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+PREFIX compat: <https://wasm4pm-compat.rs/ontology#>
+
+SELECT ?authority ?rustType ?sourceFile ?description
+WHERE {
+  ?authority a compat:ProcessForm ;
+             compat:rustType ?rustType ;
+             compat:sourceFile ?sourceFile ;
+             compat:graduatesToWasm4pm true ;
+             rdfs:comment ?description .
+
+  FILTER (
+    CONTAINS(?description, "replay") ||
+    CONTAINS(?description, "simulation") ||
+    CONTAINS(?description, "token") ||
+    CONTAINS(?description, "execution") ||
+    CONTAINS(?description, "path") ||
+    CONTAINS(?description, "traverse")
+  )
+}
+ORDER BY ?rustType

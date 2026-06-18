@@ -1,0 +1,4 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix id: <https://cns.dev/identity#> .
+
+id:PrincipalShape a sh:NodeShape ; sh:targetClass id:Principal .

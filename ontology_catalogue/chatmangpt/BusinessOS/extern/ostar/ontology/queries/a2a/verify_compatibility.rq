@@ -1,0 +1,78 @@
+# Verify Agent Compatibility
+#
+# CONSTRUCT query that builds a compatibility graph between two agents.
+# For each shared (admitted) capability, asserts a prov:Activity representing
+# the compatible interaction. The constructed graph captures:
+#   - The two agents as prov:Agent participants
+#   - A prov:Activity node per shared capability
+#   - Capability label, surface kind, and effect class as properties
+#
+# Usage: Replace the placeholder VALUES with actual agent URIs.
+#
+# Public ontology terms:
+#   Agent -> prov:Agent
+#   hasCapability -> skos:related
+#   admissionStatus -> skos:prefLabel filter on "admitted"
+#   surfaceKind -> skos:related surface kind concept
+#   effectClass -> skos:related effect class concept
+
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX dct:  <http://purl.org/dc/terms/>
+
+CONSTRUCT {
+  # The interaction activity node (one per shared capability)
+  ?interaction a prov:Activity .
+
+  # Label the interaction with the capability name
+  ?interaction rdfs:label ?interactionLabel .
+
+  # Link both agents to the interaction
+  ?interaction prov:wasAssociatedWith ?agentA .
+  ?interaction prov:wasAssociatedWith ?agentB .
+
+  # Capture surface kind and effect class as dct descriptions on the interaction
+  ?interaction dct:description ?surfaceKind .
+  ?interaction dct:abstract ?effectClass .
+
+  # Link to the shared capability for provenance
+  ?interaction prov:used ?sharedCapability .
+}
+WHERE {
+  # Bind the two agents to evaluate (replace with actual URIs)
+  VALUES ?agentA { <https://chatmangpt.com/agents/placeholder-a> }
+  VALUES ?agentB { <https://chatmangpt.com/agents/placeholder-b> }
+
+  # Both agents must be prov:Agent instances
+  ?agentA a prov:Agent .
+  ?agentB a prov:Agent .
+
+  # Find capabilities that BOTH agents share (via skos:related)
+  ?agentA skos:related ?sharedCapability .
+  ?agentB skos:related ?sharedCapability .
+  ?sharedCapability a skos:Concept ;
+                    skos:inScheme <https://chatmangpt.com/ontologies/skos/capabilities> .
+
+  # Only admitted capabilities count for compatibility
+  ?sharedCapability skos:related ?statusConcept .
+  ?statusConcept skos:prefLabel "admitted" .
+
+  # Capability label for the interaction label
+  ?sharedCapability rdfs:label ?capabilityLabel .
+
+  # Surface kind and effect class (optional, via related SKOS concepts)
+  OPTIONAL {
+    ?sharedCapability skos:related ?surfaceConcept .
+    ?surfaceConcept skos:prefLabel ?surfaceKind .
+  }
+  OPTIONAL {
+    ?sharedCapability skos:related ?effectConcept .
+    ?effectConcept skos:prefLabel ?effectClass .
+  }
+
+  # Generate a deterministic interaction URI from the two agents and capability
+  BIND(IRI(CONCAT("https://chatmangpt.com/a2a/interaction/", STR(?agentA), "-", STR(?agentB), "-", STRAFTER(STR(?sharedCapability), "capabilities/"))) AS ?interaction)
+  BIND(CONCAT("Compatible interaction: ", ?capabilityLabel) AS ?interactionLabel)
+}

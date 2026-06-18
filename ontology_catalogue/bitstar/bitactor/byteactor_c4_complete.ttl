@@ -1,0 +1,326 @@
+@prefix :      <http://bitbizeco.dev/ontology/v1/byteactor_c4#> .
+@prefix c4:    <http://bitbizeco.dev/ontology/v1/c4#> .
+@prefix byte:  <http://bitbizeco.dev/ontology/v1/byteactor#> .
+@prefix impl:  <http://bitbizeco.dev/ontology/v1/implementation#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+<http://bitbizeco.dev/ontology/v1/byteactor_c4_complete>
+  a owl:Ontology ;
+  rdfs:label "Complete C4 Architecture for ByteActor System" ;
+  rdfs:comment "Comprehensive, machine-readable specification of ByteActor architecture enabling autonomous system construction" ;
+  owl:versionInfo "1.0" .
+
+#################################################################
+#
+# C4 ARCHITECTURAL PRIMITIVES
+#
+#################################################################
+
+c4:System       a owl:Class ; rdfs:label "C1: System Level" .
+c4:Container    a owl:Class ; rdfs:label "C2: Container Level" .
+c4:Component    a owl:Class ; rdfs:label "C3: Component Level" .
+c4:Code         a owl:Class ; rdfs:label "C4: Code Level" .
+c4:Person       a owl:Class ; rdfs:label "External Actor" .
+
+# Relationships
+c4:contains     a owl:ObjectProperty .
+c4:interactsWith a owl:ObjectProperty .
+c4:dependsOn    a owl:ObjectProperty .
+c4:implements   a owl:ObjectProperty .
+c4:exposes      a owl:ObjectProperty .
+
+# Properties
+c4:technology   a owl:DatatypeProperty ; rdfs:range xsd:string .
+c4:description  a owl:DatatypeProperty ; rdfs:range xsd:string .
+c4:interface    a owl:DatatypeProperty ; rdfs:range xsd:string .
+c4:filePath     a owl:DatatypeProperty ; rdfs:range xsd:string .
+
+#################################################################
+#
+# C1: SYSTEM CONTEXT - The ByteActor Ecosystem
+#
+#################################################################
+
+byte:ByteActorSystem a c4:System ;
+  rdfs:label "ByteActor Ultra-Low Latency Engine" ;
+  c4:description "Multi-core, shared-nothing actor system with ≤8 tick execution guarantee" ;
+  c4:technology "C11, Erlang/OTP, SIMD (AVX2/NEON), Lock-free Data Structures" ;
+  c4:contains byte:ErlangOrchestrator, byte:CExecutionEngine, byte:NIFBridge, byte:TelemetrySystem ;
+  
+  # Performance Requirements
+  impl:maxExecutionTicks 8 ;
+  impl:maxEndToEndHops 8 ;
+  impl:targetLatency "10ns" ;
+  impl:targetThroughput "10M signals/sec" .
+
+# External Actors
+byte:CommanderUser a c4:Person ;
+  rdfs:label "System Commander" ;
+  c4:description "Human or system that submits computational requests" .
+
+byte:MonitoringSystem a c4:Person ;
+  rdfs:label "Observability System" ;
+  c4:description "External telemetry and monitoring consumers" .
+
+byte:CommanderUser c4:interactsWith byte:ByteActorSystem ;
+  c4:description "Submits signals via Erlang interface, receives Result Crystals" .
+
+byte:ByteActorSystem c4:interactsWith byte:MonitoringSystem ;
+  c4:description "Emits telemetry, metrics, and execution proofs" .
+
+#################################################################
+#
+# C2: CONTAINERS - Major System Components
+#
+#################################################################
+
+byte:ErlangOrchestrator a c4:Container ;
+  rdfs:label "Erlang Orchestration Layer (The Wide Realm)" ;
+  c4:technology "Erlang/OTP 26+, GenServer, Supervision Trees" ;
+  c4:description "Distributed coordination, fault tolerance, signal placement" ;
+  c4:filePath "~/cns/legacy/elixir/bitactor_otp/src/" ;
+  c4:contains 
+    byte:BitActorServer,
+    byte:BitActorCluster,
+    byte:BitActorSupervisor,
+    byte:BitActorWorkerPool,
+    byte:BitActorTelemetry ;
+  
+  # Interface Definition
+  c4:interface "create_actor(Type) -> {ok, ActorRef} | {error, Reason}" ;
+  c4:interface "send_signal(ActorRef, Signal) -> ok | {error, Reason}" ;
+  c4:interface "get_actor_stats(ActorRef) -> {ok, Stats} | {error, Reason}" .
+
+byte:CExecutionEngine a c4:Container ;
+  rdfs:label "C Execution Engine (The Fast Realm)" ;
+  c4:technology "C11, GCC/Clang, SIMD (AVX2/NEON), Lock-free Algorithms" ;
+  c4:description "Ultra-low latency, per-core execution engines with ≤8 tick guarantee" ;
+  c4:filePath "~/cns/src/cns/bitactor.c, ~/cns/bitactor/src/" ;
+  c4:contains
+    byte:BitActorCore,
+    byte:RingBufferSystem,
+    byte:DispatchTable,
+    byte:MemoryCrystallization,
+    byte:SIMDKernels,
+    byte:ResultCrystalSealer ;
+  
+  # Performance Constraints
+  impl:maxTicksPerSignal 8 ;
+  impl:ringBufferSize 65536 ;
+  impl:dispatchTableSize 256 ;
+  impl:cacheLineAlignment 64 .
+
+byte:NIFBridge a c4:Container ;
+  rdfs:label "Erlang NIF Bridge" ;
+  c4:technology "Erlang NIF, C11, Resource Management" ;
+  c4:description "Zero-copy bridge between Erlang and C execution realms" ;
+  c4:filePath "~/cns/legacy/elixir/bitactor_otp/c_src/bitactor_nif.c" ;
+  
+  # NIF Interface Specifications
+  c4:interface "create_actor_nif(ErlNifEnv*, int, ERL_NIF_TERM[])" ;
+  c4:interface "send_message_nif(ErlNifEnv*, int, ERL_NIF_TERM[])" ;
+  c4:interface "process_messages_nif(ErlNifEnv*, int, ERL_NIF_TERM[])" .
+
+byte:TelemetrySystem a c4:Container ;
+  rdfs:label "Telemetry and Performance Monitoring" ;
+  c4:technology "OpenTelemetry, BLAKE3 Hashing, Ring Buffers" ;
+  c4:description "Real-time performance metrics, execution proofs, Result Crystal validation" .
+
+# Container Interactions
+byte:ErlangOrchestrator c4:interactsWith byte:NIFBridge ;
+  c4:description "Signal placement and Result Crystal collection via NIF calls" .
+
+byte:NIFBridge c4:interactsWith byte:CExecutionEngine ;
+  c4:description "Direct memory access to ring buffers and execution state" .
+
+byte:CExecutionEngine c4:interactsWith byte:TelemetrySystem ;
+  c4:description "Emits telemetry frames and performance metrics" .
+
+#################################################################
+#
+# C3: COMPONENTS - Internal Component Structure
+#
+#################################################################
+
+# Erlang Orchestrator Components
+byte:BitActorServer a c4:Component ;
+  rdfs:label "BitActor GenServer" ;
+  c4:description "Main coordination server with ultra-fast message path" ;
+  c4:filePath "~/cns/legacy/elixir/bitactor_otp/src/bitactor_server.erl" ;
+  c4:implements byte:ActorLifecycleManagement, byte:DirectMessageRouting .
+
+byte:BitActorCluster a c4:Component ;
+  rdfs:label "Distributed Clustering Manager" ;
+  c4:description "Node discovery, load balancing, fault tolerance" ;
+  c4:filePath "~/cns/legacy/elixir/bitactor_otp/src/bitactor_cluster.erl" ;
+  c4:implements byte:NodeDiscovery, byte:LoadBalancing, byte:FaultTolerance .
+
+byte:BitActorSupervisor a c4:Component ;
+  rdfs:label "OTP Supervision Tree" ;
+  c4:description "Fault-tolerant process management" ;
+  c4:filePath "~/cns/legacy/elixir/bitactor_otp/src/bitactor_sup.erl" .
+
+byte:BitActorWorkerPool a c4:Component ;
+  rdfs:label "Worker Process Pool" ;
+  c4:description "Pool of worker processes for signal processing" ;
+  c4:filePath "~/cns/legacy/elixir/bitactor_otp/src/bitactor_worker.erl" .
+
+byte:BitActorTelemetry a c4:Component ;
+  rdfs:label "Erlang Telemetry Collector" ;
+  c4:description "Performance metrics aggregation and reporting" ;
+  c4:filePath "~/cns/legacy/elixir/bitactor_otp/src/bitactor_telemetry.erl" .
+
+# C Execution Engine Components  
+byte:BitActorCore a c4:Component ;
+  rdfs:label "Core Actor Execution Loop" ;
+  c4:description "Main execution loop with ≤8 tick guarantee" ;
+  c4:filePath "~/cns/src/cns/bitactor.c" ;
+  c4:implements byte:SignalDequeue, byte:PerfectHashDispatch, byte:KernelExecution .
+
+byte:RingBufferSystem a c4:Component ;
+  rdfs:label "Lock-free Ring Buffers" ;
+  c4:description "SPSC ring buffers for signal queuing" ;
+  c4:filePath "~/cns/src/cns/bitactor.c:22-37" ;
+  c4:implements byte:LockFreeEnqueue, byte:LockFreeDequeue, byte:AtomicPointers .
+
+byte:DispatchTable a c4:Component ;
+  rdfs:label "Perfect Hash Dispatch Table" ;
+  c4:description "O(1) signal routing with minimal perfect hash function" ;
+  c4:filePath "~/cns/bitactor/src/bitactor_dispatch.c" ;
+  c4:implements byte:MPHFGeneration, byte:FunctionPointerTable .
+
+byte:MemoryCrystallization a c4:Component ;
+  rdfs:label "Memory Crystal Allocation Engine" ;
+  c4:description "Pre-allocated, NUMA-local memory pools" ;
+  c4:filePath "~/cns/bitflow/core/src/bitflow_memory_crystallization.c" ;
+  c4:implements byte:PreAllocatedPools, byte:NUMALocal, byte:CacheAligned .
+
+byte:SIMDKernels a c4:Component ;
+  rdfs:label "SIMD-Optimized Execution Kernels" ;
+  c4:description "Vectorized operations using AVX2/NEON" ;
+  c4:filePath "~/cns/src/cns/bitactor.c:138-188" ;
+  c4:implements byte:AVX2Operations, byte:NEONOperations, byte:VectorizedBatch .
+
+byte:ResultCrystalSealer a c4:Component ;
+  rdfs:label "BLAKE3 Result Crystal Sealer" ;
+  c4:description "Cryptographic sealing of execution results" ;
+  c4:filePath "~/cns/bitactor/src/bitactor_blake3.c" ;
+  c4:implements byte:BLAKE3Hashing, byte:CryptoProof, byte:ImmutableSealing .
+
+#################################################################
+#
+# C4: CODE LEVEL - Implementation Specifications
+#
+#################################################################
+
+# Core Data Structures
+byte:BitActorStruct a c4:Code ;
+  rdfs:label "bitactor_t Structure" ;
+  c4:description "Main BitActor engine state structure" ;
+  c4:filePath "~/cns/src/cns/bitactor.h" ;
+  impl:structDefinition """
+typedef struct __attribute__((cache_aligned)) {
+    signal_ring_t signal_ring[BITACTOR_RING_SIZE];
+    handler_fn dispatch[BITACTOR_DISPATCH_SIZE];  
+    uint8_t scratch[BITACTOR_SCRATCH_SIZE];
+    telemetry_frame_t telemetry[BITACTOR_TELEMETRY_SIZE];
+    uint32_t signal_head, signal_tail;
+    uint32_t telemetry_head;
+    uint64_t tick_count, cycle_count, signal_count;
+} bitactor_t;
+""" .
+
+byte:SignalStruct a c4:Code ;
+  rdfs:label "signal_t Structure" ;
+  c4:description "Signal message structure" ;
+  impl:structDefinition """
+typedef struct {
+    uint32_t kind;
+    uint64_t timestamp;
+    uint64_t payload[6];  // 64-byte total
+} signal_t;
+""" .
+
+byte:ResultCrystalStruct a c4:Code ;
+  rdfs:label "result_crystal_t Structure" ;
+  c4:description "64-byte Result Crystal with BLAKE3 seal" ;
+  impl:structDefinition """
+typedef struct __attribute__((packed, aligned(64))) {
+    uint64_t result_ptr;
+    uint64_t timestamp;
+    uint32_t signal_id;
+    uint32_t exec_ticks;
+    uint8_t  blake3_hash[32];
+    uint64_t telemetry;
+} result_crystal_t;
+""" .
+
+# Core Functions
+byte:BitActorTick a c4:Code ;
+  rdfs:label "bitactor_tick() Function" ;
+  c4:description "Main execution loop with ≤8 tick guarantee" ;
+  c4:filePath "~/cns/src/cns/bitactor.c:54-94" ;
+  impl:functionSignature "void bitactor_tick(bitactor_t* ba)" ;
+  impl:maxExecutionTicks 8 ;
+  impl:attributes "__attribute__((hot, always_inline))" .
+
+byte:BitActorEnqueue a c4:Code ;
+  rdfs:label "bitactor_enqueue_signal() Function" ;
+  c4:description "Lock-free signal enqueuing" ;
+  c4:filePath "~/cns/src/cns/bitactor.c:21-37" ;
+  impl:functionSignature "bool bitactor_enqueue_signal(bitactor_t* ba, const signal_t* sig)" ;
+  impl:lockFree true ;
+  impl:atomicOperations "ATOMIC_RELEASE" .
+
+#################################################################
+#
+# SHACL VALIDATION RULES - Architectural Constraints
+#
+#################################################################
+
+# Rule 1: ByteActor System must contain all required containers
+:SystemCompletenessShape a sh:NodeShape ;
+  sh:targetClass byte:ByteActorSystem ;
+  sh:property [
+    sh:path c4:contains ;
+    sh:hasValue byte:ErlangOrchestrator ;
+    sh:minCount 1 ; sh:maxCount 1
+  ] ;
+  sh:property [
+    sh:path c4:contains ;
+    sh:hasValue byte:CExecutionEngine ;
+    sh:minCount 1 ; sh:maxCount 1
+  ] ;
+  sh:message "ByteActor System must contain exactly one Erlang Orchestrator and one C Execution Engine" .
+
+# Rule 2: Execution Engine must guarantee ≤8 tick performance
+:PerformanceGuaranteeShape a sh:NodeShape ;
+  sh:targetClass byte:CExecutionEngine ;
+  sh:property [
+    sh:path impl:maxTicksPerSignal ;
+    sh:maxInclusive 8 ;
+    sh:minInclusive 1
+  ] ;
+  sh:message "C Execution Engine must guarantee ≤8 tick execution" .
+
+# Rule 3: Ring buffers must be power-of-2 sized for efficient masking
+:RingBufferSizeShape a sh:NodeShape ;
+  sh:targetClass byte:RingBufferSystem ;
+  sh:property [
+    sh:path impl:ringBufferSize ;
+    sh:in (1024 2048 4096 8192 16384 32768 65536)
+  ] ;
+  sh:message "Ring buffer size must be power of 2 for efficient bit masking" .
+
+# Rule 4: All data structures must be cache-line aligned
+:CacheAlignmentShape a sh:NodeShape ;
+  sh:targetNode byte:BitActorStruct, byte:ResultCrystalStruct ;
+  sh:property [
+    sh:path impl:cacheLineAlignment ;
+    sh:hasValue 64
+  ] ;
+  sh:message "Critical data structures must be 64-byte cache-line aligned" .

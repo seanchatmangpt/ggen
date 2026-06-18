@@ -1,0 +1,181 @@
+@prefix ex: <http://example.org/> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+@prefix op: <https://gitvan.dev/op#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix scrum: <https://bytestar.org/ontology/ethos/canon/scrum-at-scale#> .
+
+# Scrum Team Setup and Sprint Initialization Workflow
+# This workflow sets up a new Scrum team and initializes their first sprint
+
+ex:scrum-team-setup-workflow rdf:type gh:Hook ;
+    gv:title "Scrum Team Setup and Sprint Initialization" ;
+    gh:hasPredicate ex:scrumTeamSetupWorkflow ;
+    gh:orderedPipelines ex:scrum-team-setup-pipeline .
+
+ex:scrum-team-setup-pipeline rdf:type op:Pipeline ;
+    op:steps ex:team-creation-step ;
+    op:steps ex:role-assignment-step ;
+    op:steps ex:backlog-setup-step ;
+    op:steps ex:sprint-initialization-step ;
+    op:steps ex:cursor-team-setup-analysis-step .
+
+# Step 1: Team Creation and Structure
+ex:team-creation-step rdf:type gv:TemplateStep ;
+    gv:template """
+# Scrum Team Setup - {{ team.name }}
+
+## Team Information
+- **Team Name**: {{ team.name }}
+- **Team Size**: {{ team.size }} members
+- **Formation Date**: {{ date }}
+- **Team Charter**: {{ team.charter }}
+
+## Team Structure
+### Core Roles
+- **Scrum Master**: {{ team.scrumMaster }}
+  - Responsibilities: Process facilitation, impediment removal, team coaching
+  - Experience: {{ team.scrumMasterExperience }} years
+  
+- **Product Owner**: {{ team.productOwner }}
+  - Responsibilities: Product vision, backlog management, stakeholder communication
+  - Experience: {{ team.productOwnerExperience }} years
+
+### Development Team Members
+{% for member in team.members %}
+- **{{ member.name }}** ({{ member.role }})
+  - Skills: {{ member.skills | join(", ") }}
+  - Experience: {{ member.experience }} years
+{% endfor %}
+
+## Team Agreements
+- [ ] Definition of Done established
+- [ ] Working agreements documented
+- [ ] Communication protocols defined
+- [ ] Tool stack selected
+- [ ] Meeting schedule established
+
+## Initial Sprint Planning
+- [ ] Product backlog prioritized
+- [ ] Sprint goal defined
+- [ ] Sprint backlog created
+- [ ] Capacity planning completed
+    """ ;
+    gv:outputPath "scrum-teams/{{ team.name | lower | replace(' ', '-') }}-setup.md" .
+
+# Step 2: Role Assignment and Responsibilities
+ex:role-assignment-step rdf:type gv:SparqlStep ;
+    gv:text """
+        PREFIX scrum: <https://bytestar.org/ontology/ethos/canon/scrum-at-scale#>
+        PREFIX ex: <http://example.org/>
+        
+        SELECT ?person ?role ?responsibilities ?experience WHERE {
+            ?person a scrum:TeamMember ;
+                scrum:hasRole ?role ;
+                scrum:hasExperience ?experience .
+            ?role scrum:hasResponsibilities ?responsibilities .
+        }
+    """ ;
+    gv:outputMapping '{"roles": "results", "assignments": "data"}' .
+
+# Step 3: Product Backlog Setup
+ex:backlog-setup-step rdf:type gv:TemplateStep ;
+    gv:template """
+# Product Backlog - {{ team.name }}
+
+## Product Vision
+{{ product.vision }}
+
+## Product Goals
+{% for goal in product.goals %}
+- [ ] {{ goal.description }}
+  - Priority: {{ goal.priority }}
+  - Estimated effort: {{ goal.effort }}
+  - Acceptance criteria: {{ goal.criteria }}
+{% endfor %}
+
+## User Stories
+{% for story in product.userStories %}
+### {{ story.title }}
+**As a** {{ story.asA }}  
+**I want** {{ story.iWant }}  
+**So that** {{ story.soThat }}
+
+- **Story Points**: {{ story.points }}
+- **Priority**: {{ story.priority }}
+- **Acceptance Criteria**:
+{% for criteria in story.acceptanceCriteria %}
+  - [ ] {{ criteria }}
+{% endfor %}
+
+---
+{% endfor %}
+
+## Backlog Refinement
+- [ ] Stories estimated
+- [ ] Dependencies identified
+- [ ] Acceptance criteria clarified
+- [ ] Ready for sprint planning
+    """ ;
+    gv:outputPath "scrum-teams/{{ team.name | lower | replace(' ', '-') }}-backlog.md" .
+
+# Step 4: Sprint Initialization
+ex:sprint-initialization-step rdf:type gv:TemplateStep ;
+    gv:template """
+# Sprint {{ sprint.number }} - {{ sprint.goal }}
+
+## Sprint Information
+- **Sprint Number**: {{ sprint.number }}
+- **Sprint Goal**: {{ sprint.goal }}
+- **Duration**: {{ sprint.duration }} weeks
+- **Start Date**: {{ sprint.startDate }}
+- **End Date**: {{ sprint.endDate }}
+
+## Sprint Backlog
+{% for item in sprint.backlogItems %}
+### {{ item.title }}
+- **Story Points**: {{ item.points }}
+- **Assignee**: {{ item.assignee }}
+- **Status**: {{ item.status }}
+- **Description**: {{ item.description }}
+
+#### Tasks
+{% for task in item.tasks %}
+- [ ] {{ task.description }} ({{ task.estimate }}h)
+{% endfor %}
+
+---
+{% endfor %}
+
+## Sprint Planning
+- [ ] Sprint goal agreed upon
+- [ ] Backlog items selected
+- [ ] Tasks broken down
+- [ ] Capacity planned
+- [ ] Dependencies identified
+
+## Daily Scrum Schedule
+- **Time**: {{ dailyScrum.time }}
+- **Duration**: {{ dailyScrum.duration }} minutes
+- **Location**: {{ dailyScrum.location }}
+- **Format**: {{ dailyScrum.format }}
+
+## Sprint Events
+- [ ] Sprint Planning: {{ sprint.events.planning }}
+- [ ] Daily Scrums: {{ sprint.events.daily }}
+- [ ] Sprint Review: {{ sprint.events.review }}
+- [ ] Sprint Retrospective: {{ sprint.events.retrospective }}
+    """ ;
+    gv:outputPath "scrum-teams/{{ team.name | lower | replace(' ', '-') }}-sprint-{{ sprint.number }}.md" .
+
+# Step 5: Cursor CLI Team Setup Analysis
+ex:cursor-team-setup-analysis-step rdf:type gv:CliStep ;
+    gv:command "cursor-agent" ;
+    gv:args "-p" ;
+    gv:args "Analyze this Scrum team setup and provide recommendations for team formation, role clarity, and sprint initialization. Review the team structure, role assignments, product backlog setup, and sprint planning processes. Suggest improvements for team dynamics, process efficiency, and successful sprint execution. Focus on Scrum best practices and provide actionable insights for the new team's success." ;
+    gv:args "--model" ;
+    gv:args "gpt-4" ;
+    gv:args "--output-format" ;
+    gv:args "text" ;
+    gv:outputPath "scrum-teams/{{ team.name | lower | replace(' ', '-') }}-cursor-analysis.txt" .

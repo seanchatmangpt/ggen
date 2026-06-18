@@ -1,0 +1,10 @@
+@prefix wf:   <https://core.bitstar.dev/ontology/workflow#> .
+@prefix core: <https://core.bitstar.dev/ontology/core#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+wf:Workflow a rdfs:Class .
+wf:Task a rdfs:Class .
+
+wf:hasTask a rdfs:Property ; rdfs:domain wf:Workflow ; rdfs:range wf:Task .
+wf:precedes a rdfs:Property ; rdfs:domain wf:Task ; rdfs:range wf:Task .
+

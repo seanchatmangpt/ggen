@@ -1,0 +1,40 @@
+@prefix ex: <http://example.org/> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+@prefix op: <https://gitvan.dev/op#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Version Change Detection Hook
+ex:version-change-hook rdf:type gh:Hook ;
+    gv:title "Version Change Detection" ;
+    gh:hasPredicate ex:version-change-predicate ;
+    gh:orderedPipelines ex:version-change-pipeline .
+
+# ResultDelta Predicate - "State Change" Sensor
+ex:version-change-predicate rdf:type gh:ResultDelta ;
+    gh:queryText """
+        PREFIX gv: <https://gitvan.dev/ontology#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        
+        SELECT ?project ?version ?releaseDate WHERE {
+            ?project rdf:type gv:Project .
+            ?project gv:version ?version .
+            ?project gv:releaseDate ?releaseDate .
+        } ORDER BY ?project
+    """ ;
+    gh:description "Detects when project version information changes between commits" .
+
+# Workflow Pipeline
+ex:version-change-pipeline rdf:type op:Pipeline ;
+    op:steps (ex:notify-team, ex:update-changelog) .
+
+# Step 1: Notify Team
+ex:notify-team rdf:type gv:TemplateStep ;
+    gv:text "Version {{ version }} detected at {{ releaseDate }}" ;
+    gv:filePath "./logs/version-changes.log" .
+
+# Step 2: Update Changelog
+ex:update-changelog rdf:type gv:TemplateStep ;
+    gv:text "## Version {{ version }} - {{ releaseDate }}\n\nVersion change detected automatically.\n" ;
+    gv:filePath "./CHANGELOG.md" ;
+    gv:dependsOn ex:notify-team .

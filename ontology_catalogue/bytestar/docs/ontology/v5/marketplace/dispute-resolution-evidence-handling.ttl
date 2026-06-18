@@ -1,0 +1,1147 @@
+@prefix ba: <http://bytestar.org/ontology/> .
+@prefix bam: <http://bytestar.org/ontology/marketplace/> .
+@prefix bamd: <http://bytestar.org/ontology/marketplace/dispute/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix crypto: <http://www.w3.org/2000/10/swap/crypto#> .
+
+# =============================================================================
+# ByteStar Dispute Resolution and Evidence Handling System
+# Version: 5.0.0 - Marketplace Phase
+# =============================================================================
+
+<http://bytestar.org/ontology/marketplace/dispute-resolution> a owl:Ontology ;
+    owl:versionIRI <http://bytestar.org/ontology/marketplace/dispute-resolution/5.0.0> ;
+    dct:title "ByteStar Dispute Resolution and Evidence Handling System" ;
+    dct:description "Comprehensive dispute resolution system with automated arbitration, evidence collection and verification, smart contract enforcement, and blockchain-based audit trails for marketplace transactions" ;
+    dct:creator "ByteStar Architecture Team" ;
+    dct:created "2025-01-23"^^xsd:date ;
+    dct:modified "2025-01-23"^^xsd:date ;
+    owl:imports <http://bytestar.org/ontology/core>,
+                <http://bytestar.org/ontology/marketplace/trading-protocols>,
+                <http://bytestar.org/ontology/marketplace/aml-kyc-sanctions>,
+                <http://bytestar.org/ontology/audit-system>,
+                <http://bytestar.org/ontology/compliance-framework> .
+
+# =============================================================================
+# Core Dispute Resolution Classes
+# =============================================================================
+
+bamd:DisputeResolutionSystem a owl:Class ;
+    rdfs:label "Dispute Resolution System" ;
+    rdfs:comment "Comprehensive system for handling marketplace disputes" ;
+    rdfs:subClassOf ba:System .
+
+bamd:Dispute a owl:Class ;
+    rdfs:label "Dispute" ;
+    rdfs:comment "Formal dispute between marketplace participants" ;
+    rdfs:subClassOf ba:LegalProcedure .
+
+bamd:TradeDispute a owl:Class ;
+    rdfs:label "Trade Dispute" ;
+    rdfs:comment "Dispute arising from trading activities" ;
+    rdfs:subClassOf bamd:Dispute .
+
+bamd:SettlementDispute a owl:Class ;
+    rdfs:label "Settlement Dispute" ;
+    rdfs:comment "Dispute related to settlement calculations or execution" ;
+    rdfs:subClassOf bamd:Dispute .
+
+bamd:ComplianceDispute a owl:Class ;
+    rdfs:label "Compliance Dispute" ;
+    rdfs:comment "Dispute related to compliance requirements or violations" ;
+    rdfs:subClassOf bamd:Dispute .
+
+bamd:FraudDispute a owl:Class ;
+    rdfs:label "Fraud Dispute" ;
+    rdfs:comment "Dispute alleging fraudulent activity" ;
+    rdfs:subClassOf bamd:Dispute .
+
+bamd:ContractDispute a owl:Class ;
+    rdfs:label "Contract Dispute" ;
+    rdfs:comment "Dispute over smart contract terms or execution" ;
+    rdfs:subClassOf bamd:Dispute .
+
+bamd:DisputeCase a owl:Class ;
+    rdfs:label "Dispute Case" ;
+    rdfs:comment "Formal case file for dispute resolution proceedings" ;
+    rdfs:subClassOf ba:Case .
+
+# =============================================================================
+# Arbitration and Mediation Classes
+# =============================================================================
+
+bamd:ArbitrationSystem a owl:Class ;
+    rdfs:label "Arbitration System" ;
+    rdfs:comment "Automated arbitration system for dispute resolution" ;
+    rdfs:subClassOf bamd:DisputeResolutionSystem .
+
+bamd:MediationSystem a owl:Class ;
+    rdfs:label "Mediation System" ;
+    rdfs:comment "Mediation system for collaborative dispute resolution" ;
+    rdfs:subClassOf bamd:DisputeResolutionSystem .
+
+bamd:Arbitrator a owl:Class ;
+    rdfs:label "Arbitrator" ;
+    rdfs:comment "Neutral party conducting arbitration proceedings" ;
+    rdfs:subClassOf foaf:Agent .
+
+bamd:HumanArbitrator a owl:Class ;
+    rdfs:label "Human Arbitrator" ;
+    rdfs:comment "Human arbitrator with legal expertise" ;
+    rdfs:subClassOf bamd:Arbitrator, foaf:Person .
+
+bamd:AIArbitrator a owl:Class ;
+    rdfs:label "AI Arbitrator" ;
+    rdfs:comment "AI-powered arbitration system" ;
+    rdfs:subClassOf bamd:Arbitrator, ba:AISystem .
+
+bamd:PanelArbitration a owl:Class ;
+    rdfs:label "Panel Arbitration" ;
+    rdfs:comment "Arbitration conducted by panel of multiple arbitrators" ;
+    rdfs:subClassOf bamd:ArbitrationSystem .
+
+bamd:Mediator a owl:Class ;
+    rdfs:label "Mediator" ;
+    rdfs:comment "Neutral party facilitating mediation" ;
+    rdfs:subClassOf foaf:Agent .
+
+bamd:ArbitrationAward a owl:Class ;
+    rdfs:label "Arbitration Award" ;
+    rdfs:comment "Final decision issued by arbitrator" ;
+    rdfs:subClassOf ba:Decision .
+
+bamd:MediationAgreement a owl:Class ;
+    rdfs:label "Mediation Agreement" ;
+    rdfs:comment "Agreement reached through mediation" ;
+    rdfs:subClassOf ba:Agreement .
+
+# =============================================================================
+# Evidence Management Classes
+# =============================================================================
+
+bamd:EvidenceHandlingSystem a owl:Class ;
+    rdfs:label "Evidence Handling System" ;
+    rdfs:comment "System for collection, verification, and management of evidence" ;
+    rdfs:subClassOf ba:System .
+
+bamd:Evidence a owl:Class ;
+    rdfs:label "Evidence" ;
+    rdfs:comment "Material presented to support claims in dispute resolution" ;
+    rdfs:subClassOf prov:Entity .
+
+bamd:DigitalEvidence a owl:Class ;
+    rdfs:label "Digital Evidence" ;
+    rdfs:comment "Electronic evidence including logs, messages, and digital documents" ;
+    rdfs:subClassOf bamd:Evidence .
+
+bamd:TransactionEvidence a owl:Class ;
+    rdfs:label "Transaction Evidence" ;
+    rdfs:comment "Evidence related to marketplace transactions" ;
+    rdfs:subClassOf bamd:DigitalEvidence .
+
+bamd:CommunicationEvidence a owl:Class ;
+    rdfs:label "Communication Evidence" ;
+    rdfs:comment "Evidence of communications between parties" ;
+    rdfs:subClassOf bamd:DigitalEvidence .
+
+bamd:ContractEvidence a owl:Class ;
+    rdfs:label "Contract Evidence" ;
+    rdfs:comment "Evidence related to smart contract execution" ;
+    rdfs:subClassOf bamd:DigitalEvidence .
+
+bamd:TechnicalEvidence a owl:Class ;
+    rdfs:label "Technical Evidence" ;
+    rdfs:comment "Technical logs, system data, and performance metrics" ;
+    rdfs:subClassOf bamd:DigitalEvidence .
+
+bamd:FinancialEvidence a owl:Class ;
+    rdfs:label "Financial Evidence" ;
+    rdfs:comment "Evidence of financial transactions and settlements" ;
+    rdfs:subClassOf bamd:DigitalEvidence .
+
+bamd:ExpertTestimony a owl:Class ;
+    rdfs:label "Expert Testimony" ;
+    rdfs:comment "Expert witness testimony and analysis" ;
+    rdfs:subClassOf bamd:Evidence .
+
+bamd:ChainOfCustody a owl:Class ;
+    rdfs:label "Chain of Custody" ;
+    rdfs:comment "Documented chronological record of evidence handling" ;
+    rdfs:subClassOf ba:Process .
+
+# =============================================================================
+# Evidence Verification and Integrity
+# =============================================================================
+
+bamd:EvidenceVerification a owl:Class ;
+    rdfs:label "Evidence Verification" ;
+    rdfs:comment "Process of verifying evidence authenticity and integrity" ;
+    rdfs:subClassOf ba:VerificationProcess .
+
+bamd:CryptographicVerification a owl:Class ;
+    rdfs:label "Cryptographic Verification" ;
+    rdfs:comment "Verification using cryptographic signatures and hashes" ;
+    rdfs:subClassOf bamd:EvidenceVerification .
+
+bamd:BlockchainVerification a owl:Class ;
+    rdfs:label "Blockchain Verification" ;
+    rdfs:comment "Verification using blockchain immutable records" ;
+    rdfs:subClassOf bamd:EvidenceVerification .
+
+bamd:TimestampVerification a owl:Class ;
+    rdfs:label "Timestamp Verification" ;
+    rdfs:comment "Verification of evidence timestamps" ;
+    rdfs:subClassOf bamd:EvidenceVerification .
+
+bamd:IntegrityCheck a owl:Class ;
+    rdfs:label "Integrity Check" ;
+    rdfs:comment "Check for evidence tampering or corruption" ;
+    rdfs:subClassOf bamd:EvidenceVerification .
+
+bamd:DigitalForensics a owl:Class ;
+    rdfs:label "Digital Forensics" ;
+    rdfs:comment "Forensic analysis of digital evidence" ;
+    rdfs:subClassOf ba:ForensicAnalysis .
+
+bamd:EvidenceHash a owl:Class ;
+    rdfs:label "Evidence Hash" ;
+    rdfs:comment "Cryptographic hash of evidence for integrity verification" ;
+    rdfs:subClassOf ba:CryptographicHash .
+
+bamd:EvidenceSignature a owl:Class ;
+    rdfs:label "Evidence Signature" ;
+    rdfs:comment "Digital signature proving evidence authenticity" ;
+    rdfs:subClassOf ba:DigitalSignature .
+
+# =============================================================================
+# Dispute Resolution Process Classes
+# =============================================================================
+
+bamd:DisputeResolutionProcess a owl:Class ;
+    rdfs:label "Dispute Resolution Process" ;
+    rdfs:comment "Structured process for resolving disputes" ;
+    rdfs:subClassOf ba:Process .
+
+bamd:DisputeFiling a owl:Class ;
+    rdfs:label "Dispute Filing" ;
+    rdfs:comment "Initial filing of dispute with supporting documentation" ;
+    rdfs:subClassOf ba:FilingProcess .
+
+bamd:EvidenceCollection a owl:Class ;
+    rdfs:label "Evidence Collection" ;
+    rdfs:comment "Process of gathering evidence for dispute resolution" ;
+    rdfs:subClassOf ba:CollectionProcess .
+
+bamd:EvidenceDiscovery a owl:Class ;
+    rdfs:label "Evidence Discovery" ;
+    rdfs:comment "Process of discovering and exchanging evidence between parties" ;
+    rdfs:subClassOf ba:DiscoveryProcess .
+
+bamd:Hearing a owl:Class ;
+    rdfs:label "Hearing" ;
+    rdfs:comment "Formal hearing where parties present their cases" ;
+    rdfs:subClassOf ba:LegalProcedure .
+
+bamd:VirtualHearing a owl:Class ;
+    rdfs:label "Virtual Hearing" ;
+    rdfs:comment "Hearing conducted in virtual/digital environment" ;
+    rdfs:subClassOf bamd:Hearing .
+
+bamd:AutomatedHearing a owl:Class ;
+    rdfs:label "Automated Hearing" ;
+    rdfs:comment "AI-powered automated hearing process" ;
+    rdfs:subClassOf bamd:Hearing .
+
+bamd:Deliberation a owl:Class ;
+    rdfs:label "Deliberation" ;
+    rdfs:comment "Process of considering evidence and reaching decision" ;
+    rdfs:subClassOf ba:DecisionProcess .
+
+bamd:Settlement a owl:Class ;
+    rdfs:label "Settlement" ;
+    rdfs:comment "Agreement reached between parties to resolve dispute" ;
+    rdfs:subClassOf ba:Agreement .
+
+bamd:Appeal a owl:Class ;
+    rdfs:label "Appeal" ;
+    rdfs:comment "Request to review arbitration decision" ;
+    rdfs:subClassOf ba:LegalProcedure .
+
+# =============================================================================
+# Smart Contract Integration Classes
+# =============================================================================
+
+bamd:SmartContractArbiter a owl:Class ;
+    rdfs:label "Smart Contract Arbiter" ;
+    rdfs:comment "Smart contract implementing arbitration logic" ;
+    rdfs:subClassOf ba:SmartContract .
+
+bamd:EscrowContract a owl:Class ;
+    rdfs:label "Escrow Contract" ;
+    rdfs:comment "Smart contract holding funds during dispute resolution" ;
+    rdfs:subClassOf ba:SmartContract .
+
+bamd:AutomatedEnforcement a owl:Class ;
+    rdfs:label "Automated Enforcement" ;
+    rdfs:comment "Automatic enforcement of arbitration decisions" ;
+    rdfs:subClassOf ba:EnforcementMechanism .
+
+bamd:DisputeResolutionClause a owl:Class ;
+    rdfs:label "Dispute Resolution Clause" ;
+    rdfs:comment "Contract clause defining dispute resolution procedures" ;
+    rdfs:subClassOf ba:ContractClause .
+
+bamd:ArbitrationClause a owl:Class ;
+    rdfs:label "Arbitration Clause" ;
+    rdfs:comment "Contract clause requiring arbitration for disputes" ;
+    rdfs:subClassOf bamd:DisputeResolutionClause .
+
+bamd:CompensationMechanism a owl:Class ;
+    rdfs:label "Compensation Mechanism" ;
+    rdfs:comment "Mechanism for automated compensation based on decisions" ;
+    rdfs:subClassOf ba:AutomationMechanism .
+
+# =============================================================================
+# Properties for Dispute Resolution
+# =============================================================================
+
+# Dispute Properties
+bamd:disputeID a owl:DatatypeProperty ;
+    rdfs:label "dispute ID" ;
+    rdfs:domain bamd:Dispute ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Unique identifier for the dispute" .
+
+bamd:disputeType a owl:DatatypeProperty ;
+    rdfs:label "dispute type" ;
+    rdfs:domain bamd:Dispute ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type of dispute (trade, settlement, compliance, fraud, contract)" .
+
+bamd:disputeStatus a owl:DatatypeProperty ;
+    rdfs:label "dispute status" ;
+    rdfs:domain bamd:Dispute ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Current status of dispute resolution" .
+
+bamd:filingDate a owl:DatatypeProperty ;
+    rdfs:label "filing date" ;
+    rdfs:domain bamd:Dispute ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Date and time when dispute was filed" .
+
+bamd:resolutionDate a owl:DatatypeProperty ;
+    rdfs:label "resolution date" ;
+    rdfs:domain bamd:Dispute ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Date and time when dispute was resolved" .
+
+bamd:disputeAmount a owl:DatatypeProperty ;
+    rdfs:label "dispute amount" ;
+    rdfs:domain bamd:Dispute ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Monetary amount in dispute" .
+
+bamd:claimDescription a owl:DatatypeProperty ;
+    rdfs:label "claim description" ;
+    rdfs:domain bamd:Dispute ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Description of the claim or issue in dispute" .
+
+bamd:urgencyLevel a owl:DatatypeProperty ;
+    rdfs:label "urgency level" ;
+    rdfs:domain bamd:Dispute ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Urgency level (low, medium, high, critical)" .
+
+bamd:resolutionDeadline a owl:DatatypeProperty ;
+    rdfs:label "resolution deadline" ;
+    rdfs:domain bamd:Dispute ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Required deadline for dispute resolution" .
+
+# Evidence Properties
+bamd:evidenceID a owl:DatatypeProperty ;
+    rdfs:label "evidence ID" ;
+    rdfs:domain bamd:Evidence ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Unique identifier for evidence" .
+
+bamd:evidenceType a owl:DatatypeProperty ;
+    rdfs:label "evidence type" ;
+    rdfs:domain bamd:Evidence ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type of evidence (digital, transaction, communication, etc.)" .
+
+bamd:evidenceDescription a owl:DatatypeProperty ;
+    rdfs:label "evidence description" ;
+    rdfs:domain bamd:Evidence ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Description of the evidence" .
+
+bamd:collectionDate a owl:DatatypeProperty ;
+    rdfs:label "collection date" ;
+    rdfs:domain bamd:Evidence ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Date and time when evidence was collected" .
+
+bamd:evidenceHash a owl:DatatypeProperty ;
+    rdfs:label "evidence hash" ;
+    rdfs:domain bamd:Evidence ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Cryptographic hash of evidence for integrity" .
+
+bamd:evidenceSignature a owl:DatatypeProperty ;
+    rdfs:label "evidence signature" ;
+    rdfs:domain bamd:Evidence ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Digital signature of evidence" .
+
+bamd:evidenceSize a owl:DatatypeProperty ;
+    rdfs:label "evidence size" ;
+    rdfs:domain bamd:Evidence ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:comment "Size of evidence in bytes" .
+
+bamd:integrityStatus a owl:DatatypeProperty ;
+    rdfs:label "integrity status" ;
+    rdfs:domain bamd:Evidence ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Status of evidence integrity verification" .
+
+bamd:admissibilityStatus a owl:DatatypeProperty ;
+    rdfs:label "admissibility status" ;
+    rdfs:domain bamd:Evidence ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Legal admissibility status of evidence" .
+
+# Arbitration Properties
+bamd:arbitratorID a owl:DatatypeProperty ;
+    rdfs:label "arbitrator ID" ;
+    rdfs:domain bamd:Arbitrator ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Unique identifier for arbitrator" .
+
+bamd:arbitratorType a owl:DatatypeProperty ;
+    rdfs:label "arbitrator type" ;
+    rdfs:domain bamd:Arbitrator ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type of arbitrator (human, AI, panel)" .
+
+bamd:qualifications a owl:DatatypeProperty ;
+    rdfs:label "qualifications" ;
+    rdfs:domain bamd:HumanArbitrator ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Professional qualifications of arbitrator" .
+
+bamd:specialization a owl:DatatypeProperty ;
+    rdfs:label "specialization" ;
+    rdfs:domain bamd:Arbitrator ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Area of specialization" .
+
+bamd:awardAmount a owl:DatatypeProperty ;
+    rdfs:label "award amount" ;
+    rdfs:domain bamd:ArbitrationAward ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Monetary award amount" .
+
+bamd:awardReasoning a owl:DatatypeProperty ;
+    rdfs:label "award reasoning" ;
+    rdfs:domain bamd:ArbitrationAward ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Reasoning behind arbitration decision" .
+
+bamd:enforcementDeadline a owl:DatatypeProperty ;
+    rdfs:label "enforcement deadline" ;
+    rdfs:domain bamd:ArbitrationAward ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Deadline for award enforcement" .
+
+# Process Properties
+bamd:processStage a owl:DatatypeProperty ;
+    rdfs:label "process stage" ;
+    rdfs:domain bamd:DisputeResolutionProcess ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Current stage of dispute resolution process" .
+
+bamd:hearingDate a owl:DatatypeProperty ;
+    rdfs:label "hearing date" ;
+    rdfs:domain bamd:Hearing ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Scheduled date and time for hearing" .
+
+bamd:hearingDuration a owl:DatatypeProperty ;
+    rdfs:label "hearing duration" ;
+    rdfs:domain bamd:Hearing ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Duration of the hearing" .
+
+bamd:settlementAmount a owl:DatatypeProperty ;
+    rdfs:label "settlement amount" ;
+    rdfs:domain bamd:Settlement ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Amount agreed in settlement" .
+
+bamd:settlementTerms a owl:DatatypeProperty ;
+    rdfs:label "settlement terms" ;
+    rdfs:domain bamd:Settlement ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Terms and conditions of settlement" .
+
+# Performance Properties (Doctrine of 8)
+bamd:resolutionLatency a owl:DatatypeProperty ;
+    rdfs:label "resolution latency" ;
+    rdfs:domain bamd:DisputeResolutionProcess ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Time to resolve dispute in hours" .
+
+bamd:evidenceProcessingTicks a owl:DatatypeProperty ;
+    rdfs:label "evidence processing ticks" ;
+    rdfs:domain bamd:EvidenceVerification ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:comment "Ticks required for evidence processing (must be ≤8)" .
+
+bamd:verificationLatency a owl:DatatypeProperty ;
+    rdfs:label "verification latency" ;
+    rdfs:domain bamd:EvidenceVerification ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Latency for evidence verification in milliseconds (must be ≤8ms)" .
+
+# =============================================================================
+# Object Properties for Dispute Relationships
+# =============================================================================
+
+# Dispute Relationships
+bamd:involvedParty a owl:ObjectProperty ;
+    rdfs:label "involved party" ;
+    rdfs:domain bamd:Dispute ;
+    rdfs:range foaf:Agent ;
+    rdfs:comment "Party involved in the dispute" .
+
+bamd:claimant a owl:ObjectProperty ;
+    rdfs:label "claimant" ;
+    rdfs:domain bamd:Dispute ;
+    rdfs:range foaf:Agent ;
+    rdfs:comment "Party filing the dispute claim" .
+
+bamd:respondent a owl:ObjectProperty ;
+    rdfs:label "respondent" ;
+    rdfs:domain bamd:Dispute ;
+    rdfs:range foaf:Agent ;
+    rdfs:comment "Party responding to dispute claim" .
+
+bamd:relatedTransaction a owl:ObjectProperty ;
+    rdfs:label "related transaction" ;
+    rdfs:domain bamd:Dispute ;
+    rdfs:range bamt:TradeExecution ;
+    rdfs:comment "Transaction that is subject of dispute" .
+
+bamd:openedCase a owl:ObjectProperty ;
+    rdfs:label "opened case" ;
+    rdfs:domain bamd:Dispute ;
+    rdfs:range bamd:DisputeCase ;
+    rdfs:comment "Case opened for dispute resolution" .
+
+# Evidence Relationships
+bamd:submittedEvidence a owl:ObjectProperty ;
+    rdfs:label "submitted evidence" ;
+    rdfs:domain bamd:Dispute ;
+    rdfs:range bamd:Evidence ;
+    rdfs:comment "Evidence submitted in dispute" .
+
+bamd:collectedBy a owl:ObjectProperty ;
+    rdfs:label "collected by" ;
+    rdfs:domain bamd:Evidence ;
+    rdfs:range foaf:Agent ;
+    rdfs:comment "Agent who collected the evidence" .
+
+bamd:verifiedBy a owl:ObjectProperty ;
+    rdfs:label "verified by" ;
+    rdfs:domain bamd:Evidence ;
+    rdfs:range bamd:EvidenceVerification ;
+    rdfs:comment "Verification process applied to evidence" .
+
+bamd:maintainsCustody a owl:ObjectProperty ;
+    rdfs:label "maintains custody" ;
+    rdfs:domain bamd:ChainOfCustody ;
+    rdfs:range bamd:Evidence ;
+    rdfs:comment "Chain of custody for evidence" .
+
+bamd:derivedFrom a owl:ObjectProperty ;
+    rdfs:label "derived from" ;
+    rdfs:domain bamd:Evidence ;
+    rdfs:range prov:Entity ;
+    rdfs:comment "Source from which evidence was derived" .
+
+# Arbitration Relationships
+bamd:assignedArbitrator a owl:ObjectProperty ;
+    rdfs:label "assigned arbitrator" ;
+    rdfs:domain bamd:Dispute ;
+    rdfs:range bamd:Arbitrator ;
+    rdfs:comment "Arbitrator assigned to dispute" .
+
+bamd:conductedBy a owl:ObjectProperty ;
+    rdfs:label "conducted by" ;
+    rdfs:domain bamd:Hearing ;
+    rdfs:range bamd:Arbitrator ;
+    rdfs:comment "Arbitrator conducting hearing" .
+
+bamd:issuedAward a owl:ObjectProperty ;
+    rdfs:label "issued award" ;
+    rdfs:domain bamd:Arbitrator ;
+    rdfs:range bamd:ArbitrationAward ;
+    rdfs:comment "Award issued by arbitrator" .
+
+bamd:resolvedBy a owl:ObjectProperty ;
+    rdfs:label "resolved by" ;
+    rdfs:domain bamd:Dispute ;
+    rdfs:range bamd:ArbitrationAward ;
+    rdfs:comment "Award that resolved the dispute" .
+
+bamd:settledBy a owl:ObjectProperty ;
+    rdfs:label "settled by" ;
+    rdfs:domain bamd:Dispute ;
+    rdfs:range bamd:Settlement ;
+    rdfs:comment "Settlement that resolved the dispute" .
+
+# Process Relationships
+bamd:followsProcess a owl:ObjectProperty ;
+    rdfs:label "follows process" ;
+    rdfs:domain bamd:Dispute ;
+    rdfs:range bamd:DisputeResolutionProcess ;
+    rdfs:comment "Dispute resolution process being followed" .
+
+bamd:includesStage a owl:ObjectProperty ;
+    rdfs:label "includes stage" ;
+    rdfs:domain bamd:DisputeResolutionProcess ;
+    rdfs:range ba:ProcessStage ;
+    rdfs:comment "Stage included in resolution process" .
+
+bamd:resultsInHearing a owl:ObjectProperty ;
+    rdfs:label "results in hearing" ;
+    rdfs:domain bamd:DisputeFiling ;
+    rdfs:range bamd:Hearing ;
+    rdfs:comment "Filing results in hearing" .
+
+# Smart Contract Relationships
+bamd:governedByContract a owl:ObjectProperty ;
+    rdfs:label "governed by contract" ;
+    rdfs:domain bamd:Dispute ;
+    rdfs:range ba:SmartContract ;
+    rdfs:comment "Smart contract governing dispute resolution" .
+
+bamd:triggersEscrow a owl:ObjectProperty ;
+    rdfs:label "triggers escrow" ;
+    rdfs:domain bamd:Dispute ;
+    rdfs:range bamd:EscrowContract ;
+    rdfs:comment "Dispute triggers escrow mechanism" .
+
+bamd:enforcedBy a owl:ObjectProperty ;
+    rdfs:label "enforced by" ;
+    rdfs:domain bamd:ArbitrationAward ;
+    rdfs:range bamd:AutomatedEnforcement ;
+    rdfs:comment "Award is enforced by automation mechanism" .
+
+# =============================================================================
+# Dispute Resolution System Instances
+# =============================================================================
+
+# Main System
+bamd:ByteStarDisputeResolution a bamd:DisputeResolutionSystem ;
+    rdfs:label "ByteStar Dispute Resolution System" ;
+    rdfs:comment "Primary dispute resolution system for ByteStar marketplace" ;
+    ba:systemVersion "5.0.0" ;
+    ba:operationalStatus "ACTIVE" ;
+    bamd:resolutionLatency 24.0 ;
+    ba:processingCapacity 10000.0 .
+
+# Arbitration Systems
+bamd:AIArbitrationSystem a bamd:ArbitrationSystem ;
+    rdfs:label "AI Arbitration System" ;
+    rdfs:comment "AI-powered arbitration for routine disputes" ;
+    ba:systemVersion "5.0.0" ;
+    ba:automationLevel "FULL" ;
+    bamd:resolutionLatency 2.0 ;
+    ba:accuracyRate 0.95 .
+
+bamd:HumanArbitrationSystem a bamd:ArbitrationSystem ;
+    rdfs:label "Human Arbitration System" ;
+    rdfs:comment "Human-conducted arbitration for complex disputes" ;
+    ba:systemVersion "5.0.0" ;
+    ba:automationLevel "ASSISTED" ;
+    bamd:resolutionLatency 72.0 ;
+    ba:accuracyRate 0.98 .
+
+# Evidence Systems
+bamd:EvidenceCollectionSystem a bamd:EvidenceHandlingSystem ;
+    rdfs:label "Evidence Collection System" ;
+    rdfs:comment "Automated evidence collection and verification" ;
+    ba:systemVersion "5.0.0" ;
+    bamd:verificationLatency 5.0 ;
+    ba:integrityGuarantee 0.999 .
+
+# =============================================================================
+# Arbitrator Instances
+# =============================================================================
+
+# AI Arbitrators
+bamd:TradeDisputeAI a bamd:AIArbitrator ;
+    rdfs:label "Trade Dispute AI" ;
+    rdfs:comment "AI arbitrator specialized in trade disputes" ;
+    bamd:arbitratorID "ARB-AI-001" ;
+    bamd:arbitratorType "AI" ;
+    bamd:specialization "Trade Disputes" ;
+    ba:decisionAccuracy 0.94 ;
+    ba:averageResolutionTime "PT2H"^^xsd:duration .
+
+bamd:SettlementDisputeAI a bamd:AIArbitrator ;
+    rdfs:label "Settlement Dispute AI" ;
+    rdfs:comment "AI arbitrator for settlement calculation disputes" ;
+    bamd:arbitratorID "ARB-AI-002" ;
+    bamd:arbitratorType "AI" ;
+    bamd:specialization "Settlement Mathematics" ;
+    ba:decisionAccuracy 0.97 ;
+    ba:averageResolutionTime "PT1H"^^xsd:duration .
+
+bamd:ComplianceDisputeAI a bamd:AIArbitrator ;
+    rdfs:label "Compliance Dispute AI" ;
+    rdfs:comment "AI arbitrator for compliance-related disputes" ;
+    bamd:arbitratorID "ARB-AI-003" ;
+    bamd:arbitratorType "AI" ;
+    bamd:specialization "Regulatory Compliance" ;
+    ba:decisionAccuracy 0.92 ;
+    ba:averageResolutionTime "PT30M"^^xsd:duration .
+
+# Human Arbitrators (Examples)
+bamd:SeniorArbitrator001 a bamd:HumanArbitrator ;
+    rdfs:label "Senior Financial Arbitrator" ;
+    rdfs:comment "Senior arbitrator with financial markets expertise" ;
+    bamd:arbitratorID "ARB-H-001" ;
+    bamd:arbitratorType "Human" ;
+    bamd:qualifications "JD, CFA, 15 years arbitration experience" ;
+    bamd:specialization "Complex Financial Disputes" ;
+    ba:decisionAccuracy 0.98 ;
+    ba:averageResolutionTime "P3D"^^xsd:duration .
+
+# =============================================================================
+# Evidence Types and Templates
+# =============================================================================
+
+# Transaction Evidence
+bamd:OrderBookEvidence a bamd:TransactionEvidence ;
+    rdfs:label "Order Book Evidence" ;
+    rdfs:comment "Order book state at time of disputed transaction" ;
+    bamd:evidenceType "ORDER_BOOK_STATE" ;
+    bamd:integrityStatus "VERIFIED" ;
+    bamd:admissibilityStatus "ADMISSIBLE" .
+
+bamd:ExecutionLogEvidence a bamd:TransactionEvidence ;
+    rdfs:label "Execution Log Evidence" ;
+    rdfs:comment "System logs of transaction execution" ;
+    bamd:evidenceType "EXECUTION_LOGS" ;
+    bamd:integrityStatus "VERIFIED" ;
+    bamd:admissibilityStatus "ADMISSIBLE" .
+
+# Smart Contract Evidence
+bamd:ContractStateEvidence a bamd:ContractEvidence ;
+    rdfs:label "Contract State Evidence" ;
+    rdfs:comment "Smart contract state at time of dispute" ;
+    bamd:evidenceType "CONTRACT_STATE" ;
+    bamd:integrityStatus "VERIFIED" ;
+    bamd:admissibilityStatus "ADMISSIBLE" .
+
+bamd:ContractEventEvidence a bamd:ContractEvidence ;
+    rdfs:label "Contract Event Evidence" ;
+    rdfs:comment "Events emitted by smart contract" ;
+    bamd:evidenceType "CONTRACT_EVENTS" ;
+    bamd:integrityStatus "VERIFIED" ;
+    bamd:admissibilityStatus "ADMISSIBLE" .
+
+# Communication Evidence
+bamd:MessageEvidence a bamd:CommunicationEvidence ;
+    rdfs:label "Message Evidence" ;
+    rdfs:comment "Messages between disputing parties" ;
+    bamd:evidenceType "MESSAGES" ;
+    bamd:integrityStatus "VERIFIED" ;
+    bamd:admissibilityStatus "CONDITIONAL" .
+
+# =============================================================================
+# Dispute Resolution Process Templates
+# =============================================================================
+
+# Standard Trade Dispute Process
+bamd:StandardTradeDisputeProcess a bamd:DisputeResolutionProcess ;
+    rdfs:label "Standard Trade Dispute Process" ;
+    rdfs:comment "Standard process for resolving trade disputes" ;
+    ba:processSteps [
+        ba:stepName "Dispute Filing" ;
+        ba:stepOrder 1 ;
+        ba:maxDuration "PT1H"^^xsd:duration
+    ], [
+        ba:stepName "Evidence Collection" ;
+        ba:stepOrder 2 ;
+        ba:maxDuration "P1D"^^xsd:duration
+    ], [
+        ba:stepName "Arbitrator Assignment" ;
+        ba:stepOrder 3 ;
+        ba:maxDuration "PT2H"^^xsd:duration
+    ], [
+        ba:stepName "Evidence Review" ;
+        ba:stepOrder 4 ;
+        ba:maxDuration "P2D"^^xsd:duration
+    ], [
+        ba:stepName "Decision Rendering" ;
+        ba:stepOrder 5 ;
+        ba:maxDuration "P1D"^^xsd:duration
+    ], [
+        ba:stepName "Award Enforcement" ;
+        ba:stepOrder 6 ;
+        ba:maxDuration "PT1H"^^xsd:duration
+    ] .
+
+# Expedited Dispute Process
+bamd:ExpeditedDisputeProcess a bamd:DisputeResolutionProcess ;
+    rdfs:label "Expedited Dispute Process" ;
+    rdfs:comment "Expedited process for urgent disputes" ;
+    ba:processSteps [
+        ba:stepName "Emergency Filing" ;
+        ba:stepOrder 1 ;
+        ba:maxDuration "PT15M"^^xsd:duration
+    ], [
+        ba:stepName "Immediate Evidence Collection" ;
+        ba:stepOrder 2 ;
+        ba:maxDuration "PT2H"^^xsd:duration
+    ], [
+        ba:stepName "AI Arbitrator Assignment" ;
+        ba:stepOrder 3 ;
+        ba:maxDuration "PT5M"^^xsd:duration
+    ], [
+        ba:stepName "Automated Decision" ;
+        ba:stepOrder 4 ;
+        ba:maxDuration "PT30M"^^xsd:duration
+    ], [
+        ba:stepName "Immediate Enforcement" ;
+        ba:stepOrder 5 ;
+        ba:maxDuration "PT5M"^^xsd:duration
+    ] .
+
+# Complex Dispute Process
+bamd:ComplexDisputeProcess a bamd:DisputeResolutionProcess ;
+    rdfs:label "Complex Dispute Process" ;
+    rdfs:comment "Process for complex high-value disputes" ;
+    ba:processSteps [
+        ba:stepName "Detailed Filing" ;
+        ba:stepOrder 1 ;
+        ba:maxDuration "P1D"^^xsd:duration
+    ], [
+        ba:stepName "Comprehensive Evidence Discovery" ;
+        ba:stepOrder 2 ;
+        ba:maxDuration "P7D"^^xsd:duration
+    ], [
+        ba:stepName "Expert Panel Assignment" ;
+        ba:stepOrder 3 ;
+        ba:maxDuration "P1D"^^xsd:duration
+    ], [
+        ba:stepName "Formal Hearing" ;
+        ba:stepOrder 4 ;
+        ba:maxDuration "P3D"^^xsd:duration
+    ], [
+        ba:stepName "Panel Deliberation" ;
+        ba:stepOrder 5 ;
+        ba:maxDuration "P5D"^^xsd:duration
+    ], [
+        ba:stepName "Final Award" ;
+        ba:stepOrder 6 ;
+        ba:maxDuration "P2D"^^xsd:duration
+    ] .
+
+# =============================================================================
+# SHACL Validation Shapes
+# =============================================================================
+
+bamd:DisputeShape a sh:NodeShape ;
+    sh:targetClass bamd:Dispute ;
+    sh:property [
+        sh:path bamd:disputeID ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^DISP-[A-Z0-9-]+$" ;
+        sh:message "Dispute ID must start with DISP- prefix" ;
+    ] ;
+    sh:property [
+        sh:path bamd:disputeType ;
+        sh:datatype xsd:string ;
+        sh:in ( "trade" "settlement" "compliance" "fraud" "contract" ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Dispute type must be one of the valid types" ;
+    ] ;
+    sh:property [
+        sh:path bamd:disputeStatus ;
+        sh:datatype xsd:string ;
+        sh:in ( "filed" "evidence_collection" "hearing" "deliberation" "decided" "settled" "closed" "appealed" ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Dispute status must be valid status value" ;
+    ] ;
+    sh:property [
+        sh:path bamd:disputeAmount ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:message "Dispute amount must be non-negative" ;
+    ] ;
+    sh:property [
+        sh:path bamd:urgencyLevel ;
+        sh:datatype xsd:string ;
+        sh:in ( "low" "medium" "high" "critical" ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Urgency level must be low, medium, high, or critical" ;
+    ] ;
+    sh:property [
+        sh:path bamd:claimant ;
+        sh:class foaf:Agent ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Dispute must have exactly one claimant" ;
+    ] ;
+    sh:property [
+        sh:path bamd:respondent ;
+        sh:class foaf:Agent ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Dispute must have exactly one respondent" ;
+    ] .
+
+bamd:EvidenceShape a sh:NodeShape ;
+    sh:targetClass bamd:Evidence ;
+    sh:property [
+        sh:path bamd:evidenceID ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^EVD-[A-Z0-9-]+$" ;
+        sh:message "Evidence ID must start with EVD- prefix" ;
+    ] ;
+    sh:property [
+        sh:path bamd:evidenceType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Evidence must have a type" ;
+    ] ;
+    sh:property [
+        sh:path bamd:evidenceHash ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-fA-F0-9]{64}$" ;
+        sh:message "Evidence hash must be valid SHA-256" ;
+    ] ;
+    sh:property [
+        sh:path bamd:evidenceSignature ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Evidence must have digital signature" ;
+    ] ;
+    sh:property [
+        sh:path bamd:integrityStatus ;
+        sh:datatype xsd:string ;
+        sh:in ( "verified" "failed" "pending" "corrupted" ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Integrity status must be valid value" ;
+    ] ;
+    sh:property [
+        sh:path bamd:admissibilityStatus ;
+        sh:datatype xsd:string ;
+        sh:in ( "admissible" "inadmissible" "conditional" "pending" ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Admissibility status must be valid value" ;
+    ] .
+
+bamd:ArbitratorShape a sh:NodeShape ;
+    sh:targetClass bamd:Arbitrator ;
+    sh:property [
+        sh:path bamd:arbitratorID ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^ARB-[A-Z0-9-]+$" ;
+        sh:message "Arbitrator ID must start with ARB- prefix" ;
+    ] ;
+    sh:property [
+        sh:path bamd:arbitratorType ;
+        sh:datatype xsd:string ;
+        sh:in ( "human" "AI" "panel" ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Arbitrator type must be human, AI, or panel" ;
+    ] ;
+    sh:property [
+        sh:path bamd:specialization ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Arbitrator must have specialization" ;
+    ] ;
+    sh:property [
+        sh:path ba:decisionAccuracy ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Decision accuracy must be between 0 and 1" ;
+    ] .
+
+bamd:ArbitrationAwardShape a sh:NodeShape ;
+    sh:targetClass bamd:ArbitrationAward ;
+    sh:property [
+        sh:path bamd:awardAmount ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:message "Award amount must be non-negative" ;
+    ] ;
+    sh:property [
+        sh:path bamd:awardReasoning ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Award must include reasoning" ;
+    ] ;
+    sh:property [
+        sh:path bamd:enforcementDeadline ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Award must have enforcement deadline" ;
+    ] .
+
+bamd:PerformanceComplianceShape a sh:NodeShape ;
+    sh:targetClass bamd:DisputeResolutionSystem ;
+    sh:property [
+        sh:path bamd:evidenceProcessingTicks ;
+        sh:datatype xsd:nonNegativeInteger ;
+        sh:maxInclusive 8 ;
+        sh:message "Evidence processing must comply with Doctrine of 8 (≤8 ticks)" ;
+    ] ;
+    sh:property [
+        sh:path bamd:verificationLatency ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 8.0 ;
+        sh:message "Verification latency must comply with Doctrine of 8 (≤8ms)" ;
+    ] .
+
+# Advanced validation rules
+bamd:EvidenceIntegrityShape a sh:NodeShape ;
+    sh:targetClass bamd:Evidence ;
+    sh:sparql [
+        sh:message "Evidence with failed integrity cannot be admissible" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this bamd:integrityStatus "failed" .
+                $this bamd:admissibilityStatus "admissible" .
+            }
+        """ ;
+    ] .
+
+bamd:DisputeTimelineShape a sh:NodeShape ;
+    sh:targetClass bamd:Dispute ;
+    sh:sparql [
+        sh:message "Resolution date must be after filing date" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this bamd:filingDate ?filing .
+                $this bamd:resolutionDate ?resolution .
+                FILTER(?resolution <= ?filing)
+            }
+        """ ;
+    ] .
+
+bamd:ArbitratorAssignmentShape a sh:NodeShape ;
+    sh:targetClass bamd:Dispute ;
+    sh:sparql [
+        sh:message "High-value disputes require human arbitrator" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this bamd:disputeAmount ?amount .
+                $this bamd:assignedArbitrator ?arb .
+                ?arb bamd:arbitratorType "AI" .
+                FILTER(?amount > 1000000.0)
+            }
+        """ ;
+    ] .
+
+# =============================================================================
+# Performance Metrics
+# =============================================================================
+
+bamd:DisputeResolutionTimeMetric a ba:PerformanceMetric ;
+    rdfs:label "Dispute Resolution Time Metric" ;
+    rdfs:comment "Average time to resolve disputes" ;
+    ba:targetValue 24.0 ;
+    ba:maxValue 168.0 ;
+    ba:unit "hours" ;
+    ba:calculationMethod "resolution_date - filing_date" .
+
+bamd:EvidenceVerificationLatencyMetric a ba:PerformanceMetric ;
+    rdfs:label "Evidence Verification Latency Metric" ;
+    rdfs:comment "Latency for evidence verification" ;
+    ba:targetValue 3.0 ;
+    ba:maxValue 8.0 ;
+    ba:unit "milliseconds" ;
+    ba:calculationMethod "verification_completed_time - verification_started_time" .
+
+bamd:ArbitrationAccuracyMetric a ba:QualityMetric ;
+    rdfs:label "Arbitration Accuracy Metric" ;
+    rdfs:comment "Accuracy of arbitration decisions" ;
+    ba:targetValue 95.0 ;
+    ba:unit "percentage" ;
+    ba:calculationMethod "correct_decisions / total_decisions * 100" .
+
+bamd:SettlementComplianceMetric a ba:QualityMetric ;
+    rdfs:label "Settlement Compliance Metric" ;
+    rdfs:comment "Compliance with arbitration awards" ;
+    ba:targetValue 98.0 ;
+    ba:unit "percentage" ;
+    ba:calculationMethod "complied_awards / total_awards * 100" .
+
+# =============================================================================
+# Integration with Other Systems
+# =============================================================================
+
+# Link to trading protocols
+bamt:TradingOrder bamd:subjectToDispute bamd:TradeDispute .
+bamt:TradeExecution bamd:mayGenerateDispute bamd:Dispute .
+
+# Link to settlement system
+bav:SettlementVector bamd:subjectToDispute bamd:SettlementDispute .
+bav:ConservationLaw bamd:enforced_by bamd:ArbitrationSystem .
+
+# Link to compliance system
+bamc:ComplianceAlert bamd:mayTriggerDispute bamd:ComplianceDispute .
+bamc:SanctionsScreening bamd:providesEvidence bamd:Evidence .
+
+# Link to audit system
+baa:AuditEvent bamd:recordsDispute bamd:Dispute .
+baa:AuditTrail bamd:tracksResolution bamd:DisputeResolutionProcess .
+baa:AuditEvidence bamd:usedAsEvidence bamd:Evidence .
+
+# =============================================================================
+# End of Ontology
+# =============================================================================

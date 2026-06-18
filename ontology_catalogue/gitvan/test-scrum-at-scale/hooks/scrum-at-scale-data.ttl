@@ -1,0 +1,65 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix scrum: <http://example.org/scrum#> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Sprint 1
+scrum:sprint1 rdf:type scrum:Sprint ;
+    gv:id "sprint1" ;
+    gv:active true .
+
+# Stories
+scrum:story1 rdf:type scrum:Story ;
+    gv:id "story1" ;
+    gv:active true ;
+    scrum:storyTitle "Knowledge Hook Registry" ;
+    scrum:storyStatus "Done" ;
+    scrum:storyPoints 8 .
+
+scrum:story2 rdf:type scrum:Story ;
+    gv:id "story2" ;
+    gv:active true ;
+    scrum:storyTitle "SPARQL Predicate Engine" ;
+    scrum:storyStatus "In Progress" ;
+    scrum:storyPoints 13 .
+
+scrum:story3 rdf:type scrum:Story ;
+    gv:id "story3" ;
+    gv:active true ;
+    scrum:storyTitle "Ollama AI Provider" ;
+    scrum:storyStatus "To Do" ;
+    scrum:storyPoints 5 .
+
+scrum:story4 rdf:type scrum:Story ;
+    gv:id "story4" ;
+    gv:active true ;
+    scrum:storyTitle "RDF to Zod Conversion" ;
+    scrum:storyStatus "Done" ;
+    scrum:storyPoints 3 .
+
+# Developers
+scrum:dev1 rdf:type scrum:Developer ;
+    gv:id "dev1" ;
+    gv:active true ;
+    scrum:developerName "Alice Johnson" ;
+    scrum:developerCapacity 85 .
+
+scrum:dev2 rdf:type scrum:Developer ;
+    gv:id "dev2" ;
+    gv:active true ;
+    scrum:developerName "Bob Smith" ;
+    scrum:developerCapacity 70 .
+
+scrum:dev3 rdf:type scrum:Developer ;
+    gv:id "dev3" ;
+    gv:active true ;
+    scrum:developerName "Carol Davis" ;
+    scrum:developerCapacity 90 .
+
+# Impediments
+scrum:impediment1 rdf:type scrum:Impediment ;
+    gv:id "impediment1" ;
+    gv:active true ;
+    scrum:impedimentTitle "Database Performance Issues" ;
+    scrum:impedimentSeverity "Critical" ;
+    scrum:impedimentStatus "Open" .

@@ -1,0 +1,14 @@
+@prefix : <http://yawl.org/ontology#> .
+@prefix yawl: <http://yawl.org/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<http://yawl.org/ontology/index>
+  a owl:Ontology ;
+  rdfs:label "YAWL Ontology Index" ;
+  rdfs:comment "The top-level index for the Yet Another Workflow Language (YAWL) ontology, importing all its modules." ;
+  owl:versionInfo "1.0.0" ;
+  owl:imports
+    yawl:yawl-core.owl.ttl ,
+    yawl:yawl-behaviors.owl.ttl ,
+    yawl:yawl-patterns.owl.ttl .

@@ -1,0 +1,69 @@
+# extract-visualizer-data.rq
+# SPARQL query to extract all board-admissible M&A claims for the visualizer dashboard
+# Authority: define_board-admissible_claim_requirements.md
+
+PREFIX ma: <https://process.intelligence/ma/>
+PREFIX compat: <https://process.intelligence/compat/>
+PREFIX wasm4pm: <https://process.intelligence/wasm4pm/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT DISTINCT
+  ?claim
+  ?claimLabel
+  ?claimType
+  ?metric
+  ?metricValue
+  ?metricThreshold
+  ?verdict
+  ?verdictFitness
+  ?verdictPrecision
+  ?receipt
+  ?receiptHash
+  ?receiptTimestamp
+  ?backedByLog
+  ?logFormat
+
+WHERE {
+  # Select all claims that are subclasses of BoardClaim
+  ?claim a ?claimType .
+  FILTER (?claimType IN (
+    ma:SynergyProjection,
+    ma:OperationalDebtClaim,
+    ma:IntegrationRiskClaim,
+    ma:ProcessAssetClaim,
+    ma:ControlClaim
+  ))
+
+  # Claim must have a label
+  ?claim rdfs:label ?claimLabel .
+
+  # Get metric information
+  OPTIONAL {
+    ?claim ma:quantifies ?metric .
+    ?metric ma:value ?metricValue .
+    OPTIONAL { ?metric ma:threshold ?metricThreshold . }
+  }
+
+  # Conformance verdict details
+  OPTIONAL {
+    ?claim ma:backedBy ?verdict .
+    ?verdict a wasm4pm:ConformanceVerdict .
+    ?verdict wasm4pm:fitness ?verdictFitness .
+    ?verdict wasm4pm:precision ?verdictPrecision .
+    
+    # Receipt details
+    OPTIONAL {
+      ?verdict wasm4pm:receipt ?receipt .
+      ?receipt wasm4pm:receiptHash ?receiptHash .
+      ?receipt wasm4pm:timestamp ?receiptTimestamp .
+    }
+    
+    # Event Log details
+    OPTIONAL {
+      ?verdict wasm4pm:replayedAgainst ?backedByLog .
+      ?backedByLog compat:format ?logFormat .
+    }
+  }
+}
+ORDER BY DESC(?verdictFitness)

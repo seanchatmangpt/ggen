@@ -1,0 +1,76 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix yawl: <http://rflow.io/ontology/yawl-core#> .
+@prefix job: <http://rflow.io/ontology/job-model#> .
+@prefix ex: <http://example.org/workflow#> .
+
+# Timer-Based Workflow
+# Timer -> A -> Delay -> B
+
+ex:workflow4 a job:WorkflowJob ;
+    job:hasJobId "wf-004" ;
+    job:hasJobName "Timer-Based Workflow" ;
+    job:hasState job:Pending .
+
+ex:startTimer a job:TimerJob ;
+    job:hasJobId "timer-001" ;
+    job:hasJobName "Start Timer" ;
+    job:implementsPattern yawl:timer ;
+    job:belongsToWorkflow ex:workflow4 ;
+    job:hasState job:Pending ;
+    job:hasScheduleExpression "0 0 9 * * MON-FRI" ;
+    job:hasNextExecutionTime "2024-01-01T09:00:00Z"^^xsd:dateTime ;
+    yawl:hasTimeout "PT1H"^^xsd:duration ;
+    yawl:isValidTimerExpression true .
+
+ex:activityA a job:ActivityJob ;
+    job:hasJobId "act-A4" ;
+    job:hasJobName "Scheduled Activity" ;
+    job:implementsPattern yawl:activity ;
+    job:belongsToWorkflow ex:workflow4 ;
+    job:hasState job:Pending ;
+    job:dependsOn ex:startTimer ;
+    job:hasTimeout "PT30M"^^xsd:duration .
+
+ex:delayTimer a job:TimerJob ;
+    job:hasJobId "timer-002" ;
+    job:hasJobName "Delay Timer" ;
+    job:implementsPattern yawl:timer ;
+    job:belongsToWorkflow ex:workflow4 ;
+    job:hasState job:Pending ;
+    job:dependsOn ex:activityA ;
+    yawl:hasTimeout "PT15M"^^xsd:duration ;
+    yawl:isValidTimerExpression true .
+
+ex:activityB a job:ActivityJob ;
+    job:hasJobId "act-B4" ;
+    job:hasJobName "Delayed Activity" ;
+    job:implementsPattern yawl:activity ;
+    job:belongsToWorkflow ex:workflow4 ;
+    job:hasState job:Pending ;
+    job:dependsOn ex:delayTimer ;
+    job:hasTimeout "PT45M"^^xsd:duration .
+
+# Timer-specific properties
+ex:startTimer job:hasSignalName "workday_start" .
+ex:delayTimer job:hasSignalName "processing_delay" .
+
+# Pattern relationships
+ex:startTimer job:triggers ex:activityA .
+ex:delayTimer job:triggers ex:activityB .
+
+# Validation assertions
+ex:startTimer yawl:isValidTimerExpression true ;
+    yawl:isAcyclic true .
+
+ex:delayTimer yawl:isValidTimerExpression true ;
+    yawl:isAcyclic true .
+
+ex:activityA yawl:isAcyclic true ;
+    yawl:hasValidSignature true .
+
+ex:activityB yawl:isAcyclic true ;
+    yawl:hasValidSignature true .
+
+ex:workflow4 yawl:isAcyclic true .

@@ -1,0 +1,90 @@
+# Example Schema - Simple Domain Model
+# Demonstrates basic OWL class definitions for sync command examples
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://example.org/schema#> .
+
+# =============================================================================
+# Entity Classes
+# =============================================================================
+
+ex:User a owl:Class ;
+    rdfs:label "User" ;
+    rdfs:comment "A user in the system with authentication and profile data" .
+
+ex:Post a owl:Class ;
+    rdfs:label "Post" ;
+    rdfs:comment "A blog post created by a user" .
+
+ex:Comment a owl:Class ;
+    rdfs:label "Comment" ;
+    rdfs:comment "A comment on a blog post" .
+
+ex:Tag a owl:Class ;
+    rdfs:label "Tag" ;
+    rdfs:comment "A tag for categorizing posts" .
+
+# =============================================================================
+# Datatype Properties
+# =============================================================================
+
+ex:username a owl:DatatypeProperty ;
+    rdfs:domain ex:User ;
+    rdfs:range xsd:string ;
+    rdfs:label "username" ;
+    rdfs:comment "The user's unique username" .
+
+ex:email a owl:DatatypeProperty ;
+    rdfs:domain ex:User ;
+    rdfs:range xsd:string ;
+    rdfs:label "email" ;
+    rdfs:comment "The user's email address" .
+
+ex:createdAt a owl:DatatypeProperty ;
+    rdfs:domain ex:User ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "createdAt" ;
+    rdfs:comment "When the user account was created" .
+
+ex:title a owl:DatatypeProperty ;
+    rdfs:domain ex:Post ;
+    rdfs:range xsd:string ;
+    rdfs:label "title" ;
+    rdfs:comment "The post title" .
+
+ex:content a owl:DatatypeProperty ;
+    rdfs:domain ex:Post ;
+    rdfs:range xsd:string ;
+    rdfs:label "content" ;
+    rdfs:comment "The post content in markdown format" .
+
+ex:publishedAt a owl:DatatypeProperty ;
+    rdfs:domain ex:Post ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "publishedAt" ;
+    rdfs:comment "When the post was published" .
+
+# =============================================================================
+# Object Properties (Relationships)
+# =============================================================================
+
+ex:author a owl:ObjectProperty ;
+    rdfs:domain ex:Post ;
+    rdfs:range ex:User ;
+    rdfs:label "author" ;
+    rdfs:comment "The user who authored this post" .
+
+ex:hasComment a owl:ObjectProperty ;
+    rdfs:domain ex:Post ;
+    rdfs:range ex:Comment ;
+    rdfs:label "hasComment" ;
+    rdfs:comment "A comment on this post" .
+
+ex:hasTag a owl:ObjectProperty ;
+    rdfs:domain ex:Post ;
+    rdfs:range ex:Tag ;
+    rdfs:label "hasTag" ;
+    rdfs:comment "A tag applied to this post" .

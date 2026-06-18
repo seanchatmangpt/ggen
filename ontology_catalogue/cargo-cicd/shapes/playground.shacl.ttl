@@ -1,0 +1,93 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix cc:      <https://cargo-cicd.rs/ontology/> .
+@prefix ccsh:    <https://cargo-cicd.rs/shapes/> .
+
+# ── Shape ontology header ─────────────────────────────────────────────────────
+ccsh:PlaygroundShapes
+    a owl:Ontology ;
+    dcterms:title "cargo-cicd playground scenario SHACL shapes"@en ;
+    dcterms:description
+        "Validates cc:PlaygroundScenario nodes: every scenario must link to a capability and an evidence event, declare an expected wasm4pm verdict from the allowed set, and supply a mutation variant when the verdict is Refuse."@en ;
+    dcterms:created "2026-06-02"^^xsd:date ;
+    owl:imports <https://cargo-cicd.rs/ontology/playground> ;
+    owl:versionInfo "26.6.2" .
+
+# ── PlaygroundScenarioShape ───────────────────────────────────────────────────
+#
+# Target: every instance of cc:PlaygroundScenario.
+# The ontology declares 18 scenario individuals across the 9 commands.
+#
+ccsh:PlaygroundScenarioShape
+    a sh:NodeShape ;
+    sh:name "PlaygroundScenarioShape" ;
+    sh:description
+        "Every cc:PlaygroundScenario must link to a cc:Capability via cc:commandUsed, link to a prov:Activity via cc:evidenceEvent, declare a wasm4pm expected verdict from the allowed set {Accept, Warn, Refuse}, and supply cc:mutationVariant when the expected verdict is Refuse."@en ;
+
+    sh:targetClass cc:PlaygroundScenario ;
+
+    # ── cc:commandUsed — required, must link to a prov:SoftwareAgent ─────────
+    sh:property [
+        sh:path cc:commandUsed ;
+        sh:name "commandUsed" ;
+        sh:description "Links this scenario to the cc:Capability (prov:SoftwareAgent) exercised."@en ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class prov:SoftwareAgent ;
+        sh:message "cc:commandUsed is required and must point to a prov:SoftwareAgent (cc:Capability) node."@en ;
+    ] ;
+
+    # ── cc:evidenceEvent — required, must link to a prov:Activity ────────────
+    sh:property [
+        sh:path cc:evidenceEvent ;
+        sh:name "evidenceEvent" ;
+        sh:description "Links this scenario to the prov:Activity evidence event it exercises."@en ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class prov:Activity ;
+        sh:message "cc:evidenceEvent is required and must point to a prov:Activity node."@en ;
+    ] ;
+
+    # ── cc:wasm4pmExpectedVerdict — required, one of Accept | Warn | Refuse ──
+    sh:property [
+        sh:path cc:wasm4pmExpectedVerdict ;
+        sh:name "wasm4pmExpectedVerdict" ;
+        sh:description "The verdict the wasm4pm oracle is expected to issue for this scenario. Must be one of: Accept, Warn, Refuse."@en ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "Accept" "Warn" "Refuse" ) ;
+        sh:message "cc:wasm4pmExpectedVerdict is required and must be one of: Accept, Warn, Refuse."@en ;
+    ] .
+
+# ── PlaygroundRefuseRequiresMutationShape ────────────────────────────────────
+#
+# When cc:wasm4pmExpectedVerdict = "Refuse", cc:mutationVariant must be present.
+# Implemented as a SPARQL constraint on cc:PlaygroundScenario nodes.
+#
+ccsh:PlaygroundRefuseRequiresMutationShape
+    a sh:NodeShape ;
+    sh:name "PlaygroundRefuseRequiresMutationShape" ;
+    sh:description
+        "A scenario whose wasm4pm expected verdict is Refuse must declare cc:mutationVariant — the specific data mutation that causes the oracle to refuse."@en ;
+
+    sh:targetClass cc:PlaygroundScenario ;
+
+    sh:sparql [
+        sh:message "When cc:wasm4pmExpectedVerdict is 'Refuse', cc:mutationVariant must be present."@en ;
+        sh:select """
+            PREFIX cc:  <https://cargo-cicd.rs/ontology/>
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            SELECT $this
+            WHERE {
+                $this cc:wasm4pmExpectedVerdict "Refuse"^^xsd:string .
+                FILTER NOT EXISTS { $this cc:mutationVariant ?mv . }
+            }
+        """ ;
+    ] .

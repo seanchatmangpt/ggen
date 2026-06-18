@@ -1,0 +1,607 @@
+@prefix zoe: <https://zoela.org/ontology/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix schema: <https://schema.org/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# =============================================================================
+# ZOE LA Evidence Ontology
+# Proof that a route stage action was completed.
+# Evidence is required before a route can advance to the next stage.
+# =============================================================================
+
+<https://zoela.org/ontology/evidence>
+    a owl:Ontology ;
+    rdfs:label "ZOE LA Evidence Ontology"@en ;
+    rdfs:comment "Defines evidence artifacts that prove route stage actions occurred in the ZOE LA Mobile combinatorial service graph."@en ;
+    dcterms:created "2026-05-17"^^xsd:date ;
+    owl:versionInfo "1.0.0" .
+
+# =============================================================================
+# SKOS ConceptScheme: EvidenceTypeScheme
+# =============================================================================
+
+zoe:EvidenceTypeScheme
+    a skos:ConceptScheme ;
+    rdfs:label "Evidence Type Scheme"@en ;
+    rdfs:comment "Controlled vocabulary of evidence types used to classify route stage proof artifacts in ZOE LA."@en ;
+    skos:prefLabel "Evidence Type Scheme"@en .
+
+zoe:FormSubmissionEvidenceType
+    a skos:Concept ;
+    skos:inScheme zoe:EvidenceTypeScheme ;
+    skos:notation "FORM" ;
+    rdfs:label "Form Submission"@en ;
+    skos:prefLabel "Form Submission"@en ;
+    skos:definition "Evidence that a structured form was submitted for a route stage, capturing intake or assessment data."@en ;
+    rdfs:comment "Evidence that a structured form was submitted for a route stage, capturing intake or assessment data."@en .
+
+zoe:AttendanceEvidenceType
+    a skos:Concept ;
+    skos:inScheme zoe:EvidenceTypeScheme ;
+    skos:notation "ATTEND" ;
+    rdfs:label "Attendance Check-In"@en ;
+    skos:prefLabel "Attendance Check-In"@en ;
+    skos:definition "Evidence that an individual physically or digitally checked in to an event or service location."@en ;
+    rdfs:comment "Evidence that an individual physically or digitally checked in to an event or service location."@en .
+
+zoe:AssignmentEvidenceType
+    a skos:Concept ;
+    skos:inScheme zoe:EvidenceTypeScheme ;
+    skos:notation "ASSIGN" ;
+    rdfs:label "Volunteer/Resource Assignment"@en ;
+    skos:prefLabel "Volunteer/Resource Assignment"@en ;
+    skos:definition "Evidence that a volunteer or resource was formally assigned to a route stage or service need."@en ;
+    rdfs:comment "Evidence that a volunteer or resource was formally assigned to a route stage or service need."@en .
+
+zoe:DeliveryEvidenceType
+    a skos:Concept ;
+    skos:inScheme zoe:EvidenceTypeScheme ;
+    skos:notation "DELIVER" ;
+    rdfs:label "Service or Resource Delivery"@en ;
+    skos:prefLabel "Service or Resource Delivery"@en ;
+    skos:definition "Evidence that a service or physical resource was delivered to the intended recipient."@en ;
+    rdfs:comment "Evidence that a service or physical resource was delivered to the intended recipient."@en .
+
+zoe:ConsentEvidenceType
+    a skos:Concept ;
+    skos:inScheme zoe:EvidenceTypeScheme ;
+    skos:notation "CONSENT" ;
+    rdfs:label "Consent Granted"@en ;
+    skos:prefLabel "Consent Granted"@en ;
+    skos:definition "Evidence that informed consent was obtained from a participant or their guardian for a route action."@en ;
+    rdfs:comment "Evidence that informed consent was obtained from a participant or their guardian for a route action."@en .
+
+zoe:FollowUpEvidenceType
+    a skos:Concept ;
+    skos:inScheme zoe:EvidenceTypeScheme ;
+    skos:notation "FOLLOWUP" ;
+    rdfs:label "Follow-Up Completed"@en ;
+    skos:prefLabel "Follow-Up Completed"@en ;
+    skos:definition "Evidence that a scheduled follow-up contact was completed with an outcome recorded."@en ;
+    rdfs:comment "Evidence that a scheduled follow-up contact was completed with an outcome recorded."@en .
+
+zoe:PartnerReferralEvidenceType
+    a skos:Concept ;
+    skos:inScheme zoe:EvidenceTypeScheme ;
+    skos:notation "PARTNER-REF" ;
+    rdfs:label "Partner Referral Sent"@en ;
+    skos:prefLabel "Partner Referral Sent"@en ;
+    skos:definition "Evidence that a referral was formally sent to a partner organization for additional services."@en ;
+    rdfs:comment "Evidence that a referral was formally sent to a partner organization for additional services."@en .
+
+zoe:MessageEvidenceType
+    a skos:Concept ;
+    skos:inScheme zoe:EvidenceTypeScheme ;
+    skos:notation "MSG" ;
+    rdfs:label "Communication Sent"@en ;
+    skos:prefLabel "Communication Sent"@en ;
+    skos:definition "Evidence that a message or communication was sent to a participant, household, or stakeholder."@en ;
+    rdfs:comment "Evidence that a message or communication was sent to a participant, household, or stakeholder."@en .
+
+zoe:PolicyDecisionEvidenceType
+    a skos:Concept ;
+    skos:inScheme zoe:EvidenceTypeScheme ;
+    skos:notation "POLICY-DEC" ;
+    rdfs:label "Policy Decision Recorded"@en ;
+    skos:prefLabel "Policy Decision Recorded"@en ;
+    skos:definition "Evidence that a policy-based eligibility or routing decision was recorded for a route stage."@en ;
+    rdfs:comment "Evidence that a policy-based eligibility or routing decision was recorded for a route stage."@en .
+
+zoe:ResourceInventoryEvidenceType
+    a skos:Concept ;
+    skos:inScheme zoe:EvidenceTypeScheme ;
+    skos:notation "INV-CHECK" ;
+    rdfs:label "Inventory Check Completed"@en ;
+    skos:prefLabel "Inventory Check Completed"@en ;
+    skos:definition "Evidence that a resource inventory check was completed before a delivery or assignment stage."@en ;
+    rdfs:comment "Evidence that a resource inventory check was completed before a delivery or assignment stage."@en .
+
+zoe:CheckInEvidenceType
+    a skos:Concept ;
+    skos:inScheme zoe:EvidenceTypeScheme ;
+    skos:notation "CHECKIN" ;
+    rdfs:label "Physical Check-In at Location"@en ;
+    skos:prefLabel "Physical Check-In at Location"@en ;
+    skos:definition "Evidence that an individual physically checked in at a service location such as a campus or event venue."@en ;
+    rdfs:comment "Evidence that an individual physically checked in at a service location such as a campus or event venue."@en .
+
+# =============================================================================
+# Core Class: zoe:Evidence
+# =============================================================================
+
+zoe:Evidence
+    a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "Evidence"@en ;
+    rdfs:comment "An evidence artifact that proves a route stage action occurred. Evidence is required before a route can advance to the next stage."@en .
+
+# --- Properties of zoe:Evidence ---
+
+zoe:evidenceId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:Evidence ;
+    rdfs:range xsd:string ;
+    rdfs:label "evidence ID"@en ;
+    rdfs:comment "Unique identifier (UUID) for this evidence artifact."@en ;
+    skos:notation "evidenceId" .
+
+zoe:evidenceType
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:Evidence ;
+    rdfs:range skos:Concept ;
+    rdfs:label "evidence type"@en ;
+    rdfs:comment "The SKOS concept from zoe:EvidenceTypeScheme classifying the kind of evidence."@en ;
+    skos:notation "evidenceType" .
+
+zoe:capturedAt
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:Evidence ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "captured at"@en ;
+    rdfs:comment "The ISO-8601 date-time when this evidence was captured."@en ;
+    skos:notation "capturedAt" .
+
+zoe:capturedBy
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:Evidence ;
+    rdfs:range xsd:string ;
+    rdfs:label "captured by"@en ;
+    rdfs:comment "The user ID of the actor who captured this evidence."@en ;
+    skos:notation "capturedBy" .
+
+zoe:routeStageCode
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:Evidence ;
+    rdfs:range xsd:string ;
+    rdfs:label "route stage code"@en ;
+    rdfs:comment "The code identifying the route stage this evidence proves was completed."@en ;
+    skos:notation "routeStageCode" .
+
+zoe:routeInstanceId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:Evidence ;
+    rdfs:range xsd:string ;
+    rdfs:label "route instance ID"@en ;
+    rdfs:comment "The identifier of the live care route instance this evidence belongs to."@en ;
+    skos:notation "routeInstanceId" .
+
+zoe:subjectId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:Evidence ;
+    rdfs:range xsd:string ;
+    rdfs:label "subject ID"@en ;
+    rdfs:comment "The identifier of the person or household being served by this evidence's route stage."@en ;
+    skos:notation "subjectId" .
+
+zoe:documentUrl
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:Evidence ;
+    rdfs:range xsd:string ;
+    rdfs:label "document URL"@en ;
+    rdfs:comment "Optional URL of a stored document (e.g., signed form, photo) that constitutes or supports this evidence."@en ;
+    skos:notation "documentUrl" .
+
+zoe:blake3Hash
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:Evidence ;
+    rdfs:range xsd:string ;
+    rdfs:label "BLAKE3 hash"@en ;
+    rdfs:comment "BLAKE3 cryptographic hash of the evidence payload, enabling tamper detection."@en ;
+    skos:notation "blake3Hash" .
+
+zoe:isVerified
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:Evidence ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "is verified"@en ;
+    rdfs:comment "Boolean indicating whether this evidence has been independently verified by an authorized reviewer."@en ;
+    skos:notation "isVerified" .
+
+zoe:verifiedBy
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:Evidence ;
+    rdfs:range xsd:string ;
+    rdfs:label "verified by"@en ;
+    rdfs:comment "The user ID of the actor who verified this evidence."@en ;
+    skos:notation "verifiedBy" .
+
+# =============================================================================
+# Subclass: zoe:FormSubmissionEvidence
+# =============================================================================
+
+zoe:FormSubmissionEvidence
+    a owl:Class ;
+    rdfs:subClassOf zoe:Evidence , schema:FindAction ;
+    rdfs:label "Form Submission Evidence"@en ;
+    rdfs:comment "Evidence that a structured digital or paper form was submitted, capturing intake, assessment, or registration data for a route stage."@en .
+
+zoe:formId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:FormSubmissionEvidence ;
+    rdfs:range xsd:string ;
+    rdfs:label "form ID"@en ;
+    rdfs:comment "The identifier of the form definition that was submitted."@en ;
+    skos:notation "formId" .
+
+zoe:formVersion
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:FormSubmissionEvidence ;
+    rdfs:range xsd:string ;
+    rdfs:label "form version"@en ;
+    rdfs:comment "The version string of the form definition at the time of submission."@en ;
+    skos:notation "formVersion" .
+
+zoe:submissionPayloadHash
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:FormSubmissionEvidence ;
+    rdfs:range xsd:string ;
+    rdfs:label "submission payload hash"@en ;
+    rdfs:comment "BLAKE3 hash of the serialized form submission payload, used to detect tampering."@en ;
+    skos:notation "submissionPayloadHash" .
+
+# =============================================================================
+# Subclass: zoe:AttendanceEvidence
+# =============================================================================
+
+zoe:AttendanceEvidence
+    a owl:Class ;
+    rdfs:subClassOf zoe:Evidence , schema:AttendAction ;
+    rdfs:label "Attendance Evidence"@en ;
+    rdfs:comment "Evidence that a participant checked in to an event or service location, recorded by QR scan, manual entry, or kiosk."@en .
+
+zoe:eventId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:AttendanceEvidence ;
+    rdfs:range xsd:string ;
+    rdfs:label "event ID"@en ;
+    rdfs:comment "The identifier of the event or service session the participant attended."@en ;
+    skos:notation "eventId" .
+
+zoe:checkedInAt
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:AttendanceEvidence ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "checked in at"@en ;
+    rdfs:comment "The ISO-8601 date-time when the participant's check-in was recorded."@en ;
+    skos:notation "checkedInAt" .
+
+zoe:checkInMethod
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:AttendanceEvidence ;
+    rdfs:range xsd:string ;
+    rdfs:label "check-in method"@en ;
+    rdfs:comment "The method used to record attendance: qr (QR code scan), manual (staff entry), or kiosk (self-service terminal)."@en ;
+    skos:notation "checkInMethod" .
+
+# =============================================================================
+# Subclass: zoe:AssignmentEvidence
+# =============================================================================
+
+zoe:AssignmentEvidence
+    a owl:Class ;
+    rdfs:subClassOf zoe:Evidence , schema:AssignAction ;
+    rdfs:label "Assignment Evidence"@en ;
+    rdfs:comment "Evidence that a volunteer or physical resource was formally assigned to fulfill a service need at a route stage."@en .
+
+zoe:assignedVolunteerId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:AssignmentEvidence ;
+    rdfs:range xsd:string ;
+    rdfs:label "assigned volunteer ID"@en ;
+    rdfs:comment "The user ID of the volunteer assigned to the route stage."@en ;
+    skos:notation "assignedVolunteerId" .
+
+zoe:assignedResourceId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:AssignmentEvidence ;
+    rdfs:range xsd:string ;
+    rdfs:label "assigned resource ID"@en ;
+    rdfs:comment "The identifier of the physical resource (food bag, clothing bundle, etc.) assigned."@en ;
+    skos:notation "assignedResourceId" .
+
+zoe:assignedAt
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:AssignmentEvidence ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "assigned at"@en ;
+    rdfs:comment "The ISO-8601 date-time when the volunteer or resource assignment was confirmed."@en ;
+    skos:notation "assignedAt" .
+
+# =============================================================================
+# Subclass: zoe:DeliveryEvidence
+# =============================================================================
+
+zoe:DeliveryEvidence
+    a owl:Class ;
+    rdfs:subClassOf zoe:Evidence , schema:DeliveryEvent ;
+    rdfs:label "Delivery Evidence"@en ;
+    rdfs:comment "Evidence that a service or physical resource was delivered to the intended recipient, optionally including a recipient signature."@en .
+
+zoe:deliveredQuantity
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:DeliveryEvidence ;
+    rdfs:range xsd:integer ;
+    rdfs:label "delivered quantity"@en ;
+    rdfs:comment "The count of units (food bags, items, etc.) that were delivered to the recipient."@en ;
+    skos:notation "deliveredQuantity" .
+
+zoe:deliveryLocation
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:DeliveryEvidence ;
+    rdfs:range xsd:string ;
+    rdfs:label "delivery location"@en ;
+    rdfs:comment "A description or code identifying where the delivery took place (campus, address, service station)."@en ;
+    skos:notation "deliveryLocation" .
+
+zoe:deliveredAt
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:DeliveryEvidence ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "delivered at"@en ;
+    rdfs:comment "The ISO-8601 date-time when the delivery was completed."@en ;
+    skos:notation "deliveredAt" .
+
+zoe:recipientSignature
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:DeliveryEvidence ;
+    rdfs:range xsd:string ;
+    rdfs:label "recipient signature"@en ;
+    rdfs:comment "Base64-encoded signature image or cryptographic token from the recipient acknowledging delivery."@en ;
+    skos:notation "recipientSignature" .
+
+# =============================================================================
+# Subclass: zoe:ConsentEvidence
+# =============================================================================
+
+zoe:ConsentEvidence
+    a owl:Class ;
+    rdfs:subClassOf zoe:Evidence , schema:AgreeAction ;
+    rdfs:label "Consent Evidence"@en ;
+    rdfs:comment "Evidence that informed consent was obtained from a participant or their guardian before a sensitive route stage action."@en .
+
+zoe:consentTypeCode
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:ConsentEvidence ;
+    rdfs:range xsd:string ;
+    rdfs:label "consent type code"@en ;
+    rdfs:comment "A code identifying the type of consent (e.g., data-sharing, minor-participation, photo-release)."@en ;
+    skos:notation "consentTypeCode" .
+
+zoe:guardianId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:ConsentEvidence ;
+    rdfs:range xsd:string ;
+    rdfs:label "guardian ID"@en ;
+    rdfs:comment "The user ID of the guardian who provided consent on behalf of a minor participant."@en ;
+    skos:notation "guardianId" .
+
+zoe:guardianRelationship
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:ConsentEvidence ;
+    rdfs:range xsd:string ;
+    rdfs:label "guardian relationship"@en ;
+    rdfs:comment "The relationship of the consenting guardian to the participant (e.g., parent, legal guardian, foster carer)."@en ;
+    skos:notation "guardianRelationship" .
+
+# =============================================================================
+# Subclass: zoe:FollowUpEvidence
+# =============================================================================
+
+zoe:FollowUpEvidence
+    a owl:Class ;
+    rdfs:subClassOf zoe:Evidence , schema:CommunicateAction ;
+    rdfs:label "Follow-Up Evidence"@en ;
+    rdfs:comment "Evidence that a scheduled follow-up contact (call, text, or in-person visit) was completed with an outcome recorded."@en .
+
+zoe:followUpMethod
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:FollowUpEvidence ;
+    rdfs:range xsd:string ;
+    rdfs:label "follow-up method"@en ;
+    rdfs:comment "The channel used for follow-up: call (phone call), text (SMS/messaging), or visit (in-person)."@en ;
+    skos:notation "followUpMethod" .
+
+zoe:followUpOutcome
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:FollowUpEvidence ;
+    rdfs:range xsd:string ;
+    rdfs:label "follow-up outcome"@en ;
+    rdfs:comment "A textual description or code capturing the result of the follow-up contact."@en ;
+    skos:notation "followUpOutcome" .
+
+zoe:nextFollowUpDue
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:FollowUpEvidence ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "next follow-up due"@en ;
+    rdfs:comment "The ISO-8601 date-time when the next follow-up contact should occur, if one is required."@en ;
+    skos:notation "nextFollowUpDue" .
+
+# =============================================================================
+# Dublin Core Metadata & W3C PROV-O Integration Mappings for Evidence
+# =============================================================================
+
+zoe:evidenceId rdfs:subPropertyOf dcterms:identifier .
+zoe:capturedBy rdfs:subPropertyOf dcterms:creator .
+zoe:capturedAt rdfs:subPropertyOf dcterms:issued .
+
+# Dublin Core properties declaration (for vocabulary completeness)
+dcterms:identifier a owl:DatatypeProperty ;
+    rdfs:label "identifier"@en ;
+    rdfs:comment "A unique identifier for the evidence resource."@en .
+
+dcterms:creator a owl:DatatypeProperty ;
+    rdfs:label "creator"@en ;
+    rdfs:comment "The entity responsible for capturing the evidence resource."@en .
+
+dcterms:issued a owl:DatatypeProperty ;
+    rdfs:label "issued date"@en ;
+    rdfs:comment "Date/time when the evidence was formally captured."@en .
+
+# =============================================================================
+# SHACL Validation Shapes for Evidence
+# =============================================================================
+
+zoe:EvidenceShape
+    a sh:NodeShape ;
+    sh:targetClass zoe:Evidence ;
+    rdfs:label "Evidence Validation Shape"@en ;
+    sh:property [
+        sh:path zoe:evidenceId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$" ;
+        sh:message "evidenceId must be a valid UUID v4."@en ;
+    ] ;
+    sh:property [
+        sh:path dcterms:identifier ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "dcterms:identifier must match evidenceId."@en ;
+    ] ;
+    sh:property [
+        sh:path zoe:evidenceType ;
+        sh:nodeKind sh:IRI ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "evidenceType must link to a valid SKOS Concept from EvidenceTypeScheme."@en ;
+    ] ;
+    sh:property [
+        sh:path zoe:capturedAt ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "capturedAt must be a valid xsd:dateTime."@en ;
+    ] ;
+    sh:property [
+        sh:path dcterms:issued ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "dcterms:issued must be a valid xsd:dateTime matching capturedAt."@en ;
+    ] ;
+    sh:property [
+        sh:path zoe:capturedBy ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "capturedBy must be present."@en ;
+    ] ;
+    sh:property [
+        sh:path dcterms:creator ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "dcterms:creator must be present matching capturedBy."@en ;
+    ] ;
+    sh:property [
+        sh:path zoe:blake3Hash ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[0-9a-f]{64}$" ;
+        sh:message "blake3Hash must be a 64-character hexadecimal string representing a BLAKE3 hash."@en ;
+    ] .
+
+zoe:FormSubmissionEvidenceShape
+    a sh:NodeShape ;
+    sh:targetClass zoe:FormSubmissionEvidence ;
+    rdfs:label "Form Submission Evidence Shape"@en ;
+    sh:property [
+        sh:path zoe:formId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path zoe:formVersion ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path zoe:submissionPayloadHash ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[0-9a-f]{64}$" ;
+    ] .
+
+zoe:AttendanceEvidenceShape
+    a sh:NodeShape ;
+    sh:targetClass zoe:AttendanceEvidence ;
+    rdfs:label "Attendance Evidence Shape"@en ;
+    sh:property [
+        sh:path zoe:eventId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path zoe:checkedInAt ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path zoe:checkInMethod ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "qr" "manual" "kiosk" ) ;
+    ] .
+
+zoe:AssignmentEvidenceShape
+    a sh:NodeShape ;
+    sh:targetClass zoe:AssignmentEvidence ;
+    rdfs:label "Assignment Evidence Shape"@en ;
+    sh:property [
+        sh:path zoe:assignedAt ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] .
+
+zoe:DeliveryEvidenceShape
+    a sh:NodeShape ;
+    sh:targetClass zoe:DeliveryEvidence ;
+    rdfs:label "Delivery Evidence Shape"@en ;
+    sh:property [
+        sh:path zoe:deliveredQuantity ;
+        sh:datatype xsd:integer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path zoe:deliveredAt ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] .

@@ -1,0 +1,97 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix schema: <http://schema.org/> .
+@prefix hydra: <http://www.w3.org/ns/hydra/core#> .
+@prefix ex: <http://example.org/> .
+@prefix onto: <http://example.org/ontology/> .
+@prefix api: <http://example.org/api/> .
+
+# Person instances
+ex:person/john a schema:Person ;
+    schema:name "John Doe" ;
+    schema:email "john@example.com" ;
+    schema:jobTitle "Software Developer" ;
+    schema:worksFor ex:company/acme ;
+    schema:knows ex:person/jane .
+
+ex:person/jane a schema:Person ;
+    schema:name "Jane Smith" ;
+    schema:email "jane@example.com" ;
+    schema:jobTitle "UX Designer" ;
+    schema:worksFor ex:company/acme .
+
+# Company data
+ex:company/acme a schema:Organization ;
+    schema:name "Acme Corp" ;
+    schema:address [
+        a schema:PostalAddress ;
+        schema:streetAddress "123 Main St" ;
+        schema:addressCity "Tech City" ;
+        schema:postalCode "12345"
+    ] ;
+    schema:employee ex:person/john, ex:person/jane .
+
+# Ontology classes
+onto:User a owl:Class ;
+    rdfs:label "User Account" ;
+    rdfs:comment "Represents a user in the system" .
+
+onto:Profile a owl:Class ;
+    rdfs:label "User Profile" ;
+    rdfs:comment "Extended profile information" .
+
+# Properties
+onto:username a owl:DatatypeProperty ;
+    rdfs:label "Username" ;
+    rdfs:domain onto:User ;
+    rdfs:range rdfs:Literal .
+
+onto:hasProfile a owl:ObjectProperty ;
+    rdfs:label "Has Profile" ;
+    rdfs:domain onto:User ;
+    rdfs:range onto:Profile .
+
+# API descriptions
+api:users a hydra:Resource ;
+    hydra:method "GET" ;
+    schema:description "Retrieve user accounts" ;
+    hydra:returns onto:User .
+
+api:profiles a hydra:Resource ;
+    hydra:method "GET" ;
+    hydra:method "POST" ;
+    schema:description "Manage user profiles" ;
+    hydra:returns onto:Profile .
+
+# Configuration data
+ex:config/database a ex:DatabaseConfig ;
+    ex:host "localhost" ;
+    ex:port 5432 ;
+    ex:database "myapp" ;
+    ex:ssl true .
+
+ex:config/api a ex:ApiConfig ;
+    ex:version "v1" ;
+    ex:baseUrl "https://api.example.com" ;
+    ex:timeout 30000 ;
+    ex:rateLimit 1000 .
+
+# Mock data for testing
+ex:mock/user1 a onto:User ;
+    onto:username "testuser1" ;
+    schema:email "test1@example.com" ;
+    onto:hasProfile ex:mock/profile1 .
+
+ex:mock/profile1 a onto:Profile ;
+    schema:name "Test User One" ;
+    schema:description "Test profile for validation" ;
+    schema:image "https://example.com/avatar1.jpg" .
+
+# Error test data (incomplete/invalid)
+ex:incomplete/user a onto:User ;
+    # Missing required properties
+    schema:email "incomplete@example.com" .
+
+ex:invalid/data a ex:UnknownClass ;
+    ex:invalidProperty "should not validate" .

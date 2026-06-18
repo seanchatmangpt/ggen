@@ -1,0 +1,296 @@
+# =============================================================================
+# ChatmanGPT Explanation Documentation Ontology
+# Models all Diataxis explanation-quadrant docs as RDF using doc: vocabulary
+# Pipeline: explanation-ontology.ttl -> SPARQL SELECT -> Tera -> Markdown
+# =============================================================================
+
+@prefix doc: <https://ggen.dev/ontology/documentation#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <https://chatmangpt.com/docs/diataxis/explanation#> .
+
+# =============================================================================
+# Concept Definitions
+# =============================================================================
+
+ex:SignalTheory a doc:Concept ;
+    rdfs:label "Signal Theory" ;
+    rdfs:comment "The universal quality layer that encodes every output as a 5-tuple S=(M,G,T,F,W) to measure and enforce output quality. Answers: Did the receiver get what they needed, in the form they can decode, with minimum noise?" .
+
+ex:ChatmanEquation a doc:Concept ;
+    rdfs:label "The Chatman Equation" ;
+    rdfs:comment "The mathematical foundation A=mu(O) stating that artifacts are projections of ontologies via transformation functions. The event horizon between probabilistic (before closure) and deterministic (after closure) regimes." .
+
+ex:SevenLayerArchitecture a doc:Concept ;
+    rdfs:label "7-Layer Architecture" ;
+    rdfs:comment "Every optimal system has 7 layers: Network, Signal, Composition, Interface, Data, Feedback, Governance. Each addresses a distinct concern that emerges when agents communicate through encoded signals." .
+
+ex:ProgressiveDisclosure a doc:Concept ;
+    rdfs:label "Progressive Disclosure" ;
+    rdfs:comment "Token-efficient context loading via L0/L1/L2 tiers. Achieves 60x-120x compression ratios. The Shannon Constraint made operational: load what you need, when you need it." .
+
+ex:SignalToNoiseRatio a doc:Concept ;
+    rdfs:label "Signal-to-Noise (S/N) Scoring" ;
+    rdfs:comment "Quality metric scoring signal (useful content) against noise (filler, ambiguity, wrong genre). Scale: REJECT (0.0-0.3), WARN (0.3-0.5), PASS (0.5-0.7), GOOD (0.7-0.9), OPTIMAL (0.9-1.0)." .
+
+ex:FourConstraints a doc:Concept ;
+    rdfs:label "Four Governing Constraints" ;
+    rdfs:comment "Theoretical limits from Shannon (channel capacity), Ashby (required variety), Beer (structural viability), and Wiener (feedback closure). Violating any one equals failed output." .
+
+ex:OntologyClosure a doc:Concept ;
+    rdfs:label "Ontology Closure" ;
+    rdfs:comment "The event horizon where an ontology achieves completeness and consistency. Before closure: probabilistic outputs. After closure: deterministic generation." .
+
+ex:CoordinationSoundness a doc:Concept ;
+    rdfs:comment "Compile-time verification that a workflow cannot deadlock, livelock, or fail to complete. YAWL has decidable soundness: given any YAWL workflow, an algorithm determines correctness in finite time." ;
+    rdfs:label "Coordination Soundness" .
+
+# =============================================================================
+# Design Decisions
+# =============================================================================
+
+ex:DD-SignalTheory-FiveDimensions a doc:DesignDecision ;
+    doc:decision "Use exactly 5 dimensions (M,G,T,F,W) rather than fewer or more" ;
+    doc:rationale "5 dimensions cover every aspect of encoded communication without redundancy. Mode covers perception channel. Genre covers conventional form. Type covers communicative intent. Format covers container. Structure covers internal skeleton." ;
+    doc:tradeoff "5 dimensions require upfront resolution before producing output, adding cognitive overhead. However, this overhead prevents downstream quality failures that cost more to fix." .
+
+ex:DD-SignalTheory-ScoreThreshold a doc:DesignDecision ;
+    doc:decision "Set S/N quality threshold at 0.7 for transmission" ;
+    doc:rationale "Below 0.7, noise exceeds 30% of output which degrades agent comprehension. Above 0.7, signal dominates and receivers can extract intent reliably." ;
+    doc:tradeoff "Some borderline signals (0.5-0.7) are rejected despite containing useful content. However, the cost of noise propagation through multi-agent chains justifies the strict threshold." .
+
+ex:DD-ChatmanEquation-YAWL a doc:DesignDecision ;
+    doc:decision "Use YAWL as the reference workflow language for coordination soundness" ;
+    doc:rationale "YAWL is the only language that natively implements all 43 workflow patterns (proven exhaustiveness theorem) and has decidable soundness verification. BPMN (~35/43), BPEL (~25/43), and others have undecidable soundness." ;
+    doc:tradeoff "YAWL has a smaller ecosystem than BPMN. However, mathematical guarantees of correctness outweigh ecosystem convenience for production multi-agent systems." .
+
+ex:DD-SevenLayer-ExactlySeven a doc:DesignDecision ;
+    doc:decision "Define exactly 7 layers, not a flexible N-layer model" ;
+    doc:rationale "The 7 layers are an exhaustiveness theorem, not a design pattern. Any system that handles encoded intent between entities provably needs all seven. Fewer layers create hidden failure modes." ;
+    doc:tradeoff "The fixed 7-layer model does not accommodate domains that might seem to need fewer. However, removing any layer degrades the system rather than simplifying it." .
+
+ex:DD-ProgressiveDisclosure-TwoTokenBudget a doc:DesignDecision ;
+    doc:decision "Use L0 (~100 tokens) and L1 (~2K tokens) as the primary tiers" ;
+    doc:rationale "100 tokens provides complete structural awareness (the agent knows what exists). 2K tokens provides enough context for informed decisions. Together they achieve ~5x compression vs full documents." ;
+    doc:tradeoff "Two fixed tiers cannot accommodate all document sizes optimally. However, the simplicity of the two-tier model enables consistent loading protocols across all projects." .
+
+# =============================================================================
+# Code Examples
+# =============================================================================
+
+ex:Example-SignalTheory-CodeReview a doc:Example ;
+    doc:codeExample """S = (linguistic, report, inform, markdown, review-checklist)
+
+# Code Review: User Authentication
+
+## Summary
+Feature implements OAuth 2.0 with Google provider.
+
+## Checklist
+- [x] Matches spec requirements
+- [x] All tests pass
+- [x] No security issues
+- [x] Performance acceptable
+- [x] Code follows standards
+
+## Decision
+[APPROVED]""" ;
+    doc:codeLanguage "markdown" .
+
+ex:Example-SignalTheory-SalesEmail a doc:Example ;
+    doc:codeExample """S = (linguistic, email, direct, markdown, cold-email-anatomy)
+
+Subject: Cut your code review time by 80%
+
+Hi [Name],
+
+Your engineering team is spending 10+ hours per week on code reviews.
+Our automated review system reduces this to 2 hours.
+
+[Value proposition with metrics]
+
+Want to see a demo?
+
+[Your name]""" ;
+    doc:codeLanguage "markdown" .
+
+ex:Example-SignalTheory-ADR a doc:Example ;
+    doc:codeExample """S = (linguistic, spec, commit, markdown, adr-template)
+
+# ADR-012: GraphQL Migration
+
+## Context
+REST endpoints have N+1 query problems. Client teams request 4+ roundtrips.
+
+## Decision
+Migrate to GraphQL with Apollo Server. REST maintained for external APIs during 6-month transition.
+
+## Consequences
+- Dashboard load reduced from 4 requests to 1
+- Schema-first development required (new process)
+- Learning curve for frontend team (estimated 2 weeks)""" ;
+    doc:codeLanguage "markdown" .
+
+ex:Example-ChatmanEquation-FailureProbability a doc:Example ;
+    doc:codeExample """# Multi-agent failure probability
+# If each agent has failure probability p, a system of n agents:
+# P(system failure) = 1 - (1 - p)^n
+# This approaches 1 as n grows.
+
+def system_failure_probability(p, n):
+    return 1 - (1 - p) ** n
+
+# Example: 10 agents each with 1% failure rate
+# P(failure) = 1 - (0.99)^10 = 0.0956 (9.56%)
+# Example: 100 agents each with 1% failure rate
+# P(failure) = 1 - (0.99)^100 = 0.6340 (63.40%)""" ;
+    doc:codeLanguage "python" .
+
+ex:Example-ProgressiveDisclosure-L0YAML a doc:Example ;
+    doc:codeExample """---
+title: Coding Standards
+type: reference
+signal: S=(linguistic, reference, inform, markdown, standards-list)
+tier: L0
+---
+
+# Coding Standards
+
+## L0 Abstract
+TypeScript + SvelteKit 2. Strict mode. No any. 80%+ test coverage.""" ;
+    doc:codeLanguage "yaml" .
+
+ex:Example-ProgressiveDisclosure-L1Markdown a doc:Example ;
+    doc:codeExample """## L1 Overview
+- Use Svelte 5 Runes ($state, $derived, $effect)
+- Follow existing component patterns
+- Use path aliases ($lib, $components)
+- Write tests for all new functionality
+- Error handling: try/catch with typed errors
+- No console.log in production code
+- Use slog for server-side logging""" ;
+    doc:codeLanguage "markdown" .
+
+# =============================================================================
+# Explanation: Signal Theory
+# =============================================================================
+
+ex:SignalTheoryExplanation a doc:Explanation ;
+    doc:title "Signal Theory -- The Complete Theory" ;
+    doc:description "The universal quality layer that spans BusinessOS, Canopy, OSA, and foundational theory. S=(M,G,T,F,W) is the 5-tuple encoding that makes high-signal output possible." ;
+    doc:explainsConcept ex:SignalTheory ;
+    doc:hasKeyIdea "Every output an agent produces is a Signal that can be high-quality or low-quality" ;
+    doc:hasKeyIdea "Signal Theory gives you a framework to measure and enforce output quality" ;
+    doc:hasKeyIdea "All 5 dimensions (M,G,T,F,W) must be resolved before producing output" ;
+    doc:hasKeyIdea "The 4 constraints (Shannon, Ashby, Beer, Wiener) are theoretical limits, not heuristics" ;
+    doc:hasKeyIdea "Violating any constraint equals failed output -- there are no other failure modes" ;
+    doc:hasKeyIdea "S/N scoring ranges from REJECT (0.0-0.3) to OPTIMAL (0.9-1.0) with threshold at 0.7" ;
+    doc:hasKeyIdea "The same information should be encoded differently depending on who receives it" ;
+    doc:hasKeyIdea "Signal Theory is the universal encoding layer for cross-project communication" ;
+    doc:hasKeyIdea "Agent-to-agent alignment checks output genre against expected input genre" ;
+    doc:hasKeyIdea "Noise is created by filler phrases, unnecessary hedging, repetition, wrong genre, missing structure, and bandwidth overload" ;
+    doc:hasAnalogy "Signal Theory is like a quality control system for communication: every output passes through a 5-dimension filter before transmission" ;
+    doc:hasAnalogy "S/N scoring is like a noise gate in audio processing: below the threshold (0.7), the signal is too noisy to transmit" ;
+    doc:hasDesignDecision ex:DD-SignalTheory-FiveDimensions ;
+    doc:hasDesignDecision ex:DD-SignalTheory-ScoreThreshold ;
+    doc:hasExample ex:Example-SignalTheory-CodeReview ;
+    doc:hasExample ex:Example-SignalTheory-SalesEmail ;
+    doc:hasExample ex:Example-SignalTheory-ADR ;
+    doc:relatedTo ex:ProgressiveDisclosureExplanation ;
+    doc:relatedTo ex:ChatmanEquationExplanation ;
+    doc:relatedTo ex:SevenLayerExplanation ;
+    doc:order 1 ;
+    doc:targetAudience "intermediate" ;
+    doc:personalizationTags "signal-theory, quality, encoding, cross-project" .
+
+# =============================================================================
+# Explanation: Chatman Equation
+# =============================================================================
+
+ex:ChatmanEquationExplanation a doc:Explanation ;
+    doc:title "The Chatman Equation -- A=mu(O)" ;
+    doc:description "The mathematical foundation of the entire ChatmanGPT ecosystem. How artifacts emerge from ontologies via sound transformation functions." ;
+    doc:explainsConcept ex:ChatmanEquation ;
+    doc:hasKeyIdea "Artifacts are projections of ontologies via transformation functions: A = mu(O)" ;
+    doc:hasKeyIdea "Before Ontology Closure: outputs are probabilistic. After Closure: outputs are deterministic" ;
+    doc:hasKeyIdea "The event horizon between regimes is the most important threshold in applied AI engineering" ;
+    doc:hasKeyIdea "Multi-agent failure probability P = 1 - (1-p)^n approaches 1 as n grows -- you cannot engineer around this with better prompts" ;
+    doc:hasKeyIdea "Node failure (individual agent fails) is distinct from Coordination failure (workflow pattern is unsound)" ;
+    doc:hasKeyIdea "YAWL has decidable soundness: compile-time guarantee, not a runtime property" ;
+    doc:hasKeyIdea "Soundness is compositional: two sound YAWL workflows composed via any of 43 patterns produce a sound composite" ;
+    doc:hasKeyIdea "Three problems must be solved: Ontology Completeness, Coordination Soundness, Context Compression" ;
+    doc:hasKeyIdea "YAWL covers all 43 workflow patterns; BPMN covers ~35, BPEL ~25, LangChain ~10, AutoGen ~8" ;
+    doc:hasKeyIdea "Coordination failure probability = 0 with YAWL, not low -- by proof" ;
+    doc:hasKeyIdea "The four Signal Theory constraints (Shannon, Ashby, Beer, Wiener) map to the Chatman Equation regimes" ;
+    doc:hasAnalogy "Before closure is like interpreting a language at runtime -- flexible but error-prone. After closure is like compiling ahead of time -- strict but guaranteed correct." ;
+    doc:hasAnalogy "The event horizon is like a phase transition in physics: the same system behaves fundamentally differently on each side" ;
+    doc:hasDesignDecision ex:DD-ChatmanEquation-YAWL ;
+    doc:hasExample ex:Example-ChatmanEquation-FailureProbability ;
+    doc:relatedTo ex:SignalTheoryExplanation ;
+    doc:relatedTo ex:SevenLayerExplanation ;
+    doc:relatedTo ex:ProgressiveDisclosureExplanation ;
+    doc:order 2 ;
+    doc:targetAudience "advanced" ;
+    doc:personalizationTags "chatman-equation, ontology, yawl, soundness, multi-agent" .
+
+# =============================================================================
+# Explanation: 7-Layer Architecture
+# =============================================================================
+
+ex:SevenLayerExplanation a doc:Explanation ;
+    doc:title "The 7-Layer Architecture -- Universal Optimal Systems" ;
+    doc:description "Every Optimal System has 7 layers. All ChatmanGPT projects implement these differently. From Network to Governance, each layer has a specific role in making a system work." ;
+    doc:explainsConcept ex:SevenLayerArchitecture ;
+    doc:hasKeyIdea "A system is 7 layers stacked on top of each other, each with a distinct responsibility" ;
+    doc:hasKeyIdea "The 7 layers are an exhaustiveness theorem, not a design pattern" ;
+    doc:hasKeyIdea "L1 Network: Who connects (topology, organization, boundaries)" ;
+    doc:hasKeyIdea "L2 Signal: What is encoded (S=(M,G,T,F,W), quality gates, 4 constraints)" ;
+    doc:hasKeyIdea "L3 Composition: How parts fit (agent bodies, skill steps, internal logic)" ;
+    doc:hasKeyIdea "L4 Interface: How information surfaces (progressive disclosure L0/L1/L2, API, UI)" ;
+    doc:hasKeyIdea "L5 Data: Where stored (database, file system, session data, audit data)" ;
+    doc:hasKeyIdea "L6 Feedback: How corrected (heartbeat, quality gates, evidence gates, audit trail)" ;
+    doc:hasKeyIdea "L7 Governance: Why it exists (purpose, rules, policies, decision policies, feature flags)" ;
+    doc:hasKeyIdea "Remove any one layer and the system degrades -- this is a structural constraint" ;
+    doc:hasKeyIdea "Layers L1-L2 map to Ontology (O), L3-L4 to Transformation (mu), L5-L7 to Artifact (A) in the Chatman Equation" ;
+    doc:hasKeyIdea "Each layer maps to one of the four Signal Theory constraints" ;
+    doc:hasAnalogy "The 7 layers are like the OSI model for agent systems: each layer has a specific job, and removing any layer breaks communication" ;
+    doc:hasAnalogy "Like a building: Network is the foundation, Signal is the wiring, Composition is the walls, Interface is the doors/windows, Data is the plumbing, Feedback is the HVAC, Governance is the building code" ;
+    doc:hasDesignDecision ex:DD-SevenLayer-ExactlySeven ;
+    doc:relatedTo ex:SignalTheoryExplanation ;
+    doc:relatedTo ex:ChatmanEquationExplanation ;
+    doc:relatedTo ex:ProgressiveDisclosureExplanation ;
+    doc:order 3 ;
+    doc:targetAudience "intermediate" ;
+    doc:personalizationTags "architecture, layers, system-design, cross-project" .
+
+# =============================================================================
+# Explanation: Progressive Disclosure
+# =============================================================================
+
+ex:ProgressiveDisclosureExplanation a doc:Explanation ;
+    doc:title "Progressive Disclosure -- L0/L1/L2 Token Efficiency" ;
+    doc:description "Load what you need, when you need it. The L0/L1/L2 tier system achieves 60x-120x compression ratios across all ChatmanGPT projects." ;
+    doc:explainsConcept ex:ProgressiveDisclosure ;
+    doc:hasKeyIdea "Every agent starts a session with zero context -- without context it wastes tokens reconstructing facts" ;
+    doc:hasKeyIdea "L0 (~100 tokens) provides complete structural awareness -- the agent knows what exists, even without details" ;
+    doc:hasKeyIdea "L1 (~2K tokens) provides enough context for informed decisions without the full document" ;
+    doc:hasKeyIdea "L2 (unlimited) is the complete document loaded only for deep analysis, code review, or implementation" ;
+    doc:hasKeyIdea "This is information compression, not caching -- the Sparse Priming Representation operationalized" ;
+    doc:hasKeyIdea "L0 provides ~100x compression vs L2; L1 provides ~5-10x compression vs L2" ;
+    doc:hasKeyIdea "Three-stage loading protocol: BOOT (all L0), PHASE ENTRY (L1 on demand), DEEP WORK (L2 on demand)" ;
+    doc:hasKeyIdea "Progressive disclosure is the Shannon Constraint made operational" ;
+    doc:hasKeyIdea "Progressive disclosure is the L4 Interface layer of the 7-Layer Architecture" ;
+    doc:hasKeyIdea "Canopy implements tiers in file frontmatter; OSA in memory architecture; BusinessOS in context compression" ;
+    doc:hasKeyIdea "If an agent reads ONLY the L0 abstract, it should correctly answer 'What is this topic about?'" ;
+    doc:hasAnalogy "Progressive disclosure is like a table of contents that expands: L0 is the chapter titles, L1 is the section summaries, L2 is the full text" ;
+    doc:hasAnalogy "Like a zoom lens: L0 shows the whole landscape, L1 zooms into a region, L2 shows individual trees" ;
+    doc:hasDesignDecision ex:DD-ProgressiveDisclosure-TwoTokenBudget ;
+    doc:hasExample ex:Example-ProgressiveDisclosure-L0YAML ;
+    doc:hasExample ex:Example-ProgressiveDisclosure-L1Markdown ;
+    doc:relatedTo ex:SignalTheoryExplanation ;
+    doc:relatedTo ex:SevenLayerExplanation ;
+    doc:relatedTo ex:ChatmanEquationExplanation ;
+    doc:order 4 ;
+    doc:targetAudience "beginner" ;
+    doc:personalizationTags "progressive-disclosure, tokens, compression, context-loading" .

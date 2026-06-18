@@ -1,0 +1,333 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix gvc: <https://gitvan.dev/ontology/config#> .
+@prefix ex: <http://example.org/config/> .
+
+# ============================================================================
+# GitVan Valid Configuration Instance
+# Version: 4.0.0
+# Description: Complete, valid configuration example demonstrating all features
+# ============================================================================
+
+# Root configuration instance
+ex:gitvanConfig a gvc:Configuration ;
+    gvc:hasRootDir "/home/user/my-project" ;
+    gvc:hasJobsConfig ex:jobsConfig ;
+    gvc:hasTemplateConfig ex:templateConfig ;
+    gvc:hasReceiptConfig ex:receiptConfig ;
+    gvc:hasLockConfig ex:lockConfig ;
+    gvc:hasAIConfig ex:aiConfig ;
+    gvc:hasRuntimeConfig ex:runtimeConfig ;
+    gvc:hasHooksConfig ex:hooksConfig ;
+    gvc:hasDaemonConfig ex:daemonConfig ;
+    gvc:hasEventsConfig ex:eventsConfig ;
+    gvc:hasGraphConfig ex:graphConfig ;
+    rdfs:label "Valid GitVan Configuration" ;
+    rdfs:comment "Complete example showing all configuration sections with valid values" .
+
+# ============================================================================
+# Jobs Configuration
+# ============================================================================
+
+ex:jobsConfig a gvc:JobsConfig ;
+    gvc:jobsDir "jobs" ;
+    gvc:jobScanPatterns (
+        "jobs/**/*.mjs"
+        "jobs/**/*.cron.mjs"
+        "jobs/**/*.evt.mjs"
+        "jobs/**/*.js"
+    ) ;
+    gvc:jobIgnorePatterns (
+        "node_modules/**"
+        ".git/**"
+        "**/*.test.*"
+        "**/*.spec.*"
+    ) ;
+    rdfs:label "Jobs Configuration" ;
+    rdfs:comment "Configuration for job discovery and loading" .
+
+# ============================================================================
+# Template Configuration
+# ============================================================================
+
+ex:templateConfig a gvc:TemplateConfig ;
+    gvc:templateEngine "nunjucks" ;
+    gvc:templateDirs (
+        "templates"
+        "templates/partials"
+        "templates/layouts"
+    ) ;
+    gvc:templateAutoescape false ;
+    gvc:templateNoCache false ;
+    gvc:templateFilters (
+        "inflection"
+        "json"
+        "slug"
+        "date"
+    ) ;
+    rdfs:label "Template Configuration" ;
+    rdfs:comment "Nunjucks template engine configuration" .
+
+# ============================================================================
+# Receipt Configuration
+# ============================================================================
+
+ex:receiptConfig a gvc:ReceiptConfig ;
+    gvc:receiptRef "refs/notes/gitvan/results" ;
+    gvc:receiptEnabled true ;
+    gvc:receiptCompress false ;
+    rdfs:label "Receipt Configuration" ;
+    rdfs:comment "Configuration for storing execution receipts in Git notes" .
+
+# ============================================================================
+# Lock Configuration
+# ============================================================================
+
+ex:lockConfig a gvc:LockConfig ;
+    gvc:lockRef "refs/gitvan/locks" ;
+    gvc:lockTimeout 30000 ;
+    gvc:lockRetries 3 ;
+    rdfs:label "Lock Configuration" ;
+    rdfs:comment "Distributed locking configuration (30 second timeout, 3 retries)" .
+
+# ============================================================================
+# AI Configuration - Ollama Provider
+# ============================================================================
+
+ex:aiConfig a gvc:AIConfig ;
+    gvc:aiProvider "ollama" ;
+    gvc:aiModel "qwen3-coder:30b" ;
+    gvc:aiBaseUrl "http://localhost:11434" ;
+    gvc:aiTemperature 0.7 ;
+    gvc:aiMaxTokens 4096 ;
+    gvc:aiTopP 0.8 ;
+    gvc:aiTopK 20 ;
+    gvc:aiRepeatPenalty 1.05 ;
+    rdfs:label "AI Configuration" ;
+    rdfs:comment "Ollama-based AI provider configuration" .
+
+# ============================================================================
+# AI Configuration - Anthropic Provider (Alternative Example)
+# ============================================================================
+
+ex:aiConfigAnthropicAlt a gvc:AIConfig ;
+    gvc:aiProvider "anthropic" ;
+    gvc:aiModel "claude-opus-4-5" ;
+    gvc:aiBaseUrl "https://api.anthropic.com" ;
+    gvc:aiTemperature 0.5 ;
+    gvc:aiMaxTokens 8192 ;
+    gvc:aiApiKey "sk-ant-v3-..." ;
+    rdfs:label "Anthropic AI Configuration" ;
+    rdfs:comment "Alternative Anthropic provider configuration (note: API key required for anthropic provider)" .
+
+# ============================================================================
+# Runtime Configuration
+# ============================================================================
+
+ex:runtimeConfig a gvc:RuntimeConfig ;
+    gvc:runtimeTimezone "UTC" ;
+    gvc:runtimeLocale "en-US" ;
+    gvc:runtimeDeterministic true ;
+    gvc:runtimeSandbox true ;
+    rdfs:label "Runtime Configuration" ;
+    rdfs:comment "Environment runtime settings for deterministic execution" .
+
+# ============================================================================
+# Hooks Configuration (Empty)
+# ============================================================================
+
+ex:hooksConfig a gvc:HooksConfig ;
+    rdfs:label "Hooks Configuration" ;
+    rdfs:comment "Git lifecycle hooks configuration (empty, ready for extension)" .
+
+# ============================================================================
+# Daemon Configuration
+# ============================================================================
+
+ex:daemonConfig a gvc:DaemonConfig ;
+    gvc:daemonPollMs 1500 ;
+    gvc:daemonLookback 600 ;
+    gvc:daemonMaxPerTick 50 ;
+    rdfs:label "Daemon Configuration" ;
+    rdfs:comment "Background daemon polling configuration (1.5s poll, 10min lookback, 50 jobs/tick)" .
+
+# ============================================================================
+# Events Configuration
+# ============================================================================
+
+ex:eventsConfig a gvc:EventsConfig ;
+    gvc:eventsDirectory "events" ;
+    rdfs:label "Events Configuration" ;
+    rdfs:comment "Event system configuration" .
+
+# ============================================================================
+# Graph Configuration
+# ============================================================================
+
+ex:graphConfig a gvc:GraphConfig ;
+    gvc:graphDir "graph" ;
+    gvc:graphSnapshotsDir ".gitvan/graphs/snapshots" ;
+    gvc:graphUriRoots (
+        [
+            rdf:type rdf:List ;
+            rdf:first "graph://" ;
+            rdf:rest [
+                rdf:first "graph/" ;
+                rdf:rest rdf:nil
+            ]
+        ]
+        [
+            rdf:type rdf:List ;
+            rdf:first "templates://" ;
+            rdf:rest [
+                rdf:first "templates/" ;
+                rdf:rest rdf:nil
+            ]
+        ]
+        [
+            rdf:type rdf:List ;
+            rdf:first "queries://" ;
+            rdf:rest [
+                rdf:first "queries/" ;
+                rdf:rest rdf:nil
+            ]
+        ]
+    ) ;
+    gvc:graphAutoLoad true ;
+    gvc:graphValidateOnLoad false ;
+    rdfs:label "Graph Configuration" ;
+    rdfs:comment "RDF graph management configuration" .
+
+# ============================================================================
+# Additional Valid Configuration Examples
+# ============================================================================
+
+# Strict Development Configuration
+ex:devConfig a gvc:Configuration ;
+    gvc:hasRootDir "/home/developer/projects/gitvan-dev" ;
+    gvc:hasAIConfig ex:aiConfigDev ;
+    gvc:hasRuntimeConfig ex:runtimeConfigDev ;
+    gvc:hasDaemonConfig ex:daemonConfigDev ;
+    rdfs:label "Development Configuration" ;
+    rdfs:comment "Development-focused configuration with aggressive polling" .
+
+ex:aiConfigDev a gvc:AIConfig ;
+    gvc:aiProvider "ollama" ;
+    gvc:aiModel "neural-chat:7b" ;
+    gvc:aiBaseUrl "http://localhost:11434" ;
+    gvc:aiTemperature 0.3 ;
+    gvc:aiMaxTokens 2048 ;
+    rdfs:label "Development AI Config" ;
+    rdfs:comment "Lightweight model for fast development iteration" .
+
+ex:runtimeConfigDev a gvc:RuntimeConfig ;
+    gvc:runtimeTimezone "America/New_York" ;
+    gvc:runtimeLocale "en-US" ;
+    gvc:runtimeDeterministic true ;
+    gvc:runtimeSandbox false ;
+    rdfs:label "Development Runtime Config" ;
+    rdfs:comment "Runtime config with sandbox disabled for easier debugging" .
+
+ex:daemonConfigDev a gvc:DaemonConfig ;
+    gvc:daemonPollMs 500 ;
+    gvc:daemonLookback 300 ;
+    gvc:daemonMaxPerTick 100 ;
+    rdfs:label "Development Daemon Config" ;
+    rdfs:comment "More aggressive polling for development (500ms)" .
+
+# Production Configuration
+ex:prodConfig a gvc:Configuration ;
+    gvc:hasRootDir "/var/gitvan/production" ;
+    gvc:hasAIConfig ex:aiConfigProd ;
+    gvc:hasRuntimeConfig ex:runtimeConfigProd ;
+    gvc:hasDaemonConfig ex:daemonConfigProd ;
+    rdfs:label "Production Configuration" ;
+    rdfs:comment "Production-optimized configuration with conservative polling" .
+
+ex:aiConfigProd a gvc:AIConfig ;
+    gvc:aiProvider "anthropic" ;
+    gvc:aiModel "claude-opus-4-5" ;
+    gvc:aiBaseUrl "https://api.anthropic.com" ;
+    gvc:aiTemperature 0.2 ;
+    gvc:aiMaxTokens 4096 ;
+    gvc:aiApiKey "sk-ant-v3-..." ;
+    rdfs:label "Production AI Config" ;
+    rdfs:comment "Production Anthropic configuration" .
+
+ex:runtimeConfigProd a gvc:RuntimeConfig ;
+    gvc:runtimeTimezone "UTC" ;
+    gvc:runtimeLocale "en-US" ;
+    gvc:runtimeDeterministic true ;
+    gvc:runtimeSandbox true ;
+    rdfs:label "Production Runtime Config" ;
+    rdfs:comment "Production runtime with sandbox enabled" .
+
+ex:daemonConfigProd a gvc:DaemonConfig ;
+    gvc:daemonPollMs 5000 ;
+    gvc:daemonLookback 1800 ;
+    gvc:daemonMaxPerTick 25 ;
+    rdfs:label "Production Daemon Config" ;
+    rdfs:comment "Conservative polling for production (5s)" .
+
+# Minimal Configuration (All Required Fields Only)
+ex:minimalConfig a gvc:Configuration ;
+    gvc:hasRootDir "/home/user/minimal" ;
+    gvc:hasJobsConfig ex:minimalJobsConfig ;
+    gvc:hasTemplateConfig ex:minimalTemplateConfig ;
+    gvc:hasReceiptConfig ex:minimalReceiptConfig ;
+    gvc:hasLockConfig ex:minimalLockConfig ;
+    gvc:hasAIConfig ex:minimalAIConfig ;
+    gvc:hasRuntimeConfig ex:minimalRuntimeConfig ;
+    gvc:hasDaemonConfig ex:minimalDaemonConfig ;
+    gvc:hasEventsConfig ex:minimalEventsConfig ;
+    gvc:hasGraphConfig ex:minimalGraphConfig ;
+    rdfs:label "Minimal Configuration" ;
+    rdfs:comment "Minimal valid configuration with only required fields" .
+
+ex:minimalJobsConfig a gvc:JobsConfig ;
+    gvc:jobsDir "jobs" ;
+    gvc:jobScanPatterns ( "jobs/**/*.mjs" ) .
+
+ex:minimalTemplateConfig a gvc:TemplateConfig ;
+    gvc:templateEngine "nunjucks" ;
+    gvc:templateDirs ( "templates" ) ;
+    gvc:templateAutoescape false ;
+    gvc:templateNoCache false ;
+    gvc:templateFilters () .
+
+ex:minimalReceiptConfig a gvc:ReceiptConfig ;
+    gvc:receiptRef "refs/notes/gitvan/results" ;
+    gvc:receiptEnabled true ;
+    gvc:receiptCompress false .
+
+ex:minimalLockConfig a gvc:LockConfig ;
+    gvc:lockRef "refs/gitvan/locks" ;
+    gvc:lockTimeout 30000 ;
+    gvc:lockRetries 3 .
+
+ex:minimalAIConfig a gvc:AIConfig ;
+    gvc:aiProvider "ollama" ;
+    gvc:aiModel "qwen3-coder:30b" ;
+    gvc:aiTemperature 0.7 ;
+    gvc:aiMaxTokens 4096 .
+
+ex:minimalRuntimeConfig a gvc:RuntimeConfig ;
+    gvc:runtimeTimezone "UTC" ;
+    gvc:runtimeLocale "en-US" ;
+    gvc:runtimeDeterministic true ;
+    gvc:runtimeSandbox true .
+
+ex:minimalDaemonConfig a gvc:DaemonConfig ;
+    gvc:daemonPollMs 1500 ;
+    gvc:daemonLookback 600 ;
+    gvc:daemonMaxPerTick 50 .
+
+ex:minimalEventsConfig a gvc:EventsConfig ;
+    gvc:eventsDirectory "events" .
+
+ex:minimalGraphConfig a gvc:GraphConfig ;
+    gvc:graphDir "graph" ;
+    gvc:graphSnapshotsDir ".gitvan/graphs/snapshots" ;
+    gvc:graphAutoLoad true ;
+    gvc:graphValidateOnLoad false .

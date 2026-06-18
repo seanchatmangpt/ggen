@@ -1,0 +1,172 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ex: <http://example.org/sales/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Shape for Sale entities
+ex:SaleShape
+    a sh:NodeShape ;
+    sh:targetClass ex:Sale ;
+    sh:nodeKind sh:IRI ;
+    sh:property [
+        sh:path ex:saleId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Sale must have exactly one saleId" ;
+    ] ;
+    sh:property [
+        sh:path ex:customer ;
+        sh:nodeKind sh:IRI ;
+        sh:class ex:Customer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Sale must reference exactly one customer" ;
+    ] ;
+    sh:property [
+        sh:path ex:product ;
+        sh:nodeKind sh:IRI ;
+        sh:class ex:Product ;
+        sh:minCount 1 ;
+        sh:message "Sale must reference at least one product" ;
+    ] ;
+    sh:property [
+        sh:path ex:quantity ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Sale must have a positive quantity" ;
+    ] ;
+    sh:property [
+        sh:path ex:amount ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Sale must have a non-negative amount" ;
+    ] ;
+    sh:property [
+        sh:path ex:date ;
+        sh:datatype xsd:date ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Sale must have exactly one date" ;
+    ] .
+
+# Shape for Customer entities
+ex:CustomerShape
+    a sh:NodeShape ;
+    sh:targetClass ex:Customer ;
+    sh:nodeKind sh:IRI ;
+    sh:property [
+        sh:path ex:customerId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^CUST-[0-9]{4,}$" ;
+        sh:message "Customer ID must match pattern CUST-XXXX" ;
+    ] ;
+    sh:property [
+        sh:path ex:name ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:maxLength 200 ;
+        sh:message "Customer must have a name between 1 and 200 characters" ;
+    ] ;
+    sh:property [
+        sh:path ex:email ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+        sh:message "Customer email must be valid format" ;
+    ] ;
+    sh:property [
+        sh:path ex:region ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "North" "South" "East" "West" "Central" ) ;
+        sh:message "Customer region must be one of: North, South, East, West, Central" ;
+    ] .
+
+# Shape for Product entities
+ex:ProductShape
+    a sh:NodeShape ;
+    sh:targetClass ex:Product ;
+    sh:nodeKind sh:IRI ;
+    sh:property [
+        sh:path ex:productId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^PROD-[A-Z0-9]{3,}$" ;
+        sh:message "Product ID must match pattern PROD-XXX" ;
+    ] ;
+    sh:property [
+        sh:path ex:name ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:maxLength 100 ;
+        sh:message "Product must have a name between 1 and 100 characters" ;
+    ] ;
+    sh:property [
+        sh:path ex:category ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "Electronics" "Clothing" "Food" "Books" "Home" "Sports" "Other" ) ;
+        sh:message "Product category must be valid" ;
+    ] ;
+    sh:property [
+        sh:path ex:price ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.01 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Product must have a positive price" ;
+    ] ;
+    sh:property [
+        sh:path ex:inStock ;
+        sh:datatype xsd:boolean ;
+        sh:maxCount 1 ;
+        sh:message "Product stock status must be boolean" ;
+    ] .
+
+# Additional business rule shapes
+
+ex:MinimumOrderAmountShape
+    a sh:NodeShape ;
+    sh:targetClass ex:Sale ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Sale amount must be at least $10" ;
+        sh:prefixes ex: ;
+        sh:select """
+            SELECT $this ?amount
+            WHERE {
+                $this ex:amount ?amount .
+                FILTER (?amount < 10.0)
+            }
+        """ ;
+    ] .
+
+ex:ValidDateRangeShape
+    a sh:NodeShape ;
+    sh:targetClass ex:Sale ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Sale date must be between 2020-01-01 and current date" ;
+        sh:prefixes ex: ;
+        sh:select """
+            SELECT $this ?date
+            WHERE {
+                $this ex:date ?date .
+                FILTER (?date < "2020-01-01"^^xsd:date || ?date > NOW())
+            }
+        """ ;
+    ] .

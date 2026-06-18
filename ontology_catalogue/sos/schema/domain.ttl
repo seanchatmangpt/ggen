@@ -1,0 +1,203 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix sos: <https://ggen.io/semantic-os/> .
+
+# --- CORE CONCEPTS FOR 2030 VISION ---
+
+sos:ArchitectureLevel a rdfs:Class ;
+    rdfs:label "Architecture Level" .
+
+sos:Field8 a owl:Class ;
+    rdfs:subClassOf sos:ArchitectureLevel ;
+    rdfs:label "Field8" ;
+    rdfs:comment "A 256-state semantic automaton." .
+
+sos:RootField a owl:Class ;
+    rdfs:subClassOf sos:ArchitectureLevel ;
+    rdfs:label "RootField" .
+
+sos:ExitField a owl:Class ;
+    rdfs:subClassOf sos:RootField ;
+    rdfs:label "ExitField" ;
+    rdfs:comment "Provides lawful departure for a machine." .
+
+sos:CompoundMachine a owl:Class ;
+    rdfs:subClassOf sos:ArchitectureLevel ;
+    rdfs:label "Compound Machine" ;
+    rdfs:comment "Combines multiple RootFields (e.g. JobControl, Journal)." .
+
+sos:LifecycleMachine a owl:Class ;
+    rdfs:subClassOf sos:ArchitectureLevel ;
+    rdfs:label "Lifecycle Machine" ;
+    rdfs:comment "A compound-of-compounds." .
+
+sos:OperatingDiscipline a owl:Class ;
+    rdfs:subClassOf sos:ArchitectureLevel ;
+    rdfs:label "Operating Discipline" ;
+    rdfs:comment "A coordinated operational world (e.g. BatchOperatingDiscipline)." .
+
+sos:OperationalDomain a owl:Class ;
+    rdfs:subClassOf sos:ArchitectureLevel ;
+    rdfs:label "Operational Domain" ;
+    rdfs:comment "A package of disciplines." .
+
+# --- ARTIFACTS ---
+
+sos:Artifact a rdfs:Class ;
+    rdfs:label "System Artifact" .
+
+sos:Receipt a owl:Class ;
+    rdfs:subClassOf sos:Artifact ;
+    rdfs:label "Receipt" ;
+    rdfs:comment "Replayable consequence proof." .
+
+sos:Replay a owl:Class ;
+    rdfs:subClassOf sos:Artifact ;
+    rdfs:label "Replay" ;
+    rdfs:comment "Deterministic audit playback." .
+
+sos:Recipe a owl:Class ;
+    rdfs:subClassOf sos:Artifact ;
+    rdfs:label "Recipe" ;
+    rdfs:comment "A lawful fluent path through a discipline." .
+
+sos:Playbook a owl:Class ;
+    rdfs:subClassOf sos:Artifact ;
+    rdfs:label "Playbook" ;
+    rdfs:comment "A set of recipes." .
+
+sos:Runbook a owl:Class ;
+    rdfs:subClassOf sos:Artifact ;
+    rdfs:label "Runbook" ;
+    rdfs:comment "Operator-facing projection generated from law." .
+
+# --- LAWS ---
+
+sos:Law a rdfs:Class ;
+    rdfs:label "SemanticOS Law" .
+
+# Job Control Law (from sos-mainframe)
+<urn:sos:law:JobControlLaw> a sos:Law ;
+    sos:lawId "JobControlLaw" ;
+    sos:name "JobControl" ;
+    sos:description "Job Control Machine for Batch Processing" ;
+    sos:fieldType "u8" ;
+    sos:conditionType "JobCondition" ;
+    sos:hasTransition [
+        sos:inputValue "0" ;
+        sos:selectCondition "Hold" ;
+        sos:description "Job is held"
+    ], [
+        sos:inputValue "1" ;
+        sos:selectCondition "Ready" ;
+        sos:description "Job is ready for dispatch"
+    ], [
+        sos:inputValue "2" ;
+        sos:selectCondition "Executing" ;
+        sos:description "Job is currently executing"
+    ], [
+        sos:inputValue "3" ;
+        sos:selectCondition "Recovery" ;
+        sos:description "Job is in recovery"
+    ] .
+
+# Access Admission Law (from sos-core/agent gateway)
+<urn:sos:law:AccessAdmissionLaw> a sos:Law ;
+    sos:lawId "AccessAdmissionLaw" ;
+    sos:name "AccessAdmission" ;
+    sos:description "Controls admission for tool access and agent requests" ;
+    sos:fieldType "u8" ;
+    sos:conditionType "AccessCondition" ;
+    sos:hasTransition [
+        sos:inputValue "0" ;
+        sos:selectCondition "Deny" ;
+        sos:description "Access denied"
+    ], [
+        sos:inputValue "1" ;
+        sos:selectCondition "Review" ;
+        sos:description "Requires operator review"
+    ], [
+        sos:inputValue "2" ;
+        sos:selectCondition "Grant" ;
+        sos:description "Access granted"
+    ] .
+
+# Proposal Law (from sos-dao)
+<urn:sos:law:ProposalLaw> a sos:Law ;
+    sos:lawId "ProposalLaw" ;
+    sos:name "Proposal" ;
+    sos:description "Governs the lifecycle of a DAO proposal" ;
+    sos:fieldType "u8" ;
+    sos:conditionType "ProposalCondition" ;
+    sos:hasTransition [
+        sos:inputValue "0" ;
+        sos:selectCondition "Draft" ;
+        sos:description "Proposal is in draft state"
+    ], [
+        sos:inputValue "1" ;
+        sos:selectCondition "Active" ;
+        sos:description "Proposal is active and open for voting"
+    ], [
+        sos:inputValue "2" ;
+        sos:selectCondition "Passed" ;
+        sos:description "Proposal has passed"
+    ], [
+        sos:inputValue "3" ;
+        sos:selectCondition "Rejected" ;
+        sos:description "Proposal was rejected"
+    ] .
+
+# Spooling Law (from sos-mainframe)
+<urn:sos:law:SpoolingLaw> a sos:Law ;
+    sos:lawId "SpoolingLaw" ;
+    sos:name "Spooling" ;
+    sos:description "Controls dataset spooling operations" ;
+    sos:fieldType "u8" ;
+    sos:conditionType "SpoolCondition" ;
+    sos:hasTransition [
+        sos:inputValue "0" ;
+        sos:selectCondition "Write" ;
+        sos:description "Write to spool"
+    ], [
+        sos:inputValue "1" ;
+        sos:selectCondition "Flush" ;
+        sos:description "Flush spool to persistent storage"
+    ] .
+
+# Development Law (Dogfooding)
+<urn:sos:law:DevelopmentLaw> a sos:Law ;
+    sos:lawId "DevelopmentLaw" ;
+    sos:name "Development" ;
+    sos:description "Govern the Software Development Lifecycle (SDLC)" ;
+    sos:fieldType "DevelopmentField" ;
+    sos:conditionType "DevelopmentCondition" ;
+    sos:hasTransition [
+        sos:inputValue "0" ;
+        sos:selectCondition "ReadyToImplement" ;
+        sos:description "Task is ready for implementation"
+    ], [
+        sos:inputValue "1" ;
+        sos:selectCondition "ReadyToVerify" ;
+        sos:description "Task is ready for testing/verification"
+    ], [
+        sos:inputValue "2" ;
+        sos:selectCondition "ReadyToAdmit" ;
+        sos:description "Task is ready for code review/admission"
+    ], [
+        sos:inputValue "3" ;
+        sos:selectCondition "ReadyToRelease" ;
+        sos:description "Task is ready for deployment"
+    ] .
+
+# --- CRATES (Implementation Status) ---
+
+sos:Crate a rdfs:Class ;
+    rdfs:label "Rust Crate Implementation" .
+
+<urn:sos:crate:sos-core> a sos:Crate ; rdfs:label "sos-core" .
+<urn:sos:crate:sos-mainframe> a sos:Crate ; rdfs:label "sos-mainframe" .
+<urn:sos:crate:sos-powl8> a sos:Crate ; rdfs:label "sos-powl8" .
+<urn:sos:crate:sos-receipt> a sos:Crate ; rdfs:label "sos-receipt" .
+<urn:sos:crate:sos-replay> a sos:Crate ; rdfs:label "sos-replay" .
+<urn:sos:crate:sos-boundary> a sos:Crate ; rdfs:label "sos-boundary" .

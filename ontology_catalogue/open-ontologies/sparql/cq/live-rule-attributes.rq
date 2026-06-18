@@ -1,0 +1,8 @@
+# CQ-2: What OTel attributes does each LIVE rule require?
+PREFIX aat: <urn:ontostar:aat:live:>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?rule ?label ?attribute WHERE {
+  ?rule a aat:LiveRule ;
+        rdfs:label ?label ;
+        aat:requiredAttribute ?attribute .
+} ORDER BY ?label ?attribute

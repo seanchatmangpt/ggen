@@ -1,0 +1,324 @@
+@prefix tai: <http://tai.cognitive-mesh.org/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# TAI Substrate Relationships Schema
+# Defines substrates and their inter-relationships
+
+# ===== SUBSTRATE CLASSES =====
+
+# Digital Substrate
+tai:DigitalSubstrate a owl:Class ;
+    rdfs:label "Digital Substrate" ;
+    rdfs:comment "Computational environment for digital cognitive processes" ;
+    rdfs:subClassOf tai:Substrate .
+
+# Biological Substrate
+tai:BiologicalSubstrate a owl:Class ;
+    rdfs:label "Biological Substrate" ;
+    rdfs:comment "Biological medium for cognitive processes (neural networks, etc.)" ;
+    rdfs:subClassOf tai:Substrate .
+
+# Quantum Substrate
+tai:QuantumSubstrate a owl:Class ;
+    rdfs:label "Quantum Substrate" ;
+    rdfs:comment "Quantum mechanical substrate for quantum cognitive processes" ;
+    rdfs:subClassOf tai:Substrate .
+
+# Hybrid Substrate
+tai:HybridSubstrate a owl:Class ;
+    rdfs:label "Hybrid Substrate" ;
+    rdfs:comment "Composite substrate combining multiple substrate types" ;
+    rdfs:subClassOf tai:Substrate .
+
+# Virtual Substrate
+tai:VirtualSubstrate a owl:Class ;
+    rdfs:label "Virtual Substrate" ;
+    rdfs:comment "Simulated or virtualized cognitive environment" ;
+    rdfs:subClassOf tai:Substrate .
+
+# Emergent Substrate
+tai:EmergentSubstrate a owl:Class ;
+    rdfs:label "Emergent Substrate" ;
+    rdfs:comment "Substrate that emerges from interaction of other substrates" ;
+    rdfs:subClassOf tai:Substrate .
+
+# ===== SUBSTRATE PROPERTIES =====
+
+tai:hasComputationalCapacity a owl:DatatypeProperty ;
+    rdfs:label "has computational capacity" ;
+    rdfs:comment "Computational processing capacity of substrate" ;
+    rdfs:domain tai:Substrate ;
+    rdfs:range xsd:double .
+
+tai:hasLatency a owl:DatatypeProperty ;
+    rdfs:label "has latency" ;
+    rdfs:comment "Processing latency in milliseconds" ;
+    rdfs:domain tai:Substrate ;
+    rdfs:range xsd:double .
+
+tai:hasBandwidth a owl:DatatypeProperty ;
+    rdfs:label "has bandwidth" ;
+    rdfs:comment "Information processing bandwidth" ;
+    rdfs:domain tai:Substrate ;
+    rdfs:range xsd:double .
+
+tai:hasMemoryCapacity a owl:DatatypeProperty ;
+    rdfs:label "has memory capacity" ;
+    rdfs:comment "Storage capacity for cognitive states" ;
+    rdfs:domain tai:Substrate ;
+    rdfs:range xsd:double .
+
+tai:hasEnergyConsumption a owl:DatatypeProperty ;
+    rdfs:label "has energy consumption" ;
+    rdfs:comment "Energy consumption rate of substrate" ;
+    rdfs:domain tai:Substrate ;
+    rdfs:range xsd:double .
+
+tai:hasReliability a owl:DatatypeProperty ;
+    rdfs:label "has reliability" ;
+    rdfs:comment "Reliability factor (0.0-1.0)" ;
+    rdfs:domain tai:Substrate ;
+    rdfs:range xsd:double .
+
+tai:hasScalability a owl:DatatypeProperty ;
+    rdfs:label "has scalability" ;
+    rdfs:comment "Scalability factor for substrate expansion" ;
+    rdfs:domain tai:Substrate ;
+    rdfs:range xsd:double .
+
+# ===== INTER-SUBSTRATE RELATIONSHIPS =====
+
+# Bridge - connection between substrates
+tai:SubstrateBridge a owl:Class ;
+    rdfs:label "Substrate Bridge" ;
+    rdfs:comment "Connection mechanism between different substrates" ;
+    rdfs:subClassOf tai:Connection .
+
+tai:bridgesTo a owl:ObjectProperty ;
+    rdfs:label "bridges to" ;
+    rdfs:comment "Direct bridge connection between substrates" ;
+    rdfs:domain tai:Substrate ;
+    rdfs:range tai:Substrate .
+
+tai:hasBridge a owl:ObjectProperty ;
+    rdfs:label "has bridge" ;
+    rdfs:comment "Substrate has bridge connection" ;
+    rdfs:domain tai:Substrate ;
+    rdfs:range tai:SubstrateBridge .
+
+# Translation mechanisms
+tai:TranslationMechanism a owl:Class ;
+    rdfs:label "Translation Mechanism" ;
+    rdfs:comment "Mechanism for translating between substrate representations" ;
+    rdfs:subClassOf tai:CognitiveEntity .
+
+tai:translatesFrom a owl:ObjectProperty ;
+    rdfs:label "translates from" ;
+    rdfs:comment "Source substrate for translation" ;
+    rdfs:domain tai:TranslationMechanism ;
+    rdfs:range tai:Substrate .
+
+tai:translatesTo a owl:ObjectProperty ;
+    rdfs:label "translates to" ;
+    rdfs:comment "Target substrate for translation" ;
+    rdfs:domain tai:TranslationMechanism ;
+    rdfs:range tai:Substrate .
+
+tai:hasTranslationEfficiency a owl:DatatypeProperty ;
+    rdfs:label "has translation efficiency" ;
+    rdfs:comment "Efficiency of substrate translation (0.0-1.0)" ;
+    rdfs:domain tai:TranslationMechanism ;
+    rdfs:range xsd:double .
+
+tai:hasTranslationLatency a owl:DatatypeProperty ;
+    rdfs:label "has translation latency" ;
+    rdfs:comment "Latency introduced by translation process" ;
+    rdfs:domain tai:TranslationMechanism ;
+    rdfs:range xsd:double .
+
+# Substrate compatibility and affinity
+tai:isCompatibleWith a owl:ObjectProperty ;
+    rdfs:label "is compatible with" ;
+    rdfs:comment "Substrate compatibility relationship" ;
+    rdfs:domain tai:Substrate ;
+    rdfs:range tai:Substrate ;
+    a owl:SymmetricProperty .
+
+tai:hasAffinityWith a owl:ObjectProperty ;
+    rdfs:label "has affinity with" ;
+    rdfs:comment "Natural affinity or preference for interaction" ;
+    rdfs:domain tai:Substrate ;
+    rdfs:range tai:Substrate .
+
+tai:hasCompatibilityScore a owl:DatatypeProperty ;
+    rdfs:label "has compatibility score" ;
+    rdfs:comment "Numerical compatibility score between substrates" ;
+    rdfs:domain tai:SubstrateBridge ;
+    rdfs:range xsd:double .
+
+# Substrate hierarchies and containment
+tai:contains a owl:ObjectProperty ;
+    rdfs:label "contains" ;
+    rdfs:comment "Substrate containment relationship" ;
+    rdfs:domain tai:Substrate ;
+    rdfs:range tai:Substrate .
+
+tai:isContainedIn a owl:ObjectProperty ;
+    rdfs:label "is contained in" ;
+    rdfs:comment "Inverse of contains relationship" ;
+    rdfs:domain tai:Substrate ;
+    rdfs:range tai:Substrate ;
+    owl:inverseOf tai:contains .
+
+tai:overlaps a owl:ObjectProperty ;
+    rdfs:label "overlaps" ;
+    rdfs:comment "Partial overlap between substrates" ;
+    rdfs:domain tai:Substrate ;
+    rdfs:range tai:Substrate ;
+    a owl:SymmetricProperty .
+
+# Substrate evolution and adaptation
+tai:evolvesInto a owl:ObjectProperty ;
+    rdfs:label "evolves into" ;
+    rdfs:comment "Evolutionary relationship between substrate states" ;
+    rdfs:domain tai:Substrate ;
+    rdfs:range tai:Substrate .
+
+tai:adaptsTo a owl:ObjectProperty ;
+    rdfs:label "adapts to" ;
+    rdfs:comment "Adaptive relationship between substrates" ;
+    rdfs:domain tai:Substrate ;
+    rdfs:range tai:Substrate .
+
+tai:hasAdaptationRate a owl:DatatypeProperty ;
+    rdfs:label "has adaptation rate" ;
+    rdfs:comment "Rate of substrate adaptation to changes" ;
+    rdfs:domain tai:Substrate ;
+    rdfs:range xsd:double .
+
+# ===== SUBSTRATE-PRIMITIVE RELATIONSHIPS =====
+
+# Primitive hosting capabilities
+tai:hostsOptimally a owl:ObjectProperty ;
+    rdfs:label "hosts optimally" ;
+    rdfs:comment "Substrate provides optimal hosting for primitive" ;
+    rdfs:domain tai:Substrate ;
+    rdfs:range tai:CognitivePrimitive .
+
+tai:hostsSuboptimally a owl:ObjectProperty ;
+    rdfs:label "hosts suboptimally" ;
+    rdfs:comment "Substrate can host primitive but not optimally" ;
+    rdfs:domain tai:Substrate ;
+    rdfs:range tai:CognitivePrimitive .
+
+tai:cannotHost a owl:ObjectProperty ;
+    rdfs:label "cannot host" ;
+    rdfs:comment "Substrate cannot support this primitive" ;
+    rdfs:domain tai:Substrate ;
+    rdfs:range tai:CognitivePrimitive .
+
+# Primitive preferences
+tai:prefersSubstrate a owl:ObjectProperty ;
+    rdfs:label "prefers substrate" ;
+    rdfs:comment "Primitive has preference for specific substrate" ;
+    rdfs:domain tai:CognitivePrimitive ;
+    rdfs:range tai:Substrate .
+
+tai:hasSubstrateAffinity a owl:DatatypeProperty ;
+    rdfs:label "has substrate affinity" ;
+    rdfs:comment "Affinity score for primitive-substrate pairing" ;
+    rdfs:domain tai:CognitivePrimitive ;
+    rdfs:range xsd:double .
+
+# Performance characteristics
+tai:hasExecutionEfficiency a owl:DatatypeProperty ;
+    rdfs:label "has execution efficiency" ;
+    rdfs:comment "Efficiency of primitive execution on substrate" ;
+    rdfs:domain tai:CognitivePrimitive ;
+    rdfs:range xsd:double .
+
+tai:hasResourceUtilization a owl:DatatypeProperty ;
+    rdfs:label "has resource utilization" ;
+    rdfs:comment "Resource utilization when executing on substrate" ;
+    rdfs:domain tai:CognitivePrimitive ;
+    rdfs:range xsd:double .
+
+# ===== SUBSTRATE SPECIFIC CLASSES =====
+
+# Digital substrate specializations
+tai:GPUSubstrate a owl:Class ;
+    rdfs:label "GPU Substrate" ;
+    rdfs:comment "Graphics processing unit substrate for parallel computation" ;
+    rdfs:subClassOf tai:DigitalSubstrate .
+
+tai:QuantumGateSubstrate a owl:Class ;
+    rdfs:label "Quantum Gate Substrate" ;
+    rdfs:comment "Quantum gate-based quantum computing substrate" ;
+    rdfs:subClassOf tai:QuantumSubstrate .
+
+tai:NeuralNetworkSubstrate a owl:Class ;
+    rdfs:label "Neural Network Substrate" ;
+    rdfs:comment "Artificial neural network substrate" ;
+    rdfs:subClassOf tai:DigitalSubstrate .
+
+# Biological substrate specializations
+tai:NeuronalSubstrate a owl:Class ;
+    rdfs:label "Neuronal Substrate" ;
+    rdfs:comment "Biological neuronal network substrate" ;
+    rdfs:subClassOf tai:BiologicalSubstrate .
+
+tai:DNASubstrate a owl:Class ;
+    rdfs:label "DNA Substrate" ;
+    rdfs:comment "DNA-based information processing substrate" ;
+    rdfs:subClassOf tai:BiologicalSubstrate .
+
+# Hybrid substrate specializations
+tai:NeuromorphicSubstrate a owl:Class ;
+    rdfs:label "Neuromorphic Substrate" ;
+    rdfs:comment "Hardware mimicking biological neural structures" ;
+    rdfs:subClassOf tai:HybridSubstrate .
+
+tai:QuantumNeuralSubstrate a owl:Class ;
+    rdfs:label "Quantum Neural Substrate" ;
+    rdfs:comment "Quantum-enhanced neural computing substrate" ;
+    rdfs:subClassOf tai:HybridSubstrate .
+
+# ===== SUBSTRATE METRICS AND MONITORING =====
+
+tai:SubstrateMetrics a owl:Class ;
+    rdfs:label "Substrate Metrics" ;
+    rdfs:comment "Performance and operational metrics for substrate" ;
+    rdfs:subClassOf tai:CognitiveEntity .
+
+tai:hasMetrics a owl:ObjectProperty ;
+    rdfs:label "has metrics" ;
+    rdfs:comment "Associates substrate with its metrics" ;
+    rdfs:domain tai:Substrate ;
+    rdfs:range tai:SubstrateMetrics .
+
+tai:hasUtilizationRate a owl:DatatypeProperty ;
+    rdfs:label "has utilization rate" ;
+    rdfs:comment "Current utilization rate (0.0-1.0)" ;
+    rdfs:domain tai:SubstrateMetrics ;
+    rdfs:range xsd:double .
+
+tai:hasErrorRate a owl:DatatypeProperty ;
+    rdfs:label "has error rate" ;
+    rdfs:comment "Error rate in processing" ;
+    rdfs:domain tai:SubstrateMetrics ;
+    rdfs:range xsd:double .
+
+tai:hasThroughput a owl:DatatypeProperty ;
+    rdfs:label "has throughput" ;
+    rdfs:comment "Processing throughput rate" ;
+    rdfs:domain tai:SubstrateMetrics ;
+    rdfs:range xsd:double .
+
+tai:hasAvailability a owl:DatatypeProperty ;
+    rdfs:label "has availability" ;
+    rdfs:comment "Substrate availability percentage" ;
+    rdfs:domain tai:SubstrateMetrics ;
+    rdfs:range xsd:double .

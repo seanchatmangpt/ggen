@@ -1,0 +1,14 @@
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX pi: <https://process.intelligence/ontology/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# AUDIT: FAIL if OTel/telemetry finding classified as RECEIPT_SURFACE (wrong court)
+# Valid: TELEMETRY_FEEDSTOCK admission only. Invalid: OTel signals as cryptographic receipts.
+SELECT ?violation ?label ?description
+WHERE {
+  ?feedstock a pi:TELEMETRY_FEEDSTOCK ;
+             rdfs:label ?label ;
+             dcterms:description ?description .
+  BIND ("TelemettryAsReceipt" AS ?violation)
+  FILTER (REGEX(?description, "receipt|BLAKE3|Ed25519|cryptograph", "i"))
+}

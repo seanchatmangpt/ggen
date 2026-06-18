@@ -1,0 +1,82 @@
+# verb-signatures.rq
+# One row per verb. Projects exactly the columns the thin verb.rs.tera consumes.
+#
+# Projected columns (MUST equal verb.rs.tera's {{ }} vars):
+#   noun_name      - CLI noun (e.g. "receipt"); auto-noun from #[verb] 2nd arg
+#   verb_name      - CLI verb (e.g. "emit")
+#   verb_about     - help text (may be empty)
+#   return_type    - Rust return type behind Result<...>; defaults to "()"
+#   handler_name   - the stable crate::handlers::<name> delegate target (== verb field-name)
+#   args           - GROUP_CONCAT of per-arg specs, one arg per "@@" group,
+#                    fields within a group separated by "|":
+#                      field | rust_type | required | about
+#                    where:
+#                      field     = COALESCE(cnv:fieldName, kebab->snake(cnv:hasArgumentName))
+#                      rust_type = COALESCE(cnv:valueType, "String")
+#                      required  = "true" | "false"  (Option<T> when "false")
+#                      about     = COALESCE(cnv:argumentAbout, "")
+#                    Empty string when the verb has no arguments.
+#
+# Sanitizer note (R2): kebab->snake done here; Rust-keyword raw-identifier
+# escaping (r#type) is applied in the template against the pinned reserved set,
+# and field-collision is enforced separately by queries/fieldname-collision.rq.
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX cnv: <http://clap-noun-verb.io/ontology#>
+
+SELECT
+  ?noun_name
+  ?verb_name
+  ?verb_about
+  ?return_type
+  ?handler_name
+  (GROUP_CONCAT(?argSpec ; separator="@@") AS ?args)
+WHERE {
+  ?verb a cnv:Verb ;
+        cnv:hasVerbName ?verb_name .
+
+  OPTIONAL {
+    ?verb cnv:belongsToNoun ?noun .
+    ?noun cnv:hasNounName ?nounNameRaw .
+  }
+  BIND(COALESCE(?nounNameRaw, "") AS ?noun_name)
+
+  OPTIONAL { ?verb cnv:verbAbout ?verbAboutRaw . }
+  BIND(COALESCE(?verbAboutRaw, "") AS ?verb_about)
+
+  OPTIONAL { ?verb cnv:returnType ?returnTypeRaw . }
+  BIND(COALESCE(?returnTypeRaw, "()") AS ?return_type)
+
+  # handler delegate name == sanitized verb name (kebab->snake)
+  BIND(REPLACE(?verb_name, "-", "_") AS ?handler_name)
+
+  OPTIONAL {
+    ?verb cnv:hasArguments ?arg .
+    ?arg cnv:hasArgumentName ?flag .
+
+    OPTIONAL { ?arg cnv:fieldName ?explicitField . }
+    BIND(REPLACE(?flag, "-", "_") AS ?snakeField)
+    BIND(COALESCE(?explicitField, ?snakeField) AS ?field)
+
+    OPTIONAL { ?arg cnv:valueType ?valueTypeRaw . }
+    BIND(COALESCE(?valueTypeRaw, "String") AS ?rust_type)
+
+    OPTIONAL { ?arg cnv:required ?requiredRaw . }
+    BIND(IF(BOUND(?requiredRaw), STR(?requiredRaw), "false") AS ?required)
+
+    OPTIONAL { ?arg cnv:argumentAbout ?argAboutRaw . }
+    BIND(COALESCE(?argAboutRaw, "") AS ?about)
+
+    # Positional index (1-based) when the arg is a clap positional rather than a
+    # --flag. Empty string => named flag (the default). Flowed to the template as
+    # the 5th "|" field; the template emits #[arg(index = N)] when non-empty.
+    OPTIONAL { ?arg cnv:positional ?positionalRaw . }
+    BIND(IF(BOUND(?positionalRaw), STR(?positionalRaw), "") AS ?positional)
+
+    BIND(CONCAT(?field, "|", ?rust_type, "|", ?required, "|", ?about, "|", ?positional) AS ?argSpec)
+  }
+}
+GROUP BY ?noun_name ?verb_name ?verb_about ?return_type ?handler_name
+ORDER BY ?noun_name ?verb_name

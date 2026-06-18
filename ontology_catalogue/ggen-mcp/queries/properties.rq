@@ -1,0 +1,13 @@
+PREFIX ggen: <https://ggen-mcp.dev/domain#>
+PREFIX ddd: <https://ddd-patterns.dev/schema#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?aggregate ?propertyLabel ?propertyType
+WHERE {
+  ?aggregate a ddd:AggregateRoot .
+  ?aggregate ddd:hasProperty ?prop .
+  ?prop rdfs:label ?propertyLabel ;
+        ddd:type ?propertyType .
+}
+ORDER BY ?aggregate ?propertyLabel
+LIMIT 10000

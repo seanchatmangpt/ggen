@@ -1,0 +1,1220 @@
+# =============================================================================
+# WEAVER COMPREHENSIVE CAPABILITY ONTOLOGY
+# =============================================================================
+# Comprehensive ontology for the Weaver Driven Development system capabilities,
+# entities, artifacts, security policies, compliance frameworks, and relationships.
+# Serves as the single source of truth for automated code generation.
+
+@prefix : <http://weaver.dev/ontologies/capabilities#> .
+@prefix wvr: <http://weaver.dev/ontologies/capabilities#> .
+@prefix weaver: <https://weaver.dev/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix sec: <http://weaver.dev/ontologies/security#> .
+@prefix comp: <http://weaver.dev/ontologies/compliance#> .
+@prefix tel: <http://weaver.dev/ontologies/telemetry#> .
+
+# =============================================================================
+# ONTOLOGY METADATA
+# =============================================================================
+
+<http://weaver.dev/ontologies/capabilities> a owl:Ontology ;
+    dc:title "Weaver Capabilities Ontology" ;
+    dc:description "Comprehensive ontology for the Weaver Driven Development system capabilities, entities, artifacts, and relationships" ;
+    dc:creator "Weaver AI System" ;
+    dct:created "2025-01-02"^^xsd:date ;
+    dct:modified "2025-01-02"^^xsd:date ;
+    owl:versionInfo "2.0.0" ;
+    rdfs:comment "This ontology defines the core knowledge graph for automated code generation, security policies, compliance frameworks, and system architecture patterns." .
+
+# =============================================================================
+# CORE CLASSES - CAPABILITY HIERARCHY
+# =============================================================================
+
+## Root Capability Class
+wvr:Capability a owl:Class ;
+    rdfs:label "Capability" ;
+    rdfs:comment "Base class for all system capabilities in the Weaver ecosystem" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty wvr:hasArtifact ;
+        owl:someValuesFrom wvr:Artifact
+    ] .
+
+## Primary Capability Categories (GSMM - Govern, Secure, Manage, Monitor)
+wvr:GovernanceCapability a owl:Class ;
+    rdfs:label "Governance Capability" ;
+    rdfs:comment "Capabilities related to organizational governance, policies, and strategic oversight" ;
+    rdfs:subClassOf wvr:Capability ;
+    skos:definition "Encompasses policy management, regulatory compliance, risk assessment, and organizational governance frameworks" .
+
+wvr:SecurityCapability a owl:Class ;
+    rdfs:label "Security Capability" ;
+    rdfs:comment "Capabilities focused on system security, threat detection, and protection mechanisms" ;
+    rdfs:subClassOf wvr:Capability ;
+    skos:definition "Includes authentication, authorization, encryption, threat monitoring, and incident response" .
+
+wvr:ManagementCapability a owl:Class ;
+    rdfs:label "Management Capability" ;
+    rdfs:comment "Capabilities for resource management, data operations, and business process automation" ;
+    rdfs:subClassOf wvr:Capability ;
+    skos:definition "Covers user management, data management, workflow automation, and resource allocation" .
+
+wvr:MonitoringCapability a owl:Class ;
+    rdfs:label "Monitoring Capability" ;
+    rdfs:comment "Capabilities for system observability, performance tracking, and operational insights" ;
+    rdfs:subClassOf wvr:Capability ;
+    skos:definition "Encompasses telemetry, metrics collection, alerting, and performance analysis" .
+
+# =============================================================================
+# ARTIFACT TYPES AND ARCHITECTURAL LAYERS
+# =============================================================================
+
+wvr:Artifact a owl:Class ;
+    rdfs:label "Artifact" ;
+    rdfs:comment "Base class for all generated code artifacts and system components" .
+
+## Architectural Layers
+wvr:ArchitecturalLayer a owl:Class ;
+    rdfs:label "Architectural Layer" ;
+    rdfs:comment "System architecture layer classification" .
+
+wvr:PresentationLayer a wvr:ArchitecturalLayer ;
+    rdfs:label "Presentation Layer" ;
+    rdfs:comment "User interface and presentation logic" .
+
+wvr:LogicLayer a wvr:ArchitecturalLayer ;
+    rdfs:label "Logic Layer" ;
+    rdfs:comment "Business logic and application rules" .
+
+wvr:ApplicationLayer a wvr:ArchitecturalLayer ;
+    rdfs:label "Application Layer" ;
+    rdfs:comment "Application services and API endpoints" .
+
+wvr:DataLayer a wvr:ArchitecturalLayer ;
+    rdfs:label "Data Layer" ;
+    rdfs:comment "Data persistence and storage" .
+
+## Database Artifacts
+wvr:SQLSchema a owl:Class ;
+    rdfs:label "SQL Schema" ;
+    rdfs:comment "Database schema definition with tables, indexes, and constraints" ;
+    rdfs:subClassOf wvr:Artifact ;
+    wvr:hasFileExtension ".sql" ;
+    wvr:belongsToLayer wvr:DataLayer .
+
+wvr:Migration a owl:Class ;
+    rdfs:label "Database Migration" ;
+    rdfs:comment "Database migration script for schema evolution" ;
+    rdfs:subClassOf wvr:SQLSchema ;
+    wvr:hasFileExtension ".sql" .
+
+## Backend Artifacts
+wvr:EdgeFunction a owl:Class ;
+    rdfs:label "Edge Function" ;
+    rdfs:comment "Serverless function for API endpoints and business logic" ;
+    rdfs:subClassOf wvr:Artifact ;
+    wvr:hasFileExtension ".ts" ;
+    wvr:belongsToLayer wvr:ApplicationLayer .
+
+wvr:APIRoute a owl:Class ;
+    rdfs:label "API Route" ;
+    rdfs:comment "RESTful API endpoint handler" ;
+    rdfs:subClassOf wvr:EdgeFunction ;
+    wvr:hasFileExtension ".ts" .
+
+## Frontend Artifacts
+wvr:NuxtPage a owl:Class ;
+    rdfs:label "Nuxt Page" ;
+    rdfs:comment "Nuxt.js page component with routing and SSR capabilities" ;
+    rdfs:subClassOf wvr:Artifact ;
+    wvr:hasFileExtension ".vue" ;
+    wvr:belongsToLayer wvr:PresentationLayer .
+
+wvr:VueComponent a owl:Class ;
+    rdfs:label "Vue Component" ;
+    rdfs:comment "Reusable Vue.js component" ;
+    rdfs:subClassOf wvr:Artifact ;
+    wvr:hasFileExtension ".vue" ;
+    wvr:belongsToLayer wvr:PresentationLayer .
+
+wvr:Composable a owl:Class ;
+    rdfs:label "Composable" ;
+    rdfs:comment "Vue composition function for reactive state and logic" ;
+    rdfs:subClassOf wvr:Artifact ;
+    wvr:hasFileExtension ".ts" ;
+    wvr:belongsToLayer wvr:LogicLayer .
+
+## Configuration Artifacts
+wvr:ConfigFile a owl:Class ;
+    rdfs:label "Configuration File" ;
+    rdfs:comment "System configuration and environment settings" ;
+    rdfs:subClassOf wvr:Artifact .
+
+wvr:DockerFile a owl:Class ;
+    rdfs:label "Docker File" ;
+    rdfs:comment "Container configuration for deployment" ;
+    rdfs:subClassOf wvr:ConfigFile ;
+    wvr:hasFileExtension ".dockerfile" .
+
+# =============================================================================
+# CORE ENTITY MODELS
+# =============================================================================
+
+wvr:Entity a owl:Class ;
+    rdfs:label "Entity" ;
+    rdfs:comment "Base class for business domain entities" .
+
+## Core Business Entities
+wvr:User a owl:Class ;
+    rdfs:label "User" ;
+    rdfs:comment "System user with authentication and authorization" ;
+    rdfs:subClassOf wvr:Entity ;
+    wvr:hasAttribute wvr:userId, wvr:email, wvr:role, wvr:permissions .
+
+wvr:Organization a owl:Class ;
+    rdfs:label "Organization" ;
+    rdfs:comment "Business organization or tenant" ;
+    rdfs:subClassOf wvr:Entity ;
+    wvr:hasAttribute wvr:orgId, wvr:name, wvr:domain, wvr:settings .
+
+wvr:Policy a owl:Class ;
+    rdfs:label "Policy" ;
+    rdfs:comment "Governance or security policy definition" ;
+    rdfs:subClassOf wvr:Entity ;
+    wvr:hasAttribute wvr:policyId, wvr:title, wvr:rules, wvr:enforcement .
+
+# =============================================================================
+# SECURITY FRAMEWORK
+# =============================================================================
+
+wvr:SecurityRole a owl:Class ;
+    rdfs:label "Security Role" ;
+    rdfs:comment "Security role with specific permissions" .
+
+wvr:AdminRole a wvr:SecurityRole ;
+    rdfs:label "Administrator Role" ;
+    rdfs:comment "Full system access and administrative privileges" .
+
+wvr:UserRole a wvr:SecurityRole ;
+    rdfs:label "User Role" ;
+    rdfs:comment "Standard user access with limited privileges" .
+
+wvr:AuditorRole a wvr:SecurityRole ;
+    rdfs:label "Auditor Role" ;
+    rdfs:comment "Read-only access for audit and compliance purposes" .
+
+wvr:SecurityPolicy a owl:Class ;
+    rdfs:label "Security Policy" ;
+    rdfs:comment "Security policy definition with rules and enforcement" .
+
+wvr:RowLevelSecurity a wvr:SecurityPolicy ;
+    rdfs:label "Row Level Security" ;
+    rdfs:comment "Database row-level security policy" .
+
+wvr:APISecurityPolicy a wvr:SecurityPolicy ;
+    rdfs:label "API Security Policy" ;
+    rdfs:comment "API endpoint security policy" .
+
+# =============================================================================
+# COMPLIANCE FRAMEWORKS
+# =============================================================================
+
+wvr:ComplianceFramework a owl:Class ;
+    rdfs:label "Compliance Framework" ;
+    rdfs:comment "Regulatory compliance framework" .
+
+wvr:GDPRFramework a wvr:ComplianceFramework ;
+    rdfs:label "GDPR Framework" ;
+    rdfs:comment "General Data Protection Regulation compliance" ;
+    wvr:requiresEvidence wvr:DataProcessingEvidence, wvr:ConsentEvidence .
+
+wvr:HIPAAFramework a wvr:ComplianceFramework ;
+    rdfs:label "HIPAA Framework" ;
+    rdfs:comment "Health Insurance Portability and Accountability Act compliance" ;
+    wvr:requiresEvidence wvr:PHIProtectionEvidence, wvr:AccessControlEvidence .
+
+wvr:SOXFramework a wvr:ComplianceFramework ;
+    rdfs:label "SOX Framework" ;
+    rdfs:comment "Sarbanes-Oxley Act compliance for financial reporting" ;
+    wvr:requiresEvidence wvr:FinancialControlEvidence, wvr:AuditTrailEvidence .
+
+wvr:PCIDSSFramework a wvr:ComplianceFramework ;
+    rdfs:label "PCI-DSS Framework" ;
+    rdfs:comment "Payment Card Industry Data Security Standard compliance" ;
+    wvr:requiresEvidence wvr:CardDataProtectionEvidence, wvr:NetworkSecurityEvidence .
+
+# =============================================================================
+# TECHNOLOGY STACK BINDINGS
+# =============================================================================
+
+wvr:TechnologyStack a owl:Class ;
+    rdfs:label "Technology Stack" ;
+    rdfs:comment "Technology stack configuration" .
+
+wvr:NuxtStack a wvr:TechnologyStack ;
+    rdfs:label "Nuxt.js Stack" ;
+    rdfs:comment "Nuxt.js frontend framework with Vue.js" ;
+    wvr:hasFramework "Nuxt.js" ;
+    wvr:hasLanguage "TypeScript", "Vue" ;
+    wvr:hasRuntime "Node.js" .
+
+wvr:SupabaseStack a wvr:TechnologyStack ;
+    rdfs:label "Supabase Stack" ;
+    rdfs:comment "Supabase backend-as-a-service platform" ;
+    wvr:hasDatabase "PostgreSQL" ;
+    wvr:hasAuth "Supabase Auth" ;
+    wvr:hasStorage "Supabase Storage" ;
+    wvr:hasRealtime "Supabase Realtime" .
+
+wvr:PostQuantumStack a wvr:TechnologyStack ;
+    rdfs:label "Post-Quantum Cryptography Stack" ;
+    rdfs:comment "Post-quantum cryptographic algorithms" ;
+    wvr:hasAlgorithm "Dilithium", "Kyber", "SPHINCS+" ;
+    wvr:hasLibrary "liboqs", "pqcrypto" .
+
+# =============================================================================
+# TELEMETRY AND OBSERVABILITY
+# =============================================================================
+
+wvr:TelemetryCapability a owl:Class ;
+    rdfs:label "Telemetry Capability" ;
+    rdfs:comment "System telemetry and observability capability" ;
+    rdfs:subClassOf wvr:MonitoringCapability .
+
+wvr:MetricsCollection a wvr:TelemetryCapability ;
+    rdfs:label "Metrics Collection" ;
+    rdfs:comment "Collection and aggregation of system metrics" ;
+    wvr:hasArtifact wvr:MetricsCollector, wvr:MetricsDashboard .
+
+wvr:DistributedTracing a wvr:TelemetryCapability ;
+    rdfs:label "Distributed Tracing" ;
+    rdfs:comment "End-to-end request tracing across services" ;
+    wvr:hasArtifact wvr:TraceCollector, wvr:TraceAnalyzer .
+
+wvr:LogAggregation a wvr:TelemetryCapability ;
+    rdfs:label "Log Aggregation" ;
+    rdfs:comment "Centralized logging and log analysis" ;
+    wvr:hasArtifact wvr:LogCollector, wvr:LogProcessor .
+
+## Telemetry Artifacts
+wvr:MetricsCollector a owl:Class ;
+    rdfs:label "Metrics Collector" ;
+    rdfs:comment "Component for collecting system metrics" ;
+    rdfs:subClassOf wvr:Artifact ;
+    wvr:hasFileExtension ".ts" .
+
+wvr:MetricsDashboard a owl:Class ;
+    rdfs:label "Metrics Dashboard" ;
+    rdfs:comment "UI dashboard for metrics visualization" ;
+    rdfs:subClassOf wvr:VueComponent .
+
+# =============================================================================
+# CROSS-CUTTING CONCERNS
+# =============================================================================
+
+wvr:CrossCuttingConcern a owl:Class ;
+    rdfs:label "Cross-Cutting Concern" ;
+    rdfs:comment "System-wide concern that affects multiple capabilities" .
+
+wvr:ErrorHandling a wvr:CrossCuttingConcern ;
+    rdfs:label "Error Handling" ;
+    rdfs:comment "Consistent error handling across all system components" ;
+    wvr:appliesTo wvr:Capability .
+
+wvr:Logging a wvr:CrossCuttingConcern ;
+    rdfs:label "Logging" ;
+    rdfs:comment "Structured logging for audit and debugging" ;
+    wvr:appliesTo wvr:Capability ;
+    wvr:requiresCompliance wvr:AuditTrailEvidence .
+
+wvr:Caching a wvr:CrossCuttingConcern ;
+    rdfs:label "Caching" ;
+    rdfs:comment "Performance optimization through caching strategies" ;
+    wvr:appliesTo wvr:Capability .
+
+wvr:Validation a wvr:CrossCuttingConcern ;
+    rdfs:label "Data Validation" ;
+    rdfs:comment "Input validation and data integrity checks" ;
+    wvr:appliesTo wvr:Entity ;
+    wvr:requiresCompliance wvr:DataIntegrityEvidence .
+
+# =============================================================================
+# PROPERTIES AND RELATIONSHIPS
+# =============================================================================
+
+## Core Relationships
+wvr:hasArtifact a owl:ObjectProperty ;
+    rdfs:label "has artifact" ;
+    rdfs:domain wvr:Capability ;
+    rdfs:range wvr:Artifact .
+
+wvr:implements a owl:ObjectProperty ;
+    rdfs:label "implements" ;
+    rdfs:domain wvr:Artifact ;
+    rdfs:range wvr:Capability .
+
+wvr:dependsOn a owl:ObjectProperty ;
+    rdfs:label "depends on" ;
+    rdfs:domain wvr:Capability ;
+    rdfs:range wvr:Capability .
+
+wvr:hasAttribute a owl:ObjectProperty ;
+    rdfs:label "has attribute" ;
+    rdfs:domain wvr:Entity .
+
+wvr:belongsToLayer a owl:ObjectProperty ;
+    rdfs:label "belongs to layer" ;
+    rdfs:domain wvr:Artifact ;
+    rdfs:range wvr:ArchitecturalLayer .
+
+## Security Relationships
+wvr:requiresAuthentication a owl:DatatypeProperty ;
+    rdfs:label "requires authentication" ;
+    rdfs:domain wvr:Capability ;
+    rdfs:range xsd:boolean .
+
+wvr:requiresAuthorization a owl:ObjectProperty ;
+    rdfs:label "requires authorization" ;
+    rdfs:domain wvr:Capability ;
+    rdfs:range wvr:SecurityRole .
+
+wvr:hasSecurityPolicy a owl:ObjectProperty ;
+    rdfs:label "has security policy" ;
+    rdfs:domain wvr:Entity ;
+    rdfs:range wvr:SecurityPolicy .
+
+wvr:requiresCompliance a owl:ObjectProperty ;
+    rdfs:label "requires compliance" ;
+    rdfs:domain wvr:Entity ;
+    rdfs:range wvr:ComplianceFramework .
+
+## Technical Properties
+wvr:hasFileExtension a owl:DatatypeProperty ;
+    rdfs:label "has file extension" ;
+    rdfs:domain wvr:Artifact ;
+    rdfs:range xsd:string .
+
+wvr:hasTemplate a owl:DatatypeProperty ;
+    rdfs:label "has template" ;
+    rdfs:domain wvr:Artifact ;
+    rdfs:range xsd:string .
+
+wvr:hasStack a owl:ObjectProperty ;
+    rdfs:label "has stack" ;
+    rdfs:domain wvr:Artifact ;
+    rdfs:range wvr:TechnologyStack .
+
+wvr:appliesTo a owl:ObjectProperty ;
+    rdfs:label "applies to" ;
+    rdfs:domain wvr:CrossCuttingConcern ;
+    rdfs:range owl:Thing .
+
+# =============================================================================
+# CORE ENTITY ATTRIBUTES
+# =============================================================================
+
+## User Attributes
+wvr:userId a owl:DatatypeProperty ;
+    rdfs:label "User ID" ;
+    rdfs:domain wvr:User ;
+    rdfs:range xsd:string .
+
+wvr:email a owl:DatatypeProperty ;
+    rdfs:label "Email Address" ;
+    rdfs:domain wvr:User ;
+    rdfs:range xsd:string .
+
+wvr:role a owl:DatatypeProperty ;
+    rdfs:label "User Role" ;
+    rdfs:domain wvr:User ;
+    rdfs:range xsd:string .
+
+wvr:permissions a owl:DatatypeProperty ;
+    rdfs:label "User Permissions" ;
+    rdfs:domain wvr:User ;
+    rdfs:range xsd:string .
+
+## Organization Attributes  
+wvr:orgId a owl:DatatypeProperty ;
+    rdfs:label "Organization ID" ;
+    rdfs:domain wvr:Organization ;
+    rdfs:range xsd:string .
+
+wvr:name a owl:DatatypeProperty ;
+    rdfs:label "Name" ;
+    rdfs:range xsd:string .
+
+wvr:domain a owl:DatatypeProperty ;
+    rdfs:label "Domain" ;
+    rdfs:domain wvr:Organization ;
+    rdfs:range xsd:string .
+
+wvr:settings a owl:DatatypeProperty ;
+    rdfs:label "Settings" ;
+    rdfs:domain wvr:Organization ;
+    rdfs:range xsd:string .
+
+## Policy Attributes
+wvr:policyId a owl:DatatypeProperty ;
+    rdfs:label "Policy ID" ;
+    rdfs:domain wvr:Policy ;
+    rdfs:range xsd:string .
+
+wvr:title a owl:DatatypeProperty ;
+    rdfs:label "Title" ;
+    rdfs:domain wvr:Policy ;
+    rdfs:range xsd:string .
+
+wvr:rules a owl:DatatypeProperty ;
+    rdfs:label "Rules" ;
+    rdfs:domain wvr:Policy ;
+    rdfs:range xsd:string .
+
+wvr:enforcement a owl:DatatypeProperty ;
+    rdfs:label "Enforcement" ;
+    rdfs:domain wvr:Policy ;
+    rdfs:range xsd:string .
+
+wvr:timestamp a owl:DatatypeProperty ;
+    rdfs:label "Timestamp" ;
+    rdfs:range xsd:dateTime .
+
+# =============================================================================
+# EVIDENCE TYPES FOR COMPLIANCE
+# =============================================================================
+
+wvr:EvidenceType a owl:Class ;
+    rdfs:label "Evidence Type" ;
+    rdfs:comment "Type of compliance evidence" .
+
+wvr:DataProcessingEvidence a wvr:EvidenceType ;
+    rdfs:label "Data Processing Evidence" ;
+    rdfs:comment "Evidence of lawful data processing activities" .
+
+wvr:ConsentEvidence a wvr:EvidenceType ;
+    rdfs:label "Consent Evidence" ;
+    rdfs:comment "Evidence of user consent for data processing" .
+
+wvr:AccessControlEvidence a wvr:EvidenceType ;
+    rdfs:label "Access Control Evidence" ;
+    rdfs:comment "Evidence of proper access controls and authorization" .
+
+wvr:AuditTrailEvidence a wvr:EvidenceType ;
+    rdfs:label "Audit Trail Evidence" ;
+    rdfs:comment "Complete audit trail of system activities" .
+
+wvr:PHIProtectionEvidence a wvr:EvidenceType ;
+    rdfs:label "PHI Protection Evidence" ;
+    rdfs:comment "Evidence of protected health information security" .
+
+wvr:FinancialControlEvidence a wvr:EvidenceType ;
+    rdfs:label "Financial Control Evidence" ;
+    rdfs:comment "Evidence of financial reporting controls" .
+
+wvr:CardDataProtectionEvidence a wvr:EvidenceType ;
+    rdfs:label "Card Data Protection Evidence" ;
+    rdfs:comment "Evidence of payment card data protection" .
+
+wvr:NetworkSecurityEvidence a wvr:EvidenceType ;
+    rdfs:label "Network Security Evidence" ;
+    rdfs:comment "Evidence of network security controls" .
+
+wvr:DataIntegrityEvidence a wvr:EvidenceType ;
+    rdfs:label "Data Integrity Evidence" ;
+    rdfs:comment "Evidence of data integrity and validation" .
+
+wvr:requiresEvidence a owl:ObjectProperty ;
+    rdfs:label "requires evidence" ;
+    rdfs:domain wvr:ComplianceFramework ;
+    rdfs:range wvr:EvidenceType .
+
+# =============================================================================
+# SPECIFIC CAPABILITY INSTANCES
+# =============================================================================
+
+## User Management Capabilities
+wvr:UserAuthentication a wvr:SecurityCapability ;
+    rdfs:label "User Authentication" ;
+    rdfs:comment "User authentication and session management" ;
+    wvr:hasArtifact wvr:AuthenticationService, wvr:LoginComponent ;
+    wvr:requiresCompliance wvr:GDPRFramework ;
+    wvr:hasSecurityPolicy wvr:PasswordPolicy .
+
+wvr:UserAuthorization a wvr:SecurityCapability ;
+    rdfs:label "User Authorization" ;
+    rdfs:comment "Role-based access control and permissions" ;
+    wvr:hasArtifact wvr:AuthorizationService, wvr:PermissionGuard ;
+    wvr:dependsOn wvr:UserAuthentication .
+
+## Data Protection Capabilities
+wvr:DataEncryption a wvr:SecurityCapability ;
+    rdfs:label "Data Encryption" ;
+    rdfs:comment "End-to-end data encryption and key management" ;
+    wvr:hasArtifact wvr:EncryptionService, wvr:KeyManagementService ;
+    wvr:requiresCompliance wvr:GDPRFramework, wvr:HIPAAFramework ;
+    wvr:hasStack wvr:PostQuantumStack .
+
+wvr:DataPrivacy a wvr:GovernanceCapability ;
+    rdfs:label "Data Privacy" ;
+    rdfs:comment "Personal data protection and privacy controls" ;
+    wvr:hasArtifact wvr:DataClassificationService, wvr:ConsentManagement ;
+    wvr:requiresCompliance wvr:GDPRFramework .
+
+## Incident Management Capabilities  
+wvr:IncidentDetection a wvr:SecurityCapability ;
+    rdfs:label "Incident Detection" ;
+    rdfs:comment "Automated security incident detection and alerting" ;
+    wvr:hasArtifact wvr:ThreatDetector, wvr:AlertingSystem ;
+    wvr:hasEntity wvr:SecurityIncident, wvr:ThreatIntelligence .
+
+wvr:IncidentResponse a wvr:SecurityCapability ;
+    rdfs:label "Incident Response" ;
+    rdfs:comment "Security incident response and remediation" ;
+    wvr:hasArtifact wvr:IncidentHandler, wvr:ResponsePlaybook ;
+    wvr:dependsOn wvr:IncidentDetection ;
+    wvr:hasEntity wvr:SecurityIncident .
+
+# =============================================================================
+# SPECIFIC CAPABILITY DEFINITIONS (EXISTING)
+# =============================================================================
+
+# Capability Definitions
+
+weaver:SecurityIncidentManagement
+    a weaver:Capability ;
+    weaver:name "security-incident-management" ;
+    rdfs:comment "Comprehensive security incident detection, response, and management capability" ;
+    weaver:hasEntity weaver:SecurityIncident, weaver:ThreatIntelligence, weaver:IncidentResponse ;
+    weaver:hasArtifact weaver:SecurityDashboardArtifact, weaver:IncidentAPIArtifact, weaver:SecurityComposableArtifact ;
+    weaver:hasPolicy weaver:SecurityPolicy ;
+    weaver:dependsOn "authentication", "authorization" .
+
+weaver:MLPipelineManagement
+    a weaver:Capability ;
+    weaver:name "ml-pipeline-management" ;
+    rdfs:comment "Machine learning pipeline orchestration and monitoring capability" ;
+    weaver:hasEntity weaver:MLPipeline, weaver:MLModel, weaver:AnomalyDetection ;
+    weaver:hasArtifact weaver:MLDashboardArtifact, weaver:MLAPIArtifact, weaver:MLComposableArtifact ;
+    weaver:hasPolicy weaver:DataGovernancePolicy ;
+    weaver:dependsOn "data-storage", "compute-resources" .
+
+weaver:PQCEvidenceManagement
+    a weaver:Capability ;
+    weaver:name "pqc-evidence-management" ;
+    rdfs:comment "Post-quantum cryptography evidence collection and management capability" ;
+    weaver:hasEntity weaver:PQCEvidence, weaver:CryptographicKey, weaver:ComplianceRecord ;
+    weaver:hasArtifact weaver:PQCDashboardArtifact, weaver:PQCAPIArtifact, weaver:CryptoComposableArtifact ;
+    weaver:hasPolicy weaver:CryptographicPolicy ;
+    weaver:dependsOn "quantum-crypto", "compliance-framework" .
+
+weaver:GovernanceWorkflow
+    a weaver:Capability ;
+    weaver:name "governance-workflow" ;
+    rdfs:comment "Automated governance and policy approval workflow capability" ;
+    weaver:hasEntity weaver:GovernanceRequest, weaver:ApprovalWorkflow, weaver:ComplianceMetric ;
+    weaver:hasArtifact weaver:GovernanceDashboardArtifact, weaver:GovernanceAPIArtifact, weaver:GovernanceComposableArtifact ;
+    weaver:hasPolicy weaver:GovernanceApprovalPolicy ;
+    weaver:dependsOn "user-management", "audit-logging" .
+
+weaver:DashboardAnalytics
+    a weaver:Capability ;
+    weaver:name "dashboard-analytics" ;
+    rdfs:comment "Real-time dashboard analytics and user interaction tracking capability" ;
+    weaver:hasEntity weaver:DashboardMetric, weaver:UserInteraction, weaver:PerformanceMetric ;
+    weaver:hasArtifact weaver:AnalyticsDashboardArtifact, weaver:AnalyticsAPIArtifact, weaver:AnalyticsComposableArtifact ;
+    weaver:hasPolicy weaver:AnalyticsPolicy ;
+    weaver:dependsOn "telemetry", "real-time-data" .
+
+# Entity Definitions
+
+weaver:SecurityIncident
+    a weaver:Entity ;
+    weaver:name "SecurityIncident" ;
+    rdfs:comment "Security incident record with severity, status, and response actions" ;
+    weaver:hasAttribute weaver:IncidentId, weaver:Severity, weaver:Status, weaver:DetectedAt, weaver:ResolvedAt ;
+    weaver:hasRelationship weaver:AssignedToUser, weaver:RelatedToThreat .
+
+weaver:ThreatIntelligence
+    a weaver:Entity ;
+    weaver:name "ThreatIntelligence" ;
+    rdfs:comment "Threat intelligence data and indicators" ;
+    weaver:hasAttribute weaver:ThreatId, weaver:ThreatType, weaver:ConfidenceLevel, weaver:IOC ;
+    weaver:hasRelationship weaver:RelatedToIncident .
+
+weaver:MLPipeline
+    a weaver:Entity ;
+    weaver:name "MLPipeline" ;
+    rdfs:comment "Machine learning pipeline configuration and status" ;
+    weaver:hasAttribute weaver:PipelineId, weaver:PipelineType, weaver:Status, weaver:Accuracy, weaver:LastTrained ;
+    weaver:hasRelationship weaver:ProducesModel, weaver:ProcessesData .
+
+weaver:PQCEvidence
+    a weaver:Entity ;
+    weaver:name "PQCEvidence" ;
+    rdfs:comment "Post-quantum cryptography evidence and compliance data" ;
+    weaver:hasAttribute weaver:EvidenceId, weaver:Algorithm, weaver:KeySize, weaver:ComplianceStatus, weaver:ValidUntil ;
+    weaver:hasRelationship weaver:LinkedToKey, weaver:ValidatedBy .
+
+weaver:GovernanceRequest
+    a weaver:Entity ;
+    weaver:name "GovernanceRequest" ;
+    rdfs:comment "Governance approval request with workflow tracking" ;
+    weaver:hasAttribute weaver:RequestId, weaver:RequestType, weaver:Status, weaver:Priority, weaver:SubmittedAt, weaver:ApprovedAt ;
+    weaver:hasRelationship weaver:SubmittedByUser, weaver:ApprovedByUser, weaver:RequiresApproval .
+
+# Attribute Definitions
+
+weaver:IncidentId
+    a weaver:Attribute ;
+    weaver:name "incident_id" ;
+    weaver:dataType "uuid" ;
+    weaver:required "true" ;
+    rdfs:comment "Unique identifier for security incident" .
+
+weaver:Severity
+    a weaver:Attribute ;
+    weaver:name "severity" ;
+    weaver:dataType "enum" ;
+    weaver:enumValues "low", "medium", "high", "critical" ;
+    weaver:required "true" ;
+    rdfs:comment "Incident severity level" .
+
+weaver:Status
+    a weaver:Attribute ;
+    weaver:name "status" ;
+    weaver:dataType "enum" ;
+    weaver:enumValues "open", "investigating", "resolved", "closed" ;
+    weaver:required "true" ;
+    rdfs:comment "Current incident status" .
+
+weaver:DetectedAt
+    a weaver:Attribute ;
+    weaver:name "detected_at" ;
+    weaver:dataType "timestamp" ;
+    weaver:required "true" ;
+    rdfs:comment "Timestamp when incident was detected" .
+
+weaver:PipelineId
+    a weaver:Attribute ;
+    weaver:name "pipeline_id" ;
+    weaver:dataType "uuid" ;
+    weaver:required "true" ;
+    rdfs:comment "Unique identifier for ML pipeline" .
+
+weaver:Accuracy
+    a weaver:Attribute ;
+    weaver:name "accuracy" ;
+    weaver:dataType "float" ;
+    weaver:required "false" ;
+    rdfs:comment "Model accuracy score (0.0 to 1.0)" .
+
+weaver:RequestId
+    a weaver:Attribute ;
+    weaver:name "request_id" ;
+    weaver:dataType "uuid" ;
+    weaver:required "true" ;
+    rdfs:comment "Unique identifier for governance request" .
+
+weaver:RequestType
+    a weaver:Attribute ;
+    weaver:name "request_type" ;
+    weaver:dataType "enum" ;
+    weaver:enumValues "policy_update", "access_request", "data_classification", "risk_assessment" ;
+    weaver:required "true" ;
+    rdfs:comment "Type of governance request" .
+
+weaver:Priority
+    a weaver:Attribute ;
+    weaver:name "priority" ;
+    weaver:dataType "enum" ;
+    weaver:enumValues "low", "medium", "high", "urgent" ;
+    weaver:required "true" ;
+    rdfs:comment "Request priority level" .
+
+weaver:SubmittedAt
+    a weaver:Attribute ;
+    weaver:name "submitted_at" ;
+    weaver:dataType "timestamp" ;
+    weaver:required "true" ;
+    rdfs:comment "Timestamp when request was submitted" .
+
+weaver:ApprovedAt
+    a weaver:Attribute ;
+    weaver:name "approved_at" ;
+    weaver:dataType "timestamp" ;
+    weaver:required "false" ;
+    rdfs:comment "Timestamp when request was approved" .
+
+# Relationship Definitions
+
+weaver:AssignedToUser
+    a weaver:Relationship ;
+    weaver:name "assigned_to" ;
+    weaver:target "User" ;
+    weaver:cardinality "1:1" ;
+    rdfs:comment "Security incident assigned to user for resolution" .
+
+weaver:RelatedToThreat
+    a weaver:Relationship ;
+    weaver:name "related_threat" ;
+    weaver:target "ThreatIntelligence" ;
+    weaver:cardinality "1:many" ;
+    rdfs:comment "Security incident linked to threat intelligence" .
+
+weaver:SubmittedByUser
+    a weaver:Relationship ;
+    weaver:name "submitted_by" ;
+    weaver:target "User" ;
+    weaver:cardinality "1:1" ;
+    rdfs:comment "Governance request submitted by user" .
+
+weaver:ApprovedByUser
+    a weaver:Relationship ;
+    weaver:name "approved_by" ;
+    weaver:target "User" ;
+    weaver:cardinality "1:1" ;
+    rdfs:comment "Governance request approved by user" .
+
+weaver:RequiresApproval
+    a weaver:Relationship ;
+    weaver:name "requires_approval" ;
+    weaver:target "ApprovalWorkflow" ;
+    weaver:cardinality "1:1" ;
+    rdfs:comment "Request requires specific approval workflow" .
+
+# Artifact Definitions
+
+weaver:SecurityDashboardArtifact
+    a weaver:Artifact ;
+    weaver:artifactType "vue-component" ;
+    weaver:template "vue/security-dashboard.go.tmpl" ;
+    weaver:outputPath "app/components/security/SecurityIncidentDashboard.vue" ;
+    weaver:dependsOn "security-api" ;
+    weaver:hasVariable weaver:ComponentNameVar, weaver:EntityVar .
+
+weaver:IncidentAPIArtifact
+    a weaver:Artifact ;
+    weaver:artifactType "api-crud" ;
+    weaver:template "api/security-endpoint.go.tmpl" ;
+    weaver:outputPath "server/api/security/incidents.ts" ;
+    weaver:dependsOn "database-schema" ;
+    weaver:hasVariable weaver:EntityNameVar, weaver:EndpointVar .
+
+weaver:SecurityComposableArtifact
+    a weaver:Artifact ;
+    weaver:artifactType "nuxt-composable-security" ;
+    weaver:template "composable/useSecurity.go.tmpl" ;
+    weaver:outputPath "app/composables/useSecurityIncidents.ts" ;
+    weaver:dependsOn "security-api" ;
+    weaver:hasVariable weaver:ComposableNameVar, weaver:EntityVar .
+
+weaver:MLDashboardArtifact
+    a weaver:Artifact ;
+    weaver:artifactType "vue-component" ;
+    weaver:template "vue/ml-pipeline.go.tmpl" ;
+    weaver:outputPath "app/components/ml/MLPipelineDashboard.vue" ;
+    weaver:dependsOn "ml-api" ;
+    weaver:hasVariable weaver:ComponentNameVar, weaver:EntityVar .
+
+weaver:MLAPIArtifact
+    a weaver:Artifact ;
+    weaver:artifactType "api-ml-endpoint" ;
+    weaver:template "api/ml-endpoint.go.tmpl" ;
+    weaver:outputPath "server/api/ml/pipelines.ts" ;
+    weaver:dependsOn "database-schema" ;
+    weaver:hasVariable weaver:EntityNameVar, weaver:EndpointVar .
+
+weaver:PQCDashboardArtifact
+    a weaver:Artifact ;
+    weaver:artifactType "pqc-evidence-dashboard" ;
+    weaver:template "pqc/pqc-evidence-dashboard.go.tmpl" ;
+    weaver:outputPath "app/components/pqc/PqcEvidenceDashboard.vue" ;
+    weaver:dependsOn "pqc-api" ;
+    weaver:hasVariable weaver:ComponentNameVar, weaver:EntityVar .
+
+weaver:GovernanceDashboardArtifact
+    a weaver:Artifact ;
+    weaver:artifactType "governance-dashboard" ;
+    weaver:template "vue/governance-dashboard.go.tmpl" ;
+    weaver:outputPath "app/components/governance/GovernanceDashboard.vue" ;
+    weaver:dependsOn "governance-api" ;
+    weaver:hasVariable weaver:ComponentNameVar, weaver:EntityVar .
+
+weaver:GovernanceAPIArtifact
+    a weaver:Artifact ;
+    weaver:artifactType "governance-api-endpoint" ;
+    weaver:template "api/governance-endpoint.go.tmpl" ;
+    weaver:outputPath "server/api/governance/requests.ts" ;
+    weaver:dependsOn "database-schema" ;
+    weaver:hasVariable weaver:EntityNameVar, weaver:EndpointVar .
+
+weaver:GovernanceComposableArtifact
+    a weaver:Artifact ;
+    weaver:artifactType "nuxt-composable-governance" ;
+    weaver:template "composable/useGovernance.go.tmpl" ;
+    weaver:outputPath "app/composables/useGovernanceRequests.ts" ;
+    weaver:dependsOn "governance-api" ;
+    weaver:hasVariable weaver:ComposableNameVar, weaver:EntityVar .
+
+# Variable Definitions
+
+weaver:ComponentNameVar
+    a weaver:Variable ;
+    weaver:key "component_name" ;
+    weaver:value "SecurityIncidentDashboard" .
+
+weaver:EntityVar
+    a weaver:Variable ;
+    weaver:key "entity" ;
+    weaver:value "SecurityIncident" .
+
+weaver:EntityNameVar
+    a weaver:Variable ;
+    weaver:key "entity_name" ;
+    weaver:value "security_incident" .
+
+weaver:EndpointVar
+    a weaver:Variable ;
+    weaver:key "endpoint" ;
+    weaver:value "incidents" .
+
+# Policy Definitions
+
+weaver:SecurityPolicy
+    a weaver:Policy ;
+    weaver:name "SecurityIncidentPolicy" ;
+    weaver:policyType "security" ;
+    weaver:rules "require_authentication", "audit_all_actions", "encrypt_sensitive_data" ;
+    weaver:scope "security-incident-management" .
+
+weaver:DataGovernancePolicy
+    a weaver:Policy ;
+    weaver:name "MLDataGovernancePolicy" ;
+    weaver:policyType "data" ;
+    weaver:rules "data_lineage_tracking", "model_versioning", "bias_detection" ;
+    weaver:scope "ml-pipeline-management" .
+
+weaver:CryptographicPolicy
+    a weaver:Policy ;
+    weaver:name "PQCPolicy" ;
+    weaver:policyType "cryptographic" ;
+    weaver:rules "quantum_resistant_algorithms", "key_rotation", "compliance_validation" ;
+    weaver:scope "pqc-evidence-management" .
+
+weaver:GovernanceApprovalPolicy
+    a weaver:Policy ;
+    weaver:name "GovernanceApprovalPolicy" ;
+    weaver:policyType "governance" ;
+    weaver:rules "multi_level_approval", "audit_trail_required", "time_based_escalation" ;
+    weaver:scope "governance-workflow" .
+
+# =============================================================================
+# ADDITIONAL ARTIFACT CLASSES (REFERENCED BUT NOT DEFINED)
+# =============================================================================
+
+## Authentication & Authorization Services
+wvr:AuthenticationService a owl:Class ;
+    rdfs:label "Authentication Service" ;
+    rdfs:comment "Service for user authentication and session management" ;
+    rdfs:subClassOf wvr:EdgeFunction .
+
+wvr:LoginComponent a owl:Class ;
+    rdfs:label "Login Component" ;
+    rdfs:comment "UI component for user login" ;
+    rdfs:subClassOf wvr:VueComponent .
+
+wvr:AuthorizationService a owl:Class ;
+    rdfs:label "Authorization Service" ;
+    rdfs:comment "Service for role-based access control" ;
+    rdfs:subClassOf wvr:EdgeFunction .
+
+wvr:PermissionGuard a owl:Class ;
+    rdfs:label "Permission Guard" ;
+    rdfs:comment "Route guard for authorization checks" ;
+    rdfs:subClassOf wvr:Artifact ;
+    wvr:hasFileExtension ".ts" .
+
+## Encryption & Security Services
+wvr:EncryptionService a owl:Class ;
+    rdfs:label "Encryption Service" ;
+    rdfs:comment "Service for data encryption and decryption" ;
+    rdfs:subClassOf wvr:EdgeFunction .
+
+wvr:KeyManagementService a owl:Class ;
+    rdfs:label "Key Management Service" ;
+    rdfs:comment "Service for cryptographic key management" ;
+    rdfs:subClassOf wvr:EdgeFunction .
+
+wvr:DataClassificationService a owl:Class ;
+    rdfs:label "Data Classification Service" ;
+    rdfs:comment "Service for automatic data classification" ;
+    rdfs:subClassOf wvr:EdgeFunction .
+
+wvr:ConsentManagement a owl:Class ;
+    rdfs:label "Consent Management" ;
+    rdfs:comment "System for managing user consent preferences" ;
+    rdfs:subClassOf wvr:VueComponent .
+
+## Threat Detection & Response
+wvr:ThreatDetector a owl:Class ;
+    rdfs:label "Threat Detector" ;
+    rdfs:comment "Automated threat detection system" ;
+    rdfs:subClassOf wvr:EdgeFunction .
+
+wvr:AlertingSystem a owl:Class ;
+    rdfs:label "Alerting System" ;
+    rdfs:comment "System for security alerts and notifications" ;
+    rdfs:subClassOf wvr:EdgeFunction .
+
+wvr:IncidentHandler a owl:Class ;
+    rdfs:label "Incident Handler" ;
+    rdfs:comment "Service for incident response automation" ;
+    rdfs:subClassOf wvr:EdgeFunction .
+
+wvr:ResponsePlaybook a owl:Class ;
+    rdfs:label "Response Playbook" ;
+    rdfs:comment "Automated incident response procedures" ;
+    rdfs:subClassOf wvr:ConfigFile .
+
+## Monitoring & Analysis
+wvr:TraceCollector a owl:Class ;
+    rdfs:label "Trace Collector" ;
+    rdfs:comment "Distributed tracing data collector" ;
+    rdfs:subClassOf wvr:Artifact ;
+    wvr:hasFileExtension ".ts" .
+
+wvr:TraceAnalyzer a owl:Class ;
+    rdfs:label "Trace Analyzer" ;
+    rdfs:comment "System for analyzing distributed traces" ;
+    rdfs:subClassOf wvr:EdgeFunction .
+
+wvr:LogCollector a owl:Class ;
+    rdfs:label "Log Collector" ;
+    rdfs:comment "Centralized log collection service" ;
+    rdfs:subClassOf wvr:EdgeFunction .
+
+wvr:LogProcessor a owl:Class ;
+    rdfs:label "Log Processor" ;
+    rdfs:comment "Service for log processing and analysis" ;
+    rdfs:subClassOf wvr:EdgeFunction .
+
+## Security Policies
+wvr:PasswordPolicy a wvr:SecurityPolicy ;
+    rdfs:label "Password Policy" ;
+    rdfs:comment "Password strength and rotation policy" ;
+    wvr:hasRule "minimum_length", "complexity_requirements", "rotation_period" .
+
+# =============================================================================
+# TECHNOLOGY STACK PROPERTIES
+# =============================================================================
+
+wvr:hasFramework a owl:DatatypeProperty ;
+    rdfs:label "has framework" ;
+    rdfs:domain wvr:TechnologyStack ;
+    rdfs:range xsd:string .
+
+wvr:hasLanguage a owl:DatatypeProperty ;
+    rdfs:label "has language" ;
+    rdfs:domain wvr:TechnologyStack ;
+    rdfs:range xsd:string .
+
+wvr:hasRuntime a owl:DatatypeProperty ;
+    rdfs:label "has runtime" ;
+    rdfs:domain wvr:TechnologyStack ;
+    rdfs:range xsd:string .
+
+wvr:hasDatabase a owl:DatatypeProperty ;
+    rdfs:label "has database" ;
+    rdfs:domain wvr:TechnologyStack ;
+    rdfs:range xsd:string .
+
+wvr:hasAuth a owl:DatatypeProperty ;
+    rdfs:label "has authentication" ;
+    rdfs:domain wvr:TechnologyStack ;
+    rdfs:range xsd:string .
+
+wvr:hasStorage a owl:DatatypeProperty ;
+    rdfs:label "has storage" ;
+    rdfs:domain wvr:TechnologyStack ;
+    rdfs:range xsd:string .
+
+wvr:hasRealtime a owl:DatatypeProperty ;
+    rdfs:label "has realtime" ;
+    rdfs:domain wvr:TechnologyStack ;
+    rdfs:range xsd:string .
+
+wvr:hasAlgorithm a owl:DatatypeProperty ;
+    rdfs:label "has algorithm" ;
+    rdfs:domain wvr:TechnologyStack ;
+    rdfs:range xsd:string .
+
+wvr:hasLibrary a owl:DatatypeProperty ;
+    rdfs:label "has library" ;
+    rdfs:domain wvr:TechnologyStack ;
+    rdfs:range xsd:string .
+
+wvr:hasRule a owl:DatatypeProperty ;
+    rdfs:label "has rule" ;
+    rdfs:domain wvr:SecurityPolicy ;
+    rdfs:range xsd:string .
+
+wvr:hasEntity a owl:ObjectProperty ;
+    rdfs:label "has entity" ;
+    rdfs:domain wvr:Capability ;
+    rdfs:range wvr:Entity .
+
+wvr:hasVariable a owl:ObjectProperty ;
+    rdfs:label "has variable" ;
+    rdfs:domain wvr:Artifact ;
+    rdfs:range weaver:Variable .
+
+wvr:supportsFramework a owl:ObjectProperty ;
+    rdfs:label "supports framework" ;
+    rdfs:domain wvr:Entity ;
+    rdfs:range wvr:ComplianceFramework .
+
+# =============================================================================
+# RULES AND CONSTRAINTS
+# =============================================================================
+
+## Capability Rules
+[] a owl:Restriction ;
+    owl:onProperty wvr:hasArtifact ;
+    owl:someValuesFrom wvr:Artifact ;
+    rdfs:comment "Every capability must have at least one artifact" .
+
+[] a owl:Restriction ;
+    owl:onProperty wvr:requiresCompliance ;
+    owl:allValuesFrom wvr:ComplianceFramework ;
+    rdfs:comment "Compliance requirements must reference valid frameworks" .
+
+## Security Rules
+[] a owl:Restriction ;
+    owl:onProperty wvr:hasSecurityPolicy ;
+    owl:someValuesFrom wvr:SecurityPolicy ;
+    rdfs:comment "Security capabilities must have associated security policies" .
+
+[] a owl:Restriction ;
+    owl:onProperty wvr:requiresAuthentication ;
+    owl:maxCardinality 1 ;
+    rdfs:comment "Authentication requirement is a boolean property" .
+
+## Data Rules
+[] a owl:Restriction ;
+    owl:onProperty wvr:hasAttribute ;
+    owl:someValuesFrom owl:DatatypeProperty ;
+    rdfs:comment "Entities must have at least one attribute" .
+
+[] a owl:Restriction ;
+    owl:onProperty wvr:belongsToLayer ;
+    owl:maxCardinality 1 ;
+    rdfs:comment "Each artifact belongs to exactly one architectural layer" .
+
+## Artifact Rules
+[] a owl:Restriction ;
+    owl:onProperty wvr:hasFileExtension ;
+    owl:maxCardinality 1 ;
+    rdfs:comment "Each artifact has at most one file extension" .
+
+[] a owl:Restriction ;
+    owl:onProperty wvr:hasTemplate ;
+    owl:maxCardinality 1 ;
+    rdfs:comment "Each artifact uses at most one template" .
+
+## Compliance Rules
+[] a owl:Restriction ;
+    owl:onProperty wvr:requiresEvidence ;
+    owl:allValuesFrom wvr:EvidenceType ;
+    rdfs:comment "Frameworks can only require valid evidence types" .
+
+# =============================================================================
+# INFERENCE RULES (SWRL-style comments for future implementation)
+# =============================================================================
+
+# Rule: If a capability requires GDPR compliance, it must implement data encryption
+# SecurityCapability(?c) ∧ requiresCompliance(?c, wvr:GDPRFramework) → dependsOn(?c, wvr:DataEncryption)
+
+# Rule: If an entity handles personal data, it requires consent evidence  
+# Entity(?e) ∧ handlesPersonalData(?e, true) → requiresEvidence(?e, wvr:ConsentEvidence)
+
+# Rule: If a capability processes sensitive data, it requires audit logging
+# Capability(?c) ∧ processesSensitiveData(?c, true) → appliesTo(wvr:Logging, ?c)
+
+# Rule: Security capabilities must have authentication requirements
+# SecurityCapability(?c) → requiresAuthentication(?c, true)
+
+# Rule: All artifacts that belong to data layer must have SQL extension or database connection
+# Artifact(?a) ∧ belongsToLayer(?a, wvr:DataLayer) → (hasFileExtension(?a, ".sql") ∨ hasDatabase(?a, ?db))
+
+# Rule: VueComponent artifacts must belong to presentation layer
+# VueComponent(?a) → belongsToLayer(?a, wvr:PresentationLayer)
+
+# Rule: EdgeFunction artifacts must belong to application layer
+# EdgeFunction(?a) → belongsToLayer(?a, wvr:ApplicationLayer)
+
+# Rule: If a capability has a security policy, it is a security capability
+# Capability(?c) ∧ hasSecurityPolicy(?c, ?p) → SecurityCapability(?c)
+
+# Rule: Governance capabilities must support at least one compliance framework
+# GovernanceCapability(?c) → ∃?f(ComplianceFramework(?f) ∧ supportsFramework(?c, ?f))
+
+# Rule: Monitoring capabilities must have telemetry artifacts
+# MonitoringCapability(?c) → ∃?a(TelemetryArtifact(?a) ∧ hasArtifact(?c, ?a))
+
+# =============================================================================
+# DISJOINT CLASSES
+# =============================================================================
+
+[] a owl:AllDisjointClasses ;
+    owl:members (
+        wvr:GovernanceCapability
+        wvr:SecurityCapability
+        wvr:ManagementCapability
+        wvr:MonitoringCapability
+    ) .
+
+[] a owl:AllDisjointClasses ;
+    owl:members (
+        wvr:PresentationLayer
+        wvr:LogicLayer
+        wvr:ApplicationLayer
+        wvr:DataLayer
+    ) .
+
+[] a owl:AllDisjointClasses ;
+    owl:members (
+        wvr:AdminRole
+        wvr:UserRole
+        wvr:AuditorRole
+    ) .
+
+# =============================================================================
+# EQUIVALENT CLASSES
+# =============================================================================
+
+wvr:TelemetryArtifact a owl:Class ;
+    rdfs:label "Telemetry Artifact" ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:unionOf (
+            wvr:MetricsCollector
+            wvr:MetricsDashboard
+            wvr:TraceCollector
+            wvr:TraceAnalyzer
+            wvr:LogCollector
+            wvr:LogProcessor
+        )
+    ] .
+
+# =============================================================================
+# END OF ONTOLOGY
+# =============================================================================

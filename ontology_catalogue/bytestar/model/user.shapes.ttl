@@ -1,0 +1,42 @@
+@prefix : <http://example.com/shapes/user#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix user: <http://example.com/domain/user#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://example.com/shapes/user>
+  a owl:Ontology ;
+  owl:imports <http://example.com/domain/user> .
+
+:UserShape
+  a sh:NodeShape ;
+  sh:targetClass user:User ;
+  sh:closed true ;
+  sh:property [
+    sh:path user:name ;
+    sh:name "Full Name" ;
+    sh:description "The user's full name." ;
+    sh:datatype xsd:string ;
+    sh:minLength 2 ;
+    sh:maxLength 50 ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path user:email ;
+    sh:name "Email Address" ;
+    sh:description "The user's primary email address." ;
+    sh:datatype xsd:string ;
+    sh:pattern "^[\\w-\\.+]+@[\\w-\\.+]+\\.[a-zA-Z]{2,7}$" ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path user:age ;
+    sh:name "Age" ;
+    sh:description "The user's age in years." ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 18 ;
+    sh:maxInclusive 120 ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] .

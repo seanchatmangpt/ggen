@@ -1,0 +1,26 @@
+PREFIX pi: <https://process.intelligence/ontology/>
+PREFIX gen: <https://process.intelligence/generation-rule/>
+PREFIX chk: <https://process.intelligence/checkpoint/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+
+# SELECT: Warrant Paths (rule -> template -> checkpoint)
+# Returns traceability paths from generation rules through templates to checkpoints
+# Date: 2026-06-01
+
+SELECT ?rule ?ruleTitle ?template ?templateTitle ?checkpoint ?checkpointTitle
+WHERE {
+    ?rule a pi:GenerationRule .
+    ?rule dcterms:title ?ruleTitle .
+    ?rule pi:template ?templatePath .
+    
+    ?template a pi:Template .
+    ?template dcterms:title ?templateTitle .
+    FILTER (CONTAINS(STR(?templateTitle), SUBSTR(STR(?templatePath), 1)))
+    
+    OPTIONAL {
+        ?checkpoint a pi:Checkpoint .
+        ?checkpoint dcterms:title ?checkpointTitle .
+        FILTER (CONTAINS(STR(?checkpointTitle), "READY"))
+    }
+}
+ORDER BY ?rule ?template

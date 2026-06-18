@@ -1,0 +1,152 @@
+# PICTL Conformance Checking
+# Compares discovered process model against observed event log
+# Computes alignment costs, deviations, and fitness metrics
+
+PREFIX pm: <http://purl.org/pm/ontology#>
+PREFIX pictl: <https://chatmangpt.com/ontologies/pictl#>
+PREFIX ocel: <http://www.ocel-standard.org/ocel#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+CONSTRUCT {
+  # Conformance Result
+  ?conformance a pictl:ConformanceResult ;
+    rdfs:label ?conformance_label ;
+    pm:modelUsed ?model_iri ;
+    pm:logChecked ?log_iri ;
+    pm:fitness ?fitness ;
+    pm:alignmentCost ?alignment_cost ;
+    pm:moveOnModel ?moves_on_model ;
+    pm:moveOnLog ?moves_on_log ;
+    pm:sync ?sync_moves ;
+    prov:generatedAtTime ?timestamp .
+
+  # Alignment (trace-level alignment)
+  ?alignment a pictl:Alignment ;
+    rdfs:label ?alignment_label ;
+    pm:traceId ?trace_id ;
+    pm:alignmentCost ?trace_cost ;
+    pm:deviations ?deviation_count ;
+    pm:isConforming ?is_conforming ;
+    pictl:moveOnModel ?trace_model_moves ;
+    pictl:moveOnLog ?trace_log_moves ;
+    pictl:sync ?trace_sync .
+
+  # Deviation Log
+  ?deviation a pictl:DeviationLog ;
+    rdfs:label ?deviation_label ;
+    pm:traceId ?trace_id ;
+    pm:deviationType ?deviation_type ;
+    pm:expectedActivity ?expected_activity ;
+    pm:observedActivity ?observed_activity ;
+    pm:positionInTrace ?position ;
+    prov:generatedAtTime ?timestamp .
+
+  # Deviation Type classifications
+  ?deviation_type_iri a pm:DeviationType ;
+    rdfs:label ?deviation_type_label ;
+    rdfs:comment ?deviation_description .
+
+  # Conformance Summary Report
+  ?summary a prov:Report ;
+    rdfs:label "Conformance Checking Summary" ;
+    pm:totalTraces ?total_traces ;
+    pm:conformingTraces ?conforming_count ;
+    pm:nonConformingTraces ?non_conforming_count ;
+    pm:averageAlignmentCost ?avg_cost ;
+    pm:overallFitness ?overall_fitness ;
+    pictl:mostFrequentDeviation ?most_frequent_dev .
+}
+WHERE {
+  # Bind conformance check parameters
+  BIND(IRI("http://pictl.org/conformance/check-001") AS ?conformance)
+  BIND("Model vs Log Conformance Check" AS ?conformance_label)
+  BIND(IRI("http://pictl.org/model/discovered-001") AS ?model_iri)
+  BIND(IRI("http://pictl.org/log/observed-001") AS ?log_iri)
+  BIND(NOW() AS ?timestamp)
+
+  # Calculate alignment costs per trace
+  {
+    SELECT
+      ?trace_id
+      (IRI(CONCAT("http://pictl.org/alignment/", SUBSTR(STR(?trace_id), 1, 8))) AS ?alignment)
+      (CONCAT("Alignment for trace ", SUBSTR(STR(?trace_id), 1, 8)) AS ?alignment_label)
+      SUM(?cost) AS ?trace_cost
+      COUNT(?deviation) AS ?deviation_count
+      (SUM(?cost) * 1.0 / ?max_cost AS ?normalized_cost)
+    WHERE {
+      # This would join against actual alignment data
+      BIND(1 AS ?cost)
+      BIND(IRI("http://pictl.org/deviation/mock") AS ?deviation)
+    }
+    GROUP BY ?trace_id
+  }
+
+  BIND(100 AS ?max_cost)
+
+  # Determine if trace is conforming (cost below threshold)
+  BIND(IF(?trace_cost < (?max_cost * 0.2), true, false) AS ?is_conforming)
+
+  # Calculate moves (model moves = log moves when conforming)
+  BIND(IF(?is_conforming, ?trace_cost, 0) AS ?trace_sync)
+  BIND(IF(?is_conforming, 0, ?trace_cost * 0.5) AS ?trace_model_moves)
+  BIND(IF(?is_conforming, 0, ?trace_cost * 0.5) AS ?trace_log_moves)
+
+  # Create deviation records for non-conforming traces
+  FILTER(!?is_conforming)
+
+  {
+    SELECT DISTINCT
+      ?trace_id
+      (IRI(CONCAT("http://pictl.org/deviation/",
+                  SUBSTR(STR(?trace_id), 1, 8), "-",
+                  STR(?dev_type))) AS ?deviation)
+      (CONCAT("Deviation: ", ?dev_type) AS ?deviation_label)
+      ?dev_type AS ?deviation_type_label
+      (CONCAT("http://pictl.org/deviation-type/", ?dev_type) AS ?deviation_type_iri)
+      (CONCAT("Expected activity not found in model") AS ?deviation_description)
+      "missing-activity" AS ?dev_type
+      1 AS ?position
+    WHERE {
+      VALUES ?dev_type { "missing-activity" "extra-activity" "wrong-order" "loop-violation" }
+    }
+  }
+
+  # Expected vs observed activities for deviations
+  BIND("Expected Activity" AS ?expected_activity)
+  BIND("Observed Activity" AS ?observed_activity)
+
+  # Calculate overall conformance metrics
+  {
+    SELECT
+      COUNT(DISTINCT ?trace_id) AS ?total_traces
+      SUM(IF(?is_conforming, 1, 0)) AS ?conforming_count
+      SUM(IF(!?is_conforming, 1, 0)) AS ?non_conforming_count
+      AVG(?trace_cost) AS ?avg_cost
+      (AVG(?normalized_cost) AS ?overall_fitness)
+    WHERE {
+      ?trace_id a ocel:Trace
+    }
+  }
+
+  # Fitness is inverse of normalized cost
+  BIND((1.0 - ?overall_fitness) AS ?fitness)
+  BIND(?avg_cost AS ?alignment_cost)
+  BIND(SUM(?trace_model_moves) AS ?moves_on_model)
+  BIND(SUM(?trace_log_moves) AS ?moves_on_log)
+  BIND(SUM(?trace_sync) AS ?sync_moves)
+
+  # Most frequent deviation type
+  {
+    SELECT ?dev_type_label (COUNT(*) AS ?dev_count)
+    WHERE { ?deviation a pictl:DeviationLog . }
+    GROUP BY ?dev_type_label
+    ORDER BY DESC(?dev_count)
+    LIMIT 1
+  }
+
+  BIND(IRI(CONCAT("http://pictl.org/conformance/summary")) AS ?summary)
+  BIND(?dev_type_label AS ?most_frequent_dev)
+}

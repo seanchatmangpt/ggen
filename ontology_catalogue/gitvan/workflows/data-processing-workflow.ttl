@@ -1,0 +1,150 @@
+@prefix ex: <http://example.org/> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+@prefix op: <https://gitvan.dev/op#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Data Processing Pipeline Workflow
+# Demonstrates a complete data processing workflow with multiple step types
+
+ex:data-processing-workflow rdf:type gh:Hook ;
+    gv:title "Data Processing Pipeline" ;
+    gh:hasPredicate ex:processData ;
+    gh:orderedPipelines ex:data-pipeline .
+
+ex:data-pipeline rdf:type op:Pipeline ;
+    op:steps ex:load-data, ex:analyze-data, ex:generate-report, ex:save-results, ex:notify-completion .
+
+# Step 1: Load Data
+ex:load-data rdf:type gv:SparqlStep ;
+    gv:text """
+        PREFIX ex: <http://example.org/>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        
+        SELECT ?data ?source ?type ?size WHERE {
+            ?data rdf:type ex:DataItem .
+            ?data ex:source ?source .
+            ?data ex:type ?type .
+            ?data ex:size ?size .
+            ?data ex:status "pending" .
+        } ORDER BY ?size DESC
+    """ ;
+    gv:outputMapping '{"dataItems": "results", "count": "results.length"}' ;
+    gv:timeout 30000 .
+
+# Step 2: Analyze Data
+ex:analyze-data rdf:type gv:SparqlStep ;
+    gv:text """
+        PREFIX ex: <http://example.org/>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        
+        CONSTRUCT {
+            ?data ex:analysis ?analysis .
+            ?data ex:status "analyzed" .
+            ?data ex:processedAt ?now .
+        } WHERE {
+            ?data rdf:type ex:DataItem .
+            ?data ex:type ?type .
+            ?data ex:size ?size .
+            
+            BIND(NOW() AS ?now)
+            BIND(CONCAT("Analysis of ", ?type, " data (", ?size, " bytes)") AS ?analysis)
+        }
+    """ ;
+    gv:dependsOn ex:load-data ;
+    gv:outputMapping '{"analysis": "quads", "analyzedCount": "quads.length"}' ;
+    gv:timeout 45000 .
+
+# Step 3: Generate Report
+ex:generate-report rdf:type gv:TemplateStep ;
+    gv:text """
+        # Data Processing Report
+        
+        **Generated:** {{ "now" | date("YYYY-MM-DD HH:mm:ss") }}
+        
+        ## Summary
+        - **Total Items Processed:** {{ count }}
+        - **Items Analyzed:** {{ analyzedCount }}
+        - **Processing Status:** {{ status }}
+        
+        ## Data Items
+        {% for item in dataItems %}
+        ### {{ item.data.value | split('/') | last }}
+        - **Source:** {{ item.source.value }}
+        - **Type:** {{ item.type.value }}
+        - **Size:** {{ item.size.value }} bytes
+        {% endfor %}
+        
+        ## Analysis Results
+        {% for quad in analysis %}
+        - **Data:** {{ quad.subject.value | split('/') | last }}
+        - **Analysis:** {{ quad.object.value }}
+        - **Processed At:** {{ quad.object.value | split(' ') | last }}
+        {% endfor %}
+        
+        ## Next Steps
+        1. Review the analysis results
+        2. Validate data quality
+        3. Proceed with downstream processing
+        
+        ---
+        *This report was generated automatically by the GitVan Data Processing Pipeline*
+    """ ;
+    gv:dependsOn ex:analyze-data ;
+    gv:filePath "./reports/data-processing-report-{{ 'now' | date('YYYY-MM-DD') }}.md" ;
+    gv:outputMapping '{"reportPath": "outputPath"}' .
+
+# Step 4: Save Results
+ex:save-results rdf:type gv:FileStep ;
+    gv:filePath "./output/processed-data-{{ 'now' | date('YYYY-MM-DD-HH-mm-ss') }}.json" ;
+    gv:operation "write" ;
+    gv:content """
+        {
+            "workflow": "data-processing",
+            "timestamp": "{{ 'now' | date('YYYY-MM-DDTHH:mm:ssZ') }}",
+            "summary": {
+                "totalItems": {{ count }},
+                "analyzedItems": {{ analyzedCount }},
+                "status": "completed"
+            },
+            "dataItems": {{ dataItems | tojson }},
+            "analysis": {{ analysis | tojson }}
+        }
+    """ ;
+    gv:dependsOn ex:generate-report ;
+    gv:outputMapping '{"outputFile": "path"}' .
+
+# Step 5: Notify Completion
+ex:notify-completion rdf:type gv:HttpStep ;
+    gv:httpUrl "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK" ;
+    gv:httpMethod "POST" ;
+    gv:headers '{"Content-Type": "application/json"}' ;
+    gv:body """
+        {
+            "text": "Data Processing Pipeline Completed",
+            "attachments": [
+                {
+                    "color": "good",
+                    "fields": [
+                        {
+                            "title": "Items Processed",
+                            "value": "{{ count }}",
+                            "short": true
+                        },
+                        {
+                            "title": "Report Generated",
+                            "value": "{{ reportPath }}",
+                            "short": true
+                        },
+                        {
+                            "title": "Output File",
+                            "value": "{{ outputFile }}",
+                            "short": true
+                        }
+                    ]
+                }
+            ]
+        }
+    """ ;
+    gv:dependsOn ex:save-results ;
+    gv:timeout 10000 .

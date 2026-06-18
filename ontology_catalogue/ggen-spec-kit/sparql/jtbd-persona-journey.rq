@@ -1,0 +1,165 @@
+# ============================================================================
+# JTBD Query: Complete Persona Journey Mapping
+# ============================================================================
+# Purpose: Map the complete customer journey for each persona, from job
+#          discovery through outcome achievement. Tracks context clues,
+#          forces, solutions used, and journey stages with timing.
+#
+# Output: End-to-end persona journeys with stages, forces, solutions, metrics
+# Use: Journey optimization, onboarding design, friction reduction, CX strategy
+#
+# Example Output:
+# Persona     | Stage        | Context Clue       | Job            | Force Type | Solution      | Time    | Satisfaction
+# Dev Lead    | Awareness    | New project start  | Manage deps    | Push       | Manual TOML   | Day 1   | 4.2
+# Dev Lead    | Consideration| Dep conflicts      | Manage deps    | Pull       | Auto-dep mgr  | Day 3   | 6.8
+# Dev Lead    | Adoption     | Feature enabled    | Manage deps    | Anxiety    | Learning docs | Day 5   | 7.1
+# Dev Lead    | Habit        | Daily workflow     | Manage deps    | Habit      | Auto-dep mgr  | Week 2  | 8.9
+# ============================================================================
+
+PREFIX jtbd: <http://github.com/github/spec-kit/jtbd#>
+PREFIX sk: <http://github.com/github/spec-kit#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT
+  ?personaName
+  ?personaRole
+  ?personaGoals
+  ?personaChallenges
+  ?journeyStage
+  ?journeyStageOrder
+  ?stageTimeline
+  ?stageTimelineUnit
+  ?contextDescription
+  ?triggerType
+  ?triggerFrequency
+  ?jobTitle
+  ?jobType
+  ?circumstanceDescription
+  ?forceType
+  ?forceDescription
+  ?forceStrength
+  ?solutionName
+  ?solutionType
+  ?solutionSatisfaction
+  ?outcomeStatement
+  ?outcomeAchieved
+  ?painpointDescription
+  ?painpointResolved
+  ?transitionToNextStage
+  ?stageCompletionRate
+  (IF(?stageCompletionRate >= 85, "Smooth Journey",
+      IF(?stageCompletionRate >= 65, "Acceptable Flow",
+         IF(?stageCompletionRate >= 45, "Friction Present",
+            "High Drop-off - Critical"))) AS ?journeyHealth)
+WHERE {
+  # All personas
+  ?persona a jtbd:Persona ;
+           jtbd:personaName ?personaName ;
+           jtbd:personaRole ?personaRole .
+
+  OPTIONAL { ?persona jtbd:personaGoals ?personaGoals }
+  OPTIONAL { ?persona jtbd:personaChallenges ?personaChallenges }
+
+  # Customer segment for persona
+  ?segment jtbd:hasPersona ?persona .
+
+  # Context clues triggering jobs
+  OPTIONAL {
+    ?segment jtbd:hasContextClue ?contextClue .
+    ?contextClue jtbd:contextDescription ?contextDescription ;
+                 jtbd:triggerType ?triggerType .
+    OPTIONAL { ?contextClue jtbd:triggerFrequency ?triggerFrequency }
+  }
+
+  # Jobs performed by this persona
+  OPTIONAL {
+    ?job jtbd:performedBy ?segment ;
+         jtbd:jobTitle ?jobTitle .
+
+    OPTIONAL { ?job jtbd:jobType ?jobType }
+
+    # Job circumstances
+    OPTIONAL {
+      ?job jtbd:inCircumstance ?circumstance .
+      ?circumstance jtbd:circumstanceDescription ?circumstanceDescription .
+    }
+
+    # Forces affecting job (Push, Pull, Habit, Anxiety)
+    OPTIONAL {
+      {
+        ?job jtbd:hasPushForce ?force .
+        ?force jtbd:pushReason ?forceDescription ;
+               jtbd:forceStrength ?forceStrength .
+        BIND("Push (Problem)" AS ?forceType)
+      }
+      UNION
+      {
+        ?job jtbd:hasPullForce ?force .
+        ?force jtbd:pullBenefit ?forceDescription ;
+               jtbd:forceStrength ?forceStrength .
+        BIND("Pull (Attraction)" AS ?forceType)
+      }
+      UNION
+      {
+        ?job jtbd:hasHabit ?force .
+        ?force jtbd:habitDescription ?forceDescription ;
+               jtbd:habitStrength ?forceStrength .
+        BIND("Habit (Inertia)" AS ?forceType)
+      }
+      UNION
+      {
+        ?job jtbd:hasAnxiety ?force .
+        ?force jtbd:anxietyDescription ?forceDescription .
+        BIND("Anxiety (Fear)" AS ?forceType)
+        BIND("N/A" AS ?forceStrength)
+      }
+    }
+
+    # Solutions used (Current, Proposed, Competitive)
+    OPTIONAL {
+      ?job jtbd:solvedBy ?solution .
+      ?solution jtbd:solutionName ?solutionName .
+
+      OPTIONAL {
+        BIND(IF(?solution a jtbd:CurrentSolution, "Current Solution",
+                IF(?solution a jtbd:ProposedSolution, "Proposed Solution",
+                   IF(?solution a jtbd:CompetitiveSolution, "Competitive Solution",
+                      "Unknown"))) AS ?solutionType)
+      }
+
+      OPTIONAL { ?solution sk:solutionSatisfaction ?solutionSatisfaction }
+    }
+
+    # Desired outcomes and achievement
+    OPTIONAL {
+      ?job jtbd:hasDesiredOutcome ?outcome .
+      ?outcome jtbd:outcomeStatement ?outcomeStatement .
+      OPTIONAL { ?outcome sk:outcomeAchieved ?outcomeAchieved }
+    }
+
+    # Painpoints in journey
+    OPTIONAL {
+      ?job jtbd:hasPainpoint ?painpoint .
+      ?painpoint jtbd:painpointDescription ?painpointDescription .
+      OPTIONAL { ?painpoint sk:painpointResolved ?painpointResolved }
+    }
+  }
+
+  # Journey stage tracking
+  OPTIONAL {
+    ?persona sk:currentJourneyStage ?journeyStage ;
+             sk:journeyStageOrder ?journeyStageOrder .
+    OPTIONAL { ?persona sk:stageTimeline ?stageTimeline }
+    OPTIONAL { ?persona sk:stageTimelineUnit ?stageTimelineUnit }
+    OPTIONAL { ?persona sk:transitionToNextStage ?transitionToNextStage }
+    OPTIONAL { ?persona sk:stageCompletionRate ?stageCompletionRate }
+  }
+
+  # Default values
+  BIND(COALESCE(?journeyStage, "Discovery") AS ?journeyStage)
+  BIND(COALESCE(?journeyStageOrder, 1) AS ?journeyStageOrder)
+  BIND(COALESCE(?stageCompletionRate, 50.0) AS ?stageCompletionRate)
+  BIND(COALESCE(?outcomeAchieved, false) AS ?outcomeAchieved)
+  BIND(COALESCE(?painpointResolved, false) AS ?painpointResolved)
+}
+ORDER BY ?personaName ?journeyStageOrder ?jobTitle ?forceType

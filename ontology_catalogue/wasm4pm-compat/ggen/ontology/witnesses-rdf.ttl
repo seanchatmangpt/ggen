@@ -1,0 +1,774 @@
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix compat: <https://wasm4pm-compat.rs/ontology#> .
+
+# ── RDF/Knowledge-Graph witnesses — sourced from ~/Documents/Papers/RDF/ ──
+# paperCategory = "rdf" → rendered into src/witnesses_rdf.rs.
+# All 87 papers in RDF/; all receive witness markers per the ALL-papers mandate.
+
+compat:MetadataModelProfilingPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "MetadataModelProfilingPaper" ;
+    compat:witnessKey   "rdf/metadata-model-profiling-multidimensional" ;
+    compat:witnessTitle "A Metadata Model for Profiling Multidimensional Sources in Data Ecosystems" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Metadata profiling model for multidimensional data ecosystem sources." .
+
+compat:SemanticAuditCloudPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "SemanticAuditCloudPaper" ;
+    compat:witnessKey   "rdf/semantic-audit-cloud-iso-iec-tr-3445-2022" ;
+    compat:witnessTitle "A Semantic Model for Audit of Cloud Engines based on ISO:IEC TR 3445-2022" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Semantic audit model for cloud engines grounded in ISO/IEC TR 3445-2022." .
+
+compat:GlamMetadataCrosswalkPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "GlamMetadataCrosswalkPaper" ;
+    compat:witnessKey   "rdf/glam-metadata-crosswalk-workflow" ;
+    compat:witnessTitle "A Workflow for GLAM Metadata Crosswalk" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Workflow for crosswalking metadata in GLAM (galleries, libraries, archives, museums)." .
+
+compat:AgentIct2sText2SparqlPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "AgentIct2sText2SparqlPaper" ;
+    compat:witnessKey   "rdf/agentict2s-text2sparql-heterogeneous-kg" ;
+    compat:witnessTitle "AGENTICT2S: Robust Text-to-SPARQL via Agentic Collaborative Reasoning over Heterogeneous Knowledge Graphs for the Circular Economy" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "AGENTICT2S: agentic multi-model Text-to-SPARQL for heterogeneous circular economy KGs." .
+
+compat:ExplainableNlEnterprisePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ExplainableNlEnterprisePaper" ;
+    compat:witnessKey   "rdf/explainable-nl-enterprise-communication" ;
+    compat:witnessTitle "An Explainable Natural Language Framework for Identifying and Notifying Target Audiences In Enterprise Communication" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Explainable NL framework for audience targeting and notification in enterprise communication." .
+
+compat:AruqulaLlmText2SparqlPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "AruqulaLlmText2SparqlPaper" ;
+    compat:witnessKey   "rdf/aruqula-llm-text2sparql-react-kg" ;
+    compat:witnessTitle "ARUQULA: An LLM-based Text2SPARQL Approach using ReAct and Knowledge Graph Exploration Utilities" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "ARUQULA: ReAct-based LLM Text2SPARQL with KG exploration utilities." .
+
+compat:AutomationMlOntologyPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "AutomationMlOntologyPaper" ;
+    compat:witnessKey   "rdf/automationml-ontology-graph-queries-validation" ;
+    compat:witnessTitle "Automatic Mapping of AutomationML Files to Ontologies for Graph Queries and Validation" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Automatic mapping of AutomationML files to ontologies enabling SPARQL queries and SHACL validation." .
+
+compat:AutoRdf2GmlPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "AutoRdf2GmlPaper" ;
+    compat:witnessKey   "rdf/autordf2gml-rdf-graph-machine-learning" ;
+    compat:witnessTitle "AutoRDF2GML: Facilitating RDF Integration in Graph Machine Learning" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "AutoRDF2GML: bridge between RDF knowledge graphs and graph machine learning frameworks." .
+
+compat:BarqVectorizedSparqlPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "BarqVectorizedSparqlPaper" ;
+    compat:witnessKey   "rdf/barq-vectorized-sparql-query-engine" ;
+    compat:witnessTitle "BARQ: A Vectorized SPARQL Query Execution Engine" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "BARQ: vectorized SPARQL execution engine for high-performance RDF querying." .
+
+compat:RdfGnnRecommenderPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "RdfGnnRecommenderPaper" ;
+    compat:witnessKey   "rdf/rdf-gnn-semantic-rich-recommender" ;
+    compat:witnessTitle "Bridging RDF Knowledge Graphs with Graph Neural Networks for Semantically-Rich Recommender Systems" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "GNN-based recommender systems bridging RDF KG semantics with graph neural learning." .
+
+compat:QleverSparqlEnginePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "QleverSparqlEnginePaper" ;
+    compat:witnessKey   "rdf/qlever-sparql-engine-cikm-2017" ;
+    compat:witnessTitle "QLever: A High-Performance SPARQL Engine (CIKM 2017)" ;
+    compat:witnessYear  2017 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "QLever: high-performance SPARQL engine with efficient index-based query evaluation." .
+
+compat:CitationProcessingAdminPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "CitationProcessingAdminPaper" ;
+    compat:witnessKey   "rdf/citation-processing-parking-administrative" ;
+    compat:witnessTitle "Citation Processing Center: Parking and Administrative Citations" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Citation processing system for parking and administrative citations — domain application." .
+
+compat:ShaclShexPgSchemaPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ShaclShexPgSchemaPaper" ;
+    compat:witnessKey   "rdf/common-foundations-shacl-shex-pg-schema" ;
+    compat:witnessTitle "Common Foundations for SHACL, ShEx, and PG-Schema" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Unified formal foundations for SHACL, ShEx, and PG-Schema shape languages." .
+
+compat:MetadataRepresentationKgePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "MetadataRepresentationKgePaper" ;
+    compat:witnessKey   "rdf/metadata-representation-kg-embeddings" ;
+    compat:witnessTitle "Comparison of Metadata Representation Models for Knowledge Graph Embeddings" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Comparative study of metadata representation models for KG embedding quality." .
+
+compat:CondensedRdfGraphVersioningPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "CondensedRdfGraphVersioningPaper" ;
+    compat:witnessKey   "rdf/condensed-rdf-graph-versioning" ;
+    compat:witnessTitle "Condensed Representation of RDF and its Application on Graph Versioning" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Condensed RDF representations enabling compact graph versioning and change tracking." .
+
+compat:ConsistentQueryShaclPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ConsistentQueryShaclPaper" ;
+    compat:witnessKey   "rdf/consistent-query-answering-shacl" ;
+    compat:witnessTitle "Consistent Query Answering over SHACL Constraints" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Consistent query answering (CQA) semantics when querying RDF data under SHACL constraints." .
+
+compat:CypherBenchFullScaleKgPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "CypherBenchFullScaleKgPaper" ;
+    compat:witnessKey   "rdf/cypherbench-llm-full-scale-kg" ;
+    compat:witnessTitle "CypherBench: Towards Precise Retrieval over Full-scale Modern Knowledge Graphs in the LLM Era" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "CypherBench: benchmark for Cypher-based retrieval over full-scale KGs with LLMs." .
+
+compat:HypermediaGameLearningPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "HypermediaGameLearningPaper" ;
+    compat:witnessKey   "rdf/hypermedia-game-learning-tic-tac-toe" ;
+    compat:witnessTitle "Do you want to play a game? Learning to play Tic-Tac-Toe in Hypermedia Environments" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Agent learning in hypermedia environments using semantic web affordances." .
+
+compat:SemanticWebIndexingPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "SemanticWebIndexingPaper" ;
+    compat:witnessKey   "rdf/eat-own-kr-semantic-web-indexing" ;
+    compat:witnessTitle "Eat your own KR: a KR-based approach to index Semantic Web Endpoints and Knowledge Graphs" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "KR-based self-indexing for semantic web endpoints using the endpoints' own knowledge." .
+
+compat:ProvenanceTrackingSemanticWebPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ProvenanceTrackingSemanticWebPaper" ;
+    compat:witnessKey   "rdf/provenance-tracking-semantic-web" ;
+    compat:witnessTitle "Enhancing Data Integrity through Provenance Tracking in Semantic Web Frameworks" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Provenance tracking for data integrity in semantic web / linked data frameworks." .
+
+compat:FireSparqlScholarlyKgPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "FireSparqlScholarlyKgPaper" ;
+    compat:witnessKey   "rdf/firesparql-llm-sparql-scholarly-kg" ;
+    compat:witnessTitle "FIRESPARQL: A LLM-based Framework for SPARQL Query Generation over Scholarly Knowledge Graphs" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "FIRESPARQL: LLM-driven SPARQL generation for scholarly knowledge graph query interfaces." .
+
+compat:FuzzyOntologyEmbeddingPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "FuzzyOntologyEmbeddingPaper" ;
+    compat:witnessKey   "rdf/fuzzy-ontology-embeddings-visual-query" ;
+    compat:witnessTitle "Fuzzy Ontology Embeddings and Visual Query Building for Ontology Exploration" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Fuzzy embeddings for ontology exploration with visual query-building interface." .
+
+compat:GraspSparqlGenerationPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "GraspSparqlGenerationPaper" ;
+    compat:witnessKey   "rdf/grasp-generic-reasoning-sparql-kg" ;
+    compat:witnessTitle "GRASP: Generic Reasoning And SPARQL Generation across Knowledge Graphs" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "GRASP: framework for generic reasoning and SPARQL query generation across heterogeneous KGs." .
+
+compat:DeonticRdfConflictPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "DeonticRdfConflictPaper" ;
+    compat:witnessKey   "rdf/deontic-rdf-conflict-tolerant-scheme" ;
+    compat:witnessTitle "Handling Irresolvable Conflicts in the Semantic Web: an RDF-based Conflict-Tolerant Version of the Deontic Traditional Scheme" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "RDF-based conflict-tolerant deontic scheme for handling irresolvable semantic web conflicts." .
+
+compat:InteracSparqlRefinementPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "InteracSparqlRefinementPaper" ;
+    compat:witnessKey   "rdf/interacsparql-query-refinement-nl" ;
+    compat:witnessTitle "InteracSPARQL: An Interactive System for SPARQL Query Refinement Using Natural Language Explanations" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "InteracSPARQL: interactive SPARQL refinement via natural language explanations." .
+
+compat:JellyPatchRdfChangePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "JellyPatchRdfChangePaper" ;
+    compat:witnessKey   "rdf/jelly-patch-rdf-dataset-changes" ;
+    compat:witnessTitle "Jelly-Patch: a Fast Format for Recording Changes in RDF Datasets" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Jelly-Patch: compact binary format for streaming RDF dataset change records." .
+
+compat:KgpipeDataIntegrationPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "KgpipeDataIntegrationPaper" ;
+    compat:witnessKey   "rdf/kgpipe-pipeline-data-integration-kg" ;
+    compat:witnessTitle "KGpipe: Generation and Evaluation of Pipelines for Data Integration into Knowledge Graphs" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "KGpipe: automated pipeline generation and evaluation for data integration into KGs." .
+
+compat:KifWikidataIntegrationPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "KifWikidataIntegrationPaper" ;
+    compat:witnessKey   "rdf/kif-wikidata-heterogeneous-kg-integration" ;
+    compat:witnessTitle "KIF: A Wikidata-Based Framework for Integrating Heterogeneous Knowledge Sources" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "KIF: Wikidata-grounded framework for integrating heterogeneous knowledge sources." .
+
+compat:KnowledgePatternsPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "KnowledgePatternsPaper" ;
+    compat:witnessKey   "rdf/knowledge-patterns" ;
+    compat:witnessTitle "Knowledge Patterns" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Ontology design patterns for reusable knowledge modelling." .
+
+compat:KnowledgeAwareSelfCorrectionPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "KnowledgeAwareSelfCorrectionPaper" ;
+    compat:witnessKey   "rdf/knowledge-aware-self-correction-llm-kg" ;
+    compat:witnessTitle "Knowledge-Aware Self-Correction in Language Models via Structured Memory Graphs" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "KG-grounded self-correction mechanism for LLM hallucination via structured memory graphs." .
+
+compat:LlmKgBench30Paper
+    a compat:WitnessMarker ;
+    compat:rustType     "LlmKgBench30Paper" ;
+    compat:witnessKey   "rdf/llm-kg-bench-3-0-semantic-technology" ;
+    compat:witnessTitle "LLM-KG-Bench 3.0: A Compass for Semantic Technology Capabilities in the Ocean of LLMs" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "LLM-KG-Bench 3.0: benchmark evaluating LLM semantic technology capabilities over KGs." .
+
+compat:LlmsPlagiarizeKgSourcePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "LlmsPlagiarizeKgSourcePaper" ;
+    compat:witnessKey   "rdf/llms-plagiarize-kg-training-data" ;
+    compat:witnessTitle "LLMs Plagiarize: Ensuring Responsible Sourcing of Large Language Model Training Data Through Knowledge Graph Comparison" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "KG-comparison method for detecting LLM plagiarism of training data sources." .
+
+compat:McpSpecificationPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "McpSpecificationPaper" ;
+    compat:witnessKey   "rdf/mcp-model-context-protocol-spec" ;
+    compat:witnessTitle "Model Context Protocol (MCP) Specification" ;
+    compat:witnessFamily compat:Standard ;
+    compat:paperCategory "rdf" ;
+    compat:description  "MCP specification (mcp.pdf): protocol for connecting AI assistants to data sources and tools." .
+
+compat:TemporalObligationsGuconPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "TemporalObligationsGuconPaper" ;
+    compat:witnessKey   "rdf/temporal-obligations-gucon-sparql-star" ;
+    compat:witnessTitle "Modeling and Managing Temporal Obligations in GUCON Using SPARQL-star and RDF-star" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "GUCON temporal obligation modeling using SPARQL-star / RDF-star reification." .
+
+compat:LegislativePropertyGraphPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "LegislativePropertyGraphPaper" ;
+    compat:witnessKey   "rdf/legislative-property-graph-pattern-detection" ;
+    compat:witnessTitle "Modelling Legislative Systems into Property Graphs to Enable Advanced Pattern Detection" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Legislative system modelling in property graphs enabling legal pattern detection." .
+
+compat:MultiAgentGraphRagCypherPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "MultiAgentGraphRagCypherPaper" ;
+    compat:witnessKey   "rdf/multi-agent-graphrag-text-cypher" ;
+    compat:witnessTitle "Multi-Agent GraphRAG: A Text-to-Cypher Framework for Labeled Property Graphs" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Multi-agent GraphRAG translating NL questions to Cypher for property graph querying." .
+
+compat:GraphQlRdfMultiwayJoinPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "GraphQlRdfMultiwayJoinPaper" ;
+    compat:witnessKey   "rdf/graphql-rdf-multiway-joins" ;
+    compat:witnessTitle "Native Execution of GraphQL Queries over RDF Graphs Using Multi-way Joins" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Native GraphQL-to-RDF execution via multi-way join decomposition." .
+
+compat:DataSpaceLandscapePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "DataSpaceLandscapePaper" ;
+    compat:witnessKey   "rdf/data-space-landscape-concepts-applications" ;
+    compat:witnessTitle "Navigating the Data Space Landscape: Concepts, Applications, and Future Directions" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Survey of data spaces: concepts, applications, governance, and future research directions." .
+
+compat:NoSqlGraphDatabasesPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "NoSqlGraphDatabasesPaper" ;
+    compat:witnessKey   "rdf/nosql-graph-databases-overview" ;
+    compat:witnessTitle "NoSQL Graph Databases: an Overview" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Overview of NoSQL graph database systems: models, architectures, and query languages." .
+
+compat:OcepOntologyHealthcareDecisionPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "OcepOntologyHealthcareDecisionPaper" ;
+    compat:witnessKey   "rdf/ocep-ontology-complex-event-healthcare" ;
+    compat:witnessTitle "OCEP: An Ontology-Based Complex Event Processing Framework for Healthcare Decision Support in Big Data Analytics" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "OCEP: ontology-driven complex event processing for big data healthcare decision support." .
+
+compat:OntoAlignerKgEmbeddingPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "OntoAlignerKgEmbeddingPaper" ;
+    compat:witnessKey   "rdf/ontoaligner-kg-embedding-aligners" ;
+    compat:witnessTitle "OntoAligner Meets Knowledge Graph Embedding Aligners" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "OntoAligner extension integrating KG embedding methods for ontology alignment." .
+
+compat:OntologyManufacturingMultiAgentPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "OntologyManufacturingMultiAgentPaper" ;
+    compat:witnessKey   "rdf/ontology-manufacturing-multi-agent-feedback" ;
+    compat:witnessTitle "Ontology-Based Feedback to Improve Runtime Control for Multi-Agent Manufacturing Systems" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Ontology-based runtime feedback for adaptive multi-agent manufacturing control." .
+
+compat:OntologyProcurementContractsPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "OntologyProcurementContractsPaper" ;
+    compat:witnessKey   "rdf/ontology-procurement-contracts-north-macedonian" ;
+    compat:witnessTitle "Ontology-Based Structuring and Analysis of North Macedonian Public Procurement Contracts" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Ontology-based structuring and analysis of public procurement contracts for transparency." .
+
+compat:OntologyWorkflowTransformationPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "OntologyWorkflowTransformationPaper" ;
+    compat:witnessKey   "rdf/ontology-workflow-model-transformation" ;
+    compat:witnessTitle "Ontology-Driven Model-to-Model Transformation of Workflow Specifications" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Ontology-driven M2M transformation enabling interoperable workflow specification conversion." .
+
+compat:ShapeLinkTraversalQueryPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ShapeLinkTraversalQueryPaper" ;
+    compat:witnessKey   "rdf/shape-link-traversal-query-optimization" ;
+    compat:witnessTitle "Opportunities for Shape-based Optimization of Link Traversal Queries" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "SHACL/ShEx shape-based optimization for link traversal SPARQL queries." .
+
+compat:SlmFinetuningShapeExtractionPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "SlmFinetuningShapeExtractionPaper" ;
+    compat:witnessKey   "rdf/slm-finetuning-shape-property-extraction" ;
+    compat:witnessTitle "Overcoming the Generalization Limits of SLM Finetuning for Shape-Based Extraction of Datatype and Object Properties" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "SLM fine-tuning generalization limits for shape-based property extraction from KGs." .
+
+compat:PerennialSemanticTermsUsePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "PerennialSemanticTermsUsePaper" ;
+    compat:witnessKey   "rdf/perennial-semantic-data-terms-decentralized-web" ;
+    compat:witnessTitle "Perennial Semantic Data Terms of Use for Decentralized Web" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Persistent semantic data terms-of-use framework for decentralized web environments." .
+
+compat:PkgApiPersonalKgPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "PkgApiPersonalKgPaper" ;
+    compat:witnessKey   "rdf/pkg-api-personal-knowledge-graph" ;
+    compat:witnessTitle "PKG API: A Tool for Personal Knowledge Graph Management" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "PKG API: tool for creating, querying, and managing personal knowledge graphs." .
+
+compat:OwlDlPlanningPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "OwlDlPlanningPaper" ;
+    compat:witnessKey   "rdf/owl-dl-ontology-planning-extended" ;
+    compat:witnessTitle "Planning with OWL-DL Ontologies (Extended Version)" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Task planning using OWL-DL ontologies for expressive background knowledge integration." .
+
+compat:PoseidonOneGraphEnginePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "PoseidonOneGraphEnginePaper" ;
+    compat:witnessKey   "rdf/poseidon-onegraph-engine" ;
+    compat:witnessTitle "Poseidon: A OneGraph Engine" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Poseidon: unified OneGraph engine supporting RDF, property graphs, and JSON natively." .
+
+compat:KgBuildingIndustryPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "KgBuildingIndustryPaper" ;
+    compat:witnessKey   "rdf/kg-building-procedure-industry-applications" ;
+    compat:witnessTitle "Procedure Model for Building Knowledge Graphs for Industry Applications" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Systematic procedure model for constructing industry-grade knowledge graphs." .
+
+compat:ProcessTraceKgN3Paper
+    a compat:WitnessMarker ;
+    compat:rustType     "ProcessTraceKgN3Paper" ;
+    compat:witnessKey   "rdf/process-trace-querying-kg-notation3" ;
+    compat:witnessTitle "Process Trace Querying using Knowledge Graphs and Notation3" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Process trace querying via knowledge graphs using Notation3 reasoning rules." .
+
+compat:RdfStar2VecPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "RdfStar2VecPaper" ;
+    compat:witnessKey   "rdf/rdfstar2vec-graph-embeddings-mining" ;
+    compat:witnessTitle "RDF-star2Vec: RDF-star Graph Embeddings for Data Mining" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "RDF-star2Vec: graph embedding method exploiting RDF-star reification for data mining." .
+
+compat:RdfGraphGenShaclPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "RdfGraphGenShaclPaper" ;
+    compat:witnessKey   "rdf/rdfgraphgen-shacl-shapes-generator" ;
+    compat:witnessTitle "RDFGraphGen: An RDF Graph Generator based on SHACL Shapes" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "RDFGraphGen: synthetic RDF graph generation driven by SHACL shape constraints." .
+
+compat:RealTimeHealthOntologyPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "RealTimeHealthOntologyPaper" ;
+    compat:witnessKey   "rdf/real-time-health-ontology-cep-llm-tb" ;
+    compat:witnessTitle "Real-Time Health Analytics Using Ontology-Driven Complex Event Processing and LLM Reasoning: A Tuberculosis Case Study" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Ontology-CEP-LLM integration for real-time TB health analytics." .
+
+compat:RagEventKbProofAssistantPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "RagEventKbProofAssistantPaper" ;
+    compat:witnessKey   "rdf/rag-event-kb-proof-assistant-reasoning" ;
+    compat:witnessTitle "Reasoning with RAGged events: RAG-Enhanced Event Knowledge Base Construction and Reasoning with Proof-Assistants" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "RAG-enhanced event knowledge base construction with proof-assistant-based reasoning." .
+
+compat:RecursiveSemanticIso639Paper
+    a compat:WitnessMarker ;
+    compat:rustType     "RecursiveSemanticIso639Paper" ;
+    compat:witnessKey   "rdf/recursive-semantic-anchoring-iso-639-2023" ;
+    compat:witnessTitle "Recursive Semantic Anchoring in ISO 639-2023: A Structural Extension to ISO:TC 37 Frameworks" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Structural extension to ISO:TC 37 via recursive semantic anchoring in ISO 639-2023." .
+
+compat:RelationalToRdfMigrationPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "RelationalToRdfMigrationPaper" ;
+    compat:witnessKey   "rdf/relational-to-rdf-migration-query-evaluation" ;
+    compat:witnessTitle "Relational to RDF Data Migration by Query Co-Evaluation" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Relational-to-RDF migration via co-evaluation of SQL and SPARQL queries." .
+
+compat:RdfTensorsSparqlPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "RdfTensorsSparqlPaper" ;
+    compat:witnessKey   "rdf/rdf-tensors-sparql-querying" ;
+    compat:witnessTitle "Representing and Querying Data Tensors in RDF and SPARQL" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "RDF representation of multi-dimensional data tensors with SPARQL querying support." .
+
+compat:WebApplicationsKgPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "WebApplicationsKgPaper" ;
+    compat:witnessKey   "rdf/web-applications-knowledge-graphs" ;
+    compat:witnessTitle "Representing Web Applications As Knowledge Graphs" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Knowledge graph representation of web applications for semantic analysis and querying." .
+
+compat:OwlExpressivityFairPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "OwlExpressivityFairPaper" ;
+    compat:witnessKey   "rdf/owl-expressivity-fair-cognitive-interoperability" ;
+    compat:witnessTitle "Rethinking OWL Expressivity: Semantic Units for FAIR and Cognitively Interoperable Knowledge Graphs" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Semantic unit approach to OWL expressivity for FAIR and cognitively accessible KGs." .
+
+compat:RuleBasedCepAirQualityPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "RuleBasedCepAirQualityPaper" ;
+    compat:witnessKey   "rdf/rule-based-cep-air-quality-smart-city" ;
+    compat:witnessTitle "Rule based Complex Event Processing for an Air Quality Monitoring System in Smart City" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Rule-based CEP for air quality monitoring in smart city IoT environments." .
+
+compat:ShaclOntologyRewritingPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ShaclOntologyRewritingPaper" ;
+    compat:witnessKey   "rdf/shacl-ontology-semantics-rewriting" ;
+    compat:witnessTitle "SHACL Validation in the Presence of Ontologies: Semantics and Rewriting Techniques" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "SHACL validation semantics with ontology reasoning: OWL-aware shape validation and rewriting." .
+
+compat:ShaclDsDatasetValidationPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ShaclDsDatasetValidationPaper" ;
+    compat:witnessKey   "rdf/shacl-ds-extension-dataset-validation" ;
+    compat:witnessTitle "SHACL-DS: A SHACL Extension to Validate RDF Datasets" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "SHACL-DS: dataset-level SHACL extension for named graph and dataset validation." .
+
+compat:Shacl2FolDecisionPaperRdf
+    a compat:WitnessMarker ;
+    compat:rustType     "Shacl2FolDecisionPaperRdf" ;
+    compat:witnessKey   "rdf/shacl2fol-toolkit-decision-problems" ;
+    compat:witnessTitle "SHACL2FOL: An FOL Toolkit for SHACL Decision Problems" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "SHACL2FOL: first-order logic translation toolkit for decidable SHACL reasoning." .
+
+compat:Shacl4BibLibraryPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "Shacl4BibLibraryPaper" ;
+    compat:witnessKey   "rdf/shacl4bib-library-data-validation" ;
+    compat:witnessTitle "Shacl4Bib: Custom Validation of Library Data" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Shacl4Bib: SHACL-based custom validation profiles for bibliographic library data." .
+
+compat:SigSparqlSignalKgPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "SigSparqlSignalKgPaper" ;
+    compat:witnessKey   "rdf/sigsparql-signals-first-class-kg" ;
+    compat:witnessTitle "SigSPARQL: Signals as a First-Class Citizen When Querying Knowledge Graphs" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "SigSPARQL: treating temporal signals as first-class SPARQL query objects over KGs." .
+
+compat:SmartWebServicesFuturePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "SmartWebServicesFuturePaper" ;
+    compat:witnessKey   "rdf/smart-web-services-future" ;
+    compat:witnessTitle "Smart Web Services (SmartWS): The Future of Services on the Web" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "SmartWS vision for intelligent, context-aware web services using semantic technologies." .
+
+compat:SparqlN3ConstructRulePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "SparqlN3ConstructRulePaper" ;
+    compat:witnessKey   "rdf/sparql-n3-construct-rule-language" ;
+    compat:witnessTitle "SPARQL in N3: SPARQL CONSTRUCT as a Rule Language for the Semantic Web (Extended Version)" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "SPARQL CONSTRUCT in Notation3 as a semantic web rule language." .
+
+compat:Spider4SscMultiQueryPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "Spider4SscMultiQueryPaper" ;
+    compat:witnessKey   "rdf/spider4ssc-text-multi-query-sparql-cypher" ;
+    compat:witnessTitle "Spider4SSC & S2CLite: A Text-to-Multi-Query-Language Dataset using Lightweight Ontology-Agnostic SPARQL to Cypher Parser" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Spider4SSC dataset with S2CLite SPARQL-to-Cypher translation for multi-query-language benchmarking." .
+
+compat:SparqlAnythingFacadePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "SparqlAnythingFacadePaper" ;
+    compat:witnessKey   "rdf/sparql-anything-f-acade-kg-construction" ;
+    compat:witnessTitle "Streamlining Knowledge Graph Construction with a Façade: The SPARQL Anything Project" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "SPARQL Anything: façade-based KG construction from heterogeneous data sources via SPARQL." .
+
+compat:PyRmlKgCreationPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "PyRmlKgCreationPaper" ;
+    compat:witnessKey   "rdf/pyrml-kg-creation-streamlining" ;
+    compat:witnessTitle "Streamlining Knowledge Graph Creation with PyRML" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "PyRML: Python library for declarative RDF KG creation via RML mapping rules." .
+
+compat:TaGtTableTextRdfPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "TaGtTableTextRdfPaper" ;
+    compat:witnessKey   "rdf/ta-g-t-subjectivity-table-text-rdf" ;
+    compat:witnessTitle "Ta-G-T: Subjectivity Capture in Table to Text Generation via RDF Graphs" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Ta-G-T: RDF-graph-based subjectivity capture for structured table-to-text generation." .
+
+compat:TaskOrientedGnnKgPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "TaskOrientedGnnKgPaper" ;
+    compat:witnessKey   "rdf/task-oriented-gnn-large-kg" ;
+    compat:witnessTitle "Task-Oriented GNNs Training on Large Knowledge Graphs for Accurate and Efficient Modeling" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Task-oriented GNN training strategy for accurate and efficient large-scale KG modeling." .
+
+compat:TaxonomyInferenceLlmPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "TaxonomyInferenceLlmPaper" ;
+    compat:witnessKey   "rdf/taxonomy-inference-tabular-llm" ;
+    compat:witnessTitle "Taxonomy Inference for Tabular Data Using Large Language Models" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "LLM-based taxonomy inference from tabular data for KG schema enrichment." .
+
+compat:BdiOntologyAgencyPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "BdiOntologyAgencyPaper" ;
+    compat:witnessKey   "rdf/bdi-ontology-mental-reality-agency" ;
+    compat:witnessTitle "The Belief-Desire-Intention Ontology for Modelling Mental Reality and Agency" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "BDI ontology formalising mental states (beliefs, desires, intentions) for agent modelling." .
+
+compat:KgErConceptualSchemaPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "KgErConceptualSchemaPaper" ;
+    compat:witnessKey   "rdf/kg-er-conceptual-schema-language" ;
+    compat:witnessTitle "The KG-ER Conceptual Schema Language" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "KG-ER: conceptual schema language bridging entity-relationship and knowledge graph modelling." .
+
+compat:TimeProbabilityIotKgPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "TimeProbabilityIotKgPaper" ;
+    compat:witnessKey   "rdf/time-probability-iot-smart-building" ;
+    compat:witnessTitle "Time-Probability Dependent Knowledge Extraction in IoT-enabled Smart Building" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Probabilistic temporal knowledge extraction from IoT sensor streams in smart buildings." .
+
+compat:KnowledgeControlPlaneSwarmPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "KnowledgeControlPlaneSwarmPaper" ;
+    compat:witnessKey   "rdf/knowledge-control-plane-intelligent-swarm" ;
+    compat:witnessTitle "Towards an Implementation of the Knowledge-Based Control Plane for Intelligent Swarm Networks" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Knowledge-based control plane architecture for intelligent network swarm management." .
+
+compat:ElectricityManagementKgPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ElectricityManagementKgPaper" ;
+    compat:witnessKey   "rdf/electricity-management-kg-harmonized-data" ;
+    compat:witnessTitle "Towards Data-Driven Electricity Management: Multi-Region Harmonized Data and Knowledge Graph" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "Multi-region harmonized KG for data-driven electricity management and analysis." .
+
+compat:LinkedDataLlmConversationalPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "LinkedDataLlmConversationalPaper" ;
+    compat:witnessKey   "rdf/linked-data-llm-conversational-ui" ;
+    compat:witnessTitle "Towards Enhancing Linked Data Retrieval in Conversational UIs using Large Language Models" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "LLM-enhanced conversational interfaces for linked data retrieval and interaction." .
+
+compat:LlmKgExplanationsPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "LlmKgExplanationsPaper" ;
+    compat:witnessKey   "rdf/llm-kg-explanations-component-based-qa" ;
+    compat:witnessTitle "Towards LLM-generated Explanations for Component-based Knowledge Graph Question Answering Systems" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "LLM-generated natural language explanations for component-based KGQA system answers." .
+
+compat:UrbanIntermodalFreightOntologyPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "UrbanIntermodalFreightOntologyPaper" ;
+    compat:witnessKey   "rdf/urban-intermodal-freight-ontology-llm" ;
+    compat:witnessTitle "Towards Next-Generation Urban Decision Support Systems through AI-Powered Construction of Scientific Ontology using Large Language Models: A Case in Optimizing Intermodal Freight Transportation" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "LLM-constructed scientific ontology for urban intermodal freight transportation decision support." .
+
+compat:WebDialMultiDomainRdfPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "WebDialMultiDomainRdfPaper" ;
+    compat:witnessKey   "rdf/webdial-multi-domain-rdf-dialogue" ;
+    compat:witnessTitle "WEBDial: a Multi-domain, Multitask Statistical Dialogue Framework with RDF" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "WEBDial: RDF-backed multi-domain statistical dialogue system." .
+
+compat:XpShaclExplainableRagPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "XpShaclExplainableRagPaper" ;
+    compat:witnessKey   "rdf/xpshacl-explainable-validation-rag" ;
+    compat:witnessTitle "xpSHACL: Explainable SHACL Validation using Retrieval-Augmented Generation and Large Language Models" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "rdf" ;
+    compat:description  "xpSHACL: RAG-LLM pipeline generating natural language explanations for SHACL violations." .

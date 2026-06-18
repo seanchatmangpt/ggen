@@ -1,0 +1,34 @@
+@prefix ex: <https://kgen.dev/example#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Core business ontology
+ex:Organization rdf:type rdfs:Class ;
+    rdfs:label "Organization" ;
+    rdfs:comment "A business organization or entity" .
+
+ex:FinancialRecord rdf:type rdfs:Class ;
+    rdfs:label "Financial Record" ;
+    rdfs:comment "A financial data record for an organization" .
+
+# Properties
+ex:hasRevenue rdf:type rdf:Property ;
+    rdfs:label "has revenue" ;
+    rdfs:domain ex:FinancialRecord ;
+    rdfs:range xsd:decimal .
+
+ex:hasExpenses rdf:type rdf:Property ;
+    rdfs:label "has expenses" ;
+    rdfs:domain ex:FinancialRecord ;
+    rdfs:range xsd:decimal .
+
+ex:hasProfit rdf:type rdf:Property ;
+    rdfs:label "has profit" ;
+    rdfs:domain ex:FinancialRecord ;
+    rdfs:range xsd:decimal .
+
+ex:belongsTo rdf:type rdf:Property ;
+    rdfs:label "belongs to" ;
+    rdfs:domain ex:FinancialRecord ;
+    rdfs:range ex:Organization .
