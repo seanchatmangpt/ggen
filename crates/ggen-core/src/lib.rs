@@ -185,6 +185,8 @@ pub mod rdf;
 pub mod register;
 pub mod registry;
 pub mod resolver;
+pub mod reverse; // Reverse pipeline: code/cheat → RDF authority + Tera candidates
+pub mod reverse_sync; // Code → RDF extraction (Rust/Elixir/Go AST → ServiceDef → Turtle)
 pub mod schema;
 pub mod semantic_bit;
 pub mod simple_tracing;

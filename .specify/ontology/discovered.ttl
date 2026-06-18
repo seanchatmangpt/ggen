@@ -1,0 +1,50 @@
+# Discovered-authority vocabulary (`disco:`) for the ggen reverse pipeline.
+#
+# These are the term DEFINITIONS (source of truth, hand-authored). The
+# `ggen reverse scan` command emits instance data using exactly these terms
+# into `.specify/discovered/<name>.ttl`, so a forward `ggen sync` over that
+# output can resolve the types.
+#
+# `code:` structural terms (code:Service / code:Field / code:Method / ...) are
+# reused from crates/ggen-core/src/reverse_sync/ast_extractor.rs.
+
+@prefix disco: <https://ggen.io/discovered#> .
+@prefix code:  <https://ggen.io/code#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+disco:DiscoveredService
+    a rdfs:Class, owl:Class ;
+    rdfs:subClassOf code:Service ;
+    rdfs:label "Discovered Service" ;
+    rdfs:comment "A service/type structure recovered from source by `ggen reverse scan`." .
+
+disco:sourceFile
+    a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain disco:DiscoveredService ;
+    rdfs:range xsd:string ;
+    rdfs:label "source file" ;
+    rdfs:comment "Project-relative path of the file the structure was extracted from." .
+
+disco:sourceHash
+    a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain disco:DiscoveredService ;
+    rdfs:range xsd:string ;
+    rdfs:label "source hash" ;
+    rdfs:comment "BLAKE3 hex digest of the source file content at scan time (provenance)." .
+
+disco:discoveredBy
+    a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain disco:DiscoveredService ;
+    rdfs:range xsd:string ;
+    rdfs:label "discovered by" ;
+    rdfs:comment "Actuator identity, e.g. `reverse-scan@<version>`." .
+
+disco:patternFrequency
+    a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain disco:DiscoveredService ;
+    rdfs:range xsd:integer ;
+    rdfs:label "pattern frequency" ;
+    rdfs:comment "How many times a structural pattern recurred (used to rank template candidates in ARM 3)." .
