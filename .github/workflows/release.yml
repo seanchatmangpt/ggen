@@ -35,9 +35,6 @@ jobs:
       - name: Workspace doctor
         run: cargo cicd workspace doctor
 
-      - name: Publish readiness
-        run: cargo cicd publish run
-
   build-release:
     name: Build Release
     needs: [release-health]

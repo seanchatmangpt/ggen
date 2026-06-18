@@ -20,6 +20,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Rust and cache
         uses: ./.github/actions/setup-rust-cached
@@ -47,9 +49,6 @@ jobs:
 
       - name: Run changed tests
         run: cargo cicd test changed
-
-      - name: Close branch (evidence)
-        run: cargo cicd git close
 
   file-organization:
     name: File Organization Check
