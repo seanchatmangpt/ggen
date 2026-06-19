@@ -44,6 +44,12 @@ jobs:
       - name: Workspace doctor
         run: cargo cicd workspace doctor
 
+      - name: Workspace validate
+        run: cargo cicd workspace validate
+
+      - name: Workspace list
+        run: cargo cicd workspace list
+
       - name: Workspace status
         run: cargo cicd status
 

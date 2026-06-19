@@ -41,6 +41,10 @@ jobs:
       - name: Run full manufacturing pipeline
         run: cargo cicd pipeline run
 
+      - name: Show evidence summary
+        if: always()
+        run: cargo cicd evidence show
+
   file-organization:
     name: File Organization Check
     runs-on: ubuntu-latest
@@ -182,8 +186,11 @@ jobs:
       - name: Install cargo tools
         uses: ./.github/actions/install-cargo-tools
         with:
-          tools: make
+          tools: make,cicd
           cache-tools: 'true'
+
+      - name: LSP health check (cargo-cicd)
+        run: cargo cicd lsp doctor
 
       - name: Run ggen-lsp plugin harness tests
         run: cargo test -p ggen-lsp --test manifest_contract_test --test lsp_protocol_test --test lsp_sabotage_test
