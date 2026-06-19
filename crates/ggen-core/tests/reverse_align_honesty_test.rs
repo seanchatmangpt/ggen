@@ -123,3 +123,68 @@ fn empty_public_dir_fails_loudly() {
     );
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// The repo's real vendored ontology dir (prov/sosa/qudt/ocel/fibo).
+fn repo_vendored() -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../..")
+        .join(".specify/ontology/vendored")
+}
+
+#[test]
+fn ocel_and_fibo_real_terms_are_admitted() {
+    let dir = temp_dir();
+    let domain = dir.join("domain.ttl");
+    std::fs::write(
+        &domain,
+        "@prefix ocel: <http://www.ocel-standard.org/ns#> .\n\
+         @prefix ex: <https://example.org/eden#> .\n\
+         ex:E1 a ocel:Event ; ocel:activity \"AdmitDelta\" .\n\
+         ex:Listing <https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/hasMonetaryAmount> ex:Price .\n\
+         ex:Price a <https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/MonetaryAmount> .\n",
+    )
+    .expect("write domain");
+
+    let report = check_alignment(&domain, &repo_vendored()).expect("alignment runs");
+    assert!(
+        report.is_aligned(),
+        "real OCEL + FIBO terms must be admitted; unaligned={:?}",
+        report.unaligned
+    );
+    assert!(report
+        .admitted
+        .iter()
+        .any(|t| t == "http://www.ocel-standard.org/ns#Event"));
+    assert!(report
+        .admitted
+        .iter()
+        .any(|t| t.ends_with("CurrencyAmount/MonetaryAmount")));
+
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn fabricated_ocel_term_is_refused() {
+    let dir = temp_dir();
+    let domain = dir.join("domain.ttl");
+    // `ocel:Imaginary` is not a real OCEL term and is not vendored.
+    std::fs::write(
+        &domain,
+        "@prefix ocel: <http://www.ocel-standard.org/ns#> .\n\
+         @prefix ex: <https://example.org/eden#> .\n\
+         ex:E1 a ocel:Imaginary .\n",
+    )
+    .expect("write domain");
+
+    let report = check_alignment(&domain, &repo_vendored()).expect("alignment runs");
+    assert!(
+        !report.is_aligned(),
+        "a fabricated OCEL term must refuse admission"
+    );
+    assert!(report
+        .unaligned
+        .iter()
+        .any(|t| t == "http://www.ocel-standard.org/ns#Imaginary"));
+
+    let _ = std::fs::remove_dir_all(&dir);
+}

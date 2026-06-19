@@ -1,0 +1,21 @@
+# OCEL 2.0 (Object-Centric Event Log) — minimal vendored subset.
+#
+# Source:  https://www.ocel-standard.org/  (namespace http://www.ocel-standard.org/ns#)
+# Scope:   the core OCEL terms this repo already projects to (see
+#          crates/ggen-graph/src/ocel/projection.rs, which materializes
+#          ocel:Object / ocel:Event / ocel:objectType / ocel:activity /
+#          ocel:timestamp / ocel:has_object_ref at this exact namespace). Vendored
+#          so a domain graph composing OCEL terms is admitted by the alignment gate.
+
+@prefix ocel: <http://www.ocel-standard.org/ns#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+
+ocel:Event  a owl:Class ; rdfs:label "Event" .
+ocel:Object a owl:Class ; rdfs:label "Object" .
+
+ocel:activity       a owl:DatatypeProperty ; rdfs:label "activity" .
+ocel:timestamp      a owl:DatatypeProperty ; rdfs:label "timestamp" .
+ocel:objectType     a owl:DatatypeProperty ; rdfs:label "objectType" .
+ocel:has_object_ref a owl:ObjectProperty   ; rdfs:label "has_object_ref" .

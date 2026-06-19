@@ -19,7 +19,13 @@ use super::vocab;
 
 /// Public namespaces a domain graph may compose from. Each must be backed by a
 /// vendored ontology under the public dir, or terms in it cannot be admitted.
-pub const PUBLIC_NAMESPACES: &[&str] = &[vocab::PROV_NS, vocab::SOSA_NS, vocab::QUDT_NS];
+pub const PUBLIC_NAMESPACES: &[&str] = &[
+    vocab::PROV_NS,
+    vocab::SOSA_NS,
+    vocab::QUDT_NS,
+    vocab::OCEL_NS,
+    vocab::FIBO_NS,
+];
 
 /// Outcome of an alignment check.
 #[derive(Debug, Clone)]

@@ -1,0 +1,22 @@
+# FIBO (Financial Industry Business Ontology) — minimal vendored subset.
+#
+# Source:  EDM Council, https://spec.edmcouncil.org/fibo/  (base namespace
+#          https://spec.edmcouncil.org/fibo/ontology/). FIBO terms carry FULL
+#          module-path IRIs (no short prefix); the term IRIs below were verified
+#          against the published spec (spec.edmcouncil.org). This is a curated
+#          subset for the Mars/markets layer of the Eden vision — only terms whose
+#          exact IRIs are confirmed are vendored (no fabricated IRIs).
+
+@prefix fibo-fnd-acc-cur: <https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/> .
+@prefix fibo-fbc-fi-fi:   <https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/FinancialInstruments/> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+
+# FND / Accounting / CurrencyAmount
+fibo-fnd-acc-cur:MonetaryAmount           a owl:Class ; rdfs:label "monetary amount" .
+fibo-fnd-acc-cur:PercentageMonetaryAmount a owl:Class ; rdfs:label "percentage monetary amount" .
+fibo-fnd-acc-cur:hasMonetaryAmount        a owl:ObjectProperty ; rdfs:label "has monetary amount" .
+
+# FBC / FinancialInstruments
+fibo-fbc-fi-fi:FinancialInstrument a owl:Class ; rdfs:label "financial instrument" .
