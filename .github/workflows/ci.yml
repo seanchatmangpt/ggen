@@ -35,20 +35,11 @@ jobs:
           tools: cicd
           cache-tools: 'true'
 
-      - name: Workspace doctor
-        run: cargo cicd workspace doctor
+      - name: Validate pipeline preconditions
+        run: cargo cicd pipeline validate
 
-      - name: Workspace status
-        run: cargo cicd status
-
-      - name: Target directory check
-        run: cargo cicd target show
-
-      - name: Git state check
-        run: cargo cicd git status
-
-      - name: Run changed tests
-        run: cargo cicd test changed
+      - name: Run full manufacturing pipeline
+        run: cargo cicd pipeline run
 
   file-organization:
     name: File Organization Check

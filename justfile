@@ -152,3 +152,19 @@ target-show:
 # Prune stale build artifacts
 target-prune:
     cargo cicd target prune
+
+# Run the full manufacturing pipeline (status, target, tests, doctor, publish check, oracle audit)
+pipeline:
+    cargo cicd pipeline run
+
+# Check pipeline preconditions without running
+pipeline-validate:
+    cargo cicd pipeline validate
+
+# Invoke ggen sync via cargo-cicd (requires ggen binary on PATH)
+workspace-sync:
+    cargo cicd workspace sync
+
+# Show pipeline state: evidence files and cicd.toml fields
+pipeline-status:
+    cargo cicd pipeline status
