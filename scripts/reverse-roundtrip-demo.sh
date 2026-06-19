@@ -10,20 +10,16 @@
 #
 # Receipts at both ends are the replay/provenance record.
 #
-# HONEST FINDING (evidence-first): this round-trip is also a process-mining probe
-# — feeding REAL discovered RDF through the forward line surfaced a PRE-EXISTING
-# defect in the low-level forward sync. `ggen_core::graph::Graph::query_cached`
-# returns SPARQL solution values via `term.to_string()`, which QUOTES string
-# literals; the low-level `generate_rust` then uses those values as struct
-# names, so generated files are named `"telemetry".rs` (with literal quotes)
-# rather than `telemetry.rs`. That is a forward-pipeline issue in a SHARED graph
-# method (broad blast radius across every query_cached consumer), NOT a defect of
-# the reverse pipeline — the reverse pipeline's own `clean_term` already strips
-# this. It is documented here as a follow-up, not patched, because changing the
-# shared method's output format needs its own blast-radius analysis.
+# PROCESS-MINING NOTE: this round-trip first exposed a forward-sync defect —
+# `generate_rust` named files `"telemetry".rs` (literal quotes) because the
+# low-level sync did not strip quotes from string-literal SPARQL bindings. That
+# defect is now FIXED in `crates/ggen-core/src/sync/mod.rs` (`group_by_key` →
+# `strip_rdf_term_artifacts`), so generated filenames are clean (`telemetry.rs`).
+# The shared `Graph::query_cached` is intentionally left quoted (its behaviour is
+# test-documented in `tests/rdf_literal_type_test.rs`); the fix is sync-side only.
 #
 # Usage:  bash scripts/reverse-roundtrip-demo.sh
-# Requires:  a built `ggen` binary (cargo build -p ggen-cli --bin ggen).
+# Requires:  a built `ggen` binary (cargo build -p ggen-cli-lib --bin ggen).
 
 set -euo pipefail
 
@@ -31,7 +27,7 @@ REPO_ROOT="$(git rev-parse --show-toplevel)"
 GGEN="${GGEN:-$REPO_ROOT/target/debug/ggen}"
 
 if [[ ! -x "$GGEN" ]]; then
-  echo "REFUSED: ggen binary not found at $GGEN (run: cargo build -p ggen-cli --bin ggen)"
+  echo "REFUSED: ggen binary not found at $GGEN (run: cargo build -p ggen-cli-lib --bin ggen)"
   exit 64
 fi
 

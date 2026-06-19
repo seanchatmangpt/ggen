@@ -720,30 +720,53 @@ fn group_by_key(rows: &[QueryRow], key: &str) -> BTreeMap<String, Vec<QueryRow>>
     let mut groups: BTreeMap<String, Vec<QueryRow>> = BTreeMap::new();
     for row in rows {
         if let Some(value) = row.get(key) {
-            // Strip surrounding angle-brackets added by Oxigraph for IRI terms
-            let clean = strip_iri_brackets(value);
+            // Strip RDF serialisation artifacts (IRI brackets, literal quotes,
+            // datatype/lang tails) so a string-literal binding like "Telemetry"
+            // does not leak its quotes into generated identifiers/filenames.
+            let clean = strip_rdf_term_artifacts(value);
             groups.entry(clean).or_default().push(row.clone());
         }
     }
     groups
 }
 
-/// Remove `<` and `>` from Oxigraph's IRI serialisation and extract the
-/// local name (fragment or last path segment).
-fn strip_iri_brackets(iri: &str) -> String {
-    let inner = iri.trim_start_matches('<').trim_end_matches('>');
+/// Extract a clean identifier from Oxigraph's `term.to_string()` serialisation.
+///
+/// Handles every form a SPARQL SELECT value can take:
+/// - IRI `<http://ex#Foo>` / `<http://ex/Foo>` → `Foo` (fragment or last segment)
+/// - string literal `"Foo"` → `Foo`
+/// - typed literal `"42"^^<…#integer>` → `42`
+/// - language literal `"hi"@en` → `hi`
+///
+/// `Graph::query_cached` stores values via `term.to_string()`, which quotes
+/// string literals; without this, those quotes leak into generated names
+/// (e.g. `"telemetry".rs`). The shared `query_cached` is intentionally left
+/// quoted (its behaviour is test-documented); this is the sync-side cleanup.
+fn strip_rdf_term_artifacts(term: &str) -> String {
+    let trimmed = term.trim();
 
-    // Prefer the fragment identifier as the local name
-    if let Some(fragment) = inner.rsplit_once('#').map(|(_, f)| f) {
-        return fragment.to_string();
+    // IRI: `<...>` → fragment identifier or last path segment.
+    if trimmed.starts_with('<') && trimmed.ends_with('>') {
+        let inner = &trimmed[1..trimmed.len() - 1];
+        if let Some(fragment) = inner.rsplit_once('#').map(|(_, f)| f) {
+            return fragment.to_string();
+        }
+        if let Some(segment) = inner.rsplit('/').next() {
+            if !segment.is_empty() {
+                return segment.to_string();
+            }
+        }
+        return inner.to_string();
     }
-    // Fall back to the last path segment
-    if let Some(segment) = inner.rsplit('/').next() {
-        if !segment.is_empty() {
-            return segment.to_string();
+
+    // Literal: `"lexical"`(`^^datatype` | `@lang`)? → the lexical value.
+    if let Some(rest) = trimmed.strip_prefix('"') {
+        if let Some(end) = rest.find('"') {
+            return rest[..end].to_string();
         }
     }
-    inner.to_string()
+
+    trimmed.to_string()
 }
 
 /// Simple camelCase conversion for TypeScript file names.
