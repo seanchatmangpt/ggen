@@ -13,7 +13,7 @@ pub mod mine;
 pub mod receipt;
 pub mod replay;
 
-pub use events::Attribution;
+pub use events::{append_reverse_events, Attribution};
 pub use field::{field_status, FieldReadiness, FieldStatus};
 pub use history::{default_history_path, PromotionHistory, RoutePromotionRecord, RouteStatus};
 pub use log::{default_path, IntelLog};

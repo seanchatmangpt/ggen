@@ -56,6 +56,51 @@ pub const DIAG_QUALIFIER: &str = "diag";
 /// Qualifier correlating events to their episode (the DFG/conformance case).
 pub const EPISODE_QUALIFIER: &str = "episode";
 
+/// Map reverse-pipeline neutral events ([`ggen_core::reverse::ReverseEvent`]) to
+/// OCEL and append them to the intel log at `root`.
+///
+/// This lives in `ggen-lsp` (not `ggen-cli`) because the OCEL types, `blake3`,
+/// and [`crate::intel::log::IntelLog`] all meet here — keeping the CLI
+/// dependency-light. Each reverse event becomes one [`OcelEvent`] referencing
+/// its single subject object, so the offline miner can discover the
+/// reverse-pipeline process from the same `.ggen/ocel` log as agent-edit events.
+pub fn append_reverse_events(
+    root: &std::path::Path,
+    events: &[ggen_core::reverse::ReverseEvent],
+) -> std::io::Result<()> {
+    let ocel: Vec<OcelEvent> = events
+        .iter()
+        .enumerate()
+        .map(|(seq, ev)| {
+            let mut hasher = blake3::Hasher::new();
+            hasher.update(ev.activity.as_bytes());
+            hasher.update(ev.object_id.as_bytes());
+            hasher.update(&(seq as u64).to_le_bytes());
+            let id = hasher.finalize().to_hex()[..16].to_string();
+
+            let attributes: HashMap<String, String> = ev
+                .attributes
+                .iter()
+                .map(|(k, v)| (k.clone(), v.clone()))
+                .collect();
+
+            OcelEvent {
+                id,
+                activity: ev.activity.clone(),
+                timestamp: Utc::now(),
+                objects: vec![OcelObjectRef {
+                    id: ev.object_id.clone(),
+                    r#type: ev.object_type.clone(),
+                    qualifier: None,
+                }],
+                attributes,
+            }
+        })
+        .collect();
+
+    crate::intel::log::IntelLog::at_root(root).append(&ocel)
+}
+
 /// Generate a unique check-run id.
 ///
 /// Combines a process-global monotonic counter

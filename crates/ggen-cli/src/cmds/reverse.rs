@@ -9,10 +9,10 @@
 //!   `GGEN-*` diagnostic registry from `ggen-lsp`, so there is no duplicated,
 //!   drift-prone species table here).
 //!
-//! Each verb returns its run's neutral OCEL-shaped events in the output for
-//! inspection. Persisting them to the `.ggen/ocel` log (via `ggen-lsp`'s
-//! `IntelLog`) is a separate, lsp-gated follow-up — this surface does not claim
-//! to write the OCEL log.
+//! Each verb returns its run's neutral OCEL-shaped event count in the output.
+//! Under `--features lsp` those events are also persisted to the `.ggen/ocel`
+//! intel log via `ggen-lsp`'s `IntelLog` (see [`persist_events`]); without the
+//! feature persistence is a no-op and the events remain only in the output.
 
 #![allow(clippy::unused_unit)] // clap-noun-verb macro generates this
 
@@ -21,6 +21,24 @@ use clap_noun_verb_macros::verb;
 use ggen_core::reverse;
 use serde::Serialize;
 use std::path::{Path, PathBuf};
+
+/// Persist a run's neutral events to the `.ggen/ocel` intel log.
+///
+/// Under `--features lsp` this maps each [`reverse::ReverseEvent`] to OCEL and
+/// appends it via `ggen-lsp`'s `IntelLog`, so the offline miner sees the
+/// reverse-pipeline process. Without the feature it is a no-op (the events are
+/// still surfaced in the verb's output).
+#[cfg(feature = "lsp")]
+fn persist_events(events: &[reverse::ReverseEvent], project_root: &Path) -> VerbResult<()> {
+    ggen_lsp::intel::append_reverse_events(project_root, events)
+        .map_err(|e| NounVerbError::execution_error(format!("OCEL append: {e}")))
+}
+
+/// No-op when the `lsp` feature is disabled (OCEL log lives in `ggen-lsp`).
+#[cfg(not(feature = "lsp"))]
+fn persist_events(_events: &[reverse::ReverseEvent], _project_root: &Path) -> VerbResult<()> {
+    Ok(())
+}
 
 /// Output of `ggen reverse scan`.
 #[derive(Debug, Clone, Serialize)]
@@ -71,6 +89,7 @@ pub fn scan(paths: Option<String>, name: Option<String>) -> VerbResult<ReverseSc
 
     let report = reverse::scan_to_authority(&roots, &project_root, &name)
         .map_err(|e| NounVerbError::execution_error(e.to_string()))?;
+    persist_events(&report.events, &project_root)?;
 
     Ok(ReverseScanOutput {
         status: "success".to_string(),
@@ -102,6 +121,7 @@ pub fn templates(from: Option<String>, out: Option<String>) -> VerbResult<Revers
 
     let report = reverse::infer_candidates(&project_root, &discovered, &out_dir)
         .map_err(|e| NounVerbError::execution_error(e.to_string()))?;
+    persist_events(&report.events, &project_root)?;
 
     Ok(ReverseTemplatesOutput {
         status: "success".to_string(),
@@ -164,6 +184,7 @@ pub fn cheats(ledger: Option<String>) -> VerbResult<ReverseCheatsOutput> {
     let ledger_path = ledger.map(|p| absolutize(&p, &project_root));
     let report = reverse::extract_defects(&project_root, &species, ledger_path.as_deref())
         .map_err(|e| NounVerbError::execution_error(e.to_string()))?;
+    persist_events(&report.events, &project_root)?;
 
     Ok(ReverseCheatsOutput {
         status: "success".to_string(),
