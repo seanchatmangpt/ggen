@@ -1,0 +1,49 @@
+# Eden AuthorityDelta manufacture — the "μ" half of Phase 3.
+#
+# Projects the custom Rust AuthorityDelta type FROM the admitted Eden authority
+# graph (A = μ(O*)) via the manifest/StagedPipeline custom-template path. The
+# field set + Rust types are derived from the ontology's eden:fieldName /
+# eden:rustType annotations, not hard-coded here.
+#
+# Run:  ggen sync --manifest .specify/specs/200-eden-authority/ggen.toml
+# Paths below are relative to THIS file's directory.
+
+[project]
+name = "eden-authority-codegen"
+version = "0.1.0"
+description = "Manufactures the AuthorityDelta Rust type from the Eden authority ontology."
+
+[ontology]
+source = "../../ontology/eden-authority.ttl"
+base_iri = "https://ggen.io/eden#"
+
+# μ₁ inference: enrich the admitted graph. Also satisfies the manifest pipeline's
+# DMAIC "Measure" gate, which requires at least one inference rule with a
+# non-empty CONSTRUCT. This marks each AuthorityDelta property that carries the
+# codegen annotations the generation rule below consumes.
+[[inference.rules]]
+name = "mark-codegen-fields"
+description = "Mark AuthorityDelta properties that carry codegen annotations."
+order = 0
+construct = """
+PREFIX eden: <https://ggen.io/eden#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+CONSTRUCT { ?prop eden:isCodegenField true . }
+WHERE {
+  ?prop rdfs:domain eden:AuthorityDelta ;
+        eden:fieldName ?fieldName ;
+        eden:rustType ?rustType .
+}
+ORDER BY ?prop
+"""
+
+[generation]
+output_dir = "generated"
+
+[[generation.rules]]
+name = "authority-delta-type"
+query = { file = "extract-authority-delta-fields.rq" }
+template = { file = "authority_delta.rs.tera" }
+output_file = "authority_delta.rs"
+mode = "Overwrite"
+skip_empty = true

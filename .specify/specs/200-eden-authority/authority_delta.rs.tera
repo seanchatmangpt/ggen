@@ -1,0 +1,12 @@
+//! The Eden byte-class `AuthorityDelta` packet — projected from the admitted
+//! authority graph (`.specify/ontology/eden-authority.ttl`) via `ggen sync`.
+//! Its field set and Rust types come from the ontology's `eden:fieldName` /
+//! `eden:rustType` annotations (A = μ(O*)).
+use serde::{Deserialize, Serialize};
+
+/// A sparse server→client authority update over the assembly graph: one
+/// dimension of one object changes class at a tick, carrying a Merkle root.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AuthorityDelta {
+{% for row in sparql_results %}    pub {{ row.field_name }}: {{ row.rust_type }},
+{% endfor %}}

@@ -69,13 +69,26 @@ eden:AuthorityDelta a owl:Class ;
     rdfs:label "Authority Delta" ;
     rdfs:comment "A sparse server→client authority update over the assembly graph: one dimension of one object changes class at a tick, carrying a receipt + Merkle root." .
 
+# Codegen annotations: the Rust field name + type each property projects to.
+# Consumed by the ggen sync manifest at .specify/specs/200-eden-authority/ so the
+# AuthorityDelta Rust type is DERIVED from this graph (A = μ(O*)), not hand-coded.
+# Both are in the eden: namespace, so the public-ontology alignment gate ignores
+# them and the SHACL shapes (which target instances) are unaffected.
+eden:fieldName a owl:AnnotationProperty ; rdfs:comment "Rust field name this property projects to." .
+eden:rustType  a owl:AnnotationProperty ; rdfs:comment "Rust type this property projects to (u8, u64, String, …)." .
+
 eden:objectId   a owl:DatatypeProperty ; rdfs:domain eden:AuthorityDelta ; rdfs:range xsd:string ;
+    eden:fieldName "object_id" ; eden:rustType "String" ;
     rdfs:comment "Identity of the object whose authority changed (e.g. assembly-tree path)." .
-eden:dimension  a owl:ObjectProperty   ; rdfs:domain eden:AuthorityDelta ; rdfs:range eden:AuthorityDimension .
+eden:dimension  a owl:ObjectProperty   ; rdfs:domain eden:AuthorityDelta ; rdfs:range eden:AuthorityDimension ;
+    eden:fieldName "dimension" ; eden:rustType "String" .
 eden:classByte  a owl:DatatypeProperty ; rdfs:domain eden:AuthorityDelta ; rdfs:range xsd:unsignedByte ;
+    eden:fieldName "class_byte" ; eden:rustType "u8" ;
     rdfs:comment "The new admitted byte class (0-255)." .
-eden:tick       a owl:DatatypeProperty ; rdfs:domain eden:AuthorityDelta ; rdfs:range xsd:unsignedLong .
-eden:merkleRoot a owl:DatatypeProperty ; rdfs:domain eden:AuthorityDelta ; rdfs:range xsd:string .
+eden:tick       a owl:DatatypeProperty ; rdfs:domain eden:AuthorityDelta ; rdfs:range xsd:unsignedLong ;
+    eden:fieldName "tick" ; eden:rustType "u64" .
+eden:merkleRoot a owl:DatatypeProperty ; rdfs:domain eden:AuthorityDelta ; rdfs:range xsd:string ;
+    eden:fieldName "merkle_root" ; eden:rustType "String" .
 
 # ── Exemplar individual (a valid delta) ────────────────────────────────────
 # Present so queries return data, alignment sees real public-term usage, and

@@ -1,0 +1,13 @@
+# Extract the AuthorityDelta fields (name + Rust type) from the Eden authority
+# graph. Each row → one struct field. Explicit projection + ORDER BY keep the
+# output deterministic and strict-mode clean (no SELECT *).
+PREFIX eden: <https://ggen.io/eden#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?field_name ?rust_type
+WHERE {
+  ?prop rdfs:domain eden:AuthorityDelta ;
+        eden:fieldName ?field_name ;
+        eden:rustType ?rust_type .
+}
+ORDER BY ?field_name
