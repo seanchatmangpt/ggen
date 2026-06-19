@@ -1,0 +1,93 @@
+# Eden byte-class authority data model — the admitted authority graph (O*).
+#
+# This is the RDF *contract* for the Eden manufacturing operator's core server
+# data model from the PR/FAQ: byte-class authority dimensions, the assembly
+# tree, and the canonical AuthorityDelta packet. It is the source of truth a
+# future server/runtime would implement — manufactured-from, not hand-coded in
+# the runtime.
+#
+# It composes ONLY real public vocabulary (PROV-O for receipts/derivation, QUDT
+# for physics quantities) vendored under .specify/ontology/vendored/, so the
+# `ggen reverse align` gate admits it (no fabricated public terms). Validate
+# against .specify/shapes/eden-authority.shacl.ttl.
+
+@prefix eden: <https://ggen.io/eden#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# ── Byte-class authority dimensions ────────────────────────────────────────
+# Discrete, server-owned authority. The admitted state of a dimension is ONE
+# byte (0-255). Continuous client-side detail is projection, not authority.
+
+eden:AuthorityDimension a owl:Class ;
+    rdfs:label "Authority Dimension" ;
+    rdfs:comment "A discrete server-owned state dimension whose admitted value is one byte (0-255). When one byte is insufficient the domain splits into another dimension, never a server-side float." .
+
+eden:byteRange a owl:DatatypeProperty ;
+    rdfs:domain eden:AuthorityDimension ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The admitted byte range, e.g. \"0..=255\"." .
+
+# Each named dimension is an enumerated INSTANCE of eden:AuthorityDimension
+# (so the AuthorityDimensionShape validates it), declaring its byte range.
+eden:DamageClass          a eden:AuthorityDimension ; eden:byteRange "0..=255" .
+eden:HeatClass            a eden:AuthorityDimension ; eden:byteRange "0..=255" .
+eden:StressClass          a eden:AuthorityDimension ; eden:byteRange "0..=255" .
+eden:FatigueClass         a eden:AuthorityDimension ; eden:byteRange "0..=255" .
+eden:GripClass            a eden:AuthorityDimension ; eden:byteRange "0..=255" .
+eden:SocketHealthClass    a eden:AuthorityDimension ; eden:byteRange "0..=255" .
+eden:RiskClass            a eden:AuthorityDimension ; eden:byteRange "0..=255" .
+eden:ProofClass           a eden:AuthorityDimension ; eden:byteRange "0..=255" .
+eden:ConformanceClass     a eden:AuthorityDimension ; eden:byteRange "0..=255" .
+eden:MarketConditionClass a eden:AuthorityDimension ; eden:byteRange "0..=255" .
+
+# ── Assembly tree ──────────────────────────────────────────────────────────
+# A mech/kit is modelled like a real assembly: runners → parts → sockets →
+# subassemblies. The server syncs sparse deltas over this graph, not the kit.
+
+eden:Assembly a owl:Class ; rdfs:label "Assembly" .
+eden:Part     a owl:Class ; rdfs:label "Part" .
+eden:Socket   a owl:Class ; rdfs:label "Socket" .
+
+eden:hasPart     a owl:ObjectProperty ; rdfs:domain eden:Assembly ; rdfs:range eden:Part .
+eden:hasSocket   a owl:ObjectProperty ; rdfs:domain eden:Part ;     rdfs:range eden:Socket .
+eden:subAssembly a owl:ObjectProperty ; rdfs:domain eden:Assembly ; rdfs:range eden:Assembly .
+
+# Physics quantities reuse QUDT (mass/heat/force are real quantities, not bytes).
+eden:massQuantity a owl:ObjectProperty ; rdfs:domain eden:Part ; rdfs:range qudt:Quantity .
+
+# ── AuthorityDelta: the canonical sparse packet ────────────────────────────
+# "The server does not synchronize the Gundam. It synchronizes the right to
+# believe the Gundam." A delta is itself a provenance entity (prov:Entity).
+
+eden:AuthorityDelta a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "Authority Delta" ;
+    rdfs:comment "A sparse server→client authority update over the assembly graph: one dimension of one object changes class at a tick, carrying a receipt + Merkle root." .
+
+eden:objectId   a owl:DatatypeProperty ; rdfs:domain eden:AuthorityDelta ; rdfs:range xsd:string ;
+    rdfs:comment "Identity of the object whose authority changed (e.g. assembly-tree path)." .
+eden:dimension  a owl:ObjectProperty   ; rdfs:domain eden:AuthorityDelta ; rdfs:range eden:AuthorityDimension .
+eden:classByte  a owl:DatatypeProperty ; rdfs:domain eden:AuthorityDelta ; rdfs:range xsd:unsignedByte ;
+    rdfs:comment "The new admitted byte class (0-255)." .
+eden:tick       a owl:DatatypeProperty ; rdfs:domain eden:AuthorityDelta ; rdfs:range xsd:unsignedLong .
+eden:merkleRoot a owl:DatatypeProperty ; rdfs:domain eden:AuthorityDelta ; rdfs:range xsd:string .
+
+# ── Exemplar individual (a valid delta) ────────────────────────────────────
+# Present so queries return data, alignment sees real public-term usage, and
+# the SHACL shapes have a conforming instance to validate.
+
+eden:AdmitActivity a prov:Activity ;
+    rdfs:label "the server admission that produced the delta" .
+
+eden:ExampleDelta a eden:AuthorityDelta ;
+    eden:objectId "mech.torso.shoulder_left" ;
+    eden:dimension eden:SocketHealthClass ;
+    eden:classByte "200"^^xsd:unsignedByte ;
+    eden:tick "42"^^xsd:unsignedLong ;
+    eden:merkleRoot "blake3:0000000000000000000000000000000000000000000000000000000000000000" ;
+    prov:wasGeneratedBy eden:AdmitActivity .

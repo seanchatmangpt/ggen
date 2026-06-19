@@ -1,0 +1,48 @@
+# SHACL shapes for the Eden byte-class authority data model.
+#
+# Declares the invariants every AuthorityDelta and AuthorityDimension must
+# satisfy. Validated by ggen-core's SparqlValidator (see
+# crates/ggen-core/tests/eden_authority_test.rs) — these shapes are LIVE
+# (a conforming instance must pass; a malformed delta must be rejected), not
+# decorative.
+
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix eden: <https://ggen.io/eden#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+eden:AuthorityDeltaShape a sh:NodeShape ;
+    sh:targetClass eden:AuthorityDelta ;
+    sh:property [
+        sh:path eden:objectId ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "AuthorityDelta must bind an objectId." ;
+    ] ;
+    sh:property [
+        sh:path eden:dimension ;
+        sh:minCount 1 ;
+        sh:message "AuthorityDelta must name the authority dimension it updates." ;
+    ] ;
+    sh:property [
+        sh:path eden:classByte ;
+        sh:minCount 1 ;
+        # The 0-255 byte range is declared via eden:classByte rdfs:range
+        # xsd:unsignedByte in the ontology and enforced as `u8` at codegen;
+        # the SPARQL-SHACL validator canonicalizes derived xsd numerics to
+        # xsd:integer, so required-ness is the reliable shape-level check here.
+        sh:message "AuthorityDelta must carry the new byte class (0-255)." ;
+    ] ;
+    sh:property [
+        sh:path eden:tick ;
+        sh:minCount 1 ;
+        sh:message "AuthorityDelta must be stamped with a tick." ;
+    ] .
+
+eden:AuthorityDimensionShape a sh:NodeShape ;
+    sh:targetClass eden:AuthorityDimension ;
+    sh:property [
+        sh:path eden:byteRange ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every authority dimension must declare its byte range." ;
+    ] .
