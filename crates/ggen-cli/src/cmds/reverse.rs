@@ -132,6 +132,58 @@ pub fn templates(from: Option<String>, out: Option<String>) -> VerbResult<Revers
     })
 }
 
+/// Output of `ggen reverse align` (on admission).
+#[derive(Debug, Clone, Serialize)]
+pub struct ReverseAlignOutput {
+    /// "aligned".
+    pub status: String,
+    /// Always true on success (the gate fails closed otherwise).
+    pub is_aligned: bool,
+    /// Count of public-namespace terms the domain composes that are defined.
+    pub admitted: usize,
+    /// Public namespaces the domain was admitted against.
+    pub public_dir: String,
+}
+
+/// `ggen reverse align` — admission gate: admit a domain graph only if every
+/// public-namespace term it uses is defined in the vendored public ontologies.
+///
+/// Fails closed: if the domain references any undefined ("fabricated") public
+/// term, the command exits non-zero and names the offending terms.
+#[verb]
+pub fn align(domain: Option<String>, public: Option<String>) -> VerbResult<ReverseAlignOutput> {
+    let project_root =
+        std::env::current_dir().map_err(|e| NounVerbError::execution_error(format!("cwd: {e}")))?;
+    let domain = domain.ok_or_else(|| {
+        NounVerbError::execution_error("ggen reverse align requires --domain <ttl>".to_string())
+    })?;
+    let domain_path = absolutize(&domain, &project_root);
+    let public_dir = public.map(|p| absolutize(&p, &project_root)).unwrap_or_else(|| {
+        project_root
+            .join(".specify")
+            .join("ontology")
+            .join("vendored")
+    });
+
+    let report = reverse::check_alignment(&domain_path, &public_dir)
+        .map_err(|e| NounVerbError::execution_error(e.to_string()))?;
+
+    if !report.is_aligned() {
+        return Err(NounVerbError::execution_error(format!(
+            "unaligned: domain references {} undefined public term(s): {}",
+            report.unaligned.len(),
+            report.unaligned.join(", ")
+        )));
+    }
+
+    Ok(ReverseAlignOutput {
+        status: "aligned".to_string(),
+        is_aligned: true,
+        admitted: report.admitted.len(),
+        public_dir: rel(&project_root, &public_dir),
+    })
+}
+
 /// Output of `ggen reverse cheats`.
 #[cfg(feature = "lsp")]
 #[derive(Debug, Clone, Serialize)]

@@ -1,0 +1,23 @@
+# SOSA (Sensor, Observation, Sample, and Actuator) — minimal vendored subset.
+#
+# Source:  https://www.w3.org/TR/vocab-ssn/  (namespace http://www.w3.org/ns/sosa/)
+# Scope:   core telemetry terms the operator composes from (sensors/observations/
+#          actuators). Curated subset; canonical W3C IRIs.
+
+@prefix sosa: <http://www.w3.org/ns/sosa/> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+
+sosa:Sensor             a owl:Class ; rdfs:label "Sensor" .
+sosa:Observation        a owl:Class ; rdfs:label "Observation" .
+sosa:Actuator           a owl:Class ; rdfs:label "Actuator" .
+sosa:FeatureOfInterest  a owl:Class ; rdfs:label "FeatureOfInterest" .
+sosa:ObservableProperty a owl:Class ; rdfs:label "ObservableProperty" .
+sosa:Result             a owl:Class ; rdfs:label "Result" .
+
+sosa:madeObservation a owl:ObjectProperty ; rdfs:label "madeObservation" .
+sosa:observedProperty a owl:ObjectProperty ; rdfs:label "observedProperty" .
+sosa:hasFeatureOfInterest a owl:ObjectProperty ; rdfs:label "hasFeatureOfInterest" .
+sosa:hasResult       a owl:ObjectProperty ; rdfs:label "hasResult" .
+sosa:resultTime      a owl:DatatypeProperty ; rdfs:label "resultTime" .

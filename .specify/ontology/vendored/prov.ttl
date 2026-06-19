@@ -1,0 +1,25 @@
+# PROV-O (W3C Provenance Ontology) — minimal vendored subset.
+#
+# Source:  https://www.w3.org/TR/prov-o/   (namespace http://www.w3.org/ns/prov#)
+# Scope:   only the core terms the Eden manufacturing operator composes from
+#          (receipts/derivation/agents). NOT the full ontology — a curated subset
+#          so the alignment gate has a real, citable definition for each term a
+#          domain graph may reference. Term IRIs are the canonical W3C IRIs.
+
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+
+prov:Entity   a owl:Class ; rdfs:label "Entity" .
+prov:Activity a owl:Class ; rdfs:label "Activity" .
+prov:Agent    a owl:Class ; rdfs:label "Agent" .
+
+prov:wasGeneratedBy    a owl:ObjectProperty ; rdfs:label "wasGeneratedBy" .
+prov:wasDerivedFrom    a owl:ObjectProperty ; rdfs:label "wasDerivedFrom" .
+prov:wasAttributedTo   a owl:ObjectProperty ; rdfs:label "wasAttributedTo" .
+prov:wasAssociatedWith a owl:ObjectProperty ; rdfs:label "wasAssociatedWith" .
+prov:used              a owl:ObjectProperty ; rdfs:label "used" .
+prov:generated         a owl:ObjectProperty ; rdfs:label "generated" .
+prov:startedAtTime     a owl:DatatypeProperty ; rdfs:label "startedAtTime" .
+prov:endedAtTime       a owl:DatatypeProperty ; rdfs:label "endedAtTime" .

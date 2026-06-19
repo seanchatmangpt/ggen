@@ -1,0 +1,21 @@
+# QUDT (Quantities, Units, Dimensions, Types) schema — minimal vendored subset.
+#
+# Source:  http://qudt.org/   (schema namespace http://qudt.org/schema/qudt/)
+# Scope:   core quantity/unit terms the operator composes from for physics state
+#          (mass, heat, force, speed). Curated subset; canonical QUDT schema IRIs
+#          (the same namespace used elsewhere in this repo, e.g. CLAUDE.md/specs).
+
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+
+qudt:Quantity     a owl:Class ; rdfs:label "Quantity" .
+qudt:QuantityKind a owl:Class ; rdfs:label "QuantityKind" .
+qudt:Unit         a owl:Class ; rdfs:label "Unit" .
+
+qudt:hasQuantityKind a owl:ObjectProperty ; rdfs:label "hasQuantityKind" .
+qudt:hasUnit         a owl:ObjectProperty ; rdfs:label "hasUnit" .
+qudt:unit            a owl:ObjectProperty ; rdfs:label "unit" .
+qudt:numericValue    a owl:DatatypeProperty ; rdfs:label "numericValue" .
+qudt:value           a owl:DatatypeProperty ; rdfs:label "value" .

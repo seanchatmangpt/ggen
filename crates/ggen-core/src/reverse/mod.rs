@@ -14,6 +14,7 @@
 //! Core logic lives here (always compiled); the CLI maps the returned neutral
 //! [`events::ReverseEvent`]s to the OCEL log.
 
+pub mod align;
 pub mod cheats;
 pub mod events;
 pub mod receipt;
@@ -22,6 +23,7 @@ pub mod templates;
 pub mod turtle;
 pub mod vocab;
 
+pub use align::{check_alignment, AlignmentReport};
 pub use cheats::{
     extract_defects, parse_ledger, DefectSpeciesInput, LedgerDefect, ReverseCheatsReport,
 };

@@ -18,6 +18,14 @@ pub const XSD_NS: &str = "http://www.w3.org/2001/XMLSchema#";
 /// `sh:` — SHACL.
 pub const SH_NS: &str = "http://www.w3.org/ns/shacl#";
 
+// ── Public industry-ontology namespaces (vendored under `.specify/ontology/public/`) ──
+/// PROV-O (W3C provenance).
+pub const PROV_NS: &str = "http://www.w3.org/ns/prov#";
+/// SOSA (W3C sensors/observations/actuators).
+pub const SOSA_NS: &str = "http://www.w3.org/ns/sosa/";
+/// QUDT schema (quantities/units).
+pub const QUDT_NS: &str = "http://qudt.org/schema/qudt/";
+
 /// Prefix for [`CODE_NS`].
 pub const CODE: &str = "code";
 /// Prefix for [`DISCO_NS`].
