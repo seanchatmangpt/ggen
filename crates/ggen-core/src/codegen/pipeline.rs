@@ -1026,16 +1026,6 @@ impl GenerationPipeline {
                     size_bytes: final_content.len(),
                     source_rule: rule.name.clone(),
                 });
-
-                let duration = start.elapsed();
-                let query_hash = format!("{:x}", sha2::Sha256::digest(query.as_bytes()));
-                executed_rules.push(ExecutedRule {
-                    name: rule.name.clone(),
-                    rule_type: RuleType::Generation,
-                    triples_added: 0,
-                    duration_ms: duration.as_millis() as u64,
-                    query_hash,
-                });
             } else {
                 // Dynamic output paths: render once per row so each row can produce a distinct file
                 for row in &rows {
@@ -1182,18 +1172,18 @@ impl GenerationPipeline {
                         source_rule: rule.name.clone(),
                     });
                 }
-
-                // Record rule execution
-                let duration = start.elapsed();
-                let query_hash = format!("{:x}", sha2::Sha256::digest(query.as_bytes()));
-                executed_rules.push(ExecutedRule {
-                    name: rule.name.clone(),
-                    rule_type: RuleType::Generation,
-                    triples_added: 0,
-                    duration_ms: duration.as_millis() as u64,
-                    query_hash,
-                });
             }
+
+            // Record rule execution (shared by both output-path branches above).
+            let duration = start.elapsed();
+            let query_hash = format!("{:x}", sha2::Sha256::digest(query.as_bytes()));
+            executed_rules.push(ExecutedRule {
+                name: rule.name.clone(),
+                rule_type: RuleType::Generation,
+                triples_added: 0,
+                duration_ms: duration.as_millis() as u64,
+                query_hash,
+            });
 
             Ok((generated, executed_rules))
         }).collect();
